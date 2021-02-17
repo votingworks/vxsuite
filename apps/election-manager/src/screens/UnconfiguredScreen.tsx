@@ -211,7 +211,6 @@ const UnconfiguredScreen: React.FC = () => {
     return (
       <NavigationScreen>
         <Modal
-          isOpen
           centerContent
           content={
             <Prose textCenter>

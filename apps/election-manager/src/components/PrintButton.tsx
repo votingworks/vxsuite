@@ -86,38 +86,38 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
       <Button onPress={confirmModal ? initConfirmModal : print} {...rest}>
         {children}
       </Button>
-      <Modal
-        isOpen={isPrinting}
-        centerContent
-        content={<Loading>Printing</Loading>}
-      />
-      <Modal
-        isOpen={isConfirming}
-        centerContent
-        content={confirmModal?.content}
-        actions={
-          <React.Fragment>
-            <Button onPress={cancelPrint}>Cancel</Button>
-            <Button onPress={confirmPrint} primary>
-              {confirmModal?.confirmButtonLabel ?? 'Print'}
-            </Button>
-          </React.Fragment>
-        }
-      />
-      <Modal
-        isOpen={showPrintingError}
-        content={
-          <Prose>
-            <h2>The printer is not connected.</h2>
-            <p>Please connect the printer and try again.</p>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button onPress={donePrintingError}>OK</Button>
-          </React.Fragment>
-        }
-      />
+      {isPrinting && (
+        <Modal centerContent content={<Loading>Printing</Loading>} />
+      )}
+      {isConfirming && (
+        <Modal
+          centerContent
+          content={confirmModal?.content}
+          actions={
+            <React.Fragment>
+              <Button onPress={cancelPrint}>Cancel</Button>
+              <Button onPress={confirmPrint} primary>
+                {confirmModal?.confirmButtonLabel ?? 'Print'}
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
+      {showPrintingError && (
+        <Modal
+          content={
+            <Prose>
+              <h2>The printer is not connected.</h2>
+              <p>Please connect the printer and try again.</p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={donePrintingError}>OK</Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </React.Fragment>
   )
 }

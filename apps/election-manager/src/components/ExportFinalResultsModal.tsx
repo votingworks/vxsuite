@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import path from 'path'
 import fileDownload from 'js-file-download'
@@ -23,7 +23,6 @@ const USBImage = styled.img`
 `
 
 export interface Props {
-  isOpen: boolean
   onClose: () => void
 }
 
@@ -34,47 +33,28 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportFinalResultsModal: React.FC<Props> = ({
-  isOpen,
-  onClose: onCloseFromProps,
-}) => {
+const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
   const {
     usbDriveStatus,
     castVoteRecordFiles,
     electionDefinition,
     externalVoteRecordsFile,
   } = useContext(AppContext)
+  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
 
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 
   const [savedFilename, setSavedFilename] = useState('')
   const [includeExternalFile, setIncludeExternalFile] = useState(true)
-  const [defaultFilename, setDefaultFilename] = useState('')
-
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
-
-  /*
-   * We use useEffect here since this Modal is rendered even when the Modal
-   * is closed, i.e. when isOpen is false. We want to "reset" the filename whenever
-   * the modal opens again but not on every render of the dialog.
-   */
-  useEffect(() => {
-    setDefaultFilename(
+  const defaultFilename = useMemo(
+    () =>
       generateFinalExportDefaultFilename(
         isTestMode,
         electionDefinition!.election
-      )
-    )
-  }, [isOpen])
-
-  const onClose = () => {
-    setErrorMessage('')
-    setCurrentState(ModalState.INIT)
-    setSavedFilename('')
-    setDefaultFilename('')
-    onCloseFromProps()
-  }
+      ),
+    []
+  )
 
   const exportResults = async (
     openFileDialog: boolean,
@@ -160,7 +140,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>Saving Results Failed</h1>
@@ -185,7 +164,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     }
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>Results File Saved</h1>
@@ -210,7 +188,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({
   if (currentState === ModalState.SAVING) {
     return (
       <Modal
-        isOpen={isOpen}
         content={<Loading>Saving Results File</Loading>}
         onOverlayClick={onClose}
       />
@@ -229,7 +206,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({
       // on the machine for internal debugging use
       return (
         <Modal
-          isOpen={isOpen}
           content={
             <Prose>
               <h1>No USB Drive Detected</h1>
@@ -260,7 +236,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({
     case UsbDriveStatus.present:
       return (
         <Modal
-          isOpen={isOpen}
           content={<Loading />}
           onOverlayClick={onClose}
           actions={
@@ -297,7 +272,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({
       }
       return (
         <Modal
-          isOpen={isOpen}
           content={
             <MainChild>
               <Prose>

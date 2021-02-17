@@ -29,7 +29,6 @@ const USBImage = styled.img`
 `
 
 export interface Props {
-  isOpen: boolean
   onClose: () => void
   usbDriveStatus: UsbDriveStatus
   election: Election
@@ -46,8 +45,7 @@ enum ModalState {
 }
 
 const ExportResultsModal: React.FC<Props> = ({
-  isOpen,
-  onClose: onCloseFromProps,
+  onClose,
   usbDriveStatus,
   election,
   electionHash,
@@ -58,12 +56,6 @@ const ExportResultsModal: React.FC<Props> = ({
   const [errorMessage, setErrorMessage] = useState('')
 
   const { machineConfig } = useContext(AppContext)
-
-  const onClose = () => {
-    setErrorMessage('')
-    setCurrentState(ModalState.INIT)
-    onCloseFromProps()
-  }
 
   const exportResults = async (openDialog: boolean) => {
     setCurrentState(ModalState.SAVING)
@@ -138,7 +130,6 @@ const ExportResultsModal: React.FC<Props> = ({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>Download Failed</h1>
@@ -163,7 +154,6 @@ const ExportResultsModal: React.FC<Props> = ({
     }
     return (
       <Modal
-        isOpen={isOpen}
         content={
           <Prose>
             <h1>Download Complete</h1>
@@ -180,9 +170,7 @@ const ExportResultsModal: React.FC<Props> = ({
   }
 
   if (currentState === ModalState.SAVING) {
-    return (
-      <Modal isOpen={isOpen} content={<Loading />} onOverlayClick={onClose} />
-    )
+    return <Modal content={<Loading />} onOverlayClick={onClose} />
   }
 
   if (currentState !== ModalState.INIT) {
@@ -197,7 +185,6 @@ const ExportResultsModal: React.FC<Props> = ({
       // on the machine for internal debugging use
       return (
         <Modal
-          isOpen={isOpen}
           content={
             <Prose>
               <h1>No USB Drive Detected</h1>
@@ -228,7 +215,6 @@ const ExportResultsModal: React.FC<Props> = ({
     case UsbDriveStatus.present:
       return (
         <Modal
-          isOpen={isOpen}
           content={<Loading />}
           onOverlayClick={onClose}
           actions={
@@ -241,7 +227,6 @@ const ExportResultsModal: React.FC<Props> = ({
     case UsbDriveStatus.mounted:
       return (
         <Modal
-          isOpen={isOpen}
           content={
             <Prose>
               <h1>Export Results</h1>

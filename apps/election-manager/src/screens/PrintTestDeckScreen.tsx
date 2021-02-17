@@ -144,7 +144,6 @@ const PrintTestDeckScreen: React.FC = () => {
       <React.Fragment>
         {precinctIndex !== undefined && currentPrecinct && (
           <Modal
-            isOpen
             centerContent
             content={
               <Loading as="p">

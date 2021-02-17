@@ -29,7 +29,7 @@ test('No USB screen shows when there is no USB drive', async () => {
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn()
     const { unmount, getByText } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       { usbDriveStatus: usbStatus }
     )
     getByText('No USB Drive Detected')
@@ -46,7 +46,7 @@ test('Loading screen show while usb is mounting or ejecting', async () => {
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn()
     const { unmount, getByText } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       { usbDriveStatus: usbStatus }
     )
     getByText('Loading')
@@ -69,7 +69,7 @@ describe('Screens display properly when USB is mounted', () => {
     const closeFn = jest.fn()
     const saveCVR = jest.fn()
     const { getByText, getByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         saveCastVoteRecordFiles: saveCVR,
@@ -116,7 +116,7 @@ describe('Screens display properly when USB is mounted', () => {
       .fn()
       .mockResolvedValue(fileEntries)
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         saveCastVoteRecordFiles: saveCVR,
@@ -187,7 +187,7 @@ describe('Screens display properly when USB is mounted', () => {
       .fn()
       .mockResolvedValue(fileEntries)
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         saveCastVoteRecordFiles: saveCVR,
@@ -257,7 +257,7 @@ describe('Screens display properly when USB is mounted', () => {
       defaultElectionDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
@@ -342,7 +342,7 @@ describe('Screens display properly when USB is mounted', () => {
       defaultElectionDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
@@ -403,7 +403,7 @@ describe('Screens display properly when USB is mounted', () => {
       defaultElectionDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal isOpen onClose={closeFn} />,
+      <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,

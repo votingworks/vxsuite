@@ -10,13 +10,11 @@ import Prose from './Prose'
 import Modal from './Modal'
 
 export interface Props {
-  isOpen: boolean
   onClose: () => void
   fileType: ResultsFileType
 }
 
 export const ConfirmRemovingFileModal: React.FC<Props> = ({
-  isOpen,
   onClose,
   fileType,
 }) => {
@@ -82,7 +80,6 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
       centerContent
       content={<Prose textCenter>{mainContent}</Prose>}
       actions={

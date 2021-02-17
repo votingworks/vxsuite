@@ -434,65 +434,68 @@ const TallyScreen: React.FC = () => {
           </React.Fragment>
         )}
       </NavigationScreen>
-      <ConfirmRemovingFileModal
-        isOpen={!!confirmingRemoveFileType}
-        fileType={confirmingRemoveFileType || ResultsFileType.CastVoteRecord}
-        onClose={cancelConfirmingRemoveFiles}
-      />
-      <Modal
-        isOpen={isConfirmingOfficial}
-        centerContent
-        content={
-          <Prose textCenter>
-            <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
-            <p>
-              Have all CVR files been loaded? Once results are marked as
-              official, no additional CVRs can be loaded.
-            </p>
-            <p>Have all unofficial tally reports been reviewed?</p>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
-            <Button primary onPress={setOfficial}>
-              Mark Tally Results as Official
-            </Button>
-          </React.Fragment>
-        }
-        onOverlayClick={cancelConfirmingOfficial}
-      />
-      <Modal
-        isOpen={isImportExternalModalOpen}
-        onOverlayClick={() => setIsImportExternalModalOpen(false)}
-        actions={
-          <LinkButton
-            disabled={isTabulationRunning}
-            onPress={() => setIsImportExternalModalOpen(false)}
-          >
-            Close
-          </LinkButton>
-        }
-        content={
-          isTabulationRunning ? (
-            <Loading> Tabulating Results ... </Loading>
-          ) : (
-            <Prose>
-              <h1>Error</h1>
-              <p>{externalImportErrorMessage}</p>
+      {confirmingRemoveFileType && (
+        <ConfirmRemovingFileModal
+          fileType={confirmingRemoveFileType || ResultsFileType.CastVoteRecord}
+          onClose={cancelConfirmingRemoveFiles}
+        />
+      )}
+      {isConfirmingOfficial && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
+              <p>
+                Have all CVR files been loaded? Once results are marked as
+                official, no additional CVRs can be loaded.
+              </p>
+              <p>Have all unofficial tally reports been reviewed?</p>
             </Prose>
-          )
-        }
-      />
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
+              <Button primary onPress={setOfficial}>
+                Mark Tally Results as Official
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={cancelConfirmingOfficial}
+        />
+      )}
+      {isImportExternalModalOpen && (
+        <Modal
+          onOverlayClick={() => setIsImportExternalModalOpen(false)}
+          actions={
+            <LinkButton
+              disabled={isTabulationRunning}
+              onPress={() => setIsImportExternalModalOpen(false)}
+            >
+              Close
+            </LinkButton>
+          }
+          content={
+            isTabulationRunning ? (
+              <Loading> Tabulating Results ... </Loading>
+            ) : (
+              <Prose>
+                <h1>Error</h1>
+                <p>{externalImportErrorMessage}</p>
+              </Prose>
+            )
+          }
+        />
+      )}
 
-      <ImportCVRFilesModal
-        isOpen={isImportCVRModalOpen}
-        onClose={() => setIsImportCVRModalOpen(false)}
-      />
-      <ExportFinalResultsModal
-        isOpen={isExportResultsModalOpen}
-        onClose={() => setIsExportResultsModalOpen(false)}
-      />
+      {isImportCVRModalOpen && (
+        <ImportCVRFilesModal onClose={() => setIsImportCVRModalOpen(false)} />
+      )}
+      {isExportResultsModalOpen && (
+        <ExportFinalResultsModal
+          onClose={() => setIsExportResultsModalOpen(false)}
+        />
+      )}
     </React.Fragment>
   )
 }

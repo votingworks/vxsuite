@@ -472,18 +472,19 @@ const App: React.FC = () => {
               </MainNav>
               <StatusFooter election={election} electionHash={electionHash} />
             </Screen>
-            <ExportResultsModal
-              isOpen={isExportingCVRs}
-              onClose={() => setIsExportingCVRs(false)}
-              usbDriveStatus={displayUsbStatus}
-              election={election}
-              electionHash={electionHash}
-              isTestMode={isTestMode}
-              numberOfBallots={status.batches.reduce(
-                (prev, next) => prev + next.count,
-                0
-              )}
-            />
+            {isExportingCVRs && (
+              <ExportResultsModal
+                onClose={() => setIsExportingCVRs(false)}
+                usbDriveStatus={displayUsbStatus}
+                election={election}
+                electionHash={electionHash}
+                isTestMode={isTestMode}
+                numberOfBallots={status.batches.reduce(
+                  (prev, next) => prev + next.count,
+                  0
+                )}
+              />
+            )}
           </Route>
         </Switch>
       </AppContext.Provider>
