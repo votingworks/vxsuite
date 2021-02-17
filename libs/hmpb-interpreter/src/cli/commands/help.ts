@@ -82,7 +82,8 @@ export function printHelp(options: Options, out: NodeJS.WritableStream): void {
 export async function run(
   options: Options,
   _stdin: NodeJS.ReadableStream,
-  stdout: NodeJS.WritableStream
+  stdout: NodeJS.WritableStream,
+  _stderr: NodeJS.WritableStream
 ): Promise<number> {
   printHelp(options, stdout)
   return 0

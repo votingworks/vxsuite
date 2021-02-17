@@ -117,13 +117,28 @@ export default async function main(
 
     switch (commandOptions.command) {
       case 'help':
-        return await helpCommand.run(commandOptions.options, stdin, stdout)
+        return await helpCommand.run(
+          commandOptions.options,
+          stdin,
+          stdout,
+          stderr
+        )
 
       case 'interpret':
-        return await interpretCommand.run(commandOptions.options, stdin, stdout)
+        return await interpretCommand.run(
+          commandOptions.options,
+          stdin,
+          stdout,
+          stderr
+        )
 
       case 'layout':
-        return await layoutCommand.run(commandOptions.options, stdin, stdout)
+        return await layoutCommand.run(
+          commandOptions.options,
+          stdin,
+          stdout,
+          stderr
+        )
     }
   } catch (error) {
     if (error instanceof OptionParseError) {

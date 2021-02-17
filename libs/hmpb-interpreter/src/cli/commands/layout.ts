@@ -1,17 +1,41 @@
+import lsd from '@votingworks/lsd'
+import { Election, parseElection } from '@votingworks/types'
 import { strict as assert } from 'assert'
 import chalk from 'chalk'
+import { promises as fs } from 'fs'
 import { GlobalOptions, OptionParseError } from '..'
+import { metadataFromBytes } from '../..'
 import { writeImageToFile } from '../../../test/utils'
 import findContests, { ContestShape } from '../../hmpb/findContests'
 import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
+import {
+  Box,
+  closeBoxSegmentGaps,
+  drawBoxes,
+  filterContainedBoxes,
+  findBoxes,
+  inferBoxFromPartial,
+  isCompleteBox,
+  Layout,
+  matchTemplateLayout,
+  mergeAdjacentLineSegments,
+  scaleBox,
+  splitIntoColumns,
+} from '../../utils/box'
 import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
+import { euclideanDistance } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
-import { loadImageData } from '../../utils/images'
+import { canvas, loadImageData } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
+import detect from '../../utils/qrcode'
+import { setFilter, setMap } from '../../utils/set'
 
 export interface Options {
+  lsd?: boolean
+  election: Election
+  templateImagePaths: readonly string[]
   ballotImagePaths: readonly string[]
 }
 
@@ -37,17 +61,44 @@ export function printHelp($0: string, out: NodeJS.WritableStream): void {
 export async function parseOptions({
   commandArgs: args,
 }: GlobalOptions): Promise<Options> {
+  let lsd: boolean | undefined
+  let election: Election | undefined
+  const templateImagePaths: string[] = []
   const ballotImagePaths: string[] = []
 
-  for (const arg of args) {
-    if (arg.startsWith('-')) {
-      throw new OptionParseError(`unexpected option passed to 'layout': ${arg}`)
-    }
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
 
-    ballotImagePaths.push(arg)
+    if (arg === '--lsd') {
+      lsd = true
+    } else if (arg === '-t' || arg === '--template') {
+      const value = args[++i]
+      if (!value || value.startsWith('-')) {
+        throw new Error(
+          `expected value after ${arg}, but got ${value || 'nothing'}`
+        )
+      }
+      templateImagePaths.push(value)
+    } else if (arg === '-e' || arg === '--election') {
+      const value = args[++i]
+      if (!value || value.startsWith('-')) {
+        throw new Error(
+          `expected value after ${arg}, but got ${value || 'nothing'}`
+        )
+      }
+      election = parseElection(JSON.parse(await fs.readFile(value, 'utf-8')))
+    } else if (arg.startsWith('-')) {
+      throw new OptionParseError(`unexpected option passed to 'layout': ${arg}`)
+    } else {
+      ballotImagePaths.push(arg)
+    }
   }
 
-  return { ballotImagePaths }
+  if (!election) {
+    throw new Error('missing required option: --election')
+  }
+
+  return { lsd, election, templateImagePaths, ballotImagePaths }
 }
 
 interface AnalyzeImageResult {
@@ -94,6 +145,45 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
   return { contests: [], rotated: false }
 }
 
+function analyzeImageLSD(imageData: ImageData): Set<Partial<Box>> {
+  const src32 = new Int32Array(imageData.data.buffer)
+  const dst = new Uint8ClampedArray(imageData.width * imageData.height)
+
+  for (let offset = 0, size = src32.length; offset < size; offset++) {
+    const px = src32[offset]
+    const r = px & 0xff
+    const g = (px >>> 8) & 0xff
+    const b = (px >>> 16) & 0xff
+
+    // Luminosity grayscale formula.
+    const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
+    dst[offset] = luminosity
+  }
+
+  const minLength = imageData.width * 0.1
+  const segments = lsd({
+    data: dst,
+    width: imageData.width,
+    height: imageData.height,
+  }).filter(
+    ({ x1, y1, x2, y2 }) =>
+      euclideanDistance({ x: x1, y: y1 }, { x: x2, y: y2 }) >= minLength
+  )
+  const parallelThreshold = imageData.width * 2
+  const maxConnectedCornerDistance = 0.01 * imageData.width
+  const maxConnectedSegmentGap = 0.01 * imageData.width
+  return findBoxes(
+    mergeAdjacentLineSegments(segments, {
+      parallelThreshold,
+      maxConnectedSegmentGap,
+    }),
+    {
+      maxConnectedCornerDistance,
+      parallelThreshold,
+    }
+  )
+}
+
 /**
  * Finds features in an image and writes an image adjacent with overlays marking
  * those features.
@@ -101,33 +191,187 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
 export async function run(
   options: Options,
   _stdin: NodeJS.ReadableStream,
-  stdout: NodeJS.WritableStream
+  stdout: NodeJS.WritableStream,
+  stderr: NodeJS.WritableStream
 ): Promise<number> {
-  for (const ballotImagePath of options.ballotImagePaths) {
-    const imageData = await loadImageData(ballotImagePath)
-    const { contests, rotated } = analyzeImage(imageData)
-    const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
+  let totalCount = 0
+  const errorPaths: string[] = []
+  const layoutByQrcode = new Map<string, Layout>()
 
-    if (rotated) {
+  for (const templateImagePath of options.templateImagePaths) {
+    const imageData = await loadImageData(templateImagePath)
+    const qrcode = await detect(imageData)
+
+    if (!qrcode) {
+      stderr.write(`✘ unable to read QR code in ${templateImagePath}\n`)
+      return 1
+    }
+
+    if (!qrcode.rightSideUp) {
       vh(imageData)
     }
 
-    for (const contest of contests) {
-      fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
-
-      for (const corner of contest.corners) {
-        drawTarget(imageData, corner, RED_OVERLAY_COLOR, targetWidth)
-      }
-    }
-
-    const layoutFilePath = adjacentFile('-layout', ballotImagePath)
-    stdout.write(
-      `📝 ${layoutFilePath} ${chalk.gray(`(${contests.length} contest(s))`)}\n`
+    const boxes = setMap(
+      filterContainedBoxes(
+        setFilter(
+          setMap(
+            analyzeImageLSD(imageData),
+            (box) => inferBoxFromPartial(box) ?? box
+          ),
+          isCompleteBox
+        )
+      ),
+      closeBoxSegmentGaps
     )
-    await writeImageToFile(imageData, layoutFilePath)
+
+    stdout.write(`LSD found ${boxes.size} box(es) in ${templateImagePath}\n`)
+
+    const metadata = metadataFromBytes(options.election, qrcode.data)
+    metadata.electionHash = ''
+    layoutByQrcode.set(JSON.stringify(metadata), {
+      width: imageData.width,
+      height: imageData.height,
+      columns: splitIntoColumns(boxes),
+    })
   }
 
-  return 0
+  for (const ballotImagePath of options.ballotImagePaths) {
+    totalCount++
+    try {
+      const imageData = await loadImageData(ballotImagePath)
+      const { contests, rotated } = analyzeImage(imageData)
+      const targetWidth = Math.max(15, Math.round(imageData.width * 0.01))
+
+      if (rotated) {
+        vh(imageData)
+      }
+
+      const layoutFilePath = adjacentFile('-layout', ballotImagePath)
+      stdout.write(
+        `📝 ${layoutFilePath} ${chalk.gray(
+          `(${contests.length} contest(s))`
+        )}\n`
+      )
+
+      if (options.lsd) {
+        const qrcode = await detect(imageData)
+
+        if (!qrcode) {
+          stderr.write(
+            `✘ unable to read QR code in ballot: ${ballotImagePath}\n`
+          )
+          continue
+        }
+
+        const metadata = metadataFromBytes(options.election, qrcode.data)
+        metadata.electionHash = ''
+        const templateLayout = layoutByQrcode.get(JSON.stringify(metadata))
+
+        if (!templateLayout) {
+          console.log(metadata, layoutByQrcode)
+          stderr.write(`✘ no template found for ballot: ${ballotImagePath}\n`)
+          continue
+        }
+
+        const width = 1060
+        const height = 1750
+        const scaled = canvas()
+          .drawImage(imageData, 0, 0, width, height)
+          .render()
+        const scaledBoxes = [...analyzeImageLSD(scaled)]
+        // drawBoxes(
+        //   canvas().drawImage(scaled, 0, 0, width, height),
+        //   scaledBoxes
+        // ).render('debug-01-scaledBoxes-NEW.png')
+        const originalScaleBoxes = scaledBoxes.map((box) =>
+          scaleBox(imageData.width / width, box)
+        )
+        // drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
+        //   'debug-02-originalScaledBoxes-NEW.png'
+        // )
+        const fullBoxes = originalScaleBoxes.map(
+          (box) => inferBoxFromPartial(box) ?? box
+        )
+        // drawBoxes(canvas().background(imageData), fullBoxes).render(
+        //   'debug-03-fullBoxes-NEW.png'
+        // )
+        const gaplessBoxes = fullBoxes.map((box) =>
+          isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
+        )
+        // drawBoxes(canvas().background(imageData), gaplessBoxes).render(
+        //   'debug-04-gapless-NEW.png'
+        // )
+        const completeBoxes = gaplessBoxes.filter(isCompleteBox)
+        // drawBoxes(canvas().background(imageData), completeBoxes).render(
+        //   'debug-05-complete-NEW.png'
+        // )
+        const withoutContainedBoxes = filterContainedBoxes(completeBoxes)
+        const boxes = withoutContainedBoxes
+        const columns = splitIntoColumns(boxes)
+
+        if (columns.length !== templateLayout.columns.length) {
+          console.log('COLUMN MISMATCH', ballotImagePath)
+        }
+        const fixedScanLayout = matchTemplateLayout(templateLayout, {
+          width: imageData.width,
+          height: imageData.height,
+          columns,
+        })
+        const qc = canvas().background(imageData)
+        if (!fixedScanLayout) {
+          console.log('COLUMN MERGE MISMATCH', ballotImagePath)
+          drawBoxes(qc, boxes)
+        } else {
+          for (const column of fixedScanLayout.columns) {
+            const left = Math.min(
+              ...column.flatMap(({ left }) => [left.x1, left.x2])
+            )
+            const top = Math.min(
+              ...column.flatMap(({ top }) => [top.y1, top.y2])
+            )
+            const right = Math.max(
+              ...column.flatMap(({ right }) => [right.x1, right.x2])
+            )
+            const bottom = Math.max(
+              ...column.flatMap(({ bottom }) => [bottom.y1, bottom.y2])
+            )
+            qc.rect(left, top, right - left + 1, bottom - top + 1, {
+              stroke: 10,
+              color: 'green',
+            })
+            drawBoxes(qc, column)
+          }
+        }
+        qc.render(layoutFilePath)
+      } else {
+        for (const contest of contests) {
+          fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
+
+          for (const corner of contest.corners) {
+            drawTarget(imageData, corner, RED_OVERLAY_COLOR, targetWidth)
+          }
+        }
+
+        await writeImageToFile(imageData, layoutFilePath)
+      }
+    } catch (error) {
+      stderr.write(chalk.red(`error: ${ballotImagePath}: ${error.stack}\n`))
+      errorPaths.push(ballotImagePath)
+    }
+  }
+
+  stdout.write(`${totalCount} processed, ${errorPaths.length} failed`)
+
+  if (errorPaths.length === 0) {
+    stdout.write('\n')
+  } else {
+    stdout.write(':\n')
+    for (const path of errorPaths) {
+      stdout.write(`${path}\n`)
+    }
+  }
+
+  return errorPaths.length > 0 ? 1 : 0
 }
 
 /**

@@ -301,6 +301,7 @@ test('help', async () => {
 test('run interpret', async () => {
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
+  const stderr = new MemoryStream()
 
   expect(
     await run(
@@ -322,7 +323,8 @@ test('run interpret', async () => {
         ])
       ),
       stdin,
-      stdout
+      stdout,
+      stderr
     )
   ).toEqual(0)
 
@@ -359,6 +361,7 @@ test('run interpret', async () => {
 test('run interpret with auto inputs', async () => {
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
+  const stderr = new MemoryStream()
 
   const templatePath = blankPage1.filePath()
   const ballotPath = relative(process.cwd(), filledInPage1.filePath())
@@ -377,7 +380,8 @@ test('run interpret with auto inputs', async () => {
         ])
       ),
       stdin,
-      stdout
+      stdout,
+      stderr
     )
   ).toEqual(0)
 
@@ -414,6 +418,7 @@ test('run interpret with auto inputs', async () => {
 test('run interpret with JSON output', async () => {
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
+  const stderr = new MemoryStream()
 
   expect(
     await run(
@@ -433,7 +438,8 @@ test('run interpret with JSON output', async () => {
         ])
       ),
       stdin,
-      stdout
+      stdout,
+      stderr
     )
   ).toEqual(0)
 

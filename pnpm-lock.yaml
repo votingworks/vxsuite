@@ -810,6 +810,7 @@ importers:
       '@types/uuid': 8.3.0
       '@typescript-eslint/eslint-plugin': 4.13.0_b7210263e693dcacb9967ef540d4f052
       '@typescript-eslint/parser': 4.13.0_eslint@7.17.0+typescript@4.1.3
+      '@votingworks/lsd': link:../lsd
       '@votingworks/types': link:../types
       benchmark: 2.1.4
       eslint: 7.17.0
@@ -840,6 +841,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.11.0
       '@typescript-eslint/parser': ^4.11.0
       '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/lsd': workspace:*
       '@votingworks/types': workspace:*
       benchmark: ^2.1.4
       canvas: ^2.6.1
@@ -11934,7 +11936,7 @@ packages:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1_supports-color@6.1.0
+      debug: 4.3.1
     engines:
       node: '>=4.0'
     peerDependencies:

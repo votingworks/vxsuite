@@ -66,6 +66,7 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
+    "@votingworks/lsd": "workspace:*",
     "@votingworks/types": "workspace:*",
     "benchmark": "^2.1.4",
     "eslint": "^7.17.0",
