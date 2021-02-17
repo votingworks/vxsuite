@@ -20,7 +20,9 @@ import ContestTally from '../components/ContestTally'
 import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
+import Table, { TD } from '../components/Table'
 import LinkButton from '../components/LinkButton'
+
 import routerPaths from '../routerPaths'
 import { filterTalliesByParams } from '../lib/votecounting'
 import {
@@ -28,6 +30,7 @@ import {
   localeLongDateAndTime,
 } from '../utils/IntlDateTimeFormats'
 import LogoMark from '../components/LogoMark'
+import { filterExternalTalliesByParams } from '../utils/semsTallies'
 
 const TallyHeader = styled.div`
   page-break-before: always;
@@ -39,26 +42,66 @@ const TallyHeader = styled.div`
 interface Props {
   election: Election
   generatedAtTime: Date
-  ballotCount?: number
+  votingWorksBallotCount: number
+  externalBallotCount?: number
 }
+
 const TallyReportMetadata: React.FC<Props> = ({
   election,
   generatedAtTime,
-  ballotCount,
+  votingWorksBallotCount,
+  externalBallotCount,
 }) => {
   const electionDate = localeWeedkayAndDate.format(new Date(election.date))
   const generatedAt = localeLongDateAndTime.format(generatedAtTime)
+  const totalBallotCount = votingWorksBallotCount + (externalBallotCount ?? 0)
+  const ballotsByDataSource =
+    externalBallotCount !== undefined ? (
+      <React.Fragment>
+        <h3>Ballots Cast by Data Source</h3>
+        <Table>
+          <tbody>
+            <tr>
+              <TD as="th">Data Source</TD>
+              <TD as="th" textAlign="right">
+                Number of Ballots Cast
+              </TD>
+            </tr>
+            <tr>
+              <TD>VotingWorks Data</TD>
+              <TD textAlign="right">{format.count(votingWorksBallotCount)}</TD>
+            </tr>
+            <tr>
+              <TD>Imported SEMS File</TD>
+              <TD textAlign="right">{format.count(externalBallotCount)}</TD>
+            </tr>
+            <tr>
+              <TD>
+                <strong>Total</strong>
+              </TD>
+              <TD textAlign="right">
+                <strong>{format.count(totalBallotCount)}</strong>
+              </TD>
+            </tr>
+          </tbody>
+        </Table>
+      </React.Fragment>
+    ) : (
+      <Text>
+        Total Number of Ballots Cast: {format.count(totalBallotCount)}
+      </Text>
+    )
 
   return (
     <React.Fragment>
-      {electionDate}, {election.county.name}, {election.state}
-      <br />
-      <Text small as="span">
-        This report was created on {generatedAt}
-      </Text>
-      {ballotCount !== undefined && (
-        <Text>Number of Ballots Cast: {format.count(ballotCount)}</Text>
-      )}
+      <p>
+        {electionDate}, {election.county.name}, {election.state}
+        <br />
+        <Text small as="span">
+          This report was created on {generatedAt}
+        </Text>
+      </p>
+      {ballotsByDataSource}
     </React.Fragment>
   )
 }
@@ -72,6 +115,7 @@ const TallyReportScreen: React.FC = () => {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
+    fullElectionExternalTally,
     isTabulationRunning,
   } = useContext(AppContext)
 
@@ -132,6 +176,16 @@ const TallyReportScreen: React.FC = () => {
   }
 
   const generatedAtTime = new Date()
+  const singlePrecinctId = precinctIds.length === 1 ? precinctIds[0] : undefined
+  const outerTallyReport = filterTalliesByParams(fullElectionTally!, election, {
+    precinctId: singlePrecinctId,
+    scannerId,
+  })
+  const outerExternalTallyReport = filterExternalTalliesByParams(
+    fullElectionExternalTally,
+    election,
+    { precinctId: singlePrecinctId, scannerId }
+  )
 
   return (
     <React.Fragment>
@@ -141,6 +195,10 @@ const TallyReportScreen: React.FC = () => {
           <TallyReportMetadata
             generatedAtTime={generatedAtTime}
             election={election}
+            votingWorksBallotCount={outerTallyReport.numberOfBallotsCounted}
+            externalBallotCount={
+              outerExternalTallyReport?.numberOfBallotsCounted
+            }
           />
           <p>
             <PrintButton primary>Print {statusPrefix} Tally Report</PrintButton>
@@ -173,6 +231,11 @@ const TallyReportScreen: React.FC = () => {
               election,
               { precinctId, scannerId, partyId }
             )
+            const externalTallyForReport = filterExternalTalliesByParams(
+              fullElectionExternalTally,
+              election,
+              { precinctId, partyId }
+            )
 
             if (precinctId) {
               const precinctName = find(
@@ -190,14 +253,21 @@ const TallyReportScreen: React.FC = () => {
                       <TallyReportMetadata
                         generatedAtTime={generatedAtTime}
                         election={election}
-                        ballotCount={tallyForReport.numberOfBallotsCounted}
+                        votingWorksBallotCount={
+                          tallyForReport.numberOfBallotsCounted
+                        }
+                        externalBallotCount={
+                          externalTallyForReport?.numberOfBallotsCounted
+                        }
                       />
                     </Prose>
                   </TallyHeader>
                   <HorizontalRule />
+                  <h2>Contest Tallies</h2>
                   <ContestTally
                     election={election}
                     electionTally={tallyForReport}
+                    externalTally={externalTallyForReport}
                     precinctId={precinctId}
                   />
                 </React.Fragment>
@@ -217,11 +287,14 @@ const TallyReportScreen: React.FC = () => {
                       <TallyReportMetadata
                         generatedAtTime={generatedAtTime}
                         election={election}
-                        ballotCount={tallyForReport.numberOfBallotsCounted}
+                        votingWorksBallotCount={
+                          tallyForReport?.numberOfBallotsCounted ?? 0
+                        }
                       />
                     </Prose>
                   </TallyHeader>
                   <HorizontalRule />
+                  <h2>Contest Tallies</h2>
                   <ContestTally
                     election={election}
                     electionTally={tallyForReport}
@@ -240,15 +313,22 @@ const TallyReportScreen: React.FC = () => {
                     <TallyReportMetadata
                       generatedAtTime={generatedAtTime}
                       election={election}
-                      ballotCount={tallyForReport.numberOfBallotsCounted}
+                      votingWorksBallotCount={
+                        tallyForReport.numberOfBallotsCounted
+                      }
+                      externalBallotCount={
+                        externalTallyForReport?.numberOfBallotsCounted
+                      }
                     />
                   </Prose>
                 </TallyHeader>
+                <h2>Contest Tallies</h2>
                 <HorizontalRule />
                 <div data-testid="tally-report-contents">
                   <ContestTally
                     election={election}
                     electionTally={tallyForReport}
+                    externalTally={externalTallyForReport}
                   />
                 </div>
               </React.Fragment>

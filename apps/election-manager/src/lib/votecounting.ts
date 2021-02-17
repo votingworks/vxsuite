@@ -29,6 +29,7 @@ import {
   getEitherNeitherContests,
   expandEitherNeitherContests,
   writeInCandidate,
+  getDistrictIdsForPartyId,
 } from '../utils/election'
 
 import find from '../utils/find'
@@ -259,9 +260,9 @@ export function tallyVotesByContest({
   const contestTallies: Dictionary<ContestTally> = {}
   const { contests } = election
 
-  const districtsForParty = election.ballotStyles
-    .filter((bs) => bs.partyId === filterContestsByParty)
-    .flatMap((bs) => bs.districts)
+  const districtsForParty = filterContestsByParty
+    ? getDistrictIdsForPartyId(election, filterContestsByParty)
+    : []
 
   expandEitherNeitherContests(contests).forEach((contest) => {
     if (

@@ -21,7 +21,7 @@ import {
   getContestTallyForCandidateContest,
   getContestTallyForYesNoContest,
   SEMSFileRow,
-  convertSEMsFileToExternalTally,
+  convertSEMSFileToExternalTally,
 } from './semsTallies'
 
 const mockSemsRow = {
@@ -39,11 +39,11 @@ const mockSemsRow = {
 }
 
 const fixturesPath = path.join(__dirname, '../../../../libs/fixtures/src/data')
-const eitherNeitherSEMsPath = path.join(
+const eitherNeitherSEMSPath = path.join(
   fixturesPath,
   'electionWithMsEitherNeither/converted-sems-results.csv'
 )
-const primarySEMsPath = path.join(
+const primarySEMSPath = path.join(
   fixturesPath,
   'electionMultiPartyPrimary/converted-sems-results.csv'
 )
@@ -437,10 +437,10 @@ describe('getContestTallyForYesNoContest', () => {
   })
 })
 
-describe('convertSEMsFileToExternalTally', () => {
+describe('convertSEMSFileToExternalTally', () => {
   it('computes tallies properly on either neither general election', async () => {
-    const semsFileContent = await fs.readFile(eitherNeitherSEMsPath, 'utf8')
-    const convertedTally = convertSEMsFileToExternalTally(
+    const semsFileContent = await fs.readFile(eitherNeitherSEMSPath, 'utf8')
+    const convertedTally = convertSEMSFileToExternalTally(
       semsFileContent,
       electionWithMsEitherNeither
     )
@@ -544,8 +544,8 @@ describe('convertSEMsFileToExternalTally', () => {
   })
 
   it('converts primary election sems file properly', async () => {
-    const semsFileContent = await fs.readFile(primarySEMsPath, 'utf8')
-    const convertedTally = convertSEMsFileToExternalTally(
+    const semsFileContent = await fs.readFile(primarySEMSPath, 'utf8')
+    const convertedTally = convertSEMSFileToExternalTally(
       semsFileContent,
       multiPartyPrimaryElection
     )

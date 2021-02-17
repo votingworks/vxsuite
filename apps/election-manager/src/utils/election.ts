@@ -27,6 +27,15 @@ export const writeInCandidate: Candidate = {
   isWriteIn: true,
 }
 
+export function getDistrictIdsForPartyId(
+  election: Election,
+  partyId: string
+): string[] {
+  return election.ballotStyles
+    .filter((bs) => bs.partyId === partyId)
+    .flatMap((bs) => bs.districts)
+}
+
 export function getContestOptionsForContest(
   contest: AnyContest
 ): readonly ContestOption[] {

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 1`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 1`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -686,7 +686,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 2`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 2`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -1194,7 +1194,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 3`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 3`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -1650,7 +1650,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 4`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 4`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -2117,7 +2117,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 5`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 5`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -2573,7 +2573,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 6`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 6`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -3029,7 +3029,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 7`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 7`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -3496,7 +3496,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 8`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 8`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -3952,7 +3952,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 9`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 9`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -4419,7 +4419,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 10`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 10`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -4886,7 +4886,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 11`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 11`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -5353,7 +5353,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 12`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 12`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -5820,7 +5820,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 13`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 13`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -6276,7 +6276,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally computes tallies properly on either neither general election 14`] = `
+exports[`convertSEMSFileToExternalTally computes tallies properly on either neither general election 14`] = `
 Object {
   "750000015": Object {
     "contest": Object {
@@ -6732,7 +6732,7 @@ House Bill 1796 - Flag Referendum",
 }
 `;
 
-exports[`convertSEMsFileToExternalTally converts primary election sems file properly 1`] = `
+exports[`convertSEMSFileToExternalTally converts primary election sems file properly 1`] = `
 Object {
   "assistant-mayor-contest-liberty": Object {
     "contest": Object {
@@ -7556,7 +7556,7 @@ Object {
 }
 `;
 
-exports[`convertSEMsFileToExternalTally converts primary election sems file properly 2`] = `
+exports[`convertSEMSFileToExternalTally converts primary election sems file properly 2`] = `
 Object {
   "assistant-mayor-contest-liberty": Object {
     "contest": Object {
@@ -8380,7 +8380,7 @@ Object {
 }
 `;
 
-exports[`convertSEMsFileToExternalTally converts primary election sems file properly 3`] = `
+exports[`convertSEMSFileToExternalTally converts primary election sems file properly 3`] = `
 Object {
   "assistant-mayor-contest-liberty": Object {
     "contest": Object {
@@ -9204,7 +9204,7 @@ Object {
 }
 `;
 
-exports[`convertSEMsFileToExternalTally converts primary election sems file properly 4`] = `
+exports[`convertSEMSFileToExternalTally converts primary election sems file properly 4`] = `
 Object {
   "assistant-mayor-contest-liberty": Object {
     "contest": Object {
@@ -10028,7 +10028,7 @@ Object {
 }
 `;
 
-exports[`convertSEMsFileToExternalTally converts primary election sems file properly 5`] = `
+exports[`convertSEMSFileToExternalTally converts primary election sems file properly 5`] = `
 Object {
   "assistant-mayor-contest-liberty": Object {
     "contest": Object {
@@ -10852,7 +10852,7 @@ Object {
 }
 `;
 
-exports[`convertSEMsFileToExternalTally converts primary election sems file properly 6`] = `
+exports[`convertSEMSFileToExternalTally converts primary election sems file properly 6`] = `
 Object {
   "assistant-mayor-contest-liberty": Object {
     "contest": Object {

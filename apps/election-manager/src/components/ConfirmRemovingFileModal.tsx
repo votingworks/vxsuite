@@ -69,7 +69,7 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       fileTypeName = 'SEMS'
       mainContent = (
         <p>
-          Do you want to remove the SEMs file {externalVoteRecordsFile!.name}?
+          Do you want to remove the SEMS file {externalVoteRecordsFile!.name}?
         </p>
       )
       break

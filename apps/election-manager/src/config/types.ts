@@ -118,6 +118,7 @@ export interface FullElectionExternalTally {
   >
 }
 
+export type OptionalExternalTally = Optional<ExternalTally>
 export type OptionalFullElectionTally = Optional<FullElectionTally>
 export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>
 

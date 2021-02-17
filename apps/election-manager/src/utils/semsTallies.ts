@@ -14,11 +14,18 @@ import {
   ContestTally,
   ExternalTally,
   FullElectionExternalTally,
+  OptionalExternalTally,
+  OptionalFullElectionExternalTally,
   TallyCategory,
   YesNoOption,
 } from '../config/types'
 import assert from './assert'
-import { expandEitherNeitherContests, getContests } from './election'
+import {
+  expandEitherNeitherContests,
+  getContests,
+  getDistrictIdsForPartyId,
+} from './election'
+import { getEmptyTally } from '../lib/votecounting'
 
 const WriteInCandidateId = '0'
 const OvervoteCandidateId = '1'
@@ -230,7 +237,7 @@ function sanitizeItem(item: string): string {
   return item.replace(/['"`]/g, '').trim()
 }
 
-export function convertSEMsFileToExternalTally(
+export function convertSEMSFileToExternalTally(
   fileContent: string,
   election: Election
 ): FullElectionExternalTally {
@@ -332,4 +339,54 @@ export function getPrecinctIdsInExternalTally(
 ): string[] {
   const resultsByPrecinct = tally.resultsByCategory.get(TallyCategory.Precinct)
   return resultsByPrecinct ? Object.keys(resultsByPrecinct) : []
+}
+
+export function filterExternalTalliesByParams(
+  fullTally: OptionalFullElectionExternalTally,
+  election: Election,
+  {
+    precinctId,
+    partyId,
+    scannerId,
+  }: { precinctId?: string; partyId?: string; scannerId?: string }
+): OptionalExternalTally {
+  if (!fullTally || scannerId) {
+    return undefined
+  }
+
+  const { overallTally, resultsByCategory } = fullTally
+
+  let filteredTally = overallTally
+
+  if (precinctId) {
+    filteredTally =
+      resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
+      getEmptyTally()
+  }
+
+  if (!partyId) {
+    return filteredTally
+  }
+
+  // Filter contests by party and recompute the number of ballots based on those contests.
+  const districtsForParty = getDistrictIdsForPartyId(election, partyId)
+  const filteredContestTallies: Dictionary<ContestTally> = {}
+  Object.keys(filteredTally.contestTallies).forEach((contestId) => {
+    const contestTally = filteredTally.contestTallies[contestId]
+    if (
+      contestTally &&
+      districtsForParty.includes(contestTally.contest.districtId) &&
+      contestTally.contest.partyId === partyId
+    ) {
+      filteredContestTallies[contestId] = contestTally
+    }
+  })
+  const numberOfBallotsCounted = getTotalNumberOfBallots(
+    filteredContestTallies,
+    election
+  )
+  return {
+    contestTallies: filteredContestTallies,
+    numberOfBallotsCounted,
+  }
 }

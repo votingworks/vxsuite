@@ -13,7 +13,7 @@ import * as format from '../utils/format'
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
 import {
-  convertSEMsFileToExternalTally,
+  convertSEMSFileToExternalTally,
   getPrecinctIdsInExternalTally,
 } from '../utils/semsTallies'
 import readFileAsync from '../lib/readFileAsync'
@@ -94,7 +94,7 @@ const TallyScreen: React.FC = () => {
     ''
   )
 
-  const importExternalSEMsFile: InputEventFunction = async (event) => {
+  const importExternalSEMSFile: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
     if (files.length === 1) {
@@ -104,7 +104,7 @@ const TallyScreen: React.FC = () => {
       // Compute the tallies to see if there are any errors, if so display
       // an error modal.
       try {
-        convertSEMsFileToExternalTally(fileContent, election)
+        convertSEMSFileToExternalTally(fileContent, election)
         setIsImportExternalModalOpen(false)
         setIsTabulationRunning(false)
         saveExternalVoteRecordsFile(files[0])
@@ -139,8 +139,15 @@ const TallyScreen: React.FC = () => {
 
   const resultsByPrecinct =
     fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {}
+  const externalResultsByPrecinct =
+    fullElectionExternalTally?.resultsByCategory.get(TallyCategory.Precinct) ||
+    {}
   const resultsByScanner =
     fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {}
+  const totalBallotCountVotingWorks =
+    fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
+  const totalBallotCountExternal =
+    fullElectionExternalTally?.overallTally.numberOfBallotsCounted ?? 0
 
   const tallyResultsTable = isTabulationRunning ? (
     <Loading>Tabulating Results…</Loading>
@@ -165,12 +172,19 @@ const TallyScreen: React.FC = () => {
             .map((precinct) => {
               const precinctBallotsCount =
                 resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
+              const externalPrecinctBallotsCount =
+                externalResultsByPrecinct[precinct.id]
+                  ?.numberOfBallotsCounted ?? 0
               return (
                 <tr key={precinct.id}>
                   <TD narrow nowrap>
                     {precinct.name}
                   </TD>
-                  <TD>{format.count(precinctBallotsCount)}</TD>
+                  <TD>
+                    {format.count(
+                      precinctBallotsCount + externalPrecinctBallotsCount
+                    )}
+                  </TD>
                   <TD>
                     <LinkButton
                       small
@@ -185,13 +199,13 @@ const TallyScreen: React.FC = () => {
               )
             })}
           <tr>
-            <TD narrow>
+            <TD narrow nowrap>
               <strong>Total Ballot Count</strong>
             </TD>
             <TD>
               <strong data-testid="total-ballot-count">
                 {format.count(
-                  fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
+                  totalBallotCountVotingWorks + totalBallotCountExternal
                 )}
               </strong>
             </TD>
@@ -209,6 +223,13 @@ const TallyScreen: React.FC = () => {
         </tbody>
       </Table>
       <h2>Ballot Count by Scanner</h2>
+      {fullElectionExternalTally && (
+        <p>
+          The following results only include ballots counted with VotingWorks
+          scanners. The data from the imported SEMS file is not included in
+          these reports.
+        </p>
+      )}
       <Table>
         <tbody>
           <tr>
@@ -379,7 +400,7 @@ const TallyScreen: React.FC = () => {
             Import CVR Files
           </Button>{' '}
           <FileInputButton
-            onChange={importExternalSEMsFile}
+            onChange={importExternalSEMSFile}
             accept="*"
             disabled={!!fullElectionExternalTally}
           >
