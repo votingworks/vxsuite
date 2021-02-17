@@ -116,6 +116,68 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   expect(closeFn).toHaveBeenCalled()
 })
 
+test('render export modal when a usb drive is mounted and exports with external file', async () => {
+  const mockKiosk = fakeKiosk()
+  window.kiosk = mockKiosk
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+
+  fetchMock.getOnce('/convert/results/files', {
+    inputFiles: [{ name: 'name' }, { name: 'name' }],
+    outputFiles: [{ name: 'name' }],
+  })
+
+  fetchMock.post('/convert/results/submitfile', { body: { status: 'ok' } })
+  fetchMock.post('/convert/results/process', { body: { status: 'ok' } })
+
+  fetchMock.getOnce('/convert/results/output?name=name', { body: 'og-results' })
+
+  fetchMock.post('/convert/reset', { body: { status: 'ok' } })
+
+  fetchMock.post('/convert/results/combine', { body: 'combine-results' })
+
+  const externalFile = new File(['content'], 'to-combine.csv')
+  const closeFn = jest.fn()
+  const { getByText } = renderInAppContext(
+    <ExportFinalResultsModal isOpen onClose={closeFn} />,
+    {
+      usbDriveStatus: UsbDriveStatus.mounted,
+      fullElectionExternalTally: {
+        overallTally: { contestTallies: {}, numberOfBallotsCounted: 0 },
+        resultsByCategory: new Map(),
+      },
+      externalVoteRecordsFile: externalFile,
+    }
+  )
+  getByText('Save Results File')
+  getByText(/Include data from SEMS file/)
+  getByText(/Save the final tally results to /)
+  getByText(
+    'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-03-14_01-59-26.csv'
+  )
+
+  fireEvent.click(getByText('Save'))
+  await waitFor(() => getByText(/Saving/))
+  jest.advanceTimersByTime(2001)
+  await waitFor(() => getByText(/Results File Saved/))
+  await waitFor(() => {
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1)
+    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
+      1,
+      'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-03-14_01-59-26.csv',
+      'combine-results'
+    )
+  })
+  expect(fetchMock.called('/convert/results/files')).toBe(true)
+  expect(fetchMock.called('/convert/results/submitfile')).toBe(true)
+  expect(fetchMock.called('/convert/results/process')).toBe(true)
+  expect(fetchMock.called('/convert/results/output?name=name')).toBe(true)
+  expect(fetchMock.called('/convert/reset')).toBe(true)
+  expect(fetchMock.called('/convert/results/combine')).toBe(true)
+
+  fireEvent.click(getByText('Close'))
+  expect(closeFn).toHaveBeenCalled()
+})
+
 test('render export modal with errors when appropriate and clears errors when closed', async () => {
   const mockKiosk = fakeKiosk()
   window.kiosk = mockKiosk

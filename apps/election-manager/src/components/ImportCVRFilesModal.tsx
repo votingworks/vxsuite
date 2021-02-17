@@ -18,7 +18,7 @@ import { InputEventFunction } from '../config/types'
 import FileInputButton from './FileInputButton'
 import Table, { TD } from './Table'
 import { MainChild } from './Main'
-import * as GLOBALS from '../config/globals'
+import { CHECK_ICON, TIME_FORMAT } from '../config/globals'
 
 const CVRFileTable = styled(Table)`
   margin-top: 20px;
@@ -312,14 +312,14 @@ const ImportCVRFilesModal: React.FC<Props> = ({
       const canImport = !isImported && inProperFileMode
       const row = (
         <tr key={fileEntry.name} data-testid="table-row">
-          <td>{moment(timestamp).format('MM/DD/YYYY hh:mm:ss A')}</td>
+          <td>{moment(timestamp).format(TIME_FORMAT)}</td>
           <td>{machineId}</td>
           <td>{numberOfBallots}</td>
           <td>
             <LabelText>{isTestModeResults ? 'Test' : 'Live'}</LabelText>
           </td>
           <CheckTD narrow textAlign="center">
-            {isImported ? GLOBALS.CHECK_ICON : ''}
+            {isImported ? CHECK_ICON : ''}
           </CheckTD>
           <TD textAlign="right">
             <LinkButton

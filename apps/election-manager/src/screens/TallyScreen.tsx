@@ -1,14 +1,22 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react'
-import pluralize from 'pluralize'
+import React, { useContext, useState, useEffect } from 'react'
 import moment from 'moment'
 
-import { CastVoteRecordLists, TallyCategory } from '../config/types'
+import {
+  TallyCategory,
+  InputEventFunction,
+  ResultsFileType,
+  Optional,
+} from '../config/types'
 
-import { computeFullElectionTally } from '../lib/votecounting'
 import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
+import {
+  convertSEMsFileToExternalTally,
+  getPrecinctIdsInExternalTally,
+} from '../utils/semsTallies'
+import readFileAsync from '../lib/readFileAsync'
 
 import Button from '../components/Button'
 import Text from '../components/Text'
@@ -22,32 +30,38 @@ import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
 import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
 import Modal from '../components/Modal'
+import FileInputButton from '../components/FileInputButton'
+import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
+import { TIME_FORMAT } from '../config/globals'
 
 const TallyScreen: React.FC = () => {
   const {
     castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
-    saveCastVoteRecordFiles,
     saveIsOfficialResults,
-    setFullElectionTally,
+    saveExternalVoteRecordsFile,
+    externalVoteRecordsFile,
     setIsTabulationRunning,
     isTabulationRunning,
     fullElectionTally,
+    fullElectionExternalTally,
   } = useContext(AppContext)
   const { election } = electionDefinition!
 
-  const [isConfimingRemoveCVRs, setIsConfirmingRemoveCVRs] = useState(false)
+  const [confirmingRemoveFileType, setConfirmingRemoveFileType] = useState<
+    Optional<ResultsFileType>
+  >(undefined)
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
     false
   )
 
-  const cancelConfirmingRemoveCVRs = () => {
-    setIsConfirmingRemoveCVRs(false)
+  const cancelConfirmingRemoveFiles = () => {
+    setConfirmingRemoveFileType(undefined)
   }
-  const confirmRemoveCVRs = () => {
-    setIsConfirmingRemoveCVRs(true)
+  const confirmRemoveFiles = (fileType: ResultsFileType) => {
+    setConfirmingRemoveFileType(fileType)
   }
 
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
@@ -71,27 +85,36 @@ const TallyScreen: React.FC = () => {
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
     !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
+  const hasAnyFiles = hasCastVoteRecordFiles || !!fullElectionExternalTally
 
-  const computeVoteCounts = useCallback(
-    async (castVoteRecords: CastVoteRecordLists) => {
-      setIsTabulationRunning(true)
-      const fullTally = await computeFullElectionTally(
-        election,
-        castVoteRecords
-      )
-      setFullElectionTally(fullTally)
-      setIsTabulationRunning(false)
-    },
-    [setFullElectionTally]
+  const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
+    false
+  )
+  const [externalImportErrorMessage, setExternalImportErrorMessage] = useState(
+    ''
   )
 
-  useEffect(() => {
-    computeVoteCounts(castVoteRecordFiles.castVoteRecords)
-  }, [computeVoteCounts, castVoteRecordFiles])
-
-  const resetCastVoteRecordFiles = () => {
-    saveCastVoteRecordFiles()
-    setIsConfirmingRemoveCVRs(false)
+  const importExternalSEMsFile: InputEventFunction = async (event) => {
+    const input = event.currentTarget
+    const files = Array.from(input.files || [])
+    if (files.length === 1) {
+      setIsImportExternalModalOpen(true)
+      setIsTabulationRunning(true)
+      const fileContent = await readFileAsync(files[0])
+      // Compute the tallies to see if there are any errors, if so display
+      // an error modal.
+      try {
+        convertSEMsFileToExternalTally(fileContent, election)
+        setIsImportExternalModalOpen(false)
+        setIsTabulationRunning(false)
+        saveExternalVoteRecordsFile(files[0])
+      } catch (error) {
+        setExternalImportErrorMessage(
+          `Failed to import external file. ${error.message}`
+        )
+        setIsTabulationRunning(false)
+      }
+    }
   }
 
   const [hasConverter, setHasConverter] = useState(false)
@@ -102,18 +125,6 @@ const TallyScreen: React.FC = () => {
         setHasConverter(true)
       } catch {
         setHasConverter(false)
-      }
-    })()
-  }, [])
-
-  const [hasElectionConverter, setHasElectionConverter] = useState(false)
-  useEffect(() => {
-    ;(async () => {
-      try {
-        await new ConverterClient('election').getFiles()
-        setHasElectionConverter(true)
-      } catch {
-        setHasElectionConverter(false)
       }
     })()
   }, [])
@@ -130,6 +141,7 @@ const TallyScreen: React.FC = () => {
     fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {}
   const resultsByScanner =
     fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {}
+
   const tallyResultsTable = isTabulationRunning ? (
     <Loading>Tabulating Results…</Loading>
   ) : (
@@ -265,6 +277,29 @@ const TallyScreen: React.FC = () => {
       </p>
     </React.Fragment>
   )
+
+  let externalTallyRow = null
+  let externalFileBallotCount = 0
+  if (fullElectionExternalTally && externalVoteRecordsFile) {
+    const { overallTally } = fullElectionExternalTally
+    const precinctsInExternalFile = getPrecinctIdsInExternalTally(
+      fullElectionExternalTally
+    )
+    externalFileBallotCount = overallTally.numberOfBallotsCounted
+    externalTallyRow = (
+      <tr>
+        <TD narrow nowrap>
+          {moment(externalVoteRecordsFile.lastModified).format(TIME_FORMAT)}
+        </TD>
+        <TD narrow nowrap>
+          SEMS File ({externalVoteRecordsFile.name})
+        </TD>
+        <TD narrow>{format.count(externalFileBallotCount)}</TD>
+        <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
+      </tr>
+    )
+  }
+
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -273,7 +308,7 @@ const TallyScreen: React.FC = () => {
         <Text>{fileModeText}</Text>
         <Table>
           <tbody>
-            {hasCastVoteRecordFiles ? (
+            {hasAnyFiles ? (
               <React.Fragment>
                 <tr>
                   <TD as="th" narrow nowrap>
@@ -311,6 +346,7 @@ const TallyScreen: React.FC = () => {
                     </tr>
                   )
                 )}
+                {externalTallyRow}
                 <tr>
                   <TD as="th" narrow nowrap>
                     Total CVRs Count
@@ -320,7 +356,7 @@ const TallyScreen: React.FC = () => {
                       castVoteRecordFileList.reduce(
                         (prev, curr) => prev + curr.count,
                         0
-                      )
+                      ) + externalFileBallotCount
                     )}
                   </TD>
                   <TD as="th" />
@@ -342,18 +378,34 @@ const TallyScreen: React.FC = () => {
           >
             Import CVR Files
           </Button>{' '}
+          <FileInputButton
+            onChange={importExternalSEMsFile}
+            accept="*"
+            disabled={!!fullElectionExternalTally}
+          >
+            Import SEMS File
+          </FileInputButton>{' '}
           <Button
             disabled={!hasCastVoteRecordFiles || isOfficialResults}
             onPress={confirmOfficial}
           >
             Mark Tally Results as Official…
-          </Button>{' '}
+          </Button>
+        </p>
+        <p>
           <Button
             danger
             disabled={!hasCastVoteRecordFiles}
-            onPress={confirmRemoveCVRs}
+            onPress={() => confirmRemoveFiles(ResultsFileType.CastVoteRecord)}
           >
             Remove CVR Files…
+          </Button>{' '}
+          <Button
+            danger
+            disabled={!externalVoteRecordsFile}
+            onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
+          >
+            Remove SEMS File…
           </Button>
         </p>
         {tallyResultsTable}
@@ -381,46 +433,11 @@ const TallyScreen: React.FC = () => {
             </p>
           </React.Fragment>
         )}
-        {hasElectionConverter && (
-          <React.Fragment>
-            <h2>Results Management</h2>
-            <p>
-              <LinkButton to={routerPaths.combineResultsFiles}>
-                Combine Results Files
-              </LinkButton>
-            </p>
-          </React.Fragment>
-        )}
       </NavigationScreen>
-      <Modal
-        isOpen={isConfimingRemoveCVRs}
-        centerContent
-        content={
-          <Prose textCenter>
-            {castVoteRecordFileList.length ? (
-              <p>
-                Do you want to remove the {castVoteRecordFileList.length}{' '}
-                uploaded CVR {pluralize('files', castVoteRecordFileList.length)}
-                ?
-              </p>
-            ) : (
-              <p>
-                Do you want to remove the files causing errors:{' '}
-                {castVoteRecordFiles.lastError?.filename}?
-              </p>
-            )}
-            <p>All reports will be unavailable without CVR data.</p>
-          </Prose>
-        }
-        actions={
-          <React.Fragment>
-            <Button onPress={cancelConfirmingRemoveCVRs}>Cancel</Button>
-            <Button danger onPress={resetCastVoteRecordFiles}>
-              Remove All CVR Files
-            </Button>
-          </React.Fragment>
-        }
-        onOverlayClick={cancelConfirmingRemoveCVRs}
+      <ConfirmRemovingFileModal
+        isOpen={!!confirmingRemoveFileType}
+        fileType={confirmingRemoveFileType || ResultsFileType.CastVoteRecord}
+        onClose={cancelConfirmingRemoveFiles}
       />
       <Modal
         isOpen={isConfirmingOfficial}
@@ -445,6 +462,29 @@ const TallyScreen: React.FC = () => {
         }
         onOverlayClick={cancelConfirmingOfficial}
       />
+      <Modal
+        isOpen={isImportExternalModalOpen}
+        onOverlayClick={() => setIsImportExternalModalOpen(false)}
+        actions={
+          <LinkButton
+            disabled={isTabulationRunning}
+            onPress={() => setIsImportExternalModalOpen(false)}
+          >
+            Close
+          </LinkButton>
+        }
+        content={
+          isTabulationRunning ? (
+            <Loading> Tabulating Results ... </Loading>
+          ) : (
+            <Prose>
+              <h1>Error</h1>
+              <p>{externalImportErrorMessage}</p>
+            </Prose>
+          )
+        }
+      />
+
       <ImportCVRFilesModal
         isOpen={isImportCVRModalOpen}
         onClose={() => setIsImportCVRModalOpen(false)}

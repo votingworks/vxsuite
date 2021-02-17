@@ -103,7 +103,6 @@ export enum TallyCategory {
 export interface FullElectionTally {
   readonly overallTally: Tally
   readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>
-  readonly externalTally?: FullElectionExternalTally
 }
 
 export interface ExternalTally {
@@ -117,10 +116,17 @@ export interface FullElectionExternalTally {
     TallyCategory,
     Dictionary<ExternalTally>
   >
-  readonly fileContent: string
 }
 
 export type OptionalFullElectionTally = Optional<FullElectionTally>
+export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>
+
+export enum ResultsFileType {
+  CastVoteRecord = 'cvr',
+  SEMS = 'sems',
+}
+
+export type OptionalFile = Optional<File>
 
 // Cast Vote Records
 export interface CastVoteRecord

@@ -324,6 +324,12 @@ export function convertSEMsFileToExternalTally(
       ),
     },
     resultsByCategory,
-    fileContent,
   }
+}
+
+export function getPrecinctIdsInExternalTally(
+  tally: FullElectionExternalTally
+): string[] {
+  const resultsByPrecinct = tally.resultsByCategory.get(TallyCategory.Precinct)
+  return resultsByPrecinct ? Object.keys(resultsByPrecinct) : []
 }
