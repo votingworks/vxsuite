@@ -5,7 +5,8 @@ import { YesNoContest as YesNoContestInterface } from '@votingworks/types'
 import YesNoContest from './YesNoContest'
 
 const contest: YesNoContestInterface = {
-  description: 'description',
+  description:
+    'Institute a garbage collection program that collects garbage on weekdays across the county.',
   districtId: 'district-id',
   id: 'contest-id',
   section: 'County',

@@ -153,6 +153,7 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
             <p>
               <strong>Vote Yes or No.</strong>
               <span className="screen-reader-only">
+                {contest.description}
                 To navigate through the contest choices, use the down button. To
                 move to the next contest, use the right button.
               </span>
