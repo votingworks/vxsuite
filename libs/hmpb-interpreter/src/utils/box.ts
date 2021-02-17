@@ -178,11 +178,11 @@ export function findBoxes(
     maxConnectedCornerDistance,
     parallelThreshold,
   }: { maxConnectedCornerDistance: number; parallelThreshold: number }
-): Set<Partial<Box>> {
+): { clockwise: Set<Partial<Box>>; counterClockwise: Set<Partial<Box>> } {
   const rotation = findRotation(segments)
 
   if (!rotation) {
-    return new Set()
+    return { clockwise: new Set(), counterClockwise: new Set() }
   }
 
   const right: AnnotatedSegment[] = []
@@ -228,6 +228,62 @@ export function findBoxes(
   }
   // all.render('debug-all.png')
 
+  const clockwise = findBoxesFromSegments({
+    up,
+    down,
+    left,
+    right,
+    parallelThreshold,
+    maxConnectedCornerDistance,
+  })
+
+  const counterClockwise = findBoxesFromSegments({
+    up: invertSegments(up),
+    down: invertSegments(down),
+    left: invertSegments(left),
+    right: invertSegments(right),
+    parallelThreshold,
+    maxConnectedCornerDistance,
+  })
+
+  return { clockwise, counterClockwise }
+}
+
+function invertSegments(
+  segments: readonly AnnotatedSegment[]
+): AnnotatedSegment[] {
+  return segments.map(
+    ({ angle, diff, direction, segment: { x1, x2, y1, y2, width } }) => ({
+      angle: (angle + Math.PI) % (2 * Math.PI),
+      diff,
+      direction:
+        direction === 'up'
+          ? 'down'
+          : direction === 'down'
+          ? 'up'
+          : direction === 'left'
+          ? 'right'
+          : 'left',
+      segment: { x1: x2, y1: y2, x2: x1, y2: y1, width },
+    })
+  )
+}
+
+function findBoxesFromSegments({
+  up,
+  down,
+  left,
+  right,
+  parallelThreshold,
+  maxConnectedCornerDistance,
+}: {
+  up: AnnotatedSegment[]
+  down: AnnotatedSegment[]
+  left: AnnotatedSegment[]
+  right: AnnotatedSegment[]
+  parallelThreshold: number
+  maxConnectedCornerDistance: number
+}): Set<Partial<Box>> {
   const builder = new BoxesBuilder({ parallelThreshold })
   const tlqc = canvas().size(1060, 1750)
   const topLeftCorners: Corner[] = []
@@ -1028,7 +1084,7 @@ function adjustSegmentLength(
 export function drawBoxes(
   qc: QuickCanvas,
   boxes: Iterable<Partial<Box>>,
-  { stroke }: { stroke?: number } = {}
+  { stroke, color: overrideColor }: { stroke?: number; color?: string } = {}
 ): QuickCanvas {
   const colors = [
     'red',
@@ -1041,7 +1097,7 @@ export function drawBoxes(
     'black',
   ]
   for (const [i, box] of [...boxes].entries()) {
-    const color = colors[i % colors.length]
+    const color = overrideColor ?? colors[i % colors.length]
     if (box.top) {
       qc.line(box.top.x1, box.top.y1, box.top.x2, box.top.y2, { color, stroke })
     }
