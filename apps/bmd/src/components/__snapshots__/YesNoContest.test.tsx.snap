@@ -245,6 +245,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           <span
             class="screen-reader-only"
           >
+            Institute a garbage collection program that collects garbage on weekdays across the county.
             To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
         </p>
@@ -266,7 +267,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
               class=""
             >
               <span>
-                description
+                Institute a garbage collection program that collects garbage on weekdays across the county.
               </span>
             </p>
           </div>
@@ -615,6 +616,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           <span
             class="screen-reader-only"
           >
+            Institute a garbage collection program that collects garbage on weekdays across the county.
             To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
         </p>
@@ -636,7 +638,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
               class=""
             >
               <span>
-                description
+                Institute a garbage collection program that collects garbage on weekdays across the county.
               </span>
             </p>
           </div>
