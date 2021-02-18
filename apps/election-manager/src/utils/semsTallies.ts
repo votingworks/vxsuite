@@ -24,6 +24,7 @@ import {
   expandEitherNeitherContests,
   getContests,
   getDistrictIdsForPartyId,
+  getPartiesWithPrimaryElections,
 } from './election'
 import { getEmptyTally } from '../lib/votecounting'
 
@@ -320,16 +321,31 @@ export function convertSEMSFileToExternalTally(
     }
   }
 
+  const overallTally: ExternalTally = {
+    contestTallies: overallContestTallies,
+    numberOfBallotsCounted: getTotalNumberOfBallots(
+      overallContestTallies,
+      election
+    ),
+  }
+
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Precinct, contestTalliesByPrecinct)
+
+  // Compute results filtered by party, this filters the sets of contests and requires recomputing the number of ballots counted.
+  const contestTalliesByParty: Dictionary<ExternalTally> = {}
+  const partiesInElection = getPartiesWithPrimaryElections(election)
+  partiesInElection.forEach((party) => {
+    contestTalliesByParty[party.id] = filterTallyForPartyId(
+      overallTally,
+      party.id,
+      election
+    )
+  })
+  resultsByCategory.set(TallyCategory.Party, contestTalliesByParty)
+
   return {
-    overallTally: {
-      contestTallies: overallContestTallies,
-      numberOfBallotsCounted: getTotalNumberOfBallots(
-        overallContestTallies,
-        election
-      ),
-    },
+    overallTally,
     resultsByCategory,
   }
 }
@@ -368,11 +384,19 @@ export function filterExternalTalliesByParams(
     return filteredTally
   }
 
+  return filterTallyForPartyId(filteredTally, partyId, election)
+}
+
+function filterTallyForPartyId(
+  tally: ExternalTally,
+  partyId: string,
+  election: Election
+) {
   // Filter contests by party and recompute the number of ballots based on those contests.
   const districtsForParty = getDistrictIdsForPartyId(election, partyId)
   const filteredContestTallies: Dictionary<ContestTally> = {}
-  Object.keys(filteredTally.contestTallies).forEach((contestId) => {
-    const contestTally = filteredTally.contestTallies[contestId]
+  Object.keys(tally.contestTallies).forEach((contestId) => {
+    const contestTally = tally.contestTallies[contestId]
     if (
       contestTally &&
       districtsForParty.includes(contestTally.contest.districtId) &&

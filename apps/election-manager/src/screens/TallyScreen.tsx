@@ -29,10 +29,12 @@ import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
 import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
+import BallotCountsTable from '../components/BallotCountsTable'
 import Modal from '../components/Modal'
 import FileInputButton from '../components/FileInputButton'
 import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
 import { TIME_FORMAT } from '../config/globals'
+import { getPartiesWithPrimaryElections } from '../utils/election'
 
 const TallyScreen: React.FC = () => {
   const {
@@ -44,7 +46,6 @@ const TallyScreen: React.FC = () => {
     externalVoteRecordsFile,
     setIsTabulationRunning,
     isTabulationRunning,
-    fullElectionTally,
     fullElectionExternalTally,
   } = useContext(AppContext)
   const { election } = electionDefinition!
@@ -81,6 +82,7 @@ const TallyScreen: React.FC = () => {
     precinctIds
       .map((id) => election.precincts.find((p) => p.id === id)!.name)
       .join(', ')
+  const partiesForPrimaries = getPartiesWithPrimaryElections(election)
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
@@ -137,154 +139,20 @@ const TallyScreen: React.FC = () => {
       ? 'Currently tallying live ballots.'
       : ''
 
-  const resultsByPrecinct =
-    fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {}
-  const externalResultsByPrecinct =
-    fullElectionExternalTally?.resultsByCategory.get(TallyCategory.Precinct) ||
-    {}
-  const resultsByScanner =
-    fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {}
-  const totalBallotCountVotingWorks =
-    fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
-  const totalBallotCountExternal =
-    fullElectionExternalTally?.overallTally.numberOfBallotsCounted ?? 0
-
   const tallyResultsTable = isTabulationRunning ? (
     <Loading>Tabulating Results…</Loading>
   ) : (
     <React.Fragment>
-      <h2>Ballot Count By Precinct</h2>
-      <Table>
-        <tbody>
-          <tr>
-            <TD as="th" narrow>
-              Precinct
-            </TD>
-            <TD as="th">Ballot Count</TD>
-            <TD as="th">View Tally</TD>
-          </tr>
-          {[...election.precincts]
-            .sort((a, b) =>
-              a.name.localeCompare(b.name, undefined, {
-                ignorePunctuation: true,
-              })
-            )
-            .map((precinct) => {
-              const precinctBallotsCount =
-                resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
-              const externalPrecinctBallotsCount =
-                externalResultsByPrecinct[precinct.id]
-                  ?.numberOfBallotsCounted ?? 0
-              return (
-                <tr key={precinct.id}>
-                  <TD narrow nowrap>
-                    {precinct.name}
-                  </TD>
-                  <TD>
-                    {format.count(
-                      precinctBallotsCount + externalPrecinctBallotsCount
-                    )}
-                  </TD>
-                  <TD>
-                    <LinkButton
-                      small
-                      to={routerPaths.tallyPrecinctReport({
-                        precinctId: precinct.id,
-                      })}
-                    >
-                      View {statusPrefix} {precinct.name} Tally Report
-                    </LinkButton>
-                  </TD>
-                </tr>
-              )
-            })}
-          <tr>
-            <TD narrow nowrap>
-              <strong>Total Ballot Count</strong>
-            </TD>
-            <TD>
-              <strong data-testid="total-ballot-count">
-                {format.count(
-                  totalBallotCountVotingWorks + totalBallotCountExternal
-                )}
-              </strong>
-            </TD>
-            <TD>
-              <LinkButton
-                small
-                to={routerPaths.tallyPrecinctReport({
-                  precinctId: 'all',
-                })}
-              >
-                View {statusPrefix} Tally Reports for All Precincts
-              </LinkButton>
-            </TD>
-          </tr>
-        </tbody>
-      </Table>
-      <h2>Ballot Count by Scanner</h2>
-      {fullElectionExternalTally && (
-        <p>
-          The following results only include ballots counted with VotingWorks
-          scanners. The data from the imported SEMS file is not included in
-          these reports.
-        </p>
+      <h2>Ballot Counts by Precinct</h2>
+      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
+      <h2>Ballot Counts by Scanner</h2>
+      <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+      {partiesForPrimaries.length > 0 && (
+        <React.Fragment>
+          <h2>Ballot Counts by Party</h2>
+          <BallotCountsTable breakdownCategory={TallyCategory.Party} />
+        </React.Fragment>
       )}
-      <Table>
-        <tbody>
-          <tr>
-            <TD as="th" narrow>
-              Scanner ID
-            </TD>
-            <TD as="th">Ballot Count</TD>
-            <TD as="th">View Tally</TD>
-          </tr>
-          {Object.keys(resultsByScanner)
-            .sort((a, b) =>
-              a.localeCompare(b, 'en', {
-                numeric: true,
-                ignorePunctuation: true,
-              })
-            )
-            .map((scannerId) => {
-              const scannerBallotsCount =
-                resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0
-              return (
-                <tr key={scannerId}>
-                  <TD narrow nowrap>
-                    {scannerId}
-                  </TD>
-                  <TD>{format.count(scannerBallotsCount)}</TD>
-                  <TD>
-                    {!!scannerBallotsCount && (
-                      <LinkButton
-                        small
-                        to={routerPaths.tallyScannerReport({
-                          scannerId,
-                        })}
-                      >
-                        View {statusPrefix} Scanner {scannerId} Tally Report
-                      </LinkButton>
-                    )}
-                  </TD>
-                </tr>
-              )
-            })}
-          <tr>
-            <TD narrow nowrap>
-              <strong>Total Ballot Count</strong>
-            </TD>
-            <TD>
-              <strong>
-                {format.count(
-                  fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
-                )}
-              </strong>
-            </TD>
-            <TD />
-          </tr>
-        </tbody>
-      </Table>
       <h2>{statusPrefix} Tally Reports</h2>
       <p>
         <LinkButton to={routerPaths.tallyFullReport}>

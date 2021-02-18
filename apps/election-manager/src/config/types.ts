@@ -61,6 +61,9 @@ export interface PrecinctReportScreenProps {
 export interface ScannerReportScreenProps {
   scannerId: string
 }
+export interface PartyReportScreenProps {
+  partyId: string
+}
 
 // Tallies
 export type YesNoOption = ['yes'] | ['no'] | []

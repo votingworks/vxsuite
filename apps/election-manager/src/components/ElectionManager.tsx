@@ -92,6 +92,14 @@ const ElectionManager: React.FC = () => {
       >
         <TallyReportScreen />
       </Route>
+      <Route
+        path={[
+          routerPaths.tallyPartyReport({ partyId: ':partyId' }),
+          routerPaths.tallyFullReport,
+        ]}
+      >
+        <TallyReportScreen />
+      </Route>
       <Route path={routerPaths.overvoteCombinationReport}>
         <OvervoteCombinationReportScreen />
       </Route>

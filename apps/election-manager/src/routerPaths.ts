@@ -1,5 +1,6 @@
 import {
   BallotScreenProps,
+  PartyReportScreenProps,
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
 } from './config/types'
@@ -26,6 +27,8 @@ const routerPaths = {
     `/tally/print-test-deck/${precinctId}`,
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/tally/precinct/${precinctId}`,
+  tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
+    `/tally/party/${partyId}`,
   tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
     `/tally/scanner/${scannerId}`,
   tallyFullReport: '/tally/full',
