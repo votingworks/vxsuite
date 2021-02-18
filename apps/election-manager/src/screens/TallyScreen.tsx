@@ -372,6 +372,7 @@ const TallyScreen: React.FC = () => {
                   <TD as="th" narrow nowrap>
                     Total CVRs Count
                   </TD>
+                  <TD as="th" />
                   <TD as="th" narrow>
                     {format.count(
                       castVoteRecordFileList.reduce(
