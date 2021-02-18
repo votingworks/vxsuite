@@ -2,8 +2,16 @@ import * as fs from 'fs'
 import { sha256 } from 'js-sha256'
 import { join } from 'path'
 import React from 'react'
+import * as path from 'path'
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  getByTestId as domGetByTestId,
+  getByText as domGetByText,
+} from '@testing-library/react'
 import { parseElection } from '@votingworks/types'
 import { MemoryStorage } from './utils/Storage'
 import {
@@ -11,6 +19,7 @@ import {
   configuredAtStorageKey,
   cvrsStorageKey,
   electionDefinitionStorageKey,
+  externalVoteRecordsFileStorageKey,
 } from './AppRoot'
 
 import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
@@ -22,6 +31,7 @@ import App from './App'
 import sleep from './utils/sleep'
 import { ElectionDefinition } from './config/types'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
+import { convertFileToStorageString } from './utils/file'
 
 const eitherNeitherElectionData = fs.readFileSync(
   join(
@@ -263,4 +273,132 @@ it('tabulating CVRs', async () => {
   // Verify the zero report generates properly
   expect(getAllByText('Total Number of Ballots Cast: 0').length).toBe(2)
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
+})
+
+it('tabulating CVRs with SEMS file', async () => {
+  const storage = await createMemoryStorageWith({
+    electionDefinition: {
+      election: eitherNeitherElection,
+      electionData: eitherNeitherElectionData,
+      electionHash: eitherNeitherElectionHash,
+    },
+  })
+
+  const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
+    EITHER_NEITHER_CVRS,
+    eitherNeitherElection
+  )
+  await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
+
+  const fixturesPath = path.join(__dirname, '../../../libs/fixtures/src/data')
+  const eitherNeitherSEMSPath = path.join(
+    fixturesPath,
+    'electionWithMsEitherNeither/converted-sems-results.csv'
+  )
+
+  const semsFileContent = await fs.readFileSync(eitherNeitherSEMSPath)
+  const semsFileStorageString = await convertFileToStorageString(
+    new File([semsFileContent], 'sems-results.csv')
+  )
+  await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
+
+  const {
+    getByText,
+    getByTestId,
+    getAllByTestId,
+    queryAllByTestId,
+    getAllByText,
+  } = render(<App storage={storage} />)
+
+  await screen.findByText('0 official ballots')
+
+  fireEvent.click(getByText('Tally'))
+
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
+  )
+  getByText('SEMS File (sems-results.csv)')
+
+  fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
+  const ballotsByDataSource = getAllByTestId('ballots-by-data-source')
+  expect(ballotsByDataSource.length).toBe(2) // There are two identical copies of this table one on the page, and one in the tally report
+  const vxRow = domGetByTestId(ballotsByDataSource[0], 'votingworks')
+  domGetByText(vxRow, 'VotingWorks Data')
+  domGetByText(vxRow, '100')
+
+  const semsRow = domGetByTestId(ballotsByDataSource[0], 'externalvoterecords')
+  domGetByText(semsRow, 'Imported SEMS File')
+  domGetByText(semsRow, '100')
+
+  const totalsRow = domGetByTestId(ballotsByDataSource[0], 'total')
+  domGetByText(totalsRow, 'Total')
+  domGetByText(totalsRow, '200')
+
+  expect(getByTestId('tally-report-contents')).toMatchSnapshot()
+  fireEvent.click(getByText('Back to Tally Index'))
+
+  // Test removing the SEMS file
+  fireEvent.click(getByText('Remove SEMS File…'))
+  fireEvent.click(getByText('Remove SEMS Files'))
+
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('100')
+  )
+
+  fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
+  const ballotsByDataSource2 = queryAllByTestId('ballots-by-data-source')
+  expect(ballotsByDataSource2.length).toBe(0)
+  expect(getAllByText('Total Number of Ballots Cast: 100').length).toBe(2)
+})
+
+it('changing election resets sems and cvr files', async () => {
+  const storage = await createMemoryStorageWith({
+    electionDefinition: {
+      election: eitherNeitherElection,
+      electionData: eitherNeitherElectionData,
+      electionHash: eitherNeitherElectionHash,
+    },
+  })
+
+  const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
+    EITHER_NEITHER_CVRS,
+    eitherNeitherElection
+  )
+  await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
+
+  const fixturesPath = path.join(__dirname, '../../../libs/fixtures/src/data')
+  const eitherNeitherSEMSPath = path.join(
+    fixturesPath,
+    'electionWithMsEitherNeither/converted-sems-results.csv'
+  )
+
+  const semsFileContent = await fs.readFileSync(eitherNeitherSEMSPath)
+  const semsFileStorageString = await convertFileToStorageString(
+    new File([semsFileContent], 'sems-results.csv')
+  )
+  await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
+
+  const { getByText, getByTestId } = render(<App storage={storage} />)
+
+  await screen.findByText('0 official ballots')
+
+  fireEvent.click(getByText('Tally'))
+
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
+  )
+
+  fireEvent.click(getByText('Definition'))
+  fireEvent.click(getByText('JSON Editor'))
+  fireEvent.click(getByText('Remove'))
+  fireEvent.click(getByText('Remove Election Definition'))
+  await waitFor(() => {
+    fireEvent.click(getByText('Create New Election Definition'))
+  })
+  fireEvent.click(getByText('Tally'))
+
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('0')
+  )
+  getByText('No CVR files loaded.')
 })
