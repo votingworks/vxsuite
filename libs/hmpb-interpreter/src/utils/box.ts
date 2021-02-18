@@ -5,12 +5,14 @@ import { Corners, Offset, Point } from '../types'
 import { setFilter } from './set'
 import { zip } from './iterators'
 
-export interface Box {
-  top: LineSegment
-  right: LineSegment
-  bottom: LineSegment
-  left: LineSegment
+interface BoxOf<Type> {
+  top: Type
+  right: Type
+  bottom: Type
+  left: Type
 }
+
+export type Box = BoxOf<LineSegment>
 
 export type LayoutColumn = readonly Box[]
 
@@ -27,9 +29,9 @@ interface AnnotatedSegment {
   readonly angle: number
   readonly diff: number
   readonly direction: Direction
+  readonly min: Point
+  readonly max: Point
 }
-
-type Corner = [LineSegment, LineSegment]
 
 export interface Rotation {
   readonly angle: number
@@ -115,9 +117,12 @@ export function findRotation(
   const annotated: AnnotatedSegment[] = []
 
   for (const segment of segments) {
+    const { x1, y1, x2, y2 } = segment
     const angle = computeSegmentAngle(segment)
     let diff: number
     let direction: Direction
+    let min: Point
+    let max: Point
 
     const rdiff = Math.abs(rightward - angle)
     const udiff = Math.abs(upward - angle)
@@ -127,15 +132,23 @@ export function findRotation(
     if (rdiff < udiff && rdiff < ldiff && rdiff < ddiff) {
       direction = 'right'
       diff = angle - rightward
+      min = { x: x1, y: y1 }
+      max = { x: x2, y: y2 }
     } else if (ldiff < udiff && ldiff < rdiff && ldiff < ddiff) {
       direction = 'left'
       diff = angle - leftward
+      min = { x: x2, y: y2 }
+      max = { x: x1, y: y1 }
     } else if (udiff < ldiff && udiff < rdiff && udiff < ddiff) {
       direction = 'up'
       diff = angle - upward
+      min = { x: x2, y: y2 }
+      max = { x: x1, y: y1 }
     } else {
       direction = 'down'
       diff = angle - downward
+      min = { x: x1, y: y1 }
+      max = { x: x2, y: y2 }
     }
 
     annotated.push({
@@ -143,6 +156,8 @@ export function findRotation(
       angle,
       diff,
       direction,
+      min,
+      max,
     })
   }
 
@@ -172,6 +187,21 @@ export function findRotation(
   return { angle, matchedSegments: largestGroup }
 }
 
+function groupBy<Key extends string, Element>(
+  elements: Iterable<Element>,
+  keyfn: (element: Element) => Key
+): Record<Key, Element[] | undefined> {
+  const result = {} as Record<Key, Element[] | undefined>
+
+  for (const element of elements) {
+    const key = keyfn(element)
+    const value = (result[key] ??= new Array<Element>())
+    value.push(element)
+  }
+
+  return result
+}
+
 export function findBoxes(
   segments: readonly LineSegment[],
   {
@@ -185,48 +215,10 @@ export function findBoxes(
     return { clockwise: new Set(), counterClockwise: new Set() }
   }
 
-  const right: AnnotatedSegment[] = []
-  const left: AnnotatedSegment[] = []
-  const up: AnnotatedSegment[] = []
-  const down: AnnotatedSegment[] = []
-
-  const all = canvas().size(1060, 1750)
-  for (const segment of rotation.matchedSegments) {
-    const {
-      segment: { x1, y1, x2, y2 },
-      direction,
-    } = segment
-    all.line(x1, y1, x2, y2, {
-      stroke: 1,
-      color:
-        direction === 'up'
-          ? 'green'
-          : direction === 'down'
-          ? 'yellow'
-          : direction === 'right'
-          ? 'blue'
-          : 'red',
-    })
-    all.text(`${Math.round(x1)},${Math.round(y1)}`, x1, y1)
-    switch (direction) {
-      case 'right':
-        right.push(segment)
-        break
-
-      case 'left':
-        left.push(segment)
-        break
-
-      case 'up':
-        up.push(segment)
-        break
-
-      case 'down':
-        down.push(segment)
-        break
-    }
-  }
-  // all.render('debug-all.png')
+  const { up = [], down = [], left = [], right = [] } = groupBy(
+    rotation.matchedSegments,
+    ({ direction }) => direction
+  )
 
   const clockwise = findBoxesFromSegments({
     up,
@@ -253,7 +245,14 @@ function invertSegments(
   segments: readonly AnnotatedSegment[]
 ): AnnotatedSegment[] {
   return segments.map(
-    ({ angle, diff, direction, segment: { x1, x2, y1, y2, width } }) => ({
+    ({
+      angle,
+      diff,
+      direction,
+      segment: { x1, x2, y1, y2, width },
+      min,
+      max,
+    }) => ({
       angle: (angle + Math.PI) % (2 * Math.PI),
       diff,
       direction:
@@ -265,6 +264,8 @@ function invertSegments(
           ? 'right'
           : 'left',
       segment: { x1: x2, y1: y2, x2: x1, y2: y1, width },
+      min: max,
+      max: min,
     })
   )
 }
@@ -286,115 +287,86 @@ function findBoxesFromSegments({
 }): Set<Partial<Box>> {
   const builder = new BoxesBuilder({ parallelThreshold })
   const tlqc = canvas().size(1060, 1750)
-  const topLeftCorners: Corner[] = []
   for (const r of right) {
     for (const u of up) {
-      const dist = euclideanDistance(
-        { x: r.segment.x1, y: r.segment.y1 },
-        { x: u.segment.x2, y: u.segment.y2 }
-      )
+      const dist = euclideanDistance(r.min, u.min)
 
       if (dist <= maxConnectedCornerDistance && isRightTurn(u.angle, r.angle)) {
-        tlqc
-          .line(u.segment.x1, u.segment.y1, u.segment.x2, u.segment.y2)
-          .line(r.segment.x1, r.segment.y1, r.segment.x2, r.segment.y2)
-        builder.addCorner({ left: u.segment, top: r.segment })
-        topLeftCorners.push([u.segment, r.segment])
+        tlqc.line(u.min, u.max).line(r.min, r.max)
+        builder.addCorner({ left: u, top: r })
       } else if (dist <= maxConnectedCornerDistance) {
         tlqc
-          .line(u.segment.x1, u.segment.y1, u.segment.x2, u.segment.y2, {
-            color: 'red',
-          })
-          .line(r.segment.x1, r.segment.y1, r.segment.x2, r.segment.y2, {
-            color: 'red',
-          })
+          .line(u.min, u.max, { color: 'red' })
+          .line(r.min, r.max, { color: 'red' })
       }
     }
   }
   // tlqc.render('debug-tlqc.png')
 
   const trqc = canvas().size(1060, 1750)
-  const topRightCorners: Corner[] = []
   for (const r of right) {
     for (const d of down) {
-      const dist = euclideanDistance(
-        { x: r.segment.x2, y: r.segment.y2 },
-        { x: d.segment.x1, y: d.segment.y1 }
-      )
+      const dist = euclideanDistance(r.max, d.min)
       if (dist <= maxConnectedCornerDistance && isRightTurn(r.angle, d.angle)) {
-        trqc
-          .line(d.segment.x1, d.segment.y1, d.segment.x2, d.segment.y2)
-          .line(r.segment.x1, r.segment.y1, r.segment.x2, r.segment.y2)
-        builder.addCorner({ top: r.segment, right: d.segment })
-        topRightCorners.push([r.segment, d.segment])
+        trqc.line(d.min, d.max).line(r.min, r.max)
+        builder.addCorner({ top: r, right: d })
       } else if (dist <= maxConnectedCornerDistance) {
         trqc
-          .line(d.segment.x1, d.segment.y1, d.segment.x2, d.segment.y2, {
-            color: 'red',
-          })
-          .line(r.segment.x1, r.segment.y1, r.segment.x2, r.segment.y2, {
-            color: 'red',
-          })
+          .line(d.min, d.max, { color: 'red' })
+          .line(r.min, r.max, { color: 'red' })
       }
     }
   }
   // trqc.render('debug-trqc.png')
 
   const brqc = canvas().size(1060, 1750)
-  const bottomRightCorners: Corner[] = []
   for (const l of left) {
     for (const d of down) {
-      const dist = euclideanDistance(
-        { x: l.segment.x1, y: l.segment.y1 },
-        { x: d.segment.x2, y: d.segment.y2 }
-      )
+      const dist = euclideanDistance(l.max, d.max)
       if (dist <= maxConnectedCornerDistance && isRightTurn(d.angle, l.angle)) {
-        brqc
-          .line(d.segment.x1, d.segment.y1, d.segment.x2, d.segment.y2)
-          .line(l.segment.x1, l.segment.y1, l.segment.x2, l.segment.y2)
-        builder.addCorner({ right: d.segment, bottom: l.segment })
-        bottomRightCorners.push([d.segment, l.segment])
+        brqc.line(d.min, d.max).line(l.min, l.max)
+        builder.addCorner({ right: d, bottom: l })
       } else if (dist <= maxConnectedCornerDistance) {
         brqc
-          .line(d.segment.x1, d.segment.y1, d.segment.x2, d.segment.y2, {
-            color: 'red',
-          })
-          .line(l.segment.x1, l.segment.y1, l.segment.x2, l.segment.y2, {
-            color: 'red',
-          })
+          .line(d.min, d.max, { color: 'red' })
+          .line(l.min, l.max, { color: 'red' })
       }
     }
   }
   // brqc.render('debug-brqc.png')
 
   const blqc = canvas().size(1060, 1750)
-  const bottomLeftCorners: Corner[] = []
   for (const l of left) {
     for (const u of up) {
-      const dist = euclideanDistance(
-        { x: l.segment.x2, y: l.segment.y2 },
-        { x: u.segment.x1, y: u.segment.y1 }
-      )
+      const dist = euclideanDistance(l.min, u.max)
       if (dist <= maxConnectedCornerDistance && isRightTurn(l.angle, u.angle)) {
-        blqc
-          .line(u.segment.x1, u.segment.y1, u.segment.x2, u.segment.y2)
-          .line(l.segment.x1, l.segment.y1, l.segment.x2, l.segment.y2)
-        builder.addCorner({ bottom: l.segment, left: u.segment })
-        bottomLeftCorners.push([l.segment, u.segment])
+        blqc.line(u.min, u.max).line(l.min, l.max)
+        builder.addCorner({ bottom: l, left: u })
       } else if (dist <= maxConnectedCornerDistance) {
         blqc
-          .line(u.segment.x1, u.segment.y1, u.segment.x2, u.segment.y2, {
-            color: 'red',
-          })
-          .line(l.segment.x1, l.segment.y1, l.segment.x2, l.segment.y2, {
-            color: 'red',
-          })
+          .line(u.min, u.max, { color: 'red' })
+          .line(l.min, l.max, { color: 'red' })
       }
     }
   }
   // blqc.render('debug-blqc.png')
 
   return builder.build()
+}
+
+function toLineSegment(segment: LineSegment | AnnotatedSegment): LineSegment {
+  return 'segment' in segment ? segment.segment : segment
+}
+
+function toLineSegmentBox(
+  box: Partial<Box> | Partial<BoxOf<AnnotatedSegment>>
+): Partial<Box> {
+  return {
+    top: box.top && toLineSegment(box.top),
+    right: box.right && toLineSegment(box.right),
+    bottom: box.bottom && toLineSegment(box.bottom),
+    left: box.left && toLineSegment(box.left),
+  }
 }
 
 /**
@@ -427,16 +399,28 @@ class BoxesBuilder {
    * of them are previously known, the associated box(es) will be merged. If
    * the boxes cannot be merged they will be ignored.
    */
-  public addCorner(segments: { left: LineSegment; top: LineSegment }): void
-  public addCorner(segments: { top: LineSegment; right: LineSegment }): void
-  public addCorner(segments: { right: LineSegment; bottom: LineSegment }): void
-  public addCorner(segments: { bottom: LineSegment; left: LineSegment }): void
-  public addCorner(box: Partial<Box>): void {
+  public addCorner(segments: {
+    left: AnnotatedSegment
+    top: AnnotatedSegment
+  }): void
+  public addCorner(segments: {
+    top: AnnotatedSegment
+    right: AnnotatedSegment
+  }): void
+  public addCorner(segments: {
+    right: AnnotatedSegment
+    bottom: AnnotatedSegment
+  }): void
+  public addCorner(segments: {
+    bottom: AnnotatedSegment
+    left: AnnotatedSegment
+  }): void
+  public addCorner(box: Partial<BoxOf<AnnotatedSegment>>): void {
     const segments = getBoxSegments(box)
     const boxes = this.getBoxesForSegments(segments)
     const merged = [...boxes].reduce<Partial<Box> | undefined>(
       (previous, current) => previous && this.mergeBoxes(previous, current),
-      box
+      toLineSegmentBox(box)
     )
 
     for (const box of boxes) {
@@ -603,13 +587,21 @@ class BoxesBuilder {
 /**
  * Get all segments present in `box`.
  */
-function getBoxSegments(box: Partial<Box>): LineSegment[] {
-  return [box.top, box.right, box.bottom, box.left].filter(
-    (s): s is LineSegment => !!s
-  )
+function getBoxSegments(
+  box: Partial<Box> | Partial<BoxOf<AnnotatedSegment>>
+): LineSegment[] {
+  return [box.top, box.right, box.bottom, box.left]
+    .map((s) => s && toLineSegment(s))
+    .filter((s): s is LineSegment => !!s)
 }
 
 export function isCompleteBox(partial: Partial<Box>): partial is Box {
+  return getBoxSegments(partial).length === 4
+}
+
+export function isCompleteAnnotatedBox(
+  partial: Partial<BoxOf<AnnotatedSegment>>
+): partial is BoxOf<AnnotatedSegment> {
   return getBoxSegments(partial).length === 4
 }
 
@@ -1004,8 +996,8 @@ export function closeBoxSegmentGaps({ top, right, bottom, left }: Box): Box {
  * @see https://stackoverflow.com/a/565282/549363
  */
 export function computeProjectedLineIntersection(
-  segment1: LineSegment,
-  segment2: LineSegment,
+  segment1: LineSegment | AnnotatedSegment,
+  segment2: LineSegment | AnnotatedSegment,
   { parallelThreshold = 0 } = {}
 ): Point | 'colinear' | 'parallel' {
   type Vector = Offset
@@ -1026,15 +1018,17 @@ export function computeProjectedLineIntersection(
     return { x: s * v.x, y: s * v.y }
   }
 
-  const p: Vector = { x: segment1.x1, y: segment1.y1 }
+  const s1 = toLineSegment(segment1)
+  const s2 = toLineSegment(segment2)
+  const p: Vector = { x: s1.x1, y: s1.y1 }
   const r: Vector = {
-    x: segment1.x2 - segment1.x1,
-    y: segment1.y2 - segment1.y1,
+    x: s1.x2 - s1.x1,
+    y: s1.y2 - s1.y1,
   }
-  const q: Vector = { x: segment2.x1, y: segment2.y1 }
+  const q: Vector = { x: s2.x1, y: s2.y1 }
   const s: Vector = {
-    x: segment2.x2 - segment2.x1,
-    y: segment2.y2 - segment2.y1,
+    x: s2.x2 - s2.x1,
+    y: s2.y2 - s2.y1,
   }
   const rxs = cross(r, s)
   const qsubp = sub(q, p)
@@ -1099,25 +1093,41 @@ export function drawBoxes(
   for (const [i, box] of [...boxes].entries()) {
     const color = overrideColor ?? colors[i % colors.length]
     if (box.top) {
-      qc.line(box.top.x1, box.top.y1, box.top.x2, box.top.y2, { color, stroke })
+      qc.line(
+        { x: box.top.x1, y: box.top.y1 },
+        { x: box.top.x2, y: box.top.y2 },
+        { color, stroke }
+      )
     }
     if (box.right) {
-      qc.line(box.right.x1, box.right.y1, box.right.x2, box.right.y2, {
-        color,
-        stroke,
-      })
+      qc.line(
+        { x: box.right.x1, y: box.right.y1 },
+        { x: box.right.x2, y: box.right.y2 },
+        {
+          color,
+          stroke,
+        }
+      )
     }
     if (box.bottom) {
-      qc.line(box.bottom.x1, box.bottom.y1, box.bottom.x2, box.bottom.y2, {
-        color,
-        stroke,
-      })
+      qc.line(
+        { x: box.bottom.x1, y: box.bottom.y1 },
+        { x: box.bottom.x2, y: box.bottom.y2 },
+        {
+          color,
+          stroke,
+        }
+      )
     }
     if (box.left) {
-      qc.line(box.left.x1, box.left.y1, box.left.x2, box.left.y2, {
-        color,
-        stroke,
-      })
+      qc.line(
+        { x: box.left.x1, y: box.left.y1 },
+        { x: box.left.x2, y: box.left.y2 },
+        {
+          color,
+          stroke,
+        }
+      )
     }
 
     if (isCompleteBox(box)) {

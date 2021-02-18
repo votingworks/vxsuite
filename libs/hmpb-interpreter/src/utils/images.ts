@@ -1,6 +1,6 @@
 import { createCanvas, createImageData, Image, loadImage } from 'canvas'
 import * as fs from 'fs'
-import { Size } from '../types'
+import { Point, Size } from '../types'
 
 function ensureImageData(imageData: ImageData): ImageData {
   return createImageData(imageData.data, imageData.width, imageData.height)
@@ -102,13 +102,19 @@ export class QuickCanvas {
   }
 
   public line(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
+    from: Point,
+    to: Point,
     { stroke, color }: { stroke?: number; color?: string } = {}
   ): this {
-    this.ops.push({ type: 'line', x1, y1, x2, y2, stroke, color })
+    this.ops.push({
+      type: 'line',
+      x1: from.x,
+      y1: from.y,
+      x2: to.x,
+      y2: to.y,
+      stroke,
+      color,
+    })
     return this
   }
 
