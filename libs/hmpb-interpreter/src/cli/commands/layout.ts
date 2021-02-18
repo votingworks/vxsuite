@@ -13,6 +13,7 @@ import {
   closeBoxSegmentGaps,
   drawBoxes,
   filterContainedBoxes,
+  filterInBounds,
   findBoxes,
   gridSegment,
   inferBoxFromPartial,
@@ -25,7 +26,7 @@ import {
 } from '../../utils/box'
 import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
-import { euclideanDistance } from '../../utils/geometry'
+import { euclideanDistance, rectInset } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
 import { canvas, loadImageData } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
@@ -186,10 +187,10 @@ function analyzeImageLSD(imageData: ImageData): ReturnType<typeof findBoxes> {
       parallelThreshold,
     }
   )
-  const qc = canvas().background(imageData)
-  drawBoxes(qc, result.clockwise, { color: 'red' })
-  drawBoxes(qc, result.counterClockwise, { color: 'green' })
-  qc.render('debug-cw-ccw.png')
+  // const qc = canvas().background(imageData)
+  // drawBoxes(qc, result.clockwise, { color: 'red' })
+  // drawBoxes(qc, result.counterClockwise, { color: 'green' })
+  // qc.render('debug-cw-ccw.png')
   return result
 }
 
@@ -220,17 +221,25 @@ export async function run(
       vh(imageData)
     }
 
-    const boxes = setMap(
-      filterContainedBoxes(
-        setFilter(
-          setMap(
-            analyzeImageLSD(imageData).clockwise,
-            (box) => inferBoxFromPartial(box) ?? box
-          ),
-          isCompleteBox
-        )
+    const boxes = filterInBounds(
+      setMap(
+        filterContainedBoxes(
+          setFilter(
+            setMap(
+              analyzeImageLSD(imageData).clockwise,
+              (box) => inferBoxFromPartial(box) ?? box
+            ),
+            isCompleteBox
+          )
+        ),
+        closeBoxSegmentGaps
       ),
-      closeBoxSegmentGaps
+      {
+        bounds: rectInset(
+          { x: 0, y: 0, width: imageData.width, height: imageData.height },
+          imageData.width * 0.015
+        ),
+      }
     )
 
     stdout.write(`LSD found ${boxes.size} box(es) in ${templateImagePath}\n`)
@@ -287,39 +296,55 @@ export async function run(
         const scaled = canvas()
           .drawImage(imageData, 0, 0, width, height)
           .render()
-        const scaledBoxes = [...analyzeImageLSD(scaled).clockwise]
-        drawBoxes(
-          canvas().drawImage(scaled, 0, 0, width, height),
-          scaledBoxes
-        ).render('debug-01-scaledBoxes-NEW.png')
+        const analysis = analyzeImageLSD(scaled)
+        const scaledBoxes = [
+          ...analysis.clockwise,
+          ...analysis.counterClockwise,
+        ]
+        // drawBoxes(
+        //   canvas().drawImage(scaled, 0, 0, width, height),
+        //   scaledBoxes
+        // ).render('debug-01-scaledBoxes-NEW.png')
         const originalScaleBoxes = scaledBoxes.map((box) =>
           scaleBox(imageData.width / width, box)
         )
-        drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
-          'debug-02-originalScaledBoxes-NEW.png'
-        )
+        // drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
+        //   'debug-02-originalScaledBoxes-NEW.png'
+        // )
         const fullBoxes = originalScaleBoxes.map(
           (box) => inferBoxFromPartial(box) ?? box
         )
-        drawBoxes(canvas().background(imageData), fullBoxes).render(
-          'debug-03-fullBoxes-NEW.png'
-        )
+        // drawBoxes(canvas().background(imageData), fullBoxes).render(
+        //   'debug-03-fullBoxes-NEW.png'
+        // )
         const gaplessBoxes = fullBoxes.map((box) =>
           isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
         )
-        drawBoxes(canvas().background(imageData), gaplessBoxes).render(
-          'debug-04-gapless-NEW.png'
-        )
+        // drawBoxes(canvas().background(imageData), gaplessBoxes).render(
+        //   'debug-04-gapless-NEW.png'
+        // )
         const completeBoxes = gaplessBoxes.filter(isCompleteBox)
-        drawBoxes(canvas().background(imageData), completeBoxes).render(
-          'debug-05-complete-NEW.png'
-        )
+        // drawBoxes(canvas().background(imageData), completeBoxes).render(
+        //   'debug-05-complete-NEW.png'
+        // )
         const withoutContainedBoxes = filterContainedBoxes(completeBoxes)
-        const boxes = withoutContainedBoxes
+        const withoutEdgeBoxes = filterInBounds(withoutContainedBoxes, {
+          bounds: rectInset(
+            { x: 0, y: 0, width: imageData.width, height: imageData.height },
+            imageData.width * 0.015
+          ),
+        })
+        // drawBoxes(canvas().background(imageData), withoutEdgeBoxes).render(
+        //   'debug-06-withoutInset-NEW.png'
+        // )
+        const boxes = withoutEdgeBoxes
         const columns = splitIntoColumns(boxes)
 
         if (columns.length !== templateLayout.columns.length) {
-          console.log('COLUMN MISMATCH', ballotImagePath)
+          console.log(
+            `COLUMN MISMATCH (scan has ${columns.length}, template has ${templateLayout.columns.length})`,
+            ballotImagePath
+          )
         }
         const fixedScanLayout = matchTemplateLayout(templateLayout, {
           width: imageData.width,

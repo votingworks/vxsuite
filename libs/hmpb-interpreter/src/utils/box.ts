@@ -2,12 +2,13 @@ import { LineSegment } from '@votingworks/lsd'
 import {
   euclideanDistance,
   poly4Area,
+  rectContains,
   vectorAdd,
   vectorScale,
   vectorSub,
 } from './geometry'
 import { QuickCanvas } from './images'
-import { Corners, Offset, Point } from '../types'
+import { Corners, Offset, Point, Rect } from '../types'
 import { setFilter } from './set'
 import { zip } from './iterators'
 
@@ -235,10 +236,10 @@ export function findBoxes(
   })
 
   const counterClockwise = findBoxesFromSegments({
-    up: invertSegments(up),
-    down: invertSegments(down),
-    left: invertSegments(left),
-    right: invertSegments(right),
+    up: invertSegments(down),
+    down: invertSegments(up),
+    left: invertSegments(right),
+    right: invertSegments(left),
     parallelThreshold,
     maxConnectedCornerDistance,
   })
@@ -281,7 +282,6 @@ function findBoxesFromSegments({
   for (const r of right) {
     for (const u of up) {
       const dist = euclideanDistance(r.start, u.end)
-
       if (dist <= maxConnectedCornerDistance) {
         builder.addCorner({ left: u, top: r })
       }
@@ -397,7 +397,6 @@ class BoxesBuilder {
             ? gridSegment({ start: a.top.start, end: b.top.end })
             : gridSegment({ start: b.top.start, end: a.top.end })
       } else {
-        // console.log('determined top segments not colinear', a.top, b.top)
         return undefined
       }
     } else {
@@ -415,7 +414,6 @@ class BoxesBuilder {
             ? gridSegment({ start: a.right.start, end: b.right.end })
             : gridSegment({ start: b.right.start, end: a.right.end })
       } else {
-        // console.log('determined right segments not colinear', a.right, b.right)
         return undefined
       }
     } else {
@@ -433,11 +431,6 @@ class BoxesBuilder {
             ? gridSegment({ start: a.bottom.start, end: b.bottom.end })
             : gridSegment({ start: b.bottom.start, end: a.bottom.end })
       } else {
-        // console.log(
-        //   'determined bottom segments not colinear',
-        //   a.bottom,
-        //   b.bottom
-        // )
         return undefined
       }
     } else {
@@ -455,7 +448,6 @@ class BoxesBuilder {
             ? gridSegment({ start: a.left.start, end: b.left.end })
             : gridSegment({ start: b.left.start, end: a.left.end })
       } else {
-        // console.log('determined left segments not colinear', a.left, b.left)
         return undefined
       }
     } else {
@@ -844,6 +836,18 @@ export function filterContainedBoxes(boxes: Iterable<GridBox>): Set<GridBox> {
   )
 }
 
+export function filterInBounds(
+  boxes: Iterable<GridBox>,
+  { bounds }: { bounds: Rect }
+): Set<GridBox> {
+  return setFilter(boxes, (box) =>
+    getBoxSegments(box).every(
+      ({ start, end }) =>
+        rectContains(bounds, start) && rectContains(bounds, end)
+    )
+  )
+}
+
 export function area({ top, right, bottom, left }: GridBox): number {
   return (
     (((top.end.x - top.start.x + bottom.start.x - bottom.end.x) / 2) *
@@ -945,7 +949,6 @@ export function matchTemplateLayout(
       templateIndex < templateColumn.length &&
       scanIndex < scanColumn.length
     ) {
-      // console.log('COLUMN', columnIndex, 'BOX', { templateIndex, scanIndex })
       let mergedBox: GridBox | undefined
       let mergedScanEnd = scanIndex + 1
 
@@ -962,7 +965,6 @@ export function matchTemplateLayout(
         )
       }
 
-      // console.log('merged?', !!mergedBox)
       if (!mergedBox) {
         return
       }
@@ -1026,7 +1028,7 @@ export function matchMerge(
     bottom: scanBottom.bottom,
     left: gridSegment({
       start: scanBottom.left.start,
-      end: scanBottom.left.end,
+      end: scanTop.left.end,
     }),
   }
 }
