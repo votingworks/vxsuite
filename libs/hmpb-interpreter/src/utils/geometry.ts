@@ -1,4 +1,4 @@
-import { Corners, Point, Rect } from '../types'
+import { Corners, Point, Rect, Vector } from '../types'
 import { strict as assert } from 'assert'
 
 /**
@@ -118,4 +118,25 @@ export function poly4Area([
     triangleArea(topLeft, bottomLeft, bottomRight) +
     triangleArea(topLeft, topRight, bottomRight)
   )
+}
+
+/**
+ * v - w
+ */
+export function vectorSub(v: Vector, w: Vector): Vector {
+  return { x: v.x - w.x, y: v.y - w.y }
+}
+
+/**
+ * v + w
+ */
+export function vectorAdd(v: Vector, w: Vector): Vector {
+  return { x: v.x + w.x, y: v.y + w.y }
+}
+
+/**
+ * s * v
+ */
+export function vectorScale(v: Vector, s: number): Vector {
+  return { x: v.x * s, y: v.y * s }
 }
