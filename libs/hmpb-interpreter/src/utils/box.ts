@@ -937,41 +937,52 @@ export function matchTemplateLayout(
     template.columns,
     scan.columns
   )) {
+    console.log('attempting to merge column', mergedColumns.length)
     if (templateColumn.length > scanColumn.length) {
       return
     }
 
     const mergedColumn: GridBox[] = []
-    let templateIndex = 0
-    let scanIndex = 0
 
-    while (
-      templateIndex < templateColumn.length &&
-      scanIndex < scanColumn.length
-    ) {
-      let mergedBox: GridBox | undefined
-      let mergedScanEnd = scanIndex + 1
-
-      for (
-        ;
-        !mergedBox && mergedScanEnd <= scanColumn.length;
-        mergedScanEnd++
-      ) {
-        mergedBox = matchMerge(
-          template,
-          templateColumn[templateIndex],
-          scan,
-          scanColumn.slice(scanIndex, mergedScanEnd)
-        )
-      }
-
-      if (!mergedBox) {
-        return
-      }
-
-      mergedColumn.push(mergedBox)
+    for (
+      let templateIndex = 0;
+      templateIndex < templateColumn.length;
       templateIndex++
-      scanIndex = mergedScanEnd - 1
+    ) {
+      console.log('matching template contest', templateIndex)
+      let scanIndex = 0
+
+      while (scanIndex < scanColumn.length) {
+        let mergedBox: GridBox | undefined
+        let mergedScanEnd = scanIndex + 1
+
+        for (; mergedScanEnd <= scanColumn.length; mergedScanEnd++) {
+          console.log(
+            'trying to match contests',
+            scanIndex,
+            'through',
+            mergedScanEnd - 1
+          )
+          const merged = matchMerge(
+            template,
+            templateColumn[templateIndex],
+            scan,
+            scanColumn.slice(scanIndex, mergedScanEnd)
+          )
+          console.log('match?', !!merged)
+
+          if (merged) {
+            mergedBox = merged
+          }
+        }
+
+        if (!mergedBox) {
+          return
+        }
+
+        mergedColumn.push(mergedBox)
+        scanIndex = mergedScanEnd - 1
+      }
     }
 
     mergedColumns.push(mergedColumn)
