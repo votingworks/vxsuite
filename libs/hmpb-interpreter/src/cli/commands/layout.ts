@@ -182,8 +182,8 @@ function analyzeImageLSD(imageData: ImageData): ReturnType<typeof findBoxes> {
     }
   )
   const qc = canvas().background(imageData)
-  drawBoxes(qc, result.clockwise, { color: 'red' })
-  drawBoxes(qc, result.counterClockwise, { color: 'green' })
+  drawBoxes(qc, result.clockwise.boxes, { color: 'red' })
+  drawBoxes(qc, result.counterClockwise.boxes, { color: 'green' })
   qc.render('debug-cw-ccw.png')
   return result
 }
@@ -219,7 +219,7 @@ export async function run(
       filterContainedBoxes(
         setFilter(
           setMap(
-            analyzeImageLSD(imageData).clockwise,
+            analyzeImageLSD(imageData).clockwise.boxes,
             (box) => inferBoxFromPartial(box) ?? box
           ),
           isCompleteBox
@@ -282,7 +282,7 @@ export async function run(
         const scaled = canvas()
           .drawImage(imageData, 0, 0, width, height)
           .render()
-        const scaledBoxes = [...analyzeImageLSD(scaled).clockwise]
+        const scaledBoxes = [...analyzeImageLSD(scaled).clockwise.boxes]
         drawBoxes(
           canvas().drawImage(scaled, 0, 0, width, height),
           scaledBoxes
