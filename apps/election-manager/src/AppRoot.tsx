@@ -285,6 +285,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     storage.clear()
     setIsOfficialResults(false)
     setCastVoteRecordFiles(CastVoteRecordFiles.empty)
+    setExternalVoteRecordsFile(undefined)
     setPrintedBallots([])
     setElectionDefinition(undefined)
 
