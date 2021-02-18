@@ -13,6 +13,7 @@ interface BoxOf<Type> {
 }
 
 export type Box = BoxOf<LineSegment>
+export type AnnotatedBox = BoxOf<AnnotatedSegment>
 
 export type LayoutColumn = readonly Box[]
 
@@ -27,7 +28,6 @@ type Direction = 'right' | 'left' | 'up' | 'down'
 interface AnnotatedSegment {
   readonly segment: LineSegment
   readonly angle: number
-  readonly diff: number
   readonly direction: Direction
   readonly min: Point
   readonly max: Point
@@ -90,11 +90,11 @@ function computeSegmentAngle(segment: LineSegment): number {
   return Math.atan2(dy, dx)
 }
 
-function computeSegmentLength(segment: LineSegment): number {
-  return euclideanDistance(
-    { x: segment.x1, y: segment.y1 },
-    { x: segment.x2, y: segment.y2 }
-  )
+function computeSegmentLength(segment: LineSegment): number
+function computeSegmentLength(segment: AnnotatedSegment): number
+function computeSegmentLength(segment: LineSegment | AnnotatedSegment): number {
+  const s = toLineSegment(segment)
+  return euclideanDistance({ x: s.x1, y: s.y1 }, { x: s.x2, y: s.y2 })
 }
 
 export function scaleBox(scale: number, box: Partial<Box>): Partial<Box> {
@@ -114,7 +114,7 @@ export function findRotation(
   const leftward = Math.atan2(0, -1)
   const downward = Math.atan2(1, 0)
   const upward = Math.atan2(-1, 0)
-  const annotated: AnnotatedSegment[] = []
+  const annotated: { diff: number; segment: AnnotatedSegment }[] = []
 
   for (const segment of segments) {
     const { x1, y1, x2, y2 } = segment
@@ -152,24 +152,25 @@ export function findRotation(
     }
 
     annotated.push({
-      segment,
-      angle,
       diff,
-      direction,
-      min,
-      max,
+      segment: {
+        segment,
+        angle,
+        direction,
+        min,
+        max,
+      },
     })
   }
 
   const grouped = [...annotated]
-    .sort((a, b) => a.diff - b.diff)
-    .reduce<AnnotatedSegment[][]>(
-      (out, annotatedSegment, i, sorted) => {
-        out[out.length - 1].push(annotatedSegment)
+    .sort(({ diff: a }, { diff: b }) => a - b)
+    .reduce<{ diff: number; segment: AnnotatedSegment }[][]>(
+      (out, { diff, segment }, i, sorted) => {
+        out[out.length - 1].push({ diff, segment })
         if (
           sorted[i + 1] &&
-          Math.abs(sorted[i + 1].diff - annotatedSegment.diff) >
-            sameDiffThreshold
+          Math.abs(sorted[i + 1].diff - diff) > sameDiffThreshold
         ) {
           out.push([])
         }
@@ -184,7 +185,7 @@ export function findRotation(
   )
   const angle =
     largestGroup.reduce((sum, { diff }) => sum + diff, 0) / largestGroup.length
-  return { angle, matchedSegments: largestGroup }
+  return { angle, matchedSegments: largestGroup.map(({ segment }) => segment) }
 }
 
 function groupBy<Key extends string, Element>(
@@ -208,11 +209,17 @@ export function findBoxes(
     maxConnectedCornerDistance,
     parallelThreshold,
   }: { maxConnectedCornerDistance: number; parallelThreshold: number }
-): { clockwise: Set<Partial<Box>>; counterClockwise: Set<Partial<Box>> } {
+): {
+  clockwise: ReturnType<typeof findBoxesFromSegments>
+  counterClockwise: ReturnType<typeof findBoxesFromSegments>
+} {
   const rotation = findRotation(segments)
 
   if (!rotation) {
-    return { clockwise: new Set(), counterClockwise: new Set() }
+    return {
+      clockwise: { boxes: new Set(), annotatedBoxes: new Set() },
+      counterClockwise: { boxes: new Set(), annotatedBoxes: new Set() },
+    }
   }
 
   const { up = [], down = [], left = [], right = [] } = groupBy(
@@ -244,9 +251,8 @@ export function findBoxes(
 function invertSegments(
   segments: readonly AnnotatedSegment[]
 ): AnnotatedSegment[] {
-  return segments.map(({ angle, diff, direction, min, max }) => ({
+  return segments.map(({ angle, direction, min, max }) => ({
     angle: (angle + Math.PI) % (2 * Math.PI),
-    diff,
     direction:
       direction === 'up'
         ? 'down'
@@ -275,7 +281,7 @@ function findBoxesFromSegments({
   right: AnnotatedSegment[]
   parallelThreshold: number
   maxConnectedCornerDistance: number
-}): Set<Partial<Box>> {
+}): { boxes: Set<Partial<Box>>; annotatedBoxes: Set<Partial<AnnotatedBox>> } {
   const builder = new BoxesBuilder({ parallelThreshold })
   const tlqc = canvas().size(1060, 1750)
   for (const r of right) {
@@ -342,7 +348,14 @@ function findBoxesFromSegments({
   }
   // blqc.render('debug-blqc.png')
 
-  return builder.build()
+  const annotatedBoxes = builder.build()
+  const boxes = setMap(annotatedBoxes, ({ top, right, bottom, left }) => ({
+    top: top?.segment,
+    right: right?.segment,
+    bottom: bottom?.segment,
+    left: left?.segment,
+  }))
+  return { boxes, annotatedBoxes }
 }
 
 function toLineSegment(segment: LineSegment | AnnotatedSegment): LineSegment {
@@ -355,7 +368,7 @@ function toLineSegment(segment: LineSegment | AnnotatedSegment): LineSegment {
 class BoxesBuilder {
   private readonly segmentBoxMap = new Map<
     AnnotatedSegment,
-    Partial<BoxOf<AnnotatedSegment>>
+    Partial<AnnotatedBox>
   >()
   private readonly parallelThreshold: number
 
@@ -368,11 +381,11 @@ class BoxesBuilder {
    */
   private getBoxesForSegments(
     segments: readonly AnnotatedSegment[]
-  ): Set<Partial<BoxOf<AnnotatedSegment>>> {
+  ): Set<Partial<AnnotatedBox>> {
     return new Set(
       segments
         .map((s) => this.segmentBoxMap.get(s))
-        .filter((b): b is Partial<BoxOf<AnnotatedSegment>> => !!b)
+        .filter((b): b is Partial<AnnotatedBox> => !!b)
     )
   }
 
@@ -398,12 +411,10 @@ class BoxesBuilder {
     bottom: AnnotatedSegment
     left: AnnotatedSegment
   }): void
-  public addCorner(box: Partial<BoxOf<AnnotatedSegment>>): void {
+  public addCorner(box: Partial<AnnotatedBox>): void {
     const segments = getBoxSegments(box)
     const boxes = this.getBoxesForSegments(segments)
-    const merged = [...boxes].reduce<
-      Partial<BoxOf<AnnotatedSegment>> | undefined
-    >(
+    const merged = [...boxes].reduce<Partial<AnnotatedBox> | undefined>(
       (previous, current) => previous && this.mergeBoxes(previous, current),
       box
     )
@@ -425,9 +436,9 @@ class BoxesBuilder {
    * Merges boxes `a` and `b` if there is no conflict.
    */
   private mergeBoxes(
-    a: Partial<BoxOf<AnnotatedSegment>>,
-    b: Partial<BoxOf<AnnotatedSegment>>
-  ): Partial<BoxOf<AnnotatedSegment>> | undefined {
+    a: Partial<AnnotatedBox>,
+    b: Partial<AnnotatedBox>
+  ): Partial<AnnotatedBox> | undefined {
     const { parallelThreshold } = this
     let top: AnnotatedSegment | undefined
     let right: AnnotatedSegment | undefined
@@ -596,16 +607,8 @@ class BoxesBuilder {
   /**
    * Builds boxes constructed by joining line segments together.
    */
-  public build(): Set<Partial<Box>> {
-    return setMap(
-      new Set(this.segmentBoxMap.values()),
-      ({ top, right, bottom, left }) => ({
-        top: top?.segment,
-        right: right?.segment,
-        bottom: bottom?.segment,
-        left: left?.segment,
-      })
-    )
+  public build(): Set<Partial<AnnotatedBox>> {
+    return new Set(this.segmentBoxMap.values())
   }
 }
 
@@ -613,11 +616,9 @@ class BoxesBuilder {
  * Get all segments present in `box`.
  */
 function getBoxSegments(box: Partial<Box>): LineSegment[]
+function getBoxSegments(box: Partial<AnnotatedBox>): AnnotatedSegment[]
 function getBoxSegments(
-  box: Partial<BoxOf<AnnotatedSegment>>
-): AnnotatedSegment[]
-function getBoxSegments(
-  box: Partial<Box> | Partial<BoxOf<AnnotatedSegment>>
+  box: Partial<Box> | Partial<AnnotatedBox>
 ): LineSegment[] | AnnotatedSegment[] {
   return [box.top, box.right, box.bottom, box.left].filter(
     (s): s is LineSegment => !!s
@@ -629,8 +630,8 @@ export function isCompleteBox(partial: Partial<Box>): partial is Box {
 }
 
 export function isCompleteAnnotatedBox(
-  partial: Partial<BoxOf<AnnotatedSegment>>
-): partial is BoxOf<AnnotatedSegment> {
+  partial: Partial<AnnotatedBox>
+): partial is AnnotatedBox {
   return getBoxSegments(partial).length === 4
 }
 
