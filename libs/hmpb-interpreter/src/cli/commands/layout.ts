@@ -14,6 +14,7 @@ import {
   drawBoxes,
   filterContainedBoxes,
   findBoxes,
+  gridSegment,
   inferBoxFromPartial,
   isCompleteBox,
   Layout,
@@ -164,10 +165,14 @@ function analyzeImageLSD(imageData: ImageData): ReturnType<typeof findBoxes> {
     data: dst,
     width: imageData.width,
     height: imageData.height,
-  }).filter(
-    ({ x1, y1, x2, y2 }) =>
-      euclideanDistance({ x: x1, y: y1 }, { x: x2, y: y2 }) >= minLength
-  )
+  })
+    .filter(
+      ({ x1, y1, x2, y2 }) =>
+        euclideanDistance({ x: x1, y: y1 }, { x: x2, y: y2 }) >= minLength
+    )
+    .map(({ x1, y1, x2, y2 }) =>
+      gridSegment({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 } })
+    )
   const parallelThreshold = imageData.width * 2
   const maxConnectedCornerDistance = 0.01 * imageData.width
   const maxConnectedSegmentGap = 0.01 * imageData.width
@@ -182,8 +187,8 @@ function analyzeImageLSD(imageData: ImageData): ReturnType<typeof findBoxes> {
     }
   )
   const qc = canvas().background(imageData)
-  drawBoxes(qc, result.clockwise.boxes, { color: 'red' })
-  drawBoxes(qc, result.counterClockwise.boxes, { color: 'green' })
+  drawBoxes(qc, result.clockwise, { color: 'red' })
+  drawBoxes(qc, result.counterClockwise, { color: 'green' })
   qc.render('debug-cw-ccw.png')
   return result
 }
@@ -219,7 +224,7 @@ export async function run(
       filterContainedBoxes(
         setFilter(
           setMap(
-            analyzeImageLSD(imageData).clockwise.boxes,
+            analyzeImageLSD(imageData).clockwise,
             (box) => inferBoxFromPartial(box) ?? box
           ),
           isCompleteBox
@@ -282,7 +287,7 @@ export async function run(
         const scaled = canvas()
           .drawImage(imageData, 0, 0, width, height)
           .render()
-        const scaledBoxes = [...analyzeImageLSD(scaled).clockwise.boxes]
+        const scaledBoxes = [...analyzeImageLSD(scaled).clockwise]
         drawBoxes(
           canvas().drawImage(scaled, 0, 0, width, height),
           scaledBoxes
@@ -328,16 +333,16 @@ export async function run(
         } else {
           for (const column of fixedScanLayout.columns) {
             const left = Math.min(
-              ...column.flatMap(({ left }) => [left.x1, left.x2])
+              ...column.flatMap(({ left }) => [left.start.x, left.end.x])
             )
             const top = Math.min(
-              ...column.flatMap(({ top }) => [top.y1, top.y2])
+              ...column.flatMap(({ top }) => [top.start.y, top.end.y])
             )
             const right = Math.max(
-              ...column.flatMap(({ right }) => [right.x1, right.x2])
+              ...column.flatMap(({ right }) => [right.start.x, right.end.x])
             )
             const bottom = Math.max(
-              ...column.flatMap(({ bottom }) => [bottom.y1, bottom.y2])
+              ...column.flatMap(({ bottom }) => [bottom.start.y, bottom.end.y])
             )
             qc.rect(left, top, right - left + 1, bottom - top + 1, {
               stroke: 10,

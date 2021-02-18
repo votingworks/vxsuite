@@ -1,8 +1,14 @@
 import { LineSegment } from '@votingworks/lsd'
-import { euclideanDistance, poly4Area } from './geometry'
-import { canvas, QuickCanvas } from './images'
+import {
+  euclideanDistance,
+  poly4Area,
+  vectorAdd,
+  vectorScale,
+  vectorSub,
+} from './geometry'
+import { QuickCanvas } from './images'
 import { Corners, Offset, Point } from '../types'
-import { setFilter, setMap } from './set'
+import { setFilter } from './set'
 import { zip } from './iterators'
 
 interface BoxOf<Type> {
@@ -12,10 +18,18 @@ interface BoxOf<Type> {
   left: Type
 }
 
+export interface GridSegment {
+  readonly direction: Direction
+  readonly start: Point
+  readonly end: Point
+  readonly length: number
+}
+
 export type Box = BoxOf<LineSegment>
 export type AnnotatedBox = BoxOf<AnnotatedSegment>
+export type GridBox = BoxOf<GridSegment>
 
-export type LayoutColumn = readonly Box[]
+export type LayoutColumn = readonly GridBox[]
 
 export interface Layout {
   readonly width: number
@@ -26,7 +40,10 @@ export interface Layout {
 type Direction = 'right' | 'left' | 'up' | 'down'
 
 interface AnnotatedSegment {
-  readonly segment: LineSegment
+  readonly x1: number
+  readonly y1: number
+  readonly x2: number
+  readonly y2: number
   readonly angle: number
   readonly direction: Direction
   readonly min: Point
@@ -35,25 +52,33 @@ interface AnnotatedSegment {
 
 export interface Rotation {
   readonly angle: number
-  readonly matchedSegments: readonly AnnotatedSegment[]
+  readonly matchedSegments: readonly GridSegment[]
 }
 
 const TWO_PI = 2 * Math.PI
 
-/**
- * Turns right if `a` + 90° ≈ `b`.
- */
-function isRightTurn(
-  a: number,
-  b: number,
-  { allowedDelta = (2 / 180) * Math.PI } = {}
-): boolean {
-  const ap = (a + TWO_PI) % TWO_PI
-  const bp = (b + TWO_PI) % TWO_PI
-  const diff = (bp - ap + TWO_PI) % TWO_PI
-  return (
-    Math.PI / 2 - allowedDelta <= diff && diff <= Math.PI / 2 + allowedDelta
-  )
+export function gridSegment({
+  start,
+  end,
+}: {
+  start: Point
+  end: Point
+}): GridSegment {
+  const dx = end.x - start.x
+  const dy = end.y - start.y
+  return {
+    start,
+    end,
+    length: euclideanDistance(start, end),
+    direction:
+      Math.abs(dx) > Math.abs(dy)
+        ? dx > 0
+          ? 'right'
+          : 'left'
+        : dy > 0
+        ? 'down'
+        : 'up',
+  }
 }
 
 /**
@@ -72,32 +97,24 @@ function isSameAngle(
 
 export function scaleLineSegment(
   scale: number,
-  segment: LineSegment
-): LineSegment {
-  return {
-    x1: segment.x1 * scale,
-    y1: segment.y1 * scale,
-    x2: segment.x2 * scale,
-    y2: segment.y2 * scale,
-    width: segment.width * scale,
-  }
+  segment: GridSegment
+): GridSegment {
+  return gridSegment({
+    start: vectorScale(segment.start, scale),
+    end: vectorScale(segment.end, scale),
+  })
 }
 
-function computeSegmentAngle(segment: LineSegment): number {
-  const { x1, y1, x2, y2 } = segment
-  const dx = x2 - x1
-  const dy = y2 - y1
+function computeSegmentAngle({ start, end }: GridSegment): number {
+  const dx = end.x - start.x
+  const dy = end.y - start.y
   return Math.atan2(dy, dx)
 }
 
-function computeSegmentLength(segment: LineSegment): number
-function computeSegmentLength(segment: AnnotatedSegment): number
-function computeSegmentLength(segment: LineSegment | AnnotatedSegment): number {
-  const s = toLineSegment(segment)
-  return euclideanDistance({ x: s.x1, y: s.y1 }, { x: s.x2, y: s.y2 })
-}
-
-export function scaleBox(scale: number, box: Partial<Box>): Partial<Box> {
+export function scaleBox(
+  scale: number,
+  box: Partial<GridBox>
+): Partial<GridBox> {
   return {
     top: box.top && scaleLineSegment(scale, box.top),
     right: box.right && scaleLineSegment(scale, box.right),
@@ -107,22 +124,18 @@ export function scaleBox(scale: number, box: Partial<Box>): Partial<Box> {
 }
 
 export function findRotation(
-  segments: readonly LineSegment[],
+  segments: readonly GridSegment[],
   { sameDiffThreshold = (1 / 180) * Math.PI } = {}
 ): Rotation | undefined {
   const rightward = Math.atan2(0, 1)
   const leftward = Math.atan2(0, -1)
   const downward = Math.atan2(1, 0)
   const upward = Math.atan2(-1, 0)
-  const annotated: { diff: number; segment: AnnotatedSegment }[] = []
+  const annotated: { diff: number; segment: GridSegment }[] = []
 
   for (const segment of segments) {
-    const { x1, y1, x2, y2 } = segment
     const angle = computeSegmentAngle(segment)
     let diff: number
-    let direction: Direction
-    let min: Point
-    let max: Point
 
     const rdiff = Math.abs(rightward - angle)
     const udiff = Math.abs(upward - angle)
@@ -130,42 +143,24 @@ export function findRotation(
     const ddiff = Math.abs(downward - angle)
 
     if (rdiff < udiff && rdiff < ldiff && rdiff < ddiff) {
-      direction = 'right'
       diff = angle - rightward
-      min = { x: x1, y: y1 }
-      max = { x: x2, y: y2 }
     } else if (ldiff < udiff && ldiff < rdiff && ldiff < ddiff) {
-      direction = 'left'
       diff = angle - leftward
-      min = { x: x2, y: y2 }
-      max = { x: x1, y: y1 }
     } else if (udiff < ldiff && udiff < rdiff && udiff < ddiff) {
-      direction = 'up'
       diff = angle - upward
-      min = { x: x2, y: y2 }
-      max = { x: x1, y: y1 }
     } else {
-      direction = 'down'
       diff = angle - downward
-      min = { x: x1, y: y1 }
-      max = { x: x2, y: y2 }
     }
 
     annotated.push({
       diff,
-      segment: {
-        segment,
-        angle,
-        direction,
-        min,
-        max,
-      },
+      segment,
     })
   }
 
   const grouped = [...annotated]
     .sort(({ diff: a }, { diff: b }) => a - b)
-    .reduce<{ diff: number; segment: AnnotatedSegment }[][]>(
+    .reduce<{ diff: number; segment: GridSegment }[][]>(
       (out, { diff, segment }, i, sorted) => {
         out[out.length - 1].push({ diff, segment })
         if (
@@ -185,7 +180,10 @@ export function findRotation(
   )
   const angle =
     largestGroup.reduce((sum, { diff }) => sum + diff, 0) / largestGroup.length
-  return { angle, matchedSegments: largestGroup.map(({ segment }) => segment) }
+  return {
+    angle,
+    matchedSegments: largestGroup.map(({ segment }) => segment),
+  }
 }
 
 function groupBy<Key extends string, Element>(
@@ -204,7 +202,7 @@ function groupBy<Key extends string, Element>(
 }
 
 export function findBoxes(
-  segments: readonly LineSegment[],
+  segments: readonly GridSegment[],
   {
     maxConnectedCornerDistance,
     parallelThreshold,
@@ -217,8 +215,8 @@ export function findBoxes(
 
   if (!rotation) {
     return {
-      clockwise: { boxes: new Set(), annotatedBoxes: new Set() },
-      counterClockwise: { boxes: new Set(), annotatedBoxes: new Set() },
+      clockwise: new Set(),
+      counterClockwise: new Set(),
     }
   }
 
@@ -248,11 +246,11 @@ export function findBoxes(
   return { clockwise, counterClockwise }
 }
 
-function invertSegments(
-  segments: readonly AnnotatedSegment[]
-): AnnotatedSegment[] {
-  return segments.map(({ angle, direction, min, max }) => ({
-    angle: (angle + Math.PI) % (2 * Math.PI),
+function invertSegments(segments: readonly GridSegment[]): GridSegment[] {
+  return segments.map(({ start, end, length, direction }) => ({
+    start: end,
+    end: start,
+    length,
     direction:
       direction === 'up'
         ? 'down'
@@ -261,9 +259,6 @@ function invertSegments(
         : direction === 'left'
         ? 'right'
         : 'left',
-    segment: { x1: max.x, y1: max.y, x2: min.x, y2: min.y, width: 1 },
-    min: max,
-    max: min,
   }))
 }
 
@@ -275,101 +270,59 @@ function findBoxesFromSegments({
   parallelThreshold,
   maxConnectedCornerDistance,
 }: {
-  up: AnnotatedSegment[]
-  down: AnnotatedSegment[]
-  left: AnnotatedSegment[]
-  right: AnnotatedSegment[]
+  up: GridSegment[]
+  down: GridSegment[]
+  left: GridSegment[]
+  right: GridSegment[]
   parallelThreshold: number
   maxConnectedCornerDistance: number
-}): { boxes: Set<Partial<Box>>; annotatedBoxes: Set<Partial<AnnotatedBox>> } {
+}): Set<Partial<GridBox>> {
   const builder = new BoxesBuilder({ parallelThreshold })
-  const tlqc = canvas().size(1060, 1750)
   for (const r of right) {
     for (const u of up) {
-      const dist = euclideanDistance(r.min, u.min)
+      const dist = euclideanDistance(r.start, u.end)
 
-      if (dist <= maxConnectedCornerDistance && isRightTurn(u.angle, r.angle)) {
-        tlqc.line(u.min, u.max).line(r.min, r.max)
+      if (dist <= maxConnectedCornerDistance) {
         builder.addCorner({ left: u, top: r })
-      } else if (dist <= maxConnectedCornerDistance) {
-        tlqc
-          .line(u.min, u.max, { color: 'red' })
-          .line(r.min, r.max, { color: 'red' })
       }
     }
   }
-  // tlqc.render('debug-tlqc.png')
 
-  const trqc = canvas().size(1060, 1750)
   for (const r of right) {
     for (const d of down) {
-      const dist = euclideanDistance(r.max, d.min)
-      if (dist <= maxConnectedCornerDistance && isRightTurn(r.angle, d.angle)) {
-        trqc.line(d.min, d.max).line(r.min, r.max)
+      const dist = euclideanDistance(r.end, d.start)
+      if (dist <= maxConnectedCornerDistance) {
         builder.addCorner({ top: r, right: d })
-      } else if (dist <= maxConnectedCornerDistance) {
-        trqc
-          .line(d.min, d.max, { color: 'red' })
-          .line(r.min, r.max, { color: 'red' })
       }
     }
   }
-  // trqc.render('debug-trqc.png')
 
-  const brqc = canvas().size(1060, 1750)
   for (const l of left) {
     for (const d of down) {
-      const dist = euclideanDistance(l.max, d.max)
-      if (dist <= maxConnectedCornerDistance && isRightTurn(d.angle, l.angle)) {
-        brqc.line(d.min, d.max).line(l.min, l.max)
+      const dist = euclideanDistance(l.start, d.end)
+      if (dist <= maxConnectedCornerDistance) {
         builder.addCorner({ right: d, bottom: l })
-      } else if (dist <= maxConnectedCornerDistance) {
-        brqc
-          .line(d.min, d.max, { color: 'red' })
-          .line(l.min, l.max, { color: 'red' })
       }
     }
   }
-  // brqc.render('debug-brqc.png')
 
-  const blqc = canvas().size(1060, 1750)
   for (const l of left) {
     for (const u of up) {
-      const dist = euclideanDistance(l.min, u.max)
-      if (dist <= maxConnectedCornerDistance && isRightTurn(l.angle, u.angle)) {
-        blqc.line(u.min, u.max).line(l.min, l.max)
+      const dist = euclideanDistance(l.end, u.start)
+      if (dist <= maxConnectedCornerDistance) {
         builder.addCorner({ bottom: l, left: u })
-      } else if (dist <= maxConnectedCornerDistance) {
-        blqc
-          .line(u.min, u.max, { color: 'red' })
-          .line(l.min, l.max, { color: 'red' })
       }
     }
   }
-  // blqc.render('debug-blqc.png')
 
-  const annotatedBoxes = builder.build()
-  const boxes = setMap(annotatedBoxes, ({ top, right, bottom, left }) => ({
-    top: top?.segment,
-    right: right?.segment,
-    bottom: bottom?.segment,
-    left: left?.segment,
-  }))
-  return { boxes, annotatedBoxes }
-}
-
-function toLineSegment(segment: LineSegment | AnnotatedSegment): LineSegment {
-  return 'segment' in segment ? segment.segment : segment
+  return builder.build()
 }
 
 /**
  * Builds `Box` instances by joining line segments at corners.
  */
 class BoxesBuilder {
-  private readonly segmentBoxMap = new Map<
-    AnnotatedSegment,
-    Partial<AnnotatedBox>
-  >()
+  private readonly segmentBoxMap = new Map<GridSegment, Partial<GridBox>>()
   private readonly parallelThreshold: number
 
   public constructor({ parallelThreshold }: { parallelThreshold: number }) {
@@ -380,12 +333,12 @@ class BoxesBuilder {
    * Get the boxes which are associated with the given `segments`.
    */
   private getBoxesForSegments(
-    segments: readonly AnnotatedSegment[]
-  ): Set<Partial<AnnotatedBox>> {
+    segments: readonly GridSegment[]
+  ): Set<Partial<GridBox>> {
     return new Set(
       segments
         .map((s) => this.segmentBoxMap.get(s))
-        .filter((b): b is Partial<AnnotatedBox> => !!b)
+        .filter((b): b is Partial<GridBox> => !!b)
     )
   }
 
@@ -395,26 +348,14 @@ class BoxesBuilder {
    * of them are previously known, the associated box(es) will be merged. If
    * the boxes cannot be merged they will be ignored.
    */
-  public addCorner(segments: {
-    left: AnnotatedSegment
-    top: AnnotatedSegment
-  }): void
-  public addCorner(segments: {
-    top: AnnotatedSegment
-    right: AnnotatedSegment
-  }): void
-  public addCorner(segments: {
-    right: AnnotatedSegment
-    bottom: AnnotatedSegment
-  }): void
-  public addCorner(segments: {
-    bottom: AnnotatedSegment
-    left: AnnotatedSegment
-  }): void
-  public addCorner(box: Partial<AnnotatedBox>): void {
+  public addCorner(segments: { left: GridSegment; top: GridSegment }): void
+  public addCorner(segments: { top: GridSegment; right: GridSegment }): void
+  public addCorner(segments: { right: GridSegment; bottom: GridSegment }): void
+  public addCorner(segments: { bottom: GridSegment; left: GridSegment }): void
+  public addCorner(box: Partial<GridBox>): void {
     const segments = getBoxSegments(box)
     const boxes = this.getBoxesForSegments(segments)
-    const merged = [...boxes].reduce<Partial<AnnotatedBox> | undefined>(
+    const merged = [...boxes].reduce<Partial<GridBox> | undefined>(
       (previous, current) => previous && this.mergeBoxes(previous, current),
       box
     )
@@ -436,14 +377,14 @@ class BoxesBuilder {
    * Merges boxes `a` and `b` if there is no conflict.
    */
   private mergeBoxes(
-    a: Partial<AnnotatedBox>,
-    b: Partial<AnnotatedBox>
-  ): Partial<AnnotatedBox> | undefined {
+    a: Partial<GridBox>,
+    b: Partial<GridBox>
+  ): Partial<GridBox> | undefined {
     const { parallelThreshold } = this
-    let top: AnnotatedSegment | undefined
-    let right: AnnotatedSegment | undefined
-    let bottom: AnnotatedSegment | undefined
-    let left: AnnotatedSegment | undefined
+    let top: GridSegment | undefined
+    let right: GridSegment | undefined
+    let bottom: GridSegment | undefined
+    let left: GridSegment | undefined
 
     if (a.top && b.top && a.top !== b.top) {
       if (
@@ -452,29 +393,9 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         top =
-          a.top.min.x < b.top.min.x
-            ? {
-                ...a.top,
-                max: b.top.max,
-                segment: {
-                  x1: a.top.min.x,
-                  y1: a.top.min.y,
-                  x2: b.top.max.x,
-                  y2: b.top.max.y,
-                  width: 1,
-                },
-              }
-            : {
-                ...b.top,
-                max: a.top.max,
-                segment: {
-                  x1: b.top.min.x,
-                  y1: b.top.min.y,
-                  x2: a.top.max.x,
-                  y2: a.top.max.y,
-                  width: 1,
-                },
-              }
+          a.top.start.x < b.top.start.x
+            ? gridSegment({ start: a.top.start, end: b.top.end })
+            : gridSegment({ start: b.top.start, end: a.top.end })
       } else {
         // console.log('determined top segments not colinear', a.top, b.top)
         return undefined
@@ -490,29 +411,9 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         right =
-          a.right.min.y < b.right.min.y
-            ? {
-                ...a.right,
-                max: b.right.max,
-                segment: {
-                  x1: a.right.min.x,
-                  y1: a.right.min.y,
-                  x2: b.right.max.x,
-                  y2: b.right.max.y,
-                  width: 1,
-                },
-              }
-            : {
-                ...b.right,
-                max: a.right.max,
-                segment: {
-                  x1: b.right.min.x,
-                  y1: b.right.min.y,
-                  x2: a.right.max.x,
-                  y2: a.right.max.y,
-                  width: 1,
-                },
-              }
+          a.right.start.y < b.right.start.y
+            ? gridSegment({ start: a.right.start, end: b.right.end })
+            : gridSegment({ start: b.right.start, end: a.right.end })
       } else {
         // console.log('determined right segments not colinear', a.right, b.right)
         return undefined
@@ -528,29 +429,9 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         bottom =
-          a.bottom.min.x > b.bottom.min.x
-            ? {
-                ...a.bottom,
-                max: b.bottom.max,
-                segment: {
-                  x1: a.bottom.min.x,
-                  y1: a.bottom.min.y,
-                  x2: b.bottom.max.x,
-                  y2: b.bottom.max.y,
-                  width: 1,
-                },
-              }
-            : {
-                ...b.bottom,
-                max: a.bottom.max,
-                segment: {
-                  x1: b.bottom.min.x,
-                  y1: b.bottom.min.y,
-                  x2: a.bottom.max.x,
-                  y2: a.bottom.max.y,
-                  width: 1,
-                },
-              }
+          a.bottom.start.x > b.bottom.start.x
+            ? gridSegment({ start: a.bottom.start, end: b.bottom.end })
+            : gridSegment({ start: b.bottom.start, end: a.bottom.end })
       } else {
         // console.log(
         //   'determined bottom segments not colinear',
@@ -570,29 +451,9 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         left =
-          a.left.min.y > b.left.min.y
-            ? {
-                ...a.left,
-                max: b.left.max,
-                segment: {
-                  x1: a.left.min.x,
-                  y1: a.left.min.y,
-                  x2: b.left.max.x,
-                  y2: b.left.max.y,
-                  width: 1,
-                },
-              }
-            : {
-                ...b.left,
-                max: a.left.max,
-                segment: {
-                  x1: b.left.min.x,
-                  y1: b.left.min.y,
-                  x2: a.left.max.x,
-                  y2: a.left.max.y,
-                  width: 1,
-                },
-              }
+          a.left.start.y > b.left.start.y
+            ? gridSegment({ start: a.left.start, end: b.left.end })
+            : gridSegment({ start: b.left.start, end: a.left.end })
       } else {
         // console.log('determined left segments not colinear', a.left, b.left)
         return undefined
@@ -607,7 +468,7 @@ class BoxesBuilder {
   /**
    * Builds boxes constructed by joining line segments together.
    */
-  public build(): Set<Partial<AnnotatedBox>> {
+  public build(): Set<Partial<GridBox>> {
     return new Set(this.segmentBoxMap.values())
   }
 }
@@ -615,35 +476,29 @@ class BoxesBuilder {
 /**
  * Get all segments present in `box`.
  */
+function getBoxSegments(box: Partial<GridBox>): GridSegment[]
 function getBoxSegments(box: Partial<Box>): LineSegment[]
-function getBoxSegments(box: Partial<AnnotatedBox>): AnnotatedSegment[]
 function getBoxSegments(
-  box: Partial<Box> | Partial<AnnotatedBox>
-): LineSegment[] | AnnotatedSegment[] {
+  box: Partial<Box> | Partial<GridBox>
+): LineSegment[] | GridSegment[] {
   return [box.top, box.right, box.bottom, box.left].filter(
     (s): s is LineSegment => !!s
   )
 }
 
-export function isCompleteBox(partial: Partial<Box>): partial is Box {
-  return getBoxSegments(partial).length === 4
-}
-
-export function isCompleteAnnotatedBox(
-  partial: Partial<AnnotatedBox>
-): partial is AnnotatedBox {
+export function isCompleteBox(partial: Partial<GridBox>): partial is GridBox {
   return getBoxSegments(partial).length === 4
 }
 
 export function mergeAdjacentLineSegments(
-  segments: Iterable<LineSegment>,
+  segments: Iterable<GridSegment>,
   {
     parallelThreshold,
     maxConnectedSegmentGap,
   }: { parallelThreshold: number; maxConnectedSegmentGap: number }
-): LineSegment[] {
-  const result: LineSegment[] = [...segments]
-  let merged: LineSegment | undefined
+): GridSegment[] {
+  const result: GridSegment[] = [...segments]
+  let merged: GridSegment | undefined
 
   do {
     merged = undefined
@@ -664,31 +519,13 @@ export function mergeAdjacentLineSegments(
           isSameAngle(computeSegmentAngle(a), computeSegmentAngle(b)) &&
           intersection === 'colinear'
         ) {
-          if (
-            euclideanDistance({ x: a.x1, y: a.y1 }, { x: b.x2, y: b.y2 }) <=
-            maxConnectedSegmentGap
-          ) {
+          if (euclideanDistance(a.start, b.end) <= maxConnectedSegmentGap) {
             // `b` ends where `a` starts
-            merged = {
-              x1: b.x1,
-              y1: b.y1,
-              x2: a.x2,
-              y2: a.y2,
-              width: 1,
-            }
+            merged = gridSegment({ start: b.start, end: a.end })
           }
-          if (
-            euclideanDistance({ x: b.x1, y: b.y1 }, { x: a.x2, y: a.y2 }) <=
-            maxConnectedSegmentGap
-          ) {
+          if (euclideanDistance(b.start, a.end) <= maxConnectedSegmentGap) {
             // `a` ends where `b` starts
-            merged = {
-              x1: a.x1,
-              y1: a.y1,
-              x2: b.x2,
-              y2: b.y2,
-              width: 1,
-            }
+            merged = gridSegment({ start: a.start, end: b.end })
           }
         }
 
@@ -709,103 +546,69 @@ export function mergeAdjacentLineSegments(
   return result
 }
 
-export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
+export function inferBoxFromPartial(
+  partial: Partial<GridBox>
+): GridBox | undefined {
   const segments = getBoxSegments(partial)
 
   switch (segments.length) {
     case 4:
-      return partial as Box
+      return partial as GridBox
 
     case 3: {
       let { top, right, bottom, left } = partial
       if (top && right && bottom) {
         // infer left
-        const topLength = computeSegmentLength(top)
-        const bottomLength = computeSegmentLength(bottom)
-
-        if (topLength > bottomLength) {
-          bottom = adjustSegmentLength(bottom, topLength, 'forward')
-        } else if (topLength < bottomLength) {
-          top = adjustSegmentLength(top, bottomLength, 'backward')
+        if (top.length > bottom.length) {
+          bottom = adjustSegmentLength(bottom, top.length, 'forward')
+        } else if (top.length < bottom.length) {
+          top = adjustSegmentLength(top, bottom.length, 'backward')
         }
 
         return {
           top,
           right,
           bottom,
-          left: {
-            x1: bottom.x2,
-            y1: bottom.y2,
-            x2: top.x1,
-            y2: top.y1,
-            width: 1,
-          },
+          left: gridSegment({ start: bottom.end, end: top.start }),
         }
       } else if (top && right && left) {
         // infer bottom
-        const leftLength = computeSegmentLength(left)
-        const rightLength = computeSegmentLength(right)
-
-        if (leftLength > rightLength) {
-          right = adjustSegmentLength(right, leftLength, 'forward')
-        } else if (leftLength < rightLength) {
-          left = adjustSegmentLength(left, rightLength, 'backward')
+        if (left.length > right.length) {
+          right = adjustSegmentLength(right, left.length, 'forward')
+        } else if (left.length < right.length) {
+          left = adjustSegmentLength(left, right.length, 'backward')
         }
 
         return {
           top,
           right,
-          bottom: {
-            x1: right.x2,
-            y1: right.y2,
-            x2: left.x1,
-            y2: left.y1,
-            width: 1,
-          },
+          bottom: gridSegment({ start: right.end, end: left.start }),
           left,
         }
       } else if (top && bottom && left) {
         // infer right
-        const topLength = computeSegmentLength(top)
-        const bottomLength = computeSegmentLength(bottom)
-
-        if (topLength > bottomLength) {
-          bottom = adjustSegmentLength(bottom, topLength, 'backward')
-        } else if (topLength < bottomLength) {
-          top = adjustSegmentLength(top, bottomLength, 'forward')
+        if (top.length > bottom.length) {
+          bottom = adjustSegmentLength(bottom, top.length, 'backward')
+        } else if (top.length < bottom.length) {
+          top = adjustSegmentLength(top, bottom.length, 'forward')
         }
 
         return {
           top,
-          right: {
-            x1: top.x2,
-            y1: top.y2,
-            x2: bottom.x1,
-            y2: bottom.y1,
-            width: 1,
-          },
+          right: gridSegment({ start: top.end, end: bottom.start }),
           bottom,
           left,
         }
       } else if (right && bottom && left) {
         // infer top
-        const leftLength = computeSegmentLength(left)
-        const rightLength = computeSegmentLength(right)
-
-        if (leftLength > rightLength) {
-          right = adjustSegmentLength(right, leftLength, 'backward')
-        } else if (leftLength < rightLength) {
-          left = adjustSegmentLength(left, rightLength, 'forward')
+        if (left.length > right.length) {
+          right = adjustSegmentLength(right, left.length, 'backward')
+        } else if (left.length < right.length) {
+          left = adjustSegmentLength(left, right.length, 'forward')
         }
 
         return {
-          top: {
-            x1: left.x2,
-            y1: left.y2,
-            x2: right.x1,
-            y2: right.y1,
-            width: 1,
-          },
+          top: gridSegment({ start: left.end, end: right.start }),
           right,
           bottom,
           left,
@@ -819,105 +622,69 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
 
     case 2: {
       const [a, b] = segments
-      const adx = a.x1 - a.x2
-      const ady = a.y1 - a.y2
-      const aVertical = Math.abs(ady) > Math.abs(adx)
-      const bdx = b.x1 - b.x2
-      const bdy = b.y1 - b.y2
-      const bVertical = Math.abs(bdy) > Math.abs(bdx)
+      const aVertical = a.direction === 'up' || a.direction === 'down'
+      const bVertical = b.direction === 'up' || b.direction === 'down'
 
       if (aVertical !== bVertical) {
         // a & b are perpendicular
         if (a === partial.top && b === partial.right) {
-          const dxTop = partial.top.x2 - partial.top.x1
-          const dyTop = partial.top.y2 - partial.top.y1
-          const dxRight = partial.right.x2 - partial.right.x1
-          const dyRight = partial.right.y2 - partial.right.y1
+          const vTop = vectorSub(partial.top.end, partial.top.start)
+          const vRight = vectorSub(partial.right.end, partial.right.start)
           return {
             top: partial.top,
             right: partial.right,
-            bottom: {
-              x1: partial.top.x2 + dxRight,
-              y1: partial.top.y2 + dyRight,
-              x2: partial.top.x1 + dxRight,
-              y2: partial.top.y1 + dyRight,
-              width: 1,
-            },
-            left: {
-              x1: partial.right.x2 - dxTop,
-              y1: partial.right.y2 + dyTop,
-              x2: partial.right.x1 - dxTop,
-              y2: partial.right.y1 + dyTop,
-              width: 1,
-            },
+            bottom: gridSegment({
+              start: partial.right.end,
+              end: vectorSub(partial.right.end, vTop),
+            }),
+            left: gridSegment({
+              start: vectorAdd(partial.top.start, vRight),
+              end: partial.top.start,
+            }),
           }
         } else if (a === partial.right && b === partial.bottom) {
-          const dxBottom = partial.bottom.x2 - partial.bottom.x1
-          const dyBottom = partial.bottom.y2 - partial.bottom.y1
-          const dxRight = partial.right.x2 - partial.right.x1
-          const dyRight = partial.right.y2 - partial.right.y1
+          const vRight = vectorSub(partial.right.end, partial.right.start)
+          const vBottom = vectorSub(partial.bottom.end, partial.bottom.start)
           return {
-            top: {
-              x1: partial.bottom.x2 + dxRight,
-              y1: partial.bottom.y2 - dyRight,
-              x2: partial.bottom.x1 + dxRight,
-              y2: partial.bottom.y1 - dyRight,
-              width: 1,
-            },
+            top: gridSegment({
+              start: vectorAdd(partial.right.start, vBottom),
+              end: partial.right.start,
+            }),
             right: partial.right,
             bottom: partial.bottom,
-            left: {
-              x1: partial.right.x2 + dxBottom,
-              y1: partial.right.y2 + dyBottom,
-              x2: partial.right.x1 + dxBottom,
-              y2: partial.right.y1 + dyBottom,
-              width: 1,
-            },
+            left: gridSegment({
+              start: partial.bottom.end,
+              end: vectorSub(partial.bottom.end, vRight),
+            }),
           }
         } else if (a === partial.bottom && b === partial.left) {
-          const dxBottom = partial.bottom.x2 - partial.bottom.x1
-          const dyBottom = partial.bottom.y2 - partial.bottom.y1
-          const dxLeft = partial.left.x2 - partial.left.x1
-          const dyLeft = partial.left.y2 - partial.left.y1
+          const vBottom = vectorSub(partial.bottom.end, partial.bottom.start)
+          const vLeft = vectorSub(partial.left.end, partial.left.start)
           return {
-            top: {
-              x1: partial.bottom.x2 + dxLeft,
-              y1: partial.bottom.y2 + dyLeft,
-              x2: partial.bottom.x1 + dxLeft,
-              y2: partial.bottom.y1 + dyLeft,
-              width: 1,
-            },
-            right: {
-              x1: partial.left.x2 - dxBottom,
-              y1: partial.left.y2 + dyBottom,
-              x2: partial.left.x1 - dxBottom,
-              y2: partial.left.y1 + dyBottom,
-              width: 1,
-            },
+            top: gridSegment({
+              start: partial.left.end,
+              end: vectorSub(partial.left.end, vBottom),
+            }),
+            right: gridSegment({
+              start: vectorAdd(partial.bottom.start, vLeft),
+              end: partial.bottom.start,
+            }),
             bottom: partial.bottom,
             left: partial.left,
           }
         } else if (a === partial.top && b === partial.left) {
-          const dxTop = partial.top.x2 - partial.top.x1
-          const dyTop = partial.top.y2 - partial.top.y1
-          const dxLeft = partial.left.x2 - partial.left.x1
-          const dyLeft = partial.left.y2 - partial.left.y1
+          const vLeft = vectorSub(partial.left.end, partial.left.start)
+          const vTop = vectorSub(partial.top.end, partial.top.start)
           return {
             top: partial.top,
-            right: {
-              x1: partial.left.x2 + dxTop,
-              y1: partial.left.y2 + dyTop,
-              x2: partial.left.x1 + dxTop,
-              y2: partial.left.y1 + dyTop,
-              width: 1,
-            },
-            bottom: {
-              x1: partial.top.x2 + dxLeft,
-              y1: partial.top.y2 - dyLeft,
-              x2: partial.top.x1 + dxLeft,
-              y2: partial.top.y1 - dyLeft,
-              width: 1,
-            },
+            right: gridSegment({
+              start: partial.top.end,
+              end: vectorSub(partial.top.end, vLeft),
+            }),
+            bottom: gridSegment({
+              start: vectorAdd(partial.left.start, vTop),
+              end: partial.left.start,
+            }),
             left: partial.left,
           }
         }
@@ -929,33 +696,38 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
   return undefined
 }
 
-export function closeBoxSegmentGaps({ top, right, bottom, left }: Box): Box {
+export function closeBoxSegmentGaps({
+  top,
+  right,
+  bottom,
+  left,
+}: GridBox): GridBox {
   const topLeft = computeProjectedLineIntersection(left, top)
 
   if (typeof topLeft !== 'string') {
-    left = { ...left, x2: topLeft.x, y2: topLeft.y }
-    top = { ...top, x1: topLeft.x, y1: topLeft.y }
+    left = gridSegment({ start: left.start, end: topLeft })
+    top = gridSegment({ start: topLeft, end: top.end })
   }
 
   const topRight = computeProjectedLineIntersection(top, right)
 
   if (typeof topRight !== 'string') {
-    top = { ...top, x2: topRight.x, y2: topRight.y }
-    right = { ...right, x1: topRight.x, y1: topRight.y }
+    top = gridSegment({ start: top.start, end: topRight })
+    right = gridSegment({ start: topRight, end: right.end })
   }
 
   const bottomRight = computeProjectedLineIntersection(right, bottom)
 
   if (typeof bottomRight !== 'string') {
-    right = { ...right, x2: bottomRight.x, y2: bottomRight.y }
-    bottom = { ...bottom, x1: bottomRight.x, y1: bottomRight.y }
+    right = gridSegment({ start: right.start, end: bottomRight })
+    bottom = gridSegment({ start: bottomRight, end: bottom.end })
   }
 
   const bottomLeft = computeProjectedLineIntersection(bottom, left)
 
   if (typeof bottomLeft !== 'string') {
-    bottom = { ...bottom, x2: bottomLeft.x, y2: bottomLeft.y }
-    left = { ...left, x1: bottomLeft.x, y1: bottomLeft.y }
+    bottom = gridSegment({ start: bottom.start, end: bottomLeft })
+    left = gridSegment({ start: bottomLeft, end: left.end })
   }
 
   return { top, right, bottom, left }
@@ -965,8 +737,8 @@ export function closeBoxSegmentGaps({ top, right, bottom, left }: Box): Box {
  * @see https://stackoverflow.com/a/565282/549363
  */
 export function computeProjectedLineIntersection(
-  segment1: LineSegment | AnnotatedSegment,
-  segment2: LineSegment | AnnotatedSegment,
+  segment1: GridSegment,
+  segment2: GridSegment,
   { parallelThreshold = 0 } = {}
 ): Point | 'colinear' | 'parallel' {
   type Vector = Offset
@@ -987,18 +759,10 @@ export function computeProjectedLineIntersection(
     return { x: s * v.x, y: s * v.y }
   }
 
-  const s1 = toLineSegment(segment1)
-  const s2 = toLineSegment(segment2)
-  const p: Vector = { x: s1.x1, y: s1.y1 }
-  const r: Vector = {
-    x: s1.x2 - s1.x1,
-    y: s1.y2 - s1.y1,
-  }
-  const q: Vector = { x: s2.x1, y: s2.y1 }
-  const s: Vector = {
-    x: s2.x2 - s2.x1,
-    y: s2.y2 - s2.y1,
-  }
+  const p: Vector = segment1.start
+  const r: Vector = sub(segment1.end, segment1.start)
+  const q: Vector = segment2.start
+  const s: Vector = sub(segment2.end, segment2.start)
   const rxs = cross(r, s)
   const qsubp = sub(q, p)
 
@@ -1017,36 +781,30 @@ export function computeProjectedLineIntersection(
 }
 
 function adjustSegmentLength(
-  segment: LineSegment,
+  segment: GridSegment,
   length: number,
   direction: 'forward' | 'backward'
-): LineSegment {
+): GridSegment {
   const angle = computeSegmentAngle(segment)
   const dx = length * Math.cos(angle)
   const dy = length * Math.sin(angle)
 
   if (direction === 'forward') {
-    return {
-      x1: segment.x1,
-      y1: segment.y1,
-      x2: segment.x1 + dx,
-      y2: segment.y1 + dy,
-      width: 1,
-    }
+    return gridSegment({
+      start: segment.start,
+      end: vectorAdd(segment.start, { x: dx, y: dy }),
+    })
   } else {
-    return {
-      x1: segment.x2 - dx,
-      y1: segment.y2 - dy,
-      x2: segment.x2,
-      y2: segment.y2,
-      width: 1,
-    }
+    return gridSegment({
+      start: vectorSub(segment.end, { x: dx, y: dy }),
+      end: segment.end,
+    })
   }
 }
 
 export function drawBoxes(
   qc: QuickCanvas,
-  boxes: Iterable<Partial<Box>>,
+  boxes: Iterable<Partial<GridBox>>,
   { stroke, color: overrideColor }: { stroke?: number; color?: string } = {}
 ): QuickCanvas {
   const colors = [
@@ -1062,59 +820,23 @@ export function drawBoxes(
   for (const [i, box] of [...boxes].entries()) {
     const color = overrideColor ?? colors[i % colors.length]
     if (box.top) {
-      qc.line(
-        { x: box.top.x1, y: box.top.y1 },
-        { x: box.top.x2, y: box.top.y2 },
-        { color, stroke }
-      )
+      qc.line(box.top.start, box.top.end, { color, stroke })
     }
     if (box.right) {
-      qc.line(
-        { x: box.right.x1, y: box.right.y1 },
-        { x: box.right.x2, y: box.right.y2 },
-        {
-          color,
-          stroke,
-        }
-      )
+      qc.line(box.right.start, box.right.end, { color, stroke })
     }
     if (box.bottom) {
-      qc.line(
-        { x: box.bottom.x1, y: box.bottom.y1 },
-        { x: box.bottom.x2, y: box.bottom.y2 },
-        {
-          color,
-          stroke,
-        }
-      )
+      qc.line(box.bottom.start, box.bottom.end, { color, stroke })
     }
     if (box.left) {
-      qc.line(
-        { x: box.left.x1, y: box.left.y1 },
-        { x: box.left.x2, y: box.left.y2 },
-        {
-          color,
-          stroke,
-        }
-      )
-    }
-
-    if (isCompleteBox(box)) {
-      qc.text(
-        `${Math.round(area(box))}`,
-        box.top.x1 + (box.top.x2 - box.top.x1) / 2,
-        box.right.y1 + (box.right.y2 - box.right.y1) / 2,
-        undefined,
-        undefined,
-        { color }
-      )
+      qc.line(box.left.start, box.left.end, { color, stroke })
     }
   }
 
   return qc
 }
 
-export function filterContainedBoxes(boxes: Iterable<Box>): Set<Box> {
+export function filterContainedBoxes(boxes: Iterable<GridBox>): Set<GridBox> {
   return setFilter(
     boxes,
     (box, i, boxes) =>
@@ -1122,37 +844,37 @@ export function filterContainedBoxes(boxes: Iterable<Box>): Set<Box> {
   )
 }
 
-export function area({ top, right, bottom, left }: Box): number {
+export function area({ top, right, bottom, left }: GridBox): number {
   return (
-    (((top.x2 - top.x1 + bottom.x1 - bottom.x2) / 2) *
-      (right.y2 - right.y1 + left.y1 - left.y2)) /
+    (((top.end.x - top.start.x + bottom.start.x - bottom.end.x) / 2) *
+      (right.end.y - right.start.y + left.start.y - left.end.y)) /
     2
   )
 }
 
-export function boxContains(container: Box, contained: Box): boolean {
+export function boxContains(container: GridBox, contained: GridBox): boolean {
   const result =
-    container.top.x1 <= contained.top.x1 &&
-    container.top.y1 <= contained.top.y1 &&
-    container.top.x2 >= contained.top.x2 &&
-    container.top.y2 <= contained.top.y2 &&
-    container.right.x1 >= contained.right.x1 &&
-    container.right.y1 <= contained.right.y1 &&
-    container.right.x2 >= contained.right.x2 &&
-    container.right.y2 >= contained.right.y2 &&
-    container.bottom.x1 >= contained.bottom.x1 &&
-    container.bottom.y1 >= contained.bottom.y1 &&
-    container.bottom.x2 <= contained.bottom.x2 &&
-    container.bottom.y2 >= contained.bottom.y2 &&
-    container.left.x1 <= contained.left.x1 &&
-    container.left.y1 >= contained.left.y1 &&
-    container.left.x2 <= contained.left.x2 &&
-    container.left.y2 <= contained.left.y2
+    container.top.start.x <= contained.top.start.x &&
+    container.top.start.y <= contained.top.start.y &&
+    container.top.end.x >= contained.top.end.x &&
+    container.top.end.y <= contained.top.end.y &&
+    container.right.start.x >= contained.right.start.x &&
+    container.right.start.y <= contained.right.start.y &&
+    container.right.end.x >= contained.right.end.x &&
+    container.right.end.y >= contained.right.end.y &&
+    container.bottom.start.x >= contained.bottom.start.x &&
+    container.bottom.start.y >= contained.bottom.start.y &&
+    container.bottom.end.x <= contained.bottom.end.x &&
+    container.bottom.end.y >= contained.bottom.end.y &&
+    container.left.start.x <= contained.left.start.x &&
+    container.left.start.y >= contained.left.start.y &&
+    container.left.end.x <= contained.left.end.x &&
+    container.left.end.y <= contained.left.end.y
   return result
 }
 
-export function splitIntoColumns(boxes: Iterable<Box>): LayoutColumn[] {
-  const columns: Box[][] = []
+export function splitIntoColumns(boxes: Iterable<GridBox>): LayoutColumn[] {
+  const columns: GridBox[][] = []
 
   for (const box of boxes) {
     if (columns.length === 0) {
@@ -1165,9 +887,9 @@ export function splitIntoColumns(boxes: Iterable<Box>): LayoutColumn[] {
         }
 
         const column = columns[i]
-        const columnMidX = (column[0].top.x2 + column[0].top.x1) / 2
+        const columnMidX = (column[0].top.end.x + column[0].top.start.x) / 2
 
-        if (box.top.x1 < columnMidX && box.top.x2 > columnMidX) {
+        if (box.top.start.x < columnMidX && box.top.end.x > columnMidX) {
           // in this column
           for (let j = 0; j <= column.length; j++) {
             if (j === column.length) {
@@ -1176,8 +898,8 @@ export function splitIntoColumns(boxes: Iterable<Box>): LayoutColumn[] {
             }
 
             if (
-              column[j].left.y2 + column[j].left.y1 >
-              box.left.y2 + box.left.y1
+              column[j].left.end.y + column[j].left.start.y >
+              box.left.end.y + box.left.start.y
             ) {
               column.splice(j, 0, box)
               break
@@ -1185,7 +907,7 @@ export function splitIntoColumns(boxes: Iterable<Box>): LayoutColumn[] {
           }
 
           break
-        } else if (box.top.x2 < columnMidX) {
+        } else if (box.top.end.x < columnMidX) {
           // to the left of this column, insert new column
           columns.splice(i, 0, [box])
           break
@@ -1215,7 +937,7 @@ export function matchTemplateLayout(
       return
     }
 
-    const mergedColumn: Box[] = []
+    const mergedColumn: GridBox[] = []
     let templateIndex = 0
     let scanIndex = 0
 
@@ -1224,7 +946,7 @@ export function matchTemplateLayout(
       scanIndex < scanColumn.length
     ) {
       // console.log('COLUMN', columnIndex, 'BOX', { templateIndex, scanIndex })
-      let mergedBox: Box | undefined
+      let mergedBox: GridBox | undefined
       let mergedScanEnd = scanIndex + 1
 
       for (
@@ -1260,22 +982,17 @@ export function matchTemplateLayout(
   }
 }
 
-export function boxCorners(box: Box): Corners {
-  return [
-    { x: box.top.x1, y: box.top.y1 },
-    { x: box.top.x2, y: box.top.y2 },
-    { x: box.bottom.x2, y: box.bottom.y2 },
-    { x: box.bottom.x1, y: box.bottom.y1 },
-  ]
+export function boxCorners(box: GridBox): Corners {
+  return [box.top.start, box.top.end, box.bottom.end, box.bottom.start]
 }
 
 export function matchMerge(
   template: Layout,
-  templateBox: Box,
+  templateBox: GridBox,
   scan: Layout,
-  scanBoxes: readonly Box[],
+  scanBoxes: readonly GridBox[],
   { allowedAreaRatioError = 0.02 } = {}
-): Box | undefined {
+): GridBox | undefined {
   const templateArea = template.width * template.height
   const scanArea = scan.width * scan.height
   const templateCorners = boxCorners(templateBox)
@@ -1302,20 +1019,14 @@ export function matchMerge(
 
   return {
     top: scanTop.top,
-    right: {
-      x1: scanTop.right.x1,
-      y1: scanTop.right.y1,
-      x2: scanBottom.right.x2,
-      y2: scanBottom.right.y2,
-      width: 1,
-    },
+    right: gridSegment({
+      start: scanTop.right.start,
+      end: scanBottom.right.end,
+    }),
     bottom: scanBottom.bottom,
-    left: {
-      x1: scanBottom.left.x1,
-      y1: scanBottom.left.y1,
-      x2: scanTop.left.x2,
-      y2: scanTop.left.y2,
-      width: 1,
-    },
+    left: gridSegment({
+      start: scanBottom.left.start,
+      end: scanBottom.left.end,
+    }),
   }
 }
