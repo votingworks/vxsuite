@@ -2,7 +2,7 @@ import { LineSegment } from '@votingworks/lsd'
 import { euclideanDistance, poly4Area } from './geometry'
 import { canvas, QuickCanvas } from './images'
 import { Corners, Offset, Point } from '../types'
-import { setFilter } from './set'
+import { setFilter, setMap } from './set'
 import { zip } from './iterators'
 
 interface BoxOf<Type> {
@@ -244,30 +244,21 @@ export function findBoxes(
 function invertSegments(
   segments: readonly AnnotatedSegment[]
 ): AnnotatedSegment[] {
-  return segments.map(
-    ({
-      angle,
-      diff,
-      direction,
-      segment: { x1, x2, y1, y2, width },
-      min,
-      max,
-    }) => ({
-      angle: (angle + Math.PI) % (2 * Math.PI),
-      diff,
-      direction:
-        direction === 'up'
-          ? 'down'
-          : direction === 'down'
-          ? 'up'
-          : direction === 'left'
-          ? 'right'
-          : 'left',
-      segment: { x1: x2, y1: y2, x2: x1, y2: y1, width },
-      min: max,
-      max: min,
-    })
-  )
+  return segments.map(({ angle, diff, direction, min, max }) => ({
+    angle: (angle + Math.PI) % (2 * Math.PI),
+    diff,
+    direction:
+      direction === 'up'
+        ? 'down'
+        : direction === 'down'
+        ? 'up'
+        : direction === 'left'
+        ? 'right'
+        : 'left',
+    segment: { x1: max.x, y1: max.y, x2: min.x, y2: min.y, width: 1 },
+    min: max,
+    max: min,
+  }))
 }
 
 function findBoxesFromSegments({
@@ -358,22 +349,14 @@ function toLineSegment(segment: LineSegment | AnnotatedSegment): LineSegment {
   return 'segment' in segment ? segment.segment : segment
 }
 
-function toLineSegmentBox(
-  box: Partial<Box> | Partial<BoxOf<AnnotatedSegment>>
-): Partial<Box> {
-  return {
-    top: box.top && toLineSegment(box.top),
-    right: box.right && toLineSegment(box.right),
-    bottom: box.bottom && toLineSegment(box.bottom),
-    left: box.left && toLineSegment(box.left),
-  }
-}
-
 /**
  * Builds `Box` instances by joining line segments at corners.
  */
 class BoxesBuilder {
-  private readonly segmentBoxMap = new Map<LineSegment, Partial<Box>>()
+  private readonly segmentBoxMap = new Map<
+    AnnotatedSegment,
+    Partial<BoxOf<AnnotatedSegment>>
+  >()
   private readonly parallelThreshold: number
 
   public constructor({ parallelThreshold }: { parallelThreshold: number }) {
@@ -384,12 +367,12 @@ class BoxesBuilder {
    * Get the boxes which are associated with the given `segments`.
    */
   private getBoxesForSegments(
-    segments: readonly LineSegment[]
-  ): Set<Partial<Box>> {
+    segments: readonly AnnotatedSegment[]
+  ): Set<Partial<BoxOf<AnnotatedSegment>>> {
     return new Set(
       segments
         .map((s) => this.segmentBoxMap.get(s))
-        .filter((b): b is Partial<Box> => !!b)
+        .filter((b): b is Partial<BoxOf<AnnotatedSegment>> => !!b)
     )
   }
 
@@ -418,9 +401,11 @@ class BoxesBuilder {
   public addCorner(box: Partial<BoxOf<AnnotatedSegment>>): void {
     const segments = getBoxSegments(box)
     const boxes = this.getBoxesForSegments(segments)
-    const merged = [...boxes].reduce<Partial<Box> | undefined>(
+    const merged = [...boxes].reduce<
+      Partial<BoxOf<AnnotatedSegment>> | undefined
+    >(
       (previous, current) => previous && this.mergeBoxes(previous, current),
-      toLineSegmentBox(box)
+      box
     )
 
     for (const box of boxes) {
@@ -440,14 +425,14 @@ class BoxesBuilder {
    * Merges boxes `a` and `b` if there is no conflict.
    */
   private mergeBoxes(
-    a: Partial<Box>,
-    b: Partial<Box>
-  ): Partial<Box> | undefined {
+    a: Partial<BoxOf<AnnotatedSegment>>,
+    b: Partial<BoxOf<AnnotatedSegment>>
+  ): Partial<BoxOf<AnnotatedSegment>> | undefined {
     const { parallelThreshold } = this
-    let top: LineSegment | undefined
-    let right: LineSegment | undefined
-    let bottom: LineSegment | undefined
-    let left: LineSegment | undefined
+    let top: AnnotatedSegment | undefined
+    let right: AnnotatedSegment | undefined
+    let bottom: AnnotatedSegment | undefined
+    let left: AnnotatedSegment | undefined
 
     if (a.top && b.top && a.top !== b.top) {
       if (
@@ -456,20 +441,28 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         top =
-          a.top.x1 < b.top.x1
+          a.top.min.x < b.top.min.x
             ? {
-                x1: a.top.x1,
-                y1: a.top.y1,
-                x2: b.top.x2,
-                y2: b.top.y2,
-                width: a.top.width,
+                ...a.top,
+                max: b.top.max,
+                segment: {
+                  x1: a.top.min.x,
+                  y1: a.top.min.y,
+                  x2: b.top.max.x,
+                  y2: b.top.max.y,
+                  width: 1,
+                },
               }
             : {
-                x1: b.top.x1,
-                y1: b.top.y1,
-                x2: a.top.x2,
-                y2: a.top.y2,
-                width: b.top.width,
+                ...b.top,
+                max: a.top.max,
+                segment: {
+                  x1: b.top.min.x,
+                  y1: b.top.min.y,
+                  x2: a.top.max.x,
+                  y2: a.top.max.y,
+                  width: 1,
+                },
               }
       } else {
         // console.log('determined top segments not colinear', a.top, b.top)
@@ -486,20 +479,28 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         right =
-          a.right.y1 < b.right.y1
+          a.right.min.y < b.right.min.y
             ? {
-                x1: a.right.x1,
-                y1: a.right.y1,
-                x2: b.right.x2,
-                y2: b.right.y2,
-                width: a.right.width,
+                ...a.right,
+                max: b.right.max,
+                segment: {
+                  x1: a.right.min.x,
+                  y1: a.right.min.y,
+                  x2: b.right.max.x,
+                  y2: b.right.max.y,
+                  width: 1,
+                },
               }
             : {
-                x1: b.right.x1,
-                y1: b.right.y1,
-                x2: a.right.x2,
-                y2: a.right.y2,
-                width: b.right.width,
+                ...b.right,
+                max: a.right.max,
+                segment: {
+                  x1: b.right.min.x,
+                  y1: b.right.min.y,
+                  x2: a.right.max.x,
+                  y2: a.right.max.y,
+                  width: 1,
+                },
               }
       } else {
         // console.log('determined right segments not colinear', a.right, b.right)
@@ -516,20 +517,28 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         bottom =
-          a.bottom.x1 > b.bottom.x1
+          a.bottom.min.x > b.bottom.min.x
             ? {
-                x1: a.bottom.x1,
-                y1: a.bottom.y1,
-                x2: b.bottom.x2,
-                y2: b.bottom.y2,
-                width: a.bottom.width,
+                ...a.bottom,
+                max: b.bottom.max,
+                segment: {
+                  x1: a.bottom.min.x,
+                  y1: a.bottom.min.y,
+                  x2: b.bottom.max.x,
+                  y2: b.bottom.max.y,
+                  width: 1,
+                },
               }
             : {
-                x1: b.bottom.x1,
-                y1: b.bottom.y1,
-                x2: a.bottom.x2,
-                y2: a.bottom.y2,
-                width: b.bottom.width,
+                ...b.bottom,
+                max: a.bottom.max,
+                segment: {
+                  x1: b.bottom.min.x,
+                  y1: b.bottom.min.y,
+                  x2: a.bottom.max.x,
+                  y2: a.bottom.max.y,
+                  width: 1,
+                },
               }
       } else {
         // console.log(
@@ -550,20 +559,28 @@ class BoxesBuilder {
         }) === 'colinear'
       ) {
         left =
-          a.left.y1 > b.left.y1
+          a.left.min.y > b.left.min.y
             ? {
-                x1: a.left.x1,
-                y1: a.left.y1,
-                x2: b.left.x2,
-                y2: b.left.y2,
-                width: a.left.width,
+                ...a.left,
+                max: b.left.max,
+                segment: {
+                  x1: a.left.min.x,
+                  y1: a.left.min.y,
+                  x2: b.left.max.x,
+                  y2: b.left.max.y,
+                  width: 1,
+                },
               }
             : {
-                x1: b.left.x1,
-                y1: b.left.y1,
-                x2: a.left.x2,
-                y2: a.left.y2,
-                width: b.left.width,
+                ...b.left,
+                max: a.left.max,
+                segment: {
+                  x1: b.left.min.x,
+                  y1: b.left.min.y,
+                  x2: a.left.max.x,
+                  y2: a.left.max.y,
+                  width: 1,
+                },
               }
       } else {
         // console.log('determined left segments not colinear', a.left, b.left)
@@ -580,19 +597,31 @@ class BoxesBuilder {
    * Builds boxes constructed by joining line segments together.
    */
   public build(): Set<Partial<Box>> {
-    return new Set(this.segmentBoxMap.values())
+    return setMap(
+      new Set(this.segmentBoxMap.values()),
+      ({ top, right, bottom, left }) => ({
+        top: top?.segment,
+        right: right?.segment,
+        bottom: bottom?.segment,
+        left: left?.segment,
+      })
+    )
   }
 }
 
 /**
  * Get all segments present in `box`.
  */
+function getBoxSegments(box: Partial<Box>): LineSegment[]
+function getBoxSegments(
+  box: Partial<BoxOf<AnnotatedSegment>>
+): AnnotatedSegment[]
 function getBoxSegments(
   box: Partial<Box> | Partial<BoxOf<AnnotatedSegment>>
-): LineSegment[] {
-  return [box.top, box.right, box.bottom, box.left]
-    .map((s) => s && toLineSegment(s))
-    .filter((s): s is LineSegment => !!s)
+): LineSegment[] | AnnotatedSegment[] {
+  return [box.top, box.right, box.bottom, box.left].filter(
+    (s): s is LineSegment => !!s
+  )
 }
 
 export function isCompleteBox(partial: Partial<Box>): partial is Box {
@@ -644,7 +673,7 @@ export function mergeAdjacentLineSegments(
               y1: b.y1,
               x2: a.x2,
               y2: a.y2,
-              width: (a.width + b.width) / 2,
+              width: 1,
             }
           }
           if (
@@ -657,7 +686,7 @@ export function mergeAdjacentLineSegments(
               y1: a.y1,
               x2: b.x2,
               y2: b.y2,
-              width: (a.width + b.width) / 2,
+              width: 1,
             }
           }
         }
@@ -708,7 +737,7 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
             y1: bottom.y2,
             x2: top.x1,
             y2: top.y1,
-            width: right.width,
+            width: 1,
           },
         }
       } else if (top && right && left) {
@@ -730,7 +759,7 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
             y1: right.y2,
             x2: left.x1,
             y2: left.y1,
-            width: top.width,
+            width: 1,
           },
           left,
         }
@@ -752,7 +781,7 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
             y1: top.y2,
             x2: bottom.x1,
             y2: bottom.y1,
-            width: top.width,
+            width: 1,
           },
           bottom,
           left,
@@ -774,7 +803,7 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
             y1: left.y2,
             x2: right.x1,
             y2: right.y1,
-            width: bottom.width,
+            width: 1,
           },
           right,
           bottom,
@@ -785,67 +814,6 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
           `constraint failed: 3 segments found but nothing to infer`
         )
       }
-
-      // const [a,b,c] = segments
-
-      // if (a === partial.top) {
-      //   if (b === partial.right) {
-      //     if (c === partial.bottom) {
-      //       // infer left
-      //     } else if (c === partial.left) {
-      //       // infer bottom
-      //     }
-      //   }
-      // }
-      // const segmentsAndAngles = segments.map((segment) => ({
-      //   segment,
-      //   angle: computeSegmentAngle(segment),
-      // }))
-
-      // while (
-      //   Math.abs(segmentsAndAngles[0].angle - segmentsAndAngles[1].angle) <
-      //   Math.abs(segmentsAndAngles[1].angle - segmentsAndAngles[2].angle)
-      // ) {
-      //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      //   segmentsAndAngles.unshift(segmentsAndAngles.pop()!)
-      // }
-
-      // // eslint-disable-next-line prefer-const
-      // let [beforeMiddle, middle, afterMiddle] = segmentsAndAngles.map(
-      //   ({ segment }) => segment
-      // )
-
-      // const afterMiddleLength = euclideanDistance(
-      //   { x: afterMiddle.x1, y: afterMiddle.y1 },
-      //   { x: afterMiddle.x2, y: afterMiddle.y2 }
-      // )
-      // const beforeMiddleLength = euclideanDistance(
-      //   { x: beforeMiddle.x1, y: beforeMiddle.y1 },
-      //   { x: beforeMiddle.x2, y: beforeMiddle.y2 }
-      // )
-
-      // console.log({ afterMiddleLength, beforeMiddleLength })
-      // if (afterMiddleLength > beforeMiddleLength) {
-      //   beforeMiddle = adjustSegmentLength(beforeMiddle, afterMiddleLength)
-      // } else if (afterMiddleLength < beforeMiddleLength) {
-      //   afterMiddle = adjustSegmentLength(afterMiddle, beforeMiddleLength)
-      // }
-
-      // const inferredSegment: LineSegment = {
-      //   x1: afterMiddle.x2,
-      //   y1: afterMiddle.y2,
-      //   x2: beforeMiddle.x1,
-      //   y2: beforeMiddle.y1,
-      //   width: middle.width,
-      // }
-      // console.log({ inferredSegment })
-
-      // return {
-      //   top: partial.top ?? inferredSegment,
-      //   right: partial.right ?? inferredSegment,
-      //   bottom: partial.bottom ?? inferredSegment,
-      //   left: partial.left ?? inferredSegment,
-      // }
     }
 
     case 2: {
@@ -872,14 +840,14 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
               y1: partial.top.y2 + dyRight,
               x2: partial.top.x1 + dxRight,
               y2: partial.top.y1 + dyRight,
-              width: partial.top.width,
+              width: 1,
             },
             left: {
               x1: partial.right.x2 - dxTop,
               y1: partial.right.y2 + dyTop,
               x2: partial.right.x1 - dxTop,
               y2: partial.right.y1 + dyTop,
-              width: partial.right.width,
+              width: 1,
             },
           }
         } else if (a === partial.right && b === partial.bottom) {
@@ -893,7 +861,7 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
               y1: partial.bottom.y2 - dyRight,
               x2: partial.bottom.x1 + dxRight,
               y2: partial.bottom.y1 - dyRight,
-              width: partial.bottom.width,
+              width: 1,
             },
             right: partial.right,
             bottom: partial.bottom,
@@ -902,7 +870,7 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
               y1: partial.right.y2 + dyBottom,
               x2: partial.right.x1 + dxBottom,
               y2: partial.right.y1 + dyBottom,
-              width: partial.right.width,
+              width: 1,
             },
           }
         } else if (a === partial.bottom && b === partial.left) {
@@ -916,14 +884,14 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
               y1: partial.bottom.y2 + dyLeft,
               x2: partial.bottom.x1 + dxLeft,
               y2: partial.bottom.y1 + dyLeft,
-              width: partial.bottom.width,
+              width: 1,
             },
             right: {
               x1: partial.left.x2 - dxBottom,
               y1: partial.left.y2 + dyBottom,
               x2: partial.left.x1 - dxBottom,
               y2: partial.left.y1 + dyBottom,
-              width: partial.left.width,
+              width: 1,
             },
             bottom: partial.bottom,
             left: partial.left,
@@ -940,14 +908,14 @@ export function inferBoxFromPartial(partial: Partial<Box>): Box | undefined {
               y1: partial.left.y2 + dyTop,
               x2: partial.left.x1 + dxTop,
               y2: partial.left.y1 + dyTop,
-              width: partial.left.width,
+              width: 1,
             },
             bottom: {
               x1: partial.top.x2 + dxLeft,
               y1: partial.top.y2 - dyLeft,
               x2: partial.top.x1 + dxLeft,
               y2: partial.top.y1 - dyLeft,
-              width: partial.top.width,
+              width: 1,
             },
             left: partial.left,
           }
@@ -1062,7 +1030,7 @@ function adjustSegmentLength(
       y1: segment.y1,
       x2: segment.x1 + dx,
       y2: segment.y1 + dy,
-      width: segment.width,
+      width: 1,
     }
   } else {
     return {
@@ -1070,7 +1038,7 @@ function adjustSegmentLength(
       y1: segment.y2 - dy,
       x2: segment.x2,
       y2: segment.y2,
-      width: segment.width,
+      width: 1,
     }
   }
 }
@@ -1338,7 +1306,7 @@ export function matchMerge(
       y1: scanTop.right.y1,
       x2: scanBottom.right.x2,
       y2: scanBottom.right.y2,
-      width: (scanTop.right.width + scanBottom.right.width) / 2,
+      width: 1,
     },
     bottom: scanBottom.bottom,
     left: {
@@ -1346,7 +1314,7 @@ export function matchMerge(
       y1: scanBottom.left.y1,
       x2: scanTop.left.x2,
       y2: scanTop.left.y2,
-      width: (scanTop.left.width + scanBottom.left.width) / 2,
+      width: 1,
     },
   }
 }

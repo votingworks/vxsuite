@@ -283,32 +283,32 @@ export async function run(
           .drawImage(imageData, 0, 0, width, height)
           .render()
         const scaledBoxes = [...analyzeImageLSD(scaled).clockwise]
-        // drawBoxes(
-        //   canvas().drawImage(scaled, 0, 0, width, height),
-        //   scaledBoxes
-        // ).render('debug-01-scaledBoxes-NEW.png')
+        drawBoxes(
+          canvas().drawImage(scaled, 0, 0, width, height),
+          scaledBoxes
+        ).render('debug-01-scaledBoxes-NEW.png')
         const originalScaleBoxes = scaledBoxes.map((box) =>
           scaleBox(imageData.width / width, box)
         )
-        // drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
-        //   'debug-02-originalScaledBoxes-NEW.png'
-        // )
+        drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
+          'debug-02-originalScaledBoxes-NEW.png'
+        )
         const fullBoxes = originalScaleBoxes.map(
           (box) => inferBoxFromPartial(box) ?? box
         )
-        // drawBoxes(canvas().background(imageData), fullBoxes).render(
-        //   'debug-03-fullBoxes-NEW.png'
-        // )
+        drawBoxes(canvas().background(imageData), fullBoxes).render(
+          'debug-03-fullBoxes-NEW.png'
+        )
         const gaplessBoxes = fullBoxes.map((box) =>
           isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
         )
-        // drawBoxes(canvas().background(imageData), gaplessBoxes).render(
-        //   'debug-04-gapless-NEW.png'
-        // )
+        drawBoxes(canvas().background(imageData), gaplessBoxes).render(
+          'debug-04-gapless-NEW.png'
+        )
         const completeBoxes = gaplessBoxes.filter(isCompleteBox)
-        // drawBoxes(canvas().background(imageData), completeBoxes).render(
-        //   'debug-05-complete-NEW.png'
-        // )
+        drawBoxes(canvas().background(imageData), completeBoxes).render(
+          'debug-05-complete-NEW.png'
+        )
         const withoutContainedBoxes = filterContainedBoxes(completeBoxes)
         const boxes = withoutContainedBoxes
         const columns = splitIntoColumns(boxes)
