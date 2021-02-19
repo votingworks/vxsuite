@@ -11,6 +11,9 @@ import { QuickCanvas } from './images'
 import { Corners, Offset, Point, Rect } from '../types'
 import { setFilter } from './set'
 import { zip } from './iterators'
+import makeDebug from 'debug'
+
+const debug = makeDebug('hmpb-interpreter:box')
 
 interface BoxOf<Type> {
   top: Type
@@ -927,7 +930,14 @@ export function matchTemplateLayout(
   template: Layout,
   scan: Layout
 ): Layout | undefined {
+  debug(
+    'matchTemplateLayout merging: template=%s scan=%s',
+    template.columns.map(({ length }) => length).join(','),
+    scan.columns.map(({ length }) => length).join(',')
+  )
+
   if (template.columns.length !== scan.columns.length) {
+    debug('column count differs, cannot merge')
     return
   }
 
@@ -937,57 +947,105 @@ export function matchTemplateLayout(
     template.columns,
     scan.columns
   )) {
-    console.log('attempting to merge column', mergedColumns.length)
-    if (templateColumn.length > scanColumn.length) {
+    debug(
+      'attempting to merge column %d; template=%d scan=%d',
+      mergedColumns.length,
+      templateColumn.length,
+      scanColumn.length
+    )
+    if (scanColumn.length < templateColumn.length) {
+      debug(
+        'not enough scan boxes (%d < %d), bailing',
+        scanColumn.length,
+        templateColumn.length
+      )
       return
     }
 
     const mergedColumn: GridBox[] = []
+    let scanIndex = 0
 
     for (
       let templateIndex = 0;
       templateIndex < templateColumn.length;
       templateIndex++
     ) {
-      console.log('matching template contest', templateIndex)
-      let scanIndex = 0
+      debug(
+        'matching scan boxes for template box %d starting at scan box %d',
+        templateIndex,
+        scanIndex
+      )
+      let mergedBox: GridBox | undefined
+      let mergedScanEnd = -1
 
-      while (scanIndex < scanColumn.length) {
-        let mergedBox: GridBox | undefined
-        let mergedScanEnd = scanIndex + 1
+      for (
+        let scanEnd = scanIndex + 1;
+        scanEnd <= scanColumn.length;
+        scanEnd++
+      ) {
+        debug(
+          'matching scan boxes %d..<%d with template box %d',
+          scanIndex,
+          scanEnd,
+          templateIndex
+        )
+        const merged = matchMerge(
+          template,
+          templateColumn[templateIndex],
+          scan,
+          scanColumn.slice(scanIndex, scanEnd)
+        )
 
-        for (; mergedScanEnd <= scanColumn.length; mergedScanEnd++) {
-          console.log(
-            'trying to match contests',
+        if (merged) {
+          debug(
+            'match succeeded, continuing in case a duplicate box should be included'
+          )
+          mergedBox = merged
+          mergedScanEnd = scanEnd
+        } else if (mergedBox) {
+          debug(
+            'match failed after a match succeeded, reverting to last success matching scan boxes %d..<%d with template %d',
             scanIndex,
-            'through',
-            mergedScanEnd - 1
+            mergedScanEnd,
+            templateIndex
           )
-          const merged = matchMerge(
-            template,
-            templateColumn[templateIndex],
-            scan,
-            scanColumn.slice(scanIndex, mergedScanEnd)
-          )
-          console.log('match?', !!merged)
-
-          if (merged) {
-            mergedBox = merged
-          }
+          break
         }
-
-        if (!mergedBox) {
-          return
-        }
-
-        mergedColumn.push(mergedBox)
-        scanIndex = mergedScanEnd - 1
       }
+
+      if (!mergedBox) {
+        debug(
+          'no match was found for template column %d box %d, bailing',
+          mergedColumns.length,
+          templateIndex
+        )
+        return
+      }
+
+      debug(
+        'template column %d box %d matched scan boxes %d..<%d',
+        mergedColumns.length,
+        templateIndex,
+        scanIndex,
+        mergedScanEnd
+      )
+      mergedColumn.push(mergedBox)
+      scanIndex = mergedScanEnd
     }
 
+    debug(
+      'match succeeded for column %d, merged %d scan box(es) into %d template box(es)',
+      mergedColumns.length,
+      scanColumn.length,
+      templateColumn.length
+    )
     mergedColumns.push(mergedColumn)
   }
 
+  debug(
+    'matchTemplateLayout completed successfully: merged=%s',
+    template.columns.map(({ length }) => length).join(',')
+  )
   return {
     width: scan.width,
     height: scan.height,

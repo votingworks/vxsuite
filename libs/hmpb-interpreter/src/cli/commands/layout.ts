@@ -26,7 +26,7 @@ import {
 } from '../../utils/box'
 import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
-import { euclideanDistance, rectInset } from '../../utils/geometry'
+import { euclideanDistance } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
 import { canvas, loadImageData } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
@@ -35,6 +35,7 @@ import { setFilter, setMap } from '../../utils/set'
 
 export interface Options {
   lsd?: boolean
+  debug?: boolean
   election: Election
   templateImagePaths: readonly string[]
   ballotImagePaths: readonly string[]
@@ -63,6 +64,7 @@ export async function parseOptions({
   commandArgs: args,
 }: GlobalOptions): Promise<Options> {
   let lsd: boolean | undefined
+  let debug: boolean | undefined
   let election: Election | undefined
   const templateImagePaths: string[] = []
   const ballotImagePaths: string[] = []
@@ -72,6 +74,8 @@ export async function parseOptions({
 
     if (arg === '--lsd') {
       lsd = true
+    } else if (arg === '--debug') {
+      debug = true
     } else if (arg === '-t' || arg === '--template') {
       const value = args[++i]
       if (!value || value.startsWith('-')) {
@@ -99,7 +103,7 @@ export async function parseOptions({
     throw new Error('missing required option: --election')
   }
 
-  return { lsd, election, templateImagePaths, ballotImagePaths }
+  return { lsd, debug, election, templateImagePaths, ballotImagePaths }
 }
 
 interface AnalyzeImageResult {
@@ -221,25 +225,17 @@ export async function run(
       vh(imageData)
     }
 
-    const boxes = filterInBounds(
-      setMap(
-        filterContainedBoxes(
-          setFilter(
-            setMap(
-              analyzeImageLSD(imageData).clockwise,
-              (box) => inferBoxFromPartial(box) ?? box
-            ),
-            isCompleteBox
-          )
-        ),
-        closeBoxSegmentGaps
+    const boxes = setMap(
+      filterContainedBoxes(
+        setFilter(
+          setMap(
+            analyzeImageLSD(imageData).clockwise,
+            (box) => inferBoxFromPartial(box) ?? box
+          ),
+          isCompleteBox
+        )
       ),
-      {
-        bounds: rectInset(
-          { x: 0, y: 0, width: imageData.width, height: imageData.height },
-          imageData.width * 0.015
-        ),
-      }
+      closeBoxSegmentGaps
     )
 
     stdout.write(`LSD found ${boxes.size} box(es) in ${templateImagePath}\n`)
@@ -301,43 +297,76 @@ export async function run(
           ...analysis.clockwise,
           ...analysis.counterClockwise,
         ]
-        // drawBoxes(
-        //   canvas().drawImage(scaled, 0, 0, width, height),
-        //   scaledBoxes
-        // ).render('debug-01-scaledBoxes-NEW.png')
+        if (options.debug) {
+          drawBoxes(
+            canvas().drawImage(scaled, 0, 0, width, height),
+            scaledBoxes
+          ).render('debug-01-scaledBoxes.png')
+        }
         const originalScaleBoxes = scaledBoxes.map((box) =>
           scaleBox(imageData.width / width, box)
         )
-        // drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
-        //   'debug-02-originalScaledBoxes-NEW.png'
-        // )
+        if (options.debug) {
+          drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
+            'debug-02-originalScaledBoxes.png'
+          )
+        }
         const fullBoxes = originalScaleBoxes.map(
           (box) => inferBoxFromPartial(box) ?? box
         )
-        // drawBoxes(canvas().background(imageData), fullBoxes).render(
-        //   'debug-03-fullBoxes-NEW.png'
-        // )
+        if (options.debug) {
+          drawBoxes(canvas().background(imageData), fullBoxes).render(
+            'debug-03-fullBoxes.png'
+          )
+        }
         const gaplessBoxes = fullBoxes.map((box) =>
           isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
         )
-        // drawBoxes(canvas().background(imageData), gaplessBoxes).render(
-        //   'debug-04-gapless-NEW.png'
-        // )
+        if (options.debug) {
+          drawBoxes(canvas().background(imageData), gaplessBoxes).render(
+            'debug-04-gapless.png'
+          )
+        }
         const completeBoxes = gaplessBoxes.filter(isCompleteBox)
-        // drawBoxes(canvas().background(imageData), completeBoxes).render(
-        //   'debug-05-complete-NEW.png'
-        // )
-        const withoutContainedBoxes = filterContainedBoxes(completeBoxes)
-        const withoutEdgeBoxes = filterInBounds(withoutContainedBoxes, {
-          bounds: rectInset(
-            { x: 0, y: 0, width: imageData.width, height: imageData.height },
-            imageData.width * 0.015
-          ),
+        if (options.debug) {
+          drawBoxes(canvas().background(imageData), completeBoxes).render(
+            'debug-05-complete.png'
+          )
+        }
+        const yInset = imageData.width * 0.015
+        const insetRect: Rect = {
+          x: 0,
+          y: yInset,
+          width: imageData.width,
+          height: imageData.height - 2 * yInset,
+        }
+        const withoutEdgeBoxes = filterInBounds(completeBoxes, {
+          bounds: insetRect,
         })
-        // drawBoxes(canvas().background(imageData), withoutEdgeBoxes).render(
-        //   'debug-06-withoutInset-NEW.png'
-        // )
-        const boxes = withoutEdgeBoxes
+        if (options.debug) {
+          drawBoxes(
+            canvas()
+              .background(imageData)
+              .rect(
+                insetRect.x,
+                insetRect.y,
+                insetRect.width,
+                insetRect.height,
+                {
+                  color: 'cyan',
+                }
+              ),
+            withoutEdgeBoxes
+          ).render('debug-06-withoutInset.png')
+        }
+        const withoutContainedBoxes = filterContainedBoxes(withoutEdgeBoxes)
+        if (options.debug) {
+          drawBoxes(
+            canvas().background(imageData),
+            withoutContainedBoxes
+          ).render('debug-07-withoutContained.png')
+        }
+        const boxes = withoutContainedBoxes
         const columns = splitIntoColumns(boxes)
 
         if (columns.length !== templateLayout.columns.length) {
