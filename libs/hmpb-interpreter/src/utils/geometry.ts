@@ -26,18 +26,6 @@ export function rectCenter(
 }
 
 /**
- * Gets a new rect inset by `inset`.
- */
-export function rectInset({ x, y, width, height }: Rect, inset: number): Rect {
-  return {
-    x: x + inset,
-    y: y + inset,
-    width: width - 2 * inset,
-    height: height - 2 * inset,
-  }
-}
-
-/**
  * Determines whether `rect` contains `point`.
  */
 export function rectContains(rect: Rect, point: Point): boolean {
