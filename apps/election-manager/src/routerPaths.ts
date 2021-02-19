@@ -3,6 +3,7 @@ import {
   PartyReportScreenProps,
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
+  VotingMethodReportScreenProps,
 } from './config/types'
 
 const routerPaths = {
@@ -29,6 +30,10 @@ const routerPaths = {
     `/tally/precinct/${precinctId}`,
   tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
     `/tally/party/${partyId}`,
+  tallyVotingMethodReport: ({
+    votingMethod,
+  }: VotingMethodReportScreenProps): string =>
+    `/tally/votingmethod/${votingMethod}`,
   tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
     `/tally/scanner/${scannerId}`,
   tallyFullReport: '/tally/full',

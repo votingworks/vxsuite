@@ -317,12 +317,12 @@ it('tabulating CVRs with SEMS file', async () => {
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   )
-  getByText('SEMS File (sems-results.csv)')
+  expect(getAllByText('SEMS File (sems-results.csv)').length).toBe(3)
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
-  const ballotsByDataSource = getAllByTestId('ballots-by-data-source')
+  const ballotsByDataSource = getAllByTestId('data-source-table')
   expect(ballotsByDataSource.length).toBe(2) // There are two identical copies of this table one on the page, and one in the tally report
-  const vxRow = domGetByTestId(ballotsByDataSource[0], 'votingworks')
+  const vxRow = domGetByTestId(ballotsByDataSource[0], 'internaldata')
   domGetByText(vxRow, 'VotingWorks Data')
   domGetByText(vxRow, '100')
 
@@ -333,6 +333,24 @@ it('tabulating CVRs with SEMS file', async () => {
   const totalsRow = domGetByTestId(ballotsByDataSource[0], 'total')
   domGetByText(totalsRow, 'Total')
   domGetByText(totalsRow, '200')
+
+  const ballotsByVotingMethod = getAllByTestId('voting-method-table')
+  expect(ballotsByVotingMethod.length).toBe(2) // There are two identical copies of this table one on the page, and one in the tally report
+  const absenteeRow = domGetByTestId(ballotsByVotingMethod[0], 'absentee')
+  domGetByText(absenteeRow, 'Absentee')
+  domGetByText(absenteeRow, '50')
+
+  const precinctRow = domGetByTestId(ballotsByVotingMethod[0], 'standard')
+  domGetByText(precinctRow, 'Precinct')
+  domGetByText(precinctRow, '50')
+
+  const semsRow2 = domGetByTestId(ballotsByDataSource[0], 'externalvoterecords')
+  domGetByText(semsRow2, 'Imported SEMS File')
+  domGetByText(semsRow2, '100')
+
+  const totalsRow2 = domGetByTestId(ballotsByDataSource[0], 'total')
+  domGetByText(totalsRow2, 'Total')
+  domGetByText(totalsRow2, '200')
 
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
   fireEvent.click(getByText('Back to Tally Index'))

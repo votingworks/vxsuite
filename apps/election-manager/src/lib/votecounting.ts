@@ -440,6 +440,12 @@ export const getContestTallyMeta = ({
   }, {})
 }
 
+function getVotingMethodForCastVoteRecord(CVR: CastVoteRecord): VotingMethod {
+  return Object.values(VotingMethod).includes(CVR._ballotType as VotingMethod)
+    ? (CVR._ballotType as VotingMethod)
+    : VotingMethod.Unknown
+}
+
 function getTallyForCastVoteRecords(
   election: Election,
   castVoteRecords: CastVoteRecord[],
@@ -447,8 +453,14 @@ function getTallyForCastVoteRecords(
 ): Tally {
   const allVotes: VotesDict[] = []
   const cvrFiles: CastVoteRecord[] = []
+  const ballotCountsByVotingMethod: Dictionary<number> = {}
+  Object.values(VotingMethod).forEach(
+    (votingMethod) => (ballotCountsByVotingMethod[votingMethod] = 0)
+  )
   castVoteRecords.forEach((CVR) => {
     const vote = buildVoteFromCvr({ election, cvr: CVR })
+    const votingMethod = getVotingMethodForCastVoteRecord(CVR)
+    ballotCountsByVotingMethod[votingMethod]! += 1
     cvrFiles.push(CVR)
     allVotes.push(vote)
   })
@@ -463,6 +475,7 @@ function getTallyForCastVoteRecords(
     contestTallies: overallTally,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
+    ballotCountsByVotingMethod,
   }
 }
 
@@ -514,12 +527,7 @@ export function computeFullElectionTally(
       const filesForParty = cvrFilesByParty[partyForBallot]!
       filesForParty.push(CVR)
     }
-
-    const ballotTypeForBallot = Object.values(VotingMethod).includes(
-      CVR._ballotType as VotingMethod
-    )
-      ? CVR._ballotType
-      : VotingMethod.Unknown
+    const ballotTypeForBallot = getVotingMethodForCastVoteRecord(CVR)
     const filesForVotingMethod = cvrFilesByVotingMethod[ballotTypeForBallot]!
     filesForVotingMethod.push(CVR)
   })
@@ -567,12 +575,10 @@ export function computeFullElectionTally(
       const votingMethodTallyResults: Dictionary<Tally> = {}
       for (const votingMethod of Object.values(VotingMethod)) {
         const CVRs = cvrFilesByVotingMethod[votingMethod]!
-        if (votingMethod !== VotingMethod.Unknown || CVRs.length > 0) {
-          votingMethodTallyResults[votingMethod] = getTallyForCastVoteRecords(
-            election,
-            CVRs
-          )
-        }
+        votingMethodTallyResults[votingMethod] = getTallyForCastVoteRecords(
+          election,
+          CVRs
+        )
       }
       resultsByCategory.set(category, votingMethodTallyResults)
     }
@@ -596,6 +602,7 @@ export function getEmptyTally(): Tally {
     numberOfBallotsCounted: 0,
     castVoteRecords: [],
     contestTallies: {},
+    ballotCountsByVotingMethod: {},
   }
 }
 
@@ -665,6 +672,10 @@ export function filterTalliesByParams(
     : undefined
 
   // TODO(#2975): Once we're removing duplicate ballots, make finding the intersection of these lists more performant.
+  const ballotCountsByVotingMethod: Dictionary<number> = {}
+  Object.values(VotingMethod).forEach(
+    (votingMethod) => (ballotCountsByVotingMethod[votingMethod] = 0)
+  )
   overallTally.castVoteRecords.forEach((CVR) => {
     if (!precinctTally || precinctTally.castVoteRecords.includes(CVR)) {
       if (!scannerTally || scannerTally.castVoteRecords.includes(CVR)) {
@@ -674,6 +685,8 @@ export function filterTalliesByParams(
             votingMethodTally.castVoteRecords.includes(CVR)
           ) {
             const vote = buildVoteFromCvr({ election, cvr: CVR })
+            const votingMethod = getVotingMethodForCastVoteRecord(CVR)
+            ballotCountsByVotingMethod[votingMethod]! += 1
             cvrFiles.push(CVR)
             allVotes.push(vote)
           }
@@ -691,6 +704,7 @@ export function filterTalliesByParams(
     contestTallies,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
+    ballotCountsByVotingMethod,
   }
 }
 
