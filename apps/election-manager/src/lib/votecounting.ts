@@ -21,6 +21,7 @@ import {
   TallyCategory,
   YesNoOption,
   ContestOption,
+  VotingMethod,
 } from '../config/types'
 import assert, { defined } from '../utils/assert'
 import {
@@ -484,6 +485,8 @@ export function computeFullElectionTally(
   const cvrFilesByPrecinct: Dictionary<CastVoteRecord[]> = {}
   const cvrFilesByScanner: Dictionary<CastVoteRecord[]> = {}
   const cvrFilesByParty: Dictionary<CastVoteRecord[]> = {}
+  const cvrFilesByVotingMethod: Dictionary<CastVoteRecord[]> = {}
+
   election.precincts.forEach((precinct) => {
     cvrFilesByPrecinct[precinct.id] = []
   })
@@ -491,6 +494,9 @@ export function computeFullElectionTally(
     if (bs.partyId !== undefined && !(bs.partyId in cvrFilesByParty)) {
       cvrFilesByParty[bs.partyId] = []
     }
+  })
+  Object.values(VotingMethod).forEach((votingMethod) => {
+    cvrFilesByVotingMethod[votingMethod] = []
   })
 
   castVoteRecords.forEach((CVR) => {
@@ -508,6 +514,14 @@ export function computeFullElectionTally(
       const filesForParty = cvrFilesByParty[partyForBallot]!
       filesForParty.push(CVR)
     }
+
+    const ballotTypeForBallot = Object.values(VotingMethod).includes(
+      CVR._ballotType as VotingMethod
+    )
+      ? CVR._ballotType
+      : VotingMethod.Unknown
+    const filesForVotingMethod = cvrFilesByVotingMethod[ballotTypeForBallot]!
+    filesForVotingMethod.push(CVR)
   })
 
   const resultsByCategory = new Map<TallyCategory, Dictionary<Tally>>()
@@ -548,6 +562,20 @@ export function computeFullElectionTally(
       }
       resultsByCategory.set(category, partyTallyResults)
     }
+
+    if (category === TallyCategory.VotingMethod) {
+      const votingMethodTallyResults: Dictionary<Tally> = {}
+      for (const votingMethod of Object.values(VotingMethod)) {
+        const CVRs = cvrFilesByVotingMethod[votingMethod]!
+        if (votingMethod !== VotingMethod.Unknown || CVRs.length > 0) {
+          votingMethodTallyResults[votingMethod] = getTallyForCastVoteRecords(
+            election,
+            CVRs
+          )
+        }
+      }
+      resultsByCategory.set(category, votingMethodTallyResults)
+    }
   }
 
   return {
@@ -578,30 +606,43 @@ export function filterTalliesByParams(
     precinctId,
     scannerId,
     partyId,
-  }: { precinctId?: string; scannerId?: string; partyId?: string }
+    votingMethod,
+  }: {
+    precinctId?: string
+    scannerId?: string
+    partyId?: string
+    votingMethod?: VotingMethod
+  }
 ): Tally {
   const { overallTally, resultsByCategory } = fullElectionTally
 
-  if (!scannerId && !precinctId && !partyId) {
+  if (!scannerId && !precinctId && !partyId && !votingMethod) {
     return overallTally
   }
 
-  if (scannerId && !precinctId && !partyId) {
+  if (scannerId && !precinctId && !partyId && !votingMethod) {
     return (
       resultsByCategory.get(TallyCategory.Scanner)?.[scannerId] ||
       getEmptyTally()
     )
   }
 
-  if (precinctId && !scannerId && !partyId) {
+  if (precinctId && !scannerId && !partyId && !votingMethod) {
     return (
       resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
       getEmptyTally()
     )
   }
-  if (partyId && !scannerId && !precinctId) {
+  if (partyId && !scannerId && !precinctId && !votingMethod) {
     return (
       resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
+    )
+  }
+
+  if (votingMethod && !partyId && !scannerId && !precinctId) {
+    return (
+      resultsByCategory.get(TallyCategory.VotingMethod)?.[votingMethod] ||
+      getEmptyTally()
     )
   }
   const cvrFiles: CastVoteRecord[] = []
@@ -618,15 +659,24 @@ export function filterTalliesByParams(
   const partyTally = partyId
     ? resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
     : undefined
+  const votingMethodTally = votingMethod
+    ? resultsByCategory.get(TallyCategory.VotingMethod)?.[votingMethod] ||
+      getEmptyTally()
+    : undefined
 
   // TODO(#2975): Once we're removing duplicate ballots, make finding the intersection of these lists more performant.
   overallTally.castVoteRecords.forEach((CVR) => {
     if (!precinctTally || precinctTally.castVoteRecords.includes(CVR)) {
       if (!scannerTally || scannerTally.castVoteRecords.includes(CVR)) {
         if (!partyTally || partyTally.castVoteRecords.includes(CVR)) {
-          const vote = buildVoteFromCvr({ election, cvr: CVR })
-          cvrFiles.push(CVR)
-          allVotes.push(vote)
+          if (
+            !votingMethodTally ||
+            votingMethodTally.castVoteRecords.includes(CVR)
+          ) {
+            const vote = buildVoteFromCvr({ election, cvr: CVR })
+            cvrFiles.push(CVR)
+            allVotes.push(vote)
+          }
         }
       }
     }

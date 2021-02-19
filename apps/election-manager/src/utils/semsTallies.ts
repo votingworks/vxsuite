@@ -17,6 +17,7 @@ import {
   OptionalExternalTally,
   OptionalFullElectionExternalTally,
   TallyCategory,
+  VotingMethod,
   YesNoOption,
 } from '../config/types'
 import assert from './assert'
@@ -364,9 +365,15 @@ export function filterExternalTalliesByParams(
     precinctId,
     partyId,
     scannerId,
-  }: { precinctId?: string; partyId?: string; scannerId?: string }
+    votingMethod,
+  }: {
+    precinctId?: string
+    partyId?: string
+    scannerId?: string
+    votingMethod?: VotingMethod
+  }
 ): OptionalExternalTally {
-  if (!fullTally || scannerId) {
+  if (!fullTally || scannerId || votingMethod) {
     return undefined
   }
 

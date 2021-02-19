@@ -101,6 +101,7 @@ export enum TallyCategory {
   Precinct = 'precinct',
   Scanner = 'scanner',
   Party = 'party',
+  VotingMethod = 'votingmethod',
 }
 
 export interface FullElectionTally {
@@ -131,6 +132,13 @@ export enum ResultsFileType {
 }
 
 export type OptionalFile = Optional<File>
+
+// provisional ballot types are not yet supported.
+export enum VotingMethod {
+  Absentee = 'absentee',
+  Precinct = 'standard',
+  Unknown = 'unknown',
+}
 
 // Cast Vote Records
 export interface CastVoteRecord
