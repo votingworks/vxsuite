@@ -10,7 +10,7 @@ import {
 import { QuickCanvas } from './images'
 import { Corners, Offset, Point, Rect } from '../types'
 import { setFilter } from './set'
-import { zip } from './iterators'
+import { integers, zip, zipMin } from './iterators'
 import makeDebug from 'debug'
 
 const debug = makeDebug('hmpb-interpreter:box')
@@ -356,6 +356,7 @@ class BoxesBuilder {
   public addCorner(segments: { right: GridSegment; bottom: GridSegment }): void
   public addCorner(segments: { bottom: GridSegment; left: GridSegment }): void
   public addCorner(box: Partial<GridBox>): void {
+    debug('addCorner: %s', Object.keys(box).sort().join('-'))
     const segments = getBoxSegments(box)
     const boxes = this.getBoxesForSegments(segments)
     const merged = [...boxes].reduce<Partial<GridBox> | undefined>(
@@ -363,16 +364,22 @@ class BoxesBuilder {
       box
     )
 
-    for (const box of boxes) {
-      for (const segment of getBoxSegments(box)) {
-        this.segmentBoxMap.delete(segment)
-      }
-    }
-
     if (merged) {
+      debug(
+        'addCorner: merge succeeded: %s',
+        Object.keys(merged).sort().join('-')
+      )
+      for (const box of boxes) {
+        for (const segment of getBoxSegments(box)) {
+          this.segmentBoxMap.delete(segment)
+        }
+      }
+
       for (const segment of getBoxSegments(merged)) {
         this.segmentBoxMap.set(segment, merged)
       }
+    } else {
+      debug('addCorner: merge failed, removed segments: %O', segments)
     }
   }
 
@@ -390,16 +397,20 @@ class BoxesBuilder {
     let left: GridSegment | undefined
 
     if (a.top && b.top && a.top !== b.top) {
-      if (
-        computeProjectedLineIntersection(a.top, b.top, {
-          parallelThreshold,
-        }) === 'colinear'
-      ) {
+      debug('attempting to merge top segments: %o <-> %o', a.top, b.top)
+      const intersection = computeProjectedLineIntersection(a.top, b.top, {
+        parallelThreshold,
+      })
+      if (intersection === 'colinear') {
         top =
           a.top.start.x < b.top.start.x
             ? gridSegment({ start: a.top.start, end: b.top.end })
             : gridSegment({ start: b.top.start, end: a.top.end })
       } else {
+        debug(
+          'failed because they were not colinear: intersection=%o',
+          intersection
+        )
         return undefined
       }
     } else {
@@ -407,16 +418,20 @@ class BoxesBuilder {
     }
 
     if (a.right && b.right && a.right !== b.right) {
-      if (
-        computeProjectedLineIntersection(a.right, b.right, {
-          parallelThreshold,
-        }) === 'colinear'
-      ) {
+      debug('attempting to merge right segments: %o <-> %o', a.right, b.right)
+      const intersection = computeProjectedLineIntersection(a.right, b.right, {
+        parallelThreshold,
+      })
+      if (intersection === 'colinear') {
         right =
           a.right.start.y < b.right.start.y
             ? gridSegment({ start: a.right.start, end: b.right.end })
             : gridSegment({ start: b.right.start, end: a.right.end })
       } else {
+        debug(
+          'failed because they were not colinear: intersection=%o',
+          intersection
+        )
         return undefined
       }
     } else {
@@ -424,16 +439,28 @@ class BoxesBuilder {
     }
 
     if (a.bottom && b.bottom && a.bottom !== b.bottom) {
-      if (
-        computeProjectedLineIntersection(a.bottom, b.bottom, {
+      debug(
+        'attempting to merge bottom segments: %o <-> %o',
+        a.bottom,
+        b.bottom
+      )
+      const intersection = computeProjectedLineIntersection(
+        a.bottom,
+        b.bottom,
+        {
           parallelThreshold,
-        }) === 'colinear'
-      ) {
+        }
+      )
+      if (intersection === 'colinear') {
         bottom =
           a.bottom.start.x > b.bottom.start.x
             ? gridSegment({ start: a.bottom.start, end: b.bottom.end })
             : gridSegment({ start: b.bottom.start, end: a.bottom.end })
       } else {
+        debug(
+          'failed because they were not colinear: intersection=%o',
+          intersection
+        )
         return undefined
       }
     } else {
@@ -441,16 +468,20 @@ class BoxesBuilder {
     }
 
     if (a.left && b.left && a.left !== b.left) {
-      if (
-        computeProjectedLineIntersection(a.left, b.left, {
-          parallelThreshold,
-        }) === 'colinear'
-      ) {
+      debug('attempting to merge left segments: %o <-> %o', a.left, b.left)
+      const intersection = computeProjectedLineIntersection(a.left, b.left, {
+        parallelThreshold,
+      })
+      if (intersection === 'colinear') {
         left =
           a.left.start.y > b.left.start.y
             ? gridSegment({ start: a.left.start, end: b.left.end })
             : gridSegment({ start: b.left.start, end: a.left.end })
       } else {
+        debug(
+          'failed because they were not colinear: intersection=%o',
+          intersection
+        )
         return undefined
       }
     } else {
@@ -846,7 +877,7 @@ export function filterInBounds(
   return setFilter(boxes, (box) =>
     getBoxSegments(box).every(
       ({ start, end }) =>
-        rectContains(bounds, start) && rectContains(bounds, end)
+        rectContains(bounds, start) || rectContains(bounds, end)
     )
   )
 }
@@ -881,48 +912,76 @@ export function boxContains(container: GridBox, contained: GridBox): boolean {
 }
 
 export function splitIntoColumns(boxes: Iterable<GridBox>): LayoutColumn[] {
+  debug('splitIntoColumns BEGIN')
   const columns: GridBox[][] = []
 
-  for (const box of boxes) {
+  for (const [box, b] of zipMin(boxes, integers())) {
+    debug('placing box %d; there are %d column(s)', b, columns.length)
     if (columns.length === 0) {
+      debug('no existing columns, adding box to new first column')
       columns.push([box])
     } else {
-      for (let i = 0; i <= columns.length; i++) {
-        if (i === columns.length) {
+      for (let c = 0; c <= columns.length; c++) {
+        if (c === columns.length) {
+          debug('no existing columns fit box, adding to new last column')
           columns.push([box])
           break
         }
+        debug('checking whether box %i fits in column %d', b, c)
 
-        const column = columns[i]
+        const column = columns[c]
         const columnMidX = (column[0].top.end.x + column[0].top.start.x) / 2
+        const boxMidX = (box.top.end.x + box.top.start.x) / 2
 
-        if (box.top.start.x < columnMidX && box.top.end.x > columnMidX) {
-          // in this column
-          for (let j = 0; j <= column.length; j++) {
-            if (j === column.length) {
+        if (
+          (box.top.start.x < columnMidX && box.top.end.x > columnMidX) ||
+          (column[0].top.start.x < boxMidX && column[0].top.end.x > boxMidX)
+        ) {
+          debug('box %d fits inside column %d, adding to column', b, c)
+          for (let i = 0; i <= column.length; i++) {
+            if (i === column.length) {
+              debug(
+                'box does not go before any of the existing boxes, adding to the end'
+              )
               column.push(box)
               break
             }
+            debug(
+              'checking whether box %d fits before the existing box at %d,%d',
+              b,
+              c,
+              i
+            )
 
             if (
-              column[j].left.end.y + column[j].left.start.y >
+              column[i].left.end.y + column[i].left.start.y >
               box.left.end.y + box.left.start.y
             ) {
-              column.splice(j, 0, box)
+              debug(
+                'inserting box %d fits before the existing box at %d,%d',
+                b,
+                c,
+                i
+              )
+              column.splice(i, 0, box)
               break
             }
           }
 
           break
         } else if (box.top.end.x < columnMidX) {
-          // to the left of this column, insert new column
-          columns.splice(i, 0, [box])
+          debug('box %d fits before column %d, adding a new column', b, c)
+          columns.splice(c, 0, [box])
           break
         }
       }
     }
   }
 
+  debug(
+    'splitIntoColumns END %s',
+    columns.map(({ length }) => length).join(',')
+  )
   return columns
 }
 

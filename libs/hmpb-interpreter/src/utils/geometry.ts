@@ -38,6 +38,40 @@ export function rectContains(rect: Rect, point: Point): boolean {
 }
 
 /**
+ * Clips `rect` to be contained within `bounds`.
+ */
+export function rectClip(rect: Rect, bounds: Rect): Rect {
+  const left = Math.max(rect.x, bounds.x)
+  const top = Math.max(rect.y, bounds.y)
+  const right = Math.min(rect.x + rect.width, bounds.x + bounds.width)
+  const bottom = Math.min(rect.y + rect.height, bounds.y + bounds.height)
+  return {
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+  }
+}
+
+export function rectScale(rect: Rect, scale: number): Rect {
+  return {
+    x: rect.x * scale,
+    y: rect.y * scale,
+    width: rect.width * scale,
+    height: rect.height * scale,
+  }
+}
+
+export function rectInset(rect: Rect, inset: number): Rect {
+  return {
+    x: rect.x + inset,
+    y: rect.y + inset,
+    width: rect.width - 2 * inset,
+    height: rect.height - 2 * inset,
+  }
+}
+
+/**
  * Rounds a point to the nearest integer axis values.
  */
 export function roundPoint(
