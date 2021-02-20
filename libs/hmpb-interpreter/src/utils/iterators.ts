@@ -79,3 +79,9 @@ export function* map<T, U>(
     index += 1
   }
 }
+
+export function* integers(): Generator<number> {
+  for (let i = 0; ; i++) {
+    yield i
+  }
+}
