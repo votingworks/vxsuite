@@ -5,7 +5,8 @@ import { ContestOption } from '../types'
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
 export default function* allContestOptions(
-  contest: AnyContest
+  contest: AnyContest,
+  writeInOptionIds?: readonly string[]
 ): Generator<ContestOption> {
   if (contest.type === 'candidate') {
     for (const candidate of contest.candidates) {
@@ -19,13 +20,25 @@ export default function* allContestOptions(
     }
 
     if (contest.allowWriteIns) {
-      for (let i = 0; i < contest.seats; i++) {
-        yield {
-          type: 'candidate',
-          id: `__write-in-${i}`,
-          contestId: contest.id,
-          name: 'Write-In',
-          isWriteIn: true,
+      if (writeInOptionIds !== undefined) {
+        for (const writeInId of writeInOptionIds) {
+          yield {
+            type: 'candidate',
+            id: writeInId,
+            contestId: contest.id,
+            name: 'Write-In',
+            isWriteIn: true,
+          }
+        }
+      } else {
+        for (let i = 0; i < contest.seats; i++) {
+          yield {
+            type: 'candidate',
+            id: `__write-in-${i}`,
+            contestId: contest.id,
+            name: 'Write-In',
+            isWriteIn: true,
+          }
         }
       }
     }

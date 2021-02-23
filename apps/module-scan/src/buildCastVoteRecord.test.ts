@@ -76,6 +76,74 @@ test('generates a CVR from a completed BMD ballot', () => {
     `)
   })
 })
+test('generates a CVR from a completed BMD ballot with write in and overvotes', () => {
+  const sheetId = 'sheetid'
+  const ballotId = 'abcdefg'
+  const ballotStyleId = '1'
+  const precinctId = '6522'
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
+  const contests = getContests({ ballotStyle, election })
+
+  const blankPageTypes = ['BlankPage', 'UnreadablePage']
+  blankPageTypes.forEach((blankPageType: string) => {
+    expect(
+      buildCastVoteRecord(sheetId, ballotId, election, [
+        {
+          interpretation: {
+            type: 'InterpretedBmdPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: '',
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+            },
+            votes: vote(contests, {
+              '1': {
+                id: 'write-in__PIKACHU',
+                name: 'Pikachu',
+                isWriteIn: true,
+              },
+              '2': ['21', '22'],
+            }),
+          },
+        },
+        {
+          interpretation: {
+            type: blankPageType as 'BlankPage' | 'UnreadablePage',
+          },
+        },
+      ])
+    ).toMatchInlineSnapshot(`
+    Object {
+      "1": Array [
+        "write-in__PIKACHU",
+      ],
+      "2": Array [
+        "21",
+        "22",
+      ],
+      "3": Array [],
+      "4": Array [],
+      "_ballotId": "abcdefg",
+      "_ballotStyleId": "1",
+      "_ballotType": "standard",
+      "_locales": Object {
+        "primary": "en-US",
+      },
+      "_precinctId": "6522",
+      "_scannerId": "000",
+      "_testBallot": false,
+      "flag-question": Array [],
+      "initiative-65": Array [],
+      "initiative-65-a": Array [],
+      "runoffs-question": Array [],
+    }
+    `)
+  })
+})
 
 test('generates a CVR from a completed HMPB page', () => {
   const sheetId = 'sheetid'
@@ -145,6 +213,98 @@ test('generates a CVR from a completed HMPB page', () => {
         "1",
       ],
       "2": Array [
+        "22",
+      ],
+      "_ballotId": "abcdefg",
+      "_ballotStyleId": "1",
+      "_ballotType": "standard",
+      "_locales": Object {
+        "primary": "en-US",
+      },
+      "_pageNumbers": Array [
+        1,
+        2,
+      ],
+      "_precinctId": "6522",
+      "_scannerId": "000",
+      "_testBallot": false,
+      "initiative-65": Array [
+        "yes",
+        "no",
+      ],
+    }
+  `)
+})
+
+test('generates a CVR from a completed HMPB page with write in votes and overvotes', () => {
+  const sheetId = 'sheetid'
+  const ballotId = 'abcdefg'
+  const ballotStyleId = '1'
+  const precinctId = '6522'
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
+  const contests = getContests({ ballotStyle, election })
+
+  expect(
+    buildCastVoteRecord(sheetId, ballotId, election, [
+      {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          ballotId: 'abcdefg',
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+            pageNumber: 1,
+          },
+          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            allReasonInfos: [],
+          },
+          votes: vote(contests, {
+            '1': { id: '__write-in-0', name: 'Pikachu', isWriteIn: true },
+            '2': ['21', '22'],
+          }),
+        },
+        contestIds: ['1', '2'],
+      },
+      {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          ballotId: 'abcdefg',
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+            pageNumber: 2,
+          },
+          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            allReasonInfos: [],
+          },
+          votes: vote(contests, {
+            'initiative-65': ['yes', 'no'],
+          }),
+        },
+        contestIds: ['initiative-65'],
+      },
+    ])
+  ).toMatchInlineSnapshot(`
+    Object {
+      "1": Array [
+        "__write-in-0",
+      ],
+      "2": Array [
+        "21",
         "22",
       ],
       "_ballotId": "abcdefg",

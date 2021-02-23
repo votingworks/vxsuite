@@ -59,6 +59,30 @@ export function getCVRBallotType(
 
 type ContestOptionPair = [string, string]
 
+export function getWriteInOptionIdsForContestVote(
+  contest: AnyContest,
+  votes: VotesDict
+): string[] {
+  if (contest.type === 'candidate') {
+    if (!contest.allowWriteIns) {
+      return []
+    }
+    const vote = votes[contest.id]
+    return vote
+      ? (vote as CandidateVote)
+          .filter(({ isWriteIn }) => isWriteIn)
+          .map(({ id }) => id)
+      : []
+  } else if (contest.type === 'yesno') {
+    return []
+  } else if (contest.type === 'ms-either-neither') {
+    return []
+  } else {
+    // @ts-expect-error -- `contest` has type `never` since all known branches are covered
+    throw new TypeError(`contest type not yet supported: ${contest.type}`)
+  }
+}
+
 export function getOptionIdsForContestVote(
   contest: AnyContest,
   votes: VotesDict
@@ -96,8 +120,9 @@ export function buildCastVoteRecordVotesEntries(
   for (const contest of contests) {
     const resolvedOptionIds: ContestOptionPair[] = []
     const interpretedOptionIds = getOptionIdsForContestVote(contest, votes)
+    const writeInOptions = getWriteInOptionIdsForContestVote(contest, votes)
 
-    for (const option of allContestOptions(contest)) {
+    for (const option of allContestOptions(contest, writeInOptions)) {
       const optionAdjudication = adjudication?.[option.contestId]?.[option.id]
 
       if (
