@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { TallyCategory } from '../config/types'
+import { TallyCategory, VotingMethod } from '../config/types'
 
 import * as format from '../utils/format'
 import throwIllegalValue from '../utils/throwIllegalValue'
@@ -10,6 +10,7 @@ import Loading from './Loading'
 import Table, { TD } from './Table'
 import LinkButton from './LinkButton'
 import routerPaths from '../routerPaths'
+import { getLabelForVotingMethod } from '../utils/votingMethod'
 
 export interface Props {
   breakdownCategory: TallyCategory
@@ -122,13 +123,6 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
 
       return (
         <React.Fragment>
-          {fullElectionExternalTally && (
-            <p>
-              The following results only include ballots counted with
-              VotingWorks scanners. The data from the imported SEMS file is not
-              included in these reports.
-            </p>
-          )}
           <Table>
             <tbody>
               <tr data-testid="table-row">
@@ -267,6 +261,75 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   View {statusPrefix} Full Election Tally Report
                 </LinkButton>
               </TD>
+            </tr>
+          </tbody>
+        </Table>
+      )
+    }
+    case TallyCategory.VotingMethod: {
+      const resultsByVotingMethod =
+        fullElectionTally?.resultsByCategory.get(TallyCategory.VotingMethod) ||
+        {}
+      return (
+        <Table>
+          <tbody>
+            <tr data-testid="table-row">
+              <TD as="th" narrow>
+                Voting Method
+              </TD>
+              <TD as="th">Ballot Count</TD>
+              <TD as="th">View Tally</TD>
+            </tr>
+            {Object.values(VotingMethod).map((votingMethod) => {
+              const votingMethodBallotsCount =
+                resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ?? 0
+              if (
+                votingMethod === VotingMethod.Unknown &&
+                votingMethodBallotsCount === 0
+              ) {
+                return null
+              }
+              const label = getLabelForVotingMethod(votingMethod)
+              return (
+                <tr key={votingMethod} data-testid="table-row">
+                  <TD narrow nowrap>
+                    {label}
+                  </TD>
+                  <TD>{format.count(votingMethodBallotsCount)}</TD>
+                  <TD>
+                    <LinkButton
+                      small
+                      to={routerPaths.tallyVotingMethodReport({
+                        votingMethod,
+                      })}
+                    >
+                      View {statusPrefix} {label} Ballot Tally Report
+                    </LinkButton>
+                  </TD>
+                </tr>
+              )
+            })}
+            {externalVoteRecordsFile && (
+              <tr data-testid="table-row">
+                <TD narrow nowrap>
+                  SEMS File ({externalVoteRecordsFile.name})
+                </TD>
+                <TD>{format.count(totalBallotCountExternal)}</TD>
+                <TD />
+              </tr>
+            )}
+            <tr data-testid="table-row">
+              <TD narrow nowrap>
+                <strong>Total Ballot Count</strong>
+              </TD>
+              <TD>
+                <strong>
+                  {format.count(
+                    totalBallotCountInternal + totalBallotCountExternal
+                  )}
+                </strong>
+              </TD>
+              <TD />
             </tr>
           </tbody>
         </Table>

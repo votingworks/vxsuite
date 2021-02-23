@@ -17,7 +17,7 @@ import Button from '../components/Button'
 import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps, Tally } from '../config/types'
+import { PrecinctReportScreenProps, Tally, VotingMethod } from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
 
@@ -57,6 +57,7 @@ const TestDeckScreen: React.FC = () => {
       election,
       votes,
     }),
+    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
   }
 
   const ballotStylePartyIds = Array.from(

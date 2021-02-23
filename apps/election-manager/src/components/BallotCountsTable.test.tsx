@@ -13,49 +13,43 @@ import {
   ExternalTally,
   Tally,
   TallyCategory,
+  VotingMethod,
 } from '../config/types'
 import BallotCountsTable from './BallotCountsTable'
+import fakeTally from '../../test/helpers/fakeTally'
+import fakeExternalTally from '../../test/helpers/fakeExternalTally'
 
 describe('Ballot Counts by Precinct', () => {
   const resultsByPrecinct: Dictionary<Tally> = {
     // French Camp
-    '6526': {
+    '6526': fakeTally({
       numberOfBallotsCounted: 25,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     // Kenego
-    '6529': {
+    '6529': fakeTally({
       numberOfBallotsCounted: 52,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     // District 5
-    '6522': {
+    '6522': fakeTally({
       numberOfBallotsCounted: 0,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
   }
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Precinct, resultsByPrecinct)
 
   const externalResultsByPrecinct: Dictionary<ExternalTally> = {
     // French Camp
-    '6526': {
+    '6526': fakeExternalTally({
       numberOfBallotsCounted: 13,
-      contestTallies: {},
-    },
+    }),
     // East Weir
-    '6525': {
+    '6525': fakeExternalTally({
       numberOfBallotsCounted: 0,
-      contestTallies: {},
-    },
+    }),
     // Hebron
-    '6528': {
+    '6528': fakeExternalTally({
       numberOfBallotsCounted: 22,
-      contestTallies: {},
-    },
+    }),
   }
   const externalResultsByCategory = new Map()
   externalResultsByCategory.set(
@@ -64,18 +58,15 @@ describe('Ballot Counts by Precinct', () => {
   )
 
   const fullElectionTally = {
-    overallTally: {
+    overallTally: fakeTally({
       numberOfBallotsCounted: 77,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     resultsByCategory,
   }
   const fullElectionExternalTally = {
-    overallTally: {
+    overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
-      contestTallies: {},
-    },
+    }),
     resultsByCategory: externalResultsByCategory,
   }
 
@@ -177,38 +168,29 @@ describe('Ballot Counts by Precinct', () => {
 
 describe('Ballot Counts by Scanner', () => {
   const resultsByScanner: Dictionary<Tally> = {
-    'scanner-1': {
+    'scanner-1': fakeTally({
       numberOfBallotsCounted: 25,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
-    'scanner-2': {
+    }),
+    'scanner-2': fakeTally({
       numberOfBallotsCounted: 52,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
-    'scanner-3': {
+    }),
+    'scanner-3': fakeTally({
       numberOfBallotsCounted: 0,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
   }
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Scanner, resultsByScanner)
 
   const fullElectionTally = {
-    overallTally: {
+    overallTally: fakeTally({
       numberOfBallotsCounted: 77,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     resultsByCategory,
   }
   const fullElectionExternalTally = {
-    overallTally: {
+    overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
-      contestTallies: {},
-    },
+    }),
     resultsByCategory: new Map(),
   }
 
@@ -309,52 +291,41 @@ describe('Ballot Counts by Scanner', () => {
 describe('Ballots Counts by Party', () => {
   const resultsByParty: Dictionary<Tally> = {
     // Liberty
-    '0': {
+    '0': fakeTally({
       numberOfBallotsCounted: 25,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     // Federalist
-    '4': {
+    '4': fakeTally({
       numberOfBallotsCounted: 52,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
   }
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Party, resultsByParty)
 
-  const externalResultsByParty: Dictionary<Tally> = {
+  const externalResultsByParty: Dictionary<ExternalTally> = {
     // Liberty
-    '0': {
+    '0': fakeExternalTally({
       numberOfBallotsCounted: 13,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     // Constitution
-    '3': {
+    '3': fakeExternalTally({
       numberOfBallotsCounted: 73,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
   }
   const externalResultsByCategory = new Map()
   externalResultsByCategory.set(TallyCategory.Party, externalResultsByParty)
 
   const fullElectionTally = {
-    overallTally: {
+    overallTally: fakeTally({
       numberOfBallotsCounted: 77,
-      castVoteRecords: [],
-      contestTallies: {},
-    },
+    }),
     resultsByCategory,
   }
 
   const fullElectionExternalTally = {
-    overallTally: {
+    overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
-      contestTallies: {},
-    },
+    }),
     resultsByCategory: externalResultsByCategory,
   }
 
@@ -483,5 +454,137 @@ describe('Ballots Counts by Party', () => {
     )
 
     expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2)
+  })
+})
+
+describe('Ballots Counts by VotingMethod', () => {
+  const resultsByVotingMethod: Dictionary<Tally> = {
+    [VotingMethod.Absentee]: fakeTally({
+      numberOfBallotsCounted: 25,
+    }),
+    [VotingMethod.Precinct]: fakeTally({
+      numberOfBallotsCounted: 42,
+    }),
+    [VotingMethod.Unknown]: fakeTally({
+      numberOfBallotsCounted: 10,
+    }),
+  }
+  const resultsByCategory = new Map()
+  resultsByCategory.set(TallyCategory.VotingMethod, resultsByVotingMethod)
+
+  const fullElectionTally = {
+    overallTally: fakeTally({
+      numberOfBallotsCounted: 77,
+    }),
+    resultsByCategory,
+  }
+
+  const fullElectionExternalTally = {
+    overallTally: fakeExternalTally({
+      numberOfBallotsCounted: 54,
+    }),
+    resultsByCategory: new Map(),
+  }
+
+  it('renders as expected when there is no data', () => {
+    // No row for "Other" ballots renders when there are 0 CVRs for that category.
+    const expectedLabels = ['Absentee', 'Precinct']
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
+    )
+
+    expectedLabels.forEach((label) => {
+      getByText(label)
+      const tableRow = getByText(label).closest('tr')
+      expect(tableRow).toBeDefined()
+      expect(domGetByText(tableRow!, 0))
+      expect(
+        domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
+      )
+    })
+
+    getByText('Total Ballot Count')
+    const tableRow = getByText('Total Ballot Count').closest('tr')
+    expect(tableRow).toBeDefined()
+    expect(domGetByText(tableRow!, 0))
+
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
+  })
+
+  it('renders as expected when there is tally data', () => {
+    const expectedLabels = [
+      {
+        method: VotingMethod.Absentee,
+        label: 'Absentee',
+      },
+      { method: VotingMethod.Precinct, label: 'Precinct' },
+      { method: VotingMethod.Unknown, label: 'Other' },
+    ]
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
+      { fullElectionTally }
+    )
+
+    expectedLabels.forEach(({ method, label }) => {
+      const expectedNumberOfBallots =
+        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0
+      getByText(label)
+      const tableRow = getByText(label).closest('tr')
+      expect(tableRow).toBeDefined()
+      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+      expect(
+        domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
+      )
+    })
+
+    getByText('Total Ballot Count')
+    const tableRow = getByText('Total Ballot Count').closest('tr')
+    expect(tableRow).toBeDefined()
+    expect(domGetByText(tableRow!, 77))
+
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
+  })
+
+  it('renders as expected where there is tally data and sems data', () => {
+    const expectedLabels = [
+      {
+        method: VotingMethod.Absentee,
+        label: 'Absentee',
+      },
+      { method: VotingMethod.Precinct, label: 'Precinct' },
+      { method: VotingMethod.Unknown, label: 'Other' },
+    ]
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
+      {
+        fullElectionTally,
+        fullElectionExternalTally,
+        externalVoteRecordsFile: new File(['blah'], 'file-name.csv'),
+      }
+    )
+
+    expectedLabels.forEach(({ method, label }) => {
+      const expectedNumberOfBallots =
+        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0
+      getByText(label)
+      const tableRow = getByText(label).closest('tr')
+      expect(tableRow).toBeDefined()
+      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+      expect(
+        domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
+      )
+    })
+
+    getByText('SEMS File (file-name.csv)')
+    let tableRow = getByText('SEMS File (file-name.csv)').closest('tr')
+    expect(tableRow).toBeDefined()
+    expect(domGetByText(tableRow!, 54))
+
+    getByText('Total Ballot Count')
+    tableRow = getByText('Total Ballot Count').closest('tr')
+    expect(tableRow).toBeDefined()
+    expect(domGetByText(tableRow!, 131))
+
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3)
   })
 })

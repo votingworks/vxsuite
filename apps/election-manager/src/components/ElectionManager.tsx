@@ -100,6 +100,16 @@ const ElectionManager: React.FC = () => {
       >
         <TallyReportScreen />
       </Route>
+      <Route
+        path={[
+          routerPaths.tallyVotingMethodReport({
+            votingMethod: ':votingMethod',
+          }),
+          routerPaths.tallyFullReport,
+        ]}
+      >
+        <TallyReportScreen />
+      </Route>
       <Route path={routerPaths.overvoteCombinationReport}>
         <OvervoteCombinationReportScreen />
       </Route>

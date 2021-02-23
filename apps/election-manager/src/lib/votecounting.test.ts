@@ -19,6 +19,7 @@ import {
   FullElectionTally,
   Tally,
   TallyCategory,
+  VotingMethod,
 } from '../config/types'
 
 const fixturesPath = path.join(__dirname, '../../test/fixtures')
@@ -192,6 +193,32 @@ describe('filterTalliesByParams in a typical election', () => {
     })
     expect(filteredResults.numberOfBallotsCounted).toBe(226)
     expect(filteredResults.contestTallies).toMatchSnapshot()
+  })
+
+  test('can filter by voting method', () => {
+    const absenteeResults = filterTalliesByParams(electionTally, election, {
+      votingMethod: VotingMethod.Absentee,
+    })
+    expect(absenteeResults.numberOfBallotsCounted).toBe(671)
+
+    const precinctResults = filterTalliesByParams(electionTally, election, {
+      votingMethod: VotingMethod.Precinct,
+    })
+    expect(precinctResults.numberOfBallotsCounted).toBe(474)
+
+    const unknownResults = filterTalliesByParams(electionTally, election, {
+      votingMethod: VotingMethod.Unknown,
+    })
+    expect(unknownResults.numberOfBallotsCounted).toBe(8855)
+  })
+
+  test('can filter by voting method precinct and scanner', () => {
+    const filteredResults = filterTalliesByParams(electionTally, election, {
+      precinctId: '23',
+      scannerId: 'scanner-5',
+      votingMethod: VotingMethod.Absentee,
+    })
+    expect(filteredResults.numberOfBallotsCounted).toBe(17)
   })
 })
 
@@ -416,6 +443,43 @@ describe('filterTalliesByParams in a primary election', () => {
       Object.keys(filteredResultsInvalidScanner.contestTallies)
     ).toStrictEqual(expectedParty0Info.contestIds)
     expectAllEmptyTallies(filteredResultsInvalidScanner)
+  })
+
+  test('can filter by voting method and party', () => {
+    const filteredResultsLibertyAbsentee = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { votingMethod: VotingMethod.Absentee, partyId: '0' }
+    )
+    expect(filteredResultsLibertyAbsentee.numberOfBallotsCounted).toBe(342)
+
+    const filteredResultsLibertyPrecinct = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { votingMethod: VotingMethod.Precinct, partyId: '0' }
+    )
+    expect(filteredResultsLibertyPrecinct.numberOfBallotsCounted).toBe(0)
+
+    const filteredResultsConstitutionPrecinct = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { votingMethod: VotingMethod.Precinct, partyId: '3' }
+    )
+    expect(filteredResultsConstitutionPrecinct.numberOfBallotsCounted).toBe(292)
+
+    const filteredResultsConstitutionAbsentee = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { votingMethod: VotingMethod.Absentee, partyId: '3' }
+    )
+    expect(filteredResultsConstitutionAbsentee.numberOfBallotsCounted).toBe(93)
+
+    const filteredResultsUnknownAbsentee = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { votingMethod: VotingMethod.Unknown, partyId: '0' }
+    )
+    expect(filteredResultsUnknownAbsentee.numberOfBallotsCounted).toBe(1368)
   })
 })
 

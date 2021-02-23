@@ -145,14 +145,16 @@ const TallyScreen: React.FC = () => {
     <React.Fragment>
       <h2>Ballot Counts by Precinct</h2>
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-      <h2>Ballot Counts by Scanner</h2>
-      <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+      <h2>Ballot Counts by Voting Method</h2>
+      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
       {partiesForPrimaries.length > 0 && (
         <React.Fragment>
           <h2>Ballot Counts by Party</h2>
           <BallotCountsTable breakdownCategory={TallyCategory.Party} />
         </React.Fragment>
       )}
+      <h2>Ballot Counts by Scanner</h2>
+      <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
       <h2>{statusPrefix} Tally Reports</h2>
       <p>
         <LinkButton to={routerPaths.tallyFullReport}>
