@@ -59,7 +59,7 @@ const TallyReportMetadata: React.FC<Props> = ({
     externalBallotCount !== undefined ? (
       <React.Fragment>
         <h3>Ballots Cast by Data Source</h3>
-        <Table>
+        <Table data-testId="ballots-by-data-source">
           <tbody>
             <tr>
               <TD as="th">Data Source</TD>
@@ -67,15 +67,15 @@ const TallyReportMetadata: React.FC<Props> = ({
                 Number of Ballots Cast
               </TD>
             </tr>
-            <tr>
+            <tr data-testid="votingworks">
               <TD>VotingWorks Data</TD>
               <TD textAlign="right">{format.count(votingWorksBallotCount)}</TD>
             </tr>
-            <tr>
+            <tr data-testid="externalvoterecords">
               <TD>Imported SEMS File</TD>
               <TD textAlign="right">{format.count(externalBallotCount)}</TD>
             </tr>
-            <tr>
+            <tr data-testid="total">
               <TD>
                 <strong>Total</strong>
               </TD>
