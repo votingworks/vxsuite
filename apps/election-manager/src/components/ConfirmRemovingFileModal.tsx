@@ -33,6 +33,10 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       case ResultsFileType.SEMS:
         saveExternalVoteRecordsFile(undefined)
         break
+      case ResultsFileType.All:
+        saveCastVoteRecordFiles()
+        saveExternalVoteRecordsFile(undefined)
+        break
       default:
         throwIllegalValue(fileType)
     }
@@ -71,6 +75,24 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
         <p>
           Do you want to remove the SEMS file {externalVoteRecordsFile!.name}?
         </p>
+      )
+      break
+    }
+    case ResultsFileType.All: {
+      fileTypeName = ''
+      singleFileRemoval = false
+      const { fileList } = castVoteRecordFiles
+      mainContent = (
+        <React.Fragment>
+          <p>
+            Do you want to remove the {fileList.length} uploaded CVR{' '}
+            {pluralize('files', fileList.length)}
+            {externalVoteRecordsFile &&
+              ` and the SEMS file ${externalVoteRecordsFile!.name}`}
+            ?
+          </p>
+          <p>All reports will be unavailable without CVR data.</p>
+        </React.Fragment>
       )
       break
     }
