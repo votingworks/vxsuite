@@ -7,6 +7,7 @@ import {
   MsEitherNeitherContest,
   VotesDict,
   Precinct,
+  Party,
 } from '@votingworks/types'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
@@ -34,6 +35,13 @@ export function getDistrictIdsForPartyId(
   return election.ballotStyles
     .filter((bs) => bs.partyId === partyId)
     .flatMap((bs) => bs.districts)
+}
+
+export function getPartiesWithPrimaryElections(election: Election): Party[] {
+  const partyIds = election.ballotStyles
+    .map((bs) => bs.partyId)
+    .filter((id): id is string => id !== undefined)
+  return election.parties.filter((party) => partyIds.includes(party.id))
 }
 
 export function getContestOptionsForContest(
