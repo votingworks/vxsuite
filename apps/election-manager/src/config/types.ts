@@ -49,6 +49,21 @@ export interface BallotLocale {
   secondary?: string
 }
 
+export const PrintableBallotType = {
+  Absentee: 'absentee',
+  Precinct: 'standard',
+} as const
+export type PrintableBallotType = typeof PrintableBallotType[keyof typeof PrintableBallotType]
+
+export interface PrintedBallot {
+  ballotStyleId: BallotStyle['id']
+  precinctId: Precinct['id']
+  locales: BallotLocale
+  numCopies: number
+  printedAt: ISO8601Timestamp
+  type: PrintableBallotType
+}
+
 // Router Props
 export interface BallotScreenProps {
   ballotStyleId: string
@@ -139,11 +154,11 @@ export enum ResultsFileType {
 export type OptionalFile = Optional<File>
 
 // provisional ballot types are not yet supported.
-export enum VotingMethod {
-  Absentee = 'absentee',
-  Precinct = 'standard',
-  Unknown = 'unknown',
-}
+export const VotingMethod = {
+  ...PrintableBallotType,
+  Unknown: 'unknown',
+} as const
+export type VotingMethod = typeof VotingMethod[keyof typeof VotingMethod]
 
 // Cast Vote Records
 export interface CastVoteRecord
@@ -178,11 +193,3 @@ export type VoteCounts = Dictionary<Dictionary<number>>
 export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>
 
 export type ISO8601Timestamp = string
-
-export interface PrintedBallot {
-  ballotStyleId: BallotStyle['id']
-  precinctId: Precinct['id']
-  locales: BallotLocale
-  numCopies: number
-  printedAt: ISO8601Timestamp
-}
