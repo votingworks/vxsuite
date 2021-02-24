@@ -273,7 +273,8 @@ const TallyScreen: React.FC = () => {
           <FileInputButton
             onChange={importExternalSEMSFile}
             accept="*"
-            disabled={!!fullElectionExternalTally}
+            data-testid="import-sems-button"
+            disabled={!!fullElectionExternalTally || isOfficialResults}
           >
             Import SEMS File
           </FileInputButton>{' '}
@@ -284,22 +285,34 @@ const TallyScreen: React.FC = () => {
             Mark Tally Results as Official…
           </Button>
         </p>
-        <p>
-          <Button
-            danger
-            disabled={!hasCastVoteRecordFiles}
-            onPress={() => confirmRemoveFiles(ResultsFileType.CastVoteRecord)}
-          >
-            Remove CVR Files…
-          </Button>{' '}
-          <Button
-            danger
-            disabled={!externalVoteRecordsFile}
-            onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
-          >
-            Remove SEMS File…
-          </Button>
-        </p>
+        {isOfficialResults ? (
+          <p>
+            <Button
+              danger
+              disabled={!hasAnyFiles}
+              onPress={() => confirmRemoveFiles(ResultsFileType.All)}
+            >
+              Clear All Results…
+            </Button>
+          </p>
+        ) : (
+          <p>
+            <Button
+              danger
+              disabled={!hasCastVoteRecordFiles}
+              onPress={() => confirmRemoveFiles(ResultsFileType.CastVoteRecord)}
+            >
+              Remove CVR Files…
+            </Button>{' '}
+            <Button
+              danger
+              disabled={!externalVoteRecordsFile}
+              onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
+            >
+              Remove SEMS File…
+            </Button>
+          </p>
+        )}
         {tallyResultsTable}
         {hasConverter && hasCastVoteRecordFiles && (
           <React.Fragment>
@@ -339,8 +352,8 @@ const TallyScreen: React.FC = () => {
             <Prose textCenter>
               <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
               <p>
-                Have all CVR files been loaded? Once results are marked as
-                official, no additional CVRs can be loaded.
+                Have all CVR and SEMS files been loaded? Once results are marked
+                as official, no additional CVR or SEMS files can be loaded.
               </p>
               <p>Have all unofficial tally reports been reviewed?</p>
             </Prose>

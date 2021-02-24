@@ -133,6 +133,7 @@ export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTal
 export enum ResultsFileType {
   CastVoteRecord = 'cvr',
   SEMS = 'sems',
+  All = 'all',
 }
 
 export type OptionalFile = Optional<File>

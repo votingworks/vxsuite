@@ -262,8 +262,8 @@ it('tabulating CVRs', async () => {
   )
 
   fireEvent.click(getByText('Tally'))
-  fireEvent.click(getByText('Remove CVR Files…'))
-  fireEvent.click(getByText('Remove CVR Files'))
+  fireEvent.click(getByText('Clear All Results…'))
+  fireEvent.click(getByText('Remove All Files'))
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
   )
@@ -414,6 +414,69 @@ it('changing election resets sems and cvr files', async () => {
     fireEvent.click(getByText('Create New Election Definition'))
   })
   fireEvent.click(getByText('Tally'))
+
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('0')
+  )
+  getByText('No CVR files loaded.')
+})
+
+it('clearing all files after marking as official clears SEMS and CVR file', async () => {
+  const storage = await createMemoryStorageWith({
+    electionDefinition: {
+      election: eitherNeitherElection,
+      electionData: eitherNeitherElectionData,
+      electionHash: eitherNeitherElectionHash,
+    },
+  })
+
+  const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
+    EITHER_NEITHER_CVRS,
+    eitherNeitherElection
+  )
+  await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
+
+  const fixturesPath = path.join(__dirname, '../../../libs/fixtures/src/data')
+  const eitherNeitherSEMSPath = path.join(
+    fixturesPath,
+    'electionWithMsEitherNeither/converted-sems-results.csv'
+  )
+
+  const semsFileContent = await fs.readFileSync(eitherNeitherSEMSPath)
+  const semsFileStorageString = await convertFileToStorageString(
+    new File([semsFileContent], 'sems-results.csv')
+  )
+  await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
+
+  const { getByText, getByTestId } = render(<App storage={storage} />)
+
+  await screen.findByText('0 official ballots')
+
+  fireEvent.click(getByText('Tally'))
+
+  await waitFor(() =>
+    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
+  )
+
+  fireEvent.click(getByText('Tally'))
+  fireEvent.click(getByText('Mark Tally Results as Official…'))
+  fireEvent.click(getByText('Mark Tally Results as Official'))
+
+  getByText('View Official Full Election Tally Report')
+  expect(getByText('Import CVR Files').closest('button')).toBeDisabled()
+  expect(getByTestId('import-sems-button')).toBeDisabled()
+
+  fireEvent.click(getByText('Clear All Results…'))
+  getByText(
+    'Do you want to remove the 1 uploaded CVR file and the SEMS file sems-results.csv?'
+  )
+  fireEvent.click(getByText('Remove All Files'))
+
+  expect(getByText('Remove CVR Files…').closest('button')).toBeDisabled()
+  expect(getByText('Remove SEMS File…').closest('button')).toBeDisabled()
+
+  expect(getByText('Import CVR Files').closest('button')).toBeEnabled()
+  expect(getByTestId('import-sems-button')).toBeEnabled()
 
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
