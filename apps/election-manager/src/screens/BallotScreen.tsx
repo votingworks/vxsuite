@@ -13,6 +13,7 @@ import {
   BallotScreenProps,
   BallotLocale,
   InputEventFunction,
+  PrintableBallotType,
 } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
@@ -125,6 +126,9 @@ const BallotScreen: React.FC = () => {
         locales,
         numCopies,
         printedAt: new Date().toISOString(),
+        type: isAbsenteeMode
+          ? PrintableBallotType.Absentee
+          : PrintableBallotType.Precinct,
       })
     }
   }

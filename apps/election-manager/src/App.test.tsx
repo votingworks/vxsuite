@@ -11,6 +11,7 @@ import {
   waitFor,
   getByTestId as domGetByTestId,
   getByText as domGetByText,
+  getAllByRole as domGetAllByRole,
 } from '@testing-library/react'
 import { parseElection } from '@votingworks/types'
 import { MemoryStorage } from './utils/Storage'
@@ -126,9 +127,13 @@ it('printing ballots, print report, and test decks', async () => {
   })
   jest.useFakeTimers()
 
-  const { container, getByText, getAllByText, queryAllByText } = render(
-    <App storage={storage} />
-  )
+  const {
+    container,
+    getByText,
+    getAllByText,
+    queryAllByText,
+    getAllByTestId,
+  } = render(<App storage={storage} />)
   jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
 
   await screen.findByText('0 official ballots')
@@ -163,20 +168,36 @@ it('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Cancel'))
   fireEvent.click(getByText('Print 1 Official', { exact: false }))
   fireEvent.click(getByText('Yes, Print'))
-
   await waitFor(() => getByText('Printing'))
   expect(mockKiosk.print).toHaveBeenCalledTimes(1)
+  fireEvent.click(getByText('Print 1 Official', { exact: false }))
+  fireEvent.click(getByText('Yes, Print'))
+  await waitFor(() => getByText('Printing'))
+  expect(mockKiosk.print).toHaveBeenCalledTimes(2)
+  fireEvent.click(getByText('Precinct'))
+  fireEvent.click(getByText('Print 1 Official', { exact: false }))
+  fireEvent.click(getByText('Yes, Print'))
+  await waitFor(() => getByText('Printing'))
+  expect(mockKiosk.print).toHaveBeenCalledTimes(3)
 
   // this is ugly but necessary for now to wait just a bit for the data to be stored
   await sleep(0)
 
   fireEvent.click(getByText('Ballots'))
-  getByText('1 official ballot', { exact: false })
+  getByText('3 official ballots', { exact: false })
   fireEvent.click(getByText('Printed Ballots Report'))
+  expect(getAllByText(/2 absentee ballots/).length).toBe(2)
+  expect(getAllByText(/1 precinct ballot/).length).toBe(2)
+  const tableRow = getAllByTestId('row-6538-4')[0] // Row in the printed ballot report for the Bywy ballots printed earlier
+  expect(
+    domGetAllByRole(tableRow, 'cell', { hidden: true })!.map(
+      (column) => column.textContent
+    )
+  ).toStrictEqual(['Bywy', '4', '2', '1', '3'])
   fireEvent.click(queryAllByText('Print Report')[0])
 
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(2)
+  expect(mockKiosk.print).toHaveBeenCalledTimes(4)
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Print Test Decks'))
@@ -190,7 +211,7 @@ it('printing ballots, print report, and test decks', async () => {
   })
   expect(container).toMatchSnapshot()
 
-  expect(mockKiosk.print).toHaveBeenCalledTimes(3)
+  expect(mockKiosk.print).toHaveBeenCalledTimes(5)
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('View Test Ballot Deck Tally'))
@@ -200,7 +221,7 @@ it('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Print Results Report'))
 
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(4)
+  expect(mockKiosk.print).toHaveBeenCalledTimes(6)
 })
 
 it('tabulating CVRs', async () => {
