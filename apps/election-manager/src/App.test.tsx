@@ -317,7 +317,9 @@ it('tabulating CVRs with SEMS file', async () => {
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   )
-  expect(getAllByText('SEMS File (sems-results.csv)').length).toBe(3)
+  expect(getAllByText('External Results File (sems-results.csv)').length).toBe(
+    3
+  )
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
   const ballotsByDataSource = getAllByTestId('data-source-table')
@@ -327,7 +329,7 @@ it('tabulating CVRs with SEMS file', async () => {
   domGetByText(vxRow, '100')
 
   const semsRow = domGetByTestId(ballotsByDataSource[0], 'externalvoterecords')
-  domGetByText(semsRow, 'Imported SEMS File')
+  domGetByText(semsRow, 'External Results File')
   domGetByText(semsRow, '100')
 
   const totalsRow = domGetByTestId(ballotsByDataSource[0], 'total')
@@ -345,7 +347,7 @@ it('tabulating CVRs with SEMS file', async () => {
   domGetByText(precinctRow, '50')
 
   const semsRow2 = domGetByTestId(ballotsByDataSource[0], 'externalvoterecords')
-  domGetByText(semsRow2, 'Imported SEMS File')
+  domGetByText(semsRow2, 'External Results File')
   domGetByText(semsRow2, '100')
 
   const totalsRow2 = domGetByTestId(ballotsByDataSource[0], 'total')
@@ -356,8 +358,8 @@ it('tabulating CVRs with SEMS file', async () => {
   fireEvent.click(getByText('Back to Tally Index'))
 
   // Test removing the SEMS file
-  fireEvent.click(getByText('Remove SEMS File…'))
-  fireEvent.click(getByText('Remove SEMS Files'))
+  fireEvent.click(getByText('Remove External Results File…'))
+  fireEvent.click(getByText('Remove External Files'))
 
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('100')
@@ -468,12 +470,14 @@ it('clearing all files after marking as official clears SEMS and CVR file', asyn
 
   fireEvent.click(getByText('Clear All Results…'))
   getByText(
-    'Do you want to remove the 1 uploaded CVR file and the SEMS file sems-results.csv?'
+    'Do you want to remove the 1 uploaded CVR file and the external results file sems-results.csv?'
   )
   fireEvent.click(getByText('Remove All Files'))
 
   expect(getByText('Remove CVR Files…').closest('button')).toBeDisabled()
-  expect(getByText('Remove SEMS File…').closest('button')).toBeDisabled()
+  expect(
+    getByText('Remove External Results File…').closest('button')
+  ).toBeDisabled()
 
   expect(getByText('Import CVR Files').closest('button')).toBeEnabled()
   expect(getByTestId('import-sems-button')).toBeEnabled()

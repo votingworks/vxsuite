@@ -183,7 +183,7 @@ const TallyScreen: React.FC = () => {
           {moment(externalVoteRecordsFile.lastModified).format(TIME_FORMAT)}
         </TD>
         <TD narrow nowrap>
-          SEMS File ({externalVoteRecordsFile.name})
+          External Results File ({externalVoteRecordsFile.name})
         </TD>
         <TD narrow>{format.count(externalFileBallotCount)}</TD>
         <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
@@ -276,7 +276,7 @@ const TallyScreen: React.FC = () => {
             data-testid="import-sems-button"
             disabled={!!fullElectionExternalTally || isOfficialResults}
           >
-            Import SEMS File
+            Import External Results File
           </FileInputButton>{' '}
           <Button
             disabled={!hasCastVoteRecordFiles || isOfficialResults}
@@ -309,7 +309,7 @@ const TallyScreen: React.FC = () => {
               disabled={!externalVoteRecordsFile}
               onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
             >
-              Remove SEMS File…
+              Remove External Results File…
             </Button>
           </p>
         )}
@@ -352,8 +352,9 @@ const TallyScreen: React.FC = () => {
             <Prose textCenter>
               <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
               <p>
-                Have all CVR and SEMS files been loaded? Once results are marked
-                as official, no additional CVR or SEMS files can be loaded.
+                Have all CVR and external results files been loaded? Once
+                results are marked as official, no additional CVR or external
+                files can be loaded.
               </p>
               <p>Have all unofficial tally reports been reviewed?</p>
             </Prose>

@@ -273,8 +273,10 @@ describe('Ballot Counts by Scanner', () => {
       }
     })
 
-    getByText('SEMS File (file-name.csv)')
-    let tableRow = getByText('SEMS File (file-name.csv)').closest('tr')
+    getByText('External Results File (file-name.csv)')
+    let tableRow = getByText('External Results File (file-name.csv)').closest(
+      'tr'
+    )
     expect(tableRow).toBeDefined()
     expect(domGetByText(tableRow!, 54))
 
@@ -575,8 +577,10 @@ describe('Ballots Counts by VotingMethod', () => {
       )
     })
 
-    getByText('SEMS File (file-name.csv)')
-    let tableRow = getByText('SEMS File (file-name.csv)').closest('tr')
+    getByText('External Results File (file-name.csv)')
+    let tableRow = getByText('External Results File (file-name.csv)').closest(
+      'tr'
+    )
     expect(tableRow).toBeDefined()
     expect(domGetByText(tableRow!, 54))
 

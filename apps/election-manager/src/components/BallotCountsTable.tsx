@@ -166,7 +166,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               {externalVoteRecordsFile && (
                 <tr data-testid="table-row">
                   <TD narrow nowrap>
-                    SEMS File ({externalVoteRecordsFile.name})
+                    External Results File ({externalVoteRecordsFile.name})
                   </TD>
                   <TD>{format.count(totalBallotCountExternal)}</TD>
                   <TD />
@@ -312,7 +312,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
             {externalVoteRecordsFile && (
               <tr data-testid="table-row">
                 <TD narrow nowrap>
-                  SEMS File ({externalVoteRecordsFile.name})
+                  External Results File ({externalVoteRecordsFile.name})
                 </TD>
                 <TD>{format.count(totalBallotCountExternal)}</TD>
                 <TD />
