@@ -5,7 +5,7 @@ import fileDownload from 'js-file-download'
 
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
-import Button, { SegmentedButton } from './Button'
+import Button from './Button'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
@@ -46,7 +46,6 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
   const [errorMessage, setErrorMessage] = useState('')
 
   const [savedFilename, setSavedFilename] = useState('')
-  const [includeExternalFile, setIncludeExternalFile] = useState(true)
   const defaultFilename = useMemo(
     () =>
       generateFinalExportDefaultFilename(
@@ -61,7 +60,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
     defaultFilename: string
   ) => {
     setCurrentState(ModalState.SAVING)
-    const includeExternalData = externalVoteRecordsFile && includeExternalFile
+    const includeExternalData = externalVoteRecordsFile !== undefined
 
     try {
       const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
@@ -246,37 +245,12 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
         />
       )
     case UsbDriveStatus.mounted: {
-      let options = null
-      if (externalVoteRecordsFile) {
-        options = (
-          <p>
-            Include data from SEMS file:{' '}
-            <SegmentedButton>
-              <Button
-                small
-                disabled={includeExternalFile}
-                onPress={() => setIncludeExternalFile(true)}
-              >
-                Yes
-              </Button>
-              <Button
-                small
-                disabled={!includeExternalFile}
-                onPress={() => setIncludeExternalFile(false)}
-              >
-                No
-              </Button>
-            </SegmentedButton>
-          </p>
-        )
-      }
       return (
         <Modal
           content={
             <MainChild>
               <Prose>
                 <h1>Save Results File</h1>
-                {options}
                 <p>
                   Save the final tally results to{' '}
                   <strong>{defaultFilename}</strong> directly on the inserted

@@ -147,7 +147,6 @@ test('render export modal when a usb drive is mounted and exports with external 
     }
   )
   getByText('Save Results File')
-  getByText(/Include data from SEMS file/)
   getByText(/Save the final tally results to /)
   getByText(
     'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-03-14_01-59-26.csv'
