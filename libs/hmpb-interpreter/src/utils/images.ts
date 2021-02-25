@@ -1,5 +1,8 @@
 import { createCanvas, createImageData, Image, loadImage } from 'canvas'
+// import { resize } from '@votingworks/image-utils'
 import * as fs from 'fs'
+import { performance } from 'perf_hooks'
+// import resize from 'resize-image-data'
 import { Point, Size } from '../types'
 
 function ensureImageData(imageData: ImageData): ImageData {
@@ -25,6 +28,22 @@ export async function toPNG(imageData: ImageData): Promise<Buffer> {
   return canvas.toBuffer()
 }
 
+export function resample(imageData: ImageData, size: Size): ImageData {
+  performance.mark('resample start')
+  if (imageData.width === size.width && imageData.height === size.height) {
+    return imageData
+  }
+
+  // const resampled = createImageData(size.width, size.height)
+  // const resampled = resize(imageData, size.width, size.height)
+  const resampled = canvas()
+    .drawImage(imageData, 0, 0, size.width, size.height)
+    .render()
+  performance.mark('resample end')
+  performance.measure('resample', 'resample start', 'resample end')
+  return resampled
+}
+
 type Operation =
   | {
       type: 'line'
@@ -34,6 +53,7 @@ type Operation =
       y2: number
       stroke?: number
       color?: string
+      dash?: readonly number[]
     }
   | {
       type: 'rect'
@@ -104,7 +124,11 @@ export class QuickCanvas {
   public line(
     from: Point,
     to: Point,
-    { stroke, color }: { stroke?: number; color?: string } = {}
+    {
+      stroke,
+      color,
+      dash,
+    }: { stroke?: number; color?: string; dash?: readonly number[] } = {}
   ): this {
     this.ops.push({
       type: 'line',
@@ -114,6 +138,7 @@ export class QuickCanvas {
       y2: to.y,
       stroke,
       color,
+      dash,
     })
     return this
   }
@@ -122,9 +147,18 @@ export class QuickCanvas {
     text: string,
     x: number,
     y: number,
-    width?: number,
-    height?: number,
-    { stroke, color }: { stroke?: number; color?: string } = {}
+    {
+      stroke,
+      color,
+      width,
+      height,
+    }: {
+      stroke?: number
+      color?: string
+
+      width?: number
+      height?: number
+    } = {}
   ): this {
     this.ops.push({ type: 'text', text, x, y, width, height, stroke, color })
     return this
@@ -138,6 +172,11 @@ export class QuickCanvas {
     { stroke, color }: { stroke?: number; color?: string } = {}
   ): this {
     this.ops.push({ type: 'rect', x, y, width, height, stroke, color })
+    return this
+  }
+
+  public tap(callback: (canvas: this) => void): this {
+    callback(this)
     return this
   }
 
@@ -221,6 +260,7 @@ export class QuickCanvas {
         switch (op.type) {
           case 'line':
             context.beginPath()
+            context.setLineDash([...(op.dash ?? [])])
             context.moveTo(op.x1, op.y1)
             context.lineTo(op.x2, op.y2)
             context.stroke()
@@ -260,4 +300,31 @@ function toImage(imageData: ImageData): Image {
   const image = new Image()
   image.src = canvas.toBuffer()
   return image
+}
+
+export interface ImageDebug {
+  (name: string): QuickCanvas
+  render(): void
+}
+
+export function imdebug(basePath: string): ImageDebug {
+  let nextId = 1
+  const canvases: [number, string, QuickCanvas][] = []
+  const imdebug = (name: string) => {
+    const c = canvas()
+    canvases.push([nextId++, name, c])
+    return c
+  }
+  imdebug.render = () => {
+    for (const [id, name, canvas] of canvases) {
+      canvas.render(
+        `${basePath}-debug${id.toString().padStart(2, '0')}-${name
+          .replace(/[^-a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')}.png`
+      )
+    }
+    canvases.length = 0
+  }
+  return imdebug
 }
