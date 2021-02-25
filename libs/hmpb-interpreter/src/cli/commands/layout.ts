@@ -30,7 +30,13 @@ import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
 import { rectClip, rectInset, rectScale } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
-import { canvas, imdebug, loadImageData, QuickCanvas } from '../../utils/images'
+import {
+  canvas,
+  ImageDebug,
+  imdebug,
+  loadImageData,
+  QuickCanvas,
+} from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
 import detect from '../../utils/qrcode'
 import { setFilter, setMap } from '../../utils/set'
@@ -291,6 +297,127 @@ export function findTemplateBoxes(
   )
 }
 
+export function findBallotBoxes(
+  imageData: ImageData,
+  {
+    templateLayout,
+    minBoxEdgeSegmentLength = imageData.width * 0.1,
+    imdebug: dbg,
+  }: {
+    templateLayout: Layout
+    minBoxEdgeSegmentLength?: number
+    imdebug?: ImageDebug
+  }
+): Layout | undefined {
+  const width = 1060
+  const height = 1750
+  const scaled = canvas().drawImage(imageData, 0, 0, width, height).render()
+  const segments = findLineSegments(toGray(scaled))
+  dbg?.('all line segments').background(imageData).tap(drawSegments(segments))
+
+  const filteredSegments = filterLineSegments(segments, {
+    minLength: minBoxEdgeSegmentLength,
+  })
+  dbg?.('filtered line segments')
+    .background(imageData)
+    .tap(drawSegments(filteredSegments))
+
+  const analysis = analyzeLineSegments(scaled, filteredSegments)
+  const scaledBoxes = [...analysis.clockwise, ...analysis.counterClockwise]
+  dbg?.('downscaled boxes').background(scaled).tap(drawBoxes(scaledBoxes))
+
+  const originalScaleBoxes = scaledBoxes.map((box) =>
+    scaleBox(imageData.width / width, box)
+  )
+  dbg?.('original scale boxes')
+    .background(imageData)
+    .tap(drawBoxes(originalScaleBoxes))
+
+  const fullBoxes = originalScaleBoxes.map(
+    (box) => inferBoxFromPartial(box) ?? box
+  )
+  dbg?.('boxes with inferred edges')
+    .background(imageData)
+    .tap(drawBoxes(fullBoxes))
+
+  const gaplessBoxes = fullBoxes.map((box) =>
+    isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
+  )
+  dbg?.('boxes with corner gaps closed')
+    .background(imageData)
+    .tap(drawBoxes(gaplessBoxes))
+
+  const completeBoxes = gaplessBoxes.filter(isCompleteBox)
+  dbg?.('only complete 4-edge boxes')
+    .background(imageData)
+    .tap(drawBoxes(completeBoxes))
+
+  const templateLayoutBounds = layoutBounds(templateLayout)
+  const boundsBuffer = imageData.width * 0.05
+  const scanLayoutBounds: Rect = rectClip(
+    rectInset(
+      rectScale(templateLayoutBounds, imageData.width / templateLayout.width),
+      -boundsBuffer
+    ),
+    { x: 0, y: 0, width: imageData.width, height: imageData.height }
+  )
+  const insideTemplateLayoutBoxes = filterInBounds(completeBoxes, {
+    bounds: scanLayoutBounds,
+  })
+  dbg?.('filtering-template-bounds')
+    .background(imageData)
+    .rect(
+      scanLayoutBounds.x,
+      scanLayoutBounds.y,
+      scanLayoutBounds.width,
+      scanLayoutBounds.height,
+      { color: 'cyan' }
+    )
+    .tap(drawBoxes(insideTemplateLayoutBoxes))
+
+  const edgeSize = imageData.width * 0.015
+  const edgeBounds: Rect = {
+    x: edgeSize,
+    y: edgeSize,
+    width: imageData.width - 2 * edgeSize,
+    height: imageData.height - 2 * edgeSize,
+  }
+  const insideEdgeBoundsBoxes = filterInBounds(insideTemplateLayoutBoxes, {
+    bounds: edgeBounds,
+  })
+  dbg?.('filtering edge boxes')
+    .background(imageData)
+    .rect(edgeBounds.x, edgeBounds.y, edgeBounds.width, edgeBounds.height, {
+      color: 'cyan',
+    })
+    .tap(drawBoxes(insideEdgeBoundsBoxes))
+
+  const withoutContainedBoxes = filterContainedBoxes(insideEdgeBoundsBoxes)
+  dbg?.('filtering boxes contained within another')
+    .background(imageData)
+    .tap(drawBoxes(withoutContainedBoxes))
+
+  const withoutContainedBoxesNoEdgeFilter = filterContainedBoxes(
+    insideTemplateLayoutBoxes
+  )
+  dbg?.('filtering boxes contained within another (no edge filter)')
+    .background(imageData)
+    .tap(drawBoxes(withoutContainedBoxesNoEdgeFilter))
+
+  const fixedScanLayout =
+    matchTemplateLayout(templateLayout, {
+      width: imageData.width,
+      height: imageData.height,
+      columns: splitIntoColumns(withoutContainedBoxes),
+    }) ||
+    matchTemplateLayout(templateLayout, {
+      width: imageData.width,
+      height: imageData.height,
+      columns: splitIntoColumns(withoutContainedBoxesNoEdgeFilter),
+    })
+  return fixedScanLayout
+}
+
 /**
  * Finds features in an image and writes an image adjacent with overlays marking
  * those features.
@@ -365,141 +492,21 @@ export async function run(
           continue
         }
 
-        const dbg = options.debug ? imdebug(ballotImagePath) : undefined
-        const width = 1060
-        const height = 1750
-        const scaled = canvas()
-          .drawImage(imageData, 0, 0, width, height)
-          .render()
-        const segments = findLineSegments(toGray(scaled))
-        dbg?.('all line segments')
-          .background(imageData)
-          .tap(drawSegments(segments))
-
-        const filteredSegments = filterLineSegments(segments, {
-          minLength: width * 0.1,
+        const dbg = options.debug
+          ? imdebug(adjacentFile('', ballotImagePath, ''))
+          : undefined
+        const fixedScanLayout = findBallotBoxes(imageData, {
+          templateLayout,
+          imdebug: dbg,
         })
-        dbg?.('filtered line segments')
-          .background(imageData)
-          .tap(drawSegments(filteredSegments))
-
-        const analysis = analyzeLineSegments(scaled, filteredSegments)
-        const scaledBoxes = [
-          ...analysis.clockwise,
-          ...analysis.counterClockwise,
-        ]
-        dbg?.('downscaled boxes').background(scaled).tap(drawBoxes(scaledBoxes))
-
-        const originalScaleBoxes = scaledBoxes.map((box) =>
-          scaleBox(imageData.width / width, box)
-        )
-        dbg?.('original scale boxes')
-          .background(imageData)
-          .tap(drawBoxes(originalScaleBoxes))
-
-        const fullBoxes = originalScaleBoxes.map(
-          (box) => inferBoxFromPartial(box) ?? box
-        )
-        dbg?.('boxes with inferred edges')
-          .background(imageData)
-          .tap(drawBoxes(fullBoxes))
-
-        const gaplessBoxes = fullBoxes.map((box) =>
-          isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
-        )
-        dbg?.('boxes with corner gaps closed')
-          .background(imageData)
-          .tap(drawBoxes(gaplessBoxes))
-
-        const completeBoxes = gaplessBoxes.filter(isCompleteBox)
-        dbg?.('only complete 4-edge boxes')
-          .background(imageData)
-          .tap(drawBoxes(completeBoxes))
-
-        const templateLayoutBounds = layoutBounds(templateLayout)
-        const boundsBuffer = imageData.width * 0.05
-        const scanLayoutBounds: Rect = rectClip(
-          rectInset(
-            rectScale(
-              templateLayoutBounds,
-              imageData.width / templateLayout.width
-            ),
-            -boundsBuffer
-          ),
-          { x: 0, y: 0, width: imageData.width, height: imageData.height }
-        )
-        const insideTemplateLayoutBoxes = filterInBounds(completeBoxes, {
-          bounds: scanLayoutBounds,
-        })
-        dbg?.('filtering-template-bounds')
-          .background(imageData)
-          .rect(
-            scanLayoutBounds.x,
-            scanLayoutBounds.y,
-            scanLayoutBounds.width,
-            scanLayoutBounds.height,
-            { color: 'cyan' }
-          )
-          .tap(drawBoxes(insideTemplateLayoutBoxes))
-
-        const edgeSize = imageData.width * 0.015
-        const edgeBounds: Rect = {
-          x: edgeSize,
-          y: edgeSize,
-          width: imageData.width - 2 * edgeSize,
-          height: imageData.height - 2 * edgeSize,
-        }
-        const insideEdgeBoundsBoxes = filterInBounds(
-          insideTemplateLayoutBoxes,
-          { bounds: edgeBounds }
-        )
-        dbg?.('filtering edge boxes')
-          .background(imageData)
-          .rect(
-            edgeBounds.x,
-            edgeBounds.y,
-            edgeBounds.width,
-            edgeBounds.height,
-            { color: 'cyan' }
-          )
-          .tap(drawBoxes(insideEdgeBoundsBoxes))
-
-        const withoutContainedBoxes = filterContainedBoxes(
-          insideEdgeBoundsBoxes
-        )
-        dbg?.('filtering boxes contained within another')
-          .background(imageData)
-          .tap(drawBoxes(withoutContainedBoxes))
-
-        const withoutContainedBoxesNoEdgeFilter = filterContainedBoxes(
-          insideTemplateLayoutBoxes
-        )
-        dbg?.('filtering boxes contained within another (no edge filter)')
-          .background(imageData)
-          .tap(drawBoxes(withoutContainedBoxesNoEdgeFilter))
-
-        let boxes: Set<GridBox>
-        const fixedScanLayout =
-          matchTemplateLayout(templateLayout, {
-            width: imageData.width,
-            height: imageData.height,
-            columns: splitIntoColumns((boxes = withoutContainedBoxes)),
-          }) ||
-          matchTemplateLayout(templateLayout, {
-            width: imageData.width,
-            height: imageData.height,
-            columns: splitIntoColumns(
-              (boxes = withoutContainedBoxesNoEdgeFilter)
-            ),
-          })
-        const qc = canvas().background(imageData)
+        dbg?.render()
         if (!fixedScanLayout) {
           errorPaths.push(ballotImagePath)
           stderr.write(
             `✘ error: could not match template layout: ${ballotImagePath}\n`
           )
-          qc.tap(drawBoxes(boxes))
         } else {
+          const qc = canvas().background(imageData)
           for (const column of fixedScanLayout.columns) {
             const left = Math.min(
               ...column.flatMap(({ left }) => [left.start.x, left.end.x])
@@ -519,8 +526,8 @@ export async function run(
             })
             qc.tap(drawBoxes(column))
           }
+          qc.render(layoutFilePath)
         }
-        qc.render(layoutFilePath)
       } else {
         for (const contest of contests) {
           fill(imageData, contest.bounds, GREEN_OVERLAY_COLOR)
