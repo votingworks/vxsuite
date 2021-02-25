@@ -470,7 +470,11 @@ const App: React.FC = () => {
                   Scan New Batch
                 </Button>
               </MainNav>
-              <StatusFooter election={election} electionHash={electionHash} />
+              <StatusFooter
+                election={election}
+                electionHash={electionHash}
+                machineConfig={machineConfig}
+              />
             </Screen>
             {isExportingCVRs && (
               <ExportResultsModal

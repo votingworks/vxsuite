@@ -5,12 +5,14 @@ import {
   waitFor,
   RenderResult,
   fireEvent,
+  screen,
 } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
 import { electionSample } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import fakeKiosk from '../test/helpers/fakeKiosk'
 import App from './App'
+import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
 
 const sleep = (ms = 1000): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -186,4 +188,8 @@ test('configuring election from usb ballot package works end to end', async () =
 
   fireEvent.click(getByText('Close'))
   getByText('No ballots have been scanned.')
+
+  getByText('General Election')
+  getByText(/Franklin County, State of Hamilton/)
+  screen.getByText(hasTextAcrossElements('Scanner ID: 0001'))
 })
