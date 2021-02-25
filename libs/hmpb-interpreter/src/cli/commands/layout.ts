@@ -295,14 +295,7 @@ export async function run(
       return 1
     }
 
-    if (!qrcode.rightSideUp) {
-      vh(imageData)
-    }
-
     const boxes = findTemplateBoxes(imageData)
-
-    stdout.write(`LSD found ${boxes.size} box(es) in ${templateImagePath}\n`)
-
     const metadata = metadataFromBytes(options.election, qrcode.data)
     metadata.electionHash = ''
     layoutByQrcode.set(JSON.stringify(metadata), {
