@@ -245,11 +245,31 @@ function analyzeLineSegments(
       parallelThreshold,
     }
   )
-  // const qc = canvas().background(imageData)
-  // drawBoxes(qc, result.clockwise, { color: 'red' })
-  // drawBoxes(qc, result.counterClockwise, { color: 'green' })
-  // qc.render('debug-cw-ccw.png')
   return result
+}
+
+export function findTemplateBoxes(
+  imageData: ImageData,
+  { minBoxEdgeSegmentLength = imageData.width * 0.1 } = {}
+): Set<GridBox> {
+  const gray = toGray(imageData)
+  return setMap(
+    filterContainedBoxes(
+      setFilter(
+        setMap(
+          analyzeLineSegments(
+            gray,
+            filterLineSegments(findLineSegments(gray), {
+              minLength: minBoxEdgeSegmentLength,
+            })
+          ).clockwise,
+          (box) => inferBoxFromPartial(box) ?? box
+        ),
+        isCompleteBox
+      )
+    ),
+    closeBoxSegmentGaps
+  )
 }
 
 /**
@@ -279,32 +299,15 @@ export async function run(
       vh(imageData)
     }
 
-    const gray = toGray(imageData)
-    const boxes = setMap(
-      filterContainedBoxes(
-        setFilter(
-          setMap(
-            analyzeLineSegments(
-              gray,
-              filterLineSegments(findLineSegments(gray), {
-                minLength: gray.width * 0.1,
-              })
-            ).clockwise,
-            (box) => inferBoxFromPartial(box) ?? box
-          ),
-          isCompleteBox
-        )
-      ),
-      closeBoxSegmentGaps
-    )
+    const boxes = findTemplateBoxes(imageData)
 
     stdout.write(`LSD found ${boxes.size} box(es) in ${templateImagePath}\n`)
 
     const metadata = metadataFromBytes(options.election, qrcode.data)
     metadata.electionHash = ''
     layoutByQrcode.set(JSON.stringify(metadata), {
-      width: gray.width,
-      height: gray.height,
+      width: imageData.width,
+      height: imageData.height,
       columns: splitIntoColumns(boxes),
     })
   }
