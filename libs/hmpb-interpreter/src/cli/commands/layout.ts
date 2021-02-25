@@ -30,7 +30,7 @@ import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
 import { rectClip, rectInset, rectScale } from '../../utils/geometry'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
-import { canvas, loadImageData } from '../../utils/images'
+import { canvas, imdebug, loadImageData, QuickCanvas } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
 import detect from '../../utils/qrcode'
 import { setFilter, setMap } from '../../utils/set'
@@ -215,6 +215,25 @@ function toGray(imageData: ImageData): ImageData {
   }
 }
 
+function drawSegments(
+  segments: Iterable<GridSegment>
+): (canvas: QuickCanvas) => void {
+  return (canvas) => {
+    for (const { start, end, direction } of segments) {
+      canvas.line(start, end, {
+        color:
+          direction === 'up'
+            ? 'green'
+            : direction === 'down'
+            ? 'yellow'
+            : direction === 'right'
+            ? 'blue'
+            : 'red',
+      })
+    }
+  }
+}
+
 function findLineSegments(imageData: ImageData): GridSegment[] {
   return lsd(imageData).map(({ x1, y1, x2, y2 }) =>
     gridSegment({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 } })
@@ -346,130 +365,57 @@ export async function run(
           continue
         }
 
-        let debugImageIndex = 1
+        const dbg = options.debug ? imdebug(ballotImagePath) : undefined
         const width = 1060
         const height = 1750
         const scaled = canvas()
           .drawImage(imageData, 0, 0, width, height)
           .render()
         const segments = findLineSegments(toGray(scaled))
-        if (options.debug) {
-          const c = canvas().drawImage(scaled, 0, 0, width, height)
-          for (const { start, end, direction } of segments) {
-            c.line(start, end, {
-              color:
-                direction === 'up'
-                  ? 'green'
-                  : direction === 'down'
-                  ? 'yellow'
-                  : direction === 'right'
-                  ? 'blue'
-                  : 'red',
-            })
-          }
-          c.render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-all-line-segments`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('all line segments')
+          .background(imageData)
+          .tap(drawSegments(segments))
+
         const filteredSegments = filterLineSegments(segments, {
           minLength: width * 0.1,
         })
-        if (options.debug) {
-          const c = canvas().drawImage(scaled, 0, 0, width, height)
-          for (const { start, end, direction } of filteredSegments) {
-            c.line(start, end, {
-              color:
-                direction === 'up'
-                  ? 'green'
-                  : direction === 'down'
-                  ? 'yellow'
-                  : direction === 'right'
-                  ? 'blue'
-                  : 'red',
-            })
-          }
-          c.render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-minlength-filtered-line-segments`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('filtered line segments')
+          .background(imageData)
+          .tap(drawSegments(filteredSegments))
+
         const analysis = analyzeLineSegments(scaled, filteredSegments)
         const scaledBoxes = [
           ...analysis.clockwise,
           ...analysis.counterClockwise,
         ]
-        if (options.debug) {
-          drawBoxes(
-            canvas().drawImage(scaled, 0, 0, width, height),
-            scaledBoxes
-          ).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-downscaled-boxes`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('downscaled boxes').background(scaled).tap(drawBoxes(scaledBoxes))
+
         const originalScaleBoxes = scaledBoxes.map((box) =>
           scaleBox(imageData.width / width, box)
         )
-        if (options.debug) {
-          drawBoxes(canvas().background(imageData), originalScaleBoxes).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-original-scale-boxes`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('original scale boxes')
+          .background(imageData)
+          .tap(drawBoxes(originalScaleBoxes))
+
         const fullBoxes = originalScaleBoxes.map(
           (box) => inferBoxFromPartial(box) ?? box
         )
-        if (options.debug) {
-          drawBoxes(canvas().background(imageData), fullBoxes).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-boxes-with-inferred-edges`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('boxes with inferred edges')
+          .background(imageData)
+          .tap(drawBoxes(fullBoxes))
+
         const gaplessBoxes = fullBoxes.map((box) =>
           isCompleteBox(box) ? closeBoxSegmentGaps(box) : box
         )
-        if (options.debug) {
-          drawBoxes(canvas().background(imageData), gaplessBoxes).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-boxes-with-corner-gaps-closed`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('boxes with corner gaps closed')
+          .background(imageData)
+          .tap(drawBoxes(gaplessBoxes))
+
         const completeBoxes = gaplessBoxes.filter(isCompleteBox)
-        if (options.debug) {
-          drawBoxes(canvas().background(imageData), completeBoxes).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-only-complete-4-edge-boxes`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('only complete 4-edge boxes')
+          .background(imageData)
+          .tap(drawBoxes(completeBoxes))
+
         const templateLayoutBounds = layoutBounds(templateLayout)
         const boundsBuffer = imageData.width * 0.05
         const scanLayoutBounds: Rect = rectClip(
@@ -485,27 +431,17 @@ export async function run(
         const insideTemplateLayoutBoxes = filterInBounds(completeBoxes, {
           bounds: scanLayoutBounds,
         })
-        if (options.debug) {
-          drawBoxes(
-            canvas()
-              .background(imageData)
-              .rect(
-                scanLayoutBounds.x,
-                scanLayoutBounds.y,
-                scanLayoutBounds.width,
-                scanLayoutBounds.height,
-                { color: 'cyan' }
-              ),
-            insideTemplateLayoutBoxes
-          ).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-filtering-template-bounds`,
-              ballotImagePath
-            )
+        dbg?.('filtering-template-bounds')
+          .background(imageData)
+          .rect(
+            scanLayoutBounds.x,
+            scanLayoutBounds.y,
+            scanLayoutBounds.width,
+            scanLayoutBounds.height,
+            { color: 'cyan' }
           )
-        }
+          .tap(drawBoxes(insideTemplateLayoutBoxes))
+
         const edgeSize = imageData.width * 0.015
         const edgeBounds: Rect = {
           x: edgeSize,
@@ -517,46 +453,30 @@ export async function run(
           insideTemplateLayoutBoxes,
           { bounds: edgeBounds }
         )
-        if (options.debug) {
-          drawBoxes(
-            canvas()
-              .background(imageData)
-              .rect(
-                edgeBounds.x,
-                edgeBounds.y,
-                edgeBounds.width,
-                edgeBounds.height,
-                { color: 'cyan' }
-              ),
-            insideEdgeBoundsBoxes
-          ).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-filtering-edge-boxes`,
-              ballotImagePath
-            )
+        dbg?.('filtering edge boxes')
+          .background(imageData)
+          .rect(
+            edgeBounds.x,
+            edgeBounds.y,
+            edgeBounds.width,
+            edgeBounds.height,
+            { color: 'cyan' }
           )
-        }
+          .tap(drawBoxes(insideEdgeBoundsBoxes))
+
         const withoutContainedBoxes = filterContainedBoxes(
           insideEdgeBoundsBoxes
         )
-        if (options.debug) {
-          drawBoxes(
-            canvas().background(imageData),
-            withoutContainedBoxes
-          ).render(
-            adjacentFile(
-              `-debug${(debugImageIndex++)
-                .toString()
-                .padStart(2, '0')}-filtering-boxes-contained-within-another`,
-              ballotImagePath
-            )
-          )
-        }
+        dbg?.('filtering boxes contained within another')
+          .background(imageData)
+          .tap(drawBoxes(withoutContainedBoxes))
+
         const withoutContainedBoxesNoEdgeFilter = filterContainedBoxes(
           insideTemplateLayoutBoxes
         )
+        dbg?.('filtering boxes contained within another (no edge filter)')
+          .background(imageData)
+          .tap(drawBoxes(withoutContainedBoxesNoEdgeFilter))
 
         let boxes: Set<GridBox>
         const fixedScanLayout =
@@ -578,7 +498,7 @@ export async function run(
           stderr.write(
             `✘ error: could not match template layout: ${ballotImagePath}\n`
           )
-          drawBoxes(qc, boxes)
+          qc.tap(drawBoxes(boxes))
         } else {
           for (const column of fixedScanLayout.columns) {
             const left = Math.min(
@@ -597,7 +517,7 @@ export async function run(
               stroke: 10,
               color: 'green',
             })
-            drawBoxes(qc, column)
+            qc.tap(drawBoxes(column))
           }
         }
         qc.render(layoutFilePath)

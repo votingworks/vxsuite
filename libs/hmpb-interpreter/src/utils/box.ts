@@ -829,37 +829,36 @@ function adjustSegmentLength(
 }
 
 export function drawBoxes(
-  qc: QuickCanvas,
   boxes: Iterable<Partial<GridBox>>,
   { stroke, color: overrideColor }: { stroke?: number; color?: string } = {}
-): QuickCanvas {
-  const colors = [
-    'red',
-    'orange',
-    'yellow',
-    'green',
-    'blue',
-    'indigo',
-    'violet',
-    'black',
-  ]
-  for (const [i, box] of [...boxes].entries()) {
-    const color = overrideColor ?? colors[i % colors.length]
-    if (box.top) {
-      qc.line(box.top.start, box.top.end, { color, stroke })
-    }
-    if (box.right) {
-      qc.line(box.right.start, box.right.end, { color, stroke })
-    }
-    if (box.bottom) {
-      qc.line(box.bottom.start, box.bottom.end, { color, stroke })
-    }
-    if (box.left) {
-      qc.line(box.left.start, box.left.end, { color, stroke })
+): (canvas: QuickCanvas) => void {
+  return (canvas) => {
+    const colors = [
+      'red',
+      'orange',
+      'yellow',
+      'green',
+      'blue',
+      'indigo',
+      'violet',
+      'black',
+    ]
+    for (const [i, box] of [...boxes].entries()) {
+      const color = overrideColor ?? colors[i % colors.length]
+      if (box.top) {
+        canvas.line(box.top.start, box.top.end, { color, stroke })
+      }
+      if (box.right) {
+        canvas.line(box.right.start, box.right.end, { color, stroke })
+      }
+      if (box.bottom) {
+        canvas.line(box.bottom.start, box.bottom.end, { color, stroke })
+      }
+      if (box.left) {
+        canvas.line(box.left.start, box.left.end, { color, stroke })
+      }
     }
   }
-
-  return qc
 }
 
 export function filterContainedBoxes(boxes: Iterable<GridBox>): Set<GridBox> {
