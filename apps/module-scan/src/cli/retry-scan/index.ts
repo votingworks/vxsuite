@@ -77,7 +77,13 @@ export interface RetryScanListeners {
   interpreterLoading?(): void
   interpreterLoaded?(): void
   interpreterUnloaded?(): void
-  pageInterpreted?(
+  pageInterpretStart?(sheetId: string, side: 'front' | 'back'): void
+  pageQrcodeRead?(
+    sheetId: string,
+    side: 'front' | 'back',
+    data?: Uint8Array
+  ): void
+  pageInterpretEnd?(
     sheetId: string,
     side: 'front' | 'back',
     original: PageScan,
@@ -128,7 +134,7 @@ export async function retryScan(
   listeners?.interpreterLoading?.()
   const pool = childProcessPool<workers.Input, workers.Output>(
     workers.workerPath,
-    cpus().length - 1
+    options.jobs ?? cpus().length - 1
   )
   pool.start()
 
@@ -175,13 +181,18 @@ export async function retryScan(
           frontDetectQrcodeOutput,
           backDetectQrcodeOutput,
         ] = await Promise.all(
-          originalScans.map(
-            async (scan) =>
-              (await pool.call({
-                action: 'detect-qrcode',
-                imagePath: scan.originalFilename,
-              })) as qrcodeWorker.Output
-          )
+          originalScans.map(async (scan, i) => {
+            const result = (await pool.call({
+              action: 'detect-qrcode',
+              imagePath: scan.originalFilename,
+            })) as qrcodeWorker.Output
+            listeners?.pageQrcodeRead?.(
+              id,
+              i === 0 ? 'front' : 'back',
+              result.blank ? undefined : result.qrcode?.data
+            )
+            return result
+          })
         )
         const [
           frontQrcode,
@@ -201,6 +212,7 @@ export async function retryScan(
               const imagePath = isAbsolute(scan.originalFilename)
                 ? scan.originalFilename
                 : resolve(input.store.dbPath, '..', scan.originalFilename)
+              listeners?.pageInterpretStart?.(id, i === 0 ? 'front' : 'back')
               const rescan = (await pool.call({
                 action: 'interpret',
                 sheetId: id,
@@ -210,7 +222,7 @@ export async function retryScan(
               })) as InterpretOutput
 
               if (rescan) {
-                listeners?.pageInterpreted?.(
+                listeners?.pageInterpretEnd?.(
                   id,
                   i === 0 ? 'front' : 'back',
                   scan,
