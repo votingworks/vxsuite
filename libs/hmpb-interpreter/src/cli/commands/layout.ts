@@ -6,10 +6,13 @@ import { GlobalOptions, OptionParseError } from '..'
 import { metadataFromBytes } from '../..'
 import { writeImageToFile } from '../../../test/utils'
 import findContests, { ContestShape } from '../../hmpb/findContests'
-import { findBallotBoxes, findTemplateBoxes } from '../../hmpb/findContestsLSD'
+import {
+  findScanLayout,
+  findTemplateContests,
+} from '../../hmpb/findContestsLSD'
 import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
-import { drawBoxes, Layout, splitIntoColumns } from '../../utils/box'
+import { drawBoxes, Layout } from '../../utils/box'
 import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
@@ -157,14 +160,10 @@ export async function run(
       return 1
     }
 
-    const boxes = findTemplateBoxes(imageData)
+    const layout = findTemplateContests(imageData)
     const metadata = metadataFromBytes(options.election, qrcode.data)
     metadata.electionHash = ''
-    layoutByQrcode.set(JSON.stringify(metadata), {
-      width: imageData.width,
-      height: imageData.height,
-      columns: splitIntoColumns(boxes),
-    })
+    layoutByQrcode.set(JSON.stringify(metadata), layout)
   }
 
   for (const ballotImagePath of options.ballotImagePaths) {
@@ -211,7 +210,7 @@ export async function run(
         const dbg = options.debug
           ? imdebug(adjacentFile('', ballotImagePath, ''))
           : undefined
-        const fixedScanLayout = findBallotBoxes(imageData, {
+        const fixedScanLayout = findScanLayout(imageData, {
           templateLayout,
           imdebug: dbg,
         })

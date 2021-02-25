@@ -6,7 +6,6 @@ import {
   filterContainedBoxes,
   filterInBounds,
   findBoxes,
-  GridBox,
   gridSegment,
   GridSegment,
   inferBoxFromPartial,
@@ -136,12 +135,12 @@ function analyzeLineSegments(
   return result
 }
 
-export function findTemplateBoxes(
+export function findTemplateContests(
   imageData: ImageData,
   { minBoxEdgeSegmentLength = imageData.width * 0.1 } = {}
-): Set<GridBox> {
+): Layout {
   const gray = toGray(imageData)
-  return setMap(
+  const boxes = setMap(
     filterContainedBoxes(
       setFilter(
         setMap(
@@ -158,9 +157,14 @@ export function findTemplateBoxes(
     ),
     closeBoxSegmentGaps
   )
+  return {
+    width: imageData.width,
+    height: imageData.height,
+    columns: splitIntoColumns(boxes),
+  }
 }
 
-export function findBallotBoxes(
+export function findScanLayout(
   imageData: ImageData,
   {
     templateLayout,
