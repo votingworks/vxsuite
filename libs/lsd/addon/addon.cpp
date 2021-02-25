@@ -17,6 +17,7 @@
 
 #include <napi.h>
 #include <lsd.h>
+#include <math.h>
 
 #define LSD_RESULT_DIM 7
 
@@ -34,18 +35,36 @@ Napi::Value AddonLsd(const Napi::CallbackInfo &info)
       !info[0].IsTypedArray() ||
       info[0].As<Napi::TypedArray>().TypedArrayType() != napi_float64_array ||
       !info[1].IsNumber() ||
-      !info[2].IsNumber())
+      !info[2].IsNumber() ||
+      (info.Length() > 3 && !info[3].IsNumber() && !info[3].IsUndefined()))
   {
     Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
     return env.Null();
   }
 
+  auto src_data = (double *)info[0].As<Napi::Float64Array>().ArrayBuffer().Data();
+  auto src_width = info[1].ToNumber().Uint32Value();
+  auto src_height = info[2].ToNumber().Uint32Value();
+
   int n;
-  double *result = lsd(
-      &n,
-      (double *)info[0].As<Napi::Float64Array>().ArrayBuffer().Data(),
-      info[1].ToNumber().Uint32Value(),
-      info[2].ToNumber().Uint32Value());
+  double *result;
+
+  if (info.Length() > 3 && info[3].IsNumber())
+  {
+    auto scale = info[3].ToNumber().DoubleValue();
+
+    if (scale <= 0)
+    {
+      Napi::TypeError::New(env, "scale must be positive").ThrowAsJavaScriptException();
+      return env.Null();
+    }
+
+    result = lsd_scale(&n, src_data, src_width, src_height, scale);
+  }
+  else
+  {
+    result = lsd(&n, src_data, src_width, src_height);
+  }
 
   // I tried using `result` directly and had a finalizer to free it instead of
   // copying it, but it sometimes crashed with this error message:

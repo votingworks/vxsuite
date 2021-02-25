@@ -18,7 +18,11 @@ test('options', async () => {
         'ballot02.png',
       ])
     )
-  ).toEqual({ ballotImagePaths: ['ballot01.png', 'ballot02.png'] })
+  ).toEqual(
+    expect.objectContaining({
+      ballotImagePaths: ['ballot01.png', 'ballot02.png'],
+    })
+  )
 })
 
 test('invalid options', async () => {

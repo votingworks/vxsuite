@@ -19,10 +19,14 @@ import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 import getVotesFromMarks from './getVotesFromMarks'
 import findContestOptions from './hmpb/findContestOptions'
-import findContests, {
+import {
   ContestShape,
   findBallotLayoutCorrespondance,
 } from './hmpb/findContests'
+import {
+  findBallotContests,
+  findTemplateContests,
+} from './hmpb/findContestsLSD'
 import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
@@ -43,10 +47,11 @@ import {
   Size,
 } from './types'
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize'
+import { boxCorners, gridSegment, Layout, splitIntoColumns } from './utils/box'
 import crop from './utils/crop'
 import defined from './utils/defined'
 import { vh as flipVH } from './utils/flip'
-import { rectCorners } from './utils/geometry'
+import { rectContainingPoints, rectCorners, roundRect } from './utils/geometry'
 import { map, reversed, zip, zipMin } from './utils/iterators'
 import diff, { countPixels } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
@@ -204,6 +209,76 @@ export default class Interpreter {
     metadata?: BallotPageMetadata,
     { flipped = false } = {}
   ): Promise<BallotPageLayout> {
+    const { layout, ballotImage } = await this.interpretTemplateLSD(
+      imageData,
+      metadata,
+      { flipped }
+    )
+    return this.adaptLayoutToBallotPageLayout(
+      layout,
+      ballotImage.imageData,
+      ballotImage.metadata,
+      { template: true }
+    )
+  }
+
+  private adaptLayoutToBallotPageLayout(
+    layout: Layout,
+    imageData: ImageData,
+    metadata: BallotPageMetadata,
+    { template }: { template: boolean }
+  ): BallotPageLayout {
+    const contests = layout.columns.flatMap((column) =>
+      column.map<ContestShape>((box) => ({
+        corners: boxCorners(box),
+        bounds: roundRect(rectContainingPoints(boxCorners(box))),
+      }))
+    )
+
+    const contestLayouts = findContestOptions([
+      ...map(contests, ({ bounds, corners }) => ({
+        bounds,
+        corners,
+        targets: template ? [...reversed(findTargets(imageData, bounds))] : [],
+      })),
+    ])
+
+    return {
+      ballotImage: { imageData, metadata },
+      contests: contestLayouts,
+    }
+  }
+
+  private adaptBallotPageLayoutToLayout(
+    ballotPageLayout: BallotPageLayout
+  ): Layout {
+    return {
+      width: ballotPageLayout.ballotImage.imageData.width,
+      height: ballotPageLayout.ballotImage.imageData.height,
+      columns: splitIntoColumns(
+        map(ballotPageLayout.contests, ({ corners: [tl, tr, bl, br] }) => ({
+          top: gridSegment({ start: tl, end: tr }),
+          right: gridSegment({ start: tr, end: br }),
+          bottom: gridSegment({ start: br, end: bl }),
+          left: gridSegment({ start: bl, end: tl }),
+        }))
+      ),
+    }
+  }
+
+  /**
+   * Interprets an image as a template, returning the layout information read
+   * from the image. The template image should be an image of a blank ballot,
+   * either scanned or otherwise rendered as an image.
+   */
+  private async interpretTemplateLSD(
+    imageData: ImageData,
+    metadata?: BallotPageMetadata,
+    { flipped = false } = {}
+  ): Promise<{
+    ballotImage: { imageData: ImageData; metadata: BallotPageMetadata }
+    layout: Layout
+  }> {
     debug(
       'interpretTemplate: looking for contests in %d×%d image',
       imageData.width,
@@ -219,44 +294,36 @@ export default class Interpreter {
 
     debug('using metadata for template: %O', metadata)
 
-    const contests = findContestOptions([
-      ...map(this.findContests(imageData).contests, ({ bounds, corners }) => ({
-        bounds,
-        corners,
-        targets: [...reversed(findTargets(imageData, bounds))],
-      })),
-    ])
-
     return {
       ballotImage: { imageData, metadata },
-      contests,
+      layout: findTemplateContests(imageData),
     }
   }
 
-  private findContests(
-    imageData: ImageData
-  ): { contests: ContestShape[]; columns: number } {
-    // Try three columns, i.e. candidate pages.
-    const shapesWithThreeColumns = [
-      ...findContests(imageData, {
-        columns: [true, true, true],
-      }),
-    ]
+  // private findContests(
+  //   imageData: ImageData
+  // ): { contests: ContestShape[]; columns: number } {
+  //   // Try three columns, i.e. candidate pages.
+  //   const shapesWithThreeColumns = [
+  //     ...findContests(imageData, {
+  //       columns: [true, true, true],
+  //     }),
+  //   ]
 
-    if (shapesWithThreeColumns.length > 0) {
-      return { contests: shapesWithThreeColumns, columns: 3 }
-    }
+  //   if (shapesWithThreeColumns.length > 0) {
+  //     return { contests: shapesWithThreeColumns, columns: 3 }
+  //   }
 
-    // Try two columns, i.e. measure pages.
-    return {
-      contests: [
-        ...findContests(imageData, {
-          columns: [true, true],
-        }),
-      ],
-      columns: 2,
-    }
-  }
+  //   // Try two columns, i.e. measure pages.
+  //   return {
+  //     contests: [
+  //       ...findContests(imageData, {
+  //         columns: [true, true],
+  //       }),
+  //     ],
+  //     columns: 2,
+  //   }
+  // }
 
   /**
    * Determines whether enough of the template images have been added to allow
@@ -337,23 +404,31 @@ export default class Interpreter {
   ): Promise<FindMarksResult> {
     debug('looking for marks in %d×%d image', imageData.width, imageData.height)
 
-    if (!this.canScanBallot(metadata)) {
+    const templatePageLayout = this.getTemplate(metadata)
+
+    if (!templatePageLayout) {
       throw new Error(
         'Cannot scan ballot because not all required templates have been added'
       )
     }
 
-    const { contests } = this.findContests(imageData)
-    const ballotLayout: BallotPageLayout = {
-      ballotImage: { imageData, metadata },
-      contests: [
-        ...map(contests, ({ bounds, corners }) => ({
-          bounds,
-          corners,
-          options: [],
-        })),
-      ],
+    const scanLayout = findBallotContests(imageData, {
+      templateLayout: this.adaptBallotPageLayoutToLayout(templatePageLayout),
+    })
+    if (!scanLayout) {
+      throw new Error(
+        `unable to match scan with template; metadata=${inspect(
+          templatePageLayout.ballotImage.metadata
+        )}`
+      )
     }
+
+    const ballotLayout = this.adaptLayoutToBallotPageLayout(
+      scanLayout,
+      imageData,
+      templatePageLayout.ballotImage.metadata,
+      { template: false }
+    )
     debug(
       'found contest areas: %O',
       ballotLayout.contests.map(({ bounds }) => bounds)

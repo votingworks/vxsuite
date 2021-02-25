@@ -15,11 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import assert from 'assert'
+import { strict as assert } from 'assert'
 import bindings from 'bindings'
 
 const addon = bindings('lsd') as {
-  lsd(image: Float64Array, width: number, height: number): Float64Array
+  lsd(
+    image: Float64Array,
+    width: number,
+    height: number,
+    scale?: number
+  ): Float64Array
   LSD_RESULT_DIM: number
 }
 
@@ -31,24 +36,27 @@ export interface LineSegment {
   width: number
 }
 
-export default function lsd(imageData: ImageData): LineSegment[] {
+export default function lsd(
+  imageData: ImageData,
+  { scale }: { scale?: number } = {}
+): LineSegment[] {
   const { data, width, height } = imageData
+
+  assert(typeof width === 'number' && width > 0)
+  assert(typeof height === 'number' && height > 0)
+
   const channels = imageData.data.length / imageData.width / imageData.height
 
-  assert.strictEqual(
+  assert.equal(
     channels,
     1,
     `expected a grayscale image, got a ${channels}-channel image`
   )
 
   const dst = Float64Array.from(data)
-  const result = addon.lsd(dst, width, height)
+  const result = addon.lsd(dst, width, height, scale)
 
-  assert.strictEqual(
-    result.length % addon.LSD_RESULT_DIM,
-    0,
-    'invalid dimension'
-  )
+  assert.equal(result.length % addon.LSD_RESULT_DIM, 0, 'invalid dimension')
 
   const segments = new Array<LineSegment>(result.length / addon.LSD_RESULT_DIM)
 

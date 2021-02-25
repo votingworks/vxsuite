@@ -4,6 +4,7 @@ hmpb-templates
 !hmpb-templates/.gitkeep
 *~
 *.log
+*.log.*
 coverage/
 .DS_Store
 debug-dump*.zip

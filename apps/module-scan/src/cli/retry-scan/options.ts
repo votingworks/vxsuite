@@ -2,6 +2,7 @@ export enum DiffWhen {
   Always = 'always',
   Never = 'never',
   SameType = 'same-type',
+  VotesChanged = 'votes-changed',
 }
 
 export interface Options {
@@ -13,6 +14,7 @@ export interface Options {
   uninterpreted?: boolean
   diffWhen: DiffWhen
   help?: boolean
+  jobs?: number
 }
 
 export function parseOptions(args: readonly string[]): Options {
@@ -20,10 +22,11 @@ export function parseOptions(args: readonly string[]): Options {
   let unreadable: boolean | undefined
   let uninterpreted: boolean | undefined
   let all: boolean | undefined
-  let diffWhen = DiffWhen.SameType
+  let diffWhen = DiffWhen.VotesChanged
   let help: boolean | undefined
   let inputWorkspace: string | undefined
   let outputWorkspace: string | undefined
+  let jobs: number | undefined
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
@@ -52,6 +55,12 @@ export function parseOptions(args: readonly string[]): Options {
       if (!Object.values(DiffWhen).includes(diffWhen)) {
         throw new Error(`invalid value for ${arg}: ${diffWhen || 'nothing'}`)
       }
+    } else if (arg === '-j' || arg === '--jobs') {
+      const value = args[++i]
+      if (!value || value.startsWith('-')) {
+        throw new Error(`invalid value for ${arg}: ${value || 'nothing'}`)
+      }
+      jobs = Number(value)
     } else if (arg === '-h' || arg === '--help') {
       help = true
     } else if (arg.startsWith('-')) {
@@ -70,6 +79,7 @@ export function parseOptions(args: readonly string[]): Options {
       uninterpreted,
       unreadable,
       diffWhen,
+      jobs,
       help,
     }
   }
@@ -93,6 +103,7 @@ export function parseOptions(args: readonly string[]): Options {
       uninterpreted,
       unreadable,
       diffWhen,
+      jobs,
       help,
     }
   }
@@ -113,6 +124,7 @@ export function parseOptions(args: readonly string[]): Options {
     unreadable,
     uninterpreted,
     diffWhen,
+    jobs,
     help,
   }
 }

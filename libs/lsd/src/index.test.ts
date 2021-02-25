@@ -49,6 +49,20 @@ test('simple image', () => {
   `)
 })
 
+test('simple image (50% scale)', () => {
+  expect(lsd(exampleImage(), { scale: 0.5 })).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "width": 4.000000000000008,
+        "x1": 63.448393278281806,
+        "x2": 63.44839327828182,
+        "y1": 1,
+        "y2": 125,
+      },
+    ]
+  `)
+})
+
 // `global.gc` is only defined when `--expose-gc` is provided to `node`.
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

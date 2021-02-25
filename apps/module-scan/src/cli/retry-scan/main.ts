@@ -3,6 +3,7 @@ import deepEqual from 'deep-eql'
 import diff from 'jest-diff'
 import ora, { Ora } from 'ora'
 import { PageScan, retryScan } from '.'
+import { PageInterpretation } from '../../interpreter'
 import MultiMap from '../../util/MultiMap'
 import Spinner, {
   countProvider,
@@ -46,6 +47,9 @@ export function printHelp(out: NodeJS.WritableStream): void {
   out.write(
     `  -d, --diff-when RULE    When to print a diff of interpretations: always, never, or same-type (default).\n`
   )
+  out.write(
+    `      -j, --jobs COUNT    Scan using COUNT jobs, where COUNT by default is # of CPUs minus 1.\n`
+  )
 }
 
 /**
@@ -83,7 +87,9 @@ export default async function main(
   // ui
   let fetchSpinner: Ora | undefined
   let configureSpinner: Spinner | undefined
-  let interpretCounter: CountProvider | undefined
+  let qrcodeCounter: CountProvider | undefined
+  let interpretStartCounter: CountProvider | undefined
+  let interpretEndCounter: CountProvider | undefined
   let interpretSpinner: Spinner | undefined
 
   await retryScan(options, {
@@ -110,7 +116,9 @@ export default async function main(
       fetchSpinner = undefined
 
       pageCount = count * 2
-      interpretCounter = countProvider()
+      qrcodeCounter = countProvider()
+      interpretStartCounter = countProvider()
+      interpretEndCounter = countProvider()
     },
 
     interpreterLoading: () => {
@@ -127,15 +135,25 @@ export default async function main(
 
       interpretSpinner = new Spinner(
         ora({ stream: stderr }).start(),
-        'Interpreted ',
-        interpretCounter!,
+        'Interpret: ',
+        qrcodeCounter!,
+        ' QR code & ',
+        interpretEndCounter!,
         `/${pageCount}`,
         durationProvider({ prefix: ' (', suffix: ')' })
       )
     },
 
-    pageInterpreted: (sheetId, side, original, rescan) => {
-      interpretCounter?.increment()
+    pageQrcodeRead: () => {
+      qrcodeCounter?.increment()
+    },
+
+    pageInterpretStart: () => {
+      interpretStartCounter?.increment()
+    },
+
+    pageInterpretEnd: (sheetId, side, original, rescan) => {
+      interpretEndCounter?.increment()
       reinterpretResults.set([sheetId, side], { original, rescan })
     },
 
@@ -170,11 +188,13 @@ export default async function main(
         `  ${chalk.dim('Normalized:')} ${rescan.normalizedFilename}\n`
       )
 
-      const shouldDiff =
-        options.diffWhen === DiffWhen.Always ||
-        (options.diffWhen === DiffWhen.SameType &&
-          original.interpretation.type === rescan.interpretation.type)
-      if (shouldDiff) {
+      if (
+        shouldDiffRescan(
+          original.interpretation,
+          rescan.interpretation,
+          options.diffWhen
+        )
+      ) {
         stdout.write(
           `${diff(original.interpretation, rescan.interpretation, {
             aAnnotation: 'Original',
@@ -190,6 +210,36 @@ export default async function main(
   }
 
   return 0
+}
+
+function shouldDiffRescan(
+  original: PageInterpretation,
+  rescan: PageInterpretation,
+  diffWhen: DiffWhen
+): boolean {
+  switch (diffWhen) {
+    case DiffWhen.Always:
+      return true
+
+    case DiffWhen.Never:
+      return false
+
+    case DiffWhen.SameType:
+      return original.type === rescan.type
+
+    case DiffWhen.VotesChanged: {
+      if (
+        (original.type === 'InterpretedBmdPage' &&
+          rescan.type === 'InterpretedBmdPage') ||
+        (original.type === 'InterpretedHmpbPage' &&
+          rescan.type === 'InterpretedHmpbPage')
+      ) {
+        return !deepEqual(original.votes, rescan.votes)
+      }
+
+      return true
+    }
+  }
 }
 
 /* istanbul ignore next */

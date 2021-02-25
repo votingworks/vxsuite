@@ -1,0 +1,23 @@
+{
+  "name": "@votingworks/image-utils",
+  "version": "1.0.0",
+  "description": "Various image manipulation utilities for in-memory ImageData.",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "node-gyp configure build",
+    "test": "jest test"
+  },
+  "keywords": [],
+  "author": "Brian Donovan",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "canvas": "^2.6.1",
+    "jest": "^26.6.3"
+  }
+}

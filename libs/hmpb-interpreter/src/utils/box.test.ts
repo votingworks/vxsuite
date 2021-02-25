@@ -220,7 +220,9 @@ test('findBoxes', () => {
               "x": 898.4735472651769,
               "y": 3764.3945253295324,
             },
+            "inferred": undefined,
             "length": 762.1283086792074,
+            "original": undefined,
             "start": Object {
               "x": 1660.5417125685356,
               "y": 3754.82006339154,
@@ -232,7 +234,9 @@ test('findBoxes', () => {
               "x": 886.8486397604029,
               "y": 2929.46201721269,
             },
+            "inferred": undefined,
             "length": 831.0826520157113,
+            "original": undefined,
             "start": Object {
               "x": 896.2747970658731,
               "y": 3760.4912116697324,
@@ -244,7 +248,9 @@ test('findBoxes', () => {
               "x": 1665.028412481352,
               "y": 3751.522587902121,
             },
+            "inferred": undefined,
             "length": 630.1099687998283,
+            "original": undefined,
             "start": Object {
               "x": 1655.3577773550999,
               "y": 3121.486833680842,
@@ -256,7 +262,9 @@ test('findBoxes', () => {
               "x": 1651.536716334071,
               "y": 2918.3596599064226,
             },
+            "inferred": undefined,
             "length": 762.0796730020492,
+            "original": undefined,
             "start": Object {
               "x": 889.4915228714455,
               "y": 2925.608875272238,
@@ -270,7 +278,9 @@ test('findBoxes', () => {
               "x": 889.4660024677476,
               "y": 2883.989231115895,
             },
+            "inferred": undefined,
             "length": 759.0806146010192,
+            "original": undefined,
             "start": Object {
               "x": 1648.5110279143646,
               "y": 2876.6388020259965,
@@ -282,7 +292,9 @@ test('findBoxes', () => {
               "x": 865.3906408803077,
               "y": 94.48054543574523,
             },
+            "inferred": undefined,
             "length": 2787.078213714938,
+            "original": undefined,
             "start": Object {
               "x": 884.1477838414106,
               "y": 2881.4956402912408,
@@ -294,7 +306,9 @@ test('findBoxes', () => {
               "x": 1652.208210110272,
               "y": 2872.537016734697,
             },
+            "inferred": undefined,
             "length": 2781.1208266239883,
+            "original": undefined,
             "start": Object {
               "x": 1632.754396688906,
               "y": 91.48423021210681,
@@ -306,7 +320,9 @@ test('findBoxes', () => {
               "x": 1630.5099211838153,
               "y": 87.61128992879047,
             },
+            "inferred": undefined,
             "length": 762.005684210775,
+            "original": undefined,
             "start": Object {
               "x": 868.5126499996604,
               "y": 91.19199899725565,
@@ -320,7 +336,9 @@ test('findBoxes', () => {
               "x": 1693.4760651070187,
               "y": 2350.5503938795678,
             },
+            "inferred": undefined,
             "length": 759.0480414129014,
+            "original": undefined,
             "start": Object {
               "x": 2452.499117297087,
               "y": 2344.3912204906956,
@@ -332,7 +350,9 @@ test('findBoxes', () => {
               "x": 1683.6392490020264,
               "y": 1603.4844873303437,
             },
+            "inferred": undefined,
             "length": 744.0239472589805,
+            "original": undefined,
             "start": Object {
               "x": 1689.0343639495552,
               "y": 2347.4888736275866,
@@ -344,7 +364,9 @@ test('findBoxes', () => {
               "x": 2456.5408373229293,
               "y": 2341.52055245831,
             },
+            "inferred": undefined,
             "length": 744.0534737803498,
+            "original": undefined,
             "start": Object {
               "x": 2448.735826128098,
               "y": 1597.508016512272,
@@ -356,7 +378,9 @@ test('findBoxes', () => {
               "x": 2446.521006386473,
               "y": 1594.6974992199,
             },
+            "inferred": undefined,
             "length": 759.0427466893043,
+            "original": undefined,
             "start": Object {
               "x": 1687.494639323475,
               "y": 1599.6840215341524,
@@ -370,7 +394,9 @@ test('findBoxes', () => {
               "x": 1687.4918336180572,
               "y": 1557.153774984028,
             },
+            "inferred": undefined,
             "length": 759.0224316863166,
+            "original": undefined,
             "start": Object {
               "x": 2446.500300440947,
               "y": 1552.5495275780343,
@@ -382,7 +408,9 @@ test('findBoxes', () => {
               "x": 1677.9815158083416,
               "y": 808.4823667618039,
             },
+            "inferred": undefined,
             "length": 744.0451682507893,
+            "original": undefined,
             "start": Object {
               "x": 1683.2684434263529,
               "y": 1552.508751235975,
@@ -395,7 +423,9 @@ test('findBoxes', () => {
               "x": 2437.5176649835335,
               "y": 802.7460568526078,
             },
+            "inferred": undefined,
             "length": 756.0214571239494,
+            "original": undefined,
             "start": Object {
               "x": 1681.507402462926,
               "y": 806.8602512259685,
@@ -409,7 +439,9 @@ test('findBoxes', () => {
               "x": 1681.4922265333805,
               "y": 765.0170575672302,
             },
+            "inferred": undefined,
             "length": 756.0210647231913,
+            "original": undefined,
             "start": Object {
               "x": 2437.502904598328,
               "y": 761.0541095526223,
@@ -421,7 +453,9 @@ test('findBoxes', () => {
               "x": 1674.902914344527,
               "y": 91.49046516947857,
             },
+            "inferred": undefined,
             "length": 669.0185412566829,
+            "original": undefined,
             "start": Object {
               "x": 1677.557577504858,
               "y": 760.5037395585036,
@@ -434,7 +468,9 @@ test('findBoxes', () => {
               "x": 2437.519000898896,
               "y": 82.85003022445933,
             },
+            "inferred": undefined,
             "length": 759.0218223919588,
+            "original": undefined,
             "start": Object {
               "x": 1678.5093870722783,
               "y": 87.15502569237927,
@@ -683,6 +719,106 @@ test('findBoxes', () => {
           },
         },
       },
+      "unusedSegments": Set {
+        Object {
+          "direction": "up",
+          "end": Object {
+            "x": 2527.660987305213,
+            "y": 1816.4728338126743,
+          },
+          "inferred": undefined,
+          "length": 768.0747658691837,
+          "original": undefined,
+          "start": Object {
+            "x": 2534.2617390401715,
+            "y": 2584.5192360837445,
+          },
+        },
+        Object {
+          "direction": "up",
+          "end": Object {
+            "x": 2515.6058086585376,
+            "y": 1.487724410032456,
+          },
+          "inferred": undefined,
+          "length": 692.9945870563622,
+          "original": undefined,
+          "start": Object {
+            "x": 2518.34482187189,
+            "y": 694.4768985650369,
+          },
+        },
+        Object {
+          "direction": "left",
+          "end": Object {
+            "x": 418.4642388185541,
+            "y": 3952.733022713293,
+          },
+          "inferred": undefined,
+          "length": 1842.195104591182,
+          "original": undefined,
+          "start": Object {
+            "x": 2260.505505364432,
+            "y": 3928.92597077958,
+          },
+        },
+        Object {
+          "direction": "left",
+          "end": Object {
+            "x": 67.48893455613222,
+            "y": 169.21563663262248,
+          },
+          "inferred": undefined,
+          "length": 753.015941032777,
+          "original": undefined,
+          "start": Object {
+            "x": 820.5006018719415,
+            "y": 166.6786431868848,
+          },
+        },
+        Object {
+          "direction": "right",
+          "end": Object {
+            "x": 2260.541412857623,
+            "y": 3922.6939978504797,
+          },
+          "inferred": undefined,
+          "length": 1842.1952356899897,
+          "original": undefined,
+          "start": Object {
+            "x": 418.50100608070136,
+            "y": 3946.577594732218,
+          },
+        },
+        Object {
+          "direction": "right",
+          "end": Object {
+            "x": 2539.570502301746,
+            "y": 4186.698836936847,
+          },
+          "inferred": undefined,
+          "length": 951.1090883019576,
+          "original": undefined,
+          "start": Object {
+            "x": 1588.5229238078882,
+            "y": 4197.515550465026,
+          },
+        },
+        Object {
+          "direction": "right",
+          "end": Object {
+            "x": 820.5100025467126,
+            "y": 91.84575923332966,
+          },
+          "inferred": undefined,
+          "length": 750.0145859746481,
+          "original": undefined,
+          "start": Object {
+            "x": 70.49876829883952,
+            "y": 94.08800736965732,
+          },
+        },
+      },
     }
   `)
 })
@@ -717,7 +853,9 @@ test('findBoxes joining segments on the same side', () => {
               "x": 0,
               "y": 10,
             },
+            "inferred": undefined,
             "length": 10,
+            "original": undefined,
             "start": Object {
               "x": 10,
               "y": 10,
@@ -729,7 +867,9 @@ test('findBoxes joining segments on the same side', () => {
               "x": 0,
               "y": 0,
             },
+            "inferred": undefined,
             "length": 10,
+            "original": undefined,
             "start": Object {
               "x": 0,
               "y": 10,
@@ -741,7 +881,38 @@ test('findBoxes joining segments on the same side', () => {
               "x": 10,
               "y": 10,
             },
+            "inferred": false,
             "length": 10,
+            "original": Set {
+              Object {
+                "direction": "down",
+                "end": Object {
+                  "x": 10,
+                  "y": 10,
+                },
+                "inferred": undefined,
+                "length": 3,
+                "original": undefined,
+                "start": Object {
+                  "x": 10,
+                  "y": 7,
+                },
+              },
+              Object {
+                "direction": "down",
+                "end": Object {
+                  "x": 10,
+                  "y": 3,
+                },
+                "inferred": undefined,
+                "length": 3,
+                "original": undefined,
+                "start": Object {
+                  "x": 10,
+                  "y": 0,
+                },
+              },
+            },
             "start": Object {
               "x": 10,
               "y": 0,
@@ -753,7 +924,9 @@ test('findBoxes joining segments on the same side', () => {
               "x": 10,
               "y": 0,
             },
+            "inferred": undefined,
             "length": 10,
+            "original": undefined,
             "start": Object {
               "x": 0,
               "y": 0,
@@ -762,6 +935,7 @@ test('findBoxes joining segments on the same side', () => {
         },
       },
       "counterClockwise": Set {},
+      "unusedSegments": Set {},
     }
   `)
 })
@@ -772,10 +946,22 @@ test('infer one box side', () => {
   const bottom = gridSegment({ start: { x: 2, y: 2 }, end: { x: 1, y: 2 } })
   const left = gridSegment({ start: { x: 1, y: 2 }, end: { x: 1, y: 1 } })
   const box = { top, right, bottom, left }
-  expect(inferBoxFromPartial({ left, top, right })).toEqual(box)
-  expect(inferBoxFromPartial({ top, right, bottom })).toEqual(box)
-  expect(inferBoxFromPartial({ right, bottom, left })).toEqual(box)
-  expect(inferBoxFromPartial({ bottom, left, top })).toEqual(box)
+  expect(inferBoxFromPartial({ left, top, right })?.box).toEqual({
+    ...box,
+    bottom: { ...bottom, inferred: true },
+  })
+  expect(inferBoxFromPartial({ top, right, bottom })?.box).toEqual({
+    ...box,
+    left: { ...left, inferred: true },
+  })
+  expect(inferBoxFromPartial({ right, bottom, left })?.box).toEqual({
+    ...box,
+    top: { ...top, inferred: true },
+  })
+  expect(inferBoxFromPartial({ bottom, left, top })?.box).toEqual({
+    ...box,
+    right: { ...right, inferred: true },
+  })
 })
 
 test('infer two box sides', () => {
@@ -784,8 +970,24 @@ test('infer two box sides', () => {
   const bottom = gridSegment({ start: { x: 2, y: 2 }, end: { x: 1, y: 2 } })
   const left = gridSegment({ start: { x: 1, y: 2 }, end: { x: 1, y: 1 } })
   const box = { top, right, bottom, left }
-  expect(inferBoxFromPartial({ left, top })).toEqual(box)
-  expect(inferBoxFromPartial({ top, right })).toEqual(box)
-  expect(inferBoxFromPartial({ right, bottom })).toEqual(box)
-  expect(inferBoxFromPartial({ bottom, left })).toEqual(box)
+  expect(inferBoxFromPartial({ left, top })?.box).toEqual({
+    ...box,
+    right: { ...right, inferred: true },
+    bottom: { ...bottom, inferred: true },
+  })
+  expect(inferBoxFromPartial({ top, right })?.box).toEqual({
+    ...box,
+    bottom: { ...bottom, inferred: true },
+    left: { ...left, inferred: true },
+  })
+  expect(inferBoxFromPartial({ right, bottom })?.box).toEqual({
+    ...box,
+    top: { ...top, inferred: true },
+    left: { ...left, inferred: true },
+  })
+  expect(inferBoxFromPartial({ bottom, left })?.box).toEqual({
+    ...box,
+    top: { ...top, inferred: true },
+    right: { ...right, inferred: true },
+  })
 })

@@ -298,7 +298,7 @@ test('help', async () => {
   `)
 })
 
-test('run interpret', async () => {
+test.skip('run interpret', async () => {
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
   const stderr = new MemoryStream()
@@ -358,7 +358,7 @@ test('run interpret', async () => {
   `)
 })
 
-test('run interpret with auto inputs', async () => {
+test.skip('run interpret with auto inputs', async () => {
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
   const stderr = new MemoryStream()
@@ -415,7 +415,7 @@ test('run interpret with auto inputs', async () => {
   `)
 })
 
-test('run interpret with JSON output', async () => {
+test.skip('run interpret with JSON output', async () => {
   const stdin = new MemoryStream()
   const stdout = new MemoryStream()
   const stderr = new MemoryStream()

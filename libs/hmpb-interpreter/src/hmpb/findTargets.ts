@@ -34,7 +34,7 @@ export default function* findTargets(
   for (let y = bounds.y + bounds.height - inset; y > bounds.y; y--) {
     const shape = findShape(ballotImage, { x, y }, visitedPoints)
 
-    if (shape.bounds.width === 0 || shape.bounds.height === 0) {
+    if (shape.bounds.width <= 1 || shape.bounds.height <= 1) {
       continue
     }
 

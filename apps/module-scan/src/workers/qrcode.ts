@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { loadImageData } from '../util/images'
 import { detectQRCode } from '../util/qrcode'
 import threshold from '../util/threshold'
+import { performance } from 'perf_hooks'
 
 const debug = makeDebug('module-scan:workers:qrcode')
 
@@ -66,7 +67,10 @@ export async function call(input: unknown): Promise<Output> {
     return { blank: true }
   }
 
+  performance.mark('qrcode start')
   const result = await detectQRCode(imageData)
+  performance.mark('qrcode end')
+  performance.measure('qrcode', 'qrcode start', 'qrcode end')
   const output: Output = {
     blank: false,
     qrcode: result

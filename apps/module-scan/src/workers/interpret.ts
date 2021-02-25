@@ -2,13 +2,14 @@ import { Election } from '@votingworks/types'
 import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
+import { performance } from 'perf_hooks'
 import { saveImages } from '../importer'
 import Interpreter, { PageInterpretation } from '../interpreter'
 import Store from '../store'
 import { BallotPageQrcode } from '../types'
 import pdfToImages from '../util/pdfToImages'
 
-const debug = makeDebug('module-scan:worker:interpret')
+const debug = makeDebug(`module-scan:worker(pid=${process.pid}):interpret`)
 
 export const workerPath = __filename
 
@@ -58,8 +59,10 @@ export async function configure(store: Store): Promise<void> {
   interpreter = new Interpreter(election, await store.getTestMode())
 
   debug('hand-marked paper ballot templates: %d', templates.length)
-  for (const [pdf, layouts] of templates) {
+  for (const [i, [pdf, layouts]] of templates.entries()) {
+    debug('processing pdf #%d', i)
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
+      debug('processing pdf #%d p%d', i, pageNumber)
       const layout = layouts[pageNumber - 1]
       await interpreter.addHmpbTemplate({
         ...layout,
@@ -84,11 +87,14 @@ export async function interpret(
   }
 
   const ballotImageFile = await readFile(ballotImagePath)
+  performance.mark('interpret start')
   const result = await interpreter.interpretFile({
     ballotImagePath,
     ballotImageFile,
     ballotPageQrcode,
   })
+  performance.mark('interpret end')
+  performance.measure('interpret', 'interpret start', 'interpret end')
   debug(
     'interpreted ballot image as %s: %s',
     result.interpretation.type,
@@ -103,12 +109,21 @@ export async function interpret(
     ballotImagesPath,
     `${basename(ballotImagePath, ext)}-${sheetId}-normalized${ext}`
   )
+  debug('saving images for ballot image: %s', ballotImagePath)
+  performance.mark('save ballot images start')
   const images = await saveImages(
     ballotImagePath,
     originalImagePath,
     normalizedImagePath,
     result.normalizedImage
   )
+  performance.mark('save ballot images end')
+  performance.measure(
+    'save ballot images',
+    'save ballot images start',
+    'save ballot images end'
+  )
+  debug('returning from worker for ballot image: %s', ballotImagePath)
   return {
     interpretation: result.interpretation,
     originalFilename: images.original,

@@ -1,17 +1,17 @@
 import { LineSegment } from '@votingworks/lsd'
+import makeDebug from 'debug'
+import { inspect } from 'util'
+import { Corners, Offset, Point, Rect } from '../types'
 import {
   euclideanDistance,
   poly4Area,
   rectContains,
   vectorAdd,
-  vectorScale,
   vectorSub,
 } from './geometry'
-import { QuickCanvas } from './images'
-import { Corners, Offset, Point, Rect } from '../types'
-import { setFilter } from './set'
+import { canvas, QuickCanvas } from './images'
 import { integers, zip, zipMin } from './iterators'
-import makeDebug from 'debug'
+import { setFilter, setFlatMap } from './set'
 
 const debug = makeDebug('hmpb-interpreter:box')
 
@@ -27,6 +27,8 @@ export interface GridSegment {
   readonly start: Point
   readonly end: Point
   readonly length: number
+  readonly original?: Set<GridSegment>
+  readonly inferred?: boolean
 }
 
 export type Box = BoxOf<LineSegment>
@@ -41,7 +43,7 @@ export interface Layout {
   readonly columns: readonly LayoutColumn[]
 }
 
-type Direction = 'right' | 'left' | 'up' | 'down'
+export type Direction = 'right' | 'left' | 'up' | 'down'
 
 interface AnnotatedSegment {
   readonly x1: number
@@ -61,18 +63,77 @@ export interface Rotation {
 
 const TWO_PI = 2 * Math.PI
 
+export function deriveGridSegment(
+  original: GridSegment,
+  {
+    start,
+    end,
+  }: {
+    start?: Point
+    end?: Point
+  }
+): GridSegment
+export function deriveGridSegment(
+  original: GridSegment[],
+  {
+    start,
+    end,
+  }: {
+    start: Point
+    end: Point
+  }
+): GridSegment
+export function deriveGridSegment(
+  original: GridSegment | GridSegment[],
+  {
+    start,
+    end,
+  }: {
+    start?: Point
+    end?: Point
+  }
+): GridSegment {
+  if (!start || !end) {
+    if (Array.isArray(original)) {
+      throw new TypeError(
+        'cannot infer start/end when given multiple original segments'
+      )
+    }
+    start ??= original.start
+    end ??= original.end
+  }
+
+  return gridSegment({
+    start,
+    end,
+    original: new Set([
+      ...(Array.isArray(original) ? original : new Set([original])),
+    ]),
+  })
+}
+
 export function gridSegment({
   start,
   end,
+  original,
+  inferred = original
+    ? [...original].some(({ inferred }) => inferred)
+    : undefined,
 }: {
   start: Point
   end: Point
+  original?: Set<GridSegment>
+  inferred?: boolean
 }): GridSegment {
   const dx = end.x - start.x
   const dy = end.y - start.y
   return {
     start,
     end,
+    original:
+      original &&
+      setFlatMap(original, (element) => element.original ?? new Set([element])),
+    inferred,
     length: euclideanDistance(start, end),
     direction:
       Math.abs(dx) > Math.abs(dy)
@@ -83,6 +144,17 @@ export function gridSegment({
         ? 'down'
         : 'up',
   }
+}
+
+export function segmentsEquivalent(a: GridSegment, b: GridSegment): boolean {
+  return (
+    a.start.x === b.start.x &&
+    a.start.y === b.start.y &&
+    a.end.x === b.end.x &&
+    a.end.y === b.end.y &&
+    a.direction === b.direction &&
+    a.length === b.length
+  )
 }
 
 /**
@@ -100,12 +172,19 @@ function isSameAngle(
 }
 
 export function scaleLineSegment(
-  scale: number,
+  xScale: number,
+  yScale: number,
   segment: GridSegment
 ): GridSegment {
-  return gridSegment({
-    start: vectorScale(segment.start, scale),
-    end: vectorScale(segment.end, scale),
+  return deriveGridSegment(segment, {
+    start: {
+      x: xScale * segment.start.x,
+      y: yScale * segment.start.y,
+    },
+    end: {
+      x: xScale * segment.end.x,
+      y: yScale * segment.end.y,
+    },
   })
 }
 
@@ -113,18 +192,6 @@ function computeSegmentAngle({ start, end }: GridSegment): number {
   const dx = end.x - start.x
   const dy = end.y - start.y
   return Math.atan2(dy, dx)
-}
-
-export function scaleBox(
-  scale: number,
-  box: Partial<GridBox>
-): Partial<GridBox> {
-  return {
-    top: box.top && scaleLineSegment(scale, box.top),
-    right: box.right && scaleLineSegment(scale, box.right),
-    bottom: box.bottom && scaleLineSegment(scale, box.bottom),
-    left: box.left && scaleLineSegment(scale, box.left),
-  }
 }
 
 export function findRotation(
@@ -212,8 +279,9 @@ export function findBoxes(
     parallelThreshold,
   }: { maxConnectedCornerDistance: number; parallelThreshold: number }
 ): {
-  clockwise: ReturnType<typeof findBoxesFromSegments>
-  counterClockwise: ReturnType<typeof findBoxesFromSegments>
+  clockwise: Set<Partial<GridBox>>
+  counterClockwise: Set<Partial<GridBox>>
+  unusedSegments: Set<GridSegment>
 } {
   const rotation = findRotation(segments)
 
@@ -221,6 +289,7 @@ export function findBoxes(
     return {
       clockwise: new Set(),
       counterClockwise: new Set(),
+      unusedSegments: new Set(segments),
     }
   }
 
@@ -247,11 +316,23 @@ export function findBoxes(
     maxConnectedCornerDistance,
   })
 
-  return { clockwise, counterClockwise }
+  const ccwUnused = invertSegments([...counterClockwise.unusedSegments])
+  return {
+    clockwise: clockwise.boxes,
+    counterClockwise: counterClockwise.boxes,
+    unusedSegments: setFilter(clockwise.unusedSegments, (cw) =>
+      ccwUnused.some((ccw) => segmentsEquivalent(cw, ccw))
+    ),
+  }
 }
 
-function invertSegments(segments: readonly GridSegment[]): GridSegment[] {
-  return segments.map(({ start, end, length, direction }) => ({
+function invertSegment({
+  start,
+  end,
+  direction,
+  length,
+}: GridSegment): GridSegment {
+  return {
     start: end,
     end: start,
     length,
@@ -263,7 +344,11 @@ function invertSegments(segments: readonly GridSegment[]): GridSegment[] {
         : direction === 'left'
         ? 'right'
         : 'left',
-  }))
+  }
+}
+
+function invertSegments(segments: readonly GridSegment[]): GridSegment[] {
+  return segments.map(invertSegment)
 }
 
 function findBoxesFromSegments({
@@ -280,13 +365,17 @@ function findBoxesFromSegments({
   right: GridSegment[]
   parallelThreshold: number
   maxConnectedCornerDistance: number
-}): Set<Partial<GridBox>> {
+}): { boxes: Set<Partial<GridBox>>; unusedSegments: Set<GridSegment> } {
+  const unusedSegments = new Set([...up, ...down, ...left, ...right])
   const builder = new BoxesBuilder({ parallelThreshold })
   for (const r of right) {
     for (const u of up) {
       const dist = euclideanDistance(r.start, u.end)
       if (dist <= maxConnectedCornerDistance) {
-        builder.addCorner({ left: u, top: r })
+        if (builder.addCorner({ left: u, top: r })) {
+          unusedSegments.delete(u)
+          unusedSegments.delete(r)
+        }
       }
     }
   }
@@ -295,7 +384,10 @@ function findBoxesFromSegments({
     for (const d of down) {
       const dist = euclideanDistance(r.end, d.start)
       if (dist <= maxConnectedCornerDistance) {
-        builder.addCorner({ top: r, right: d })
+        if (builder.addCorner({ top: r, right: d })) {
+          unusedSegments.delete(r)
+          unusedSegments.delete(d)
+        }
       }
     }
   }
@@ -304,21 +396,56 @@ function findBoxesFromSegments({
     for (const d of down) {
       const dist = euclideanDistance(l.start, d.end)
       if (dist <= maxConnectedCornerDistance) {
-        builder.addCorner({ right: d, bottom: l })
+        if (builder.addCorner({ right: d, bottom: l })) {
+          unusedSegments.delete(d)
+          unusedSegments.delete(l)
+        }
       }
     }
   }
+
+  const c = canvas()
+  for (const l of left) {
+    c.line(l.start, l.end, { color: 'red' })
+    c.text(
+      `${inspect({ start: Math.floor(l.start.x), end: Math.floor(l.end.x) })}`,
+      l.end.x,
+      l.end.y
+    )
+  }
+  for (const u of up) {
+    c.line(u.start, u.end, { color: 'green' })
+    c.text(
+      `${inspect({ start: Math.floor(u.start.y), end: Math.floor(u.end.y) })}`,
+      u.start.x,
+      u.start.y
+    )
+  }
+  c.render(`debug-${Date.now()}.png`)
 
   for (const l of left) {
     for (const u of up) {
       const dist = euclideanDistance(l.end, u.start)
       if (dist <= maxConnectedCornerDistance) {
-        builder.addCorner({ bottom: l, left: u })
+        if (builder.addCorner({ bottom: l, left: u })) {
+          unusedSegments.delete(l)
+          unusedSegments.delete(u)
+        } else {
+          console.log('failed to add bottom-left corner:', { l, u })
+        }
+      } else if (dist <= maxConnectedCornerDistance * 1.2) {
+        console.log('bottom left corner was close but not quite:', {
+          l,
+          u,
+          dist,
+        })
+      } else {
+        // console.log('not close bottom left corner:', { l, u, dist })
       }
     }
   }
 
-  return builder.build()
+  return { boxes: builder.build(), unusedSegments }
 }
 
 /**
@@ -351,11 +478,17 @@ class BoxesBuilder {
    * of them are previously known, the associated box(es) will be merged. If
    * the boxes cannot be merged they will be ignored.
    */
-  public addCorner(segments: { left: GridSegment; top: GridSegment }): void
-  public addCorner(segments: { top: GridSegment; right: GridSegment }): void
-  public addCorner(segments: { right: GridSegment; bottom: GridSegment }): void
-  public addCorner(segments: { bottom: GridSegment; left: GridSegment }): void
-  public addCorner(box: Partial<GridBox>): void {
+  public addCorner(segments: { left: GridSegment; top: GridSegment }): boolean
+  public addCorner(segments: { top: GridSegment; right: GridSegment }): boolean
+  public addCorner(segments: {
+    right: GridSegment
+    bottom: GridSegment
+  }): boolean
+  public addCorner(segments: {
+    bottom: GridSegment
+    left: GridSegment
+  }): boolean
+  public addCorner(box: Partial<GridBox>): boolean {
     debug('addCorner: %s', Object.keys(box).sort().join('-'))
     const segments = getBoxSegments(box)
     const boxes = this.getBoxesForSegments(segments)
@@ -378,8 +511,11 @@ class BoxesBuilder {
       for (const segment of getBoxSegments(merged)) {
         this.segmentBoxMap.set(segment, merged)
       }
+
+      return true
     } else {
       debug('addCorner: merge failed, removed segments: %O', segments)
+      return false
     }
   }
 
@@ -404,8 +540,14 @@ class BoxesBuilder {
       if (intersection === 'colinear') {
         top =
           a.top.start.x < b.top.start.x
-            ? gridSegment({ start: a.top.start, end: b.top.end })
-            : gridSegment({ start: b.top.start, end: a.top.end })
+            ? deriveGridSegment([a.top, b.top], {
+                start: a.top.start,
+                end: b.top.end,
+              })
+            : deriveGridSegment([a.top, b.top], {
+                start: b.top.start,
+                end: a.top.end,
+              })
       } else {
         debug(
           'failed because they were not colinear: intersection=%o',
@@ -425,8 +567,14 @@ class BoxesBuilder {
       if (intersection === 'colinear') {
         right =
           a.right.start.y < b.right.start.y
-            ? gridSegment({ start: a.right.start, end: b.right.end })
-            : gridSegment({ start: b.right.start, end: a.right.end })
+            ? deriveGridSegment([a.right, b.right], {
+                start: a.right.start,
+                end: b.right.end,
+              })
+            : deriveGridSegment([a.right, b.right], {
+                start: b.right.start,
+                end: a.right.end,
+              })
       } else {
         debug(
           'failed because they were not colinear: intersection=%o',
@@ -454,8 +602,14 @@ class BoxesBuilder {
       if (intersection === 'colinear') {
         bottom =
           a.bottom.start.x > b.bottom.start.x
-            ? gridSegment({ start: a.bottom.start, end: b.bottom.end })
-            : gridSegment({ start: b.bottom.start, end: a.bottom.end })
+            ? deriveGridSegment([a.bottom, b.bottom], {
+                start: a.bottom.start,
+                end: b.bottom.end,
+              })
+            : deriveGridSegment([a.bottom, b.bottom], {
+                start: b.bottom.start,
+                end: a.bottom.end,
+              })
       } else {
         debug(
           'failed because they were not colinear: intersection=%o',
@@ -475,8 +629,14 @@ class BoxesBuilder {
       if (intersection === 'colinear') {
         left =
           a.left.start.y > b.left.start.y
-            ? gridSegment({ start: a.left.start, end: b.left.end })
-            : gridSegment({ start: b.left.start, end: a.left.end })
+            ? deriveGridSegment([a.left, b.left], {
+                start: a.left.start,
+                end: b.left.end,
+              })
+            : deriveGridSegment([a.left, b.left], {
+                start: b.left.start,
+                end: a.left.end,
+              })
       } else {
         debug(
           'failed because they were not colinear: intersection=%o',
@@ -547,11 +707,11 @@ export function mergeAdjacentLineSegments(
         ) {
           if (euclideanDistance(a.start, b.end) <= maxConnectedSegmentGap) {
             // `b` ends where `a` starts
-            merged = gridSegment({ start: b.start, end: a.end })
+            merged = deriveGridSegment([a, b], { start: b.start, end: a.end })
           }
           if (euclideanDistance(b.start, a.end) <= maxConnectedSegmentGap) {
             // `a` ends where `b` starts
-            merged = gridSegment({ start: a.start, end: b.end })
+            merged = deriveGridSegment([a, b], { start: a.start, end: b.end })
           }
         }
 
@@ -573,13 +733,14 @@ export function mergeAdjacentLineSegments(
 }
 
 export function inferBoxFromPartial(
-  partial: Partial<GridBox>
-): GridBox | undefined {
+  partial: Partial<GridBox>,
+  unusedSegments: ReadonlySet<GridSegment> = new Set<GridSegment>()
+): { box: GridBox; unusedSegments: ReadonlySet<GridSegment> } | undefined {
   const segments = getBoxSegments(partial)
 
   switch (segments.length) {
     case 4:
-      return partial as GridBox
+      return { box: partial as GridBox, unusedSegments }
 
     case 3: {
       let { top, right, bottom, left } = partial
@@ -592,10 +753,17 @@ export function inferBoxFromPartial(
         }
 
         return {
-          top,
-          right,
-          bottom,
-          left: gridSegment({ start: bottom.end, end: top.start }),
+          box: {
+            top,
+            right,
+            bottom,
+            left: gridSegment({
+              start: bottom.end,
+              end: top.start,
+              inferred: true,
+            }),
+          },
+          unusedSegments,
         }
       } else if (top && right && left) {
         // infer bottom
@@ -606,10 +774,17 @@ export function inferBoxFromPartial(
         }
 
         return {
-          top,
-          right,
-          bottom: gridSegment({ start: right.end, end: left.start }),
-          left,
+          box: {
+            top,
+            right,
+            bottom: gridSegment({
+              start: right.end,
+              end: left.start,
+              inferred: true,
+            }),
+            left,
+          },
+          unusedSegments,
         }
       } else if (top && bottom && left) {
         // infer right
@@ -620,10 +795,17 @@ export function inferBoxFromPartial(
         }
 
         return {
-          top,
-          right: gridSegment({ start: top.end, end: bottom.start }),
-          bottom,
-          left,
+          box: {
+            top,
+            right: gridSegment({
+              start: top.end,
+              end: bottom.start,
+              inferred: true,
+            }),
+            bottom,
+            left,
+          },
+          unusedSegments,
         }
       } else if (right && bottom && left) {
         // infer top
@@ -634,10 +816,17 @@ export function inferBoxFromPartial(
         }
 
         return {
-          top: gridSegment({ start: left.end, end: right.start }),
-          right,
-          bottom,
-          left,
+          box: {
+            top: gridSegment({
+              start: left.end,
+              end: right.start,
+              inferred: true,
+            }),
+            right,
+            bottom,
+            left,
+          },
+          unusedSegments,
         }
       } else {
         throw new Error(
@@ -657,61 +846,81 @@ export function inferBoxFromPartial(
           const vTop = vectorSub(partial.top.end, partial.top.start)
           const vRight = vectorSub(partial.right.end, partial.right.start)
           return {
-            top: partial.top,
-            right: partial.right,
-            bottom: gridSegment({
-              start: partial.right.end,
-              end: vectorSub(partial.right.end, vTop),
-            }),
-            left: gridSegment({
-              start: vectorAdd(partial.top.start, vRight),
-              end: partial.top.start,
-            }),
+            box: {
+              top: partial.top,
+              right: partial.right,
+              bottom: gridSegment({
+                start: partial.right.end,
+                end: vectorSub(partial.right.end, vTop),
+                inferred: true,
+              }),
+              left: gridSegment({
+                start: vectorAdd(partial.top.start, vRight),
+                end: partial.top.start,
+                inferred: true,
+              }),
+            },
+            unusedSegments,
           }
         } else if (a === partial.right && b === partial.bottom) {
           const vRight = vectorSub(partial.right.end, partial.right.start)
           const vBottom = vectorSub(partial.bottom.end, partial.bottom.start)
           return {
-            top: gridSegment({
-              start: vectorAdd(partial.right.start, vBottom),
-              end: partial.right.start,
-            }),
-            right: partial.right,
-            bottom: partial.bottom,
-            left: gridSegment({
-              start: partial.bottom.end,
-              end: vectorSub(partial.bottom.end, vRight),
-            }),
+            box: {
+              top: gridSegment({
+                start: vectorAdd(partial.right.start, vBottom),
+                end: partial.right.start,
+                inferred: true,
+              }),
+              right: partial.right,
+              bottom: partial.bottom,
+              left: gridSegment({
+                start: partial.bottom.end,
+                end: vectorSub(partial.bottom.end, vRight),
+                inferred: true,
+              }),
+            },
+            unusedSegments,
           }
         } else if (a === partial.bottom && b === partial.left) {
           const vBottom = vectorSub(partial.bottom.end, partial.bottom.start)
           const vLeft = vectorSub(partial.left.end, partial.left.start)
           return {
-            top: gridSegment({
-              start: partial.left.end,
-              end: vectorSub(partial.left.end, vBottom),
-            }),
-            right: gridSegment({
-              start: vectorAdd(partial.bottom.start, vLeft),
-              end: partial.bottom.start,
-            }),
-            bottom: partial.bottom,
-            left: partial.left,
+            box: {
+              top: gridSegment({
+                start: partial.left.end,
+                end: vectorSub(partial.left.end, vBottom),
+                inferred: true,
+              }),
+              right: gridSegment({
+                start: vectorAdd(partial.bottom.start, vLeft),
+                end: partial.bottom.start,
+                inferred: true,
+              }),
+              bottom: partial.bottom,
+              left: partial.left,
+            },
+            unusedSegments,
           }
         } else if (a === partial.top && b === partial.left) {
           const vLeft = vectorSub(partial.left.end, partial.left.start)
           const vTop = vectorSub(partial.top.end, partial.top.start)
           return {
-            top: partial.top,
-            right: gridSegment({
-              start: partial.top.end,
-              end: vectorSub(partial.top.end, vLeft),
-            }),
-            bottom: gridSegment({
-              start: vectorAdd(partial.left.start, vTop),
-              end: partial.left.start,
-            }),
-            left: partial.left,
+            box: {
+              top: partial.top,
+              right: gridSegment({
+                start: partial.top.end,
+                end: vectorSub(partial.top.end, vLeft),
+                inferred: true,
+              }),
+              bottom: gridSegment({
+                start: vectorAdd(partial.left.start, vTop),
+                end: partial.left.start,
+                inferred: true,
+              }),
+              left: partial.left,
+            },
+            unusedSegments,
           }
         }
       }
@@ -731,29 +940,53 @@ export function closeBoxSegmentGaps({
   const topLeft = computeProjectedLineIntersection(left, top)
 
   if (typeof topLeft !== 'string') {
-    left = gridSegment({ start: left.start, end: topLeft })
-    top = gridSegment({ start: topLeft, end: top.end })
+    left = deriveGridSegment([left], {
+      start: left.start,
+      end: topLeft,
+    })
+    top = deriveGridSegment([top], {
+      start: topLeft,
+      end: top.end,
+    })
   }
 
   const topRight = computeProjectedLineIntersection(top, right)
 
   if (typeof topRight !== 'string') {
-    top = gridSegment({ start: top.start, end: topRight })
-    right = gridSegment({ start: topRight, end: right.end })
+    top = deriveGridSegment([top], {
+      start: top.start,
+      end: topRight,
+    })
+    right = deriveGridSegment([right], {
+      start: topRight,
+      end: right.end,
+    })
   }
 
   const bottomRight = computeProjectedLineIntersection(right, bottom)
 
   if (typeof bottomRight !== 'string') {
-    right = gridSegment({ start: right.start, end: bottomRight })
-    bottom = gridSegment({ start: bottomRight, end: bottom.end })
+    right = deriveGridSegment([right], {
+      start: right.start,
+      end: bottomRight,
+    })
+    bottom = deriveGridSegment([bottom], {
+      start: bottomRight,
+      end: bottom.end,
+    })
   }
 
   const bottomLeft = computeProjectedLineIntersection(bottom, left)
 
   if (typeof bottomLeft !== 'string') {
-    bottom = gridSegment({ start: bottom.start, end: bottomLeft })
-    left = gridSegment({ start: bottomLeft, end: left.end })
+    bottom = deriveGridSegment([bottom], {
+      start: bottom.start,
+      end: bottomLeft,
+    })
+    left = deriveGridSegment([left], {
+      start: bottomLeft,
+      end: left.end,
+    })
   }
 
   return { top, right, bottom, left }
@@ -816,14 +1049,12 @@ function adjustSegmentLength(
   const dy = length * Math.sin(angle)
 
   if (direction === 'forward') {
-    return gridSegment({
-      start: segment.start,
+    return deriveGridSegment(segment, {
       end: vectorAdd(segment.start, { x: dx, y: dy }),
     })
   } else {
-    return gridSegment({
+    return deriveGridSegment(segment, {
       start: vectorSub(segment.end, { x: dx, y: dy }),
-      end: segment.end,
     })
   }
 }
@@ -843,19 +1074,36 @@ export function drawBoxes(
     'violet',
     'black',
   ]
+  const inferredDash = [10, 10]
   for (const [i, box] of [...boxes].entries()) {
     const color = overrideColor ?? colors[i % colors.length]
     if (box.top) {
-      qc.line(box.top.start, box.top.end, { color, stroke })
+      qc.line(box.top.start, box.top.end, {
+        color,
+        stroke,
+        dash: box.top.inferred ? inferredDash : undefined,
+      })
     }
     if (box.right) {
-      qc.line(box.right.start, box.right.end, { color, stroke })
+      qc.line(box.right.start, box.right.end, {
+        color,
+        stroke,
+        dash: box.right.inferred ? inferredDash : undefined,
+      })
     }
     if (box.bottom) {
-      qc.line(box.bottom.start, box.bottom.end, { color, stroke })
+      qc.line(box.bottom.start, box.bottom.end, {
+        color,
+        stroke,
+        dash: box.bottom.inferred ? inferredDash : undefined,
+      })
     }
     if (box.left) {
-      qc.line(box.left.start, box.left.end, { color, stroke })
+      qc.line(box.left.start, box.left.end, {
+        color,
+        stroke,
+        dash: box.left.inferred ? inferredDash : undefined,
+      })
     }
   }
 
@@ -987,7 +1235,8 @@ export function splitIntoColumns(boxes: Iterable<GridBox>): LayoutColumn[] {
 
 export function matchTemplateLayout(
   template: Layout,
-  scan: Layout
+  scan: Layout,
+  unusedSegments: Iterable<GridSegment>
 ): Layout | undefined {
   debug(
     'matchTemplateLayout merging: template=%s scan=%s',
@@ -1034,6 +1283,8 @@ export function matchTemplateLayout(
         templateIndex,
         scanIndex
       )
+      let underfilledBox: GridBox | undefined
+      let underfilledScanEnd = -1
       let mergedBox: GridBox | undefined
       let mergedScanEnd = -1
 
@@ -1048,27 +1299,80 @@ export function matchTemplateLayout(
           scanEnd,
           templateIndex
         )
-        const merged = matchMerge(
+        const matchMergeResult = matchMerge(
           template,
           templateColumn[templateIndex],
           scan,
           scanColumn.slice(scanIndex, scanEnd)
         )
 
-        if (merged) {
+        if (matchMergeResult.type === 'merged') {
           debug(
             'match succeeded, continuing in case a duplicate box should be included'
           )
-          mergedBox = merged
+          mergedBox = matchMergeResult.merged
           mergedScanEnd = scanEnd
-        } else if (mergedBox) {
+        } else if (matchMergeResult.type === 'underfilled') {
+          underfilledBox = matchMergeResult.underfilled
+          underfilledScanEnd = scanEnd
+        } else {
+          if (mergedBox) {
+            debug(
+              'match failed after a match succeeded, reverting to last success matching scan boxes %d..<%d with template %d',
+              scanIndex,
+              mergedScanEnd,
+              templateIndex
+            )
+            break
+          }
+        }
+      }
+
+      if (
+        !mergedBox &&
+        underfilledBox &&
+        !underfilledBox.top.inferred &&
+        underfilledBox.bottom.inferred
+      ) {
+        debug(
+          'attempting to replace incorrectly-inferred bottom edge with a matching unused edge with an unused segment matching length≈%d',
+          underfilledBox.top.length
+        )
+        for (const segment of unusedSegments) {
           debug(
-            'match failed after a match succeeded, reverting to last success matching scan boxes %d..<%d with template %d',
-            scanIndex,
-            mergedScanEnd,
-            templateIndex
+            'checking candidate bottom segment: direction=%s length=%d',
+            segment.direction,
+            segment.length
           )
-          break
+          if (
+            (segment.direction === 'left' || segment.direction === 'right') &&
+            segment.length > 0.5 * underfilledBox.top.length
+          ) {
+            const matchMergeResult = matchMerge(
+              template,
+              templateColumn[templateIndex],
+              scan,
+              [
+                closeBoxSegmentGaps({
+                  ...underfilledBox,
+                  bottom:
+                    segment.direction === 'left'
+                      ? segment
+                      : invertSegment(segment),
+                }),
+              ]
+            )
+
+            if (matchMergeResult.type === 'merged') {
+              debug(
+                'found a suitable segment for the previously incorrectly-inferred bottom edge: %o',
+                segment
+              )
+              mergedBox = matchMergeResult.merged
+              mergedScanEnd = underfilledScanEnd
+              break
+            }
+          }
         }
       }
 
@@ -1116,15 +1420,23 @@ export function boxCorners(box: GridBox): Corners {
   return [box.top.start, box.top.end, box.bottom.end, box.bottom.start]
 }
 
+export type MatchMergeResult =
+  | { type: 'merged'; merged: GridBox }
+  | { type: 'underfilled'; underfilled: GridBox }
+  | { type: 'overfilled'; overfilled: GridBox }
+
 export function matchMerge(
   template: Layout,
   templateBox: GridBox,
   scan: Layout,
   scanBoxes: readonly GridBox[],
-  { allowedAreaRatioError = 0.02 } = {}
-): GridBox | undefined {
+  { allowedAreaRatioError = 0.1 } = {}
+): MatchMergeResult {
   const templateArea = template.width * template.height
   const scanArea = scan.width * scan.height
+  const expectedRatio = scanArea / templateArea
+  const minRatio = expectedRatio * (1 - allowedAreaRatioError)
+  const maxRatio = expectedRatio * (1 + allowedAreaRatioError)
   const templateCorners = boxCorners(templateBox)
   const templateBoxArea = poly4Area(templateCorners)
   const scanTop = scanBoxes[0]
@@ -1139,24 +1451,35 @@ export function matchMerge(
   ]
 
   const scanBoxesArea = poly4Area(scanCorners)
-  const templateRatio = templateBoxArea / templateArea
-  const scanRatio = scanBoxesArea / scanArea
-  const areaRatioError = Math.abs(templateRatio - scanRatio)
-
-  if (areaRatioError > allowedAreaRatioError) {
-    return
-  }
-
-  return {
+  const candidate = {
     top: scanTop.top,
-    right: gridSegment({
+    right: deriveGridSegment([scanTop.right, scanBottom.right], {
       start: scanTop.right.start,
       end: scanBottom.right.end,
     }),
     bottom: scanBottom.bottom,
-    left: gridSegment({
+    left: deriveGridSegment([scanTop.left, scanBottom.left], {
       start: scanBottom.left.start,
       end: scanTop.left.end,
     }),
+  }
+  const ratio = scanBoxesArea / templateBoxArea
+
+  if (ratio < minRatio) {
+    debug(
+      'scan area too small compared to scaled template area: %d < %d',
+      ratio,
+      minRatio
+    )
+    return { type: 'underfilled', underfilled: candidate }
+  } else if (ratio > maxRatio) {
+    debug(
+      'scan area too large compared to scaled template area: %d > %d',
+      ratio,
+      maxRatio
+    )
+    return { type: 'overfilled', overfilled: candidate }
+  } else {
+    return { type: 'merged', merged: candidate }
   }
 }

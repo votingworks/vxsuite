@@ -71,6 +71,60 @@ export function rectInset(rect: Rect, inset: number): Rect {
   }
 }
 
+export function rect(
+  {
+    left,
+    top,
+    right,
+    bottom,
+  }: { left: number; top: number; right: number; bottom: number },
+  { subpixel = false } = {}
+): Rect {
+  return {
+    x: left,
+    y: top,
+    width: right - left + (subpixel ? 0 : 1),
+    height: bottom - top + (subpixel ? 0 : 1),
+  }
+}
+
+export function roundRect({ x, y, width, height }: Rect): Rect {
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+    width: Math.round(width),
+    height: Math.round(height),
+  }
+}
+
+export function rectContainingPoints(
+  points: Iterable<Point>,
+  { subpixel = false } = {}
+): Rect {
+  return rect(
+    [...points].reduce<{
+      left: number
+      top: number
+      right: number
+      bottom: number
+    }>(
+      (bounds, corner) => ({
+        left: Math.min(bounds.left, corner.x),
+        top: Math.min(bounds.top, corner.y),
+        right: Math.max(bounds.right, corner.x),
+        bottom: Math.max(bounds.bottom, corner.y),
+      }),
+      {
+        left: Infinity,
+        top: Infinity,
+        right: -Infinity,
+        bottom: -Infinity,
+      }
+    ),
+    { subpixel }
+  )
+}
+
 /**
  * Rounds a point to the nearest integer axis values.
  */
@@ -185,4 +239,15 @@ export function vectorAdd(v: Vector, w: Vector): Vector {
  */
 export function vectorScale(v: Vector, s: number): Vector {
   return { x: v.x * s, y: v.y * s }
+}
+
+export function gcd(a: number, b: number): number {
+  a = Math.abs(a)
+  b = Math.abs(b)
+
+  while (b) {
+    ;[a, b] = [b, a % b]
+  }
+
+  return a
 }
