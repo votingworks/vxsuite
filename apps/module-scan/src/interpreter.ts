@@ -311,7 +311,7 @@ export default class Interpreter {
         return hmpbResult
       }
     } catch (error) {
-      debug('interpretHMPBFile failed: %s', error.message)
+      debug('interpretHMPBFile failed: %s', error.stack)
     }
 
     try {

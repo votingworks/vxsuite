@@ -1,6 +1,7 @@
 import lsd from '@votingworks/lsd'
 import { Rect } from '../types'
 import {
+  boxCorners,
   closeBoxSegmentGaps,
   drawBoxes,
   filterContainedBoxes,
@@ -16,49 +17,17 @@ import {
   scaleLineSegment,
   splitIntoColumns,
 } from '../utils/box'
-import { rectClip, rectInset, rectScale } from '../utils/geometry'
+import {
+  rectClip,
+  rectContainingPoints,
+  rectInset,
+  rectScale,
+} from '../utils/geometry'
 import { canvas, ImageDebug, QuickCanvas } from '../utils/images'
 import { setFilter, setMap } from '../utils/set'
 
 function layoutBounds(layout: Layout): Rect {
-  const firstColumn = layout.columns[0]
-  const lastColumn = layout.columns[layout.columns.length - 1]
-  const minX = firstColumn.reduce(
-    (minX, box) => Math.min(minX, box.left.start.x, box.left.end.x),
-    Infinity
-  )
-  const maxX = lastColumn.reduce(
-    (maxX, box) => Math.max(maxX, box.right.start.x, box.right.end.x),
-    0
-  )
-  const minY = layout.columns
-    .map((column) => column[0])
-    .reduce(
-      (minY, firstBoxInColumn) =>
-        Math.min(
-          minY,
-          firstBoxInColumn.top.start.y,
-          firstBoxInColumn.top.end.y
-        ),
-      Infinity
-    )
-  const maxY = layout.columns
-    .map((column) => column[column.length - 1])
-    .reduce(
-      (maxY, lastBoxInColumn) =>
-        Math.max(
-          maxY,
-          lastBoxInColumn.bottom.start.y,
-          lastBoxInColumn.bottom.end.y
-        ),
-      0
-    )
-  return {
-    x: minX,
-    y: minY,
-    width: maxX - minX,
-    height: maxY - minY,
-  }
+  return rectContainingPoints(layout.columns.flat().map(boxCorners).flat())
 }
 
 function toGray(imageData: ImageData): ImageData {
@@ -177,7 +146,7 @@ export function findScanLayout(
   }
 ): Layout | undefined {
   const width = 1060
-  const height = 1750
+  const height = imageData.height * (width / imageData.width)
   const scaled = canvas().drawImage(imageData, 0, 0, width, height).render()
   const segments = findLineSegments(toGray(scaled)).map((segment) =>
     scaleLineSegment(imageData.width / width, segment)
