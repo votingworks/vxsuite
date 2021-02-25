@@ -16,10 +16,10 @@ import makeDebug from 'debug'
 const debug = makeDebug('hmpb-interpreter:box')
 
 interface BoxOf<Type> {
-  top: Type
-  right: Type
-  bottom: Type
-  left: Type
+  readonly top: Type
+  readonly right: Type
+  readonly bottom: Type
+  readonly left: Type
 }
 
 export interface GridSegment {

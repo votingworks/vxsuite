@@ -13,7 +13,7 @@ import {
   Layout,
   matchTemplateLayout,
   mergeAdjacentLineSegments,
-  scaleBox,
+  scaleLineSegment,
   splitIntoColumns,
 } from '../utils/box'
 import { rectClip, rectInset, rectScale } from '../utils/geometry'
@@ -179,7 +179,9 @@ export function findScanLayout(
   const width = 1060
   const height = 1750
   const scaled = canvas().drawImage(imageData, 0, 0, width, height).render()
-  const segments = findLineSegments(toGray(scaled))
+  const segments = findLineSegments(toGray(scaled)).map((segment) =>
+    scaleLineSegment(imageData.width / width, segment)
+  )
   dbg?.('all line segments').background(imageData).tap(drawSegments(segments))
 
   const filteredSegments = filterLineSegments(segments, {
@@ -190,12 +192,11 @@ export function findScanLayout(
     .tap(drawSegments(filteredSegments))
 
   const analysis = analyzeLineSegments(scaled, filteredSegments)
-  const scaledBoxes = [...analysis.clockwise, ...analysis.counterClockwise]
-  dbg?.('downscaled boxes').background(scaled).tap(drawBoxes(scaledBoxes))
+  const originalScaleBoxes = [
+    ...analysis.clockwise,
+    ...analysis.counterClockwise,
+  ]
 
-  const originalScaleBoxes = scaledBoxes.map((box) =>
-    scaleBox(imageData.width / width, box)
-  )
   dbg?.('original scale boxes')
     .background(imageData)
     .tap(drawBoxes(originalScaleBoxes))

@@ -237,7 +237,7 @@ function shouldDiffRescan(
         return !deepEqual(original.votes, rescan.votes)
       }
 
-      return true
+      return false
     }
   }
 }
