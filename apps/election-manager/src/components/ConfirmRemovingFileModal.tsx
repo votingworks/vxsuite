@@ -70,10 +70,11 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       break
     }
     case ResultsFileType.SEMS: {
-      fileTypeName = 'SEMS'
+      fileTypeName = 'External'
       mainContent = (
         <p>
-          Do you want to remove the SEMS file {externalVoteRecordsFile!.name}?
+          Do you want to remove the external results file{' '}
+          {externalVoteRecordsFile!.name}?
         </p>
       )
       break
@@ -88,7 +89,7 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
             Do you want to remove the {fileList.length} uploaded CVR{' '}
             {pluralize('files', fileList.length)}
             {externalVoteRecordsFile &&
-              ` and the SEMS file ${externalVoteRecordsFile!.name}`}
+              ` and the external results file ${externalVoteRecordsFile!.name}`}
             ?
           </p>
           <p>All reports will be unavailable without CVR data.</p>

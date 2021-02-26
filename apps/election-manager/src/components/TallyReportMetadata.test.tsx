@@ -38,7 +38,7 @@ test('Renders with data source tables when external ballot count specified', () 
   getByText('Ballots Cast by Data Source')
   const internalRow = getByText('VotingWorks Data').closest('tr')!
   domGetByText(internalRow, '1,234')
-  const externalRow = getByText('Imported SEMS File').closest('tr')!
+  const externalRow = getByText('External Results File').closest('tr')!
   domGetByText(externalRow, '2,345')
   const totalRow = getByText('Total').closest('tr')!
   domGetByText(totalRow, '3,579')
@@ -75,7 +75,7 @@ test('Renders with data source table and voting method table when all data provi
   domGetByText(internalRow, '1,234')
   const externalRow = domGetByText(
     dataSourceTable,
-    'Imported SEMS File'
+    'External Results File'
   ).closest('tr')!
   domGetByText(externalRow, '2,345')
   const totalRow = domGetByText(dataSourceTable, 'Total').closest('tr')!
@@ -89,7 +89,7 @@ test('Renders with data source table and voting method table when all data provi
   domGetByText(row2, '1,045')
   const row3 = domGetByText(votingMethodTable, 'Other').closest('tr')!
   domGetByText(row3, '12')
-  const row4 = domGetByText(votingMethodTable, 'Imported SEMS File').closest(
+  const row4 = domGetByText(votingMethodTable, 'External Results File').closest(
     'tr'
   )!
   domGetByText(row4, '2,345')
