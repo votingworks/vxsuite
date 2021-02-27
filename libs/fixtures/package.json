@@ -13,16 +13,19 @@
     "lint": "tsc --build && eslint src",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "postbuild": "cpy --cwd=src --parents '**/*.{txt,csv}' ../dist/src"
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",
+    "cpy-cli": "^3.1.1",
     "js-sha256": "^0.9.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
+    "@types/node": "^14.14.31",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",
