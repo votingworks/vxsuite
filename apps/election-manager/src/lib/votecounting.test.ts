@@ -1,8 +1,9 @@
-import { parseElection, Election } from '@votingworks/types'
+import { Election } from '@votingworks/types'
 import {
   electionSample,
+  electionSample2Internal,
   primaryElectionSample,
-  multiPartyPrimaryElection,
+  electionMultiPartyPrimaryInternal,
 } from '@votingworks/fixtures'
 
 import * as path from 'path'
@@ -22,15 +23,17 @@ import {
   VotingMethod,
 } from '../config/types'
 
-const fixturesPath = path.join(__dirname, '../../test/fixtures')
-const electionFilePath = path.join(
-  fixturesPath,
-  'default-election/election.json'
+const electionSample2 = electionSample2Internal.electionDefinition.election
+const cvrFilePath = path.join(
+  electionSample2Internal.cvrDataFolderPath!,
+  'standard.txt'
 )
-const cvrFilePath = path.join(fixturesPath, 'default-election/CVRs.txt')
+
+const multiPartyPrimaryElection =
+  electionMultiPartyPrimaryInternal.electionDefinition.election
 const multiPartyPrimaryCVRPath = path.join(
-  fixturesPath,
-  'multiparty-primary-election/CVRs.txt'
+  electionMultiPartyPrimaryInternal.cvrDataFolderPath!,
+  'standard.txt'
 )
 
 function parseCVRsAndAssertSuccess(
@@ -60,9 +63,7 @@ function expectAllEmptyTallies(tally: Tally) {
 
 test('tabulating a set of CVRs gives expected output', async () => {
   // get the election
-  const election = parseElection(
-    JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
-  )
+  const election = electionSample2
 
   // get the CVRs
   const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')
@@ -108,9 +109,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 })
 
 test('computeFullTally with no results should produce empty tally objects with contests', async () => {
-  const election = parseElection(
-    JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
-  )
+  const election = electionSample2
 
   const fullTally = computeFullElectionTally(election, [])
   expect(fullTally.overallTally.numberOfBallotsCounted).toBe(0)
@@ -135,9 +134,7 @@ describe('filterTalliesByParams in a typical election', () => {
   let electionTally: FullElectionTally
   let election: Election
   beforeEach(async () => {
-    election = parseElection(
-      JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
-    )
+    election = electionSample2
 
     // get the CVRs
     const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')
@@ -884,9 +881,7 @@ test('overvotes counted in single seat contest properly', () => {
 
 test('overvote report', async () => {
   // get the election
-  const election = parseElection(
-    JSON.parse((await fs.readFile(electionFilePath)).toString('utf-8'))
-  )
+  const election = electionSample2
 
   // get the CVRs
   const cvrsFileContents = (await fs.readFile(cvrFilePath)).toString('utf-8')

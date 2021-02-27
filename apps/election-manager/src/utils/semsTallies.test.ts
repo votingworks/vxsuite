@@ -1,7 +1,7 @@
 import {
   electionSample,
-  multiPartyPrimaryElection,
-  electionWithMsEitherNeither,
+  electionMultiPartyPrimaryInternal,
+  electionWithMsEitherNeitherInternal,
 } from '@votingworks/fixtures'
 import { CandidateContest, YesNoContest } from '@votingworks/types'
 
@@ -38,14 +38,18 @@ const mockSemsRow = {
   numberOfVotes: 0,
 }
 
-const fixturesPath = path.join(__dirname, '../../../../libs/fixtures/src/data')
+const multiPartyPrimaryElection =
+  electionMultiPartyPrimaryInternal.electionDefinition.election
+const electionWithMsEitherNeither =
+  electionWithMsEitherNeitherInternal.electionDefinition.election
+
 const eitherNeitherSEMSPath = path.join(
-  fixturesPath,
-  'electionWithMsEitherNeither/converted-sems-results.csv'
+  electionWithMsEitherNeitherInternal.semsDataFolderPath!,
+  'standard.csv'
 )
 const primarySEMSPath = path.join(
-  fixturesPath,
-  'electionMultiPartyPrimary/converted-sems-results.csv'
+  electionMultiPartyPrimaryInternal.semsDataFolderPath!,
+  'standard.csv'
 )
 
 function buildCandidateTallies(

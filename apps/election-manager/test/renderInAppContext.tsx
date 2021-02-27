@@ -3,10 +3,7 @@ import React, { RefObject } from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
-import * as fs from 'fs'
-import { sha256 } from 'js-sha256'
-import { join } from 'path'
-import { parseElection } from '@votingworks/types'
+import { electionWithMsEitherNeitherInternal } from '@votingworks/fixtures'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -24,22 +21,14 @@ import CastVoteRecordFiles, {
 import { UsbDriveStatus } from '../src/lib/usbstick'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
 
-const eitherNeitherElectionData = fs.readFileSync(
-  join(
-    __dirname,
-    'fixtures/eitherneither-election/eitherneither-election.json'
-  ),
-  'utf-8'
-)
-const eitherNeitherElectionHash = sha256(eitherNeitherElectionData)
-const eitherNeitherElection = parseElection(
-  JSON.parse(eitherNeitherElectionData)
-)
+const eitherNeitherElection =
+  electionWithMsEitherNeitherInternal.electionDefinition.election
 
-export const defaultElectionDefinition = {
+export const eitherNeitherElectionDefinition = {
   election: eitherNeitherElection,
-  electionData: eitherNeitherElectionData,
-  electionHash: eitherNeitherElectionHash,
+  electionData: JSON.stringify(eitherNeitherElection),
+  electionHash:
+    electionWithMsEitherNeitherInternal.electionDefinition.electionHash,
 }
 
 interface RenderInAppContextParams {
@@ -78,7 +67,7 @@ export default function renderInAppContext(
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
     castVoteRecordFiles = CastVoteRecordFiles.empty,
-    electionDefinition = defaultElectionDefinition,
+    electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = '',
     isOfficialResults = false,
     printBallotRef = undefined,

@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { sha256 } from 'js-sha256'
 import { join } from 'path'
 import React from 'react'
 import * as path from 'path'
@@ -13,7 +12,8 @@ import {
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
 } from '@testing-library/react'
-import { parseElection } from '@votingworks/types'
+import { electionWithMsEitherNeitherInternal } from '@votingworks/fixtures'
+
 import { MemoryStorage } from './utils/Storage'
 import {
   AppStorage,
@@ -33,30 +33,20 @@ import sleep from './utils/sleep'
 import { ElectionDefinition } from './config/types'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import { convertFileToStorageString } from './utils/file'
-
-const eitherNeitherElectionData = fs.readFileSync(
-  join(
-    __dirname,
-    '../test/fixtures/eitherneither-election/eitherneither-election.json'
-  ),
-  'utf-8'
-)
-const eitherNeitherElectionHash = sha256(eitherNeitherElectionData)
-const eitherNeitherElection = parseElection(
-  JSON.parse(eitherNeitherElectionData)
-)
+import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
 
 const EITHER_NEITHER_CVR_PATH = join(
-  __dirname,
-  '..',
-  'test',
-  'fixtures',
-  'eitherneither-election',
-  'eitherneither-cvrs.txt'
+  electionWithMsEitherNeitherInternal.cvrDataFolderPath!,
+  'standard.txt'
 )
 const EITHER_NEITHER_CVRS = new File(
   [fs.readFileSync(EITHER_NEITHER_CVR_PATH)],
   'cvrs.txt'
+)
+
+const EITHER_NEITHER_SEMS = path.join(
+  electionWithMsEitherNeitherInternal.semsDataFolderPath!,
+  'standard.csv'
 )
 
 jest.mock('./components/HandMarkedPaperBallot')
@@ -119,11 +109,7 @@ it('create election works', async () => {
 it('printing ballots, print report, and test decks', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
   const storage = await createMemoryStorageWith({
-    electionDefinition: {
-      election: eitherNeitherElection,
-      electionData: eitherNeitherElectionData,
-      electionHash: eitherNeitherElectionHash,
-    },
+    electionDefinition: eitherNeitherElectionDefinition,
   })
   jest.useFakeTimers()
 
@@ -226,16 +212,12 @@ it('printing ballots, print report, and test decks', async () => {
 
 it('tabulating CVRs', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: {
-      election: eitherNeitherElection,
-      electionData: eitherNeitherElectionData,
-      electionHash: eitherNeitherElectionHash,
-    },
+    electionDefinition: eitherNeitherElectionDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVRS,
-    eitherNeitherElection
+    eitherNeitherElectionDefinition.election
   )
 
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
@@ -275,11 +257,11 @@ it('tabulating CVRs', async () => {
     'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
   )
   // Test that each precinct has a tally report generated
-  eitherNeitherElection.precincts.forEach((p) => {
+  eitherNeitherElectionDefinition.election.precincts.forEach((p) => {
     getByText(`Official Precinct Tally Report for: ${p.name}`)
   })
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
-    eitherNeitherElection.precincts.length
+    eitherNeitherElectionDefinition.election.precincts.length
   )
 
   fireEvent.click(getByText('Tally'))
@@ -298,26 +280,16 @@ it('tabulating CVRs', async () => {
 
 it('tabulating CVRs with SEMS file', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: {
-      election: eitherNeitherElection,
-      electionData: eitherNeitherElectionData,
-      electionHash: eitherNeitherElectionHash,
-    },
+    electionDefinition: eitherNeitherElectionDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVRS,
-    eitherNeitherElection
+    eitherNeitherElectionDefinition.election
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const fixturesPath = path.join(__dirname, '../../../libs/fixtures/src/data')
-  const eitherNeitherSEMSPath = path.join(
-    fixturesPath,
-    'electionWithMsEitherNeither/converted-sems-results.csv'
-  )
-
-  const semsFileContent = await fs.readFileSync(eitherNeitherSEMSPath)
+  const semsFileContent = await fs.readFileSync(EITHER_NEITHER_SEMS)
   const semsFileStorageString = await convertFileToStorageString(
     new File([semsFileContent], 'sems-results.csv')
   )
@@ -394,26 +366,16 @@ it('tabulating CVRs with SEMS file', async () => {
 
 it('changing election resets sems and cvr files', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: {
-      election: eitherNeitherElection,
-      electionData: eitherNeitherElectionData,
-      electionHash: eitherNeitherElectionHash,
-    },
+    electionDefinition: eitherNeitherElectionDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVRS,
-    eitherNeitherElection
+    eitherNeitherElectionDefinition.election
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const fixturesPath = path.join(__dirname, '../../../libs/fixtures/src/data')
-  const eitherNeitherSEMSPath = path.join(
-    fixturesPath,
-    'electionWithMsEitherNeither/converted-sems-results.csv'
-  )
-
-  const semsFileContent = await fs.readFileSync(eitherNeitherSEMSPath)
+  const semsFileContent = await fs.readFileSync(EITHER_NEITHER_SEMS)
   const semsFileStorageString = await convertFileToStorageString(
     new File([semsFileContent], 'sems-results.csv')
   )
@@ -446,26 +408,16 @@ it('changing election resets sems and cvr files', async () => {
 
 it('clearing all files after marking as official clears SEMS and CVR file', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: {
-      election: eitherNeitherElection,
-      electionData: eitherNeitherElectionData,
-      electionHash: eitherNeitherElectionHash,
-    },
+    electionDefinition: eitherNeitherElectionDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVRS,
-    eitherNeitherElection
+    eitherNeitherElectionDefinition.election
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const fixturesPath = path.join(__dirname, '../../../libs/fixtures/src/data')
-  const eitherNeitherSEMSPath = path.join(
-    fixturesPath,
-    'electionWithMsEitherNeither/converted-sems-results.csv'
-  )
-
-  const semsFileContent = await fs.readFileSync(eitherNeitherSEMSPath)
+  const semsFileContent = await fs.readFileSync(EITHER_NEITHER_SEMS)
   const semsFileStorageString = await convertFileToStorageString(
     new File([semsFileContent], 'sems-results.csv')
   )
