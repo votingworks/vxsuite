@@ -1,12 +1,11 @@
 import { createMemoryHistory, MemoryHistory } from 'history'
 import React, { RefObject } from 'react'
 import { Router } from 'react-router-dom'
+import { sha256 } from 'js-sha256'
 import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
-import * as fs from 'fs'
-import { sha256 } from 'js-sha256'
-import { join } from 'path'
-import { parseElection } from '@votingworks/types'
+import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
+import { Election } from '@votingworks/types'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -24,22 +23,10 @@ import CastVoteRecordFiles, {
 import { UsbDriveStatus } from '../src/lib/usbstick'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
 
-const eitherNeitherElectionData = fs.readFileSync(
-  join(
-    __dirname,
-    'fixtures/eitherneither-election/eitherneither-election.json'
-  ),
-  'utf-8'
-)
-const eitherNeitherElectionHash = sha256(eitherNeitherElectionData)
-const eitherNeitherElection = parseElection(
-  JSON.parse(eitherNeitherElectionData)
-)
-
-export const defaultElectionDefinition = {
-  election: eitherNeitherElection,
-  electionData: eitherNeitherElectionData,
-  electionHash: eitherNeitherElectionHash,
+export const eitherNeitherElectionDefinition = {
+  election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
+  electionData: electionWithMsEitherNeitherRawData,
+  electionHash: sha256(electionWithMsEitherNeitherRawData),
 }
 
 interface RenderInAppContextParams {
@@ -78,7 +65,7 @@ export default function renderInAppContext(
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
     castVoteRecordFiles = CastVoteRecordFiles.empty,
-    electionDefinition = defaultElectionDefinition,
+    electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = '',
     isOfficialResults = false,
     printBallotRef = undefined,
