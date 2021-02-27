@@ -71,6 +71,10 @@ jobs:
     steps:
       - checkout-and-install
       - run:
+          name: Build Fixtures
+          command: |
+            pnpm --dir libs/fixtures build
+      - run:
           name: Run Linters
           command: |
             pnpm --dir apps/election-manager lint
@@ -226,3 +230,4 @@ commands:
             - libs/types/node_modules
             - libs/@types/jsfeat/node_modules
             - libs/@types/node-quirc/node_modules
+
