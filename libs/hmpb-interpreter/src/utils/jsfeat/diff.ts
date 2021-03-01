@@ -130,7 +130,9 @@ export function countPixels(
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      if (data[((startY + y) * width + startX + x) * channels] === color) {
+      if (
+        data[((startY + y) * image.width + startX + x) * channels] === color
+      ) {
         count += 1
       }
     }
