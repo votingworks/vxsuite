@@ -1,26 +1,40 @@
 import { croppedQRCode } from '../../../test/fixtures'
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize'
+import { createImageData } from '../canvas'
 import crop from '../crop'
-import diff, { ratio } from './diff'
+import diff, { countPixels, ratio } from './diff'
+
+const imageData: Readonly<ImageData> = createImageData(
+  Uint8ClampedArray.of(
+    // y=0
+    PIXEL_BLACK,
+    PIXEL_WHITE,
+    PIXEL_WHITE,
+    PIXEL_WHITE,
+    // y=1
+    PIXEL_WHITE,
+    PIXEL_BLACK,
+    PIXEL_WHITE,
+    PIXEL_WHITE,
+    // y=2
+    PIXEL_WHITE,
+    PIXEL_WHITE,
+    PIXEL_BLACK,
+    PIXEL_WHITE,
+    // y=3
+    PIXEL_WHITE,
+    PIXEL_WHITE,
+    PIXEL_WHITE,
+    PIXEL_BLACK
+  ),
+  4,
+  4
+)
 
 test('images have no diff with themselves', () => {
-  const imageData = {
-    data: Uint8ClampedArray.of(
-      PIXEL_BLACK,
-      PIXEL_BLACK,
-      PIXEL_WHITE,
-      PIXEL_WHITE
-    ),
-    width: 4,
-    height: 1,
-  }
-
-  expect([...diff(imageData, imageData).data]).toEqual([
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-  ])
+  expect([...diff(imageData, imageData).data]).toEqual(
+    new Array(imageData.data.length).fill(PIXEL_WHITE)
+  )
 })
 
 test('images have black pixels where compare is black and base is not', () => {
@@ -101,4 +115,21 @@ test('comparing part of an image to all of another', async () => {
   })
 
   expect(ratio(diffImage)).toBe(0)
+})
+
+test('counting pixels', () => {
+  expect(countPixels(imageData)).toEqual(
+    countPixels(imageData, { color: PIXEL_BLACK })
+  )
+
+  expect(countPixels(imageData, { color: PIXEL_WHITE })).toEqual(
+    imageData.data.length - countPixels(imageData, { color: PIXEL_BLACK })
+  )
+
+  expect(
+    countPixels(imageData, {
+      color: PIXEL_BLACK,
+      bounds: { x: 1, y: 1, width: 1, height: 1 },
+    })
+  ).toEqual(1)
 })
