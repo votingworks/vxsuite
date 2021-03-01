@@ -651,7 +651,9 @@ export default class Interpreter {
       highScoreThreshold
     )
 
-    const offsetAndScore = new Map<Offset, number>()
+    let bestMatchNewTemplatePixels: number | undefined
+    let bestMatchOffset: Offset | undefined
+    let bestMatchScore: number | undefined
     const templateTarget = outline(crop(template, target.bounds))
     const templateTargetInner = outline(crop(template, target.inner))
 
@@ -679,7 +681,7 @@ export default class Interpreter {
         x: target.inner.x + x,
         y: target.inner.y + y,
       }
-      const diffImageInner = diff(
+      const newBallotPixels = diff(
         templateTarget,
         ballot,
         {
@@ -689,38 +691,45 @@ export default class Interpreter {
         },
         offsetTargetInner
       )
-      const ballotTargetInnerNewBlackPixelCount = countPixels(diffImageInner, {
+      const newTemplatePixels = diff(
+        ballot,
+        templateTarget,
+        offsetTargetInner,
+        {
+          ...target.inner,
+          x: target.inner.x - target.bounds.x,
+          y: target.inner.y - target.bounds.y,
+        }
+      )
+      const ballotTargetInnerNewBlackPixelCount = countPixels(newBallotPixels, {
         color: PIXEL_BLACK,
       })
       const score =
         ballotTargetInnerNewBlackPixelCount / templatePixelCountAvailableToFill
+      const newTemplatePixelsCount = countPixels(newTemplatePixels)
 
-      if (score >= highScoreThreshold) {
-        return { offset: { x, y }, score }
+      if (
+        typeof bestMatchNewTemplatePixels === 'undefined' ||
+        newTemplatePixelsCount < bestMatchNewTemplatePixels
+      ) {
+        bestMatchNewTemplatePixels = newTemplatePixelsCount
+        bestMatchOffset = { x, y }
+        bestMatchScore = score
       }
-
-      if (score <= zeroScoreThreshold) {
-        debug(
-          'returning early at (x=%d, y=%d) since score (%d) is ≤ zero threshold (%d)',
-          x,
-          y,
-          score,
-          zeroScoreThreshold
-        )
-        return { offset: { x, y }, score }
-      }
-      offsetAndScore.set({ x, y }, score)
     }
-    const [[minOffset, minScore]] = [...offsetAndScore].sort(
-      ([, a], [, b]) => a - b
-    )
+
     debug(
-      'using minimum score %d from offset (x=%d, y=%d)',
-      minScore,
-      minOffset.x,
-      minOffset.y
+      'using score %d from best template match (%d new template pixels) at offset (x=%d, y=%d)',
+      bestMatchScore,
+      bestMatchNewTemplatePixels,
+      bestMatchOffset?.x,
+      bestMatchOffset?.y
     )
-    return { offset: minOffset, score: minScore }
+    assert(
+      typeof bestMatchScore === 'number' && typeof bestMatchOffset === 'object'
+    )
+
+    return { score: bestMatchScore, offset: bestMatchOffset }
   }
 
   private mapImageWithPoints(
@@ -805,11 +814,13 @@ export default class Interpreter {
       }
     }
 
-    return this.mapImageWithPoints(
+    const result = this.mapImageWithPoints(
       ballotMat,
       templateSize,
       ballotPoints,
       templatePoints
     )
+    binarize(result)
+    return result
   }
 }

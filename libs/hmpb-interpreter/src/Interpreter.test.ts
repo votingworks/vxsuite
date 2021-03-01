@@ -1590,37 +1590,37 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Tim Smith",
-        "score": 0.8345679012345679,
+        "score": 0.8765432098765432,
         "type": "candidate",
       },
       Object {
         "option": "Arjun Srinivasan",
-        "score": 0,
+        "score": 0.0024630541871921183,
         "type": "candidate",
       },
       Object {
         "option": "Ricardo Turullols-Bonilla",
-        "score": 0,
+        "score": 0.007407407407407408,
         "type": "candidate",
       },
       Object {
         "option": "Eddie Bernice Johnson",
-        "score": 0.7192118226600985,
+        "score": 0.7832512315270936,
         "type": "candidate",
       },
       Object {
         "option": "Tre Pennie",
-        "score": 0,
+        "score": 0.0024449877750611247,
         "type": "candidate",
       },
       Object {
         "option": "Jane Bland",
-        "score": 0.6397058823529411,
+        "score": 0.7524509803921569,
         "type": "candidate",
       },
       Object {
         "option": "Kathy Cheng",
-        "score": 0,
+        "score": 0.004889975550122249,
         "type": "candidate",
       },
       Object {
@@ -1630,12 +1630,12 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Write-In",
-        "score": 0.7192118226600985,
+        "score": 0.8029556650246306,
         "type": "candidate",
       },
       Object {
         "option": "John Ames",
-        "score": 0.8349753694581281,
+        "score": 0.8866995073891626,
         "type": "candidate",
       },
       Object {
@@ -1650,7 +1650,7 @@ test('interpret votes', async () => {
       },
       Object {
         "option": "Chad Prda",
-        "score": 0.6024390243902439,
+        "score": 0.7,
         "type": "candidate",
       },
       Object {
@@ -1690,6 +1690,11 @@ test('invalid marks', async () => {
           "id": "donald-davis",
           "name": "Donald Davis",
           "partyId": "3",
+        },
+        Object {
+          "id": "__write-in-1",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
       ],
       "dallas-county-commissioners-court-pct-3": Array [
@@ -1748,10 +1753,10 @@ test('invalid marks', async () => {
           "name": "John Wiley Price",
           "partyId": "2",
         },
-        "score": 0,
+        "score": 0.009950248756218905,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -1866,7 +1871,7 @@ test('invalid marks', async () => {
           "name": "Andrew Jewell",
           "partyId": "7",
         },
-        "score": 0.7209876543209877,
+        "score": 0.8271604938271605,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2021,7 +2026,7 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "yes",
-        "score": 0.14392059553349876,
+        "score": 0.18610421836228289,
         "scoredOffset": Object {
           "x": 0,
           "y": 1,
@@ -2098,7 +2103,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -2132,10 +2137,10 @@ test('invalid marks', async () => {
           "type": "yesno",
         },
         "option": "no",
-        "score": 0.78239608801956,
+        "score": 0.8215158924205379,
         "scoredOffset": Object {
-          "x": 0,
-          "y": 0,
+          "x": -1,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -2280,10 +2285,10 @@ test('invalid marks', async () => {
           "name": "Randall Rupp",
           "partyId": "2",
         },
-        "score": 0.12315270935960591,
+        "score": 0.1921182266009852,
         "scoredOffset": Object {
           "x": 0,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2354,9 +2359,9 @@ test('invalid marks', async () => {
           "name": "Carroll Shry",
           "partyId": "2",
         },
-        "score": 0,
+        "score": 0.0024752475247524753,
         "scoredOffset": Object {
-          "x": 0,
+          "x": -1,
           "y": 0,
         },
         "target": Object {
@@ -2428,9 +2433,9 @@ test('invalid marks', async () => {
           "name": "Beverly Barker",
           "partyId": "3",
         },
-        "score": 0,
+        "score": 0.0024752475247524753,
         "scoredOffset": Object {
-          "x": 0,
+          "x": -1,
           "y": 0,
         },
         "target": Object {
@@ -2502,10 +2507,10 @@ test('invalid marks', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
-        "score": 0.12871287128712872,
+        "score": 0.19801980198019803,
         "scoredOffset": Object {
           "x": -1,
-          "y": -1,
+          "y": 0,
         },
         "target": Object {
           "bounds": Object {
@@ -2576,7 +2581,7 @@ test('invalid marks', async () => {
           "name": "Hugo Smith",
           "partyId": "3",
         },
-        "score": 0,
+        "score": 0.009950248756218905,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2724,10 +2729,10 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0.097799511002445,
+        "score": 0.15403422982885084,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": -1,
         },
         "target": Object {
           "bounds": Object {
@@ -2798,7 +2803,7 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0,
+        "score": 0.007371007371007371,
         "scoredOffset": Object {
           "x": 0,
           "y": 0,
@@ -2855,7 +2860,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -2909,7 +2914,7 @@ test('invalid marks', async () => {
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -2960,10 +2965,10 @@ test('invalid marks', async () => {
           "isWriteIn": true,
           "name": "Write-In",
         },
-        "score": 0,
+        "score": 0.0024691358024691358,
         "scoredOffset": Object {
           "x": 0,
-          "y": 0,
+          "y": 1,
         },
         "target": Object {
           "bounds": Object {
@@ -3262,6 +3267,11 @@ test('regression: page outline', async () => {
           "name": "Donald Davis",
           "partyId": "3",
         },
+        Object {
+          "id": "__write-in-1",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
       ],
       "dallas-county-commissioners-court-pct-3": Array [
         Object {
@@ -3474,7 +3484,7 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "1",
         "option": "1",
-        "score": 0.2540106951871658,
+        "score": 0.4090909090909091,
       },
       Object {
         "contest": "1",
@@ -3489,32 +3499,32 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "2",
         "option": "21",
-        "score": 0,
+        "score": 0.008152173913043478,
       },
       Object {
         "contest": "2",
         "option": "22",
-        "score": 0,
+        "score": 0.010869565217391304,
       },
       Object {
         "contest": "2",
         "option": "23",
-        "score": 0.41032608695652173,
+        "score": 0.5706521739130435,
       },
       Object {
         "contest": "2",
         "option": "__write-in-0",
-        "score": 0,
+        "score": 0.016304347826086956,
       },
       Object {
         "contest": "3",
         "option": "31",
-        "score": 0,
+        "score": 0.00267379679144385,
       },
       Object {
         "contest": "3",
         "option": "32",
-        "score": 0.7994652406417112,
+        "score": 0.8529411764705882,
       },
       Object {
         "contest": "3",
@@ -3524,32 +3534,32 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "4",
         "option": "41",
-        "score": 0,
+        "score": 0.010869565217391304,
       },
       Object {
         "contest": "4",
         "option": "42",
-        "score": 0,
+        "score": 0.01358695652173913,
       },
       Object {
         "contest": "4",
         "option": "__write-in-0",
-        "score": 0.6277173913043478,
+        "score": 0.7445652173913043,
       },
       Object {
         "contest": "initiative-65",
         "option": "yes",
-        "score": 0.41032608695652173,
+        "score": 0.6005434782608695,
       },
       Object {
         "contest": "initiative-65",
         "option": "no",
-        "score": 0.27717391304347827,
+        "score": 0.41847826086956524,
       },
       Object {
         "contest": "initiative-65-a",
         "option": "yes",
-        "score": 0.2554347826086957,
+        "score": 0.41847826086956524,
       },
       Object {
         "contest": "initiative-65-a",
@@ -3576,22 +3586,22 @@ test('choctaw 2020 general', async () => {
       Object {
         "contest": "flag-question",
         "option": "yes",
-        "score": 0.5295698924731183,
+        "score": 0.6075268817204301,
       },
       Object {
         "contest": "flag-question",
         "option": "no",
-        "score": 0,
+        "score": 0.008064516129032258,
       },
       Object {
         "contest": "runoffs-question",
         "option": "yes",
-        "score": 0,
+        "score": 0.002688172043010753,
       },
       Object {
         "contest": "runoffs-question",
         "option": "no",
-        "score": 0.2768817204301075,
+        "score": 0.46774193548387094,
       },
     ]
   `)
@@ -3637,7 +3647,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
   ).toMatchInlineSnapshot(`
     Array [
       Array [
-        0.00267379679144385,
+        0.0053475935828877,
         Object {
           "id": "775032091",
           "name": "Presidential Electors for Joseph R. Biden Jr. for President and Kamala D. Harris for Vice President",
@@ -3653,7 +3663,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0,
+        0.002717391304347826,
         Object {
           "id": "775032126",
           "name": "Presidential Electors for Don Blankenship for President and William Mohr for Vice President",
@@ -3669,7 +3679,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0,
+        0.005434782608695652,
         Object {
           "id": "775032096",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
@@ -3701,7 +3711,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0,
+        0.005434782608695652,
         Object {
           "id": "775032098",
           "name": "Presidential Electors for Kanye West for President and Michelle Tidball for Vice President",
@@ -3725,7 +3735,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0,
+        0.008152173913043478,
         Object {
           "id": "775032094",
           "name": "Cindy Hyde-Smith",
@@ -3733,7 +3743,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8994565217391305,
+        0.8913043478260869,
         Object {
           "id": "775032105",
           "name": "Jimmy L. Edwards",
@@ -3773,7 +3783,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0,
+        0.002717391304347826,
         Object {
           "id": "775032082",
           "name": "Josiah Dennis Coleman",
@@ -3781,7 +3791,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.8967391304347826,
+        0.8913043478260869,
         Object {
           "id": "775032110",
           "name": "Percy L. Lynchard",
@@ -3789,7 +3799,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0,
+        0.00267379679144385,
         Object {
           "id": "__write-in-0",
           "isWriteIn": true,
@@ -3797,14 +3807,14 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
       Array [
-        0.9010695187165776,
+        0.8983957219251337,
         Object {
           "id": "775032689",
           "name": "Wayne McLeod",
         },
       ],
       Array [
-        0,
+        0.008152173913043478,
         Object {
           "id": "__write-in-0",
           "isWriteIn": true,
