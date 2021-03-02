@@ -1,11 +1,9 @@
-import { render } from '@testing-library/react'
 import React from 'react'
 
 import USBControllerButton from './USBControllerButton'
 
-import AppContext from '../contexts/AppContext'
 import { UsbDriveStatus } from '../lib/usbstick'
-import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
+import renderInAppContext from '../../test/renderInAppContext'
 
 jest.mock('../lib/usbstick')
 
@@ -18,40 +16,34 @@ afterAll(() => {
   delete window.kiosk
 })
 
-const renderWithStatus = (status: UsbDriveStatus) => {
-  return render(
-    <AppContext.Provider
-      value={{
-        usbDriveStatus: status,
-        usbDriveEject: jest.fn(),
-        machineConfig: fakeMachineConfig(),
-      }}
-    >
-      <USBControllerButton />
-    </AppContext.Provider>
-  )
-}
-
 test('shows nothing if USB not available', () => {
-  const { container } = renderWithStatus(UsbDriveStatus.notavailable)
+  const { container } = renderInAppContext(<USBControllerButton />, {
+    usbDriveStatus: UsbDriveStatus.notavailable,
+  })
 
   expect(container.firstChild).toMatchInlineSnapshot(`null`)
 })
 
 test('shows No USB if usb available but absent', () => {
-  const { container } = renderWithStatus(UsbDriveStatus.absent)
+  const { container } = renderInAppContext(<USBControllerButton />, {
+    usbDriveStatus: UsbDriveStatus.absent,
+  })
 
   expect(container.firstChild!.firstChild).toMatchInlineSnapshot(`No USB`)
 })
 
 test('shows eject if mounted', () => {
-  const { container } = renderWithStatus(UsbDriveStatus.mounted)
+  const { container } = renderInAppContext(<USBControllerButton />, {
+    usbDriveStatus: UsbDriveStatus.mounted,
+  })
 
   expect(container.firstChild!.firstChild).toMatchInlineSnapshot(`Eject USB`)
 })
 
 test('shows ejected if recently ejected', () => {
-  const { container } = renderWithStatus(UsbDriveStatus.recentlyEjected)
+  const { container } = renderInAppContext(<USBControllerButton />, {
+    usbDriveStatus: UsbDriveStatus.recentlyEjected,
+  })
 
   expect(container.firstChild!.firstChild).toMatchInlineSnapshot(`Ejected`)
 })

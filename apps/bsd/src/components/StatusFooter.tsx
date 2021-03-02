@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/types'
 import Text from './Text'
 import { localeWeedkayAndDate } from '../util/IntlDateTimeFormats'
-import { MachineConfig } from '../config/types'
+import AppContext from '../contexts/AppContext'
 
 const StatusBar = styled.div`
   display: flex;
@@ -14,17 +13,8 @@ const StatusBar = styled.div`
   padding: 0.375rem 1rem;
 `
 
-export interface Props {
-  election: Election
-  electionHash?: string
-  machineConfig: MachineConfig
-}
-
-const StatusFooter: React.FC<Props> = ({
-  election,
-  electionHash,
-  machineConfig,
-}) => {
+const StatusFooter: React.FC = () => {
+  const { election, electionHash, machineConfig } = useContext(AppContext)
   const electionDate =
     election && localeWeedkayAndDate.format(new Date(election?.date))
 

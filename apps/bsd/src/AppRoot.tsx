@@ -349,6 +349,8 @@ const App: React.FC = () => {
             usbDriveStatus: displayUsbStatus,
             usbDriveEject: doEject,
             machineConfig,
+            election,
+            electionHash,
           }}
         >
           <Screen>
@@ -376,10 +378,20 @@ const App: React.FC = () => {
     }
     if (adjudication.remaining > 0 && !isScanning) {
       return (
-        <BallotEjectScreen
-          continueScanning={continueScanning}
-          isTestMode={isTestMode}
-        />
+        <AppContext.Provider
+          value={{
+            usbDriveStatus: displayUsbStatus,
+            usbDriveEject: doEject,
+            election,
+            electionHash,
+            machineConfig,
+          }}
+        >
+          <BallotEjectScreen
+            continueScanning={continueScanning}
+            isTestMode={isTestMode}
+          />
+        </AppContext.Provider>
       )
     }
 
@@ -397,6 +409,8 @@ const App: React.FC = () => {
         value={{
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
+          election,
+          electionHash,
           machineConfig,
         }}
       >
@@ -470,11 +484,7 @@ const App: React.FC = () => {
                   Scan New Batch
                 </Button>
               </MainNav>
-              <StatusFooter
-                election={election}
-                electionHash={electionHash}
-                machineConfig={machineConfig}
-              />
+              <StatusFooter />
             </Screen>
             {isExportingCVRs && (
               <ExportResultsModal
@@ -502,6 +512,8 @@ const App: React.FC = () => {
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
           machineConfig,
+          election: undefined,
+          electionHash: undefined,
         }}
       >
         <LoadElectionScreen
