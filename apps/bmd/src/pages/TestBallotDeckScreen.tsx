@@ -229,7 +229,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
             // eslint-disable-next-line react/no-array-index-key
             key={`ballot-${i}`}
             ballotStyleId={ballot.ballotStyleId}
-            election={election}
+            electionDefinition={electionDefinition}
             isLiveMode={isLiveMode}
             precinctId={ballot.precinctId}
             votes={ballot.votes}

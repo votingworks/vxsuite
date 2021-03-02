@@ -4,11 +4,11 @@ import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
 import {
   Contests,
-  Election,
   ElectionDefinition,
   parseElection,
   VotesDict,
 } from '@votingworks/types'
+import { asElectionDefinition } from '@votingworks/fixtures'
 
 import * as GLOBALS from '../src/config/globals'
 
@@ -34,11 +34,12 @@ export function render(
   {
     route = '/',
     ballotStyleId = '',
-    election = parseElection(electionSampleNoSeal),
-    contests = election.contests,
+    electionDefinition = asElectionDefinition(
+      parseElection(electionSampleNoSeal)
+    ),
+    contests = electionDefinition.election.contests,
     markVoterCardVoided = jest.fn(),
     markVoterCardPrinted = jest.fn(),
-    electionHash = '',
     history = createMemoryHistory({ initialEntries: [route] }),
     isCardlessVoter = false,
     isLiveMode = false,
@@ -55,11 +56,10 @@ export function render(
   }: {
     route?: string
     ballotStyleId?: string
-    election?: Election
+    electionDefinition?: ElectionDefinition
     contests?: Contests
     markVoterCardVoided?: MarkVoterCardFunction
     markVoterCardPrinted?: MarkVoterCardFunction
-    electionHash?: string
     history?: History
     isCardlessVoter?: boolean
     isLiveMode?: boolean
@@ -81,7 +81,7 @@ export function render(
         value={{
           ballotStyleId,
           contests,
-          electionDefinition: { election, electionHash } as ElectionDefinition,
+          electionDefinition,
           isCardlessVoter,
           isLiveMode,
           machineConfig,

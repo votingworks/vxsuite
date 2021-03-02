@@ -1,14 +1,14 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import { Election } from '@votingworks/types'
+import { asElectionDefinition } from '@votingworks/fixtures'
+import { parseElection } from '@votingworks/types'
 
 import ElectionInfo from './ElectionInfo'
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 
-const electionDefinition = {
-  election: electionSampleWithSeal as Election,
-  electionHash: 'test--hash--content-past-10-chars',
-}
+const electionDefinition = asElectionDefinition(
+  parseElection(electionSampleWithSeal)
+)
 
 it('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(

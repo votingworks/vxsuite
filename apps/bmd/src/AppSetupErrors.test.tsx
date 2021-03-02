@@ -9,12 +9,13 @@ import { MemoryHardware } from './utils/Hardware'
 import { MemoryStorage } from './utils/Storage'
 
 import {
-  adminCard,
+  adminCardForElection,
   advanceTimers,
   advanceTimersAndPromises,
 } from '../test/helpers/smartcards'
 
 import {
+  electionDefinition,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election'
@@ -186,12 +187,13 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
     const card = new MemoryCard()
+    const adminCard = adminCardForElection(electionDefinition.electionHash)
     const storage = new MemoryStorage<AppStorage>()
     const machineConfig = fakeMachineConfigProvider({
       appMode: VxPrintOnly,
     })
     const hardware = MemoryHardware.standard
-    setElectionInStorage(storage)
+    setElectionInStorage(storage, electionDefinition)
     setStateInStorage(storage)
     const { getByText } = render(
       <App

@@ -1,5 +1,7 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
+import { asElectionDefinition } from '@votingworks/fixtures'
+import { parseElection } from '@votingworks/types'
 import { advanceBy } from 'jest-date-mock'
 import { sha256 } from 'js-sha256'
 import * as GLOBALS from './config/globals'
@@ -12,12 +14,12 @@ import App from './App'
 import withMarkup from '../test/helpers/withMarkup'
 
 import {
-  adminCard,
+  adminCardForElection,
   advanceTimersAndPromises,
   getAlternateNewVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
-  pollWorkerCard,
+  pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 
 import {
@@ -44,6 +46,7 @@ jest.useFakeTimers()
 jest.setTimeout(15000)
 
 it('VxMark+Print end-to-end flow', async () => {
+  const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
@@ -64,6 +67,10 @@ it('VxMark+Print end-to-end flow', async () => {
       printer={printer}
       storage={storage}
     />
+  )
+  const adminCard = adminCardForElection(electionDefinition.electionHash)
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionDefinition.electionHash
   )
   const getByTextWithMarkup = withMarkup(getByText)
 
