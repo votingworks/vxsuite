@@ -60,34 +60,40 @@ docker-compose up
 
 ## Mock a Smart Card
 
-Once you're running the server, you can enable a mock card reader with fixture data as in the examples below. Check out the [`fixtures/`](./fixtures) directory for what mock cards are available.
+Once you're running the server, you can enable a mock card reader with fixture data as in the examples below. Supply your own election definition, or use one of the existing [`fixtures/`](./fixtures).
 
-### Voter
+### Using your own election definition
 
+```sh
+# configure with admin card
+./mockCardReader.py enable --admin /path/to/election.json
+# open polls with poll worker card
+./mockCardReader.py enable --pollworker /path/to/election.json
+# vote with voter card
+./mockCardReader.py enable --voter /path/to/election.json --precinct 123 --ballot-style 1R
 ```
-./mockCardReader.py enable --fixture fixtures/voter
-```
 
-### Poll Worker
+### Using fixtures
 
-```
-./mockCardReader.py enable --fixture fixtures/pollworker
-```
+Use any fixture paths you like. This shows using the default fixtures:
 
-### Admin
-
-```
+```sh
+# configure with admin card
 ./mockCardReader.py enable --fixture fixtures/admin
+# open polls with poll worker card
+./mockCardReader.py enable --fixture fixtures/pollworker
+# vote with voter card
+./mockCardReader.py enable --fixture fixtures/voter
 ```
 
 ### Blank Card
 
-```
+```sh
 ./mockCardReader.py enable --fixture fixtures/blank
 ```
 
 ### No Card
 
-```
+```sh
 ./mockCardReader.py enable --no-card
 ```
