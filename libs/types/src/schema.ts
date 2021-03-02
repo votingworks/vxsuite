@@ -183,6 +183,11 @@ export const Election = z.object({
 })
 
 export const OptionalElection = Election.optional()
+export const ElectionDefinition = z.object({
+  election: Election,
+  electionHash: z.string(),
+})
+export const OptionalElectionDefinition = ElectionDefinition.optional()
 
 // Votes
 export const CandidateVote = z.array(Candidate)
