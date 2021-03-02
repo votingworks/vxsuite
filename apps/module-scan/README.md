@@ -68,6 +68,37 @@ MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 
 If you are seeing unhandled promise rejection errors you may have an issue with where your image files are located, try moving them into the local scope of the app.
 
+### Using Fixtures Data
+
+To force `requires_adjudication` of ballots, run this in `module-scan`:
+```
+sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
+```
+
+#### Letter-sized ballots
+
+First init `module-smartcards` with:
+```
+./mockCardReader.py enable --admin ../module-scan/test/fixtures/2020-choctaw/election.json
+```
+
+Init `module-scan` with:
+```
+MOCK_SCANNER_FILES=test/fixtures/2020-choctaw/ballot-p1.jpg,test/fixtures/2020-choctaw/ballot-p2.jpg pnpm dev
+```
+
+#### Legal-sized ballots
+
+First init `module-smartcards` with:
+```
+./mockCardReader.py enable --admin ../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/election.json
+```
+
+Init `module-scan` with:
+```
+MOCK_SCANNER_FILES=../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm dev
+```
+
 ## Switching Workspaces
 
 By default a `ballots.db` file and a `ballot-images` directory will be created
