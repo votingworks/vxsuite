@@ -154,7 +154,8 @@ export class FujitsuScanner implements Scanner {
         if (!done) {
           done = true
           debug(
-            'scanimage [pid=%d] generator return called, stopping scan by closing stdin'
+            'scanimage [pid=%d] generator return called, stopping scan by closing stdin',
+            scanimage.pid
           )
           return new Promise((resolve) => {
             scanimage.stdin?.end(() => {
@@ -170,7 +171,8 @@ export class FujitsuScanner implements Scanner {
         if (!done) {
           done = true
           debug(
-            'scanimage [pid=%d] generator throw called, stopping scan by closing stdin'
+            'scanimage [pid=%d] generator throw called, stopping scan by closing stdin',
+            scanimage.pid
           )
           return new Promise((resolve) => {
             scanimage.stdin?.end(() => {
