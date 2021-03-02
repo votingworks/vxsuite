@@ -733,11 +733,7 @@ const AppRoot: React.FC<Props> = ({
 
           const fetchBallotData = async () => {
             const longValue = (await card.readLongUint8Array())!
-            const { ballot } = decodeBallot(
-              optionalElectionDefinition!.election,
-              longValue
-            )
-            return ballot
+            return decodeBallot(optionalElectionDefinition!.election, longValue)
           }
 
           const ballot: Partial<CompletedBallot> =

@@ -4,9 +4,7 @@ import { parseOptions } from './options'
 import * as fixtures from '../../../test/fixtures/state-of-hamilton'
 import { createWorkspace } from '../../util/workspace'
 
-if (process.env.CI) {
-  jest.setTimeout(20000)
-}
+jest.setTimeout(20000)
 
 test('--all query', () => {
   expect(queryFromOptions(parseOptions(['--all']))).toMatchInlineSnapshot(`

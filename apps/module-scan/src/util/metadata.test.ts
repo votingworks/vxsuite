@@ -1,5 +1,8 @@
 import { BallotType } from '@votingworks/types'
-import { v1 } from '@votingworks/ballot-encoder'
+import {
+  encodeBallot,
+  encodeHMPBBallotPageMetadata,
+} from '@votingworks/ballot-encoder'
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import { BallotMetadata, BallotPageQrcode } from '../types'
@@ -25,7 +28,7 @@ test('normalizing sheet metadata', () => {
     pageNumber: 2,
   }
   const bmdQrcode: BallotPageQrcode = {
-    data: v1.encodeBallot(election, {
+    data: encodeBallot(election, {
       ballotId: '',
       ballotStyle: election.ballotStyles[0],
       precinct: election.precincts[0],
@@ -36,11 +39,11 @@ test('normalizing sheet metadata', () => {
     position: 'top',
   }
   const frontHmpbQrcode: BallotPageQrcode = {
-    data: v1.encodeHMPBBallotPageMetadata(election, frontHmpbMetadata),
+    data: encodeHMPBBallotPageMetadata(election, frontHmpbMetadata),
     position: 'bottom',
   }
   const backHmpbQrcode: BallotPageQrcode = {
-    data: v1.encodeHMPBBallotPageMetadata(election, backHmpbMetadata),
+    data: encodeHMPBBallotPageMetadata(election, backHmpbMetadata),
     position: 'bottom',
   }
 
