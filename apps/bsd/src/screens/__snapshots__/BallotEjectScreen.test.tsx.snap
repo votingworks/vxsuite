@@ -44,45 +44,41 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-bwzfXH hLOwzs"
+        class="sc-jzJRlG jNKpFz"
       >
         <div
-          class="sc-jzJRlG liWoYo"
+          class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-htpNat eawaaV"
+            class="sc-fjdhpX cNwREO"
           >
-            <div
-              class="sc-fjdhpX lhoICd"
-            >
-              Live Ballot
-            </div>
-            <p>
-              This last scanned sheet 
-              <strong>
-                was not tabulated
-              </strong>
-              .
-            </p>
-            <p>
-              Remove the LIVE ballot before continuing.
-            </p>
+            Live Ballot
           </div>
-          <div
-            class="sc-cSHVUG hmKULF"
-          >
-            <div>
-              <img
-                alt="front"
-                src="/front/url"
-              />
-            </div>
-            <div>
-              <img
-                alt="back"
-                src="/back/url"
-              />
-            </div>
+          <p>
+            This last scanned sheet 
+            <strong>
+              was not tabulated
+            </strong>
+            .
+          </p>
+          <p>
+            Remove the LIVE ballot before continuing.
+          </p>
+        </div>
+        <div
+          class="sc-cSHVUG eBwSAE"
+        >
+          <div>
+            <img
+              alt="front"
+              src="/front/url"
+            />
+          </div>
+          <div>
+            <img
+              alt="back"
+              src="/back/url"
+            />
           </div>
         </div>
       </div>
@@ -135,45 +131,41 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-bwzfXH hLOwzs"
+        class="sc-jzJRlG jNKpFz"
       >
         <div
-          class="sc-jzJRlG liWoYo"
+          class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-htpNat eawaaV"
+            class="sc-fjdhpX cNwREO"
           >
-            <div
-              class="sc-fjdhpX lhoICd"
-            >
-              Test Ballot
-            </div>
-            <p>
-              This last scanned sheet 
-              <strong>
-                was not tabulated
-              </strong>
-              .
-            </p>
-            <p>
-              Remove the TEST ballot before continuing.
-            </p>
+            Test Ballot
           </div>
-          <div
-            class="sc-cSHVUG hmKULF"
-          >
-            <div>
-              <img
-                alt="front"
-                src="/front/url"
-              />
-            </div>
-            <div>
-              <img
-                alt="back"
-                src="/back/url"
-              />
-            </div>
+          <p>
+            This last scanned sheet 
+            <strong>
+              was not tabulated
+            </strong>
+            .
+          </p>
+          <p>
+            Remove the TEST ballot before continuing.
+          </p>
+        </div>
+        <div
+          class="sc-cSHVUG eBwSAE"
+        >
+          <div>
+            <img
+              alt="front"
+              src="/front/url"
+            />
+          </div>
+          <div>
+            <img
+              alt="back"
+              src="/back/url"
+            />
           </div>
         </div>
       </div>
@@ -227,68 +219,64 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-bwzfXH hLOwzs"
+        class="sc-jzJRlG jNKpFz"
       >
         <div
-          class="sc-jzJRlG liWoYo"
+          class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-htpNat eawaaV"
+            class="sc-fjdhpX cNwREO"
           >
-            <div
-              class="sc-fjdhpX lhoICd"
-            >
-              Unknown Reason
-            </div>
-            <p>
-              This last scanned sheet 
-              <strong>
-                was not tabulated
-              </strong>
-              .
-            </p>
-            <h4>
-              Original Ballot Scan
-            </h4>
-            <p>
-              Remove ballot and create a duplicate ballot for the Resolution Board to review.
-              <br />
-              <button
-                class="sc-ifAKCX fGEpuB"
-                type="button"
-              >
-                Original Ballot Removed
-              </button>
-            </p>
-            <h4>
-              Duplicate Ballot Scan
-            </h4>
-            <p>
-              Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballow with issue which could not be determined.
-              <br />
-              <button
-                class="sc-ifAKCX fGEpuB"
-                type="button"
-              >
-                Tabulate Duplicate Ballot
-              </button>
-            </p>
+            Unknown Reason
           </div>
-          <div
-            class="sc-cSHVUG hmKULF"
-          >
-            <div>
-              <img
-                alt="front"
-                src="/front/url"
-              />
-            </div>
-            <div>
-              <img
-                alt="back"
-                src="/back/url"
-              />
-            </div>
+          <p>
+            This last scanned sheet 
+            <strong>
+              was not tabulated
+            </strong>
+            .
+          </p>
+          <h4>
+            Original Ballot Scan
+          </h4>
+          <p>
+            Remove ballot and create a duplicate ballot for the Resolution Board to review.
+            <br />
+            <button
+              class="sc-ifAKCX fGEpuB"
+              type="button"
+            >
+              Original Ballot Removed
+            </button>
+          </p>
+          <h4>
+            Duplicate Ballot Scan
+          </h4>
+          <p>
+            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballow with issue which could not be determined.
+            <br />
+            <button
+              class="sc-ifAKCX fGEpuB"
+              type="button"
+            >
+              Tabulate Duplicate Ballot
+            </button>
+          </p>
+        </div>
+        <div
+          class="sc-cSHVUG eBwSAE"
+        >
+          <div>
+            <img
+              alt="front"
+              src="/front/url"
+            />
+          </div>
+          <div>
+            <img
+              alt="back"
+              src="/back/url"
+            />
           </div>
         </div>
       </div>
@@ -342,73 +330,69 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-bwzfXH hLOwzs"
+        class="sc-jzJRlG jNKpFz"
       >
         <div
-          class="sc-jzJRlG liWoYo"
+          class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-htpNat eawaaV"
+            class="sc-fjdhpX cNwREO"
           >
-            <div
-              class="sc-fjdhpX lhoICd"
-            >
-              Overvote
-            </div>
-            <p>
-              This last scanned sheet 
-              <strong>
-                was not tabulated
-              </strong>
-              .
-            </p>
-            <h4>
-              Original Ballot Scan
-            </h4>
-            <p>
-              Remove ballot and create a duplicate ballot for the Resolution Board to review.
-              <br />
-              <button
-                class="sc-ifAKCX fGEpuB"
-                type="button"
-              >
-                Original Ballot Removed
-              </button>
-            </p>
-            <h4>
-              Duplicate Ballot Scan
-            </h4>
-            <p>
-              Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot sheet with an
-               
-              <strong>
-                overvote
-              </strong>
-              .
-              <br />
-              <button
-                class="sc-ifAKCX fGEpuB"
-                type="button"
-              >
-                Tabulate Duplicate Ballot
-              </button>
-            </p>
+            Overvote
           </div>
-          <div
-            class="sc-cSHVUG hmKULF"
-          >
-            <div>
-              <img
-                alt="front"
-                src="/front/url"
-              />
-            </div>
-            <div>
-              <img
-                alt="back"
-                src="/back/url"
-              />
-            </div>
+          <p>
+            This last scanned sheet 
+            <strong>
+              was not tabulated
+            </strong>
+            .
+          </p>
+          <h4>
+            Original Ballot Scan
+          </h4>
+          <p>
+            Remove ballot and create a duplicate ballot for the Resolution Board to review.
+            <br />
+            <button
+              class="sc-ifAKCX fGEpuB"
+              type="button"
+            >
+              Original Ballot Removed
+            </button>
+          </p>
+          <h4>
+            Duplicate Ballot Scan
+          </h4>
+          <p>
+            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot sheet with an
+             
+            <strong>
+              overvote
+            </strong>
+            .
+            <br />
+            <button
+              class="sc-ifAKCX fGEpuB"
+              type="button"
+            >
+              Tabulate Duplicate Ballot
+            </button>
+          </p>
+        </div>
+        <div
+          class="sc-cSHVUG eBwSAE"
+        >
+          <div>
+            <img
+              alt="front"
+              src="/front/url"
+            />
+          </div>
+          <div>
+            <img
+              alt="back"
+              src="/back/url"
+            />
           </div>
         </div>
       </div>
@@ -462,72 +446,68 @@ exports[`says the sheet is unreadable if it is 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-bwzfXH hLOwzs"
+        class="sc-jzJRlG jNKpFz"
       >
         <div
-          class="sc-jzJRlG liWoYo"
+          class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-htpNat eawaaV"
+            class="sc-fjdhpX cNwREO"
           >
-            <div
-              class="sc-fjdhpX lhoICd"
-            >
-              Unreadable
-            </div>
-            <p>
-              This last scanned sheet 
-              <strong>
-                was not tabulated
-              </strong>
-              .
-            </p>
-            <h4>
-              Original Ballot Scan
-            </h4>
-            <p>
-              Remove ballot and create a duplicate ballot for the Resolution Board to review.
-              <br />
-              <button
-                class="sc-ifAKCX fGEpuB"
-                type="button"
-              >
-                Original Ballot Removed
-              </button>
-            </p>
-            <h4>
-              Duplicate Ballot Scan
-            </h4>
-            <p>
-              Confirm sheet was reviewed by the Resolution Board and tabulate as 
-              <strong>
-                unreadable
-              </strong>
-              .
-              <br />
-              <button
-                class="sc-ifAKCX fGEpuB"
-                type="button"
-              >
-                Tabulate Duplicate Ballot
-              </button>
-            </p>
+            Unreadable
           </div>
-          <div
-            class="sc-cSHVUG hmKULF"
-          >
-            <div>
-              <img
-                alt="front"
-                src="/front/url"
-              />
-            </div>
-            <div>
-              <img
-                alt="back"
-                src="/back/url"
-              />
-            </div>
+          <p>
+            This last scanned sheet 
+            <strong>
+              was not tabulated
+            </strong>
+            .
+          </p>
+          <h4>
+            Original Ballot Scan
+          </h4>
+          <p>
+            Remove ballot and create a duplicate ballot for the Resolution Board to review.
+            <br />
+            <button
+              class="sc-ifAKCX fGEpuB"
+              type="button"
+            >
+              Original Ballot Removed
+            </button>
+          </p>
+          <h4>
+            Duplicate Ballot Scan
+          </h4>
+          <p>
+            Confirm sheet was reviewed by the Resolution Board and tabulate as 
+            <strong>
+              unreadable
+            </strong>
+            .
+            <br />
+            <button
+              class="sc-ifAKCX fGEpuB"
+              type="button"
+            >
+              Tabulate Duplicate Ballot
+            </button>
+          </p>
+        </div>
+        <div
+          class="sc-cSHVUG eBwSAE"
+        >
+          <div>
+            <img
+              alt="front"
+              src="/front/url"
+            />
+          </div>
+          <div>
+            <img
+              alt="back"
+              src="/back/url"
+            />
           </div>
         </div>
       </div>
