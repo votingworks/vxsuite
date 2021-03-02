@@ -63,6 +63,7 @@ export type PageInterpretation =
   | BlankPage
   | InterpretedBmdPage
   | InterpretedHmpbPage
+  | InvalidElectionHashPage
   | InvalidTestModePage
   | UninterpretedHmpbPage
   | UnreadablePage
@@ -85,6 +86,12 @@ export interface InterpretedHmpbPage {
   markInfo: MarkInfo
   votes: VotesDict
   adjudicationInfo: AdjudicationInfo
+}
+
+export interface InvalidElectionHashPage {
+  type: 'InvalidElectionHashPage'
+  expectedElectionHash: string
+  actualElectionHash: string
 }
 
 export interface InvalidTestModePage {
@@ -164,6 +171,7 @@ export function sheetRequiresAdjudication([
       pi.type === 'UninterpretedHmpbPage' ||
       pi.type === 'UnreadablePage' ||
       pi.type === 'InvalidTestModePage' ||
+      pi.type === 'InvalidElectionHashPage' ||
       (pi.type === 'InterpretedHmpbPage' &&
         pi.adjudicationInfo.requiresAdjudication &&
         !pi.adjudicationInfo.allReasonInfos.some(
