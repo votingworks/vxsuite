@@ -65,6 +65,9 @@ function interpretationTitle(interpretation: PageInterpretation) {
     case 'UnreadablePage':
       return 'unreadable'
 
+    case 'InvalidElectionHashPage':
+      return 'invalid election'
+
     default:
       // @ts-expect-error - future-proofing in case the enum is out of date
       return interpretation.type

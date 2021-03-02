@@ -3,19 +3,19 @@
 exports[`calls out live ballot sheets in test mode 1`] = `
 <div>
   <div
-    class="sc-jTzLTM eOyjnu"
+    class="sc-fjdhpX gOpleb"
   >
     <div
-      class="sc-gzVnrw bggTrE"
+      class="sc-htoDjs eZZGvH"
     >
       <div
-        class="sc-htoDjs ipztHg"
+        class="sc-dnqmqq beBlgW"
       >
         <div
-          class="sc-dnqmqq rGeTJ"
+          class="sc-iwsKbI jQvhKG"
         >
           <div
-            class="sc-iwsKbI jjxTtY"
+            class="sc-gZMcBi caXjZP"
           >
             Voting
             <span>
@@ -23,13 +23,13 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-gZMcBi giNnHm"
+            class="sc-gqjmRU hnZXkc"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-gqjmRU etjyPA"
+          class="sc-VigVT dQFuUY"
         >
           <button
             class="sc-ifAKCX gKVbpr"
@@ -44,13 +44,13 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-jzJRlG jNKpFz"
+        class="sc-kAzzGY kIgkAR"
       >
         <div
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX cNwREO"
+            class="sc-cSHVUG eTlAui"
           >
             Live Ballot
           </div>
@@ -66,7 +66,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-cSHVUG eBwSAE"
+          class="sc-chPdSV bwDMEc"
         >
           <div>
             <img
@@ -83,6 +83,37 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         </div>
       </div>
     </main>
+    <div
+      class="sc-jzJRlG gDbTFU"
+    >
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        Scanner ID: 
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        <strong>
+          General Election
+        </strong>
+         — 
+        Tuesday, November 3, 2020
+         —
+         
+        Franklin County
+        , 
+        State of Hamilton
+         
+        — Election Hash: 
+        <strong>
+          2f6b1553c7
+        </strong>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -90,19 +121,19 @@ exports[`calls out live ballot sheets in test mode 1`] = `
 exports[`calls out test ballot sheets in live mode 1`] = `
 <div>
   <div
-    class="sc-jTzLTM eOyjnu"
+    class="sc-fjdhpX gOpleb"
   >
     <div
-      class="sc-gzVnrw bggTrE"
+      class="sc-htoDjs eZZGvH"
     >
       <div
-        class="sc-htoDjs ipztHg"
+        class="sc-dnqmqq beBlgW"
       >
         <div
-          class="sc-dnqmqq rGeTJ"
+          class="sc-iwsKbI jQvhKG"
         >
           <div
-            class="sc-iwsKbI jjxTtY"
+            class="sc-gZMcBi caXjZP"
           >
             Voting
             <span>
@@ -110,13 +141,13 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-gZMcBi giNnHm"
+            class="sc-gqjmRU hnZXkc"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-gqjmRU etjyPA"
+          class="sc-VigVT dQFuUY"
         >
           <button
             class="sc-ifAKCX gKVbpr"
@@ -131,13 +162,13 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-jzJRlG jNKpFz"
+        class="sc-kAzzGY kIgkAR"
       >
         <div
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX cNwREO"
+            class="sc-cSHVUG eTlAui"
           >
             Test Ballot
           </div>
@@ -153,7 +184,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-cSHVUG eBwSAE"
+          class="sc-chPdSV bwDMEc"
         >
           <div>
             <img
@@ -170,6 +201,37 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         </div>
       </div>
     </main>
+    <div
+      class="sc-jzJRlG gDbTFU"
+    >
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        Scanner ID: 
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        <strong>
+          General Election
+        </strong>
+         — 
+        Tuesday, November 3, 2020
+         —
+         
+        Franklin County
+        , 
+        State of Hamilton
+         
+        — Election Hash: 
+        <strong>
+          2f6b1553c7
+        </strong>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -177,19 +239,19 @@ exports[`calls out test ballot sheets in live mode 1`] = `
 exports[`says the ballot sheet is blank if it is 1`] = `
 <div>
   <div
-    class="sc-jTzLTM eOyjnu"
+    class="sc-fjdhpX gOpleb"
   >
     <div
-      class="sc-gzVnrw bggTrE"
+      class="sc-htoDjs eZZGvH"
     >
       <div
-        class="sc-htoDjs ipztHg"
+        class="sc-dnqmqq beBlgW"
       >
         <div
-          class="sc-dnqmqq rGeTJ"
+          class="sc-iwsKbI jQvhKG"
         >
           <div
-            class="sc-iwsKbI jjxTtY"
+            class="sc-gZMcBi caXjZP"
           >
             Voting
             <span>
@@ -197,13 +259,13 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-gZMcBi giNnHm"
+            class="sc-gqjmRU hnZXkc"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-gqjmRU etjyPA"
+          class="sc-VigVT dQFuUY"
         >
           <button
             class="sc-ifAKCX hcRgUA"
@@ -219,13 +281,13 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-jzJRlG jNKpFz"
+        class="sc-kAzzGY kIgkAR"
       >
         <div
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX cNwREO"
+            class="sc-cSHVUG eTlAui"
           >
             Unknown Reason
           </div>
@@ -264,7 +326,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-cSHVUG eBwSAE"
+          class="sc-chPdSV bwDMEc"
         >
           <div>
             <img
@@ -281,6 +343,37 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         </div>
       </div>
     </main>
+    <div
+      class="sc-jzJRlG gDbTFU"
+    >
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        Scanner ID: 
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        <strong>
+          General Election
+        </strong>
+         — 
+        Tuesday, November 3, 2020
+         —
+         
+        Franklin County
+        , 
+        State of Hamilton
+         
+        — Election Hash: 
+        <strong>
+          2f6b1553c7
+        </strong>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -288,19 +381,19 @@ exports[`says the ballot sheet is blank if it is 1`] = `
 exports[`says the ballot sheet is overvoted if it is 1`] = `
 <div>
   <div
-    class="sc-jTzLTM eOyjnu"
+    class="sc-fjdhpX gOpleb"
   >
     <div
-      class="sc-gzVnrw bggTrE"
+      class="sc-htoDjs eZZGvH"
     >
       <div
-        class="sc-htoDjs ipztHg"
+        class="sc-dnqmqq beBlgW"
       >
         <div
-          class="sc-dnqmqq rGeTJ"
+          class="sc-iwsKbI jQvhKG"
         >
           <div
-            class="sc-iwsKbI jjxTtY"
+            class="sc-gZMcBi caXjZP"
           >
             Voting
             <span>
@@ -308,13 +401,13 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-gZMcBi giNnHm"
+            class="sc-gqjmRU hnZXkc"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-gqjmRU etjyPA"
+          class="sc-VigVT dQFuUY"
         >
           <button
             class="sc-ifAKCX hcRgUA"
@@ -330,13 +423,13 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-jzJRlG jNKpFz"
+        class="sc-kAzzGY kIgkAR"
       >
         <div
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX cNwREO"
+            class="sc-cSHVUG eTlAui"
           >
             Overvote
           </div>
@@ -380,7 +473,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-cSHVUG eBwSAE"
+          class="sc-chPdSV bwDMEc"
         >
           <div>
             <img
@@ -397,6 +490,37 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         </div>
       </div>
     </main>
+    <div
+      class="sc-jzJRlG gDbTFU"
+    >
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        Scanner ID: 
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        <strong>
+          General Election
+        </strong>
+         — 
+        Tuesday, November 3, 2020
+         —
+         
+        Franklin County
+        , 
+        State of Hamilton
+         
+        — Election Hash: 
+        <strong>
+          2f6b1553c7
+        </strong>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -404,19 +528,19 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
 exports[`says the sheet is unreadable if it is 1`] = `
 <div>
   <div
-    class="sc-jTzLTM eOyjnu"
+    class="sc-fjdhpX gOpleb"
   >
     <div
-      class="sc-gzVnrw bggTrE"
+      class="sc-htoDjs eZZGvH"
     >
       <div
-        class="sc-htoDjs ipztHg"
+        class="sc-dnqmqq beBlgW"
       >
         <div
-          class="sc-dnqmqq rGeTJ"
+          class="sc-iwsKbI jQvhKG"
         >
           <div
-            class="sc-iwsKbI jjxTtY"
+            class="sc-gZMcBi caXjZP"
           >
             Voting
             <span>
@@ -424,13 +548,13 @@ exports[`says the sheet is unreadable if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-gZMcBi giNnHm"
+            class="sc-gqjmRU hnZXkc"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-gqjmRU etjyPA"
+          class="sc-VigVT dQFuUY"
         >
           <button
             class="sc-ifAKCX hcRgUA"
@@ -446,13 +570,13 @@ exports[`says the sheet is unreadable if it is 1`] = `
       class="sc-bdVaJa kYuSve"
     >
       <div
-        class="sc-jzJRlG jNKpFz"
+        class="sc-kAzzGY kIgkAR"
       >
         <div
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX cNwREO"
+            class="sc-cSHVUG eTlAui"
           >
             Unreadable
           </div>
@@ -495,7 +619,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-cSHVUG eBwSAE"
+          class="sc-chPdSV bwDMEc"
         >
           <div>
             <img
@@ -512,6 +636,37 @@ exports[`says the sheet is unreadable if it is 1`] = `
         </div>
       </div>
     </main>
+    <div
+      class="sc-jzJRlG gDbTFU"
+    >
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        Scanner ID: 
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-gzVnrw ffzAOv"
+      >
+        <strong>
+          General Election
+        </strong>
+         — 
+        Tuesday, November 3, 2020
+         —
+         
+        Franklin County
+        , 
+        State of Hamilton
+         
+        — Election Hash: 
+        <strong>
+          2f6b1553c7
+        </strong>
+      </div>
+    </div>
   </div>
 </div>
 `;

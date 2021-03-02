@@ -169,6 +169,7 @@ export type PageInterpretation =
   | InvalidTestModePage
   | UninterpretedHmpbPage
   | UnreadablePage
+  | InvalidElectionHashPage
 
 export interface BlankPage {
   type: 'BlankPage'
@@ -203,6 +204,12 @@ export interface UninterpretedHmpbPage {
 export interface UnreadablePage {
   type: 'UnreadablePage'
   reason?: string
+}
+
+export interface InvalidElectionHashPage {
+  type: 'InvalidElectionHashPage'
+  expectedElectionHash: string
+  actualElectionHash: string
 }
 
 export type AdjudicationReasonInfo =

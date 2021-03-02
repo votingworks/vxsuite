@@ -11,9 +11,9 @@
     "start": "script/react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
-    "test": "script/react-scripts test --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "pnpm test -- --coverage --watchAll=false",
-    "test:debug": "script/react-scripts --inspect-brk test --runInBand --no-cache"
+    "test": "TZ=UTC script/react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:coverage": "TZ=UTC pnpm test -- --coverage --watchAll=false",
+    "test:debug": "TZ=UTC script/react-scripts --inspect-brk test --runInBand --no-cache"
   },
   "husky": {
     "hooks": {
