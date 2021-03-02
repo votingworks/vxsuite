@@ -1,7 +1,11 @@
 import * as fixtures from '.'
 
 test('has various election definitions', () => {
-  expect(Object.keys(fixtures)).toMatchInlineSnapshot(`
+  expect(
+    Object.entries(fixtures)
+      .filter(([, value]) => typeof value !== 'function')
+      .map(([key]) => key)
+  ).toMatchInlineSnapshot(`
     Array [
       "electionSample",
       "primaryElectionSample",

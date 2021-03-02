@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import base64
 import hashlib
 import http.client
 import json
@@ -81,20 +82,30 @@ def enable_fixture(fixture_path: str):
         "enabled": True,
     }
 
-    with open(fixture_short_path, "r") as short_file:
-        request_data["shortValue"] = re.sub(
-            r"\"{{now}}\"", str(round(time.time())), short_file.read()
-        )
-
+    long_value_hash: Optional[str] = None
     if os.path.exists(fixture_long_path_json):
         with open(fixture_long_path_json, "r") as long_file:
             request_data["longValue"] = long_file.read()
+            long_value_hash = hashlib.sha256(
+                request_data["longValue"].encode("utf-8")
+            ).hexdigest()
     elif os.path.exists(fixture_long_path_b64):
         with open(fixture_long_path_b64, "r") as long_file:
             request_data["longValueB64"] = long_file.read()
+            long_value_hash = hashlib.sha256(
+                base64.b64decode(request_data["longValue"])
+            ).hexdigest()
     else:
         request_data["longValue"] = None
 
+    with open(fixture_short_path, "r") as short_file:
+        request_data["shortValue"] = re.sub(
+            r"{{hash\(long\)}}",
+            long_value_hash,
+            re.sub(r"\"{{now}}\"", str(round(time.time())), short_file.read()),
+        )
+
+    print(request_data)
     set_mock(request_data)
 
 

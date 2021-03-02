@@ -7,7 +7,7 @@ import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimarySa
 import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither.json'
 
-function electionDefinition(election: Election): ElectionDefinition {
+export function asElectionDefinition(election: Election): ElectionDefinition {
   return {
     election,
     electionHash: sha256(JSON.stringify(election)),
@@ -20,16 +20,16 @@ export const multiPartyPrimaryElection = (multiPartyPrimaryElectionUntyped as un
 export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
 export const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
 
-export const electionSampleDefinition = electionDefinition(electionSample)
-export const primaryElectionSampleDefinition = electionDefinition(
+export const electionSampleDefinition = asElectionDefinition(electionSample)
+export const primaryElectionSampleDefinition = asElectionDefinition(
   primaryElectionSample
 )
-export const multiPartyPrimaryElectionDefinition = electionDefinition(
+export const multiPartyPrimaryElectionDefinition = asElectionDefinition(
   multiPartyPrimaryElection
 )
-export const electionSampleLongContentDefinition = electionDefinition(
+export const electionSampleLongContentDefinition = asElectionDefinition(
   electionSampleLongContent
 )
-export const electionWithMsEitherNeitherDefinition = electionDefinition(
+export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
   electionWithMsEitherNeither
 )
