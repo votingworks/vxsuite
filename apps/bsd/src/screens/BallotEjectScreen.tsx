@@ -14,7 +14,6 @@ import Screen from '../components/Screen'
 const EjectReason = styled.div`
   font-size: 3em;
   font-weight: 900;
-  text-align: center;
 `
 
 const MainChildColumns = styled.div`

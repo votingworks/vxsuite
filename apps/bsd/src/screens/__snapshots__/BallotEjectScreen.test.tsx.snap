@@ -50,7 +50,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX lhoICd"
+            class="sc-fjdhpX cNwREO"
           >
             Live Ballot
           </div>
@@ -137,7 +137,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX lhoICd"
+            class="sc-fjdhpX cNwREO"
           >
             Test Ballot
           </div>
@@ -225,7 +225,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX lhoICd"
+            class="sc-fjdhpX cNwREO"
           >
             Unknown Reason
           </div>
@@ -336,7 +336,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX lhoICd"
+            class="sc-fjdhpX cNwREO"
           >
             Overvote
           </div>
@@ -452,7 +452,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
           class="sc-htpNat eawaaV"
         >
           <div
-            class="sc-fjdhpX lhoICd"
+            class="sc-fjdhpX cNwREO"
           >
             Unreadable
           </div>
