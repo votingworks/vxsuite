@@ -73,6 +73,7 @@ import {
 import { getSingleYesNoVote } from './utils/votes'
 
 interface CardState {
+  adminCardElectionHash: string
   isAdminCardPresent: boolean
   isCardlessVoter: boolean
   isPollWorkerCardPresent: boolean
@@ -146,6 +147,7 @@ export const votesStorageKey = 'votes'
 export const blankBallotVotes = {}
 
 const initialCardState: Readonly<CardState> = {
+  adminCardElectionHash: '',
   isAdminCardPresent: false,
   isCardlessVoter: false,
   isPollWorkerCardPresent: false,
@@ -281,7 +283,7 @@ const calculateTally = ({
 
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
-  | { type: 'processAdminCard' }
+  | { type: 'processAdminCard'; electionHash: string }
   | { type: 'processPollWorkerCard' }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
   | { type: 'pauseCardProcessing' }
@@ -320,6 +322,7 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         ...initialCardState,
         isAdminCardPresent: true,
+        adminCardElectionHash: action.electionHash,
       }
     case 'processPollWorkerCard':
       return {
@@ -515,6 +518,7 @@ const AppRoot: React.FC<Props> = ({
   const PostVotingInstructionsTimeout = useRef(0)
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
+    adminCardElectionHash,
     appPrecinctId,
     ballotsPrintedCount,
     ballotStyleId,
@@ -552,13 +556,13 @@ const AppRoot: React.FC<Props> = ({
   const ballotStyle = optionalElectionDefinition?.election
     ? getBallotStyle({
         ballotStyleId,
-        election: optionalElectionDefinition?.election,
+        election: optionalElectionDefinition.election,
       })
     : ''
   const contests =
     optionalElectionDefinition?.election && ballotStyle
       ? getContests({
-          election: optionalElectionDefinition?.election,
+          election: optionalElectionDefinition.election,
           ballotStyle,
         })
       : []
@@ -689,15 +693,23 @@ const AppRoot: React.FC<Props> = ({
     const electionData = await card.readLongString()
     /* istanbul ignore else */
     if (electionData) {
+      const computedElectionHash = sha256(electionData)
+      /* istanbul ignore next */
+      if (computedElectionHash !== adminCardElectionHash) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `computed election hash (${computedElectionHash}) does not match admin card election hash (${adminCardElectionHash})`
+        )
+      }
       dispatchAppState({
         type: 'updateElectionDefinition',
         electionDefinition: {
           election: JSON.parse(electionData),
-          electionHash: sha256(electionData),
+          electionHash: computedElectionHash,
         },
       })
     }
-  }, [card])
+  }, [card, adminCardElectionHash])
 
   const activateCardlessBallotStyleId = (ballotStyleId: string) => {
     dispatchAppState({
@@ -762,13 +774,23 @@ const AppRoot: React.FC<Props> = ({
           break
         }
         case 'pollworker': {
+          /* istanbul ignore next */
+          if (cardData.h !== optionalElectionDefinition?.electionHash) {
+            // eslint-disable-next-line no-console
+            console.error(
+              `poll worker card election hash (${cardData.h}) does not match configured election hash (${optionalElectionDefinition?.electionHash})`
+            )
+          }
           dispatchAppState({ type: 'processPollWorkerCard' })
           break
         }
         case 'admin': {
           /* istanbul ignore else */
           if (longValueExists) {
-            dispatchAppState({ type: 'processAdminCard' })
+            dispatchAppState({
+              type: 'processAdminCard',
+              electionHash: cardData.h,
+            })
           }
           break
         }

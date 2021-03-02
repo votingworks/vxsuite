@@ -1,7 +1,7 @@
-import { sha256 } from 'js-sha256'
 import fs from 'fs'
 import * as path from 'path'
 
+import { asElectionDefinition } from '@votingworks/fixtures'
 import {
   CandidateContest,
   YesNoContest,
@@ -27,10 +27,7 @@ const electionSampleData = fs.readFileSync(
   'utf-8'
 )
 export const election = JSON.parse(electionSampleData) as Election
-export const electionDefinition = {
-  election,
-  electionHash: sha256(electionSampleData),
-}
+export const electionDefinition = asElectionDefinition(election)
 
 export const contest0 = election.contests[0] as CandidateContest
 export const contest1 = election.contests[1] as CandidateContest
@@ -79,8 +76,11 @@ export const voterContests = getContests({
   election,
 })
 
-export const setElectionInStorage = (storage: Storage<AppStorage>): void => {
-  storage.set(electionStorageKey, electionDefinition)
+export const setElectionInStorage = (
+  storage: Storage<AppStorage>,
+  newElectionDefinition = electionDefinition
+): void => {
+  storage.set(electionStorageKey, newElectionDefinition)
 }
 
 export const setStateInStorage = (

@@ -6,10 +6,10 @@ import { encodeBallot } from '@votingworks/ballot-encoder'
 import {
   BallotType,
   CandidateVote,
+  Contests,
+  ElectionDefinition,
   YesNoVote,
   VotesDict,
-  Contests,
-  Election,
 } from '@votingworks/types'
 
 import * as GLOBALS from '../config/globals'
@@ -209,7 +209,7 @@ const MsEitherNeitherContestResult: React.FC<MsEitherNeitherContestResultInterfa
 
 interface Props {
   ballotStyleId: string
-  election: Election
+  electionDefinition: ElectionDefinition
   isLiveMode: boolean
   precinctId: string
   votes: VotesDict
@@ -217,13 +217,16 @@ interface Props {
 
 const PrintBallot: React.FC<Props> = ({
   ballotStyleId,
-  election,
+  electionDefinition,
   isLiveMode,
   precinctId,
   votes,
 }) => {
   const ballotId = randomBase64(10)
-  const { county, date, seal, sealURL, state, parties, title } = election
+  const {
+    election,
+    election: { county, date, seal, sealURL, state, parties, title },
+  } = electionDefinition
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     ballotStyleId,
     election,

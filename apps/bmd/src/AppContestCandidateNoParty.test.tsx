@@ -2,6 +2,7 @@ import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 
 import { Election } from '@votingworks/types'
+import { asElectionDefinition } from '@votingworks/fixtures'
 import App from './App'
 
 import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
@@ -47,10 +48,10 @@ it('Single Seat Contest', async () => {
   const storage = new MemoryStorage<AppStorage>()
   const machineConfig = fakeMachineConfigProvider()
 
-  storage.set(electionStorageKey, {
-    election: electionWithNoPartyCandidateContests,
-    electionHash: 'test-hash',
-  })
+  storage.set(
+    electionStorageKey,
+    asElectionDefinition(electionWithNoPartyCandidateContests)
+  )
   setStateInStorage(storage)
 
   const { container, getByText, queryByText } = render(

@@ -1,18 +1,21 @@
 import React from 'react'
 import { fireEvent, render, within } from '@testing-library/react'
-import { electionSample } from '@votingworks/fixtures'
+import {
+  asElectionDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures'
 import { encodeBallot } from '@votingworks/ballot-encoder'
-import { BallotType, Election } from '@votingworks/types'
+import { BallotType } from '@votingworks/types'
 
 import App from './App'
 
 import {
-  adminCard,
+  adminCardForElection,
   advanceTimersAndPromises,
   getExpiredVoterCard,
   getNewVoterCard,
   getUsedVoterCard,
-  pollWorkerCard,
+  pollWorkerCardForElection,
   sampleVotes1,
   sampleVotes2,
   sampleVotes3,
@@ -41,8 +44,10 @@ jest.useFakeTimers()
 jest.setTimeout(12000)
 
 test('VxPrintOnly flow', async () => {
-  const election = electionSample
+  const { election, electionHash } = electionSampleDefinition
   const card = new MemoryCard()
+  const adminCard = adminCardForElection(electionHash)
+  const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
@@ -403,8 +408,10 @@ test('VxPrintOnly flow', async () => {
 })
 
 test('VxPrint retains app mode when unconfigured', async () => {
-  const election = electionSample
+  const { election, electionHash } = electionSampleDefinition
   const card = new MemoryCard()
+  const adminCard = adminCardForElection(electionHash)
+  const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
@@ -507,10 +514,14 @@ test('VxPrint retains app mode when unconfigured', async () => {
 })
 
 test('VxPrint prompts to change to live mode on election day', async () => {
-  const election: Election = {
-    ...electionSample,
+  const electionDefinition = asElectionDefinition({
+    ...electionSampleDefinition.election,
     date: new Date().toISOString(),
-  }
+  })
+  const adminCard = adminCardForElection(electionDefinition.electionHash)
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionDefinition.electionHash
+  )
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
@@ -532,7 +543,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   // ---------------
 
   // Configure with Admin Card
-  card.insertCard(adminCard, election)
+  card.insertCard(adminCard, electionDefinition.election)
   await advanceTimersAndPromises()
   fireEvent.click(getByText('Load Election Definition'))
 

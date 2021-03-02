@@ -2,6 +2,7 @@ import React from 'react'
 import { act, fireEvent, within } from '@testing-library/react'
 import MockDate from 'mockdate'
 
+import { asElectionDefinition } from '@votingworks/fixtures'
 import { render } from '../../test/testUtils'
 import fakeKiosk from '../../test/helpers/fakeKiosk'
 import { election, defaultPrecinctId } from '../../test/helpers/election'
@@ -30,7 +31,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
       appMode={VxPrintOnly}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      electionDefinition={{ election, electionHash: 'test-hash' }}
+      electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
       isLiveMode={false}
       updateAppPrecinctId={jest.fn()}
@@ -67,7 +68,7 @@ test('renders date and time settings modal', async () => {
       appMode={VxMarkOnly}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      electionDefinition={{ election, electionHash: 'test-hash' }}
+      electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
       isLiveMode={false}
       updateAppPrecinctId={jest.fn()}

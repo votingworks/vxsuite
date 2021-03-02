@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
-import { sha256 } from 'js-sha256'
+import { asElectionDefinition } from '@votingworks/fixtures'
+import { parseElection } from '@votingworks/types'
 import * as GLOBALS from './config/globals'
 
 // import { electionSample } from '@votingworks/types'
@@ -13,14 +14,15 @@ import {
   setStateInStorage,
   presidentContest,
   voterContests,
+  electionDefinition,
 } from '../test/helpers/election'
 
 import withMarkup from '../test/helpers/withMarkup'
 
 import {
-  adminCard,
+  adminCardForElection,
   advanceTimersAndPromises,
-  pollWorkerCard,
+  pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 
 import { MemoryStorage } from './utils/Storage'
@@ -40,17 +42,16 @@ jest.useFakeTimers()
 jest.setTimeout(15000)
 
 test('Cardless Voting Flow', async () => {
+  const { electionHash } = asElectionDefinition(parseElection(electionSample))
   const card = new MemoryCard()
+  const adminCard = adminCardForElection(electionHash)
+  const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
   const storage = new MemoryStorage<AppStorage>()
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })
-  const expectedElectionHash = sha256(JSON.stringify(electionSample)).substring(
-    0,
-    10
-  )
   const { getByLabelText, getByText, getByTestId, queryByText } = render(
     <App
       card={card}
@@ -79,7 +80,7 @@ test('Cardless Voting Flow', async () => {
   getByText('Election definition is loaded.')
   getByLabelText('Precinct')
   within(getByTestId('election-info')).getByText(
-    `Election ID: ${expectedElectionHash}`
+    `Election ID: ${electionDefinition.electionHash.slice(0, 10)}`
   )
 
   // Select precinct
@@ -215,6 +216,9 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionDefinition.electionHash
+  )
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
   const storage = new MemoryStorage<AppStorage>()
@@ -224,7 +228,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
   card.removeCard()
 
-  setElectionInStorage(storage)
+  setElectionInStorage(storage, electionDefinition)
   setStateInStorage(storage)
 
   const { getByText, getByTestId, queryByText } = render(

@@ -121,15 +121,17 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
   }
 )
 
-export const adminCard = JSON.stringify({
-  t: 'admin',
-  h: 'abcd',
-})
+export const adminCardForElection = (electionHash: string): string =>
+  JSON.stringify({
+    t: 'admin',
+    h: electionHash,
+  })
 
-export const pollWorkerCard = JSON.stringify({
-  t: 'pollworker',
-  h: 'abcd',
-})
+export const pollWorkerCardForElection = (electionHash: string): string =>
+  JSON.stringify({
+    t: 'pollworker',
+    h: electionHash,
+  })
 
 export const createVoterCard = (
   cardData: Partial<VoterCardData> = {}

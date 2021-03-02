@@ -1,6 +1,8 @@
 import React from 'react'
 import { fireEvent, render, within } from '@testing-library/react'
 // import { electionSample } from '@votingworks/fixtures'
+import { asElectionDefinition } from '@votingworks/fixtures'
+import { parseElection } from '@votingworks/types'
 import electionSample from './data/electionSample.json'
 
 import App from './App'
@@ -8,11 +10,11 @@ import App from './App'
 import withMarkup from '../test/helpers/withMarkup'
 
 import {
-  adminCard,
+  adminCardForElection,
   advanceTimersAndPromises,
   getExpiredVoterCard,
   getNewVoterCard,
-  pollWorkerCard,
+  pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 
 import {
@@ -33,7 +35,12 @@ beforeEach(() => {
 it('VxMarkOnly flow', async () => {
   jest.useFakeTimers()
 
+  const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const card = new MemoryCard()
+  const adminCard = adminCardForElection(electionDefinition.electionHash)
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionDefinition.electionHash
+  )
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage<AppStorage>()
   const machineConfig = fakeMachineConfigProvider()
