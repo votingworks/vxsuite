@@ -5,7 +5,7 @@ import { AdjudicationReason } from '@votingworks/types'
 import { fetchNextBallotSheetToReview } from '../api/hmpb'
 import { BallotSheetInfo } from '../config/types'
 
-import Main, { MainChild } from '../components/Main'
+import Main from '../components/Main'
 import Prose from '../components/Prose'
 import Button from '../components/Button'
 import MainNav from '../components/MainNav'
@@ -17,8 +17,10 @@ const EjectReason = styled.div`
   text-align: center;
 `
 
-const Columns = styled.div`
+const MainChildColumns = styled.div`
+  flex: 1;
   display: flex;
+  margin-bottom: -1rem;
   > div {
     margin-right: 1em;
     &:first-child {
@@ -42,7 +44,7 @@ const RectoVerso = styled.div`
   }
   img {
     max-width: 100%;
-    height: 84.5vh;
+    max-height: 87vh;
   }
 `
 
@@ -122,90 +124,88 @@ const BallotEjectScreen: React.FC<Props> = ({
         )}
       </MainNav>
       <Main>
-        <MainChild maxWidth={false}>
-          <Columns>
-            <Prose maxWidth={false}>
-              <EjectReason>
-                {isInvalidTestModeSheet
-                  ? isTestMode
-                    ? 'Live Ballot'
-                    : 'Test Ballot'
-                  : isUnreadableSheet
-                  ? 'Unreadable'
-                  : isOvervotedSheet
-                  ? 'Overvote'
-                  : isBlankSheet
-                  ? 'Blank Ballot'
-                  : 'Unknown Reason'}
-              </EjectReason>
-              <p>
-                This last scanned sheet <strong>was not tabulated</strong>.
-              </p>
-              {!isInvalidTestModeSheet ? (
-                <React.Fragment>
-                  <h4>Original Ballot Scan</h4>
-                  <p>
-                    Remove ballot and create a duplicate ballot for the
-                    Resolution Board to review.
-                    <br />
-                    <Button
-                      primary={ballotState === 'removeBallot'}
-                      onPress={() => setBallotState('removeBallot')}
-                    >
-                      Original Ballot Removed
-                    </Button>
-                  </p>
-                  <h4>Duplicate Ballot Scan</h4>
-                  <p>
-                    {isUnreadableSheet ? (
-                      <React.Fragment>
-                        Confirm sheet was reviewed by the Resolution Board and
-                        tabulate as <strong>unreadable</strong>.
-                      </React.Fragment>
-                    ) : isOvervotedSheet ? (
-                      <React.Fragment>
-                        Confirm ballot sheet was reviewed by the Resolution
-                        Board and tabulate as ballot sheet with an{' '}
-                        <strong>overvote</strong>.
-                      </React.Fragment>
-                    ) : isBlankSheet ? (
-                      <React.Fragment>
-                        Confirm ballot sheet was reviewed by the Resolution
-                        Board and tabulate as a <strong>blank</strong> ballot
-                        sheet and has no votes.
-                      </React.Fragment>
-                    ) : (
-                      <React.Fragment>
-                        Confirm ballot sheet was reviewed by the Resolution
-                        Board and tabulate as ballow with issue which could not
-                        be determined.
-                      </React.Fragment>
-                    )}
-                    <br />
-                    <Button
-                      primary={ballotState === 'acceptBallot'}
-                      onPress={() => setBallotState('acceptBallot')}
-                    >
-                      Tabulate Duplicate Ballot
-                    </Button>
-                  </p>
-                </React.Fragment>
-              ) : isTestMode ? (
-                <p>Remove the LIVE ballot before continuing.</p>
-              ) : (
-                <p>Remove the TEST ballot before continuing.</p>
-              )}
-            </Prose>
-            <RectoVerso>
-              <div>
-                <img src={sheetInfo.front.image.url} alt="front" />
-              </div>
-              <div>
-                <img src={sheetInfo.back.image.url} alt="back" />
-              </div>
-            </RectoVerso>
-          </Columns>
-        </MainChild>
+        <MainChildColumns>
+          <Prose maxWidth={false}>
+            <EjectReason>
+              {isInvalidTestModeSheet
+                ? isTestMode
+                  ? 'Live Ballot'
+                  : 'Test Ballot'
+                : isUnreadableSheet
+                ? 'Unreadable'
+                : isOvervotedSheet
+                ? 'Overvote'
+                : isBlankSheet
+                ? 'Blank Ballot'
+                : 'Unknown Reason'}
+            </EjectReason>
+            <p>
+              This last scanned sheet <strong>was not tabulated</strong>.
+            </p>
+            {!isInvalidTestModeSheet ? (
+              <React.Fragment>
+                <h4>Original Ballot Scan</h4>
+                <p>
+                  Remove ballot and create a duplicate ballot for the Resolution
+                  Board to review.
+                  <br />
+                  <Button
+                    primary={ballotState === 'removeBallot'}
+                    onPress={() => setBallotState('removeBallot')}
+                  >
+                    Original Ballot Removed
+                  </Button>
+                </p>
+                <h4>Duplicate Ballot Scan</h4>
+                <p>
+                  {isUnreadableSheet ? (
+                    <React.Fragment>
+                      Confirm sheet was reviewed by the Resolution Board and
+                      tabulate as <strong>unreadable</strong>.
+                    </React.Fragment>
+                  ) : isOvervotedSheet ? (
+                    <React.Fragment>
+                      Confirm ballot sheet was reviewed by the Resolution Board
+                      and tabulate as ballot sheet with an{' '}
+                      <strong>overvote</strong>.
+                    </React.Fragment>
+                  ) : isBlankSheet ? (
+                    <React.Fragment>
+                      Confirm ballot sheet was reviewed by the Resolution Board
+                      and tabulate as a <strong>blank</strong> ballot sheet and
+                      has no votes.
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      Confirm ballot sheet was reviewed by the Resolution Board
+                      and tabulate as ballow with issue which could not be
+                      determined.
+                    </React.Fragment>
+                  )}
+                  <br />
+                  <Button
+                    primary={ballotState === 'acceptBallot'}
+                    onPress={() => setBallotState('acceptBallot')}
+                  >
+                    Tabulate Duplicate Ballot
+                  </Button>
+                </p>
+              </React.Fragment>
+            ) : isTestMode ? (
+              <p>Remove the LIVE ballot before continuing.</p>
+            ) : (
+              <p>Remove the TEST ballot before continuing.</p>
+            )}
+          </Prose>
+          <RectoVerso>
+            <div>
+              <img src={sheetInfo.front.image.url} alt="front" />
+            </div>
+            <div>
+              <img src={sheetInfo.back.image.url} alt="back" />
+            </div>
+          </RectoVerso>
+        </MainChildColumns>
       </Main>
     </Screen>
   )
