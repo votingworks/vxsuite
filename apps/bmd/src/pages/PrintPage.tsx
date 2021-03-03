@@ -7,7 +7,6 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
-import isEmptyObject from '../utils/isEmptyObject'
 
 export const printingMessageTimeoutSeconds = 5
 
@@ -44,17 +43,15 @@ const PrintPage: React.FC = () => {
   }, [isCardlessVoter, markVoterCardPrinted, printer, resetBallot, updateTally])
 
   useEffect(() => {
-    if (!isEmptyObject(votes)) {
-      const printedBallotSealImage = document
-        .getElementById('printedBallotSealContainer')
-        ?.getElementsByTagName('img')[0] // for proper type: HTMLImageElement
-      if (!printedBallotSealImage || printedBallotSealImage.complete) {
+    const printedBallotSealImage = document
+      .getElementById('printedBallotSealContainer')
+      ?.getElementsByTagName('img')[0] // for proper type: HTMLImageElement
+    if (!printedBallotSealImage || printedBallotSealImage.complete) {
+      printBallot()
+    } else {
+      printedBallotSealImage.addEventListener('load', () => {
         printBallot()
-      } else {
-        printedBallotSealImage.addEventListener('load', () => {
-          printBallot()
-        })
-      }
+      })
     }
     return () => {
       clearTimeout(printerTimer.current)
