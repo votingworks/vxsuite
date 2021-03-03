@@ -6,15 +6,14 @@ from smartcards.core import CardInterface
 import time
 time.sleep(2)
 
-f = open(sys.argv[1])
-election = json.loads(f.read())
+f = open(sys.argv[1], "rb")
+election_bytes = f.read()
 f.close()
 
-election_json_bytes = json.dumps(election).encode('utf-8')
-short_value = json.dumps({'t':'admin', 'h': hashlib.sha256(election_json_bytes).hexdigest()})
+short_value = json.dumps({'t':'admin', 'h': hashlib.sha256(election_bytes).hexdigest()})
 
 print(CardInterface.card)
 CardInterface.override_protection()
-CardInterface.write_short_and_long(short_value.encode('utf-8'), election_json_bytes)
+CardInterface.write_short_and_long(short_value.encode('utf-8'), election_bytes)
 
 print("done")
