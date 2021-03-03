@@ -33,15 +33,8 @@ test('says the sheet is unreadable if it is', async () => {
 
   expect(container).toMatchSnapshot()
 
-  fireEvent.click(getByText('Original Ballot Removed'))
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
   expect(continueScanning).toHaveBeenCalledWith()
-
-  continueScanning.mockClear()
-
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'))
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith(true)
 })
 
 test('says the ballot sheet is overvoted if it is', async () => {

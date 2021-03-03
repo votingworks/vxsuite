@@ -110,7 +110,7 @@ const BallotEjectScreen: React.FC<Props> = ({
   }
 
   const allowBallotDuplication =
-    !isInvalidTestModeSheet && !isInvalidElectionHashSheet
+    !isInvalidTestModeSheet && !isInvalidElectionHashSheet && !isUnreadableSheet
 
   return (
     <Screen>
@@ -170,12 +170,7 @@ const BallotEjectScreen: React.FC<Props> = ({
                 </p>
                 <h4>Duplicate Ballot Scan</h4>
                 <p>
-                  {isUnreadableSheet ? (
-                    <React.Fragment>
-                      Confirm sheet was reviewed by the Resolution Board and
-                      tabulate as <strong>unreadable</strong>.
-                    </React.Fragment>
-                  ) : isOvervotedSheet ? (
+                  {isOvervotedSheet ? (
                     <React.Fragment>
                       Confirm ballot sheet was reviewed by the Resolution Board
                       and tabulate as ballot sheet with an{' '}
@@ -209,7 +204,7 @@ const BallotEjectScreen: React.FC<Props> = ({
               ) : (
                 <p>Remove the TEST ballot before continuing.</p>
               )
-            ) : (
+            ) : isInvalidElectionHashSheet ? (
               <React.Fragment>
                 <p>
                   The scanned ballot does not match the election this scanner is
@@ -218,6 +213,18 @@ const BallotEjectScreen: React.FC<Props> = ({
                 <Text small>
                   Ballot Election Hash: {actualElectionHash!.slice(0, 10)}
                 </Text>
+              </React.Fragment>
+            ) : (
+              // Unreadable
+              <React.Fragment>
+                <p>
+                  There was a problem reading the ballot. Remove ballot and
+                  reload in the scanner to try again.
+                </p>
+                <p>
+                  If the error persists remove ballot and create a duplicate
+                  ballot for the Resolution Board to review.
+                </p>
               </React.Fragment>
             )}
           </Prose>

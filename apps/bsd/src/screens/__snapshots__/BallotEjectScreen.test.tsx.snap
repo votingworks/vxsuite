@@ -557,11 +557,10 @@ exports[`says the sheet is unreadable if it is 1`] = `
           class="sc-VigVT dQFuUY"
         >
           <button
-            class="sc-ifAKCX hcRgUA"
-            disabled=""
+            class="sc-ifAKCX gKVbpr"
             type="button"
           >
-            Continue Scanning
+            Confirm Ballot Removed and Continue Scanning
           </button>
         </div>
       </div>
@@ -587,35 +586,11 @@ exports[`says the sheet is unreadable if it is 1`] = `
             </strong>
             .
           </p>
-          <h4>
-            Original Ballot Scan
-          </h4>
           <p>
-            Remove ballot and create a duplicate ballot for the Resolution Board to review.
-            <br />
-            <button
-              class="sc-ifAKCX fGEpuB"
-              type="button"
-            >
-              Original Ballot Removed
-            </button>
+            There was a problem reading the ballot. Remove ballot and reload in the scanner to try again.
           </p>
-          <h4>
-            Duplicate Ballot Scan
-          </h4>
           <p>
-            Confirm sheet was reviewed by the Resolution Board and tabulate as 
-            <strong>
-              unreadable
-            </strong>
-            .
-            <br />
-            <button
-              class="sc-ifAKCX fGEpuB"
-              type="button"
-            >
-              Tabulate Duplicate Ballot
-            </button>
+            If the error persists remove ballot and create a duplicate ballot for the Resolution Board to review.
           </p>
         </div>
         <div
