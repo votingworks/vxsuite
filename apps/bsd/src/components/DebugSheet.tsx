@@ -71,6 +71,7 @@ const DebugSheet: React.FC = () => {
     interpretation.type === 'UnreadablePage' ||
     interpretation.type === 'UninterpretedHmpbPage' ||
     interpretation.type === 'InterpretedBmdPage' ||
+    interpretation.type === 'InvalidElectionHashPage' ||
     page?.type !== 'ReviewMarginalMarksBallot'
   ) {
     return (

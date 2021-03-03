@@ -8,8 +8,10 @@ import { BallotSheetInfo } from '../config/types'
 import Main from '../components/Main'
 import Prose from '../components/Prose'
 import Button from '../components/Button'
+import Text from '../components/Text'
 import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
+import StatusFooter from '../components/StatusFooter'
 
 const EjectReason = styled.div`
   font-size: 3em;
@@ -80,10 +82,16 @@ const BallotEjectScreen: React.FC<Props> = ({
   let isBlankSheet = false
   let isUnreadableSheet = false
   let isInvalidTestModeSheet = false
+  let isInvalidElectionHashSheet = false
+
+  let actualElectionHash: string
 
   for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
     if (interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true
+    } else if (interpretation.type === 'InvalidElectionHashPage') {
+      isInvalidElectionHashSheet = true
+      actualElectionHash = interpretation.actualElectionHash
     } else if (interpretation.type === 'InterpretedHmpbPage') {
       if (interpretation.adjudicationInfo.requiresAdjudication) {
         for (const { type } of interpretation.adjudicationInfo.allReasonInfos) {
@@ -101,10 +109,13 @@ const BallotEjectScreen: React.FC<Props> = ({
     }
   }
 
+  const allowBallotDuplication =
+    !isInvalidTestModeSheet && !isInvalidElectionHashSheet
+
   return (
     <Screen>
       <MainNav>
-        {isInvalidTestModeSheet ? (
+        {!allowBallotDuplication ? (
           <Button primary onPress={() => continueScanning()}>
             Confirm Ballot Removed and Continue Scanning
           </Button>
@@ -136,12 +147,14 @@ const BallotEjectScreen: React.FC<Props> = ({
                 ? 'Overvote'
                 : isBlankSheet
                 ? 'Blank Ballot'
+                : isInvalidElectionHashSheet
+                ? 'Wrong Election'
                 : 'Unknown Reason'}
             </EjectReason>
             <p>
               This last scanned sheet <strong>was not tabulated</strong>.
             </p>
-            {!isInvalidTestModeSheet ? (
+            {allowBallotDuplication ? (
               <React.Fragment>
                 <h4>Original Ballot Scan</h4>
                 <p>
@@ -190,10 +203,22 @@ const BallotEjectScreen: React.FC<Props> = ({
                   </Button>
                 </p>
               </React.Fragment>
-            ) : isTestMode ? (
-              <p>Remove the LIVE ballot before continuing.</p>
+            ) : isInvalidTestModeSheet ? (
+              isTestMode ? (
+                <p>Remove the LIVE ballot before continuing.</p>
+              ) : (
+                <p>Remove the TEST ballot before continuing.</p>
+              )
             ) : (
-              <p>Remove the TEST ballot before continuing.</p>
+              <React.Fragment>
+                <p>
+                  The scanned ballot does not match the election this scanner is
+                  configured for. Remove the invalid ballot before continuing.
+                </p>
+                <Text small>
+                  Ballot Election Hash: {actualElectionHash!.slice(0, 10)}
+                </Text>
+              </React.Fragment>
             )}
           </Prose>
           <RectoVerso>
@@ -206,6 +231,7 @@ const BallotEjectScreen: React.FC<Props> = ({
           </RectoVerso>
         </MainChildColumns>
       </Main>
+      <StatusFooter />
     </Screen>
   )
 }
