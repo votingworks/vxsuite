@@ -37,7 +37,7 @@ NOPARTY_PARTY = {
 
 UNDERVOTE_CANDIDATE = {
     "id": "2",
-    "name": "Times Blank Voted",
+    "name": "Times Under Voted",
     "partyId": "0"
 }
     
