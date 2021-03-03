@@ -704,7 +704,7 @@ test('undervotes counted in n of m contest properly', () => {
     [mockCVR],
   ])!
 
-  // The county commissioners race has 4 seats. Each vote less then 4 should be counted
+  // The county commissioners race has 4 seats. Each vote less than 4 should be counted
   // as an additional undervote.
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -752,6 +752,134 @@ test('undervotes counted in n of m contest properly', () => {
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
   ).toBe(0)
+})
+
+test('overvotes counted in n of m contest properly', () => {
+  // Create mock CVR data
+  const mockCVR: CastVoteRecord = {
+    _ballotId: 'abc',
+    _ballotStyleId: '12D',
+    _ballotType: 'standard',
+    _precinctId: '21',
+    _testBallot: false,
+    _scannerId: '1',
+    'county-commissioners': [
+      'argent',
+      'witherspoonsmithson',
+      'bainbridge',
+      'hennessey',
+    ],
+  }
+
+  // tabulate it
+  let electionTally = computeFullElectionTally(primaryElectionSample, [
+    [mockCVR],
+  ])!
+
+  expect(
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .overvotes
+  ).toBe(0)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [
+      {
+        ...mockCVR,
+        'county-commissioners': [
+          'argent',
+          'witherspoonsmithson',
+          'bainbridge',
+          'hennessey',
+          'savoy',
+        ],
+      },
+    ],
+  ])!
+  // The county commissioners race has 4 seats. A ballot with more than 4 votes should have
+  // 4 overvotes.
+  expect(
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .overvotes
+  ).toBe(4)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [
+      {
+        ...mockCVR,
+        'county-commissioners': [
+          'argent',
+          'witherspoonsmithson',
+          'bainbridge',
+          'hennessey',
+          'savoy',
+          'tawa',
+          'rangel',
+        ],
+      },
+    ],
+  ])!
+  expect(
+    electionTally.overallTally.contestTallies['county-commissioners']?.metadata
+      .overvotes
+  ).toBe(4)
+})
+
+test('overvotes counted in single seat contest properly', () => {
+  // Create mock CVR data
+  const mockCVR: CastVoteRecord = {
+    _ballotId: 'abc',
+    _ballotStyleId: '12D',
+    _ballotType: 'standard',
+    _precinctId: '21',
+    _testBallot: false,
+    _scannerId: '1',
+    'lieutenant-governor': ['norberg'],
+  }
+
+  // tabulate it
+  let electionTally = computeFullElectionTally(primaryElectionSample, [
+    [mockCVR],
+  ])!
+  expect(
+    electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
+      .overvotes
+  ).toBe(0)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [
+      {
+        ...mockCVR,
+        'lieutenant-governor': ['norberg', 'parks'],
+      },
+    ],
+  ])!
+
+  // The lieutenant governor race has 1 seat. A ballot with more than 1 votes should count
+  // as 1 overvote.
+  expect(
+    electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
+      .overvotes
+  ).toBe(1)
+
+  electionTally = computeFullElectionTally(primaryElectionSample, [
+    [
+      {
+        ...mockCVR,
+        'lieutenant-governor': [
+          'norberg',
+          'parks',
+          'garcia',
+          'qualey',
+          'hovis',
+        ],
+      },
+    ],
+  ])!
+  // There should still only be 1 overvote despite voting for 5 candidates.
+  expect(
+    electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
+      .overvotes
+  ).toBe(1)
 })
 
 test('overvote report', async () => {

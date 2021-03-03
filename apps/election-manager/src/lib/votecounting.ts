@@ -305,7 +305,7 @@ export function tallyVotesByContest({
         const maxSelectable =
           contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
         if (selected.length > maxSelectable) {
-          numberOfOvervotes += 1
+          numberOfOvervotes += maxSelectable
           return
         }
         if (selected.length < maxSelectable) {
