@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures'
+import { asElectionDefinition, electionSample } from '@votingworks/fixtures'
 import {
   getBallotStyle,
   getContests,
@@ -52,10 +52,12 @@ it('renders PrintPage with votes', () => {
 })
 
 it('renders PrintPage without votes and inline seal', () => {
-  const election = parseElection(electionSampleWithSeal)
+  const electionDefinition = asElectionDefinition(
+    parseElection(electionSampleWithSeal)
+  )
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
-    election,
+    electionDefinition,
     precinctId: '21',
     route: '/print',
   })
@@ -63,10 +65,12 @@ it('renders PrintPage without votes and inline seal', () => {
 })
 
 it('renders PrintPage without votes and no seal', () => {
-  const election = parseElection(electionSampleNoSeal)
+  const electionDefinition = asElectionDefinition(
+    parseElection(electionSampleNoSeal)
+  )
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
-    election,
+    electionDefinition,
     precinctId: '21',
     route: '/print',
   })

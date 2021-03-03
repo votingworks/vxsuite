@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
+import { asElectionDefinition } from '@votingworks/fixtures'
 import { parseElection } from '@votingworks/types'
 
 import { render } from '../../test/testUtils'
@@ -10,12 +11,14 @@ import electionPrimarySample from '../data/electionPrimarySample.json'
 import StartPage from './StartPage'
 
 it('renders StartPage', async () => {
-  const election = parseElection(electionPrimarySample)
+  const electionDefinition = asElectionDefinition(
+    parseElection(electionPrimarySample)
+  )
   const { container, getAllByText, getByText } = render(
     <Route path="/" component={StartPage} />,
     {
       ballotStyleId: '12D',
-      election,
+      electionDefinition,
       precinctId: '23',
       route: '/',
     }
@@ -26,9 +29,11 @@ it('renders StartPage', async () => {
 })
 
 it('renders StartPage with inline SVG', async () => {
-  const election = parseElection(electionSampleWithSeal)
+  const electionDefinition = asElectionDefinition(
+    parseElection(electionSampleWithSeal)
+  )
   const { container } = render(<Route path="/" component={StartPage} />, {
-    election,
+    electionDefinition,
     precinctId: '23',
     route: '/',
   })
@@ -36,9 +41,11 @@ it('renders StartPage with inline SVG', async () => {
 })
 
 it('renders StartPage with no seal', async () => {
-  const election = parseElection(electionSampleNoSeal)
+  const electionDefinition = asElectionDefinition(
+    parseElection(electionSampleNoSeal)
+  )
   const { container } = render(<Route path="/" component={StartPage} />, {
-    election,
+    electionDefinition,
     precinctId: '23',
     route: '/',
   })

@@ -211,7 +211,7 @@ const PrintOnlyScreen: React.FC<Props> = ({
       {isReadyToPrint && (
         <PrintedBallot
           ballotStyleId={ballotStyleId}
-          election={election}
+          electionDefinition={electionDefinition}
           isLiveMode={isLiveMode}
           precinctId={precinctId}
           votes={votes!} // votes exists because isReadyToPrint implies votes!=undefined , but tsc unable to reason about it

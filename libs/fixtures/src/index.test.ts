@@ -7,6 +7,7 @@ test('has various election definitions', () => {
       .map(([key]) => key)
   ).toMatchInlineSnapshot(`
     Array [
+      "asElectionDefinition",
       "electionSample",
       "primaryElectionSample",
       "multiPartyPrimaryElection",

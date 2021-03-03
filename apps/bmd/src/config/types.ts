@@ -155,10 +155,7 @@ export interface MsEitherNeitherContestResultInterface {
 
 // Smart Card Content
 export type CardDataTypes = 'voter' | 'pollworker' | 'admin'
-export interface CardData {
-  readonly t: CardDataTypes
-}
-export interface VoterCardData extends CardData {
+export interface VoterCardData {
   readonly t: 'voter'
   readonly c: number // created date
   readonly bs: string // ballot style id
@@ -168,14 +165,15 @@ export interface VoterCardData extends CardData {
   readonly u?: number // updated date
   readonly m?: string // mark machine id
 }
-export interface PollworkerCardData extends CardData {
+export interface PollworkerCardData {
   readonly t: 'pollworker'
   readonly h: string
 }
-export interface AdminCardData extends CardData {
+export interface AdminCardData {
   readonly t: 'admin'
   readonly h: string
 }
+export type CardData = VoterCardData | PollworkerCardData | AdminCardData
 
 export interface CardAbsentAPI {
   present: false

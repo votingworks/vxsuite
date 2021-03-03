@@ -1,4 +1,5 @@
 import React from 'react'
+import { asElectionDefinition } from '@votingworks/fixtures'
 import { Election } from '@votingworks/types'
 
 import { fireEvent } from '@testing-library/react'
@@ -24,7 +25,7 @@ test('renders PollWorkerScreen', async () => {
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={{ election, electionHash: 'test-hash' }}
+      electionDefinition={asElectionDefinition(election)}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode={false}
@@ -51,7 +52,7 @@ test('switching out of test mode on election day', async () => {
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={{ election, electionHash: 'test-hash' }}
+      electionDefinition={asElectionDefinition(election)}
       enableLiveMode={enableLiveMode}
       hasVotes={false}
       isLiveMode={false}
@@ -80,7 +81,7 @@ test('keeping test mode on election day', async () => {
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={{ election, electionHash: 'test-hash' }}
+      electionDefinition={asElectionDefinition(election)}
       enableLiveMode={enableLiveMode}
       hasVotes={false}
       isLiveMode={false}
@@ -106,7 +107,7 @@ test('live mode on election day', async () => {
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={{ election, electionHash: 'test-hash' }}
+      electionDefinition={asElectionDefinition(election)}
       enableLiveMode={enableLiveMode}
       hasVotes={false}
       isLiveMode

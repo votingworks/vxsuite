@@ -1,11 +1,12 @@
 import {
   // electionSample,
-  Election,
+  parseElection,
 } from '@votingworks/types'
 // TODO: Tally: Use electionSample from @votingworks/fixtures once published.
 
 import React from 'react'
 import { fireEvent } from '@testing-library/react'
+import { asElectionDefinition } from '@votingworks/fixtures'
 import electionSample from '../data/electionSample.json'
 import { mockOf, render } from '../../test/testUtils'
 import { randomBase64 } from '../utils/random'
@@ -23,10 +24,7 @@ it('renders test decks appropriately', () => {
     <TestBallotDeckScreen
       appName="VxPrint"
       appPrecinctId="23"
-      electionDefinition={{
-        election: electionSample as Election,
-        electionHash: 'test-hash',
-      }}
+      electionDefinition={asElectionDefinition(parseElection(electionSample))}
       hideTestDeck={jest.fn()}
       isLiveMode={false}
     />

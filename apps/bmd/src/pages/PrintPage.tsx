@@ -29,7 +29,6 @@ const PrintPage: React.FC = () => {
     updateTally,
     votes,
   } = useContext(BallotContext)
-  const { election } = electionDefinition
   const printerTimer = useRef(0)
 
   const printBallot = useCallback(async () => {
@@ -86,7 +85,7 @@ const PrintPage: React.FC = () => {
       </Screen>
       <PrintedBallot
         ballotStyleId={ballotStyleId}
-        election={election!}
+        electionDefinition={electionDefinition}
         isLiveMode={isLiveMode}
         precinctId={precinctId}
         votes={votes}
