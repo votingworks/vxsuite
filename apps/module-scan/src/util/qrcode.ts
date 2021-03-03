@@ -15,7 +15,7 @@ function isBase64(string: string): boolean {
 
 function maybeDecodeBase64(data: Buffer): Buffer {
   try {
-    if (typeof detect(data) !== 'undefined') {
+    if (detect(data)) {
       // BMD ballot, leave it
       return data
     }

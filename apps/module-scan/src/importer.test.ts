@@ -1,6 +1,6 @@
 import { electionSample as election } from '@votingworks/fixtures'
 import { BallotType } from '@votingworks/types'
-import { v1 } from '@votingworks/ballot-encoder'
+import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import * as fs from 'fs-extra'
 import { join } from 'path'
@@ -239,7 +239,7 @@ test('manually importing files', async () => {
           return {
             blank: false,
             qrcode: {
-              data: v1.encodeHMPBBallotPageMetadata(election, frontMetadata),
+              data: encodeHMPBBallotPageMetadata(election, frontMetadata),
               position: 'bottom',
             },
           }
@@ -247,7 +247,7 @@ test('manually importing files', async () => {
           return {
             blank: false,
             qrcode: {
-              data: v1.encodeHMPBBallotPageMetadata(election, backMetadata),
+              data: encodeHMPBBallotPageMetadata(election, backMetadata),
               position: 'bottom',
             },
           }
@@ -478,10 +478,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
           qrcode:
             input.imagePath === frontImagePath
               ? {
-                  data: v1.encodeHMPBBallotPageMetadata(
-                    election,
-                    frontMetadata
-                  ),
+                  data: encodeHMPBBallotPageMetadata(election, frontMetadata),
                   position: 'bottom',
                 }
               : // assume back fails to find QR code, then infers it

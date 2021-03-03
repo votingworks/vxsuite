@@ -1,4 +1,4 @@
-import { v1 } from '@votingworks/ballot-encoder'
+import { decodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import { BallotType, Election } from '@votingworks/types'
 import { BallotLocales, BallotPageMetadata, DetectQRCode } from './types'
 import defined from './utils/defined'
@@ -72,7 +72,7 @@ export function fromBytes(
   data: Buffer
 ): BallotPageMetadata {
   if (data[0] === 'V'.charCodeAt(0) && data[1] === 'P'.charCodeAt(0)) {
-    return v1.decodeHMPBBallotPageMetadata(election, data)
+    return decodeHMPBBallotPageMetadata(election, data)
   }
 
   return fromString(election, new TextDecoder().decode(data))

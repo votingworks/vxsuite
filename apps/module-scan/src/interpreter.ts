@@ -372,12 +372,12 @@ export default class Interpreter {
   private async interpretBMDFile({
     qrcode,
   }: BallotImageData): Promise<InterpretFileResult | undefined> {
-    if (typeof detect(qrcode.data) === 'undefined') {
+    if (!detect(qrcode.data)) {
       return
     }
 
     debug('decoding BMD ballot: %o', qrcode)
-    const { ballot } = decodeBallot(this.election, qrcode.data)
+    const ballot = decodeBallot(this.election, qrcode.data)
     debug('decoded BMD ballot: %o', ballot.votes)
 
     return {

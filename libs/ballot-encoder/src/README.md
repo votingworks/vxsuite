@@ -1,4 +1,4 @@
-# Ballot Encoder v1
+# Ballot Encoder Data Format
 
 Ballot choice encoding uses a binary format for maximum compactness. Only the
 choices made by the voter are encoded. None of the questions or candidate names
@@ -27,7 +27,7 @@ are encoded as that data is shared by both the encoder and decoder.
 
 ## Structure
 
-See `CompletedBallot` in [election.ts](../election.ts) for the data structures
+See `CompletedBallot` in [election.ts](../../types/src/election.ts) for the data structures
 used to represent a completed ballot in memory. Given `E` (an `Election`) and
 `V` (a `Votes`) corresponding to `E`, `V` is encoded as follows:
 
@@ -99,7 +99,7 @@ vvvvvvvv vvvvvvvv          vvvvvvvv                   vvvvvvvv
 01010110 01011000 00000001 00000010 00110001 00110010 00000010 00110010 00110011
                   ^^^^^^^^          ^^^^^^^^ ^^^^^^^^          ^^^^^^^^ ^^^^^^^^
                   ||||||||          |||||||| ||||||||          |||||||| ||||||||
-                  Encoding v1         '1'      '2'               '2'      '3'
+                  Encoding version    '1'      '2'               '2'      '3'
 
 Ballot ID length
 ||||||||

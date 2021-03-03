@@ -1,4 +1,4 @@
-import { v1 } from '@votingworks/ballot-encoder'
+import { HMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import {
   AnyContest,
   Candidate,
@@ -49,7 +49,7 @@ export interface BallotLocales {
   secondary?: string
 }
 
-export type BallotPageMetadata = v1.HMPBBallotPageMetadata
+export type BallotPageMetadata = HMPBBallotPageMetadata
 
 export interface BallotPageContestLayout {
   bounds: Rect

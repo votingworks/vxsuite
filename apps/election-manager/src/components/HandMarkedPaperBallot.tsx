@@ -25,7 +25,10 @@ import {
   Candidate,
 } from '@votingworks/types'
 
-import { v1 } from '@votingworks/ballot-encoder'
+import {
+  encodeHMPBBallotPageMetadata,
+  HMPBBallotPageMetadata,
+} from '@votingworks/ballot-encoder'
 import AppContext from '../contexts/AppContext'
 
 import findPartyById from '../utils/findPartyById'
@@ -122,7 +125,7 @@ const BlankPageContent = styled.div`
   height: 100%;
 `
 
-type HMPBBallotMetadata = Omit<v1.HMPBBallotPageMetadata, 'pageNumber'>
+type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>
 
 interface PagedJSPage {
   element: HTMLElement
@@ -192,7 +195,7 @@ class PostRenderBallotProcessor extends Handler {
           ballotId,
         }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
 
-        const encoded = v1.encodeHMPBBallotPageMetadata(election, {
+        const encoded = encodeHMPBBallotPageMetadata(election, {
           electionHash: electionHash.substring(0, 20),
           ballotStyleId,
           precinctId,
