@@ -150,7 +150,7 @@ Array [
     "contestId": "schoolboard-liberty",
     "metadata": Object {
       "ballots": 1260,
-      "overvotes": 180,
+      "overvotes": 360,
       "undervotes": 270,
     },
     "tallies": Object {
@@ -315,7 +315,7 @@ Array [
     "contestId": "schoolboard-constitution",
     "metadata": Object {
       "ballots": 2100,
-      "overvotes": 300,
+      "overvotes": 600,
       "undervotes": 450,
     },
     "tallies": Object {
@@ -472,7 +472,7 @@ Array [
     "contestId": "schoolboard-federalist",
     "metadata": Object {
       "ballots": 420,
-      "overvotes": 60,
+      "overvotes": 120,
       "undervotes": 90,
     },
     "tallies": Object {
@@ -786,7 +786,7 @@ Array [
     "contestId": "schoolboard-federalist",
     "metadata": Object {
       "ballots": 420,
-      "overvotes": 60,
+      "overvotes": 120,
       "undervotes": 90,
     },
     "tallies": Object {
@@ -985,7 +985,7 @@ Array [
     "contestId": "schoolboard-liberty",
     "metadata": Object {
       "ballots": 420,
-      "overvotes": 60,
+      "overvotes": 120,
       "undervotes": 90,
     },
     "tallies": Object {
