@@ -170,8 +170,9 @@ export enum AdjudicationReason {
 export const BallotTypeMaximumValue = (1 << 4) - 1
 
 export interface CompletedBallot {
-  readonly ballotStyle: BallotStyle
-  readonly precinct: Precinct
+  readonly electionHash: string
+  readonly ballotStyleId: BallotStyle['id']
+  readonly precinctId: Precinct['id']
   readonly ballotId: string
   readonly votes: VotesDict
   readonly isTestMode: boolean

@@ -7,7 +7,6 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  getPrecinctById,
   MsEitherNeitherContest,
   YesNoContest,
   YesNoOption,
@@ -410,25 +409,13 @@ export default class Interpreter {
       markScoreVoteThreshold = this.markScoreVoteThreshold,
     }: { markScoreVoteThreshold?: number }
   ): CompletedBallot {
-    const { election } = this
-    const ballotStyle = defined(
-      getBallotStyle({
-        ballotStyleId: metadata.ballotStyleId,
-        election,
-      })
-    )
-    const precinct = defined(
-      getPrecinctById({
-        election,
-        precinctId: metadata.precinctId,
-      })
-    )
     return {
+      electionHash: metadata.electionHash,
       ballotId: uuid(),
-      ballotStyle,
+      ballotStyleId: metadata.ballotStyleId,
       ballotType: BallotType.Standard,
       isTestMode: metadata.isTestMode,
-      precinct,
+      precinctId: metadata.precinctId,
       votes: getVotesFromMarks(marks, { markScoreVoteThreshold }),
     }
   }

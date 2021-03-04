@@ -226,6 +226,7 @@ const PrintBallot: React.FC<Props> = ({
   const {
     election,
     election: { county, date, seal, sealURL, state, parties, title },
+    electionHash,
   } = electionDefinition
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     ballotStyleId,
@@ -235,9 +236,10 @@ const PrintBallot: React.FC<Props> = ({
   const contests = getContests({ ballotStyle, election })
   const precinct = getPrecinctById({ election, precinctId })!
   const encodedBallot = encodeBallot(election, {
-    precinct,
+    electionHash,
+    precinctId,
     ballotId: '',
-    ballotStyle,
+    ballotStyleId,
     votes,
     isTestMode: !isLiveMode,
     ballotType: BallotType.Standard,

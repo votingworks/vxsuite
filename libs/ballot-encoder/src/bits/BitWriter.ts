@@ -1,7 +1,7 @@
 import BitCursor from './BitCursor'
-import { Uint8, Uint1, Uint8Size } from './types'
-import { sizeof, makeMasks, toUint8 } from './utils'
-import { UTF8Encoding, Encoding } from './encoding'
+import { Encoding, UTF8Encoding } from './encoding'
+import { Uint1, Uint8, Uint8Size } from './types'
+import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils'
 
 /**
  * Writes structured data into a `Uint8Array`. Data is written in little-endian
@@ -112,29 +112,60 @@ export default class BitWriter {
   }
 
   /**
-   * Writes string data with an encoding and maximum length. By default, the
-   * encoding used will be UTF-8. If your string has a restricted character set,
-   * you can use your own `CustomEncoding` to read and write the string more
-   * compactly than you otherwise would be able to.
+   * Writes string data either with a known length or length-prefixed up to a
+   * maximum length. By default, the encoding used will be UTF-8. If your string
+   * has a restricted character set, you can use your own `CustomEncoding` to
+   * read and write the string more compactly than you otherwise would be able
+   * to.
    *
-   * It is important to remember that the `encoding` and `maxLength` options
-   * must be the same for `readString` and `writeString` calls, otherwise
-   * reading the string will very likely fail or be corrupt.
+   * It is important to remember that the options must match for `readString`
+   * and `writeString` calls, otherwise reading the string will very likely fail
+   * or be corrupt.
    *
    * @example
    *
-   * bits.writeString('hi') // uses utf-8, writes '0110100001101001'
+   *                                              length=2 'h'      'i'
+   *                                              ↓        ↓        ↓
+   * bits.writeString('hi') // uses utf-8, writes 00000010 01101000 01101001
+   *
+   *                                                                        'h'      'i'
+   *                                                                        ↓        ↓
+   * bits.writeString('hi', { includeLength: false }) // uses utf-8, writes 01101000 01101001
    *
    * const encoding = new CustomEncoding('hi')
-   * bits.writeString('hi') // uses custom encoding, writes '01'
+   * bits.writeString('hi', { maxLength: 4 }) // uses custom encoding, writes 1001
+   *                                                                          ↑ ↑↑
+   *                                                                   length=2 'h''i'
    */
+  public writeString(string: string): this
+  public writeString(string: string, options: { encoding?: Encoding }): this
+  public writeString(
+    string: string,
+    options: { encoding?: Encoding; includeLength: false; length: number }
+  ): this
+
+  public writeString(
+    string: string,
+    options: {
+      encoding?: Encoding
+      includeLength?: true
+      maxLength?: number
+    }
+  ): this
+
   public writeString(
     string: string,
     {
       encoding = UTF8Encoding,
       maxLength = (1 << Uint8Size) - 1,
       includeLength = true,
-    }: { encoding?: Encoding; maxLength?: number; includeLength?: boolean } = {}
+      length,
+    }: {
+      encoding?: Encoding
+      maxLength?: number
+      includeLength?: boolean
+      length?: number
+    } = {}
   ): this {
     const codes = encoding.encode(string)
 
@@ -147,6 +178,10 @@ export default class BitWriter {
       }
 
       this.writeUint(codes.length, { max: maxLength })
+    } else if (string.length !== length) {
+      throw new Error(
+        `string length (${string.length}) does not match known length (${length}); an explicit length must be provided when includeLength=false as a safe-guard`
+      )
     }
 
     // write content
@@ -219,14 +254,4 @@ export default class BitWriter {
     )
     return this
   }
-}
-
-function inGroupsOf<T>(count: number, array: T[]): T[][] {
-  const result: T[][] = []
-
-  for (let i = 0; i < array.length; i += count) {
-    result.push(array.slice(i, i + count))
-  }
-
-  return result
 }

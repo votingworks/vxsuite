@@ -81,7 +81,9 @@ const testCaseFactories = {
 
     return [
       [{ method: 'writeString', args: [string, { maxLength }] }],
-      [{ method: 'readString', args: [{ maxLength }], returnValue: string }],
+      // This `as any` is here because `readString` is overloaded and TS cannot
+      // infer the parameters correctly in this instance.
+      [{ method: 'readString', args: [{ maxLength }] as any, returnValue: string }],
     ]
   },
 

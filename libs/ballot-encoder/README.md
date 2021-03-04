@@ -36,8 +36,8 @@ const votes = vote(contests, {
 })
 const ballot: CompletedBallot = {
   ballotId,
-  ballotStyle,
-  precinct,
+  ballotStyleId: ballotStyle.id,
+  precinctId: precinct.id,
   votes,
 }
 
@@ -50,7 +50,7 @@ Uint8Array [
 ]
 */
 
-console.log(decodeBallot(election, encodeBallot(ballot)).ballot.votes)
+console.log(decodeBallot(election, encodeBallot(ballot)).votes)
 /*
 {
   '102': 'yes',

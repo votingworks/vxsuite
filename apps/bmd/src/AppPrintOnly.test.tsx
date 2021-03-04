@@ -218,9 +218,10 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(
     createVoterCard(),
     encodeBallot(election, {
+      electionHash,
       ballotId: 'test-ballot-id',
-      ballotStyle: election.ballotStyles[0],
-      precinct: election.precincts[0],
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.precincts[0].id,
       votes: sampleVotes1,
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -253,9 +254,10 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(
     createVoterCard(),
     encodeBallot(election, {
+      electionHash,
       ballotId: 'test-ballot-id',
-      ballotStyle: election.ballotStyles[0],
-      precinct: election.precincts[0],
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.precincts[0].id,
       votes: sampleVotes2,
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -285,9 +287,10 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(
     createVoterCard(),
     encodeBallot(election, {
+      electionHash,
       ballotId: 'test-ballot-id',
-      ballotStyle: election.ballotStyles[0],
-      precinct: election.precincts[0],
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.precincts[0].id,
       votes: sampleVotes3,
       isTestMode: true,
       ballotType: BallotType.Standard,
@@ -315,9 +318,10 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(
     createVoterCard(),
     encodeBallot(election, {
+      electionHash,
       ballotId: 'test-ballot-id',
-      ballotStyle: election.ballotStyles[0],
-      precinct: election.precincts[0],
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.precincts[0].id,
       votes: {},
       isTestMode: true,
       ballotType: BallotType.Standard,

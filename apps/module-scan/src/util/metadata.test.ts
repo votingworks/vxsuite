@@ -29,9 +29,10 @@ test('normalizing sheet metadata', () => {
   }
   const bmdQrcode: BallotPageQrcode = {
     data: encodeBallot(election, {
+      electionHash,
       ballotId: '',
-      ballotStyle: election.ballotStyles[0],
-      precinct: election.precincts[0],
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.precincts[0].id,
       ballotType: BallotType.Standard,
       isTestMode: false,
       votes: {},
