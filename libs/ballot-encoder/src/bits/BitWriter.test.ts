@@ -58,7 +58,7 @@ test('can write a utf-8 string', () => {
 test('can write a utf-8 string without a preceding length', () => {
   expect(
     new BitWriter()
-      .writeString('abcdé', { includeLength: false })
+      .writeString('abcdé', { includeLength: false, length: 5 })
       .toUint8Array()
   ).toEqual(
     Uint8Array.of(
@@ -104,6 +104,14 @@ test('cannot write a uint that requires more bits than `size` option', () => {
   expect(() => {
     new BitWriter().writeUint(4, { size: 2 })
   }).toThrowError('overflow: 4 cannot fit in 2 bits')
+})
+
+test('must provide an expected string length when omitting the length', () => {
+  expect(() => {
+    new BitWriter().writeString('abc', { includeLength: false, length: 2 })
+  }).toThrowError(
+    'string length (3) does not match known length (2); an explicit length must be provided when includeLength=false as a safe-guard'
+  )
 })
 
 test('can write a string with a custom character set', () => {

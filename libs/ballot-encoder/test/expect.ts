@@ -6,9 +6,12 @@ declare namespace jest {
 }
 
 function asBinaryString(buffer: Uint8Array): string {
-  return Array.from(buffer)
-    .map((n) => n.toString(2).padStart(8, '0'))
-    .join('')
+  return inGroupsOf(
+    8,
+    Array.from(buffer).map((n) => n.toString(2).padStart(8, '0'))
+  )
+    .map((group) => group.join(' '))
+    .join('\n')
 }
 
 expect.extend({
@@ -24,3 +27,16 @@ expect.extend({
     }
   },
 })
+
+/**
+ * Groups `array` into arrays of size `count`.
+ */
+function inGroupsOf<T>(count: number, array: T[]): T[][] {
+  const result: T[][] = []
+
+  for (let i = 0; i < array.length; i += count) {
+    result.push(array.slice(i, i + count))
+  }
+
+  return result
+}

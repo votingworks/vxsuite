@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import {
   BitReader,
   BitWriter,
@@ -30,6 +31,7 @@ import {
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 export const MAXIMUM_PAGE_NUMBERS = 30
+export const ELECTION_HASH_LENGTH = 20
 
 // pad this locale array so the same code can later be upgraded
 // to support other languages without breaking previously printed ballots
@@ -46,7 +48,7 @@ export const HexEncoding = new CustomEncoding('0123456789abcdef')
 export const Prelude: readonly Uint8[] = [
   /* V */ 86,
   /* X */ 88,
-  /* version = */ 1,
+  /* version = */ 2,
 ]
 
 export const HMPBPrelude: readonly Uint8[] = [
@@ -67,6 +69,186 @@ export function detect(data: Uint8Array): boolean {
   )
 }
 
+export interface BallotConfig {
+  ballotId?: string
+  ballotStyleId: string
+  ballotType: BallotType
+  isTestMode: boolean
+  locales?: BallotLocale
+  pageNumber?: number
+  precinctId: string
+}
+
+export function encodeBallotConfigInto(
+  election: Election,
+  {
+    ballotId,
+    ballotStyleId,
+    ballotType,
+    isTestMode,
+    locales,
+    pageNumber,
+    precinctId,
+  }: BallotConfig,
+  bits: BitWriter
+): BitWriter {
+  const { precincts, ballotStyles, contests } = election
+  const precinctCount = toUint8(precincts.length)
+  const ballotStyleCount = toUint8(ballotStyles.length)
+  const contestCount = toUint8(contests.length)
+  const precinctIndex = precincts.findIndex((p) => p.id === precinctId)
+  const ballotStyleIndex = ballotStyles.findIndex(
+    (bs) => bs.id === ballotStyleId
+  )
+
+  if (precinctIndex === -1) {
+    throw new Error(`precinct ID not found: ${precinctId}`)
+  }
+
+  if (ballotStyleIndex === -1) {
+    throw new Error(`ballot style ID not found: ${ballotStyleId}`)
+  }
+
+  bits
+    .writeUint8(precinctCount, ballotStyleCount, contestCount)
+    .writeUint(precinctIndex, { max: precinctCount - 1 })
+    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 })
+
+  if (locales) {
+    const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary)
+    const secondaryLocaleIndex = locales.secondary
+      ? SUPPORTED_LOCALES.indexOf(locales.secondary)
+      : undefined
+
+    if (primaryLocaleIndex === -1) {
+      throw new Error(`primary locale not found: ${locales.primary}`)
+    }
+
+    if (secondaryLocaleIndex === -1) {
+      throw new Error(`secondary locale not found: ${locales.secondary}`)
+    }
+
+    bits
+      .writeUint(primaryLocaleIndex, { max: SUPPORTED_LOCALES.length - 1 })
+      .writeBoolean(!!secondaryLocaleIndex)
+
+    if (secondaryLocaleIndex) {
+      bits.writeUint(secondaryLocaleIndex, {
+        max: SUPPORTED_LOCALES.length - 1,
+      })
+    }
+  }
+
+  if (typeof pageNumber === 'number') {
+    bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS })
+  }
+
+  bits
+    .writeBoolean(isTestMode)
+    .writeUint(ballotType, { max: BallotTypeMaximumValue })
+
+  bits.writeBoolean(!!ballotId)
+
+  if (ballotId) {
+    bits.writeString(ballotId)
+  }
+
+  return bits
+}
+
+export function decodeBallotConfigFromReader(
+  election: Election,
+  {
+    readLocales,
+    readPageNumber,
+  }: { readLocales: false; readPageNumber: false },
+  bits: BitReader
+): BallotConfig & { locales: undefined; pageNumber: undefined }
+export function decodeBallotConfigFromReader(
+  election: Election,
+  { readLocales, readPageNumber }: { readLocales: false; readPageNumber: true },
+  bits: BitReader
+): BallotConfig & { locales: undefined; pageNumber: number }
+export function decodeBallotConfigFromReader(
+  election: Election,
+  { readLocales, readPageNumber }: { readLocales: true; readPageNumber: false },
+  bits: BitReader
+): BallotConfig & { locales: BallotLocale; pageNumber: undefined }
+export function decodeBallotConfigFromReader(
+  election: Election,
+  { readLocales, readPageNumber }: { readLocales: true; readPageNumber: true },
+  bits: BitReader
+): BallotConfig & { locales: BallotLocale; pageNumber: number }
+export function decodeBallotConfigFromReader(
+  election: Election,
+  {
+    readLocales,
+    readPageNumber,
+  }: { readLocales: boolean; readPageNumber: boolean },
+  bits: BitReader
+): BallotConfig {
+  const { precincts, ballotStyles, contests } = election
+  const precinctCount = bits.readUint8()
+  const ballotStyleCount = bits.readUint8()
+  const contestCount = bits.readUint8()
+
+  if (precinctCount !== precincts.length) {
+    throw new Error(
+      `expected ${precincts.length} precinct(s), but read ${precinctCount} from encoded config`
+    )
+  }
+
+  if (ballotStyleCount !== ballotStyles.length) {
+    throw new Error(
+      `expected ${ballotStyles.length} ballot style(s), but read ${ballotStyleCount} from encoded config`
+    )
+  }
+
+  const precinctIndex = bits.readUint({ max: precinctCount - 1 })
+  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 })
+
+  if (contestCount !== contests.length) {
+    throw new Error(
+      `expected ${contests.length} contest(s), but read ${contestCount} from encoded config`
+    )
+  }
+
+  const primaryLocaleIndex = readLocales
+    ? bits.readUint({
+        max: SUPPORTED_LOCALES.length - 1,
+      })
+    : undefined
+  const secondaryLocaleIndex =
+    readLocales && bits.readBoolean()
+      ? bits.readUint({ max: SUPPORTED_LOCALES.length - 1 })
+      : undefined
+  const pageNumber = readPageNumber
+    ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
+    : undefined
+  const isTestMode = bits.readBoolean()
+  const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
+  const ballotId = bits.readBoolean() ? bits.readString() : undefined
+
+  return {
+    ballotId,
+    ballotStyleId: ballotStyles[ballotStyleIndex].id,
+    ballotType,
+    isTestMode,
+    precinctId: precincts[precinctIndex].id,
+    locales:
+      readLocales && typeof primaryLocaleIndex === 'number'
+        ? {
+            primary: SUPPORTED_LOCALES[primaryLocaleIndex],
+            secondary:
+              typeof secondaryLocaleIndex === 'number'
+                ? SUPPORTED_LOCALES[secondaryLocaleIndex]
+                : undefined,
+          }
+        : undefined,
+    pageNumber,
+  }
+}
+
 export function encodeBallot(
   election: Election,
   ballot: CompletedBallot
@@ -79,8 +261,9 @@ export function encodeBallot(
 export function encodeBallotInto(
   election: Election,
   {
-    ballotStyle,
-    precinct,
+    electionHash,
+    ballotStyleId,
+    precinctId,
     votes,
     ballotId,
     isTestMode,
@@ -88,18 +271,37 @@ export function encodeBallotInto(
   }: CompletedBallot,
   bits: BitWriter
 ): BitWriter {
+  const ballotStyle = getBallotStyle({ election, ballotStyleId })
+
+  if (!ballotStyle) {
+    throw new Error(`unknown ballot style id: ${ballotStyleId}`)
+  }
+
   validateVotes({ election, ballotStyle, votes })
 
   const contests = getContests({ ballotStyle, election })
 
   return bits
     .writeUint8(...Prelude)
-    .writeString(ballotStyle.id)
-    .writeString(precinct.id)
-    .writeString(ballotId)
+    .writeString(electionHash.slice(0, ELECTION_HASH_LENGTH), {
+      encoding: HexEncoding,
+      includeLength: false,
+      length: ELECTION_HASH_LENGTH,
+    })
+    .with(() =>
+      encodeBallotConfigInto(
+        election,
+        {
+          ballotId,
+          ballotStyleId,
+          precinctId,
+          ballotType,
+          isTestMode,
+        },
+        bits
+      )
+    )
     .with(() => encodeBallotVotesInto(contests, votes, bits))
-    .writeBoolean(isTestMode)
-    .writeUint(ballotType, { max: BallotTypeMaximumValue })
 }
 
 function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
@@ -214,48 +416,42 @@ export function decodeBallotFromReader(
 ): CompletedBallot {
   if (!bits.skipUint8(...Prelude)) {
     throw new Error(
-      "expected leading prelude 'V' 'X' 0b00000001 but it was not found"
+      "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
     )
   }
 
-  const ballotStyleId = bits.readString()
+  const electionHash = bits.readString({
+    encoding: HexEncoding,
+    length: ELECTION_HASH_LENGTH,
+  })
+
+  const {
+    ballotId = '',
+    ballotStyleId,
+    ballotType,
+    isTestMode,
+    precinctId,
+  } = decodeBallotConfigFromReader(
+    election,
+    { readLocales: false, readPageNumber: false },
+    bits
+  )
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
-
-  if (!ballotStyle) {
-    throw new Error(
-      `ballot style with id ${JSON.stringify(
-        ballotStyleId
-      )} could not be found, expected one of: ${election.ballotStyles
-        .map((bs) => bs.id)
-        .join(', ')}`
-    )
-  }
-
-  const precinctId = bits.readString()
   const precinct = getPrecinctById({ precinctId, election })
 
-  if (!precinct) {
-    throw new Error(
-      `precinct with id ${JSON.stringify(
-        precinctId
-      )} could not be found, expected one of: ${election.precincts
-        .map((p) => p.id)
-        .join(', ')}`
-    )
-  }
+  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`)
+  assert(precinct, `invalid precinct id: ${precinctId}`)
 
-  const ballotId = bits.readString()
   const contests = getContests({ ballotStyle, election })
   const votes = decodeBallotVotes(contests, bits)
-  const isTestMode = bits.readBoolean()
-  const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
 
   readPaddingToEnd(bits)
 
   return {
+    electionHash,
     ballotId,
-    ballotStyle,
-    precinct,
+    ballotStyleId,
+    precinctId,
     votes,
     isTestMode,
     ballotType,
@@ -378,80 +574,49 @@ export function encodeHMPBBallotPageMetadata(
   election: Election,
   metadata: HMPBBallotPageMetadata
 ): Uint8Array {
-  const bits = new BitWriter()
-  encodeHMPBBallotPageMetadataInto(election, metadata, bits)
-  return bits.toUint8Array()
+  return encodeHMPBBallotPageMetadataInto(
+    election,
+    metadata,
+    new BitWriter()
+  ).toUint8Array()
 }
 
 export function encodeHMPBBallotPageMetadataInto(
   election: Election,
   {
-    electionHash,
-    precinctId,
+    ballotId,
     ballotStyleId,
+    ballotType,
+    electionHash,
+    isTestMode,
     locales,
     pageNumber,
-    isTestMode,
-    ballotType,
-    ballotId,
+    precinctId,
   }: HMPBBallotPageMetadata,
   bits: BitWriter
-): void {
-  const { precincts, ballotStyles, contests } = election
-  const precinctCount = toUint8(precincts.length)
-  const ballotStyleCount = toUint8(ballotStyles.length)
-  const contestCount = toUint8(contests.length)
-
-  const precinctIndex = precincts.findIndex((p) => p.id === precinctId)
-
-  if (precinctIndex === -1) {
-    throw new Error(`precinct ID not found: ${precinctId}`)
-  }
-
-  const ballotStyleIndex = ballotStyles.findIndex(
-    (bs) => bs.id === ballotStyleId
+): BitWriter {
+  return (
+    bits
+      .writeUint8(...HMPBPrelude)
+      // TODO: specify the length so we don't have to write a length-prefixed
+      // string, saving us a byte in the QR code.
+      .writeString(electionHash, { encoding: HexEncoding })
+      .with(() =>
+        encodeBallotConfigInto(
+          election,
+          {
+            ballotId,
+            ballotStyleId,
+            ballotType,
+            isTestMode,
+            locales,
+            pageNumber,
+            precinctId,
+          },
+          bits
+        )
+      )
   )
-
-  if (ballotStyleIndex === -1) {
-    throw new Error(`ballot style ID not found: ${ballotStyleId}`)
-  }
-
-  const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary)
-  const secondaryLocaleIndex = locales.secondary
-    ? SUPPORTED_LOCALES.indexOf(locales.secondary)
-    : undefined
-
-  if (primaryLocaleIndex === -1) {
-    throw new Error(`primary locale not found: ${locales.primary}`)
-  }
-
-  if (secondaryLocaleIndex === -1) {
-    throw new Error(`secondary locale not found: ${locales.secondary}`)
-  }
-
-  bits
-    .writeUint8(...HMPBPrelude)
-    .writeString(electionHash, { encoding: HexEncoding })
-    .writeUint8(precinctCount, ballotStyleCount, contestCount)
-    .writeUint(precinctIndex, { max: precinctCount - 1 })
-    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 })
-    .writeUint(primaryLocaleIndex, { max: SUPPORTED_LOCALES.length - 1 })
-    .writeBoolean(!!secondaryLocaleIndex)
-
-  if (secondaryLocaleIndex) {
-    bits.writeUint(secondaryLocaleIndex, { max: SUPPORTED_LOCALES.length - 1 })
-  }
-
-  bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS })
-
-  bits
-    .writeBoolean(isTestMode)
-    .writeUint(ballotType, { max: BallotTypeMaximumValue })
-    .writeBoolean(!!ballotId)
-
-  if (ballotId) {
-    bits.writeString(ballotId)
-  }
 }
 
 /**
@@ -471,29 +636,6 @@ export function detectHMPBBallotPageMetadataFromReader(
   return bits.skipUint8(...HMPBPrelude)
 }
 
-export function decodeHMPBBallotPageMetadataCheckData(
-  data: Uint8Array
-): HMPBBallotPageMetadataCheckData {
-  return decodeHMPBBallotPageMetadataCheckDataFromReader(new BitReader(data))
-}
-
-export function decodeHMPBBallotPageMetadataCheckDataFromReader(
-  bits: BitReader
-): HMPBBallotPageMetadataCheckData {
-  if (!detectHMPBBallotPageMetadataFromReader(bits)) {
-    throw new Error(
-      "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
-    )
-  }
-
-  return {
-    electionHash: bits.readString({ encoding: HexEncoding }),
-    precinctCount: bits.readUint8(),
-    ballotStyleCount: bits.readUint8(),
-    contestCount: bits.readUint8(),
-  }
-}
-
 export function decodeHMPBBallotPageMetadata(
   election: Election,
   data: Uint8Array
@@ -505,37 +647,32 @@ export function decodeHMPBBallotPageMetadataFromReader(
   election: Election,
   bits: BitReader
 ): HMPBBallotPageMetadata {
-  const precincts = election.precincts
-  const ballotStyles = election.ballotStyles
+  if (!detectHMPBBallotPageMetadataFromReader(bits)) {
+    throw new Error(
+      "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
+    )
+  }
 
+  const electionHash = bits.readString({ encoding: HexEncoding })
   const {
-    electionHash,
-    ballotStyleCount,
-    precinctCount,
-  } = decodeHMPBBallotPageMetadataCheckDataFromReader(bits)
-  const precinctIndex = bits.readUint({ max: precinctCount - 1 })
-  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 })
-  const primaryLocaleIndex = bits.readUint({
-    max: SUPPORTED_LOCALES.length - 1,
-  })
-  const secondaryLocaleIndex = bits.readBoolean()
-    ? bits.readUint({ max: SUPPORTED_LOCALES.length - 1 })
-    : undefined
-  const pageNumber = bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
-  const isTestMode = bits.readBoolean()
-  const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
-  const ballotId = bits.readBoolean() ? bits.readString() : undefined
+    ballotId,
+    ballotStyleId,
+    ballotType,
+    isTestMode,
+    locales,
+    pageNumber,
+    precinctId,
+  } = decodeBallotConfigFromReader(
+    election,
+    { readLocales: true, readPageNumber: true },
+    bits
+  )
 
   return {
     electionHash,
-    precinctId: precincts[precinctIndex].id,
-    ballotStyleId: ballotStyles[ballotStyleIndex].id,
-    locales: {
-      primary: SUPPORTED_LOCALES[primaryLocaleIndex],
-      secondary: secondaryLocaleIndex
-        ? SUPPORTED_LOCALES[secondaryLocaleIndex]
-        : undefined,
-    },
+    precinctId,
+    ballotStyleId,
+    locales,
     pageNumber,
     isTestMode,
     ballotType,

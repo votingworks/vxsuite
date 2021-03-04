@@ -86,14 +86,15 @@ export default class BitReader {
   }
 
   /**
-   * Reads a length-prefixed string with an encoding and maximum length. By
-   * default, the encoding used will be UTF-8. If your string has a restricted
-   * character set, you can use your own `CustomEncoding` to read and write the
-   * string more compactly than you otherwise would be able to.
+   * Reads a string, either with a known length or by reading a length up to a
+   * given maximum. By default, the encoding used will be UTF-8. If your string
+   * has a restricted character set, you can use your own `CustomEncoding` to
+   * read and write the string more compactly than you otherwise would be able
+   * to.
    *
-   * It is important to remember that the `encoding` and `maxLength` options
-   * must be the same for `readString` and `writeString` calls, otherwise
-   * reading the string will very likely fail or be corrupt.
+   * It is important to remember that the options must be the same for
+   * `readString` and `writeString` calls, otherwise reading the string will
+   * very likely fail or be corrupt.
    *
    * @example
    *
@@ -107,12 +108,30 @@ export default class BitReader {
    * const bits = new BitReader(Uint8Array.of(2, 0b01000000))
    * const encoding = new CustomEncoding('hi')    // ↑↑↑↑↑↑
    * bits.readString() // "hi"                       padding
+   *
+   *                                  //     'h'  'i'
+   *                                  //      ↓    ↓
+   * const bits = new BitReader(Uint8Array.of(104, 105))
+   * bits.readString({ length: 2 }) // "hi"
    */
+  public readString(): string
+  public readString(options: { encoding?: Encoding }): string
+  public readString(options: {
+    encoding?: Encoding
+    maxLength?: number
+  }): string
+
+  public readString(options: { encoding?: Encoding; length?: number }): string
   public readString({
     encoding = UTF8Encoding,
     maxLength = (1 << Uint8Size) - 1,
-  }: { encoding?: Encoding; maxLength?: number } = {}): string {
-    const length = this.readUint({ max: maxLength })
+    length,
+  }: {
+    encoding?: Encoding
+    maxLength?: number
+    length?: number
+  } = {}): string {
+    length ??= this.readUint({ max: maxLength })
     const codes = new Uint8Array(length)
 
     for (let i = 0; i < length; i += 1) {
