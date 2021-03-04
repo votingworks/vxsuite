@@ -1,6 +1,6 @@
 import BitCursor from './BitCursor'
 import { Uint8, Uint1, Uint8Size } from './types'
-import { sizeof, makeMasks } from './utils'
+import { sizeof, makeMasks, toUint8 } from './utils'
 import { UTF8Encoding, Encoding } from './encoding'
 
 /**
@@ -13,6 +13,16 @@ export default class BitWriter {
   private nextByte: Uint8 = 0b00000000
 
   /**
+   * Append `byte` to the internal buffer.
+   */
+  private appendByte(byte: Uint8): void {
+    const nextData = new Uint8Array(this.data.length + 1)
+    nextData.set(this.data)
+    nextData[this.data.length] = byte
+    this.data = nextData
+  }
+
+  /**
    * Writes bits.
    */
   public writeUint1(...uint1s: Uint1[]): this {
@@ -22,7 +32,7 @@ export default class BitWriter {
       this.cursor.next()
 
       if (this.cursor.isByteStart) {
-        this.data = Uint8Array.of(...Array.from(this.data), this.nextByte)
+        this.appendByte(toUint8(this.nextByte))
         this.nextByte = 0b00000000
       }
     }
@@ -90,7 +100,7 @@ export default class BitWriter {
     }
 
     if (size === Uint8Size && this.cursor.isByteStart) {
-      this.data = Uint8Array.of(...Array.from(this.data), number)
+      this.appendByte(toUint8(number))
       this.cursor.advance(Uint8Size)
     } else {
       for (const mask of makeMasks(size)) {
@@ -126,7 +136,7 @@ export default class BitWriter {
       includeLength = true,
     }: { encoding?: Encoding; maxLength?: number; includeLength?: boolean } = {}
   ): this {
-    const codes = Array.from(encoding.encode(string))
+    const codes = encoding.encode(string)
 
     // write length
     if (includeLength) {
@@ -167,10 +177,15 @@ export default class BitWriter {
    */
   public toUint8Array(): Uint8Array {
     const pendingByte = this.getPendingByte()
-    return Uint8Array.of(
-      ...Array.from(this.data),
-      ...(typeof pendingByte !== 'undefined' ? [pendingByte] : [])
-    )
+
+    if (typeof pendingByte === 'undefined') {
+      return Uint8Array.from(this.data)
+    } else {
+      const result = new Uint8Array(this.data.length + 1)
+      result.set(this.data)
+      result[this.data.length] = pendingByte
+      return result
+    }
   }
 
   /**
