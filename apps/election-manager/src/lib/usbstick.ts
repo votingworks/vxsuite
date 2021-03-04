@@ -11,16 +11,13 @@ export enum UsbDriveStatus {
   ejecting = 'ejecting',
 }
 
-const getDevice = async () => {
-  return (await window.kiosk!.getUsbDrives())[0]
+const getDevice = async (): Promise<KioskBrowser.UsbDrive | undefined> => {
+  return (await window.kiosk?.getUsbDrives())?.[0]
 }
 
 export const getDevicePath = async (): Promise<string | undefined> => {
-  if (!isAvailable()) {
-    return
-  }
   const device = await getDevice()
-  return device.mountPoint
+  return device?.mountPoint
 }
 
 export const getStatus = async (): Promise<UsbDriveStatus> => {
@@ -41,12 +38,8 @@ export const getStatus = async (): Promise<UsbDriveStatus> => {
 }
 
 export const doMount = async (): Promise<void> => {
-  if (!isAvailable()) {
-    return
-  }
-
   const device = await getDevice()
-  if (device.mountPoint) {
+  if (!device || device?.mountPoint) {
     return
   }
 
@@ -54,12 +47,8 @@ export const doMount = async (): Promise<void> => {
 }
 
 export const doUnmount = async (): Promise<void> => {
-  if (!isAvailable()) {
-    return
-  }
-
   const device = await getDevice()
-  if (!device.mountPoint) {
+  if (!device?.mountPoint) {
     return
   }
 
