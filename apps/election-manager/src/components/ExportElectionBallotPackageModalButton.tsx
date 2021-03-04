@@ -116,9 +116,9 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     }
     try {
       const usbPath = await getDevicePath()
-      const pathToFolder = path.join(usbPath!, BALLOT_PACKAGES_FOLDER)
-      const pathToFile = path.join(pathToFolder, defaultFileName)
-      if (openDialog) {
+      const pathToFolder = usbPath && path.join(usbPath, BALLOT_PACKAGES_FOLDER)
+      const pathToFile = path.join(pathToFolder ?? '.', defaultFileName)
+      if (openDialog || !pathToFolder) {
         await state.archive.beginWithDialog({
           defaultPath: pathToFile,
           filters: [{ name: 'Archive Files', extensions: ['zip'] }],
@@ -161,7 +161,12 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage src="usb-drive.svg" alt="Insert USB Image" />
+                <USBImage
+                  src="usb-drive.svg"
+                  alt="Insert USB Image"
+                  // hidden feature to export with file dialog by double-clicking
+                  onDoubleClick={() => saveFileCallback(true)}
+                />
                 Please insert a USB drive in order to export the ballot
                 configuration.
               </p>
