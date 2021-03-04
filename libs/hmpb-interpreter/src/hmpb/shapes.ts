@@ -23,8 +23,12 @@ export interface Shape {
 export function findShape(
   imageData: ImageData,
   startingPoint: Point,
-  visitedPoints = new VisitedPoints(imageData.width, imageData.height),
-  { color = PIXEL_BLACK } = {}
+  {
+    visitedPoints = new VisitedPoints(imageData.width, imageData.height),
+    color = PIXEL_BLACK,
+    maximumSkipDistance = 0,
+    maximumAllowedSkipCount = 0,
+  } = {}
 ): Shape {
   const toVisit: Point[] = [startingPoint]
   const points = new VisitedPoints(imageData.width, imageData.height)
@@ -39,6 +43,7 @@ export function findShape(
   let yMin = startingPoint.y
   let xMax = startingPoint.x
   let yMax = startingPoint.y
+  let remainingSkipCount = maximumAllowedSkipCount
 
   for (let point: Point | undefined; (point = toVisit.shift()); point) {
     const { x, y } = point
@@ -77,6 +82,7 @@ export function findShape(
         bottomEdge[x] = y
       }
 
+      let found = false
       for (const xD of [-1, 0, 1]) {
         for (const yD of [-1, 0, 1]) {
           const nextX = x + xD
@@ -87,10 +93,45 @@ export function findShape(
             nextY > 0 &&
             nextX < width &&
             nextY < height &&
+            data[(nextX + nextY * width) * channel] === color &&
             !points.has(nextX, nextY)
           ) {
+            found = true
             toVisit.push({ x: nextX, y: nextY })
           }
+        }
+      }
+
+      if (!found && remainingSkipCount > 0) {
+        for (
+          let xD = -maximumSkipDistance - 1;
+          xD <= maximumSkipDistance + 1;
+          xD++
+        ) {
+          for (
+            let yD = -maximumSkipDistance - 1;
+            yD <= maximumSkipDistance + 1;
+            yD++
+          ) {
+            const nextX = x + xD
+            const nextY = y + yD
+
+            if (
+              nextX > 0 &&
+              nextY > 0 &&
+              nextX < width &&
+              nextY < height &&
+              data[(nextX + nextY * width) * channel] === color &&
+              !points.has(nextX, nextY)
+            ) {
+              found = true
+              toVisit.push({ x: nextX, y: nextY })
+            }
+          }
+        }
+
+        if (found) {
+          remainingSkipCount--
         }
       }
     }

@@ -4,13 +4,39 @@ import {
 } from '../../test/fixtures/choctaw-county-2020-general-election'
 import findContests from './findContests'
 
-test('rejects contests that read as non-rectangular', async () => {
+test('repairs contests with small gaps', async () => {
   expect([
     ...findContests(await filledInPage2_05.imageData(), {
       columns: [true, true],
     }),
   ]).toMatchInlineSnapshot(`
     Array [
+      Object {
+        "bounds": Object {
+          "height": 2434,
+          "width": 1246,
+          "x": 1,
+          "y": 83,
+        },
+        "corners": Array [
+          Object {
+            "x": 78,
+            "y": 90,
+          },
+          Object {
+            "x": 1236,
+            "y": 83,
+          },
+          Object {
+            "x": 83,
+            "y": 2516,
+          },
+          Object {
+            "x": 1246,
+            "y": 2508,
+          },
+        ],
+      },
       Object {
         "bounds": Object {
           "height": 805,
@@ -77,7 +103,7 @@ test('handles fold lines sticking out of a contest', async () => {
       Object {
         "bounds": Object {
           "height": 2434,
-          "width": 1237,
+          "width": 1241,
           "x": 78,
           "y": 70,
         },

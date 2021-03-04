@@ -32,7 +32,7 @@ export default function* findTargets(
   let lastShape: Shape | undefined
 
   for (let y = bounds.y + bounds.height - inset; y > bounds.y; y--) {
-    const shape = findShape(ballotImage, { x, y }, visitedPoints)
+    const shape = findShape(ballotImage, { x, y }, { visitedPoints })
 
     if (shape.bounds.width === 0 || shape.bounds.height === 0) {
       continue
@@ -94,7 +94,6 @@ export default function* findTargets(
       const innerShape = findShape(
         ballotImage,
         rectCenter(shape.bounds, { round: true }),
-        undefined,
         { color: PIXEL_WHITE }
       )
       lastShape = shape

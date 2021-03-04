@@ -1,6 +1,6 @@
 import * as fixtures from '../../test/fixtures/choctaw-county-2020-general-election'
 import { Corners } from '../types'
-import { binarize } from '../utils/binarize'
+import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize'
 import { findShape, parseRectangle } from './shapes'
 
 test('target size', async () => {
@@ -89,6 +89,82 @@ test('parseRectangle with very skewed rectangle', () => {
         1.7681918866447774,
       ],
       "isRectangle": true,
+    }
+  `)
+})
+
+test('findShape skipping gaps', () => {
+  const imageData: ImageData = {
+    data: Uint8ClampedArray.of(
+      ...[PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_BLACK, PIXEL_BLACK, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_BLACK, PIXEL_BLACK, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_BLACK, PIXEL_BLACK, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE, PIXEL_WHITE],
+      ...[PIXEL_WHITE, PIXEL_BLACK, PIXEL_BLACK, PIXEL_WHITE]
+    ),
+    width: 4,
+    height: 9,
+  }
+
+  // no gap skipping
+  expect(findShape(imageData, { x: 1, y: 1 }).bounds).toMatchInlineSnapshot(`
+    Object {
+      "height": 1,
+      "width": 2,
+      "x": 1,
+      "y": 1,
+    }
+  `)
+
+  // skip 1px gaps once
+  expect(
+    findShape(
+      imageData,
+      { x: 1, y: 1 },
+      { maximumSkipDistance: 1, maximumAllowedSkipCount: 1 }
+    ).bounds
+  ).toMatchInlineSnapshot(`
+    Object {
+      "height": 3,
+      "width": 2,
+      "x": 1,
+      "y": 1,
+    }
+  `)
+
+  // skip 1px gaps twice
+  expect(
+    findShape(
+      imageData,
+      { x: 1, y: 1 },
+      { maximumSkipDistance: 1, maximumAllowedSkipCount: 2 }
+    ).bounds
+  ).toMatchInlineSnapshot(`
+    Object {
+      "height": 5,
+      "width": 2,
+      "x": 1,
+      "y": 1,
+    }
+  `)
+
+  // skip 2px gaps thrice
+  expect(
+    findShape(
+      imageData,
+      { x: 1, y: 1 },
+      { maximumSkipDistance: 2, maximumAllowedSkipCount: 3 }
+    ).bounds
+  ).toMatchInlineSnapshot(`
+    Object {
+      "height": 8,
+      "width": 2,
+      "x": 1,
+      "y": 1,
     }
   `)
 })

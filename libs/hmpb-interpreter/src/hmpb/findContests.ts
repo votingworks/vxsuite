@@ -93,7 +93,11 @@ export default function* findContests(
         break
       }
 
-      const shape = findShape(ballotImage, { x: columnMidX, y }, visitedPoints)
+      const shape = findShape(
+        ballotImage,
+        { x: columnMidX, y },
+        { visitedPoints, maximumSkipDistance: 2, maximumAllowedSkipCount: 15 }
+      )
 
       if (shape.bounds.width <= 1 || shape.bounds.height <= 1) {
         continue
