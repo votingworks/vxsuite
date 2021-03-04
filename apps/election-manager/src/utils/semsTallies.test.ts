@@ -316,20 +316,20 @@ describe('getContestTallyForCandidateContest', () => {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: '1', // overvotes
-        numberOfVotes: 3,
+        numberOfVotes: 12,
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: '2', // undervotes
-        numberOfVotes: 4,
+        numberOfVotes: 13,
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: '0', // write in
         candidateName: 'write-in-1',
-        numberOfVotes: 1,
+        numberOfVotes: 2,
       },
 
       {
@@ -337,7 +337,7 @@ describe('getContestTallyForCandidateContest', () => {
         contestId: contest.id,
         candidateId: '0', // write in
         candidateName: 'write-in-2',
-        numberOfVotes: 3,
+        numberOfVotes: 5,
       },
     ]
     const expectedVotes: Dictionary<number> = { argent: 8, bainbridge: 12 }
@@ -352,13 +352,13 @@ describe('getContestTallyForCandidateContest', () => {
     })
     expectedTallies['__write-in'] = {
       option: writeInCandidate,
-      tally: 4,
+      tally: 7,
     }
 
     expect(getContestTallyForCandidateContest(contest, rows)).toStrictEqual({
       contest,
       tallies: expectedTallies,
-      metadata: { undervotes: 4, overvotes: 3, ballots: 13 },
+      metadata: { undervotes: 13, overvotes: 12, ballots: 13 },
     })
   })
 
@@ -600,15 +600,10 @@ describe('convertSEMSFileToExternalTally', () => {
     const schoolboardConstitution =
       convertedTally.overallTally.contestTallies['schoolboard-constitution']
 
-    // NOTE: The below check is WRONG. There are 2100 ballots cast in this election, we
-    // report 450 undervotes, but in SEMS a vote must be a blank vote to count as an undervote
-    // which there are only 150 of. Counting undervotes in this way makes it impossible to determine
-    // the correct number of total ballots for a multi-seat election causing us to miscalculate
-    // 2025 here rather then the correct value of 2100.
     expect(schoolboardConstitution?.metadata).toStrictEqual({
-      undervotes: 150,
-      overvotes: 300,
-      ballots: 2025,
+      undervotes: 450,
+      overvotes: 600,
+      ballots: 2100,
     })
     expect(schoolboardConstitution?.tallies['aras-baskauskas']?.tally).toBe(750)
     expect(schoolboardConstitution?.tallies['yul-kwon']?.tally).toBe(600)

@@ -109,7 +109,9 @@ export function getContestTallyForCandidateContest(
     metadata: {
       overvotes,
       undervotes,
-      ballots: numCandidateVotes / contest.seats + overvotes + undervotes,
+      ballots: Math.ceil(
+        (numCandidateVotes + overvotes + undervotes) / contest.seats
+      ),
     },
   }
 }
