@@ -863,17 +863,12 @@ const AppRoot: React.FC<Props> = ({
       !appState.writingVoteToCard
     ) {
       dispatchAppState({ type: 'startWritingLongValue' })
-      const { election } = appState.electionDefinition!
+      const { election, electionHash } = appState.electionDefinition!
       const ballot: CompletedBallot = {
+        electionHash,
         ballotId: '',
-        ballotStyle: getBallotStyle({
-          election,
-          ballotStyleId: appState.ballotStyleId,
-        })!,
-        precinct: getPrecinctById({
-          election,
-          precinctId: appState.precinctId,
-        })!,
+        ballotStyleId: appState.ballotStyleId,
+        precinctId: appState.precinctId,
         votes: appState.votes ?? blankBallotVotes,
         isTestMode: !appState.isLiveMode,
         ballotType: BallotType.Standard,

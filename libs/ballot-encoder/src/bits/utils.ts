@@ -52,3 +52,16 @@ export function sizeof(number: number): number {
 
   return maxBits
 }
+
+/**
+ * Groups `array` into arrays of size `count`.
+ */
+export function inGroupsOf<T>(count: number, array: T[]): T[][] {
+  const result: T[][] = []
+
+  for (let i = 0; i < array.length; i += count) {
+    result.push(array.slice(i, i + count))
+  }
+
+  return result
+}

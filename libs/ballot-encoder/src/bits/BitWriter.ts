@@ -1,7 +1,7 @@
 import BitCursor from './BitCursor'
-import { Uint8, Uint1, Uint8Size } from './types'
-import { sizeof, makeMasks } from './utils'
-import { UTF8Encoding, Encoding } from './encoding'
+import { Encoding, UTF8Encoding } from './encoding'
+import { Uint1, Uint8, Uint8Size } from './types'
+import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils'
 
 /**
  * Writes structured data into a `Uint8Array`. Data is written in little-endian
@@ -13,6 +13,16 @@ export default class BitWriter {
   private nextByte: Uint8 = 0b00000000
 
   /**
+   * Append `byte` to the internal buffer.
+   */
+  private appendByte(byte: Uint8): void {
+    const nextData = new Uint8Array(this.data.length + 1)
+    nextData.set(this.data)
+    nextData[this.data.length] = byte
+    this.data = nextData
+  }
+
+  /**
    * Writes bits.
    */
   public writeUint1(...uint1s: Uint1[]): this {
@@ -22,7 +32,7 @@ export default class BitWriter {
       this.cursor.next()
 
       if (this.cursor.isByteStart) {
-        this.data = Uint8Array.of(...Array.from(this.data), this.nextByte)
+        this.appendByte(toUint8(this.nextByte))
         this.nextByte = 0b00000000
       }
     }
@@ -90,7 +100,7 @@ export default class BitWriter {
     }
 
     if (size === Uint8Size && this.cursor.isByteStart) {
-      this.data = Uint8Array.of(...Array.from(this.data), number)
+      this.appendByte(toUint8(number))
       this.cursor.advance(Uint8Size)
     } else {
       for (const mask of makeMasks(size)) {
@@ -102,31 +112,62 @@ export default class BitWriter {
   }
 
   /**
-   * Writes string data with an encoding and maximum length. By default, the
-   * encoding used will be UTF-8. If your string has a restricted character set,
-   * you can use your own `CustomEncoding` to read and write the string more
-   * compactly than you otherwise would be able to.
+   * Writes string data either with a known length or length-prefixed up to a
+   * maximum length. By default, the encoding used will be UTF-8. If your string
+   * has a restricted character set, you can use your own `CustomEncoding` to
+   * read and write the string more compactly than you otherwise would be able
+   * to.
    *
-   * It is important to remember that the `encoding` and `maxLength` options
-   * must be the same for `readString` and `writeString` calls, otherwise
-   * reading the string will very likely fail or be corrupt.
+   * It is important to remember that the options must match for `readString`
+   * and `writeString` calls, otherwise reading the string will very likely fail
+   * or be corrupt.
    *
    * @example
    *
-   * bits.writeString('hi') // uses utf-8, writes '0110100001101001'
+   *                                              length=2 'h'      'i'
+   *                                              ↓        ↓        ↓
+   * bits.writeString('hi') // uses utf-8, writes 00000010 01101000 01101001
+   *
+   *                                                                        'h'      'i'
+   *                                                                        ↓        ↓
+   * bits.writeString('hi', { includeLength: false }) // uses utf-8, writes 01101000 01101001
    *
    * const encoding = new CustomEncoding('hi')
-   * bits.writeString('hi') // uses custom encoding, writes '01'
+   * bits.writeString('hi', { maxLength: 4 }) // uses custom encoding, writes 1001
+   *                                                                          ↑ ↑↑
+   *                                                                   length=2 'h''i'
    */
+  public writeString(string: string): this
+  public writeString(string: string, options: { encoding?: Encoding }): this
+  public writeString(
+    string: string,
+    options: { encoding?: Encoding; includeLength: false; length: number }
+  ): this
+
+  public writeString(
+    string: string,
+    options: {
+      encoding?: Encoding
+      includeLength?: true
+      maxLength?: number
+    }
+  ): this
+
   public writeString(
     string: string,
     {
       encoding = UTF8Encoding,
       maxLength = (1 << Uint8Size) - 1,
       includeLength = true,
-    }: { encoding?: Encoding; maxLength?: number; includeLength?: boolean } = {}
+      length,
+    }: {
+      encoding?: Encoding
+      maxLength?: number
+      includeLength?: boolean
+      length?: number
+    } = {}
   ): this {
-    const codes = Array.from(encoding.encode(string))
+    const codes = encoding.encode(string)
 
     // write length
     if (includeLength) {
@@ -137,6 +178,10 @@ export default class BitWriter {
       }
 
       this.writeUint(codes.length, { max: maxLength })
+    } else if (string.length !== length) {
+      throw new Error(
+        `string length (${string.length}) does not match known length (${length}); an explicit length must be provided when includeLength=false as a safe-guard`
+      )
     }
 
     // write content
@@ -167,10 +212,15 @@ export default class BitWriter {
    */
   public toUint8Array(): Uint8Array {
     const pendingByte = this.getPendingByte()
-    return Uint8Array.of(
-      ...Array.from(this.data),
-      ...(typeof pendingByte !== 'undefined' ? [pendingByte] : [])
-    )
+
+    if (typeof pendingByte === 'undefined') {
+      return Uint8Array.from(this.data)
+    } else {
+      const result = new Uint8Array(this.data.length + 1)
+      result.set(this.data)
+      result[this.data.length] = pendingByte
+      return result
+    }
   }
 
   /**
@@ -204,14 +254,4 @@ export default class BitWriter {
     )
     return this
   }
-}
-
-function inGroupsOf<T>(count: number, array: T[]): T[][] {
-  const result: T[][] = []
-
-  for (let i = 0; i < array.length; i += count) {
-    result.push(array.slice(i, i + count))
-  }
-
-  return result
 }
