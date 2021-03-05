@@ -3,6 +3,7 @@ import { render, waitFor } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
 import { Router } from 'react-router-dom'
 import { act } from 'react-dom/test-utils'
+import { electionSample } from '@votingworks/fixtures'
 import AdvancedOptionsScreen from './AdvancedOptionsScreen'
 
 test('clicking "Export Backup…" shows progress', async () => {
@@ -17,6 +18,9 @@ test('clicking "Export Backup…" shows progress', async () => {
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        election={electionSample}
       />
     </Router>
   )
@@ -56,6 +60,9 @@ test('backup error shows message', async () => {
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        election={electionSample}
       />
     </Router>
   )
@@ -84,4 +91,62 @@ test('backup error shows message', async () => {
       component.getByText('Error: two is one and one is none')
     )
   })
+})
+
+test('override mark thresholds button shows when there are no overrides', async () => {
+  const backup = jest.fn()
+
+  const testCases = [
+    {
+      hasBatches: true,
+      markThresholds: undefined,
+      expectedText: 'Override Mark Thresholds…',
+      expectButtonDisabled: true,
+    },
+    {
+      hasBatches: true,
+      markThresholds: { marginal: 0.3, definite: 0.4 },
+      expectedText: 'Reset Mark Thresholds…',
+      expectButtonDisabled: true,
+    },
+    {
+      hasBatches: false,
+      markThresholds: undefined,
+      expectedText: 'Override Mark Thresholds…',
+      expectButtonDisabled: false,
+    },
+    {
+      hasBatches: false,
+      markThresholds: { marginal: 0.3, definite: 0.4 },
+      expectedText: 'Reset Mark Thresholds…',
+      expectButtonDisabled: false,
+    },
+  ]
+
+  for (const testCase of testCases) {
+    const { getByText, unmount } = render(
+      <Router history={createMemoryHistory()}>
+        <AdvancedOptionsScreen
+          hasBatches={testCase.hasBatches}
+          unconfigureServer={jest.fn()}
+          zeroData={jest.fn()}
+          backup={backup}
+          isTestMode={false}
+          isTogglingTestMode={false}
+          toggleTestMode={jest.fn()}
+          setMarkThresholdOverrides={jest.fn()}
+          markThresholds={testCase.markThresholds}
+          election={electionSample}
+        />
+      </Router>
+    )
+
+    getByText(testCase.expectedText)
+    expect(
+      getByText(testCase.expectedText)
+        .closest('button')!
+        .hasAttribute('disabled')
+    ).toBe(testCase.expectButtonDisabled)
+    unmount()
+  }
 })

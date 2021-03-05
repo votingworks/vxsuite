@@ -1,3 +1,4 @@
+import { MarkThresholds, Optional, Election } from '@votingworks/types'
 import React, { useCallback, useState } from 'react'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -7,6 +8,7 @@ import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import ToggleTestModeButton from '../components/ToggleTestModeButton'
+import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal'
 
 interface Props {
   unconfigureServer: () => Promise<void>
@@ -16,6 +18,11 @@ interface Props {
   isTestMode: boolean
   isTogglingTestMode: boolean
   toggleTestMode: () => Promise<void>
+  setMarkThresholdOverrides: (
+    markThresholds: Optional<MarkThresholds>
+  ) => Promise<void>
+  markThresholds: Optional<MarkThresholds>
+  election: Election
 }
 
 const AdvancedOptionsScreen: React.FC<Props> = ({
@@ -26,6 +33,9 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
+  setMarkThresholdOverrides,
+  markThresholds,
+  election,
 }) => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
@@ -35,6 +45,9 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   const toggleIsConfirmingFactoryReset = () =>
     setIsConfirmingFactoryReset((s) => !s)
   const [isConfirmingZero, setIsConfirmingZero] = useState(false)
+  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
+    false
+  )
   const toggleIsConfirmingZero = () => setIsConfirmingZero((s) => !s)
   const exportBackup = useCallback(async () => {
     try {
@@ -71,6 +84,16 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
                   Factory Reset…
                 </Button>
               </p>
+              <p>
+                <Button
+                  onPress={() => setIsMarkThresholdModalOpen(true)}
+                  disabled={hasBatches}
+                >
+                  {markThresholds === undefined
+                    ? 'Override Mark Thresholds…'
+                    : 'Reset Mark Thresholds…'}
+                </Button>
+              </p>
               {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
               <p>
                 <Button onPress={exportBackup} disabled={isBackingUp}>
@@ -99,7 +122,8 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
               <h1>Delete All Scanned Ballot Data?</h1>
               <p>
                 This will permanently delete all scanned ballot data and reset
-                the scanner to only be configured with the current election.
+                the scanner to only be configured with the current election,
+                with the default mark thresholds.
               </p>
             </Prose>
           }
@@ -132,6 +156,14 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
             </React.Fragment>
           }
           onOverlayClick={toggleIsConfirmingFactoryReset}
+        />
+      )}
+      {isSetMarkThresholdModalOpen && (
+        <SetMarkThresholdsModal
+          setMarkThresholdOverrides={setMarkThresholdOverrides}
+          markThresholdOverrides={markThresholds}
+          election={election}
+          onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
     </React.Fragment>
