@@ -2,7 +2,7 @@ import 'abortcontroller-polyfill/dist/polyfill-patch-fetch'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
-import SampleApp from './SampleApp'
+import DemoApp from './DemoApp'
 
 import * as serviceWorker from './serviceWorker'
 import {
@@ -12,7 +12,7 @@ import {
 import memoize from './utils/memoize'
 import { getUSEnglishVoice } from './utils/voices'
 
-const isSampleApp = window.location.hash === '#sample'
+const isDemoApp = window.location.hash === '#demo'
 // FIXME: `?reader=on` won't be here on reload since we're using the browser
 // history `pushState` API to manipulate the location. Perhaps disable that
 // since we don't really care about page URLs anyway?
@@ -28,8 +28,8 @@ if (readerEnabled) {
 }
 
 ReactDOM.render(
-  isSampleApp ? (
-    <SampleApp screenReader={screenReader} />
+  isDemoApp ? (
+    <DemoApp screenReader={screenReader} />
   ) : (
     <App screenReader={screenReader} />
   ),
