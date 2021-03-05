@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 
 import App from './App'
-import SampleApp, { getSampleStorage } from './SampleApp'
+import DemoApp, { getSampleStorage } from './DemoApp'
 import { activationStorageKey, electionStorageKey, AppStorage } from './AppRoot'
 
 import {
@@ -62,7 +62,7 @@ describe('loads election', () => {
 
   it('sample app loads election and activates ballot', async () => {
     const storage = getSampleStorage()
-    const { getAllByText, getByText } = render(<SampleApp storage={storage} />)
+    const { getAllByText, getByText } = render(<DemoApp storage={storage} />)
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises()
