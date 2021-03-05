@@ -9,6 +9,7 @@ import {
   Contests,
   Election,
   MarkThresholds,
+  Optional,
   VotesDict,
 } from '@votingworks/types'
 import { decodeBallot, detect } from '@votingworks/ballot-encoder'
@@ -215,11 +216,15 @@ export default class Interpreter {
   private testMode: boolean
   private markThresholds: MarkThresholds
 
-  public constructor(election: Election, testMode: boolean) {
+  public constructor(
+    election: Election,
+    testMode: boolean,
+    markThresholdOverrides: Optional<MarkThresholds>
+  ) {
     this.election = election
     this.testMode = testMode
 
-    const { markThresholds } = election
+    const markThresholds = markThresholdOverrides ?? election.markThresholds
 
     if (!markThresholds) {
       throw new Error('missing mark thresholds')

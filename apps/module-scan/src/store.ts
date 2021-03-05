@@ -7,6 +7,7 @@ import {
   getBallotStyle,
   getContests,
   MarkThresholds,
+  Optional,
 } from '@votingworks/types'
 import {
   BallotMark,
@@ -58,6 +59,7 @@ const debug = makeDebug('module-scan:store')
 export enum ConfigKey {
   Election = 'election',
   TestMode = 'testMode',
+  MarkThresholdOverrides = 'markThresholdOverrides',
 }
 
 const SchemaPath = join(__dirname, '../schema.sql')
@@ -369,6 +371,31 @@ export default class Store {
   }
 
   /**
+   * Gets the current override values for mark thresholds if they are set.
+   * If there are no overrides set, returns undefined.
+   */
+  public async getMarkThresholdOverrides(): Promise<Optional<MarkThresholds>> {
+    return await this.getConfig(ConfigKey.MarkThresholdOverrides, undefined)
+  }
+
+  public async getCurrentMarkThresholds(): Promise<MarkThresholds> {
+    const overrides = await this.getMarkThresholdOverrides()
+    const electionDefinition = await this.getElectionDefinition()
+    return overrides ?? electionDefinition!.election.markThresholds!
+  }
+
+  /**
+   * Sets the current override values for mark thresholds. A value of undefined
+   * will remove overrides and cause thresholds to fallback to the default values
+   * in the election definition.
+   */
+  public async setMarkThresholdOverrides(
+    markThresholds: Optional<MarkThresholds>
+  ): Promise<void> {
+    await this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds)
+  }
+
+  /**
    * Gets a config value by key.
    */
   private async getConfig<T>(key: ConfigKey): Promise<T | undefined>
@@ -666,6 +693,7 @@ export default class Store {
 
     debug('overlaying ballot adjudication: %O', adjudication)
 
+    const markThresholds = await this.getCurrentMarkThresholds()
     const overlay = marks.marks.reduce<MarksByContestId>(
       (marks, mark) =>
         mark.type === 'stray'
@@ -681,11 +709,7 @@ export default class Store {
                     typeof mark.option === 'string'
                       ? mark.option
                       : mark.option.id
-                  ] ??
-                  getMarkStatus(
-                    mark,
-                    electionDefinition.election.markThresholds!
-                  ),
+                  ] ?? getMarkStatus(mark, markThresholds),
               },
             },
       {}
@@ -839,8 +863,7 @@ export default class Store {
     side: Side,
     change: MarksByContestId
   ): Promise<boolean> {
-    const markThresholds = (await this.getElectionDefinition())?.election
-      .markThresholds
+    const markThresholds = await this.getCurrentMarkThresholds()
     const row = await this.dbGetAsync<
       | {
           adjudicationJSON?: string

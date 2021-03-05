@@ -99,7 +99,27 @@ test('GET /scan/status', async () => {
 test('GET /config', async () => {
   await workspace.store.setElection(fromElection(election))
   await workspace.store.setTestMode(true)
-  await request(app).get('/config').expect(200, { election, testMode: true })
+  await workspace.store.setMarkThresholdOverrides(undefined)
+  await request(app).get('/config').expect(200, {
+    election,
+    testMode: true,
+  })
+})
+
+test('GET /config with mark threshold overrides', async () => {
+  await workspace.store.setElection(fromElection(election))
+  await workspace.store.setTestMode(true)
+  await workspace.store.setMarkThresholdOverrides({
+    definite: 0.3,
+    marginal: 0.4,
+  })
+  await request(app)
+    .get('/config')
+    .expect(200, {
+      election,
+      testMode: true,
+      markThresholdOverrides: { definite: 0.3, marginal: 0.4 },
+    })
 })
 
 test('PATCH /config to set election', async () => {
@@ -158,6 +178,34 @@ test('PATCH /config rejects unknown properties', async () => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(400)
+})
+
+test('PATCH /config to set mark threshold overrides', async () => {
+  importerMock.setMarkThresholdOverrides.mockResolvedValue(undefined)
+
+  await request(app)
+    .patch('/config')
+    .send({ markThresholdOverrides: { marginal: 0.4, definite: 0.3 } })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  expect(importerMock.setMarkThresholdOverrides).toHaveBeenNthCalledWith(1, {
+    marginal: 0.4,
+    definite: 0.3,
+  })
+
+  await request(app)
+    .patch('/config')
+    .send({ markThresholdOverrides: null })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200)
+
+  expect(importerMock.setMarkThresholdOverrides).toHaveBeenNthCalledWith(
+    2,
+    undefined
+  )
 })
 
 test('POST /scan/scanBatch', async () => {

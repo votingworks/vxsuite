@@ -1,4 +1,5 @@
 import { BallotPageLayout, Interpreter } from '@votingworks/hmpb-interpreter'
+import { MarkThresholds, Optional } from '@votingworks/types'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
@@ -53,6 +54,9 @@ export interface Importer {
   getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
+  setMarkThresholdOverrides(
+    markThresholds: Optional<MarkThresholds>
+  ): Promise<void>
   unconfigure(): Promise<void>
 }
 
@@ -194,6 +198,14 @@ export default class SystemImporter implements Importer {
     debug('setting test mode to %s', testMode)
     await this.doZero()
     await this.workspace.store.setTestMode(testMode)
+    await this.restoreConfig()
+  }
+
+  public async setMarkThresholdOverrides(
+    markThresholds: Optional<MarkThresholds>
+  ): Promise<void> {
+    debug('setting mark thresholds overrides to %s', markThresholds)
+    await this.workspace.store.setMarkThresholdOverrides(markThresholds)
     await this.restoreConfig()
   }
 
@@ -492,6 +504,7 @@ export default class SystemImporter implements Importer {
    */
   public async doZero(): Promise<void> {
     await this.workspace.store.zero()
+    await this.setMarkThresholdOverrides(undefined)
     fsExtra.emptyDirSync(this.workspace.ballotImagesPath)
   }
 
