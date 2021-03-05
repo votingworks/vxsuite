@@ -35,9 +35,9 @@ NOPARTY_PARTY = {
     "abbrev": "NP"
 }
 
-BLANKVOTE_CANDIDATE = {
+UNDERVOTE_CANDIDATE = {
     "id": "2",
-    "name": "Times Blank Voted",
+    "name": "Times Under Voted",
     "partyId": "0"
 }
     
@@ -124,7 +124,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                     add_contest_precinct(contest_id, p)
                     
                 # add the special candidates so they can be in the join
-                add_candidate(contest_id, BLANKVOTE_CANDIDATE["id"])
+                add_candidate(contest_id, UNDERVOTE_CANDIDATE["id"])
                 add_candidate(contest_id, OVERVOTE_CANDIDATE["id"])
 
             add_candidate(contest["eitherNeitherContestId"], contest["eitherOption"]["id"]) 
@@ -139,7 +139,7 @@ def process_results_file(election_file_path, vx_results_file_path):
             add_contest_precinct(contest["id"], p)
     
         # add the special candidates so they can be in the join
-        add_candidate(contest["id"], BLANKVOTE_CANDIDATE["id"])
+        add_candidate(contest["id"], UNDERVOTE_CANDIDATE["id"])
         add_candidate(contest["id"], OVERVOTE_CANDIDATE["id"])
 
         if contest["type"] == "yesno":
@@ -188,7 +188,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                 # either-neither tabulation is not what our reading of the Ms Constitution was.
                 # both contained questions are tabulated as independent measures.
                 if pick_one_answer == []:
-                    add_entry(precinct_id, pick_one_contest_id, BLANKVOTE_CANDIDATE["id"])
+                    add_entry(precinct_id, pick_one_contest_id, UNDERVOTE_CANDIDATE["id"])
                 elif len(pick_one_answer) > 1:
                     add_entry(precinct_id, pick_one_contest_id, OVERVOTE_CANDIDATE["id"])
                 else:
@@ -198,7 +198,7 @@ def process_results_file(election_file_path, vx_results_file_path):
                               option["id"])
 
                 if either_neither_answer == []:
-                    add_entry(precinct_id, either_neither_contest_id, BLANKVOTE_CANDIDATE["id"])
+                    add_entry(precinct_id, either_neither_contest_id, UNDERVOTE_CANDIDATE["id"])
                 elif len(either_neither_answer) > 1:
                     add_entry(precinct_id, either_neither_contest_id, OVERVOTE_CANDIDATE["id"])
                 else:
@@ -213,14 +213,20 @@ def process_results_file(election_file_path, vx_results_file_path):
             if answers != None:
                 num_seats = contest["seats"] if contest['type'] == 'candidate' else 1
 
-                # blank vote
-                if len(answers) == 0:
-                    add_entry(precinct_id, contest["id"], BLANKVOTE_CANDIDATE["id"])
-                    continue
+                # under votes
+                if len(answers) < num_seats:
+                    # add an undervote for each vote less then the number of seats in the contest
+                    for i in range(len(answers), num_seats):
+                        add_entry(precinct_id, contest["id"], UNDERVOTE_CANDIDATE["id"])
+                    # if there were no votes we're done otherwise we still have to tally the votes that happened
+                    if len(answers) == 0:
+                        continue
 
                 # overvote & stop
                 if len(answers) > num_seats:
-                    add_entry(precinct_id, contest["id"], OVERVOTE_CANDIDATE["id"])
+                    # The number of overvotes is equal to the number of seats in the contest
+                    for i in range(num_seats):
+                        add_entry(precinct_id, contest["id"], OVERVOTE_CANDIDATE["id"])
                     continue
 
                 if contest['type'] == 'candidate':
@@ -251,12 +257,12 @@ def process_results_file(election_file_path, vx_results_file_path):
     # add the extra special candidates
     for contest in contests:
         if contest['type'] == "candidate":
-            contest["options"] = contest["candidates"] + [BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
+            contest["options"] = contest["candidates"] + [UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE, WRITEIN_CANDIDATE]
         if contest['type'] == "yesno":
-            contest["options"] = [contest["yesOption"], contest["noOption"], BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["options"] = [contest["yesOption"], contest["noOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
         if contest['type'] == "ms-either-neither":
-            contest["eitherNeitherOptions"]  = [contest["eitherOption"], contest["neitherOption"], BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
-            contest["pickOneOptions"]  = [contest["firstOption"], contest["secondOption"], BLANKVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["eitherNeitherOptions"]  = [contest["eitherOption"], contest["neitherOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
+            contest["pickOneOptions"]  = [contest["firstOption"], contest["secondOption"], UNDERVOTE_CANDIDATE, OVERVOTE_CANDIDATE]
         
     for row in c.execute(sems_sql).fetchall():
         precinct_id, contest_id, option_id, CVR_candidate_id, count = row
