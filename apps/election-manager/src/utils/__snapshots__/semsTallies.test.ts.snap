@@ -7344,9 +7344,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 2025,
-      "overvotes": 300,
-      "undervotes": 150,
+      "ballots": 2100,
+      "overvotes": 600,
+      "undervotes": 450,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -7425,9 +7425,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -7506,9 +7506,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1215,
-      "overvotes": 180,
-      "undervotes": 90,
+      "ballots": 1260,
+      "overvotes": 360,
+      "undervotes": 270,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -8168,9 +8168,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -8992,9 +8992,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -9154,9 +9154,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -9816,9 +9816,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -10640,9 +10640,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -10802,9 +10802,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -11464,9 +11464,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -11545,9 +11545,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -11626,9 +11626,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 405,
-      "overvotes": 60,
-      "undervotes": 30,
+      "ballots": 420,
+      "overvotes": 120,
+      "undervotes": 90,
     },
     "tallies": Object {
       "__write-in": Object {
