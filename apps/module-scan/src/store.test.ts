@@ -43,6 +43,42 @@ test('get/set test mode', async () => {
   expect(await store.getTestMode()).toBe(false)
 })
 
+test('get/set mark threshold overrides', async () => {
+  const store = await Store.memoryStore()
+
+  expect(await store.getMarkThresholdOverrides()).toBe(undefined)
+
+  await store.setMarkThresholdOverrides({ definite: 0.4, marginal: 0.5 })
+  expect(await store.getMarkThresholdOverrides()).toStrictEqual({
+    definite: 0.4,
+    marginal: 0.5,
+  })
+
+  await store.setMarkThresholdOverrides(undefined)
+  expect(await store.getMarkThresholdOverrides()).toBe(undefined)
+})
+
+test('get current mark thresholds falls back to election definition defaults', async () => {
+  const store = await Store.memoryStore()
+  await store.setElection(fromElection(election))
+  expect(await store.getCurrentMarkThresholds()).toStrictEqual({
+    definite: 0.17,
+    marginal: 0.12,
+  })
+
+  await store.setMarkThresholdOverrides({ definite: 0.4, marginal: 0.5 })
+  expect(await store.getCurrentMarkThresholds()).toStrictEqual({
+    definite: 0.4,
+    marginal: 0.5,
+  })
+
+  await store.setMarkThresholdOverrides(undefined)
+  expect(await store.getCurrentMarkThresholds()).toStrictEqual({
+    definite: 0.17,
+    marginal: 0.12,
+  })
+})
+
 test('HMPB template handling', async () => {
   const store = await Store.memoryStore()
   const metadata: BallotMetadata = {

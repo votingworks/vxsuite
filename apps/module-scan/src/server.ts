@@ -3,7 +3,7 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import { BallotType, Election } from '@votingworks/types'
+import { BallotType, Election, MarkThresholds } from '@votingworks/types'
 import bodyParser from 'body-parser'
 import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
@@ -41,6 +41,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({
       election: (await store.getElectionDefinition())?.election,
       testMode: await store.getTestMode(),
+      markThresholdOverrides: await store.getMarkThresholdOverrides(),
     })
   })
 
@@ -93,6 +94,14 @@ export function buildApp({ store, importer }: AppOptions): Application {
               throw new TypeError()
             }
             await importer.setTestMode(value)
+            break
+          }
+          case ConfigKey.MarkThresholdOverrides: {
+            if (value === null) {
+              await importer.setMarkThresholdOverrides(undefined)
+              break
+            }
+            await importer.setMarkThresholdOverrides(value as MarkThresholds)
             break
           }
         }
