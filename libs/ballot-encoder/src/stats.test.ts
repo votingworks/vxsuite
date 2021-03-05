@@ -31,8 +31,8 @@ test('BMD: smallest possible encoded ballot', () => {
     encodeBallot(election, {
       electionHash,
       ballotId: '',
-      ballotStyleId: election.ballotStyles[0].id,
-      precinctId: election.precincts[0].id,
+      ballotStyleId: election.ballotStyles[0]!.id,
+      precinctId: election.precincts[0]!.id,
       ballotType: BallotType.Standard,
       isTestMode: true,
       votes: {},
