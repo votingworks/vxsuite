@@ -1,6 +1,7 @@
 import type {
   AdjudicationReason,
   Election,
+  MarkThresholds,
   OptionalElection,
   VotesDict,
 } from '@votingworks/types'
@@ -122,11 +123,13 @@ export type GetConfigRequest = void
 export interface GetConfigResponse {
   election?: Election
   testMode: boolean
+  markThresholdOverrides?: MarkThresholds | null
 }
 
 export interface PatchConfigRequest {
   election?: Election | ElectionDefinition | null
   testMode?: boolean
+  markThresholdOverrides?: MarkThresholds | null
 }
 export type PatchConfigResponse = OkResponse
 

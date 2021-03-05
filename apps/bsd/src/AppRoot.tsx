@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
-import { Election, OptionalElection } from '@votingworks/types'
+import {
+  Election,
+  Optional,
+  OptionalElection,
+  MarkThresholds,
+} from '@votingworks/types'
 import styled from 'styled-components'
 
 import {
@@ -83,6 +88,10 @@ const App: React.FC = () => {
     machineId: '0000',
   })
 
+  const [markThresholds, setMarkThresholds] = useState<
+    Optional<MarkThresholds>
+  >()
+
   const { adjudication } = status
 
   const [isScanning, setIsScanning] = useState(false)
@@ -91,6 +100,7 @@ const App: React.FC = () => {
     const config = await getConfig()
     setElection(config.election)
     setTestMode(config.testMode)
+    setMarkThresholds(config.markThresholdOverrides ?? undefined)
   }, [])
 
   const updateElection = async (e: OptionalElection) => {
@@ -247,6 +257,7 @@ const App: React.FC = () => {
       await fetch('/scan/zero', {
         method: 'post',
       })
+      await refreshConfig()
       history.replace('/')
     } catch (error) {
       console.log('failed zeroData()', error) // eslint-disable-line no-console
@@ -267,6 +278,17 @@ const App: React.FC = () => {
       setTogglingTestMode(false)
     }
   }, [history, isTestMode, refreshConfig])
+
+  const setMarkThresholdOverrides = useCallback(
+    async (markThresholdOverrides: Optional<MarkThresholds>) => {
+      await patchConfig({
+        markThresholdOverrides: markThresholdOverrides ?? null,
+      })
+      await refreshConfig()
+      history.replace('/')
+    },
+    [history, refreshConfig]
+  )
 
   const deleteBatch = useCallback(
     async (id: number) => {
@@ -434,7 +456,10 @@ const App: React.FC = () => {
               hasBatches={!!status.batches.length}
               isTestMode={isTestMode}
               toggleTestMode={toggleTestMode}
+              setMarkThresholdOverrides={setMarkThresholdOverrides}
+              markThresholds={markThresholds}
               isTogglingTestMode={isTogglingTestMode}
+              election={election}
             />
           </Route>
           <Route path="/">
