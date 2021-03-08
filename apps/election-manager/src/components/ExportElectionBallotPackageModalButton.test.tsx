@@ -94,7 +94,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
     expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1)
   })
 
-  fireEvent.click(getByText('Cancel'))
+  fireEvent.click(getByText('Close'))
   expect(queryAllByTestId('modal')).toHaveLength(0)
 })
 
@@ -171,6 +171,6 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   fireEvent.click(getByText('Eject USB'))
   expect(ejectFunction).toHaveBeenCalledTimes(1)
 
-  fireEvent.click(getByText('Cancel'))
+  fireEvent.click(getByText('Close'))
   expect(queryAllByTestId('modal')).toHaveLength(0)
 })

@@ -280,7 +280,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       if (usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
         actions = (
           <React.Fragment>
-            <LinkButton onPress={closeModal}>Cancel</LinkButton>
+            <LinkButton onPress={closeModal}>Close</LinkButton>
             <USBControllerButton primary small={false} />
           </React.Fragment>
         )
