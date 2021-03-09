@@ -3,10 +3,13 @@ import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
 import { saveImages } from '../importer'
-import Interpreter, { PageInterpretation } from '../interpreter'
+import Interpreter, {
+  InterpretFileResult,
+  PageInterpretation,
+} from '../interpreter'
 import Store from '../store'
-import { BallotPageQrcode } from '../types'
 import pdfToImages from '../util/pdfToImages'
+import * as qrcodeWorker from './qrcode'
 
 const debug = makeDebug('module-scan:worker:interpret')
 
@@ -19,7 +22,7 @@ export type Input =
       sheetId: string
       imagePath: string
       ballotImagesPath: string
-      qrcode?: BallotPageQrcode
+      detectQrcodeResult: qrcodeWorker.Output
     }
 
 export interface InterpretOutput {
@@ -80,19 +83,20 @@ export async function interpret(
   ballotImagePath: string,
   sheetId: string,
   ballotImagesPath: string,
-  ballotPageQrcode?: BallotPageQrcode
+  detectQrcodeResult: qrcodeWorker.Output
 ): Promise<InterpretOutput> {
   debug('interpret ballot image: %s', ballotImagePath)
   if (!interpreter) {
     throw new Error('cannot interpret ballot with no configured election')
   }
 
-  const ballotImageFile = await readFile(ballotImagePath)
-  const result = await interpreter.interpretFile({
-    ballotImagePath,
-    ballotImageFile,
-    ballotPageQrcode,
-  })
+  const result: InterpretFileResult = !detectQrcodeResult.blank
+    ? await interpreter.interpretFile({
+        ballotImagePath,
+        ballotImageFile: await readFile(ballotImagePath),
+        detectQrcodeResult,
+      })
+    : { interpretation: { type: 'BlankPage' } }
   debug(
     'interpreted ballot image as %s: %s',
     result.interpretation.type,
@@ -132,7 +136,7 @@ export async function call(input: Input): Promise<Output> {
         input.imagePath,
         input.sheetId,
         input.ballotImagesPath,
-        input.qrcode
+        input.detectQrcodeResult
       )
   }
 }

@@ -1,9 +1,11 @@
+import { Election } from '@votingworks/types'
 import makeDebug from 'debug'
 import * as z from 'zod'
-import { BallotPageQrcode } from '../types'
+import { BallotPageQrcode, SheetOf } from '../types'
 import { loadImageData } from '../util/images'
-import { detectQRCode } from '../util/qrcode'
 import { stats } from '../util/luminosity'
+import { normalizeSheetMetadata } from '../util/metadata'
+import { detectQRCode } from '../util/qrcode'
 
 const debug = makeDebug('module-scan:workers:qrcode')
 
@@ -48,12 +50,9 @@ export const OutputSchema = z.union([
   }),
 ])
 
-/**
- * Find a ballot QR code and return its data and rough position. This runs in a
- * worker and should not be called directly.
- */
-export async function call(input: unknown): Promise<Output> {
-  const { imagePath } = InputSchema.parse(input)
+export async function detectQrcodeInFilePath(
+  imagePath: string
+): Promise<Output> {
   const imageData = await loadImageData(imagePath)
   const luminosityStats = stats(imageData, {
     threshold: MINIMUM_BACKGROUND_COLOR_THRESHOLD,
@@ -81,4 +80,31 @@ export async function call(input: unknown): Promise<Output> {
       : undefined,
   }
   return OutputSchema.parse(output)
+}
+
+/**
+ * Find a ballot QR code and return its data and rough position. This runs in a
+ * worker and should not be called directly.
+ */
+export async function call(input: unknown): Promise<Output> {
+  const { imagePath } = InputSchema.parse(input)
+  return await detectQrcodeInFilePath(imagePath)
+}
+
+export function normalizeSheetOutput(
+  election: Election,
+  output: SheetOf<Output>
+): SheetOf<Output> {
+  const [frontOutput, backOutput] = output
+  const [
+    normalizedFrontMetadata,
+    normalizedBackMetadata,
+  ] = normalizeSheetMetadata(election, [
+    frontOutput.blank ? undefined : frontOutput.qrcode,
+    backOutput.blank ? undefined : backOutput.qrcode,
+  ])
+  return [
+    { blank: !normalizedFrontMetadata, qrcode: normalizedFrontMetadata },
+    { blank: !normalizedBackMetadata, qrcode: normalizedBackMetadata },
+  ]
 }
