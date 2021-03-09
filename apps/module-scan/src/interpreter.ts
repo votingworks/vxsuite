@@ -9,7 +9,6 @@ import {
   Contests,
   Election,
   MarkThresholds,
-  Optional,
   VotesDict,
 } from '@votingworks/types'
 import { decodeBallot, detect } from '@votingworks/ballot-encoder'
@@ -210,17 +209,23 @@ export function sheetRequiresAdjudication([
   return frontIsBlankHmpbPage && backIsBlankHmpbPage
 }
 
+export interface InterpreterOptions {
+  election: Election
+  testMode: boolean
+  markThresholdOverrides?: MarkThresholds
+}
+
 export default class Interpreter {
   private hmpbInterpreter?: HMPBInterpreter
   private election: Election
   private testMode: boolean
   private markThresholds: MarkThresholds
 
-  public constructor(
-    election: Election,
-    testMode: boolean,
-    markThresholdOverrides: Optional<MarkThresholds>
-  ) {
+  public constructor({
+    election,
+    testMode,
+    markThresholdOverrides,
+  }: InterpreterOptions) {
     this.election = election
     this.testMode = testMode
 

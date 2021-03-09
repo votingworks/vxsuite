@@ -378,10 +378,11 @@ export default class Store {
     return await this.getConfig(ConfigKey.MarkThresholdOverrides, undefined)
   }
 
-  public async getCurrentMarkThresholds(): Promise<MarkThresholds> {
-    const overrides = await this.getMarkThresholdOverrides()
-    const electionDefinition = await this.getElectionDefinition()
-    return overrides ?? electionDefinition!.election.markThresholds!
+  public async getCurrentMarkThresholds(): Promise<Optional<MarkThresholds>> {
+    return (
+      (await this.getMarkThresholdOverrides()) ||
+      (await this.getElectionDefinition())?.election.markThresholds
+    )
   }
 
   /**
@@ -693,7 +694,8 @@ export default class Store {
 
     debug('overlaying ballot adjudication: %O', adjudication)
 
-    const markThresholds = await this.getCurrentMarkThresholds()
+    const markThresholds =
+      (await this.getCurrentMarkThresholds()) || DefaultMarkThresholds
     const overlay = marks.marks.reduce<MarksByContestId>(
       (marks, mark) =>
         mark.type === 'stray'
