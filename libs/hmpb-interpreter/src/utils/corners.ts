@@ -3,7 +3,7 @@ import { Edge, Shape } from '../hmpb/shapes'
 import { Corners, Point } from '../types'
 import { editDistance, median, rectCorners } from './geometry'
 
-const debug = makeDebug('module-scan:corners')
+const debug = makeDebug('hmpb-interpreter:corners')
 
 const MIN_INSET_PIXELS = 10
 const MEDIAN_INSET_MULTIPLIER = 2.5
