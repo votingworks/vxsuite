@@ -2,13 +2,14 @@ import makeDebug from 'debug'
 import * as z from 'zod'
 import { loadImageData } from '../util/images'
 import { detectQRCode } from '../util/qrcode'
-import threshold from '../util/threshold'
+import { stats } from '../util/luminosity'
 
 const debug = makeDebug('module-scan:workers:qrcode')
 
 export const workerPath = __filename
 
-const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
+const MINIMUM_BACKGROUND_COLOR_THRESHOLD = 200
+const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.007
 
 export interface Input {
   action: 'detect-qrcode'
@@ -53,15 +54,17 @@ export const OutputSchema = z.union([
 export async function call(input: unknown): Promise<Output> {
   const { imagePath } = InputSchema.parse(input)
   const imageData = await loadImageData(imagePath)
-  const imageThreshold = threshold(imageData.data)
+  const luminosityStats = stats(imageData, {
+    threshold: MINIMUM_BACKGROUND_COLOR_THRESHOLD,
+  })
 
   if (
-    imageThreshold.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
+    luminosityStats.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
   ) {
     debug(
       '[path=%s] appears to be a blank page, skipping: %O',
       imagePath,
-      imageThreshold
+      luminosityStats
     )
     return { blank: true }
   }
