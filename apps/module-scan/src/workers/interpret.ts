@@ -55,11 +55,11 @@ export async function configure(store: Store): Promise<void> {
   const templates = await store.getHmpbTemplates()
 
   debug('creating a new interpreter')
-  interpreter = new Interpreter(
+  interpreter = new Interpreter({
     election,
-    await store.getTestMode(),
-    await store.getMarkThresholdOverrides()
-  )
+    testMode: await store.getTestMode(),
+    markThresholdOverrides: await store.getMarkThresholdOverrides(),
+  })
 
   debug('hand-marked paper ballot templates: %d', templates.length)
   for (const [pdf, layouts] of templates) {

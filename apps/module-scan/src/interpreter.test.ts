@@ -47,14 +47,13 @@ test('extracts votes encoded in a QR code', async () => {
   )
   expect(
     (
-      await new Interpreter(
-        {
+      await new Interpreter({
+        election: {
           ...electionSample,
           markThresholds: { definite: 0.2, marginal: 0.17 },
         },
-        true,
-        undefined
-      ).interpretFile({
+        testMode: true,
+      }).interpretFile({
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
       })
@@ -91,14 +90,13 @@ test('properly detects test ballot in live mode', async () => {
     sampleBallotImagesPath,
     'sample-batch-1-ballot-1.png'
   )
-  const interpretationResult = await new Interpreter(
-    {
+  const interpretationResult = await new Interpreter({
+    election: {
       ...electionSample,
       markThresholds: { definite: 0.2, marginal: 0.17 },
     },
-    false, // this is the test mode
-    undefined
-  ).interpretFile({
+    testMode: false, // this is the test mode
+  }).interpretFile({
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
   })
@@ -176,7 +174,10 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
 })
 
 test('interprets marks on a HMPB', async () => {
-  const interpreter = new Interpreter(stateOfHamiltonElection, false, undefined)
+  const interpreter = new Interpreter({
+    election: stateOfHamiltonElection,
+    testMode: false,
+  })
 
   for await (const { page, pageNumber } of pdfToImages(
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
@@ -228,7 +229,10 @@ test('interprets marks on a HMPB', async () => {
 })
 
 test('interprets marks on an upside-down HMPB', async () => {
-  const interpreter = new Interpreter(stateOfHamiltonElection, false, undefined)
+  const interpreter = new Interpreter({
+    election: stateOfHamiltonElection,
+    testMode: false,
+  })
 
   for await (const { page, pageNumber } of pdfToImages(
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
@@ -1767,7 +1771,7 @@ test('interprets marks in PNG ballots', async () => {
     markThresholds: { definite: 0.2, marginal: 0.12 },
     ...choctaw2020Election,
   }
-  const interpreter = new Interpreter(election, false, undefined)
+  const interpreter = new Interpreter({ election, testMode: false })
 
   for await (const { page } of pdfToImages(
     await readFile(join(choctaw2020FixturesRoot, 'ballot.pdf')),
@@ -2954,7 +2958,10 @@ test('interprets marks in PNG ballots', async () => {
 })
 
 test('returns metadata if the QR code is readable but the HMPB ballot is not', async () => {
-  const interpreter = new Interpreter(stateOfHamiltonElection, false, undefined)
+  const interpreter = new Interpreter({
+    election: stateOfHamiltonElection,
+    testMode: false,
+  })
 
   for await (const { page, pageNumber } of pdfToImages(
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
@@ -3000,7 +3007,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
 test('scans images where quirc and jsqr cannot find the QR code by providing QR code reading for hmpb-interpreter', async () => {
   const fixtures = choctaw2020SpecialFixtures
   const { election } = fixtures
-  const interpreter = new Interpreter(election, false, undefined)
+  const interpreter = new Interpreter({ election, testMode: false })
 
   for await (const { page } of pdfToImages(
     await readFile(fixtures.ballot6522Pdf),
