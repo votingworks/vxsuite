@@ -37,7 +37,7 @@ import { loadImageData } from './util/images'
 import optionMarkStatus from './util/optionMarkStatus'
 import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
-import threshold from './util/threshold'
+import { stats } from './util/luminosity'
 
 const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
 
@@ -121,14 +121,12 @@ export async function getBallotImageData(
   qrcode?: BallotPageQrcode
 ): Promise<Result<PageInterpretation, BallotImageData>> {
   const { data, width, height } = await loadImageData(file)
-  const imageThreshold = threshold(data)
-  if (
-    imageThreshold.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
-  ) {
+  const lum = stats({ data, width, height })
+  if (lum.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO) {
     debug(
       'interpretFile [path=%s] appears to be a blank page, skipping: %O',
       filename,
-      imageThreshold
+      lum
     )
     return { error: { type: 'BlankPage' } }
   }
