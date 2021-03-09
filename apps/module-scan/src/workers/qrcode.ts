@@ -1,5 +1,6 @@
 import makeDebug from 'debug'
 import * as z from 'zod'
+import { BallotPageQrcode } from '../types'
 import { loadImageData } from '../util/images'
 import { detectQRCode } from '../util/qrcode'
 import threshold from '../util/threshold'
@@ -23,7 +24,7 @@ export interface BlankPageOutput {
 
 export interface NonBlankPageOutput {
   blank: false
-  qrcode?: { data: Uint8Array; position: 'top' | 'bottom' }
+  qrcode?: BallotPageQrcode
 }
 
 export const InputSchema = z.object({
