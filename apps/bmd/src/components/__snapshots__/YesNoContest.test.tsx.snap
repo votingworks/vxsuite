@@ -229,7 +229,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         id="audiofocus"
       >
         <h1
-          aria-label="Prop 1: Garbage Collection Program."
+          aria-label="County Prop 1: Garbage Collection Program."
         >
           <div
             class="c3"
@@ -600,7 +600,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         id="audiofocus"
       >
         <h1
-          aria-label="Prop 1: Garbage Collection Program."
+          aria-label="County Prop 1: Garbage Collection Program."
         >
           <div
             class="c3"

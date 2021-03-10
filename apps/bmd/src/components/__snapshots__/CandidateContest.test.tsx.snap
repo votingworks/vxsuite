@@ -276,7 +276,7 @@ exports[`supports multi-seat contests allows a second candidate to be selected w
         id="audiofocus"
       >
         <h1
-          aria-label="Mayor."
+          aria-label="City Mayor."
         >
           <div
             class="c3"
@@ -619,7 +619,7 @@ exports[`supports single-seat contest allows any candidate to be selected when n
         id="audiofocus"
       >
         <h1
-          aria-label="Mayor."
+          aria-label="City Mayor."
         >
           <div
             class="c3"
@@ -1007,7 +1007,7 @@ exports[`supports single-seat contest doesn't allow other candidates to be selec
         id="audiofocus"
       >
         <h1
-          aria-label="Mayor."
+          aria-label="City Mayor."
         >
           <div
             class="c3"

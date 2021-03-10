@@ -403,7 +403,7 @@ const ReviewPage: React.FC = () => {
                   to={`/contests/${i}#review`}
                 >
                   <ContestProse compact>
-                    <h2 aria-label={`${contest.title.replace(',', '')},`}>
+                    <h2 aria-label={`${contest.section} ${contest.title},`}>
                       <ContestSection>{contest.section}</ContestSection>
                       {contest.title}
                     </h2>

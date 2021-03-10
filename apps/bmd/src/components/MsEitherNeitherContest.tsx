@@ -206,7 +206,7 @@ const MsEitherNeitherContest: React.FC<Props> = ({
       <Main>
         <ContentHeader>
           <Prose>
-            <h1 aria-label={`${contest.title}.`}>
+            <h1 aria-label={`${contest.section} ${contest.title}.`}>
               <ContestSection>{contest.section}</ContestSection>
               {contest.title}
             </h1>
