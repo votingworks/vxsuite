@@ -9,6 +9,7 @@ import {
   VotesDict,
   Vote,
 } from '@votingworks/types'
+import { strict as assert } from 'assert'
 import {
   ContestOptionTally,
   Dictionary,
@@ -23,7 +24,6 @@ import {
   ContestOption,
   VotingMethod,
 } from '../config/types'
-import assert, { defined } from '../utils/assert'
 import {
   getBallotStyle,
   getContests,
@@ -764,12 +764,11 @@ const processCastVoteRecord = ({
   election,
   castVoteRecord,
 }: ProcessCastVoteRecordParams): CastVoteRecord | undefined => {
-  const ballotStyle = defined(
-    getBallotStyle({
-      ballotStyleId: castVoteRecord._ballotStyleId,
-      election,
-    })
-  )
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: castVoteRecord._ballotStyleId,
+    election,
+  })
+  assert(ballotStyle)
   if (!ballotStyle.precincts.includes(castVoteRecord._precinctId)) return
   const contestIds = expandEitherNeitherContests(
     getContests({ ballotStyle, election })

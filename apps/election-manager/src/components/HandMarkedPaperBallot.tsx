@@ -47,7 +47,6 @@ import Text from './Text'
 import HorizontalRule from './HorizontalRule'
 import { BallotLocale } from '../config/types'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
-import { defined } from '../utils/assert'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
 
 const localeDateLong = (dateString: string, locale: string) =>
@@ -520,7 +519,8 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       ballotStyleId,
       election: localeElection,
     })
-  const ballotStyle = defined(getBallotStyle({ ballotStyleId, election }))
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  assert(ballotStyle)
   const contests = getContests({ ballotStyle, election })
   const candidateContests = contests.filter((c) => c.type === 'candidate')
   const otherContests = contests.filter((c) => c.type !== 'candidate')
