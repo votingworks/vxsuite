@@ -436,7 +436,7 @@ const ReviewPage: React.FC = () => {
                       />
                     )}
                   </ContestProse>
-                  <ContestActions aria-label="press enter to change your answer for this contest.">
+                  <ContestActions aria-label="Press the select button to change your votes for this contest.">
                     <DecoyButton primary aria-hidden>
                       Change
                     </DecoyButton>
