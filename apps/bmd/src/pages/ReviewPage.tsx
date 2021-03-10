@@ -380,9 +380,10 @@ const ReviewPage: React.FC = () => {
               <span className="screen-reader-only">
                 To review your votes, advance through the ballot contests using
                 the up and down buttons. To change your vote in any contest, use
-                the select button to navigate to that contest. When you are
-                finished making your ballot selections and ready to print your
-                ballot, use the right button to continue.
+                the select button to navigate to that contest.
+                {machineConfig.appMode.isVxPrint
+                  ? 'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.'
+                  : 'When you are finished making your ballot selections and ready to print your ballot, use the right button to continue.'}
               </span>
             </h1>
           </Prose>
