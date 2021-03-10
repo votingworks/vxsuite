@@ -10,6 +10,12 @@ const HorizontalRule = styled.p`
     border-top: 1px solid rgb(128 128 128);
     content: '';
   }
+  &::before {
+    margin-right: 0.5em;
+  }
+  &::after {
+    margin-left: 0.5em;
+  }
 `
 
 export default HorizontalRule
