@@ -9,6 +9,7 @@ import {
   YesNoContest,
 } from '@votingworks/types'
 
+import { strict as assert } from 'assert'
 import {
   ContestOptionTally,
   ContestTally,
@@ -20,7 +21,6 @@ import {
   VotingMethod,
   YesNoOption,
 } from '../config/types'
-import assert from './assert'
 import {
   expandEitherNeitherContests,
   getContests,

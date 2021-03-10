@@ -1,4 +1,4 @@
-import assert from './assert'
+import { strict as assert } from 'assert'
 
 // TODO: define a type that's actually serializable
 export type Serializable = unknown
