@@ -141,14 +141,14 @@ const BallotEjectScreen: React.FC<Props> = ({
                 ? isTestMode
                   ? 'Live Ballot'
                   : 'Test Ballot'
+                : isInvalidElectionHashSheet
+                ? 'Wrong Election'
                 : isUnreadableSheet
                 ? 'Unreadable'
                 : isOvervotedSheet
                 ? 'Overvote'
                 : isBlankSheet
                 ? 'Blank Ballot'
-                : isInvalidElectionHashSheet
-                ? 'Wrong Election'
                 : 'Unknown Reason'}
             </EjectReason>
             <p>

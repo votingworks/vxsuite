@@ -319,11 +319,7 @@ test('shows invalid election screen when appropriate', async () => {
     },
     back: {
       image: { url: '/back/url' },
-      interpretation: {
-        type: 'InvalidElectionHashPage',
-        actualElectionHash: 'this-is-a-hash-hooray',
-        expectedElectionHash: 'something',
-      },
+      interpretation: { type: 'BlankPage' },
     },
   }
   fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
