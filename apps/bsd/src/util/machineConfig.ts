@@ -1,4 +1,4 @@
-import { Provider } from '../config/types'
+import { Provider } from '@votingworks/types'
 import fetchJSON from './fetchJSON'
 
 interface MachineConfigResponse {

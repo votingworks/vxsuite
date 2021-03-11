@@ -1,6 +1,7 @@
 import {
   BallotStyle,
   Contest,
+  Dictionary,
   Election,
   MarkThresholds,
   Precinct,
@@ -14,10 +15,6 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import { MarkInfo, PageInterpretation } from './interpreter'
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
-
-export interface Dictionary<T> {
-  [key: string]: T | undefined
-}
 
 export type Result<E, T> = ErrorResult<E> | ValueResult<T>
 export interface ErrorResult<E> {

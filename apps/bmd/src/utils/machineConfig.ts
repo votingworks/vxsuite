@@ -1,5 +1,5 @@
+import { Provider } from '@votingworks/types'
 import {
-  Provider,
   MachineConfig,
   MachineConfigResponse,
   getAppMode,

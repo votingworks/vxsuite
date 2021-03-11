@@ -7,6 +7,7 @@ import {
   Dictionary,
   Election,
   YesNoContest,
+  getContests,
 } from '@votingworks/types'
 
 import { strict as assert } from 'assert'
@@ -23,7 +24,6 @@ import {
 } from '../config/types'
 import {
   expandEitherNeitherContests,
-  getContests,
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
 } from './election'

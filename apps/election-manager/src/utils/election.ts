@@ -1,22 +1,18 @@
 import {
-  Election,
-  BallotStyle,
+  AnyContest,
   Candidate,
   Contests,
-  AnyContest,
+  Election,
   MsEitherNeitherContest,
-  VotesDict,
-  Precinct,
   Party,
+  VotesDict,
+  getContests,
+  getPrecinctById,
+  Dictionary,
 } from '@votingworks/types'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
-import {
-  BallotLocale,
-  Dictionary,
-  YesNoOption,
-  ContestOption,
-} from '../config/types'
+import { BallotLocale, YesNoOption, ContestOption } from '../config/types'
 
 import find from './find'
 import sortBy from './sortBy'
@@ -60,26 +56,6 @@ export function getContestOptionsForContest(
   throw new Error(`Unexpected contest type: ${contest.type}`)
 }
 
-export const getContests = ({
-  ballotStyle,
-  election,
-}: {
-  ballotStyle: BallotStyle
-  election: Election
-}): Contests =>
-  election.contests.filter(
-    (c) =>
-      ballotStyle.districts.includes(c.districtId) &&
-      ballotStyle.partyId === c.partyId
-  )
-
-export const getEitherNeitherContests = (
-  contests: Contests
-): MsEitherNeitherContest[] =>
-  contests.filter(
-    (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
-  )
-
 export const expandEitherNeitherContests = (
   contests: Contests
 ): Exclude<AnyContest, MsEitherNeitherContest>[] =>
@@ -109,35 +85,6 @@ export const expandEitherNeitherContests = (
           },
         ]
   )
-
-export const getPrecinctById = ({
-  election,
-  precinctId,
-}: {
-  election: Election
-  precinctId: string
-}): Precinct | undefined => election.precincts.find((p) => p.id === precinctId)
-
-export const getBallotStyle = ({
-  ballotStyleId,
-  election,
-}: {
-  ballotStyleId: string
-  election: Election
-}): BallotStyle | undefined =>
-  election.ballotStyles.find((bs) => bs.id === ballotStyleId)
-
-export const getPartyFullNameFromBallotStyle = ({
-  ballotStyleId,
-  election,
-}: {
-  ballotStyleId: string
-  election: Election
-}): string => {
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  const party = election.parties.find((p) => p.id === ballotStyle?.partyId)
-  return party?.fullName || ''
-}
 
 interface BallotStyleData {
   ballotStyleId: string

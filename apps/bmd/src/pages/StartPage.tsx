@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types'
 
 import BallotContext from '../contexts/ballotContext'
-
-import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
 import { Wobble } from '../components/Animations'
 import ElectionInfo from '../components/ElectionInfo'

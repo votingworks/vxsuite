@@ -7,12 +7,10 @@ import {
   YesNoContest,
   Election,
   MsEitherNeitherContest,
-} from '@votingworks/types'
-import {
-  getBallotStyle,
   getContests,
-  getZeroTally,
-} from '../../src/utils/election'
+  getBallotStyle,
+} from '@votingworks/types'
+import { getZeroTally } from '../../src/utils/election'
 
 import {
   electionStorageKey,

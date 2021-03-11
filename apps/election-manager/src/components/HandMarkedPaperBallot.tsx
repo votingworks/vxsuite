@@ -10,19 +10,23 @@ import { Handler, Previewer, registerHandlers } from 'pagedjs'
 import { TFunction, StringMap } from 'i18next'
 import { useTranslation, Trans } from 'react-i18next'
 import {
+  AnyContest,
   BallotType,
+  Candidate,
   CandidateContest,
   CandidateVote,
+  Dictionary,
   Election,
   OptionalElection,
   Parties,
-  VotesDict,
-  withLocale,
-  YesNoContest,
-  Dictionary,
-  AnyContest,
   Vote,
-  Candidate,
+  VotesDict,
+  YesNoContest,
+  getBallotStyle,
+  getContests,
+  getPartyFullNameFromBallotStyle,
+  getPrecinctById,
+  withLocale,
 } from '@votingworks/types'
 
 import {
@@ -32,12 +36,6 @@ import {
 import AppContext from '../contexts/AppContext'
 
 import findPartyById from '../utils/findPartyById'
-import {
-  getBallotStyle,
-  getContests,
-  getPartyFullNameFromBallotStyle,
-  getPrecinctById,
-} from '../utils/election'
 
 import BubbleMark from './BubbleMark'
 import WriteInLine from './WriteInLine'

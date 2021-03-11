@@ -3,7 +3,7 @@ import {
   multiPartyPrimaryElection,
   electionWithMsEitherNeither,
 } from '@votingworks/fixtures'
-import { CandidateContest, YesNoContest } from '@votingworks/types'
+import { CandidateContest, Dictionary, YesNoContest } from '@votingworks/types'
 
 import * as path from 'path'
 import { promises as fs } from 'fs'
@@ -11,7 +11,6 @@ import { promises as fs } from 'fs'
 import {
   ContestOptionTally,
   ContestTally,
-  Dictionary,
   TallyCategory,
 } from '../config/types'
 import { writeInCandidate } from './election'

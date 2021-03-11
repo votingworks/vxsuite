@@ -1,11 +1,7 @@
 import React, { useState } from 'react'
 import { OptionalElectionDefinition } from '@votingworks/types'
 
-import {
-  AppMode,
-  SelectChangeEventFunction,
-  VoidFunction,
-} from '../config/types'
+import { AppMode, SelectChangeEventFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 

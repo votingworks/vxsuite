@@ -5,6 +5,7 @@ import {
 } from '../test/election'
 import {
   CandidateContest,
+  getEitherNeitherContests,
   getElectionLocales,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
@@ -67,6 +68,12 @@ test('can build votes from a candidate object', () => {
   expect(vote(contests, { CC: candidate })).toEqual({
     CC: [candidate],
   })
+})
+
+test('can get ms-either-neither contests from a list', () => {
+  expect(
+    getEitherNeitherContests(electionWithMsEitherNeither.contests)
+  ).toHaveLength(1)
 })
 
 test('can build votes from a candidates array', () => {

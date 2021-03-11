@@ -1,5 +1,6 @@
 import type {
   AdjudicationReason,
+  Dictionary,
   Election,
   MarkThresholds,
   OptionalElection,
@@ -14,12 +15,6 @@ import type {
 import { ElectionDefinition } from '../util/ballot-package'
 import type { AdjudicationInfo } from './types/ballot-review'
 
-export interface Dictionary<T> {
-  [key: string]: T | undefined
-}
-export interface Provider<T> {
-  get(): Promise<T>
-}
 export interface MachineConfig {
   machineId: string
 }

@@ -1,13 +1,13 @@
 import * as React from 'react'
 
-import { VoterCardData } from '@votingworks/types'
+import { Provider, VoterCardData } from '@votingworks/types'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import App, { Props } from './App'
 import { Card, MemoryCard } from './utils/Card'
 import utcTimestamp from './utils/utcTimestamp'
 import { Storage, MemoryStorage } from './utils/Storage'
 import { AppStorage } from './AppRoot'
-import { Provider, MachineConfig, VxMarkPlusVxPrint } from './config/types'
+import { MachineConfig, VxMarkPlusVxPrint } from './config/types'
 import { MemoryHardware } from './utils/Hardware'
 
 const ballotStyleId = '12'

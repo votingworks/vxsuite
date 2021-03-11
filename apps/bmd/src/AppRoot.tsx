@@ -1,15 +1,18 @@
 /* eslint-disable no-shadow */
 import {
-  CompletedBallot,
-  getPrecinctById,
   BallotType,
   CandidateVote,
-  YesNoVote,
-  OptionalVote,
-  VotesDict,
+  CompletedBallot,
   Election,
   ElectionDefinition,
   OptionalElectionDefinition,
+  OptionalVote,
+  Provider,
+  VotesDict,
+  YesNoVote,
+  getBallotStyle,
+  getContests,
+  getPrecinctById,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -37,7 +40,6 @@ import {
   CandidateVoteTally,
   YesNoVoteTally,
   SerializableActivationData,
-  Provider,
   MachineConfig,
   PostVotingInstructions,
 } from './config/types'
@@ -59,7 +61,7 @@ import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
 import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
-import { getBallotStyle, getContests, getZeroTally } from './utils/election'
+import { getZeroTally } from './utils/election'
 import { computeTallyForEitherNeitherContests } from './utils/eitherNeither'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'

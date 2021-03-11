@@ -15,13 +15,6 @@ import {
 } from '@votingworks/types'
 import { Printer } from '../utils/printer'
 
-// Generic
-export type VoidFunction = () => void
-export interface Provider<T> {
-  get(): Promise<T>
-}
-export type Optional<T> = T | undefined
-
 // App
 export const VxPrintOnly = {
   name: 'VxPrint',

@@ -1,11 +1,13 @@
 import * as s from './schema'
 
 // Generic
-export type VoidFunction = () => void
 export interface Dictionary<T> {
   [key: string]: Optional<T>
 }
 export type Optional<T> = T | undefined
+export interface Provider<T> {
+  get(): Promise<T>
+}
 
 export type Translations = Record<string, Record<string, string> | undefined>
 
@@ -219,6 +221,17 @@ export const getContests = ({
       ballotStyle.districts.includes(c.districtId) &&
       ballotStyle.partyId === c.partyId
   )
+
+/**
+ * Get all MS either-neither contests.
+ */
+export const getEitherNeitherContests = (
+  contests: Contests
+): MsEitherNeitherContest[] => {
+  return contests.filter(
+    (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
+  )
+}
 
 /**
  * Retrieves a precinct by id.
