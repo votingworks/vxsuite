@@ -1,5 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-
 const countFormatter = new Intl.NumberFormat(undefined, { useGrouping: true })
 
 /**

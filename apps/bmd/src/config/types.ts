@@ -195,5 +195,3 @@ export interface UserSettings {
 }
 export type SetUserSettings = (partial: PartialUserSettings) => void
 export type PartialUserSettings = Partial<UserSettings>
-
-export default {}

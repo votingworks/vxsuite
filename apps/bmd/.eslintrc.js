@@ -110,6 +110,7 @@ module.exports = {
     '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
     'import/extensions': 'off',
+    'import/prefer-default-export': 'off',
     'no-restricted-syntax': [
       'error',
       {

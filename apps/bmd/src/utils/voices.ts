@@ -4,7 +4,6 @@ import { VoiceSelector } from './ScreenReader'
  * Get a voice suitable for use with `speechSynthesis` APIs to be spoken to US
  * English speakers.
  */
-// eslint-disable-next-line import/prefer-default-export
 export const getUSEnglishVoice: VoiceSelector = () => {
   // Only use local voices.
   const voices = speechSynthesis
