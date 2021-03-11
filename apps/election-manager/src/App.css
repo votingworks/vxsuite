@@ -76,6 +76,7 @@ html {
 @media print {
   html {
     background: #ffffff;
+    color: #000000;
 
     /* Adjust printed ballot font-size */
     font-size: 14px !important; /* stylelint-disable-line declaration-no-important */
