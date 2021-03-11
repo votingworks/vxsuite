@@ -4,24 +4,17 @@
 
 import {
   Contest,
+  Dictionary,
   Election,
   MsEitherNeitherContest,
-  YesNoVote,
   VotesDict,
-  Dictionary,
+  YesNoVote,
+  getEitherNeitherContests,
 } from '@votingworks/types'
 
 import { Tally, MsEitherNeitherTally } from '../config/types'
 
 import { getSingleYesNoVote } from './votes'
-
-const getEitherNeitherContests = (
-  election: Election
-): MsEitherNeitherContest[] => {
-  return election.contests
-    .filter((c) => c.type === 'ms-either-neither')
-    .map((c) => c as MsEitherNeitherContest)
-}
 
 interface Params {
   election: Election
@@ -45,7 +38,7 @@ export const computeTallyForEitherNeitherContests = ({
   const contestIds: Contest['id'][] = []
 
   const eitherNeitherContestMappings: Dictionary<MsEitherNeitherContest> = {}
-  getEitherNeitherContests(election).forEach((c) => {
+  getEitherNeitherContests(election.contests).forEach((c) => {
     eitherNeitherContestMappings[c.eitherNeitherContestId] = c
     eitherNeitherContestMappings[c.pickOneContestId] = c
   })

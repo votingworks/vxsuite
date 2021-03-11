@@ -2,7 +2,8 @@ import React, { useContext } from 'react'
 import pluralize from 'pluralize'
 import _ from 'lodash'
 
-import { Dictionary, PrintableBallotType } from '../config/types'
+import { Dictionary } from '@votingworks/types'
+import { PrintableBallotType } from '../config/types'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'

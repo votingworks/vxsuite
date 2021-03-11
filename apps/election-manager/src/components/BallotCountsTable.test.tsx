@@ -6,10 +6,10 @@ import {
   electionWithMsEitherNeither,
   multiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures'
+import { Dictionary } from '@votingworks/types'
 
 import renderInAppContext from '../../test/renderInAppContext'
 import {
-  Dictionary,
   ExternalTally,
   Tally,
   TallyCategory,

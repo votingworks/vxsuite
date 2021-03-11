@@ -8,8 +8,12 @@ import {
   CandidateVote,
   Contests,
   ElectionDefinition,
-  YesNoVote,
   VotesDict,
+  YesNoVote,
+  getBallotStyle,
+  getContests,
+  getPartyPrimaryAdjectiveFromBallotStyle,
+  getPrecinctById,
 } from '@votingworks/types'
 
 import * as GLOBALS from '../config/globals'
@@ -17,12 +21,6 @@ import * as GLOBALS from '../config/globals'
 import { randomBase64 } from '../utils/random'
 import { findPartyById } from '../utils/find'
 import { getSingleYesNoVote } from '../utils/votes'
-import {
-  getBallotStyle,
-  getContests,
-  getPartyPrimaryAdjectiveFromBallotStyle,
-  getPrecinctById,
-} from '../utils/election'
 
 import QRCode from './QRCode'
 import Prose from './Prose'

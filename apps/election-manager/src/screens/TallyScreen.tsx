@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react'
 import moment from 'moment'
 
+import { Optional } from '@votingworks/types'
 import {
   TallyCategory,
   InputEventFunction,
   ResultsFileType,
-  Optional,
 } from '../config/types'
 
 import * as format from '../utils/format'

@@ -1,10 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Precinct, ElectionDefinition } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  Precinct,
+  getPartyPrimaryAdjectiveFromBallotStyle,
+} from '@votingworks/types'
 import { dateLong } from '../utils/date'
-
-import { getPartyPrimaryAdjectiveFromBallotStyle } from '../utils/election'
 
 import Seal from './Seal'
 import Prose from './Prose'

@@ -1,4 +1,5 @@
-import { Provider, MachineConfig } from '../../src/config/types'
+import { Provider } from '@votingworks/types'
+import { MachineConfig } from '../../src/config/types'
 
 export default function fakeMachineConfig({
   machineId = '0000',

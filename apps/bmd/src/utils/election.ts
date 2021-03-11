@@ -1,55 +1,6 @@
-import {
-  Election,
-  Contest,
-  BallotStyle,
-  Contests,
-  Precinct,
-} from '@votingworks/types'
+/* eslint-disable import/prefer-default-export */
+import { Election, Contest } from '@votingworks/types'
 import { Tally } from '../config/types'
-
-export const getContests = ({
-  ballotStyle,
-  election,
-}: {
-  ballotStyle: BallotStyle
-  election: Election
-}): Contests =>
-  election.contests.filter(
-    (c) =>
-      ballotStyle.districts.includes(c.districtId) &&
-      ballotStyle.partyId === c.partyId
-  )
-
-export const getPrecinctById = ({
-  election,
-  precinctId,
-}: {
-  election: Election
-  precinctId: string
-}): Precinct | undefined => election.precincts.find((p) => p.id === precinctId)
-
-export const getBallotStyle = ({
-  election,
-  ballotStyleId,
-}: {
-  election: Election
-  ballotStyleId: string
-}): BallotStyle | undefined =>
-  election.ballotStyles.find((bs) => bs.id === ballotStyleId)
-
-export const getPartyPrimaryAdjectiveFromBallotStyle = ({
-  ballotStyleId,
-  election,
-}: {
-  ballotStyleId: string
-  election: Election
-}): string => {
-  const parts = ballotStyleId?.match(/(\d+)(\w+)/i)
-  const abbrev = parts?.[2]
-  const party = election.parties.find((p) => p.abbrev === abbrev)
-  const name = party?.name
-  return name === 'Democrat' ? 'Democratic' : name ?? ''
-}
 
 export const getZeroTally = (election: Election): Tally =>
   election.contests.map((contest) => {
@@ -80,11 +31,3 @@ export const getZeroTally = (election: Election): Tally =>
     // to fail loudly in this situation.
     throw new Error(`unexpected contest type: ${(contest as Contest).type}`)
   })
-
-export default {
-  getBallotStyle,
-  getContests,
-  getPartyPrimaryAdjectiveFromBallotStyle,
-  getPrecinctById,
-  getZeroTally,
-}

@@ -1,18 +1,21 @@
 import {
-  Party,
-  YesNoVote,
   Candidate,
   CandidateContest,
   CandidateVote,
   Contest,
   Election,
-  VotesDict,
+  Party,
   Vote,
+  VotesDict,
+  YesNoVote,
+  getBallotStyle,
+  getContests,
+  getEitherNeitherContests,
+  Dictionary,
 } from '@votingworks/types'
 import { strict as assert } from 'assert'
 import {
   ContestOptionTally,
-  Dictionary,
   CastVoteRecord,
   CastVoteRecordLists,
   Tally,
@@ -25,9 +28,6 @@ import {
   VotingMethod,
 } from '../config/types'
 import {
-  getBallotStyle,
-  getContests,
-  getEitherNeitherContests,
   expandEitherNeitherContests,
   writeInCandidate,
   getDistrictIdsForPartyId,

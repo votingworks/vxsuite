@@ -2,14 +2,10 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import styled from 'styled-components'
 import path from 'path'
-import { getElectionLocales } from '@votingworks/types'
+import { getElectionLocales, getPrecinctById } from '@votingworks/types'
 
 import { DEFAULT_LOCALE } from '../config/globals'
-import {
-  getBallotPath,
-  getPrecinctById,
-  getHumanBallotLanguageFormat,
-} from '../utils/election'
+import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 
 import AppContext from '../contexts/AppContext'
 import HandMarkedPaperBallot from './HandMarkedPaperBallot'
