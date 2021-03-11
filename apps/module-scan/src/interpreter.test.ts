@@ -1,23 +1,24 @@
-import { AdjudicationReason, Election } from '@votingworks/types'
 import { electionSample } from '@votingworks/fixtures'
+import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
+import { AdjudicationReason, Election } from '@votingworks/types'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
 import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
-import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import * as general2020Fixtures from '../test/fixtures/2020-general'
+import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
 import Interpreter, {
-  getBallotImageData,
-  InterpretedHmpbPage,
-  InterpretedBmdPage,
-  UnreadablePage,
   BlankPage,
+  getBallotImageData,
+  InterpretedBmdPage,
+  InterpretedHmpbPage,
   sheetRequiresAdjudication,
   UninterpretedHmpbPage,
+  UnreadablePage,
 } from './interpreter'
 import { resultError, resultValue } from './types'
 import pdfToImages from './util/pdfToImages'
-import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
+import { detectQrcodeInFilePath } from './workers/qrcode'
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
 const stateOfHamiltonFixturesRoot = join(
@@ -36,7 +37,13 @@ jest.setTimeout(10000)
 test('does not find QR codes when there are none to find', async () => {
   const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg')
   expect(
-    resultError(await getBallotImageData(await readFile(filepath), filepath))
+    resultError(
+      await getBallotImageData(
+        await readFile(filepath),
+        filepath,
+        await detectQrcodeInFilePath(filepath)
+      )
+    )
   ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' })
 })
 
@@ -56,6 +63,7 @@ test('extracts votes encoded in a QR code', async () => {
       }).interpretFile({
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
+        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation
   ).toMatchInlineSnapshot(`
@@ -99,6 +107,7 @@ test('properly detects test ballot in live mode', async () => {
   }).interpretFile({
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
+    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
   })
 
   expect(interpretationResult.interpretation.type).toEqual(
@@ -112,7 +121,8 @@ test('can read metadata encoded in a QR code with base64', async () => {
   const { qrcode } = resultValue(
     await getBallotImageData(
       await readFile(fixtures.blankPage1),
-      fixtures.blankPage1
+      fixtures.blankPage1,
+      await detectQrcodeInFilePath(fixtures.blankPage1)
     )
   )
 
@@ -139,7 +149,8 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
   const { qrcode } = resultValue(
     await getBallotImageData(
       await readFile(fixtures.skewedQRCodeBallotPage),
-      fixtures.skewedQRCodeBallotPage
+      fixtures.skewedQRCodeBallotPage,
+      await detectQrcodeInFilePath(fixtures.skewedQRCodeBallotPage)
     )
   )
 
@@ -198,6 +209,7 @@ test('interprets marks on a HMPB', async () => {
     await interpreter.interpretFile({
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
     })
   ).interpretation as InterpretedHmpbPage).votes
 
@@ -254,6 +266,7 @@ test('interprets marks on an upside-down HMPB', async () => {
       await interpreter.interpretFile({
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
+        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation as InterpretedHmpbPage
   ).toMatchInlineSnapshot(`
@@ -1787,6 +1800,7 @@ test('interprets marks in PNG ballots', async () => {
         await interpreter.interpretFile({
           ballotImagePath,
           ballotImageFile: await readFile(ballotImagePath),
+          detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
         })
       ).interpretation
     ).toMatchInlineSnapshot(`
@@ -2756,6 +2770,7 @@ test('interprets marks in PNG ballots', async () => {
         await interpreter.interpretFile({
           ballotImagePath,
           ballotImageFile: await readFile(ballotImagePath),
+          detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
         })
       ).interpretation
     ).toMatchInlineSnapshot(`
@@ -2983,6 +2998,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
       await interpreter.interpretFile({
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
+        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation as UninterpretedHmpbPage
   ).toMatchInlineSnapshot(`
@@ -3000,41 +3016,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         "precinctId": "23",
       },
       "type": "UninterpretedHmpbPage",
-    }
-  `)
-})
-
-test('scans images where quirc and jsqr cannot find the QR code by providing QR code reading for hmpb-interpreter', async () => {
-  const fixtures = choctaw2020SpecialFixtures
-  const { election } = fixtures
-  const interpreter = new Interpreter({ election, testMode: false })
-
-  for await (const { page } of pdfToImages(
-    await readFile(fixtures.ballot6522Pdf),
-    {
-      scale: 2,
-    }
-  )) {
-    await interpreter.addHmpbTemplate(page)
-    break
-  }
-
-  expect(
-    ((
-      await interpreter.interpretFile({
-        ballotImagePath: fixtures.hardQRCodePage1,
-        ballotImageFile: await readFile(fixtures.hardQRCodePage1),
-      })
-    ).interpretation as InterpretedHmpbPage).votes
-  ).toMatchInlineSnapshot(`
-    Object {
-      "775020858": Array [
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-      ],
     }
   `)
 })

@@ -37,16 +37,14 @@ import { loadImageData } from './util/images'
 import optionMarkStatus from './util/optionMarkStatus'
 import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
-import { stats } from './util/luminosity'
-
-const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.005
+import * as qrcodeWorker from './workers/qrcode'
 
 const debug = makeDebug('module-scan:interpreter')
 
 export interface InterpretFileParams {
   readonly ballotImagePath: string
   readonly ballotImageFile: Buffer
-  readonly ballotPageQrcode?: BallotPageQrcode
+  readonly detectQrcodeResult: qrcodeWorker.Output
 }
 
 export interface InterpretFileResult {
@@ -118,24 +116,13 @@ interface BallotImageData {
 export async function getBallotImageData(
   file: Buffer,
   filename: string,
-  qrcode?: BallotPageQrcode
+  detectQrcodeResult: qrcodeWorker.Output
 ): Promise<Result<PageInterpretation, BallotImageData>> {
   const { data, width, height } = await loadImageData(file)
-  const lum = stats({ data, width, height })
-  if (lum.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO) {
-    debug(
-      'interpretFile [path=%s] appears to be a blank page, skipping: %O',
-      filename,
-      lum
-    )
-    return { error: { type: 'BlankPage' } }
-  }
-
   const image = { data: Uint8ClampedArray.from(data), width, height }
-  qrcode ??= await detectQRCode(image)
 
-  if (qrcode) {
-    return { value: { file, image, qrcode } }
+  if (!detectQrcodeResult.blank && detectQrcodeResult.qrcode) {
+    return { value: { file, image, qrcode: detectQrcodeResult.qrcode } }
   }
 
   debug('no QR code found in %s', filename)
@@ -285,13 +272,13 @@ export default class Interpreter {
   public async interpretFile({
     ballotImagePath,
     ballotImageFile,
-    ballotPageQrcode,
+    detectQrcodeResult,
   }: InterpretFileParams): Promise<InterpretFileResult> {
     const timer = time(`interpretFile: ${ballotImagePath}`)
     const result = await getBallotImageData(
       ballotImageFile,
       ballotImagePath,
-      ballotPageQrcode
+      detectQrcodeResult
     )
 
     if (isErrorResult(result)) {

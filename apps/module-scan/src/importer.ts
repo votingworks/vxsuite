@@ -15,7 +15,6 @@ import {
   Side,
 } from './types'
 import { toPNG } from './util/images'
-import { normalizeSheetMetadata } from './util/metadata'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
 import * as workers from './workers/combined'
@@ -256,32 +255,26 @@ export default class SystemImporter implements Importer {
       action: 'detect-qrcode',
       imagePath: backImagePath,
     })
-    const [frontDetectQrcodeOutput, backDetectQrcodeOutput] = [
+    const [
+      frontDetectQrcodeOutput,
+      backDetectQrcodeOutput,
+    ] = qrcodeWorker.normalizeSheetOutput(electionDefinition.election, [
       (await frontDetectQrcodePromise) as qrcodeWorker.Output,
       (await backDetectQrcodePromise) as qrcodeWorker.Output,
-    ]
-    const [
-      frontQrcode,
-      backQrcode,
-    ] = normalizeSheetMetadata(electionDefinition.election, [
-      !frontDetectQrcodeOutput.blank
-        ? frontDetectQrcodeOutput.qrcode
-        : undefined,
-      !backDetectQrcodeOutput.blank ? backDetectQrcodeOutput.qrcode : undefined,
     ])
     const frontInterpretPromise = workerPool.call({
       action: 'interpret',
       imagePath: frontImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
-      qrcode: frontQrcode,
+      detectQrcodeResult: frontDetectQrcodeOutput,
     })
     const backInterpretPromise = workerPool.call({
       action: 'interpret',
       imagePath: backImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
-      qrcode: backQrcode,
+      detectQrcodeResult: backDetectQrcodeOutput,
     })
 
     const frontWorkerOutput = (await frontInterpretPromise) as InterpretOutput

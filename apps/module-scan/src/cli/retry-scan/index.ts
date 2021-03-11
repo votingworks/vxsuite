@@ -1,3 +1,4 @@
+import { zip } from '@votingworks/hmpb-interpreter/src/utils/iterators'
 import { Election } from '@votingworks/types'
 import { cpus } from 'os'
 import { isAbsolute, join, resolve } from 'path'
@@ -6,11 +7,9 @@ import { PageInterpretation } from '../../interpreter'
 import { createWorkspace } from '../../util/workspace'
 import * as workers from '../../workers/combined'
 import { InterpretOutput } from '../../workers/interpret'
-import * as qrcodeWorker from '../../workers/qrcode'
 import { childProcessPool } from '../../workers/pool'
+import * as qrcodeWorker from '../../workers/qrcode'
 import { Options } from './options'
-import { zip } from '@votingworks/hmpb-interpreter/src/utils/iterators'
-import { normalizeSheetMetadata } from '../../util/metadata'
 
 export function queryFromOptions(options: Options): [string, string[]] {
   const conditions: string[] = []
@@ -158,7 +157,7 @@ export async function retryScan(
         const backInterpretation: PageInterpretation = JSON.parse(
           backInterpretationJSON
         )
-        const originalScans: PageScan[] = [
+        const originalScans: [PageScan, PageScan] = [
           {
             interpretation: frontInterpretation,
             originalFilename: absolutify(frontOriginalFilename),
@@ -174,53 +173,48 @@ export async function retryScan(
         const [
           frontDetectQrcodeOutput,
           backDetectQrcodeOutput,
-        ] = await Promise.all(
-          originalScans.map(
-            async (scan) =>
-              (await pool.call({
-                action: 'detect-qrcode',
-                imagePath: scan.originalFilename,
-              })) as qrcodeWorker.Output
+        ] = qrcodeWorker.normalizeSheetOutput(
+          electionDefinition.election,
+          await Promise.all(
+            originalScans.map(
+              async (scan) =>
+                await pool.call({
+                  action: 'detect-qrcode',
+                  imagePath: scan.originalFilename,
+                })
+            ) as [Promise<qrcodeWorker.Output>, Promise<qrcodeWorker.Output>]
           )
         )
-        const [
-          frontQrcode,
-          backQrcode,
-        ] = normalizeSheetMetadata(electionDefinition.election, [
-          !frontDetectQrcodeOutput.blank
-            ? frontDetectQrcodeOutput.qrcode
-            : undefined,
-          !backDetectQrcodeOutput.blank
-            ? backDetectQrcodeOutput.qrcode
-            : undefined,
-        ])
 
         const [front, back] = await Promise.all(
-          [...zip(originalScans, [frontQrcode, backQrcode])].map(
-            async ([scan, qrcode], i) => {
-              const imagePath = isAbsolute(scan.originalFilename)
-                ? scan.originalFilename
-                : resolve(input.store.dbPath, '..', scan.originalFilename)
-              const rescan = (await pool.call({
-                action: 'interpret',
-                sheetId: id,
-                imagePath,
-                qrcode,
-                ballotImagesPath: output.ballotImagesPath,
-              })) as InterpretOutput
+          [
+            ...zip(originalScans, [
+              frontDetectQrcodeOutput,
+              backDetectQrcodeOutput,
+            ]),
+          ].map(async ([scan, qrcode], i) => {
+            const imagePath = isAbsolute(scan.originalFilename)
+              ? scan.originalFilename
+              : resolve(input.store.dbPath, '..', scan.originalFilename)
+            const rescan = (await pool.call({
+              action: 'interpret',
+              sheetId: id,
+              imagePath,
+              detectQrcodeResult: qrcode,
+              ballotImagesPath: output.ballotImagesPath,
+            })) as InterpretOutput
 
-              if (rescan) {
-                listeners?.pageInterpreted?.(
-                  id,
-                  i === 0 ? 'front' : 'back',
-                  scan,
-                  rescan
-                )
-              }
-
-              return rescan
+            if (rescan) {
+              listeners?.pageInterpreted?.(
+                id,
+                i === 0 ? 'front' : 'back',
+                scan,
+                rescan
+              )
             }
-          )
+
+            return rescan
+          })
         )
 
         if (front && back) {
