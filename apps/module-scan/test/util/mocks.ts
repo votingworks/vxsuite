@@ -38,6 +38,7 @@ export function makeMockImporter(): jest.Mocked<Importer> {
     getStatus: jest.fn(),
     restoreConfig: jest.fn(),
     setTestMode: jest.fn(),
+    setSkipElectionHashCheck: jest.fn(),
     unconfigure: jest.fn(),
     setMarkThresholdOverrides: jest.fn(),
   }

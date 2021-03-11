@@ -12,6 +12,7 @@ import { buildApp } from './server'
 import { BallotPackageManifest, CastVoteRecord } from './types'
 import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
+import { ConfigKey } from './store'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -59,12 +60,20 @@ afterEach(async () => {
 test('going through the whole process works', async () => {
   jest.setTimeout(25000)
 
+  // Do this first so interpreter workers get initialized with the right value.
+  await request(app)
+    .patch('/config')
+    .send({ [ConfigKey.SkipElectionHashCheck]: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
   const { election } = stateOfHamilton
   await importer.restoreConfig()
 
   await request(app)
     .patch('/config')
-    .send({ election })
+    .send({ [ConfigKey.Election]: election })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -191,12 +200,20 @@ test('going through the whole process works', async () => {
 test('failed scan with QR code can be adjudicated and exported', async () => {
   jest.setTimeout(25000)
 
+  // Do this first so interpreter workers get initialized with the right value.
+  await request(app)
+    .patch('/config')
+    .send({ [ConfigKey.SkipElectionHashCheck]: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
   const { election } = stateOfHamilton
   await importer.restoreConfig()
 
   await request(app)
     .patch('/config')
-    .send({ election })
+    .send({ [ConfigKey.Election]: election })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -340,9 +357,17 @@ test('ms-either-neither end-to-end', async () => {
   } = choctawMockGeneral2020Fixtures
   await importer.restoreConfig()
 
+  // Do this first so interpreter workers get initialized with the right value.
   await request(app)
     .patch('/config')
-    .send({ election })
+    .send({ [ConfigKey.SkipElectionHashCheck]: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
+  await request(app)
+    .patch('/config')
+    .send({ [ConfigKey.Election]: election })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })

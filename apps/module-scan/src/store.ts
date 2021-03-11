@@ -60,6 +60,8 @@ export enum ConfigKey {
   Election = 'election',
   TestMode = 'testMode',
   MarkThresholdOverrides = 'markThresholdOverrides',
+  // @deprecated
+  SkipElectionHashCheck = 'skipElectionHashCheck',
 }
 
 const SchemaPath = join(__dirname, '../schema.sql')
@@ -364,10 +366,26 @@ export default class Store {
   }
 
   /**
+   * Gets whether to skip election hash checks.
+   */
+  public async getSkipElectionHashCheck(): Promise<boolean> {
+    return await this.getConfig(ConfigKey.SkipElectionHashCheck, false)
+  }
+
+  /**
    * Sets the current test mode setting value.
    */
   public async setTestMode(testMode: boolean): Promise<void> {
     await this.setConfig(ConfigKey.TestMode, testMode)
+  }
+
+  /**
+   * Sets whether to check the election hash.
+   */
+  public async setSkipElectionHashCheck(
+    skipElectionHashCheck: boolean
+  ): Promise<void> {
+    await this.setConfig(ConfigKey.SkipElectionHashCheck, skipElectionHashCheck)
   }
 
   /**

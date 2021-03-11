@@ -96,12 +96,21 @@ export function buildApp({ store, importer }: AppOptions): Application {
             await importer.setTestMode(value)
             break
           }
+
           case ConfigKey.MarkThresholdOverrides: {
             if (value === null) {
               await importer.setMarkThresholdOverrides(undefined)
               break
             }
             await importer.setMarkThresholdOverrides(value as MarkThresholds)
+            break
+          }
+
+          case ConfigKey.SkipElectionHashCheck: {
+            if (typeof value !== 'boolean') {
+              throw new TypeError()
+            }
+            await importer.setSkipElectionHashCheck(value)
             break
           }
         }

@@ -9,6 +9,7 @@ import SystemImporter from './importer'
 import { buildApp } from './server'
 import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
+import { ConfigKey } from './store'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -39,6 +40,14 @@ afterEach(async () => {
 })
 
 test('going through the whole process works', async () => {
+  // Do this first so interpreter workers get initialized with the right value.
+  await request(app)
+    .patch('/config')
+    .send({ [ConfigKey.SkipElectionHashCheck]: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
   {
     // try export before configure
     const response = await request(app)
@@ -50,7 +59,10 @@ test('going through the whole process works', async () => {
 
   await request(app)
     .patch('/config')
-    .send({ election, testMode: true })
+    .send({
+      [ConfigKey.Election]: election,
+      [ConfigKey.TestMode]: true,
+    })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -152,5 +164,7 @@ test('going through the whole process works', async () => {
     .expect(200, '')
 
   // clean up
-  await request(app).patch('/config').send({ election: null })
+  await request(app)
+    .patch('/config')
+    .send({ [ConfigKey.Election]: null })
 })
