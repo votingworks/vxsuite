@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 
@@ -31,6 +31,7 @@ const StartPage: React.FC<Props> = ({ history }) => {
     userSettings,
     forceSaveVote,
   } = useContext(BallotContext)
+  const audioFocus = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   const { election } = electionDefinition
   const { title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
@@ -43,8 +44,12 @@ const StartPage: React.FC<Props> = ({ history }) => {
     history.push('/contests/0')
   }
 
+  useEffect(() => {
+    audioFocus.current?.click()
+  }, [])
+
   return (
-    <Screen>
+    <Screen ref={audioFocus}>
       <Main>
         <MainChild center>
           <Prose textCenter>

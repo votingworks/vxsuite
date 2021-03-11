@@ -146,7 +146,7 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
       <Main>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <h1 aria-label={`${contest.title}.`}>
+            <h1 aria-label={`${contest.section} ${contest.title}.`}>
               <ContestSection>{contest.section}</ContestSection>
               {contest.title}
             </h1>

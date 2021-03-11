@@ -557,7 +557,7 @@ exports[`Renders ContestPage 1`] = `
           id="audiofocus"
         >
           <h1
-            aria-label="President and Vice-President."
+            aria-label="United States President and Vice-President."
           >
             <div
               class="c4"

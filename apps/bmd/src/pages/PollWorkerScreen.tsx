@@ -146,7 +146,9 @@ const PollWorkerScreen: React.FC<Props> = ({
         <Main>
           <MainChild center narrow>
             <Prose>
-              <h1 aria-label="Ballot style {ballotStyleId} has been  activated.">
+              <h1
+                aria-label={`Ballot style ${ballotStyleId} has been activated.`}
+              >
                 Ballot style {ballotStyleId} has been activated.
               </h1>
               <ol>

@@ -288,7 +288,7 @@ const CandidateContest: React.FC<Props> = ({
       <Main>
         <ContentHeader isCandidateStyle id="contest-header">
           <Prose id="audiofocus">
-            <h1 aria-label={`${contest.title}.`}>
+            <h1 aria-label={`${contest.section} ${contest.title}.`}>
               <ContestSection>{contest.section}</ContestSection>
               {contest.title}
             </h1>
