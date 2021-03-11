@@ -1,8 +1,8 @@
 import { dirSync } from 'tmp'
-import { retryScan, queryFromOptions } from './'
-import { parseOptions } from './options'
-import * as fixtures from '../../../test/fixtures/state-of-hamilton'
+import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { createWorkspace } from '../../util/workspace'
+import { queryFromOptions, retryScan } from './'
+import { parseOptions } from './options'
 
 jest.setTimeout(20000)
 
@@ -146,7 +146,7 @@ test('full rescan', async () => {
   await store.setElection({
     election: fixtures.election,
     electionData: JSON.stringify(fixtures.election),
-    electionHash: 'not-a-hash',
+    electionHash: '02f807b005e006da160b',
   })
 
   const batchId = await store.addBatch()
@@ -156,16 +156,16 @@ test('full rescan', async () => {
         type: 'UnreadablePage',
         reason: 'just because, okay?',
       },
-      originalFilename: fixtures.filledInPage1,
-      normalizedFilename: fixtures.filledInPage1,
+      originalFilename: fixtures.blankPage1,
+      normalizedFilename: fixtures.blankPage1,
     },
     {
       interpretation: {
         type: 'UnreadablePage',
         reason: 'just because, okay?',
       },
-      originalFilename: fixtures.filledInPage2,
-      normalizedFilename: fixtures.filledInPage2,
+      originalFilename: fixtures.blankPage2,
+      normalizedFilename: fixtures.blankPage2,
     },
   ])
 
@@ -228,7 +228,7 @@ test('writing output to another database', async () => {
   await inputDb.setElection({
     election: fixtures.election,
     electionData: JSON.stringify(fixtures.election),
-    electionHash: 'not-a-hash',
+    electionHash: '02f807b005e006da160b',
   })
 
   const batchId = await inputDb.addBatch()
@@ -238,16 +238,16 @@ test('writing output to another database', async () => {
         type: 'UnreadablePage',
         reason: 'just because, okay?',
       },
-      originalFilename: fixtures.filledInPage1,
-      normalizedFilename: fixtures.filledInPage1,
+      originalFilename: fixtures.blankPage1,
+      normalizedFilename: fixtures.blankPage1,
     },
     {
       interpretation: {
         type: 'UnreadablePage',
         reason: 'just because, okay?',
       },
-      originalFilename: fixtures.filledInPage2,
-      normalizedFilename: fixtures.filledInPage2,
+      originalFilename: fixtures.blankPage2,
+      normalizedFilename: fixtures.blankPage2,
     },
   ])
 
@@ -299,8 +299,8 @@ test('writing output to another database', async () => {
   ).toMatchInlineSnapshot(`
     Array [
       Object {
-        "back_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"\\",\\"ballotType\\":0,\\"locales\\":{\\"primary\\":\\"en-US\\",\\"secondary\\":\\"es-US\\"},\\"ballotStyleId\\":\\"12\\",\\"precinctId\\":\\"23\\",\\"isTestMode\\":false,\\"pageNumber\\":2}}",
-        "front_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"\\",\\"ballotType\\":0,\\"locales\\":{\\"primary\\":\\"en-US\\",\\"secondary\\":\\"es-US\\"},\\"ballotStyleId\\":\\"12\\",\\"precinctId\\":\\"23\\",\\"isTestMode\\":false,\\"pageNumber\\":1}}",
+        "back_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"02f807b005e006da160b\\",\\"precinctId\\":\\"6538\\",\\"ballotStyleId\\":\\"1\\",\\"locales\\":{\\"primary\\":\\"en-US\\"},\\"pageNumber\\":2,\\"isTestMode\\":false,\\"ballotType\\":0}}",
+        "front_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"02f807b005e006da160b\\",\\"precinctId\\":\\"6538\\",\\"ballotStyleId\\":\\"1\\",\\"locales\\":{\\"primary\\":\\"en-US\\"},\\"pageNumber\\":1,\\"isTestMode\\":false,\\"ballotType\\":0}}",
         "id": "a-test-sheet-id",
       },
     ]

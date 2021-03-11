@@ -11,7 +11,12 @@ import {
   MarkThresholds,
   VotesDict,
 } from '@votingworks/types'
-import { decodeBallot, detect } from '@votingworks/ballot-encoder'
+import {
+  decodeBallot,
+  decodeElectionHash,
+  detect,
+  ELECTION_HASH_LENGTH,
+} from '@votingworks/ballot-encoder'
 import {
   BallotMark,
   BallotPageLayout,
@@ -195,7 +200,10 @@ export function sheetRequiresAdjudication([
 }
 
 export interface InterpreterOptions {
+  // TODO: consolidate these into an election definition
   election: Election
+  electionHash?: string
+  // END TODO
   testMode: boolean
   markThresholdOverrides?: MarkThresholds
 }
@@ -203,15 +211,18 @@ export interface InterpreterOptions {
 export default class Interpreter {
   private hmpbInterpreter?: HMPBInterpreter
   private election: Election
+  private electionHash?: string
   private testMode: boolean
   private markThresholds: MarkThresholds
 
   public constructor({
     election,
+    electionHash,
     testMode,
     markThresholdOverrides,
   }: InterpreterOptions) {
     this.election = election
+    this.electionHash = electionHash
     this.testMode = testMode
 
     const markThresholds = markThresholdOverrides ?? election.markThresholds
@@ -287,6 +298,26 @@ export default class Interpreter {
     }
 
     const ballotImageData = result.value
+
+    if (typeof this.electionHash === 'string') {
+      const actualElectionHash =
+        decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found'
+      const expectedElectionHash = this.electionHash.slice(
+        0,
+        ELECTION_HASH_LENGTH
+      )
+
+      if (actualElectionHash !== expectedElectionHash) {
+        return {
+          interpretation: {
+            type: 'InvalidElectionHashPage',
+            expectedElectionHash,
+            actualElectionHash,
+          },
+        }
+      }
+    }
+
     const bmdResult = await this.interpretBMDFile(ballotImageData)
 
     if (bmdResult) {
@@ -358,10 +389,6 @@ export default class Interpreter {
         },
       }
     }
-  }
-
-  public electionDidChange(): void {
-    this.hmpbInterpreter = undefined
   }
 
   private async interpretBMDFile({

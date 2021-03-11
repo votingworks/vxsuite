@@ -1,4 +1,3 @@
-import { Election } from '@votingworks/types'
 import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
@@ -35,11 +34,6 @@ export type Output = InterpretOutput | void
 
 export let interpreter: Interpreter | undefined
 
-async function getElection(store: Store): Promise<Election | undefined> {
-  const electionDefinition = await store.getElectionDefinition()
-  return electionDefinition?.election
-}
-
 /**
  * Reads election configuration from the database.
  */
@@ -47,19 +41,22 @@ export async function configure(store: Store): Promise<void> {
   interpreter = undefined
 
   debug('configuring from %s', store.dbPath)
-  const election = await getElection(store)
+  const electionDefinition = await store.getElectionDefinition()
 
-  if (!election) {
+  if (!electionDefinition) {
     debug('no election configured')
     return
   }
 
-  debug('election: %o', election.title)
+  debug('election: %o', electionDefinition.election.title)
   const templates = await store.getHmpbTemplates()
 
   debug('creating a new interpreter')
   interpreter = new Interpreter({
-    election,
+    election: electionDefinition.election,
+    electionHash: (await store.getSkipElectionHashCheck())
+      ? undefined
+      : electionDefinition.electionHash,
     testMode: await store.getTestMode(),
     markThresholdOverrides: await store.getMarkThresholdOverrides(),
   })

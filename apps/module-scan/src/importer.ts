@@ -53,6 +53,7 @@ export interface Importer {
   getStatus(): Promise<ScanStatus>
   restoreConfig(): Promise<void>
   setTestMode(testMode: boolean): Promise<void>
+  setSkipElectionHashCheck(skipElectionHashCheck: boolean): Promise<void>
   setMarkThresholdOverrides(
     markThresholds: Optional<MarkThresholds>
   ): Promise<void>
@@ -198,6 +199,16 @@ export default class SystemImporter implements Importer {
     await this.doZero()
     await this.workspace.store.setTestMode(testMode)
     await this.restoreConfig()
+  }
+
+  public async setSkipElectionHashCheck(
+    skipElectionHashCheck: boolean
+  ): Promise<void> {
+    debug(
+      'setting skip check election hash setting to %s',
+      skipElectionHashCheck
+    )
+    await this.workspace.store.setSkipElectionHashCheck(skipElectionHashCheck)
   }
 
   public async setMarkThresholdOverrides(

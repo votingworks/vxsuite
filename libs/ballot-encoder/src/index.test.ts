@@ -16,6 +16,7 @@ import {
 } from '@votingworks/types'
 import {
   decodeBallot,
+  decodeElectionHash,
   decodeHMPBBallotPageMetadata,
   detect,
   detectHMPBBallotPageMetadata,
@@ -1094,4 +1095,49 @@ test('detect HMPB ballot page metadata', () => {
       })
     )
   ).toBe(false)
+})
+
+test('decode election hash from HMPB metadata', () => {
+  const { election, electionHash } = electionDefinition
+  const ballotMetadata: HMPBBallotPageMetadata = {
+    electionHash,
+    precinctId: election.ballotStyles[0].precincts[0],
+    ballotStyleId: election.ballotStyles[0].id,
+    locales: { primary: 'en-US' },
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(
+    decodeElectionHash(encodeHMPBBallotPageMetadata(election, ballotMetadata))
+  ).toEqual(electionHash)
+})
+
+test('decode election hash from BMD metadata', () => {
+  const { election, electionHash } = electionDefinition
+  const ballotStyle = election.ballotStyles[0]
+  const precinct = election.precincts[0]
+  const ballotStyleId = ballotStyle.id
+  const precinctId = precinct.id
+  const contests = getContests({ ballotStyle, election })
+  const votes = vote(contests, {})
+  const ballotId = 'abcde'
+  const ballot: CompletedBallot = {
+    electionHash,
+    ballotId,
+    ballotStyleId,
+    precinctId,
+    votes,
+    isTestMode: false,
+    ballotType: BallotType.Standard,
+  }
+
+  expect(decodeElectionHash(encodeBallot(election, ballot))).toEqual(
+    electionHash.slice(0, ELECTION_HASH_LENGTH)
+  )
+})
+
+test('fails to find the election hash with garbage data', () => {
+  expect(decodeElectionHash(Uint8Array.of(1, 2, 3))).toBeUndefined()
 })

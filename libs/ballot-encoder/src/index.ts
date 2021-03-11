@@ -627,6 +627,31 @@ export function detectHMPBBallotPageMetadata(data: Uint8Array): boolean {
 }
 
 /**
+ * Reads the election hash from an encoded ballot or encoded HMPB metadata.
+ */
+export function decodeElectionHash(data: Uint8Array): string | undefined {
+  return decodeElectionHashFromReader(new BitReader(data))
+}
+
+/**
+ * Reads the election hash from an encoded ballot or encoded HMPB metadata.
+ */
+export function decodeElectionHashFromReader(
+  bits: BitReader
+): string | undefined {
+  if (bits.skipUint8(...HMPBPrelude)) {
+    return bits.readString({ encoding: HexEncoding })
+  }
+
+  if (bits.skipUint8(...Prelude)) {
+    return bits.readString({
+      encoding: HexEncoding,
+      length: ELECTION_HASH_LENGTH,
+    })
+  }
+}
+
+/**
  * Reads the HMPB prelude bytes from `bits`. When detected, the cursor of `bits`
  * will be updated to skip the prelude bytes.
  */
