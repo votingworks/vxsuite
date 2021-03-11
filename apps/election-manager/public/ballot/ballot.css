@@ -1,5 +1,6 @@
 .pagedjs_pages {
   font-size: 14px;
+  color: #000000; /* Always Black for printed text content. */
 }
 
 .pagedjs_pagebox .pagedjs_margin-bottom-center {
