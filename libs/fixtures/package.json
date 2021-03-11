@@ -13,8 +13,7 @@
     "lint": "tsc --build && eslint src",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch",
-    "postbuild": "cpy --cwd=src --parents '**/*.{txt,csv}' ../dist/src"
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",

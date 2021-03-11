@@ -49,7 +49,7 @@ const eitherNeitherSEMSPath = path.join(
 )
 const primarySEMSPath = path.join(
   electionMultiPartyPrimaryInternal.semsDataFolderPath!,
-  'standard.csv'
+  'standard.csv.ts'
 )
 
 function buildCandidateTallies(

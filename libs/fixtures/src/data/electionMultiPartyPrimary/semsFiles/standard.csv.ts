@@ -1,4 +1,4 @@
-"sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","0","Write-in","0","Li","30",
+export default `"sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","0","Write-in","0","Li","30",
 "sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","1","Times Over Voted","0","Li","30",
 "sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","2","Times Under Voted","0","Li","30",
 "sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","jenna-morasca","Jenna Morasca","0","Li","30",
@@ -363,3 +363,4 @@
 "sample-county","precinct-5","schoolboard-liberty","Schoolboard","0","Li","chris-daugherty","Chris Daugherty","0","Li","120",
 "sample-county","precinct-5","schoolboard-liberty","Schoolboard","0","Li","danni-boatwright","Dann Boatwright","0","Li","120",
 "sample-county","precinct-5","schoolboard-liberty","Schoolboard","0","Li","tom-westman","Tom Westman","0","Li","120",
+`

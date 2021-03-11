@@ -18,12 +18,6 @@ export function asElectionDefinition(election: Election): ElectionDefinition {
   }
 }
 
-export interface InternalElectionData {
-  electionDefinition: ElectionDefinition
-  cvrDataFolderPath?: string
-  semsDataFolderPath?: string
-}
-
 export const electionSample = (electionSampleUntyped as unknown) as Election
 export const electionSample2 = (electionSample2Untyped as unknown) as Election
 export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) as Election
@@ -46,7 +40,7 @@ export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
   electionWithMsEitherNeither
 )
 
-export const electionMultiPartyPrimaryInternal: InternalElectionData = {
+export const electionMultiPartyPrimaryInternal = {
   electionDefinition: multiPartyPrimaryElectionDefinition,
   cvrDataFolderPath: path.join(dataPath, '/electionMultiPartyPrimary/cvrFiles'),
   semsDataFolderPath: path.join(
@@ -55,17 +49,17 @@ export const electionMultiPartyPrimaryInternal: InternalElectionData = {
   ),
 }
 
-export const electionSimplePrimaryInternal: InternalElectionData = {
+export const electionSimplePrimaryInternal = {
   electionDefinition: primaryElectionSampleDefinition,
   cvrDataFolderPath: path.join(dataPath, '/electionPrimary/cvrFiles'),
 }
 
-export const electionSample2Internal: InternalElectionData = {
+export const electionSample2Internal = {
   electionDefinition: electionSample2Definition,
   cvrDataFolderPath: path.join(dataPath, '/electionSample2/cvrFiles'),
 }
 
-export const electionWithMsEitherNeitherInternal: InternalElectionData = {
+export const electionWithMsEitherNeitherInternal = {
   electionDefinition: electionWithMsEitherNeitherDefinition,
   cvrDataFolderPath: path.join(
     dataPath,
