@@ -280,37 +280,50 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     }
   }
 
-  const saveElection: SaveElection = async (electionJSON) => {
-    // we set a new election definition, reset everything
-    storage.clear()
-    setIsOfficialResults(false)
-    setCastVoteRecordFiles(CastVoteRecordFiles.empty)
-    setExternalVoteRecordsFile(undefined)
-    setPrintedBallots([])
-    setElectionDefinition(undefined)
+  const saveElection: SaveElection = useCallback(
+    async (electionJSON) => {
+      // we set a new election definition, reset everything
+      storage.clear()
+      setIsOfficialResults(false)
+      setCastVoteRecordFiles(CastVoteRecordFiles.empty)
+      setExternalVoteRecordsFile(undefined)
+      setPrintedBallots([])
+      setElectionDefinition(undefined)
 
-    if (electionJSON) {
-      const electionData = electionJSON
-      const electionHash = sha256(electionData)
-      const election = parseElection(JSON.parse(electionData))
+      if (electionJSON) {
+        const electionData = electionJSON
+        const electionHash = sha256(electionData)
+        const election = parseElection(JSON.parse(electionData))
 
-      setElectionDefinition({
-        electionData,
-        electionHash,
-        election,
-      })
+        setElectionDefinition({
+          electionData,
+          electionHash,
+          election,
+        })
 
-      const newConfiguredAt = new Date().toISOString()
-      setConfiguredAt(newConfiguredAt)
+        const newConfiguredAt = new Date().toISOString()
+        setConfiguredAt(newConfiguredAt)
 
-      await storage.set(configuredAtStorageKey, newConfiguredAt)
-      await storage.set(electionDefinitionStorageKey, {
-        election,
-        electionData,
-        electionHash,
-      })
-    }
-  }
+        await storage.set(configuredAtStorageKey, newConfiguredAt)
+        await storage.set(electionDefinitionStorageKey, {
+          election,
+          electionData,
+          electionHash,
+        })
+      }
+    },
+    [
+      storage,
+      setIsOfficialResults,
+      setCastVoteRecordFiles,
+      setExternalVoteRecordsFile,
+      setPrintedBallots,
+      setElectionDefinition,
+      parseElection,
+      setElectionDefinition,
+      setConfiguredAt,
+    ]
+  )
 
   return (
     <AppContext.Provider
