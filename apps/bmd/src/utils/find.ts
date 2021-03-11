@@ -6,5 +6,3 @@ export const findPartyById = (
 ): Party | undefined => {
   return parties.find((p) => p.id === id)
 }
-
-export default { findPartyById }

@@ -18,5 +18,3 @@ export function randomBase64(numBytes: number): string {
     )
     .replace(/=+$/, '')
 }
-
-export default { randomBase64 }

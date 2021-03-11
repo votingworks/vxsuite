@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { Election, Contest } from '@votingworks/types'
 import { Tally } from '../config/types'
 
