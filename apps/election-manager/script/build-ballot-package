@@ -1,0 +1,409 @@
+#!/usr/bin/env node
+
+// @ts-check
+
+const dbg = require('debug')
+const { createWriteStream } = require('fs')
+const puppeteer = require('puppeteer')
+const { inspect, promisify } = require('util')
+const ora = require('ora')
+const { dirname, join, basename, extname, normalize } = require('path')
+const { spawn } = require('child_process')
+const isPortReachable = require('is-port-reachable')
+const treeKill = promisify(require('tree-kill'))
+
+/**
+ * @param {unknown} chunk
+ * @returns {Buffer | string}
+ */
+function makeWritable(chunk) {
+  if (
+    typeof chunk === 'object' &&
+    chunk['type'] === 'Buffer' &&
+    Array.isArray(chunk['data'])
+  ) {
+    return Buffer.from(chunk['data'])
+  }
+
+  if (typeof chunk === 'string') {
+    return chunk
+  }
+
+  throw new Error(`chunk is not writable: ${inspect(chunk)}`)
+}
+
+/**
+ * @param {NodeJS.WriteStream} out
+ */
+function printUsage(out) {
+  out.write(`usage: script/build-ballot-package [OPTIONS] FILE [FILE …]\n`)
+  out.write(`\n`)
+  out.write(`  --no-start    Don't start Election Manager automatically.\n`)
+  out.write(`                Use this if you're running it yourself.\n`)
+  out.write(`\n`)
+  out.write(`  --verbose     Print lots of debugging information.\n`)
+  out.write(`                Use this when something is not working.\n`)
+}
+
+const VIRTUAL_OUTDIR = `/build-ballot-package:out:${process.pid}`
+const DEBUG_NAMESPACE = 'build-ballot-package'
+
+/**
+ * @param {readonly string[]} args
+ * @returns {Promise<number>}
+ */
+async function main(args) {
+  const debug = dbg(DEBUG_NAMESPACE)
+
+  /** @type {string[]} */
+  const paths = []
+  let start = true
+
+  for (const arg of args) {
+    if (arg === '-v' || arg === '--verbose') {
+      dbg.enable(DEBUG_NAMESPACE)
+    } else if (arg === '--start' || arg === '--no-start') {
+      start = arg === '--start'
+    } else if (arg === '-h' || arg === '--help') {
+      printUsage(process.stdout)
+      return 0
+    } else if (arg.startsWith('-')) {
+      process.stderr.write(`error: unexpected option '${arg}'\n`)
+      printUsage(process.stderr)
+      return -1
+    } else {
+      paths.push(arg)
+    }
+  }
+
+  const server =
+    start &&
+    (await startServer(
+      debug,
+      process.env.PORT ? Number(process.env.PORT) : undefined
+    ))
+  const port = server ? server.port : 3000
+  const url = `http://localhost:${port}`
+
+  for (const electionDefinitionPath of paths) {
+    await buildBallotPackageForElectionFile({
+      electionDefinitionPath,
+      url,
+      debug,
+    })
+  }
+
+  if (server) {
+    debug('stopping server')
+    server.kill()
+  }
+
+  return 0
+}
+
+/**
+ * @param {import('debug').Debugger} debug
+ * @param {number=} port
+ * @returns {Promise<{ port: number; kill(): void }>}
+ */
+async function startServer(debug, port = (1024 + 20_000 * Math.random()) | 0) {
+  debug('starting server on port %d', port)
+  const status = ora().start('Starting Election Manager')
+  const server = spawn(join(__dirname, 'react-scripts'), ['start'], {
+    env: { ...process.env, PORT: port.toString(), BROWSER: 'none' },
+  })
+  let exited = false
+
+  server.once('exit', () => {
+    debug('server process exited')
+    exited = true
+  })
+
+  server.stdout.on('data', (chunk) => {
+    debug('server stdout: %s', chunk)
+  })
+
+  server.stderr.on('data', (chunk) => {
+    debug('server stderr: %s', chunk)
+  })
+
+  debug('waiting for server to listen…')
+  status.text = 'Waiting for Election Manager to start'
+  while (!exited) {
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    debug('checking whether localhost:%d is listening', port)
+    if (await isPortReachable(port)) {
+      debug('server is listening, resuming')
+      status.succeed('Started Election Manager')
+      break
+    }
+  }
+
+  return {
+    port,
+    async kill() {
+      server.removeAllListeners()
+      debug('sending kill to server process %s', server.pid)
+      await treeKill(server.pid)
+    },
+  }
+}
+
+/**
+ * @param {{electionDefinitionPath: string; url: string; debug: import('debug').Debugger }} param0
+ * @returns {Promise<void>}
+ */
+async function buildBallotPackageForElectionFile({
+  electionDefinitionPath,
+  url,
+  debug,
+}) {
+  const ballotPackagePath = join(
+    dirname(electionDefinitionPath),
+    `${basename(
+      electionDefinitionPath,
+      extname(electionDefinitionPath)
+    )}-ballot-package.zip`
+  )
+  const status = ora().start()
+
+  status.text = 'Launching puppeteer'
+  const browser = await puppeteer.launch()
+
+  try {
+    status.text = 'Creating a page to load Election Manager'
+    const page = await browser.newPage()
+
+    /** @type {import('fs').WriteStream | undefined} */
+    let openFile
+    /** @type {string | undefined} */
+    let openFilePath
+
+    let onFileClosed
+    const donePromise = new Promise((resolve) => {
+      onFileClosed = resolve
+    })
+
+    debug('setting up console forwarding')
+    page.on('console', (msg) => {
+      debug('received console message: %O', msg.args())
+    })
+
+    debug('Loading %s', url)
+    status.text = `Loading ${url}`
+    await page.goto(url)
+
+    page.exposeFunction(
+      'kioskPrintToPDF',
+      /**
+       * @returns {Promise<Buffer>}
+       */
+      async () => {
+        debug('kioskPrintToPDF() called, forwarding to page.pdf()')
+        return await page.pdf({ printBackground: true })
+      }
+    )
+
+    page.exposeFunction(
+      'kioskMakeDirectory',
+      /**
+       * @param {string} path
+       * @returns {Promise<void>}
+       */
+      async (path) => {
+        debug('kioskMakeDirectory(%s) called, ignoring', path)
+      }
+    )
+
+    page.exposeFunction(
+      'kioskOpenFile',
+      /**
+       * @param {string} path
+       * @returns {Promise<void>}
+       */
+      async (path) => {
+        if (!normalize(path).startsWith(VIRTUAL_OUTDIR)) {
+          debug(
+            'kioskOpenFile(%s) called with path outside VIRTUAL_OUTDIR, ignoring',
+            path
+          )
+        } else {
+          debug(
+            'kioskOpenFile(%s) called, calling createWriteStream with %s',
+            path,
+            ballotPackagePath
+          )
+          status.text = `Writing ${ballotPackagePath}`
+          openFile = createWriteStream(ballotPackagePath)
+          openFilePath = path
+        }
+      }
+    )
+
+    page.exposeFunction(
+      'kioskWriteFileChunk',
+      /**
+       * @param {string} path
+       * @param {Buffer | string} chunk
+       * @returns {Promise<void>}
+       */
+      async (path, chunk) => {
+        if (!normalize(path).startsWith(VIRTUAL_OUTDIR)) {
+          debug(
+            'kioskWriteFileChunk(%s) called with path outside VIRTUAL_OUTDIR, ignoring',
+            path
+          )
+        } else {
+          debug(
+            'kioskWriteFileChunk(%s, %o) called, fowarding to open file .write()',
+            path,
+            chunk
+          )
+          if (!openFile || openFilePath !== path) {
+            throw new Error(`file not open: ${path}`)
+          }
+
+          const writable = makeWritable(chunk)
+          await promisify(openFile.write.bind(openFile))(writable)
+        }
+      }
+    )
+
+    page.exposeFunction(
+      'kioskWriteFileEnd',
+      /**
+       * @param {string} path
+       */
+      async (path) => {
+        if (!normalize(path).startsWith(VIRTUAL_OUTDIR)) {
+          debug(
+            'kioskWriteFileEnd(%s) called with path outside VIRTUAL_OUTDIR, ignoring',
+            path
+          )
+        } else {
+          debug(
+            'kioskWriteFileEnd(%s) called, forwarding to open file .end()',
+            path
+          )
+          if (!openFile || openFilePath !== path) {
+            throw new Error(`file not open: ${path}`)
+          }
+
+          await promisify(openFile.end.bind(openFile))()
+          debug('clearing open file reference and resolving promise')
+          openFile = undefined
+          openFilePath = undefined
+          onFileClosed()
+        }
+      }
+    )
+
+    page.evaluate(
+      ({ mountPoint }) => {
+        class FileWriter {
+          /** @param {string} path */
+          constructor(path) {
+            this.path = path
+          }
+
+          async open() {
+            await window['kioskOpenFile'](this.path)
+          }
+
+          /**
+           * @param {string | Buffer} chunk
+           * @returns {Promise<void>}
+           */
+          async write(chunk) {
+            await window['kioskWriteFileChunk'](this.path, chunk)
+          }
+
+          /**
+           * @returns {Promise<void>}
+           */
+          async end() {
+            await window['kioskWriteFileEnd'](this.path)
+          }
+        }
+
+        window['kiosk'] = {
+          /**
+           * @returns {Promise<{ deviceName: string, mountPoint?: string }[]>}
+           */
+          async getUsbDrives() {
+            return [{ deviceName: 'output', mountPoint }]
+          },
+
+          /**
+           * @returns {Promise<Buffer>}
+           */
+          async printToPDF() {
+            return await window['kioskPrintToPDF']()
+          },
+
+          /**
+           * @param {string} path
+           */
+          async makeDirectory(path) {
+            return await window['kioskMakeDirectory'](path)
+          },
+
+          /**
+           * @param {string} path
+           * @returns {Promise<FileWriter>}
+           */
+          async writeFile(path) {
+            const writer = new FileWriter(path)
+            await writer.open()
+            return writer
+          },
+        }
+      },
+      { mountPoint: VIRTUAL_OUTDIR }
+    )
+
+    status.text = `Uploading ${electionDefinitionPath}`
+    debug('Looking for file handle for election definition')
+    const fileHandle = await page.$('input[type=file]')
+    debug(
+      'Uploading %s to file handle %o',
+      electionDefinitionPath,
+      fileHandle.toString()
+    )
+    await fileHandle.uploadFile(electionDefinitionPath)
+
+    status.text = 'Exporting ballot package'
+    debug('Looking for "Export Ballot Package"')
+    const exportButton = await page.waitForSelector('[data-id="export-button"]')
+    debug('Clicking export button: %o', exportButton.toString())
+    await exportButton.click()
+
+    debug('Looking for "Export" in ballot package modal')
+    const confirmExportButton = await page.waitForSelector(
+      '[data-id="confirm-export-button"]'
+    )
+    debug(
+      'Clicking "Export" in ballot package modal',
+      confirmExportButton.toString()
+    )
+    await confirmExportButton.click()
+    await donePromise
+    status.succeed(`Exported to ${ballotPackagePath}`)
+  } catch (error) {
+    debug('crash: %s', error.stack)
+    status.fail(error.message)
+  } finally {
+    debug('closing puppeteer browser')
+    await browser.close()
+  }
+}
+
+main(process.argv.slice(2))
+  .catch((error) => {
+    console.error(error.stack)
+    return 1
+  })
+  .then((code) => {
+    process.exitCode = code
+  })

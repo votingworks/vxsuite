@@ -2,6 +2,7 @@
   "name": "vxsuite",
   "private": true,
   "devDependencies": {
-    "ora": "^5.2.0"
+    "ora": "^5.2.0",
+    "tree-kill": "^1.2.2"
   }
 }

@@ -8,3 +8,4 @@
 /.eslintrc.js
 *.d.ts
 /src/serviceWorker.ts
+/script

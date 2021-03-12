@@ -187,7 +187,11 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
             <React.Fragment>
               <LinkButton onPress={closeModal}>Cancel</LinkButton>
               <Button onPress={() => saveFileCallback(true)}>Custom</Button>
-              <Button onPress={() => saveFileCallback(false)} primary>
+              <Button
+                onPress={() => saveFileCallback(false)}
+                primary
+                data-id="confirm-export-button"
+              >
                 Export
               </Button>
             </React.Fragment>
@@ -318,7 +322,11 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
 
   return (
     <React.Fragment>
-      <LinkButton small onPress={() => setIsModalOpen(true)}>
+      <LinkButton
+        data-id="export-button"
+        small
+        onPress={() => setIsModalOpen(true)}
+      >
         Export Ballot Package
       </LinkButton>
       {isModalOpen && (

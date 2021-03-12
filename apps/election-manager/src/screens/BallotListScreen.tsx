@@ -103,6 +103,7 @@ const BallotListScreen: React.FC = () => {
                     fullWidth
                     small
                     to={routerPaths.ballotsView(ballot)}
+                    data-id="view-ballot-button"
                   >
                     View Ballot
                   </LinkButton>

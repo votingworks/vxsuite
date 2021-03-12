@@ -9,6 +9,7 @@
 
 const ora = require('ora')
 const { spawn } = require('child_process')
+const treeKill = require('tree-kill')
 
 /**
  * @param {() => void} onCompile
@@ -58,10 +59,13 @@ const tsc = watchCompileTS(() => {
   }
 })
 
-process.on('exit', () => {
-  tsc.kill()
+function shutdown() {
+  treeKill(tsc.pid)
 
   if (app) {
-    app.kill()
+    treeKill(app.pid)
   }
-})
+}
+
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
