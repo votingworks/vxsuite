@@ -13,9 +13,6 @@ fi
 BACKUP_DIR=$(realpath "${BACKUP_FILE%.*}")
 mkdir -p "${BACKUP_DIR}"
 
-MANIFEST_FILE="${BACKUP_DIR}/manifest"
-zipinfo -1 "${BACKUP_FILE}" | grep -- "-original.png" | sort > "${MANIFEST_FILE}"
-
 echo -e "\e[1mExtracting images…\e[0m"
 unzip -o "${BACKUP_FILE}" "*.png" -d "${BACKUP_DIR}"
 
@@ -23,6 +20,30 @@ echo
 echo -e "\e[1mExtracting database…\e[0m"
 unzip -o "${BACKUP_FILE}" ballots.db -d "${BACKUP_DIR}"
 [ -f "${BACKUP_DIR}/ballots.db.digest" ] || (shasum -a 256 schema.sql | cut -d " " -f 1 > "${BACKUP_DIR}/ballots.db.digest")
+
+MANIFEST_FILE="${BACKUP_DIR}/manifest"
+sqlite3 "${BACKUP_DIR}/ballots.db" "
+  select
+    -- include batch id as a comment, x'0a' is '\n'
+    '# batch ' || batches.id || x'0a' ||
+    -- get all pages from the batch in front/back order
+    group_concat(
+      sheets.front_original_filename || x'0a' ||
+      sheets.back_original_filename,
+      x'0a'
+    ) ||
+    -- separate batches with an empty line
+    x'0a'
+  from
+    batches left join sheets
+    on sheets.batch_id = batches.id
+  where
+    deleted_at is null
+  group by
+    batches.id
+  order by
+    batches.started_at;
+" > "${MANIFEST_FILE}"
 
 echo
 echo -e "\e[1mSuccess! Your backup has been extracted.\e[0m"
