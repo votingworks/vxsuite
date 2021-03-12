@@ -106,8 +106,7 @@ export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
 
 export interface Tally {
   readonly numberOfBallotsCounted: number
-  // TODO(#2975): Once we're removing duplicate ballots, make this a dictionary indexed by ballotId
-  readonly castVoteRecords: readonly CastVoteRecord[]
+  readonly castVoteRecords: Set<CastVoteRecord>
   readonly contestTallies: Dictionary<ContestTally>
   readonly ballotCountsByVotingMethod: Dictionary<number>
 }
