@@ -7,7 +7,7 @@ import {
 
 import ImportCVRFilesModal from './ImportCVRFilesModal'
 import renderInAppContext, {
-  defaultElectionDefinition,
+  eitherNeitherElectionDefinition,
 } from '../../test/renderInAppContext'
 import { UsbDriveStatus } from '../lib/usbstick'
 import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
@@ -254,7 +254,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], TEST_FILE1)],
-      defaultElectionDefinition.election
+      eitherNeitherElectionDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal onClose={closeFn} />,
@@ -339,7 +339,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], 'randomname')],
-      defaultElectionDefinition.election
+      eitherNeitherElectionDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal onClose={closeFn} />,
@@ -400,7 +400,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], LIVE_FILE1)],
-      defaultElectionDefinition.election
+      eitherNeitherElectionDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal onClose={closeFn} />,

@@ -3,12 +3,12 @@ import {
   parseCVRFileInfoFromFilename,
   generateFinalExportDefaultFilename,
 } from './filenames'
-import { defaultElectionDefinition } from '../../test/renderInAppContext'
+import { eitherNeitherElectionDefinition } from '../../test/renderInAppContext'
 
 test('generates ballot export package names as expected with simple inputs', () => {
   const mockElection = {
     election: {
-      ...defaultElectionDefinition.election,
+      ...eitherNeitherElectionDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     },
@@ -24,7 +24,7 @@ test('generates ballot export package names as expected with simple inputs', () 
 test('generates ballot export package names as expected when election information has weird characters', () => {
   const mockElection = {
     election: {
-      ...defaultElectionDefinition.election,
+      ...eitherNeitherElectionDefinition.election,
       county: { name: 'King County!!', id: '' },
       title: '-_General__Election$$',
     },
@@ -40,7 +40,7 @@ test('generates ballot export package names as expected when election informatio
 test('generates ballot export package name with truncated election hash', () => {
   const mockElection = {
     election: {
-      ...defaultElectionDefinition.election,
+      ...eitherNeitherElectionDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     },
@@ -56,7 +56,7 @@ test('generates ballot export package name with truncated election hash', () => 
 test('generates ballot export package name with zero padded time pieces', () => {
   const mockElection = {
     election: {
-      ...defaultElectionDefinition.election,
+      ...eitherNeitherElectionDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     },
@@ -72,7 +72,7 @@ test('generates ballot export package name with zero padded time pieces', () => 
 describe('generateFinalExportDefaultFilename', () => {
   test('generates the correct filename for test mode', () => {
     const mockElection = {
-      ...defaultElectionDefinition.election,
+      ...eitherNeitherElectionDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     }
@@ -85,7 +85,7 @@ describe('generateFinalExportDefaultFilename', () => {
   test('generates the correct filename for live mode', () => {
     const time = new Date(2019, 2, 1, 1, 9, 2)
     const mockElection = {
-      ...defaultElectionDefinition.election,
+      ...eitherNeitherElectionDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     }

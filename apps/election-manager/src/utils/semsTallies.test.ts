@@ -1,12 +1,9 @@
 import {
   electionSample,
-  multiPartyPrimaryElection,
-  electionWithMsEitherNeither,
+  electionMultiPartyPrimaryWithDataFiles,
+  electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures'
 import { CandidateContest, Dictionary, YesNoContest } from '@votingworks/types'
-
-import * as path from 'path'
-import { promises as fs } from 'fs'
 
 import {
   ContestOptionTally,
@@ -37,15 +34,14 @@ const mockSemsRow = {
   numberOfVotes: 0,
 }
 
-const fixturesPath = path.join(__dirname, '../../../../libs/fixtures/src/data')
-const eitherNeitherSEMSPath = path.join(
-  fixturesPath,
-  'electionWithMsEitherNeither/converted-sems-results.csv'
-)
-const primarySEMSPath = path.join(
-  fixturesPath,
-  'electionMultiPartyPrimary/converted-sems-results.csv'
-)
+const multiPartyPrimaryElection =
+  electionMultiPartyPrimaryWithDataFiles.electionDefinition.election
+const electionWithMsEitherNeither =
+  electionWithMsEitherNeitherWithDataFiles.electionDefinition.election
+
+const eitherNeitherSEMSContent =
+  electionWithMsEitherNeitherWithDataFiles.semsData
+const primarySEMSContent = electionMultiPartyPrimaryWithDataFiles.semsData
 
 function buildCandidateTallies(
   multiplier: number,
@@ -438,9 +434,8 @@ describe('getContestTallyForYesNoContest', () => {
 
 describe('convertSEMSFileToExternalTally', () => {
   it('computes tallies properly on either neither general election', async () => {
-    const semsFileContent = await fs.readFile(eitherNeitherSEMSPath, 'utf8')
     const convertedTally = convertSEMSFileToExternalTally(
-      semsFileContent,
+      eitherNeitherSEMSContent,
       electionWithMsEitherNeither
     )
 
@@ -543,9 +538,8 @@ describe('convertSEMSFileToExternalTally', () => {
   })
 
   it('converts primary election sems file properly', async () => {
-    const semsFileContent = await fs.readFile(primarySEMSPath, 'utf8')
     const convertedTally = convertSEMSFileToExternalTally(
-      semsFileContent,
+      primarySEMSContent,
       multiPartyPrimaryElection
     )
 

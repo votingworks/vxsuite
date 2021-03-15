@@ -766,6 +766,7 @@ importers:
       js-sha256: 0.9.0
     devDependencies:
       '@types/jest': 26.0.20
+      '@types/node': 14.14.34
       '@typescript-eslint/eslint-plugin': 4.16.1_8360ec0b6468ab52d7ec43304a9826d1
       '@typescript-eslint/parser': 4.16.1_eslint@7.19.0+typescript@4.2.3
       eslint: 7.19.0
@@ -777,6 +778,7 @@ importers:
       typescript: 4.2.3
     specifiers:
       '@types/jest': ^26.0.20
+      '@types/node': ^14.14.31
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
       '@votingworks/types': workspace:*
@@ -6066,6 +6068,10 @@ packages:
   /@types/node/14.14.25:
     resolution:
       integrity: sha512-EPpXLOVqDvisVxtlbvzfyqSsFeQxltFbluZNRndIb8tr9KiBnYNLzrc1N3pyKUCww2RNrfHDViqDWWE1LCJQtQ==
+  /@types/node/14.14.34:
+    dev: true
+    resolution:
+      integrity: sha512-dBPaxocOK6UVyvhbnpFIj2W+S+1cBTkHQbFQfeeJhoKFbzYcVUGHvddeWPSucKATb3F0+pgDq0i6ghEaZjsugA==
   /@types/normalize-package-data/2.4.0:
     resolution:
       integrity: sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
@@ -11766,17 +11772,6 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.13.1:
-    dev: false
-    engines:
-      node: '>=4.0'
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    resolution:
-      integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
@@ -12619,7 +12614,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.13.1
+      follow-redirects: 1.13.1_debug@4.3.1
       requires-port: 1.0.0
     dev: false
     engines:
