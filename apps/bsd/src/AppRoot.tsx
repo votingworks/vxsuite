@@ -1,21 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
-import {
-  Election,
-  Optional,
-  OptionalElection,
-  MarkThresholds,
-} from '@votingworks/types'
+import { MarkThresholds, Optional } from '@votingworks/types'
 import styled from 'styled-components'
 
-import {
-  CardData,
-  ScanStatusResponse,
-  CardReadLongResponse,
-  CardReadResponse,
-  MachineConfig,
-} from './config/types'
+import { ScanStatusResponse, MachineConfig } from './config/types'
+import { ElectionDefinition } from './util/ballot-package'
 
 import AppContext from './contexts/AppContext'
 
@@ -45,7 +35,7 @@ import 'normalize.css'
 import './App.css'
 import fetchJSON from './util/fetchJSON'
 import download from './util/download'
-import { get as getConfig, patch as patchConfig } from './api/config'
+import * as config from './api/config'
 import LinkButton from './components/LinkButton'
 import MainNav from './components/MainNav'
 import StatusFooter from './components/StatusFooter'
@@ -62,9 +52,11 @@ const Buttons = styled.div`
 
 const App: React.FC = () => {
   const history = useHistory()
-  const [cardServerAvailable, setCardServerAvailable] = useState(true)
   const [isConfigLoaded, setIsConfigLoaded] = useState(false)
-  const [election, setElection] = useState<OptionalElection>()
+  const [
+    electionDefinition,
+    setElectionDefinition,
+  ] = useState<ElectionDefinition>()
   const [electionJustLoaded, setElectionJustLoaded] = useState(false)
   const [electionHash, setElectionHash] = useState<string>()
   // used to hide batches while they're being deleted
@@ -77,7 +69,6 @@ const App: React.FC = () => {
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
   })
-  const [loadingElection, setLoadingElection] = useState(false)
 
   const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
   const [recentlyEjected, setRecentlyEjected] = useState(false)
@@ -97,14 +88,18 @@ const App: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false)
 
   const refreshConfig = useCallback(async () => {
-    const config = await getConfig()
-    setElection(config.election)
-    setTestMode(config.testMode)
-    setMarkThresholds(config.markThresholdOverrides ?? undefined)
+    const {
+      electionDefinition: refreshedElectionDefinition,
+      testMode,
+      markThresholdOverrides,
+    } = await config.get()
+    setElectionDefinition(refreshedElectionDefinition)
+    setTestMode(testMode)
+    setMarkThresholds(markThresholdOverrides ?? undefined)
   }, [])
 
-  const updateElection = async (e: OptionalElection) => {
-    setElection(e)
+  const updateElectionDefinition = async (e: Optional<ElectionDefinition>) => {
+    setElectionDefinition(e)
     setElectionJustLoaded(true)
   }
 
@@ -154,67 +149,15 @@ const App: React.FC = () => {
     }
   }, [setStatus])
 
-  const configureServer = useCallback(
-    async (configuredElection: Election) => {
-      try {
-        await patchConfig({ election: configuredElection })
-        updateStatus()
-      } catch (error) {
-        console.log('failed configureServer()', error) // eslint-disable-line no-console
-      }
-    },
-    [updateStatus]
-  )
-
-  const uploadElection = useCallback(
-    async (electionToUpload: OptionalElection) => {
-      if (electionToUpload) await configureServer(electionToUpload)
-      setElection(electionToUpload)
-    },
-    [updateElection, configureServer]
-  )
-
   const unconfigureServer = useCallback(async () => {
     try {
-      await patchConfig({ election: null })
+      await config.setElectionDefinition(undefined)
       await refreshConfig()
       history.replace('/')
     } catch (error) {
       console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
     }
   }, [history, refreshConfig])
-
-  const loadElectionFromCard = useCallback(async () => {
-    const card = await fetchJSON<CardReadLongResponse>('/card/read_long')
-    return JSON.parse(card.longValue)
-  }, [])
-
-  const processCardData = useCallback(
-    async (cardData: CardData, longValueExists: boolean) => {
-      if (cardData.t === 'admin') {
-        if (!election) {
-          if (longValueExists && !loadingElection) {
-            setLoadingElection(true)
-            await uploadElection(await loadElectionFromCard())
-            setLoadingElection(false)
-          }
-        }
-      }
-    },
-    [election, loadElectionFromCard, loadingElection, uploadElection]
-  )
-
-  const readCard = useCallback(async () => {
-    try {
-      const card = await fetchJSON<CardReadResponse>('/card/read')
-      if (card.present && card.shortValue) {
-        const cardData = JSON.parse(card.shortValue) as CardData
-        processCardData(cardData, card.longValueExists)
-      }
-    } catch {
-      setCardServerAvailable(false)
-    }
-  }, [processCardData, setCardServerAvailable])
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true)
@@ -271,7 +214,7 @@ const App: React.FC = () => {
   const toggleTestMode = useCallback(async () => {
     try {
       setTogglingTestMode(true)
-      await patchConfig({ testMode: !isTestMode })
+      await config.setTestMode(!isTestMode)
       await refreshConfig()
       history.replace('/')
     } finally {
@@ -281,9 +224,7 @@ const App: React.FC = () => {
 
   const setMarkThresholdOverrides = useCallback(
     async (markThresholdOverrides: Optional<MarkThresholds>) => {
-      await patchConfig({
-        markThresholdOverrides: markThresholdOverrides ?? null,
-      })
+      await config.setMarkThresholdOverrides(markThresholdOverrides)
       await refreshConfig()
       history.replace('/')
     },
@@ -309,12 +250,10 @@ const App: React.FC = () => {
 
   useInterval(
     useCallback(() => {
-      if (election) {
+      if (electionDefinition) {
         updateStatus()
-      } else if (cardServerAvailable) {
-        readCard()
       }
-    }, [election, cardServerAvailable, updateStatus, readCard]),
+    }, [electionDefinition, updateStatus]),
     1000
   )
 
@@ -363,7 +302,7 @@ const App: React.FC = () => {
     }
   }, [electionJustLoaded, displayUsbStatus])
 
-  if (election) {
+  if (electionDefinition) {
     if (electionJustLoaded) {
       return (
         <AppContext.Provider
@@ -371,7 +310,7 @@ const App: React.FC = () => {
             usbDriveStatus: displayUsbStatus,
             usbDriveEject: doEject,
             machineConfig,
-            election,
+            electionDefinition,
             electionHash,
           }}
         >
@@ -404,7 +343,7 @@ const App: React.FC = () => {
           value={{
             usbDriveStatus: displayUsbStatus,
             usbDriveEject: doEject,
-            election,
+            electionDefinition,
             electionHash,
             machineConfig,
           }}
@@ -431,7 +370,7 @@ const App: React.FC = () => {
         value={{
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
-          election,
+          electionDefinition,
           electionHash,
           machineConfig,
         }}
@@ -459,7 +398,7 @@ const App: React.FC = () => {
               setMarkThresholdOverrides={setMarkThresholdOverrides}
               markThresholds={markThresholds}
               isTogglingTestMode={isTogglingTestMode}
-              election={election}
+              electionDefinition={electionDefinition}
             />
           </Route>
           <Route path="/">
@@ -515,8 +454,7 @@ const App: React.FC = () => {
               <ExportResultsModal
                 onClose={() => setIsExportingCVRs(false)}
                 usbDriveStatus={displayUsbStatus}
-                election={election}
-                electionHash={electionHash}
+                electionDefinition={electionDefinition}
                 isTestMode={isTestMode}
                 numberOfBallots={status.batches.reduce(
                   (prev, next) => prev + next.count,
@@ -537,12 +475,11 @@ const App: React.FC = () => {
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
           machineConfig,
-          election: undefined,
-          electionHash: undefined,
+          electionDefinition,
         }}
       >
         <LoadElectionScreen
-          setElection={updateElection}
+          setElectionDefinition={updateElectionDefinition}
           usbDriveStatus={displayUsbStatus}
         />
       </AppContext.Provider>

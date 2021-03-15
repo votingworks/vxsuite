@@ -282,10 +282,6 @@ const ElectionConfiguration: React.FC<Props> = ({
                 packages exported from Election Manager.
               </ListItem>
               <ListItem>
-                <strong>Insert an Admin Card</strong> into an attached card
-                reader.
-              </ListItem>
-              <ListItem>
                 Manually select a file to configure:{' '}
                 <FileInputButton
                   accept=".json,.zip"

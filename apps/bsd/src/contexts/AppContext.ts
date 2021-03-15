@@ -1,12 +1,12 @@
-import { Election } from '@votingworks/types'
 import { createContext } from 'react'
 import { MachineConfig } from '../config/types'
+import { ElectionDefinition } from '../util/ballot-package'
 
 interface AppContextInterface {
   usbDriveStatus: string
   usbDriveEject: () => void
   machineConfig: MachineConfig
-  election?: Election
+  electionDefinition?: ElectionDefinition
   electionHash?: string
 }
 
@@ -14,7 +14,7 @@ const appContext: AppContextInterface = {
   usbDriveStatus: '',
   usbDriveEject: () => undefined,
   machineConfig: { machineId: '0000' },
-  election: undefined,
+  electionDefinition: undefined,
   electionHash: undefined,
 }
 

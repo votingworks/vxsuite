@@ -1,31 +1,56 @@
 import fetchMock from 'fetch-mock'
-import { electionSample } from '@votingworks/fixtures'
-import { get, patch } from './config'
+import { electionSampleDefinition } from '@votingworks/fixtures'
+import * as config from './config'
+import { ElectionDefinition } from '../util/ballot-package'
+
+// TODO: Replace this with something straight from `@votingworks/fixtures` when
+// all ElectionDefinition interface definitions are shared.
+const testElectionDefinition: ElectionDefinition = {
+  ...electionSampleDefinition,
+  electionData: JSON.stringify(electionSampleDefinition.election),
+}
 
 test('GET /config', async () => {
   fetchMock.getOnce(
     '/config',
-    JSON.stringify({ election: electionSample, testMode: true })
+    JSON.stringify({
+      electionDefinition: testElectionDefinition,
+      testMode: true,
+    })
   )
-  expect(await get()).toEqual({ election: electionSample, testMode: true })
+  expect(await config.get()).toEqual({
+    electionDefinition: testElectionDefinition,
+    testMode: true,
+  })
 })
 
-test('PATCH /config', async () => {
-  fetchMock.patchOnce('/config', JSON.stringify({ status: 'ok' }))
-  await patch({})
-})
-
-test('PATCH /config fails', async () => {
+test('PATCH /config/electionDefinition', async () => {
   fetchMock.patchOnce(
-    '/config',
-    new Response(JSON.stringify({ status: 'error' }), { status: 400 })
+    '/config/electionDefinition',
+    JSON.stringify({ status: 'ok' })
   )
-  await expect(patch({})).rejects.toThrowError(
-    'failed with response status: 400'
+  await config.setElectionDefinition(testElectionDefinition)
+})
+
+test('PATCH /config/electionDefinition fails', async () => {
+  fetchMock.patchOnce(
+    '/config/electionDefinition',
+
+    new Response(JSON.stringify({ status: 'error', error: 'bad election!' }), {
+      status: 400,
+    })
+  )
+  await expect(
+    config.setElectionDefinition(testElectionDefinition)
+  ).rejects.toThrowError(
+    'PATCH /config/electionDefinition failed: bad election!'
   )
 })
 
-test('PATCH /config to delete election', async () => {
-  fetchMock.patchOnce('/config', JSON.stringify({ status: 'ok' }))
-  await patch({ election: null })
+test('DELETE /config/electionDefinition to delete election', async () => {
+  fetchMock.deleteOnce(
+    '/config/electionDefinition',
+    JSON.stringify({ status: 'ok' })
+  )
+  await config.setElectionDefinition(undefined)
 })

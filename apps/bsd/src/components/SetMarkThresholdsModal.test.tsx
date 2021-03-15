@@ -18,7 +18,7 @@ test('renders warning message before allowing overrides to be set', () => {
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={undefined}
         setMarkThresholdOverrides={jest.fn()}
       />
@@ -37,7 +37,7 @@ test('renders reset modal when overrides are set', async () => {
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={{ definite: 0.32, marginal: 0.24 }}
         setMarkThresholdOverrides={setMarkThresholdOverrides}
       />
@@ -70,7 +70,7 @@ test('reset modal displays errors appropriately', async () => {
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={{ definite: 0.32, marginal: 0.24 }}
         setMarkThresholdOverrides={setMarkThresholdOverrides}
       />
@@ -94,7 +94,7 @@ test('allows users to set thresholds properly', async () => {
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={undefined}
         setMarkThresholdOverrides={setThresholds}
       />
@@ -128,7 +128,7 @@ test('setting thresholds renders an error if given a non number', async () => {
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={undefined}
         setMarkThresholdOverrides={setThresholds}
       />
@@ -156,7 +156,7 @@ test('setting thresholds renders an error if given a number greater than 1', asy
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={undefined}
         setMarkThresholdOverrides={setThresholds}
       />
@@ -186,7 +186,7 @@ test('setting thresholds renders an error if saving throws an error', async () =
     <Router history={createMemoryHistory()}>
       <SetMarkThresholdsModal
         onClose={closeFn}
-        election={electionSample}
+        markThresholds={electionSample.markThresholds}
         markThresholdOverrides={undefined}
         setMarkThresholdOverrides={setThresholds}
       />

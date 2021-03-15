@@ -102,13 +102,15 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         </strong>
          — 
         Tuesday, November 3, 2020
-         —
          
+        — 
         Franklin County
-        , 
+        ,
+         
         State of Hamilton
          
-        — Election Hash: 
+        — Election Hash:
+         
         <strong>
           2f6b1553c7
         </strong>
@@ -220,13 +222,15 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         </strong>
          — 
         Tuesday, November 3, 2020
-         —
          
+        — 
         Franklin County
-        , 
+        ,
+         
         State of Hamilton
          
-        — Election Hash: 
+        — Election Hash:
+         
         <strong>
           2f6b1553c7
         </strong>
@@ -362,13 +366,15 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         </strong>
          — 
         Tuesday, November 3, 2020
-         —
          
+        — 
         Franklin County
-        , 
+        ,
+         
         State of Hamilton
          
-        — Election Hash: 
+        — Election Hash:
+         
         <strong>
           2f6b1553c7
         </strong>
@@ -509,13 +515,15 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         </strong>
          — 
         Tuesday, November 3, 2020
-         —
          
+        — 
         Franklin County
-        , 
+        ,
+         
         State of Hamilton
          
-        — Election Hash: 
+        — Election Hash:
+         
         <strong>
           2f6b1553c7
         </strong>
@@ -630,13 +638,15 @@ exports[`says the sheet is unreadable if it is 1`] = `
         </strong>
          — 
         Tuesday, November 3, 2020
-         —
          
+        — 
         Franklin County
-        , 
+        ,
+         
         State of Hamilton
          
-        — Election Hash: 
+        — Election Hash:
+         
         <strong>
           2f6b1553c7
         </strong>

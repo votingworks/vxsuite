@@ -6,7 +6,7 @@ import LoadElectionScreen from './LoadElectionScreen'
 test('shows a message that there is no election configuration', () => {
   const { getByText } = render(
     <LoadElectionScreen
-      setElection={jest.fn()}
+      setElectionDefinition={jest.fn()}
       usbDriveStatus={UsbDriveStatus.absent}
     />
   )

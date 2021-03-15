@@ -1,5 +1,6 @@
 /* eslint-disable jest/expect-expect */
 
+import { electionSampleDefinition } from '@votingworks/fixtures'
 import {
   AdjudicationReason,
   CandidateContest,
@@ -18,10 +19,16 @@ import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
 import { buildApp, start } from './server'
-import { ScanStatus } from './types'
+import { ElectionDefinition, ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
-import { fromElection } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
+
+// TODO: Replace this with something straight from `@votingworks/fixtures` when
+// all ElectionDefinition interface definitions are shared.
+const testElectionDefinition: ElectionDefinition = {
+  ...electionSampleDefinition,
+  electionData: JSON.stringify(electionSampleDefinition.election),
+}
 
 jest.mock('./importer')
 
@@ -97,63 +104,71 @@ test('GET /scan/status', async () => {
 })
 
 test('GET /config', async () => {
-  await workspace.store.setElection(fromElection(election))
+  await workspace.store.setElection(testElectionDefinition)
   await workspace.store.setTestMode(true)
   await workspace.store.setMarkThresholdOverrides(undefined)
-  await request(app).get('/config').expect(200, {
-    election,
+  const response = await request(app).get('/config').expect(200)
+  // This mess of a comparison is due to `Store#getElectionDefinition` adding
+  // default `markThresholds` if they're not set, so it may not be the same as
+  // we originally set.
+  expect(response.body).toEqual({
+    electionDefinition: expect.objectContaining({
+      electionHash: testElectionDefinition.electionHash,
+      election: expect.objectContaining({
+        title: testElectionDefinition.election.title,
+      }),
+    }),
     testMode: true,
   })
 })
 
 test('GET /config with mark threshold overrides', async () => {
-  await workspace.store.setElection(fromElection(election))
+  await workspace.store.setElection(testElectionDefinition)
   await workspace.store.setTestMode(true)
   await workspace.store.setMarkThresholdOverrides({
     definite: 0.3,
     marginal: 0.4,
   })
-  await request(app)
-    .get('/config')
-    .expect(200, {
-      election,
-      testMode: true,
+  const response = await request(app).get('/config').expect(200)
+
+  expect(response.body).toEqual(
+    expect.objectContaining({
       markThresholdOverrides: { definite: 0.3, marginal: 0.4 },
     })
+  )
 })
 
-test('PATCH /config to set election', async () => {
+test('PATCH /config/electionDefinition', async () => {
   await request(app)
-    .patch('/config')
-    .send({ election })
+    .patch('/config/electionDefinition')
+    .send(testElectionDefinition)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.configure).toBeCalledWith(
     expect.objectContaining({
       election: expect.objectContaining({
-        title: 'General Election',
+        title: testElectionDefinition.election.title,
       }),
     })
   )
 })
 
-test('PATCH /config to delete election', async () => {
+test('DELETE /config/electionDefinition', async () => {
   importerMock.unconfigure.mockResolvedValue()
 
   await request(app)
-    .patch('/config')
-    .send({ election: null })
+    .delete('/config/electionDefinition')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.unconfigure).toBeCalled()
 })
 
-test('PATCH /config to set testMode', async () => {
+test('PATCH /config/testMode', async () => {
   importerMock.setTestMode.mockResolvedValueOnce(undefined)
 
   await request(app)
-    .patch('/config')
+    .patch('/config/testMode')
     .send({ testMode: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -162,7 +177,7 @@ test('PATCH /config to set testMode', async () => {
   expect(importerMock.setTestMode).toHaveBeenNthCalledWith(1, true)
 
   await request(app)
-    .patch('/config')
+    .patch('/config/testMode')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .send({ testMode: false })
@@ -171,33 +186,23 @@ test('PATCH /config to set testMode', async () => {
   expect(importerMock.setTestMode).toHaveBeenNthCalledWith(2, false)
 })
 
-test('PATCH /config rejects unknown properties', async () => {
-  await request(app)
-    .patch('/config')
-    .send({ nope: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(400)
-})
-
-test('PATCH /config to set mark threshold overrides', async () => {
+test('PATCH /config/markThresholdOverrides', async () => {
   importerMock.setMarkThresholdOverrides.mockResolvedValue(undefined)
 
   await request(app)
-    .patch('/config')
-    .send({ markThresholdOverrides: { marginal: 0.4, definite: 0.3 } })
+    .patch('/config/markThresholdOverrides')
+    .send({ marginal: 0.2, definite: 0.3 })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200)
 
   expect(importerMock.setMarkThresholdOverrides).toHaveBeenNthCalledWith(1, {
-    marginal: 0.4,
+    marginal: 0.2,
     definite: 0.3,
   })
 
   await request(app)
-    .patch('/config')
-    .send({ markThresholdOverrides: null })
+    .delete('/config/markThresholdOverrides')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200)

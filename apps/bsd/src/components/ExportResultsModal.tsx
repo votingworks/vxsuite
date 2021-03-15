@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
-import { Election } from '@votingworks/types'
 import fileDownload from 'js-file-download'
 import path from 'path'
 
@@ -17,6 +16,7 @@ import {
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
 } from '../util/filenames'
+import { ElectionDefinition } from '../util/ballot-package'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
@@ -31,8 +31,7 @@ const USBImage = styled.img`
 export interface Props {
   onClose: () => void
   usbDriveStatus: UsbDriveStatus
-  election: Election
-  electionHash: string | undefined
+  electionDefinition: ElectionDefinition
   numberOfBallots: number
   isTestMode: boolean
 }
@@ -47,8 +46,7 @@ enum ModalState {
 const ExportResultsModal: React.FC<Props> = ({
   onClose,
   usbDriveStatus,
-  election,
-  electionHash,
+  electionDefinition,
   numberOfBallots,
   isTestMode,
 }) => {
@@ -90,8 +88,8 @@ const ExportResultsModal: React.FC<Props> = ({
           )
         }
         const electionFolderName = generateElectionBasedSubfolderName(
-          election,
-          electionHash!
+          electionDefinition.election,
+          electionDefinition.electionHash
         )
         const pathToFolder = path.join(
           usbPath,

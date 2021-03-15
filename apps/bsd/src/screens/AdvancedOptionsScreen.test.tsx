@@ -3,8 +3,16 @@ import { render, waitFor } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
 import { Router } from 'react-router-dom'
 import { act } from 'react-dom/test-utils'
-import { electionSample } from '@votingworks/fixtures'
+import { electionSampleDefinition } from '@votingworks/fixtures'
 import AdvancedOptionsScreen from './AdvancedOptionsScreen'
+import { ElectionDefinition } from '../util/ballot-package'
+
+// TODO: Replace this with something straight from `@votingworks/fixtures` when
+// all ElectionDefinition interface definitions are shared.
+const testElectionDefinition: ElectionDefinition = {
+  ...electionSampleDefinition,
+  electionData: JSON.stringify(electionSampleDefinition.election),
+}
 
 test('clicking "Export Backup…" shows progress', async () => {
   const backup = jest.fn()
@@ -20,7 +28,7 @@ test('clicking "Export Backup…" shows progress', async () => {
         toggleTestMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         markThresholds={undefined}
-        election={electionSample}
+        electionDefinition={testElectionDefinition}
       />
     </Router>
   )
@@ -62,7 +70,7 @@ test('backup error shows message', async () => {
         toggleTestMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         markThresholds={undefined}
-        election={electionSample}
+        electionDefinition={testElectionDefinition}
       />
     </Router>
   )
@@ -136,7 +144,7 @@ test('override mark thresholds button shows when there are no overrides', async 
           toggleTestMode={jest.fn()}
           setMarkThresholdOverrides={jest.fn()}
           markThresholds={testCase.markThresholds}
-          election={electionSample}
+          electionDefinition={testElectionDefinition}
         />
       </Router>
     )

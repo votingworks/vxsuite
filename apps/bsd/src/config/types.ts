@@ -1,9 +1,7 @@
 import type {
   AdjudicationReason,
   Dictionary,
-  Election,
   MarkThresholds,
-  OptionalElection,
   VotesDict,
 } from '@votingworks/types'
 import type {
@@ -25,27 +23,7 @@ export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
 export type ButtonEventFunction = (event: ButtonEvent) => void
 
 // Election
-export type SetElection = (value: OptionalElection) => void
-
-// Smart Card Content
-export type CardDataTypes = 'voter' | 'pollworker' | 'admin'
-export interface CardData {
-  readonly t: CardDataTypes
-}
-export interface VoterCardData extends CardData {
-  readonly t: 'voter'
-  readonly bs: string
-  readonly pr: string
-  readonly uz?: number
-}
-export interface PollworkerCardData extends CardData {
-  readonly t: 'pollworker'
-  readonly h: string
-}
-export interface AdminCardData extends CardData {
-  readonly t: 'admin'
-  readonly h: string
-}
+export type SetElectionDefinition = (value?: ElectionDefinition) => void
 
 // Scanner Types
 export interface CastVoteRecord
@@ -60,6 +38,11 @@ export interface CastVoteRecord
 
 export interface OkResponse {
   status: 'ok'
+}
+
+export interface ErrorResponse {
+  status: 'error'
+  error: string
 }
 
 export interface Batch {
@@ -116,27 +99,17 @@ export interface ScanStatusResponse {
 
 export type GetConfigRequest = void
 export interface GetConfigResponse {
-  election?: Election
+  electionDefinition?: ElectionDefinition
   testMode: boolean
   markThresholdOverrides?: MarkThresholds | null
 }
 
 export interface PatchConfigRequest {
-  election?: Election | ElectionDefinition | null
+  electionDefinition?: ElectionDefinition | null
   testMode?: boolean
   markThresholdOverrides?: MarkThresholds | null
 }
 export type PatchConfigResponse = OkResponse
-
-export type CardReadRequest = void
-export type CardReadResponse =
-  | { present: false }
-  | { present: true; longValueExists: boolean; shortValue?: string }
-
-export type CardReadLongRequest = void
-export interface CardReadLongResponse {
-  longValue: string
-}
 
 // eslint-disable-next-line import/no-cycle
 export * from './types/ballot-review'

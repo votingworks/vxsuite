@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
-import { Election, MarkThresholds, Optional } from '@votingworks/types'
+import { MarkThresholds } from '@votingworks/types'
 
 import Modal from './Modal'
 import Button from './Button'
@@ -14,11 +14,9 @@ import Text from './Text'
 
 export interface Props {
   onClose: () => void
-  election: Election
-  markThresholdOverrides: Optional<MarkThresholds>
-  setMarkThresholdOverrides: (
-    markThresholds: Optional<MarkThresholds>
-  ) => Promise<void>
+  markThresholds?: MarkThresholds
+  markThresholdOverrides?: MarkThresholds
+  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>
 }
 
 const ThresholdColumns = styled.div`
@@ -44,7 +42,7 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
 
 const SetMarkThresholdsModal: React.FC<Props> = ({
   onClose,
-  election,
+  markThresholds,
   markThresholdOverrides,
   setMarkThresholdOverrides,
 }) => {
@@ -55,7 +53,7 @@ const SetMarkThresholdsModal: React.FC<Props> = ({
   )
 
   const [errorMessage, setErrorMessage] = useState('')
-  const defaultMarkThresholds = election.markThresholds ?? DefaultMarkThresholds
+  const defaultMarkThresholds = markThresholds ?? DefaultMarkThresholds
   const defaultDefiniteThreshold = defaultMarkThresholds.definite
   const defaultMarginalThreshold = defaultMarkThresholds.marginal
 

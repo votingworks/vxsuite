@@ -1,4 +1,4 @@
-import { MarkThresholds, Optional, Election } from '@votingworks/types'
+import { MarkThresholds, Optional } from '@votingworks/types'
 import React, { useCallback, useState } from 'react'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -9,6 +9,7 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import ToggleTestModeButton from '../components/ToggleTestModeButton'
 import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal'
+import { ElectionDefinition } from '../util/ballot-package'
 
 interface Props {
   unconfigureServer: () => Promise<void>
@@ -22,7 +23,7 @@ interface Props {
     markThresholds: Optional<MarkThresholds>
   ) => Promise<void>
   markThresholds: Optional<MarkThresholds>
-  election: Election
+  electionDefinition: ElectionDefinition
 }
 
 const AdvancedOptionsScreen: React.FC<Props> = ({
@@ -35,7 +36,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   toggleTestMode,
   setMarkThresholdOverrides,
   markThresholds,
-  election,
+  electionDefinition,
 }) => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
@@ -161,8 +162,8 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
       {isSetMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
           setMarkThresholdOverrides={setMarkThresholdOverrides}
+          markThresholds={electionDefinition.election.markThresholds}
           markThresholdOverrides={markThresholds}
-          election={election}
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}

@@ -46,7 +46,6 @@ test('shows insert usb screen when no usb is present with manual upload button',
       'You may load an election configuration via the following methods:'
     )
     getByText('Insert a USB drive')
-    getByText('Insert an Admin Card')
     getByText(/Manually select a file to configure:/)
     getByAltText('Insert USB Image')
     getByText('Select File…')
