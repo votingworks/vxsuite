@@ -101,7 +101,7 @@ def enable_fixture(fixture_path: str):
     with open(fixture_short_path, "r") as short_file:
         request_data["shortValue"] = re.sub(
             r"{{hash\(long\)}}",
-            long_value_hash,
+            long_value_hash or "",
             re.sub(r"\"{{now}}\"", str(round(time.time())), short_file.read()),
         )
 
