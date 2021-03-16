@@ -21,6 +21,7 @@ import Main, { MainChild } from './components/Main'
 import Screen from './components/Screen'
 import Prose from './components/Prose'
 import Text from './components/Text'
+import ScanButton from './components/ScanButton'
 import USBControllerButton from './components/USBControllerButton'
 import useInterval from './hooks/useInterval'
 
@@ -444,9 +445,7 @@ const App: React.FC = () => {
                       pluralize('ballots', adjudication.remaining, true)}
                   </LinkButton>
                 )}
-                <Button small disabled={isScanning} primary onPress={scanBatch}>
-                  Scan New Batch
-                </Button>
+                <ScanButton onPress={scanBatch} disabled={isScanning} />
               </MainNav>
               <StatusFooter />
             </Screen>

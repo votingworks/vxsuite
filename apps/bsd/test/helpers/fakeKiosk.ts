@@ -47,7 +47,11 @@ export default function fakeKiosk({
 }: {
   battery?: Partial<KioskBrowser.BatteryInfo>
   printers?: Partial<KioskBrowser.PrinterInfo>[]
-} = {}): jest.Mocked<KioskBrowser.Kiosk> {
+} = {}): jest.Mocked<
+  KioskBrowser.Kiosk & {
+    devices: BehaviorSubject<Set<KioskBrowser.Device>>
+  }
+> {
   let processedPrinters = printers || [{}]
 
   processedPrinters = processedPrinters.map(fakePrinterInfo)
