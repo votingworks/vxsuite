@@ -33,21 +33,24 @@ interface CastVoteRecord
 
 /**
  * Generate all combinations of an array.
- * @param {any[]} sourceArray - Array of input elements.
- * @param {number} comboLength - Desired length of combinations.
- * @return {any[]} Array of combination arrays.
+ * @param sourceArray - Array of input elements.
+ * @param comboLength - Desired length of combinations.
+ * @returns Array of combination arrays.
  */
-function generateCombinations(sourceArray: any[], comboLength: number): any[] {
+function generateCombinations<T>(
+  sourceArray: readonly T[],
+  comboLength: number
+): T[][] {
   const sourceLength = sourceArray.length
   if (comboLength > sourceLength) return []
 
-  const combos: any[] = [] // Stores valid combinations as they are generated.
+  const combos: T[][] = [] // Stores valid combinations as they are generated.
 
   // Accepts a partial combination, an index into sourceArray,
   // and the number of elements required to be added to create a full-length combination.
   // Called recursively to build combinations, adding subsequent elements at each call depth.
   const makeNextCombos = (
-    workingCombo: any[],
+    workingCombo: T[],
     currentIndex: number,
     remainingCount: number
   ) => {
@@ -80,8 +83,8 @@ const YES_NO_OPTIONS = [['yes'], ['no'], ['yes', 'no'], []]
 
 /**
  * Generates all possible contest choice options for a given CandidateContest
- * @param {CandidateContest} contest CandidateContest to generate contest choices for
- * @returns {string[][]} Array of possible contest choice selections. Each contest choice selection is an array of candidates to vote for.
+ * @param contest CandidateContest to generate contest choices for
+ * @returns Array of possible contest choice selections. Each contest choice selection is an array of candidates to vote for.
  */
 function getCandidateOptionsForContest(contest: CandidateContest): string[][] {
   const candidateOptions: string[][] = []
@@ -128,26 +131,27 @@ function getCandidateOptionsForContest(contest: CandidateContest): string[][] {
 
 /**
  * Generates all possible vote configurations across a ballot given a list of contests and possible contest choice options for those contests.
- * @param {Dictionary<string[][]>} candidateOptionsForContest Dictionary of contests to the possible contest choice options for that contest.
- * @returns {Dictionary<string[]>[]} Array of dictionaries where each dictionary represents the votes across all contests provided from each contest ID to the votes to mark on that contest.
+ * @param candidateOptionsForContest Dictionary of contests to the possible contest choice options for that contest.
+ * @returns Array of dictionaries where each dictionary represents the votes across all contests provided from each contest ID to the votes to mark on that contest.
  */
 function getVoteConfigurationsForCandidateOptions(
-  candidateOptionsForContest: Dictionary<string[][]>
-): Dictionary<string[]>[] {
+  candidateOptionsForContest: ReadonlyMap<string, string[][]>
+): Map<string, string[]>[] {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
-  const numOptionsToProduce = Object.values(candidateOptionsForContest).reduce(
+  const numOptionsToProduce = [...candidateOptionsForContest.values()].reduce(
     (prev, options) => Math.max(prev, options?.length ?? 0),
     0
   )
   const voteOptions = []
   for (let i = 0; i < numOptionsToProduce; i += 1) {
-    const voteOption: Dictionary<string[]> = {}
-    for (const contest of Object.keys(candidateOptionsForContest)) {
+    const voteOption = new Map<string, string[]>()
+    for (const [contest, optionsForContest] of candidateOptionsForContest) {
       // Add the ith contest choice option as the vote for each contest
       // If i is greater then the number of votes generated for this contest, vote for the final generated vote again.
-      const optionsForContest = candidateOptionsForContest[contest]!
-      voteOption[contest] =
+      voteOption.set(
+        contest,
         optionsForContest[Math.min(i, optionsForContest.length - 1)]
+      )
     }
     voteOptions.push(voteOption)
   }
@@ -156,19 +160,18 @@ function getVoteConfigurationsForCandidateOptions(
 
 /**
  * Generates a base set of CVRs for a given election that obtains maximum coverage of all the ballot metadata (precincts, scanners, etc.) and all possible votes on each contest.
- * @param {Election} election Election to generate CVRs for
- * @param {string[]} scannerNames Scanners to include in the output CVRs
- * @param {boolean} testMode Generate CVRs for test ballots or live ballots
- * @returns {CastVoteRecord[]} Array of generated CastVoteRecords
+ * @param election Election to generate CVRs for
+ * @param scannerNames Scanners to include in the output CVRs
+ * @param testMode Generate CVRs for test ballots or live ballots
+ * @returns Array of generated CastVoteRecords
  */
-function generateCVRs(
+function* generateCVRs(
   election: Election,
-  scannerNames: string[],
+  scannerNames: readonly string[],
   testMode: boolean
-): CastVoteRecord[] {
+): Generator<CastVoteRecord> {
   const ballotStyles = election.ballotStyles
   const contests = election.contests
-  const records: CastVoteRecord[] = []
   let ballotId = 0
   for (const ballotStyle of ballotStyles) {
     const precincts = ballotStyle.precincts
@@ -185,7 +188,7 @@ function generateCVRs(
           }
 
           // For each contest determine all possible contest choices.
-          const candidateOptionsForContest: Dictionary<string[][]> = {}
+          const candidateOptionsForContest = new Map<string, string[][]>()
           for (const contest of contests) {
             if (
               districts.includes(contest.districtId) &&
@@ -195,20 +198,23 @@ function generateCVRs(
               // Generate an array of all possible contest choice responses for this contest
               switch (contest.type) {
                 case 'candidate':
-                  candidateOptionsForContest[
-                    contest.id
-                  ] = getCandidateOptionsForContest(contest as CandidateContest)
+                  candidateOptionsForContest.set(
+                    contest.id,
+                    getCandidateOptionsForContest(contest)
+                  )
                   break
                 case 'yesno':
-                  candidateOptionsForContest[contest.id] = YES_NO_OPTIONS
+                  candidateOptionsForContest.set(contest.id, YES_NO_OPTIONS)
                   break
                 case 'ms-either-neither':
-                  candidateOptionsForContest[
-                    contest.eitherNeitherContestId
-                  ] = YES_NO_OPTIONS
-                  candidateOptionsForContest[
-                    contest.pickOneContestId
-                  ] = YES_NO_OPTIONS
+                  candidateOptionsForContest.set(
+                    contest.eitherNeitherContestId,
+                    YES_NO_OPTIONS
+                  )
+                  candidateOptionsForContest.set(
+                    contest.pickOneContestId,
+                    YES_NO_OPTIONS
+                  )
                   break
               }
             }
@@ -219,20 +225,23 @@ function generateCVRs(
           )
           // Add the generated vote combinations as CVRs
           for (const voteConfig of voteConfigurations) {
-            records.push({
+            yield {
               _ballotId: `id-${ballotId}`,
               _ballotType: ballotType,
               ...baseRecord,
-              ...voteConfig,
-            })
+              ...[...voteConfig.entries()].reduce(
+                (votes, [key, value]) => ({ ...votes, [key]: value }),
+                {}
+              ),
+            }
             ballotId += 1
           }
         }
       }
     }
   }
-  return records
 }
+
 interface GenerateCVRFileArguments {
   electionPath?: string
   outputPath?: string
@@ -308,7 +317,7 @@ const scannerNames = args['scannerNames'] ?? ['scanner']
 const electionRawData = fs.readFileSync(args['electionPath'], 'utf8')
 const election = parseElection(JSON.parse(electionRawData))
 
-const castVoteRecords = generateCVRs(election, scannerNames, testMode)
+const castVoteRecords = [...generateCVRs(election, scannerNames, testMode)]
 
 // Modify results to match the desired number of ballots
 if (numBallots !== undefined && numBallots < castVoteRecords.length) {
@@ -333,10 +342,8 @@ while (numBallots !== undefined && numBallots > castVoteRecords.length) {
   ballotId += 1
 }
 
-var stream = fs.createWriteStream(outputPath)
-stream.once('open', function (fd) {
-  for (const record of castVoteRecords) {
-    stream.write(JSON.stringify(record) + '\n')
-  }
-  stream.end()
-})
+const stream = fs.createWriteStream(outputPath)
+for (const record of castVoteRecords) {
+  stream.write(JSON.stringify(record) + '\n')
+}
+stream.end()
