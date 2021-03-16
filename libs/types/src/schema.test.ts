@@ -18,7 +18,7 @@ test('contest IDs cannot start with an underscore', () => {
         ],
       })
     )
-  ).toThrowError('IDs may not start with an underscore')
+  ).toThrowError()
 })
 
 test('allows valid mark thresholds', () => {
@@ -52,14 +52,14 @@ test('disallows invalid mark thresholds', () => {
       ...electionSample,
       markThresholds: { marginal: 0.3 },
     })
-  ).toThrowError('definite: Non-number type: undefined')
+  ).toThrowError()
 
   expect(() =>
     parseElection({
       ...electionSample,
       markThresholds: { definite: 1.2, marginal: 0.3 },
     })
-  ).toThrowError('definite: Value must be <= 1')
+  ).toThrowError('Value should be less than or equal to 1')
 })
 
 test('allows valid adjudication reasons', () => {
@@ -87,14 +87,14 @@ test('disallows invalid adjudication reasons', () => {
       ...electionSample,
       adjudicationReasons: ['abcdefg'],
     })
-  ).toThrowError('"abcdefg" does not match any value in enum')
+  ).toThrowError()
 
   expect(() =>
     parseElection({
       ...electionSample,
       adjudicationReasons: 'foooo',
     })
-  ).toThrowError('Non-array type: string')
+  ).toThrowError()
 })
 
 test('supports ballot layout paper size', () => {
@@ -105,7 +105,7 @@ test('supports ballot layout paper size', () => {
         paperSize: 'A4',
       },
     })
-  ).toThrowError('"A4" does not match any value in enum')
+  ).toThrowError()
 
   expect(() =>
     parseElection({

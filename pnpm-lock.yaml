@@ -704,7 +704,7 @@ importers:
     dependencies:
       '@antongolub/iso8601': 1.2.1
       js-sha256: 0.9.0
-      zod: 1.7.1
+      zod: 1.11.11
     devDependencies:
       '@types/jest': 26.0.20
       '@types/node': 14.14.20
@@ -757,7 +757,7 @@ importers:
       sort-package-json: ^1.46.1
       ts-jest: ^26.4.3
       typescript: ^4.2.0
-      zod: 1.7.1
+      zod: ^1.11.11
   libs/eslint-plugin-no-array-sort-mutation:
     specifiers: {}
   libs/fixtures:
@@ -915,7 +915,7 @@ importers:
   libs/types:
     dependencies:
       '@antongolub/iso8601': 1.2.1
-      zod: 1.7.1
+      zod: 1.11.11
     devDependencies:
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.16.1_8360ec0b6468ab52d7ec43304a9826d1
@@ -941,7 +941,7 @@ importers:
       prettier: ^2.2.1
       ts-jest: ^26.5.0
       typescript: ^4.2.0
-      zod: 1.7.1
+      zod: ^1.11.11
 lockfileVersion: 5.2
 packages:
   /@antongolub/iso8601/1.2.1:
@@ -22837,13 +22837,8 @@ packages:
     resolution:
       integrity: sha512-a65wQ3h5gcQ/nQGWV1mSZCEzCML6EK/vyVPcrPNynySP1j3VBbQKh3nhC8CbORb+jfl2vXvh56Ul5odP1bAHqw==
   /zod/1.11.11:
-    dev: true
     resolution:
       integrity: sha512-q1YeBpu+c7eUX5fDFMyfP97sD74TUQ+UN8va/nvbxnArr5euYsNO6fjiY0SdDkHKNZ+xBR2ZQToaeLgJ6fsB2A==
-  /zod/1.7.1:
-    dev: false
-    resolution:
-      integrity: sha512-EqtwN5PJTgg/iOxMvjezNcha8xDcrcUr2V4oYZ8GMzxzFGfZV+LFI+ey2sBs2mGWSF8qZE8gHIquApWa7jiTYg==
   /zwitch/1.0.5:
     dev: true
     resolution:

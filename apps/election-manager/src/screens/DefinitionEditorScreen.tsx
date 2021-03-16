@@ -5,7 +5,7 @@ import fileDownload from 'js-file-download'
 
 import dashify from 'dashify'
 
-import { parseElection } from '@votingworks/types'
+import { safeParseElection } from '@votingworks/types'
 import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
@@ -53,14 +53,9 @@ const DefinitionEditorScreen: React.FC = () => {
   }
 
   const validateElectionDefinition = useCallback(() => {
-    try {
-      setError('')
-      parseElection(JSON.parse(electionString))
-      return true
-    } catch (error) {
-      setError(error.toString())
-      return false
-    }
+    const result = safeParseElection(electionString)
+    setError(result.err()?.message ?? '')
+    return result.isOk()
   }, [electionString])
   const editElection: TextareaEventFunction = (event) => {
     setDirty(true)
