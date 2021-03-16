@@ -299,6 +299,7 @@ importers:
       history: 4.10.1
       husky: 4.3.7
       jest-environment-jsdom-sixteen: 1.0.3
+      jest-fetch-mock: 3.0.3
       lint-staged: 10.5.3
       node-fetch: 2.6.1
       prettier: 2.2.1
@@ -348,6 +349,7 @@ importers:
       http-proxy-middleware: ^1.0.0
       husky: ^4.2.5
       jest-environment-jsdom-sixteen: ^1.0.3
+      jest-fetch-mock: ^3.0.3
       js-file-download: ^0.4.6
       js-sha256: ^0.9.0
       lint-staged: ^10.2.3

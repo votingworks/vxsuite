@@ -1,26 +1,27 @@
 import { getPrecinctById } from '@votingworks/types'
+import { sha256 } from 'js-sha256'
 import React, { useState } from 'react'
-import { patch as patchConfig } from '../api/config'
+import * as config from '../api/config'
+import { addTemplates, doneTemplates } from '../api/hmpb'
 import ElectionConfiguration from '../components/ElectionConfiguration'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
-import { SetElection } from '../config/types'
+import { SetElectionDefinition } from '../config/types'
+import { UsbDriveStatus } from '../lib/usbstick'
 import {
+  BallotPackage,
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
-  BallotPackage,
 } from '../util/ballot-package'
-import { addTemplates, doneTemplates } from '../api/hmpb'
-import { UsbDriveStatus } from '../lib/usbstick'
 
 interface Props {
-  setElection: SetElection
+  setElectionDefinition: SetElectionDefinition
   usbDriveStatus: UsbDriveStatus
 }
 
 const LoadElectionScreen: React.FC<Props> = ({
-  setElection,
+  setElectionDefinition,
   usbDriveStatus,
 }) => {
   const [
@@ -62,7 +63,7 @@ const LoadElectionScreen: React.FC<Props> = ({
         setLoadingTemplates(true)
         await doneTemplates()
         setLoadingTemplates(false)
-        setElection(pkg.electionDefinition.election)
+        setElectionDefinition(pkg.electionDefinition)
       })
   }
 
@@ -74,9 +75,14 @@ const LoadElectionScreen: React.FC<Props> = ({
       await new Promise<void>((resolve, reject) => {
         reader.onload = async () => {
           try {
-            const election = JSON.parse(reader.result as string)
-            await patchConfig({ election })
-            setElection(election)
+            const electionData = reader.result as string
+            const electionDefinition = {
+              electionData,
+              electionHash: sha256(electionData),
+              election: JSON.parse(electionData),
+            }
+            await config.setElectionDefinition(electionDefinition)
+            setElectionDefinition(electionDefinition)
             resolve()
           } catch (err) {
             reject(err)

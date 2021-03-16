@@ -9,7 +9,7 @@ import SystemImporter from './importer'
 import { buildApp } from './server'
 import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
-import { ConfigKey } from './store'
+import { fromElection } from './util/electionDefinition'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -42,8 +42,8 @@ afterEach(async () => {
 test('going through the whole process works', async () => {
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
-    .patch('/config')
-    .send({ [ConfigKey.SkipElectionHashCheck]: true })
+    .patch('/config/skipElectionHashCheck')
+    .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -58,11 +58,15 @@ test('going through the whole process works', async () => {
   }
 
   await request(app)
-    .patch('/config')
-    .send({
-      [ConfigKey.Election]: election,
-      [ConfigKey.TestMode]: true,
-    })
+    .patch('/config/electionDefinition')
+    .send(fromElection(election))
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
+  await request(app)
+    .patch('/config/testMode')
+    .send({ testMode: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -164,7 +168,5 @@ test('going through the whole process works', async () => {
     .expect(200, '')
 
   // clean up
-  await request(app)
-    .patch('/config')
-    .send({ [ConfigKey.Election]: null })
+  await request(app).delete('/config/electionDefinition')
 })

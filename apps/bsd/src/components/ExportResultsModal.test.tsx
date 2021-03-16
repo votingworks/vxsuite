@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { render, fireEvent, waitFor } from '@testing-library/react'
-import { electionSample } from '@votingworks/fixtures'
+import { electionSampleDefinition } from '@votingworks/fixtures'
 import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
 import fetchMock from 'fetch-mock'
@@ -10,6 +10,14 @@ import { UsbDriveStatus } from '../lib/usbstick'
 import ExportResultsModal from './ExportResultsModal'
 import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
+import { ElectionDefinition } from '../util/ballot-package'
+
+// TODO: Replace this with something straight from `@votingworks/fixtures` when
+// all ElectionDefinition interface definitions are shared.
+const electionDefinition: ElectionDefinition = {
+  ...electionSampleDefinition,
+  electionData: JSON.stringify(electionSampleDefinition.election),
+}
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]
@@ -21,8 +29,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
         <ExportResultsModal
           onClose={closeFn}
           usbDriveStatus={status}
-          election={electionSample}
-          electionHash="testHash12"
+          electionDefinition={electionDefinition}
           numberOfBallots={5}
           isTestMode
         />
@@ -47,8 +54,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
         <ExportResultsModal
           onClose={closeFn}
           usbDriveStatus={status}
-          election={electionSample}
-          electionHash="testHash12"
+          electionDefinition={electionDefinition}
           numberOfBallots={5}
           isTestMode
         />
@@ -85,8 +91,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
       <ExportResultsModal
         onClose={closeFn}
         usbDriveStatus={UsbDriveStatus.mounted}
-        election={electionSample}
-        electionHash="testHash12"
+        electionDefinition={electionDefinition}
         numberOfBallots={5}
         isTestMode
       />
@@ -124,8 +129,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       <ExportResultsModal
         onClose={closeFn}
         usbDriveStatus={UsbDriveStatus.mounted}
-        election={electionSample}
-        electionHash="testHash12"
+        electionDefinition={electionDefinition}
         numberOfBallots={5}
         isTestMode
       />
@@ -141,7 +145,10 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   expect(
     mockKiosk.makeDirectory
   ).toHaveBeenCalledWith(
-    'fake mount point/cast-vote-records/franklin-county_general-election_testHash12',
+    `fake mount point/cast-vote-records/franklin-county_general-election_${electionDefinition.electionHash.slice(
+      0,
+      10
+    )}`,
     { recursive: true }
   )
   expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1)
@@ -166,8 +173,7 @@ test('render export modal with errors when appropriate', async () => {
       <ExportResultsModal
         onClose={closeFn}
         usbDriveStatus={UsbDriveStatus.mounted}
-        election={electionSample}
-        electionHash="testHash12"
+        electionDefinition={electionDefinition}
         numberOfBallots={5}
         isTestMode
       />

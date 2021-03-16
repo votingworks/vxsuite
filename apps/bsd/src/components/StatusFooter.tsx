@@ -14,22 +14,25 @@ const StatusBar = styled.div`
 `
 
 const StatusFooter: React.FC = () => {
-  const { election, electionHash, machineConfig } = useContext(AppContext)
+  const { electionDefinition, machineConfig } = useContext(AppContext)
   const electionDate =
-    election && localeWeedkayAndDate.format(new Date(election?.date))
+    electionDefinition &&
+    localeWeedkayAndDate.format(new Date(electionDefinition.election.date))
 
   return (
     <StatusBar>
       <Text small white center as="div">
         Scanner ID: <strong>{machineConfig.machineId}</strong>
       </Text>
-      {election && (
+      {electionDefinition && (
         <Text small white center as="div">
-          <strong>{election.title}</strong> — {electionDate} —{' '}
-          {election.county.name}, {election.state}{' '}
-          {electionHash && (
+          <strong>{electionDefinition.election.title}</strong> — {electionDate}{' '}
+          — {electionDefinition.election.county.name},{' '}
+          {electionDefinition.election.state}{' '}
+          {electionDefinition.electionHash && (
             <React.Fragment>
-              — Election Hash: <strong>{electionHash.slice(0, 10)}</strong>
+              — Election Hash:{' '}
+              <strong>{electionDefinition.electionHash.slice(0, 10)}</strong>
             </React.Fragment>
           )}
         </Text>

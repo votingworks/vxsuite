@@ -8,6 +8,10 @@ import {
   fetchNextBallotSheetToReview,
   fetchNextBallotToReview,
 } from './hmpb'
+import * as config from './config'
+
+jest.mock('./config')
+const configMock = config as jest.Mocked<typeof config>
 
 const electionData = JSON.stringify(election)
 const electionHash = sha256(electionData)
@@ -18,7 +22,7 @@ const electionDefinition: ElectionDefinition = {
 }
 
 test('configures the server with the contained election', async () => {
-  fetchMock.patchOnce('/config', { body: { status: 'ok' } })
+  configMock.setElectionDefinition.mockResolvedValueOnce()
 
   await new Promise<void>((resolve, reject) => {
     addTemplates({ electionDefinition, ballots: [] })
@@ -30,13 +34,13 @@ test('configures the server with the contained election', async () => {
       })
   })
 
-  expect(
-    JSON.parse(fetchMock.lastCall('/config')?.[1]?.body as string)
-  ).toEqual({ election: electionDefinition })
+  expect(configMock.setElectionDefinition).toHaveBeenCalledWith(
+    electionDefinition
+  )
 })
 
 test('emits an event each time a ballot begins uploading', async () => {
-  fetchMock.patchOnce('/config', { body: { status: 'ok' } })
+  fetchMock.patchOnce('/config/electionDefinition', { body: { status: 'ok' } })
   fetchMock.post('/scan/hmpb/addTemplates', { body: { status: 'ok' } })
 
   const uploading = jest.fn()
@@ -82,7 +86,9 @@ test('emits an event each time a ballot begins uploading', async () => {
 })
 
 test('emits error on API failure', async () => {
-  fetchMock.patchOnce('/config', { status: 400, body: { status: 'nope' } })
+  configMock.setElectionDefinition.mockRejectedValueOnce(
+    new Error('bad election!')
+  )
 
   await expect(
     new Promise<void>((resolve, reject) => {

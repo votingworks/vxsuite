@@ -3,9 +3,9 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import { BallotType, Election, MarkThresholds } from '@votingworks/types'
+import { BallotType, schema } from '@votingworks/types'
 import bodyParser from 'body-parser'
-import express, { Application, RequestHandler } from 'express'
+import express, { Application, Request, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
@@ -13,9 +13,9 @@ import { inspect } from 'util'
 import backup from './backup'
 import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
-import Store, { ALLOWED_CONFIG_KEYS, ConfigKey } from './store'
-import { BallotConfig, ElectionDefinition } from './types'
-import { fromElection, validate } from './util/electionDefinition'
+import Store from './store'
+import { BallotConfig } from './types'
+import { hash, validate } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 import { childProcessPool, WorkerPool } from './workers/pool'
@@ -25,6 +25,8 @@ export interface AppOptions {
   importer: Importer
 }
 
+type RequestWithRawJSON = Request & { 'body.raw': string }
+
 /**
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
@@ -33,99 +35,115 @@ export function buildApp({ store, importer }: AppOptions): Application {
   const app: Application = express()
   const upload = multer({ storage: multer.diskStorage({}) })
 
-  app.use(express.json())
+  app.use(
+    express.json({
+      limit: '5mb',
+      verify: (request, _response, buffer) => {
+        ;(request as RequestWithRawJSON)['body.raw'] = buffer.toString('utf-8')
+      },
+    })
+  )
 
   app.use(bodyParser.urlencoded({ extended: false }))
 
   app.get('/config', async (_request, response) => {
     response.json({
-      election: (await store.getElectionDefinition())?.election,
+      electionDefinition: await store.getElectionDefinition(),
       testMode: await store.getTestMode(),
       markThresholdOverrides: await store.getMarkThresholdOverrides(),
     })
   })
 
-  app.patch('/config', async (request, response) => {
-    for (const [key, value] of Object.entries(request.body)) {
-      try {
-        if (!ALLOWED_CONFIG_KEYS.includes(key)) {
-          response.status(400).json({
-            errors: [
-              {
-                type: 'unexpected-property',
-                message: `unexpected property '${key}'`,
-              },
-            ],
-          })
-          return
-        }
-
-        switch (key as ConfigKey) {
-          case ConfigKey.Election: {
-            if (value === null) {
-              await importer.unconfigure()
-            } else {
-              const electionConfig = value as Election | ElectionDefinition
-              const electionDefinition =
-                'election' in electionConfig
-                  ? electionConfig
-                  : fromElection(electionConfig)
-              const errors = [...validate(electionDefinition)]
-
-              if (errors.length > 0) {
-                response.status(400).json({
-                  errors: errors.map((error) => ({
-                    type: error.type,
-                    message: `there was an error with the election definition: ${inspect(
-                      error
-                    )}`,
-                  })),
-                })
-                return
-              }
-
-              await importer.configure(electionDefinition)
-            }
-            break
+  app.patch('/config/electionDefinition', async (request, response) => {
+    const rawJSON = (request as RequestWithRawJSON)['body.raw']
+    const electionDefinition =
+      'election' in request.body
+        ? request.body
+        : {
+            electionData: rawJSON,
+            electionHash: hash(rawJSON),
+            election: JSON.parse(rawJSON),
           }
+    const errors = [...validate(electionDefinition)]
 
-          case ConfigKey.TestMode: {
-            if (typeof value !== 'boolean') {
-              throw new TypeError()
-            }
-            await importer.setTestMode(value)
-            break
-          }
-
-          case ConfigKey.MarkThresholdOverrides: {
-            if (value === null) {
-              await importer.setMarkThresholdOverrides(undefined)
-              break
-            }
-            await importer.setMarkThresholdOverrides(value as MarkThresholds)
-            break
-          }
-
-          case ConfigKey.SkipElectionHashCheck: {
-            if (typeof value !== 'boolean') {
-              throw new TypeError()
-            }
-            await importer.setSkipElectionHashCheck(value)
-            break
-          }
-        }
-      } catch (error) {
-        response.status(400).json({
-          errors: [
-            {
-              type: 'invalid-value',
-              message: `invalid config value for '${key}': ${inspect(value)}`,
-            },
-          ],
-        })
-      }
+    if (errors.length > 0) {
+      response.status(400).json({
+        errors: errors.map((error) => ({
+          type: error.type,
+          message: `there was an error with the election definition: ${inspect(
+            error
+          )}`,
+        })),
+      })
+      return
     }
 
+    await importer.configure(electionDefinition)
+    response.json({ status: 'ok' })
+  })
+
+  app.delete('/config/electionDefinition', async (_request, response) => {
+    await importer.unconfigure()
+    response.json({ status: 'ok' })
+  })
+
+  app.patch('/config/testMode', async (request, response) => {
+    const { testMode } = request.body
+    if (typeof testMode !== 'boolean') {
+      response.status(400).json({
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `invalid testMode value: ${inspect(testMode)}`,
+          },
+        ],
+      })
+      return
+    }
+
+    await importer.setTestMode(testMode)
+    response.json({ status: 'ok' })
+  })
+
+  app.delete('/config/markThresholdOverrides', async (_request, response) => {
+    await importer.setMarkThresholdOverrides(undefined)
+    response.json({ status: 'ok' })
+  })
+
+  app.patch('/config/markThresholdOverrides', async (request, response) => {
+    try {
+      const markThresholdOverrides = schema.MarkThresholds.parse(request.body)
+      await importer.setMarkThresholdOverrides(markThresholdOverrides)
+      response.json({ status: 'ok' })
+    } catch (error) {
+      response.status(400).json({
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `invalid markThresholdOverrides: ${inspect(request.body)}`,
+          },
+        ],
+      })
+    }
+  })
+
+  app.patch('/config/skipElectionHashCheck', async (request, response) => {
+    const { skipElectionHashCheck } = request.body
+    if (typeof skipElectionHashCheck !== 'boolean') {
+      response.status(400).json({
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `invalid skipElectionHashCheck value: ${inspect(
+              skipElectionHashCheck
+            )}`,
+          },
+        ],
+      })
+      return
+    }
+
+    await importer.setSkipElectionHashCheck(skipElectionHashCheck)
     response.json({ status: 'ok' })
   })
 

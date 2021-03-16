@@ -8,7 +8,7 @@ import {
   screen,
 } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
-import { electionSample } from '@votingworks/fixtures'
+import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import fakeKiosk from '../test/helpers/fakeKiosk'
 import App from './App'
@@ -49,7 +49,7 @@ test('renders without crashing', async () => {
 test('shows a "Test mode" button if the app is in Live Mode', async () => {
   fetchMock.getOnce(
     '/config',
-    { testMode: false, election: electionSample },
+    { testMode: false, electionDefinition: electionSampleDefinition },
     { overwriteRoutes: true }
   )
 
@@ -68,7 +68,7 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
 test('shows a "Live mode" button if the app is in Test Mode', async () => {
   fetchMock.getOnce(
     '/config',
-    { testMode: true, election: electionSample },
+    { testMode: true, electionDefinition: electionSampleDefinition },
     { overwriteRoutes: true }
   )
 
@@ -87,7 +87,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 test('clicking Scan Batch will scan a batch', async () => {
   fetchMock.getOnce(
     '/config',
-    { testMode: true, election: electionSample },
+    { testMode: true, electionDefinition: electionSampleDefinition },
     { overwriteRoutes: true }
   )
 
@@ -120,7 +120,7 @@ test('clicking Scan Batch will scan a batch', async () => {
 test('clicking export shows modal and makes a request to export', async () => {
   fetchMock.getOnce(
     '/config',
-    { testMode: true, election: electionSample },
+    { testMode: true, electionDefinition: electionSampleDefinition },
     { overwriteRoutes: true }
   )
   fetchMock.getOnce(
@@ -157,7 +157,14 @@ test('clicking export shows modal and makes a request to export', async () => {
 
 test('configuring election from usb ballot package works end to end', async () => {
   fetchMock.getOnce('/config', { testMode: true }, { overwriteRoutes: true })
-  fetchMock.patchOnce('/config', { body: '{"status": "ok"}', status: 200 })
+  fetchMock.patchOnce('/config/testMode', {
+    body: '{"status": "ok"}',
+    status: 200,
+  })
+  fetchMock.patchOnce('/config/electionDefinition', {
+    body: '{"status": "ok"}',
+    status: 200,
+  })
 
   const { getByText, getByTestId } = render(<App />)
 
@@ -172,7 +179,7 @@ test('configuring election from usb ballot package works end to end', async () =
 
   fetchMock.getOnce(
     '/config',
-    { testMode: true, election: electionSample },
+    { testMode: true, electionDefinition: electionSampleDefinition },
     { overwriteRoutes: true }
   )
   fireEvent.change(getByTestId('manual-upload-input'), {
