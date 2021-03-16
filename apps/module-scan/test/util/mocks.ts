@@ -1,12 +1,11 @@
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
-import { writeFile } from 'fs-extra'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { Importer } from '../../src/importer'
 import { Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
-import { toPNG } from '../../src/util/images'
+import { writeImageData } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
 
 export function mockWorkerPoolProvider<I, O>(
@@ -271,10 +270,11 @@ export function makeMockChildProcess(): MockChildProcess {
 }
 
 export async function makeImageFile(): Promise<string> {
-  const imageFile = fileSync()
-  await writeFile(
-    imageFile.name,
-    await toPNG({ data: Uint8ClampedArray.of(0, 0, 0), width: 1, height: 1 })
-  )
+  const imageFile = fileSync({ postfix: '.png' })
+  await writeImageData(imageFile.name, {
+    data: Uint8ClampedArray.of(0, 0, 0),
+    width: 1,
+    height: 1,
+  })
   return imageFile.name
 }

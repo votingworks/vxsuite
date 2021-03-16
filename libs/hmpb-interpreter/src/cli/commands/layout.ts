@@ -1,14 +1,13 @@
 import { strict as assert } from 'assert'
 import chalk from 'chalk'
 import { GlobalOptions, OptionParseError } from '..'
-import { writeImageToFile } from '../../../test/utils'
 import findContests, { ContestShape } from '../../hmpb/findContests'
 import { Point, Rect } from '../../types'
 import { binarize, RGBA } from '../../utils/binarize'
 import { createImageData } from '../../utils/canvas'
 import { vh } from '../../utils/flip'
 import { getImageChannelCount } from '../../utils/imageFormatUtils'
-import { loadImageData } from '../../utils/images'
+import { loadImageData, writeImageData } from '../../utils/images'
 import { adjacentFile } from '../../utils/path'
 
 export interface Options {
@@ -28,10 +27,10 @@ export function printHelp($0: string, out: NodeJS.WritableStream): void {
   out.write(chalk.italic(`Examples\n`))
   out.write(`\n`)
   out.write(chalk.gray(`# Annotate layout for a single ballot page.\n`))
-  out.write(`${$0} layout ballot01.png\n`)
+  out.write(`${$0} layout ballot01.jpg\n`)
   out.write(`\n`)
   out.write(chalk.gray(`# Annotate layout for many ballot pages.\n`))
-  out.write(`${$0} layout ballot*.png\n`)
+  out.write(`${$0} layout ballot*.jpg\n`)
 }
 
 export async function parseOptions({
@@ -124,7 +123,7 @@ export async function run(
     stdout.write(
       `📝 ${layoutFilePath} ${chalk.gray(`(${contests.length} contest(s))`)}\n`
     )
-    await writeImageToFile(imageData, layoutFilePath)
+    await writeImageData(layoutFilePath, imageData)
   }
 
   return 0

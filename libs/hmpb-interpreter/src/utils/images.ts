@@ -1,4 +1,5 @@
 import { createCanvas, createImageData, loadImage } from 'canvas'
+import { createWriteStream } from 'fs'
 
 function ensureImageData(imageData: ImageData): ImageData {
   return createImageData(imageData.data, imageData.width, imageData.height)
@@ -16,9 +17,20 @@ export async function loadImageData(
   return context.getImageData(0, 0, img.width, img.height)
 }
 
-export async function toPNG(imageData: ImageData): Promise<Buffer> {
+export async function writeImageData(
+  path: string,
+  imageData: ImageData
+): Promise<void> {
   const canvas = createCanvas(imageData.width, imageData.height)
   const context = canvas.getContext('2d')
   context.putImageData(ensureImageData(imageData), 0, 0)
-  return canvas.toBuffer()
+
+  await new Promise((resolve, reject) => {
+    const fileWriter = createWriteStream(path)
+    const imageStream = /\.png$/i.test(path)
+      ? canvas.createPNGStream()
+      : canvas.createJPEGStream()
+
+    imageStream.once('error', reject).once('end', resolve).pipe(fileWriter)
+  })
 }

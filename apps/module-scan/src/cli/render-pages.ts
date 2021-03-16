@@ -1,8 +1,8 @@
 import { BallotType, getPrecinctById } from '@votingworks/types'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
-import { writeFile } from 'fs-extra'
 import { basename, dirname, extname, join } from 'path'
+import { ScannerImageFormat } from '../scanner'
 import Store from '../store'
 
 export function printHelp(out: typeof process.stdout): void {
@@ -36,6 +36,7 @@ export default async function main(
     return -1
   }
 
+  let format = ScannerImageFormat.JPEG
   const paths: string[] = []
 
   for (let i = 0; i < args.length; i++) {
@@ -47,6 +48,17 @@ export default async function main(
         printHelp(stdout)
         return 0
 
+      case '-f':
+      case '--format': {
+        const value = args[++i]
+        if (/^png$/i.test(value)) {
+          format = ScannerImageFormat.PNG
+        } else if (/^jpe?g/i.test(value)) {
+          format = ScannerImageFormat.JPEG
+        }
+        break
+      }
+
       default:
         paths.push(arg)
     }
@@ -54,17 +66,18 @@ export default async function main(
 
   // Defer loading the heavy dependencies until we're sure we need them.
   const { default: pdfToImages } = await import('../util/pdfToImages')
-  const { toPNG } = await import('../util/images')
+  const { writeImageData } = await import('../util/images')
 
   async function* renderPages(
     pdf: Buffer,
     dir: string,
-    base: string
+    base: string,
+    ext: string
   ): AsyncGenerator<string> {
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const pngPath = join(dir, `${base}-p${pageNumber}.png`)
-      await writeFile(pngPath, await toPNG(page))
-      yield pngPath
+      const path = join(dir, `${base}-p${pageNumber}${ext}`)
+      await writeImageData(path, page)
+      yield path
     }
   }
 
@@ -126,7 +139,12 @@ export default async function main(
     }
 
     for (const { pdf, base } of queue) {
-      for await (const imagePath of renderPages(pdf, dir, base)) {
+      for await (const imagePath of renderPages(
+        pdf,
+        dir,
+        base,
+        format === ScannerImageFormat.JPEG ? '.jpg' : '.png'
+      )) {
         stdout.write(`📝 ${imagePath}\n`)
       }
     }

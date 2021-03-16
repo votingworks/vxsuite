@@ -41,23 +41,23 @@ You can also scan directly from image files instead of using a real scanner:
 
 ```sh
 # single batch with single sheet
-MOCK_SCANNER_FILES=front.png,back.png pnpm dev
+MOCK_SCANNER_FILES=front.jpeg,back.jpeg pnpm dev
 
 # single batch with multiple sheets
-MOCK_SCANNER_FILES=front-01.png,back-01.png,front-02.png,back-02.png pnpm dev
+MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,front-02.jpeg,back-02.jpeg pnpm dev
 
 # multiple batches with one sheet each (note ",," batch separator)
-MOCK_SCANNER_FILES=front-01.png,back-01.png,,front-02.png,back-02.png pnpm dev
+MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,,front-02.jpeg,back-02.jpeg pnpm dev
 
 # use a manifest file
 cat <<EOS > manifest
 # first batch (this is a comment)
-front-01.png
-back-01.png
+front-01.jpeg
+back-01.jpeg
 
 # second batch
-front-02.png
-back-02.png
+front-02.jpeg
+back-02.jpeg
 EOS
 MOCK_SCANNER_FILES=@manifest pnpm dev
 
@@ -66,7 +66,9 @@ MOCK_SCANNER_FILES=@manifest pnpm dev
 MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 ```
 
-If you are seeing unhandled promise rejection errors you may have an issue with where your image files are located, try moving them into the local scope of the app.
+If you are seeing unhandled promise rejection errors you may have an issue with
+where your image files are located, try moving them into the local scope of the
+app.
 
 ## Switching Workspaces
 

@@ -14,7 +14,7 @@ import {
   SheetOf,
   Side,
 } from './types'
-import { toPNG } from './util/images'
+import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
 import * as workers from './workers/combined'
@@ -78,7 +78,7 @@ export async function saveImages(
 
   if (normalizedImage) {
     debug('about to write normalized ballot image to %s', normalizedImagePath)
-    await fsExtra.writeFile(normalizedImagePath, await toPNG(normalizedImage))
+    await writeImageData(normalizedImagePath, normalizedImage)
     debug('wrote normalized ballot image to %s', normalizedImagePath)
     return { original: originalImagePath, normalized: normalizedImagePath }
   }

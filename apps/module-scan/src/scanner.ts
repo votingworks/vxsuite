@@ -27,7 +27,6 @@ function dateStamp(date: Date = new Date()): string {
 export enum ScannerImageFormat {
   JPEG = 'jpeg',
   PNG = 'png',
-  TIFF = 'tiff',
 }
 
 export enum ScannerPageSize {
@@ -56,7 +55,7 @@ export class FujitsuScanner implements Scanner {
   private readonly mode?: ScannerMode
 
   public constructor({
-    format = ScannerImageFormat.PNG,
+    format = ScannerImageFormat.JPEG,
     pageSize = ScannerPageSize.Letter,
     mode,
   }: Options = {}) {

@@ -1,6 +1,5 @@
 import makeDebug from 'debug'
 import { DetectQRCodeResult } from '../../types'
-import { toPNG } from '../images'
 import { withCropping } from './withCropping'
 
 const debug = makeDebug('hmpb-interpreter:quirc')
@@ -13,10 +12,8 @@ export async function detect(
 ): Promise<DetectQRCodeResult | undefined> {
   debug('detecting QR code in %d×%d image', imageData.width, imageData.height)
 
-  // Unfortunately, quirc requires either JPEG or PNG encoded images and can't
-  // handle raw bitmaps.
   const quirc = await import('node-quirc')
-  const result = await quirc.decode(await toPNG(imageData))
+  const result = await quirc.decode(imageData)
 
   for (const symbol of result) {
     if (!('err' in symbol)) {

@@ -53,24 +53,24 @@ test('generates one PNG image per PDF page', async () => {
     stderr: stderr.toString(),
   }).toEqual({
     code: 0,
-    stdout: `📝 ${join(tmpDir, 'ballot-p1.png')}\n📝 ${join(
+    stdout: `📝 ${join(tmpDir, 'ballot-p1.jpg')}\n📝 ${join(
       tmpDir,
-      'ballot-p2.png'
+      'ballot-p2.jpg'
     )}\n`,
     stderr: '',
   })
 
-  for (const filename of ['ballot-p1.png', 'ballot-p2.png']) {
+  for (const filename of ['ballot-p1.jpg', 'ballot-p2.jpg']) {
     const { width, height } = await loadImageData(join(tmpDir, filename))
     expect({ width, height }).toEqual({
       width: 1224,
       height: 1584,
     })
   }
-  expect(await pathExists(join(tmpDir, 'ballot-p3.png'))).toBe(false)
+  expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toBe(false)
 })
 
-test('generates one PNG image per PDF page per DB', async () => {
+test('generates one image per PDF page per DB', async () => {
   const tmpDir = tmpNameSync()
   await fs.mkdir(tmpDir)
   const tmpDbPath = join(tmpDir, 'ballots.db')
@@ -102,16 +102,16 @@ test('generates one PNG image per PDF page per DB', async () => {
     stderr: stderr.toString(),
   }).toEqual({
     code: 0,
-    stdout: `📝 ${join(tmpDir, 'ballots-1-Bywy-LIVE-p1.png')}\n📝 ${join(
+    stdout: `📝 ${join(tmpDir, 'ballots-1-Bywy-LIVE-p1.jpg')}\n📝 ${join(
       tmpDir,
-      'ballots-1-Bywy-LIVE-p2.png'
+      'ballots-1-Bywy-LIVE-p2.jpg'
     )}\n`,
     stderr: '',
   })
 
   for (const filename of [
-    'ballots-1-Bywy-LIVE-p1.png',
-    'ballots-1-Bywy-LIVE-p2.png',
+    'ballots-1-Bywy-LIVE-p1.jpg',
+    'ballots-1-Bywy-LIVE-p2.jpg',
   ]) {
     const { width, height } = await loadImageData(join(tmpDir, filename))
     expect({ width, height }).toEqual({
@@ -119,7 +119,7 @@ test('generates one PNG image per PDF page per DB', async () => {
       height: 1584,
     })
   }
-  expect(await pathExists(join(tmpDir, 'ballots-1-Bywy-LIVE-p3.png'))).toBe(
+  expect(await pathExists(join(tmpDir, 'ballots-1-Bywy-LIVE-p3.jpg'))).toBe(
     false
   )
 })
