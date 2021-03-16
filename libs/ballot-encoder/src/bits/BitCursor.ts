@@ -49,5 +49,23 @@ export default class BitCursor {
     return new BitCursor().set(this.combinedBitOffset)
   }
 
-  public static uint8Masks: readonly Uint8[] = makeMasks(Uint8Size)
+  public static uint8Masks: readonly [
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8
+  ] = makeMasks(Uint8Size) as [
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8,
+    Uint8
+  ]
 }

@@ -229,22 +229,33 @@ export function decodeBallotConfigFromReader(
   const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
   const ballotId = bits.readBoolean() ? bits.readString() : undefined
 
+  const ballotStyle = ballotStyles[ballotStyleIndex]
+  const precinct = precincts[precinctIndex]
+  const primaryLocale =
+    readLocales && typeof primaryLocaleIndex === 'number'
+      ? SUPPORTED_LOCALES[primaryLocaleIndex]
+      : undefined
+  const secondaryLocale =
+    readLocales && typeof secondaryLocaleIndex === 'number'
+      ? SUPPORTED_LOCALES[secondaryLocaleIndex]
+      : undefined
+
+  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`)
+  assert(precinct, `precinct index ${precinctIndex} is invalid`)
+  assert(
+    !readLocales || (typeof primaryLocaleIndex === 'number' && primaryLocale),
+    `primary locale index ${primaryLocaleIndex} is invalid`
+  )
+
   return {
     ballotId,
-    ballotStyleId: ballotStyles[ballotStyleIndex].id,
+    ballotStyleId: ballotStyle.id,
     ballotType,
     isTestMode,
-    precinctId: precincts[precinctIndex].id,
-    locales:
-      readLocales && typeof primaryLocaleIndex === 'number'
-        ? {
-            primary: SUPPORTED_LOCALES[primaryLocaleIndex],
-            secondary:
-              typeof secondaryLocaleIndex === 'number'
-                ? SUPPORTED_LOCALES[secondaryLocaleIndex]
-                : undefined,
-          }
-        : undefined,
+    precinctId: precinct.id,
+    locales: primaryLocale
+      ? { primary: primaryLocale, secondary: secondaryLocale }
+      : undefined,
     pageNumber,
   }
 }

@@ -25,8 +25,13 @@ export function makeMasks<T extends number>(count: number): T[] {
  *
  * @throws if `number` is outside the range of `Uint8` or is not an integer
  */
-export function toUint8(number: number): Uint8 {
-  if (number < 0x00 || number > 0xff || (number | 0) !== number) {
+export function toUint8(number: unknown): Uint8 {
+  if (
+    typeof number !== 'number' ||
+    number < 0x00 ||
+    number > 0xff ||
+    (number | 0) !== number
+  ) {
     throw new TypeError(`cannot convert number to Uint8: ${number}`)
   }
   return number as Uint8
