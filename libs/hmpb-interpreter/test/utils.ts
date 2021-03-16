@@ -1,14 +1,11 @@
 import { strict as assert } from 'assert'
 import { randomBytes } from 'crypto'
-import { promises as fs } from 'fs'
 import { Rect } from '../src/types'
 import { createImageData } from '../src/utils/canvas'
-import crop from '../src/utils/crop'
 import {
   assertGrayscaleImage,
   makeImageTransform,
 } from '../src/utils/imageFormatUtils'
-import { toPNG } from '../src/utils/images'
 
 export function randomImage({
   width = 0,
@@ -103,15 +100,4 @@ export function grayToRGBA(imageData: ImageData): ImageData {
   }
 
   return createImageData(dst, width, height)
-}
-
-export async function writeImageToFile(
-  imageData: ImageData,
-  filePath: string,
-  bounds?: Rect
-): Promise<void> {
-  await fs.writeFile(
-    filePath,
-    await toPNG(bounds ? crop(imageData, bounds) : imageData)
-  )
 }

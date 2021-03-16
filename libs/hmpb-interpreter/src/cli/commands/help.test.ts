@@ -95,10 +95,10 @@ test('layout command help', () => {
     Examples
 
     # Annotate layout for a single ballot page.
-    hmpb-interpret layout ballot01.png
+    hmpb-interpret layout ballot01.jpg
 
     # Annotate layout for many ballot pages.
-    hmpb-interpret layout ballot*.png
+    hmpb-interpret layout ballot*.jpg
     "
   `)
 })

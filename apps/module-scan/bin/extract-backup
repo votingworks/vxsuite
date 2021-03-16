@@ -14,7 +14,7 @@ BACKUP_DIR=$(realpath "${BACKUP_FILE%.*}")
 mkdir -p "${BACKUP_DIR}"
 
 echo -e "\e[1mExtracting images…\e[0m"
-unzip -o "${BACKUP_FILE}" "*.png" -d "${BACKUP_DIR}"
+unzip -o "${BACKUP_FILE}" "*.png" "*.jpg" "*.jpeg" -d "${BACKUP_DIR}"
 
 echo
 echo -e "\e[1mExtracting database…\e[0m"
