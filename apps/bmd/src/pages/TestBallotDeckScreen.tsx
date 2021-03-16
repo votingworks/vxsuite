@@ -17,6 +17,9 @@ import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Sidebar from '../components/Sidebar'
 import Screen from '../components/Screen'
+import Modal from '../components/Modal'
+import Loading from '../components/Loading'
+import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 
 interface Ballot {
   ballotId?: string
@@ -123,6 +126,8 @@ const TestBallotDeckScreen: React.FC<Props> = ({
   const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
+  const [showPrinterNotConnected, setShowPrinterNotConnected] = useState(false)
+  const [isPrinting, setIsPrinting] = useState(false)
 
   const selectPrecinct: EventTargetFunction = (event) => {
     const { id = '', name = '' } = (event.target as HTMLElement).dataset
@@ -139,6 +144,23 @@ const TestBallotDeckScreen: React.FC<Props> = ({
     setPrecinct(initialPrecinct)
   }
 
+  const handlePrinting = async () => {
+    if (window.kiosk) {
+      const printers = await window.kiosk.getPrinterInfo()
+      if (!printers.some((p) => p.connected)) {
+        setShowPrinterNotConnected(true)
+        return
+      }
+    }
+    setIsPrinting(true)
+
+    setTimeout(() => {
+      setIsPrinting(false)
+    }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000)
+
+    await (window.kiosk ?? window).print()
+  }
+
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
@@ -153,13 +175,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
                   for {precinct.name}.
                 </p>
                 <p>
-                  <Button
-                    big
-                    primary
-                    onPress={() => {
-                      ;(window.kiosk ?? window).print()
-                    }}
-                  >
+                  <Button big primary onPress={handlePrinting}>
                     Print {ballots.length} ballots
                   </Button>
                 </p>
@@ -235,6 +251,34 @@ const TestBallotDeckScreen: React.FC<Props> = ({
             votes={ballot.votes}
           />
         ))}
+      {showPrinterNotConnected && (
+        <Modal
+          centerContent
+          content={
+            <Prose>
+              <h2>The printer is not connected.</h2>
+              <p>Please connect the printer and try again.</p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={() => setShowPrinterNotConnected(false)}>
+                OK
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
+      {isPrinting && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <Loading as="p">Printing Ballots…</Loading>
+            </Prose>
+          }
+        />
+      )}
     </React.Fragment>
   )
 }
