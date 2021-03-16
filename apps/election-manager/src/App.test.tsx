@@ -31,6 +31,7 @@ import { ElectionDefinition } from './config/types'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import { convertFileToStorageString } from './utils/file'
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
+import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherWithDataFiles.cvrData
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt')
@@ -112,6 +113,16 @@ it('printing ballots, print report, and test decks', async () => {
   jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
 
   await screen.findByText('0 official ballots')
+
+  getByText('Mock General Election Choctaw 2020')
+  getByText(
+    hasTextAcrossElements(
+      `Election Hash: ${eitherNeitherElectionDefinition.electionHash.slice(
+        0,
+        10
+      )}`
+    )
+  )
 
   // go print some ballots
   fireEvent.click(getByText('Export Ballot Package'))
@@ -249,8 +260,9 @@ it('tabulating CVRs', async () => {
   eitherNeitherElectionDefinition.election.precincts.forEach((p) => {
     getByText(`Official Precinct Tally Report for: ${p.name}`)
   })
+  // The election title is written one extra time in the footer of the page.
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
-    eitherNeitherElectionDefinition.election.precincts.length
+    eitherNeitherElectionDefinition.election.precincts.length + 1
   )
 
   fireEvent.click(getByText('Tally'))
