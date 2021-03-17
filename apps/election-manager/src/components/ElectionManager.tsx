@@ -31,10 +31,10 @@ const ElectionManager: React.FC = () => {
         <DefinitionScreen />
       </Route>
       <Route path={routerPaths.definitionEditor}>
-        <DefinitionEditorScreen />
+        <DefinitionEditorScreen allowEditing={false} />
       </Route>
       <Route path={routerPaths.definitionContest({ contestId: ':contestId' })}>
-        <DefinitionContestsScreen />
+        <DefinitionContestsScreen allowEditing={false} />
       </Route>
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />

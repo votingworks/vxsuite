@@ -74,7 +74,9 @@ const createMemoryStorageWith = async ({
 }
 
 it('create election works', async () => {
-  const { getByText, getAllByText } = render(<App />)
+  const { getByText, getAllByText, queryAllByText, getByTestId } = render(
+    <App />
+  )
 
   await screen.findByText('Create New Election Definition')
   fireEvent.click(getByText('Create New Election Definition'))
@@ -85,7 +87,12 @@ it('create election works', async () => {
   fireEvent.click(getByText('English/Spanish'))
 
   fireEvent.click(getByText('Definition'))
-  fireEvent.click(getByText('JSON Editor'))
+
+  // Verify editing an election is disabled
+  fireEvent.click(getByText('View Definition JSON'))
+  expect(queryAllByText('Save').length).toBe(0)
+  expect(queryAllByText('Reset').length).toBe(0)
+  expect(getByTestId('json-input').hasAttribute('disabled')).toBe(true)
 
   // remove the election
   fireEvent.click(getByText('Remove'))
@@ -389,8 +396,7 @@ it('changing election resets sems and cvr files', async () => {
   )
 
   fireEvent.click(getByText('Definition'))
-  fireEvent.click(getByText('JSON Editor'))
-  fireEvent.click(getByText('Remove'))
+  fireEvent.click(getByText('Remove Election'))
   fireEvent.click(getByText('Remove Election Definition'))
   await waitFor(() => {
     fireEvent.click(getByText('Create New Election Definition'))
