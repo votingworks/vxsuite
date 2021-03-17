@@ -56,6 +56,55 @@ test('clicking "Export Backup…" shows progress', async () => {
   })
 })
 
+test('clicking "Factory Reset…" shows progress', async () => {
+  const unconfigureServer = jest.fn()
+  const component = render(
+    <Router history={createMemoryHistory()}>
+      <AdvancedOptionsScreen
+        hasBatches={false}
+        unconfigureServer={unconfigureServer}
+        zeroData={jest.fn()}
+        backup={jest.fn()}
+        isTestMode={false}
+        isTogglingTestMode={false}
+        toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        electionDefinition={testElectionDefinition}
+      />
+    </Router>
+  )
+
+  let resolve!: () => void
+  unconfigureServer.mockReturnValueOnce(
+    new Promise<void>((res) => {
+      resolve = res
+    })
+  )
+
+  await act(async () => {
+    // Click to reset.
+    expect(unconfigureServer).not.toHaveBeenCalled()
+    const resetButton = component.getByText('Factory Reset…')
+    resetButton.click()
+
+    // Confirm reset.
+    expect(unconfigureServer).not.toHaveBeenCalled()
+    const confirmResetButton = await waitFor(() =>
+      component.getByText('Yes, Factory Reset')
+    )
+    confirmResetButton.click()
+    expect(unconfigureServer).toHaveBeenCalledTimes(1)
+
+    // Verify progress message is shown.
+    await waitFor(() => component.getByText('Resetting…'))
+
+    // Trigger reset finished, verify back to initial screen.
+    resolve()
+    await waitFor(() => !component.getByText('Resetting…'))
+  })
+})
+
 test('backup error shows message', async () => {
   const backup = jest.fn()
   const component = render(
