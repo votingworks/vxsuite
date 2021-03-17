@@ -41,6 +41,17 @@ const DashboardScreen: React.FC<Props> = ({
   const batchCount = batches.length
   const ballotCount =
     batches && batches.reduce((result, b) => result + b.count, 0)
+
+  const adjudicationSentence = (
+    <React.Fragment>
+      {' '}
+      {pluralize('ballot', adjudicationStatus.adjudicated, true)}{' '}
+      {pluralize('has', adjudicationStatus.adjudicated)} been adjudicated,{' '}
+      {pluralize('ballot', adjudicationStatus.remaining, true)}{' '}
+      {pluralize('require', adjudicationStatus.remaining)} review.
+    </React.Fragment>
+  )
+
   return (
     <React.Fragment>
       <Prose maxWidth={false}>
@@ -51,12 +62,8 @@ const DashboardScreen: React.FC<Props> = ({
               A total of{' '}
               <strong>{pluralize('ballot', ballotCount, true)}</strong> have
               been scanned in{' '}
-              <strong>{pluralize('batch', batchCount, true)}</strong>.{' '}
-              {pluralize('ballot', adjudicationStatus.adjudicated, true)}{' '}
-              {pluralize('has', adjudicationStatus.adjudicated)} been
-              adjudicated,{' '}
-              {pluralize('ballot', adjudicationStatus.remaining, true)}{' '}
-              {pluralize('require', adjudicationStatus.remaining)} review.
+              <strong>{pluralize('batch', batchCount, true)}</strong>.
+              {false && adjudicationSentence}
             </p>
             <Table>
               <thead>
