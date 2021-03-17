@@ -16,7 +16,6 @@ import {
 
 import { getActiveElement, handleGamepadButtonDown } from './gamepad'
 import { MemoryStorage } from '../utils/Storage'
-import { AppStorage } from '../AppRoot'
 import { MemoryCard } from '../utils/Card'
 import { MemoryHardware } from '../utils/Hardware'
 import { fakeMachineConfigProvider } from '../../test/helpers/fakeMachineConfig'
@@ -30,7 +29,7 @@ it('gamepad controls work', async () => {
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
   setElectionInStorage(storage)

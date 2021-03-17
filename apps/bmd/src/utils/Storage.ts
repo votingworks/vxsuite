@@ -1,27 +1,24 @@
 import { strict as assert } from 'assert'
 
-// TODO: define a type that's actually serializable
-export type Serializable = unknown
-
 /**
  * Describes the API for application-level persistant storage. Values must be
  * objects that can be persisted via JSON.stringify and JSON.parse.
  */
-export interface Storage<M extends Serializable> {
+export interface Storage {
   /**
    * Gets an object from storage by key.
    */
-  get<K extends keyof M>(key: K): M[K] | undefined
+  get(key: string): unknown | undefined
 
   /**
    * Sets an object in storage by key.
    */
-  set<K extends keyof M>(key: K, value: M[K]): void
+  set(key: string, value: unknown): void
 
   /**
    * Removes an object in storage by key.
    */
-  remove<K extends keyof M>(key: K): void
+  remove(key: string): void
 
   /**
    * Clears all objects out of storage.
@@ -32,11 +29,11 @@ export interface Storage<M extends Serializable> {
 /**
  * Implements the storage API using `localStorage` as the backing store.
  */
-export class LocalStorage<M extends Serializable> implements Storage<M> {
+export class LocalStorage implements Storage {
   /**
    * Gets an object from storage by key.
    */
-  public get<K extends keyof M>(key: K): M[K] | undefined {
+  public get(key: string): unknown | undefined {
     assert(typeof key === 'string')
     const value = window.localStorage.getItem(key)
     return value ? JSON.parse(value) : undefined
@@ -45,7 +42,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
   /**
    * Sets an object in storage by key.
    */
-  public set<K extends keyof M>(key: K, value: M[K]): void {
+  public set(key: string, value: unknown): void {
     assert(typeof key === 'string')
     window.localStorage.setItem(key, JSON.stringify(value))
   }
@@ -53,7 +50,7 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
   /**
    * Removes an object in storage by key.
    */
-  public remove<K extends keyof M>(key: K): void {
+  public remove(key: string): void {
     assert(typeof key === 'string')
     window.localStorage.removeItem(key)
   }
@@ -70,18 +67,18 @@ export class LocalStorage<M extends Serializable> implements Storage<M> {
  * Implements the storage API for storing objects in memory. Data stored in
  * this object only lasts as long as the program runs.
  */
-export class MemoryStorage<M extends Serializable> implements Storage<M> {
-  private data = new Map<keyof M, string>()
+export class MemoryStorage implements Storage {
+  private data = new Map<string, string>()
 
   /**
    * @param initial data to load into storage
    */
-  public constructor(initial?: Partial<M>) {
+  public constructor(initial?: Record<string, unknown>) {
     if (initial) {
       for (const key in initial) {
         /* istanbul ignore else */
         if (Object.prototype.hasOwnProperty.call(initial, key)) {
-          this.set(key, initial[key] as M[keyof M])
+          this.set(key, initial[key])
         }
       }
     }
@@ -90,7 +87,7 @@ export class MemoryStorage<M extends Serializable> implements Storage<M> {
   /**
    * Gets an object from storage by key.
    */
-  public get<K extends keyof M>(key: K): M[K] | undefined {
+  public get(key: string): unknown | undefined {
     const serialized = this.data.get(key)
 
     if (typeof serialized === 'undefined') {
@@ -103,14 +100,14 @@ export class MemoryStorage<M extends Serializable> implements Storage<M> {
   /**
    * Sets an object in storage by key.
    */
-  public set<K extends keyof M>(key: K, value: M[K]): void {
+  public set(key: string, value: unknown): void {
     this.data.set(key, JSON.stringify(value))
   }
 
   /**
    * Removes an object in storage by key.
    */
-  public remove<K extends keyof M>(key: K): void {
+  public remove(key: string): void {
     this.data.delete(key)
   }
 

@@ -59,10 +59,10 @@ function readFile(file: File): Promise<Buffer> {
   })
 }
 
-function openZip(data: Buffer): Promise<ZipFile> {
+function openZip(data: Uint8Array): Promise<ZipFile> {
   return new Promise((resolve, reject) => {
     fromBuffer(
-      data,
+      Buffer.from(data),
       { lazyEntries: true, validateEntrySizes: true },
       (error, zipfile) => {
         if (error || !zipfile) {

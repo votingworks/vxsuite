@@ -1,6 +1,5 @@
 import { BehaviorSubject } from 'rxjs'
 
-// Disable `import/no-unresolved` because this module only exists for TypeScript.
 export function fakeDevice(
   props: Partial<KioskBrowser.Device> = {}
 ): KioskBrowser.Device {
@@ -12,6 +11,16 @@ export function fakeDevice(
     productId: 0,
     serialNumber: '12345',
     vendorId: 0,
+    ...props,
+  }
+}
+
+export function fakeUsbDrive(
+  props: Partial<KioskBrowser.UsbDrive> = {}
+): KioskBrowser.UsbDrive {
+  return {
+    deviceName: 'fake device',
+    mountPoint: 'fake mount point',
     ...props,
   }
 }
@@ -32,19 +41,36 @@ export function fakePrinterInfo(
 /**
  * Builds a `Kiosk` instance with mock methods.
  */
-export default function fakeKiosk({
+export function fakeKiosk({
   battery: { level = 1, discharging = false } = {},
   printers = [{}],
 }: {
   battery?: Partial<KioskBrowser.BatteryInfo>
   printers?: Partial<KioskBrowser.PrinterInfo>[]
-} = {}): jest.Mocked<KioskBrowser.Kiosk> {
+} = {}): jest.Mocked<KioskBrowser.Kiosk> & {
+  devices: BehaviorSubject<Set<KioskBrowser.Device>>
+} {
   return {
-    setClock: jest.fn().mockResolvedValue(undefined),
     print: jest.fn().mockResolvedValue(undefined),
+    printToPDF: jest.fn().mockResolvedValue(Buffer.of()),
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
     getPrinterInfo: jest.fn().mockResolvedValue(printers.map(fakePrinterInfo)),
     devices: new BehaviorSubject(new Set<KioskBrowser.Device>()),
     quit: jest.fn(),
+    saveAs: jest.fn().mockResolvedValue(undefined),
+    getUsbDrives: jest.fn().mockResolvedValue([]),
+    mountUsbDrive: jest.fn(),
+    unmountUsbDrive: jest.fn(),
+    writeFile: jest.fn().mockResolvedValue(undefined),
+    readFile: jest.fn().mockResolvedValue(''),
+    getFileSystemEntries: jest.fn().mockResolvedValue([]),
+    makeDirectory: jest.fn(),
+    storage: {
+      set: jest.fn(),
+      get: jest.fn(),
+      remove: jest.fn(),
+      clear: jest.fn(),
+    },
+    setClock: jest.fn(),
   }
 }

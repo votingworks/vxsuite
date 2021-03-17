@@ -12,12 +12,7 @@ import {
 } from '@votingworks/types'
 import { getZeroTally } from '../../src/utils/election'
 
-import {
-  electionStorageKey,
-  stateStorageKey,
-  AppStorage,
-  State,
-} from '../../src/AppRoot'
+import { electionStorageKey, stateStorageKey, State } from '../../src/AppRoot'
 import { Storage } from '../../src/utils/Storage'
 
 const electionSampleData = fs.readFileSync(
@@ -75,14 +70,14 @@ export const voterContests = getContests({
 })
 
 export const setElectionInStorage = (
-  storage: Storage<AppStorage>,
+  storage: Storage,
   newElectionDefinition = electionDefinition
 ): void => {
   storage.set(electionStorageKey, newElectionDefinition)
 }
 
 export const setStateInStorage = (
-  storage: Storage<AppStorage>,
+  storage: Storage,
   state: Partial<State> = {}
 ): void => {
   storage.set(stateStorageKey, {

@@ -8,7 +8,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 import { MemoryHardware } from './utils/Hardware'
@@ -22,7 +21,7 @@ beforeEach(() => {
 
 it('Displays testing message if not live mode', async () => {
   const card = new MemoryCard()
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
   setElectionInStorage(storage)
   setStateInStorage(storage, {

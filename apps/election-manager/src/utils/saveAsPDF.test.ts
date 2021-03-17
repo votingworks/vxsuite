@@ -1,6 +1,6 @@
 import { electionSample } from '@votingworks/fixtures'
+import { fakeKiosk } from '@votingworks/test-utils'
 import saveAsPDF from './saveAsPDF'
-import fakeKiosk from '../../test/helpers/fakeKiosk'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 
 test('saves pdf with expected filename for a precinct', async () => {

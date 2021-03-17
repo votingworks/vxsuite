@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import App from './App'
 import DemoApp, { getSampleStorage } from './DemoApp'
-import { activationStorageKey, electionStorageKey, AppStorage } from './AppRoot'
+import { activationStorageKey, electionStorageKey } from './AppRoot'
 
 import {
   election,
@@ -40,7 +40,7 @@ describe('loads election', () => {
 
   it('from storage', async () => {
     const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     setElectionInStorage(storage)
     setStateInStorage(storage)

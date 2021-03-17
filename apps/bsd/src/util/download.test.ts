@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock'
-import fakeKiosk from '../../test/helpers/fakeKiosk'
+import { fakeKiosk } from '@votingworks/test-utils'
 import download from './download'
 
 let oldLocation: typeof window.location
@@ -35,7 +35,7 @@ test.skip('kiosk browser successful download', async () => {
 
   const write = jest.fn()
   const end = jest.fn()
-  kiosk.saveAs.mockResolvedValueOnce({ write, end })
+  kiosk.saveAs.mockResolvedValueOnce({ filename: '/fake/file', write, end })
 
   fetchMock.getOnce('/a/url', 'abcdefg')
   await download('/a/url')

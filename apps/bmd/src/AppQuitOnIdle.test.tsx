@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { render } from '@testing-library/react'
+import { fakeKiosk } from '@votingworks/test-utils'
 
 import App from './App'
 
@@ -11,11 +12,9 @@ import {
 } from '../test/helpers/election'
 
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import fakeKiosk from '../test/helpers/fakeKiosk'
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals'
 
 jest.useFakeTimers()
@@ -32,7 +31,7 @@ afterEach(() => {
 test('Insert Card screen idle timeout to quit app', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
     // machineId used to determine whether we quit. Now they all do.
     // making sure a machineId that ends in 0 still triggers.

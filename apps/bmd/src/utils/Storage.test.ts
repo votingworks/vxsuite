@@ -6,24 +6,22 @@ describe('LocalStorage', () => {
   })
 
   it('uses local storage as the backing store', () => {
-    new LocalStorage<{ a: { b: string } }>().set('a', { b: 'c' })
+    new LocalStorage().set('a', { b: 'c' })
     expect(JSON.parse(window.localStorage.getItem('a') || '')).toEqual({
       b: 'c',
     })
 
     window.localStorage.setItem('b', JSON.stringify({ a: 1 }))
-    expect(new LocalStorage<{ b: { a: number } }>().get('b')).toEqual({ a: 1 })
+    expect(new LocalStorage().get('b')).toEqual({ a: 1 })
   })
 
   it('fails if the underlying value is not JSON', () => {
     window.localStorage.setItem('a', 'this is not JSON')
-    expect(() => new LocalStorage<{ a: unknown }>().get('a')).toThrowError(
-      /JSON/
-    )
+    expect(() => new LocalStorage().get('a')).toThrowError(/JSON/)
   })
 
   it('can remove a value', () => {
-    const storage = new LocalStorage<{ a: unknown }>()
+    const storage = new LocalStorage()
 
     expect(storage.get('a')).toBeUndefined()
     window.localStorage.setItem('a', JSON.stringify({}))
@@ -33,7 +31,7 @@ describe('LocalStorage', () => {
   })
 
   it('can clear all values', () => {
-    const storage = new LocalStorage<{ a: unknown; b: unknown }>()
+    const storage = new LocalStorage()
 
     window.localStorage.setItem('a', JSON.stringify({}))
     window.localStorage.setItem('b', JSON.stringify({}))
@@ -43,7 +41,7 @@ describe('LocalStorage', () => {
   })
 
   it('serializes values as they are put in storage', () => {
-    const storage = new LocalStorage<{ a: unknown }>()
+    const storage = new LocalStorage()
     const object = { b: 1 }
 
     storage.set('a', object)
@@ -55,7 +53,7 @@ describe('LocalStorage', () => {
 
 describe('MemoryStorage', () => {
   it('can be initialized with data', () => {
-    const storage = new MemoryStorage<{ a: unknown; b: unknown; c: unknown }>({
+    const storage = new MemoryStorage({
       a: { c: 1 },
       b: { d: 2 },
     })
@@ -66,7 +64,7 @@ describe('MemoryStorage', () => {
   })
 
   it('can remove a value', () => {
-    const storage = new MemoryStorage<{ a: unknown }>()
+    const storage = new MemoryStorage()
 
     storage.set('a', {})
     expect(storage.get('a')).toBeDefined()
@@ -75,7 +73,7 @@ describe('MemoryStorage', () => {
   })
 
   it('can clear all values', () => {
-    const storage = new MemoryStorage<{ a: unknown; b: unknown }>()
+    const storage = new MemoryStorage()
 
     storage.set('a', {})
     storage.set('b', {})
@@ -85,7 +83,7 @@ describe('MemoryStorage', () => {
   })
 
   it('serializes values as they are put in storage', () => {
-    const storage = new MemoryStorage<{ a: unknown }>()
+    const storage = new MemoryStorage()
     const object = { b: 1 }
 
     storage.set('a', object)

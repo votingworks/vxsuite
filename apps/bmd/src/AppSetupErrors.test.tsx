@@ -4,7 +4,6 @@ import { render, waitFor } from '@testing-library/react'
 import { electionSample } from '@votingworks/fixtures'
 
 import App from './App'
-import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 import { MemoryStorage } from './utils/Storage'
 
@@ -41,7 +40,7 @@ const noPowerDetectedWarningText = 'No Power Detected.'
 describe('Displays setup warning messages and errors scrrens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     hardware.setAccesssibleControllerConnected(true)
@@ -82,7 +81,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
   it('Displays error screen if Card Reader connection is lost', async () => {
     const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
@@ -116,7 +115,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
   it('Displays error screen if Printer connection is lost', async () => {
     const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
@@ -151,7 +150,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
   it('Displays error screen if Power connection is lost', async () => {
     const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)
@@ -188,7 +187,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
   it('Admin screen trumps "No Printer Detected" error', async () => {
     const card = new MemoryCard()
     const adminCard = adminCardForElection(electionDefinition.electionHash)
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({
       appMode: VxPrintOnly,
     })
@@ -227,7 +226,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     const card = new MemoryCard()
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
     setElectionInStorage(storage)

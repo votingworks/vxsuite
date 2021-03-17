@@ -21,6 +21,7 @@
   "references": [
     { "path": "../../libs/ballot-encoder" },
     { "path": "../../libs/hmpb-interpreter" },
+    { "path": "../../libs/test-utils" },
     { "path": "../../libs/types" }
   ]
 }

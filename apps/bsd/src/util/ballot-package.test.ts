@@ -1,7 +1,7 @@
 import { electionSample } from '@votingworks/fixtures'
+import { fakeKiosk } from '@votingworks/test-utils'
 import { promises as fs } from 'fs'
 import { join } from 'path'
-import fakeKiosk from '../../test/helpers/fakeKiosk'
 import { zipFile } from '../../test/util/zip'
 import {
   readBallotPackageFromFile,

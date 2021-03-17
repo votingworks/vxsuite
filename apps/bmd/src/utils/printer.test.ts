@@ -1,6 +1,6 @@
+import { fakeKiosk } from '@votingworks/test-utils'
 import { mockOf } from '../../test/testUtils'
 import getPrinter, { LocalPrinter, NullPrinter } from './printer'
-import fakeKiosk from '../../test/helpers/fakeKiosk'
 
 const printMock = mockOf(window.print)
 

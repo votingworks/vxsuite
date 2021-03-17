@@ -10,7 +10,7 @@ import {
 import { act } from 'react-dom/test-utils'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
-import fakeKiosk from '../test/helpers/fakeKiosk'
+import { fakeKiosk } from '@votingworks/test-utils'
 import App from './App'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
 

@@ -1,4 +1,4 @@
-import fakeKiosk from '../../test/helpers/fakeKiosk'
+import { fakeKiosk } from '@votingworks/test-utils'
 import { UsbDriveStatus, getStatus, doMount, doUnmount } from './usbstick'
 
 const mountedDevices = [

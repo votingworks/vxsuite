@@ -1,12 +1,12 @@
 import React from 'react'
 
 import { fireEvent, waitFor } from '@testing-library/react'
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import fetchMock from 'fetch-mock'
 import MockDate from 'mockdate'
 
 import { UsbDriveStatus } from '../lib/usbstick'
 import ExportFinalResultsModal from './ExportFinalResultsModal'
-import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
 import renderInAppContext from '../../test/renderInAppContext'
 
 beforeEach(() => {

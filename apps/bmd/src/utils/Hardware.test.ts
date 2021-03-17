@@ -1,7 +1,4 @@
-import fakeKiosk, {
-  fakeDevice,
-  fakePrinterInfo,
-} from '../../test/helpers/fakeKiosk'
+import { fakeKiosk, fakeDevice, fakePrinterInfo } from '@votingworks/test-utils'
 import {
   getHardware,
   KioskHardware,

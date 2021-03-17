@@ -20,7 +20,6 @@ import {
 import utcTimestamp from './utils/utcTimestamp'
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
@@ -35,7 +34,7 @@ test('Display App Card Unhappy Paths', async () => {
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
   card.removeCard()
@@ -151,7 +150,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
   card.removeCard()

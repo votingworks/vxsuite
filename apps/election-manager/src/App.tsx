@@ -5,15 +5,13 @@ import './App.css'
 
 import { LocalStorage, KioskStorage } from './utils/Storage'
 
-import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
+import AppRoot, { Props as AppRootProps } from './AppRoot'
 
 export interface Props {
   storage?: AppRootProps['storage']
 }
 
-const defaultStorage = window.kiosk
-  ? new KioskStorage<AppStorage>()
-  : new LocalStorage<AppStorage>()
+const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage()
 
 const App: React.FC<Props> = ({ storage = defaultStorage }) => (
   <BrowserRouter>

@@ -3,8 +3,8 @@ import { act, fireEvent, within } from '@testing-library/react'
 import MockDate from 'mockdate'
 
 import { asElectionDefinition } from '@votingworks/fixtures'
+import { fakeKiosk } from '@votingworks/test-utils'
 import { render } from '../../test/testUtils'
-import fakeKiosk from '../../test/helpers/fakeKiosk'
 import { election, defaultPrecinctId } from '../../test/helpers/election'
 
 import { advanceTimers } from '../../test/helpers/smartcards'

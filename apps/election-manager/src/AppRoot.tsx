@@ -52,7 +52,7 @@ export interface AppStorage {
 }
 
 export interface Props extends RouteComponentProps {
-  storage: Storage<AppStorage>
+  storage: Storage
 }
 
 export const electionDefinitionStorageKey = 'electionDefinition'
@@ -65,8 +65,13 @@ export const externalVoteRecordsFileStorageKey = 'externalVoteRecordsFile'
 const AppRoot: React.FC<Props> = ({ storage }) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
-  const getElectionDefinition = useCallback(async () => {
-    const electionDefinition = await storage.get(electionDefinitionStorageKey)
+  const getElectionDefinition = useCallback(async (): Promise<
+    ElectionDefinition | undefined
+  > => {
+    // TODO: validate this with zod schema
+    const electionDefinition = (await storage.get(
+      electionDefinitionStorageKey
+    )) as ElectionDefinition | undefined
 
     if (electionDefinition) {
       const { electionData, electionHash } = electionDefinition
@@ -75,10 +80,15 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     }
   }, [storage])
 
-  const getCVRFiles = async () => storage.get(cvrsStorageKey)
-  const getExternalFile = async () =>
-    storage.get(externalVoteRecordsFileStorageKey)
-  const getIsOfficialResults = async () => storage.get(isOfficialResultsKey)
+  const getCVRFiles = async (): Promise<string | undefined> =>
+    // TODO: validate this with zod schema
+    (await storage.get(cvrsStorageKey)) as string | undefined
+  const getExternalFile = async (): Promise<string | undefined> =>
+    // TODO: validate this with zod schema
+    (await storage.get(externalVoteRecordsFileStorageKey)) as string | undefined
+  const getIsOfficialResults = async (): Promise<boolean | undefined> =>
+    // TODO: validate this with zod schema
+    (await storage.get(isOfficialResultsKey)) as boolean | undefined
 
   const [
     electionDefinition,
@@ -147,7 +157,12 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   >(undefined)
 
   const getPrintedBallots = async (): Promise<PrintedBallot[]> => {
-    return (await storage.get(printedBallotsStorageKey)) || []
+    // TODO: validate this with zod schema
+    return (
+      ((await storage.get(printedBallotsStorageKey)) as
+        | PrintedBallot[]
+        | undefined) || []
+    )
   }
 
   const savePrintedBallots = async (printedBallots: PrintedBallot[]) => {
@@ -175,7 +190,12 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         const storageElectionDefinition = await getElectionDefinition()
         if (storageElectionDefinition) {
           setElectionDefinition(storageElectionDefinition)
-          setConfiguredAt((await storage.get(configuredAtStorageKey)) || '')
+          setConfiguredAt(
+            // TODO: validate this with zod schema
+            ((await storage.get(configuredAtStorageKey)) as
+              | string
+              | undefined) || ''
+          )
         }
 
         if (castVoteRecordFiles === CastVoteRecordFiles.empty) {

@@ -5,7 +5,6 @@ import fetchMock from 'fetch-mock'
 import App from './App'
 
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { VxMarkOnly, MachineConfigResponse } from './config/types'
 
 beforeEach(() => {
@@ -20,7 +19,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
 
   fetchMock.get('/machine-config', () => JSON.stringify(machineConfigResponse))
 
-  render(<App storage={new MemoryStorage<AppStorage>()} />)
+  render(<App storage={new MemoryStorage()} />)
 
   expect(fetchMock.called('/machine-config')).toBe(true)
 })
@@ -31,12 +30,7 @@ test('machineConfig fetch fails', async () => {
   }
 
   // Render app which gets machineConfig in componentDidMount
-  render(
-    <App
-      storage={new MemoryStorage<AppStorage>()}
-      machineConfig={machineConfig}
-    />
-  )
+  render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />)
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage
@@ -51,12 +45,7 @@ test('machineId is empty', async () => {
   }
 
   // Render app which gets machineConfig in componentDidMount
-  render(
-    <App
-      storage={new MemoryStorage<AppStorage>()}
-      machineConfig={machineConfig}
-    />
-  )
+  render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />)
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage
@@ -72,12 +61,7 @@ test('machineConfig is empty', async () => {
   }
 
   // Render app which gets machineConfig in componentDidMount
-  render(
-    <App
-      storage={new MemoryStorage<AppStorage>()}
-      machineConfig={machineConfig}
-    />
-  )
+  render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />)
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage

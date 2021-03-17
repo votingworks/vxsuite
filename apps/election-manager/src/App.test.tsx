@@ -10,10 +10,10 @@ import {
   getAllByRole as domGetAllByRole,
 } from '@testing-library/react'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 
 import { MemoryStorage } from './utils/Storage'
 import {
-  AppStorage,
   configuredAtStorageKey,
   cvrsStorageKey,
   electionDefinitionStorageKey,
@@ -21,8 +21,6 @@ import {
 } from './AppRoot'
 
 import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
-
-import fakeKiosk, { fakeUsbDrive } from '../test/helpers/fakeKiosk'
 
 import App from './App'
 
@@ -68,7 +66,7 @@ const createMemoryStorageWith = async ({
 }: {
   electionDefinition: ElectionDefinition
 }) => {
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   await storage.set(electionDefinitionStorageKey, electionDefinition)
   await storage.set(configuredAtStorageKey, new Date().toISOString())
   return storage

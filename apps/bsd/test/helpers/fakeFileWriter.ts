@@ -5,6 +5,7 @@ export default function fakeFileWriter(): jest.Mocked<
 > {
   const chunks: Chunk[] = []
   const fileWriter = {
+    filename: '/fake/file',
     write: jest.fn().mockImplementation((chunk) => {
       chunks.push(chunk)
     }),
