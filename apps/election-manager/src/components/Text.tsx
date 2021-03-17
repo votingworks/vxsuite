@@ -21,6 +21,7 @@ interface Props {
   warningIcon?: boolean
   wordBreak?: boolean
   voteIcon?: boolean
+  white?: boolean
 }
 
 const iconStyles = css<Props>`
@@ -55,16 +56,18 @@ const Text = styled('p')<Props>`
     undefined};
   white-space: ${({ noWrap, preLine }) =>
     noWrap ? 'nowrap' : preLine ? 'pre-line' : undefined};
-  color: ${({ error, muted, warning }) =>
+  color: ${({ error, muted, warning, white }) =>
     (error && 'red') ??
     (warning && 'darkorange') ??
     (muted && 'gray') ??
+    (white && '#FFFFFF') ??
     undefined};
   @media print {
-    color: ${({ error, muted, warning }) =>
+    color: ${({ error, muted, warning, white }) =>
       (error && 'black') ??
       (warning && 'black') ??
       (muted && 'black') ??
+      (white && '#FFFFFF') ??
       undefined};
   }
   font-size: ${({ small }) => (small ? '0.8em' : undefined)};

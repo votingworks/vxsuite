@@ -8,7 +8,7 @@ interface Props {
 
 const Screen = styled.div<Props>`
   display: flex;
-  flex-direction: ${({ flexDirection = 'column-reverse' }) => flexDirection};
+  flex-direction: ${({ flexDirection = 'column' }) => flexDirection};
   background-color: ${({ white }) => (white ? 'white' : undefined)};
   height: 100%;
   & > nav {

@@ -9,6 +9,7 @@ import Main, { MainChild } from './Main'
 import Navigation from './Navigation'
 import LinkButton from './LinkButton'
 import USBControllerButton from './USBControllerButton'
+import StatusFooter from './StatusFooter'
 
 interface Props {
   children: React.ReactNode
@@ -30,11 +31,6 @@ const NavigationScreen: React.FC<Props> = ({
 
   return (
     <Screen>
-      <Main padded>
-        <MainChild center={mainChildCenter} flexContainer={mainChildFlex}>
-          {children}
-        </MainChild>
-      </Main>
       <Navigation
         primaryNav={
           election && (
@@ -63,6 +59,12 @@ const NavigationScreen: React.FC<Props> = ({
         }
         secondaryNav={<USBControllerButton />}
       />
+      <Main padded>
+        <MainChild center={mainChildCenter} flexContainer={mainChildFlex}>
+          {children}
+        </MainChild>
+      </Main>
+      <StatusFooter />
     </Screen>
   )
 }
