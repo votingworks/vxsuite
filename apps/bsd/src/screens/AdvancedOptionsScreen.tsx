@@ -1,5 +1,5 @@
 import { MarkThresholds, Optional } from '@votingworks/types'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
@@ -41,6 +41,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
   )
+  const [isFactoryResetting, setIsFactoryResetting] = useState(false)
   const [isBackingUp, setIsBackingUp] = useState(false)
   const [backupError, setBackupError] = useState('')
   const toggleIsConfirmingFactoryReset = () =>
@@ -61,6 +62,22 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
       setIsBackingUp(false)
     }
   }, [backup])
+
+  useEffect(() => {
+    if (isFactoryResetting) {
+      let isMounted = true
+      ;(async () => {
+        await unconfigureServer()
+        if (isMounted) {
+          setIsFactoryResetting(false)
+        }
+      })()
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [isFactoryResetting, unconfigureServer])
+
   return (
     <React.Fragment>
       <Screen>
@@ -151,12 +168,28 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
           actions={
             <React.Fragment>
               <Button onPress={toggleIsConfirmingFactoryReset}>Cancel</Button>
-              <Button danger onPress={unconfigureServer}>
+              <Button
+                danger
+                onPress={() => {
+                  setIsConfirmingFactoryReset(false)
+                  setIsFactoryResetting(true)
+                }}
+              >
                 Yes, Factory Reset
               </Button>
             </React.Fragment>
           }
           onOverlayClick={toggleIsConfirmingFactoryReset}
+        />
+      )}
+      {isFactoryResetting && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Resetting…</h1>
+            </Prose>
+          }
         />
       )}
       {isSetMarkThresholdModalOpen && (
