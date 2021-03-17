@@ -4,10 +4,7 @@ import {
   AdjudicationReason as AdjudicationReasonEnum,
   BallotPaperSize as BallotPaperSizeEnum,
 } from './election'
-
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
-// @ts-ignore
-import type { objectUtil } from 'zod/lib/src/helpers/objectUtil'
+import { err, ok, Result } from './generic'
 
 // Generic
 type StringEnum = {
@@ -199,3 +196,16 @@ export const VotesDict = z.record(Vote)
 
 // Keep this in sync with `src/election.ts`.
 export const BallotType = z.number().min(0).max(2)
+
+export function safeParse<T>(
+  parser: z.ZodType<T>,
+  value: unknown
+): Result<T, z.ZodError> {
+  const result = parser.safeParse(value)
+
+  if (!result.success) {
+    return err(result.error)
+  }
+
+  return ok(result.data)
+}

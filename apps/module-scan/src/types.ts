@@ -16,40 +16,6 @@ import {
 import { MarkInfo, PageInterpretation } from './interpreter'
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
 
-export type Result<E, T> = ErrorResult<E> | ValueResult<T>
-export interface ErrorResult<E> {
-  error: E
-}
-export interface ValueResult<T> {
-  value: T
-}
-
-export function isValueResult<E, T>(
-  result: Result<E, T>
-): result is ValueResult<T> {
-  return 'value' in result
-}
-
-export function isErrorResult<E, T>(
-  result: Result<E, T>
-): result is ErrorResult<E> {
-  return 'error' in result
-}
-
-export function resultValue<E, T>(result: Result<E, T>): T {
-  if (isErrorResult(result)) {
-    throw new TypeError('cannot extract value from error result')
-  }
-  return result.value
-}
-
-export function resultError<E, T>(result: Result<E, T>): E {
-  if (isValueResult(result)) {
-    throw new TypeError('cannot extract error from value result')
-  }
-  return result.error
-}
-
 export type SheetOf<T> = [T, T]
 export type Side = 'front' | 'back'
 

@@ -13,6 +13,7 @@ import {
   isVotePresent,
   parseElection,
   Party,
+  safeParseElection,
   validateVotes,
   vote,
   withLocale,
@@ -271,59 +272,71 @@ test('uses the defaults for anything without a translation', () => {
   expect(withLocale(election, 'fr-FR').title).toEqual(election.title)
 })
 
+test('parseElection throws on error', () => {
+  expect(() => parseElection({})).toThrowError()
+})
+
 test('parsing fails on an empty object', () => {
-  expect(() => parseElection({})).toThrowError(
-    'title: Non-string type: undefined'
+  safeParseElection({}).expectErr('empty object should fail')
+})
+
+test('parsing JSON.parses a string', () => {
+  expect(
+    safeParseElection(JSON.stringify(election)).expect(
+      'expected parsing to succeed'
+    )
+  ).toEqual(election)
+})
+
+test('parsing invalid JSON', () => {
+  expect(safeParseElection('{').unwrapErr().message).toEqual(
+    'Unexpected end of JSON input'
   )
 })
 
 test('parsing gives specific errors for nested objects', () => {
-  expect(() =>
-    parseElection({
-      ...election,
-      contests: [
-        ...election.contests.slice(1),
-        {
-          ...election.contests[0],
-          // give title a type it shouldn't have
-          title: 42,
-        },
-      ],
-    })
-  ).toThrowError(/contests.1:.*title: Non-string type: number/s)
+  safeParseElection({
+    ...election,
+    contests: [
+      ...election.contests.slice(1),
+      {
+        ...election.contests[0],
+        // give title a type it shouldn't have
+        title: 42,
+      },
+    ],
+  }).expectErr('parsing title as number should fail')
 })
 
 test('ensures dates are ISO 8601-formatted', () => {
-  expect(() =>
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       date: 'not ISO',
-    })
-  ).toThrowError('dates must be ISO 8601-formatted')
+    }).unwrapErr().message
+  ).toContain('dates must be ISO 8601-formatted')
 })
 
 test('parsing a valid election object succeeds', () => {
-  expect(() => {
-    const parsed = parseElection(election as unknown)
+  const parsed = safeParseElection(election as unknown).unwrap()
 
-    // This check is here to prove TS inferred that `parsed` is an `Election`.
-    expect(parsed.title).toEqual(election.title)
+  // This check is here to prove TS inferred that `parsed` is an `Election`.
+  expect(parsed.title).toEqual(election.title)
 
-    // Check the whole thing
-    expect(parsed).toEqual(election)
-  }).not.toThrowError()
+  // Check the whole thing
+  expect(parsed).toEqual(election)
 })
 
 test('parsing a valid election with ms-either-neither succeeds', () => {
-  expect(() => {
-    const parsed = parseElection(electionWithMsEitherNeither as unknown)
+  const parsed = safeParseElection(
+    electionWithMsEitherNeither as unknown
+  ).unwrap()
 
-    // This check is here to prove TS inferred that `parsed` is an `Election`.
-    expect(parsed.title).toEqual(electionWithMsEitherNeither.title)
+  // This check is here to prove TS inferred that `parsed` is an `Election`.
+  expect(parsed.title).toEqual(electionWithMsEitherNeither.title)
 
-    // Check the whole thing
-    expect(parsed).toEqual(electionWithMsEitherNeither)
-  }).not.toThrowError()
+  // Check the whole thing
+  expect(parsed).toEqual(electionWithMsEitherNeither)
 })
 
 test('trying to vote in the top-level ms-either-neither contest fails', () => {
@@ -335,23 +348,23 @@ test('trying to vote in the top-level ms-either-neither contest fails', () => {
 })
 
 test('parsing validates district references', () => {
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       districts: [{ id: 'DIS', name: 'DIS' }],
-    })
-  }).toThrowError(
+    }).unwrapErr().message
+  ).toContain(
     "Ballot style '1' has district 'D', but no such district is defined. Districts defined: [DIS]"
   )
 })
 
 test('parsing validates precinct references', () => {
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       precincts: [{ id: 'PRE', name: 'PRE' }],
-    })
-  }).toThrowError(
+    }).unwrapErr().message
+  ).toContain(
     "Ballot style '1' has precinct 'P', but no such precinct is defined. Precincts defined: [PRE]"
   )
 })
@@ -362,8 +375,8 @@ test('parsing validates contest party references', () => {
   ) as CandidateContest
   const remainingContests = election.contests.filter((c) => contest !== c)
 
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       contests: [
         {
@@ -372,8 +385,8 @@ test('parsing validates contest party references', () => {
         },
         ...remainingContests,
       ],
-    })
-  }).toThrowError(
+    }).unwrapErr().message
+  ).toContain(
     "Contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]"
   )
 })
@@ -384,8 +397,8 @@ test('parsing validates candidate party references', () => {
   ) as CandidateContest
   const remainingContests = election.contests.filter((c) => contest !== c)
 
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       contests: [
         {
@@ -400,53 +413,53 @@ test('parsing validates candidate party references', () => {
         },
         ...remainingContests,
       ],
-    })
-  }).toThrowError(
+    }).unwrapErr().message
+  ).toContain(
     "Candidate 'C' in contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]"
   )
 })
 
 test('validates uniqueness of district ids', () => {
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       districts: [...election.districts, ...election.districts],
-    })
-  }).toThrowError("Duplicate district 'D' found.")
+    }).unwrapErr().message
+  ).toContain("Duplicate district 'D' found.")
 })
 
 test('validates uniqueness of precinct ids', () => {
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       precincts: [...election.precincts, ...election.precincts],
-    })
-  }).toThrowError("Duplicate precinct 'P' found.")
+    }).unwrapErr().message
+  ).toContain("Duplicate precinct 'P' found.")
 })
 
 test('validates uniqueness of contest ids', () => {
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       contests: [...election.contests, ...election.contests],
-    })
-  }).toThrowError("Duplicate contest 'CC' found.")
+    }).unwrapErr().message
+  ).toContain("Duplicate contest 'CC' found.")
 })
 
 test('validates uniqueness of party ids', () => {
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       parties: [...election.parties, ...election.parties],
-    })
-  }).toThrowError("Duplicate party 'PARTY' found.")
+    }).unwrapErr().message
+  ).toContain("Duplicate party 'PARTY' found.")
 })
 
 test('validates uniqueness of candidate ids within a contest', () => {
   const contest = election.contests[0] as CandidateContest
 
-  expect(() => {
-    parseElection({
+  expect(
+    safeParseElection({
       ...election,
       contests: [
         ...election.contests.slice(1),
@@ -455,6 +468,6 @@ test('validates uniqueness of candidate ids within a contest', () => {
           candidates: [...contest.candidates, ...contest.candidates],
         },
       ],
-    })
-  }).toThrowError("Duplicate candidate 'C' found in contest 'CC'.")
+    }).unwrapErr().message
+  ).toContain("Duplicate candidate 'C' found in contest 'CC'.")
 })

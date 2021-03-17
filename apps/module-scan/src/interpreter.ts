@@ -8,7 +8,10 @@ import {
   BallotType,
   Contests,
   Election,
+  err,
   MarkThresholds,
+  ok,
+  Result,
   VotesDict,
 } from '@votingworks/types'
 import {
@@ -27,13 +30,7 @@ import {
   Size,
 } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
-import {
-  BallotMetadata,
-  BallotPageQrcode,
-  isErrorResult,
-  Result,
-  SheetOf,
-} from './types'
+import { BallotMetadata, BallotPageQrcode, SheetOf } from './types'
 import { AdjudicationInfo } from './types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
@@ -122,21 +119,19 @@ export async function getBallotImageData(
   file: Buffer,
   filename: string,
   detectQrcodeResult: qrcodeWorker.Output
-): Promise<Result<PageInterpretation, BallotImageData>> {
+): Promise<Result<BallotImageData, PageInterpretation>> {
   const { data, width, height } = await loadImageData(file)
   const image = { data: Uint8ClampedArray.from(data), width, height }
 
   if (!detectQrcodeResult.blank && detectQrcodeResult.qrcode) {
-    return { value: { file, image, qrcode: detectQrcodeResult.qrcode } }
+    return ok({ file, image, qrcode: detectQrcodeResult.qrcode })
   }
 
   debug('no QR code found in %s', filename)
-  return {
-    error: {
-      type: 'UnreadablePage',
-      reason: 'No QR code found',
-    },
-  }
+  return err({
+    type: 'UnreadablePage',
+    reason: 'No QR code found',
+  })
 }
 
 /**
@@ -292,12 +287,12 @@ export default class Interpreter {
       detectQrcodeResult
     )
 
-    if (isErrorResult(result)) {
+    if (result.isErr()) {
       timer.end()
-      return { interpretation: result.error }
+      return { interpretation: result.err() }
     }
 
-    const ballotImageData = result.value
+    const ballotImageData = result.unwrap()
 
     if (typeof this.electionHash === 'string') {
       const actualElectionHash =

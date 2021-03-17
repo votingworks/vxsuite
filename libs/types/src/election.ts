@@ -1,13 +1,5 @@
+import { Dictionary, err, ok, Optional, Result } from './generic'
 import * as s from './schema'
-
-// Generic
-export interface Dictionary<T> {
-  [key: string]: Optional<T>
-}
-export type Optional<T> = T | undefined
-export interface Provider<T> {
-  get(): Promise<T>
-}
 
 export type Translations = Record<string, Record<string, string> | undefined>
 
@@ -490,18 +482,57 @@ export class ElectionParseError extends Error {
   }
 }
 
-export function parseElection(object: unknown): Election {
-  const election = s.Election.parse(object)
-  const errors = [...findElectionDefinitionErrors(election)]
-
-  if (errors.length) {
-    throw new ElectionParseError(errors)
-  }
-
-  return election
+/**
+ * @deprecated use `safeParseElection` instead
+ */
+export function parseElection(value: unknown): Election {
+  return safeParseElection(value).unwrap()
 }
 
-export type ElectionDefinitionError = InvalidReference | DuplicateIdentifier
+export function safeParseElection(
+  value: unknown
+): Result<Election, ElectionParseError> {
+  let object: unknown
+
+  try {
+    object = typeof value === 'string' ? JSON.parse(value) : value
+  } catch (error) {
+    return err(
+      new ElectionParseError([
+        {
+          type: 'ParseError',
+          message: (error as Error).message,
+        },
+      ])
+    )
+  }
+
+  return s.safeParse(s.Election, object).mapOrElse(
+    (error) =>
+      err(
+        new ElectionParseError(
+          error.errors.map((e) => ({
+            type: 'ParseError',
+            message: e.message,
+          }))
+        )
+      ),
+    (election) => {
+      const errors = [...findElectionDefinitionErrors(election)]
+
+      if (errors.length) {
+        return err(new ElectionParseError(errors))
+      }
+
+      return ok(election)
+    }
+  )
+}
+
+export type ElectionDefinitionError =
+  | InvalidReference
+  | DuplicateIdentifier
+  | ParseError
 
 export interface InvalidReference {
   type: 'InvalidReference'
@@ -512,6 +543,11 @@ export interface InvalidReference {
 
 export interface DuplicateIdentifier {
   type: 'DuplicateIdentifier'
+  message: string
+}
+
+export interface ParseError {
+  type: 'ParseError'
   message: string
 }
 

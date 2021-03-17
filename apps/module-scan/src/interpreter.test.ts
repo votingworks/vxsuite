@@ -16,7 +16,6 @@ import Interpreter, {
   UninterpretedHmpbPage,
   UnreadablePage,
 } from './interpreter'
-import { resultError, resultValue } from './types'
 import pdfToImages from './util/pdfToImages'
 import { detectQrcodeInFilePath } from './workers/qrcode'
 
@@ -37,13 +36,13 @@ jest.setTimeout(10000)
 test('does not find QR codes when there are none to find', async () => {
   const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg')
   expect(
-    resultError(
+    (
       await getBallotImageData(
         await readFile(filepath),
         filepath,
         await detectQrcodeInFilePath(filepath)
       )
-    )
+    ).unwrapErr()
   ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' })
 })
 
@@ -118,13 +117,13 @@ test('properly detects test ballot in live mode', async () => {
 test('can read metadata encoded in a QR code with base64', async () => {
   const fixtures = choctaw2020SpecialFixtures
   const { election } = fixtures
-  const { qrcode } = resultValue(
+  const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.blankPage1),
       fixtures.blankPage1,
       await detectQrcodeInFilePath(fixtures.blankPage1)
     )
-  )
+  ).unwrap()
 
   expect(metadataFromBytes(election, Buffer.from(qrcode.data)))
     .toMatchInlineSnapshot(`
@@ -146,13 +145,13 @@ test('can read metadata encoded in a QR code with base64', async () => {
 
 test('can read metadata in QR code with skewed / dirty ballot', async () => {
   const fixtures = general2020Fixtures
-  const { qrcode } = resultValue(
+  const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.skewedQRCodeBallotPage),
       fixtures.skewedQRCodeBallotPage,
       await detectQrcodeInFilePath(fixtures.skewedQRCodeBallotPage)
     )
-  )
+  ).unwrap()
 
   expect(qrcode.data).toMatchInlineSnapshot(`
     Object {
