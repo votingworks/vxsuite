@@ -1,4 +1,5 @@
-import { parse } from 'ts-command-line-args'
+// import { parse } from 'ts-command-line-args'
+import yargs from 'yargs/yargs'
 import * as fs from 'fs'
 import {
   BallotLocale,
@@ -246,61 +247,40 @@ interface GenerateCVRFileArguments {
   electionPath?: string
   outputPath?: string
   numBallots?: number
-  scannerNames?: string[]
+  scannerNames?: (string | number)[]
   liveBallots?: boolean
   help?: boolean
+  [x: string]: unknown
 }
 
-const args = parse<GenerateCVRFileArguments>(
-  {
-    electionPath: {
-      type: String,
-      alias: 'e',
-      optional: true,
-      description: 'Path to the input election definition',
-    },
-    outputPath: {
-      type: String,
-      alias: 'o',
-      optional: true,
-      description: 'Path to write output file to',
-    },
-    numBallots: {
-      type: Number,
-      optional: true,
-      description:
-        'Number of ballots to include in the output, default is 1000.',
-    },
-    help: {
-      type: Boolean,
-      optional: true,
-      alias: 'h',
-      description: 'Prints the usage guide',
-    },
-    liveBallots: {
-      type: Boolean,
-      optional: true,
-      description:
-        'Create live mode ballots when specified, by default test mode ballots are created.',
-    },
-    scannerNames: {
-      type: String,
-      optional: true,
-      multiple: true,
-      description: 'Creates ballots for each scanner name specified.',
-    },
+// eslint-disable-next-line
+const args: GenerateCVRFileArguments = yargs(process.argv.slice(2)).options({
+  electionPath: {
+    type: 'string',
+    alias: 'e',
+    demandOption: true,
+    description: 'Path to the input election definition',
   },
-  {
-    helpArg: 'help',
-    headerContentSections: [
-      {
-        header: 'Generate CVR Files',
-        content:
-          'Generate a sample CVR file for a given election definition. When the number of ballots to generate is less then the number required to include every possible cast ballot, not every potential ballot will be included. When the number of ballots to generate is larger at least 1 ballot with every possible voting combination will be produced.',
-      },
-    ],
-  }
-)
+  outputPath: {
+    type: 'string',
+    alias: 'o',
+    description: 'Path to write output file to',
+  },
+  numBallots: {
+    type: 'number',
+    description: 'Number of ballots to include in the output, default is 1000.',
+  },
+  liveBallots: {
+    type: 'boolean',
+    default: false,
+    description:
+      'Create live mode ballots when specified, by default test mode ballots are created.',
+  },
+  scannerNames: {
+    type: 'array',
+    description: 'Creates ballots for each scanner name specified.',
+  },
+}).argv as GenerateCVRFileArguments
 
 if (args['electionPath'] === undefined) {
   console.error(
@@ -312,7 +292,7 @@ if (args['electionPath'] === undefined) {
 const outputPath = args['outputPath'] ?? 'output.jsonl'
 const numBallots = args['numBallots']
 const testMode = !(args['liveBallots'] ?? false)
-const scannerNames = args['scannerNames'] ?? ['scanner']
+const scannerNames = (args['scannerNames'] ?? ['scanner']).map((s) => `${s}`)
 
 const electionRawData = fs.readFileSync(args['electionPath'], 'utf8')
 const election = parseElection(JSON.parse(electionRawData))
