@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
@@ -7,6 +7,8 @@ import { ScanStatusResponse, AdjudicationStatus } from '../config/types'
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'
 import Button from '../components/Button'
+import Modal from '../components/Modal'
+import Text from '../components/Text'
 
 pluralize.addIrregularRule('requires', 'require')
 pluralize.addIrregularRule('has', 'have')
@@ -28,7 +30,7 @@ interface Props {
   adjudicationStatus: AdjudicationStatus
   isScanning: boolean
   status: ScanStatusResponse
-  deleteBatch(batchId: number): void
+  deleteBatch(batchId: string): Promise<void>
 }
 
 const DashboardScreen: React.FC<Props> = ({
@@ -51,6 +53,51 @@ const DashboardScreen: React.FC<Props> = ({
       {pluralize('require', adjudicationStatus.remaining)} review.
     </React.Fragment>
   )
+
+  const [pendingDeleteBatchId, setPendingDeleteBatchId] = useState<string>()
+  const [isDeletingBatch, setIsDeletingBatch] = useState(false)
+  const [deleteBatchError, setDeleteBatchError] = useState<string>()
+
+  const confirmDeleteBatch = useCallback(() => {
+    setIsDeletingBatch(true)
+  }, [])
+
+  const cancelDeleteBatch = useCallback(() => {
+    setPendingDeleteBatchId(undefined)
+    setDeleteBatchError(undefined)
+  }, [])
+
+  const onDeleteBatchSucceeded = useCallback(() => {
+    setIsDeletingBatch(false)
+    setPendingDeleteBatchId(undefined)
+  }, [])
+
+  const onDeleteBatchFailed = useCallback((error: Error) => {
+    setIsDeletingBatch(false)
+    setDeleteBatchError(error.message)
+  }, [])
+
+  useEffect(() => {
+    if (pendingDeleteBatchId && isDeletingBatch) {
+      let isMounted = true
+      ;(async () => {
+        try {
+          await deleteBatch(pendingDeleteBatchId)
+
+          if (isMounted) {
+            onDeleteBatchSucceeded()
+          }
+        } catch (error) {
+          if (isMounted) {
+            onDeleteBatchFailed(error)
+          }
+        }
+      })()
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [pendingDeleteBatchId, isDeletingBatch, deleteBatch])
 
   return (
     <React.Fragment>
@@ -93,16 +140,7 @@ const DashboardScreen: React.FC<Props> = ({
                     <TD narrow>
                       <Button
                         small
-                        onPress={() => {
-                          if (
-                            // eslint-disable-next-line no-alert, no-restricted-globals
-                            confirm(
-                              `Are you sure you want to delete batch ${batch.id}? This action cannot be undone.`
-                            )
-                          ) {
-                            deleteBatch(batch.id)
-                          }
-                        }}
+                        onPress={() => setPendingDeleteBatchId(batch.id)}
                       >
                         Delete
                       </Button>
@@ -116,6 +154,33 @@ const DashboardScreen: React.FC<Props> = ({
           <p>No ballots have been scanned.</p>
         )}
       </Prose>
+      {pendingDeleteBatchId && (
+        <Modal
+          centerContent
+          onOverlayClick={isDeletingBatch ? undefined : cancelDeleteBatch}
+          content={
+            <Prose textCenter>
+              <h1>Delete batch {pendingDeleteBatchId}?</h1>
+              <p>This action cannot be undone.</p>
+              {deleteBatchError && <Text error>{deleteBatchError}</Text>}
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={cancelDeleteBatch} disabled={isDeletingBatch}>
+                Cancel
+              </Button>
+              <Button
+                danger
+                onPress={confirmDeleteBatch}
+                disabled={isDeletingBatch}
+              >
+                {isDeletingBatch ? 'Deleting…' : 'Yes, Delete Batch'}
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </React.Fragment>
   )
 }

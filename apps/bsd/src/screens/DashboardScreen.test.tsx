@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { act, render, waitFor } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
@@ -37,14 +37,14 @@ test('shows scanned ballot count', () => {
   const status: ScanStatusResponse = {
     batches: [
       {
-        id: 1,
+        id: 'a',
         count: 1,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
         ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
       },
       {
-        id: 2,
+        id: 'b',
         count: 3,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
@@ -78,7 +78,7 @@ test('shows whether a batch is scanning', () => {
   const status: ScanStatusResponse = {
     batches: [
       {
-        id: 1,
+        id: 'a',
         count: 3,
         startedAt: new Date(0).toISOString(),
         ballots: [
@@ -109,14 +109,14 @@ test('allows deleting a batch', async () => {
   const status: ScanStatusResponse = {
     batches: [
       {
-        id: 1,
+        id: 'a',
         count: 1,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
         ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
       },
       {
-        id: 2,
+        id: 'b',
         count: 3,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
@@ -146,18 +146,49 @@ test('allows deleting a batch', async () => {
     deleteBatch2Button,
   ] = component.getAllByText('Delete', { selector: 'button' })
 
+  let deleteBatch1Resolve!: VoidFunction
+  let deleteBatch2Reject!: (error: unknown) => void
+  let deleteBatch2Resolve!: VoidFunction
+  deleteBatch
+    .mockResolvedValueOnce(
+      new Promise<void>((resolve) => {
+        deleteBatch1Resolve = resolve
+      })
+    )
+    .mockResolvedValueOnce(
+      new Promise<void>((_resolve, reject) => {
+        deleteBatch2Reject = reject
+      })
+    )
+    .mockResolvedValueOnce(
+      new Promise<void>((resolve) => {
+        deleteBatch2Resolve = resolve
+      })
+    )
+
   // Click delete & confirm.
-  jest.spyOn(window, 'confirm').mockReturnValueOnce(true)
   deleteBatch1Button.click()
+  ;(await waitFor(() => component.findByText('Yes, Delete Batch'))).click()
+  await component.findByText('Deleting…')
   expect(deleteBatch).toHaveBeenNthCalledWith(1, status.batches[0].id)
+  act(() => deleteBatch1Resolve())
+  await waitFor(() => !component.findByText('Delete batch a?'))
 
   // Click delete but cancel.
-  jest.spyOn(window, 'confirm').mockReturnValueOnce(false)
   deleteBatch2Button.click()
+  ;(await waitFor(() => component.getByText('Cancel'))).click()
   expect(deleteBatch).not.toHaveBeenCalledWith(status.batches[1].id)
 
-  // Click delete & confirm.
-  jest.spyOn(window, 'confirm').mockReturnValueOnce(true)
+  // Click delete & confirm but fail.
   deleteBatch2Button.click()
+  ;(await waitFor(() => component.getByText('Yes, Delete Batch'))).click()
+  await component.findByText('Deleting…')
   expect(deleteBatch).toHaveBeenNthCalledWith(2, status.batches[1].id)
+  act(() => deleteBatch2Reject(new Error('batch is a teapot')))
+  ;(await waitFor(() => component.getByText('batch is a teapot'))).click()
+
+  // Try again.
+  ;(await waitFor(() => component.getByText('Yes, Delete Batch'))).click()
+  act(() => deleteBatch2Resolve())
+  await waitFor(() => !component.findByText('Delete batch b?'))
 })

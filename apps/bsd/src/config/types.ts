@@ -46,7 +46,7 @@ export interface ErrorResponse {
 }
 
 export interface Batch {
-  id: number
+  id: string
   count: number
   ballots: Ballot[]
   startedAt: string
