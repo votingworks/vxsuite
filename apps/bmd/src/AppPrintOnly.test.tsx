@@ -20,6 +20,7 @@ import {
   sampleVotes2,
   sampleVotes3,
   createVoterCard,
+  getAlternateNewVoterCard,
 } from '../test/helpers/smartcards'
 
 import withMarkup from '../test/helpers/withMarkup'
@@ -203,6 +204,19 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
   getByText('Empty Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises()
+  getByText('Insert Card')
+  expect(window.document.documentElement.style.fontSize).toBe('48px')
+
+  // Insert Voter for Alternate Precinct
+  card.insertCard(getAlternateNewVoterCard())
+  await advanceTimersAndPromises()
+  getByText('Invalid Card Data')
+  getByText('Card is not configured for this precinct.')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
