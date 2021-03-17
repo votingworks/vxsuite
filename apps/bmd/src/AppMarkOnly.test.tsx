@@ -23,7 +23,6 @@ import {
   voterContests,
 } from '../test/helpers/election'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
@@ -42,7 +41,7 @@ it('VxMarkOnly flow', async () => {
     electionDefinition.electionHash
   )
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
   const { getByTestId, getByLabelText, getByText } = render(
     <App

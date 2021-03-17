@@ -1,7 +1,7 @@
-import { render, act, fireEvent, waitFor } from '@testing-library/react'
 import React from 'react'
+import { render, act, fireEvent, waitFor } from '@testing-library/react'
+import { fakeKiosk } from '@votingworks/test-utils'
 
-import fakeKiosk from '../../test/helpers/fakeKiosk'
 import PrintButton from './PrintButton'
 
 beforeAll(() => {

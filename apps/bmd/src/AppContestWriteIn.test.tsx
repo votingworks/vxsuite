@@ -19,7 +19,6 @@ import {
 import { VxMarkPlusVxPrint } from './config/types'
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
@@ -36,7 +35,7 @@ it('Single Seat Contest with Write In', async () => {
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })

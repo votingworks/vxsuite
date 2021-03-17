@@ -6,9 +6,9 @@ import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
 import fetchMock from 'fetch-mock'
 
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { UsbDriveStatus } from '../lib/usbstick'
 import ExportResultsModal from './ExportResultsModal'
-import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 import { ElectionDefinition } from '../util/ballot-package'
 
@@ -181,10 +181,11 @@ test('render export modal with errors when appropriate', async () => {
   )
   getByText('Export Results')
 
+  mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'))
   fireEvent.click(getByText('Export'))
   await waitFor(() => getByText(/Download Failed/))
   getByText(/Failed to save results./)
-  getByText(/Cannot read property '0' of undefined/)
+  getByText(/NOPE/)
 
   fireEvent.click(getByText('Close'))
   expect(closeFn).toHaveBeenCalled()

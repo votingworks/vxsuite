@@ -1,0 +1,29 @@
+{
+  "name": "@votingworks/test-utils",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test utilities for the monorepo.",
+  "license": "AGPL-3.0",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
+    "lint": "tsc --build && eslint src",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "@types/kiosk-browser": "workspace:*",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "@types/jest": "^26.0.21",
+    "@types/node": "^14.14.35",
+    "rxjs": "^6.6.6"
+  }
+}

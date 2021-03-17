@@ -16,7 +16,7 @@ import { getUSEnglishVoice } from './utils/voices'
 import getPrinter from './utils/printer'
 import { getHardware, isAccessibleController } from './utils/Hardware'
 
-import AppRoot, { Props as AppRootProps, AppStorage } from './AppRoot'
+import AppRoot, { Props as AppRootProps } from './AppRoot'
 import FocusManager from './components/FocusManager'
 import machineConfigProvider from './utils/machineConfig'
 
@@ -39,7 +39,7 @@ const App: React.FC<Props> = ({
   ),
 
   card = new WebServiceCard(),
-  storage = new LocalStorage<AppStorage>(),
+  storage = new LocalStorage(),
   printer = getPrinter(),
   hardware = getHardware(),
   machineConfig = machineConfigProvider,

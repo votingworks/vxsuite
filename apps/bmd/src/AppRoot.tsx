@@ -139,7 +139,7 @@ export interface Props extends RouteComponentProps {
   hardware: Hardware
   machineConfig: Provider<MachineConfig>
   printer: Printer
-  storage: Storage<AppStorage>
+  storage: Storage
 }
 
 export const electionStorageKey = 'electionDefinition'
@@ -1051,13 +1051,22 @@ const AppRoot: React.FC<Props> = ({
 
   // Bootstraps the AppRoot Component
   useEffect(() => {
-    const retrieveVotes = () => storage.get(votesStorageKey)
-    const storedElectionDefinition = storage.get(electionStorageKey)
+    // TODO: validate this with zod schema
+    const retrieveVotes = () =>
+      storage.get(votesStorageKey) as VotesDict | undefined
+    // TODO: validate this with zod schema
+    const storedElectionDefinition = storage.get(electionStorageKey) as
+      | ElectionDefinition
+      | undefined
     const retrieveBallotActivation = (): SerializableActivationData =>
-      storage.get(activationStorageKey) ||
-      (({} as unknown) as SerializableActivationData)
+      // TODO: validate this with zod schema
+      (storage.get(activationStorageKey) as
+        | SerializableActivationData
+        | undefined) || (({} as unknown) as SerializableActivationData)
 
-    const storedAppState: Partial<State> = storage.get(stateStorageKey) || {}
+    const storedAppState: Partial<State> =
+      // TODO: validate this with zod schema
+      (storage.get(stateStorageKey) as Partial<State> | undefined) || {}
 
     const {
       ballotStyleId: retrievedBallotStyleId,

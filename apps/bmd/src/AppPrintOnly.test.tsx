@@ -26,7 +26,6 @@ import withMarkup from '../test/helpers/withMarkup'
 
 import * as GLOBALS from './config/globals'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
@@ -50,7 +49,7 @@ test('VxPrintOnly flow', async () => {
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
     <App
@@ -418,7 +417,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getByLabelText, getByText, getByTestId } = render(
     <App
@@ -529,7 +528,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getByText, getByLabelText, getByTestId } = render(
     <App

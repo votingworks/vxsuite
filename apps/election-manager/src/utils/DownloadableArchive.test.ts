@@ -1,4 +1,4 @@
-import fakeKiosk from '../../test/helpers/fakeKiosk'
+import { fakeKiosk } from '@votingworks/test-utils'
 import DownloadableArchive from './DownloadableArchive'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 

@@ -32,6 +32,9 @@
     },
     {
       "path": "libs/fixtures"
+    },
+    {
+      "path": "libs/test-utils"
     }
   ],
   "settings": {}

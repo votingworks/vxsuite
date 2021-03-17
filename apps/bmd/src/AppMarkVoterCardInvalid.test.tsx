@@ -18,7 +18,6 @@ import {
   IDLE_RESET_TIMEOUT_SECONDS,
 } from './config/globals'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
@@ -36,7 +35,7 @@ describe('Mark Card Void when voter is idle too long', () => {
   test('Display expired card if card marked as voided', async () => {
     const card = new MemoryCard()
     const hardware = MemoryHardware.standard
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
 
     setElectionInStorage(storage)
@@ -101,7 +100,7 @@ describe('Mark Card Void when voter is idle too long', () => {
   test('Reset ballot when card write does not match card read.', async () => {
     const card = new MemoryCard()
     const hardware = MemoryHardware.standard
-    const storage = new MemoryStorage<AppStorage>()
+    const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
 
     setElectionInStorage(storage)

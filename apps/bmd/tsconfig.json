@@ -19,6 +19,7 @@
   "include": ["src", "test"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/test-utils" },
     { "path": "../../libs/types" }
   ]
 }

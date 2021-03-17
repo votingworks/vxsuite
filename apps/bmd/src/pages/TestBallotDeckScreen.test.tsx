@@ -7,12 +7,11 @@ import {
 import React from 'react'
 import { fireEvent, waitFor, act } from '@testing-library/react'
 import { asElectionDefinition } from '@votingworks/fixtures'
+import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils'
 import electionSample from '../data/electionSample.json'
 import { mockOf, render } from '../../test/testUtils'
 import { randomBase64 } from '../utils/random'
 import TestBallotDeckScreen from './TestBallotDeckScreen'
-
-import fakeKiosk, { fakePrinterInfo } from '../../test/helpers/fakeKiosk'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')

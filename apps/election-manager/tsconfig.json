@@ -20,6 +20,7 @@
   "references": [
     { "path": "../../libs/ballot-encoder" },
     { "path": "../../libs/fixtures" },
+    { "path": "../../libs/test-utils" },
     { "path": "../../libs/types" }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "name": "@types/kiosk-browser",
+  "version": "0.0.1-development",
+  "types": "kiosk-browser",
+  "dependencies": {
+    "rxjs": "^6.6.6"
+  }
+}

@@ -4,13 +4,13 @@ import {
   fireEvent,
   getByText as domGetByText,
 } from '@testing-library/react'
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 
 import ImportCVRFilesModal from './ImportCVRFilesModal'
 import renderInAppContext, {
   eitherNeitherElectionDefinition,
 } from '../../test/renderInAppContext'
 import { UsbDriveStatus } from '../lib/usbstick'
-import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
 import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 import { CastVoteRecord } from '../config/types'
 import * as GLOBALS from '../config/globals'

@@ -12,7 +12,6 @@ import {
 } from '../test/helpers/election'
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
@@ -27,7 +26,7 @@ it('Single Seat Contest', async () => {
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
   setElectionInStorage(storage)

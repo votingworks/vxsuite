@@ -5,9 +5,9 @@ import {
   getByText as domGetByText,
 } from '@testing-library/react'
 import React from 'react'
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import ElectionConfiguration from './ElectionConfiguration'
 import { UsbDriveStatus } from '../lib/usbstick'
-import fakeKiosk, { fakeUsbDrive } from '../../test/helpers/fakeKiosk'
 
 test('shows loading screen when usb is mounting or ejecting', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]

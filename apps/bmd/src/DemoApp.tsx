@@ -6,7 +6,6 @@ import App, { Props } from './App'
 import { Card, MemoryCard } from './utils/Card'
 import utcTimestamp from './utils/utcTimestamp'
 import { Storage, MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MachineConfig, VxMarkPlusVxPrint } from './config/types'
 import { MemoryHardware } from './utils/Hardware'
 
@@ -25,8 +24,8 @@ export function getSampleCard(): Card {
   return new MemoryCard().insertCard(JSON.stringify(voterCardData))
 }
 
-export function getSampleStorage(): Storage<AppStorage> {
-  return new MemoryStorage<AppStorage>({
+export function getSampleStorage(): Storage {
+  return new MemoryStorage({
     state: {
       electionDefinition: electionSampleDefinition,
       appPrecinctId,

@@ -26,7 +26,6 @@ import {
 } from '../test/helpers/smartcards'
 
 import { MemoryStorage } from './utils/Storage'
-import { AppStorage } from './AppRoot'
 import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { MemoryHardware } from './utils/Hardware'
@@ -48,7 +47,7 @@ test('Cardless Voting Flow', async () => {
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })
@@ -221,7 +220,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   )
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
-  const storage = new MemoryStorage<AppStorage>()
+  const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })
