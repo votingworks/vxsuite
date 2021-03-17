@@ -4509,7 +4509,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 2,
       "undervotes": 76,
     },
@@ -4536,7 +4536,7 @@ Object {
           "name": "Stephen Hawking",
           "partyId": "1",
         },
-        "tally": 755,
+        "tally": 756,
       },
     },
   },
@@ -5182,7 +5182,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 2,
       "undervotes": 61,
     },
@@ -5209,7 +5209,7 @@ Object {
           "name": "Steve Jobs",
           "partyId": "1",
         },
-        "tally": 800,
+        "tally": 801,
       },
     },
   },
@@ -5252,9 +5252,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 0,
-      "undervotes": 73,
+      "undervotes": 74,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -5568,9 +5568,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 4,
-      "undervotes": 76,
+      "undervotes": 77,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -5633,7 +5633,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 1,
       "undervotes": 69,
     },
@@ -5660,7 +5660,7 @@ Object {
           "name": "Oprah Winfrey",
           "partyId": "1",
         },
-        "tally": 507,
+        "tally": 508,
       },
       "winston-churchill": Object {
         "option": Object {
@@ -5716,9 +5716,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 2,
-      "undervotes": 74,
+      "undervotes": 75,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -5879,9 +5879,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 3,
-      "undervotes": 75,
+      "undervotes": 76,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -5952,7 +5952,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 3,
       "undervotes": 73,
     },
@@ -5979,7 +5979,7 @@ Object {
           "name": "James Bond",
           "partyId": "1",
         },
-        "tally": 453,
+        "tally": 454,
       },
       "earhart": Object {
         "option": Object {
@@ -6093,7 +6093,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 1,
       "undervotes": 74,
     },
@@ -6112,7 +6112,7 @@ Object {
           "name": "John Snow",
           "partyId": "1",
         },
-        "tally": 763,
+        "tally": 764,
       },
       "mark-twain": Object {
         "option": Object {
@@ -6158,9 +6158,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 1600,
+      "ballots": 1601,
       "overvotes": 1,
-      "undervotes": 52,
+      "undervotes": 53,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -14841,7 +14841,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 681,
+      "ballots": 682,
       "overvotes": 2,
       "undervotes": 38,
     },
@@ -14868,7 +14868,7 @@ Object {
           "name": "Stephen Hawking",
           "partyId": "1",
         },
-        "tally": 322,
+        "tally": 323,
       },
     },
   },
@@ -15514,7 +15514,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 681,
+      "ballots": 682,
       "overvotes": 1,
       "undervotes": 30,
     },
@@ -15541,7 +15541,7 @@ Object {
           "name": "Steve Jobs",
           "partyId": "1",
         },
-        "tally": 329,
+        "tally": 330,
       },
     },
   },
@@ -15584,9 +15584,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 681,
+      "ballots": 682,
       "overvotes": 1,
-      "undervotes": 35,
+      "undervotes": 36,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -15900,9 +15900,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 318,
+      "ballots": 319,
       "overvotes": 0,
-      "undervotes": 20,
+      "undervotes": 21,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -15965,7 +15965,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 681,
+      "ballots": 682,
       "overvotes": 4,
       "undervotes": 37,
     },
@@ -15992,7 +15992,7 @@ Object {
           "name": "Oprah Winfrey",
           "partyId": "1",
         },
-        "tally": 221,
+        "tally": 222,
       },
       "winston-churchill": Object {
         "option": Object {
@@ -16048,9 +16048,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 681,
+      "ballots": 682,
       "overvotes": 3,
-      "undervotes": 30,
+      "undervotes": 31,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -16211,9 +16211,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 681,
+      "ballots": 682,
       "overvotes": 0,
-      "undervotes": 32,
+      "undervotes": 33,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -16284,7 +16284,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 318,
+      "ballots": 319,
       "overvotes": 1,
       "undervotes": 7,
     },
@@ -16311,7 +16311,7 @@ Object {
           "name": "James Bond",
           "partyId": "1",
         },
-        "tally": 107,
+        "tally": 108,
       },
       "earhart": Object {
         "option": Object {
@@ -16425,7 +16425,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 318,
+      "ballots": 319,
       "overvotes": 0,
       "undervotes": 17,
     },
@@ -16444,7 +16444,7 @@ Object {
           "name": "John Snow",
           "partyId": "1",
         },
-        "tally": 140,
+        "tally": 141,
       },
       "mark-twain": Object {
         "option": Object {
@@ -16490,9 +16490,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 318,
+      "ballots": 319,
       "overvotes": 0,
-      "undervotes": 8,
+      "undervotes": 9,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -23451,7 +23451,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 2,
       "undervotes": 9,
     },
@@ -23478,7 +23478,7 @@ Object {
           "name": "Stephen Hawking",
           "partyId": "1",
         },
-        "tally": 67,
+        "tally": 68,
       },
     },
   },
@@ -24124,7 +24124,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
       "undervotes": 5,
     },
@@ -24151,7 +24151,7 @@ Object {
           "name": "Steve Jobs",
           "partyId": "1",
         },
-        "tally": 65,
+        "tally": 66,
       },
     },
   },
@@ -24194,9 +24194,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
-      "undervotes": 8,
+      "undervotes": 9,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -24510,9 +24510,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
-      "undervotes": 9,
+      "undervotes": 10,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -24575,7 +24575,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
       "undervotes": 9,
     },
@@ -24602,7 +24602,7 @@ Object {
           "name": "Oprah Winfrey",
           "partyId": "1",
         },
-        "tally": 58,
+        "tally": 59,
       },
       "winston-churchill": Object {
         "option": Object {
@@ -24658,9 +24658,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
-      "undervotes": 10,
+      "undervotes": 11,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -24821,9 +24821,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
-      "undervotes": 11,
+      "undervotes": 12,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -24894,7 +24894,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 1,
       "undervotes": 4,
     },
@@ -24921,7 +24921,7 @@ Object {
           "name": "James Bond",
           "partyId": "1",
         },
-        "tally": 40,
+        "tally": 41,
       },
       "earhart": Object {
         "option": Object {
@@ -25035,7 +25035,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
       "undervotes": 11,
     },
@@ -25054,7 +25054,7 @@ Object {
           "name": "John Snow",
           "partyId": "1",
         },
-        "tally": 65,
+        "tally": 66,
       },
       "mark-twain": Object {
         "option": Object {
@@ -25100,9 +25100,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 144,
+      "ballots": 145,
       "overvotes": 0,
-      "undervotes": 5,
+      "undervotes": 6,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -26743,7 +26743,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 7032,
+      "ballots": 7033,
       "overvotes": 10,
       "undervotes": 327,
     },
@@ -26770,7 +26770,7 @@ Object {
           "name": "Stephen Hawking",
           "partyId": "1",
         },
-        "tally": 3338,
+        "tally": 3339,
       },
     },
   },
@@ -27416,7 +27416,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 7032,
+      "ballots": 7033,
       "overvotes": 17,
       "undervotes": 292,
     },
@@ -27443,7 +27443,7 @@ Object {
           "name": "Steve Jobs",
           "partyId": "1",
         },
-        "tally": 3463,
+        "tally": 3464,
       },
     },
   },
@@ -27486,9 +27486,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 7032,
+      "ballots": 7033,
       "overvotes": 16,
-      "undervotes": 308,
+      "undervotes": 309,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -27802,9 +27802,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 3200,
+      "ballots": 3201,
       "overvotes": 5,
-      "undervotes": 147,
+      "undervotes": 148,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -27867,7 +27867,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 7032,
+      "ballots": 7033,
       "overvotes": 19,
       "undervotes": 296,
     },
@@ -27894,7 +27894,7 @@ Object {
           "name": "Oprah Winfrey",
           "partyId": "1",
         },
-        "tally": 2236,
+        "tally": 2237,
       },
       "winston-churchill": Object {
         "option": Object {
@@ -27950,9 +27950,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 7032,
+      "ballots": 7033,
       "overvotes": 18,
-      "undervotes": 292,
+      "undervotes": 293,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -28113,9 +28113,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 7032,
+      "ballots": 7033,
       "overvotes": 14,
-      "undervotes": 316,
+      "undervotes": 317,
     },
     "tallies": Object {
       "__write-in": Object {
@@ -28186,7 +28186,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 3200,
+      "ballots": 3201,
       "overvotes": 4,
       "undervotes": 134,
     },
@@ -28213,7 +28213,7 @@ Object {
           "name": "James Bond",
           "partyId": "1",
         },
-        "tally": 991,
+        "tally": 992,
       },
       "earhart": Object {
         "option": Object {
@@ -28327,7 +28327,7 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 3200,
+      "ballots": 3201,
       "overvotes": 3,
       "undervotes": 133,
     },
@@ -28346,7 +28346,7 @@ Object {
           "name": "John Snow",
           "partyId": "1",
         },
-        "tally": 1550,
+        "tally": 1551,
       },
       "mark-twain": Object {
         "option": Object {
@@ -28392,9 +28392,9 @@ Object {
       "type": "candidate",
     },
     "metadata": Object {
-      "ballots": 3200,
+      "ballots": 3201,
       "overvotes": 1,
-      "undervotes": 106,
+      "undervotes": 107,
     },
     "tallies": Object {
       "__write-in": Object {

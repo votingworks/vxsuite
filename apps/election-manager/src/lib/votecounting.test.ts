@@ -60,10 +60,10 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // tabulate it
   const fullTally = computeFullElectionTally(election, [castVoteRecords])
-  expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10000)
+  expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10001)
   expect(fullTally.overallTally.contestTallies).toMatchSnapshot()
   expect(fullTally.overallTally.ballotCountsByVotingMethod).toMatchObject({
-    absentee: 671,
+    absentee: 672,
     standard: 474,
     unknown: 8855,
   })
@@ -139,9 +139,9 @@ describe('filterTalliesByParams in a typical election', () => {
   it('can filter by precinct', () => {
     const expectedPrecinctResults = {
       '23': {
-        totalBallots: 2474,
+        totalBallots: 2475,
         ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 175,
+          [VotingMethod.Absentee]: 176,
           [VotingMethod.Precinct]: 119,
           [VotingMethod.Unknown]: 2180,
         },
@@ -221,9 +221,9 @@ describe('filterTalliesByParams in a typical election', () => {
         },
       },
       'scanner-5': {
-        totalBallots: 961,
+        totalBallots: 962,
         ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 57,
+          [VotingMethod.Absentee]: 58,
           [VotingMethod.Precinct]: 46,
           [VotingMethod.Unknown]: 858,
         },
@@ -281,10 +281,10 @@ describe('filterTalliesByParams in a typical election', () => {
       precinctId: '23',
       scannerId: 'scanner-5',
     })
-    expect(filteredResults.numberOfBallotsCounted).toBe(226)
+    expect(filteredResults.numberOfBallotsCounted).toBe(227)
     expect(filteredResults.contestTallies).toMatchSnapshot()
     expect(filteredResults.ballotCountsByVotingMethod).toMatchObject({
-      [VotingMethod.Absentee]: 17,
+      [VotingMethod.Absentee]: 18,
       [VotingMethod.Precinct]: 6,
       [VotingMethod.Unknown]: 203,
     })
@@ -294,9 +294,9 @@ describe('filterTalliesByParams in a typical election', () => {
     const absenteeResults = filterTalliesByParams(electionTally, election, {
       votingMethod: VotingMethod.Absentee,
     })
-    expect(absenteeResults.numberOfBallotsCounted).toBe(671)
+    expect(absenteeResults.numberOfBallotsCounted).toBe(672)
     expect(absenteeResults.ballotCountsByVotingMethod).toMatchObject({
-      [VotingMethod.Absentee]: 671,
+      [VotingMethod.Absentee]: 672,
       [VotingMethod.Precinct]: 0,
       [VotingMethod.Unknown]: 0,
     })
@@ -328,9 +328,9 @@ describe('filterTalliesByParams in a typical election', () => {
       scannerId: 'scanner-5',
       votingMethod: VotingMethod.Absentee,
     })
-    expect(filteredResults.numberOfBallotsCounted).toBe(17)
+    expect(filteredResults.numberOfBallotsCounted).toBe(18)
     expect(filteredResults.ballotCountsByVotingMethod).toMatchObject({
-      [VotingMethod.Absentee]: 17,
+      [VotingMethod.Absentee]: 18,
       [VotingMethod.Precinct]: 0,
       [VotingMethod.Unknown]: 0,
     })

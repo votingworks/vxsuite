@@ -52,7 +52,7 @@ const TestDeckScreen: React.FC = () => {
 
   const electionTally: Tally = {
     numberOfBallotsCounted: ballots.length,
-    castVoteRecords: [],
+    castVoteRecords: new Set(),
     contestTallies: tallyVotesByContest({
       election,
       votes,
