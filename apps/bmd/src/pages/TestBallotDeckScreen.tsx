@@ -158,7 +158,11 @@ const TestBallotDeckScreen: React.FC<Props> = ({
       setIsPrinting(false)
     }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000)
 
-    await (window.kiosk ?? window).print()
+    if (window.kiosk) {
+      await window.kiosk.print({ sides: 'one-sided' })
+    } else {
+      window.print()
+    }
   }
 
   return (

@@ -44,8 +44,9 @@ it('renders test decks appropriately', async () => {
 
   printSpy.mockRestore()
 
-  window.kiosk = fakeKiosk()
-  window.kiosk.getPrinterInfo = jest
+  const kiosk = fakeKiosk()
+  window.kiosk = kiosk
+  kiosk.getPrinterInfo = jest
     .fn()
     .mockResolvedValue([fakePrinterInfo({ connected: true })])
 
@@ -53,7 +54,7 @@ it('renders test decks appropriately', async () => {
   fireEvent.click(getByText('Print 63 ballots'))
 
   await waitFor(() => {
-    expect(window.kiosk!.print).toHaveBeenCalledWith()
+    expect(kiosk.print).toHaveBeenCalledWith({ sides: 'one-sided' })
   })
 
   getByText('Printing Ballots…')
@@ -75,13 +76,14 @@ it('shows printer not connected when appropriate', async () => {
     />
   )
 
-  window.kiosk = fakeKiosk()
+  const kiosk = fakeKiosk()
+  window.kiosk = kiosk
 
   fireEvent.click(getByText('All Precincts'))
 
   fireEvent.click(getByText('Print 63 ballots'))
 
-  expect(window.kiosk!.getPrinterInfo).toHaveBeenCalled()
+  expect(kiosk.getPrinterInfo).toHaveBeenCalled()
 
   await waitFor(() => {
     getByText('The printer is not connected.')
