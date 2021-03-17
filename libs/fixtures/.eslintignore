@@ -1,3 +1,2 @@
 jest.config.js
 src/data/**/**/*.csv.ts
-scripts/generateSampleCVRFile.ts
