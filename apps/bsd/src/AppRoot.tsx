@@ -60,10 +60,6 @@ const App: React.FC = () => {
   ] = useState<ElectionDefinition>()
   const [electionJustLoaded, setElectionJustLoaded] = useState(false)
   const [electionHash, setElectionHash] = useState<string>()
-  // used to hide batches while they're being deleted
-  const [pendingDeleteBatchIds, setPendingDeleteBatchIds] = useState<number[]>(
-    []
-  )
   const [isTestMode, setTestMode] = useState(false)
   const [isTogglingTestMode, setTogglingTestMode] = useState(false)
   const [status, setStatus] = useState<ScanStatusResponse>({
@@ -232,22 +228,11 @@ const App: React.FC = () => {
     [history, refreshConfig]
   )
 
-  const deleteBatch = useCallback(
-    async (id: number) => {
-      setPendingDeleteBatchIds((previousIds) => [...previousIds, id])
-
-      try {
-        await fetch(`/scan/batch/${id}`, {
-          method: 'DELETE',
-        })
-      } finally {
-        setPendingDeleteBatchIds((previousIds) =>
-          previousIds.filter((previousId) => previousId !== id)
-        )
-      }
-    },
-    [setPendingDeleteBatchIds]
-  )
+  const deleteBatch = useCallback(async (id: string) => {
+    await fetchJSON(`/scan/batch/${id}`, {
+      method: 'DELETE',
+    })
+  }, [])
 
   useInterval(
     useCallback(() => {
@@ -409,12 +394,7 @@ const App: React.FC = () => {
                   <DashboardScreen
                     adjudicationStatus={adjudication}
                     isScanning={isScanning}
-                    status={{
-                      ...status,
-                      batches: status.batches.filter(
-                        (batch) => !pendingDeleteBatchIds.includes(batch.id)
-                      ),
-                    }}
+                    status={status}
                     deleteBatch={deleteBatch}
                   />
                 </MainChild>
