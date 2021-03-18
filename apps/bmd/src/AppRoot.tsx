@@ -1246,37 +1246,40 @@ const AppRoot: React.FC<Props> = ({
         />
       )
     }
-    if (isPollsOpen && appMode.isVxPrint && !appMode.isVxMark) {
-      return (
-        <PrintOnlyScreen
-          ballotStyleId={ballotStyleId}
-          ballotsPrintedCount={ballotsPrintedCount}
-          electionDefinition={optionalElectionDefinition}
-          isLiveMode={isLiveMode}
-          isVoterCardPresent={isVoterCardPresent}
-          markVoterCardPrinted={markVoterCardPrinted}
-          precinctId={precinctId}
-          printer={printer}
-          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-          showNoChargerAttachedWarning={!hasChargerAttached}
-          updateTally={updateTally}
-          votes={votes}
-        />
-      )
-    }
-    if (isPollsOpen && appMode.isVxMark) {
-      if (
+    if (isPollsOpen) {
+      const isVoterVoting =
         (isVoterCardPresent || isCardlessVoter) &&
-        ballotStyleId &&
-        precinctId
-      ) {
-        if (appPrecinctId !== precinctId) {
-          return (
-            <WrongPrecinctScreen
-              useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-            />
-          )
-        }
+        Boolean(ballotStyleId) &&
+        Boolean(precinctId)
+
+      if (isVoterVoting && appPrecinctId !== precinctId) {
+        return (
+          <WrongPrecinctScreen
+            useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
+          />
+        )
+      }
+
+      if (appMode.isVxPrint && !appMode.isVxMark) {
+        return (
+          <PrintOnlyScreen
+            ballotStyleId={ballotStyleId}
+            ballotsPrintedCount={ballotsPrintedCount}
+            electionDefinition={optionalElectionDefinition}
+            isLiveMode={isLiveMode}
+            isVoterCardPresent={isVoterCardPresent}
+            markVoterCardPrinted={markVoterCardPrinted}
+            precinctId={precinctId}
+            printer={printer}
+            useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
+            showNoChargerAttachedWarning={!hasChargerAttached}
+            updateTally={updateTally}
+            votes={votes}
+          />
+        )
+      }
+
+      if (isVoterVoting) {
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider
