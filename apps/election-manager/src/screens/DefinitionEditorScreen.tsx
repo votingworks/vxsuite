@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { useHistory } from 'react-router-dom'
 import fileDownload from 'js-file-download'
 
 import dashify from 'dashify'
@@ -10,12 +9,11 @@ import AppContext from '../contexts/AppContext'
 
 import Button from '../components/Button'
 import Textarea from '../components/Textarea'
-import routerPaths from '../routerPaths'
 import ButtonBar from '../components/ButtonBar'
-import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import NavigationScreen from '../components/NavigationScreen'
 import { TextareaEventFunction } from '../config/types'
+import RemoveElectionModal from '../components/RemoveElectionModal'
 
 const Header = styled.div`
   margin-bottom: 1rem;
@@ -31,8 +29,9 @@ const FlexTextareaWrapper = styled.div`
     font-family: monospace;
   }
 `
-const DefinitionEditorScreen: React.FC = () => {
-  const history = useHistory()
+const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
+  allowEditing,
+}) => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election, electionData } = electionDefinition!
   const stringifiedElection = JSON.stringify(election, undefined, 2)
@@ -46,10 +45,6 @@ const DefinitionEditorScreen: React.FC = () => {
   }
   const initConfirmingUnconfig = () => {
     setIsConfimingUnconfig(true)
-  }
-  const unconfigureElection = () => {
-    saveElection(undefined)
-    history.push(routerPaths.root)
   }
 
   const validateElectionDefinition = useCallback(() => {
@@ -98,17 +93,21 @@ const DefinitionEditorScreen: React.FC = () => {
           </Header>
         )}
         <ButtonBar padded dark>
-          <Button
-            small
-            primary={dirty && !error}
-            onPress={handleSaveElection}
-            disabled={!dirty || !!error}
-          >
-            Save
-          </Button>
-          <Button small onPress={resetElectionConfig} disabled={!dirty}>
-            Reset
-          </Button>
+          {allowEditing && (
+            <React.Fragment>
+              <Button
+                small
+                primary={dirty && !error}
+                onPress={handleSaveElection}
+                disabled={!dirty || !!error}
+              >
+                Save
+              </Button>
+              <Button small onPress={resetElectionConfig} disabled={!dirty}>
+                Reset
+              </Button>
+            </React.Fragment>
+          )}
           <div />
           <div />
           <div />
@@ -125,27 +124,16 @@ const DefinitionEditorScreen: React.FC = () => {
           </Button>
         </ButtonBar>
         <FlexTextareaWrapper>
-          <Textarea onChange={editElection} value={electionString} />
+          <Textarea
+            onChange={editElection}
+            value={electionString}
+            disabled={!allowEditing}
+            data-testid="json-input"
+          />
         </FlexTextareaWrapper>
       </NavigationScreen>
       {isConfimingUnconfig && (
-        <Modal
-          centerContent
-          content={
-            <Prose textCenter>
-              <p>Do you want to remove the current election definition?</p>
-              <p>All data will be removed from this app.</p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button onPress={cancelConfirmingUnconfig}>Cancel</Button>
-              <Button danger onPress={unconfigureElection}>
-                Remove Election Definition
-              </Button>
-            </React.Fragment>
-          }
-        />
+        <RemoveElectionModal onClose={cancelConfirmingUnconfig} />
       )}
     </React.Fragment>
   )

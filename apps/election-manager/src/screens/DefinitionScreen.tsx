@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Contest } from '@votingworks/types'
 import styled from 'styled-components'
 
@@ -12,6 +12,7 @@ import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
+import RemoveElectionModal from '../components/RemoveElectionModal'
 
 const ButtonListItem = styled.span`
   display: block;
@@ -26,6 +27,8 @@ interface ContestSection {
 const DefinitionScreen: React.FC = () => {
   const { electionDefinition, configuredAt } = useContext(AppContext)
   const { election } = electionDefinition!
+
+  const [isRemovingElection, setIsRemovingElection] = useState(false)
 
   const electionsBySection = election.contests.reduce<ContestSection[]>(
     (prev, curr) => {
@@ -89,12 +92,26 @@ const DefinitionScreen: React.FC = () => {
           ))}
           <h1>Advanced Features</h1>
           <p>
-            <LinkButton to={routerPaths.definitionEditor}>
-              JSON Editor
-            </LinkButton>
+            <ButtonListItem>
+              <LinkButton to={routerPaths.definitionEditor}>
+                View Definition JSON
+              </LinkButton>
+            </ButtonListItem>
+            <ButtonListItem>
+              <LinkButton
+                danger
+                to={routerPaths.definitionEditor}
+                onPress={() => setIsRemovingElection(true)}
+              >
+                Remove Election
+              </LinkButton>
+            </ButtonListItem>
           </p>
         </Prose>
       </NavigationScreen>
+      {isRemovingElection && (
+        <RemoveElectionModal onClose={() => setIsRemovingElection(false)} />
+      )}
     </React.Fragment>
   )
 }

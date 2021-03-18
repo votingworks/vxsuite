@@ -134,6 +134,7 @@ const ToggleField = ({
   value,
   optional,
   onChange,
+  disabled,
 }: {
   name: string
   label?: string
@@ -142,36 +143,47 @@ const ToggleField = ({
   value: boolean
   optional?: boolean
   onChange: ButtonEventFunction
+  disabled?: boolean
 }) => (
   <StyledField>
     <label htmlFor={name}>
-      <strong>{label}</strong>
+      <strong>{label}:</strong>
       {optional && <small> (optional)</small>}
     </label>
-    <SegmentedButton>
-      <Button
-        small
-        disabled={!!value}
-        name={name}
-        value="true"
-        onPress={onChange}
-      >
-        {trueLabel}
-      </Button>
-      <Button
-        small
-        disabled={!value}
-        name={name}
-        value="false"
-        onPress={onChange}
-      >
-        {falseLabel}
-      </Button>
-    </SegmentedButton>
+    {disabled ? (
+      value ? (
+        trueLabel
+      ) : (
+        falseLabel
+      )
+    ) : (
+      <SegmentedButton>
+        <Button
+          small
+          disabled={!!value}
+          name={name}
+          value="true"
+          onPress={onChange}
+        >
+          {trueLabel}
+        </Button>
+        <Button
+          small
+          disabled={!value}
+          name={name}
+          value="false"
+          onPress={onChange}
+        >
+          {falseLabel}
+        </Button>
+      </SegmentedButton>
+    )}
   </StyledField>
 )
 
-const DefinitionContestsScreen: React.FC = () => {
+const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
+  allowEditing,
+}) => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election } = electionDefinition!
   const { contestId } = useParams<{ contestId: string }>()
@@ -179,15 +191,17 @@ const DefinitionContestsScreen: React.FC = () => {
   const contest = election.contests[contestIndex]
 
   const saveContest = (newContest: AnyContest) => {
-    const newElection: Election = {
-      ...election,
-      contests: [
-        ...election.contests.slice(0, contestIndex),
-        newContest,
-        ...election.contests.slice(contestIndex + 1),
-      ],
+    if (allowEditing) {
+      const newElection: Election = {
+        ...election,
+        contests: [
+          ...election.contests.slice(0, contestIndex),
+          newContest,
+          ...election.contests.slice(contestIndex + 1),
+        ],
+      }
+      saveElection(JSON.stringify(newElection))
     }
-    saveElection(JSON.stringify(newElection))
   }
 
   const saveTextField: InputEventFunction = (event) => {
@@ -279,10 +293,11 @@ ${fileContent}`
       <NavigationScreen>
         <PageHeader>
           <Prose maxWidth={false}>
-            <h1>Edit Contest</h1>
+            <h1>{allowEditing ? 'Edit' : 'View'} Contest</h1>
             <p>
-              Disabled fields are shown for informational purpose and can be
-              edited in the JSON Editor if necessary.
+              {allowEditing
+                ? 'Disabled fields are shown for informational purpose and can be edited in the JSON Editor if necessary.'
+                : 'Editing currently disabled.'}
             </p>
           </Prose>
         </PageHeader>
@@ -403,12 +418,14 @@ ${fileContent}`
               label="Section Name"
               value={contest.section}
               onChange={saveTextField}
+              disabled={!allowEditing}
             />
             <TextField
               label="Title"
               name="title"
               value={contest.title}
               onChange={saveTextField}
+              disabled={!allowEditing}
             />
             {contest.type === 'yesno' && (
               <TextField
@@ -416,6 +433,7 @@ ${fileContent}`
                 name="shortTitle"
                 value={contest.shortTitle}
                 onChange={saveTextField}
+                disabled={!allowEditing}
               />
             )}
             {contest.type === 'candidate' && (
@@ -429,12 +447,14 @@ ${fileContent}`
                   step={1}
                   pattern="\d*"
                   onChange={saveTextField}
+                  disabled={!allowEditing}
                 />
                 <ToggleField
                   name="allowWriteIns"
                   label="Allow Write-Ins"
                   value={contest.allowWriteIns}
                   onChange={saveToggleField}
+                  disabled={!allowEditing}
                 />
                 <h2>Candidates</h2>
                 <ol>
@@ -445,6 +465,7 @@ ${fileContent}`
                         label="Candidate Name"
                         value={candidate.name}
                         onChange={saveCandidateTextField}
+                        disabled={!allowEditing}
                       />
                       <TextField
                         name={`${index}.id`}
@@ -474,6 +495,7 @@ ${fileContent}`
                   type="textarea"
                   value={contest.description}
                   onChange={saveTextField}
+                  disabled={!allowEditing}
                 />
                 <FileInputButton
                   buttonProps={{
@@ -481,6 +503,7 @@ ${fileContent}`
                   }}
                   accept="image/svg+xml"
                   onChange={appendSvgToDescription}
+                  disabled={!allowEditing}
                 >
                   Append SVG Image to Description
                 </FileInputButton>
@@ -494,42 +517,49 @@ ${fileContent}`
                   type="textarea"
                   value={contest.description}
                   onChange={saveTextField}
+                  disabled={!allowEditing}
                 />
                 <TextField
                   label="Either Neither Instruction Label"
                   name="eitherNeitherLabel"
                   value={contest.eitherNeitherLabel}
                   onChange={saveTextField}
+                  disabled={!allowEditing}
                 />
                 <TextField
                   label="Either Option Label"
                   name="eitherOption"
                   value={contest.eitherOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
+                  disabled={!allowEditing}
                 />
                 <TextField
                   label="Neither Option Label"
                   name="neitherOption"
                   value={contest.neitherOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
+                  disabled={!allowEditing}
                 />
                 <TextField
                   label="Pick One Instruction Label"
                   name="pickOneLabel"
                   value={contest.pickOneLabel}
                   onChange={saveTextField}
+                  disabled={!allowEditing}
                 />
                 <TextField
                   label="First Option Label"
                   name="firstOption"
                   value={contest.firstOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
+                  disabled={!allowEditing}
                 />
                 <TextField
                   label="First Option Label"
                   name="secondOption"
                   value={contest.secondOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
+                  disabled={!allowEditing}
                 />
               </React.Fragment>
             )}
