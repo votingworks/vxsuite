@@ -1,15 +1,12 @@
 /* eslint-disable no-shadow */
 import {
   BallotType,
-  CandidateVote,
   CompletedBallot,
-  Election,
   ElectionDefinition,
   OptionalElectionDefinition,
   OptionalVote,
   Provider,
   VotesDict,
-  YesNoVote,
   getBallotStyle,
   getContests,
   getPrecinctById,
@@ -37,8 +34,6 @@ import {
   VoterCardData,
   VxMarkOnly,
   Tally,
-  CandidateVoteTally,
-  YesNoVoteTally,
   SerializableActivationData,
   MachineConfig,
   PostVotingInstructions,
@@ -62,7 +57,7 @@ import UsedCardScreen from './pages/UsedCardScreen'
 import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { getZeroTally } from './utils/election'
-import { computeTallyForEitherNeitherContests } from './utils/eitherNeither'
+import { calculateTally } from './utils/tallies'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
@@ -72,7 +67,6 @@ import {
   isAccessibleController,
   isCardReader,
 } from './utils/Hardware'
-import { getSingleYesNoVote } from './utils/votes'
 
 interface CardState {
   adminCardElectionHash: string
@@ -133,7 +127,6 @@ export interface AppStorage {
   activation?: SerializableActivationData
   votes?: VotesDict
 }
-
 export interface Props extends RouteComponentProps {
   card: Card
   hardware: Hardware
@@ -207,80 +200,6 @@ const initialAppState: Readonly<State> = {
   ...initialUserState,
   ...initialHardwareState,
   ...initialOtherState,
-}
-
-// TODO: Move this function to another file and rewrite in FP.
-const calculateTally = ({
-  election,
-  tally: prevTally,
-  votes,
-}: {
-  election: Election
-  tally: Tally
-  votes: VotesDict
-}) => {
-  // first update the tally for either-neither contests
-  const {
-    tally,
-    contestIds: eitherNeitherContestIds,
-  } = computeTallyForEitherNeitherContests({
-    election,
-    tally: prevTally,
-    votes,
-  })
-
-  for (const contestId in votes) {
-    if (eitherNeitherContestIds.includes(contestId)) {
-      continue
-    }
-
-    const contestIndex = election.contests.findIndex((c) => c.id === contestId)
-    /* istanbul ignore next */
-    if (contestIndex < 0) {
-      throw new Error(`No contest found for contestId: ${contestId}`)
-    }
-    const contestTally = tally[contestIndex]
-    const contest = election.contests[contestIndex]
-    /* istanbul ignore else */
-    if (contest.type === 'yesno') {
-      const yesnoContestTally = contestTally as YesNoVoteTally
-      const vote = votes[contestId] as YesNoVote
-      yesnoContestTally[getSingleYesNoVote(vote)!]++
-    } else if (contest.type === 'candidate') {
-      const candidateContestTally = contestTally as CandidateVoteTally
-      const vote = votes[contestId] as CandidateVote
-      vote.forEach((candidate) => {
-        if (candidate.isWriteIn) {
-          const tallyContestWriteIns = candidateContestTally.writeIns
-          const writeIn = tallyContestWriteIns.find(
-            (c) => c.name === candidate.name
-          )
-          if (typeof writeIn === 'undefined') {
-            tallyContestWriteIns.push({
-              name: candidate.name,
-              tally: 1,
-            })
-          } else {
-            writeIn.tally++
-          }
-        } else {
-          const candidateIndex = contest.candidates.findIndex(
-            (c) => c.id === candidate.id
-          )
-          if (
-            candidateIndex < 0 ||
-            candidateIndex >= candidateContestTally.candidates.length
-          ) {
-            throw new Error(
-              `unable to find a candidate with id: ${candidate.id}`
-            )
-          }
-          candidateContestTally.candidates[candidateIndex]++
-        }
-      })
-    }
-  }
-  return tally
 }
 
 // Sets State. All side effects done outside: storage, fetching, etc
@@ -435,14 +354,15 @@ const appReducer = (state: State, action: AppAction): State => {
         isPollsOpen: !state.isPollsOpen,
       }
     case 'updateTally': {
-      const { electionDefinition, tally, votes } = state
+      const { electionDefinition, tally, votes, ballotStyleId } = state
       return {
         ...state,
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
         tally: calculateTally({
           election: electionDefinition!.election,
           tally,
-          votes: votes!,
+          votes: votes ?? {},
+          ballotStyleId,
         }),
       }
     }

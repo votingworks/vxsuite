@@ -164,7 +164,7 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(within(getByTestId('precincts')).getByText('12'))
   getByText('Ballot style 12 has been activated.')
 
-  // Poll Workder removes their card
+  // Poll Worker removes their card
   card.removeCard()
   await advanceTimersAndPromises()
 
@@ -259,17 +259,12 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   getByTextWithMarkup('Your ballot has 21 contests.')
   fireEvent.click(getByText('Start Voting'))
 
-  // Voter makes selection in first contest and then advances to review screen
+  // Voter advances through contests without voting in any
   for (let i = 0; i < voterContests.length; i++) {
     const { title } = voterContests[i]
 
     await advanceTimersAndPromises()
     getByText(title)
-
-    // Vote for a candidate contest
-    if (title === presidentContest.title) {
-      fireEvent.click(getByText(presidentContest.candidates[0].name))
-    }
 
     fireEvent.click(getByText('Next'))
   }
