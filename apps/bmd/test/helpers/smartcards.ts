@@ -133,6 +133,12 @@ export const pollWorkerCardForElection = (electionHash: string): string =>
     h: electionHash,
   })
 
+export const getInvalidPollWorkerCard = (): string =>
+  JSON.stringify({
+    t: 'pollworker',
+    h: 'notanelectionhash',
+  })
+
 export const createVoterCard = (
   cardData: Partial<VoterCardData> = {}
 ): string => {

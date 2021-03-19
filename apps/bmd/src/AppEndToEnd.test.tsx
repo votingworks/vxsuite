@@ -20,6 +20,7 @@ import {
   getNewVoterCard,
   getUsedVoterCard,
   pollWorkerCardForElection,
+  getInvalidPollWorkerCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -71,6 +72,7 @@ it('VxMark+Print end-to-end flow', async () => {
   const pollWorkerCard = pollWorkerCardForElection(
     electionDefinition.electionHash
   )
+  const invalidPollWorkerCard = getInvalidPollWorkerCard()
   const getByTextWithMarkup = withMarkup(getByText)
 
   card.removeCard()
@@ -125,6 +127,14 @@ it('VxMark+Print end-to-end flow', async () => {
   getByText('Insert Poll Worker card to open.')
 
   // ---------------
+
+  // Using an invalid Poll Worker Card shows an error
+  card.insertCard(invalidPollWorkerCard)
+  await advanceTimersAndPromises()
+  getByText('Invalid Card Data')
+  getByText('Card is not configured for this election.')
+  getByText('Please ask admin for assistance.')
+  card.removeCard()
 
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
