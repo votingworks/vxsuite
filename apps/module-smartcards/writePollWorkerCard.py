@@ -6,7 +6,11 @@ from smartcards.core import CardInterface
 import time
 time.sleep(2)
 
-short_value = json.dumps({'t':'pollworker', 'h': 'fixme'})
+f = open(sys.argv[1], "rb")
+election_bytes = f.read()
+f.close()
+
+short_value = json.dumps({'t':'pollworker', 'h': hashlib.sha256(election_bytes).hexdigest()})
 
 print(CardInterface.card)
 CardInterface.override_protection()
