@@ -90,16 +90,20 @@ export type TallyCount = number
 export interface CandidateVoteTally {
   candidates: TallyCount[]
   writeIns: WriteInCandidateTally[]
+  undervotes: TallyCount
 }
 export interface YesNoVoteTally {
   yes: TallyCount
   no: TallyCount
+  undervotes: TallyCount
 }
 export interface MsEitherNeitherTally {
   eitherOption: TallyCount
   neitherOption: TallyCount
+  eitherNeitherUndervotes: TallyCount
   firstOption: TallyCount
   secondOption: TallyCount
+  pickOneUndervotes: TallyCount
 }
 export type Tally = (
   | CandidateVoteTally

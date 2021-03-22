@@ -3,13 +3,11 @@
  */
 
 import {
-  Contest,
-  Dictionary,
   Election,
-  MsEitherNeitherContest,
   VotesDict,
   YesNoVote,
   getEitherNeitherContests,
+  Contests,
 } from '@votingworks/types'
 
 import { Tally, MsEitherNeitherTally } from '../config/types'
@@ -19,70 +17,51 @@ import { getSingleYesNoVote } from './votes'
 interface Params {
   election: Election
   tally: Tally
-  votes?: VotesDict
-}
-
-interface TallyAndContestIds {
-  tally: Tally
-  contestIds: Contest['id'][]
+  votes: VotesDict
+  contests: Contests
 }
 
 export const computeTallyForEitherNeitherContests = ({
   election,
   tally,
   votes,
-}: Params): TallyAndContestIds => {
+  contests,
+}: Params): Tally => {
   const newTally = [...tally]
 
-  const contestIds: Contest['id'][] = []
+  for (const contest of getEitherNeitherContests(contests)) {
+    const contestIndex = election.contests.findIndex((c) => c.id === contest.id)
 
-  const eitherNeitherContestMappings: Dictionary<MsEitherNeitherContest> = {}
-  getEitherNeitherContests(election.contests).forEach((c) => {
-    eitherNeitherContestMappings[c.eitherNeitherContestId] = c
-    eitherNeitherContestMappings[c.pickOneContestId] = c
-  })
+    const eitherNeitherTally = {
+      ...newTally[contestIndex],
+    } as MsEitherNeitherTally
 
-  for (const contestId in votes) {
-    /* istanbul ignore next */
-    if (Object.prototype.hasOwnProperty.call(votes, contestId)) {
-      const outerContest = eitherNeitherContestMappings[contestId]
-      if (outerContest) {
-        contestIds.push(contestId)
-        const contestIndex = election.contests.findIndex(
-          (c) => c.id === outerContest.id
-        )
-        const vote = votes[contestId] as YesNoVote
-        const singleVote = getSingleYesNoVote(vote)
+    // Tabulate EitherNeither section
+    const eitherNeitherVote = votes[contest.eitherNeitherContestId] as YesNoVote
+    const singleEitherNeitherVote = getSingleYesNoVote(eitherNeitherVote)
 
-        if (singleVote) {
-          // copy
-          const eitherNeitherTally = {
-            ...newTally[contestIndex],
-          } as MsEitherNeitherTally
-          newTally[contestIndex] = eitherNeitherTally
-
-          if (outerContest.eitherNeitherContestId === contestId) {
-            // special tabulation rule: if this is 'yes' but no option selected, we cancel the vote.
-            if (
-              singleVote === 'no' ||
-              votes[outerContest.pickOneContestId]?.length === 1
-            ) {
-              eitherNeitherTally[
-                singleVote === 'yes' ? 'eitherOption' : 'neitherOption'
-              ]++
-            }
-          } else {
-            eitherNeitherTally[
-              singleVote === 'yes' ? 'firstOption' : 'secondOption'
-            ]++
-          }
-        }
-      }
+    if (singleEitherNeitherVote === undefined) {
+      eitherNeitherTally.eitherNeitherUndervotes++
+    } else {
+      eitherNeitherTally[
+        singleEitherNeitherVote === 'yes' ? 'eitherOption' : 'neitherOption'
+      ]++
     }
+
+    // Tabulate YesNo section
+    const pickOneVote = votes[contest.pickOneContestId] as YesNoVote
+    const singlePickOneVote = getSingleYesNoVote(pickOneVote)
+
+    if (singlePickOneVote === undefined) {
+      eitherNeitherTally.pickOneUndervotes++
+    } else {
+      eitherNeitherTally[
+        singlePickOneVote === 'yes' ? 'firstOption' : 'secondOption'
+      ]++
+    }
+
+    newTally[contestIndex] = eitherNeitherTally
   }
 
-  return {
-    tally: newTally,
-    contestIds,
-  }
+  return newTally
 }
