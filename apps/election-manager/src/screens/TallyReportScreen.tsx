@@ -175,8 +175,8 @@ const TallyReportScreen: React.FC = () => {
       </NavigationScreen>
       <div className="print-only">
         <LogoMark />
-        {ballotStylePartyIds.map((partyId) => {
-          return precinctIds.map((precinctId) => {
+        {ballotStylePartyIds.map((partyId) =>
+          precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId)
             const electionTitle = party
               ? `${party.fullName} ${election.title}`
@@ -328,7 +328,7 @@ const TallyReportScreen: React.FC = () => {
               </React.Fragment>
             )
           })
-        })}
+        )}
       </div>
     </React.Fragment>
   )
