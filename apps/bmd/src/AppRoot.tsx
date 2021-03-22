@@ -84,6 +84,7 @@ interface CardState {
   isVoterCardPresent: boolean
   isVoterCardPrinted: boolean
   isVoterCardValid: boolean
+  isPollWorkerCardValid: boolean
   pauseProcessingUntilNoCardPresent: boolean
   showPostVotingInstructions?: PostVotingInstructions
   voterCardCreatedAt: number
@@ -158,6 +159,7 @@ const initialCardState: Readonly<CardState> = {
   isVoterCardPresent: false,
   isVoterCardPrinted: false,
   isVoterCardValid: true,
+  isPollWorkerCardValid: true,
   pauseProcessingUntilNoCardPresent: false,
   showPostVotingInstructions: undefined,
   voterCardCreatedAt: 0,
@@ -286,7 +288,7 @@ const calculateTally = ({
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
   | { type: 'processAdminCard'; electionHash: string }
-  | { type: 'processPollWorkerCard' }
+  | { type: 'processPollWorkerCard'; isPollWorkerCardValid: boolean }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
   | { type: 'pauseCardProcessing' }
   | { type: 'resumeCardProcessing' }
@@ -332,6 +334,7 @@ const appReducer = (state: State, action: AppAction): State => {
         ...initialCardState,
         isCardlessVoter: state.isCardlessVoter,
         isPollWorkerCardPresent: true,
+        isPollWorkerCardValid: action.isPollWorkerCardValid,
       }
     case 'processVoterCard':
       return {
@@ -535,6 +538,7 @@ const AppRoot: React.FC<Props> = ({
     isVoterCardVoided,
     isVoterCardPrinted,
     isVoterCardValid,
+    isPollWorkerCardValid,
     lastCardDataString,
     machineConfig,
     pauseProcessingUntilNoCardPresent,
@@ -777,13 +781,18 @@ const AppRoot: React.FC<Props> = ({
         }
         case 'pollworker': {
           /* istanbul ignore next */
-          if (cardData.h !== optionalElectionDefinition?.electionHash) {
+          const isValid =
+            cardData.h === optionalElectionDefinition?.electionHash
+          if (!isValid) {
             // eslint-disable-next-line no-console
             console.error(
               `poll worker card election hash (${cardData.h}) does not match configured election hash (${optionalElectionDefinition?.electionHash})`
             )
           }
-          dispatchAppState({ type: 'processPollWorkerCard' })
+          dispatchAppState({
+            type: 'processPollWorkerCard',
+            isPollWorkerCardValid: isValid,
+          })
           break
         }
         case 'admin': {
@@ -1186,6 +1195,14 @@ const AppRoot: React.FC<Props> = ({
         />
       )
     }
+    if (!isVoterCardValid || !isPollWorkerCardValid) {
+      return (
+        <WrongElectionScreen
+          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
+          isVoterCard={isVoterCardPresent}
+        />
+      )
+    }
     if (isPollWorkerCardPresent) {
       return (
         <PollWorkerScreen
@@ -1202,13 +1219,6 @@ const AppRoot: React.FC<Props> = ({
           tally={tally}
           togglePollsOpen={togglePollsOpen}
           hasVotes={!!votes}
-        />
-      )
-    }
-    if (!isVoterCardValid) {
-      return (
-        <WrongElectionScreen
-          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
         />
       )
     }
