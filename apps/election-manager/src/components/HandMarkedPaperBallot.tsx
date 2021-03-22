@@ -349,8 +349,8 @@ const Instructions = styled.div`
 `
 export const StyledContest = styled.div`
   margin-bottom: 1em;
-  border: 0.05em solid #000000;
-  border-top-width: 0.2em;
+  border: 0.2em solid #000000;
+  border-top-width: 0.3em;
   padding: 0.5em 1em 1em;
   break-inside: avoid;
   page-break-inside: avoid;
