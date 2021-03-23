@@ -127,6 +127,7 @@ declare namespace KioskBrowser {
 
     getBatteryInfo(): Promise<BatteryInfo>
     devices: import('rxjs').Observable<Iterable<Device>>
+    printers: import('rxjs').Observable<Iterable<PrinterInfo>>
     quit(): void
 
     /**

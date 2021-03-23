@@ -191,6 +191,18 @@ describe('MemoryHardware', () => {
     hardware.addDevice(device)
     expect(callback).not.toHaveBeenCalled()
   })
+
+  it('reports printer status as connected if there are any connected printers', async () => {
+    const hardware = new MemoryHardware()
+    hardware.setPrinterConnected(true)
+    expect(await hardware.readPrinterStatus()).toEqual({ connected: true })
+  })
+
+  it('reports printer status as not connected if there are no connected printers', async () => {
+    const hardware = new MemoryHardware()
+    hardware.setPrinterConnected(false)
+    expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
+  })
 })
 
 describe('isCardReader', () => {

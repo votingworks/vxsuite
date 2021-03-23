@@ -65,6 +65,11 @@ export interface Hardware {
    * Subscribe to USB device updates.
    */
   devices: Observable<Iterable<KioskBrowser.Device>>
+
+  /**
+   * Subscribe to USB device updates.
+   */
+  printers: Observable<Iterable<KioskBrowser.PrinterInfo>>
 }
 
 /**
@@ -195,6 +200,15 @@ export class MemoryHardware implements Hardware {
    */
   public async setPrinterConnected(connected: boolean): Promise<void> {
     this.setDeviceConnected(this.printer, connected)
+    this.printersSubject.next([
+      {
+        name: this.printer.deviceName,
+        description: this.printer.manufacturer,
+        connected,
+        isDefault: true,
+        status: 0,
+      },
+    ])
   }
 
   private devicesSubject = new BehaviorSubject(this.connectedDevices)
@@ -204,6 +218,16 @@ export class MemoryHardware implements Hardware {
    */
   public devices: Observable<Iterable<KioskBrowser.Device>> = this
     .devicesSubject
+
+  private printersSubject = new BehaviorSubject<
+    Iterable<KioskBrowser.PrinterInfo>
+  >([])
+
+  /**
+   * Subscribe to printer updates.
+   */
+  public printers: Observable<Iterable<KioskBrowser.PrinterInfo>> = this
+    .printersSubject
 
   /**
    * Determines whether a device is in the list of connected devices.
@@ -291,6 +315,12 @@ export class KioskHardware extends MemoryHardware {
    * New subscribers immediately receive the same current set.
    */
   public devices = this.kiosk.devices
+
+  /**
+   * Gets an observable that yields the current set of printers as printers are
+   * configured or devices are added or removed.
+   */
+  public printers = this.kiosk.printers
 }
 
 /**
