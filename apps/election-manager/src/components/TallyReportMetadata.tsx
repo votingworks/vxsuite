@@ -12,11 +12,12 @@ import { VotingMethod } from '../config/types'
 
 import Text from './Text'
 import Table, { TD } from './Table'
+import { Contest } from './ContestTally'
 
 interface Props {
   election: Election
   generatedAtTime: Date
-  internalBallotCount: number
+  internalBallotCount?: number
   externalBallotCount?: number
   ballotCountsByVotingMethod?: Dictionary<number>
 }
@@ -24,49 +25,13 @@ interface Props {
 const TallyReportMetadata: React.FC<Props> = ({
   election,
   generatedAtTime,
-  internalBallotCount,
+  internalBallotCount = 0,
   externalBallotCount,
   ballotCountsByVotingMethod,
 }) => {
   const electionDate = localeWeedkayAndDate.format(new Date(election.date))
   const generatedAt = localeLongDateAndTime.format(generatedAtTime)
   const totalBallotCount = internalBallotCount + (externalBallotCount ?? 0)
-  const ballotsByDataSource =
-    externalBallotCount !== undefined ? (
-      <React.Fragment>
-        <h3>Ballots Cast by Data Source</h3>
-        <Table data-testid="data-source-table">
-          <tbody>
-            <tr>
-              <TD as="th">Data Source</TD>
-              <TD as="th" textAlign="right">
-                Number of Ballots Cast
-              </TD>
-            </tr>
-            <tr data-testid="internaldata">
-              <TD>VotingWorks Data</TD>
-              <TD textAlign="right">{format.count(internalBallotCount)}</TD>
-            </tr>
-            <tr data-testid="externalvoterecords">
-              <TD>External Results File </TD>
-              <TD textAlign="right">{format.count(externalBallotCount)}</TD>
-            </tr>
-            <tr data-testid="total">
-              <TD>
-                <strong>Total</strong>
-              </TD>
-              <TD textAlign="right">
-                <strong>{format.count(totalBallotCount)}</strong>
-              </TD>
-            </tr>
-          </tbody>
-        </Table>
-      </React.Fragment>
-    ) : (
-      <Text>
-        Total Number of Ballots Cast: {format.count(totalBallotCount)}
-      </Text>
-    )
 
   let ballotsByVotingMethod = null
   if (ballotCountsByVotingMethod !== undefined) {
@@ -90,16 +55,10 @@ const TallyReportMetadata: React.FC<Props> = ({
       }
     )
     ballotsByVotingMethod = (
-      <React.Fragment>
-        <h3>Ballots Cast by Voting Method</h3>
+      <Contest>
+        <h3>Ballots by Voting Method</h3>
         <Table data-testid="voting-method-table">
           <tbody>
-            <tr>
-              <TD as="th">Voting Method</TD>
-              <TD as="th" textAlign="right">
-                Number of Ballots Cast
-              </TD>
-            </tr>
             {tableRows}
             {externalBallotCount !== undefined && (
               <tr data-testid="externalvoterecords">
@@ -109,7 +68,7 @@ const TallyReportMetadata: React.FC<Props> = ({
             )}
             <tr data-testid="total">
               <TD>
-                <strong>Total</strong>
+                <strong>Total Ballots Cast</strong>
               </TD>
               <TD textAlign="right">
                 <strong>{format.count(totalBallotCount)}</strong>
@@ -117,7 +76,7 @@ const TallyReportMetadata: React.FC<Props> = ({
             </tr>
           </tbody>
         </Table>
-      </React.Fragment>
+      </Contest>
     )
   }
 
@@ -130,7 +89,6 @@ const TallyReportMetadata: React.FC<Props> = ({
           This report was created on {generatedAt}
         </Text>
       </p>
-      {ballotsByDataSource}
       {ballotsByVotingMethod}
     </React.Fragment>
   )

@@ -249,7 +249,6 @@ it('tabulating CVRs', async () => {
     getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
       .length > 0
   ).toBe(true)
-  expect(getAllByText('Total Number of Ballots Cast: 100').length).toBe(2)
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
 
   fireEvent.click(getByText('Tally'))
@@ -280,7 +279,6 @@ it('tabulating CVRs', async () => {
   // When there are no CVRs imported the full tally report is labeled as the zero report
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
   // Verify the zero report generates properly
-  expect(getAllByText('Total Number of Ballots Cast: 0').length).toBe(2)
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
 })
 
@@ -300,13 +298,9 @@ it('tabulating CVRs with SEMS file', async () => {
   )
   await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
 
-  const {
-    getByText,
-    getByTestId,
-    getAllByTestId,
-    queryAllByTestId,
-    getAllByText,
-  } = render(<App storage={storage} />)
+  const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
+    <App storage={storage} />
+  )
 
   await screen.findByText('0 official ballots')
 
@@ -320,22 +314,9 @@ it('tabulating CVRs with SEMS file', async () => {
   )
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
-  const ballotsByDataSource = getAllByTestId('data-source-table')
-  expect(ballotsByDataSource.length).toBe(2) // There are two identical copies of this table one on the page, and one in the tally report
-  const vxRow = domGetByTestId(ballotsByDataSource[0], 'internaldata')
-  domGetByText(vxRow, 'VotingWorks Data')
-  domGetByText(vxRow, '100')
-
-  const semsRow = domGetByTestId(ballotsByDataSource[0], 'externalvoterecords')
-  domGetByText(semsRow, 'External Results File')
-  domGetByText(semsRow, '100')
-
-  const totalsRow = domGetByTestId(ballotsByDataSource[0], 'total')
-  domGetByText(totalsRow, 'Total')
-  domGetByText(totalsRow, '200')
 
   const ballotsByVotingMethod = getAllByTestId('voting-method-table')
-  expect(ballotsByVotingMethod.length).toBe(2) // There are two identical copies of this table one on the page, and one in the tally report
+  expect(ballotsByVotingMethod.length).toBe(1)
   const absenteeRow = domGetByTestId(ballotsByVotingMethod[0], 'absentee')
   domGetByText(absenteeRow, 'Absentee')
   domGetByText(absenteeRow, '50')
@@ -344,14 +325,16 @@ it('tabulating CVRs with SEMS file', async () => {
   domGetByText(precinctRow, 'Precinct')
   domGetByText(precinctRow, '50')
 
-  const semsRow2 = domGetByTestId(ballotsByDataSource[0], 'externalvoterecords')
-  domGetByText(semsRow2, 'External Results File')
-  domGetByText(semsRow2, '100')
+  const semsRow = domGetByTestId(
+    ballotsByVotingMethod[0],
+    'externalvoterecords'
+  )
+  domGetByText(semsRow, 'External Results File')
+  domGetByText(semsRow, '100')
 
-  const totalsRow2 = domGetByTestId(ballotsByDataSource[0], 'total')
-  domGetByText(totalsRow2, 'Total')
-  domGetByText(totalsRow2, '200')
-
+  const totalRow = domGetByTestId(ballotsByVotingMethod[0], 'total')
+  domGetByText(totalRow, 'Total Ballots Cast')
+  domGetByText(totalRow, '200')
   expect(getByTestId('tally-report-contents')).toMatchSnapshot()
   fireEvent.click(getByText('Back to Tally Index'))
 
@@ -364,9 +347,6 @@ it('tabulating CVRs with SEMS file', async () => {
   )
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
-  const ballotsByDataSource2 = queryAllByTestId('ballots-by-data-source')
-  expect(ballotsByDataSource2.length).toBe(0)
-  expect(getAllByText('Total Number of Ballots Cast: 100').length).toBe(2)
 })
 
 it('changing election resets sems and cvr files', async () => {
