@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
@@ -16,7 +16,6 @@ import AppContext from '../contexts/AppContext'
 
 import PrintButton from '../components/PrintButton'
 import Button from '../components/Button'
-import HorizontalRule from '../components/HorizontalRule'
 import ContestTally from '../components/ContestTally'
 import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
@@ -28,14 +27,25 @@ import { filterTalliesByParams } from '../lib/votecounting'
 import LogoMark from '../components/LogoMark'
 import { filterExternalTalliesByParams } from '../utils/semsTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
+import Text from '../components/Text'
 
-const TallyHeader = styled.div`
-  page-break-before: always;
-  h1 + p {
-    margin-top: -1.5em;
+const ReportPreview = styled.div`
+  font-size: 14px;
+  section {
+    margin: 1rem 0 2rem;
+    background: #ffffff;
+    width: 8.5in;
+    padding: 0.5in;
   }
 `
+const ReportSection = styled.section`
+  page-break-before: always;
+`
+
 const TallyReportScreen: React.FC = () => {
+  const printReportRef = useRef<HTMLDivElement>(null)
+  const previewReportRef = useRef<HTMLDivElement>(null)
+  const [showPreview, setShowPreview] = useState(false)
   const {
     precinctId: precinctIdFromProps,
   } = useParams<PrecinctReportScreenProps>()
@@ -119,64 +129,56 @@ const TallyReportScreen: React.FC = () => {
     }
   }
 
-  const generatedAtTime = new Date()
-  const singlePrecinctId = precinctIds.length === 1 ? precinctIds[0] : undefined
-  const outerTallyReport = filterTalliesByParams(fullElectionTally!, election, {
-    precinctId: singlePrecinctId,
-    scannerId,
-    partyId: partyIdFromProps,
-    votingMethod,
-  })
-  const outerExternalTallyReport = filterExternalTalliesByParams(
-    fullElectionExternalTally,
-    election,
-    {
-      precinctId: singlePrecinctId,
-      scannerId,
-      partyId: partyIdFromProps,
-      votingMethod,
-    }
-  )
+  const toggleReportPreview = () => {
+    setShowPreview((s) => !s)
+  }
 
-  const ballotCountsByVotingMethod = votingMethod
-    ? undefined
-    : outerTallyReport.ballotCountsByVotingMethod
+  const generatedAtTime = new Date()
+
+  useEffect(() => {
+    if (previewReportRef?.current && printReportRef?.current) {
+      previewReportRef.current.innerHTML = printReportRef.current.innerHTML
+    }
+  }, [previewReportRef, printReportRef, showPreview])
 
   return (
     <React.Fragment>
       <NavigationScreen>
-        <Prose className="no-print">
+        <Prose>
           <h1>{reportDisplayTitle()}</h1>
           <TallyReportMetadata
             generatedAtTime={generatedAtTime}
             election={election}
-            internalBallotCount={outerTallyReport.numberOfBallotsCounted}
-            externalBallotCount={
-              outerExternalTallyReport?.numberOfBallotsCounted
-            }
-            ballotCountsByVotingMethod={ballotCountsByVotingMethod}
           />
           <p>
-            <PrintButton primary>Print {statusPrefix} Tally Report</PrintButton>
+            <PrintButton primary>Print Report</PrintButton>{' '}
+            <Button onPress={toggleReportPreview}>
+              {showPreview ? 'Hide Preview' : 'Preview Report'}
+            </Button>{' '}
+            {window.kiosk && (
+              <Button onPress={handleSaveAsPDF}>Save Report as PDF</Button>
+            )}
           </p>
-          {window.kiosk && (
-            <p>
-              <Button onPress={handleSaveAsPDF}>
-                Save {statusPrefix} Tally Report as PDF
-              </Button>
-            </p>
-          )}
           <p>
             <LinkButton small to={routerPaths.tally}>
               Back to Tally Index
             </LinkButton>
           </p>
+          {showPreview && (
+            <React.Fragment>
+              <h2>Report Preview</h2>
+              <Text italic small>
+                <strong>Note:</strong> Each report section may be paginated to
+                more than one piece of paper.
+              </Text>
+            </React.Fragment>
+          )}
         </Prose>
+        {showPreview && <ReportPreview ref={previewReportRef} />}
       </NavigationScreen>
-      <div className="print-only">
-        <LogoMark />
-        {ballotStylePartyIds.map((partyId) => {
-          return precinctIds.map((precinctId) => {
+      <div ref={printReportRef} className="print-only">
+        {ballotStylePartyIds.map((partyId) =>
+          precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId)
             const electionTitle = party
               ? `${party.fullName} ${election.title}`
@@ -199,108 +201,13 @@ const TallyReportScreen: React.FC = () => {
                 (p) => p.id === precinctId
               ).name
               return (
-                <React.Fragment key={`${partyId}-${precinctId}`}>
-                  <TallyHeader key={precinctId}>
-                    <Prose maxWidth={false}>
-                      <h1>
-                        {statusPrefix} Precinct Tally Report for: {precinctName}
-                      </h1>
-                      <h2>{electionTitle}</h2>
-                      <TallyReportMetadata
-                        generatedAtTime={generatedAtTime}
-                        election={election}
-                        internalBallotCount={
-                          tallyForReport.numberOfBallotsCounted
-                        }
-                        externalBallotCount={
-                          externalTallyForReport?.numberOfBallotsCounted
-                        }
-                        ballotCountsByVotingMethod={
-                          tallyForReport.ballotCountsByVotingMethod
-                        }
-                      />
-                    </Prose>
-                  </TallyHeader>
-                  <HorizontalRule />
-                  <h2>Contest Tallies</h2>
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                    externalTally={externalTallyForReport}
-                    precinctId={precinctId}
-                  />
-                </React.Fragment>
-              )
-            }
-
-            if (scannerId) {
-              return (
-                <React.Fragment key={`${partyId}-${scannerId}`}>
-                  <TallyHeader key={scannerId}>
-                    <Prose maxWidth={false}>
-                      <h1>
-                        {statusPrefix} Scanner Tally Report for Scanner{' '}
-                        {scannerId}
-                      </h1>
-                      <h2>{electionTitle}</h2>
-                      <TallyReportMetadata
-                        generatedAtTime={generatedAtTime}
-                        election={election}
-                        internalBallotCount={
-                          tallyForReport?.numberOfBallotsCounted ?? 0
-                        }
-                        ballotCountsByVotingMethod={
-                          tallyForReport.ballotCountsByVotingMethod
-                        }
-                      />
-                    </Prose>
-                  </TallyHeader>
-                  <HorizontalRule />
-                  <h2>Contest Tallies</h2>
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                  />
-                </React.Fragment>
-              )
-            }
-
-            if (votingMethod) {
-              const label = getLabelForVotingMethod(votingMethod)
-              return (
-                <React.Fragment key={`${partyId}-${votingMethod}`}>
-                  <TallyHeader key={scannerId}>
-                    <Prose maxWidth={false}>
-                      <h1>
-                        {statusPrefix} {label} Ballot Tally Report
-                      </h1>
-                      <h2>{electionTitle}</h2>
-                      <TallyReportMetadata
-                        generatedAtTime={generatedAtTime}
-                        election={election}
-                        internalBallotCount={
-                          tallyForReport?.numberOfBallotsCounted ?? 0
-                        }
-                      />
-                    </Prose>
-                  </TallyHeader>
-                  <HorizontalRule />
-                  <h2>Contest Tallies</h2>
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                  />
-                </React.Fragment>
-              )
-            }
-
-            return (
-              <React.Fragment key={partyId || 'none'}>
-                <TallyHeader>
+                <ReportSection key={`${partyId}-${precinctId}`}>
+                  <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} {electionTitle} Tally Report
+                      {statusPrefix} Precinct Tally Report for: {precinctName}
                     </h1>
+                    <h2>{electionTitle}</h2>
                     <TallyReportMetadata
                       generatedAtTime={generatedAtTime}
                       election={election}
@@ -315,9 +222,90 @@ const TallyReportScreen: React.FC = () => {
                       }
                     />
                   </Prose>
-                </TallyHeader>
-                <h2>Contest Tallies</h2>
-                <HorizontalRule />
+                  <ContestTally
+                    election={election}
+                    electionTally={tallyForReport}
+                    externalTally={externalTallyForReport}
+                    precinctId={precinctId}
+                  />
+                </ReportSection>
+              )
+            }
+
+            if (scannerId) {
+              return (
+                <ReportSection key={`${partyId}-${scannerId}`}>
+                  <LogoMark />
+                  <Prose maxWidth={false}>
+                    <h1>
+                      {statusPrefix} Scanner Tally Report for Scanner{' '}
+                      {scannerId}
+                    </h1>
+                    <h2>{electionTitle}</h2>
+                    <TallyReportMetadata
+                      generatedAtTime={generatedAtTime}
+                      election={election}
+                      internalBallotCount={
+                        tallyForReport?.numberOfBallotsCounted ?? 0
+                      }
+                      ballotCountsByVotingMethod={
+                        tallyForReport.ballotCountsByVotingMethod
+                      }
+                    />
+                  </Prose>
+                  <ContestTally
+                    election={election}
+                    electionTally={tallyForReport}
+                  />
+                </ReportSection>
+              )
+            }
+
+            if (votingMethod) {
+              const label = getLabelForVotingMethod(votingMethod)
+              return (
+                <ReportSection key={`${partyId}-${votingMethod}`}>
+                  <LogoMark />
+                  <Prose maxWidth={false}>
+                    <h1>
+                      {statusPrefix} {label} Ballot Tally Report
+                    </h1>
+                    <h2>{electionTitle}</h2>
+                    <TallyReportMetadata
+                      generatedAtTime={generatedAtTime}
+                      election={election}
+                      internalBallotCount={
+                        tallyForReport?.numberOfBallotsCounted ?? 0
+                      }
+                    />
+                  </Prose>
+                  <ContestTally
+                    election={election}
+                    electionTally={tallyForReport}
+                  />
+                </ReportSection>
+              )
+            }
+
+            return (
+              <ReportSection key={partyId || 'none'}>
+                <LogoMark />
+                <Prose maxWidth={false}>
+                  <h1>
+                    {statusPrefix} {electionTitle} Tally Report
+                  </h1>
+                  <TallyReportMetadata
+                    generatedAtTime={generatedAtTime}
+                    election={election}
+                    internalBallotCount={tallyForReport.numberOfBallotsCounted}
+                    externalBallotCount={
+                      externalTallyForReport?.numberOfBallotsCounted
+                    }
+                    ballotCountsByVotingMethod={
+                      tallyForReport.ballotCountsByVotingMethod
+                    }
+                  />
+                </Prose>
                 <div data-testid="tally-report-contents">
                   <ContestTally
                     election={election}
@@ -325,10 +313,10 @@ const TallyReportScreen: React.FC = () => {
                     externalTally={externalTallyForReport}
                   />
                 </div>
-              </React.Fragment>
+              </ReportSection>
             )
           })
-        })}
+        )}
       </div>
     </React.Fragment>
   )

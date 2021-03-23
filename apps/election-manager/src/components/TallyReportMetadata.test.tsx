@@ -15,14 +15,12 @@ test('Renders without tables when no external ballot count or voting table break
       internalBallotCount={1234}
     />
   )
-  getByText('Total Number of Ballots Cast: 1,234')
   getByText(/Wednesday, August 26, 2020/) // Election Date
   getByText(/Choctaw County/) // Election County
   getByText(/State of Mississippi/) // Election State
   getByText(/This report was created on Saturday, March 14, 2020, 3:09:26 PM/)
 
-  expect(queryAllByText('Ballots Cast by Data Source').length).toBe(0)
-  expect(queryAllByText('Ballots Cast by Voting Method').length).toBe(0)
+  expect(queryAllByText('Ballots by Voting Method').length).toBe(0)
 })
 
 test('Renders with data source tables when external ballot count specified', () => {
@@ -35,20 +33,13 @@ test('Renders with data source tables when external ballot count specified', () 
       externalBallotCount={2345}
     />
   )
-  getByText('Ballots Cast by Data Source')
-  const internalRow = getByText('VotingWorks Data').closest('tr')!
-  domGetByText(internalRow, '1,234')
-  const externalRow = getByText('External Results File').closest('tr')!
-  domGetByText(externalRow, '2,345')
-  const totalRow = getByText('Total').closest('tr')!
-  domGetByText(totalRow, '3,579')
 
   getByText(/Wednesday, August 26, 2020/) // Election Date
   getByText(/Choctaw County/) // Election County
   getByText(/State of Mississippi/) // Election State
   getByText(/This report was created on Saturday, March 14, 2020, 3:09:26 PM/)
 
-  expect(queryAllByText('Ballots Cast by Voting Method').length).toBe(0)
+  expect(queryAllByText('Ballots by Voting Method').length).toBe(0)
 })
 
 test('Renders with data source table and voting method table when all data provided', () => {
@@ -67,21 +58,8 @@ test('Renders with data source table and voting method table when all data provi
       ballotCountsByVotingMethod={ballotCounts}
     />
   )
-  getByText('Ballots Cast by Data Source')
-  const dataSourceTable = getByTestId('data-source-table')
-  const internalRow = domGetByText(dataSourceTable, 'VotingWorks Data').closest(
-    'tr'
-  )!
-  domGetByText(internalRow, '1,234')
-  const externalRow = domGetByText(
-    dataSourceTable,
-    'External Results File'
-  ).closest('tr')!
-  domGetByText(externalRow, '2,345')
-  const totalRow = domGetByText(dataSourceTable, 'Total').closest('tr')!
-  domGetByText(totalRow, '3,579')
 
-  getByText('Ballots Cast by Voting Method')
+  getByText('Ballots by Voting Method')
   const votingMethodTable = getByTestId('voting-method-table')
   const row1 = domGetByText(votingMethodTable, 'Absentee').closest('tr')!
   domGetByText(row1, '1,200')
@@ -93,7 +71,9 @@ test('Renders with data source table and voting method table when all data provi
     'tr'
   )!
   domGetByText(row4, '2,345')
-  const row5 = domGetByText(votingMethodTable, 'Total').closest('tr')!
+  const row5 = domGetByText(votingMethodTable, 'Total Ballots Cast').closest(
+    'tr'
+  )!
   domGetByText(row5, '3,579')
 
   getByText(/Wednesday, August 26, 2020/) // Election Date

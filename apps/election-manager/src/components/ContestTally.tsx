@@ -25,7 +25,7 @@ const ContestMeta = styled.div`
   margin-top: 0.5em;
 `
 
-const Contest = styled.div`
+export const Contest = styled.div`
   margin: 1rem 0 2rem;
   page-break-inside: avoid;
   h2,
