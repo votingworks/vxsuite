@@ -1,13 +1,9 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
-import { asElectionDefinition } from '@votingworks/fixtures'
-import { parseElection } from '@votingworks/types'
 import { advanceBy } from 'jest-date-mock'
-import { sha256 } from 'js-sha256'
 import * as GLOBALS from './config/globals'
 
-// import { electionSample } from '@votingworks/fixtures'
-import electionSample from './data/electionSample.json'
+import { electionSampleDefinition } from './data'
 
 import App from './App'
 
@@ -46,7 +42,7 @@ jest.useFakeTimers()
 jest.setTimeout(15000)
 
 it('VxMark+Print end-to-end flow', async () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
+  const electionDefinition = electionSampleDefinition
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   const printer = fakePrinter()
@@ -54,10 +50,7 @@ it('VxMark+Print end-to-end flow', async () => {
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
   })
-  const expectedElectionHash = sha256(JSON.stringify(electionSample)).substring(
-    0,
-    10
-  )
+  const expectedElectionHash = electionDefinition.electionHash.substring(0, 10)
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
   const { getByLabelText, getByText, getByTestId, queryByText } = render(
     <App
@@ -84,7 +77,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Configure with Admin Card
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
   fireEvent.click(getByText('Load Election Definition'))
 
@@ -99,7 +92,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Configure election with Admin Card
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
   getByLabelText('Precinct')
   within(getByTestId('election-info')).getByText(
@@ -366,7 +359,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Unconfigure with Admin Card
-  card.insertCard(adminCard, electionSample)
+  card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
   getByText('Election definition is loaded.')
   fireEvent.click(getByText('Remove'))

@@ -341,7 +341,7 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
            
           <br />
           Election ID: 
-          66e55c0ffe
+          4aa260d7fc
         </p>
       </div>
     </div>
@@ -997,7 +997,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
         class="c4"
       >
         Election ID: 
-        66e55c0ffe
+        4aa260d7fc
       </p>
     </div>
   </div>

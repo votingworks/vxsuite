@@ -233,9 +233,9 @@ export class MemoryCard implements Card {
   /**
    * Inserts a simulated in-memory card with specified long and short values.
    */
-  public insertCard<T>(
+  public insertCard(
     shortValue?: string,
-    longValue?: T | string | Uint8Array
+    longValue?: string | Uint8Array
   ): this {
     this.shortValue = shortValue
     this.longValue =
@@ -243,7 +243,7 @@ export class MemoryCard implements Card {
         ? undefined
         : longValue instanceof Uint8Array
         ? Uint8Array.from(longValue)
-        : new TextEncoder().encode(JSON.stringify(longValue))
+        : new TextEncoder().encode(longValue)
     this.present = true
     return this
   }

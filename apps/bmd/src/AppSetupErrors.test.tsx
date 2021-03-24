@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, waitFor } from '@testing-library/react'
 
-import { electionSample } from '@votingworks/fixtures'
+import { electionSampleDefinition } from './data'
 
 import App from './App'
 import { MemoryHardware } from './utils/Hardware'
@@ -217,7 +217,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
     getByText('No Printer Detected')
 
     // Insert admin card
-    card.insertCard(adminCard, electionSample)
+    card.insertCard(adminCard, electionSampleDefinition.electionData)
     await advanceTimersAndPromises()
 
     // expect to see admin screen

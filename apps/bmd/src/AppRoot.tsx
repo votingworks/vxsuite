@@ -10,6 +10,7 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
+  parseElection,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -620,17 +621,10 @@ const AppRoot: React.FC<Props> = ({
     /* istanbul ignore else */
     if (electionData) {
       const computedElectionHash = sha256(electionData)
-      /* istanbul ignore next */
-      if (computedElectionHash !== adminCardElectionHash) {
-        // eslint-disable-next-line no-console
-        console.error(
-          `computed election hash (${computedElectionHash}) does not match admin card election hash (${adminCardElectionHash})`
-        )
-      }
       dispatchAppState({
         type: 'updateElectionDefinition',
         electionDefinition: {
-          election: JSON.parse(electionData),
+          election: parseElection(electionData),
           electionHash: computedElectionHash,
         },
       })
@@ -700,18 +694,10 @@ const AppRoot: React.FC<Props> = ({
           break
         }
         case 'pollworker': {
-          /* istanbul ignore next */
-          const isValid =
-            cardData.h === optionalElectionDefinition?.electionHash
-          if (!isValid) {
-            // eslint-disable-next-line no-console
-            console.error(
-              `poll worker card election hash (${cardData.h}) does not match configured election hash (${optionalElectionDefinition?.electionHash})`
-            )
-          }
           dispatchAppState({
             type: 'processPollWorkerCard',
-            isPollWorkerCardValid: isValid,
+            isPollWorkerCardValid:
+              cardData.h === optionalElectionDefinition?.electionHash,
           })
           break
         }

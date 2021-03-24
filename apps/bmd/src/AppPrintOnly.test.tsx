@@ -44,7 +44,7 @@ jest.useFakeTimers()
 jest.setTimeout(12000)
 
 test('VxPrintOnly flow', async () => {
-  const { election, electionHash } = electionSampleDefinition
+  const { election, electionData, electionHash } = electionSampleDefinition
   const card = new MemoryCard()
   const adminCard = adminCardForElection(electionHash)
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
@@ -73,7 +73,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Configure with Admin Card
-  card.insertCard(adminCard, election)
+  card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
   fireEvent.click(getByText('Load Election Definition'))
 
@@ -88,7 +88,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Configure election with Admin Card
-  card.insertCard(adminCard, election)
+  card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
   getByLabelText('Precinct')
 
@@ -135,7 +135,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Set to Live Mode
-  card.insertCard(adminCard, election)
+  card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
   expect(window.document.documentElement.style.fontSize).toBe('28px')
   fireEvent.click(getByText('Live Election Mode'))
@@ -414,7 +414,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Unconfigure with Admin Card
-  card.insertCard(adminCard, election)
+  card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
   getByText('Election definition is loaded.')
   fireEvent.click(getByText('Remove'))
@@ -425,7 +425,7 @@ test('VxPrintOnly flow', async () => {
 })
 
 test('VxPrint retains app mode when unconfigured', async () => {
-  const { election, electionHash } = electionSampleDefinition
+  const { electionData, electionHash } = electionSampleDefinition
   const card = new MemoryCard()
   const adminCard = adminCardForElection(electionHash)
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
@@ -447,7 +447,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
   async function configure(): Promise<void> {
     // Configure with Admin Card
-    card.insertCard(adminCard, election)
+    card.insertCard(adminCard, electionData)
     await advanceTimersAndPromises()
     fireEvent.click(getByText('Load Election Definition'))
 
@@ -493,7 +493,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
   async function unconfigure(): Promise<void> {
     // Unconfigure with Admin Card
-    card.insertCard(adminCard, election)
+    card.insertCard(adminCard, electionData)
     await advanceTimersAndPromises()
     getByText('Election definition is loaded.')
     fireEvent.click(getByText('Remove'))
@@ -560,7 +560,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   // ---------------
 
   // Configure with Admin Card
-  card.insertCard(adminCard, electionDefinition.election)
+  card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
   fireEvent.click(getByText('Load Election Definition'))
 
