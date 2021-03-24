@@ -1,5 +1,4 @@
-import { Dictionary, err, ok, Optional, Result } from './generic'
-import * as s from './schema'
+import { Dictionary, Optional } from './generic'
 
 export type Translations = Record<string, Record<string, string> | undefined>
 
@@ -185,7 +184,6 @@ export interface VoterCardData extends CardData {
   readonly pr: string // precinct id
   readonly uz?: number // used (voided)
   readonly bp?: number // ballot printed date
-  readonly v?: VotesDict // votes object
   readonly u?: number // updated date
   readonly m?: string // mark machine id
 }
@@ -197,6 +195,7 @@ export interface AdminCardData extends CardData {
   readonly t: 'admin'
   readonly h: string
 }
+export type AnyCardData = VoterCardData | PollworkerCardData | AdminCardData
 
 /**
  * Gets contests which belong to a ballot style in an election.
@@ -473,201 +472,4 @@ function copyWithLocale<T>(
   }
 
   return value
-}
-
-// Parsing
-export class ElectionParseError extends Error {
-  public constructor(public readonly errors: ElectionDefinitionError[]) {
-    super(errors.map(({ message }) => message).join('\n'))
-  }
-}
-
-/**
- * @deprecated use `safeParseElection` instead
- */
-export function parseElection(value: unknown): Election {
-  return safeParseElection(value).unwrap()
-}
-
-export function safeParseElection(
-  value: unknown
-): Result<Election, ElectionParseError> {
-  let object: unknown
-
-  try {
-    object = typeof value === 'string' ? JSON.parse(value) : value
-  } catch (error) {
-    return err(
-      new ElectionParseError([
-        {
-          type: 'ParseError',
-          message: (error as Error).message,
-        },
-      ])
-    )
-  }
-
-  return s.safeParse(s.Election, object).mapOrElse(
-    (error) =>
-      err(
-        new ElectionParseError(
-          error.errors.map((e) => ({
-            type: 'ParseError',
-            message: e.message,
-          }))
-        )
-      ),
-    (election) => {
-      const errors = [...findElectionDefinitionErrors(election)]
-
-      if (errors.length) {
-        return err(new ElectionParseError(errors))
-      }
-
-      return ok(election)
-    }
-  )
-}
-
-export type ElectionDefinitionError =
-  | InvalidReference
-  | DuplicateIdentifier
-  | ParseError
-
-export interface InvalidReference {
-  type: 'InvalidReference'
-  source: string
-  reference: string
-  message: string
-}
-
-export interface DuplicateIdentifier {
-  type: 'DuplicateIdentifier'
-  message: string
-}
-
-export interface ParseError {
-  type: 'ParseError'
-  message: string
-}
-
-export function* findElectionDefinitionErrors(
-  election: Election
-): Generator<ElectionDefinitionError> {
-  for (const { id, districts, precincts } of election.ballotStyles) {
-    for (const [districtIndex, districtId] of districts.entries()) {
-      if (!election.districts.some(({ id }) => id === districtId)) {
-        yield {
-          type: 'InvalidReference',
-          source: `ballotStyles[id=${id}].districts[${districtIndex}]`,
-          reference: `districts[id=${districtId}]`,
-          message: `Ballot style '${id}' has district '${districtId}', but no such district is defined. Districts defined: [${election.districts
-            .map(({ id }) => id)
-            .join(', ')}].`,
-        }
-      }
-    }
-
-    for (const [precinctIndex, precinctId] of precincts.entries()) {
-      if (!election.precincts.some(({ id }) => id === precinctId)) {
-        yield {
-          type: 'InvalidReference',
-          source: `ballotStyles[id=${id}].precincts[${precinctIndex}]`,
-          reference: `districts[id=${precinctId}]`,
-          message: `Ballot style '${id}' has precinct '${precinctId}', but no such precinct is defined. Precincts defined: [${election.precincts
-            .map(({ id }) => id)
-            .join(', ')}].`,
-        }
-      }
-    }
-  }
-
-  for (const contest of election.contests) {
-    if (contest.type === 'candidate') {
-      if (
-        contest.partyId &&
-        !election.parties.some(({ id }) => id === contest.partyId)
-      ) {
-        yield {
-          type: 'InvalidReference',
-          source: `contests[id=${contest.id}].partyId`,
-          reference: `parties[id=${contest.partyId}]`,
-          message: `Contest '${contest.id}' has party '${
-            contest.partyId
-          }', but no such party is defined. Parties defined: [${election.parties
-            .map(({ id }) => id)
-            .join(', ')}].`,
-        }
-      }
-
-      for (const candidate of contest.candidates) {
-        if (
-          candidate.partyId &&
-          !election.parties.some(({ id }) => id === candidate.partyId)
-        ) {
-          yield {
-            type: 'InvalidReference',
-            source: `contests[id=${contest.id}].candidates[id=${candidate.id}].partyId`,
-            reference: `parties[id=${candidate.partyId}]`,
-            message: `Candidate '${candidate.id}' in contest '${
-              contest.id
-            }' has party '${
-              candidate.partyId
-            }', but no such party is defined. Parties defined: [${election.parties
-              .map(({ id }) => id)
-              .join(', ')}].`,
-          }
-        }
-      }
-
-      for (const id of findDuplicateIds(contest.candidates)) {
-        yield {
-          type: 'DuplicateIdentifier',
-          message: `Duplicate candidate '${id}' found in contest '${contest.id}'.`,
-        }
-      }
-    }
-  }
-
-  for (const id of findDuplicateIds(election.districts)) {
-    yield {
-      type: 'DuplicateIdentifier',
-      message: `Duplicate district '${id}' found.`,
-    }
-  }
-
-  for (const id of findDuplicateIds(election.precincts)) {
-    yield {
-      type: 'DuplicateIdentifier',
-      message: `Duplicate precinct '${id}' found.`,
-    }
-  }
-
-  for (const id of findDuplicateIds(election.contests)) {
-    yield {
-      type: 'DuplicateIdentifier',
-      message: `Duplicate contest '${id}' found.`,
-    }
-  }
-
-  for (const id of findDuplicateIds(election.parties)) {
-    yield {
-      type: 'DuplicateIdentifier',
-      message: `Duplicate party '${id}' found.`,
-    }
-  }
-}
-
-function* findDuplicateIds<T extends { id: unknown }>(
-  identifiables: Iterable<T>
-): Generator<T['id']> {
-  const knownIds = new Set<T['id']>()
-
-  for (const { id } of identifiables) {
-    if (knownIds.has(id)) {
-      yield id
-    } else {
-      knownIds.add(id)
-    }
-  }
 }

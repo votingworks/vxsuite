@@ -1,43 +1,73 @@
 import { Election } from '../src/election'
+import { safeParseElection } from '../src/schema'
 
-export const election: Election = {
-  title: 'ELECTION',
-  ballotStyles: [
+export const electionData = `
+{
+  "title": "ELECTION",
+  "ballotStyles": [
     {
-      id: '1',
-      districts: ['D'],
-      precincts: ['P'],
-    },
+      "id": "1",
+      "districts": [
+        "D"
+      ],
+      "precincts": [
+        "P"
+      ]
+    }
   ],
-  districts: [{ id: 'D', name: 'DISTRICT' }],
-  contests: [
+  "districts": [
     {
-      type: 'candidate',
-      id: 'CC',
-      districtId: 'D',
-      seats: 1,
-      section: 'SECTION',
-      title: 'TITLE',
-      allowWriteIns: false,
-      candidates: [{ id: 'C', name: 'CANDIDATE' }],
+      "id": "D",
+      "name": "DISTRICT"
+    }
+  ],
+  "contests": [
+    {
+      "type": "candidate",
+      "id": "CC",
+      "districtId": "D",
+      "seats": 1,
+      "section": "SECTION",
+      "title": "TITLE",
+      "allowWriteIns": false,
+      "candidates": [
+        {
+          "id": "C",
+          "name": "CANDIDATE"
+        }
+      ]
     },
     {
-      type: 'yesno',
-      id: 'YNC',
-      districtId: 'D',
-      section: 'SECTION',
-      title: 'TITLE',
-      description: 'DESCRIPTION',
-    },
+      "type": "yesno",
+      "id": "YNC",
+      "districtId": "D",
+      "section": "SECTION",
+      "title": "TITLE",
+      "description": "DESCRIPTION"
+    }
   ],
-  county: { id: 'COUNTY', name: 'COUNTY' },
-  date: '2020-11-03T00:00:00-10:00',
-  parties: [
-    { id: 'PARTY', name: 'PARTY', abbrev: 'PTY', fullName: 'POLITICAL PARTY' },
+  "county": {
+    "id": "COUNTY",
+    "name": "COUNTY"
+  },
+  "date": "2020-11-03T00:00:00-10:00",
+  "parties": [
+    {
+      "id": "PARTY",
+      "name": "PARTY",
+      "abbrev": "PTY",
+      "fullName": "POLITICAL PARTY"
+    }
   ],
-  precincts: [{ id: 'P', name: 'PRECINCT' }],
-  state: 'STATE',
-}
+  "precincts": [
+    {
+      "id": "P",
+      "name": "PRECINCT"
+    }
+  ],
+  "state": "STATE"
+}`
+export const election: Election = safeParseElection(electionData).unwrap()
 export const primaryElection: Election = {
   ...election,
   ballotStyles: [
