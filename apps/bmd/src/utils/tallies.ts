@@ -1,3 +1,5 @@
+import { strict as assert } from 'assert'
+
 import {
   CandidateVote,
   Election,
@@ -6,9 +8,113 @@ import {
   VotesDict,
   YesNoVote,
 } from '@votingworks/types'
-import { CandidateVoteTally, Tally, YesNoVoteTally } from '../config/types'
+import {
+  CandidateVoteTally,
+  MsEitherNeitherTally,
+  Tally,
+  YesNoVoteTally,
+} from '../config/types'
 import { computeTallyForEitherNeitherContests } from './eitherNeither'
 import { getSingleYesNoVote } from './votes'
+
+const combineCandidateTallies = (
+  tally1: CandidateVoteTally,
+  tally2: CandidateVoteTally
+): CandidateVoteTally => {
+  const candidates = []
+  assert(tally1.candidates.length === tally2.candidates.length)
+  for (let i = 0; i < tally1.candidates.length; i++) {
+    candidates.push(tally1.candidates[i] + tally2.candidates[i])
+  }
+  const writeInVotes = tally1.writeIns
+  for (const writeInVote of tally2.writeIns) {
+    const existingWriteInIdx = writeInVotes.findIndex(
+      (v) => v.name === writeInVote.name
+    )
+    if (existingWriteInIdx >= 0) {
+      writeInVotes[existingWriteInIdx].tally += writeInVote.tally
+    } else {
+      writeInVotes.push(writeInVote)
+    }
+  }
+  return {
+    candidates,
+    undervotes: tally1.undervotes + tally2.undervotes,
+    writeIns: writeInVotes,
+  }
+}
+
+const combineYesNoTallies = (
+  tally1: YesNoVoteTally,
+  tally2: YesNoVoteTally
+): YesNoVoteTally => {
+  return {
+    yes: tally1.yes + tally2.yes,
+    no: tally1.no + tally2.no,
+    undervotes: tally1.undervotes + tally2.undervotes,
+  }
+}
+
+const combineEitherNeitherTallies = (
+  tally1: MsEitherNeitherTally,
+  tally2: MsEitherNeitherTally
+): MsEitherNeitherTally => {
+  return {
+    eitherOption: tally1.eitherOption + tally2.eitherOption,
+    neitherOption: tally1.neitherOption + tally2.neitherOption,
+    eitherNeitherUndervotes:
+      tally1.eitherNeitherUndervotes + tally2.eitherNeitherUndervotes,
+    firstOption: tally1.firstOption + tally2.firstOption,
+    secondOption: tally1.secondOption + tally2.secondOption,
+    pickOneUndervotes: tally1.pickOneUndervotes + tally2.pickOneUndervotes,
+  }
+}
+
+export const combineTallies = (
+  election: Election,
+  tally1: Tally,
+  tally2: Tally
+): Tally => {
+  assert(
+    election.contests.length === tally1.length &&
+      tally1.length === tally2.length
+  )
+  const combinedTally = [] as Tally
+
+  for (let i = 0; i < election.contests.length; i += 1) {
+    const contest = election.contests[i]
+    const tally1Row = tally1[i]
+    const tally2Row = tally2[i]
+    switch (contest.type) {
+      case 'candidate':
+        combinedTally.push(
+          combineCandidateTallies(
+            tally1Row as CandidateVoteTally,
+            tally2Row as CandidateVoteTally
+          )
+        )
+        break
+      case 'yesno':
+        combinedTally.push(
+          combineYesNoTallies(
+            tally1Row as YesNoVoteTally,
+            tally2Row as YesNoVoteTally
+          )
+        )
+        break
+      case 'ms-either-neither':
+        combinedTally.push(
+          combineEitherNeitherTallies(
+            tally1Row as MsEitherNeitherTally,
+            tally2Row as MsEitherNeitherTally
+          )
+        )
+        break
+    }
+  }
+
+  return combinedTally
+}
 
 export const calculateTally = ({
   election,
