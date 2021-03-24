@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
-import { MarkThresholds, Optional } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  MarkThresholds,
+  Optional,
+} from '@votingworks/types'
 import styled from 'styled-components'
 
 import { ScanStatusResponse, MachineConfig } from './config/types'
-import { ElectionDefinition } from './util/ballot-package'
-
 import AppContext from './contexts/AppContext'
 
 import {
@@ -59,7 +61,6 @@ const App: React.FC = () => {
     setElectionDefinition,
   ] = useState<ElectionDefinition>()
   const [electionJustLoaded, setElectionJustLoaded] = useState(false)
-  const [electionHash, setElectionHash] = useState<string>()
   const [isTestMode, setTestMode] = useState(false)
   const [isTogglingTestMode, setTogglingTestMode] = useState(false)
   const [status, setStatus] = useState<ScanStatusResponse>({
@@ -129,7 +130,6 @@ const App: React.FC = () => {
   const updateStatus = useCallback(async () => {
     try {
       const newStatus = await fetchJSON<ScanStatusResponse>('/scan/status')
-      setElectionHash(newStatus.electionHash)
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
@@ -297,7 +297,6 @@ const App: React.FC = () => {
             usbDriveEject: doEject,
             machineConfig,
             electionDefinition,
-            electionHash,
           }}
         >
           <Screen>
@@ -330,7 +329,6 @@ const App: React.FC = () => {
             usbDriveStatus: displayUsbStatus,
             usbDriveEject: doEject,
             electionDefinition,
-            electionHash,
             machineConfig,
           }}
         >
@@ -357,7 +355,6 @@ const App: React.FC = () => {
           usbDriveStatus: displayUsbStatus,
           usbDriveEject: doEject,
           electionDefinition,
-          electionHash,
           machineConfig,
         }}
       >

@@ -1,4 +1,8 @@
-import { MarkThresholds, Optional } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  MarkThresholds,
+  Optional,
+} from '@votingworks/types'
 import React, { useCallback, useEffect, useState } from 'react'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -9,7 +13,6 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import ToggleTestModeButton from '../components/ToggleTestModeButton'
 import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal'
-import { ElectionDefinition } from '../util/ballot-package'
 
 interface Props {
   unconfigureServer: () => Promise<void>

@@ -2,7 +2,6 @@ import {
   BallotStyle,
   Contest,
   Dictionary,
-  Election,
   MarkThresholds,
   Precinct,
 } from '@votingworks/types'
@@ -31,12 +30,6 @@ export interface PageInterpretationWithAdjudication<
   interpretation: T
   contestIds?: readonly string[]
   adjudication?: MarksByContestId
-}
-
-export interface ElectionDefinition {
-  election: Election
-  electionData: string
-  electionHash: string
 }
 
 export interface CastVoteRecord

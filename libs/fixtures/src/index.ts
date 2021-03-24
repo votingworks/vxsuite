@@ -8,9 +8,7 @@ import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimary/e
 import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
 import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json'
 
-export function asElectionDefinition(
-  election: Election
-): ElectionDefinition & { electionData: string } {
+export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election)
   return {
     election,

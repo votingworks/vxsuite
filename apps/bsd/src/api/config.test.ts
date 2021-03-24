@@ -1,14 +1,6 @@
 import fetchMock from 'fetch-mock'
-import { electionSampleDefinition } from '@votingworks/fixtures'
+import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import * as config from './config'
-import { ElectionDefinition } from '../util/ballot-package'
-
-// TODO: Replace this with something straight from `@votingworks/fixtures` when
-// all ElectionDefinition interface definitions are shared.
-const testElectionDefinition: ElectionDefinition = {
-  ...electionSampleDefinition,
-  electionData: JSON.stringify(electionSampleDefinition.election),
-}
 
 test('GET /config', async () => {
   fetchMock.getOnce(

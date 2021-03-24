@@ -1,6 +1,6 @@
+import { ElectionDefinition } from '@votingworks/types'
 import { createContext } from 'react'
 import { MachineConfig } from '../config/types'
-import { ElectionDefinition } from '../util/ballot-package'
 
 interface AppContextInterface {
   usbDriveStatus: string

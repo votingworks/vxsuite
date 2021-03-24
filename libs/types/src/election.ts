@@ -121,6 +121,7 @@ export interface Election {
 export type OptionalElection = Optional<Election>
 export interface ElectionDefinition {
   election: Election
+  electionData: string
   electionHash: string
 }
 export type OptionalElectionDefinition = Optional<ElectionDefinition>

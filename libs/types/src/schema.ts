@@ -1,6 +1,7 @@
 import check8601 from '@antongolub/iso8601'
 import { createHash } from 'crypto'
 import * as z from 'zod'
+import { string } from 'zod'
 import * as t from './election'
 import {
   AdjudicationReason as AdjudicationReasonEnum,
@@ -348,6 +349,7 @@ export const Election: z.ZodSchema<t.Election> = z
 export const OptionalElection: z.ZodSchema<t.OptionalElection> = Election.optional()
 export const ElectionDefinition: z.ZodSchema<t.ElectionDefinition> = z.object({
   election: Election,
+  electionData: z.string(),
   electionHash: z.string(),
 })
 export const OptionalElectionDefinition: z.ZodSchema<t.OptionalElectionDefinition> = ElectionDefinition.optional()
@@ -500,6 +502,7 @@ export function safeParseElectionDefinition(
 ): Result<t.ElectionDefinition, z.ZodError | SyntaxError> {
   return safeParseElection(value).map((election) => ({
     election,
+    electionData: value,
     electionHash: createHash('sha256').update(value).digest('hex'),
   }))
 }

@@ -1,7 +1,5 @@
-import { Election } from '@votingworks/types'
+import { Election, ElectionDefinition } from '@votingworks/types'
 import moment from 'moment'
-
-import { ElectionDefinition } from '../config/types'
 
 const SECTION_SEPARATOR = '__'
 const SUBSECTION_SEPARATOR = '_'

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { render, fireEvent, waitFor } from '@testing-library/react'
-import { electionSampleDefinition } from '@votingworks/fixtures'
+import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
 import fetchMock from 'fetch-mock'
@@ -10,14 +10,6 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { UsbDriveStatus } from '../lib/usbstick'
 import ExportResultsModal from './ExportResultsModal'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
-import { ElectionDefinition } from '../util/ballot-package'
-
-// TODO: Replace this with something straight from `@votingworks/fixtures` when
-// all ElectionDefinition interface definitions are shared.
-const electionDefinition: ElectionDefinition = {
-  ...electionSampleDefinition,
-  electionData: JSON.stringify(electionSampleDefinition.election),
-}
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]

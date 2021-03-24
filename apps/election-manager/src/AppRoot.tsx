@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
 
-import { parseElection } from '@votingworks/types'
+import { ElectionDefinition, parseElection } from '@votingworks/types'
 
 import {
   getStatus as usbDriveGetStatus,
@@ -27,7 +27,6 @@ import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
 import {
-  ElectionDefinition,
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,

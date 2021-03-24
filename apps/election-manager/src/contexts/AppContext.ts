@@ -1,6 +1,6 @@
 import { createContext, RefObject } from 'react'
+import { ElectionDefinition } from '@votingworks/types'
 import {
-  ElectionDefinition,
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,

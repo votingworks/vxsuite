@@ -1,7 +1,5 @@
-import { electionSample as election } from '@votingworks/fixtures'
+import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import fetchMock from 'fetch-mock'
-import { sha256 } from 'js-sha256'
-import { ElectionDefinition } from '../util/ballot-package'
 import {
   addTemplates,
   fetchBallotInfo,
@@ -12,14 +10,6 @@ import * as config from './config'
 
 jest.mock('./config')
 const configMock = config as jest.Mocked<typeof config>
-
-const electionData = JSON.stringify(election)
-const electionHash = sha256(electionData)
-const electionDefinition: ElectionDefinition = {
-  election,
-  electionData,
-  electionHash,
-}
 
 test('configures the server with the contained election', async () => {
   configMock.setElectionDefinition.mockResolvedValueOnce()

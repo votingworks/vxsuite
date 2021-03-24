@@ -1,7 +1,7 @@
 import {
   BallotStyle,
   Contest,
-  Election,
+  ElectionDefinition,
   parseElection,
   Precinct,
 } from '@votingworks/types'
@@ -13,12 +13,6 @@ import { sha256 } from 'js-sha256'
 export interface BallotPackage {
   electionDefinition: ElectionDefinition
   ballots: BallotPackageEntry[]
-}
-
-export interface ElectionDefinition {
-  election: Election
-  electionData: string
-  electionHash: string
 }
 
 export interface BallotPackageEntry {
