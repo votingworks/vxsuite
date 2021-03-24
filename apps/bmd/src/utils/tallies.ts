@@ -21,12 +21,12 @@ const combineCandidateTallies = (
   tally1: CandidateVoteTally,
   tally2: CandidateVoteTally
 ): CandidateVoteTally => {
-  const candidates = []
-  assert(tally1.candidates.length === tally2.candidates.length)
+  const candidates: number[] = []
+  assert.strictEqual(tally1.candidates.length, tally2.candidates.length)
   for (let i = 0; i < tally1.candidates.length; i++) {
     candidates.push(tally1.candidates[i] + tally2.candidates[i])
   }
-  const writeInVotes = tally1.writeIns
+  const writeInVotes = [...tally1.writeIns]
   for (const writeInVote of tally2.writeIns) {
     const existingWriteInIdx = writeInVotes.findIndex(
       (v) => v.name === writeInVote.name
@@ -75,11 +75,9 @@ export const combineTallies = (
   tally1: Tally,
   tally2: Tally
 ): Tally => {
-  assert(
-    election.contests.length === tally1.length &&
-      tally1.length === tally2.length
-  )
-  const combinedTally = [] as Tally
+  assert.strictEqual(election.contests.length, tally1.length)
+  assert.strictEqual(tally1.length, tally2.length)
+  const combinedTally: Tally = []
 
   for (let i = 0; i < election.contests.length; i += 1) {
     const contest = election.contests[i]

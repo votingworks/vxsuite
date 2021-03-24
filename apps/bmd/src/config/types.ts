@@ -111,6 +111,18 @@ export type Tally = (
   | MsEitherNeitherTally
 )[]
 
+export interface CardTallyMetadataEntry {
+  readonly machineId: string
+  readonly timeSaved: number
+  readonly ballotsPrinted: number
+}
+
+export interface CardTally {
+  readonly tally: Tally
+  readonly metadata: readonly CardTallyMetadataEntry[]
+  readonly totalBallotsPrinted: number
+}
+
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export type MarkVoterCardFunction = () => Promise<boolean>
