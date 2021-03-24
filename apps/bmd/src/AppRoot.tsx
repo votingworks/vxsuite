@@ -928,8 +928,18 @@ const AppRoot: React.FC<Props> = ({
           isAccessibleController
         )
         const hasCardReaderAttached = devices.some(isCardReader)
-        const newPrinter = await hardware.readPrinterStatus()
-        const hasPrinterAttached = newPrinter.connected
+        dispatchAppState({
+          type: 'updateHardwareState',
+          hardwareState: {
+            hasAccessibleControllerAttached,
+            hasCardReaderAttached,
+          },
+        })
+      })
+    const printerStatusSubscription = hardware.printers
+      .pipe(map((printers) => Array.from(printers)))
+      .subscribe((printers) => {
+        const hasPrinterAttached = printers.some(({ connected }) => connected)
         if (!hasPrinterAttached) {
           resetBallot()
           // stop+start forces a last-card-value cache flush
@@ -939,13 +949,14 @@ const AppRoot: React.FC<Props> = ({
         dispatchAppState({
           type: 'updateHardwareState',
           hardwareState: {
-            hasAccessibleControllerAttached,
-            hasCardReaderAttached,
             hasPrinterAttached,
           },
         })
       })
-    return () => hardwareStatusSubscription.unsubscribe()
+    return () => {
+      hardwareStatusSubscription.unsubscribe()
+      printerStatusSubscription.unsubscribe()
+    }
   }, [
     hardware,
     resetBallot,

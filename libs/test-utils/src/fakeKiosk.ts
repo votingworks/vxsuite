@@ -49,6 +49,7 @@ export function fakeKiosk({
   printers?: Partial<KioskBrowser.PrinterInfo>[]
 } = {}): jest.Mocked<KioskBrowser.Kiosk> & {
   devices: BehaviorSubject<Set<KioskBrowser.Device>>
+  printers: BehaviorSubject<Set<KioskBrowser.PrinterInfo>>
 } {
   return {
     print: jest.fn().mockResolvedValue(undefined),
@@ -56,6 +57,7 @@ export function fakeKiosk({
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
     getPrinterInfo: jest.fn().mockResolvedValue(printers.map(fakePrinterInfo)),
     devices: new BehaviorSubject(new Set<KioskBrowser.Device>()),
+    printers: new BehaviorSubject(new Set<KioskBrowser.PrinterInfo>()),
     quit: jest.fn(),
     saveAs: jest.fn().mockResolvedValue(undefined),
     getUsbDrives: jest.fn().mockResolvedValue([]),
