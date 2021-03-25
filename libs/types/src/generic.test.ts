@@ -17,12 +17,33 @@ test('ok has no contained error', () => {
   expect(ok(0).err()).toBeUndefined()
 })
 
+test('ok andThen', () => {
+  expect(
+    ok(0)
+      .andThen((n) => ok(n + 1))
+      .unwrap()
+  ).toBe(1)
+  expect(
+    ok(0)
+      .andThen((n) => err(n + 1))
+      .unwrapErr()
+  ).toBe(1)
+})
+
 test('ok map', () => {
   expect(
     ok(0)
       .map((n) => n + 1)
       .unwrap()
   ).toBe(1)
+})
+
+test('ok mapErr', () => {
+  expect(
+    ok(0)
+      .mapErr(() => -1)
+      .unwrap()
+  ).toBe(0)
 })
 
 test('ok mapOr', () => {
@@ -73,12 +94,28 @@ test('err has no contained value', () => {
   expect(err(0).ok()).toBeUndefined()
 })
 
+test('err andThen', () => {
+  expect(
+    err(0)
+      .andThen(() => ok(1))
+      .unwrapErr()
+  ).toBe(0)
+})
+
 test('err map', () => {
   expect(
     err(0)
       .map(() => 1)
       .unwrapErr()
   ).toBe(0)
+})
+
+test('err mapErr', () => {
+  expect(
+    err(0)
+      .mapErr((n) => n + 1)
+      .unwrapErr()
+  ).toEqual(1)
 })
 
 test('err mapOr', () => {

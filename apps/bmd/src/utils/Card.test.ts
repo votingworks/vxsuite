@@ -161,7 +161,7 @@ describe('MemoryCard', () => {
 
     expect(await card.readLongUint8Array()).toEqual(Uint8Array.of(1, 2, 3))
 
-    card.insertCard(undefined, { a: 1 })
+    card.insertCard(undefined, JSON.stringify({ a: 1 }))
 
     expect(await card.readStatus()).toEqual(
       expect.objectContaining({
