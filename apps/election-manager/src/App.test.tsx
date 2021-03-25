@@ -1,4 +1,5 @@
 import React from 'react'
+import MockDate from 'mockdate'
 
 import {
   fireEvent,
@@ -56,10 +57,12 @@ beforeEach(() => {
     },
   ])
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+  MockDate.set(new Date('2020-11-03T22:22:00'))
 })
 
 afterEach(() => {
   delete window.kiosk
+  MockDate.reset()
 })
 
 const createMemoryStorageWith = async ({
@@ -73,7 +76,7 @@ const createMemoryStorageWith = async ({
   return storage
 }
 
-it('create election works', async () => {
+test('create election works', async () => {
   const { getByText, getAllByText, queryAllByText, getByTestId } = render(
     <App />
   )
@@ -101,7 +104,7 @@ it('create election works', async () => {
   await screen.findByText('Configure Election Manager')
 })
 
-it('printing ballots, print report, and test decks', async () => {
+test('printing ballots, print report, and test decks', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
@@ -215,7 +218,7 @@ it('printing ballots, print report, and test decks', async () => {
   expect(mockKiosk.print).toHaveBeenCalledTimes(6)
 })
 
-it('tabulating CVRs', async () => {
+test('tabulating CVRs', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -249,7 +252,8 @@ it('tabulating CVRs', async () => {
     getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
       .length > 0
   ).toBe(true)
-  expect(getByTestId('tally-report-contents')).toMatchSnapshot()
+  // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
+  expect(getByTestId('election-full-tally-report')).toMatchSnapshot()
 
   fireEvent.click(getByText('Tally'))
 
@@ -279,10 +283,10 @@ it('tabulating CVRs', async () => {
   // When there are no CVRs imported the full tally report is labeled as the zero report
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
   // Verify the zero report generates properly
-  expect(getByTestId('tally-report-contents')).toMatchSnapshot()
+  expect(getAllByText('0').length).toBe(40)
 })
 
-it('tabulating CVRs with SEMS file', async () => {
+test('tabulating CVRs with SEMS file', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -335,7 +339,8 @@ it('tabulating CVRs with SEMS file', async () => {
   const totalRow = domGetByTestId(ballotsByVotingMethod[0], 'total')
   domGetByText(totalRow, 'Total Ballots Cast')
   domGetByText(totalRow, '200')
-  expect(getByTestId('tally-report-contents')).toMatchSnapshot()
+  // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
+  expect(getByTestId('election-full-tally-report')).toMatchSnapshot()
   fireEvent.click(getByText('Back to Tally Index'))
 
   // Test removing the SEMS file
@@ -349,7 +354,7 @@ it('tabulating CVRs with SEMS file', async () => {
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
 })
 
-it('changing election resets sems and cvr files', async () => {
+test('changing election resets sems and cvr files', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -389,7 +394,7 @@ it('changing election resets sems and cvr files', async () => {
   getByText('No CVR files loaded.')
 })
 
-it('clearing all files after marking as official clears SEMS and CVR file', async () => {
+test('clearing all files after marking as official clears SEMS and CVR file', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })

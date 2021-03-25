@@ -39,8 +39,8 @@ const Prose = styled('div')<Props>`
   & h5,
   & p,
   & hr {
-    margin-top: ${({ compact }) => (compact ? '0' : '0.9em')};
-    margin-bottom: ${({ compact }) => (compact ? '0' : '0.9em')};
+    margin-top: ${({ compact }) => (compact ? '0' : '1em')};
+    margin-bottom: ${({ compact }) => (compact ? '0' : '1em')};
   }
   & h1 + h2 {
     margin-top: -0.75em;

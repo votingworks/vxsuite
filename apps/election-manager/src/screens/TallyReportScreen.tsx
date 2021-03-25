@@ -21,6 +21,7 @@ import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
 import LinkButton from '../components/LinkButton'
 import TallyReportMetadata from '../components/TallyReportMetadata'
+import TallyReportSummary from '../components/TallyReportSummary'
 
 import routerPaths from '../routerPaths'
 import { filterTalliesByParams } from '../lib/votecounting'
@@ -29,12 +30,26 @@ import { filterExternalTalliesByParams } from '../utils/semsTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import Text from '../components/Text'
 
-const ReportPreview = styled.div`
-  font-size: 14px;
+const ContestColumns = styled.div`
+  columns: 3;
+  column-gap: 0.3in;
+  margin-top: 1rem;
+  & > div {
+    margin-top: 0;
+  }
+`
+const TallyReport = styled.div`
+  font-size: 12px;
+  @media print {
+    font-size: 12px;
+  }
+`
+const TallyReportPreview = styled(TallyReport)`
   section {
     margin: 1rem 0 2rem;
     background: #ffffff;
     width: 8.5in;
+    min-height: 11in;
     padding: 0.5in;
   }
 `
@@ -168,15 +183,15 @@ const TallyReportScreen: React.FC = () => {
             <React.Fragment>
               <h2>Report Preview</h2>
               <Text italic small>
-                <strong>Note:</strong> Each report section may be paginated to
-                more than one piece of paper.
+                <strong>Note:</strong> Printed reports may be paginated to more
+                than one piece of paper.
               </Text>
             </React.Fragment>
           )}
         </Prose>
-        {showPreview && <ReportPreview ref={previewReportRef} />}
+        {showPreview && <TallyReportPreview ref={previewReportRef} />}
       </NavigationScreen>
-      <div ref={printReportRef} className="print-only">
+      <TallyReport ref={printReportRef} className="print-only">
         {ballotStylePartyIds.map((partyId) =>
           precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId)
@@ -211,6 +226,11 @@ const TallyReportScreen: React.FC = () => {
                     <TallyReportMetadata
                       generatedAtTime={generatedAtTime}
                       election={election}
+                    />
+                  </Prose>
+                  <ContestColumns>
+                    <TallyReportSummary
+                      election={election}
                       internalBallotCount={
                         tallyForReport.numberOfBallotsCounted
                       }
@@ -221,13 +241,13 @@ const TallyReportScreen: React.FC = () => {
                         tallyForReport.ballotCountsByVotingMethod
                       }
                     />
-                  </Prose>
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                    externalTally={externalTallyForReport}
-                    precinctId={precinctId}
-                  />
+                    <ContestTally
+                      election={election}
+                      electionTally={tallyForReport}
+                      externalTally={externalTallyForReport}
+                      precinctId={precinctId}
+                    />
+                  </ContestColumns>
                 </ReportSection>
               )
             }
@@ -238,12 +258,17 @@ const TallyReportScreen: React.FC = () => {
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} Scanner Tally Report for Scanner{' '}
+                      {statusPrefix} Scanner Tally Report for Scanner:{' '}
                       {scannerId}
                     </h1>
                     <h2>{electionTitle}</h2>
                     <TallyReportMetadata
                       generatedAtTime={generatedAtTime}
+                      election={election}
+                    />
+                  </Prose>
+                  <ContestColumns>
+                    <TallyReportSummary
                       election={election}
                       internalBallotCount={
                         tallyForReport?.numberOfBallotsCounted ?? 0
@@ -252,11 +277,11 @@ const TallyReportScreen: React.FC = () => {
                         tallyForReport.ballotCountsByVotingMethod
                       }
                     />
-                  </Prose>
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                  />
+                    <ContestTally
+                      election={election}
+                      electionTally={tallyForReport}
+                    />
+                  </ContestColumns>
                 </ReportSection>
               )
             }
@@ -268,27 +293,29 @@ const TallyReportScreen: React.FC = () => {
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} {label} Ballot Tally Report
+                      {statusPrefix} “{label}” Ballot Tally Report
                     </h1>
                     <h2>{electionTitle}</h2>
                     <TallyReportMetadata
                       generatedAtTime={generatedAtTime}
                       election={election}
-                      internalBallotCount={
-                        tallyForReport?.numberOfBallotsCounted ?? 0
-                      }
                     />
                   </Prose>
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                  />
+                  <ContestColumns>
+                    <ContestTally
+                      election={election}
+                      electionTally={tallyForReport}
+                    />
+                  </ContestColumns>
                 </ReportSection>
               )
             }
 
             return (
-              <ReportSection key={partyId || 'none'}>
+              <ReportSection
+                key={partyId || 'none'}
+                data-testid="election-full-tally-report"
+              >
                 <LogoMark />
                 <Prose maxWidth={false}>
                   <h1>
@@ -296,6 +323,11 @@ const TallyReportScreen: React.FC = () => {
                   </h1>
                   <TallyReportMetadata
                     generatedAtTime={generatedAtTime}
+                    election={election}
+                  />
+                </Prose>
+                <ContestColumns>
+                  <TallyReportSummary
                     election={election}
                     internalBallotCount={tallyForReport.numberOfBallotsCounted}
                     externalBallotCount={
@@ -305,19 +337,17 @@ const TallyReportScreen: React.FC = () => {
                       tallyForReport.ballotCountsByVotingMethod
                     }
                   />
-                </Prose>
-                <div data-testid="tally-report-contents">
                   <ContestTally
                     election={election}
                     electionTally={tallyForReport}
                     externalTally={externalTallyForReport}
                   />
-                </div>
+                </ContestColumns>
               </ReportSection>
             )
           })
         )}
-      </div>
+      </TallyReport>
     </React.Fragment>
   )
 }

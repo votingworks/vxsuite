@@ -11,7 +11,7 @@ import pluralize from 'pluralize'
 import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
-import Text from './Text'
+import Text, { NoWrap } from './Text'
 import Table, { TD } from './Table'
 import {
   expandEitherNeitherContests,
@@ -20,17 +20,27 @@ import {
 import { getTallyForContestOption } from '../lib/votecounting'
 import { combineContestTallies } from '../utils/semsTallies'
 
-const ContestMeta = styled.div`
-  float: right;
-  margin-top: 0.5em;
-`
+interface ContestProps {
+  dim?: boolean
+}
 
-export const Contest = styled.div`
-  margin: 1rem 0 2rem;
+const Contest = styled.div<ContestProps>`
+  margin: 1rem 0;
+  color: ${({ dim }) => (dim ? '#cccccc' : undefined)};
   page-break-inside: avoid;
-  h2,
+  p:first-child {
+    margin-bottom: 0;
+  }
   h3 {
-    margin-bottom: 0.25em;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    & + p {
+      margin-top: -0.8em;
+      margin-bottom: 0.25em;
+    }
+    & + table {
+      margin-top: -0.5em;
+    }
   }
 `
 
@@ -80,19 +90,16 @@ const ContestTally: React.FC<Props> = ({
         const options = getContestOptionsForContest(contest as AnyContest)
 
         return (
-          <Contest key={`div-${contest.id}`}>
+          <Contest key={`div-${contest.id}`} dim={!talliesRelevant}>
             <Prose maxWidth={false}>
-              <ContestMeta className="ignore-prose">
-                <Text as="span" small>
-                  {pluralize('ballots', ballots, true)} cast /{' '}
-                  {pluralize('overvotes', overvotes, true)} /{' '}
-                  {pluralize('undervotes', undervotes, true)}
-                </Text>
-              </ContestMeta>
-              <h3>
-                {contest.section}, {contest.title}
-              </h3>
-              <Table>
+              <Text small>{contest.section}</Text>
+              <h3>{contest.title}</h3>
+              <Text small>
+                <NoWrap>{pluralize('ballots', ballots, true)} cast /</NoWrap>{' '}
+                <NoWrap>{pluralize('overvotes', overvotes, true)} /</NoWrap>{' '}
+                <NoWrap>{pluralize('undervotes', undervotes, true)}</NoWrap>
+              </Text>
+              <Table borderTop condensed>
                 <tbody>
                   {options.map((option) => {
                     const tally = getTallyForContestOption(
