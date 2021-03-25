@@ -237,7 +237,8 @@ test('results combination option is shown with prior tally results when provided
   existingTally[0] = {
     candidates: [5, 5, 5, 5, 5, 0],
     undervotes: 3,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 28,
   }
   const talliesOnCard = {
     tally: existingTally,
@@ -260,7 +261,8 @@ test('results combination option is shown with prior tally results when provided
   currentTally[0] = {
     candidates: [1, 0, 1, 0, 1, 0],
     undervotes: 3,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 6,
   }
 
   const { getByText, getAllByTestId } = render(
@@ -332,7 +334,8 @@ test('results combination option is shown with prior tally results when results 
   existingTally[0] = {
     candidates: [6, 5, 6, 5, 6, 0],
     undervotes: 6,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 34,
   }
   const talliesOnCard = {
     tally: existingTally,
@@ -360,7 +363,8 @@ test('results combination option is shown with prior tally results when results 
   currentTally[0] = {
     candidates: [1, 0, 1, 0, 1, 0],
     undervotes: 3,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 6,
   }
 
   const { getByText, getAllByTestId, queryByText } = render(

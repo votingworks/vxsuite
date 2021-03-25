@@ -27,12 +27,18 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
     } else if (contest.type === 'candidate') {
       const expectedResults = {
         candidates: contest.candidates.map(() => 0),
-        writeIns: [],
+        writeIns: 0,
         undervotes: contest.seats,
+        ballotsCast: 1,
       }
       expect(tally[contestIdx]).toEqual(expectedResults)
     } else if (contest.type === 'yesno') {
-      expect(tally[contestIdx]).toEqual({ yes: 0, no: 0, undervotes: 1 })
+      expect(tally[contestIdx]).toEqual({
+        yes: 0,
+        no: 0,
+        undervotes: 1,
+        ballotsCast: 1,
+      })
     } else if (contest.type === 'ms-either-neither') {
       expect(tally[contestIdx]).toEqual({
         eitherOption: 0,
@@ -41,6 +47,7 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
         firstOption: 0,
         secondOption: 0,
         pickOneUndervotes: 1,
+        ballotsCast: 1,
       })
     }
     contestIdx += 1
@@ -67,8 +74,9 @@ test('adds vote to tally as expected', () => {
     } else {
       expect(tally1[contestIdx]).toEqual({
         candidates: [1, 0],
-        writeIns: [],
+        writeIns: 0,
         undervotes: 0,
+        ballotsCast: 1,
       })
     }
     contestIdx += 1
@@ -88,8 +96,9 @@ test('adds vote to tally as expected', () => {
     } else {
       expect(tally2[contestIdx]).toEqual({
         candidates: [1, 1],
-        writeIns: [],
+        writeIns: 0,
         undervotes: 0,
+        ballotsCast: 2,
       })
     }
     contestIdx += 1
@@ -109,8 +118,9 @@ test('adds vote to tally as expected', () => {
     } else {
       expect(tally3[contestIdx]).toEqual({
         candidates: [1, 1],
-        writeIns: [],
+        writeIns: 0,
         undervotes: 1,
+        ballotsCast: 3,
       })
     }
     contestIdx += 1
@@ -145,43 +155,51 @@ test('tallies votes across many contests appropriately', () => {
 
   expect(tally[0]).toEqual({
     candidates: [0, 0, 1, 0, 0, 0],
-    writeIns: [],
+    writeIns: 0,
     undervotes: 0,
+    ballotsCast: 1,
   })
   expect(tally[1]).toEqual({
     candidates: [0, 0, 0, 0, 0, 0, 0],
-    writeIns: [],
+    writeIns: 0,
     undervotes: 1,
+    ballotsCast: 1,
   })
   expect(tally[2]).toEqual({
     candidates: [1, 0, 0, 0, 0],
-    writeIns: [],
+    writeIns: 0,
     undervotes: 0,
+    ballotsCast: 1,
   })
   expect(tally[8]).toEqual({
     candidates: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    writeIns: [],
+    writeIns: 0,
     undervotes: 2,
+    ballotsCast: 1,
   })
   expect(tally[9]).toEqual({
     candidates: [0],
-    writeIns: [{ name: 'WRITE IN', tally: 1 }],
+    writeIns: 1,
     undervotes: 0,
+    ballotsCast: 1,
   })
   expect(tally[12]).toEqual({
     yes: 1,
     no: 0,
     undervotes: 0,
+    ballotsCast: 1,
   })
   expect(tally[13]).toEqual({
     yes: 0,
     no: 1,
     undervotes: 0,
+    ballotsCast: 1,
   })
   expect(tally[14]).toEqual({
     yes: 0,
     no: 0,
     undervotes: 1,
+    ballotsCast: 1,
   })
   expect(tally[20]).toEqual({
     eitherOption: 1,
@@ -190,6 +208,7 @@ test('tallies votes across many contests appropriately', () => {
     firstOption: 0,
     secondOption: 0,
     pickOneUndervotes: 1,
+    ballotsCast: 1,
   })
 })
 
@@ -201,18 +220,14 @@ test('can combine contest tallies as expected', () => {
   tally1[0] = {
     candidates: [11, 2, 5, 1, 0, 0],
     undervotes: 3,
-    writeIns: [
-      { name: 'eevee', tally: 3 },
-      { name: 'flareon', tally: 7 },
-    ],
+    writeIns: 10,
+    ballotsCast: 32,
   }
   tally2[0] = {
     candidates: [3, 0, 2, 1, 5, 0],
     undervotes: 2,
-    writeIns: [
-      { name: 'eevee', tally: 2 },
-      { name: 'jolteon', tally: 3 },
-    ],
+    writeIns: 5,
+    ballotsCast: 18,
   }
 
   // Modify a yes no contest
@@ -220,11 +235,13 @@ test('can combine contest tallies as expected', () => {
     yes: 5,
     no: 17,
     undervotes: 3,
+    ballotsCast: 25,
   }
   tally2[12] = {
     yes: 3,
     no: 2,
     undervotes: 10,
+    ballotsCast: 15,
   }
 
   // Modify an either neither contest
@@ -235,6 +252,7 @@ test('can combine contest tallies as expected', () => {
     firstOption: 18,
     secondOption: 4,
     pickOneUndervotes: 3,
+    ballotsCast: 40,
   }
   tally2[20] = {
     eitherOption: 2,
@@ -243,6 +261,7 @@ test('can combine contest tallies as expected', () => {
     firstOption: 2,
     secondOption: 16,
     pickOneUndervotes: 2,
+    ballotsCast: 35,
   }
 
   const combinedTallies = combineTallies(election, tally1, tally2)
@@ -250,17 +269,15 @@ test('can combine contest tallies as expected', () => {
   expect(combinedTallies[0]).toEqual({
     candidates: [14, 2, 7, 2, 5, 0],
     undervotes: 5,
-    writeIns: [
-      { name: 'eevee', tally: 5 },
-      { name: 'flareon', tally: 7 },
-      { name: 'jolteon', tally: 3 },
-    ],
+    writeIns: 15,
+    ballotsCast: 50,
   })
 
   expect(combinedTallies[12]).toEqual({
     yes: 8,
     no: 19,
     undervotes: 13,
+    ballotsCast: 40,
   })
 
   expect(combinedTallies[20]).toEqual({
@@ -270,6 +287,7 @@ test('can combine contest tallies as expected', () => {
     firstOption: 20,
     secondOption: 20,
     pickOneUndervotes: 5,
+    ballotsCast: 75,
   })
 
   // Everything else should still be a zero tally
@@ -300,7 +318,8 @@ test('combineTallies throws error when given incompatible tallies', () => {
   tally1[0] = {
     candidates: [0, 0, 0],
     undervotes: 0,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 0,
   }
   expect(() => {
     combineTallies(election, tally1, tally2)
