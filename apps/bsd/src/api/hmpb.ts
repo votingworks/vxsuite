@@ -1,10 +1,7 @@
+import { ElectionDefinition } from '@votingworks/types'
 import { EventEmitter } from 'events'
 import { ReviewBallot, BallotSheetInfo } from '../config/types'
-import {
-  BallotPackage,
-  BallotPackageEntry,
-  ElectionDefinition,
-} from '../util/ballot-package'
+import { BallotPackage, BallotPackageEntry } from '../util/ballot-package'
 import fetchJSON from '../util/fetchJSON'
 import { setElectionDefinition } from './config'
 

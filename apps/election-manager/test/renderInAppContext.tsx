@@ -5,11 +5,10 @@ import { sha256 } from 'js-sha256'
 import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
-import { Election } from '@votingworks/types'
+import { Election, ElectionDefinition } from '@votingworks/types'
 
 import AppContext from '../src/contexts/AppContext'
 import {
-  ElectionDefinition,
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,

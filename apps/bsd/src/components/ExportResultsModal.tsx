@@ -1,3 +1,4 @@
+import { ElectionDefinition } from '@votingworks/types'
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import fileDownload from 'js-file-download'
@@ -16,7 +17,6 @@ import {
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
 } from '../util/filenames'
-import { ElectionDefinition } from '../util/ballot-package'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)

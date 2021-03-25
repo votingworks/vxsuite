@@ -11,6 +11,7 @@ import {
 } from '@testing-library/react'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
+import { ElectionDefinition } from '@votingworks/types'
 
 import { MemoryStorage } from './utils/Storage'
 import {
@@ -25,7 +26,6 @@ import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 import App from './App'
 
 import sleep from './utils/sleep'
-import { ElectionDefinition } from './config/types'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import { convertFileToStorageString } from './utils/file'
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'

@@ -1,6 +1,5 @@
-import { MarkThresholds } from '@votingworks/types'
+import { ElectionDefinition, MarkThresholds } from '@votingworks/types'
 import { ErrorResponse, GetConfigResponse, OkResponse } from '../config/types'
-import { ElectionDefinition } from '../util/ballot-package'
 import fetchJSON from '../util/fetchJSON'
 
 export async function get(): Promise<GetConfigResponse> {

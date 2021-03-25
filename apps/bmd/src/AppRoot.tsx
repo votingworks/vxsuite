@@ -10,7 +10,7 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  parseElection,
+  safeParseElectionDefinition,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -19,7 +19,6 @@ import Gamepad from 'react-gamepad'
 import { RouteComponentProps } from 'react-router-dom'
 import './App.css'
 import IdleTimer from 'react-idle-timer'
-import { sha256 } from 'js-sha256'
 import { map } from 'rxjs/operators'
 import useInterval from '@rooks/use-interval'
 
@@ -620,13 +619,10 @@ const AppRoot: React.FC<Props> = ({
     const electionData = await card.readLongString()
     /* istanbul ignore else */
     if (electionData) {
-      const computedElectionHash = sha256(electionData)
+      const electionDefinitionResult = safeParseElectionDefinition(electionData)
       dispatchAppState({
         type: 'updateElectionDefinition',
-        electionDefinition: {
-          election: parseElection(electionData),
-          electionHash: computedElectionHash,
-        },
+        electionDefinition: electionDefinitionResult.unwrap(),
       })
     }
   }, [card, adminCardElectionHash])

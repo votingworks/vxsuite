@@ -1,6 +1,7 @@
 import type {
   AdjudicationReason,
   Dictionary,
+  ElectionDefinition,
   MarkThresholds,
   VotesDict,
 } from '@votingworks/types'
@@ -10,7 +11,6 @@ import type {
   BallotPageMetadata,
   Size,
 } from '@votingworks/hmpb-interpreter'
-import { ElectionDefinition } from '../util/ballot-package'
 import type { AdjudicationInfo } from './types/ballot-review'
 
 export interface MachineConfig {

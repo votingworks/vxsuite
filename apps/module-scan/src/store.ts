@@ -4,6 +4,7 @@
 
 import {
   AnyContest,
+  ElectionDefinition,
   getBallotStyle,
   getContests,
   MarkThresholds,
@@ -33,7 +34,6 @@ import {
   AdjudicationStatus,
   BallotMetadata,
   BatchInfo,
-  ElectionDefinition,
   getMarkStatus,
   isMarginalMark,
   PageInterpretationWithFiles,

@@ -3,7 +3,6 @@ import {
   Candidate,
   Contest,
   Dictionary,
-  Election,
   Optional,
   Precinct,
 } from '@votingworks/types'
@@ -21,12 +20,6 @@ export type ButtonEventFunction = (
 
 // Election
 export type SaveElection = (electionJSON?: string) => void
-
-export interface ElectionDefinition {
-  election: Election
-  electionData: string
-  electionHash: string
-}
 
 export interface BallotStyleData {
   ballotStyleId: BallotStyle['id']

@@ -1,6 +1,6 @@
 /* eslint-disable jest/expect-expect */
 
-import { electionSampleDefinition } from '@votingworks/fixtures'
+import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import {
   AdjudicationReason,
   CandidateContest,
@@ -19,16 +19,9 @@ import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
 import { buildApp, start } from './server'
-import { ElectionDefinition, ScanStatus } from './types'
+import { ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
-
-// TODO: Replace this with something straight from `@votingworks/fixtures` when
-// all ElectionDefinition interface definitions are shared.
-const testElectionDefinition: ElectionDefinition = {
-  ...electionSampleDefinition,
-  electionData: JSON.stringify(electionSampleDefinition.election),
-}
 
 jest.mock('./importer')
 

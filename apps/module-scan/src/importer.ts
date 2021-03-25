@@ -1,5 +1,9 @@
 import { BallotPageLayout, Interpreter } from '@votingworks/hmpb-interpreter'
-import { MarkThresholds, Optional } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  MarkThresholds,
+  Optional,
+} from '@votingworks/types'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
@@ -7,13 +11,7 @@ import { join } from 'path'
 import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
 import { Scanner } from './scanner'
-import {
-  BallotMetadata,
-  ElectionDefinition,
-  ScanStatus,
-  SheetOf,
-  Side,
-} from './types'
+import { BallotMetadata, ScanStatus, SheetOf, Side } from './types'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
