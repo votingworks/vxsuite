@@ -12,6 +12,7 @@ import electionSample from '../data/electionSample.json'
 import { mockOf, render } from '../../test/testUtils'
 import { randomBase64 } from '../utils/random'
 import TestBallotDeckScreen from './TestBallotDeckScreen'
+import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')
@@ -25,6 +26,7 @@ it('renders test decks appropriately', async () => {
       appPrecinctId="23"
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       hideTestDeck={jest.fn()}
+      machineConfig={fakeMachineConfig()}
       isLiveMode={false}
     />
   )
@@ -71,6 +73,7 @@ it('shows printer not connected when appropriate', async () => {
       appName="VxPrint"
       appPrecinctId="23"
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
+      machineConfig={fakeMachineConfig()}
       hideTestDeck={jest.fn()}
       isLiveMode={false}
     />

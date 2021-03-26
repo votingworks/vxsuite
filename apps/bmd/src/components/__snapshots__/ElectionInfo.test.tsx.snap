@@ -342,6 +342,13 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
           <br />
           Election ID: 
           4aa260d7fc
+          <span
+            class="c5"
+          >
+            <br />
+             Machine ID: 
+            000
+          </span>
         </p>
       </div>
     </div>
@@ -688,6 +695,13 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
             Center Springfield
           </span>
            
+          <span
+            class="c5"
+          >
+            <br />
+             Machine ID: 
+            000
+          </span>
         </p>
       </div>
     </div>
@@ -999,6 +1013,13 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
         Election ID: 
         4aa260d7fc
       </p>
+      <p
+        class="c4"
+      >
+        <br />
+         Machine ID: 
+        000
+      </p>
     </div>
   </div>
 </div>
@@ -1084,6 +1105,10 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 
 .c2 dl {
   margin: 1rem 0;
+}
+
+.c4 {
+  font-size: 0.8rem;
 }
 
 .c3 {
@@ -1297,6 +1322,13 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
         class="c3"
       >
         Center Springfield
+      </p>
+      <p
+        class="c4"
+      >
+        <br />
+         Machine ID: 
+        000
       </p>
     </div>
   </div>

@@ -3,12 +3,14 @@ import { render } from '@testing-library/react'
 
 import ElectionInfo from './ElectionInfo'
 import { electionSampleWithSealDefinition as electionDefinition } from '../data'
+import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 it('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(
     <ElectionInfo
       precinctId="23"
       electionDefinition={electionDefinition}
+      machineConfig={fakeMachineConfig()}
       horizontal
       showElectionHash
     />
@@ -21,6 +23,7 @@ it('renders horizontal ElectionInfo without hash by default', () => {
     <ElectionInfo
       precinctId="23"
       electionDefinition={electionDefinition}
+      machineConfig={fakeMachineConfig()}
       horizontal
     />
   )
@@ -32,6 +35,7 @@ it('renders vertical ElectionInfo with hash when specified', () => {
     <ElectionInfo
       precinctId="23"
       electionDefinition={electionDefinition}
+      machineConfig={fakeMachineConfig()}
       showElectionHash
     />
   )
@@ -40,7 +44,11 @@ it('renders vertical ElectionInfo with hash when specified', () => {
 
 it('renders vertical ElectionInfo without hash by default', () => {
   const { container } = render(
-    <ElectionInfo precinctId="23" electionDefinition={electionDefinition} />
+    <ElectionInfo
+      precinctId="23"
+      electionDefinition={electionDefinition}
+      machineConfig={fakeMachineConfig()}
+    />
   )
   expect(container).toMatchSnapshot()
 })

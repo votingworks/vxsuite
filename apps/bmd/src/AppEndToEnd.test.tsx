@@ -98,6 +98,7 @@ it('VxMark+Print end-to-end flow', async () => {
   within(getByTestId('election-info')).getByText(
     `Election ID: ${expectedElectionHash}`
   )
+  within(getByTestId('election-info')).getByText(/Machine ID: 000/)
 
   // Select precinct
   getByText('State of Hamilton')

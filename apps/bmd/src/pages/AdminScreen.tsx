@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { OptionalElectionDefinition } from '@votingworks/types'
 
-import { AppMode, SelectChangeEventFunction } from '../config/types'
+import {
+  AppMode,
+  MachineConfig,
+  SelectChangeEventFunction,
+} from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -35,6 +39,7 @@ interface Props {
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
+  machineConfig: MachineConfig
 }
 
 const getMachineTimezone = () =>
@@ -50,6 +55,7 @@ const AdminScreen: React.FC<Props> = ({
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
+  machineConfig,
 }) => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
@@ -143,6 +149,7 @@ const AdminScreen: React.FC<Props> = ({
         appPrecinctId={appPrecinctId}
         electionDefinition={electionDefinition}
         hideTestDeck={hideTestDeck}
+        machineConfig={machineConfig}
         isLiveMode={false} // always false for Test Mode
       />
     )
@@ -267,6 +274,7 @@ const AdminScreen: React.FC<Props> = ({
             <ElectionInfo
               electionDefinition={electionDefinition}
               precinctId={appPrecinctId}
+              machineConfig={machineConfig}
               showElectionHash
               horizontal
             />
