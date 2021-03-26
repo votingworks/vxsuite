@@ -70,7 +70,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-dlfnbm kzZCED"
       >
         <div
-          class="sc-hBEYos bBKpcB"
+          class="sc-hBEYos huCICJ"
         >
           <h1>
             Test Deck
@@ -251,7 +251,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-dlfnbm kzZCED"
       >
         <div
-          class="sc-hBEYos bBKpcB"
+          class="sc-hBEYos huCICJ"
         >
           <h1>
             Test Ballot Deck Tally
@@ -329,7 +329,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
     class="print-only"
   >
     <div
-      class="sc-hiSbYr chYtqq"
+      class="sc-jJEJSO iyhAUW"
     >
       <h1>
         Test Ballot Deck Tally
@@ -348,33 +348,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         All Precincts
       </p>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            United States
+          </p>
+          <h3>
+            President
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               39 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            United States
-            , 
-            President
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -422,33 +433,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            United States
+          </p>
+          <h3>
+            Senate 
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               39 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            United States
-            , 
-            Senate 
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -496,33 +518,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            US House Of Representatives
+          </p>
+          <h3>
+            1st Congressional District
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               39 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            US House Of Representatives
-            , 
-            1st Congressional District
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -560,33 +593,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            Northern District
+          </p>
+          <h3>
+            Supreme Court District 3(Northern) Position 3
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               39 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            Northern District
-            , 
-            Supreme Court District 3(Northern) Position 3
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -624,33 +668,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            Election Commissioner 01
+          </p>
+          <h3>
+            Election Commissioner  01
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               9 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            Election Commissioner 01
-            , 
-            Election Commissioner  01
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -678,33 +733,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            Election Commissioner 02
+          </p>
+          <h3>
+            Election Commissioner 02
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               9 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            Election Commissioner 02
-            , 
-            Election Commissioner 02
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -742,33 +808,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            Election Commissioner 03
+          </p>
+          <h3>
+            Election Commissioner 03
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               9 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            Election Commissioner 03
-            , 
-            Election Commissioner 03
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -796,33 +873,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            Election Commissioner 04
+          </p>
+          <h3>
+            Election Commissioner 04
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               9 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            Election Commissioner 04
-            , 
-            Election Commissioner 04
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -860,33 +948,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            Election Commissioner 05
+          </p>
+          <h3>
+            Election Commissioner 05
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               3 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            Election Commissioner 05
-            , 
-            Election Commissioner 05
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -924,33 +1023,44 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            School Board District 5
+          </p>
+          <h3>
+            School Board 05
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               3 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            School Board District 5
-            , 
-            School Board 05
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -978,34 +1088,45 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
           >
-            <span
-              class="sc-crrsfI XvqqD"
-            >
-              39 ballots
-               cast /
-               
-              0 overvotes
-               /
-               
-              0 undervotes
-            </span>
-          </div>
-          <h3>
             State Of Mississippi
-            , 
+          </p>
+          <h3>
             Ballot Measure 2
 House Concurrent Resolution No. 47
           </h3>
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            <span
+              class="sc-dQppl bmnKdH"
+            >
+              39 ballots
+               cast /
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
+              0 overvotes
+               /
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
+              0 undervotes
+            </span>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -1033,34 +1154,45 @@ House Concurrent Resolution No. 47
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
           >
-            <span
-              class="sc-crrsfI XvqqD"
-            >
-              39 ballots
-               cast /
-               
-              0 overvotes
-               /
-               
-              0 undervotes
-            </span>
-          </div>
-          <h3>
             State Of Mississippi
-            , 
+          </p>
+          <h3>
             Ballot Measure 3
 House Bill 1796 - Flag Referendum
           </h3>
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            <span
+              class="sc-dQppl bmnKdH"
+            >
+              39 ballots
+               cast /
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
+              0 overvotes
+               /
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
+              0 undervotes
+            </span>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -1088,33 +1220,44 @@ House Bill 1796 - Flag Referendum
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            State Of Mississippi
+          </p>
+          <h3>
+            Ballot Measure 1 – Either/Neither
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               39 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            State Of Mississippi
-            , 
-            Ballot Measure 1 – Either/Neither
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -1142,33 +1285,44 @@ House Bill 1796 - Flag Referendum
         </div>
       </div>
       <div
-        class="sc-jJEJSO cJfRAW"
+        class="sc-iktFzd dUYsQU"
       >
         <div
-          class="sc-hBEYos lvLIa"
+          class="sc-hBEYos dSqeuO"
         >
-          <div
-            class="sc-iktFzd dkHGVf ignore-prose"
+          <p
+            class="sc-crrsfI XvqqD"
+          >
+            State Of Mississippi
+          </p>
+          <h3>
+            Ballot Measure 1 – Pick One
+          </h3>
+          <p
+            class="sc-crrsfI XvqqD"
           >
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-dQppl bmnKdH"
             >
               39 ballots
                cast /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 overvotes
                /
-               
+            </span>
+             
+            <span
+              class="sc-dQppl bmnKdH"
+            >
               0 undervotes
             </span>
-          </div>
-          <h3>
-            State Of Mississippi
-            , 
-            Ballot Measure 1 – Pick One
-          </h3>
+          </p>
           <table
-            class="sc-idOhPF eZzLIR"
+            class="sc-idOhPF coA-DTg"
           >
             <tbody>
               <tr>
@@ -1202,2566 +1356,2221 @@ House Bill 1796 - Flag Referendum
 `;
 
 exports[`tabulating CVRs 1`] = `
-<div
-  data-testid="tally-report-contents"
+<section
+  class="sc-dOSReg jfRiSJ"
+  data-testid="election-full-tally-report"
 >
+  <img
+    alt="VotingWorks logo"
+    class="sc-iBaPrD cvEgNt"
+    src="/votingworks-wordmark-black.svg"
+  />
   <div
-    class="sc-jJEJSO cJfRAW"
+    class="sc-hBEYos dSqeuO"
+  >
+    <h1>
+      Official
+       
+      Mock General Election Choctaw 2020
+       Tally Report
+    </h1>
+    <p>
+      Wednesday, August 26, 2020
+      , 
+      Choctaw County
+      , 
+      State of Mississippi
+      <br />
+      <span
+        class="sc-crrsfI XvqqD"
+      >
+        This report was created on 
+        Tuesday, November 3, 2020, 10:22:00 PM PST
+      </span>
+    </p>
+  </div>
+  <div
+    class="sc-eggNIi ccDssi"
   >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iUuytg esMfMc"
     >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          100 ballots
-           cast /
-           
-          1 overvote
-           /
-           
-          7 undervotes
-        </span>
-      </div>
       <h3>
-        United States
-        , 
-        President
+        Ballots by Voting Method
       </h3>
       <table
-        class="sc-idOhPF eZzLIR"
+        class="sc-idOhPF hqmYtt"
+        data-testid="voting-method-table"
       >
         <tbody>
-          <tr>
-            <td>
-              Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+          <tr
+            data-testid="absentee"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              Absentee
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              27
+              50
             </td>
           </tr>
-          <tr>
-            <td>
-              Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+          <tr
+            data-testid="standard"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              Precinct
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              36
+              50
             </td>
           </tr>
-          <tr>
-            <td>
-              Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+          <tr
+            data-testid="total"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              <strong>
+                Total Ballots Cast
+              </strong>
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              29
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
+              <strong>
+                100
+              </strong>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          100 ballots
-           cast /
+          United States
+        </p>
+        <h3>
+          President
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            100 ballots
+             cast /
+          </span>
            
-          4 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            1 overvote
+             /
+          </span>
            
-          4 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            7 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                27
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                36
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                29
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        United States
-        , 
-        Senate 
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Mike Espy
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              29
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Cindy Hyde-Smith
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              35
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Jimmy Edwards
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              28
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          100 ballots
-           cast /
+          United States
+        </p>
+        <h3>
+          Senate 
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            100 ballots
+             cast /
+          </span>
            
-          3 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 overvotes
+             /
+          </span>
            
-          5 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Mike Espy
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                29
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Cindy Hyde-Smith
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                35
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Jimmy Edwards
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                28
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        US House Of Representatives
-        , 
-        1st Congressional District
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Antonia Eliason
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              46
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Trent Kelly
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              46
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          100 ballots
-           cast /
+          US House Of Representatives
+        </p>
+        <h3>
+          1st Congressional District
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            100 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            3 overvotes
+             /
+          </span>
            
-          5 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            5 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Antonia Eliason
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                46
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Trent Kelly
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                46
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Northern District
-        , 
-        Supreme Court District 3(Northern) Position 3
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Josiah Dennis Coleman
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              37
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Percy L. Lynchard
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              58
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          18 ballots
-           cast /
+          Northern District
+        </p>
+        <h3>
+          Supreme Court District 3(Northern) Position 3
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            100 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          1 undervote
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            5 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Josiah Dennis Coleman
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                37
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Percy L. Lynchard
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                58
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 01
-        , 
-        Election Commissioner  01
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Glynda Chaney Fulce
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              17
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          15 ballots
-           cast /
+          Election Commissioner 01
+        </p>
+        <h3>
+          Election Commissioner  01
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            18 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          1 undervote
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            1 undervote
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Glynda Chaney Fulce
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                17
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 02
-        , 
-        Election Commissioner 02
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Charles Beck
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              5
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Sharon Brooks
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              9
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          23 ballots
-           cast /
+          Election Commissioner 02
+        </p>
+        <h3>
+          Election Commissioner 02
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            15 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          1 undervote
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            1 undervote
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Charles Beck
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                5
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Sharon Brooks
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                9
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 03
-        , 
-        Election Commissioner 03
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Dorothy Anderson
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              22
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          25 ballots
-           cast /
+          Election Commissioner 03
+        </p>
+        <h3>
+          Election Commissioner 03
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            23 ballots
+             cast /
+          </span>
            
-          1 overvote
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          0 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            1 undervote
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Dorothy Anderson
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                22
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 04
-        , 
-        Election Commissioner 04
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Willie Mae Guillory
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              10
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Lewis Wright
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              14
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          19 ballots
-           cast /
+          Election Commissioner 04
+        </p>
+        <h3>
+          Election Commissioner 04
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            25 ballots
+             cast /
+          </span>
            
-          2 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            1 overvote
+             /
+          </span>
            
-          2 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Willie Mae Guillory
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                10
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Lewis Wright
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                14
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 05
-        , 
-        Election Commissioner 05
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Ouida A Loper
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              9
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Wayne McLeod
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              6
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          19 ballots
-           cast /
+          Election Commissioner 05
+        </p>
+        <h3>
+          Election Commissioner 05
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            19 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 overvotes
+             /
+          </span>
            
-          0 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Ouida A Loper
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                9
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Wayne McLeod
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                6
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        School Board District 5
-        , 
-        School Board 05
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Michael D Thomas
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              19
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          100 ballots
-           cast /
+          School Board District 5
+        </p>
+        <h3>
+          School Board 05
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            19 ballots
+             cast /
+          </span>
            
-          2 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          5 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Michael D Thomas
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                19
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 2
+    </div>
+    <div
+      class="sc-iktFzd dUYsQU"
+    >
+      <div
+        class="sc-hBEYos dSqeuO"
+      >
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 2
 House Concurrent Resolution No. 47
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              YES
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              40
-            </td>
-          </tr>
-          <tr>
-            <td>
-              NO
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              53
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
+        </h3>
+        <p
           class="sc-crrsfI XvqqD"
         >
-          100 ballots
-           cast /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            100 ballots
+             cast /
+          </span>
            
-          3 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 overvotes
+             /
+          </span>
            
-          2 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            5 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                YES
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                40
+              </td>
+            </tr>
+            <tr>
+              <td>
+                NO
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                53
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 3
+    </div>
+    <div
+      class="sc-iktFzd dUYsQU"
+    >
+      <div
+        class="sc-hBEYos dSqeuO"
+      >
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 3
 House Bill 1796 - Flag Referendum
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              YES
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              43
-            </td>
-          </tr>
-          <tr>
-            <td>
-              NO
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              52
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
+        </h3>
+        <p
           class="sc-crrsfI XvqqD"
         >
-          98 ballots
-           cast /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            100 ballots
+             cast /
+          </span>
            
-          3 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            3 overvotes
+             /
+          </span>
            
-          3 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                YES
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                43
+              </td>
+            </tr>
+            <tr>
+              <td>
+                NO
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                52
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 1 – Either/Neither
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              39
-            </td>
-          </tr>
-          <tr>
-            <td>
-              AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              53
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          98 ballots
-           cast /
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 1 – Either/Neither
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            98 ballots
+             cast /
+          </span>
            
-          4 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            3 overvotes
+             /
+          </span>
            
-          5 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            3 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                39
+              </td>
+            </tr>
+            <tr>
+              <td>
+                AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                53
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 1 – Pick One
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              FOR Initiative Measure No. 65
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              40
-            </td>
-          </tr>
-          <tr>
-            <td>
-              FOR Alternative Measure 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              49
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-</div>
-`;
-
-exports[`tabulating CVRs 2`] = `
-<div
-  data-testid="tally-report-contents"
->
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        United States
-        , 
-        President
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Presidential Electors for Phil Collins for President and Bill Parker for Vice President
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 1 – Pick One
+        </h3>
+        <p
           class="sc-crrsfI XvqqD"
         >
-          0 ballots
-           cast /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            98 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 overvotes
+             /
+          </span>
            
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        United States
-        , 
-        Senate 
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Mike Espy
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Cindy Hyde-Smith
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Jimmy Edwards
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            5 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
         >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
+          <tbody>
+            <tr>
+              <td>
+                FOR Initiative Measure No. 65
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                40
+              </td>
+            </tr>
+            <tr>
+              <td>
+                FOR Alternative Measure 65 A
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                49
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        US House Of Representatives
-        , 
-        1st Congressional District
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Antonia Eliason
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Trent Kelly
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        Northern District
-        , 
-        Supreme Court District 3(Northern) Position 3
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Josiah Dennis Coleman
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Percy L. Lynchard
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        Election Commissioner 01
-        , 
-        Election Commissioner  01
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Glynda Chaney Fulce
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        Election Commissioner 02
-        , 
-        Election Commissioner 02
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Charles Beck
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Sharon Brooks
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        Election Commissioner 03
-        , 
-        Election Commissioner 03
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Dorothy Anderson
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        Election Commissioner 04
-        , 
-        Election Commissioner 04
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Willie Mae Guillory
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Lewis Wright
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        Election Commissioner 05
-        , 
-        Election Commissioner 05
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Ouida A Loper
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Wayne McLeod
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        School Board District 5
-        , 
-        School Board 05
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Michael D Thomas
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 2
-House Concurrent Resolution No. 47
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              YES
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              NO
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 3
-House Bill 1796 - Flag Referendum
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              YES
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              NO
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 1 – Either/Neither
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          0 ballots
-           cast /
-           
-          0 overvotes
-           /
-           
-          0 undervotes
-        </span>
-      </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 1 – Pick One
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              FOR Initiative Measure No. 65
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-          <tr>
-            <td>
-              FOR Alternative Measure 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+</section>
 `;
 
 exports[`tabulating CVRs with SEMS file 1`] = `
-<div
-  data-testid="tally-report-contents"
+<section
+  class="sc-dOSReg jfRiSJ"
+  data-testid="election-full-tally-report"
 >
+  <img
+    alt="VotingWorks logo"
+    class="sc-iBaPrD cvEgNt"
+    src="/votingworks-wordmark-black.svg"
+  />
   <div
-    class="sc-jJEJSO cJfRAW"
+    class="sc-hBEYos dSqeuO"
+  >
+    <h1>
+      Unofficial
+       
+      Mock General Election Choctaw 2020
+       Tally Report
+    </h1>
+    <p>
+      Wednesday, August 26, 2020
+      , 
+      Choctaw County
+      , 
+      State of Mississippi
+      <br />
+      <span
+        class="sc-crrsfI XvqqD"
+      >
+        This report was created on 
+        Tuesday, November 3, 2020, 10:22:00 PM PST
+      </span>
+    </p>
+  </div>
+  <div
+    class="sc-eggNIi ccDssi"
   >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iUuytg esMfMc"
     >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
-          class="sc-crrsfI XvqqD"
-        >
-          200 ballots
-           cast /
-           
-          2 overvotes
-           /
-           
-          14 undervotes
-        </span>
-      </div>
       <h3>
-        United States
-        , 
-        President
+        Ballots by Voting Method
       </h3>
       <table
-        class="sc-idOhPF eZzLIR"
+        class="sc-idOhPF hqmYtt"
+        data-testid="voting-method-table"
       >
         <tbody>
-          <tr>
-            <td>
-              Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+          <tr
+            data-testid="absentee"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              Absentee
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              54
+              50
             </td>
           </tr>
-          <tr>
-            <td>
-              Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+          <tr
+            data-testid="standard"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              Precinct
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              72
+              50
             </td>
           </tr>
-          <tr>
-            <td>
-              Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+          <tr
+            data-testid="externalvoterecords"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              External Results File
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              58
+              100
             </td>
           </tr>
-          <tr>
-            <td>
-              Write-In
+          <tr
+            data-testid="total"
+          >
+            <td
+              class="sc-dIUggk fMFRds"
+            >
+              <strong>
+                Total Ballots Cast
+              </strong>
             </td>
             <td
-              class="sc-dIUggk eLNEQI"
+              class="sc-dIUggk grVjzA"
             >
-              0
+              <strong>
+                200
+              </strong>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          200 ballots
-           cast /
+          United States
+        </p>
+        <h3>
+          President
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            200 ballots
+             cast /
+          </span>
            
-          8 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 overvotes
+             /
+          </span>
            
-          8 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            14 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                54
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                72
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                58
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        United States
-        , 
-        Senate 
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Mike Espy
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              58
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Cindy Hyde-Smith
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              70
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Jimmy Edwards
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              56
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          200 ballots
-           cast /
+          United States
+        </p>
+        <h3>
+          Senate 
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            200 ballots
+             cast /
+          </span>
            
-          6 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            8 overvotes
+             /
+          </span>
            
-          10 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            8 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Mike Espy
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                58
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Cindy Hyde-Smith
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                70
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Jimmy Edwards
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                56
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        US House Of Representatives
-        , 
-        1st Congressional District
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Antonia Eliason
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              92
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Trent Kelly
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              92
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          200 ballots
-           cast /
+          US House Of Representatives
+        </p>
+        <h3>
+          1st Congressional District
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            200 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            6 overvotes
+             /
+          </span>
            
-          10 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            10 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Antonia Eliason
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                92
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Trent Kelly
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                92
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Northern District
-        , 
-        Supreme Court District 3(Northern) Position 3
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Josiah Dennis Coleman
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              74
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Percy L. Lynchard
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              116
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          36 ballots
-           cast /
+          Northern District
+        </p>
+        <h3>
+          Supreme Court District 3(Northern) Position 3
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            200 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          2 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            10 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Josiah Dennis Coleman
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                74
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Percy L. Lynchard
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                116
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 01
-        , 
-        Election Commissioner  01
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Glynda Chaney Fulce
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              34
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          30 ballots
-           cast /
+          Election Commissioner 01
+        </p>
+        <h3>
+          Election Commissioner  01
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            36 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          2 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Glynda Chaney Fulce
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                34
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 02
-        , 
-        Election Commissioner 02
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Charles Beck
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              10
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Sharon Brooks
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              18
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          46 ballots
-           cast /
+          Election Commissioner 02
+        </p>
+        <h3>
+          Election Commissioner 02
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            30 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          2 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Charles Beck
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                10
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Sharon Brooks
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                18
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 03
-        , 
-        Election Commissioner 03
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Dorothy Anderson
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              44
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          50 ballots
-           cast /
+          Election Commissioner 03
+        </p>
+        <h3>
+          Election Commissioner 03
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            46 ballots
+             cast /
+          </span>
            
-          2 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          0 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Dorothy Anderson
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                44
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 04
-        , 
-        Election Commissioner 04
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Willie Mae Guillory
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              20
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Lewis Wright
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              28
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          38 ballots
-           cast /
+          Election Commissioner 04
+        </p>
+        <h3>
+          Election Commissioner 04
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            50 ballots
+             cast /
+          </span>
            
-          4 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            2 overvotes
+             /
+          </span>
            
-          4 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Willie Mae Guillory
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                20
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Lewis Wright
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                28
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        Election Commissioner 05
-        , 
-        Election Commissioner 05
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Ouida A Loper
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              18
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Wayne McLeod
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              12
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          38 ballots
-           cast /
+          Election Commissioner 05
+        </p>
+        <h3>
+          Election Commissioner 05
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            38 ballots
+             cast /
+          </span>
            
-          0 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 overvotes
+             /
+          </span>
            
-          0 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Ouida A Loper
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                18
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Wayne McLeod
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                12
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        School Board District 5
-        , 
-        School Board 05
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              Michael D Thomas
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              38
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Write-In
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              0
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          200 ballots
-           cast /
+          School Board District 5
+        </p>
+        <h3>
+          School Board 05
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            38 ballots
+             cast /
+          </span>
            
-          4 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 overvotes
+             /
+          </span>
            
-          10 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            0 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                Michael D Thomas
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                38
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Write-In
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 2
+    </div>
+    <div
+      class="sc-iktFzd dUYsQU"
+    >
+      <div
+        class="sc-hBEYos dSqeuO"
+      >
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 2
 House Concurrent Resolution No. 47
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              YES
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              80
-            </td>
-          </tr>
-          <tr>
-            <td>
-              NO
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              106
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
+        </h3>
+        <p
           class="sc-crrsfI XvqqD"
         >
-          200 ballots
-           cast /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            200 ballots
+             cast /
+          </span>
            
-          6 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 overvotes
+             /
+          </span>
            
-          4 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            10 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                YES
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                80
+              </td>
+            </tr>
+            <tr>
+              <td>
+                NO
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                106
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 3
+    </div>
+    <div
+      class="sc-iktFzd dUYsQU"
+    >
+      <div
+        class="sc-hBEYos dSqeuO"
+      >
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 3
 House Bill 1796 - Flag Referendum
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              YES
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              86
-            </td>
-          </tr>
-          <tr>
-            <td>
-              NO
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              104
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
-    <div
-      class="sc-hBEYos lvLIa"
-    >
-      <div
-        class="sc-iktFzd dkHGVf ignore-prose"
-      >
-        <span
+        </h3>
+        <p
           class="sc-crrsfI XvqqD"
         >
-          196 ballots
-           cast /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            200 ballots
+             cast /
+          </span>
            
-          6 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            6 overvotes
+             /
+          </span>
            
-          6 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            4 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                YES
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                86
+              </td>
+            </tr>
+            <tr>
+              <td>
+                NO
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                104
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 1 – Either/Neither
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
-      >
-        <tbody>
-          <tr>
-            <td>
-              FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              78
-            </td>
-          </tr>
-          <tr>
-            <td>
-              AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              106
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
-  <div
-    class="sc-jJEJSO cJfRAW"
-  >
     <div
-      class="sc-hBEYos lvLIa"
+      class="sc-iktFzd dUYsQU"
     >
       <div
-        class="sc-iktFzd dkHGVf ignore-prose"
+        class="sc-hBEYos dSqeuO"
       >
-        <span
+        <p
           class="sc-crrsfI XvqqD"
         >
-          196 ballots
-           cast /
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 1 – Either/Neither
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            196 ballots
+             cast /
+          </span>
            
-          8 overvotes
-           /
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            6 overvotes
+             /
+          </span>
            
-          10 undervotes
-        </span>
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            6 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                78
+              </td>
+            </tr>
+            <tr>
+              <td>
+                AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                106
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3>
-        State Of Mississippi
-        , 
-        Ballot Measure 1 – Pick One
-      </h3>
-      <table
-        class="sc-idOhPF eZzLIR"
+    </div>
+    <div
+      class="sc-iktFzd dUYsQU"
+    >
+      <div
+        class="sc-hBEYos dSqeuO"
       >
-        <tbody>
-          <tr>
-            <td>
-              FOR Initiative Measure No. 65
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              80
-            </td>
-          </tr>
-          <tr>
-            <td>
-              FOR Alternative Measure 65 A
-            </td>
-            <td
-              class="sc-dIUggk eLNEQI"
-            >
-              98
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          State Of Mississippi
+        </p>
+        <h3>
+          Ballot Measure 1 – Pick One
+        </h3>
+        <p
+          class="sc-crrsfI XvqqD"
+        >
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            196 ballots
+             cast /
+          </span>
+           
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            8 overvotes
+             /
+          </span>
+           
+          <span
+            class="sc-dQppl bmnKdH"
+          >
+            10 undervotes
+          </span>
+        </p>
+        <table
+          class="sc-idOhPF coA-DTg"
+        >
+          <tbody>
+            <tr>
+              <td>
+                FOR Initiative Measure No. 65
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                80
+              </td>
+            </tr>
+            <tr>
+              <td>
+                FOR Alternative Measure 65 A
+              </td>
+              <td
+                class="sc-dIUggk eLNEQI"
+              >
+                98
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
+</section>
 `;

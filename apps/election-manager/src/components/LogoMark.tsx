@@ -8,7 +8,7 @@ const LogoMarkStyled = styled.img`
 `
 const LogoMark: React.FC = () => (
   <LogoMarkStyled
-    src="/votingworks-logomark-black.svg"
+    src="/votingworks-wordmark-black.svg"
     alt="VotingWorks logo"
   />
 )
