@@ -254,7 +254,7 @@ const PollWorkerScreen: React.FC<Props> = ({
     })
     setIsSavingTally(false)
   }
-  const metadataRows = []
+  const metadataRows: React.ReactChild[] = []
   const machineMetadata = talliesOnCard?.metadata.slice() ?? []
   if (!isMachineTallySaved) {
     metadataRows.push(
@@ -480,7 +480,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   Do you want to print the combined results report from the{' '}
                   {pluralize('machine', machineMetadata.length, true)} (
                   {machineMetadata.map((m) => m.machineId).join(', ')}) and
-                  clear data from the card?
+                  clear tally data from the card?
                 </p>
               </Prose>
             }
@@ -511,7 +511,9 @@ const PollWorkerScreen: React.FC<Props> = ({
               currentDateTime={currentDateTime}
               election={election}
               isLiveMode={isLiveMode}
-              isPollsOpen={isPrintingCombinedReport ? false : !isPollsOpen}
+              isPollsOpen={
+                isPrintingCombinedReport ? false : !isPollsOpen // This report is printed just before the value of isPollsOpen is updated when opening/closing polls, so we want to print the report with the toggled value.
+              }
               machineMetadata={
                 isPrintingCombinedReport ? machineMetadata : undefined
               }

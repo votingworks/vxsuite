@@ -213,7 +213,7 @@ type AppAction =
   | {
       type: 'processPollWorkerCard'
       isPollWorkerCardValid: boolean
-      talliesOnCard: Optional<CardTally>
+      talliesOnCard?: CardTally
     }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
   | { type: 'pauseCardProcessing' }
@@ -240,7 +240,7 @@ type AppAction =
   | { type: 'maintainCardlessBallot' }
   | {
       type: 'updatePollWorkerCardTally'
-      talliesOnCard: Optional<CardTally>
+      talliesOnCard?: CardTally
     }
 
 const appReducer = (state: State, action: AppAction): State => {
@@ -726,15 +726,12 @@ const AppRoot: React.FC<Props> = ({
         case 'pollworker': {
           const isValid =
             cardData.h === optionalElectionDefinition?.electionHash
-          if (!isValid) {
-            // eslint-disable-next-line no-console
-            console.error(
-              `poll worker card election hash (${cardData.h}) does not match configured election hash (${optionalElectionDefinition?.electionHash})`
-            )
-          }
-          const possibleCardTally: Optional<CardTally> = isValid
-            ? ((await card.readLongObject()) as Optional<CardTally>)
-            : undefined
+
+          /* istanbul ignore next */
+          const possibleCardTally: Optional<CardTally> =
+            isValid && !!longValueExists
+              ? ((await card.readLongObject()) as Optional<CardTally>)
+              : undefined
 
           dispatchAppState({
             type: 'processPollWorkerCard',

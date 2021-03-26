@@ -29,6 +29,7 @@ test('counts first option without first answer', () => {
     firstOption: 1,
     secondOption: 0,
     pickOneUndervotes: 0,
+    ballotsCast: 1,
   })
 })
 
@@ -50,6 +51,7 @@ test('counts second option without first answer', () => {
     firstOption: 0,
     secondOption: 1,
     pickOneUndervotes: 0,
+    ballotsCast: 1,
   })
 })
 
@@ -71,6 +73,7 @@ test('counts first option with either answer', () => {
     firstOption: 1,
     secondOption: 0,
     pickOneUndervotes: 0,
+    ballotsCast: 1,
   })
 })
 
@@ -92,6 +95,7 @@ test('counts second option with either answer', () => {
     firstOption: 0,
     secondOption: 1,
     pickOneUndervotes: 0,
+    ballotsCast: 1,
   })
 })
 
@@ -113,6 +117,7 @@ test('counts first option with neither answer', () => {
     firstOption: 1,
     secondOption: 0,
     pickOneUndervotes: 0,
+    ballotsCast: 1,
   })
 })
 
@@ -134,6 +139,7 @@ test('counts second option with neither answer', () => {
     firstOption: 0,
     secondOption: 1,
     pickOneUndervotes: 0,
+    ballotsCast: 1,
   })
 })
 
@@ -155,6 +161,7 @@ test('counts either option with no selected preference', () => {
     firstOption: 0,
     secondOption: 0,
     pickOneUndervotes: 1,
+    ballotsCast: 1,
   })
 })
 
@@ -176,6 +183,7 @@ test('happily counts neither option with no selected preference', () => {
     firstOption: 0,
     secondOption: 0,
     pickOneUndervotes: 1,
+    ballotsCast: 1,
   })
 })
 
@@ -194,5 +202,6 @@ test('counts missing contests from votes dict as undervotes', () => {
     firstOption: 0,
     secondOption: 0,
     pickOneUndervotes: 1,
+    ballotsCast: 1,
   })
 })

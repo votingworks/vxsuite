@@ -82,22 +82,21 @@ export interface SerializableActivationData {
 
 // Votes
 export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
-export interface WriteInCandidateTally {
-  name: string
-  tally: number
-}
 export type TallyCount = number
 export interface CandidateVoteTally {
   candidates: TallyCount[]
-  writeIns: WriteInCandidateTally[]
+  writeIns: TallyCount
   undervotes: TallyCount
+  ballotsCast: TallyCount
 }
 export interface YesNoVoteTally {
   yes: TallyCount
   no: TallyCount
   undervotes: TallyCount
+  ballotsCast: TallyCount
 }
 export interface MsEitherNeitherTally {
+  ballotsCast: TallyCount
   eitherOption: TallyCount
   neitherOption: TallyCount
   eitherNeitherUndervotes: TallyCount

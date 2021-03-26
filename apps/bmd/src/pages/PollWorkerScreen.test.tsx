@@ -136,8 +136,7 @@ test('live mode on election day', async () => {
     />
   )
 
-  // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText('Switch to Live Election Mode?')).toBe(null)
+  expect(queryByText('Switch to Live Election Mode?')).toBeNull()
 })
 
 test('results combination option is not shown for a non print machine', async () => {
@@ -164,7 +163,6 @@ test('results combination option is not shown for a non print machine', async ()
     />
   )
 
-  // eslint-disable-next-line no-restricted-syntax
   expect(queryByText('Combine Results Reports')).toBeNull()
 })
 
@@ -237,7 +235,8 @@ test('results combination option is shown with prior tally results when provided
   existingTally[0] = {
     candidates: [5, 5, 5, 5, 5, 0],
     undervotes: 3,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 28,
   }
   const talliesOnCard = {
     tally: existingTally,
@@ -260,7 +259,8 @@ test('results combination option is shown with prior tally results when provided
   currentTally[0] = {
     candidates: [1, 0, 1, 0, 1, 0],
     undervotes: 3,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 6,
   }
 
   const { getByText, getAllByTestId } = render(
@@ -332,7 +332,8 @@ test('results combination option is shown with prior tally results when results 
   existingTally[0] = {
     candidates: [6, 5, 6, 5, 6, 0],
     undervotes: 6,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 34,
   }
   const talliesOnCard = {
     tally: existingTally,
@@ -360,7 +361,8 @@ test('results combination option is shown with prior tally results when results 
   currentTally[0] = {
     candidates: [1, 0, 1, 0, 1, 0],
     undervotes: 3,
-    writeIns: [],
+    writeIns: 0,
+    ballotsCast: 6,
   }
 
   const { getByText, getAllByTestId, queryByText } = render(

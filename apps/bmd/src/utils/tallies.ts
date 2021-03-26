@@ -26,21 +26,11 @@ const combineCandidateTallies = (
   for (let i = 0; i < tally1.candidates.length; i++) {
     candidates.push(tally1.candidates[i] + tally2.candidates[i])
   }
-  const writeInVotes = [...tally1.writeIns]
-  for (const writeInVote of tally2.writeIns) {
-    const existingWriteInIdx = writeInVotes.findIndex(
-      (v) => v.name === writeInVote.name
-    )
-    if (existingWriteInIdx >= 0) {
-      writeInVotes[existingWriteInIdx].tally += writeInVote.tally
-    } else {
-      writeInVotes.push(writeInVote)
-    }
-  }
   return {
     candidates,
     undervotes: tally1.undervotes + tally2.undervotes,
-    writeIns: writeInVotes,
+    writeIns: tally1.writeIns + tally2.writeIns,
+    ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
   }
 }
 
@@ -52,6 +42,7 @@ const combineYesNoTallies = (
     yes: tally1.yes + tally2.yes,
     no: tally1.no + tally2.no,
     undervotes: tally1.undervotes + tally2.undervotes,
+    ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
   }
 }
 
@@ -67,6 +58,7 @@ const combineEitherNeitherTallies = (
     firstOption: tally1.firstOption + tally2.firstOption,
     secondOption: tally1.secondOption + tally2.secondOption,
     pickOneUndervotes: tally1.pickOneUndervotes + tally2.pickOneUndervotes,
+    ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
   }
 }
 
@@ -162,23 +154,13 @@ export const calculateTally = ({
       } else {
         yesnoContestTally[yesnovote]++
       }
+      yesnoContestTally.ballotsCast++
     } else if (contest.type === 'candidate') {
       const candidateContestTally = contestTally as CandidateVoteTally
       const vote = (votes[contest.id] ?? []) as CandidateVote
       vote.forEach((candidate) => {
         if (candidate.isWriteIn) {
-          const tallyContestWriteIns = candidateContestTally.writeIns
-          const writeIn = tallyContestWriteIns.find(
-            (c) => c.name === candidate.name
-          )
-          if (typeof writeIn === 'undefined') {
-            tallyContestWriteIns.push({
-              name: candidate.name,
-              tally: 1,
-            })
-          } else {
-            writeIn.tally++
-          }
+          candidateContestTally.writeIns++
         } else {
           const candidateIndex = contest.candidates.findIndex(
             (c) => c.id === candidate.id
@@ -195,6 +177,7 @@ export const calculateTally = ({
         }
       })
       candidateContestTally.undervotes += contest.seats - vote.length
+      candidateContestTally.ballotsCast++
     }
   }
   return tally
