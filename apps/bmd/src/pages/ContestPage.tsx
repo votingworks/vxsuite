@@ -34,6 +34,7 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
     updateVote,
     userSettings,
     votes,
+    machineConfig,
   } = useContext(BallotContext)
   const { election } = electionDefinition
   const currentContestIndex = parseInt(contestNumber, 10)
@@ -112,6 +113,7 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctId={precinctId}
+              machineConfig={machineConfig}
               horizontal
             />
           </React.Fragment>

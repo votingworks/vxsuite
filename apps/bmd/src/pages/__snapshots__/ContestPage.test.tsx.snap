@@ -878,6 +878,13 @@ exports[`Renders ContestPage 1`] = `
               >
                  
                 
+                <span
+                  class="c30"
+                >
+                  <br />
+                   Machine ID: 
+                  000
+                </span>
               </p>
             </div>
           </div>

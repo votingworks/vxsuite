@@ -384,6 +384,7 @@ const PollWorkerScreen: React.FC<Props> = ({
             <ElectionInfo
               electionDefinition={electionDefinition}
               precinctId={appPrecinctId}
+              machineConfig={machineConfig}
               showElectionHash
               horizontal
             />

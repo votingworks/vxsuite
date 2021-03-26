@@ -11,6 +11,7 @@ import { advanceTimers } from '../../test/helpers/smartcards'
 
 import AdminScreen from './AdminScreen'
 import { VxPrintOnly, VxMarkOnly } from '../config/types'
+import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 MockDate.set('2020-10-31T00:00:00.000Z')
 
@@ -37,6 +38,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
       updateAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
+      machineConfig={fakeMachineConfig()}
     />
   )
 
@@ -74,6 +76,7 @@ test('renders date and time settings modal', async () => {
       updateAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
+      machineConfig={fakeMachineConfig()}
     />
   )
 

@@ -11,6 +11,7 @@ import { dateLong } from '../utils/date'
 import Seal from './Seal'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
+import { MachineConfig } from '../config/types'
 
 const VerticalContainer = styled.div`
   display: block;
@@ -40,6 +41,7 @@ interface Props {
   precinctId: string
   ballotStyleId?: string
   electionDefinition: ElectionDefinition
+  machineConfig: MachineConfig
   horizontal?: boolean
   showElectionHash?: boolean
 }
@@ -48,6 +50,7 @@ const ElectionInfo: React.FC<Props> = ({
   precinctId,
   ballotStyleId,
   electionDefinition,
+  machineConfig,
   horizontal = false,
   showElectionHash = false,
 }) => {
@@ -89,6 +92,11 @@ const ElectionInfo: React.FC<Props> = ({
                   Election ID: {electionHash.substring(0, 10)}
                 </React.Fragment>
               )}
+              <React.Fragment>
+                <NoWrap>
+                  <br /> Machine ID: {machineConfig.machineId}
+                </NoWrap>
+              </React.Fragment>
             </Text>
           </Prose>
         </HorizontalContainer>
@@ -111,6 +119,9 @@ const ElectionInfo: React.FC<Props> = ({
         {showElectionHash && (
           <Text small>Election ID: {electionHash.substring(0, 10)}</Text>
         )}
+        <Text small>
+          <br /> Machine ID: {machineConfig.machineId}
+        </Text>
       </Prose>
     </VerticalContainer>
   )

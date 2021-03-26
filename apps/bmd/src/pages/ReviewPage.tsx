@@ -483,6 +483,7 @@ const ReviewPage: React.FC = () => {
             <ElectionInfo
               electionDefinition={electionDefinition}
               precinctId={precinctId}
+              machineConfig={machineConfig}
               horizontal
             />
           </React.Fragment>

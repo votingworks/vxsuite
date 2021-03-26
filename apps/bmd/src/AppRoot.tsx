@@ -1145,6 +1145,7 @@ const AppRoot: React.FC<Props> = ({
         updateAppPrecinctId={updateAppPrecinctId}
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
+        machineConfig={machineConfig}
       />
     )
   }
@@ -1298,6 +1299,7 @@ const AppRoot: React.FC<Props> = ({
           showNoChargerAttachedWarning={!hasChargerAttached}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
+          machineConfig={machineConfig}
         />
       </IdleTimer>
     )
