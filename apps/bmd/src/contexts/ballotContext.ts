@@ -10,7 +10,7 @@ import {
 } from '../config/types'
 
 const ballot: BallotContextInterface = {
-  machineConfig: { machineId: '000', appMode: VxMarkOnly },
+  machineConfig: { machineId: '000', appMode: VxMarkOnly, codeVersion: 'dev' },
   ballotStyleId: '',
   contests: [],
   electionDefinition: {

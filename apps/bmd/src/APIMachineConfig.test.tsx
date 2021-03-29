@@ -2,10 +2,15 @@ import React from 'react'
 import { render } from '@testing-library/react'
 
 import fetchMock from 'fetch-mock'
+import { Provider } from '@votingworks/types'
 import App from './App'
 
 import { MemoryStorage } from './utils/Storage'
-import { VxMarkOnly, MachineConfigResponse } from './config/types'
+import {
+  VxMarkOnly,
+  MachineConfigResponse,
+  MachineConfig,
+} from './config/types'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -15,6 +20,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
   const machineConfigResponse: MachineConfigResponse = {
     appModeName: VxMarkOnly.name,
     machineId: '99',
+    codeVersion: 'test',
   }
 
   fetchMock.get('/machine-config', () => JSON.stringify(machineConfigResponse))
@@ -38,9 +44,9 @@ test('machineConfig fetch fails', async () => {
 })
 
 test('machineId is empty', async () => {
-  const machineConfig = {
+  const machineConfig: Provider<MachineConfig> = {
     async get() {
-      return { appMode: VxMarkOnly, machineId: '' }
+      return { appMode: VxMarkOnly, machineId: '', codeVersion: 'test' }
     },
   }
 

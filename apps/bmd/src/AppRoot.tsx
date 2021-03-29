@@ -172,7 +172,7 @@ const initialHardwareState: Readonly<HardwareState> = {
   hasChargerAttached: true,
   hasLowBattery: false,
   hasPrinterAttached: true,
-  machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
+  machineConfig: { appMode: VxMarkOnly, machineId: '0000', codeVersion: 'dev' },
 }
 
 const initialSharedState: Readonly<SharedState> = {
@@ -476,7 +476,7 @@ const AppRoot: React.FC<Props> = ({
     voterCardCreatedAt,
   } = appState
 
-  const { appMode } = machineConfig
+  const { appMode, codeVersion } = machineConfig
   const { textSize: userSettingsTextSize } = userSettings
 
   const ballotStyle = optionalElectionDefinition?.election
@@ -1089,6 +1089,7 @@ const AppRoot: React.FC<Props> = ({
     return (
       <AdminScreen
         appMode={appMode}
+        codeVersion={codeVersion}
         appPrecinctId={appPrecinctId}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}

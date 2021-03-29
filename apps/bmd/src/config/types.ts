@@ -40,11 +40,13 @@ export type AppModeNames = AppMode['name']
 export interface MachineConfig {
   machineId: string
   appMode: AppMode
+  codeVersion: string
 }
 
 export interface MachineConfigResponse {
   machineId: string
   appModeName: AppModeNames
+  codeVersion: string
 }
 
 export function getAppMode(name: AppModeNames): AppMode {

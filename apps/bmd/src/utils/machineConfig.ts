@@ -8,13 +8,16 @@ import fetchJSON from './fetchJSON'
 
 const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { appModeName, machineId } = await fetchJSON<MachineConfigResponse>(
-      '/machine-config'
-    )
+    const {
+      appModeName,
+      machineId,
+      codeVersion,
+    } = await fetchJSON<MachineConfigResponse>('/machine-config')
 
     return {
       appMode: getAppMode(appModeName),
       machineId,
+      codeVersion,
     }
   },
 }
