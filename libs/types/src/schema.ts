@@ -1,7 +1,6 @@
 import check8601 from '@antongolub/iso8601'
 import { createHash } from 'crypto'
 import * as z from 'zod'
-import { string } from 'zod'
 import * as t from './election'
 import {
   AdjudicationReason as AdjudicationReasonEnum,
