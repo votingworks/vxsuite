@@ -30,6 +30,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
   const { getByText, getByTestId } = render(
     <AdminScreen
       appMode={VxPrintOnly}
+      codeVersion="test"
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
@@ -68,6 +69,7 @@ test('renders date and time settings modal', async () => {
   const { getByText, getByTestId } = render(
     <AdminScreen
       appMode={VxMarkOnly}
+      codeVersion="test"
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}

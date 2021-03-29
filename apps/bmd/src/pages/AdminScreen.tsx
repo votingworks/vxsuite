@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { OptionalElectionDefinition } from '@votingworks/types'
+import styled from 'styled-components'
 
 import {
   AppMode,
@@ -27,10 +28,20 @@ import {
 import InputGroup from '../components/InputGroup'
 import Modal from '../components/Modal'
 
+const SoftwareVersion = styled.div`
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  color: #999999;
+  font-size: 0.8rem;
+`
+
 type Meridian = 'AM' | 'PM'
 
 interface Props {
+  // TODO: replace both of these with machineConfig to get machineId too
   appMode: AppMode
+  codeVersion: string
   appPrecinctId: string
   ballotsPrintedCount: number
   electionDefinition: OptionalElectionDefinition
@@ -47,6 +58,7 @@ const getMachineTimezone = () =>
 
 const AdminScreen: React.FC<Props> = ({
   appMode,
+  codeVersion,
   appPrecinctId,
   ballotsPrintedCount,
   electionDefinition,
@@ -464,6 +476,7 @@ const AdminScreen: React.FC<Props> = ({
           }
         />
       )}
+      <SoftwareVersion>{codeVersion}</SoftwareVersion>
     </Screen>
   )
 }

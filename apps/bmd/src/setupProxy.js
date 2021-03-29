@@ -15,6 +15,7 @@ module.exports = function (app) {
     res.json({
       appModeName: process.env.VX_APP_MODE || 'VxMark',
       machineId: process.env.VX_MACHINE_ID || '000',
+      codeVersion: process.env.VX_CODE_VERSION || 'dev',
     })
   })
 }
