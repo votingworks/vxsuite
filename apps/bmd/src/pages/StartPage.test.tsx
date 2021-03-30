@@ -1,19 +1,23 @@
+import { join } from 'path'
 import React from 'react'
 import { Route } from 'react-router-dom'
-import { asElectionDefinition } from '@votingworks/fixtures'
-import { parseElection } from '@votingworks/types'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 
 import { render } from '../../test/testUtils'
-import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
-import electionSampleNoSeal from '../data/electionSampleNoSeal.json'
-import electionPrimarySample from '../data/electionPrimarySample.json'
-
 import StartPage from './StartPage'
 
+const electionSampleWithSealDefinition = loadElectionDefinition(
+  join(__dirname, '../data/electionSampleWithSeal.json')
+)
+const electionSampleNoSealDefinition = loadElectionDefinition(
+  join(__dirname, '../data/electionSampleNoSeal.json')
+)
+const electionPrimarySampleDefinition = loadElectionDefinition(
+  join(__dirname, '../data/electionPrimarySample.json')
+)
+
 it('renders StartPage', async () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionPrimarySample)
-  )
+  const electionDefinition = electionPrimarySampleDefinition
   const { container, getAllByText, getByText } = render(
     <Route path="/" component={StartPage} />,
     {
@@ -29,9 +33,7 @@ it('renders StartPage', async () => {
 })
 
 it('renders StartPage with inline SVG', async () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionSampleWithSeal)
-  )
+  const electionDefinition = electionSampleWithSealDefinition
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     precinctId: '23',
@@ -41,9 +43,7 @@ it('renders StartPage with inline SVG', async () => {
 })
 
 it('renders StartPage with no seal', async () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionSampleNoSeal)
-  )
+  const electionDefinition = electionSampleNoSealDefinition
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     precinctId: '23',

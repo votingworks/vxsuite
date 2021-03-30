@@ -1,11 +1,8 @@
-import fs from 'fs'
-import * as path from 'path'
-
-import { asElectionDefinition } from '@votingworks/fixtures'
+import { join } from 'path'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 import {
   CandidateContest,
   YesNoContest,
-  Election,
   MsEitherNeitherContest,
   getContests,
   getBallotStyle,
@@ -15,13 +12,10 @@ import { getZeroTally } from '../../src/utils/election'
 import { electionStorageKey, stateStorageKey, State } from '../../src/AppRoot'
 import { Storage } from '../../src/utils/Storage'
 
-const electionSampleData = fs.readFileSync(
-  path.resolve(__dirname, '../../src/data/electionSample.json'),
-  'utf-8'
+export const electionDefinition = loadElectionDefinition(
+  join(__dirname, '../../src/data/electionSample.json')
 )
-export const election = JSON.parse(electionSampleData) as Election
-export const electionDefinition = asElectionDefinition(election)
-
+export const { election } = electionDefinition
 export const contest0 = election.contests[0] as CandidateContest
 export const contest1 = election.contests[1] as CandidateContest
 export const contest0candidate0 = contest0.candidates[0]

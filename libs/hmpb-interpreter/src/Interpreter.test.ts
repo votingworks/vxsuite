@@ -3455,7 +3455,7 @@ test('takes the mark score vote threshold from the election definition if presen
 })
 
 test('choctaw 2020 general', async () => {
-  const interpreter = new Interpreter(choctaw2020.election)
+  const interpreter = new Interpreter(choctaw2020.electionDefinition)
 
   await interpreter.addTemplate(
     await choctaw2020.blankPage1.imageData(),

@@ -1,2 +1,2 @@
 jest.config.js
-src/data/**/**/*.csv.ts
+src/data/**/*.csv.ts

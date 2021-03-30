@@ -3,10 +3,10 @@ import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
 import { AdjudicationReason, Election } from '@votingworks/types'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
-import choctaw2020Election from '../test/fixtures/2020-choctaw/election'
+import { electionDefinition as choctaw2020ElectionDefinition } from '../test/fixtures/2020-choctaw'
 import * as general2020Fixtures from '../test/fixtures/2020-general'
 import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
-import stateOfHamiltonElection from '../test/fixtures/state-of-hamilton/election'
+import { electionDefinition as stateOfHamiltonElectionDefinition } from '../test/fixtures/state-of-hamilton'
 import Interpreter, {
   BlankPage,
   getBallotImageData,
@@ -185,7 +185,7 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
 
 test('interprets marks on a HMPB', async () => {
   const interpreter = new Interpreter({
-    election: stateOfHamiltonElection,
+    election: stateOfHamiltonElectionDefinition.election,
     testMode: false,
   })
 
@@ -241,7 +241,7 @@ test('interprets marks on a HMPB', async () => {
 
 test('interprets marks on an upside-down HMPB', async () => {
   const interpreter = new Interpreter({
-    election: stateOfHamiltonElection,
+    election: stateOfHamiltonElectionDefinition.election,
     testMode: false,
   })
 
@@ -1781,7 +1781,7 @@ test('interprets marks in PNG ballots', async () => {
 
   const election: Election = {
     markThresholds: { definite: 0.2, marginal: 0.12 },
-    ...choctaw2020Election,
+    ...choctaw2020ElectionDefinition.election,
   }
   const interpreter = new Interpreter({ election, testMode: false })
 
@@ -2973,7 +2973,7 @@ test('interprets marks in PNG ballots', async () => {
 
 test('returns metadata if the QR code is readable but the HMPB ballot is not', async () => {
   const interpreter = new Interpreter({
-    election: stateOfHamiltonElection,
+    election: stateOfHamiltonElectionDefinition.election,
     testMode: false,
   })
 

@@ -1,9 +1,12 @@
 import { readFileSync } from 'fs-extra'
 import { join } from 'path'
 import { BallotPackageManifest } from '../../../src/types'
-import election from './election'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 
-export { election }
+export const electionDefinition = loadElectionDefinition(
+  join(__dirname, './election.json')
+)
+export const { election } = electionDefinition
 export const root = __dirname
 export const manifest: BallotPackageManifest = JSON.parse(
   readFileSync(join(__dirname, 'manifest.json'), 'utf8')

@@ -1,11 +1,15 @@
-import { CandidateContest, Election } from '@votingworks/types'
+import { join } from 'path'
+import { CandidateContest } from '@votingworks/types'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 
 import { calculateTally, combineTallies } from './tallies'
 import { getZeroTally } from './election'
 
-import electionSample from '../data/electionSample.json'
+const electionSampleDefinition = loadElectionDefinition(
+  join(__dirname, '../data/electionSample.json')
+)
 
-const election = electionSample as Election
+const { election } = electionSampleDefinition
 
 const getIdxForContestId = (contestId: string) => {
   return election.contests.findIndex((c) => c.id === contestId)
@@ -60,9 +64,11 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
 
 test('adds vote to tally as expected', () => {
   const contestId = 'primary-constitution-head-of-party'
-  const sampleContest = electionSample.contests.find((c) => c.id === contestId)
-  const alice = sampleContest!.candidates!.find((c) => c.id === 'alice')!
-  const bob = sampleContest!.candidates!.find((c) => c.id === 'bob')!
+  const sampleContest = electionSampleDefinition.election.contests.find(
+    (c): c is CandidateContest => c.id === contestId && c.type === 'candidate'
+  )
+  const alice = sampleContest!.candidates.find((c) => c.id === 'alice')!
+  const bob = sampleContest!.candidates.find((c) => c.id === 'bob')!
   const zeroTally = getZeroTally(election)
   const tally1 = calculateTally({
     election,

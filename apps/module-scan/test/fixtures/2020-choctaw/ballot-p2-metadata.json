@@ -1,10 +1,10 @@
 {
-  "locales": {
-    "primary": "en-US"
-  },
-  "ballotStyleId": "1",
-  "precinctId": "6526",
-  "isTestMode": false,
-  "pageCount": 2,
-  "pageNumber": 2
+    "locales": {
+        "primary": "en-US"
+    },
+    "ballotStyleId": "1",
+    "precinctId": "6526",
+    "isTestMode": false,
+    "pageCount": 2,
+    "pageNumber": 2
 }

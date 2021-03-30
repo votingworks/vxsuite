@@ -1,11 +1,12 @@
-import { Election } from '@votingworks/types'
-
+import { join } from 'path'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 import { computeTallyForEitherNeitherContests } from './eitherNeither'
 import { getZeroTally } from './election'
 
-import electionSample from '../data/electionSample.json'
+const { election } = loadElectionDefinition(
+  join(__dirname, '../data/electionSample.json')
+)
 
-const election = electionSample as Election
 const measure420Index = election.contests.findIndex(
   (c) => c.id === 'measure-420'
 )

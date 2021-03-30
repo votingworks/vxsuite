@@ -12,7 +12,6 @@ import { buildApp } from './server'
 import { BallotPackageManifest, CastVoteRecord } from './types'
 import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
-import { fromElection } from './util/electionDefinition'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -68,12 +67,12 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
-  const { election } = stateOfHamilton
+  const { electionDefinition } = stateOfHamilton
   await importer.restoreConfig()
 
   await request(app)
     .patch('/config/electionDefinition')
-    .send(fromElection(election))
+    .send(electionDefinition)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -208,12 +207,12 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
-  const { election } = stateOfHamilton
+  const { electionDefinition } = stateOfHamilton
   await importer.restoreConfig()
 
   await request(app)
     .patch('/config/electionDefinition')
-    .send(fromElection(election))
+    .send(electionDefinition)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
@@ -349,7 +348,7 @@ test('ms-either-neither end-to-end', async () => {
   jest.setTimeout(25000)
 
   const {
-    election,
+    electionDefinition,
     manifest,
     root,
     filledInPage1,
@@ -367,7 +366,7 @@ test('ms-either-neither end-to-end', async () => {
 
   await request(app)
     .patch('/config/electionDefinition')
-    .send(fromElection(election))
+    .send(electionDefinition)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })

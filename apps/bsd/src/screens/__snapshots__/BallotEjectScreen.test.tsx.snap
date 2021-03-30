@@ -112,7 +112,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         — Election Hash:
          
         <strong>
-          2f6b1553c7
+          d5b906a927
         </strong>
       </div>
     </div>
@@ -232,7 +232,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         — Election Hash:
          
         <strong>
-          2f6b1553c7
+          d5b906a927
         </strong>
       </div>
     </div>
@@ -376,7 +376,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         — Election Hash:
          
         <strong>
-          2f6b1553c7
+          d5b906a927
         </strong>
       </div>
     </div>
@@ -525,7 +525,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         — Election Hash:
          
         <strong>
-          2f6b1553c7
+          d5b906a927
         </strong>
       </div>
     </div>
@@ -648,7 +648,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
         — Election Hash:
          
         <strong>
-          2f6b1553c7
+          d5b906a927
         </strong>
       </div>
     </div>

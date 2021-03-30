@@ -1,16 +1,21 @@
 import MemoryStream from 'memorystream'
 import { relative } from 'path'
+import { fileSync } from 'tmp'
+import * as fs from 'fs'
 import { parseGlobalOptions } from '..'
 import { adjacentMetadataFile } from '../../../test/fixtures'
 import {
   blankPage1,
   blankPage2,
   election,
-  electionPath,
+  electionDefinition,
   filledInPage1,
   filledInPage2,
 } from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import { OutputFormat, parseOptions, printHelp, run } from './interpret'
+
+const electionPath = fileSync().name
+fs.writeFileSync(electionPath, electionDefinition.electionData, 'utf-8')
 
 test('parse options: --election', async () => {
   for (const electionFlag of ['--election', '-e']) {

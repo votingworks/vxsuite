@@ -3,7 +3,11 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import { BallotType, schema } from '@votingworks/types'
+import {
+  BallotType,
+  safeParseElectionDefinition,
+  schema,
+} from '@votingworks/types'
 import bodyParser from 'body-parser'
 import express, { Application, Request, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
@@ -15,7 +19,6 @@ import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
 import Store from './store'
 import { BallotConfig } from './types'
-import { hash, validate } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 import { childProcessPool, WorkerPool } from './workers/pool'
@@ -56,29 +59,16 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.patch('/config/electionDefinition', async (request, response) => {
     const rawJSON = (request as RequestWithRawJSON)['body.raw']
-    const electionDefinition =
-      'election' in request.body
-        ? request.body
-        : {
-            electionData: rawJSON,
-            electionHash: hash(rawJSON),
-            election: JSON.parse(rawJSON),
-          }
-    const errors = [...validate(electionDefinition)]
+    const electionDefinition = safeParseElectionDefinition(rawJSON)
 
-    if (errors.length > 0) {
+    if (electionDefinition.isErr()) {
       response.status(400).json({
-        errors: errors.map((error) => ({
-          type: error.type,
-          message: `there was an error with the election definition: ${inspect(
-            error
-          )}`,
-        })),
+        errors: electionDefinition.err(),
       })
       return
     }
 
-    await importer.configure(electionDefinition)
+    await importer.configure(electionDefinition.ok()!)
     response.json({ status: 'ok' })
   })
 

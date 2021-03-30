@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { Interpreter } from '../../src'
 import { Fixture } from '../fixtures'
-import election from '../fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/election'
+import { election } from '../fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 
 const skip = process.env.REGRESSION_TESTS !== '1'
 const test = skip ? it.skip : it

@@ -107,7 +107,6 @@ importers:
       fetch-mock: 9.11.0
       history: 4.10.1
       http-proxy-middleware: 1.0.6
-      js-sha256: 0.9.0
       lodash.camelcase: 4.3.0
       mockdate: 3.0.2
       moment: 2.29.1
@@ -215,7 +214,6 @@ importers:
       jest-environment-jsdom-sixteen: ^1.0.3
       jest-fetch-mock: ^3.0.3
       jest-styled-components: ^6.3.4
-      js-sha256: ^0.9.0
       lint-staged: ^10.2.4
       lodash.camelcase: ^4.3.0
       mockdate: ^3.0.2
@@ -259,7 +257,6 @@ importers:
       fast-text-encoding: 1.0.3
       http-proxy-middleware: 1.0.6
       js-file-download: 0.4.12
-      js-sha256: 0.9.0
       moment: 2.29.1
       normalize.css: 8.0.1
       pluralize: 7.0.0
@@ -361,7 +358,6 @@ importers:
       jest-environment-jsdom-sixteen: ^1.0.3
       jest-fetch-mock: ^3.0.3
       js-file-download: ^0.4.6
-      js-sha256: ^0.9.0
       lint-staged: ^10.2.3
       moment: ^2.29.1
       node-fetch: ^2.6.0
@@ -726,7 +722,6 @@ importers:
   libs/ballot-encoder:
     dependencies:
       '@antongolub/iso8601': 1.2.1
-      js-sha256: 0.9.0
       zod: 3.0.0-alpha.8
     devDependencies:
       '@types/jest': 26.0.20
@@ -773,7 +768,6 @@ importers:
       husky: ^4.3.0
       jest: ^26.6.2
       jest-watch-typeahead: ^0.6.1
-      js-sha256: ^0.9.0
       lint-staged: ^10.5.1
       prettier: ^2.1.2
       random-js: ^2.1.0
@@ -787,13 +781,12 @@ importers:
     dependencies:
       '@votingworks/types': link:../types
       csv-writer: 1.6.0
-      js-sha256: 0.9.0
       ts-command-line-args: 1.8.0
       ts-node: 9.1.1_typescript@4.2.3
       yargs: 16.2.0
     devDependencies:
       '@types/jest': 26.0.20
-      '@types/node': 14.14.34
+      '@types/node': 14.14.35
       '@types/yargs': 16.0.0
       '@typescript-eslint/eslint-plugin': 4.16.1_8360ec0b6468ab52d7ec43304a9826d1
       '@typescript-eslint/parser': 4.16.1_eslint@7.19.0+typescript@4.2.3
@@ -806,7 +799,7 @@ importers:
       typescript: 4.2.3
     specifiers:
       '@types/jest': ^26.0.20
-      '@types/node': ^14.14.31
+      '@types/node': ^14.14.35
       '@types/yargs': ^16.0.0
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
@@ -816,7 +809,6 @@ importers:
       eslint-config-prettier: ^7.2.0
       eslint-plugin-prettier: ^3.3.1
       jest: ^26.6.3
-      js-sha256: ^0.9.0
       prettier: ^2.2.1
       ts-command-line-args: ^1.8.0
       ts-jest: ^26.5.0
@@ -826,6 +818,7 @@ importers:
   libs/hmpb-interpreter:
     dependencies:
       '@votingworks/ballot-encoder': link:../ballot-encoder
+      '@votingworks/fixtures': link:../fixtures
       canvas: 2.6.1
       chalk: 4.1.0
       debug: 4.3.1
@@ -877,6 +870,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
       '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/types': workspace:*
       benchmark: ^2.1.4
       canvas: ^2.6.1
@@ -6175,10 +6169,6 @@ packages:
   /@types/node/14.14.25:
     resolution:
       integrity: sha512-EPpXLOVqDvisVxtlbvzfyqSsFeQxltFbluZNRndIb8tr9KiBnYNLzrc1N3pyKUCww2RNrfHDViqDWWE1LCJQtQ==
-  /@types/node/14.14.34:
-    dev: true
-    resolution:
-      integrity: sha512-dBPaxocOK6UVyvhbnpFIj2W+S+1cBTkHQbFQfeeJhoKFbzYcVUGHvddeWPSucKATb3F0+pgDq0i6ghEaZjsugA==
   /@types/node/14.14.35:
     resolution:
       integrity: sha512-Lt+wj8NVPx0zUmUwumiVXapmaLUcAk3yPuHCFVXras9k5VT9TdhJqKqGVUQCD60OTMCl0qxJ57OiTL0Mic3Iag==
@@ -11953,7 +11943,7 @@ packages:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1_supports-color@6.1.0
+      debug: 4.3.1
     engines:
       node: '>=4.0'
     peerDependencies:

@@ -1,14 +1,14 @@
+import { join } from 'path'
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 import { parseElection } from '@votingworks/types'
 
 import ConverterClient, { VxFile } from '../lib/ConverterClient'
 import readFileAsync from '../lib/readFileAsync'
 
 import { InputEventFunction } from '../config/types'
-
-import defaultElection from '../data/defaultElection.json'
 
 import AppContext from '../contexts/AppContext'
 
@@ -20,6 +20,10 @@ import Prose from '../components/Prose'
 import Loading from '../components/Loading'
 import NavigationScreen from '../components/NavigationScreen'
 import Modal from '../components/Modal'
+
+const defaultElectionDefinition = loadElectionDefinition(
+  join(__dirname, '../data/defaultElection.json')
+)
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -44,7 +48,7 @@ interface InputFile {
 const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
 const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
 
-const newElection = JSON.stringify(defaultElection)
+const newElection = defaultElectionDefinition.electionData
 
 const UnconfiguredScreen: React.FC = () => {
   const history = useHistory()

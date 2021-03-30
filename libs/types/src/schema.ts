@@ -346,11 +346,25 @@ export const Election: z.ZodSchema<t.Election> = z
   })
 
 export const OptionalElection: z.ZodSchema<t.OptionalElection> = Election.optional()
-export const ElectionDefinition: z.ZodSchema<t.ElectionDefinition> = z.object({
-  election: Election,
-  electionData: z.string(),
-  electionHash: z.string(),
-})
+export const ElectionDefinition: z.ZodSchema<t.ElectionDefinition> = z
+  .object({
+    election: Election,
+    electionData: z.string(),
+    electionHash: z.string(),
+  })
+  .superRefine((electionDefinition, ctx) => {
+    const expectedHash = createHash('sha256')
+      .update(electionDefinition.electionData)
+      .digest('hex')
+    if (expectedHash !== electionDefinition.electionHash) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['electionHash'],
+        message: `Invalid election hash; expected ${expectedHash} but got ${electionDefinition.electionHash}`,
+      })
+    }
+  })
+
 export const OptionalElectionDefinition: z.ZodSchema<t.OptionalElectionDefinition> = ElectionDefinition.optional()
 
 // Votes
@@ -493,15 +507,37 @@ export function safeParseElection(
 }
 
 /**
+ * Parses `value` as a JSON `Election` or `ElectionDefinition`, checking or
+ * computing the election hash if the result is `Ok`.
+ */
+export function safeParseElectionDefinition(
+  value: string
+): Result<t.ElectionDefinition, z.ZodError | SyntaxError>
+/**
+ * Parses `value` as an `ElectionDefinition`, checking the election hash if the
+ * result is `Ok`.
+ */
+export function safeParseElectionDefinition(
+  value: unknown
+): Result<t.ElectionDefinition, z.ZodError>
+/**
  * Parses `value` as a JSON `Election`, computing the election hash if the
  * result is `Ok`.
  */
 export function safeParseElectionDefinition(
-  value: string
+  value: unknown
 ): Result<t.ElectionDefinition, z.ZodError | SyntaxError> {
-  return safeParseElection(value).map((election) => ({
-    election,
-    electionData: value,
-    electionHash: createHash('sha256').update(value).digest('hex'),
-  }))
+  return typeof value === 'string'
+    ? // string could be either an election definition as JSON
+      safeParseJSON(value, ElectionDefinition).orElse(() =>
+        // or an election as JSON
+        safeParseElection(value).map((election) => ({
+          election,
+          electionData: value,
+          electionHash: createHash('sha256').update(value).digest('hex'),
+        }))
+      )
+    : // if not string, it has to be an election definition since we cannot
+      // compute a hash from an object
+      safeParse(ElectionDefinition, value)
 }

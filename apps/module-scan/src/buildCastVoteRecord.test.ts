@@ -5,7 +5,7 @@ import {
   vote,
   BallotType,
 } from '@votingworks/types'
-import election from '../test/fixtures/2020-choctaw/election'
+import { election } from '../test/fixtures/2020-choctaw'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { MarkStatus } from './types/ballot-review'
 

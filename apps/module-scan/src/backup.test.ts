@@ -5,10 +5,9 @@ import { Database } from 'sqlite3'
 import { fileSync } from 'tmp'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
 import ZipStream from 'zip-stream'
-import election from '../test/fixtures/2020-choctaw/election'
+import { electionDefinition } from '../test/fixtures/2020-choctaw'
 import backup, { Backup } from './backup'
 import Store from './store'
-import { fromElection } from './util/electionDefinition'
 import { BallotType } from '@votingworks/types'
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
@@ -81,10 +80,6 @@ async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
   return string
 }
 
-async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
-  return JSON.parse(await readTextEntry(zipfile, entry))
-}
-
 test('unconfigured', async () => {
   const store = await Store.memoryStore()
 
@@ -97,7 +92,7 @@ test('unconfigured', async () => {
 
 test('configured', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(electionDefinition)
   const result = new WritableStream()
   const onError = jest.fn()
 
@@ -127,7 +122,7 @@ test('zip entry fails', async () => {
 
 test('has election.json', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(electionDefinition)
   const result = new WritableStream()
 
   await new Promise((resolve, reject) => {
@@ -139,12 +134,13 @@ test('has election.json', async () => {
   const electionEntry = entries.find(
     ({ fileName }) => fileName === 'election.json'
   )!
-  expect(await readJSONEntry(zipfile, electionEntry)).toEqual(election)
+  expect(await readTextEntry(zipfile, electionEntry)).toEqual(
+    electionDefinition.electionData
+  )
 })
 
 test('has ballots.db', async () => {
   const store = await Store.memoryStore()
-  const electionDefinition = fromElection(election)
   await store.setElection(electionDefinition)
   const result = new WritableStream()
 
@@ -186,7 +182,6 @@ test('has ballots.db', async () => {
 
 test('has all files referenced in the database', async () => {
   const store = await Store.memoryStore()
-  const electionDefinition = fromElection(election)
   await store.setElection(electionDefinition)
   const batchId = await store.addBatch()
 
@@ -285,7 +280,7 @@ test('has all files referenced in the database', async () => {
 
 test('has cvrs.jsonl', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(electionDefinition)
   const result = new WritableStream()
 
   const batchId = await store.addBatch()
