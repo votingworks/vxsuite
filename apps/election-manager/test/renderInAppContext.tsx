@@ -5,7 +5,7 @@ import { sha256 } from 'js-sha256'
 import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
-import { Election, ElectionDefinition } from '@votingworks/types'
+import { Election, ElectionDefinition, Optional } from '@votingworks/types'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -15,6 +15,7 @@ import {
   FullElectionTally,
   OptionalFullElectionExternalTally,
   OptionalFile,
+  ExternalFileConfiguration,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -53,7 +54,9 @@ interface RenderInAppContextParams {
   setFullElectionExternalTally?: React.Dispatch<
     React.SetStateAction<OptionalFullElectionExternalTally>
   >
-  saveExternalVoteRecordsFile?: (externalFile: OptionalFile) => void
+  saveExternalVoteRecordsFile?: (
+    externalFileConfig: Optional<ExternalFileConfiguration>
+  ) => void
   fullElectionExternalTally?: OptionalFullElectionExternalTally
   externalVoteRecordsFile?: OptionalFile
 }

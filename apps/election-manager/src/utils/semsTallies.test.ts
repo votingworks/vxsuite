@@ -9,6 +9,7 @@ import {
   ContestOptionTally,
   ContestTally,
   TallyCategory,
+  VotingMethod,
 } from '../config/types'
 import { writeInCandidate } from './election'
 import {
@@ -436,7 +437,8 @@ describe('convertSEMSFileToExternalTally', () => {
   it('computes tallies properly on either neither general election', async () => {
     const convertedTally = convertSEMSFileToExternalTally(
       eitherNeitherSEMSContent,
-      electionWithMsEitherNeither
+      electionWithMsEitherNeither,
+      VotingMethod.Precinct
     )
 
     const expectedNumberOfVotesByPrecinct: Dictionary<number> = {
@@ -457,6 +459,7 @@ describe('convertSEMSFileToExternalTally', () => {
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
     expect(convertedTally.overallTally.numberOfBallotsCounted).toBe(100)
+    expect(convertedTally.votingMethod).toBe(VotingMethod.Precinct)
     for (const precinctId of Object.keys(expectedNumberOfVotesByPrecinct)) {
       const tallyForPrecinct = convertedTally.resultsByCategory.get(
         TallyCategory.Precinct
@@ -540,7 +543,8 @@ describe('convertSEMSFileToExternalTally', () => {
   it('converts primary election sems file properly', async () => {
     const convertedTally = convertSEMSFileToExternalTally(
       primarySEMSContent,
-      multiPartyPrimaryElection
+      multiPartyPrimaryElection,
+      VotingMethod.Absentee
     )
 
     const expectedNumberOfVotesByPrecinct: Dictionary<number> = {
@@ -553,6 +557,7 @@ describe('convertSEMSFileToExternalTally', () => {
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
     expect(convertedTally.overallTally.numberOfBallotsCounted).toBe(4530)
+    expect(convertedTally.votingMethod).toBe(VotingMethod.Absentee)
     for (const precinctId of Object.keys(expectedNumberOfVotesByPrecinct)) {
       const tallyForPrecinct = convertedTally.resultsByCategory.get(
         TallyCategory.Precinct

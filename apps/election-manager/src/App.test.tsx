@@ -20,6 +20,7 @@ import {
   cvrsStorageKey,
   electionDefinitionStorageKey,
   externalVoteRecordsFileStorageKey,
+  externalVotingMethodStorageKey,
 } from './AppRoot'
 
 import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
@@ -31,6 +32,7 @@ import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import { convertFileToStorageString } from './utils/file'
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
+import { VotingMethod } from './config/types'
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherWithDataFiles.cvrData
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt')
@@ -301,6 +303,7 @@ test('tabulating CVRs with SEMS file', async () => {
     new File([EITHER_NEITHER_SEMS_DATA], 'sems-results.csv')
   )
   await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
+  await storage.set(externalVotingMethodStorageKey, VotingMethod.Precinct)
 
   const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
     <App storage={storage} />
@@ -314,7 +317,7 @@ test('tabulating CVRs with SEMS file', async () => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   )
   expect(getAllByText('External Results File (sems-results.csv)').length).toBe(
-    3
+    2
   )
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'))
@@ -327,14 +330,7 @@ test('tabulating CVRs with SEMS file', async () => {
 
   const precinctRow = domGetByTestId(ballotsByVotingMethod[0], 'standard')
   domGetByText(precinctRow, 'Precinct')
-  domGetByText(precinctRow, '50')
-
-  const semsRow = domGetByTestId(
-    ballotsByVotingMethod[0],
-    'externalvoterecords'
-  )
-  domGetByText(semsRow, 'External Results File')
-  domGetByText(semsRow, '100')
+  domGetByText(precinctRow, '150')
 
   const totalRow = domGetByTestId(ballotsByVotingMethod[0], 'total')
   domGetByText(totalRow, 'Total Ballots Cast')
@@ -369,6 +365,7 @@ test('changing election resets sems and cvr files', async () => {
     new File([EITHER_NEITHER_SEMS_DATA], 'sems-results.csv')
   )
   await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
+  await storage.set(externalVotingMethodStorageKey, VotingMethod.Precinct)
 
   const { getByText, getByTestId } = render(<App storage={storage} />)
 
@@ -409,6 +406,7 @@ test('clearing all files after marking as official clears SEMS and CVR file', as
     new File([EITHER_NEITHER_SEMS_DATA], 'sems-results.csv')
   )
   await storage.set(externalVoteRecordsFileStorageKey, semsFileStorageString)
+  await storage.set(externalVotingMethodStorageKey, VotingMethod.Precinct)
 
   const { getByText, getByTestId } = render(<App storage={storage} />)
 

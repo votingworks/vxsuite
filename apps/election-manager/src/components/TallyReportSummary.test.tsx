@@ -15,8 +15,7 @@ test('Renders with data source table and voting method table when all data provi
   const { getByText, getByTestId } = render(
     <TallyReportSummary
       election={electionWithMsEitherNeither}
-      internalBallotCount={1234}
-      externalBallotCount={2345}
+      totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
     />
   )
@@ -29,10 +28,6 @@ test('Renders with data source table and voting method table when all data provi
   domGetByText(row2, '1,045')
   const row3 = domGetByText(votingMethodTable, 'Other').closest('tr')!
   domGetByText(row3, '12')
-  const row4 = domGetByText(votingMethodTable, 'External Results File').closest(
-    'tr'
-  )!
-  domGetByText(row4, '2,345')
   const row5 = domGetByText(votingMethodTable, 'Total Ballots Cast').closest(
     'tr'
   )!
@@ -48,8 +43,7 @@ test('Hides the other row in the voting method table when empty', () => {
   const { queryAllByText, unmount } = render(
     <TallyReportSummary
       election={electionWithMsEitherNeither}
-      internalBallotCount={1234}
-      externalBallotCount={2345}
+      totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
     />
   )
@@ -64,8 +58,7 @@ test('Hides the other row in the voting method table when empty', () => {
   const { queryAllByText: queryAllByText2 } = render(
     <TallyReportSummary
       election={electionWithMsEitherNeither}
-      internalBallotCount={1234}
-      externalBallotCount={2345}
+      totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts2}
     />
   )

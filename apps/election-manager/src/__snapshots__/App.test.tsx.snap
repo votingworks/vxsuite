@@ -2531,21 +2531,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
             <td
               class="sc-dIUggk grVjzA"
             >
-              50
-            </td>
-          </tr>
-          <tr
-            data-testid="externalvoterecords"
-          >
-            <td
-              class="sc-dIUggk fMFRds"
-            >
-              External Results File
-            </td>
-            <td
-              class="sc-dIUggk grVjzA"
-            >
-              100
+              150
             </td>
           </tr>
           <tr

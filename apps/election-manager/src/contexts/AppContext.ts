@@ -1,5 +1,5 @@
 import { createContext, RefObject } from 'react'
-import { ElectionDefinition } from '@votingworks/types'
+import { ElectionDefinition, Optional } from '@votingworks/types'
 import {
   SaveElection,
   PrintedBallot,
@@ -7,6 +7,7 @@ import {
   FullElectionTally,
   OptionalFullElectionExternalTally,
   OptionalFile,
+  ExternalFileConfiguration,
 } from '../config/types'
 import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles, {
@@ -38,7 +39,9 @@ export interface AppContextInterface {
   setFullElectionExternalTally: React.Dispatch<
     React.SetStateAction<OptionalFullElectionExternalTally>
   >
-  saveExternalVoteRecordsFile: (externalFile: OptionalFile) => void
+  saveExternalVoteRecordsFile: (
+    externalFileConfig: Optional<ExternalFileConfiguration>
+  ) => void
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
 }
 

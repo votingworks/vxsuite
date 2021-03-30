@@ -8,6 +8,7 @@ import MockDate from 'mockdate'
 import { UsbDriveStatus } from '../lib/usbstick'
 import ExportFinalResultsModal from './ExportFinalResultsModal'
 import renderInAppContext from '../../test/renderInAppContext'
+import { VotingMethod } from '../config/types'
 
 beforeEach(() => {
   jest.useFakeTimers()
@@ -142,6 +143,7 @@ test('render export modal when a usb drive is mounted and exports with external 
       fullElectionExternalTally: {
         overallTally: { contestTallies: {}, numberOfBallotsCounted: 0 },
         resultsByCategory: new Map(),
+        votingMethod: VotingMethod.Precinct,
       },
       externalVoteRecordsFile: externalFile,
     }

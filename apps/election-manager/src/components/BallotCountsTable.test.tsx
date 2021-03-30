@@ -68,6 +68,7 @@ describe('Ballot Counts by Precinct', () => {
       numberOfBallotsCounted: 54,
     }),
     resultsByCategory: externalResultsByCategory,
+    votingMethod: VotingMethod.Precinct,
   }
 
   it('renders as expected when there is no tally data', () => {
@@ -191,6 +192,7 @@ describe('Ballot Counts by Scanner', () => {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
     }),
+    votingMethod: VotingMethod.Precinct,
     resultsByCategory: new Map(),
   }
 
@@ -329,6 +331,7 @@ describe('Ballots Counts by Party', () => {
       numberOfBallotsCounted: 54,
     }),
     resultsByCategory: externalResultsByCategory,
+    votingMethod: VotingMethod.Precinct,
   }
 
   it('does not render when the election has not ballot styles with parties', () => {
@@ -481,11 +484,14 @@ describe('Ballots Counts by VotingMethod', () => {
     resultsByCategory,
   }
 
+  const numExternalBallots = 54
+
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
-      numberOfBallotsCounted: 54,
+      numberOfBallotsCounted: numExternalBallots,
     }),
     resultsByCategory: new Map(),
+    votingMethod: VotingMethod.Precinct,
   }
 
   it('renders as expected when there is no data', () => {
@@ -565,9 +571,14 @@ describe('Ballots Counts by VotingMethod', () => {
       }
     )
 
+    // The external tally is configured to be labelled as precinct data.
+
     expectedLabels.forEach(({ method, label }) => {
-      const expectedNumberOfBallots =
+      let expectedNumberOfBallots =
         resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0
+      if (method === VotingMethod.Precinct) {
+        expectedNumberOfBallots += numExternalBallots
+      }
       getByText(label)
       const tableRow = getByText(label).closest('tr')
       expect(tableRow).toBeDefined()
@@ -577,18 +588,11 @@ describe('Ballots Counts by VotingMethod', () => {
       )
     })
 
-    getByText('External Results File (file-name.csv)')
-    let tableRow = getByText('External Results File (file-name.csv)').closest(
-      'tr'
-    )
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 54))
-
     getByText('Total Ballot Count')
-    tableRow = getByText('Total Ballot Count').closest('tr')
+    const tableRow = getByText('Total Ballot Count').closest('tr')
     expect(tableRow).toBeDefined()
     expect(domGetByText(tableRow!, 131))
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3)
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
   })
 })

@@ -22,18 +22,14 @@ const BallotSummary = styled.div`
 
 interface Props {
   election: Election
-  internalBallotCount: number
-  externalBallotCount?: number
+  totalBallotCount: number
   ballotCountsByVotingMethod: Dictionary<number>
 }
 
 const TallyReportSummary: React.FC<Props> = ({
-  internalBallotCount,
-  externalBallotCount,
+  totalBallotCount,
   ballotCountsByVotingMethod,
 }) => {
-  const totalBallotCount = internalBallotCount + (externalBallotCount ?? 0)
-
   return (
     <BallotSummary>
       <h3>Ballots by Voting Method</h3>
@@ -56,12 +52,6 @@ const TallyReportSummary: React.FC<Props> = ({
               </tr>
             )
           })}
-          {externalBallotCount !== undefined && (
-            <tr data-testid="externalvoterecords">
-              <TD>External Results File</TD>
-              <TD textAlign="right">{format.count(externalBallotCount)}</TD>
-            </tr>
-          )}
           <tr data-testid="total">
             <TD>
               <strong>Total Ballots Cast</strong>
