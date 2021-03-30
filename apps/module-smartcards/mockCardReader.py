@@ -137,7 +137,7 @@ def enable_pollworker(election_definition: ElectionDefinition):
             "shortValue": json.dumps(
                 {"t": "pollworker", "h": election_definition.election_hash}
             ),
-            "longValue": election_definition.election_data,
+            "longValue": None,
         }
     )
 
