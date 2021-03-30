@@ -1,5 +1,9 @@
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, within } from '@testing-library/react'
+import {
+  electionSampleDefinition as election,
+  electionSampleDefinition,
+} from '@votingworks/fixtures'
 
 import App from './App'
 
@@ -11,6 +15,7 @@ import {
   getVoidedVoterCard,
   createVoterCard,
   getNewVoterCard,
+  pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 
 import {
@@ -22,6 +27,8 @@ import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
+import { VxPrintOnly } from './config/types'
+import { getZeroTally } from './utils/election'
 
 jest.useFakeTimers()
 
@@ -173,4 +180,47 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   await advanceTimersAndPromises()
 
   getByText('Device Not Configured')
+})
+
+test('Inserting pollworker card with invalid long data fall back as if there is no long data', async () => {
+  // ====================== BEGIN CONTEST SETUP ====================== //
+
+  const card = new MemoryCard()
+  const hardware = MemoryHardware.standard
+  const storage = new MemoryStorage()
+  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
+
+  card.removeCard()
+
+  setElectionInStorage(storage, electionSampleDefinition)
+  setStateInStorage(storage, {
+    isPollsOpen: false,
+    tally: getZeroTally(electionSampleDefinition.election),
+  })
+
+  const { getByText, getAllByTestId } = render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      machineConfig={machineConfig}
+    />
+  )
+
+  // ====================== END CONTEST SETUP ====================== //
+
+  getByText('Insert Poll Worker card to open.')
+
+  const pollworkerCard = pollWorkerCardForElection(election.electionHash)
+  card.insertCard(pollworkerCard, electionSampleDefinition.electionData)
+  await advanceTimersAndPromises()
+
+  // Land on pollworker screen
+  getByText('Open/Close Polls')
+
+  // Check that tally combination screen loads in the empty tally data state
+  const tableRows = getAllByTestId('tally-machine-row')
+  expect(tableRows.length).toBe(1)
+  within(tableRows[0]).getByText('000 (current machine)')
+  within(tableRows[0]).getByText('Save to Card')
 })
