@@ -727,11 +727,19 @@ const AppRoot: React.FC<Props> = ({
           const isValid =
             cardData.h === optionalElectionDefinition?.electionHash
 
-          /* istanbul ignore next */
-          const possibleCardTally: Optional<CardTally> =
+          let possibleCardTally: Optional<CardTally> =
             isValid && !!longValueExists
               ? ((await card.readLongObject()) as Optional<CardTally>)
               : undefined
+
+          // Handle a possible invalid object in the card long value
+          if (
+            possibleCardTally?.metadata === undefined ||
+            possibleCardTally?.tally === undefined ||
+            possibleCardTally?.totalBallotsPrinted === undefined
+          ) {
+            possibleCardTally = undefined
+          }
 
           dispatchAppState({
             type: 'processPollWorkerCard',

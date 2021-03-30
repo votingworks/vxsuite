@@ -25,6 +25,7 @@ import {
   measure102Contest,
   measure420Contest,
   voterContests,
+  election,
 } from '../test/helpers/election'
 import { MemoryStorage } from './utils/Storage'
 import { MemoryCard } from './utils/Card'
@@ -33,6 +34,7 @@ import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxMarkPlusVxPrint } from './config/types'
+import { getZeroTally } from './utils/election'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -370,6 +372,25 @@ it('VxMark+Print end-to-end flow', async () => {
   card.removeCard()
   await advanceTimersAndPromises()
   getByText('Insert Poll Worker card to open.')
+
+  // Insert a pollworker card with tally data on it.
+  card.insertCard(
+    pollWorkerCard,
+    JSON.stringify({
+      tally: getZeroTally(election),
+      metadata: [
+        {
+          machineId: '002',
+          timeSaved: new Date('2020-10-31').getTime(),
+          ballotsPrinted: 3,
+        },
+      ],
+      totalBallotsPrinted: 10,
+    })
+  )
+  await advanceTimersAndPromises()
+  getByText('Open Polls for Center Springfield')
+  getByText('Print Combined Report for 2 Machines')
 
   // ---------------
 
