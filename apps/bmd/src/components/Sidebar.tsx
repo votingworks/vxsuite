@@ -35,7 +35,7 @@ const Content = styled.div<Props>`
 `
 
 const Footer = styled.div`
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 `
 
 const Sidebar: React.FC<Props> = ({
@@ -51,9 +51,8 @@ const Sidebar: React.FC<Props> = ({
         <Header>
           <Prose>
             <Text as="h1" center>
-              {appName}
+              {appName} {appName && ' / '}
               <Text as="span" light noWrap>
-                {appName && ' / '}
                 {title}
               </Text>
             </Text>

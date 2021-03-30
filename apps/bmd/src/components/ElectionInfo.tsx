@@ -41,7 +41,6 @@ interface Props {
   ballotStyleId?: string
   electionDefinition: ElectionDefinition
   horizontal?: boolean
-  showElectionHash?: boolean
 }
 
 const ElectionInfo: React.FC<Props> = ({
@@ -49,9 +48,8 @@ const ElectionInfo: React.FC<Props> = ({
   ballotStyleId,
   electionDefinition,
   horizontal = false,
-  showElectionHash = false,
 }) => {
-  const { election, electionHash } = electionDefinition
+  const { election } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
   const precinct = election.precincts.find(
     (p) => p.id === precinctId
@@ -83,12 +81,6 @@ const ElectionInfo: React.FC<Props> = ({
                 </NoWrap>
               )}{' '}
               {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
-              {showElectionHash && (
-                <React.Fragment>
-                  <br />
-                  Election ID: {electionHash.substring(0, 10)}
-                </React.Fragment>
-              )}
             </Text>
           </Prose>
         </HorizontalContainer>
@@ -108,9 +100,6 @@ const ElectionInfo: React.FC<Props> = ({
           {state}
         </p>
         <Text bold>{precinct.name}</Text>
-        {showElectionHash && (
-          <Text small>Election ID: {electionHash.substring(0, 10)}</Text>
-        )}
       </Prose>
     </VerticalContainer>
   )

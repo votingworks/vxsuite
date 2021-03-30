@@ -9,6 +9,8 @@ import Sidebar from '../components/Sidebar'
 import TestMode from '../components/TestMode'
 import Text from '../components/Text'
 import ElectionInfo from '../components/ElectionInfo'
+import { MachineConfig } from '../config/types'
+import VersionsData from '../components/VersionsData'
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
@@ -22,6 +24,7 @@ interface Props {
   isLiveMode: boolean
   isPollsOpen: boolean
   showNoAccessibleControllerWarning: boolean
+  machineConfig: MachineConfig
 }
 
 const InsertCardScreen: React.FC<Props> = ({
@@ -31,6 +34,7 @@ const InsertCardScreen: React.FC<Props> = ({
   isLiveMode,
   isPollsOpen,
   showNoAccessibleControllerWarning,
+  machineConfig,
 }) => {
   return (
     <Screen flexDirection="row-reverse" white>
@@ -38,7 +42,10 @@ const InsertCardScreen: React.FC<Props> = ({
         <ElectionInfo
           electionDefinition={electionDefinition}
           precinctId={appPrecinctId}
-          showElectionHash
+        />
+        <VersionsData
+          machineConfig={machineConfig}
+          electionHash={electionDefinition.electionHash}
         />
       </Sidebar>
       <Main>

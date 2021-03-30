@@ -400,7 +400,7 @@ exports[`renders StartPage 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c0 {
@@ -1082,7 +1082,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c0 {
@@ -1917,7 +1917,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c0 {

@@ -175,7 +175,7 @@ const initialHardwareState: Readonly<HardwareState> = {
   hasChargerAttached: true,
   hasLowBattery: false,
   hasPrinterAttached: true,
-  machineConfig: { appMode: VxMarkOnly, machineId: '0000' },
+  machineConfig: { appMode: VxMarkOnly, machineId: '0000', codeVersion: 'dev' },
 }
 
 const initialSharedState: Readonly<SharedState> = {
@@ -1144,7 +1144,6 @@ const AppRoot: React.FC<Props> = ({
   if (isAdminCardPresent) {
     return (
       <AdminScreen
-        appMode={appMode}
         appPrecinctId={appPrecinctId}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
@@ -1153,6 +1152,7 @@ const AppRoot: React.FC<Props> = ({
         updateAppPrecinctId={updateAppPrecinctId}
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
+        machineConfig={machineConfig}
       />
     )
   }
@@ -1306,6 +1306,7 @@ const AppRoot: React.FC<Props> = ({
           showNoChargerAttachedWarning={!hasChargerAttached}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
+          machineConfig={machineConfig}
         />
       </IdleTimer>
     )

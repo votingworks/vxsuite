@@ -10,7 +10,6 @@ it('renders horizontal ElectionInfo with hash when specified', () => {
       precinctId="23"
       electionDefinition={electionDefinition}
       horizontal
-      showElectionHash
     />
   )
   expect(container).toMatchSnapshot()
@@ -29,11 +28,7 @@ it('renders horizontal ElectionInfo without hash by default', () => {
 
 it('renders vertical ElectionInfo with hash when specified', () => {
   const { container } = render(
-    <ElectionInfo
-      precinctId="23"
-      electionDefinition={electionDefinition}
-      showElectionHash
-    />
+    <ElectionInfo precinctId="23" electionDefinition={electionDefinition} />
   )
   expect(container).toMatchSnapshot()
 })

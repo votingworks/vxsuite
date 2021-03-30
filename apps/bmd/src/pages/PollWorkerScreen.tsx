@@ -22,6 +22,7 @@ import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import HorizontalRule from '../components/HorizontalRule'
 import { combineTallies } from '../utils/tallies'
 import Table from '../components/Table'
+import VersionsData from '../components/VersionsData'
 
 interface Props {
   activateCardlessBallotStyleId: (id: string) => void
@@ -381,12 +382,17 @@ const PollWorkerScreen: React.FC<Props> = ({
           centerContent
           title="Poll Worker Actions"
           footer={
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              precinctId={appPrecinctId}
-              showElectionHash
-              horizontal
-            />
+            <React.Fragment>
+              <ElectionInfo
+                electionDefinition={electionDefinition}
+                precinctId={appPrecinctId}
+                horizontal
+              />
+              <VersionsData
+                machineConfig={machineConfig}
+                electionHash={electionDefinition.electionHash}
+              />
+            </React.Fragment>
           }
         >
           <Prose>

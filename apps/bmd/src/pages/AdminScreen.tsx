@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { OptionalElectionDefinition } from '@votingworks/types'
 
-import { AppMode, SelectChangeEventFunction } from '../config/types'
+import { OptionalElectionDefinition } from '@votingworks/types'
+import { MachineConfig, SelectChangeEventFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -22,11 +22,11 @@ import {
 } from '../utils/date'
 import InputGroup from '../components/InputGroup'
 import Modal from '../components/Modal'
+import VersionsData from '../components/VersionsData'
 
 type Meridian = 'AM' | 'PM'
 
 interface Props {
-  appMode: AppMode
   appPrecinctId: string
   ballotsPrintedCount: number
   electionDefinition: OptionalElectionDefinition
@@ -35,13 +35,13 @@ interface Props {
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
+  machineConfig: MachineConfig
 }
 
 const getMachineTimezone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const AdminScreen: React.FC<Props> = ({
-  appMode,
   appPrecinctId,
   ballotsPrintedCount,
   electionDefinition,
@@ -50,6 +50,7 @@ const AdminScreen: React.FC<Props> = ({
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
+  machineConfig,
 }) => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
@@ -139,16 +140,16 @@ const AdminScreen: React.FC<Props> = ({
   if (isTestDeck && electionDefinition) {
     return (
       <TestBallotDeckScreen
-        appName={appMode.name}
         appPrecinctId={appPrecinctId}
         electionDefinition={electionDefinition}
         hideTestDeck={hideTestDeck}
+        machineConfig={machineConfig}
         isLiveMode={false} // always false for Test Mode
       />
     )
   }
 
-  const isTestDecksAvailable = !isLiveMode && appMode.isVxPrint
+  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isVxPrint
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
@@ -201,7 +202,7 @@ const AdminScreen: React.FC<Props> = ({
                     </Button>
                   </SegmentedButton>
                 </p>
-                {appMode.isVxPrint && (
+                {machineConfig.appMode.isVxPrint && (
                   <React.Fragment>
                     <p>
                       <Button
@@ -259,18 +260,23 @@ const AdminScreen: React.FC<Props> = ({
         </MainChild>
       </Main>
       <Sidebar
-        appName={election ? appMode.name : ''}
+        appName={election ? machineConfig.appMode.name : ''}
         centerContent
         title="Election Admin Actions"
         footer={
-          electionDefinition && (
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              precinctId={appPrecinctId}
-              showElectionHash
-              horizontal
+          <React.Fragment>
+            {electionDefinition && (
+              <ElectionInfo
+                electionDefinition={electionDefinition}
+                precinctId={appPrecinctId}
+                horizontal
+              />
+            )}
+            <VersionsData
+              machineConfig={machineConfig}
+              electionHash={electionDefinition?.electionHash}
             />
-          )
+          </React.Fragment>
         }
       >
         {election && (

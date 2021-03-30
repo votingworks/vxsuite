@@ -221,7 +221,7 @@ describe('Displays setup warning messages and errors scrrens', () => {
     await advanceTimersAndPromises()
 
     // expect to see admin screen
-    getByText('/ Election Admin Actions')
+    getByText('Election Admin Actions')
   })
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {

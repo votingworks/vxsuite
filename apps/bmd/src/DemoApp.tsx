@@ -48,7 +48,11 @@ export function getSampleStorage(): Storage {
 export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
   return {
     async get() {
-      return { appMode: VxMarkPlusVxPrint, machineId: '012' }
+      return {
+        appMode: VxMarkPlusVxPrint,
+        machineId: '012',
+        codeVersion: 'demo',
+      }
     },
   }
 }

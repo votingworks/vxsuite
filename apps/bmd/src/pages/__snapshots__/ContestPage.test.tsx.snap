@@ -448,7 +448,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c18 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c19 {
