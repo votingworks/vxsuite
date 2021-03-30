@@ -36,6 +36,7 @@ export const computeTallyForEitherNeitherContests = ({
       ...newTally[contestIndex],
     } as MsEitherNeitherTally
 
+    eitherNeitherTally.ballotsCast++
     // Tabulate EitherNeither section
     const eitherNeitherVote = votes[contest.eitherNeitherContestId] as YesNoVote
     const singleEitherNeitherVote = getSingleYesNoVote(eitherNeitherVote)

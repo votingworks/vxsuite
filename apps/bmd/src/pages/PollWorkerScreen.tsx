@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
-import { Precinct, ElectionDefinition } from '@votingworks/types'
+import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
 
-import { Tally, MachineConfig } from '../config/types'
+import { Tally, MachineConfig, CardTally } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -14,12 +14,14 @@ import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import { Printer } from '../utils/printer'
-import { isSameDay } from '../utils/date'
+import { formatFullDateTimeZone, isSameDay } from '../utils/date'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
 import Loading from '../components/Loading'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import HorizontalRule from '../components/HorizontalRule'
+import { combineTallies } from '../utils/tallies'
+import Table from '../components/Table'
 
 interface Props {
   activateCardlessBallotStyleId: (id: string) => void
@@ -35,6 +37,9 @@ interface Props {
   printer: Printer
   tally: Tally
   togglePollsOpen: () => void
+  saveTallyToCard: (cardTally: CardTally) => void
+  talliesOnCard: Optional<CardTally>
+  clearTalliesOnCard: () => void
 }
 
 const PollWorkerScreen: React.FC<Props> = ({
@@ -51,6 +56,9 @@ const PollWorkerScreen: React.FC<Props> = ({
   tally,
   togglePollsOpen,
   hasVotes,
+  saveTallyToCard,
+  talliesOnCard,
+  clearTalliesOnCard,
 }) => {
   const { election } = electionDefinition
   const electionDate = new Date(electionDefinition.election.date)
@@ -73,10 +81,28 @@ const PollWorkerScreen: React.FC<Props> = ({
   const isMarkAndPrintMode =
     machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark
 
-  const requestPrintReport = () => {
+  const [isSavingTally, setIsSavingTally] = useState(false)
+  const [isConfirmingCombinedPrint, setIsConfirmingCombinedPrint] = useState(
+    false
+  )
+  const [isPrintingCombinedReport, setIsPrintingCombinedReport] = useState(
+    false
+  )
+
+  const requestPrintSingleMachineReport = () => {
     setIsPrintingReport(true)
     setIsConfirmingPrintReport(false)
   }
+
+  const requestPrintCombinedMachineReport = () => {
+    setIsPrintingCombinedReport(true)
+    setIsConfirmingCombinedPrint(false)
+  }
+
+  const resetCardTallyData = useCallback(async () => {
+    await clearTalliesOnCard()
+    setIsPrintingCombinedReport(false)
+  }, [clearTalliesOnCard, setIsPrintingCombinedReport])
 
   const togglePolls = () => {
     if (isPrintMode) {
@@ -94,11 +120,16 @@ const PollWorkerScreen: React.FC<Props> = ({
   useEffect(() => {
     let isPrinting = false
     async function printReport() {
-      if (!isPrinting && isPrintingReport) {
+      if (!isPrinting && (isPrintingReport || isPrintingCombinedReport)) {
         await printer.print()
         window.setTimeout(() => {
-          togglePollsOpen()
-          setIsPrintingReport(false)
+          if (isPrintingReport) {
+            togglePollsOpen()
+            setIsPrintingReport(false)
+          }
+          if (isPrintingCombinedReport) {
+            resetCardTallyData()
+          }
         }, REPORT_PRINTING_TIMEOUT_SECONDS * 1000)
       }
     }
@@ -106,7 +137,13 @@ const PollWorkerScreen: React.FC<Props> = ({
     return () => {
       isPrinting = true
     }
-  }, [isPrintingReport, printer, togglePollsOpen])
+  }, [
+    isPrintingReport,
+    isPrintingCombinedReport,
+    printer,
+    togglePollsOpen,
+    resetCardTallyData,
+  ])
 
   const currentDateTime = new Date().toLocaleString()
   const reportPurposes = ['Publicly Posted', 'Officially Filed']
@@ -182,6 +219,83 @@ const PollWorkerScreen: React.FC<Props> = ({
     )
   }
 
+  const isMachineTallySaved =
+    talliesOnCard &&
+    !!talliesOnCard.metadata.find(
+      (metadata) => metadata.machineId === machineConfig.machineId
+    )
+
+  const combinedTally =
+    talliesOnCard === undefined
+      ? tally
+      : isMachineTallySaved
+      ? talliesOnCard.tally
+      : combineTallies(election, talliesOnCard.tally, tally)
+
+  const combinedBallotsPrinted =
+    talliesOnCard === undefined
+      ? ballotsPrintedCount
+      : isMachineTallySaved
+      ? talliesOnCard.totalBallotsPrinted
+      : talliesOnCard.totalBallotsPrinted + ballotsPrintedCount
+
+  const handleSavingTally = async () => {
+    setIsSavingTally(true)
+    const metadata = talliesOnCard?.metadata.slice() ?? []
+    metadata.push({
+      machineId: machineConfig.machineId,
+      timeSaved: Date.now(),
+      ballotsPrinted: ballotsPrintedCount,
+    })
+    await saveTallyToCard({
+      tally: combinedTally,
+      metadata,
+      totalBallotsPrinted: combinedBallotsPrinted,
+    })
+    setIsSavingTally(false)
+  }
+  const metadataRows: React.ReactChild[] = []
+  const machineMetadata = talliesOnCard?.metadata.slice() ?? []
+  if (!isMachineTallySaved) {
+    metadataRows.push(
+      <tr key={machineConfig.machineId} data-testid="tally-machine-row">
+        <td>
+          {machineConfig.machineId}
+          {' (current machine)'}
+        </td>
+        <td>
+          <Button small onPress={handleSavingTally}>
+            Save to Card
+          </Button>
+        </td>
+      </tr>
+    )
+    machineMetadata.push({
+      machineId: machineConfig.machineId,
+      timeSaved: Date.now(),
+      ballotsPrinted: ballotsPrintedCount,
+    })
+  }
+  if (talliesOnCard !== undefined) {
+    metadataRows.push(
+      ...talliesOnCard.metadata
+        .slice()
+        .sort((a, b) => b.timeSaved - a.timeSaved)
+        .map((m) => {
+          const isCurrentMachine = m.machineId === machineConfig.machineId
+          return (
+            <tr key={m.machineId} data-testid="tally-machine-row">
+              <td>
+                {m.machineId}
+                {isCurrentMachine && ' (current machine)'}
+              </td>
+              <td>{formatFullDateTimeZone(new Date(m.timeSaved))}</td>
+            </tr>
+          )
+        })
+    )
+  }
+
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
@@ -235,6 +349,30 @@ const PollWorkerScreen: React.FC<Props> = ({
                     : `Open Polls for ${precinct.name}`}
                 </Button>
               </p>
+              {!isPollsOpen && isPrintMode && (
+                <Prose>
+                  <h1>Combine Results Reports</h1>
+                  <p>
+                    Combine results from multiple machines in order to print a
+                    single consolidated results report.
+                  </p>
+                  <Table>
+                    <tbody>
+                      <tr>
+                        <th>Machine ID</th>
+                        <th>Saved on Card At</th>
+                      </tr>
+                      {metadataRows}
+                    </tbody>
+                  </Table>
+                  <p>
+                    <Button onPress={() => setIsConfirmingCombinedPrint(true)}>
+                      Print Combined Report for{' '}
+                      {pluralize('Machine', metadataRows.length, true)}
+                    </Button>
+                  </p>
+                </Prose>
+              )}
             </Prose>
           </MainChild>
         </Main>
@@ -269,7 +407,7 @@ const PollWorkerScreen: React.FC<Props> = ({
             }
             actions={
               <React.Fragment>
-                <Button primary onPress={requestPrintReport}>
+                <Button primary onPress={requestPrintSingleMachineReport}>
                   Yes
                 </Button>
                 <Button onPress={cancelConfirmPrint}>Cancel</Button>
@@ -330,6 +468,34 @@ const PollWorkerScreen: React.FC<Props> = ({
             }
           />
         )}
+        {isSavingTally && <Modal content={<Loading>Saving to card</Loading>} />}
+        {isPrintingCombinedReport && (
+          <Modal content={<Loading>Printing combined report</Loading>} />
+        )}
+        {isConfirmingCombinedPrint && (
+          <Modal
+            content={
+              <Prose>
+                <p>
+                  Do you want to print the combined results report from the{' '}
+                  {pluralize('machine', machineMetadata.length, true)} (
+                  {machineMetadata.map((m) => m.machineId).join(', ')}) and
+                  clear tally data from the card?
+                </p>
+              </Prose>
+            }
+            actions={
+              <React.Fragment>
+                <Button primary onPress={requestPrintCombinedMachineReport}>
+                  Print Report
+                </Button>
+                <Button onPress={() => setIsConfirmingCombinedPrint(false)}>
+                  Close
+                </Button>
+              </React.Fragment>
+            }
+          />
+        )}
       </Screen>
       {isPrintMode &&
         reportPurposes.map((reportPurpose) => (
@@ -337,22 +503,35 @@ const PollWorkerScreen: React.FC<Props> = ({
             <PollsReport
               key={`polls-report-${reportPurpose}`}
               appName={machineConfig.appMode.name}
-              ballotsPrintedCount={ballotsPrintedCount}
+              ballotsPrintedCount={
+                isPrintingCombinedReport
+                  ? combinedBallotsPrinted
+                  : ballotsPrintedCount
+              }
               currentDateTime={currentDateTime}
               election={election}
               isLiveMode={isLiveMode}
-              isPollsOpen={isPollsOpen}
+              isPollsOpen={
+                isPrintingCombinedReport ? false : !isPollsOpen // This report is printed just before the value of isPollsOpen is updated when opening/closing polls, so we want to print the report with the toggled value.
+              }
+              machineMetadata={
+                isPrintingCombinedReport ? machineMetadata : undefined
+              }
               machineConfig={machineConfig}
               precinctId={appPrecinctId}
               reportPurpose={reportPurpose}
             />
             <PrecinctTallyReport
               key={`tally-report-${reportPurpose}`}
-              ballotsPrintedCount={ballotsPrintedCount}
+              ballotsPrintedCount={
+                isPrintingCombinedReport
+                  ? combinedBallotsPrinted
+                  : ballotsPrintedCount
+              }
               currentDateTime={currentDateTime}
               election={election}
-              isPollsOpen={isPollsOpen}
-              tally={tally}
+              isPollsOpen={isPrintingCombinedReport ? false : !isPollsOpen}
+              tally={isPrintingCombinedReport ? combinedTally : tally}
               precinctId={appPrecinctId}
               reportPurpose={reportPurpose}
             />

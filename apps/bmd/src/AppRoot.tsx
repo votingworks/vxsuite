@@ -11,6 +11,7 @@ import {
   getContests,
   getPrecinctById,
   safeParseElectionDefinition,
+  Optional,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -37,6 +38,7 @@ import {
   SerializableActivationData,
   MachineConfig,
   PostVotingInstructions,
+  CardTally,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -82,6 +84,7 @@ interface CardState {
   pauseProcessingUntilNoCardPresent: boolean
   showPostVotingInstructions?: PostVotingInstructions
   voterCardCreatedAt: number
+  talliesOnCard?: Optional<CardTally>
 }
 
 interface UserState {
@@ -207,7 +210,11 @@ const initialAppState: Readonly<State> = {
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
   | { type: 'processAdminCard'; electionHash: string }
-  | { type: 'processPollWorkerCard'; isPollWorkerCardValid: boolean }
+  | {
+      type: 'processPollWorkerCard'
+      isPollWorkerCardValid: boolean
+      talliesOnCard?: CardTally
+    }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
   | { type: 'pauseCardProcessing' }
   | { type: 'resumeCardProcessing' }
@@ -231,6 +238,10 @@ type AppAction =
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | { type: 'activateCardlessBallot'; ballotStyleId: string }
   | { type: 'maintainCardlessBallot' }
+  | {
+      type: 'updatePollWorkerCardTally'
+      talliesOnCard?: CardTally
+    }
 
 const appReducer = (state: State, action: AppAction): State => {
   const resetTally = {
@@ -254,6 +265,7 @@ const appReducer = (state: State, action: AppAction): State => {
         isCardlessVoter: state.isCardlessVoter,
         isPollWorkerCardPresent: true,
         isPollWorkerCardValid: action.isPollWorkerCardValid,
+        talliesOnCard: action.talliesOnCard,
       }
     case 'processVoterCard':
       return {
@@ -429,6 +441,11 @@ const appReducer = (state: State, action: AppAction): State => {
         ballotStyleId: state.ballotStyleId!,
         votes: state.votes,
       }
+    case 'updatePollWorkerCardTally':
+      return {
+        ...state,
+        talliesOnCard: action.talliesOnCard,
+      }
   }
 }
 
@@ -471,6 +488,7 @@ const AppRoot: React.FC<Props> = ({
     shortValue,
     showPostVotingInstructions,
     tally,
+    talliesOnCard,
     userSettings,
     votes,
     voterCardCreatedAt,
@@ -615,6 +633,22 @@ const AppRoot: React.FC<Props> = ({
     dispatchAppState({ type: 'updateTally' })
   }, [])
 
+  const resetPollWorkerCardTally = useCallback(async () => {
+    const possibleCardTally = (await card.readLongObject()) as Optional<CardTally>
+    dispatchAppState({
+      type: 'updatePollWorkerCardTally',
+      talliesOnCard: possibleCardTally,
+    })
+  }, [card])
+
+  const saveTallyToCard = useCallback(
+    async (cardTally: CardTally) => {
+      await card.writeLongObject(cardTally)
+      await resetPollWorkerCardTally()
+    },
+    [card, resetPollWorkerCardTally]
+  )
+
   const fetchElection = useCallback(async () => {
     const electionData = await card.readLongString()
     /* istanbul ignore else */
@@ -690,10 +724,19 @@ const AppRoot: React.FC<Props> = ({
           break
         }
         case 'pollworker': {
+          const isValid =
+            cardData.h === optionalElectionDefinition?.electionHash
+
+          /* istanbul ignore next */
+          const possibleCardTally: Optional<CardTally> =
+            isValid && !!longValueExists
+              ? ((await card.readLongObject()) as Optional<CardTally>)
+              : undefined
+
           dispatchAppState({
             type: 'processPollWorkerCard',
-            isPollWorkerCardValid:
-              cardData.h === optionalElectionDefinition?.electionHash,
+            isPollWorkerCardValid: isValid,
+            talliesOnCard: possibleCardTally,
           })
           break
         }
@@ -800,6 +843,11 @@ const AppRoot: React.FC<Props> = ({
     await card.writeLongUint8Array(Uint8Array.of())
     dispatchAppState({ type: 'finishWritingLongValue' })
   }, [card])
+
+  const clearTalliesOnCard = useCallback(async () => {
+    await clearLongValue()
+    await resetPollWorkerCardTally()
+  }, [clearLongValue, resetPollWorkerCardTally])
 
   const markVoterCardVoided: MarkVoterCardFunction = useCallback(async () => {
     stopCardShortValueReadPolling()
@@ -1131,6 +1179,9 @@ const AppRoot: React.FC<Props> = ({
           printer={printer}
           tally={tally}
           togglePollsOpen={togglePollsOpen}
+          saveTallyToCard={saveTallyToCard}
+          talliesOnCard={talliesOnCard}
+          clearTalliesOnCard={clearTalliesOnCard}
           hasVotes={!!votes}
         />
       )

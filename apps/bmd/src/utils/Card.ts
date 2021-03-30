@@ -159,8 +159,7 @@ export class MemoryCard implements Card {
    */
   public async readLongObject<T>(): Promise<Optional<T>> {
     const { longValue } = this
-
-    if (!longValue) {
+    if (!longValue || longValue.length === 0) {
       return
     }
 

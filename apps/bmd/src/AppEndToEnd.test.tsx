@@ -351,6 +351,21 @@ it('VxMark+Print end-to-end flow', async () => {
   getByText('Open Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(3)
 
+  // Save tally to card to accumulate results with other machines
+  fireEvent.click(getByText('Save to Card'))
+  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4)
+  await advanceTimersAndPromises()
+  expect(queryByText('Save to Card')).toBeNull()
+
+  fireEvent.click(getByText('Print Combined Report for 1 Machine'))
+  fireEvent.click(getByText('Print Report'))
+  expect(printer.print).toHaveBeenCalledTimes(4)
+  await advanceTimersAndPromises()
+  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
+
+  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(5)
+  getByText('Save to Card')
+
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()

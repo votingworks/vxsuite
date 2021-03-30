@@ -4,7 +4,7 @@ import { Tally } from '../config/types'
 export const getZeroTally = (election: Election): Tally =>
   election.contests.map((contest) => {
     if (contest.type === 'yesno') {
-      return { yes: 0, no: 0, undervotes: 0 }
+      return { yes: 0, no: 0, undervotes: 0, ballotsCast: 0 }
     }
 
     if (contest.type === 'ms-either-neither') {
@@ -15,6 +15,7 @@ export const getZeroTally = (election: Election): Tally =>
         firstOption: 0,
         secondOption: 0,
         pickOneUndervotes: 0,
+        ballotsCast: 0,
       }
     }
 
@@ -22,8 +23,9 @@ export const getZeroTally = (election: Election): Tally =>
     if (contest.type === 'candidate') {
       return {
         candidates: contest.candidates.map(() => 0),
-        writeIns: [],
+        writeIns: 0,
         undervotes: 0,
+        ballotsCast: 0,
       }
     }
 

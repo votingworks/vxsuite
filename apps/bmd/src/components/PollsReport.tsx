@@ -1,10 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Precinct, Election } from '@votingworks/types'
-import { AppModeNames, MachineConfig } from '../config/types'
+import {
+  AppModeNames,
+  CardTallyMetadataEntry,
+  MachineConfig,
+} from '../config/types'
 import Prose from './Prose'
 
-import { dateLong } from '../utils/date'
+import { dateLong, formatFullDateTimeZone } from '../utils/date'
+import Table from './Table'
 
 const Report = styled.div`
   margin: 0;
@@ -75,6 +80,7 @@ interface Props {
   isLiveMode: boolean
   isPollsOpen: boolean
   machineConfig: MachineConfig
+  machineMetadata?: readonly CardTallyMetadataEntry[]
   precinctId: string
   reportPurpose: string
 }
@@ -87,11 +93,48 @@ const PollsReport: React.FC<Props> = ({
   isLiveMode,
   isPollsOpen,
   machineConfig,
+  machineMetadata,
   precinctId,
   reportPurpose,
 }) => {
   const { title, date, county, precincts, state, seal, sealURL } = election
   const precinct = precincts.find((p) => p.id === precinctId) as Precinct
+  let machineSection = (
+    <React.Fragment>
+      <dt>Machine ID</dt>
+      <dd>
+        <span>
+          {appName} #{machineConfig.machineId}
+        </span>
+      </dd>
+    </React.Fragment>
+  )
+  if (machineMetadata !== undefined) {
+    machineSection = (
+      <React.Fragment>
+        <dt>Machines</dt>
+        <Table>
+          <tbody>
+            <tr>
+              <th>Machine ID</th>
+              <th>Number of Ballots Printed</th>
+              <th>Time Tally Saved</th>
+            </tr>
+            {machineMetadata.map((metadata) => (
+              <tr key={metadata.machineId}>
+                <td>
+                  {appName} #{metadata.machineId}
+                </td>
+                <td>{metadata.ballotsPrinted}</td>
+                <td>{formatFullDateTimeZone(new Date(metadata.timeSaved))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </React.Fragment>
+    )
+  }
+
   return (
     <Report>
       <Header>
@@ -125,7 +168,7 @@ const PollsReport: React.FC<Props> = ({
               /* istanbul ignore next */
               !isLiveMode ? 'Unofficial TEST' : 'Official'
             }{' '}
-            {isPollsOpen ? 'Polls Closed Report' : 'Polls Opened Report'}
+            {isPollsOpen ? 'Polls Opened Report' : 'Polls Closed Report'}
           </h2>
           <h3>{title}</h3>
           <p>
@@ -141,15 +184,10 @@ const PollsReport: React.FC<Props> = ({
             This report should be <strong>{reportPurpose}</strong>.
           </p>
           <dl>
-            <dt>Machine ID</dt>
-            <dd>
-              <span>
-                {appName} #{machineConfig.machineId}
-              </span>
-            </dd>
+            {machineSection}
             <dt>Status</dt>
             <dd>
-              <span>{isPollsOpen ? 'Closed' : 'Opened'}</span>
+              <span>{isPollsOpen ? 'Opened' : 'Closed'}</span>
             </dd>
             <dt>Report Time</dt>
             <dd>
