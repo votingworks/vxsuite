@@ -494,7 +494,7 @@ const AppRoot: React.FC<Props> = ({
     voterCardCreatedAt,
   } = appState
 
-  const { appMode, codeVersion } = machineConfig
+  const { appMode } = machineConfig
   const { textSize: userSettingsTextSize } = userSettings
 
   const ballotStyle = optionalElectionDefinition?.election
@@ -1136,8 +1136,6 @@ const AppRoot: React.FC<Props> = ({
   if (isAdminCardPresent) {
     return (
       <AdminScreen
-        appMode={appMode}
-        codeVersion={codeVersion}
         appPrecinctId={appPrecinctId}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}

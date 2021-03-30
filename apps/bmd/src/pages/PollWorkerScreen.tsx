@@ -389,9 +389,8 @@ const PollWorkerScreen: React.FC<Props> = ({
                 horizontal
               />
               <VersionsData
-                machineId={machineConfig.machineId}
+                machineConfig={machineConfig}
                 electionHash={electionDefinition.electionHash}
-                softwareVersion="2021.03.22-1234567890"
               />
             </React.Fragment>
           }

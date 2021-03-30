@@ -29,8 +29,6 @@ afterEach(() => {
 test('renders ClerkScreen for VxPrintOnly', async () => {
   const { getByText, getByTestId } = render(
     <AdminScreen
-      appMode={VxPrintOnly}
-      codeVersion="test"
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
@@ -39,7 +37,10 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
       updateAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig()}
+      machineConfig={fakeMachineConfig({
+        appMode: VxPrintOnly,
+        codeVersion: '', // Override default
+      })}
     />
   )
 
@@ -68,8 +69,6 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
 test('renders date and time settings modal', async () => {
   const { getByText, getByTestId } = render(
     <AdminScreen
-      appMode={VxMarkOnly}
-      codeVersion="test"
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
@@ -78,7 +77,10 @@ test('renders date and time settings modal', async () => {
       updateAppPrecinctId={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig()}
+      machineConfig={fakeMachineConfig({
+        appMode: VxMarkOnly,
+        codeVersion: 'test',
+      })}
     />
   )
 

@@ -7,11 +7,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types'
 
-import {
-  AppModeNames,
-  EventTargetFunction,
-  MachineConfig,
-} from '../config/types'
+import { EventTargetFunction, MachineConfig } from '../config/types'
 
 import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
@@ -111,7 +107,6 @@ interface Precinct {
 }
 
 interface Props {
-  appName: AppModeNames
   appPrecinctId: string
   electionDefinition: ElectionDefinition
   hideTestDeck: () => void
@@ -122,11 +117,11 @@ interface Props {
 const initialPrecinct: Precinct = { id: '', name: '' }
 
 const TestBallotDeckScreen: React.FC<Props> = ({
-  appName,
   appPrecinctId,
   electionDefinition,
   hideTestDeck,
   isLiveMode,
+  machineConfig,
 }) => {
   const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])
@@ -229,7 +224,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
           </MainChild>
         </Main>
         <Sidebar
-          appName={appName}
+          appName={machineConfig.appMode.name}
           centerContent
           title="Election Admin Actions"
           footer={

@@ -1,11 +1,7 @@
 import React, { useState } from 'react'
 
 import { OptionalElectionDefinition } from '@votingworks/types'
-import {
-  AppMode,
-  MachineConfig,
-  SelectChangeEventFunction,
-} from '../config/types'
+import { MachineConfig, SelectChangeEventFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -31,9 +27,6 @@ import VersionsData from '../components/VersionsData'
 type Meridian = 'AM' | 'PM'
 
 interface Props {
-  // TODO: replace both of these with machineConfig to get machineId too
-  appMode: AppMode
-  codeVersion: string
   appPrecinctId: string
   ballotsPrintedCount: number
   electionDefinition: OptionalElectionDefinition
@@ -49,8 +42,6 @@ const getMachineTimezone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const AdminScreen: React.FC<Props> = ({
-  appMode,
-  codeVersion,
   appPrecinctId,
   ballotsPrintedCount,
   electionDefinition,
@@ -149,7 +140,6 @@ const AdminScreen: React.FC<Props> = ({
   if (isTestDeck && electionDefinition) {
     return (
       <TestBallotDeckScreen
-        appName={appMode.name}
         appPrecinctId={appPrecinctId}
         electionDefinition={electionDefinition}
         hideTestDeck={hideTestDeck}
@@ -159,7 +149,7 @@ const AdminScreen: React.FC<Props> = ({
     )
   }
 
-  const isTestDecksAvailable = !isLiveMode && appMode.isVxPrint
+  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isVxPrint
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
@@ -212,7 +202,7 @@ const AdminScreen: React.FC<Props> = ({
                     </Button>
                   </SegmentedButton>
                 </p>
-                {appMode.isVxPrint && (
+                {machineConfig.appMode.isVxPrint && (
                   <React.Fragment>
                     <p>
                       <Button
@@ -270,7 +260,7 @@ const AdminScreen: React.FC<Props> = ({
         </MainChild>
       </Main>
       <Sidebar
-        appName={election ? appMode.name : ''}
+        appName={election ? machineConfig.appMode.name : ''}
         centerContent
         title="Election Admin Actions"
         footer={
@@ -283,9 +273,8 @@ const AdminScreen: React.FC<Props> = ({
               />
             )}
             <VersionsData
-              machineId={machineConfig.machineId}
+              machineConfig={machineConfig}
               electionHash={electionDefinition?.electionHash}
-              softwareVersion={codeVersion}
             />
           </React.Fragment>
         }

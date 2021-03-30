@@ -13,6 +13,7 @@ import { mockOf, render } from '../../test/testUtils'
 import { randomBase64 } from '../utils/random'
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
+import { VxPrintOnly } from '../config/types'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')
@@ -22,11 +23,12 @@ randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w')
 it('renders test decks appropriately', async () => {
   const { getAllByText, getByText, queryAllByText } = render(
     <TestBallotDeckScreen
-      appName="VxPrint"
       appPrecinctId="23"
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       hideTestDeck={jest.fn()}
-      machineConfig={fakeMachineConfig()}
+      machineConfig={fakeMachineConfig({
+        appMode: VxPrintOnly,
+      })}
       isLiveMode={false}
     />
   )
@@ -70,10 +72,11 @@ it('renders test decks appropriately', async () => {
 it('shows printer not connected when appropriate', async () => {
   const { getByText } = render(
     <TestBallotDeckScreen
-      appName="VxPrint"
       appPrecinctId="23"
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
-      machineConfig={fakeMachineConfig()}
+      machineConfig={fakeMachineConfig({
+        appMode: VxPrintOnly,
+      })}
       hideTestDeck={jest.fn()}
       isLiveMode={false}
     />

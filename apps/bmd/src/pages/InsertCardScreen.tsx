@@ -44,7 +44,7 @@ const InsertCardScreen: React.FC<Props> = ({
           precinctId={appPrecinctId}
         />
         <VersionsData
-          machineId={machineConfig.machineId}
+          machineConfig={machineConfig}
           electionHash={electionDefinition.electionHash}
         />
       </Sidebar>

@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { MachineConfig } from '../config/types'
 import Prose from './Prose'
 import Text from './Text'
 
@@ -16,15 +17,13 @@ const VerticalVersions = styled(Prose)`
 `
 
 interface Props {
-  machineId: string
+  machineConfig: MachineConfig
   electionHash?: string
-  softwareVersion?: string
 }
 
 const VersionsData: React.FC<Props> = ({
-  machineId,
+  machineConfig: { machineId, codeVersion },
   electionHash,
-  softwareVersion,
 }) => {
   const electionId = electionHash?.substring(0, 10)
   const content = (
@@ -39,12 +38,12 @@ const VersionsData: React.FC<Props> = ({
       </Text>
     </React.Fragment>
   )
-  if (softwareVersion) {
+  if (codeVersion) {
     return (
       <VerticalVersions compact>
         {content}
         <Text small noWrap>
-          Software Version: <strong>{softwareVersion}</strong>
+          Software Version: <strong>{codeVersion}</strong>
         </Text>
       </VerticalVersions>
     )
