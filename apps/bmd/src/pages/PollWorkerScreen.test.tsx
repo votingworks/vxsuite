@@ -1,5 +1,9 @@
+import { join } from 'path'
 import React from 'react'
-import { asElectionDefinition } from '@votingworks/fixtures'
+import {
+  asElectionDefinition,
+  loadElectionDefinition,
+} from '@votingworks/fixtures'
 import { Election } from '@votingworks/types'
 
 import {
@@ -11,7 +15,6 @@ import { VxMarkOnly, VxPrintOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
 
-import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 import { defaultPrecinctId } from '../../test/helpers/election'
 
 import PollWorkerScreen from './PollWorkerScreen'
@@ -20,17 +23,22 @@ import fakePrinter from '../../test/helpers/fakePrinter'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 import { combineTallies } from '../utils/tallies'
 
+const electionSampleWithSealDefinition = loadElectionDefinition(
+  join(__dirname, '../data/electionSampleWithSeal.json')
+)
+const electionSampleWithSeal = electionSampleWithSealDefinition.election
+
 jest.useFakeTimers()
 
 test('renders PollWorkerScreen', async () => {
-  const election = electionSampleWithSeal as Election
+  const { election } = electionSampleWithSealDefinition
   const { getByText } = render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={asElectionDefinition(election)}
+      electionDefinition={electionSampleWithSealDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode={false}
@@ -50,7 +58,7 @@ test('renders PollWorkerScreen', async () => {
 
 test('switching out of test mode on election day', async () => {
   const election = {
-    ...electionSampleWithSeal,
+    ...electionSampleWithSealDefinition.election,
     date: new Date().toISOString(),
   } as Election
   const enableLiveMode = jest.fn()
@@ -82,7 +90,7 @@ test('switching out of test mode on election day', async () => {
 
 test('keeping test mode on election day', async () => {
   const election = {
-    ...electionSampleWithSeal,
+    ...electionSampleWithSealDefinition.election,
     date: new Date().toISOString(),
   } as Election
   const enableLiveMode = jest.fn()
@@ -113,7 +121,7 @@ test('keeping test mode on election day', async () => {
 })
 
 test('live mode on election day', async () => {
-  const election = electionSampleWithSeal as Election
+  const { election } = electionSampleWithSealDefinition
   const enableLiveMode = jest.fn()
   const { queryByText } = render(
     <PollWorkerScreen
@@ -121,7 +129,7 @@ test('live mode on election day', async () => {
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={asElectionDefinition(election)}
+      electionDefinition={electionSampleWithSealDefinition}
       enableLiveMode={enableLiveMode}
       hasVotes={false}
       isLiveMode
@@ -140,7 +148,7 @@ test('live mode on election day', async () => {
 })
 
 test('results combination option is not shown for a non print machine', async () => {
-  const election = electionSampleWithSeal as Election
+  const electionDefinition = electionSampleWithSealDefinition
   const enableLiveMode = jest.fn()
   const { queryByText } = render(
     <PollWorkerScreen
@@ -148,14 +156,14 @@ test('results combination option is not shown for a non print machine', async ()
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
       ballotStyleId=""
-      electionDefinition={asElectionDefinition(election)}
+      electionDefinition={electionDefinition}
       enableLiveMode={enableLiveMode}
       hasVotes={false}
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
-      tally={getZeroTally(election)}
+      tally={getZeroTally(electionDefinition.election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
@@ -167,7 +175,7 @@ test('results combination option is not shown for a non print machine', async ()
 })
 
 test('results combination option is shown for a print machine', async () => {
-  const election = electionSampleWithSeal as Election
+  const election = electionSampleWithSeal
   const saveTally = jest.fn()
   const clearTallies = jest.fn()
   const printFn = jest.fn()
@@ -226,7 +234,7 @@ test('results combination option is shown for a print machine', async () => {
 })
 
 test('results combination option is shown with prior tally results when provided', async () => {
-  const election = electionSampleWithSeal as Election
+  const election = electionSampleWithSeal
   const saveTally = jest.fn()
   const clearTallies = jest.fn()
   const printFn = jest.fn()
@@ -323,7 +331,7 @@ test('results combination option is shown with prior tally results when provided
 })
 
 test('results combination option is shown with prior tally results when results already have current machine saved', async () => {
-  const election = electionSampleWithSeal as Election
+  const election = electionSampleWithSeal
   const saveTally = jest.fn()
   const clearTallies = jest.fn()
   const printFn = jest.fn()

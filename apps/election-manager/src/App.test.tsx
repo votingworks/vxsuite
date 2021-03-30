@@ -10,7 +10,10 @@ import {
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
 } from '@testing-library/react'
-import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
+import {
+  electionWithMsEitherNeitherDefinition,
+  electionWithMsEitherNeitherWithDataFiles,
+} from '@votingworks/fixtures'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { ElectionDefinition } from '@votingworks/types'
 
@@ -29,7 +32,6 @@ import App from './App'
 import sleep from './utils/sleep'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import { convertFileToStorageString } from './utils/file'
-import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherWithDataFiles.cvrData
@@ -107,7 +109,7 @@ test('create election works', async () => {
 test('printing ballots, print report, and test decks', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: electionWithMsEitherNeitherDefinition,
   })
   jest.useFakeTimers()
 
@@ -125,7 +127,7 @@ test('printing ballots, print report, and test decks', async () => {
   getByText('Mock General Election Choctaw 2020')
   getByText(
     hasTextAcrossElements(
-      `Election Hash: ${eitherNeitherElectionDefinition.electionHash.slice(
+      `Election Hash: ${electionWithMsEitherNeitherDefinition.electionHash.slice(
         0,
         10
       )}`
@@ -220,12 +222,12 @@ test('printing ballots, print report, and test decks', async () => {
 
 test('tabulating CVRs', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: electionWithMsEitherNeitherDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVR_FILE,
-    eitherNeitherElectionDefinition.election
+    electionWithMsEitherNeitherDefinition.election
   )
 
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
@@ -265,12 +267,12 @@ test('tabulating CVRs', async () => {
     'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
   )
   // Test that each precinct has a tally report generated
-  eitherNeitherElectionDefinition.election.precincts.forEach((p) => {
+  electionWithMsEitherNeitherDefinition.election.precincts.forEach((p) => {
     getByText(`Official Precinct Tally Report for: ${p.name}`)
   })
   // The election title is written one extra time in the footer of the page.
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
-    eitherNeitherElectionDefinition.election.precincts.length + 1
+    electionWithMsEitherNeitherDefinition.election.precincts.length + 1
   )
 
   fireEvent.click(getByText('Tally'))
@@ -288,12 +290,12 @@ test('tabulating CVRs', async () => {
 
 test('tabulating CVRs with SEMS file', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: electionWithMsEitherNeitherDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVR_FILE,
-    eitherNeitherElectionDefinition.election
+    electionWithMsEitherNeitherDefinition.election
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
@@ -356,12 +358,12 @@ test('tabulating CVRs with SEMS file', async () => {
 
 test('changing election resets sems and cvr files', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: electionWithMsEitherNeitherDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVR_FILE,
-    eitherNeitherElectionDefinition.election
+    electionWithMsEitherNeitherDefinition.election
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
@@ -396,12 +398,12 @@ test('changing election resets sems and cvr files', async () => {
 
 test('clearing all files after marking as official clears SEMS and CVR file', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: electionWithMsEitherNeitherDefinition,
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
     EITHER_NEITHER_CVR_FILE,
-    eitherNeitherElectionDefinition.election
+    electionWithMsEitherNeitherDefinition.election
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 

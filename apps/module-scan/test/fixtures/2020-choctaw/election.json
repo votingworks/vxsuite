@@ -1,332 +1,332 @@
 {
-  "title": "General Election",
-  "state": "State of Mississippi",
-  "county": {
-    "id": "10",
-    "name": "Choctaw County"
-  },
-  "date": "2020-11-03T00:00:00-08:00",
-  "parties": [
-    {
-      "id": "2",
-      "name": "Democrat",
-      "fullName": "Democratic Party",
-      "abbrev": "D"
+    "title": "General Election",
+    "state": "State of Mississippi",
+    "county": {
+        "id": "10",
+        "name": "Choctaw County"
     },
-    {
-      "id": "3",
-      "name": "Republican",
-      "fullName": "Republican Party",
-      "abbrev": "R"
-    },
-    {
-      "id": "4",
-      "name": "Libertarian",
-      "fullName": "Libertarian Party",
-      "abbrev": "L"
-    },
-    {
-      "id": "5",
-      "name": "Reform",
-      "fullName": "Reform Party",
-      "abbrev": "REF"
-    },
-    {
-      "id": "6",
-      "name": "Natural Law",
-      "fullName": "Natural Law Party",
-      "abbrev": "N"
-    },
-    {
-      "id": "8",
-      "name": "Constitution",
-      "fullName": "Constitution Party",
-      "abbrev": "C"
-    },
-    {
-      "id": "9",
-      "name": "Green",
-      "fullName": "Green Party",
-      "abbrev": "G"
-    },
-    {
-      "id": "10",
-      "name": "America First",
-      "fullName": "America First Party",
-      "abbrev": "A"
-    },
-    {
-      "id": "11",
-      "name": "Independent",
-      "fullName": "Independent Party",
-      "abbrev": "I"
-    },
-    {
-      "id": "12",
-      "name": "Nonpartisan",
-      "fullName": "Nonpartisan",
-      "abbrev": "NP"
-    },
-    {
-      "id": "575000001",
-      "name": "Justice",
-      "fullName": "Justice Party",
-      "abbrev": "JUS"
-    },
-    {
-      "id": "575000002",
-      "name": "Prohibition",
-      "fullName": "Prohibition Party",
-      "abbrev": "PRO"
-    },
-    {
-      "id": "575000003",
-      "name": "American Delta",
-      "fullName": "American Delta Party",
-      "abbrev": "ADP"
-    },
-    {
-      "id": "575000004",
-      "name": "Veterans",
-      "fullName": "Veterans Party",
-      "abbrev": "VET"
-    }
-  ],
-  "contests": [
-    {
-      "id": "1",
-      "section": "United States",
-      "districtId": "100000275",
-      "type": "candidate",
-      "title": "United States President",
-      "seats": 1,
-      "allowWriteIns": true,
-      "candidates": [
+    "date": "2020-11-03T00:00:00-08:00",
+    "parties": [
         {
-          "id": "1",
-          "name": "Joe Biden",
-          "partyId": "2"
+            "id": "2",
+            "name": "Democrat",
+            "fullName": "Democratic Party",
+            "abbrev": "D"
         },
         {
-          "id": "2",
-          "name": "Donald Trump",
-          "partyId": "3"
+            "id": "3",
+            "name": "Republican",
+            "fullName": "Republican Party",
+            "abbrev": "R"
+        },
+        {
+            "id": "4",
+            "name": "Libertarian",
+            "fullName": "Libertarian Party",
+            "abbrev": "L"
+        },
+        {
+            "id": "5",
+            "name": "Reform",
+            "fullName": "Reform Party",
+            "abbrev": "REF"
+        },
+        {
+            "id": "6",
+            "name": "Natural Law",
+            "fullName": "Natural Law Party",
+            "abbrev": "N"
+        },
+        {
+            "id": "8",
+            "name": "Constitution",
+            "fullName": "Constitution Party",
+            "abbrev": "C"
+        },
+        {
+            "id": "9",
+            "name": "Green",
+            "fullName": "Green Party",
+            "abbrev": "G"
+        },
+        {
+            "id": "10",
+            "name": "America First",
+            "fullName": "America First Party",
+            "abbrev": "A"
+        },
+        {
+            "id": "11",
+            "name": "Independent",
+            "fullName": "Independent Party",
+            "abbrev": "I"
+        },
+        {
+            "id": "12",
+            "name": "Nonpartisan",
+            "fullName": "Nonpartisan",
+            "abbrev": "NP"
+        },
+        {
+            "id": "575000001",
+            "name": "Justice",
+            "fullName": "Justice Party",
+            "abbrev": "JUS"
+        },
+        {
+            "id": "575000002",
+            "name": "Prohibition",
+            "fullName": "Prohibition Party",
+            "abbrev": "PRO"
+        },
+        {
+            "id": "575000003",
+            "name": "American Delta",
+            "fullName": "American Delta Party",
+            "abbrev": "ADP"
+        },
+        {
+            "id": "575000004",
+            "name": "Veterans",
+            "fullName": "Veterans Party",
+            "abbrev": "VET"
         }
-      ]
-    },
-    {
-      "id": "2",
-      "section": "United States",
-      "districtId": "100000275",
-      "type": "candidate",
-      "title": "United States Senate",
-      "seats": 1,
-      "allowWriteIns": true,
-      "candidates": [
+    ],
+    "contests": [
         {
-          "id": "21",
-          "name": "Mike Espy",
-          "partyId": "2"
+            "id": "1",
+            "section": "United States",
+            "districtId": "100000275",
+            "type": "candidate",
+            "title": "United States President",
+            "seats": 1,
+            "allowWriteIns": true,
+            "candidates": [
+                {
+                    "id": "1",
+                    "name": "Joe Biden",
+                    "partyId": "2"
+                },
+                {
+                    "id": "2",
+                    "name": "Donald Trump",
+                    "partyId": "3"
+                }
+            ]
         },
         {
-          "id": "22",
-          "name": "Cindy Hyde-Smith",
-          "partyId": "3"
+            "id": "2",
+            "section": "United States",
+            "districtId": "100000275",
+            "type": "candidate",
+            "title": "United States Senate",
+            "seats": 1,
+            "allowWriteIns": true,
+            "candidates": [
+                {
+                    "id": "21",
+                    "name": "Mike Espy",
+                    "partyId": "2"
+                },
+                {
+                    "id": "22",
+                    "name": "Cindy Hyde-Smith",
+                    "partyId": "3"
+                },
+                {
+                    "id": "23",
+                    "name": "Jimmy Edwards",
+                    "partyId": "4"
+                }
+            ]
         },
         {
-          "id": "23",
-          "name": "Jimmy Edwards",
-          "partyId": "4"
+            "id": "3",
+            "section": "United States",
+            "districtId": "100000275",
+            "type": "candidate",
+            "title": "United States US House of Representatives 1st Congressional District",
+            "seats": 1,
+            "allowWriteIns": true,
+            "candidates": [
+                {
+                    "id": "31",
+                    "name": "Antonia Eliason",
+                    "partyId": "2"
+                },
+                {
+                    "id": "32",
+                    "name": "Trent Kelly",
+                    "partyId": "3"
+                }
+            ]
+        },
+        {
+            "id": "4",
+            "section": "State of Mississippi",
+            "districtId": "100000285",
+            "type": "candidate",
+            "title": "Supreme Court District 3 (Northern) Position 1",
+            "seats": 1,
+            "allowWriteIns": true,
+            "candidates": [
+                {
+                    "id": "41",
+                    "name": "Josiah Coleman",
+                    "partyId": "12"
+                },
+                {
+                    "id": "42",
+                    "name": "Percy L. Lynchard Jr.",
+                    "partyId": "12"
+                }
+            ]
+        },
+        {
+            "id": "initiative-65",
+            "districtId": "100000275",
+            "type": "yesno",
+            "section": "State of Mississippi",
+            "shortTitle": "Initiative 65",
+            "title": "Medical Marijuana Amendment - Initiative 65",
+            "description": "Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?"
+        },
+        {
+            "id": "initiative-65-a",
+            "districtId": "100000275",
+            "type": "yesno",
+            "section": "State of Mississippi",
+            "shortTitle": "Initiative 65A",
+            "title": "Medical Marijuana Amendment - Initiative 65A",
+            "description": "Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?"
+        },
+        {
+            "id": "flag-question",
+            "districtId": "100000275",
+            "type": "yesno",
+            "section": "State of Mississippi",
+            "shortTitle": "Mississippi State Flag Referendum",
+            "title": "Mississippi State Flag Referendum",
+            "description": "Shall the State of Mississippi adopt the following proposed state flag to replace the current state flag? \n\n <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 625 375\"><path fill=\"#fff\" d=\"M0 0v375h625V0z\"/><path fill=\"#012369\" d=\"M243 243H0V0h243z\"/><path fill=\"#bc0a29\" d=\"M0 250h625v125H0z\"/><path fill=\"#012369\" d=\"M625 0v125H250V0z\"/><path id=\"a\" fill=\"#fff\" d=\"M121.499 57.502l3.407 10.716 11.092-.021-8.986 6.602 3.448 10.702-8.961-6.635-8.961 6.635 3.448-10.702L107 68.197l11.091.021z\"/><use transform=\"translate(43.298 26.307)\" xlink:href=\"#a\"/><use transform=\"translate(43.299 76.301)\" xlink:href=\"#a\"/><use transform=\"translate(0 101.305)\" xlink:href=\"#a\"/><use transform=\"translate(-43.296 76.301)\" xlink:href=\"#a\"/><use transform=\"translate(-43.297 26.308)\" xlink:href=\"#a\"/><use transform=\"translate(-74.06 0.186)\" xlink:href=\"#a\"/><use transform=\"translate(-89.326 40.456)\" xlink:href=\"#a\"/><use transform=\"translate(-84.155 83.219)\" xlink:href=\"#a\"/><use transform=\"translate(-59.667 118.656)\" xlink:href=\"#a\"/><use transform=\"translate(-21.539 138.691)\" xlink:href=\"#a\"/><use transform=\"translate(21.54 138.69)\" xlink:href=\"#a\"/><use transform=\"translate(59.669 118.656)\" xlink:href=\"#a\"/><use transform=\"translate(84.157 83.219)\" xlink:href=\"#a\"/><use transform=\"translate(89.327 40.458)\" xlink:href=\"#a\"/><use transform=\"translate(74.062 0.186)\" xlink:href=\"#a\"/><use transform=\"translate(41.823 -28.386)\" xlink:href=\"#a\"/><use transform=\"translate(0 -40)\" xlink:href=\"#a\"/><use transform=\"translate(-41.822 -29.688)\" xlink:href=\"#a\"/><use transform=\"scale(1.65) translate(-47.9 2.904)\" xlink:href=\"#a\"/></svg>"
+        },
+        {
+            "id": "runoffs-question",
+            "districtId": "100000275",
+            "type": "yesno",
+            "section": "State of Mississippi",
+            "shortTitle": "Remove Electoral Vote Requirement and Establish Runoffs",
+            "title": "Remove Electoral Vote Requirement and Establish Runoffs for Gubernatorial and State Office Elections",
+            "description": "Should the state remove the requirement that a candidate for governor or elected state office receive the most votes in a majority of the state's 122 House of Representatives districts (the electoral vote requirement), remove the role of the Mississippi House of Representatives in choosing a winner if no candidate receives majority approval, and provide that a candidate for governor or state office must receive a majority vote of the people to win and that a runoff election will be held between the two highest vote-getters in the event that no candidate receives a majority vote?"
         }
-      ]
-    },
-    {
-      "id": "3",
-      "section": "United States",
-      "districtId": "100000275",
-      "type": "candidate",
-      "title": "United States US House of Representatives 1st Congressional District",
-      "seats": 1,
-      "allowWriteIns": true,
-      "candidates": [
+    ],
+    "districts": [
         {
-          "id": "31",
-          "name": "Antonia Eliason",
-          "partyId": "2"
+            "id": "100000275",
+            "name": "State Of Mississippi"
         },
         {
-          "id": "32",
-          "name": "Trent Kelly",
-          "partyId": "3"
+            "id": "100000285",
+            "name": "Choctaw"
         }
-      ]
-    },
-    {
-      "id": "4",
-      "section": "State of Mississippi",
-      "districtId": "100000285",
-      "type": "candidate",
-      "title": "Supreme Court District 3 (Northern) Position 1",
-      "seats": 1,
-      "allowWriteIns": true,
-      "candidates": [
+    ],
+    "precincts": [
         {
-          "id": "41",
-          "name": "Josiah Coleman",
-          "partyId": "12"
+            "id": "6522",
+            "name": "District 5"
         },
         {
-          "id": "42",
-          "name": "Percy L. Lynchard Jr.",
-          "partyId": "12"
+            "id": "6524",
+            "name": "Chester"
+        },
+        {
+            "id": "6525",
+            "name": "East Weir"
+        },
+        {
+            "id": "6526",
+            "name": "French Camp"
+        },
+        {
+            "id": "6527",
+            "name": "Fentress"
+        },
+        {
+            "id": "6528",
+            "name": "Hebron"
+        },
+        {
+            "id": "6529",
+            "name": "Kenego"
+        },
+        {
+            "id": "6532",
+            "name": "Panhandle"
+        },
+        {
+            "id": "6534",
+            "name": "Reform"
+        },
+        {
+            "id": "6536",
+            "name": "Sherwood"
+        },
+        {
+            "id": "6537",
+            "name": "Southwest Ackerman"
+        },
+        {
+            "id": "6538",
+            "name": "Bywy"
+        },
+        {
+            "id": "6539",
+            "name": "West Weir"
         }
-      ]
-    },
-    {
-      "id": "initiative-65",
-      "districtId": "100000275",
-      "type": "yesno",
-      "section": "State of Mississippi",
-      "shortTitle": "Initiative 65",
-      "title": "Medical Marijuana Amendment - Initiative 65",
-      "description": "Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?"
-    },
-    {
-      "id": "initiative-65-a",
-      "districtId": "100000275",
-      "type": "yesno",
-      "section": "State of Mississippi",
-      "shortTitle": "Initiative 65A",
-      "title": "Medical Marijuana Amendment - Initiative 65A",
-      "description": "Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?"
-    },
-    {
-      "id": "flag-question",
-      "districtId": "100000275",
-      "type": "yesno",
-      "section": "State of Mississippi",
-      "shortTitle": "Mississippi State Flag Referendum",
-      "title": "Mississippi State Flag Referendum",
-      "description": "Shall the State of Mississippi adopt the following proposed state flag to replace the current state flag? \n\n <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 625 375\"><path fill=\"#fff\" d=\"M0 0v375h625V0z\"/><path fill=\"#012369\" d=\"M243 243H0V0h243z\"/><path fill=\"#bc0a29\" d=\"M0 250h625v125H0z\"/><path fill=\"#012369\" d=\"M625 0v125H250V0z\"/><path id=\"a\" fill=\"#fff\" d=\"M121.499 57.502l3.407 10.716 11.092-.021-8.986 6.602 3.448 10.702-8.961-6.635-8.961 6.635 3.448-10.702L107 68.197l11.091.021z\"/><use transform=\"translate(43.298 26.307)\" xlink:href=\"#a\"/><use transform=\"translate(43.299 76.301)\" xlink:href=\"#a\"/><use transform=\"translate(0 101.305)\" xlink:href=\"#a\"/><use transform=\"translate(-43.296 76.301)\" xlink:href=\"#a\"/><use transform=\"translate(-43.297 26.308)\" xlink:href=\"#a\"/><use transform=\"translate(-74.06 0.186)\" xlink:href=\"#a\"/><use transform=\"translate(-89.326 40.456)\" xlink:href=\"#a\"/><use transform=\"translate(-84.155 83.219)\" xlink:href=\"#a\"/><use transform=\"translate(-59.667 118.656)\" xlink:href=\"#a\"/><use transform=\"translate(-21.539 138.691)\" xlink:href=\"#a\"/><use transform=\"translate(21.54 138.69)\" xlink:href=\"#a\"/><use transform=\"translate(59.669 118.656)\" xlink:href=\"#a\"/><use transform=\"translate(84.157 83.219)\" xlink:href=\"#a\"/><use transform=\"translate(89.327 40.458)\" xlink:href=\"#a\"/><use transform=\"translate(74.062 0.186)\" xlink:href=\"#a\"/><use transform=\"translate(41.823 -28.386)\" xlink:href=\"#a\"/><use transform=\"translate(0 -40)\" xlink:href=\"#a\"/><use transform=\"translate(-41.822 -29.688)\" xlink:href=\"#a\"/><use transform=\"scale(1.65) translate(-47.9 2.904)\" xlink:href=\"#a\"/></svg>"
-    },
-    {
-      "id": "runoffs-question",
-      "districtId": "100000275",
-      "type": "yesno",
-      "section": "State of Mississippi",
-      "shortTitle": "Remove Electoral Vote Requirement and Establish Runoffs",
-      "title": "Remove Electoral Vote Requirement and Establish Runoffs for Gubernatorial and State Office Elections",
-      "description": "Should the state remove the requirement that a candidate for governor or elected state office receive the most votes in a majority of the state's 122 House of Representatives districts (the electoral vote requirement), remove the role of the Mississippi House of Representatives in choosing a winner if no candidate receives majority approval, and provide that a candidate for governor or state office must receive a majority vote of the people to win and that a runoff election will be held between the two highest vote-getters in the event that no candidate receives a majority vote?"
+    ],
+    "ballotStyles": [
+        {
+            "id": "1",
+            "precincts": [
+                "6522",
+                "6524",
+                "6525",
+                "6526",
+                "6527",
+                "6528",
+                "6529",
+                "6532",
+                "6534",
+                "6536",
+                "6537",
+                "6538",
+                "6539"
+            ],
+            "districts": ["100000275", "100000285"]
+        }
+    ],
+    "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+    "ballotStrings": {
+        "Official Ballot": "Official Ballot",
+        "TEST BALLOT": "TEST BALLOT",
+        "Yes": "Yes",
+        "No": "No",
+        "Precinct": "Precinct",
+        "Style": "Style",
+        "Page": "Page",
+        "Pages": "Pages",
+        "{{primaryPartyName}} {{electionTitle}}": "{{primaryPartyName}} {{electionTitle}}",
+        "write-in": "write-in",
+        "Vote for 1": "Vote for 1",
+        "Vote for not more than {{ seats }}": "Vote for not more than {{ seats }}",
+        "voteYesOrNo": "Vote <strong>Yes</strong> or <strong>No</strong>",
+        "Instructions": "To Vote",
+        "To vote, use a black pen to completely fill in the oval to the left of your choice.": "Use a dark pen to completely fill in the oval to the left of your choice.",
+        "To Vote for a Write-In": "To Add a Candidate",
+        "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.": "Completely fill in the oval to the left of the “write-in” line and print the person’s name.",
+        "To correct a mistake": "To Correct a Mistake",
+        "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "Contact your local election office to request a new ballot. Marks other than filled ovals may void your ballot.",
+        "Thank you for voting.": "Thank you for voting.",
+        "You have reached the end of the ballot. Please review your ballot selections.": "You have reached the end of the ballot. Please review your ballot selections.",
+        "officialInitials": "Initialing Manager"
     }
-  ],
-  "districts": [
-    {
-      "id": "100000275",
-      "name": "State Of Mississippi"
-    },
-    {
-      "id": "100000285",
-      "name": "Choctaw"
-    }
-  ],
-  "precincts": [
-    {
-      "id": "6522",
-      "name": "District 5"
-    },
-    {
-      "id": "6524",
-      "name": "Chester"
-    },
-    {
-      "id": "6525",
-      "name": "East Weir"
-    },
-    {
-      "id": "6526",
-      "name": "French Camp"
-    },
-    {
-      "id": "6527",
-      "name": "Fentress"
-    },
-    {
-      "id": "6528",
-      "name": "Hebron"
-    },
-    {
-      "id": "6529",
-      "name": "Kenego"
-    },
-    {
-      "id": "6532",
-      "name": "Panhandle"
-    },
-    {
-      "id": "6534",
-      "name": "Reform"
-    },
-    {
-      "id": "6536",
-      "name": "Sherwood"
-    },
-    {
-      "id": "6537",
-      "name": "Southwest Ackerman"
-    },
-    {
-      "id": "6538",
-      "name": "Bywy"
-    },
-    {
-      "id": "6539",
-      "name": "West Weir"
-    }
-  ],
-  "ballotStyles": [
-    {
-      "id": "1",
-      "precincts": [
-        "6522",
-        "6524",
-        "6525",
-        "6526",
-        "6527",
-        "6528",
-        "6529",
-        "6532",
-        "6534",
-        "6536",
-        "6537",
-        "6538",
-        "6539"
-      ],
-      "districts": ["100000275", "100000285"]
-    }
-  ],
-  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
-  "ballotStrings": {
-    "Official Ballot": "Official Ballot",
-    "TEST BALLOT": "TEST BALLOT",
-    "Yes": "Yes",
-    "No": "No",
-    "Precinct": "Precinct",
-    "Style": "Style",
-    "Page": "Page",
-    "Pages": "Pages",
-    "{{primaryPartyName}} {{electionTitle}}": "{{primaryPartyName}} {{electionTitle}}",
-    "write-in": "write-in",
-    "Vote for 1": "Vote for 1",
-    "Vote for not more than {{ seats }}": "Vote for not more than {{ seats }}",
-    "voteYesOrNo": "Vote <strong>Yes</strong> or <strong>No</strong>",
-    "Instructions": "To Vote",
-    "To vote, use a black pen to completely fill in the oval to the left of your choice.": "Use a dark pen to completely fill in the oval to the left of your choice.",
-    "To Vote for a Write-In": "To Add a Candidate",
-    "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.": "Completely fill in the oval to the left of the “write-in” line and print the person’s name.",
-    "To correct a mistake": "To Correct a Mistake",
-    "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "Contact your local election office to request a new ballot. Marks other than filled ovals may void your ballot.",
-    "Thank you for voting.": "Thank you for voting.",
-    "You have reached the end of the ballot. Please review your ballot selections.": "You have reached the end of the ballot. Please review your ballot selections.",
-    "officialInitials": "Initialing Manager"
-  }
 }

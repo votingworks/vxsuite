@@ -1,11 +1,10 @@
 import { createMemoryHistory, MemoryHistory } from 'history'
 import React, { RefObject } from 'react'
 import { Router } from 'react-router-dom'
-import { sha256 } from 'js-sha256'
 import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
-import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
-import { Election, ElectionDefinition } from '@votingworks/types'
+import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures'
+import { ElectionDefinition } from '@votingworks/types'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -21,12 +20,6 @@ import CastVoteRecordFiles, {
 } from '../src/utils/CastVoteRecordFiles'
 import { UsbDriveStatus } from '../src/lib/usbstick'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
-
-export const eitherNeitherElectionDefinition = {
-  election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
-  electionData: electionWithMsEitherNeitherRawData,
-  electionHash: sha256(electionWithMsEitherNeitherRawData),
-}
 
 interface RenderInAppContextParams {
   route?: string | undefined
@@ -64,7 +57,7 @@ export default function renderInAppContext(
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
     castVoteRecordFiles = CastVoteRecordFiles.empty,
-    electionDefinition = eitherNeitherElectionDefinition,
+    electionDefinition = electionWithMsEitherNeitherDefinition,
     configuredAt = '',
     isOfficialResults = false,
     printBallotRef = undefined,

@@ -756,10 +756,54 @@ test('validates admin cards have hex-encoded hashes', () => {
   `)
 })
 
-test('safeParseElectionDefinition computes the election hash', () => {
+test('safeParseElectionDefinition computes the election hash for election JSON', () => {
   expect(
     safeParseElectionDefinition(electionData).unwrap().electionHash
   ).toMatchInlineSnapshot(
     `"d5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c"`
   )
+})
+
+test('safeParseElectionDefinition accepts valid election definition object', () => {
+  safeParseElectionDefinition({
+    election: electionSample,
+    electionData,
+    electionHash:
+      'd5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c',
+  }).unwrap()
+})
+
+test('safeParseElectionDefinition accepts valid election definition JSON', () => {
+  safeParseElectionDefinition(
+    JSON.stringify({
+      election: electionSample,
+      electionData,
+      electionHash:
+        'd5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c',
+    })
+  ).unwrap()
+})
+
+test('safeParseElectionDefinition checks the election hash for election definition', () => {
+  expect(
+    safeParseElectionDefinition({
+      election: electionSample,
+      electionData,
+      electionHash: 'BAD HASH',
+    }).unwrapErr()
+  ).toMatchInlineSnapshot(`
+    [Error: [
+      {
+        "code": "custom",
+        "path": [
+          "electionHash"
+        ],
+        "message": "Invalid election hash; expected d5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c but got BAD HASH"
+      }
+    ]]
+  `)
+})
+
+test('safeParseElectionDefinition cannot parse election object', () => {
+  safeParseElectionDefinition(electionSample).unwrapErr()
 })

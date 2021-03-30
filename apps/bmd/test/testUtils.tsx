@@ -1,21 +1,12 @@
+import { join } from 'path'
 import { createMemoryHistory, History } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { render as testRender } from '@testing-library/react'
-import {
-  Contests,
-  ElectionDefinition,
-  parseElection,
-  VotesDict,
-} from '@votingworks/types'
-import { asElectionDefinition } from '@votingworks/fixtures'
+import { loadElectionDefinition } from '@votingworks/fixtures'
+import { Contests, ElectionDefinition, VotesDict } from '@votingworks/types'
 
 import * as GLOBALS from '../src/config/globals'
-
-// it's necessary to use the no-seal version, which has neither
-// of the two optional seal fields, because otherwise
-// typescript concludes that sealURL is required.
-import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 
 import {
   MachineConfig,
@@ -29,14 +20,19 @@ import fakePrinter from './helpers/fakePrinter'
 import fakeMachineConfig from './helpers/fakeMachineConfig'
 import { Printer } from '../src/utils/printer'
 
+// it's necessary to use the no-seal version, which has neither
+// of the two optional seal fields, because otherwise
+// typescript concludes that sealURL is required.
+const electionSampleNoSealDefinition = loadElectionDefinition(
+  join(__dirname, '../src/data/electionSampleNoSeal.json')
+)
+
 export function render(
   component: React.ReactNode,
   {
     route = '/',
     ballotStyleId = '',
-    electionDefinition = asElectionDefinition(
-      parseElection(electionSampleNoSeal)
-    ),
+    electionDefinition = electionSampleNoSealDefinition,
     contests = electionDefinition.election.contests,
     markVoterCardVoided = jest.fn(),
     markVoterCardPrinted = jest.fn(),

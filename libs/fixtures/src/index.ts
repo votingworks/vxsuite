@@ -1,47 +1,53 @@
-import { Election, ElectionDefinition } from '@votingworks/types'
-import { sha256 } from 'js-sha256'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import {
+  Election,
+  ElectionDefinition,
+  safeParseElectionDefinition,
+} from '@votingworks/types'
 
-import electionSampleUntyped from './data/electionSample.json'
-import electionSample2Untyped from './data/electionSample2/election.json'
-import primaryElectionSampleUntyped from './data/electionPrimary/electionPrimarySample.json'
-import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimary/electionMultiPartyPrimarySample.json'
-import electionSampleLongContentUntyped from './data/electionSampleLongContent.json'
-import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json'
-
-export function asElectionDefinition(election: Election): ElectionDefinition {
-  const electionData = JSON.stringify(election)
-  return {
-    election,
-    electionData,
-    electionHash: sha256(electionData),
-  }
+export function loadElectionDefinition(path: string): ElectionDefinition {
+  return safeParseElectionDefinition(readFileSync(path, 'utf-8')).unwrap()
 }
 
-export const electionSample = (electionSampleUntyped as unknown) as Election
-export const electionSample2 = (electionSample2Untyped as unknown) as Election
-export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) as Election
-export const multiPartyPrimaryElection = (multiPartyPrimaryElectionUntyped as unknown) as Election
-export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
-export const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
+export const electionSampleDefinition = loadElectionDefinition(
+  join(__dirname, './data/electionSample.json')
+)
+export const electionSample2Definition = loadElectionDefinition(
+  join(__dirname, './data/electionSample2/election.json')
+)
+export const primaryElectionSampleDefinition = loadElectionDefinition(
+  join(__dirname, './data/electionPrimary/electionPrimarySample.json')
+)
+export const multiPartyPrimaryElectionDefinition = loadElectionDefinition(
+  join(
+    __dirname,
+    './data/electionMultiPartyPrimary/electionMultiPartyPrimarySample.json'
+  )
+)
+export const electionSampleLongContentDefinition = loadElectionDefinition(
+  join(__dirname, './data/electionSampleLongContent.json')
+)
+export const electionWithMsEitherNeitherDefinition = loadElectionDefinition(
+  join(
+    __dirname,
+    './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json'
+  )
+)
 
-export const electionSampleDefinition = asElectionDefinition(electionSample)
-export const electionSample2Definition = asElectionDefinition(electionSample2)
-export const primaryElectionSampleDefinition = asElectionDefinition(
-  primaryElectionSample
-)
-export const multiPartyPrimaryElectionDefinition = asElectionDefinition(
-  multiPartyPrimaryElection
-)
-export const electionSampleLongContentDefinition = asElectionDefinition(
-  electionSampleLongContent
-)
-export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
-  electionWithMsEitherNeither
-)
+export function asElectionDefinition(election: Election): ElectionDefinition {
+  return safeParseElectionDefinition(JSON.stringify(election)).unwrap()
+}
 
-export const electionWithMsEitherNeitherRawData = JSON.stringify(
-  electionWithMsEitherNeitherUntyped
-)
+export const electionSample = electionSampleDefinition.election
+export const electionSample2 = electionSample2Definition.election
+export const primaryElectionSample = primaryElectionSampleDefinition.election
+export const multiPartyPrimaryElection =
+  multiPartyPrimaryElectionDefinition.election
+export const electionSampleLongContent =
+  electionSampleLongContentDefinition.election
+export const electionWithMsEitherNeither =
+  electionWithMsEitherNeitherDefinition.election
 
 // Objects with election information grouped with any other data files that may be useful for testing
 // with that election. When adding new data files, make sure to add new tests in index.test.ts to make sure the

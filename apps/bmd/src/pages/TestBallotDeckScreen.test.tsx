@@ -1,19 +1,18 @@
-import {
-  // electionSample,
-  parseElection,
-} from '@votingworks/types'
-// TODO: Tally: Use electionSample from @votingworks/fixtures once published.
-
+import { join } from 'path'
 import React from 'react'
 import { fireEvent, waitFor, act } from '@testing-library/react'
-import { asElectionDefinition } from '@votingworks/fixtures'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils'
-import electionSample from '../data/electionSample.json'
 import { mockOf, render } from '../../test/testUtils'
 import { randomBase64 } from '../utils/random'
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 import { VxPrintOnly } from '../config/types'
+import { electionDefinition } from '../../test/helpers/election'
+
+const electionSampleDefinition = loadElectionDefinition(
+  join(__dirname, '../data/electionSample.json')
+)
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')
@@ -24,7 +23,7 @@ it('renders test decks appropriately', async () => {
   const { getAllByText, getByText, queryAllByText } = render(
     <TestBallotDeckScreen
       appPrecinctId="23"
-      electionDefinition={asElectionDefinition(parseElection(electionSample))}
+      electionDefinition={electionSampleDefinition}
       hideTestDeck={jest.fn()}
       machineConfig={fakeMachineConfig({
         appMode: VxPrintOnly,
@@ -73,7 +72,7 @@ it('shows printer not connected when appropriate', async () => {
   const { getByText } = render(
     <TestBallotDeckScreen
       appPrecinctId="23"
-      electionDefinition={asElectionDefinition(parseElection(electionSample))}
+      electionDefinition={electionDefinition}
       machineConfig={fakeMachineConfig({
         appMode: VxPrintOnly,
       })}

@@ -7,7 +7,7 @@ import {
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
 import { v4 as uuid } from 'uuid'
-import election from '../test/fixtures/state-of-hamilton/election'
+import { electionDefinition } from '../test/fixtures/state-of-hamilton'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
 import {
@@ -17,15 +17,14 @@ import {
   Side,
 } from './types'
 import { MarkStatus } from './types/ballot-review'
-import { fromElection } from './util/electionDefinition'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
 
   expect(await store.getElectionDefinition()).toBeUndefined()
 
-  await store.setElection(fromElection(election))
-  expect((await store.getElectionDefinition())?.election).toEqual(election)
+  await store.setElection(electionDefinition)
+  expect(await store.getElectionDefinition()).toEqual(electionDefinition)
 
   await store.setElection(undefined)
   expect(await store.getElectionDefinition()).toBeUndefined()
@@ -60,7 +59,7 @@ test('get/set mark threshold overrides', async () => {
 
 test('get current mark thresholds falls back to election definition defaults', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(electionDefinition)
   expect(await store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
@@ -178,10 +177,10 @@ test('batch cleanup works correctly', async () => {
 })
 
 test('adjudication', async () => {
-  const candidateContests = election.contests.filter(
+  const candidateContests = electionDefinition.election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   )
-  const yesnoContests = election.contests.filter(
+  const yesnoContests = electionDefinition.election.contests.filter(
     (contest): contest is YesNoContest => contest.type === 'yesno'
   )
   const yesnoOption = 'yes'
@@ -195,7 +194,7 @@ test('adjudication', async () => {
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   }
-  await store.setElection(fromElection(election))
+  await store.setElection(electionDefinition)
   await store.addHmpbTemplate(
     Buffer.of(),
     metadata,

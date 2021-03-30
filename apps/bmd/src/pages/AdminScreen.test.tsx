@@ -2,10 +2,12 @@ import React from 'react'
 import { act, fireEvent, within } from '@testing-library/react'
 import MockDate from 'mockdate'
 
-import { asElectionDefinition } from '@votingworks/fixtures'
 import { fakeKiosk } from '@votingworks/test-utils'
 import { render } from '../../test/testUtils'
-import { election, defaultPrecinctId } from '../../test/helpers/election'
+import {
+  electionDefinition,
+  defaultPrecinctId,
+} from '../../test/helpers/election'
 
 import { advanceTimers } from '../../test/helpers/smartcards'
 
@@ -31,7 +33,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
     <AdminScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
+      electionDefinition={electionDefinition}
       fetchElection={jest.fn()}
       isLiveMode={false}
       updateAppPrecinctId={jest.fn()}
@@ -71,7 +73,7 @@ test('renders date and time settings modal', async () => {
     <AdminScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
+      electionDefinition={electionDefinition}
       fetchElection={jest.fn()}
       isLiveMode={false}
       updateAppPrecinctId={jest.fn()}

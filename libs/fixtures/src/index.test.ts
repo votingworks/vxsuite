@@ -1,30 +1,38 @@
+import { Election } from '@votingworks/types'
 import * as fixtures from '.'
 import * as fs from 'fs'
+
+test('asElectionDefinition works with valid election', () => {
+  fixtures.asElectionDefinition(fixtures.electionSample)
+  expect(() =>
+    fixtures.asElectionDefinition(({} as unknown) as Election)
+  ).toThrow()
+})
 
 test('has various election definitions', () => {
   expect(
     Object.entries(fixtures)
       .filter(([, value]) => typeof value !== 'function')
       .map(([key]) => key)
+      .sort()
   ).toMatchInlineSnapshot(`
     Array [
+      "electionMultiPartyPrimaryWithDataFiles",
       "electionSample",
       "electionSample2",
-      "primaryElectionSample",
-      "multiPartyPrimaryElection",
-      "electionSampleLongContent",
-      "electionWithMsEitherNeither",
-      "electionSampleDefinition",
       "electionSample2Definition",
-      "primaryElectionSampleDefinition",
-      "multiPartyPrimaryElectionDefinition",
-      "electionSampleLongContentDefinition",
-      "electionWithMsEitherNeitherDefinition",
-      "electionWithMsEitherNeitherRawData",
-      "electionMultiPartyPrimaryWithDataFiles",
-      "electionSimplePrimaryWithDataFiles",
       "electionSample2WithDataFiles",
+      "electionSampleDefinition",
+      "electionSampleLongContent",
+      "electionSampleLongContentDefinition",
+      "electionSimplePrimaryWithDataFiles",
+      "electionWithMsEitherNeither",
+      "electionWithMsEitherNeitherDefinition",
       "electionWithMsEitherNeitherWithDataFiles",
+      "multiPartyPrimaryElection",
+      "multiPartyPrimaryElectionDefinition",
+      "primaryElectionSample",
+      "primaryElectionSampleDefinition",
     ]
   `)
 })

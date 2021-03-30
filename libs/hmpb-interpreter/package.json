@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "canvas": "^2.6.1",
     "chalk": "^4.1.0",
     "debug": "^4.2.0",

@@ -1,14 +1,9 @@
+import { join } from 'path'
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import { Route } from 'react-router-dom'
-import {
-  getBallotStyle,
-  getContests,
-  parseElection,
-  vote,
-} from '@votingworks/types'
-import { asElectionDefinition } from '@votingworks/fixtures'
-import electionSample from './data/electionSample.json'
+import { loadElectionDefinition } from '@votingworks/fixtures'
+import { getBallotStyle, getContests, vote } from '@votingworks/types'
 
 import App from './App'
 import PrintPage from './pages/PrintPage'
@@ -27,8 +22,12 @@ import { MemoryStorage } from './utils/Storage'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
+const electionSampleDefinition = loadElectionDefinition(
+  join(__dirname, './data/electionSample.json')
+)
+
 test('Renders Ballot with EitherNeither: blank', () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
+  const electionDefinition = electionSampleDefinition
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
@@ -60,7 +59,7 @@ test('Renders Ballot with EitherNeither: blank', () => {
 })
 
 test('Renders Ballot with EitherNeither: Either & blank', () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
+  const electionDefinition = electionSampleDefinition
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
@@ -95,7 +94,7 @@ test('Renders Ballot with EitherNeither: Either & blank', () => {
 })
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
+  const electionDefinition = electionSampleDefinition
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,
@@ -130,7 +129,7 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
 })
 
 test('Renders Ballot with EitherNeither: blank & secondOption', () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
+  const electionDefinition = electionSampleDefinition
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
     <Route path="/print" component={PrintPage} />,

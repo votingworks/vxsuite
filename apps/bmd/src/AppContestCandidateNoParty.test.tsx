@@ -1,21 +1,28 @@
+import { join } from 'path'
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 
 import { Election } from '@votingworks/types'
-import { asElectionDefinition } from '@votingworks/fixtures'
+import {
+  asElectionDefinition,
+  loadElectionDefinition,
+} from '@votingworks/fixtures'
 import App from './App'
 
 import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
 
 import { setStateInStorage } from '../test/helpers/election'
-import electionSample from './data/electionSample.json'
 import { MemoryCard } from './utils/Card'
 import { MemoryStorage } from './utils/Storage'
 import { electionStorageKey } from './AppRoot'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
-const election = electionSample as Election
+const electionSampleDefinition = loadElectionDefinition(
+  join(__dirname, './data/electionSample.json')
+)
+
+const { election } = electionSampleDefinition
 const electionWithNoPartyCandidateContests: Election = {
   ...election,
   contests: election.contests.map((contest) => {

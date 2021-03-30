@@ -14,7 +14,7 @@ import { join } from 'path'
 import request from 'supertest'
 import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
-import election from '../test/fixtures/state-of-hamilton/election'
+import { electionDefinition } from '../test/fixtures/state-of-hamilton'
 import zeroRect from '../test/fixtures/zeroRect'
 import { makeMockImporter } from '../test/util/mocks'
 import { Importer } from './importer'
@@ -34,11 +34,7 @@ beforeEach(async () => {
   importer = makeMockImporter()
   importerMock = importer as jest.Mocked<Importer>
   workspace = await createWorkspace(dirSync().name)
-  await workspace.store.setElection({
-    election,
-    electionData: JSON.stringify(election),
-    electionHash: '',
-  })
+  await workspace.store.setElection(electionDefinition)
   await workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
@@ -269,10 +265,10 @@ test('POST /scan/zero', async () => {
 })
 
 test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
-  const president = election.contests.find(
+  const president = electionDefinition.election.contests.find(
     ({ id }) => id === 'president'
   ) as CandidateContest
-  const questionA = election.contests.find(
+  const questionA = electionDefinition.election.contests.find(
     ({ id }) => id === 'question-a'
   ) as YesNoContest
   const batchId = await workspace.store.addBatch()
@@ -398,10 +394,10 @@ test('GET /scan/hmpb/ballot/:sheetId/:side 404', async () => {
 })
 
 test('PATCH /scan/hmpb/ballot/:sheetId/:side', async () => {
-  const president = election.contests.find(
+  const president = electionDefinition.election.contests.find(
     ({ id }) => id === 'president'
   ) as CandidateContest
-  const questionA = election.contests.find(
+  const questionA = electionDefinition.election.contests.find(
     ({ id }) => id === 'question-a'
   ) as YesNoContest
   const batchId = await workspace.store.addBatch()

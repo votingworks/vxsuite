@@ -1,11 +1,13 @@
-import { strict as assert } from 'assert'
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useInterval } from 'use-interval'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
-import { sha256 } from 'js-sha256'
 
-import { ElectionDefinition, parseElection } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  parseElection,
+  safeParseElectionDefinition,
+} from '@votingworks/types'
 
 import {
   getStatus as usbDriveGetStatus,
@@ -67,15 +69,10 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   const getElectionDefinition = useCallback(async (): Promise<
     ElectionDefinition | undefined
   > => {
-    // TODO: validate this with zod schema
-    const electionDefinition = (await storage.get(
-      electionDefinitionStorageKey
-    )) as ElectionDefinition | undefined
+    const electionDefinition = await storage.get(electionDefinitionStorageKey)
 
     if (electionDefinition) {
-      const { electionData, electionHash } = electionDefinition
-      assert.equal(sha256(electionData), electionHash)
-      return electionDefinition
+      return safeParseElectionDefinition(electionDefinition).unwrap()
     }
   }, [storage])
 
@@ -310,25 +307,16 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
       setElectionDefinition(undefined)
 
       if (electionJSON) {
-        const electionData = electionJSON
-        const electionHash = sha256(electionData)
-        const election = parseElection(JSON.parse(electionData))
-
-        setElectionDefinition({
-          electionData,
-          electionHash,
-          election,
-        })
+        const electionDefinition = safeParseElectionDefinition(
+          electionJSON
+        ).unwrap()
+        setElectionDefinition(electionDefinition)
 
         const newConfiguredAt = new Date().toISOString()
         setConfiguredAt(newConfiguredAt)
 
         await storage.set(configuredAtStorageKey, newConfiguredAt)
-        await storage.set(electionDefinitionStorageKey, {
-          election,
-          electionData,
-          electionHash,
-        })
+        await storage.set(electionDefinitionStorageKey, electionDefinition)
       }
     },
     [

@@ -131,7 +131,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
       >
         Election Hash: 
         <strong>
-          6bdcd6d885
+          36932a0802
         </strong>
       </div>
     </div>
@@ -320,7 +320,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
       >
         Election Hash: 
         <strong>
-          6bdcd6d885
+          36932a0802
         </strong>
       </div>
     </div>

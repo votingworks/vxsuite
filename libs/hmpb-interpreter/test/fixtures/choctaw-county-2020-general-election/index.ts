@@ -1,5 +1,6 @@
 import { join } from 'path'
 import { Fixture } from '../../fixtures'
+import { loadElectionDefinition } from '@votingworks/fixtures'
 
 export const filledInPage1_01 = new Fixture(
   join(__dirname, 'filled-in-p1-01.png')
@@ -57,4 +58,7 @@ export const eastWeirBlankPage2 = new Fixture(
   join(__dirname, 'ballot-east-weir-p2.png')
 )
 
-export { default as election } from './election'
+export const electionDefinition = loadElectionDefinition(
+  join(__dirname, './election.json')
+)
+export const { election } = electionDefinition

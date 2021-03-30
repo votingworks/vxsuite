@@ -30,6 +30,14 @@ test('ok andThen', () => {
   ).toBe(1)
 })
 
+test('ok orElse', () => {
+  expect(
+    ok(0)
+      .orElse(() => ok(1))
+      .unwrap()
+  ).toBe(0)
+})
+
 test('ok map', () => {
   expect(
     ok(0)
@@ -100,6 +108,14 @@ test('err andThen', () => {
       .andThen(() => ok(1))
       .unwrapErr()
   ).toBe(0)
+})
+
+test('err orElse', () => {
+  expect(
+    err(0)
+      .orElse(() => ok(1))
+      .unwrap()
+  ).toBe(1)
 })
 
 test('err map', () => {

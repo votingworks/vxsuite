@@ -4,12 +4,11 @@ import {
   fireEvent,
   getByText as domGetByText,
 } from '@testing-library/react'
+import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 
 import ImportCVRFilesModal from './ImportCVRFilesModal'
-import renderInAppContext, {
-  eitherNeitherElectionDefinition,
-} from '../../test/renderInAppContext'
+import renderInAppContext from '../../test/renderInAppContext'
 import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 import { CastVoteRecord } from '../config/types'
@@ -254,7 +253,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], TEST_FILE1)],
-      eitherNeitherElectionDefinition.election
+      electionWithMsEitherNeitherDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal onClose={closeFn} />,
@@ -339,7 +338,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], 'randomname')],
-      eitherNeitherElectionDefinition.election
+      electionWithMsEitherNeitherDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal onClose={closeFn} />,
@@ -400,7 +399,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], LIVE_FILE1)],
-      eitherNeitherElectionDefinition.election
+      electionWithMsEitherNeitherDefinition.election
     )
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCVRFilesModal onClose={closeFn} />,

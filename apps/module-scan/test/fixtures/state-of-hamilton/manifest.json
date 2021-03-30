@@ -1,37 +1,37 @@
 {
-  "ballots": [
-    {
-      "ballotStyleId": "12",
-      "precinctId": "23",
-      "contestIds": [
-        "president",
-        "senator",
-        "representative-district-6",
-        "governor",
-        "lieutenant-governor",
-        "secretary-of-state",
-        "state-senator-district-31",
-        "state-assembly-district-54",
-        "county-commissioners",
-        "county-registrar-of-wills",
-        "city-mayor",
-        "city-council",
-        "judicial-robert-demergue",
-        "judicial-elmer-hull",
-        "question-a",
-        "question-b",
-        "question-c",
-        "proposition-1",
-        "measure-101",
-        "102",
-        "measure-666"
-      ],
-      "isLiveMode": true,
-      "locales": {
-        "primary": "en-US",
-        "secondary": "es-US"
-      },
-      "filename": "ballot.pdf"
-    }
-  ]
+    "ballots": [
+        {
+            "ballotStyleId": "12",
+            "precinctId": "23",
+            "contestIds": [
+                "president",
+                "senator",
+                "representative-district-6",
+                "governor",
+                "lieutenant-governor",
+                "secretary-of-state",
+                "state-senator-district-31",
+                "state-assembly-district-54",
+                "county-commissioners",
+                "county-registrar-of-wills",
+                "city-mayor",
+                "city-council",
+                "judicial-robert-demergue",
+                "judicial-elmer-hull",
+                "question-a",
+                "question-b",
+                "question-c",
+                "proposition-1",
+                "measure-101",
+                "102",
+                "measure-666"
+            ],
+            "isLiveMode": true,
+            "locales": {
+                "primary": "en-US",
+                "secondary": "es-US"
+            },
+            "filename": "ballot.pdf"
+        }
+    ]
 }

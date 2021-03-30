@@ -9,8 +9,8 @@ import { MarkStatus } from '../types/ballot-review'
 
 import optionMarkStatus from './optionMarkStatus'
 
-import election from '../../test/fixtures/state-of-hamilton/election'
-import eitherNeitherElection from '../../test/fixtures/choctaw-mock-general-election-2020/election'
+import { election } from '../../test/fixtures/state-of-hamilton'
+import { election as eitherNeitherElection } from '../../test/fixtures/choctaw-mock-general-election-2020'
 
 const markThresholds: MarkThresholds = { definite: 0.17, marginal: 0.17 }
 const defaultShape = {

@@ -84,6 +84,11 @@ export interface Result<T, E> {
   andThen<U>(fn: (value: T) => Result<U, E>): Result<U, E>
 
   /**
+   * Applies `fn` to a contained `Err`, or returns `Ok` as-is.
+   */
+  orElse<F>(fn: (error: E) => Result<T, F>): Result<T, F>
+
+  /**
    * Returns a contained `Ok` value, or throws a contained `Err` error.
    *
    * @example
@@ -171,6 +176,11 @@ export interface Ok<T> extends Result<T, never> {
   andThen<U>(fn: (value: T) => Result<U, never>): Ok<U>
 
   /**
+   * Returns a new `Ok` with the contained value.
+   */
+  orElse<F>(fn: (error: never) => Result<T, F>): Result<T, F>
+
+  /**
    * Returns the contained value.
    */
   unwrap(): T
@@ -238,6 +248,11 @@ export interface Err<E> extends Result<never, E> {
   andThen<U>(fn: (value: never) => Result<U, E>): Err<E>
 
   /**
+   * Applies `fn` to the contained error and returns the result.
+   */
+  orElse<T, F>(fn: (error: E) => Result<T, F>): Result<T, F>
+
+  /**
    * Throws the contained error.
    */
   unwrap(): never
@@ -269,6 +284,7 @@ export function ok<T, E>(value: T): Result<T, E> {
     mapOr: (_defaultValue, fn) => fn(value),
     mapOrElse: (_defaultFn, fn) => fn(value),
     andThen: (fn) => fn(value),
+    orElse: () => ok(value),
     unwrap: () => value,
     unwrapErr: () => {
       throw value
@@ -291,6 +307,7 @@ export function err<T, E>(error: E): Result<T, E> {
     mapOr: (defaultValue) => defaultValue,
     mapOrElse: (defaultFn) => defaultFn(error),
     andThen: () => err(error),
+    orElse: (fn) => fn(error),
     unwrap: () => {
       throw error
     },
