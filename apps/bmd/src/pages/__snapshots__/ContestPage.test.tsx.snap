@@ -448,7 +448,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c18 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c19 {
@@ -878,13 +878,6 @@ exports[`Renders ContestPage 1`] = `
               >
                  
                 
-                <span
-                  class="c30"
-                >
-                  <br />
-                   Machine ID: 
-                  000
-                </span>
               </p>
             </div>
           </div>

@@ -29,7 +29,6 @@ const StartPage: React.FC<Props> = ({ history }) => {
     setUserSettings,
     userSettings,
     forceSaveVote,
-    machineConfig,
   } = useContext(BallotContext)
   const audioFocus = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   const { election } = electionDefinition
@@ -83,7 +82,6 @@ const StartPage: React.FC<Props> = ({ history }) => {
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctId={precinctId}
-              machineConfig={machineConfig}
               horizontal
             />
           </React.Fragment>

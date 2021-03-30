@@ -400,7 +400,7 @@ exports[`renders StartPage 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c0 {
@@ -676,13 +676,6 @@ exports[`renders StartPage 1`] = `
               >
                 ballot style 
                 12D
-              </span>
-              <span
-                class="c24"
-              >
-                <br />
-                 Machine ID: 
-                000
               </span>
             </p>
           </div>
@@ -1089,7 +1082,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c0 {
@@ -1519,13 +1512,6 @@ exports[`renders StartPage with inline SVG 1`] = `
               </span>
                
               
-              <span
-                class="c23"
-              >
-                <br />
-                 Machine ID: 
-                000
-              </span>
             </p>
           </div>
         </div>
@@ -1931,7 +1917,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c10 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c0 {
@@ -2197,13 +2183,6 @@ exports[`renders StartPage with no seal 1`] = `
               </span>
                
               
-              <span
-                class="c23"
-              >
-                <br />
-                 Machine ID: 
-                000
-              </span>
             </p>
           </div>
         </div>

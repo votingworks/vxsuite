@@ -360,6 +360,7 @@ const ReviewPage: React.FC = () => {
 
   const {
     contests,
+    ballotStyleId,
     electionDefinition,
     machineConfig,
     precinctId,
@@ -482,8 +483,8 @@ const ReviewPage: React.FC = () => {
             />
             <ElectionInfo
               electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyleId}
               precinctId={precinctId}
-              machineConfig={machineConfig}
               horizontal
             />
           </React.Fragment>

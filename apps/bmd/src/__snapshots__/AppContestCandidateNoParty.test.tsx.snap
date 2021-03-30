@@ -452,7 +452,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c19 {
-  margin: 1rem 1rem 1.5rem;
+  margin: 1rem;
 }
 
 .c20 {
@@ -897,13 +897,6 @@ exports[`Single Seat Contest 1`] = `
                 >
                   ballot style 
                   12
-                </span>
-                <span
-                  class="c32"
-                >
-                  <br />
-                   Machine ID: 
-                  000
                 </span>
               </p>
             </div>

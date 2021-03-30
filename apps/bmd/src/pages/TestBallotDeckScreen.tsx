@@ -127,7 +127,6 @@ const TestBallotDeckScreen: React.FC<Props> = ({
   electionDefinition,
   hideTestDeck,
   isLiveMode,
-  machineConfig,
 }) => {
   const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])
@@ -238,8 +237,6 @@ const TestBallotDeckScreen: React.FC<Props> = ({
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 precinctId={appPrecinctId}
-                machineConfig={machineConfig}
-                showElectionHash
                 horizontal
               />
             )

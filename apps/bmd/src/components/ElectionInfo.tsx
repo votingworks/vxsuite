@@ -11,7 +11,6 @@ import { dateLong } from '../utils/date'
 import Seal from './Seal'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
-import { MachineConfig } from '../config/types'
 
 const VerticalContainer = styled.div`
   display: block;
@@ -41,20 +40,16 @@ interface Props {
   precinctId: string
   ballotStyleId?: string
   electionDefinition: ElectionDefinition
-  machineConfig: MachineConfig
   horizontal?: boolean
-  showElectionHash?: boolean
 }
 
 const ElectionInfo: React.FC<Props> = ({
   precinctId,
   ballotStyleId,
   electionDefinition,
-  machineConfig,
   horizontal = false,
-  showElectionHash = false,
 }) => {
-  const { election, electionHash } = electionDefinition
+  const { election } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
   const precinct = election.precincts.find(
     (p) => p.id === precinctId
@@ -86,17 +81,6 @@ const ElectionInfo: React.FC<Props> = ({
                 </NoWrap>
               )}{' '}
               {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
-              {showElectionHash && (
-                <React.Fragment>
-                  <br />
-                  Election ID: {electionHash.substring(0, 10)}
-                </React.Fragment>
-              )}
-              <React.Fragment>
-                <NoWrap>
-                  <br /> Machine ID: {machineConfig.machineId}
-                </NoWrap>
-              </React.Fragment>
             </Text>
           </Prose>
         </HorizontalContainer>
@@ -116,12 +100,6 @@ const ElectionInfo: React.FC<Props> = ({
           {state}
         </p>
         <Text bold>{precinct.name}</Text>
-        {showElectionHash && (
-          <Text small>Election ID: {electionHash.substring(0, 10)}</Text>
-        )}
-        <Text small>
-          <br /> Machine ID: {machineConfig.machineId}
-        </Text>
       </Prose>
     </VerticalContainer>
   )

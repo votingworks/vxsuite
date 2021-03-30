@@ -10,6 +10,7 @@ import TestMode from '../components/TestMode'
 import Text from '../components/Text'
 import ElectionInfo from '../components/ElectionInfo'
 import { MachineConfig } from '../config/types'
+import VersionsData from '../components/VersionsData'
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
@@ -41,8 +42,10 @@ const InsertCardScreen: React.FC<Props> = ({
         <ElectionInfo
           electionDefinition={electionDefinition}
           precinctId={appPrecinctId}
-          machineConfig={machineConfig}
-          showElectionHash
+        />
+        <VersionsData
+          machineId={machineConfig.machineId}
+          electionHash={electionDefinition.electionHash}
         />
       </Sidebar>
       <Main>

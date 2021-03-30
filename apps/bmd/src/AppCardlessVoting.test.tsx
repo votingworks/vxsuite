@@ -75,9 +75,7 @@ test('Cardless Voting Flow', async () => {
   await advanceTimersAndPromises()
   getByText('Election definition is loaded.')
   getByLabelText('Precinct')
-  within(getByTestId('election-info')).getByText(
-    `Election ID: ${electionHash.slice(0, 10)}`
-  )
+  queryByText(`Election ID: ${electionHash.slice(0, 10)}`)
 
   // Select precinct
   getByText('State of Hamilton')

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import { OptionalElectionDefinition } from '@votingworks/types'
-import styled from 'styled-components'
 
+import { OptionalElectionDefinition } from '@votingworks/types'
 import {
   AppMode,
   MachineConfig,
@@ -27,14 +26,7 @@ import {
 } from '../utils/date'
 import InputGroup from '../components/InputGroup'
 import Modal from '../components/Modal'
-
-const SoftwareVersion = styled.div`
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  color: #999999;
-  font-size: 0.8rem;
-`
+import VersionsData from '../components/VersionsData'
 
 type Meridian = 'AM' | 'PM'
 
@@ -282,15 +274,20 @@ const AdminScreen: React.FC<Props> = ({
         centerContent
         title="Election Admin Actions"
         footer={
-          electionDefinition && (
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              precinctId={appPrecinctId}
-              machineConfig={machineConfig}
-              showElectionHash
-              horizontal
+          <React.Fragment>
+            {electionDefinition && (
+              <ElectionInfo
+                electionDefinition={electionDefinition}
+                precinctId={appPrecinctId}
+                horizontal
+              />
+            )}
+            <VersionsData
+              machineId={machineConfig.machineId}
+              electionHash={electionDefinition?.electionHash}
+              softwareVersion={codeVersion}
             />
-          )
+          </React.Fragment>
         }
       >
         {election && (
@@ -476,7 +473,6 @@ const AdminScreen: React.FC<Props> = ({
           }
         />
       )}
-      <SoftwareVersion>{codeVersion}</SoftwareVersion>
     </Screen>
   )
 }
