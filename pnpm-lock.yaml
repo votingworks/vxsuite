@@ -109,6 +109,7 @@ importers:
       http-proxy-middleware: 1.0.6
       js-sha256: 0.9.0
       lodash.camelcase: 4.3.0
+      luxon: 1.26.0
       mockdate: 3.0.2
       moment: 2.29.1
       normalize.css: 8.0.1
@@ -131,6 +132,7 @@ importers:
       '@types/base64-js': 1.3.0
       '@types/history': 4.7.8
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
+      '@types/luxon': 1.26.2
       '@types/react-gamepad': 1.0.0
       '@typescript-eslint/eslint-plugin': 4.16.1_a4e9925a57f7bf9df758cdf52b1a7795
       '@typescript-eslint/parser': 4.16.1_eslint@7.17.0+typescript@4.2.3
@@ -176,6 +178,7 @@ importers:
       '@types/jest': 25.2.2
       '@types/kiosk-browser': workspace:*
       '@types/lodash.camelcase': ^4.3.6
+      '@types/luxon': ^1.26.2
       '@types/node': 14.0.1
       '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.0
@@ -218,6 +221,7 @@ importers:
       js-sha256: ^0.9.0
       lint-staged: ^10.2.4
       lodash.camelcase: ^4.3.0
+      luxon: ^1.26.0
       mockdate: ^3.0.2
       moment: ^2.29.0
       normalize.css: ^8.0.1
@@ -6123,6 +6127,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
+  /@types/luxon/1.26.2:
+    dev: true
+    resolution:
+      integrity: sha512-2pvzy4LuxBMBBLAbml6PDcJPiIeZQ0Hqj3PE31IxkNI250qeoRMDovTrHXeDkIL4auvtarSdpTkLHs+st43EYQ==
   /@types/mdast/3.0.3:
     dependencies:
       '@types/unist': 2.0.3
@@ -11953,7 +11961,7 @@ packages:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1_supports-color@6.1.0
+      debug: 4.3.1
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -15966,6 +15974,10 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
+  /luxon/1.26.0:
+    dev: false
+    resolution:
+      integrity: sha512-+V5QIQ5f6CDXQpWNICELwjwuHdqeJM1UenlZWx5ujcRMc9venvluCjFb4t5NYLhb6IhkbMVOxzVuOqkgMxee2A==
   /lz-string/1.4.4:
     hasBin: true
     resolution:

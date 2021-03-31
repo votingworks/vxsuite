@@ -148,7 +148,7 @@ test('renders date and time settings modal', async () => {
     ) as HTMLOptionElement).selected
   ).toBeTruthy()
 
-  getByText('Mon, Feb 3, 2025, 5:21 PM CST')
+  getByText('Mon, Feb 3, 2025, 11:21 PM CST')
 
   // Cancel date change
   fireEvent.click(within(getByTestId('modal')).getByText('Cancel'))
@@ -197,7 +197,7 @@ test('renders date and time settings modal', async () => {
     target: { value: optionTimezone2.value },
   })
 
-  getByText('Wed, Oct 21, 2020, 4:00 AM PDT')
+  getByText('Wed, Oct 21, 2020, 11:00 AM PDT')
 
   // Save Date and Timezone
   await act(async () => {

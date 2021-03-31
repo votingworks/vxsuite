@@ -1,3 +1,4 @@
+import { DateTime, Duration } from 'luxon'
 import moment from 'moment'
 
 export const AMERICA_TIMEZONES = [
@@ -25,31 +26,28 @@ function* getShortMonthNames(): Generator<string> {
 }
 export const MONTHS_SHORT = [...getShortMonthNames()]
 
-export const formatTimeZoneName = (
-  date: Date,
-  timeZone?: string
-): string | undefined =>
+export const formatTimeZoneName = (date: DateTime): string | undefined =>
   new Intl.DateTimeFormat(undefined, {
     timeZoneName: 'long',
-    timeZone,
+    timeZone: date.zoneName,
   })
-    .formatToParts(date)
+    .formatToParts(date.toJSDate())
     .find((part) => part.type === 'timeZoneName')?.value
 
 export const formatFullDateTimeZone = (
-  date: Date,
-  timeZone?: string
+  date: DateTime,
+  includeTimezone = false
 ): string | undefined =>
   new Intl.DateTimeFormat(undefined, {
-    timeZone,
+    timeZone: date.zoneName,
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
-    timeZoneName: timeZone ? 'short' : undefined,
-  }).format(date)
+    timeZoneName: includeTimezone ? 'short' : undefined,
+  }).format(date.toJSDate())
 
 export const formatLongDate = (date: Date, timeZone?: string): string =>
   new Intl.DateTimeFormat(undefined, {
@@ -66,12 +64,12 @@ export const dateLong = (dateString: string): string =>
 /**
  * Get days in given month and year.
  */
-export function getDaysInMonth(year: number, month: number): Date[] {
-  const date = new Date(year, month, 1)
+export function getDaysInMonth(year: number, month: number): DateTime[] {
+  let date = DateTime.fromObject({ year, month, day: 1 })
   const days = []
-  while (date.getMonth() === month) {
-    days.push(new Date(date))
-    date.setDate(date.getDate() + 1)
+  while (date.month === month) {
+    days.push(date)
+    date = date.plus(Duration.fromObject({ day: 1 }))
   }
   return days
 }
