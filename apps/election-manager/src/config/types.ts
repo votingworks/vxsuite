@@ -127,6 +127,12 @@ export interface FullElectionExternalTally {
     TallyCategory,
     Dictionary<ExternalTally>
   >
+  readonly votingMethod: VotingMethod
+}
+
+export interface ExternalFileConfiguration {
+  readonly file: File
+  readonly votingMethod: VotingMethod
 }
 
 export type OptionalExternalTally = Optional<ExternalTally>

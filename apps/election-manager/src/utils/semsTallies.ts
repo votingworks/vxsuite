@@ -243,7 +243,8 @@ function sanitizeItem(item: string): string {
 
 export function convertSEMSFileToExternalTally(
   fileContent: string,
-  election: Election
+  election: Election,
+  votingMethodForFile: VotingMethod
 ): FullElectionExternalTally {
   const parsedRows: SEMSFileRow[] = []
   fileContent.split('\n').forEach((row) => {
@@ -350,6 +351,7 @@ export function convertSEMSFileToExternalTally(
   return {
     overallTally,
     resultsByCategory,
+    votingMethod: votingMethodForFile,
   }
 }
 
@@ -375,8 +377,12 @@ export function filterExternalTalliesByParams(
     votingMethod?: VotingMethod
   }
 ): OptionalExternalTally {
-  if (!fullTally || scannerId || votingMethod) {
+  if (!fullTally || scannerId) {
     return undefined
+  }
+
+  if (votingMethod && fullTally.votingMethod !== votingMethod) {
+    return getEmptyTally()
   }
 
   const { overallTally, resultsByCategory } = fullTally

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import moment from 'moment'
 
 import { Optional } from '@votingworks/types'
@@ -12,11 +12,7 @@ import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
-import {
-  convertSEMSFileToExternalTally,
-  getPrecinctIdsInExternalTally,
-} from '../utils/semsTallies'
-import readFileAsync from '../lib/readFileAsync'
+import { getPrecinctIdsInExternalTally } from '../utils/semsTallies'
 
 import Button from '../components/Button'
 import Text from '../components/Text'
@@ -35,6 +31,7 @@ import FileInputButton from '../components/FileInputButton'
 import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
 import { TIME_FORMAT } from '../config/globals'
 import { getPartiesWithPrimaryElections } from '../utils/election'
+import ImportExternalResultsModal from '../components/ImportExternalResultsModal'
 
 const TallyScreen: React.FC = () => {
   const {
@@ -42,13 +39,13 @@ const TallyScreen: React.FC = () => {
     electionDefinition,
     isOfficialResults,
     saveIsOfficialResults,
-    saveExternalVoteRecordsFile,
     externalVoteRecordsFile,
-    setIsTabulationRunning,
     isTabulationRunning,
     fullElectionExternalTally,
   } = useContext(AppContext)
   const { election } = electionDefinition!
+
+  const externalFileInput = useRef<HTMLInputElement>(null)
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] = useState<
     Optional<ResultsFileType>
@@ -92,30 +89,25 @@ const TallyScreen: React.FC = () => {
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
     false
   )
-  const [externalImportErrorMessage, setExternalImportErrorMessage] = useState(
-    ''
-  )
+  const [
+    externalResultsSelectedFile,
+    setExternalResultsSelectedFile,
+  ] = useState<File | undefined>(undefined)
 
   const importExternalSEMSFile: InputEventFunction = async (event) => {
     const input = event.currentTarget
     const files = Array.from(input.files || [])
     if (files.length === 1) {
       setIsImportExternalModalOpen(true)
-      setIsTabulationRunning(true)
-      const fileContent = await readFileAsync(files[0])
-      // Compute the tallies to see if there are any errors, if so display
-      // an error modal.
-      try {
-        convertSEMSFileToExternalTally(fileContent, election)
-        setIsImportExternalModalOpen(false)
-        setIsTabulationRunning(false)
-        saveExternalVoteRecordsFile(files[0])
-      } catch (error) {
-        setExternalImportErrorMessage(
-          `Failed to import external file. ${error.message}`
-        )
-        setIsTabulationRunning(false)
-      }
+      setExternalResultsSelectedFile(files[0])
+    }
+  }
+
+  const closeExternalFileImport = () => {
+    setIsImportExternalModalOpen(false)
+    setExternalResultsSelectedFile(undefined)
+    if (externalFileInput && externalFileInput.current) {
+      externalFileInput.current.value = ''
     }
   }
 
@@ -271,6 +263,7 @@ const TallyScreen: React.FC = () => {
             Import CVR Files
           </Button>{' '}
           <FileInputButton
+            innerRef={externalFileInput}
             onChange={importExternalSEMSFile}
             accept="*"
             data-testid="import-sems-button"
@@ -371,26 +364,9 @@ const TallyScreen: React.FC = () => {
         />
       )}
       {isImportExternalModalOpen && (
-        <Modal
-          onOverlayClick={() => setIsImportExternalModalOpen(false)}
-          actions={
-            <LinkButton
-              disabled={isTabulationRunning}
-              onPress={() => setIsImportExternalModalOpen(false)}
-            >
-              Close
-            </LinkButton>
-          }
-          content={
-            isTabulationRunning ? (
-              <Loading> Tabulating Results ... </Loading>
-            ) : (
-              <Prose>
-                <h1>Error</h1>
-                <p>{externalImportErrorMessage}</p>
-              </Prose>
-            )
-          }
+        <ImportExternalResultsModal
+          onClose={closeExternalFileImport}
+          selectedFile={externalResultsSelectedFile}
         />
       )}
 

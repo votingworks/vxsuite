@@ -281,8 +281,14 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               <TD as="th">View Tally</TD>
             </tr>
             {Object.values(VotingMethod).map((votingMethod) => {
-              const votingMethodBallotsCount =
+              let votingMethodBallotsCount =
                 resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ?? 0
+
+              // Include external results as appropriate
+              if (votingMethod === fullElectionExternalTally?.votingMethod) {
+                votingMethodBallotsCount += totalBallotCountExternal
+              }
+
               if (
                 votingMethod === VotingMethod.Unknown &&
                 votingMethodBallotsCount === 0
@@ -309,15 +315,6 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                 </tr>
               )
             })}
-            {externalVoteRecordsFile && (
-              <tr data-testid="table-row">
-                <TD narrow nowrap>
-                  External Results File ({externalVoteRecordsFile.name})
-                </TD>
-                <TD>{format.count(totalBallotCountExternal)}</TD>
-                <TD />
-              </tr>
-            )}
             <tr data-testid="table-row">
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>

@@ -207,8 +207,25 @@ const TallyReportScreen: React.FC = () => {
             const externalTallyForReport = filterExternalTalliesByParams(
               fullElectionExternalTally,
               election,
-              { precinctId, partyId }
+              { precinctId, partyId, scannerId, votingMethod }
             )
+            const ballotCountsByVotingMethod = {
+              ...tallyForReport.ballotCountsByVotingMethod,
+            }
+
+            if (externalTallyForReport) {
+              ballotCountsByVotingMethod[
+                fullElectionExternalTally!.votingMethod
+              ] =
+                externalTallyForReport.numberOfBallotsCounted +
+                (ballotCountsByVotingMethod[
+                  fullElectionExternalTally!.votingMethod
+                ] ?? 0)
+            }
+
+            const reportBallotCount =
+              tallyForReport.numberOfBallotsCounted +
+              (externalTallyForReport?.numberOfBallotsCounted ?? 0)
 
             if (precinctId) {
               const precinctName = find(
@@ -231,15 +248,8 @@ const TallyReportScreen: React.FC = () => {
                   <ContestColumns>
                     <TallyReportSummary
                       election={election}
-                      internalBallotCount={
-                        tallyForReport.numberOfBallotsCounted
-                      }
-                      externalBallotCount={
-                        externalTallyForReport?.numberOfBallotsCounted
-                      }
-                      ballotCountsByVotingMethod={
-                        tallyForReport.ballotCountsByVotingMethod
-                      }
+                      totalBallotCount={reportBallotCount}
+                      ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                     />
                     <ContestTally
                       election={election}
@@ -270,12 +280,8 @@ const TallyReportScreen: React.FC = () => {
                   <ContestColumns>
                     <TallyReportSummary
                       election={election}
-                      internalBallotCount={
-                        tallyForReport?.numberOfBallotsCounted ?? 0
-                      }
-                      ballotCountsByVotingMethod={
-                        tallyForReport.ballotCountsByVotingMethod
-                      }
+                      totalBallotCount={reportBallotCount}
+                      ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                     />
                     <ContestTally
                       election={election}
@@ -305,6 +311,7 @@ const TallyReportScreen: React.FC = () => {
                     <ContestTally
                       election={election}
                       electionTally={tallyForReport}
+                      externalTally={externalTallyForReport}
                     />
                   </ContestColumns>
                 </ReportSection>
@@ -329,13 +336,8 @@ const TallyReportScreen: React.FC = () => {
                 <ContestColumns>
                   <TallyReportSummary
                     election={election}
-                    internalBallotCount={tallyForReport.numberOfBallotsCounted}
-                    externalBallotCount={
-                      externalTallyForReport?.numberOfBallotsCounted
-                    }
-                    ballotCountsByVotingMethod={
-                      tallyForReport.ballotCountsByVotingMethod
-                    }
+                    totalBallotCount={reportBallotCount}
+                    ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                   />
                   <ContestTally
                     election={election}

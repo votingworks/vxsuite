@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { RefObject } from 'react'
 import styled from 'styled-components'
 
 import { InputEventFunction } from '../config/types'
@@ -33,6 +33,7 @@ interface Props {
   multiple?: boolean
   children: string
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  innerRef?: RefObject<HTMLInputElement>
 }
 
 const FileInputButton: React.FC<Props> = ({
@@ -41,6 +42,7 @@ const FileInputButton: React.FC<Props> = ({
   children,
   disabled,
   onChange,
+  innerRef,
   ...rest
 }) => {
   const onBlur: InputEventFunction = (event) => {
@@ -56,6 +58,7 @@ const FileInputButton: React.FC<Props> = ({
           disabled={disabled}
           onBlur={onBlur}
           onChange={onChange}
+          ref={innerRef}
           type="file"
         />
         {children}
