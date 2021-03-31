@@ -14,8 +14,6 @@ import Modal from './Modal'
 import Prose from './Prose'
 import Select from './Select'
 
-type Meridian = 'AM' | 'PM'
-
 export interface Props {
   systemDate: DateTime
   setSystemDate(value: DateTime): void
@@ -28,9 +26,7 @@ const ChangeDateTimeModal: React.FC<Props> = ({
   setIsSystemDateModalActive,
 }) => {
   const [isSavingDate, setIsSavingDate] = useState(false)
-  const [systemMeridian, setSystemMeridan] = useState<Meridian>(
-    systemDate.hour < 12 ? 'AM' : 'PM'
-  )
+  const systemMeridian = systemDate.hour < 12 ? 'AM' : 'PM'
 
   const cancelSystemDateEdit = () => {
     setSystemDate(DateTime.local())
@@ -48,7 +44,6 @@ const ChangeDateTimeModal: React.FC<Props> = ({
       }
     }
     if (name === 'meridian') {
-      setSystemMeridan(stringValue as Meridian)
       if (stringValue === 'AM' && systemDate.hour >= 12) {
         hour = systemDate.hour - 12
       }
