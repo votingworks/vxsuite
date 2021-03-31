@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { DateTime } from 'luxon'
+import React, { useCallback, useState } from 'react'
 
 import { OptionalElectionDefinition } from '@votingworks/types'
 import { MachineConfig, SelectChangeEventFunction } from '../config/types'
@@ -38,9 +39,6 @@ interface Props {
   machineConfig: MachineConfig
 }
 
-const getMachineTimezone = () =>
-  Intl.DateTimeFormat().resolvedOptions().timeZone
-
 const AdminScreen: React.FC<Props> = ({
   appPrecinctId,
   ballotsPrintedCount,
@@ -69,20 +67,18 @@ const AdminScreen: React.FC<Props> = ({
 
   const [isSavingDate, setIsSavingDate] = useState(false)
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
-  const [systemDate, setSystemDate] = useState(new Date())
+  const [systemDate, setSystemDate] = useState(DateTime.local())
   const [systemMeridian, setSystemMeridan] = useState<Meridian>(
-    systemDate.getHours() < 12 ? 'AM' : 'PM'
+    systemDate.hour < 12 ? 'AM' : 'PM'
   )
-  const [timezone, setTimezone] = useState(getMachineTimezone())
   const cancelSystemDateEdit = () => {
-    setSystemDate(new Date())
-    setTimezone(getMachineTimezone())
+    setSystemDate(DateTime.local())
     setIsSystemDateModalActive(false)
   }
   const updateSystemTime: SelectChangeEventFunction = (event) => {
     const { name, value: stringValue } = event.currentTarget
     const value = parseInt(stringValue, 10)
-    let hour = systemDate.getHours()
+    let { hour } = systemDate
     if (name === 'hour') {
       if (systemMeridian === 'AM') {
         hour = value % 12
@@ -92,48 +88,55 @@ const AdminScreen: React.FC<Props> = ({
     }
     if (name === 'meridian') {
       setSystemMeridan(stringValue as Meridian)
-      if (stringValue === 'AM' && systemDate.getHours() >= 12) {
-        hour = systemDate.getHours() - 12
+      if (stringValue === 'AM' && systemDate.hour >= 12) {
+        hour = systemDate.hour - 12
       }
-      if (stringValue === 'PM' && systemDate.getHours() < 12) {
-        hour = systemDate.getHours() + 12
+      if (stringValue === 'PM' && systemDate.hour < 12) {
+        hour = systemDate.hour + 12
       }
     }
-    const year = name === 'year' ? value : systemDate.getFullYear()
-    const month = name === 'month' ? value : systemDate.getMonth()
-    const lastDayOfMonth = getDaysInMonth(year, month)
-      .slice(-1)
-      .pop()
-      ?.getDate()
-    const day = name === 'day' ? value : systemDate.getDate()
+    const year = name === 'year' ? value : systemDate.year
+    const month = name === 'month' ? value : systemDate.month
+    const lastDayOfMonth = getDaysInMonth(year, month).slice(-1).pop()?.day
+    const day = name === 'day' ? value : systemDate.day
     setSystemDate(
-      new Date(
+      DateTime.fromObject({
         year,
         month,
-        lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
+        day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
         hour,
-        name === 'minute' ? value : systemDate.getMinutes()
-      )
+        minute: name === 'minute' ? value : systemDate.minute,
+        zone: systemDate.zone,
+      })
     )
   }
-  const updateTimeZone: SelectChangeEventFunction = (event) => {
-    setTimezone(event.currentTarget.value)
-  }
-  const saveDateAndZone = async () => {
-    /* istanbul ignore else */
-    if (timezone) {
-      try {
-        setIsSavingDate(true)
-        await window.kiosk?.setClock({
-          isoDatetime: systemDate.toISOString(),
-          IANAZone: timezone,
+  const updateTimeZone: SelectChangeEventFunction = useCallback(
+    (event) => {
+      setSystemDate(
+        DateTime.fromObject({
+          year: systemDate.year,
+          month: systemDate.month,
+          day: systemDate.day,
+          hour: systemDate.hour,
+          minute: systemDate.minute,
+          second: systemDate.second,
+          zone: event.currentTarget.value,
         })
-        setSystemDate(new Date())
-        setTimezone(getMachineTimezone())
-        setIsSystemDateModalActive(false)
-      } finally {
-        setIsSavingDate(false)
-      }
+      )
+    },
+    [systemDate]
+  )
+  const saveDateAndZone = async () => {
+    try {
+      setIsSavingDate(true)
+      await window.kiosk?.setClock({
+        isoDatetime: systemDate.toISO(),
+        IANAZone: systemDate.zoneName,
+      })
+      setSystemDate(DateTime.local())
+      setIsSystemDateModalActive(false)
+    } finally {
+      setIsSavingDate(false)
     }
   }
 
@@ -226,7 +229,7 @@ const AdminScreen: React.FC<Props> = ({
                   </React.Fragment>
                 )}
                 <h1>Current Date and Time</h1>
-                <p>{formatFullDateTimeZone(systemDate, timezone)}</p>
+                <p>{formatFullDateTimeZone(systemDate, true)}</p>
                 <p>
                   <Button onPress={() => setIsSystemDateModalActive(true)}>
                     Update Date and Time
@@ -301,7 +304,7 @@ const AdminScreen: React.FC<Props> = ({
                   <InputGroup as="span">
                     <Select
                       data-testid="selectYear"
-                      value={systemDate.getFullYear()}
+                      value={systemDate.year}
                       name="year"
                       disabled={isSavingDate}
                       onBlur={updateSystemTime}
@@ -318,7 +321,7 @@ const AdminScreen: React.FC<Props> = ({
                     </Select>
                     <Select
                       data-testid="selectMonth"
-                      value={systemDate.getMonth()}
+                      value={systemDate.month}
                       name="month"
                       disabled={isSavingDate}
                       onBlur={updateSystemTime}
@@ -331,14 +334,14 @@ const AdminScreen: React.FC<Props> = ({
                         Month
                       </option>
                       {MONTHS_SHORT.map((month, index) => (
-                        <option key={month} value={index}>
+                        <option key={month} value={index + 1}>
                           {month}
                         </option>
                       ))}
                     </Select>
                     <Select
                       data-testid="selectDay"
-                      value={systemDate.getDate()}
+                      value={systemDate.day}
                       name="day"
                       disabled={isSavingDate}
                       onBlur={updateSystemTime}
@@ -350,14 +353,13 @@ const AdminScreen: React.FC<Props> = ({
                       <option value="" disabled>
                         Day
                       </option>
-                      {getDaysInMonth(
-                        systemDate.getFullYear(),
-                        systemDate.getMonth()
-                      ).map((day) => (
-                        <option key={day.getDate()} value={day.getDate()}>
-                          {day.getDate()}
-                        </option>
-                      ))}
+                      {getDaysInMonth(systemDate.year, systemDate.month).map(
+                        ({ day }) => (
+                          <option key={day} value={day}>
+                            {day}
+                          </option>
+                        )
+                      )}
                     </Select>
                   </InputGroup>
                 </p>
@@ -365,7 +367,7 @@ const AdminScreen: React.FC<Props> = ({
                   <InputGroup as="span">
                     <Select
                       data-testid="selectHour"
-                      value={systemDate.getHours() % 12 || 12}
+                      value={systemDate.hour % 12 || 12}
                       name="hour"
                       disabled={isSavingDate}
                       onBlur={updateSystemTime}
@@ -385,7 +387,7 @@ const AdminScreen: React.FC<Props> = ({
                     </Select>
                     <Select
                       data-testid="selectMinute"
-                      value={systemDate.getMinutes()}
+                      value={systemDate.minute}
                       name="minute"
                       disabled={isSavingDate}
                       onBlur={updateSystemTime}
@@ -426,7 +428,7 @@ const AdminScreen: React.FC<Props> = ({
                   <InputGroup as="span">
                     <Select
                       data-testid="selectTimezone"
-                      value={timezone}
+                      value={systemDate.zoneName}
                       disabled={isSavingDate}
                       onBlur={updateTimeZone}
                       onChange={updateTimeZone}
@@ -436,8 +438,10 @@ const AdminScreen: React.FC<Props> = ({
                       </option>
                       {AMERICA_TIMEZONES.map((tz) => (
                         <option key={tz} value={tz}>
-                          {formatTimeZoneName(systemDate, tz)} (
-                          {tz.split('/')[1].replace(/_/gi, ' ')})
+                          {formatTimeZoneName(
+                            DateTime.fromISO(systemDate.toISO(), { zone: tz })
+                          )}{' '}
+                          ({tz.split('/')[1].replace(/_/gi, ' ')})
                         </option>
                       ))}
                     </Select>
@@ -449,7 +453,7 @@ const AdminScreen: React.FC<Props> = ({
           actions={
             <React.Fragment>
               <Button
-                disabled={!timezone || isSavingDate}
+                disabled={isSavingDate}
                 primary={!isSavingDate}
                 onPress={saveDateAndZone}
               >

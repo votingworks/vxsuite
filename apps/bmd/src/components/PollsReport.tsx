@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
 import { Precinct, Election } from '@votingworks/types'
@@ -126,7 +127,11 @@ const PollsReport: React.FC<Props> = ({
                   {appName} #{metadata.machineId}
                 </td>
                 <td>{metadata.ballotsPrinted}</td>
-                <td>{formatFullDateTimeZone(new Date(metadata.timeSaved))}</td>
+                <td>
+                  {formatFullDateTimeZone(
+                    DateTime.fromMillis(metadata.timeSaved)
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

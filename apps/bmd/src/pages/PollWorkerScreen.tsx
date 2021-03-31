@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
@@ -290,7 +291,9 @@ const PollWorkerScreen: React.FC<Props> = ({
                 {m.machineId}
                 {isCurrentMachine && ' (current machine)'}
               </td>
-              <td>{formatFullDateTimeZone(new Date(m.timeSaved))}</td>
+              <td>
+                {formatFullDateTimeZone(DateTime.fromMillis(m.timeSaved))}
+              </td>
             </tr>
           )
         })
