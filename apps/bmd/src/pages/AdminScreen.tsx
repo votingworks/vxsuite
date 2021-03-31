@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { OptionalElectionDefinition } from '@votingworks/types'
 import { MachineConfig, SelectChangeEventFunction } from '../config/types'
@@ -16,7 +16,8 @@ import Screen from '../components/Screen'
 import Select from '../components/Select'
 import { formatFullDateTimeZone } from '../utils/date'
 import VersionsData from '../components/VersionsData'
-import ChangeDateTimeModal from '../components/ChangeDateTimeModal'
+import PickDateTimeModal from '../components/PickDateTimeModal'
+import useNow from '../hooks/useNow'
 
 interface Props {
   appPrecinctId: string
@@ -57,7 +58,24 @@ const AdminScreen: React.FC<Props> = ({
   const hideTestDeck = () => setIsTestDeck(false)
 
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
-  const [systemDate, setSystemDate] = useState(DateTime.local())
+  const [isSettingClock, setIsSettingClock] = useState(false)
+  const systemDate = useNow()
+
+  const setClock = useCallback(
+    async (date: DateTime) => {
+      setIsSettingClock(true)
+      try {
+        await window.kiosk?.setClock({
+          isoDatetime: date.toISO(),
+          IANAZone: date.zoneName,
+        })
+        setIsSystemDateModalActive(false)
+      } finally {
+        setIsSettingClock(false)
+      }
+    },
+    [setIsSettingClock, setIsSystemDateModalActive]
+  )
 
   if (isTestDeck && electionDefinition) {
     return (
@@ -213,10 +231,12 @@ const AdminScreen: React.FC<Props> = ({
         )}
       </Sidebar>
       {isSystemDateModalActive && (
-        <ChangeDateTimeModal
-          systemDate={systemDate}
-          setSystemDate={setSystemDate}
-          setIsSystemDateModalActive={setIsSystemDateModalActive}
+        <PickDateTimeModal
+          disabled={isSettingClock}
+          onCancel={() => setIsSystemDateModalActive(false)}
+          onSave={setClock}
+          saveLabel={isSettingClock ? 'Saving…' : 'Save'}
+          value={systemDate}
         />
       )}
     </Screen>

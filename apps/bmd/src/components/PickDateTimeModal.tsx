@@ -15,82 +15,75 @@ import Prose from './Prose'
 import Select from './Select'
 
 export interface Props {
-  systemDate: DateTime
-  setSystemDate(value: DateTime): void
-  setIsSystemDateModalActive(value: boolean): void
+  disabled?: boolean
+  onCancel(): void
+  onSave(value: DateTime): void
+  saveLabel: string
+  value: DateTime
 }
 
-const ChangeDateTimeModal: React.FC<Props> = ({
-  systemDate,
-  setSystemDate,
-  setIsSystemDateModalActive,
+const PickDateTimeModal: React.FC<Props> = ({
+  disabled = false,
+  onCancel,
+  onSave,
+  saveLabel,
+  value: currentValue,
 }) => {
-  const [isSavingDate, setIsSavingDate] = useState(false)
-  const systemMeridian = systemDate.hour < 12 ? 'AM' : 'PM'
+  const [newValue, setNewValue] = useState(currentValue)
+  const systemMeridian = newValue.hour < 12 ? 'AM' : 'PM'
 
-  const cancelSystemDateEdit = () => {
-    setSystemDate(DateTime.local())
-    setIsSystemDateModalActive(false)
-  }
-  const updateSystemTime: SelectChangeEventFunction = (event) => {
+  const updateTimePart: SelectChangeEventFunction = (event) => {
     const { name, value: stringValue } = event.currentTarget
-    const value = parseInt(stringValue, 10)
-    let { hour } = systemDate
+    const partValue = parseInt(stringValue, 10)
+    let { hour } = newValue
     if (name === 'hour') {
       if (systemMeridian === 'AM') {
-        hour = value % 12
+        hour = partValue % 12
       } else {
-        hour = (value % 12) + 12
+        hour = (partValue % 12) + 12
       }
     }
     if (name === 'meridian') {
-      if (stringValue === 'AM' && systemDate.hour >= 12) {
-        hour = systemDate.hour - 12
+      if (stringValue === 'AM' && newValue.hour >= 12) {
+        hour = newValue.hour - 12
       }
-      if (stringValue === 'PM' && systemDate.hour < 12) {
-        hour = systemDate.hour + 12
+      if (stringValue === 'PM' && newValue.hour < 12) {
+        hour = newValue.hour + 12
       }
     }
-    const year = name === 'year' ? value : systemDate.year
-    const month = name === 'month' ? value : systemDate.month
+    const year = name === 'year' ? partValue : newValue.year
+    const month = name === 'month' ? partValue : newValue.month
     const lastDayOfMonth = getDaysInMonth(year, month).slice(-1).pop()?.day
-    const day = name === 'day' ? value : systemDate.day
-    setSystemDate(
+    const day = name === 'day' ? partValue : newValue.day
+    setNewValue(
       DateTime.fromObject({
         year,
         month,
         day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
         hour,
-        minute: name === 'minute' ? value : systemDate.minute,
-        zone: systemDate.zone,
+        minute: name === 'minute' ? partValue : newValue.minute,
+        zone: newValue.zone,
       })
     )
   }
   const updateTimeZone: SelectChangeEventFunction = useCallback(
     (event) => {
-      setSystemDate(
+      setNewValue(
         DateTime.fromObject({
-          year: systemDate.year,
-          month: systemDate.month,
-          day: systemDate.day,
-          hour: systemDate.hour,
-          minute: systemDate.minute,
-          second: systemDate.second,
+          year: newValue.year,
+          month: newValue.month,
+          day: newValue.day,
+          hour: newValue.hour,
+          minute: newValue.minute,
+          second: newValue.second,
           zone: event.currentTarget.value,
         })
       )
     },
-    [systemDate, setSystemDate]
+    [newValue, setNewValue]
   )
   const saveDateAndZone = async () => {
-    setIsSavingDate(true)
-    await window.kiosk?.setClock({
-      isoDatetime: systemDate.toISO(),
-      IANAZone: systemDate.zoneName,
-    })
-    setSystemDate(DateTime.local())
-    setIsSavingDate(false)
-    setIsSystemDateModalActive(false)
+    onSave(newValue)
   }
 
   return (
@@ -98,17 +91,17 @@ const ChangeDateTimeModal: React.FC<Props> = ({
       centerContent
       content={
         <Prose textCenter>
-          <h1>{formatFullDateTimeZone(systemDate)}</h1>
+          <h1>{formatFullDateTimeZone(newValue)}</h1>
           <div>
             <p>
               <InputGroup as="span">
                 <Select
                   data-testid="selectYear"
-                  value={systemDate.year}
+                  value={newValue.year}
                   name="year"
-                  disabled={isSavingDate}
-                  onBlur={updateSystemTime}
-                  onChange={updateSystemTime}
+                  disabled={disabled}
+                  onBlur={updateTimePart}
+                  onChange={updateTimePart}
                 >
                   <option value="" disabled>
                     Year
@@ -121,11 +114,11 @@ const ChangeDateTimeModal: React.FC<Props> = ({
                 </Select>
                 <Select
                   data-testid="selectMonth"
-                  value={systemDate.month}
+                  value={newValue.month}
                   name="month"
-                  disabled={isSavingDate}
-                  onBlur={updateSystemTime}
-                  onChange={updateSystemTime}
+                  disabled={disabled}
+                  onBlur={updateTimePart}
+                  onChange={updateTimePart}
                   style={{
                     width: '4.7rem',
                   }}
@@ -141,11 +134,11 @@ const ChangeDateTimeModal: React.FC<Props> = ({
                 </Select>
                 <Select
                   data-testid="selectDay"
-                  value={systemDate.day}
+                  value={newValue.day}
                   name="day"
-                  disabled={isSavingDate}
-                  onBlur={updateSystemTime}
-                  onChange={updateSystemTime}
+                  disabled={disabled}
+                  onBlur={updateTimePart}
+                  onChange={updateTimePart}
                   style={{
                     width: '4.15rem',
                   }}
@@ -153,7 +146,7 @@ const ChangeDateTimeModal: React.FC<Props> = ({
                   <option value="" disabled>
                     Day
                   </option>
-                  {getDaysInMonth(systemDate.year, systemDate.month).map(
+                  {getDaysInMonth(newValue.year, newValue.month).map(
                     ({ day }) => (
                       <option key={day} value={day}>
                         {day}
@@ -167,11 +160,11 @@ const ChangeDateTimeModal: React.FC<Props> = ({
               <InputGroup as="span">
                 <Select
                   data-testid="selectHour"
-                  value={systemDate.hour % 12 || 12}
+                  value={newValue.hour % 12 || 12}
                   name="hour"
-                  disabled={isSavingDate}
-                  onBlur={updateSystemTime}
-                  onChange={updateSystemTime}
+                  disabled={disabled}
+                  onBlur={updateTimePart}
+                  onChange={updateTimePart}
                   style={{
                     width: '4rem',
                   }}
@@ -187,11 +180,11 @@ const ChangeDateTimeModal: React.FC<Props> = ({
                 </Select>
                 <Select
                   data-testid="selectMinute"
-                  value={systemDate.minute}
+                  value={newValue.minute}
                   name="minute"
-                  disabled={isSavingDate}
-                  onBlur={updateSystemTime}
-                  onChange={updateSystemTime}
+                  disabled={disabled}
+                  onBlur={updateTimePart}
+                  onChange={updateTimePart}
                   style={{
                     width: '4.15rem',
                   }}
@@ -209,9 +202,9 @@ const ChangeDateTimeModal: React.FC<Props> = ({
                   data-testid="selectMeridian"
                   value={systemMeridian}
                   name="meridian"
-                  disabled={isSavingDate}
-                  onBlur={updateSystemTime}
-                  onChange={updateSystemTime}
+                  disabled={disabled}
+                  onBlur={updateTimePart}
+                  onChange={updateTimePart}
                   style={{
                     width: '4.5rem',
                   }}
@@ -228,8 +221,8 @@ const ChangeDateTimeModal: React.FC<Props> = ({
               <InputGroup as="span">
                 <Select
                   data-testid="selectTimezone"
-                  value={systemDate.zoneName}
-                  disabled={isSavingDate}
+                  value={newValue.zoneName}
+                  disabled={disabled}
                   onBlur={updateTimeZone}
                   onChange={updateTimeZone}
                 >
@@ -239,7 +232,7 @@ const ChangeDateTimeModal: React.FC<Props> = ({
                   {AMERICA_TIMEZONES.map((tz) => (
                     <option key={tz} value={tz}>
                       {formatTimeZoneName(
-                        DateTime.fromISO(systemDate.toISO(), { zone: tz })
+                        DateTime.fromISO(newValue.toISO(), { zone: tz })
                       )}{' '}
                       ({tz.split('/')[1].replace(/_/gi, ' ')})
                     </option>
@@ -253,13 +246,13 @@ const ChangeDateTimeModal: React.FC<Props> = ({
       actions={
         <React.Fragment>
           <Button
-            disabled={isSavingDate}
-            primary={!isSavingDate}
+            disabled={disabled}
+            primary={!disabled}
             onPress={saveDateAndZone}
           >
-            {isSavingDate ? 'Saving…' : 'Save'}
+            {saveLabel}
           </Button>
-          <Button disabled={isSavingDate} onPress={cancelSystemDateEdit}>
+          <Button disabled={disabled} onPress={onCancel}>
             Cancel
           </Button>
         </React.Fragment>
@@ -268,4 +261,4 @@ const ChangeDateTimeModal: React.FC<Props> = ({
   )
 }
 
-export default ChangeDateTimeModal
+export default PickDateTimeModal

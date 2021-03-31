@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, fireEvent, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import MockDate from 'mockdate'
 
 import { asElectionDefinition } from '@votingworks/fixtures'
@@ -148,7 +148,7 @@ test('renders date and time settings modal', async () => {
     ) as HTMLOptionElement).selected
   ).toBeTruthy()
 
-  getByText('Mon, Feb 3, 2025, 11:21 PM CST')
+  getByText('Mon, Feb 3, 2025, 11:21 PM')
 
   // Cancel date change
   fireEvent.click(within(getByTestId('modal')).getByText('Cancel'))
@@ -176,7 +176,7 @@ test('renders date and time settings modal', async () => {
   fireEvent.change(selectHour2, { target: { value: optionHour2 } })
 
   // Expect time to be in PM
-  getByText('Wed, Oct 21, 2020, 11:00 PM UTC')
+  screen.getByText('Wed, Oct 21, 2020, 11:00 PM')
 
   // Choose AM, then change hours
   const selectMeridian3 = getByTestId('selectMeridian')
@@ -186,7 +186,7 @@ test('renders date and time settings modal', async () => {
   fireEvent.change(selectMeridian3, { target: { value: optionMeridian3 } })
 
   // Expect time to be in AM
-  getByText('Wed, Oct 21, 2020, 11:00 AM UTC')
+  screen.getByText('Wed, Oct 21, 2020, 11:00 AM')
 
   const selectTimezone2 = getByTestId('selectTimezone') as HTMLSelectElement
   const optionTimezone2 = within(selectTimezone2).getByText(
@@ -197,7 +197,7 @@ test('renders date and time settings modal', async () => {
     target: { value: optionTimezone2.value },
   })
 
-  getByText('Wed, Oct 21, 2020, 11:00 AM PDT')
+  screen.getByText('Wed, Oct 21, 2020, 11:00 AM')
 
   // Save Date and Timezone
   await act(async () => {
