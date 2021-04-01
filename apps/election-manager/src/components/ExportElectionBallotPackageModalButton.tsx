@@ -78,6 +78,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       precinctId,
       locales,
       isLiveMode,
+      isAbsentee,
     } = state.currentBallotConfig
     const path = getBallotPath({
       ballotStyleId,
@@ -86,6 +87,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       precinctId,
       locales,
       isLiveMode,
+      isAbsentee,
     })
     const data = await window.kiosk!.printToPDF()
     await state.archive.file(path, Buffer.from(data))
@@ -216,6 +218,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         contestIds,
         isLiveMode,
         locales,
+        isAbsentee,
       } = state.currentBallotConfig
       const precinctName = getPrecinctById({ election, precinctId })!.name
 
@@ -250,6 +253,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
             election={election}
             electionHash={electionHash}
             isLiveMode={isLiveMode}
+            isAbsentee={isAbsentee}
             precinctId={precinctId}
             onRendered={onRendered}
             locales={locales}

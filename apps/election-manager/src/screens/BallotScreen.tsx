@@ -90,8 +90,8 @@ const BallotScreen: React.FC = () => {
   const [ballotPages, setBallotPages] = useState(0)
   const [isLiveMode, setIsLiveMode] = useState(true)
   const toggleLiveMode = () => setIsLiveMode((m) => !m)
-  const [isAbsenteeMode, setIsAbsenteeMode] = useState(true)
-  const toggleAbsenteeMode = () => setIsAbsenteeMode((m) => !m)
+  const [isAbsentee, setIsAbsentee] = useState(true)
+  const toggleIsAbsentee = () => setIsAbsentee((m) => !m)
   const [ballotCopies, setBallotCopies] = useState(1)
   const updateBallotCopies: InputEventFunction = (event) => {
     const { value } = event.currentTarget
@@ -116,6 +116,7 @@ const BallotScreen: React.FC = () => {
     precinctId,
     locales,
     isLiveMode,
+    isAbsentee,
   })
 
   const afterPrint = (numCopies: number) => {
@@ -126,7 +127,7 @@ const BallotScreen: React.FC = () => {
         locales,
         numCopies,
         printedAt: new Date().toISOString(),
-        type: isAbsenteeMode
+        type: isAbsentee
           ? PrintableBallotType.Absentee
           : PrintableBallotType.Precinct,
       })
@@ -163,18 +164,10 @@ const BallotScreen: React.FC = () => {
               </Button>
             </SegmentedButton>{' '}
             <SegmentedButton>
-              <Button
-                disabled={isAbsenteeMode}
-                onPress={toggleAbsenteeMode}
-                small
-              >
+              <Button disabled={isAbsentee} onPress={toggleIsAbsentee} small>
                 Absentee
               </Button>
-              <Button
-                disabled={!isAbsenteeMode}
-                onPress={toggleAbsenteeMode}
-                small
-              >
+              <Button disabled={!isAbsentee} onPress={toggleIsAbsentee} small>
                 Precinct
               </Button>
             </SegmentedButton>{' '}
@@ -226,7 +219,7 @@ const BallotScreen: React.FC = () => {
                   <div>
                     Is the printer loaded with{' '}
                     <strong>
-                      {isAbsenteeMode ? 'Absentee' : 'Precinct'} Ballot
+                      {isAbsentee ? 'Absentee' : 'Precinct'} Ballot
                     </strong>{' '}
                     paper?
                   </div>
@@ -238,7 +231,7 @@ const BallotScreen: React.FC = () => {
             >
               Print {ballotCopies}{' '}
               {isLiveMode ? 'Official' : <strong>Test</strong>}{' '}
-              {isAbsenteeMode ? <strong>Absentee</strong> : 'Precinct'}{' '}
+              {isAbsentee ? <strong>Absentee</strong> : 'Precinct'}{' '}
               {pluralize('Ballot', ballotCopies)}{' '}
               {availableLocaleCodes.length > 1 &&
                 currentLocaleCode &&
@@ -276,7 +269,7 @@ const BallotScreen: React.FC = () => {
         election={election}
         electionHash={electionHash}
         isLiveMode={isLiveMode}
-        isAbsenteeMode={isAbsenteeMode}
+        isAbsentee={isAbsentee}
         precinctId={precinctId}
         locales={locales}
         onRendered={onRendered}

@@ -467,7 +467,7 @@ export interface HandMarkedPaperBallotProps {
   election: Election
   electionHash: string
   isLiveMode?: boolean
-  isAbsenteeMode?: boolean
+  isAbsentee?: boolean
   precinctId: string
   locales: BallotLocale
   ballotId?: string
@@ -480,7 +480,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   election,
   electionHash,
   isLiveMode = true,
-  isAbsenteeMode = true,
+  isAbsentee = true,
   precinctId,
   locales,
   ballotId,
@@ -610,7 +610,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     <Ballot aria-hidden data-ballot ref={ballotRef}>
       <div className="ballot-footer">
         <PageFooter>
-          {isAbsenteeMode && (
+          {isAbsentee && (
             <AbsenteeFooter>
               <Text bold as="span">
                 Absentee Ballot
@@ -713,7 +713,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 precinctId,
                 locales,
                 isTestMode: !isLiveMode,
-                ballotType: isAbsenteeMode
+                ballotType: isAbsentee
                   ? BallotType.Absentee
                   : BallotType.Standard,
                 ballotId,
@@ -726,7 +726,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       <Content>
         <CandidateContestsLayout>
           <IntroColumn>
-            {isAbsenteeMode && (
+            {isAbsentee && (
               <AbsenteeHeader>
                 <Text bold>Absentee Ballot</Text>
               </AbsenteeHeader>

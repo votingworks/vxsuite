@@ -79,7 +79,11 @@ export function init(
     type: 'Init',
     election,
     electionHash,
-    ballotConfigs: getAllBallotConfigs(election, electionHash, localeCodes),
+    ballotConfigs: getAllBallotConfigs(
+      election,
+      electionHash,
+      localeCodes
+    ).filter(({ isAbsentee }) => !isAbsentee),
   }
 }
 
