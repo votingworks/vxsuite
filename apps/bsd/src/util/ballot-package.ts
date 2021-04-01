@@ -2,7 +2,6 @@ import {
   BallotStyle,
   Contest,
   ElectionDefinition,
-  parseElection,
   Precinct,
 } from '@votingworks/types'
 import type { BallotLocales } from '@votingworks/hmpb-interpreter'
@@ -179,7 +178,7 @@ async function readBallotPackageFromZip(
 
   return {
     electionDefinition: {
-      election: parseElection(JSON.parse(electionData)),
+      election: JSON.parse(electionData),
       electionData,
       electionHash: sha256(electionData),
     },
