@@ -30,7 +30,10 @@ import { filterExternalTalliesByParams } from '../utils/semsTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import Text from '../components/Text'
 
-const ContestColumns = styled.div`
+export const TallyReportTitle = styled.h1`
+  font-weight: 400;
+`
+export const TallyReportColumns = styled.div`
   columns: 3;
   column-gap: 0.3in;
   margin-top: 1rem;
@@ -53,7 +56,7 @@ const TallyReportPreview = styled(TallyReport)`
     padding: 0.5in;
   }
 `
-const ReportSection = styled.section`
+export const ReportSection = styled.section`
   page-break-before: always;
 `
 
@@ -245,7 +248,7 @@ const TallyReportScreen: React.FC = () => {
                       election={election}
                     />
                   </Prose>
-                  <ContestColumns>
+                  <TallyReportColumns>
                     <TallyReportSummary
                       election={election}
                       totalBallotCount={reportBallotCount}
@@ -257,7 +260,7 @@ const TallyReportScreen: React.FC = () => {
                       externalTally={externalTallyForReport}
                       precinctId={precinctId}
                     />
-                  </ContestColumns>
+                  </TallyReportColumns>
                 </ReportSection>
               )
             }
@@ -277,7 +280,7 @@ const TallyReportScreen: React.FC = () => {
                       election={election}
                     />
                   </Prose>
-                  <ContestColumns>
+                  <TallyReportColumns>
                     <TallyReportSummary
                       election={election}
                       totalBallotCount={reportBallotCount}
@@ -287,7 +290,7 @@ const TallyReportScreen: React.FC = () => {
                       election={election}
                       electionTally={tallyForReport}
                     />
-                  </ContestColumns>
+                  </TallyReportColumns>
                 </ReportSection>
               )
             }
@@ -307,13 +310,13 @@ const TallyReportScreen: React.FC = () => {
                       election={election}
                     />
                   </Prose>
-                  <ContestColumns>
+                  <TallyReportColumns>
                     <ContestTally
                       election={election}
                       electionTally={tallyForReport}
                       externalTally={externalTallyForReport}
                     />
-                  </ContestColumns>
+                  </TallyReportColumns>
                 </ReportSection>
               )
             }
@@ -333,7 +336,7 @@ const TallyReportScreen: React.FC = () => {
                     election={election}
                   />
                 </Prose>
-                <ContestColumns>
+                <TallyReportColumns>
                   <TallyReportSummary
                     election={election}
                     totalBallotCount={reportBallotCount}
@@ -344,7 +347,7 @@ const TallyReportScreen: React.FC = () => {
                     electionTally={tallyForReport}
                     externalTally={externalTallyForReport}
                   />
-                </ContestColumns>
+                </TallyReportColumns>
               </ReportSection>
             )
           })

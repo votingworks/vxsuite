@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 import { getPrecinctById, Precinct, VotesDict } from '@votingworks/types'
 import routerPaths from '../routerPaths'
@@ -20,10 +19,13 @@ import LinkButton from '../components/LinkButton'
 import { PrecinctReportScreenProps, Tally, VotingMethod } from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
-
-const ElectionTallyReport = styled.div`
-  page-break-before: always;
-`
+import {
+  ReportSection,
+  TallyReportColumns,
+  TallyReportTitle,
+} from './TallyReportScreen'
+import LogoMark from '../components/LogoMark'
+import TallyReportMetadata from '../components/TallyReportMetadata'
 
 const allPrecincts: Precinct = {
   id: '',
@@ -80,17 +82,26 @@ const TestDeckScreen: React.FC = () => {
 
   const pageTitle = 'Test Ballot Deck Tally'
 
+  const generatedAtTime = new Date()
+
   if (precinct?.name) {
     return (
       <React.Fragment>
         <NavigationScreen>
+          <div>
+            <strong>{pageTitle}</strong> for {election.title}
+          </div>
           <Prose>
-            <h1>{pageTitle}</h1>
-            <p>
-              <strong>Election:</strong> {election.title}
-              <br />
-              <strong>Precinct:</strong> {precinct.name}
-            </p>
+            <TallyReportTitle
+              style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
+            >
+              {precinctId === 'all' ? '' : 'Precinct'} Tally Report for{' '}
+              <strong>{precinct.name}</strong>
+            </TallyReportTitle>
+            <TallyReportMetadata
+              generatedAtTime={generatedAtTime}
+              election={election}
+            />
             <p>
               <PrintButton primary>Print Results Report</PrintButton>
             </p>
@@ -120,18 +131,30 @@ const TestDeckScreen: React.FC = () => {
               election.title
             }`
             return (
-              <ElectionTallyReport key={partyId || 'no-party'}>
-                <h1>{pageTitle}</h1>
-                <p>
-                  <strong>Election:</strong> {electionTitle}
-                  <br />
-                  <strong>Precinct:</strong> {precinct.name}
-                </p>
-                <ContestTally
-                  election={election}
-                  electionTally={electionTallyForParty}
-                />
-              </ElectionTallyReport>
+              <ReportSection key={partyId || 'no-party'}>
+                <LogoMark />
+                <div>
+                  <strong>{pageTitle}</strong> for {electionTitle}
+                </div>
+                <Prose maxWidth={false}>
+                  <TallyReportTitle
+                    style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
+                  >
+                    {precinctId === 'all' ? '' : 'Precinct'} Tally Report for{' '}
+                    <strong>{precinct.name}</strong>
+                  </TallyReportTitle>
+                  <TallyReportMetadata
+                    generatedAtTime={generatedAtTime}
+                    election={election}
+                  />
+                </Prose>
+                <TallyReportColumns>
+                  <ContestTally
+                    election={election}
+                    electionTally={electionTallyForParty}
+                  />
+                </TallyReportColumns>
+              </ReportSection>
             )
           })}
         </div>
