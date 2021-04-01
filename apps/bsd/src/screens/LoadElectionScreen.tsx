@@ -1,5 +1,7 @@
-import { getPrecinctById } from '@votingworks/types'
-import { sha256 } from 'js-sha256'
+import {
+  getPrecinctById,
+  safeParseElectionDefinition,
+} from '@votingworks/types'
 import React, { useState } from 'react'
 import * as config from '../api/config'
 import { addTemplates, doneTemplates } from '../api/hmpb'
@@ -73,20 +75,16 @@ const LoadElectionScreen: React.FC<Props> = ({
 
     if (isElectionJSON) {
       await new Promise<void>((resolve, reject) => {
-        reader.onload = async () => {
-          try {
-            const electionData = reader.result as string
-            const electionDefinition = {
-              electionData,
-              electionHash: sha256(electionData),
-              election: JSON.parse(electionData),
+        reader.onload = () => {
+          const electionData = reader.result as string
+          safeParseElectionDefinition(electionData).mapOrElse(
+            reject,
+            async (electionDefinition) => {
+              await config.setElection(electionData)
+              setElectionDefinition(electionDefinition)
+              resolve()
             }
-            await config.setElectionDefinition(electionDefinition)
-            setElectionDefinition(electionDefinition)
-            resolve()
-          } catch (err) {
-            reject(err)
-          }
+          )
         }
 
         reader.readAsText(file)

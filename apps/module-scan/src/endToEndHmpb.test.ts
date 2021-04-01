@@ -1,3 +1,4 @@
+import { asElectionDefinition } from '@votingworks/fixtures'
 import { EventEmitter } from 'events'
 import { Application } from 'express'
 import * as fs from 'fs-extra'
@@ -12,7 +13,6 @@ import { buildApp } from './server'
 import { BallotPackageManifest, CastVoteRecord } from './types'
 import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
-import { fromElection } from './util/electionDefinition'
 
 const electionFixturesRoot = join(
   __dirname,
@@ -72,9 +72,9 @@ test('going through the whole process works', async () => {
   await importer.restoreConfig()
 
   await request(app)
-    .patch('/config/electionDefinition')
-    .send(fromElection(election))
-    .set('Content-Type', 'application/json')
+    .patch('/config/election')
+    .send(asElectionDefinition(election).electionData)
+    .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
@@ -212,9 +212,9 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   await importer.restoreConfig()
 
   await request(app)
-    .patch('/config/electionDefinition')
-    .send(fromElection(election))
-    .set('Content-Type', 'application/json')
+    .patch('/config/election')
+    .send(asElectionDefinition(election).electionData)
+    .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
@@ -366,9 +366,9 @@ test('ms-either-neither end-to-end', async () => {
     .expect(200, { status: 'ok' })
 
   await request(app)
-    .patch('/config/electionDefinition')
-    .send(fromElection(election))
-    .set('Content-Type', 'application/json')
+    .patch('/config/election')
+    .send(asElectionDefinition(election).electionData)
+    .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 

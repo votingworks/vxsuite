@@ -2,47 +2,29 @@ import fetchMock from 'fetch-mock'
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import * as config from './config'
 
-test('GET /config', async () => {
-  fetchMock.getOnce(
-    '/config',
-    JSON.stringify({
-      electionDefinition: testElectionDefinition,
-      testMode: true,
-    })
-  )
-  expect(await config.get()).toEqual({
-    electionDefinition: testElectionDefinition,
-    testMode: true,
-  })
+test('GET /config/election', async () => {
+  fetchMock.getOnce('/config/election', testElectionDefinition)
+  expect(await config.getElectionDefinition()).toEqual(testElectionDefinition)
 })
 
-test('PATCH /config/electionDefinition', async () => {
-  fetchMock.patchOnce(
-    '/config/electionDefinition',
-    JSON.stringify({ status: 'ok' })
-  )
-  await config.setElectionDefinition(testElectionDefinition)
+test('PATCH /config/election', async () => {
+  fetchMock.patchOnce('/config/election', JSON.stringify({ status: 'ok' }))
+  await config.setElection(testElectionDefinition.electionData)
 })
 
-test('PATCH /config/electionDefinition fails', async () => {
+test('PATCH /config/election fails', async () => {
   fetchMock.patchOnce(
-    '/config/electionDefinition',
-
+    '/config/election',
     new Response(JSON.stringify({ status: 'error', error: 'bad election!' }), {
       status: 400,
     })
   )
   await expect(
-    config.setElectionDefinition(testElectionDefinition)
-  ).rejects.toThrowError(
-    'PATCH /config/electionDefinition failed: bad election!'
-  )
+    config.setElection(testElectionDefinition.electionData)
+  ).rejects.toThrowError('PATCH /config/election failed: bad election!')
 })
 
-test('DELETE /config/electionDefinition to delete election', async () => {
-  fetchMock.deleteOnce(
-    '/config/electionDefinition',
-    JSON.stringify({ status: 'ok' })
-  )
-  await config.setElectionDefinition(undefined)
+test('DELETE /config/election to delete election', async () => {
+  fetchMock.deleteOnce('/config/election', JSON.stringify({ status: 'ok' }))
+  await config.setElection(undefined)
 })

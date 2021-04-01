@@ -1,3 +1,4 @@
+import { asElectionDefinition } from '@votingworks/fixtures'
 import {
   AdjudicationReason,
   BallotType,
@@ -17,14 +18,13 @@ import {
   Side,
 } from './types'
 import { MarkStatus } from './types/ballot-review'
-import { fromElection } from './util/electionDefinition'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
 
   expect(await store.getElectionDefinition()).toBeUndefined()
 
-  await store.setElection(fromElection(election))
+  await store.setElection(asElectionDefinition(election))
   expect((await store.getElectionDefinition())?.election).toEqual(election)
 
   await store.setElection(undefined)
@@ -60,7 +60,7 @@ test('get/set mark threshold overrides', async () => {
 
 test('get current mark thresholds falls back to election definition defaults', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(asElectionDefinition(election))
   expect(await store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
@@ -195,7 +195,7 @@ test('adjudication', async () => {
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   }
-  await store.setElection(fromElection(election))
+  await store.setElection(asElectionDefinition(election))
   await store.addHmpbTemplate(
     Buffer.of(),
     metadata,

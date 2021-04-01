@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import { ReviewBallot, BallotSheetInfo } from '../config/types'
 import { BallotPackage, BallotPackageEntry } from '../util/ballot-package'
 import fetchJSON from '../util/fetchJSON'
-import { setElectionDefinition } from './config'
+import { setElection } from './config'
 
 export interface AddTemplatesEvents extends EventEmitter {
   on(
@@ -52,7 +52,7 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
   setImmediate(async () => {
     try {
       result.emit('configuring', pkg, pkg.electionDefinition)
-      await setElectionDefinition(pkg.electionDefinition)
+      await setElection(pkg.electionDefinition.electionData)
 
       for (const ballot of pkg.ballots) {
         result.emit('uploading', pkg, ballot)

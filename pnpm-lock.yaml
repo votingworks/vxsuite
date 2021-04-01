@@ -107,7 +107,6 @@ importers:
       fetch-mock: 9.11.0
       history: 4.10.1
       http-proxy-middleware: 1.0.6
-      js-sha256: 0.9.0
       lodash.camelcase: 4.3.0
       luxon: 1.26.0
       mockdate: 3.0.2
@@ -218,7 +217,6 @@ importers:
       jest-environment-jsdom-sixteen: ^1.0.3
       jest-fetch-mock: ^3.0.3
       jest-styled-components: ^6.3.4
-      js-sha256: ^0.9.0
       lint-staged: ^10.2.4
       lodash.camelcase: ^4.3.0
       luxon: ^1.26.0
@@ -263,7 +261,6 @@ importers:
       fast-text-encoding: 1.0.3
       http-proxy-middleware: 1.0.6
       js-file-download: 0.4.12
-      js-sha256: 0.9.0
       moment: 2.29.1
       normalize.css: 8.0.1
       pluralize: 7.0.0
@@ -365,7 +362,6 @@ importers:
       jest-environment-jsdom-sixteen: ^1.0.3
       jest-fetch-mock: ^3.0.3
       js-file-download: ^0.4.6
-      js-sha256: ^0.9.0
       lint-staged: ^10.2.3
       moment: ^2.29.1
       node-fetch: ^2.6.0
@@ -11961,7 +11957,7 @@ packages:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.1_supports-color@6.1.0
     engines:
       node: '>=4.0'
     peerDependencies:

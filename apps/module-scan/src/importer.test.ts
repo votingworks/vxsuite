@@ -1,4 +1,7 @@
-import { electionSample as election } from '@votingworks/fixtures'
+import {
+  asElectionDefinition,
+  electionSample as election,
+} from '@votingworks/fixtures'
 import { BallotType } from '@votingworks/types'
 import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
@@ -11,7 +14,6 @@ import SystemImporter, { sleep } from './importer'
 import { Scanner } from './scanner'
 import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
-import { fromElection } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 
@@ -43,7 +45,7 @@ test('startImport calls scanner.scanSheet', async () => {
     'no election configuration'
   )
 
-  await importer.configure(fromElection(election))
+  await importer.configure(asElectionDefinition(election))
 
   // failed scan
   const generator: AsyncGenerator<SheetOf<string>> = {
@@ -95,7 +97,7 @@ test('unconfigure clears all data.', async () => {
     scanner,
   })
 
-  await importer.configure(fromElection(election))
+  await importer.configure(asElectionDefinition(election))
   expect(await workspace.store.getElectionDefinition()).toBeDefined()
   await importer.unconfigure()
   expect(await workspace.store.getElectionDefinition()).toBeUndefined()
@@ -123,7 +125,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     ...frontMetadata,
     pageNumber: 2,
   }
-  await importer.configure(fromElection(election))
+  await importer.configure(asElectionDefinition(election))
   const batchId = await workspace.store.addBatch()
   await workspace.store.addSheet(uuid(), batchId, [
     {
@@ -224,7 +226,7 @@ test('manually importing files', async () => {
     ...frontMetadata,
     pageNumber: 2,
   }
-  await workspace.store.setElection(fromElection(election))
+  await workspace.store.setElection(asElectionDefinition(election))
 
   const frontImagePath = await makeImageFile()
   const backImagePath = await makeImageFile()
@@ -329,7 +331,7 @@ test('scanning pauses on adjudication then continues', async () => {
     scanner,
   })
 
-  await importer.configure(fromElection(election))
+  await importer.configure(asElectionDefinition(election))
 
   jest.spyOn(workspace.store, 'deleteSheet')
   jest.spyOn(workspace.store, 'saveBallotAdjudication')
@@ -436,7 +438,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     workerPoolProvider,
   })
 
-  importer.configure(fromElection(election))
+  importer.configure(asElectionDefinition(election))
   jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
 
   workerCall.mockImplementationOnce(async (input) => {

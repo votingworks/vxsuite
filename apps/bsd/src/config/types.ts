@@ -2,7 +2,6 @@ import type {
   AdjudicationReason,
   Dictionary,
   ElectionDefinition,
-  MarkThresholds,
   VotesDict,
 } from '@votingworks/types'
 import type {
@@ -96,20 +95,6 @@ export interface ScanStatusResponse {
   batches: Batch[]
   adjudication: AdjudicationStatus
 }
-
-export type GetConfigRequest = void
-export interface GetConfigResponse {
-  electionDefinition?: ElectionDefinition
-  testMode: boolean
-  markThresholdOverrides?: MarkThresholds | null
-}
-
-export interface PatchConfigRequest {
-  electionDefinition?: ElectionDefinition | null
-  testMode?: boolean
-  markThresholdOverrides?: MarkThresholds | null
-}
-export type PatchConfigResponse = OkResponse
 
 // eslint-disable-next-line import/no-cycle
 export * from './types/ballot-review'

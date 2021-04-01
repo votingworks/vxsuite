@@ -8,7 +8,7 @@ import ZipStream from 'zip-stream'
 import election from '../test/fixtures/2020-choctaw/election'
 import backup, { Backup } from './backup'
 import Store from './store'
-import { fromElection } from './util/electionDefinition'
+import { asElectionDefinition } from '@votingworks/fixtures'
 import { BallotType } from '@votingworks/types'
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
@@ -97,7 +97,7 @@ test('unconfigured', async () => {
 
 test('configured', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(asElectionDefinition(election))
   const result = new WritableStream()
   const onError = jest.fn()
 
@@ -127,7 +127,7 @@ test('zip entry fails', async () => {
 
 test('has election.json', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(asElectionDefinition(election))
   const result = new WritableStream()
 
   await new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ test('has election.json', async () => {
 
 test('has ballots.db', async () => {
   const store = await Store.memoryStore()
-  const electionDefinition = fromElection(election)
+  const electionDefinition = asElectionDefinition(election)
   await store.setElection(electionDefinition)
   const result = new WritableStream()
 
@@ -186,7 +186,7 @@ test('has ballots.db', async () => {
 
 test('has all files referenced in the database', async () => {
   const store = await Store.memoryStore()
-  const electionDefinition = fromElection(election)
+  const electionDefinition = asElectionDefinition(election)
   await store.setElection(electionDefinition)
   const batchId = await store.addBatch()
 
@@ -285,7 +285,7 @@ test('has all files referenced in the database', async () => {
 
 test('has cvrs.jsonl', async () => {
   const store = await Store.memoryStore()
-  await store.setElection(fromElection(election))
+  await store.setElection(asElectionDefinition(election))
   const result = new WritableStream()
 
   const batchId = await store.addBatch()

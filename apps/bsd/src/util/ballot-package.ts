@@ -3,11 +3,11 @@ import {
   Contest,
   ElectionDefinition,
   Precinct,
+  safeParseElectionDefinition,
 } from '@votingworks/types'
 import type { BallotLocales } from '@votingworks/hmpb-interpreter'
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
-import { sha256 } from 'js-sha256'
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition
@@ -177,11 +177,7 @@ async function readBallotPackageFromZip(
   }
 
   return {
-    electionDefinition: {
-      election: JSON.parse(electionData),
-      electionData,
-      electionHash: sha256(electionData),
-    },
+    electionDefinition: safeParseElectionDefinition(electionData).unwrap(),
     ballots,
   }
 }

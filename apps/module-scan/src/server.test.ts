@@ -96,46 +96,83 @@ test('GET /scan/status', async () => {
   expect(importer.getStatus).toBeCalled()
 })
 
-test('GET /config', async () => {
+test('GET /config/election (application/octet-stream)', async () => {
   await workspace.store.setElection(testElectionDefinition)
   await workspace.store.setTestMode(true)
   await workspace.store.setMarkThresholdOverrides(undefined)
-  const response = await request(app).get('/config').expect(200)
+  const response = await request(app)
+    .get('/config/election')
+    .accept('application/octet-stream')
+    .expect(200)
+  expect(new TextDecoder().decode(response.body)).toEqual(
+    testElectionDefinition.electionData
+  )
+
+  await workspace.store.setElection(undefined)
+  await request(app)
+    .get('/config/election')
+    .accept('application/octet-stream')
+    .expect(404)
+})
+
+test('GET /config/election (application/json)', async () => {
+  await workspace.store.setElection(testElectionDefinition)
+  await workspace.store.setTestMode(true)
+  await workspace.store.setMarkThresholdOverrides(undefined)
+  const response = await request(app)
+    .get('/config/election')
+    .accept('application/json')
+    .expect(200)
   // This mess of a comparison is due to `Store#getElectionDefinition` adding
   // default `markThresholds` if they're not set, so it may not be the same as
   // we originally set.
-  expect(response.body).toEqual({
-    electionDefinition: expect.objectContaining({
+  expect(response.body).toEqual(
+    expect.objectContaining({
       electionHash: testElectionDefinition.electionHash,
       election: expect.objectContaining({
         title: testElectionDefinition.election.title,
       }),
-    }),
+    })
+  )
+
+  await workspace.store.setElection(undefined)
+  await request(app)
+    .get('/config/election')
+    .accept('application/json')
+    .expect(200, 'null')
+})
+
+test('GET /config/testMode', async () => {
+  await workspace.store.setElection(testElectionDefinition)
+  await workspace.store.setTestMode(true)
+  await workspace.store.setMarkThresholdOverrides(undefined)
+  const response = await request(app).get('/config/testMode').expect(200)
+  expect(response.body).toEqual({
     testMode: true,
   })
 })
 
-test('GET /config with mark threshold overrides', async () => {
+test('GET /config/markThresholdOverrrides', async () => {
   await workspace.store.setElection(testElectionDefinition)
   await workspace.store.setTestMode(true)
   await workspace.store.setMarkThresholdOverrides({
     definite: 0.3,
     marginal: 0.4,
   })
-  const response = await request(app).get('/config').expect(200)
+  const response = await request(app)
+    .get('/config/markThresholdOverrides')
+    .expect(200)
 
-  expect(response.body).toEqual(
-    expect.objectContaining({
-      markThresholdOverrides: { definite: 0.3, marginal: 0.4 },
-    })
-  )
+  expect(response.body).toEqual({
+    markThresholdOverrides: { definite: 0.3, marginal: 0.4 },
+  })
 })
 
-test('PATCH /config/electionDefinition', async () => {
+test('PATCH /config/election', async () => {
   await request(app)
-    .patch('/config/electionDefinition')
-    .send(testElectionDefinition)
-    .set('Content-Type', 'application/json')
+    .patch('/config/election')
+    .send(testElectionDefinition.electionData)
+    .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.configure).toBeCalledWith(
@@ -147,11 +184,11 @@ test('PATCH /config/electionDefinition', async () => {
   )
 })
 
-test('DELETE /config/electionDefinition', async () => {
+test('DELETE /config/election', async () => {
   importerMock.unconfigure.mockResolvedValue()
 
   await request(app)
-    .delete('/config/electionDefinition')
+    .delete('/config/election')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.unconfigure).toBeCalled()

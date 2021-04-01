@@ -86,14 +86,9 @@ const App: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false)
 
   const refreshConfig = useCallback(async () => {
-    const {
-      electionDefinition: refreshedElectionDefinition,
-      testMode,
-      markThresholdOverrides,
-    } = await config.get()
-    setElectionDefinition(refreshedElectionDefinition)
-    setTestMode(testMode)
-    setMarkThresholds(markThresholdOverrides ?? undefined)
+    setElectionDefinition(await config.getElectionDefinition())
+    setTestMode(await config.getTestMode())
+    setMarkThresholds(await config.getMarkThresholdOverrides())
   }, [])
 
   const updateElectionDefinition = async (e: Optional<ElectionDefinition>) => {
@@ -107,6 +102,7 @@ const App: React.FC = () => {
         await refreshConfig()
         setIsConfigLoaded(true)
       } catch (e) {
+        console.error('failed to initialize:', e)
         window.setTimeout(initialize, 1000)
       }
     }
@@ -148,7 +144,7 @@ const App: React.FC = () => {
 
   const unconfigureServer = useCallback(async () => {
     try {
-      await config.setElectionDefinition(undefined)
+      await config.setElection(undefined)
       await refreshConfig()
       history.replace('/')
     } catch (error) {
