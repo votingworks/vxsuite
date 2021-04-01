@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useCallback, useContext, useRef, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -29,6 +29,7 @@ import TextInput from '../components/TextInput'
 import LinkButton from '../components/LinkButton'
 import Prose from '../components/Prose'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
+import saveAsPDF from '../utils/saveAsPDF'
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -146,6 +147,25 @@ const BallotScreen: React.FC = () => {
     setBallotPages(pagedJsPageCount)
   }
 
+  const handleSaveAsPDF = useCallback(async () => {
+    const ballotPath = getBallotPath({
+      ballotStyleId,
+      election,
+      electionHash,
+      precinctId,
+      locales,
+      isLiveMode,
+      isAbsentee,
+    })
+    const succeeded = await saveAsPDF(ballotPath)
+    if (!succeeded) {
+      // eslint-disable-next-line no-alert
+      window.alert(
+        'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
+      )
+    }
+  }, [])
+
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -237,6 +257,14 @@ const BallotScreen: React.FC = () => {
                 currentLocaleCode &&
                 ` in ${getHumanBallotLanguageFormat(locales)}`}
             </PrintButton>
+            {window.kiosk && (
+              <React.Fragment>
+                {' '}
+                <Button onPress={handleSaveAsPDF} disabled={ballotPages === 0}>
+                  Save Ballot as PDF
+                </Button>
+              </React.Fragment>
+            )}
           </p>
           <p>
             <LinkButton small to={routerPaths.ballotsList}>
