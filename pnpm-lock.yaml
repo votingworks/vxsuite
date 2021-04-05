@@ -11961,7 +11961,7 @@ packages:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.1_supports-color@6.1.0
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -13726,6 +13726,7 @@ packages:
       jest-runtime: 26.6.3
       jest-snapshot: 26.6.2
       jest-util: 26.6.2
+      prettier: 2.2.1
       pretty-format: 26.6.2
       stack-utils: 2.0.3
       throat: 5.0.0
@@ -18497,7 +18498,6 @@ packages:
     resolution:
       integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==
   /prettier/2.2.1:
-    dev: true
     engines:
       node: '>=10.13.0'
     hasBin: true

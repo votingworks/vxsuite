@@ -90,5 +90,14 @@ function readPackage(pkg, context) {
     context.log('eslint-module-utils requires the parser named in the eslint config, @typescript-eslint/parser')
   }
 
+  if (pkg.name === 'jest-circus') {
+    // Cannot find module 'prettier'
+    pkg.dependencies = {
+      ...pkg.dependencies,
+      'prettier': '*',
+    }
+    context.log('jest-circus requires prettier to format code for inline snapshots')
+  }
+
   return pkg
 }
