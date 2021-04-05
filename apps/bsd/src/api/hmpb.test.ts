@@ -12,7 +12,7 @@ jest.mock('./config')
 const configMock = config as jest.Mocked<typeof config>
 
 test('configures the server with the contained election', async () => {
-  configMock.setElectionDefinition.mockResolvedValueOnce()
+  configMock.setElection.mockResolvedValueOnce()
 
   await new Promise<void>((resolve, reject) => {
     addTemplates({ electionDefinition, ballots: [] })
@@ -24,13 +24,13 @@ test('configures the server with the contained election', async () => {
       })
   })
 
-  expect(configMock.setElectionDefinition).toHaveBeenCalledWith(
-    electionDefinition
+  expect(configMock.setElection).toHaveBeenCalledWith(
+    electionDefinition.electionData
   )
 })
 
 test('emits an event each time a ballot begins uploading', async () => {
-  fetchMock.patchOnce('/config/electionDefinition', { body: { status: 'ok' } })
+  fetchMock.patchOnce('/config/election', { body: { status: 'ok' } })
   fetchMock.post('/scan/hmpb/addTemplates', { body: { status: 'ok' } })
 
   const uploading = jest.fn()
@@ -76,9 +76,7 @@ test('emits an event each time a ballot begins uploading', async () => {
 })
 
 test('emits error on API failure', async () => {
-  configMock.setElectionDefinition.mockRejectedValueOnce(
-    new Error('bad election!')
-  )
+  configMock.setElection.mockRejectedValueOnce(new Error('bad election!'))
 
   await expect(
     new Promise<void>((resolve, reject) => {

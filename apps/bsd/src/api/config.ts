@@ -1,16 +1,15 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types'
-import { ErrorResponse, GetConfigResponse, OkResponse } from '../config/types'
+import { ErrorResponse, OkResponse } from '../config/types'
 import fetchJSON from '../util/fetchJSON'
 
-export async function get(): Promise<GetConfigResponse> {
-  return fetchJSON<GetConfigResponse>('/config')
-}
-
 async function patch(url: string, value: unknown): Promise<void> {
+  const isJSON = typeof value !== 'string' && !(value instanceof ArrayBuffer)
   const response = await fetch(url, {
     method: 'PATCH',
-    body: JSON.stringify(value),
-    headers: { 'Content-Type': 'application/json' },
+    body: isJSON ? JSON.stringify(value) : (value as BodyInit),
+    headers: {
+      'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
+    },
   })
   const body: OkResponse | ErrorResponse = await response.json()
 
@@ -31,18 +30,46 @@ async function del(url: string): Promise<void> {
   }
 }
 
-export async function setElectionDefinition(
-  electionDefinition?: ElectionDefinition
-): Promise<void> {
-  if (typeof electionDefinition === 'undefined') {
-    await del('/config/electionDefinition')
-  } else {
-    await patch('/config/electionDefinition', electionDefinition)
+export async function getElection(): Promise<string | undefined> {
+  const response = await fetch('/config/election')
+
+  if (response.status === 404) {
+    return undefined
   }
+
+  return response.text()
+}
+
+export async function getElectionDefinition(): Promise<
+  ElectionDefinition | undefined
+> {
+  return (await fetchJSON('/config/election')) ?? undefined
+}
+
+export async function setElection(electionData?: string): Promise<void> {
+  if (typeof electionData === 'undefined') {
+    await del('/config/election')
+  } else {
+    await patch('/config/election', electionData)
+  }
+}
+
+export async function getTestMode(): Promise<boolean> {
+  const { testMode } = await fetchJSON('/config/testMode')
+  return testMode
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
   await patch('/config/testMode', { testMode })
+}
+
+export async function getMarkThresholdOverrides(): Promise<
+  MarkThresholds | undefined
+> {
+  const { markThresholdOverrides } = await fetchJSON(
+    '/config/markThresholdOverrides'
+  )
+  return markThresholdOverrides
 }
 
 export async function setMarkThresholdOverrides(

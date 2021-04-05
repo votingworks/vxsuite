@@ -20,7 +20,6 @@ const sleep = (ms = 1000): Promise<void> =>
 jest.mock('js-file-download')
 
 beforeEach(() => {
-  fetchMock.get('/config', {})
   fetchMock.get('/scan/status', {
     batches: [],
     adjudication: { adjudicated: 0, remaining: 0 },
@@ -40,6 +39,11 @@ beforeEach(() => {
 })
 
 test('renders without crashing', async () => {
+  fetchMock
+    .getOnce('/config/election', electionSampleDefinition)
+    .getOnce('/config/testMode', { testMode: false })
+    .getOnce('/config/markThresholdOverrides', {})
+
   await act(async () => {
     render(<App />)
     await waitFor(() => fetchMock.called)
@@ -47,11 +51,10 @@ test('renders without crashing', async () => {
 })
 
 test('shows a "Test mode" button if the app is in Live Mode', async () => {
-  fetchMock.getOnce(
-    '/config',
-    { testMode: false, electionDefinition: electionSampleDefinition },
-    { overwriteRoutes: true }
-  )
+  fetchMock
+    .getOnce('/config/election', electionSampleDefinition)
+    .getOnce('/config/testMode', { testMode: false })
+    .getOnce('/config/markThresholdOverrides', {})
 
   let result!: RenderResult
 
@@ -66,11 +69,10 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
 })
 
 test('shows a "Live mode" button if the app is in Test Mode', async () => {
-  fetchMock.getOnce(
-    '/config',
-    { testMode: true, electionDefinition: electionSampleDefinition },
-    { overwriteRoutes: true }
-  )
+  fetchMock
+    .getOnce('/config/election', electionSampleDefinition)
+    .getOnce('/config/testMode', { testMode: true })
+    .getOnce('/config/markThresholdOverrides', {})
 
   let result!: RenderResult
 
@@ -85,15 +87,13 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 })
 
 test('clicking Scan Batch will scan a batch', async () => {
-  fetchMock.getOnce(
-    '/config',
-    { testMode: true, electionDefinition: electionSampleDefinition },
-    { overwriteRoutes: true }
-  )
-
-  fetchMock.postOnce('/scan/scanBatch', {
-    body: { status: 'could not scan: interpreter not ready' },
-  })
+  fetchMock
+    .getOnce('/config/election', electionSampleDefinition)
+    .getOnce('/config/testMode', { testMode: true })
+    .getOnce('/config/markThresholdOverrides', {})
+    .postOnce('/scan/scanBatch', {
+      body: { status: 'could not scan: interpreter not ready' },
+    })
 
   const mockAlert = jest.fn()
   window.alert = mockAlert
@@ -118,23 +118,21 @@ test('clicking Scan Batch will scan a batch', async () => {
 })
 
 test('clicking export shows modal and makes a request to export', async () => {
-  fetchMock.getOnce(
-    '/config',
-    { testMode: true, electionDefinition: electionSampleDefinition },
-    { overwriteRoutes: true }
-  )
-  fetchMock.getOnce(
-    '/scan/status',
-    {
-      batches: [{ id: 1, count: 2, ballots: [], startedAt: '' }],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    },
-    { overwriteRoutes: true }
-  )
-
-  fetchMock.postOnce('/scan/export', {
-    body: '',
-  })
+  fetchMock
+    .getOnce('/config/election', electionSampleDefinition)
+    .getOnce('/config/testMode', { testMode: true })
+    .getOnce('/config/markThresholdOverrides', {})
+    .getOnce(
+      '/scan/status',
+      {
+        batches: [{ id: 1, count: 2, ballots: [], startedAt: '' }],
+        adjudication: { adjudicated: 0, remaining: 0 },
+      },
+      { overwriteRoutes: true }
+    )
+    .postOnce('/scan/export', {
+      body: '',
+    })
 
   const { getByText, queryByText, getByTestId } = render(<App />)
   const exportingModalText = 'No USB Drive Detected'
@@ -156,15 +154,18 @@ test('clicking export shows modal and makes a request to export', async () => {
 })
 
 test('configuring election from usb ballot package works end to end', async () => {
-  fetchMock.getOnce('/config', { testMode: true }, { overwriteRoutes: true })
-  fetchMock.patchOnce('/config/testMode', {
-    body: '{"status": "ok"}',
-    status: 200,
-  })
-  fetchMock.patchOnce('/config/electionDefinition', {
-    body: '{"status": "ok"}',
-    status: 200,
-  })
+  fetchMock
+    .getOnce('/config/election', new Response('null'))
+    .getOnce('/config/testMode', { testMode: true })
+    .getOnce('/config/markThresholdOverrides', {})
+    .patchOnce('/config/testMode', {
+      body: '{"status": "ok"}',
+      status: 200,
+    })
+    .patchOnce('/config/election', {
+      body: '{"status": "ok"}',
+      status: 200,
+    })
 
   const { getByText, getByTestId } = render(<App />)
 
@@ -177,11 +178,12 @@ test('configuring election from usb ballot package works end to end', async () =
     getByText('Load Election Configuration')
   })
 
-  fetchMock.getOnce(
-    '/config',
-    { testMode: true, electionDefinition: electionSampleDefinition },
-    { overwriteRoutes: true }
-  )
+  fetchMock
+    .getOnce('/config/election', electionSampleDefinition, {
+      overwriteRoutes: true,
+    })
+    .getOnce('/config/testMode', { testMode: true }, { overwriteRoutes: true })
+
   fireEvent.change(getByTestId('manual-upload-input'), {
     target: {
       files: [new File([JSON.stringify(electionSample)], 'file.json')],

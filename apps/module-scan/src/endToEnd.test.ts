@@ -1,4 +1,7 @@
-import { electionSample as election } from '@votingworks/fixtures'
+import {
+  asElectionDefinition,
+  electionSample as election,
+} from '@votingworks/fixtures'
 import { Application } from 'express'
 import * as path from 'path'
 import request from 'supertest'
@@ -9,7 +12,6 @@ import SystemImporter from './importer'
 import { buildApp } from './server'
 import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
-import { fromElection } from './util/electionDefinition'
 
 const sampleBallotImagesPath = path.join(
   __dirname,
@@ -58,9 +60,9 @@ test('going through the whole process works', async () => {
   }
 
   await request(app)
-    .patch('/config/electionDefinition')
-    .send(fromElection(election))
-    .set('Content-Type', 'application/json')
+    .patch('/config/election')
+    .send(asElectionDefinition(election).electionData)
+    .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
 
@@ -168,5 +170,5 @@ test('going through the whole process works', async () => {
     .expect(200, '')
 
   // clean up
-  await request(app).delete('/config/electionDefinition')
+  await request(app).delete('/config/election')
 })

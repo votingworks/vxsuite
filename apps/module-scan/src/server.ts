@@ -3,9 +3,13 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import { BallotType, schema } from '@votingworks/types'
+import {
+  BallotType,
+  safeParseElectionDefinition,
+  schema,
+} from '@votingworks/types'
 import bodyParser from 'body-parser'
-import express, { Application, Request, RequestHandler } from 'express'
+import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
@@ -15,7 +19,6 @@ import SystemImporter, { Importer } from './importer'
 import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
 import Store from './store'
 import { BallotConfig } from './types'
-import { hash, validate } from './util/electionDefinition'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 import { childProcessPool, WorkerPool } from './workers/pool'
@@ -25,8 +28,6 @@ export interface AppOptions {
   importer: Importer
 }
 
-type RequestWithRawJSON = Request & { 'body.raw': string }
-
 /**
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
@@ -35,56 +36,71 @@ export function buildApp({ store, importer }: AppOptions): Application {
   const app: Application = express()
   const upload = multer({ storage: multer.diskStorage({}) })
 
-  app.use(
-    express.json({
-      limit: '5mb',
-      verify: (request, _response, buffer) => {
-        ;(request as RequestWithRawJSON)['body.raw'] = buffer.toString('utf-8')
-      },
-    })
-  )
-
+  app.use(bodyParser.raw())
+  app.use(express.json({ limit: '5mb', type: 'application/json' }))
   app.use(bodyParser.urlencoded({ extended: false }))
 
-  app.get('/config', async (_request, response) => {
-    response.json({
-      electionDefinition: await store.getElectionDefinition(),
-      testMode: await store.getTestMode(),
-      markThresholdOverrides: await store.getMarkThresholdOverrides(),
-    })
+  app.get('/config/election', async (request, response) => {
+    const electionDefinition = await store.getElectionDefinition()
+
+    if (request.accepts('application/octet-stream')) {
+      if (electionDefinition) {
+        response
+          .header('content-type', 'application/octet-stream')
+          .send(electionDefinition.electionData)
+      } else {
+        response.status(404).end()
+      }
+    } else {
+      response.json(electionDefinition ?? null)
+    }
   })
 
-  app.patch('/config/electionDefinition', async (request, response) => {
-    const rawJSON = (request as RequestWithRawJSON)['body.raw']
-    const electionDefinition =
-      'election' in request.body
-        ? request.body
-        : {
-            electionData: rawJSON,
-            electionHash: hash(rawJSON),
-            election: JSON.parse(rawJSON),
-          }
-    const errors = [...validate(electionDefinition)]
+  app.patch('/config/election', async (request, response) => {
+    const body = request.body
 
-    if (errors.length > 0) {
+    if (!Buffer.isBuffer(body)) {
       response.status(400).json({
-        errors: errors.map((error) => ({
-          type: error.type,
-          message: `there was an error with the election definition: ${inspect(
-            error
-          )}`,
-        })),
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `expected content type to be application/octet-stream, got ${request.header(
+              'content-type'
+            )}`,
+          },
+        ],
       })
       return
     }
 
-    await importer.configure(electionDefinition)
+    safeParseElectionDefinition(
+      new TextDecoder('utf-8', { fatal: false }).decode(body)
+    ).mapOrElse(
+      (error) => {
+        response.status(400).json({
+          errors: [
+            {
+              type: error.name,
+              message: error.message,
+            },
+          ],
+        })
+      },
+      async (electionDefinition) => {
+        await importer.configure(electionDefinition)
+        response.json({ status: 'ok' })
+      }
+    )
+  })
+
+  app.delete('/config/election', async (_request, response) => {
+    await importer.unconfigure()
     response.json({ status: 'ok' })
   })
 
-  app.delete('/config/electionDefinition', async (_request, response) => {
-    await importer.unconfigure()
-    response.json({ status: 'ok' })
+  app.get('/config/testMode', async (_request, response) => {
+    const testMode = await store.getTestMode()
+    response.json({ testMode })
   })
 
   app.patch('/config/testMode', async (request, response) => {
@@ -103,6 +119,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
     await importer.setTestMode(testMode)
     response.json({ status: 'ok' })
+  })
+
+  app.get('/config/markThresholdOverrides', async (_request, response) => {
+    const markThresholdOverrides = await store.getMarkThresholdOverrides()
+    response.json({ markThresholdOverrides })
   })
 
   app.delete('/config/markThresholdOverrides', async (_request, response) => {
