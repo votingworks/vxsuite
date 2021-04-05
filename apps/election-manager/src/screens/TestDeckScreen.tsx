@@ -5,7 +5,7 @@ import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
 
-import saveAsPDF from '../utils/saveAsPDF'
+import { saveReportPDF } from '../utils/saveAsPDF'
 
 import PrintButton from '../components/PrintButton'
 import ButtonList from '../components/ButtonList'
@@ -67,7 +67,7 @@ const TestDeckScreen: React.FC = () => {
   )
 
   const handleSaveAsPDF = async () => {
-    const succeeded = await saveAsPDF(
+    const succeeded = await saveReportPDF(
       'test-desk-tally-report',
       election,
       precinct?.name

@@ -1,6 +1,6 @@
 import { electionSample } from '@votingworks/fixtures'
 import { fakeKiosk } from '@votingworks/test-utils'
-import saveAsPDF from './saveAsPDF'
+import { saveReportPDF } from './saveAsPDF'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 
 test('saves pdf with expected filename for a precinct', async () => {
@@ -10,7 +10,7 @@ test('saves pdf with expected filename for a precinct', async () => {
 
   mockKiosk.saveAs.mockResolvedValueOnce(fileWriter)
 
-  const succeeded = await saveAsPDF('test', electionSample, 'name')
+  const succeeded = await saveReportPDF('test', electionSample, 'name')
   expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
   expect(mockKiosk.saveAs).toHaveBeenCalledWith({
     defaultPath: 'test-franklin-county-general-election-name.pdf',
@@ -65,7 +65,7 @@ test('file path name is manipulated properly', async () => {
     },
   ]
   for (const { prefix, precinctName, expected } of testCases) {
-    const succeeded = await saveAsPDF(prefix, electionSample, precinctName)
+    const succeeded = await saveReportPDF(prefix, electionSample, precinctName)
     expect(mockKiosk.saveAs).toHaveBeenCalledWith({ defaultPath: expected })
     expect(succeeded).toBe(true)
   }
@@ -78,7 +78,7 @@ test('precinct name fills in all-precincts as default value', async () => {
 
   mockKiosk.saveAs.mockResolvedValueOnce(fileWriter)
 
-  const succeeded = await saveAsPDF('test', electionSample)
+  const succeeded = await saveReportPDF('test', electionSample)
   expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
   expect(mockKiosk.saveAs).toHaveBeenCalledWith({
     defaultPath: 'test-franklin-county-general-election-all-precincts.pdf',
@@ -92,7 +92,7 @@ test('saveAsPDF returns false when a filewriter is not returned by saveAs', asyn
 
   mockKiosk.saveAs.mockResolvedValueOnce(undefined)
 
-  const succeeded = await saveAsPDF('test', electionSample)
+  const succeeded = await saveReportPDF('test', electionSample)
   expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
   expect(succeeded).toBe(false)
 })

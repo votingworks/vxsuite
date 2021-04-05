@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
 import find from '../utils/find'
-import saveAsPDF from '../utils/saveAsPDF'
+import { saveReportPDF } from '../utils/saveAsPDF'
 
 import {
   PrecinctReportScreenProps,
@@ -138,7 +138,11 @@ const TallyReportScreen: React.FC = () => {
   }
 
   const handleSaveAsPDF = async () => {
-    const succeeded = await saveAsPDF('tabulation-report', election, fileSuffix)
+    const succeeded = await saveReportPDF(
+      'tabulation-report',
+      election,
+      fileSuffix
+    )
     if (!succeeded) {
       // eslint-disable-next-line no-alert
       window.alert(

@@ -155,6 +155,7 @@ export const getBallotPath = ({
   precinctId,
   locales,
   isLiveMode,
+  isAbsentee,
 }: {
   ballotStyleId: string
   election: Election
@@ -162,20 +163,20 @@ export const getBallotPath = ({
   precinctId: string
   locales: BallotLocale
   isLiveMode: boolean
+  isAbsentee: boolean
 }): string => {
   const precinctName = getPrecinctById({
     election,
     precinctId,
   })!.name
 
-  return `${isLiveMode ? 'live' : 'test'}/election-${electionHash.slice(
-    0,
-    10
-  )}-precinct-${dashify(
+  return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
     precinctName
   )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
     locales
-  ).replace(/[^a-z]+/gi, '-')}.pdf`
+  ).replace(/[^a-z]+/gi, '-')}-${isLiveMode ? 'live' : 'test'}${
+    isAbsentee ? '-absentee' : ''
+  }.pdf`
 }
 
 interface GenerateTestDeckParams {
