@@ -4,6 +4,7 @@ import {
   electionSample2WithDataFiles,
   primaryElectionSample,
   electionMultiPartyPrimaryWithDataFiles,
+  electionWithMsEitherNeither,
 } from '@votingworks/fixtures'
 
 import {
@@ -930,6 +931,56 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
       cvr,
       errors: [
         "Contest 'not a contest' in CVR is not in the election definition or is not a valid contest for ballot style '12'",
+      ],
+      lineNumber: 1,
+    },
+  ])
+})
+
+test('parsing CVRs flags when a candidate ID in a CVR is not present in the election definition, and is not a valid write in', () => {
+  const cvr: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _ballotType: 'standard',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+    president: ['write-in-1', 'not-a-candidate'], // Candidate contest with no write ins allowed
+    'county-commissioners': ['write-in-1', 'not-a-candidate'], // Candidate contest with write ins allowed
+  }
+  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+    {
+      cvr,
+      errors: [
+        "Candidate ID 'write-in-1' in CVR is not a valid candidate choice for contest: 'president'",
+        "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'president'",
+        "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'county-commissioners'",
+        // No error for write in on comissioners race
+      ],
+      lineNumber: 1,
+    },
+  ])
+
+  const cvr2: CastVoteRecord = {
+    _ballotStyleId: '4',
+    _ballotType: 'standard',
+    _precinctId: '6538',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+    '750000015': ['yes', 'not-a-choice'], // Either Neither Contest with illegal voting option
+    '750000016': ['not-a-choice'], // Pick One from either neither contest
+    '750000018': ['not-a-choice', 'no'], // Yes No Contest
+  }
+  expect([
+    ...parseCVRs(JSON.stringify(cvr2), electionWithMsEitherNeither),
+  ]).toEqual([
+    {
+      cvr: cvr2,
+      errors: [
+        "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000015",
+        "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000016",
+        "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000018",
       ],
       lineNumber: 1,
     },
