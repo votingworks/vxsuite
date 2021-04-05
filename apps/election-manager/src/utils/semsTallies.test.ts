@@ -19,6 +19,7 @@ import {
   getContestTallyForYesNoContest,
   SEMSFileRow,
   convertSEMSFileToExternalTally,
+  parseSEMSFileAndValidateForElection,
 } from './semsTallies'
 
 const mockSemsRow = {
@@ -647,5 +648,161 @@ describe('convertSEMSFileToExternalTally', () => {
       )![precinctId]
       expect(tallyForPrecinct?.contestTallies).toMatchSnapshot()
     }
+  })
+})
+
+describe('parseSEMSFileAndValidateForElection', () => {
+  it('returns error for a bad precinct id', () => {
+    const csvRowRaw =
+      '"10","not-a-precinct-id","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([
+      'Precinct ID not-a-precinct-id is not found in the election definition.',
+    ])
+  })
+
+  it('returns error for a bad contest id', () => {
+    const csvRowRaw =
+      '"10","6522","not-a-contest-id","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([
+      'Contest ID not-a-contest-id is not found in the election definition.',
+    ])
+  })
+
+  it('returns error for a bad candidate id in a yes no contest', () => {
+    const csvRowRaw =
+      '"10","6522","750000015","Ballot Measure 1","0","NP","not-a-choice","Something","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([
+      'Contest Choice ID not-a-choice is not a valid contest choice ID for the contest: 750000015.',
+    ])
+  })
+
+  it('returns error for a bad candidate id in a candidate contest', () => {
+    const csvRowRaw =
+      '"10","6522","775020876","President","0","NP","not-a-choice","Something","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([
+      'Candidate ID not-a-choice is not a valid candidate ID for the contest: 775020876.',
+    ])
+  })
+
+  it('only rejects a write in candidate ID when there are more then 0 votes and a contest does not allow write in candidates', () => {
+    // Write in candidate row for a contest with no write ins allowed
+    const csvRowRaw =
+      '"10","23","president","President","0","NP","0","Write In Votes","0","NP","3",'
+    expect(
+      parseSEMSFileAndValidateForElection(csvRowRaw, electionSample)
+    ).toEqual([
+      'Candidate ID 0 is not a valid candidate ID for the contest: president.',
+    ])
+
+    // Allow a write in with 0 votes
+    const csvRowRaw2 =
+      '"10","23","president","President","0","NP","0","Write In Votes","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(csvRowRaw2, electionSample)
+    ).toEqual([])
+
+    // Write in candidate row for a contest with write ins allowed
+    const csvRowRaw3 =
+      '"10","23","county-commissioners","County Commissioners","0","NP","0","Write In Votes","0","NP","3",'
+    expect(
+      parseSEMSFileAndValidateForElection(csvRowRaw3, electionSample)
+    ).toEqual([])
+  })
+
+  it('ignores write in row for yes/no contest with 0 votes', () => {
+    // Errors when write in row has more then 0 votes
+    const csvRowRaw =
+      '"10","6522","750000017","Ballot Measure 2","0","NP","0","Write In Votes","0","NP","3",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([
+      'Contest Choice ID 0 is not a valid contest choice ID for the contest: 750000017.',
+    ])
+
+    // Allow and ignores a write in with 0 votes
+    const csvRowRaw2 =
+      '"10","6522","750000017","Ballot Measure 2","0","NP","0","Write In Votes","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw2,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([])
+  })
+
+  it('rejects importing a yes/no contest if the yes no options are not specified in the election definition', () => {
+    // Write in candidate row for a contest with write ins allowed
+    const csvRowRaw2 =
+      '"10","23","judicial-robert-demergue","Judicial Robert Demergue","0","NP","1","Over Votes","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(csvRowRaw2, electionSample)
+    ).toEqual([
+      'Election definition not configured to handle SEMs data formats, IDs must be specified on the yes no contest: judicial-robert-demergue.',
+    ])
+  })
+
+  it('returns no errors for valid file', () => {
+    expect(
+      parseSEMSFileAndValidateForElection(
+        eitherNeitherSEMSContent,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([])
+
+    expect(
+      parseSEMSFileAndValidateForElection(
+        primarySEMSContent,
+        multiPartyPrimaryElection
+      )
+    ).toEqual([])
+  })
+
+  it('returns all errors when there are many', () => {
+    expect(
+      parseSEMSFileAndValidateForElection(
+        eitherNeitherSEMSContent,
+        multiPartyPrimaryElection
+      )
+    ).toHaveLength(1114)
+  })
+
+  it('returns error when no valid CSV data is found', () => {
+    expect(
+      parseSEMSFileAndValidateForElection('', multiPartyPrimaryElection)
+    ).toEqual([
+      'No valid CSV data found in imported file. Please check file contents.',
+    ])
+
+    expect(
+      parseSEMSFileAndValidateForElection(
+        JSON.stringify({ this: { is: ['a', 'random', 'json', 'blob'] } }),
+        multiPartyPrimaryElection
+      )
+    ).toEqual([
+      'No valid CSV data found in imported file. Please check file contents.',
+    ])
   })
 })
