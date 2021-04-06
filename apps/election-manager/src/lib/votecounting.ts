@@ -111,6 +111,36 @@ export function* parseCVRs(
               errors.push(
                 `Contest '${contestId}' in CVR is not in the election definition or is not a valid contest for ballot style '${_ballotStyleId}'`
               )
+            } else {
+              const selectedChoices = votes[contestId] as string[]
+              const contest = expandEitherNeitherContests(
+                election.contests
+              ).find((c) => c.id === contestId)!
+              for (const selectedChoice of selectedChoices) {
+                switch (contest.type) {
+                  case 'candidate': {
+                    const isValidCandidate = contest.candidates
+                      .map((c) => c.id)
+                      .includes(selectedChoice)
+                    const isValidWriteInCandidate =
+                      contest.allowWriteIns &&
+                      normalizeWriteInId(selectedChoice) === writeInCandidate.id
+                    if (!(isValidCandidate || isValidWriteInCandidate)) {
+                      errors.push(
+                        `Candidate ID '${selectedChoice}' in CVR is not a valid candidate choice for contest: '${contestId}'`
+                      )
+                    }
+                    break
+                  }
+                  case 'yesno': {
+                    if (!['yes', 'no', ''].includes(selectedChoice)) {
+                      errors.push(
+                        `Choice '${selectedChoice}' in CVR is not a valid contest choice for yes no contest: ${contestId}`
+                      )
+                    }
+                  }
+                }
+              }
             }
           }
         }
