@@ -161,6 +161,7 @@ export enum ResultsFileType {
   CastVoteRecord = 'cvr',
   SEMS = 'sems',
   All = 'all',
+  Manual = 'manual',
 }
 export type OptionalFile = Optional<File>
 

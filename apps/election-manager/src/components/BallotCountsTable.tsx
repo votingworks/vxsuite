@@ -173,7 +173,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               {fullElectionExternalTallies.map((t) => (
                 <tr data-testid="table-row" key={t.inputSourceName}>
                   <TD narrow nowrap>
-                    External Results File ({t.inputSourceName})
+                    External Results ({t.inputSourceName})
                   </TD>
                   <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
                   <TD />

@@ -38,7 +38,7 @@ import { getExportableTallies } from './utils/exportableTallies'
 import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
-} from './utils/semsTallies'
+} from './utils/externalTallies'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition

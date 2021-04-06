@@ -27,7 +27,7 @@ import TallyReportSummary from '../components/TallyReportSummary'
 import routerPaths from '../routerPaths'
 import { filterTalliesByParams } from '../lib/votecounting'
 import LogoMark from '../components/LogoMark'
-import { filterExternalTalliesByParams } from '../utils/semsTallies'
+import { filterExternalTalliesByParams } from '../utils/externalTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import Text from '../components/Text'
 
