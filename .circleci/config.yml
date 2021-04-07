@@ -195,7 +195,7 @@ commands:
       - run:
           name: Install pnpm
           command: |
-            curl -L https://unpkg.com/@pnpm/self-installer | sudo node
+            curl -f https://get.pnpm.io/v6.js | sudo node - add --global pnpm@5
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
