@@ -3,7 +3,7 @@ version: 2.1
 executors:
   nodejs-browsers:
     docker:
-      - image: circleci/node:12.10.0-browsers
+      - image: circleci/node:12.19.0-browsers
   nodejs:
     docker:
       - image: circleci/node:12.19
