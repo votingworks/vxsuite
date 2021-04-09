@@ -19,7 +19,7 @@ import {
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
-import { join } from 'path'
+import { dirname, join } from 'path'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { inspect } from 'util'
@@ -53,6 +53,7 @@ import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import getBallotPageContests from './util/getBallotPageContests'
 import { loadImageData } from './util/images'
 import { changesFromMarks, mergeChanges } from './util/marks'
+import { normalizeAndJoin } from './util/path'
 
 const debug = makeDebug('module-scan:store')
 
@@ -590,7 +591,10 @@ export default class Store {
       return
     }
 
-    return row
+    return {
+      original: normalizeAndJoin(dirname(this.dbPath), row.original),
+      normalized: normalizeAndJoin(dirname(this.dbPath), row.normalized),
+    }
   }
 
   public async getPage(
