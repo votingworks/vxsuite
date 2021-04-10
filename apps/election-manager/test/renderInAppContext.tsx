@@ -5,7 +5,7 @@ import { sha256 } from 'js-sha256'
 import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
-import { Election, ElectionDefinition, Optional } from '@votingworks/types'
+import { Election, ElectionDefinition } from '@votingworks/types'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -13,10 +13,8 @@ import {
   PrintedBallot,
   ISO8601Timestamp,
   FullElectionTally,
-  OptionalFullElectionExternalTally,
-  OptionalFile,
-  ExternalFileConfiguration,
   ExportableTallies,
+  FullElectionExternalTally,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -52,14 +50,8 @@ interface RenderInAppContextParams {
   isTabulationRunning?: boolean
   setFullElectionTally?: React.Dispatch<React.SetStateAction<FullElectionTally>>
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
-  setFullElectionExternalTally?: React.Dispatch<
-    React.SetStateAction<OptionalFullElectionExternalTally>
-  >
-  saveExternalVoteRecordsFile?: (
-    externalFileConfig: Optional<ExternalFileConfiguration>
-  ) => void
-  fullElectionExternalTally?: OptionalFullElectionExternalTally
-  externalVoteRecordsFile?: OptionalFile
+  saveExternalTallies?: (externalTallies: FullElectionExternalTally[]) => void
+  fullElectionExternalTallies?: FullElectionExternalTally[]
   generateExportableTallies?: () => ExportableTallies
 }
 
@@ -85,10 +77,8 @@ export default function renderInAppContext(
     isTabulationRunning = false,
     setFullElectionTally = jest.fn(),
     setIsTabulationRunning = jest.fn(),
-    saveExternalVoteRecordsFile = jest.fn(),
-    setFullElectionExternalTally = jest.fn(),
-    fullElectionExternalTally = undefined,
-    externalVoteRecordsFile = undefined,
+    saveExternalTallies = jest.fn(),
+    fullElectionExternalTallies = [],
     generateExportableTallies = jest.fn(),
   } = {} as RenderInAppContextParams
 ): RenderResult {
@@ -112,10 +102,8 @@ export default function renderInAppContext(
         isTabulationRunning,
         setFullElectionTally,
         setIsTabulationRunning,
-        saveExternalVoteRecordsFile,
-        setFullElectionExternalTally,
-        fullElectionExternalTally,
-        externalVoteRecordsFile,
+        saveExternalTallies,
+        fullElectionExternalTallies,
         generateExportableTallies,
       }}
     >

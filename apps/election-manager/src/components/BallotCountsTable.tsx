@@ -21,8 +21,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
     electionDefinition,
     isTabulationRunning,
     fullElectionTally,
-    fullElectionExternalTally,
-    externalVoteRecordsFile,
+    fullElectionExternalTallies,
     isOfficialResults,
   } = useContext(AppContext)
   const { election } = electionDefinition!
@@ -35,17 +34,18 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
 
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0
-  const totalBallotCountExternal =
-    fullElectionExternalTally?.overallTally.numberOfBallotsCounted ?? 0
+  const totalBallotCountExternal = fullElectionExternalTallies.reduce(
+    (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
+    0
+  )
 
   switch (breakdownCategory) {
     case TallyCategory.Precinct: {
       const resultsByPrecinct =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {}
-      const externalResultsByPrecinct =
-        fullElectionExternalTally?.resultsByCategory.get(
-          TallyCategory.Precinct
-        ) || {}
+      const externalResultsByPrecinct = fullElectionExternalTallies.map(
+        (t) => t.resultsByCategory.get(TallyCategory.Precinct) || {}
+      )
       return (
         <Table>
           <tbody>
@@ -65,9 +65,16 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               .map((precinct) => {
                 const precinctBallotsCount =
                   resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
-                const externalPrecinctBallotsCount =
-                  externalResultsByPrecinct[precinct.id]
-                    ?.numberOfBallotsCounted ?? 0
+                const externalPrecinctBallotsCount = externalResultsByPrecinct.reduce(
+                  (prev, talliesByPrecinct) => {
+                    return (
+                      prev +
+                      (talliesByPrecinct[precinct.id]?.numberOfBallotsCounted ??
+                        0)
+                    )
+                  },
+                  0
+                )
                 return (
                   <tr key={precinct.id} data-testid="table-row">
                     <TD narrow nowrap>
@@ -163,15 +170,15 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                     </tr>
                   )
                 })}
-              {externalVoteRecordsFile && (
-                <tr data-testid="table-row">
+              {fullElectionExternalTallies.map((t) => (
+                <tr data-testid="table-row" key={t.inputSourceName}>
                   <TD narrow nowrap>
-                    External Results File ({externalVoteRecordsFile.name})
+                    External Results File ({t.inputSourceName})
                   </TD>
-                  <TD>{format.count(totalBallotCountExternal)}</TD>
+                  <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
                   <TD />
                 </tr>
-              )}
+              ))}
               <tr data-testid="table-row">
                 <TD narrow nowrap>
                   <strong>Total Ballot Count</strong>
@@ -193,9 +200,9 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
     case TallyCategory.Party: {
       const resultsByParty =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Party) || {}
-      const externalResultsByParty =
-        fullElectionExternalTally?.resultsByCategory.get(TallyCategory.Party) ||
-        {}
+      const externalResultsByParty = fullElectionExternalTallies.map(
+        (t) => t.resultsByCategory.get(TallyCategory.Party) || {}
+      )
       const partiesForPrimaries = getPartiesWithPrimaryElections(election)
       if (partiesForPrimaries.length === 0) {
         return null
@@ -220,8 +227,12 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               .map((party) => {
                 const partyBallotsCount =
                   resultsByParty[party.id]?.numberOfBallotsCounted ?? 0
-                const externalPartyBallotsCount =
-                  externalResultsByParty[party.id]?.numberOfBallotsCounted ?? 0
+                const externalPartyBallotsCount = externalResultsByParty.reduce(
+                  (prev, talliesByParty) =>
+                    prev +
+                    (talliesByParty[party.id]?.numberOfBallotsCounted ?? 0),
+                  0
+                )
                 return (
                   <tr data-testid="table-row" key={party.id}>
                     <TD narrow nowrap>
@@ -285,9 +296,12 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                 resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ?? 0
 
               // Include external results as appropriate
-              if (votingMethod === fullElectionExternalTally?.votingMethod) {
-                votingMethodBallotsCount += totalBallotCountExternal
-              }
+              fullElectionExternalTallies
+                .filter((t) => t.votingMethod === votingMethod)
+                .forEach((t) => {
+                  votingMethodBallotsCount +=
+                    t.overallTally.numberOfBallotsCounted
+                })
 
               if (
                 votingMethod === VotingMethod.Unknown &&

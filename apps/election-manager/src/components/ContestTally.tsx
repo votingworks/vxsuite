@@ -47,14 +47,14 @@ const Contest = styled.div<ContestProps>`
 interface Props {
   election: Election
   electionTally: Tally
-  externalTally?: ExternalTally
+  externalTallies: ExternalTally[]
   precinctId?: string
 }
 
 const ContestTally: React.FC<Props> = ({
   election,
   electionTally,
-  externalTally,
+  externalTallies,
   precinctId,
 }) => {
   // if there is no precinctId defined, we don't need to do extra work
@@ -70,17 +70,24 @@ const ContestTally: React.FC<Props> = ({
         if (!(electionContest.id in electionTally.contestTallies)) {
           return null
         }
-        const externalTallyContest =
-          externalTally?.contestTallies[electionContest.id]
+        const externalTalliesContest = externalTallies.map(
+          (t) => t.contestTallies[electionContest.id]
+        )
         const primaryContestTally = electionTally.contestTallies[
           electionContest.id
         ]!
 
-        const contestTally = externalTallyContest
-          ? combineContestTallies(primaryContestTally, externalTallyContest)
-          : primaryContestTally
+        let finalContestTally = primaryContestTally
+        externalTalliesContest.forEach((externalTally) => {
+          if (externalTally !== undefined) {
+            finalContestTally = combineContestTallies(
+              finalContestTally,
+              externalTally
+            )
+          }
+        })
 
-        const { contest, tallies, metadata } = contestTally
+        const { contest, tallies, metadata } = finalContestTally
 
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)

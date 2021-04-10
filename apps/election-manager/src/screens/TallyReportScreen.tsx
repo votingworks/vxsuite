@@ -11,6 +11,7 @@ import {
   PartyReportScreenProps,
   VotingMethodReportScreenProps,
   VotingMethod,
+  ExternalTally,
 } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
@@ -77,7 +78,7 @@ const TallyReportScreen: React.FC = () => {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
-    fullElectionExternalTally,
+    fullElectionExternalTallies,
     isTabulationRunning,
   } = useContext(AppContext)
 
@@ -211,28 +212,26 @@ const TallyReportScreen: React.FC = () => {
               election,
               { precinctId, scannerId, partyId, votingMethod }
             )
-            const externalTallyForReport = filterExternalTalliesByParams(
-              fullElectionExternalTally,
-              election,
-              { precinctId, partyId, scannerId, votingMethod }
-            )
             const ballotCountsByVotingMethod = {
               ...tallyForReport.ballotCountsByVotingMethod,
             }
-
-            if (externalTallyForReport) {
-              ballotCountsByVotingMethod[
-                fullElectionExternalTally!.votingMethod
-              ] =
-                externalTallyForReport.numberOfBallotsCounted +
-                (ballotCountsByVotingMethod[
-                  fullElectionExternalTally!.votingMethod
-                ] ?? 0)
-            }
-
-            const reportBallotCount =
-              tallyForReport.numberOfBallotsCounted +
-              (externalTallyForReport?.numberOfBallotsCounted ?? 0)
+            let reportBallotCount = tallyForReport.numberOfBallotsCounted
+            const externalTalliesForReport: ExternalTally[] = []
+            fullElectionExternalTallies.forEach((t) => {
+              const filteredTally = filterExternalTalliesByParams(t, election, {
+                precinctId,
+                partyId,
+                scannerId,
+                votingMethod,
+              })
+              if (filteredTally !== undefined) {
+                externalTalliesForReport.push(filteredTally)
+                ballotCountsByVotingMethod[t.votingMethod] =
+                  filteredTally.numberOfBallotsCounted +
+                  (ballotCountsByVotingMethod[t.votingMethod] ?? 0)
+                reportBallotCount += filteredTally.numberOfBallotsCounted
+              }
+            })
 
             if (precinctId) {
               const precinctName = find(
@@ -261,7 +260,7 @@ const TallyReportScreen: React.FC = () => {
                     <ContestTally
                       election={election}
                       electionTally={tallyForReport}
-                      externalTally={externalTallyForReport}
+                      externalTallies={externalTalliesForReport}
                       precinctId={precinctId}
                     />
                   </TallyReportColumns>
@@ -293,6 +292,7 @@ const TallyReportScreen: React.FC = () => {
                     <ContestTally
                       election={election}
                       electionTally={tallyForReport}
+                      externalTallies={[]}
                     />
                   </TallyReportColumns>
                 </ReportSection>
@@ -318,7 +318,7 @@ const TallyReportScreen: React.FC = () => {
                     <ContestTally
                       election={election}
                       electionTally={tallyForReport}
-                      externalTally={externalTallyForReport}
+                      externalTallies={externalTalliesForReport}
                     />
                   </TallyReportColumns>
                 </ReportSection>
@@ -349,7 +349,7 @@ const TallyReportScreen: React.FC = () => {
                   <ContestTally
                     election={election}
                     electionTally={tallyForReport}
-                    externalTally={externalTallyForReport}
+                    externalTallies={externalTalliesForReport}
                   />
                 </TallyReportColumns>
               </ReportSection>

@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import pluralize from 'pluralize'
 
 import AppContext from '../contexts/AppContext'
-import { ResultsFileType } from '../config/types'
+import { ExternalTallySourceType, ResultsFileType } from '../config/types'
 import throwIllegalValue from '../utils/throwIllegalValue'
 
 import Button from './Button'
@@ -21,8 +21,8 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
   const {
     castVoteRecordFiles,
     saveCastVoteRecordFiles,
-    saveExternalVoteRecordsFile,
-    externalVoteRecordsFile,
+    saveExternalTallies,
+    fullElectionExternalTallies,
   } = useContext(AppContext)
 
   const resetFiles = (fileType: ResultsFileType) => {
@@ -30,18 +30,26 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       case ResultsFileType.CastVoteRecord:
         saveCastVoteRecordFiles()
         break
-      case ResultsFileType.SEMS:
-        saveExternalVoteRecordsFile(undefined)
+      case ResultsFileType.SEMS: {
+        const newFiles = fullElectionExternalTallies.filter(
+          (tally) => tally.source !== ExternalTallySourceType.SEMS
+        )
+        saveExternalTallies(newFiles)
         break
+      }
       case ResultsFileType.All:
         saveCastVoteRecordFiles()
-        saveExternalVoteRecordsFile(undefined)
+        saveExternalTallies([])
         break
       default:
         throwIllegalValue(fileType)
     }
     onClose()
   }
+
+  const externalFileNames = fullElectionExternalTallies
+    .map((t) => t.inputSourceName)
+    .join(', ')
 
   let mainContent = null
   let fileTypeName = ''
@@ -73,8 +81,9 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       fileTypeName = 'External'
       mainContent = (
         <p>
-          Do you want to remove the external results file{' '}
-          {externalVoteRecordsFile!.name}?
+          Do you want to remove the external results{' '}
+          {pluralize('files', fullElectionExternalTallies.length)}{' '}
+          {externalFileNames}?
         </p>
       )
       break
@@ -88,8 +97,11 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
           <p>
             Do you want to remove the {fileList.length} uploaded CVR{' '}
             {pluralize('files', fileList.length)}
-            {externalVoteRecordsFile &&
-              ` and the external results file ${externalVoteRecordsFile!.name}`}
+            {fullElectionExternalTallies.length > 0 &&
+              ` and the external results ${pluralize(
+                'files',
+                fileList.length
+              )} ${externalFileNames}`}
             ?
           </p>
           <p>All reports will be unavailable without CVR data.</p>

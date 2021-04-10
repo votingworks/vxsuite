@@ -278,7 +278,9 @@ describe('getExportableTallies', () => {
     const fullExternalTally = convertSEMSFileToExternalTally(
       electionWithMsEitherNeitherWithDataFiles.semsData,
       electionWithMsEitherNeither,
-      VotingMethod.Precinct
+      VotingMethod.Precinct,
+      'file-name',
+      new Date()
     )
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
@@ -334,7 +336,9 @@ describe('getExportableTallies', () => {
     const fullExternalTally = convertSEMSFileToExternalTally(
       electionMultiPartyPrimaryWithDataFiles.semsData,
       multiPartyPrimaryElection,
-      VotingMethod.Precinct
+      VotingMethod.Precinct,
+      'file-name',
+      new Date()
     )
     // Get tally with just CVR data
     const baseTally = getExportableTallies(

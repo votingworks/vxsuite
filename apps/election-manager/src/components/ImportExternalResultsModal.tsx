@@ -23,9 +23,12 @@ const ImportExternalResultsModal: React.FC<Props> = ({
   onClose,
   selectedFile,
 }) => {
-  const { saveExternalVoteRecordsFile, electionDefinition } = useContext(
-    AppContext
-  )
+  const {
+    saveExternalTallies,
+    setIsTabulationRunning,
+    electionDefinition,
+    fullElectionExternalTallies,
+  } = useContext(AppContext)
 
   const [errorMessage, setErrorMessage] = useState('')
   const [isImportingFile, setIsImportingFile] = useState(true)
@@ -55,7 +58,9 @@ const ImportExternalResultsModal: React.FC<Props> = ({
       const tally = convertSEMSFileToExternalTally(
         fileContent,
         election,
-        ballotType // We are not storing this tally, the ballot type here is not accurate yet but is thrown away
+        ballotType, // We are not storing this tally, the ballot type here is not accurate yet but is thrown away
+        file.name,
+        new Date(file.lastModified)
       )
       setNumberBallotsToImport(tally.overallTally.numberOfBallotsCounted)
     } catch (error) {
@@ -73,10 +78,17 @@ const ImportExternalResultsModal: React.FC<Props> = ({
 
   const saveImportedFile = async () => {
     if (selectedFile !== undefined) {
-      await saveExternalVoteRecordsFile({
-        file: selectedFile,
-        votingMethod: ballotType,
-      })
+      setIsTabulationRunning(true)
+      const fileContent = await readFileAsync(selectedFile)
+      const tally = convertSEMSFileToExternalTally(
+        fileContent,
+        election,
+        ballotType,
+        selectedFile.name,
+        new Date(selectedFile.lastModified)
+      )
+      saveExternalTallies([...fullElectionExternalTallies, tally])
+      setIsTabulationRunning(false)
       onClose()
     }
   }

@@ -11,6 +11,7 @@ import { Dictionary } from '@votingworks/types'
 import renderInAppContext from '../../test/renderInAppContext'
 import {
   ExternalTally,
+  ExternalTallySourceType,
   Tally,
   TallyCategory,
   VotingMethod,
@@ -69,6 +70,9 @@ describe('Ballot Counts by Precinct', () => {
     }),
     resultsByCategory: externalResultsByCategory,
     votingMethod: VotingMethod.Precinct,
+    source: ExternalTallySourceType.SEMS,
+    inputSourceName: 'imported-file-name.csv',
+    timestampCreated: new Date(),
   }
 
   it('renders as expected when there is no tally data', () => {
@@ -136,7 +140,7 @@ describe('Ballot Counts by Precinct', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionExternalTallies: [fullElectionExternalTally],
       }
     )
     electionWithMsEitherNeither.precincts.forEach((precinct) => {
@@ -194,6 +198,9 @@ describe('Ballot Counts by Scanner', () => {
     }),
     votingMethod: VotingMethod.Precinct,
     resultsByCategory: new Map(),
+    source: ExternalTallySourceType.SEMS,
+    inputSourceName: 'imported-file-name.csv',
+    timestampCreated: new Date(),
   }
 
   it('renders as expected when there is no tally data', () => {
@@ -250,8 +257,7 @@ describe('Ballot Counts by Scanner', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
-        externalVoteRecordsFile: new File(['blah'], 'file-name.csv'),
+        fullElectionExternalTallies: [fullElectionExternalTally],
       }
     )
 
@@ -275,10 +281,10 @@ describe('Ballot Counts by Scanner', () => {
       }
     })
 
-    getByText('External Results File (file-name.csv)')
-    let tableRow = getByText('External Results File (file-name.csv)').closest(
-      'tr'
-    )
+    getByText('External Results File (imported-file-name.csv)')
+    let tableRow = getByText(
+      'External Results File (imported-file-name.csv)'
+    ).closest('tr')
     expect(tableRow).toBeDefined()
     expect(domGetByText(tableRow!, 54))
 
@@ -332,6 +338,9 @@ describe('Ballots Counts by Party', () => {
     }),
     resultsByCategory: externalResultsByCategory,
     votingMethod: VotingMethod.Precinct,
+    source: ExternalTallySourceType.SEMS,
+    inputSourceName: 'imported-file-name.csv',
+    timestampCreated: new Date(),
   }
 
   it('does not render when the election has not ballot styles with parties', () => {
@@ -433,7 +442,7 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionExternalTallies: [fullElectionExternalTally],
       }
     )
 
@@ -492,6 +501,9 @@ describe('Ballots Counts by VotingMethod', () => {
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
+    source: ExternalTallySourceType.SEMS,
+    inputSourceName: 'imported-file-name.csv',
+    timestampCreated: new Date(),
   }
 
   it('renders as expected when there is no data', () => {
@@ -566,8 +578,7 @@ describe('Ballots Counts by VotingMethod', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
-        externalVoteRecordsFile: new File(['blah'], 'file-name.csv'),
+        fullElectionExternalTallies: [fullElectionExternalTally],
       }
     )
 
