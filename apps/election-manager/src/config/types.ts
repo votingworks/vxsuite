@@ -131,6 +131,15 @@ export interface FullElectionExternalTally {
   readonly votingMethod: VotingMethod
 }
 
+export interface ExportableContestTally {
+  readonly tallies: Dictionary<number>
+  readonly metadata: ContestTallyMeta
+}
+export type ExportableTally = Dictionary<ExportableContestTally>
+export interface ExportableTallies {
+  readonly talliesByPrecinct: Dictionary<ExportableTally>
+}
+
 export interface ExternalFileConfiguration {
   readonly file: File
   readonly votingMethod: VotingMethod

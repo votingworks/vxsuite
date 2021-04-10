@@ -16,6 +16,7 @@ import {
   OptionalFullElectionExternalTally,
   OptionalFile,
   ExternalFileConfiguration,
+  ExportableTallies,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -59,6 +60,7 @@ interface RenderInAppContextParams {
   ) => void
   fullElectionExternalTally?: OptionalFullElectionExternalTally
   externalVoteRecordsFile?: OptionalFile
+  generateExportableTallies?: () => ExportableTallies
 }
 
 export default function renderInAppContext(
@@ -87,6 +89,7 @@ export default function renderInAppContext(
     setFullElectionExternalTally = jest.fn(),
     fullElectionExternalTally = undefined,
     externalVoteRecordsFile = undefined,
+    generateExportableTallies = jest.fn(),
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -113,6 +116,7 @@ export default function renderInAppContext(
         setFullElectionExternalTally,
         fullElectionExternalTally,
         externalVoteRecordsFile,
+        generateExportableTallies,
       }}
     >
       <Router history={history}>{component}</Router>

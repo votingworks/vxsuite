@@ -1,0 +1,1976 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getExportableTallies builds expected tally object for election with either neither with just internal data 1`] = `
+Object {
+  "talliesByPrecinct": Object {
+    "6522": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 11,
+          "yes": 7,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 7,
+          "yes": 11,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 2,
+        },
+        "tallies": Object {
+          "no": 7,
+          "yes": 10,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 13,
+          "yes": 6,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031976": 5,
+          "775031993": 13,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 1,
+          "undervotes": 2,
+        },
+        "tallies": Object {
+          "775031978": 8,
+          "775031979": 8,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 9,
+          "775031988": 4,
+          "775031989": 5,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 8,
+          "775031986": 2,
+          "775031990": 8,
+          "__write-in": 0,
+        },
+      },
+      "775020903": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 2,
+          "undervotes": 2,
+        },
+        "tallies": Object {
+          "775032021": 9,
+          "775032022": 6,
+          "__write-in": 0,
+        },
+      },
+      "775020904": Object {
+        "metadata": Object {
+          "ballots": 19,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032023": 19,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6524": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 3,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 2,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 2,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 4,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 1,
+          "775031993": 6,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 3,
+          "775031979": 4,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031987": 2,
+          "775031988": 2,
+          "775031989": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031985": 2,
+          "775031986": 3,
+          "775031990": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020899": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775032015": 6,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6525": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 6,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 2,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 4,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 5,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 5,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031976": 2,
+          "775031993": 8,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 6,
+          "775031979": 5,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 4,
+          "775031988": 4,
+          "775031989": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 3,
+          "775031986": 6,
+          "775031990": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020902": Object {
+        "metadata": Object {
+          "ballots": 11,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032019": 5,
+          "775032020": 6,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6526": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 2,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 3,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 6,
+          "yes": 2,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 5,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 5,
+          "775031993": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 3,
+          "775031979": 5,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 1,
+          "775031988": 4,
+          "775031989": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 1,
+          "775031986": 1,
+          "775031990": 5,
+          "__write-in": 0,
+        },
+      },
+      "775020901": Object {
+        "metadata": Object {
+          "ballots": 8,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032018": 8,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6527": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 1,
+          "yes": 3,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 0,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 2,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 2,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031976": 2,
+          "775031993": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 1,
+          "775031979": 4,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 2,
+          "775031988": 0,
+          "775031989": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031985": 1,
+          "775031986": 0,
+          "775031990": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020899": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032015": 5,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6528": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 1,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 1,
+          "yes": 4,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 3,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 3,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 6,
+          "775031993": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 1,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031978": 1,
+          "775031979": 4,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 3,
+          "775031988": 2,
+          "775031989": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 2,
+          "775031986": 3,
+          "775031990": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020900": Object {
+        "metadata": Object {
+          "ballots": 7,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032016": 3,
+          "775032017": 4,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6529": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 2,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 5,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 2,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 4,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 1,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 6,
+          "yes": 4,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 2,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 8,
+          "yes": 2,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 8,
+          "775031993": 4,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 10,
+          "775031979": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031987": 5,
+          "775031988": 3,
+          "775031989": 4,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 3,
+          "775031986": 7,
+          "775031990": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020901": Object {
+        "metadata": Object {
+          "ballots": 12,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775032018": 11,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6532": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 4,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 5,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 5,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 6,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031976": 1,
+          "775031993": 7,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 3,
+          "775031979": 6,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031987": 3,
+          "775031988": 3,
+          "775031989": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031985": 4,
+          "775031986": 3,
+          "775031990": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020902": Object {
+        "metadata": Object {
+          "ballots": 9,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032019": 3,
+          "775032020": 5,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6534": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 1,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 1,
+          "yes": 3,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 1,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 2,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 2,
+          "775031993": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 3,
+          "775031979": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031987": 3,
+          "775031988": 1,
+          "775031989": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 1,
+          "775031986": 3,
+          "775031990": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020900": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032016": 1,
+          "775032017": 4,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6536": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 1,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 0,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 3,
+          "yes": 0,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 0,
+          "yes": 3,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 1,
+          "775031993": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 2,
+          "775031979": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031987": 0,
+          "775031988": 1,
+          "775031989": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031985": 0,
+          "775031986": 2,
+          "775031990": 0,
+          "__write-in": 0,
+        },
+      },
+      "775020900": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775032016": 1,
+          "775032017": 1,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6537": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 3,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 1,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 3,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 2,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 2,
+          "775031993": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031978": 1,
+          "775031979": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 1,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 2,
+          "775031988": 0,
+          "775031989": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 1,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 2,
+          "775031986": 2,
+          "775031990": 0,
+          "__write-in": 0,
+        },
+      },
+      "775020902": Object {
+        "metadata": Object {
+          "ballots": 5,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032019": 2,
+          "775032020": 3,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6538": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 2,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 5,
+          "yes": 1,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 2,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 4,
+          "yes": 2,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031976": 2,
+          "775031993": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031978": 5,
+          "775031979": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031987": 2,
+          "775031988": 1,
+          "775031989": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 1,
+          "775031986": 2,
+          "775031990": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020899": Object {
+        "metadata": Object {
+          "ballots": 6,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032015": 6,
+          "__write-in": 0,
+        },
+      },
+    },
+    "6539": Object {
+      "750000015": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 1,
+        },
+      },
+      "750000016": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 1,
+          "yes": 2,
+        },
+      },
+      "750000017": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 1,
+        },
+      },
+      "750000018": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "no": 2,
+          "yes": 1,
+        },
+      },
+      "775020870": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031976": 0,
+          "775031993": 3,
+          "__write-in": 0,
+        },
+      },
+      "775020872": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031978": 0,
+          "775031979": 2,
+          "__write-in": 0,
+        },
+      },
+      "775020876": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 1,
+        },
+        "tallies": Object {
+          "775031987": 0,
+          "775031988": 2,
+          "775031989": 0,
+          "__write-in": 0,
+        },
+      },
+      "775020877": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775031985": 1,
+          "775031986": 1,
+          "775031990": 1,
+          "__write-in": 0,
+        },
+      },
+      "775020901": Object {
+        "metadata": Object {
+          "ballots": 3,
+          "overvotes": 0,
+          "undervotes": 0,
+        },
+        "tallies": Object {
+          "775032018": 3,
+          "__write-in": 0,
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`getExportableTallies builds expected tally object for primary election with just internal data 1`] = `
+Object {
+  "talliesByPrecinct": Object {
+    "precinct-1": Object {
+      "assistant-mayor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "jenna-morasca": 30,
+          "sandra-diaz-twine": 30,
+        },
+      },
+      "chief-pokemon-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "flareon": 30,
+          "umbreon": 30,
+          "vaporeon": 240,
+        },
+      },
+      "governor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "dax-shepherd": 300,
+          "kristen-bell": 30,
+        },
+      },
+      "governor-contest-federalist": Object {
+        "metadata": Object {
+          "ballots": 300,
+          "overvotes": 60,
+          "undervotes": 60,
+        },
+        "tallies": Object {
+          "__write-in": 60,
+          "chidi-anagonye": 60,
+          "eleanor-shellstrop": 60,
+        },
+      },
+      "governor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "aaron-aligator": 30,
+          "peter-pigeon": 30,
+        },
+      },
+      "mayor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "ethan-zohn": 300,
+          "tina-wesson": 30,
+        },
+      },
+      "mayor-contest-federalist": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "brain-heidik": 30,
+          "vecepia-towery": 30,
+        },
+      },
+      "mayor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "jason-mendoza": 30,
+          "tahani-al-jamil": 30,
+        },
+      },
+      "schoolboard-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "aras-baskauskas": 150,
+          "earl-cole": 120,
+          "todd-herzog": 120,
+          "yul-kwon": 120,
+        },
+      },
+    },
+    "precinct-2": Object {
+      "chief-pokemon-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "flareon": 30,
+          "umbreon": 30,
+          "vaporeon": 240,
+        },
+      },
+      "chief-pokemon-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "bulbasaur": 30,
+          "charmander": 30,
+          "squirtle": 240,
+        },
+      },
+      "governor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "dax-shepherd": 300,
+          "kristen-bell": 30,
+        },
+      },
+      "governor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "aaron-aligator": 30,
+          "peter-pigeon": 300,
+        },
+      },
+      "mayor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "ethan-zohn": 300,
+          "tina-wesson": 30,
+        },
+      },
+      "schoolboard-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "aras-baskauskas": 150,
+          "earl-cole": 120,
+          "todd-herzog": 120,
+          "yul-kwon": 120,
+        },
+      },
+      "schoolboard-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "amber-brkich": 150,
+          "chris-daugherty": 120,
+          "danni-boatwright": 120,
+          "tom-westman": 120,
+        },
+      },
+    },
+    "precinct-3": Object {
+      "assistant-mayor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "jenna-morasca": 30,
+          "sandra-diaz-twine": 30,
+        },
+      },
+      "chief-pokemon-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "flareon": 30,
+          "umbreon": 30,
+          "vaporeon": 240,
+        },
+      },
+      "governor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "dax-shepherd": 300,
+          "kristen-bell": 30,
+        },
+      },
+      "governor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "aaron-aligator": 30,
+          "peter-pigeon": 30,
+        },
+      },
+      "mayor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "ethan-zohn": 300,
+          "tina-wesson": 30,
+        },
+      },
+      "mayor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "jason-mendoza": 30,
+          "tahani-al-jamil": 30,
+        },
+      },
+      "schoolboard-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "aras-baskauskas": 150,
+          "earl-cole": 120,
+          "todd-herzog": 120,
+          "yul-kwon": 120,
+        },
+      },
+    },
+    "precinct-4": Object {
+      "chief-pokemon-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "flareon": 30,
+          "umbreon": 30,
+          "vaporeon": 240,
+        },
+      },
+      "chief-pokemon-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "bulbasaur": 30,
+          "charmander": 30,
+          "squirtle": 240,
+        },
+      },
+      "governor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "dax-shepherd": 300,
+          "kristen-bell": 30,
+        },
+      },
+      "governor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "aaron-aligator": 30,
+          "peter-pigeon": 300,
+        },
+      },
+      "mayor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "ethan-zohn": 300,
+          "tina-wesson": 30,
+        },
+      },
+      "schoolboard-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "aras-baskauskas": 150,
+          "earl-cole": 120,
+          "todd-herzog": 120,
+          "yul-kwon": 120,
+        },
+      },
+      "schoolboard-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "amber-brkich": 150,
+          "chris-daugherty": 120,
+          "danni-boatwright": 120,
+          "tom-westman": 120,
+        },
+      },
+    },
+    "precinct-5": Object {
+      "assistant-mayor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "jenna-morasca": 30,
+          "sandra-diaz-twine": 30,
+        },
+      },
+      "chief-pokemon-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "flareon": 30,
+          "umbreon": 30,
+          "vaporeon": 240,
+        },
+      },
+      "chief-pokemon-federalist": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "eevee": 300,
+          "pikachu": 30,
+        },
+      },
+      "chief-pokemon-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 60,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "bulbasaur": 30,
+          "charmander": 30,
+          "squirtle": 240,
+        },
+      },
+      "governor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "dax-shepherd": 300,
+          "kristen-bell": 30,
+        },
+      },
+      "governor-contest-federalist": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "chidi-anagonye": 300,
+          "eleanor-shellstrop": 30,
+        },
+      },
+      "governor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 570,
+          "overvotes": 60,
+          "undervotes": 60,
+        },
+        "tallies": Object {
+          "__write-in": 60,
+          "aaron-aligator": 60,
+          "peter-pigeon": 330,
+        },
+      },
+      "mayor-contest-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "ethan-zohn": 300,
+          "tina-wesson": 30,
+        },
+      },
+      "mayor-contest-federalist": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "brain-heidik": 300,
+          "vecepia-towery": 30,
+        },
+      },
+      "mayor-contest-liberty": Object {
+        "metadata": Object {
+          "ballots": 150,
+          "overvotes": 30,
+          "undervotes": 30,
+        },
+        "tallies": Object {
+          "__write-in": 30,
+          "jason-mendoza": 30,
+          "tahani-al-jamil": 30,
+        },
+      },
+      "schoolboard-constitution": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "aras-baskauskas": 150,
+          "earl-cole": 120,
+          "todd-herzog": 120,
+          "yul-kwon": 120,
+        },
+      },
+      "schoolboard-federalist": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "bob-crowley": 120,
+          "jt-thomas": 120,
+          "natalie-white": 120,
+          "parvati-shallow": 150,
+        },
+      },
+      "schoolboard-liberty": Object {
+        "metadata": Object {
+          "ballots": 420,
+          "overvotes": 120,
+          "undervotes": 90,
+        },
+        "tallies": Object {
+          "__write-in": 120,
+          "amber-brkich": 150,
+          "chris-daugherty": 120,
+          "danni-boatwright": 120,
+          "tom-westman": 120,
+        },
+      },
+    },
+  },
+}
+`;

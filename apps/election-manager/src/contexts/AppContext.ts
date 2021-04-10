@@ -8,12 +8,14 @@ import {
   OptionalFullElectionExternalTally,
   OptionalFile,
   ExternalFileConfiguration,
+  ExportableTallies,
 } from '../config/types'
 import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../lib/votecounting'
+import { getEmptyExportableTallies } from '../utils/exportableTallies'
 
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles
@@ -43,6 +45,7 @@ export interface AppContextInterface {
     externalFileConfig: Optional<ExternalFileConfiguration>
   ) => void
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
+  generateExportableTallies: () => ExportableTallies
 }
 
 const appContext: AppContextInterface = {
@@ -67,6 +70,7 @@ const appContext: AppContextInterface = {
   saveExternalVoteRecordsFile: () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
+  generateExportableTallies: getEmptyExportableTallies,
 }
 
 const AppContext = createContext(appContext)

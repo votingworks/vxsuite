@@ -34,6 +34,7 @@ import {
   CastVoteRecordLists,
   VotingMethod,
   ExternalFileConfiguration,
+  ExportableTallies,
 } from './config/types'
 import {
   convertFileToStorageString,
@@ -41,6 +42,7 @@ import {
 } from './utils/file'
 import { convertSEMSFileToExternalTally } from './utils/semsTallies'
 import readFileAsync from './lib/readFileAsync'
+import { getExportableTallies } from './utils/exportableTallies'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition
@@ -362,6 +364,15 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     ]
   )
 
+  const generateExportableTallies = (): ExportableTallies => {
+    assert(electionDefinition)
+    return getExportableTallies(
+      fullElectionTally,
+      fullElectionExternalTally ? [fullElectionExternalTally] : [],
+      electionDefinition.election
+    )
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -386,6 +397,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         setFullElectionExternalTally,
         isTabulationRunning,
         setIsTabulationRunning,
+        generateExportableTallies,
       }}
     >
       <ElectionManager />
