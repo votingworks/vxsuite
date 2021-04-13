@@ -3,7 +3,10 @@ import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
 import find from '../utils/find'
-import { saveReportPDF } from '../utils/saveAsPDF'
+import {
+  generateDefaultReportFilename,
+  generateFileContentToSaveAsPDF,
+} from '../utils/saveAsPDF'
 
 import {
   PrecinctReportScreenProps,
@@ -30,6 +33,7 @@ import LogoMark from '../components/LogoMark'
 import { filterExternalTalliesByParams } from '../utils/semsTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import Text from '../components/Text'
+import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 
 export const TallyReportTitle = styled.h1`
   font-weight: 400;
@@ -65,6 +69,7 @@ const TallyReportScreen: React.FC = () => {
   const printReportRef = useRef<HTMLDivElement>(null)
   const previewReportRef = useRef<HTMLDivElement>(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
   const {
     precinctId: precinctIdFromProps,
   } = useParams<PrecinctReportScreenProps>()
@@ -138,19 +143,11 @@ const TallyReportScreen: React.FC = () => {
     return `${statusPrefix} ${election.title} Tally Report`
   }
 
-  const handleSaveAsPDF = async () => {
-    const succeeded = await saveReportPDF(
-      'tabulation-report',
-      election,
-      fileSuffix
-    )
-    if (!succeeded) {
-      // eslint-disable-next-line no-alert
-      window.alert(
-        'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
-      )
-    }
-  }
+  const defaultReportFilename = generateDefaultReportFilename(
+    'tabulation-report',
+    election,
+    fileSuffix
+  )
 
   const toggleReportPreview = () => {
     setShowPreview((s) => !s)
@@ -179,7 +176,9 @@ const TallyReportScreen: React.FC = () => {
               {showPreview ? 'Hide Preview' : 'Preview Report'}
             </Button>{' '}
             {window.kiosk && (
-              <Button onPress={handleSaveAsPDF}>Save Report as PDF</Button>
+              <Button onPress={() => setIsSaveModalOpen(true)}>
+                Save Report as PDF
+              </Button>
             )}
           </p>
           <p>
@@ -199,6 +198,14 @@ const TallyReportScreen: React.FC = () => {
         </Prose>
         {showPreview && <TallyReportPreview ref={previewReportRef} />}
       </NavigationScreen>
+      {isSaveModalOpen && (
+        <SaveFileToUSB
+          onClose={() => setIsSaveModalOpen(false)}
+          generateFileContent={generateFileContentToSaveAsPDF}
+          defaultFilename={defaultReportFilename}
+          fileType={FileType.TallyReport}
+        />
+      )}
       <TallyReport ref={printReportRef} className="print-only">
         {ballotStylePartyIds.map((partyId) =>
           precinctIds.map((precinctId) => {

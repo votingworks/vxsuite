@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -29,7 +29,8 @@ import TextInput from '../components/TextInput'
 import LinkButton from '../components/LinkButton'
 import Prose from '../components/Prose'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
-import saveAsPDF from '../utils/saveAsPDF'
+import { generateFileContentToSaveAsPDF } from '../utils/saveAsPDF'
+import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -88,6 +89,7 @@ const BallotScreen: React.FC = () => {
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
   const ballotContests = getContests({ ballotStyle, election })
 
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
   const [ballotPages, setBallotPages] = useState(0)
   const [isLiveMode, setIsLiveMode] = useState(true)
   const toggleLiveMode = () => setIsLiveMode((m) => !m)
@@ -146,25 +148,6 @@ const BallotScreen: React.FC = () => {
     )
     setBallotPages(pagedJsPageCount)
   }
-
-  const handleSaveAsPDF = useCallback(async () => {
-    const ballotPath = getBallotPath({
-      ballotStyleId,
-      election,
-      electionHash,
-      precinctId,
-      locales,
-      isLiveMode,
-      isAbsentee,
-    })
-    const succeeded = await saveAsPDF(ballotPath)
-    if (!succeeded) {
-      // eslint-disable-next-line no-alert
-      window.alert(
-        'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
-      )
-    }
-  }, [])
 
   return (
     <React.Fragment>
@@ -260,7 +243,10 @@ const BallotScreen: React.FC = () => {
             {window.kiosk && (
               <React.Fragment>
                 {' '}
-                <Button onPress={handleSaveAsPDF} disabled={ballotPages === 0}>
+                <Button
+                  onPress={() => setIsSaveModalOpen(true)}
+                  disabled={ballotPages === 0}
+                >
                   Save Ballot as PDF
                 </Button>
               </React.Fragment>
@@ -292,6 +278,14 @@ const BallotScreen: React.FC = () => {
           <p>Rendering ballot preview…</p>
         </BallotPreview>
       </NavigationScreen>
+      {isSaveModalOpen && (
+        <SaveFileToUSB
+          onClose={() => setIsSaveModalOpen(false)}
+          generateFileContent={generateFileContentToSaveAsPDF}
+          defaultFilename={filename}
+          fileType={FileType.Ballot}
+        />
+      )}
       <HandMarkedPaperBallot
         ballotStyleId={ballotStyleId}
         election={election}

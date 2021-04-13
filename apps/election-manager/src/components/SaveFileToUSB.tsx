@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import path from 'path'
 import fileDownload from 'js-file-download'
@@ -10,11 +10,9 @@ import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { MainChild } from './Main'
-import USBControllerButton from './USBControllerButton'
-import ConverterClient from '../lib/ConverterClient'
 import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
-import { generateFinalExportDefaultFilename } from '../utils/filenames'
 import throwIllegalValue from '../utils/throwIllegalValue'
+import USBControllerButton from './USBControllerButton'
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -22,8 +20,19 @@ const USBImage = styled.img`
   height: 200px;
 `
 
+export enum FileType {
+  TallyReport = 'TallyReport',
+  TestDeckTallyReport = 'TestDeckTallyReport',
+  Ballot = 'Ballot',
+  Results = 'Results',
+}
+
 export interface Props {
   onClose: () => void
+  generateFileContent: () => Promise<Uint8Array | string>
+  defaultFilename: string
+  fileType: FileType
+  promptToEjectUSB?: boolean
 }
 
 enum ModalState {
@@ -33,27 +42,19 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
-  const {
-    usbDriveStatus,
-    castVoteRecordFiles,
-    electionDefinition,
-    generateExportableTallies,
-  } = useContext(AppContext)
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
+const SaveFileToUSB: React.FC<Props> = ({
+  onClose,
+  generateFileContent,
+  defaultFilename,
+  fileType,
+  promptToEjectUSB = false,
+}) => {
+  const { usbDriveStatus, isOfficialResults } = useContext(AppContext)
 
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 
   const [savedFilename, setSavedFilename] = useState('')
-  const defaultFilename = useMemo(
-    () =>
-      generateFinalExportDefaultFilename(
-        isTestMode,
-        electionDefinition!.election
-      ),
-    []
-  )
 
   const exportResults = async (
     openFileDialog: boolean,
@@ -62,37 +63,15 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
     setCurrentState(ModalState.SAVING)
 
     try {
-      const exportableTallies = generateExportableTallies()
-      // process on the server
-      const client = new ConverterClient('tallies')
-      const { inputFiles, outputFiles } = await client.getFiles()
-      const [electionDefinitionFile, talliesFile] = inputFiles
-      const resultsFile = outputFiles[0]
-
-      await client.setInputFile(
-        electionDefinitionFile.name,
-        new File(
-          [electionDefinition!.electionData],
-          electionDefinitionFile.name,
-          {
-            type: 'application/json',
-          }
-        )
-      )
-      await client.setInputFile(
-        talliesFile.name,
-        new File([JSON.stringify(exportableTallies)], 'tallies')
-      )
-      await client.process()
-
-      // download the result
-      const results = await client.getOutputFile(resultsFile.name)
-
+      const results = await generateFileContent()
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv')
       } else {
         const usbPath = await getDevicePath()
-        const pathToFile = path.join(usbPath!, defaultFilename)
+        const pathToFile =
+          !usbPath && process.env.NODE_ENV === 'development'
+            ? defaultFilename
+            : path.join(usbPath!, defaultFilename)
         if (openFileDialog) {
           const fileWriter = await window.kiosk.saveAs({
             defaultPath: pathToFile,
@@ -102,23 +81,44 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
             throw new Error('could not begin download; no file was chosen')
           }
 
-          await fileWriter.write(await results.text())
+          await fileWriter.write(results)
           setSavedFilename(fileWriter.filename)
           await fileWriter.end()
         } else {
-          await window.kiosk!.writeFile(pathToFile, await results.text())
+          await window.kiosk!.writeFile(pathToFile, results)
           setSavedFilename(defaultFilename)
         }
       }
 
-      // reset server files
-      await client.reset()
       await new Promise((resolve) => setTimeout(resolve, 2000))
       setCurrentState(ModalState.DONE)
     } catch (error) {
-      setErrorMessage(`Failed to save results. ${error.message}`)
+      setErrorMessage(error.message)
       setCurrentState(ModalState.ERROR)
     }
+  }
+
+  let title = '' // Will be used in headings like Save Title
+  let fileName = '' // Will be used in sentence like "Would you like to save the title?"
+  switch (fileType) {
+    case FileType.TallyReport:
+      title = `${isOfficialResults ? 'Official' : 'Unofficial'} Tally Report`
+      fileName = 'tally report'
+      break
+    case FileType.TestDeckTallyReport:
+      title = 'Test Deck Tally Report'
+      fileName = 'test deck tally report'
+      break
+    case FileType.Ballot:
+      title = 'Ballot'
+      fileName = 'ballot'
+      break
+    case FileType.Results:
+      title = 'Results'
+      fileName = 'election results'
+      break
+    default:
+      throwIllegalValue(fileType)
   }
 
   if (currentState === ModalState.ERROR) {
@@ -126,8 +126,10 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
       <Modal
         content={
           <Prose>
-            <h1>Saving Results Failed</h1>
-            <p>{errorMessage}</p>
+            <h1>Failed to Save {title}</h1>
+            <p>
+              Failed to save {fileName}. {errorMessage}
+            </p>
           </Prose>
         }
         onOverlayClick={onClose}
@@ -137,23 +139,24 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
   }
 
   if (currentState === ModalState.DONE) {
-    let actions = (
-      <React.Fragment>
-        <LinkButton onPress={onClose}>Close</LinkButton>
-        <USBControllerButton small={false} primary />
-      </React.Fragment>
-    )
-    if (usbDriveStatus === UsbDriveStatus.recentlyEjected) {
-      actions = <LinkButton onPress={onClose}>Close</LinkButton>
+    let actions = <LinkButton onPress={onClose}>Close</LinkButton>
+    if (promptToEjectUSB && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
+      actions = (
+        <React.Fragment>
+          <LinkButton onPress={onClose}>Close</LinkButton>
+          <USBControllerButton small={false} primary />
+        </React.Fragment>
+      )
     }
     return (
       <Modal
         content={
           <Prose>
-            <h1>Results File Saved</h1>
-            <p>You may now eject the USB drive.</p>
+            <h1>{title} Saved</h1>
+            {promptToEjectUSB && <p>You may now eject the USB drive.</p>}
             <p>
-              Results file successfully saved{' '}
+              {fileName.charAt(0).toUpperCase() + fileName.slice(1)}{' '}
+              successfully saved{' '}
               {savedFilename !== '' && (
                 <span>
                   as <strong>{savedFilename}</strong>
@@ -170,16 +173,11 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
   }
 
   if (currentState === ModalState.SAVING) {
-    return (
-      <Modal
-        content={<Loading>Saving Results File</Loading>}
-        onOverlayClick={onClose}
-      />
-    )
+    return <Modal content={<Loading>Saving {title}</Loading>} />
   }
 
   if (currentState !== ModalState.INIT) {
-    throwIllegalValue(currentState) // Creates a compile time check that all states are being handled.
+    throwIllegalValue(currentState)
   }
 
   switch (usbDriveStatus) {
@@ -194,9 +192,9 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage src="usb-drive.svg" alt="Insert USB Image" />
-                Please insert a USB drive where the election results will be
-                saved.
+                <USBImage src="/usb-drive.svg" alt="Insert USB Image" />
+                Please insert a USB drive where you would like the save the{' '}
+                {fileName}.
               </p>
             </Prose>
           }
@@ -204,7 +202,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
           actions={
             <React.Fragment>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
-              {!window.kiosk && (
+              {(!window.kiosk || process.env.NODE_ENV === 'development') && (
                 <Button
                   data-testid="manual-export"
                   onPress={() => exportResults(true, defaultFilename)}
@@ -235,11 +233,10 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
           content={
             <MainChild>
               <Prose>
-                <h1>Save Results File</h1>
+                <h1>Save {title}</h1>
                 <p>
-                  Save the final tally results to{' '}
-                  <strong>{defaultFilename}</strong> directly on the inserted
-                  USB drive?
+                  Save the {fileName} as <strong>{defaultFilename}</strong>{' '}
+                  directly on the inserted USB drive?
                 </p>
               </Prose>
             </MainChild>
@@ -268,4 +265,4 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
   }
 }
 
-export default ExportFinalResultsModal
+export default SaveFileToUSB
