@@ -4,7 +4,10 @@ import * as format from '../utils/format'
 import { VotingMethod } from '../config/types'
 import AppContext from '../contexts/AppContext'
 import readFileAsync from '../lib/readFileAsync'
-import { convertSEMSFileToExternalTally } from '../utils/semsTallies'
+import {
+  convertSEMSFileToExternalTally,
+  parseSEMSFileAndValidateForElection,
+} from '../utils/semsTallies'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import Modal from './Modal'
@@ -38,15 +41,27 @@ const ImportExternalResultsModal: React.FC<Props> = ({
     // Compute the tallies to see if there are any errors, if so display
     // an error modal.
     try {
+      const fileErrors = parseSEMSFileAndValidateForElection(
+        fileContent,
+        election
+      )
+      if (fileErrors.length > 0) {
+        setErrorMessage(
+          `Failed to import external file. ${fileErrors.join(' ')}`
+        )
+        setIsImportingFile(false)
+        return
+      }
       const tally = convertSEMSFileToExternalTally(
         fileContent,
         election,
         ballotType // We are not storing this tally, the ballot type here is not accurate yet but is thrown away
       )
       setNumberBallotsToImport(tally.overallTally.numberOfBallotsCounted)
-      setIsImportingFile(false)
     } catch (error) {
       setErrorMessage(`Failed to import external file. ${error.message}`)
+    } finally {
+      setIsImportingFile(false)
     }
   }
 

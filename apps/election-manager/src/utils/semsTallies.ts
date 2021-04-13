@@ -78,6 +78,8 @@ export function getContestTallyForCandidateContest(
     ) {
       writeInVotes += row.numberOfVotes
       numCandidateVotes += row.numberOfVotes
+    } else if (row.candidateId === WriteInCandidateId) {
+      // Ignore Row
     } else if (row.candidateId in validCandidates) {
       const candidate = validCandidates[row.candidateId]
       let previousVoteCounts = 0
@@ -145,6 +147,8 @@ export function getContestTallyForYesNoContest(
         tally: row.numberOfVotes + previousVoteCounts,
       }
       numVotes += row.numberOfVotes
+    } else if (row.candidateId === WriteInCandidateId) {
+      // Ignore row
     } else {
       throw new Error(
         `Imported file has unexpected option id ${row.candidateId} for contest ${contest.id}`
@@ -241,11 +245,7 @@ function sanitizeItem(item: string): string {
   return item.replace(/['"`]/g, '').trim()
 }
 
-export function convertSEMSFileToExternalTally(
-  fileContent: string,
-  election: Election,
-  votingMethodForFile: VotingMethod
-): FullElectionExternalTally {
+function parseFileContentRows(fileContent: string): SEMSFileRow[] {
   const parsedRows: SEMSFileRow[] = []
   fileContent.split('\n').forEach((row) => {
     const entries = row.split(',').map((e) => sanitizeItem(e))
@@ -265,6 +265,103 @@ export function convertSEMSFileToExternalTally(
       })
     }
   })
+  return parsedRows
+}
+
+export function parseSEMSFileAndValidateForElection(
+  fileContent: string,
+  election: Election
+): string[] {
+  const errors: string[] = []
+
+  const parsedRows = parseFileContentRows(fileContent)
+
+  if (parsedRows.length === 0) {
+    return [
+      'No valid CSV data found in imported file. Please check file contents.',
+    ]
+  }
+
+  for (const row of parsedRows) {
+    if (election.precincts.every(({ id }) => id !== row.precinctId)) {
+      errors.push(
+        `Precinct ID ${row.precinctId} is not found in the election definition.`
+      )
+    }
+
+    const contest = expandEitherNeitherContests(election.contests).find(
+      (c) => c.id === row.contestId
+    )
+    if (contest === undefined) {
+      errors.push(
+        `Contest ID ${row.contestId} is not found in the election definition.`
+      )
+    } else {
+      switch (contest.type) {
+        case 'candidate': {
+          const validCandidates = [
+            UndervoteCandidateId,
+            OvervoteCandidateId,
+            ...contest.candidates.map((c) => c.id),
+          ]
+          if (contest.allowWriteIns) {
+            validCandidates.push(WriteInCandidateId)
+          }
+          // Allow an illegal write in candidate row if the number of votes is 0
+          const isWriteInSkippable =
+            !contest.allowWriteIns &&
+            row.candidateId === WriteInCandidateId &&
+            row.numberOfVotes === 0
+          if (
+            !validCandidates.includes(row.candidateId) &&
+            !isWriteInSkippable
+          ) {
+            errors.push(
+              `Candidate ID ${row.candidateId} is not a valid candidate ID for the contest: ${row.contestId}.`
+            )
+          }
+          break
+        }
+        case 'yesno': {
+          const validCandidates = [
+            UndervoteCandidateId,
+            OvervoteCandidateId,
+            contest.yesOption?.id,
+            contest.noOption?.id,
+          ]
+          if (
+            contest.yesOption === undefined ||
+            contest.noOption === undefined
+          ) {
+            errors.push(
+              `Election definition not configured to handle SEMs data formats, IDs must be specified on the yes no contest: ${row.contestId}.`
+            )
+          }
+          const isWriteInSkippable =
+            row.candidateId === WriteInCandidateId && row.numberOfVotes === 0
+          if (
+            !validCandidates.includes(row.candidateId) &&
+            !isWriteInSkippable
+          ) {
+            errors.push(
+              `Contest Choice ID ${row.candidateId} is not a valid contest choice ID for the contest: ${row.contestId}.`
+            )
+          }
+          break
+        }
+      }
+    }
+  }
+
+  return errors
+}
+
+export function convertSEMSFileToExternalTally(
+  fileContent: string,
+  election: Election,
+  votingMethodForFile: VotingMethod
+): FullElectionExternalTally {
+  const parsedRows = parseFileContentRows(fileContent)
 
   const contestsById: Dictionary<Contest> = {}
   for (const contest of expandEitherNeitherContests(election.contests)) {
