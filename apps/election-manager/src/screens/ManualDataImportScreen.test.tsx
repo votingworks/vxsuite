@@ -84,28 +84,28 @@ test('can toggle precincts and view correct contests for each precinct', async (
 
   getByText('Contest Results for District 5')
   // Check that contests that don't exist in ballot styles for District 5 don't show up
-  expect(queryAllByText(/Election Commissioner 01/).length).toBe(0)
-  expect(queryAllByText(/Election Commissioner 02/).length).toBe(0)
-  getByText(/Election Commissioner 05/)
-  getByText(/President/)
+  expect(queryAllByText('Election Commissioner 01').length).toBe(0)
+  expect(queryAllByText('Election Commissioner 02').length).toBe(0)
+  getByText('Election Commissioner 05')
+  getByText('President')
 
   fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '6532' } })
 
   getByText('Contest Results for Panhandle')
   // Check that contests that don't exist in ballot styles for District 5 don't show up
-  expect(queryAllByText(/Election Commissioner 01/).length).toBe(0)
-  expect(queryAllByText(/Election Commissioner 05/).length).toBe(0)
-  getByText(/Election Commissioner 04/)
-  getByText(/President/)
+  expect(queryAllByText('Election Commissioner 01').length).toBe(0)
+  expect(queryAllByText('Election Commissioner 05').length).toBe(0)
+  getByText('Election Commissioner 04')
+  getByText('President')
 
   fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '6539' } })
 
   getByText('Contest Results for West Weir')
   // Check that contests that don't exist in ballot styles for District 5 don't show up
-  expect(queryAllByText(/Election Commissioner 04/).length).toBe(0)
-  expect(queryAllByText(/Election Commissioner 05/).length).toBe(0)
-  getByText(/Election Commissioner 03/)
-  getByText(/President/)
+  expect(queryAllByText('Election Commissioner 04').length).toBe(0)
+  expect(queryAllByText('Election Commissioner 05').length).toBe(0)
+  getByText('Election Commissioner 03')
+  getByText('President')
 })
 
 test('can enter data for candidate contests as expected', async () => {
@@ -373,6 +373,61 @@ test('summary table stays up to date', async () => {
   expect(getByTestId('total-ballots-entered')).toHaveTextContent('150')
 })
 
+test('warning is shown when a contests ballot totals dont add up', async () => {
+  const { getByText, getByTestId, queryAllByText } = renderInAppContext(
+    <Route path="/tally/manual-data-import">
+      <ManualDataImportScreen />
+    </Route>,
+    {
+      route: '/tally/manual-data-import',
+      electionDefinition: electionSampleDefinition,
+    }
+  )
+  getByText('Manually Add External Results')
+
+  // There should be no warnings to start.
+  const summaryTable = getByTestId('summary-data')
+  const centerSpringfield = within(summaryTable)
+    .getByText('Center Springfield')
+    .closest('tr')!
+  expect(
+    within(centerSpringfield).queryAllByText(
+      /Data for precinct contains possible errors/
+    )
+  ).toHaveLength(0)
+  expect(
+    queryAllByText(/The ballots entered for this contest sum to/)
+  ).toHaveLength(0)
+
+  // Update the number of ballots expected for a contest.
+  fireEvent.change(getByTestId('president-numBallots').closest('input')!, {
+    target: { value: '100' },
+  })
+
+  // Check that warnings appear
+  getByText(
+    'The ballots entered for this contest sum to 0 but you have specified that there were 100 ballots cast.'
+  )
+  within(centerSpringfield).getByText(
+    'Data for precinct contains possible errors'
+  )
+
+  // Update the number of undervotes to match the number of ballots expected.
+  fireEvent.change(getByTestId('president-undervotes').closest('input')!, {
+    target: { value: '100' },
+  })
+
+  // Check that warnings are gone
+  expect(
+    within(centerSpringfield).queryAllByText(
+      /Data for precinct contains possible errors/
+    )
+  ).toHaveLength(0)
+  expect(
+    queryAllByText(/The ballots entered for this contest sum to/)
+  ).toHaveLength(0)
+})
+
 test('loads prexisting manual data to edit', async () => {
   const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(
     electionSampleDefinition.election
@@ -382,6 +437,7 @@ test('loads prexisting manual data to edit', async () => {
     contestTallies: {
       ...talliesByPrecinct['23']?.contestTallies,
       'county-commissioners': ({
+        ...talliesByPrecinct['23']?.contestTallies['county-commissioners'],
         tallies: {
           argent: { tally: 80 } as ContestOptionTally,
           '__write-in': { tally: 60 } as ContestOptionTally,
@@ -390,6 +446,7 @@ test('loads prexisting manual data to edit', async () => {
         metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
       } as unknown) as ContestTally,
       'judicial-robert-demergue': ({
+        ...talliesByPrecinct['23']?.contestTallies['judicial-robert-demergue'],
         tallies: {
           yes: { option: ['yes'], tally: 40 },
           no: { option: ['no'], tally: 30 },
@@ -403,6 +460,9 @@ test('loads prexisting manual data to edit', async () => {
     contestTallies: {
       ...talliesByPrecinct['20']?.contestTallies,
       'primary-constitution-head-of-party': ({
+        ...talliesByPrecinct['20']?.contestTallies[
+          'primary-constitution-head-of-party'
+        ],
         tallies: {
           alice: { tally: 25 } as ContestOptionTally,
           bob: { tally: 5 } as ContestOptionTally,
@@ -416,6 +476,7 @@ test('loads prexisting manual data to edit', async () => {
     contestTallies: {
       ...talliesByPrecinct['21']?.contestTallies,
       'judicial-robert-demergue': ({
+        ...talliesByPrecinct['21']?.contestTallies['judicial-robert-demergue'],
         tallies: {
           yes: { option: ['yes'], tally: 4 },
           no: { option: ['no'], tally: 3 },
