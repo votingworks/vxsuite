@@ -38,19 +38,16 @@ NOPARTY_PARTY = {
 UNDERVOTE_CANDIDATE = {
     "id": "2",
     "name": "Times Under Voted",
-    "partyId": "0"
 }
     
 OVERVOTE_CANDIDATE = {
     "id": "1",
     "name": "Times Over Voted",
-    "partyId": "0"
 }
 
 WRITEIN_CANDIDATE = {
     "id": "0",
     "name": "Write-in",
-    "partyId": "0"
 }
 
 YESNO_CANDIDATES = [
@@ -266,7 +263,6 @@ def process_results_file(election_file_path, vx_results_file_path):
         
     for row in c.execute(sems_sql).fetchall():
         precinct_id, contest_id, option_id, CVR_candidate_id, count = row
-        
         contest = find_contest(contests, contest_id)
                    
         contest_party_id = contest["partyId"] if "partyId" in contest else None
