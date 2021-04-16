@@ -8,6 +8,7 @@ import { CandidateContest, Dictionary, YesNoContest } from '@votingworks/types'
 import {
   ContestOptionTally,
   ContestTally,
+  ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
 } from '../config/types'
@@ -439,7 +440,9 @@ describe('convertSEMSFileToExternalTally', () => {
     const convertedTally = convertSEMSFileToExternalTally(
       eitherNeitherSEMSContent,
       electionWithMsEitherNeither,
-      VotingMethod.Precinct
+      VotingMethod.Precinct,
+      'file-name',
+      new Date(2020, 3, 1)
     )
 
     const expectedNumberOfVotesByPrecinct: Dictionary<number> = {
@@ -460,7 +463,10 @@ describe('convertSEMSFileToExternalTally', () => {
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
     expect(convertedTally.overallTally.numberOfBallotsCounted).toBe(100)
+    expect(convertedTally.inputSourceName).toBe('file-name')
+    expect(convertedTally.source).toBe(ExternalTallySourceType.SEMS)
     expect(convertedTally.votingMethod).toBe(VotingMethod.Precinct)
+    expect(convertedTally.timestampCreated).toStrictEqual(new Date(2020, 3, 1))
     for (const precinctId of Object.keys(expectedNumberOfVotesByPrecinct)) {
       const tallyForPrecinct = convertedTally.resultsByCategory.get(
         TallyCategory.Precinct
@@ -545,7 +551,9 @@ describe('convertSEMSFileToExternalTally', () => {
     const convertedTally = convertSEMSFileToExternalTally(
       primarySEMSContent,
       multiPartyPrimaryElection,
-      VotingMethod.Absentee
+      VotingMethod.Absentee,
+      'file-name',
+      new Date(2020, 3, 1)
     )
 
     const expectedNumberOfVotesByPrecinct: Dictionary<number> = {

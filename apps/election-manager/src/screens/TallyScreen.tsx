@@ -6,6 +6,7 @@ import {
   TallyCategory,
   InputEventFunction,
   ResultsFileType,
+  ExternalTallySourceType,
 } from '../config/types'
 
 import * as format from '../utils/format'
@@ -39,9 +40,8 @@ const TallyScreen: React.FC = () => {
     electionDefinition,
     isOfficialResults,
     saveIsOfficialResults,
-    externalVoteRecordsFile,
     isTabulationRunning,
-    fullElectionExternalTally,
+    fullElectionExternalTallies,
   } = useContext(AppContext)
   const { election } = electionDefinition!
 
@@ -84,7 +84,12 @@ const TallyScreen: React.FC = () => {
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
     !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
-  const hasAnyFiles = hasCastVoteRecordFiles || !!fullElectionExternalTally
+  const hasAnyFiles =
+    hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0
+  const hasExternalSEMSFile =
+    fullElectionExternalTallies.filter(
+      (t) => t.source === ExternalTallySourceType.SEMS
+    ).length > 0
 
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
     false
@@ -161,27 +166,25 @@ const TallyScreen: React.FC = () => {
     </React.Fragment>
   )
 
-  let externalTallyRow = null
-  let externalFileBallotCount = 0
-  if (fullElectionExternalTally && externalVoteRecordsFile) {
-    const { overallTally } = fullElectionExternalTally
-    const precinctsInExternalFile = getPrecinctIdsInExternalTally(
-      fullElectionExternalTally
-    )
-    externalFileBallotCount = overallTally.numberOfBallotsCounted
-    externalTallyRow = (
-      <tr>
+  const externalTallyRows = fullElectionExternalTallies.map((t) => {
+    const precinctsInExternalFile = getPrecinctIdsInExternalTally(t)
+    return (
+      <tr key={t.inputSourceName}>
         <TD narrow nowrap>
-          {moment(externalVoteRecordsFile.lastModified).format(TIME_FORMAT)}
+          {moment(t.timestampCreated).format(TIME_FORMAT)}
         </TD>
         <TD narrow nowrap>
-          External Results File ({externalVoteRecordsFile.name})
+          External Results File ({t.inputSourceName})
         </TD>
-        <TD narrow>{format.count(externalFileBallotCount)}</TD>
+        <TD narrow>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
         <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
       </tr>
     )
-  }
+  })
+  const externalFileBallotCount = fullElectionExternalTallies.reduce(
+    (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
+    0
+  )
 
   return (
     <React.Fragment>
@@ -229,7 +232,7 @@ const TallyScreen: React.FC = () => {
                     </tr>
                   )
                 )}
-                {externalTallyRow}
+                {externalTallyRows}
                 <tr>
                   <TD as="th" narrow nowrap>
                     Total CVRs Count
@@ -267,7 +270,7 @@ const TallyScreen: React.FC = () => {
             onChange={importExternalSEMSFile}
             accept="*"
             data-testid="import-sems-button"
-            disabled={!!fullElectionExternalTally || isOfficialResults}
+            disabled={hasExternalSEMSFile || isOfficialResults}
           >
             Import External Results File
           </FileInputButton>{' '}
@@ -299,7 +302,7 @@ const TallyScreen: React.FC = () => {
             </Button>{' '}
             <Button
               danger
-              disabled={!externalVoteRecordsFile}
+              disabled={!hasExternalSEMSFile}
               onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
             >
               Remove External Results File…

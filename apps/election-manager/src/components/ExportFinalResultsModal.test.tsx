@@ -8,7 +8,7 @@ import MockDate from 'mockdate'
 import { UsbDriveStatus } from '../lib/usbstick'
 import ExportFinalResultsModal from './ExportFinalResultsModal'
 import renderInAppContext from '../../test/renderInAppContext'
-import { VotingMethod } from '../config/types'
+import { ExternalTallySourceType, VotingMethod } from '../config/types'
 
 beforeEach(() => {
   jest.useFakeTimers()
@@ -132,18 +132,21 @@ test('render export modal when a usb drive is mounted and exports with external 
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } })
 
-  const externalFile = new File(['content'], 'to-combine.csv')
   const closeFn = jest.fn()
   const { getByText } = renderInAppContext(
     <ExportFinalResultsModal onClose={closeFn} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
-      fullElectionExternalTally: {
-        overallTally: { contestTallies: {}, numberOfBallotsCounted: 0 },
-        resultsByCategory: new Map(),
-        votingMethod: VotingMethod.Precinct,
-      },
-      externalVoteRecordsFile: externalFile,
+      fullElectionExternalTallies: [
+        {
+          overallTally: { contestTallies: {}, numberOfBallotsCounted: 0 },
+          resultsByCategory: new Map(),
+          votingMethod: VotingMethod.Precinct,
+          source: ExternalTallySourceType.SEMS,
+          inputSourceName: 'file-name.csv',
+          timestampCreated: new Date(),
+        },
+      ],
     }
   )
   getByText('Save Results File')

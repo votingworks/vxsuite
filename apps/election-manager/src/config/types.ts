@@ -122,6 +122,11 @@ export interface ExternalTally {
   readonly numberOfBallotsCounted: number
 }
 
+export enum ExternalTallySourceType {
+  SEMS = 'sems',
+  Manual = 'manual-data',
+}
+
 export interface FullElectionExternalTally {
   readonly overallTally: ExternalTally
   readonly resultsByCategory: ReadonlyMap<
@@ -129,6 +134,9 @@ export interface FullElectionExternalTally {
     Dictionary<ExternalTally>
   >
   readonly votingMethod: VotingMethod
+  readonly source: ExternalTallySourceType
+  readonly inputSourceName: string
+  readonly timestampCreated: Date
 }
 
 export interface ExportableContestTally {
@@ -154,7 +162,6 @@ export enum ResultsFileType {
   SEMS = 'sems',
   All = 'all',
 }
-
 export type OptionalFile = Optional<File>
 
 // provisional ballot types are not yet supported.

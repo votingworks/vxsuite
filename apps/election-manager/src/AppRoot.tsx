@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
 
-import { ElectionDefinition, Optional, parseElection } from '@votingworks/types'
+import { ElectionDefinition, parseElection } from '@votingworks/types'
 
 import {
   getStatus as usbDriveGetStatus,
@@ -32,17 +32,13 @@ import {
   ISO8601Timestamp,
   FullElectionExternalTally,
   CastVoteRecordLists,
-  VotingMethod,
-  ExternalFileConfiguration,
   ExportableTallies,
 } from './config/types'
-import {
-  convertFileToStorageString,
-  convertStorageStringToFile,
-} from './utils/file'
-import { convertSEMSFileToExternalTally } from './utils/semsTallies'
-import readFileAsync from './lib/readFileAsync'
 import { getExportableTallies } from './utils/exportableTallies'
+import {
+  convertExternalTalliesToStorageString,
+  convertStorageStringToExternalTallies,
+} from './utils/semsTallies'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition
@@ -50,7 +46,7 @@ export interface AppStorage {
   isOfficialResults?: boolean
   printedBallots?: PrintedBallot[]
   configuredAt?: ISO8601Timestamp
-  externalVoteRecordsFile?: string
+  externalVoteTallies?: string
 }
 
 export interface Props extends RouteComponentProps {
@@ -62,8 +58,7 @@ export const cvrsStorageKey = 'cvrFiles'
 export const isOfficialResultsKey = 'isOfficialResults'
 export const printedBallotsStorageKey = 'printedBallots'
 export const configuredAtStorageKey = 'configuredAt'
-export const externalVoteRecordsFileStorageKey = 'externalVoteRecordsFile'
-export const externalVotingMethodStorageKey = 'externalFileVotingMethod'
+export const externalVoteTalliesFileStorageKey = 'externalVoteTallies'
 
 const AppRoot: React.FC<Props> = ({ storage }) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
@@ -86,12 +81,9 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   const getCVRFiles = async (): Promise<string | undefined> =>
     // TODO: validate this with zod schema
     (await storage.get(cvrsStorageKey)) as string | undefined
-  const getExternalFile = async (): Promise<string | undefined> =>
+  const getExternalElectionTallies = async (): Promise<string | undefined> =>
     // TODO: validate this with zod schema
-    (await storage.get(externalVoteRecordsFileStorageKey)) as string | undefined
-  const getExternalFileVotingMethod = async (): Promise<string | undefined> =>
-    // TODO: validate this with zod schema
-    (await storage.get(externalVotingMethodStorageKey)) as string | undefined
+    (await storage.get(externalVoteTalliesFileStorageKey)) as string | undefined
   const getIsOfficialResults = async (): Promise<boolean | undefined> =>
     // TODO: validate this with zod schema
     (await storage.get(isOfficialResultsKey)) as boolean | undefined
@@ -121,13 +113,9 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
   )
 
   const [
-    fullElectionExternalTally,
-    setFullElectionExternalTally,
-  ] = useState<FullElectionExternalTally>()
-  const [
-    externalVoteRecordsFileConfig,
-    setExternalVoteRecordsFileConfig,
-  ] = useState<ExternalFileConfiguration>()
+    fullElectionExternalTallies,
+    setFullElectionExternalTallies,
+  ] = useState<FullElectionExternalTally[]>([])
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {
@@ -216,22 +204,15 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         }
 
         if (
-          fullElectionExternalTally === undefined &&
+          fullElectionExternalTallies.length === 0 &&
           storageElectionDefinition
         ) {
-          const storageExternalFileJSON = await getExternalFile()
-          if (storageExternalFileJSON) {
-            const importedData = convertStorageStringToFile(
-              storageExternalFileJSON
+          const storageExternalTalliesJSON = await getExternalElectionTallies()
+          if (storageExternalTalliesJSON) {
+            const importedData = convertStorageStringToExternalTallies(
+              storageExternalTalliesJSON
             )
-            const storageVotingMethod = await getExternalFileVotingMethod()
-            if (importedData && storageVotingMethod) {
-              const file = importedData
-              setExternalVoteRecordsFileConfig({
-                file,
-                votingMethod: storageVotingMethod as VotingMethod,
-              })
-            }
+            setFullElectionExternalTallies(importedData)
           }
         }
       }
@@ -251,54 +232,23 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     [setFullElectionTally, electionDefinition]
   )
 
-  const computeExternalVoteCounts = useCallback(
-    async (
-      externalVoteRecordsFileConfig: Optional<ExternalFileConfiguration>
-    ) => {
-      if (externalVoteRecordsFileConfig) {
-        setIsTabulationRunning(true)
-        const fileContent = await readFileAsync(
-          externalVoteRecordsFileConfig.file
-        )
-        const externalTally = convertSEMSFileToExternalTally(
-          fileContent,
-          electionDefinition!.election,
-          externalVoteRecordsFileConfig.votingMethod
-        )
-        setFullElectionExternalTally(externalTally)
-        setIsTabulationRunning(false)
-      } else {
-        setFullElectionExternalTally(undefined)
-      }
-    },
-    [setFullElectionExternalTally, electionDefinition]
-  )
-
   useEffect(() => {
     if (electionDefinition) {
       computeVoteCounts(castVoteRecordFiles.castVoteRecords)
     }
   }, [computeVoteCounts, castVoteRecordFiles])
 
-  useEffect(() => {
-    if (electionDefinition) {
-      computeExternalVoteCounts(externalVoteRecordsFileConfig)
-    }
-  }, [computeExternalVoteCounts, externalVoteRecordsFileConfig])
-
-  const saveExternalVoteRecordsFile = async (
-    externalVoteRecordsFileConfig: Optional<ExternalFileConfiguration>
+  const saveExternalTallies = (
+    externalTallies: FullElectionExternalTally[]
   ) => {
-    if (externalVoteRecordsFileConfig) {
-      const { file, votingMethod } = externalVoteRecordsFileConfig
-      setExternalVoteRecordsFileConfig(externalVoteRecordsFileConfig)
-      const storageString = await convertFileToStorageString(file)
-      storage.set(externalVoteRecordsFileStorageKey, storageString)
-      storage.set(externalVotingMethodStorageKey, votingMethod)
+    setFullElectionExternalTallies(externalTallies)
+    if (externalTallies.length > 0) {
+      storage.set(
+        externalVoteTalliesFileStorageKey,
+        convertExternalTalliesToStorageString(externalTallies)
+      )
     } else {
-      setExternalVoteRecordsFileConfig(undefined)
-      storage.remove(externalVoteRecordsFileStorageKey)
-      storage.remove(externalVotingMethodStorageKey)
+      storage.remove(externalVoteTalliesFileStorageKey)
     }
   }
 
@@ -325,7 +275,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
       storage.clear()
       setIsOfficialResults(false)
       setCastVoteRecordFiles(CastVoteRecordFiles.empty)
-      setExternalVoteRecordsFileConfig(undefined)
+      setFullElectionExternalTallies([])
       setPrintedBallots([])
       setElectionDefinition(undefined)
 
@@ -355,7 +305,6 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
       storage,
       setIsOfficialResults,
       setCastVoteRecordFiles,
-      setExternalVoteRecordsFileConfig,
       setPrintedBallots,
       setElectionDefinition,
       parseElection,
@@ -368,7 +317,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     assert(electionDefinition)
     return getExportableTallies(
       fullElectionTally,
-      fullElectionExternalTally ? [fullElectionExternalTally] : [],
+      fullElectionExternalTallies,
       electionDefinition.election
     )
   }
@@ -391,10 +340,8 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         addPrintedBallot,
         fullElectionTally,
         setFullElectionTally,
-        fullElectionExternalTally,
-        externalVoteRecordsFile: externalVoteRecordsFileConfig?.file,
-        saveExternalVoteRecordsFile,
-        setFullElectionExternalTally,
+        fullElectionExternalTallies,
+        saveExternalTallies,
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,

@@ -15,6 +15,7 @@ import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
+  ExternalTallySourceType,
   FullElectionExternalTally,
   OptionalExternalTally,
   OptionalFullElectionExternalTally,
@@ -358,10 +359,52 @@ export function parseSEMSFileAndValidateForElection(
   return errors
 }
 
+export function convertExternalTalliesToStorageString(
+  tallies: FullElectionExternalTally[]
+): string {
+  return JSON.stringify(
+    tallies.map((tally) => {
+      return {
+        ...tally,
+        resultsByCategory: Array.from(tally.resultsByCategory.entries()),
+        timestampCreated: tally.timestampCreated.getTime(),
+      }
+    })
+  )
+}
+
+export function convertStorageStringToExternalTallies(
+  inputString: string
+): FullElectionExternalTally[] {
+  const parsedJSON = JSON.parse(inputString) as Record<string, unknown>[]
+  return parsedJSON.map((data) => {
+    const {
+      overallTally,
+      resultsByCategory,
+      votingMethod,
+      source,
+      inputSourceName,
+      timestampCreated,
+    } = data
+    return {
+      overallTally,
+      votingMethod,
+      source,
+      inputSourceName,
+      resultsByCategory: new Map(
+        resultsByCategory as readonly (readonly [unknown, unknown])[]
+      ),
+      timestampCreated: new Date(timestampCreated as number),
+    } as FullElectionExternalTally
+  })
+}
+
 export function convertSEMSFileToExternalTally(
   fileContent: string,
   election: Election,
-  votingMethodForFile: VotingMethod
+  votingMethodForFile: VotingMethod,
+  fileName: string,
+  fileModified: Date
 ): FullElectionExternalTally {
   const parsedRows = parseFileContentRows(fileContent)
 
@@ -451,6 +494,9 @@ export function convertSEMSFileToExternalTally(
     overallTally,
     resultsByCategory,
     votingMethod: votingMethodForFile,
+    inputSourceName: fileName,
+    source: ExternalTallySourceType.SEMS,
+    timestampCreated: fileModified,
   }
 }
 

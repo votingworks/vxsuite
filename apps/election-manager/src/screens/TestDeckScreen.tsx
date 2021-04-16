@@ -152,6 +152,7 @@ const TestDeckScreen: React.FC = () => {
                   <ContestTally
                     election={election}
                     electionTally={electionTallyForParty}
+                    externalTallies={[]}
                   />
                 </TallyReportColumns>
               </ReportSection>
