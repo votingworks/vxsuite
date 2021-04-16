@@ -24,7 +24,6 @@ ELECTION_FILES = {
     ]
 }
 
-# paths
 RESULTS_FILES = {
     "inputFiles": [
         {"name": "Vx Election Definition", "path": None},
@@ -34,6 +33,17 @@ RESULTS_FILES = {
         {"name": "SEMS Results", "path": None}
     ]
 }
+
+RESULT_TALLIES_FILES = {
+    "inputFiles": [
+        {"name": "Vx Election Definition", "path": None},
+        {"name": "Vx Tallies", "path": None}
+    ],
+    "outputFiles": [
+        {"name": "SEMS Results", "path": None}
+    ]
+}
+
 
 def find_by_name(lst_of_obj, name):
     for obj in lst_of_obj:
@@ -47,6 +57,10 @@ def election_filelist():
 @app.route('/convert/results/files', methods=["GET"])
 def results_filelist():
     return json.dumps(RESULTS_FILES)
+
+@app.route('/convert/tallies/files', methods=["GET"])
+def tallies_filelist():
+    return json.dumps(RESULT_TALLIES_FILES)
 
 def submitfile(request, file_list):
     the_file = request.files['file']
@@ -66,6 +80,11 @@ def election_submitfile():
 @app.route('/convert/results/submitfile', methods=["POST"])
 def results_submitfile():
     submitfile(request, RESULTS_FILES)
+    return json.dumps({"status": "ok"})
+
+@app.route('/convert/tallies/submitfile', methods=["POST"])
+def tallies_submitfile():
+    submitfile(request, RESULT_TALLIES_FILES)
     return json.dumps({"status": "ok"})
 
 @app.route('/convert/election/process', methods=["POST"])
@@ -131,6 +150,36 @@ def results_output():
     else:
         return "", 404
 
+@app.route('/convert/tallies/process', methods=["POST"])
+def tallies_process():
+    for f in RESULT_TALLIES_FILES['inputFiles']:
+        if not f['path']:
+            return json.dumps({"status": "not all files are ready to process"})
+
+    sems_result = SEMSoutput.process_tallies_file(
+        find_by_name(RESULT_TALLIES_FILES['inputFiles'], 'Vx Election Definition')['path'],
+        find_by_name(RESULT_TALLIES_FILES['inputFiles'], 'Vx Tallies')['path']
+    )
+    the_path = os.path.join(FILES_DIR, 'SEMS Results')
+    result_file = open(the_path, "w")
+    result_file.write(sems_result)
+    result_file.close()
+
+    find_by_name(RESULT_TALLIES_FILES['outputFiles'], 'SEMS Results')['path'] = the_path
+
+    return json.dumps({"status": "ok"})
+    
+    
+@app.route('/convert/tallies/output', methods=["GET"])
+def tallies_output():
+    the_name = request.args.get('name', None)
+    the_entry = find_by_name(RESULT_TALLIES_FILES['outputFiles'], the_name)
+
+    if the_entry and the_entry['path']:
+        return send_file(the_entry['path'])
+    else:
+        return "", 404
+
 @app.route('/convert/results/combine', methods=["POST"])
 def results_combine(): 
     first = request.files['firstFile']
@@ -160,7 +209,7 @@ def index_test(): # pragma: no cover this is just for testing
     return send_from_directory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'), 'index.html')
 
 def reset():
-    for category in [ELECTION_FILES, RESULTS_FILES]:
+    for category in [ELECTION_FILES, RESULTS_FILES, RESULT_TALLIES_FILES]:
         for file_list in [category['inputFiles'], category['outputFiles']]:
             for f in file_list:
                 the_path = os.path.join(FILES_DIR, f['name'])

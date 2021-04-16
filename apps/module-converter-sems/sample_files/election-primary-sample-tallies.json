@@ -1,0 +1,340 @@
+{
+  "talliesByPrecinct": {
+    "20": {
+      "primary-constitution-head-of-party": {
+        "tallies": { "alice": 5, "bob": 3 },
+        "metadata": { "overvotes": 1, "undervotes": 2, "ballots": 11 }
+      }
+    },
+    "21": {
+      "102": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "president": {
+        "tallies": {
+          "barchi-hallaren": 1,
+          "cramer-vuocolo": 1,
+          "court-blumhardt": 0,
+          "boone-lian": 0,
+          "hildebrand-garritty": 0,
+          "patterson-lariviere": 0
+        },
+        "metadata": { "overvotes": 1, "undervotes": 1, "ballots": 4 }
+      },
+      "senator": {
+        "tallies": {
+          "weiford": 4,
+          "garriss": 0,
+          "wentworthfarthington": 0,
+          "hewetson": 0,
+          "martinez": 0,
+          "brown": 0,
+          "pound": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "representative-district-6": {
+        "tallies": {
+          "plunkard": 3,
+          "reeder": 1,
+          "schott": 0,
+          "tawney": 0,
+          "forrest": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "governor": {
+        "tallies": {
+          "franz": 4,
+          "harris": 0,
+          "bargmann": 0,
+          "abcock": 0,
+          "steelloy": 0,
+          "sharp": 0,
+          "wallace": 0,
+          "williams": 0,
+          "sharp-althea": 0,
+          "alpern": 0,
+          "windbeck": 0,
+          "greher": 0,
+          "alexander": 0,
+          "mitchell": 0,
+          "lee": 0,
+          "ash": 0,
+          "kennedy": 0,
+          "jackson": 0,
+          "brown": 0,
+          "teller": 0,
+          "ward": 0,
+          "murphy": 0,
+          "newman": 0,
+          "callanann": 0,
+          "york": 0,
+          "chandler": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "lieutenant-governor": {
+        "tallies": {
+          "norberg": 4,
+          "parks": 0,
+          "garcia": 0,
+          "qualey": 0,
+          "hovis": 0,
+          "zirkle": 0,
+          "davis": 0,
+          "freeman": 0,
+          "swan": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "secretary-of-state": {
+        "tallies": { "shamsi": 3, "talarico": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 4 }
+      },
+      "state-senator-district-31": {
+        "tallies": { "shiplett": 4 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "state-assembly-district-54": {
+        "tallies": { "solis": 4, "keller": 0, "rangel": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "county-commissioners": {
+        "tallies": {
+          "argent": 0,
+          "witherspoonsmithson": 0,
+          "bainbridge": 0,
+          "hennessey": 0,
+          "savoy": 0,
+          "tawa": 0,
+          "tawa-mary": 0,
+          "rangel": 0,
+          "altman": 0,
+          "moore": 0,
+          "white": 0,
+          "schmidt": 0,
+          "smith": 0,
+          "marracini": 0,
+          "schreiner": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 8, "undervotes": 8, "ballots": 4 }
+      },
+      "county-registrar-of-wills": {
+        "tallies": { "ramachandrani": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "city-mayor": {
+        "tallies": { "white": 0, "seldon": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "city-council": {
+        "tallies": {
+          "eagle": 0,
+          "rupp": 0,
+          "shry": 0,
+          "barker": 0,
+          "davis": 0,
+          "smith": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "judicial-robert-demergue": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "judicial-elmer-hull": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "question-a": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "question-b": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "question-c": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "proposition-1": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "measure-101": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "23": {
+      "102": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "president": {
+        "tallies": {
+          "barchi-hallaren": 3,
+          "cramer-vuocolo": 1,
+          "court-blumhardt": 0,
+          "boone-lian": 0,
+          "hildebrand-garritty": 0,
+          "patterson-lariviere": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "senator": {
+        "tallies": {
+          "weiford": 4,
+          "garriss": 0,
+          "wentworthfarthington": 0,
+          "hewetson": 0,
+          "martinez": 0,
+          "brown": 0,
+          "pound": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "representative-district-6": {
+        "tallies": {
+          "plunkard": 2,
+          "reeder": 2,
+          "schott": 0,
+          "tawney": 0,
+          "forrest": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "governor": {
+        "tallies": {
+          "franz": 4,
+          "harris": 0,
+          "bargmann": 0,
+          "abcock": 0,
+          "steelloy": 0,
+          "sharp": 0,
+          "wallace": 0,
+          "williams": 0,
+          "sharp-althea": 0,
+          "alpern": 0,
+          "windbeck": 0,
+          "greher": 0,
+          "alexander": 0,
+          "mitchell": 0,
+          "lee": 0,
+          "ash": 0,
+          "kennedy": 0,
+          "jackson": 0,
+          "brown": 0,
+          "teller": 0,
+          "ward": 0,
+          "murphy": 0,
+          "newman": 0,
+          "callanann": 0,
+          "york": 0,
+          "chandler": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "lieutenant-governor": {
+        "tallies": {
+          "norberg": 4,
+          "parks": 0,
+          "garcia": 0,
+          "qualey": 0,
+          "hovis": 0,
+          "zirkle": 0,
+          "davis": 0,
+          "freeman": 0,
+          "swan": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "secretary-of-state": {
+        "tallies": { "shamsi": 3, "talarico": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 3 }
+      },
+      "state-senator-district-31": {
+        "tallies": { "shiplett": 4 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "state-assembly-district-54": {
+        "tallies": { "solis": 4, "keller": 0, "rangel": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
+      },
+      "county-commissioners": {
+        "tallies": {
+          "argent": 4,
+          "witherspoonsmithson": 3,
+          "bainbridge": 2,
+          "hennessey": 1,
+          "savoy": 0,
+          "tawa": 0,
+          "tawa-mary": 0,
+          "rangel": 0,
+          "altman": 0,
+          "moore": 0,
+          "white": 0,
+          "schmidt": 0,
+          "smith": 0,
+          "marracini": 0,
+          "schreiner": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 6, "ballots": 4 }
+      },
+      "county-registrar-of-wills": {
+        "tallies": { "ramachandrani": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "city-mayor": {
+        "tallies": { "white": 0, "seldon": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "city-council": {
+        "tallies": {
+          "eagle": 0,
+          "rupp": 0,
+          "shry": 0,
+          "barker": 0,
+          "davis": 0,
+          "smith": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "judicial-robert-demergue": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "judicial-elmer-hull": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "question-a": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "question-b": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "question-c": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "proposition-1": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "measure-101": {
+        "tallies": { "yes": 0, "no": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    }
+  }
+}

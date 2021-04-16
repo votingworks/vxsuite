@@ -1,0 +1,1208 @@
+{
+  "talliesByPrecinct": {
+    "6522": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 2, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 1, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 2, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 1, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 1,
+          "575030430": 1,
+          "575032129": 0,
+          "575032130": 1,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 3 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 1, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 0, "575032586": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      },
+      "575021537": {
+        "tallies": { "575032596": 0, "575032597": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 3, "ballots": 3 }
+      }
+    },
+    "6524": {
+      "575020970": {
+        "tallies": { "575031910": 2, "575031911": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 3 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 1, "__write-in": 1 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 1, "575031917": 1, "__write-in": 1 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 3 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 3, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 3 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 1 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 2, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 1,
+          "575032129": 1,
+          "575032130": 1,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 3 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 1, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 2, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 2, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 2, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 2, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 1, "__write-in": 1 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 1, "575032586": 1, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 3 }
+      },
+      "575021533": {
+        "tallies": { "575032588": 1, "575032589": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 2, "ballots": 3 }
+      }
+    },
+    "6525": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021536": {
+        "tallies": { "575032594": 0, "575032595": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6526": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021535": {
+        "tallies": { "575032592": 0, "575032593": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6527": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 0, "575032586": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021533": {
+        "tallies": { "575032588": 0, "575032589": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6528": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 0, "575032586": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021534": {
+        "tallies": { "575032590": 0, "575032591": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6529": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021535": {
+        "tallies": { "575032592": 0, "575032593": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6532": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021536": {
+        "tallies": { "575032594": 0, "575032595": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6534": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 0, "575032586": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021534": {
+        "tallies": { "575032590": 0, "575032591": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6536": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 0, "575032586": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021534": {
+        "tallies": { "575032590": 0, "575032591": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6537": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021536": {
+        "tallies": { "575032594": 0, "575032595": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6538": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021529": {
+        "tallies": { "575032583": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021531": {
+        "tallies": { "575032585": 0, "575032586": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021533": {
+        "tallies": { "575032588": 0, "575032589": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    },
+    "6539": {
+      "575020970": {
+        "tallies": { "575031910": 0, "575031911": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020971": {
+        "tallies": { "575031912": 0, "575031913": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020972": {
+        "tallies": { "575031914": 0, "575031915": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020973": {
+        "tallies": { "575031916": 0, "575031917": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020974": {
+        "tallies": { "575031918": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020975": {
+        "tallies": { "575031919": 0, "575031920": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575020980": {
+        "tallies": { "575031925": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021007": {
+        "tallies": { "575031962": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021090": {
+        "tallies": { "575032061": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021144": {
+        "tallies": { "575032121": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021151": {
+        "tallies": { "575032127": 0, "575032128": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021152": {
+        "tallies": {
+          "575030384": 0,
+          "575030430": 0,
+          "575032129": 0,
+          "575032130": 0,
+          "__write-in": 0
+        },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021153": {
+        "tallies": { "575032131": 0, "575032132": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021524": {
+        "tallies": { "575032576": 0, "575032577": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021525": {
+        "tallies": { "575032578": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021526": {
+        "tallies": { "575032579": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021527": {
+        "tallies": { "575032580": 0, "575032581": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021528": {
+        "tallies": { "575032582": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021530": {
+        "tallies": { "575032584": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021532": {
+        "tallies": { "575032587": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      },
+      "575021535": {
+        "tallies": { "575032592": 0, "575032593": 0, "__write-in": 0 },
+        "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 0 }
+      }
+    }
+  }
+}
