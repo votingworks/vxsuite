@@ -38,7 +38,7 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
     usbDriveStatus,
     castVoteRecordFiles,
     electionDefinition,
-    externalVoteRecordsFile,
+    generateExportableTallies,
   } = useContext(AppContext)
   const isTestMode = castVoteRecordFiles?.fileMode === 'test'
 
@@ -60,18 +60,13 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
     defaultFilename: string
   ) => {
     setCurrentState(ModalState.SAVING)
-    const includeExternalData = externalVoteRecordsFile !== undefined
 
     try {
-      const CastVoteRecordsString = castVoteRecordFiles.castVoteRecords
-        .flat(1)
-        .map((c) => JSON.stringify(c))
-        .join('\n')
-
+      const exportableTallies = generateExportableTallies()
       // process on the server
-      const client = new ConverterClient('results')
+      const client = new ConverterClient('tallies')
       const { inputFiles, outputFiles } = await client.getFiles()
-      const [electionDefinitionFile, cvrFile] = inputFiles
+      const [electionDefinitionFile, talliesFile] = inputFiles
       const resultsFile = outputFiles[0]
 
       await client.setInputFile(
@@ -85,23 +80,13 @@ const ExportFinalResultsModal: React.FC<Props> = ({ onClose }) => {
         )
       )
       await client.setInputFile(
-        cvrFile.name,
-        new File([CastVoteRecordsString], 'cvrs')
+        talliesFile.name,
+        new File([JSON.stringify(exportableTallies)], 'tallies')
       )
       await client.process()
 
       // download the result
-      let results = await client.getOutputFile(resultsFile.name)
-
-      // If we are combinining with external file, do the combination now
-      if (includeExternalData) {
-        await client.reset()
-        const fileFromResults = new File([results], 'temp-name.csv')
-        results = await client.combineResultsFiles(
-          fileFromResults,
-          externalVoteRecordsFile!
-        )
-      }
+      const results = await client.getOutputFile(resultsFile.name)
 
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv')

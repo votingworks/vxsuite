@@ -805,4 +805,15 @@ describe('parseSEMSFileAndValidateForElection', () => {
       'No valid CSV data found in imported file. Please check file contents.',
     ])
   })
+
+  it('can parse a row with a comma in the contest name', () => {
+    const csvRowRaw2 =
+      '"10","6522","750000017","Ballot ,Measure 2","0","NP","0","Write In Votes","0","NP","0",'
+    expect(
+      parseSEMSFileAndValidateForElection(
+        csvRowRaw2,
+        electionWithMsEitherNeither
+      )
+    ).toEqual([])
+  })
 })

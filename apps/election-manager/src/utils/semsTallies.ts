@@ -248,7 +248,9 @@ function sanitizeItem(item: string): string {
 function parseFileContentRows(fileContent: string): SEMSFileRow[] {
   const parsedRows: SEMSFileRow[] = []
   fileContent.split('\n').forEach((row) => {
-    const entries = row.split(',').map((e) => sanitizeItem(e))
+    const entries = row
+      .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+      .map((e) => sanitizeItem(e))
     if (entries.length >= 11) {
       parsedRows.push({
         countyId: entries[0],

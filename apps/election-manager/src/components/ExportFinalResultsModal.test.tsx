@@ -68,15 +68,15 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   window.kiosk = mockKiosk
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
 
-  fetchMock.getOnce('/convert/results/files', {
+  fetchMock.getOnce('/convert/tallies/files', {
     inputFiles: [{ name: 'name' }, { name: 'name' }],
     outputFiles: [{ name: 'name' }],
   })
 
-  fetchMock.post('/convert/results/submitfile', { body: { status: 'ok' } })
-  fetchMock.post('/convert/results/process', { body: { status: 'ok' } })
+  fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } })
+  fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } })
 
-  fetchMock.getOnce('/convert/results/output?name=name', { body: '' })
+  fetchMock.getOnce('/convert/tallies/output?name=name', { body: '' })
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } })
 
@@ -105,10 +105,10 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       '{"body":""}'
     )
   })
-  expect(fetchMock.called('/convert/results/files')).toBe(true)
-  expect(fetchMock.called('/convert/results/submitfile')).toBe(true)
-  expect(fetchMock.called('/convert/results/process')).toBe(true)
-  expect(fetchMock.called('/convert/results/output?name=name')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/files')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/process')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/output?name=name')).toBe(true)
   expect(fetchMock.called('/convert/reset')).toBe(true)
 
   fireEvent.click(getByText('Close'))
@@ -120,19 +120,17 @@ test('render export modal when a usb drive is mounted and exports with external 
   window.kiosk = mockKiosk
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
 
-  fetchMock.getOnce('/convert/results/files', {
+  fetchMock.getOnce('/convert/tallies/files', {
     inputFiles: [{ name: 'name' }, { name: 'name' }],
     outputFiles: [{ name: 'name' }],
   })
 
-  fetchMock.post('/convert/results/submitfile', { body: { status: 'ok' } })
-  fetchMock.post('/convert/results/process', { body: { status: 'ok' } })
+  fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } })
+  fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } })
 
-  fetchMock.getOnce('/convert/results/output?name=name', { body: 'og-results' })
+  fetchMock.getOnce('/convert/tallies/output?name=name', { body: 'og-results' })
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } })
-
-  fetchMock.post('/convert/results/combine', { body: 'combine-results' })
 
   const externalFile = new File(['content'], 'to-combine.csv')
   const closeFn = jest.fn()
@@ -163,15 +161,14 @@ test('render export modal when a usb drive is mounted and exports with external 
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
       'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-03-14_01-59-26.csv',
-      'combine-results'
+      'og-results'
     )
   })
-  expect(fetchMock.called('/convert/results/files')).toBe(true)
-  expect(fetchMock.called('/convert/results/submitfile')).toBe(true)
-  expect(fetchMock.called('/convert/results/process')).toBe(true)
-  expect(fetchMock.called('/convert/results/output?name=name')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/files')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/process')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/output?name=name')).toBe(true)
   expect(fetchMock.called('/convert/reset')).toBe(true)
-  expect(fetchMock.called('/convert/results/combine')).toBe(true)
 
   fireEvent.click(getByText('Close'))
   expect(closeFn).toHaveBeenCalled()
@@ -182,7 +179,7 @@ test('render export modal with errors when appropriate', async () => {
   window.kiosk = mockKiosk
 
   // When inputFiles doesn't return 2 expected files the saving code will error.
-  fetchMock.getOnce('/convert/results/files', {
+  fetchMock.getOnce('/convert/tallies/files', {
     inputFiles: [],
     outputFiles: [],
   })
