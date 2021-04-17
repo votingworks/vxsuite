@@ -35,6 +35,9 @@
     },
     {
       "path": "libs/test-utils"
+    },
+    {
+      "path": "libs/ui"
     }
   ],
   "settings": {}

@@ -1,28 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders default 1`] = `
-.c1 {
-  margin-left: -1.4em;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.c1::before,
-.c1::after {
-  display: inline-block;
-  width: 0;
-  overflow: hidden;
-  vertical-align: bottom;
-  text-align: left;
-  content: '…';
-  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
-  animation: loadingEllipsis steps(4,end) 2s infinite;
-}
-
-.c1::before {
-  color: transparent;
-}
-
 .c0 {
   max-width: 66ch;
   line-height: 1.2;
@@ -109,7 +87,7 @@ exports[`renders default 1`] = `
 >
   <h1
     aria-label="Loading."
-    class="c1"
+    class="sc-bdvvaa etEPtU"
   >
     Loading
   </h1>
@@ -117,28 +95,6 @@ exports[`renders default 1`] = `
 `;
 
 exports[`renders fullscreen with tag and label 1`] = `
-.c2 {
-  margin-left: -1.4em;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.c2::before,
-.c2::after {
-  display: inline-block;
-  width: 0;
-  overflow: hidden;
-  vertical-align: bottom;
-  text-align: left;
-  content: '…';
-  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
-  animation: loadingEllipsis steps(4,end) 2s infinite;
-}
-
-.c2::before {
-  color: transparent;
-}
-
 .c1 {
   max-width: 66ch;
   line-height: 1.2;
@@ -246,7 +202,7 @@ exports[`renders fullscreen with tag and label 1`] = `
   >
     <p
       aria-label="Printing."
-      class="c2"
+      class="sc-bdvvaa etEPtU"
     >
       Printing
     </p>
