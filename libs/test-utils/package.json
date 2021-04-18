@@ -19,11 +19,13 @@
   },
   "devDependencies": {
     "@types/kiosk-browser": "workspace:*",
+    "@types/zip-stream": "workspace:*",
     "typescript": "^4.2.3"
   },
   "dependencies": {
     "@types/jest": "^26.0.21",
     "@types/node": "^14.14.35",
-    "rxjs": "^6.6.6"
+    "rxjs": "^6.6.6",
+    "zip-stream": "^4.1.0"
   }
 }

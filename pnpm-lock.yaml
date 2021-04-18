@@ -710,18 +710,24 @@ importers:
       zod: ^3.0.0-alpha.8
   apps/precinct-scanner:
     dependencies:
+      '@rooks/use-interval': 4.11.2_react@17.0.1
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 12.6.0
       '@types/jest': 24.9.1
-      '@types/node': 12.19.14
+      '@types/node': 12.20.11
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
       '@types/react-modal': 3.10.6
       '@types/react-router-dom': 5.1.7
+      '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
       '@votingworks/ui': link:../../libs/ui
+      fast-text-encoding: 1.0.3
+      fetch-mock: 9.11.0
       http-proxy-middleware: 1.0.6
       i18next: 19.8.4
+      jest-fetch-mock: 3.0.3
+      js-sha256: 0.9.0
       normalize.css: 8.0.1
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
@@ -730,12 +736,17 @@ importers:
       react-scripts: 4.0.1_typescript@4.2.4
       typescript: 4.2.4
       web-vitals: 1.1.1
+      yauzl: 2.10.0
     devDependencies:
       '@codemod/parser': 1.1.0
+      '@types/fast-text-encoding': 1.0.1
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
+      '@types/yauzl': 2.9.1
       '@typescript-eslint/eslint-plugin': 4.22.0_e3b52a83531895e7febd6ecd5ba813eb
       '@typescript-eslint/parser': 4.22.0_eslint@7.25.0+typescript@4.2.4
+      '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/test-utils': link:../../libs/test-utils
+      '@votingworks/types': link:../../libs/types
       eslint: 7.25.0
       eslint-config-airbnb: 17.1.1_4e7774c97029300fef6198d04be82a60
       eslint-config-prettier: 6.15.0_eslint@7.25.0
@@ -763,19 +774,25 @@ importers:
       stylelint-processor-styled-components: 1.10.0
     specifiers:
       '@codemod/parser': ^1.0.6
+      '@rooks/use-interval': ^4.11.2
       '@testing-library/jest-dom': ^5.11.4
       '@testing-library/react': ^11.1.0
       '@testing-library/user-event': ^12.1.10
+      '@types/fast-text-encoding': ^1.0.1
       '@types/jest': ^24.0.0
       '@types/kiosk-browser': workspace:*
-      '@types/node': ^12.0.0
+      '@types/node': ^12.20.11
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
       '@types/react-modal': ^3.10.5
       '@types/react-router-dom': ^5.1.5
+      '@types/yauzl': ^2.9.1
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
+      '@votingworks/fixtures': workspace:*
+      '@votingworks/hmpb-interpreter': workspace:*
       '@votingworks/test-utils': workspace:*
+      '@votingworks/types': workspace:*
       '@votingworks/ui': workspace:*
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
@@ -791,10 +808,14 @@ importers:
       eslint-plugin-prettier: ^3.1.2
       eslint-plugin-react: ^7.18.3
       eslint-plugin-react-hooks: ^4.0.5
+      fast-text-encoding: ^1.0.2
+      fetch-mock: ^9.11.0
       http-proxy-middleware: ^1.0.0
       husky: ^4.2.1
       i18next: ^19.4.5
       jest-environment-jsdom-sixteen: ^1.0.3
+      jest-fetch-mock: ^3.0.3
+      js-sha256: ^0.9.0
       lint-staged: ^10.0.7
       normalize.css: ^8.0.1
       prettier: ^2.0.5
@@ -812,6 +833,7 @@ importers:
       stylelint-processor-styled-components: ^1.9.0
       typescript: ^4.2.0
       web-vitals: ^1.0.1
+      yauzl: ^2.10.0
   apps/precinct-scanner/prodserver:
     dependencies:
       express: 4.17.1
@@ -1103,15 +1125,19 @@ importers:
       '@types/jest': 26.0.21
       '@types/node': 14.14.35
       rxjs: 6.6.6
+      zip-stream: 4.1.0
     devDependencies:
       '@types/kiosk-browser': link:../@types/kiosk-browser
+      '@types/zip-stream': link:../@types/zip-stream
       typescript: 4.2.3
     specifiers:
       '@types/jest': ^26.0.21
       '@types/kiosk-browser': workspace:*
       '@types/node': ^14.14.35
+      '@types/zip-stream': workspace:*
       rxjs: ^6.6.6
       typescript: ^4.2.3
+      zip-stream: ^4.1.0
   libs/types:
     dependencies:
       '@antongolub/iso8601': 1.2.1
@@ -5760,6 +5786,14 @@ packages:
       rollup: ^1.20.0||^2.0.0
     resolution:
       integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==
+  /@rooks/use-interval/4.11.2_react@17.0.1:
+    dependencies:
+      react: 17.0.1
+    dev: false
+    peerDependencies:
+      react: '>=16.8.0'
+    resolution:
+      integrity: sha512-55ViHnhMStQaldSQMurITNgheYplR2a4pq2viVLni73ikiEEk1spl15/jNW1YdtCyCWOgRBPSAtAh6bkBteU/Q==
   /@rooks/use-interval/4.5.0_react@17.0.1:
     dependencies:
       react: 17.0.1
@@ -6506,6 +6540,10 @@ packages:
   /@types/node/12.19.3:
     resolution:
       integrity: sha512-8Jduo8wvvwDzEVJCOvS/G6sgilOLvvhn1eMmK3TW8/T217O7u1jdrK6ImKLv80tVryaPSVeKu6sjDEiFjd4/eg==
+  /@types/node/12.20.11:
+    dev: false
+    resolution:
+      integrity: sha512-gema+apZ6qLQK7k7F0dGkGCWQYsL0qqKORWOQO6tq46q+x+1C0vbOiOqOwRVlh4RAdbQwV/j/ryr3u5NOG1fPQ==
   /@types/node/14.0.1:
     dev: false
     resolution:
@@ -6804,7 +6842,7 @@ packages:
       integrity: sha512-2nN6AGeMwe8+O6nO9ytQfbMQOJy65oi1yK2y/9oReR08DaXSGtMsrLyCM1ooKqfICpCx4oITaR4LkOmdzz41Ww==
   /@types/yauzl/2.9.1:
     dependencies:
-      '@types/node': 14.14.20
+      '@types/node': 15.0.1
     dev: true
     resolution:
       integrity: sha512-A1b8SU4D10uoPjwb0lnHmmu8wZhR9d+9o2PKBQT2jU5YPTKsxac6M2qGAdY7VcL+dHHhARVUDmeg0rOrcd9EjA==
@@ -8095,7 +8133,7 @@ packages:
   /archiver-utils/2.1.0:
     dependencies:
       glob: 7.1.6
-      graceful-fs: 4.2.4
+      graceful-fs: 4.2.6
       lazystream: 1.0.0
       lodash.defaults: 4.2.0
       lodash.difference: 4.5.0
@@ -9800,6 +9838,17 @@ packages:
       node: '>= 10'
     resolution:
       integrity: sha512-qhd32a9xgzmpfoga1VQEiLEwdKZ6Plnpx5UCgIsf89FSolyJ7WnifY4Gtjgv5WR6hWAyRaHxC5MiEhU/38U70A==
+  /compress-commons/4.1.0:
+    dependencies:
+      buffer-crc32: 0.2.13
+      crc32-stream: 4.0.2
+      normalize-path: 3.0.0
+      readable-stream: 3.6.0
+    dev: false
+    engines:
+      node: '>= 10'
+    resolution:
+      integrity: sha512-ofaaLqfraD1YRTkrRKPCrGJ1pFeDG/MVCkVVV2FNGeWquSlqw5wOrwOfPQ1xF2u+blpeWASie5EubHz+vsNIgA==
   /compressible/2.0.18:
     dependencies:
       mime-db: 1.45.0
@@ -9931,7 +9980,12 @@ packages:
     requiresBuild: true
     resolution:
       integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
+  /core-js/3.11.1:
+    requiresBuild: true
+    resolution:
+      integrity: sha512-k93Isqg7e4txZWMGNYwevZL9MiogLk8pd1PtwrmFmi8IBq4GXqUaVW/a33Llt6amSI36uSjd0GWwc9pTT9ALlQ==
   /core-js/3.8.2:
+    dev: false
     requiresBuild: true
     resolution:
       integrity: sha512-FfApuSRgrR6G5s58casCBd9M2k+4ikuu4wbW6pJyYU7bd9zvFc9qf7vr5xmrZOhT9nn+8uwlH1oRR9jTnFoA3A==
@@ -10003,6 +10057,15 @@ packages:
       node: '>= 10'
     resolution:
       integrity: sha512-FN5V+weeO/8JaXsamelVYO1PHyeCsuL3HcG4cqsj0ceARcocxalaShCsohZMSAF+db7UYFwBy1rARK/0oFItUw==
+  /crc32-stream/4.0.2:
+    dependencies:
+      crc-32: 1.2.0
+      readable-stream: 3.6.0
+    dev: false
+    engines:
+      node: '>= 10'
+    resolution:
+      integrity: sha512-DxFZ/Hk473b/muq1VJ///PMNLj0ZMnzye9thBpmjpJKCc5eMgB95aK8zCGrGfQ90cWo561Te6HK9D+j4KPdM6w==
   /create-ecdh/4.0.4:
     dependencies:
       bn.js: 4.11.9
@@ -10034,12 +10097,11 @@ packages:
   /create-require/1.1.1:
     resolution:
       integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
-  /cross-fetch/3.0.6:
+  /cross-fetch/3.1.4:
     dependencies:
       node-fetch: 2.6.1
-    dev: true
     resolution:
-      integrity: sha512-KBPUbqgFjzWlVcURG+Svp9TlhA5uliYtiNx/0r8nv0pdypeQCRJ9IaSIc3q/x3q8t3F75cHuwxVql1HFGHCNJQ==
+      integrity: sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==
   /cross-spawn/6.0.5:
     dependencies:
       nice-try: 1.0.5
@@ -12731,16 +12793,16 @@ packages:
       integrity: sha1-JcfInLH5B3+IkbvmHY85Dq4lbx4=
   /fetch-mock/9.11.0:
     dependencies:
-      '@babel/core': 7.12.10
+      '@babel/core': 7.13.16
       '@babel/runtime': 7.12.5
-      core-js: 3.8.2
+      core-js: 3.11.1
       debug: 4.3.1
       glob-to-regexp: 0.4.1
       is-subset: 0.1.1
       lodash.isequal: 4.5.0
       node-fetch: 2.6.1
       path-to-regexp: 2.4.0
-      querystring: 0.2.0
+      querystring: 0.2.1
       whatwg-url: 6.5.0
     engines:
       node: '>=4.0.0'
@@ -15242,9 +15304,8 @@ packages:
       integrity: sha512-zhtMio3Exty18dy8ee8eJ9kjnRyZC1N4C1Nt/VShN1apyXc8rWGtJ9lI7vqiWcyyXS4BVSEn9lxAM2D+07/Tag==
   /jest-fetch-mock/3.0.3:
     dependencies:
-      cross-fetch: 3.0.6
+      cross-fetch: 3.1.4
       promise-polyfill: 8.2.0
-    dev: true
     resolution:
       integrity: sha512-Ux1nWprtLrdrH4XwE7O7InRY6psIi3GOsqNESJgMJ+M5cv4A8Lh7SN9d2V2kKRZ8ebAfcd1LNyZguAOb6JiDqw==
   /jest-get-type/24.9.0:
@@ -19698,7 +19759,6 @@ packages:
     resolution:
       integrity: sha1-mEcocL8igTL8vdhoEputEsPAKeM=
   /promise-polyfill/8.2.0:
-    dev: true
     resolution:
       integrity: sha512-k/TC0mIcPVF6yHhUvwAp7cvL6I2fFV7TzF1DuGPI8mBh4QQazf36xCKEHKTZKRysEoTQoQdKyP25J8MPJp7j5g==
   /promise/8.1.0:
@@ -19843,6 +19903,11 @@ packages:
       node: '>=0.4.x'
     resolution:
       integrity: sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
+  /querystring/0.2.1:
+    engines:
+      node: '>=0.4.x'
+    resolution:
+      integrity: sha512-wkvS7mL/JMugcup3/rMitHmd9ecIGd2lhFhK9N3UUQ450h66d1r3Y9nvXzQAW1Lq+wyx61k/1pfKS5KuKiyEbg==
   /querystringify/2.2.0:
     dev: false
     resolution:
@@ -24680,6 +24745,16 @@ packages:
       node: '>= 10'
     resolution:
       integrity: sha512-a65wQ3h5gcQ/nQGWV1mSZCEzCML6EK/vyVPcrPNynySP1j3VBbQKh3nhC8CbORb+jfl2vXvh56Ul5odP1bAHqw==
+  /zip-stream/4.1.0:
+    dependencies:
+      archiver-utils: 2.1.0
+      compress-commons: 4.1.0
+      readable-stream: 3.6.0
+    dev: false
+    engines:
+      node: '>= 10'
+    resolution:
+      integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==
   /zod/3.0.0-alpha.8:
     dependencies:
       eslint-plugin-unused-imports: 1.1.1
