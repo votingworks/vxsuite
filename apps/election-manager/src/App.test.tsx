@@ -10,6 +10,7 @@ import {
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
 } from '@testing-library/react'
+import fetchMock from 'fetch-mock'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { ElectionDefinition } from '@votingworks/types'
@@ -62,11 +63,21 @@ beforeEach(() => {
   ])
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   MockDate.set(new Date('2020-11-03T22:22:00'))
+  fetchMock.reset()
+  fetchMock.get('/convert/election/files', {
+    inputFiles: [{ name: 'name' }, { name: 'name' }],
+    outputFiles: [{ name: 'name' }],
+  })
+  fetchMock.get('/convert/tallies/files', {
+    inputFiles: [{ name: 'name' }, { name: 'name' }],
+    outputFiles: [{ name: 'name' }],
+  })
 })
 
 afterEach(() => {
   delete window.kiosk
   MockDate.reset()
+  jest.useRealTimers()
 })
 
 const createMemoryStorageWith = async ({
@@ -223,6 +234,7 @@ test('printing ballots, print report, and test decks', async () => {
 })
 
 test('tabulating CVRs', async () => {
+  jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -236,6 +248,7 @@ test('tabulating CVRs', async () => {
   const { getByText, getAllByText, getByTestId } = render(
     <App storage={storage} />
   )
+  jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
 
   await screen.findByText('0 official ballots')
 
@@ -277,7 +290,46 @@ test('tabulating CVRs', async () => {
     eitherNeitherElectionDefinition.election.precincts.length + 1
   )
 
+  // Save SEMS file
+  fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } })
+  fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } })
+
+  fetchMock.getOnce('/convert/tallies/output?name=name', {
+    body: 'test-content',
+  })
+
+  fetchMock.post('/convert/reset', { body: { status: 'ok' } })
   fireEvent.click(getByText('Tally'))
+  await waitFor(() => getByText('Save Results File'))
+  fireEvent.click(getByText('Save Results File'))
+  await jest.advanceTimersByTime(2001)
+  getByText('Save Results')
+  getByText(/Save the election results as /)
+  getByText(
+    'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+  )
+
+  fireEvent.click(getByText('Save'))
+  await waitFor(() => getByText(/Saving/))
+  jest.advanceTimersByTime(2001)
+  await waitFor(() => getByText(/Results Saved/))
+  await waitFor(() => {
+    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1)
+    expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
+      1,
+      'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'test-content'
+    )
+  })
+  expect(fetchMock.called('/convert/tallies/files')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/process')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/output?name=name')).toBe(true)
+  expect(fetchMock.called('/convert/reset')).toBe(true)
+
+  fireEvent.click(getByText('Close'))
+
+  // Clear results
   fireEvent.click(getByText('Clear All Results…'))
   fireEvent.click(getByText('Remove All Files'))
   await waitFor(() =>
@@ -291,6 +343,7 @@ test('tabulating CVRs', async () => {
 })
 
 test('tabulating CVRs with SEMS file', async () => {
+  jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -316,6 +369,7 @@ test('tabulating CVRs with SEMS file', async () => {
   const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
     <App storage={storage} />
   )
+  await jest.advanceTimersByTime(2001)
 
   await screen.findByText('0 official ballots')
 
@@ -346,6 +400,44 @@ test('tabulating CVRs with SEMS file', async () => {
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
   expect(getByTestId('election-full-tally-report')).toMatchSnapshot()
   fireEvent.click(getByText('Back to Tally Index'))
+
+  // Test exporting the final results
+  fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } })
+  fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } })
+
+  fetchMock.getOnce('/convert/tallies/output?name=name', {
+    body: 'test-content',
+  })
+
+  fetchMock.post('/convert/reset', { body: { status: 'ok' } })
+  await waitFor(() => getByText('Save Results File'))
+  fireEvent.click(getByText('Save Results File'))
+  await jest.advanceTimersByTime(2001)
+  getByText('Save Results')
+  getByText(/Save the election results as /)
+  getByText(
+    'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+  )
+
+  fireEvent.click(getByText('Save'))
+  await waitFor(() => getByText(/Saving/))
+  jest.advanceTimersByTime(2001)
+  await waitFor(() => getByText(/Results Saved/))
+  await waitFor(() => {
+    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1)
+    expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
+      1,
+      'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'test-content'
+    )
+  })
+  expect(fetchMock.called('/convert/tallies/files')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/process')).toBe(true)
+  expect(fetchMock.called('/convert/tallies/output?name=name')).toBe(true)
+  expect(fetchMock.called('/convert/reset')).toBe(true)
+
+  fireEvent.click(getByText('Close'))
 
   // Test removing the SEMS file
   fireEvent.click(getByText('Remove External Results File…'))

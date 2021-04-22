@@ -25,7 +25,6 @@ import LinkButton from '../components/LinkButton'
 import HorizontalRule from '../components/HorizontalRule'
 import Prose from '../components/Prose'
 import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
-import ExportFinalResultsModal from '../components/ExportFinalResultsModal'
 import BallotCountsTable from '../components/BallotCountsTable'
 import Modal from '../components/Modal'
 import FileInputButton from '../components/FileInputButton'
@@ -33,6 +32,8 @@ import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal
 import { TIME_FORMAT } from '../config/globals'
 import { getPartiesWithPrimaryElections } from '../utils/election'
 import ImportExternalResultsModal from '../components/ImportExternalResultsModal'
+import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+import { generateFinalExportDefaultFilename } from '../utils/filenames'
 
 const TallyScreen: React.FC = () => {
   const {
@@ -42,9 +43,10 @@ const TallyScreen: React.FC = () => {
     saveIsOfficialResults,
     isTabulationRunning,
     fullElectionExternalTallies,
+    generateExportableTallies,
   } = useContext(AppContext)
   const { election } = electionDefinition!
-
+  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
   const externalFileInput = useRef<HTMLInputElement>(null)
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] = useState<
@@ -120,7 +122,7 @@ const TallyScreen: React.FC = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        await new ConverterClient('results').getFiles()
+        await new ConverterClient('tallies').getFiles()
         setHasConverter(true)
       } catch {
         setHasConverter(false)
@@ -185,6 +187,38 @@ const TallyScreen: React.FC = () => {
     (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
     0
   )
+
+  const generateSEMSResults = async (): Promise<string> => {
+    const exportableTallies = generateExportableTallies()
+    // process on the server
+    const client = new ConverterClient('tallies')
+    const { inputFiles, outputFiles } = await client.getFiles()
+    const [electionDefinitionFile, talliesFile] = inputFiles
+    const resultsFile = outputFiles[0]
+
+    await client.setInputFile(
+      electionDefinitionFile.name,
+      new File(
+        [electionDefinition!.electionData],
+        electionDefinitionFile.name,
+        {
+          type: 'application/json',
+        }
+      )
+    )
+    await client.setInputFile(
+      talliesFile.name,
+      new File([JSON.stringify(exportableTallies)], 'tallies')
+    )
+    await client.process()
+
+    // download the result
+    const results = await client.getOutputFile(resultsFile.name)
+
+    // reset files on the server
+    await client.reset()
+    return await results.text()
+  }
 
   return (
     <React.Fragment>
@@ -377,8 +411,15 @@ const TallyScreen: React.FC = () => {
         <ImportCVRFilesModal onClose={() => setIsImportCVRModalOpen(false)} />
       )}
       {isExportResultsModalOpen && (
-        <ExportFinalResultsModal
+        <SaveFileToUSB
           onClose={() => setIsExportResultsModalOpen(false)}
+          generateFileContent={generateSEMSResults}
+          defaultFilename={generateFinalExportDefaultFilename(
+            isTestMode,
+            electionDefinition!.election
+          )}
+          fileType={FileType.Results}
+          promptToEjectUSB
         />
       )}
     </React.Fragment>

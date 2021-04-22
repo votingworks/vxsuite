@@ -1,11 +1,9 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getPrecinctById, Precinct, VotesDict } from '@votingworks/types'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
-
-import { saveReportPDF } from '../utils/saveAsPDF'
 
 import PrintButton from '../components/PrintButton'
 import ButtonList from '../components/ButtonList'
@@ -26,6 +24,11 @@ import {
 } from './TallyReportScreen'
 import LogoMark from '../components/LogoMark'
 import TallyReportMetadata from '../components/TallyReportMetadata'
+import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+import {
+  generateDefaultReportFilename,
+  generateFileContentToSaveAsPDF,
+} from '../utils/saveAsPDF'
 
 const allPrecincts: Precinct = {
   id: '',
@@ -37,6 +40,7 @@ const TestDeckScreen: React.FC = () => {
   const { election } = electionDefinition!
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
 
   const precinct =
     precinctId === 'all'
@@ -66,19 +70,11 @@ const TestDeckScreen: React.FC = () => {
     new Set(election.ballotStyles.map((bs) => bs.partyId))
   )
 
-  const handleSaveAsPDF = async () => {
-    const succeeded = await saveReportPDF(
-      'test-desk-tally-report',
-      election,
-      precinct?.name
-    )
-    if (!succeeded) {
-      // eslint-disable-next-line no-alert
-      window.alert(
-        'Could not save PDF, it can only be saved to a USB device. (Or if "Cancel" was selected, ignore this message.)'
-      )
-    }
-  }
+  const defaultReportFilename = generateDefaultReportFilename(
+    'test-desk-tally-report',
+    election,
+    precinct?.name
+  )
 
   const pageTitle = 'Test Ballot Deck Tally'
 
@@ -107,7 +103,7 @@ const TestDeckScreen: React.FC = () => {
             </p>
             {window.kiosk && (
               <p>
-                <Button onPress={handleSaveAsPDF}>
+                <Button onPress={() => setIsSaveModalOpen(true)}>
                   Save Results Report as PDF
                 </Button>
               </p>
@@ -119,6 +115,14 @@ const TestDeckScreen: React.FC = () => {
             </p>
           </Prose>
         </NavigationScreen>
+        {isSaveModalOpen && (
+          <SaveFileToUSB
+            onClose={() => setIsSaveModalOpen(false)}
+            generateFileContent={generateFileContentToSaveAsPDF}
+            defaultFilename={defaultReportFilename}
+            fileType={FileType.TestDeckTallyReport}
+          />
+        )}
         <div className="print-only">
           {ballotStylePartyIds.map((partyId) => {
             const party = election.parties.find((p) => p.id === partyId)

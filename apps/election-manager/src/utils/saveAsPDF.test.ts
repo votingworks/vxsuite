@@ -1,30 +1,7 @@
 import { electionSample } from '@votingworks/fixtures'
-import { fakeKiosk } from '@votingworks/test-utils'
-import { saveReportPDF } from './saveAsPDF'
-import fakeFileWriter from '../../test/helpers/fakeFileWriter'
+import { generateDefaultReportFilename } from './saveAsPDF'
 
-test('saves pdf with expected filename for a precinct', async () => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-  const fileWriter = fakeFileWriter()
-
-  mockKiosk.saveAs.mockResolvedValueOnce(fileWriter)
-
-  const succeeded = await saveReportPDF('test', electionSample, 'name')
-  expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
-  expect(mockKiosk.saveAs).toHaveBeenCalledWith({
-    defaultPath: 'test-franklin-county-general-election-name.pdf',
-  })
-  expect(succeeded).toBe(true)
-})
-
-test('file path name is manipulated properly', async () => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-  const fileWriter = fakeFileWriter()
-
-  mockKiosk.saveAs.mockResolvedValue(fileWriter)
-
+test('file path name is generated properly', async () => {
   const testCases = [
     {
       // The file path should always be lowercased
@@ -65,34 +42,14 @@ test('file path name is manipulated properly', async () => {
     },
   ]
   for (const { prefix, precinctName, expected } of testCases) {
-    const succeeded = await saveReportPDF(prefix, electionSample, precinctName)
-    expect(mockKiosk.saveAs).toHaveBeenCalledWith({ defaultPath: expected })
-    expect(succeeded).toBe(true)
+    expect(
+      generateDefaultReportFilename(prefix, electionSample, precinctName)
+    ).toBe(expected)
   }
 })
 
 test('precinct name fills in all-precincts as default value', async () => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-  const fileWriter = fakeFileWriter()
-
-  mockKiosk.saveAs.mockResolvedValueOnce(fileWriter)
-
-  const succeeded = await saveReportPDF('test', electionSample)
-  expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
-  expect(mockKiosk.saveAs).toHaveBeenCalledWith({
-    defaultPath: 'test-franklin-county-general-election-all-precincts.pdf',
-  })
-  expect(succeeded).toBe(true)
-})
-
-test('saveAsPDF returns false when a filewriter is not returned by saveAs', async () => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-
-  mockKiosk.saveAs.mockResolvedValueOnce(undefined)
-
-  const succeeded = await saveReportPDF('test', electionSample)
-  expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1)
-  expect(succeeded).toBe(false)
+  expect(generateDefaultReportFilename('test', electionSample)).toBe(
+    'test-franklin-county-general-election-all-precincts.pdf'
+  )
 })
