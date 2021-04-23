@@ -37,6 +37,13 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
         saveExternalTallies(newFiles)
         break
       }
+      case ResultsFileType.Manual: {
+        const newFiles = fullElectionExternalTallies.filter(
+          (tally) => tally.source !== ExternalTallySourceType.Manual
+        )
+        saveExternalTallies(newFiles)
+        break
+      }
       case ResultsFileType.All:
         saveCastVoteRecordFiles()
         saveExternalTallies([])
@@ -47,9 +54,12 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
     onClose()
   }
 
-  const externalFileNames = fullElectionExternalTallies
-    .map((t) => t.inputSourceName)
-    .join(', ')
+  const semsFile = fullElectionExternalTallies.find(
+    (t) => t.source === ExternalTallySourceType.SEMS
+  )
+  const manualData = fullElectionExternalTallies.find(
+    (t) => t.source === ExternalTallySourceType.Manual
+  )
 
   let mainContent = null
   let fileTypeName = ''
@@ -58,7 +68,7 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
     case ResultsFileType.CastVoteRecord: {
       const { fileList } = castVoteRecordFiles
       singleFileRemoval = fileList.length <= 1
-      fileTypeName = 'CVR'
+      fileTypeName = 'CVR Files'
       mainContent = (
         <React.Fragment>
           {fileList.length ? (
@@ -78,31 +88,39 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       break
     }
     case ResultsFileType.SEMS: {
-      fileTypeName = 'External'
+      fileTypeName = 'External Files'
       mainContent = (
         <p>
           Do you want to remove the external results{' '}
           {pluralize('files', fullElectionExternalTallies.length)}{' '}
-          {externalFileNames}?
+          {semsFile!.inputSourceName}?
         </p>
       )
       break
     }
+    case ResultsFileType.Manual: {
+      fileTypeName = 'Manual Data'
+      mainContent = <p>Do you want to remove the manually entered data?</p>
+      break
+    }
     case ResultsFileType.All: {
-      fileTypeName = ''
+      fileTypeName = 'Data'
       singleFileRemoval = false
       const { fileList } = castVoteRecordFiles
+      let externalDetails = ''
+      if (semsFile !== undefined && manualData !== undefined) {
+        externalDetails = `, the external results file ${semsFile.inputSourceName}, and the manually entered data`
+      } else if (semsFile !== undefined) {
+        externalDetails = ` and the external results file ${semsFile.inputSourceName}`
+      } else if (manualData !== undefined) {
+        externalDetails = ' and the manually entered data'
+      }
       mainContent = (
         <React.Fragment>
           <p>
             Do you want to remove the {fileList.length} uploaded CVR{' '}
             {pluralize('files', fileList.length)}
-            {fullElectionExternalTallies.length > 0 &&
-              ` and the external results ${pluralize(
-                'files',
-                fileList.length
-              )} ${externalFileNames}`}
-            ?
+            {externalDetails}?
           </p>
           <p>All reports will be unavailable without CVR data.</p>
         </React.Fragment>
@@ -121,7 +139,7 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
         <React.Fragment>
           <Button onPress={onClose}>Cancel</Button>
           <Button danger onPress={() => resetFiles(fileType)}>
-            Remove {!singleFileRemoval && 'All'} {fileTypeName} Files
+            Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
         </React.Fragment>
       }

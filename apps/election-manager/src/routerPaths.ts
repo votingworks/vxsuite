@@ -21,6 +21,7 @@ const routerPaths = {
     localeCode,
   }: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
+  manualDataImport: '/tally/manual-data-import',
   printedBallotsReport: '/ballots/printed-report',
   tally: '/tally',
   printTestDecks: '/tally/print-test-deck',

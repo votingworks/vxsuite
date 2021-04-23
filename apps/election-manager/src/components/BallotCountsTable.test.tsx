@@ -281,9 +281,9 @@ describe('Ballot Counts by Scanner', () => {
       }
     })
 
-    getByText('External Results File (imported-file-name.csv)')
+    getByText('External Results (imported-file-name.csv)')
     let tableRow = getByText(
-      'External Results File (imported-file-name.csv)'
+      'External Results (imported-file-name.csv)'
     ).closest('tr')
     expect(tableRow).toBeDefined()
     expect(domGetByText(tableRow!, 54))

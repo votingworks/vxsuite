@@ -13,7 +13,7 @@ import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'
-import { getPrecinctIdsInExternalTally } from '../utils/semsTallies'
+import { getPrecinctIdsInExternalTally } from '../utils/externalTallies'
 
 import Button from '../components/Button'
 import Text from '../components/Text'
@@ -91,6 +91,10 @@ const TallyScreen: React.FC = () => {
   const hasExternalSEMSFile =
     fullElectionExternalTallies.filter(
       (t) => t.source === ExternalTallySourceType.SEMS
+    ).length > 0
+  const hasExternalManualData =
+    fullElectionExternalTallies.filter(
+      (t) => t.source === ExternalTallySourceType.Manual
     ).length > 0
 
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
@@ -176,7 +180,7 @@ const TallyScreen: React.FC = () => {
           {moment(t.timestampCreated).format(TIME_FORMAT)}
         </TD>
         <TD narrow nowrap>
-          External Results File ({t.inputSourceName})
+          External Results ({t.inputSourceName})
         </TD>
         <TD narrow>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
         <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
@@ -226,7 +230,7 @@ const TallyScreen: React.FC = () => {
         <h1>Election Tally Reports</h1>
         <h2>Cast Vote Record (CVR) files</h2>
         <Text>{fileModeText}</Text>
-        <Table>
+        <Table data-testid="loaded-file-table">
           <tbody>
             {hasAnyFiles ? (
               <React.Fragment>
@@ -308,6 +312,14 @@ const TallyScreen: React.FC = () => {
           >
             Import External Results File
           </FileInputButton>{' '}
+          <LinkButton
+            to={routerPaths.manualDataImport}
+            disabled={isOfficialResults}
+          >
+            {hasExternalManualData
+              ? 'Edit Manually Entered Data'
+              : 'Add Manually Entered Data'}
+          </LinkButton>{' '}
           <Button
             disabled={!hasCastVoteRecordFiles || isOfficialResults}
             onPress={confirmOfficial}
@@ -340,6 +352,13 @@ const TallyScreen: React.FC = () => {
               onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
             >
               Remove External Results File…
+            </Button>{' '}
+            <Button
+              danger
+              disabled={!hasExternalManualData}
+              onPress={() => confirmRemoveFiles(ResultsFileType.Manual)}
+            >
+              Remove Manual Data…
             </Button>
           </p>
         )}

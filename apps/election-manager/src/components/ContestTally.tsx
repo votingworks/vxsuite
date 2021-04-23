@@ -18,7 +18,7 @@ import {
   getContestOptionsForContest,
 } from '../utils/election'
 import { getTallyForContestOption } from '../lib/votecounting'
-import { combineContestTallies } from '../utils/semsTallies'
+import { combineContestTallies } from '../utils/externalTallies'
 
 interface ContestProps {
   dim?: boolean

@@ -16,6 +16,7 @@ import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationRepor
 import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
 import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
 import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
+import ManualDataImportScreen from '../screens/ManualDataImportScreen'
 
 const ElectionManager: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
@@ -41,6 +42,9 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route exact path={routerPaths.printedBallotsReport}>
         <PrintedBallotsReportScreen />
+      </Route>
+      <Route exact path={routerPaths.manualDataImport}>
+        <ManualDataImportScreen />
       </Route>
       <Route
         path={[

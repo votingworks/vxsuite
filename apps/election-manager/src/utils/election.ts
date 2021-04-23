@@ -9,6 +9,7 @@ import {
   getContests,
   getPrecinctById,
   Dictionary,
+  CandidateContest,
 } from '@votingworks/types'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
@@ -177,6 +178,35 @@ export const getBallotPath = ({
   ).replace(/[^a-z]+/gi, '-')}-${isLiveMode ? 'live' : 'test'}${
     isAbsentee ? '-absentee' : ''
   }.pdf`
+}
+
+export const getAllPossibleCandidatesForCandidateContest = (
+  contest: CandidateContest
+): readonly Candidate[] => {
+  if (contest.allowWriteIns) {
+    return [...contest.candidates, writeInCandidate]
+  }
+  return contest.candidates
+}
+
+export const getContestsForPrecinct = (
+  election: Election,
+  precinctId: string
+): AnyContest[] => {
+  const precinct = election.precincts.find((p) => p.id === precinctId)
+  if (precinct === undefined) {
+    return []
+  }
+  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
+    bs.precincts.includes(precinct.id)
+  )
+
+  return election.contests.filter((c) => {
+    const districts = precinctBallotStyles
+      .filter((bs) => bs.partyId === c.partyId)
+      .flatMap((bs) => bs.districts)
+    return districts.includes(c.districtId)
+  })
 }
 
 interface GenerateTestDeckParams {
