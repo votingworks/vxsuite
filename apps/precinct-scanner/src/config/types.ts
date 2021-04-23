@@ -12,6 +12,24 @@ import type {
 } from '@votingworks/hmpb-interpreter'
 import type { AdjudicationInfo } from './ballot-review-types'
 
+export enum BallotState {
+  IDLE = 'idle',
+  SCANNING = 'scanning',
+  NEEDS_REVIEW = 'needs_review', // the voter needs to decide whether to reject or cast a ballot
+  CAST = 'ballot_cast',
+  REJECTED = 'ballot_rejected',
+  SCANNER_ERROR = 'error',
+}
+
+export enum ScanningResult {
+  Accepted = 'accepted',
+  Rejected = 'rejected',
+  NeedsReview = 'needs-review',
+}
+
+export type ISO8601Timestamp = string
+
+// TODO(caro): Move the following types, imported from bsd, to a shared util.
 export interface MachineConfig {
   machineId: string
 }

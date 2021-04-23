@@ -1138,19 +1138,27 @@ importers:
       zod: 3.0.0-alpha.8
   libs/test-utils:
     dependencies:
+      '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
       '@types/jest': 26.0.21
       '@types/node': 14.14.35
       rxjs: 6.6.6
       zip-stream: 4.1.0
     devDependencies:
       '@types/kiosk-browser': link:../@types/kiosk-browser
+      '@types/react': 17.0.4
       '@types/zip-stream': link:../@types/zip-stream
+      react: 17.0.1
+      react-dom: 17.0.1_react@17.0.1
       typescript: 4.2.3
     specifiers:
+      '@testing-library/react': ^11.2.6
       '@types/jest': ^26.0.21
       '@types/kiosk-browser': workspace:*
       '@types/node': ^14.14.35
+      '@types/react': ^17.0.4
       '@types/zip-stream': workspace:*
+      react: ^17.0.1
+      react-dom: ^17.0.1
       rxjs: ^6.6.6
       typescript: ^4.2.3
       zip-stream: ^4.1.0
@@ -4937,12 +4945,12 @@ packages:
       '@babel/core': ^7.0.0-0
     resolution:
       integrity: sha512-S4cueFnGrIbvYJgwsVFKdvOmpiL0XGw9MFW9D0vgRys5g36PBhZRL8NX8Gr2akz8XRtzq6HuDXPD/1nniagNUg==
-  /@babel/runtime-corejs3/7.12.5:
+  /@babel/runtime-corejs3/7.14.0:
     dependencies:
-      core-js-pure: 3.8.2
+      core-js-pure: 3.11.3
       regenerator-runtime: 0.13.7
     resolution:
-      integrity: sha512-roGr54CsTmNPPzZoCP1AmDXuBoNao7tnSA83TXTwt+UK5QVyh1DIJnrgYRPWKCF2flqZQXwa7Yr8v7VmLzF0YQ==
+      integrity: sha512-0R0HTZWHLk6G8jIk0FtoX+AatCtKnswS98VhXwGImFc759PJRp4Tru0PQYZofyijTFUr+gT8Mu7sgXVJLQ0ceg==
   /@babel/runtime/7.12.1:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -4954,6 +4962,11 @@ packages:
       regenerator-runtime: 0.13.7
     resolution:
       integrity: sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==
+  /@babel/runtime/7.14.0:
+    dependencies:
+      regenerator-runtime: 0.13.7
+    resolution:
+      integrity: sha512-JELkvo/DlpNdJ7dlyw/eY7E0suy5i5GQH+Vlxaq1nsNJ+H7f4Vtv3jMeCEgRhZZQFXTjldYfQgv2qmM6M1v5wA==
   /@babel/runtime/7.9.0:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -5753,7 +5766,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       '@types/istanbul-reports': 3.0.0
-      '@types/node': 15.0.1
+      '@types/node': 14.14.44
       '@types/yargs': 15.0.13
       chalk: 4.1.1
     engines:
@@ -6291,6 +6304,20 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-CtrJRiSYEfbtNGtEsd78mk1n1v2TUbeABlNIcOCJdDfkN5/JTOwQEbbQpoSRxGqzcWPgStMvJ4mNolSuBRv1NA==
+  /@testing-library/dom/7.30.4:
+    dependencies:
+      '@babel/code-frame': 7.12.13
+      '@babel/runtime': 7.14.0
+      '@types/aria-query': 4.2.1
+      aria-query: 4.2.2
+      chalk: 4.1.1
+      dom-accessibility-api: 0.5.4
+      lz-string: 1.4.4
+      pretty-format: 26.6.2
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-GObDVMaI4ARrZEXaRy4moolNAxWPKvEYNV/fa6Uc2eAzR/t4otS6A7EhrntPBIQLeehL9DbVhscvvv7gd6hWqA==
   /@testing-library/jest-dom/4.2.4:
     dependencies:
       '@babel/runtime': 7.12.5
@@ -6340,11 +6367,10 @@ packages:
       integrity: sha512-BirBUGPkTW28ULuCwIbYo0y2+0aavHczBT6N9r3LrsswEW3pg25l1wgoE7I8QBIy1upXWkwKpYdWY7NYYP0Bxw==
   /@testing-library/react/11.2.6_react-dom@17.0.1+react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.12.5
-      '@testing-library/dom': 7.29.4
+      '@babel/runtime': 7.14.0
+      '@testing-library/dom': 7.30.4
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
-    dev: true
     engines:
       node: '>=10'
     peerDependencies:
@@ -6704,6 +6730,9 @@ packages:
   /@types/node/14.14.35:
     resolution:
       integrity: sha512-Lt+wj8NVPx0zUmUwumiVXapmaLUcAk3yPuHCFVXras9k5VT9TdhJqKqGVUQCD60OTMCl0qxJ57OiTL0Mic3Iag==
+  /@types/node/14.14.44:
+    resolution:
+      integrity: sha512-+gaugz6Oce6ZInfI/tK4Pq5wIIkJMEJUu92RB3Eu93mtj4wjjjz9EB5mLp5s1pSsLXdC/CPut/xF20ZzAQJbTA==
   /@types/node/15.0.1:
     resolution:
       integrity: sha512-TMkXt0Ck1y0KKsGr9gJtWGjttxlZnnvDtphxUOSd0bfaR6Q1jle+sPvrzNR1urqYTWMinoKvjKfXUGsumaO1PA==
@@ -8420,8 +8449,8 @@ packages:
       integrity: sha1-ZbP8wcoRVajJrmTW7uKX8V1RM8w=
   /aria-query/4.2.2:
     dependencies:
-      '@babel/runtime': 7.12.5
-      '@babel/runtime-corejs3': 7.12.5
+      '@babel/runtime': 7.14.0
+      '@babel/runtime-corejs3': 7.14.0
     engines:
       node: '>=6.0'
     resolution:
@@ -10222,10 +10251,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-LO8uL9lOIyRRrQmZxHZFl1RV+ZbcsAkFWTktn5SmH40WgLtSNYN4m4W2v9ONT147PxBY/XrRhrWq8TlvObyUjQ==
-  /core-js-pure/3.8.2:
+  /core-js-pure/3.11.3:
     requiresBuild: true
     resolution:
-      integrity: sha512-v6zfIQqL/pzTVAbZvYUozsxNfxcFb6Ks3ZfEbuneJl3FW9Jb8F6vLWB6f+qTmAu72msUdyb84V8d/yBFf7FNnw==
+      integrity: sha512-1c18Ef3sZh3l6R0I5ciNVxAfXxlQDW/6IoCayUvut4UipK3Ut682iuzhlEaHb4RITkLrzevUB+q/TEVbOA0p6g==
   /core-js/2.6.12:
     deprecated: core-js@<3.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
     dev: false
@@ -20424,7 +20453,6 @@ packages:
       object-assign: 4.1.1
       react: 17.0.1
       scheduler: 0.20.1
-    dev: false
     peerDependencies:
       react: 17.0.1
     resolution:
@@ -21633,7 +21661,6 @@ packages:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
-    dev: false
     resolution:
       integrity: sha512-LKTe+2xNJBNxu/QhHvDR14wUXHRQbVY5ZOYpOGWRzhydZUqrLb2JBvLPY7cAqFmqrWuDED0Mjk7013SZiOz6Bw==
   /schema-utils/0.4.7:
