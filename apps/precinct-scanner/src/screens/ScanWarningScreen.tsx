@@ -8,15 +8,17 @@ import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
 
-const ScanWarningScreen: React.FC = () => {
+interface Props {
+  acceptBallot: () => Promise<void>
+}
+const ScanWarningScreen: React.FC<Props> = ({ acceptBallot }) => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = () => setConfirmTabulate(true)
   const closeConfirmTabulateModal = () => setConfirmTabulate(false)
 
-  const onPressPlaceholder = () => {
-    // eslint-disable-next-line no-console
+  const tabulateBallot = () => {
     closeConfirmTabulateModal()
-    console.log('dismiss screen')
+    acceptBallot()
   }
 
   return (
@@ -45,7 +47,7 @@ const ScanWarningScreen: React.FC = () => {
           }
           actions={
             <React.Fragment>
-              <Button danger onPress={onPressPlaceholder}>
+              <Button danger onPress={tabulateBallot}>
                 Yes, Tabulate Ballot
               </Button>
               <Button onPress={closeConfirmTabulateModal}>Cancel</Button>

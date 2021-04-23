@@ -1,14 +1,21 @@
 import React from 'react'
 import fetchMock from 'fetch-mock'
 import { promises as fs } from 'fs'
+import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { render, waitFor, fireEvent } from '@testing-library/react'
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
+import {
+  fakeKiosk,
+  fakeUsbDrive,
+  advanceTimers,
+  advanceTimersAndPromises,
+} from '@votingworks/test-utils'
 import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import App from './App'
 
 beforeEach(() => {
   jest.useFakeTimers()
+  fetchMock.reset()
 })
 
 test('app can load and configure from a usb stick', async () => {
@@ -33,13 +40,13 @@ test('app can load and configure from a usb stick', async () => {
 
   // Remove the USB
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([])
-  jest.advanceTimersByTime(2001)
+  await advanceTimersAndPromises(2)
   await waitFor(() => getByText('Insert USB Drive with configuration.'))
 
   // Mock getFileSystemEntries returning an error
   kiosk.getFileSystemEntries = jest.fn().mockRejectedValueOnce('error')
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
-  jest.advanceTimersByTime(2001)
+  await advanceTimersAndPromises(2)
   await waitFor(() =>
     getByText(
       'Error in configuration: No ballot package found on the inserted USB drive.'
@@ -48,7 +55,7 @@ test('app can load and configure from a usb stick', async () => {
 
   // Remove the USB
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([])
-  jest.advanceTimersByTime(2001)
+  await advanceTimersAndPromises(2)
   await waitFor(() => getByText('Insert USB Drive with configuration.'))
 
   const pathToFile = join(
@@ -62,7 +69,8 @@ test('app can load and configure from a usb stick', async () => {
       type: 1,
     },
   ])
-  kiosk.readFile = jest.fn().mockResolvedValue(await fs.readFile(pathToFile))
+  const fileContent = await fs.readFile(pathToFile)
+  kiosk.readFile = jest.fn().mockResolvedValue(fileContent)
 
   fetchMock
     .patchOnce('/config/testMode', {
@@ -87,12 +95,9 @@ test('app can load and configure from a usb stick', async () => {
 
   // Reinsert USB now that fake zip file on it is setup
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
-  jest.advanceTimersByTime(2001)
-
-  await waitFor(() =>
-    getByText('Congratulations the precinct scanner is configured!')
-  )
-
+  await advanceTimersAndPromises(2)
+  await advanceTimersAndPromises(0)
+  await waitFor(() => getByText('Insert Ballot'))
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
   )
@@ -103,8 +108,250 @@ test('app can load and configure from a usb stick', async () => {
     body: '{"status": "ok"}',
     status: 200,
   })
+  getByText('Scan one ballot sheet at a time.')
+  getByText('General Election')
+  getByText(/Franklin County/)
+  getByText(/State of Hamilton/)
+  getByText('Election ID')
+  getByText('2f6b1553c7')
+
+  /*  TODO(caro): Test unconfiguring election from admin screen when implemented
+  
   fireEvent.click(getByText('Unconfigure'))
   await waitFor(() =>
     expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
+  ) */
+})
+
+test('voter can cast a ballot that scans succesfully ', async () => {
+  fetchMock.getOnce('/config/election', electionSampleDefinition)
+  fetchMock.get('/config/testMode', { testMode: true })
+  fetchMock.get('/scan/status', {
+    status: 'ok',
+    scanner: 'WaitingForPaper',
+  })
+  const { getByText, getByTestId } = render(<App />)
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Insert Ballot'))
+  getByText('Scan one ballot sheet at a time.')
+  getByText('General Election')
+  getByText(/Franklin County/)
+  getByText(/State of Hamilton/)
+  getByText('Election ID')
+  getByText('2f6b1553c7')
+
+  fetchMock.post('/scan/scanSingle', {
+    body: { status: 'ok' },
+  })
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [],
+    },
+    { overwriteRoutes: true, repeat: 1 }
   )
+  await advanceTimersAndPromises(1)
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.WaitingForPaper,
+      batches: [{ count: 1 }],
+    },
+    { overwriteRoutes: true }
+  )
+  await waitFor(() => getByText('Successful Scan!'))
+  expect(fetchMock.calls('scan/scanSingle')).toHaveLength(1)
+  await advanceTimersAndPromises(5)
+  await waitFor(() => getByText('Scan one ballot sheet at a time.'))
+  expect(getByTestId('ballot-count').textContent).toBe('1')
+})
+
+test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
+  fetchMock.getOnce('/config/election', electionSampleDefinition)
+  fetchMock.get('/config/testMode', { testMode: true })
+  fetchMock.get('/scan/status', {
+    status: 'ok',
+    scanner: 'WaitingForPaper',
+    batches: [],
+  })
+  const { getByText, getByTestId } = render(<App />)
+  await advanceTimers(1)
+  await waitFor(() => getByText('Insert Ballot'))
+  getByText('Scan one ballot sheet at a time.')
+  getByText('General Election')
+  getByText(/Franklin County/)
+  getByText(/State of Hamilton/)
+  getByText('Election ID')
+  getByText('2f6b1553c7')
+
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [],
+    },
+    { overwriteRoutes: true }
+  )
+  fetchMock.post('/scan/scanSingle', {
+    body: { status: 'RequiresAdjudication' },
+  })
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Overvote Warning'))
+  expect(fetchMock.calls('scan/scanSingle')).toHaveLength(1)
+
+  fetchMock.post('/scan/scanContinue', {
+    body: { status: 'ok' },
+  })
+
+  fireEvent.click(getByText('Tabulate Ballot'))
+  getByText('Tabulate Ballot with Errors?')
+  fireEvent.click(getByText('Yes, Tabulate Ballot'))
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.WaitingForPaper,
+      batches: [{ count: 1 }],
+    },
+    { overwriteRoutes: true }
+  )
+  await waitFor(() => getByText('Successful Scan!'))
+  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
+  await advanceTimers(5)
+  await waitFor(() => getByText('Insert Ballot'))
+  expect(getByTestId('ballot-count').textContent).toBe('1')
+
+  // Simulate another ballot
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [],
+    },
+    { overwriteRoutes: true, repeat: 1 }
+  )
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Overvote Warning'))
+  expect(fetchMock.calls('scan/scanSingle')).toHaveLength(2)
+
+  // Simulate voter pulling out the ballot
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.WaitingForPaper,
+      batches: [],
+    },
+    { overwriteRoutes: true }
+  )
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Insert Ballot'))
+})
+
+test('voter can cast a rejected ballot', async () => {
+  fetchMock.getOnce('/config/election', electionSampleDefinition)
+  fetchMock.get('/config/testMode', { testMode: true })
+  fetchMock.get('/scan/status', {
+    status: 'ok',
+    scanner: 'WaitingForPaper',
+    batches: [],
+  })
+  const { getByText } = render(<App />)
+  await advanceTimers(1)
+  await waitFor(() => getByText('Insert Ballot'))
+  getByText('Scan one ballot sheet at a time.')
+  getByText('General Election')
+  getByText(/Franklin County/)
+  getByText(/State of Hamilton/)
+  getByText('Election ID')
+  getByText('2f6b1553c7')
+
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [],
+    },
+    { overwriteRoutes: true, repeat: 1 }
+  )
+  fetchMock.post('/scan/scanSingle', {
+    body: { status: 'something' },
+  })
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Scanning Error'))
+  expect(fetchMock.calls('scan/scanSingle')).toHaveLength(1)
+
+  // When the voter removes the ballot return to the insert ballot screen
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.WaitingForPaper,
+      batches: [],
+    },
+    { overwriteRoutes: true }
+  )
+  await advanceTimersAndPromises(1)
+  getByText('Insert Ballot')
+})
+
+test('voter can cast another ballot while the success screen is showing', async () => {
+  fetchMock.getOnce('/config/election', electionSampleDefinition)
+  fetchMock.get('/config/testMode', { testMode: true })
+  fetchMock.get('/scan/status', {
+    status: 'ok',
+    scanner: 'WaitingForPaper',
+  })
+  const { getByText } = render(<App />)
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Insert Ballot'))
+  getByText('Scan one ballot sheet at a time.')
+  getByText('General Election')
+  getByText(/Franklin County/)
+  getByText(/State of Hamilton/)
+  getByText('Election ID')
+  getByText('2f6b1553c7')
+
+  fetchMock.post(
+    '/scan/scanSingle',
+    {
+      body: { status: 'ok' },
+    },
+    { repeat: 1 }
+  )
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [],
+    },
+    { overwriteRoutes: true }
+  )
+  await advanceTimersAndPromises(1)
+  await waitFor(() => getByText('Successful Scan!'))
+  fetchMock.post(
+    '/scan/scanSingle',
+    {
+      body: { status: 'RequiresAdjudication' },
+    },
+    { overwriteRoutes: true, repeat: 1 }
+  )
+  expect(fetchMock.calls('scan/scanSingle')).toHaveLength(1)
+  await advanceTimersAndPromises(1)
+  await waitFor(() =>
+    expect(fetchMock.calls('scan/scanSingle')).toHaveLength(2)
+  )
+  getByText('Overvote Warning')
+  // Even after the timeout to expire the success screen occurs we stay on the review screen.
+  await advanceTimersAndPromises(5)
+  getByText('Overvote Warning')
+  // No more ballots have scanned even though the scanner is ready for paper
+  expect(fetchMock.calls('scan/scanSingle')).toHaveLength(2)
 })
