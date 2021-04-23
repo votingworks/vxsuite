@@ -120,7 +120,8 @@ const AdminScreen: React.FC<Props> = ({
       <Absolute top left>
         <Bar>
           <div>
-            Ballots Scanned: <strong>{ballotsScannedCount}</strong>{' '}
+            Ballots Scanned:{' '}
+            <strong data-testid="ballot-count">{ballotsScannedCount}</strong>{' '}
           </div>
         </Bar>
       </Absolute>

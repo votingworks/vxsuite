@@ -11,14 +11,14 @@ exports[`Renders ElectionInfoBar 1`] = `
       <strong
         class="sc-crHlIS ZRmpD"
       >
-        2020 Republican Primary Election
+        General Election
       </strong>
        —
        
       <span
         class="sc-crHlIS ZRmpD"
       >
-        Tuesday, Nov 8, 2020
+        Tuesday, November 3, 2020
       </span>
       <div
         class="sc-iqsfdx hHUHJL"
@@ -26,14 +26,17 @@ exports[`Renders ElectionInfoBar 1`] = `
         <span
           class="sc-crHlIS ZRmpD"
         >
-          Town Hall Precinct
+          PRECINCT NAME HERE
         </span>
          —
          
         <span
           class="sc-crHlIS ZRmpD"
         >
-          Franklin County, State of Hamilton
+          Franklin County
+          ,
+           
+          State of Hamilton
         </span>
       </div>
     </div>
@@ -49,7 +52,7 @@ exports[`Renders ElectionInfoBar 1`] = `
         Election ID
       </div>
       <strong>
-        6RK8NWD34K
+        2f6b1553c7
       </strong>
     </div>
   </div>

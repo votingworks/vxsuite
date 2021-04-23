@@ -2,28 +2,44 @@
 import React, { useState } from 'react'
 import { Button, Prose, Text } from '@votingworks/ui'
 
-import { PlaceholderGraphic } from '../components/Graphics'
+import { AdjudicationReason } from '@votingworks/types'
+import { ExclamationTriangle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
 
-const ScanWarningScreen: React.FC = () => {
+interface Props {
+  acceptBallot: () => Promise<void>
+  adjudicationReasons: AdjudicationReason[]
+}
+const ScanWarningScreen: React.FC<Props> = ({
+  acceptBallot,
+  adjudicationReasons,
+}) => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = () => setConfirmTabulate(true)
   const closeConfirmTabulateModal = () => setConfirmTabulate(false)
 
-  const onPressPlaceholder = () => {
-    // eslint-disable-next-line no-console
+  const tabulateBallot = () => {
     closeConfirmTabulateModal()
-    console.log('dismiss screen')
+    acceptBallot()
   }
+
+  const isOvervote = adjudicationReasons.includes(AdjudicationReason.Overvote)
+  const isBlank = adjudicationReasons.includes(AdjudicationReason.BlankBallot)
 
   return (
     <CenteredScreen infoBar={false}>
-      <PlaceholderGraphic />
+      <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Overvote Warning</h1>
+        <h1>
+          {isOvervote
+            ? 'Overvote Warning'
+            : isBlank
+            ? 'Blank Ballot'
+            : 'Ballot Requires Review'}
+        </h1>
         <p>Remove the ballot, fix the issue, then scan again.</p>
         <Text italic>Ask a poll worker if you need assistance.</Text>
       </CenteredLargeProse>
@@ -45,7 +61,7 @@ const ScanWarningScreen: React.FC = () => {
           }
           actions={
             <React.Fragment>
-              <Button danger onPress={onPressPlaceholder}>
+              <Button danger onPress={tabulateBallot}>
                 Yes, Tabulate Ballot
               </Button>
               <Button onPress={closeConfirmTabulateModal}>Cancel</Button>

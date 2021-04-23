@@ -1,25 +1,51 @@
-/* istanbul ignore file */
 import React from 'react'
 import { Button } from '@votingworks/ui'
 import { Absolute } from '../components/Absolute'
-import { PlaceholderGraphic } from '../components/Graphics'
+import { TimesCircle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import { RejectedScanningReason } from '../config/types'
 
-const ScanErrorScreen: React.FC = () => {
-  const onPressPlaceholder = () => {
-    // eslint-disable-next-line no-console
-    console.log('dismiss screen')
+interface Props {
+  dismissError?: () => void
+  rejectionReason?: RejectedScanningReason
+}
+
+const ScanErrorScreen: React.FC<Props> = ({
+  dismissError,
+  rejectionReason,
+}) => {
+  let errorInformation = ''
+  if (rejectionReason && rejectionReason !== RejectedScanningReason.Unknown) {
+    switch (rejectionReason) {
+      case RejectedScanningReason.InvalidTestMode: {
+        // TODO(caro) use current isTestMode here
+        errorInformation = 'Test ballot detected.'
+        break
+      }
+      case RejectedScanningReason.InvalidElectionHash: {
+        errorInformation =
+          'Scanned ballot does not match the election this scanner is configured for.'
+        break
+      }
+      case RejectedScanningReason.Unreadable: {
+        errorInformation =
+          'There was a problem reading this ballot. Please try again.'
+      }
+    }
   }
   return (
     <CenteredScreen infoBar={false}>
-      <PlaceholderGraphic />
+      <TimesCircle />
       <CenteredLargeProse>
         <h1>Scanning Error</h1>
+        <p>{errorInformation}</p>
         <p>Please request Poll Worker assistance.</p>
       </CenteredLargeProse>
-      <Absolute top right padded>
-        <Button onPress={onPressPlaceholder}>Dismiss Error</Button>
-      </Absolute>
+      {dismissError && (
+        <Absolute top right padded>
+          <Button onPress={dismissError}>Dismiss Error</Button>
+        </Absolute>
+      )}
     </CenteredScreen>
   )
 }
