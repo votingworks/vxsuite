@@ -17,6 +17,7 @@ import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
 import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
 import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
 import ManualDataImportScreen from '../screens/ManualDataImportScreen'
+import SmartcardsScreen from '../screens/SmartcardsScreen'
 
 const ElectionManager: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
@@ -36,6 +37,9 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route path={routerPaths.definitionContest({ contestId: ':contestId' })}>
         <DefinitionContestsScreen allowEditing={false} />
+      </Route>
+      <Route path={routerPaths.smartcards}>
+        <SmartcardsScreen />
       </Route>
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />

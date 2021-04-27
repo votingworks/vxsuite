@@ -42,6 +42,12 @@ const NavigationScreen: React.FC<Props> = ({
                 Definition
               </LinkButton>
               <LinkButton
+                to={routerPaths.smartcards}
+                className={isActiveSection(routerPaths.smartcards)}
+              >
+                Cards
+              </LinkButton>
+              <LinkButton
                 to={routerPaths.ballotsList}
                 className={isActiveSection(routerPaths.ballotsList)}
               >

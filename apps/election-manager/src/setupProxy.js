@@ -9,6 +9,7 @@
 const { createProxyMiddleware: proxy } = require('http-proxy-middleware')
 
 module.exports = function (app) {
+  app.use(proxy('/card', { target: 'http://localhost:3001/' }))
   app.use(proxy('/convert', { target: 'http://localhost:3003/' }))
 
   app.get('/machine-config', (req, res) => {
