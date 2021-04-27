@@ -11,13 +11,7 @@ import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
 import Importer, { sleep } from './importer'
-import {
-  BatchControl,
-  makeBatchControl,
-  makeBatchControlMethod,
-  Scanner,
-} from './scanner'
-import { SheetOf } from './types'
+import { BatchControl, Scanner } from './scanner'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
@@ -53,33 +47,33 @@ test('startImport calls scanner.scanSheet', async () => {
   await importer.configure(asElectionDefinition(election))
 
   // failed scan
-  const generator: BatchControl = makeBatchControl(
-    // eslint-disable-next-line require-yield
-    (async function* (): AsyncGenerator<SheetOf<string>> {
-      throw new Error('scanner is a banana')
-    })()
-  )
-
-  jest.spyOn(generator, 'endBatch')
-  scanner.scanSheets.mockImplementationOnce(() => generator)
+  const batchControl: BatchControl = {
+    scanSheet: jest
+      .fn()
+      .mockRejectedValueOnce(new Error('scanner is a banana')),
+    endBatch: jest.fn(),
+  }
+  scanner.scanSheets.mockReturnValueOnce(batchControl)
 
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
 
-  expect(generator.endBatch).toHaveBeenCalled()
+  expect(batchControl.endBatch).toHaveBeenCalled()
 
   const batches = await workspace.store.batchStatus()
   expect(batches[0].error).toEqual('Error: scanner is a banana')
 
   // successful scan
-  scanner.scanSheets.mockImplementationOnce(
-    makeBatchControlMethod(async function* (): AsyncGenerator<SheetOf<string>> {
-      yield [
+  scanner.scanSheets.mockReturnValueOnce({
+    scanSheet: jest
+      .fn()
+      .mockResolvedValueOnce([
         join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
         join(sampleBallotImagesPath, 'blank-page.png'),
-      ]
-    })
-  )
+      ]),
+    endBatch: jest.fn(),
+  })
+
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
   await importer.unconfigure()
@@ -355,24 +349,23 @@ test('scanning pauses on adjudication then continues', async () => {
       return 'sheet-3'
     })
 
-  scanner.scanSheets.mockImplementationOnce(
-    makeBatchControlMethod(async function* (): AsyncGenerator<SheetOf<string>> {
-      yield [
+  scanner.scanSheets.mockReturnValueOnce({
+    scanSheet: jest
+      .fn()
+      .mockResolvedValueOnce([
         join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
         join(sampleBallotImagesPath, 'blank-page.png'),
-      ]
-
-      yield [
+      ])
+      .mockResolvedValueOnce([
         join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
         join(sampleBallotImagesPath, 'blank-page.png'),
-      ]
-
-      yield [
+      ])
+      .mockResolvedValueOnce([
         join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
         join(sampleBallotImagesPath, 'blank-page.png'),
-      ]
-    })
-  )
+      ]),
+    endBatch: jest.fn(),
+  })
 
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()

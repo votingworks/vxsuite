@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing'
-import { makeBatchControlMethod, Scanner } from '../../src/scanner'
+import { BatchControl, Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
 import { writeImageData } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
@@ -105,11 +105,10 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined
 
   return {
-    scanSheets: makeBatchControlMethod(async function* (): AsyncGenerator<
-      SheetOf<string>
-    > {
+    scanSheets(): BatchControl {
       const session = nextScannerSession
       nextScannerSession = undefined
+      let stepIndex = 0
 
       if (!session) {
         throw new Error(
@@ -117,17 +116,24 @@ export function makeMockScanner(): MockScanner {
         )
       }
 
-      for (const step of session) {
-        switch (step.type) {
-          case 'sheet':
-            yield step.sheet
-            break
+      return {
+        scanSheet: async (): Promise<SheetOf<string>> => {
+          const step = session.steps[stepIndex++]
 
-          case 'error':
-            throw step.error
-        }
+          switch (step.type) {
+            case 'sheet':
+              return step.sheet
+
+            case 'error':
+              throw step.error
+          }
+        },
+
+        endBatch: async (): Promise<void> => {
+          stepIndex = Infinity
+        },
       }
-    }),
+    },
 
     /**
      * Gets the next scanner session to be used when `scanSheets` is called.

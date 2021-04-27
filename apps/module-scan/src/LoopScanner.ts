@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs-extra'
 import { join, resolve } from 'path'
-import { makeBatchControlMethod, Scanner } from './scanner'
+import { BatchControl, Scanner } from './scanner'
 import { SheetOf } from './types'
 
 type Batch = readonly SheetOf<string>[]
@@ -95,19 +95,20 @@ export default class LoopScanner implements Scanner {
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */
-  public scanSheets = makeBatchControlMethod(async function* (
-    this: LoopScanner
-  ): AsyncGenerator<SheetOf<string>> {
-    if (this.nextBatchIndex >= this.batches.length) {
-      this.nextBatchIndex = 0
-    }
+  public scanSheets(): BatchControl {
+    const currentBatch = this.batches[
+      this.nextBatchIndex++ % this.batches.length
+    ]
+    let sheetIndex = 0
 
-    const currentBatch = this.batches[this.nextBatchIndex++]
+    return {
+      async scanSheet(): Promise<SheetOf<string> | undefined> {
+        return currentBatch?.[sheetIndex++]
+      },
 
-    if (currentBatch) {
-      for (const sheet of currentBatch) {
-        yield sheet
-      }
+      async endBatch(): Promise<void> {
+        sheetIndex = Infinity
+      },
     }
-  })
+  }
 }
