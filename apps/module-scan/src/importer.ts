@@ -31,33 +31,6 @@ export interface Options {
   workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>
 }
 
-export interface Importer {
-  addHmpbTemplates(
-    pdf: Buffer,
-    metadata: BallotMetadata
-  ): Promise<BallotPageLayout[]>
-  doneHmpbTemplates(): Promise<void>
-  configure(electionDefinition: ElectionDefinition): Promise<void>
-  doExport(): Promise<string>
-  startImport(): Promise<string>
-  continueImport(override?: boolean): Promise<void>
-  waitForEndOfBatchOrScanningPause(): Promise<void>
-  doZero(): Promise<void>
-  importFile(
-    batchId: string,
-    frontImagePath: string,
-    backImagePath: string
-  ): Promise<string>
-  getStatus(): Promise<ScanStatus>
-  restoreConfig(): Promise<void>
-  setTestMode(testMode: boolean): Promise<void>
-  setSkipElectionHashCheck(skipElectionHashCheck: boolean): Promise<void>
-  setMarkThresholdOverrides(
-    markThresholds: Optional<MarkThresholds>
-  ): Promise<void>
-  unconfigure(): Promise<void>
-}
-
 export class HmpbInterpretationError extends Error {}
 
 export async function saveImages(
@@ -87,7 +60,7 @@ export async function saveImages(
 /**
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
-export default class SystemImporter implements Importer {
+export default class Importer {
   private workspace: Workspace
   private scanner: Scanner
   private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined

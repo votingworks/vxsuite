@@ -8,7 +8,7 @@ import { dirSync } from 'tmp'
 import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020'
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
-import SystemImporter, { Importer } from './importer'
+import Importer from './importer'
 import { buildApp } from './server'
 import { BallotPackageManifest, CastVoteRecord } from './types'
 import { MarkStatus } from './types/ballot-review'
@@ -48,7 +48,7 @@ let app: Application
 beforeEach(async () => {
   workspace = await createWorkspace(dirSync().name)
   scanner = makeMockScanner()
-  importer = new SystemImporter({ workspace, scanner })
+  importer = new Importer({ workspace, scanner })
   app = buildApp({ importer, store: workspace.store })
 })
 

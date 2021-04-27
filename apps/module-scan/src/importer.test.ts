@@ -10,7 +10,7 @@ import { join } from 'path'
 import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
-import SystemImporter, { sleep } from './importer'
+import Importer, { sleep } from './importer'
 import { Scanner } from './scanner'
 import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
@@ -36,7 +36,7 @@ test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -92,7 +92,7 @@ test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -107,7 +107,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -161,7 +161,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
     workers.Input,
     workers.Output
   >(workerCall)
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
@@ -179,7 +179,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -207,7 +207,7 @@ test('manually importing files', async () => {
     workers.Input,
     workers.Output
   >(workerCall)
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
@@ -326,7 +326,7 @@ test('scanning pauses on adjudication then continues', async () => {
     }
   }
 
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -432,7 +432,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     workers.Output
   >(workerCall)
 
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,

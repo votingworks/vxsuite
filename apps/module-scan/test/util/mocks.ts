@@ -3,7 +3,6 @@ import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing'
-import SystemImporter from '../../src/importer'
 import { Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
 import { writeImageData } from '../../src/util/images'
@@ -31,10 +30,6 @@ export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
     send: jest.fn(),
     describe: jest.fn(),
   }
-}
-
-export function makeMockImporter(): jest.Mocked<SystemImporter> {
-  return makeMock(SystemImporter)
 }
 
 type ScanSessionStep =
