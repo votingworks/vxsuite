@@ -2,11 +2,21 @@ import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
-import { Importer } from '../../src/importer'
+import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing'
+import SystemImporter from '../../src/importer'
 import { Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
 import { writeImageData } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
+
+export function makeMock<T>(cls: new (...args: never[]) => T): MaybeMocked<T> {
+  if (!jest.isMockFunction(cls)) {
+    throw new Error(
+      `${cls} is not a mock function; are you missing a jest.mock(…) call?`
+    )
+  }
+  return mocked(new cls())
+}
 
 export function mockWorkerPoolProvider<I, O>(
   call: (input: I) => Promise<O>
@@ -23,24 +33,8 @@ export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
   }
 }
 
-export function makeMockImporter(): jest.Mocked<Importer> {
-  return {
-    addHmpbTemplates: jest.fn(),
-    doneHmpbTemplates: jest.fn(),
-    configure: jest.fn(),
-    doExport: jest.fn(),
-    startImport: jest.fn(),
-    continueImport: jest.fn(),
-    waitForEndOfBatchOrScanningPause: jest.fn(),
-    importFile: jest.fn(),
-    doZero: jest.fn(),
-    getStatus: jest.fn(),
-    restoreConfig: jest.fn(),
-    setTestMode: jest.fn(),
-    setSkipElectionHashCheck: jest.fn(),
-    unconfigure: jest.fn(),
-    setMarkThresholdOverrides: jest.fn(),
-  }
+export function makeMockImporter(): jest.Mocked<SystemImporter> {
+  return makeMock(SystemImporter)
 }
 
 type ScanSessionStep =
