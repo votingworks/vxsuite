@@ -32,14 +32,11 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   )
 
   scanimage.emit('exit', 0, null)
-  await expect(sheets.next()).resolves.toEqual({
-    value: ['/tmp/image-0001.png', '/tmp/image-0002.png'],
-    done: false,
-  })
-  await expect(sheets.next()).resolves.toEqual({
-    value: undefined,
-    done: true,
-  })
+  await expect(sheets.scanSheet()).resolves.toEqual([
+    '/tmp/image-0001.png',
+    '/tmp/image-0002.png',
+  ])
+  await expect(sheets.scanSheet()).resolves.toBeUndefined()
 })
 
 test('fujitsu scanner can scan with letter size', async () => {
@@ -191,15 +188,15 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
   )
 
   expect(scanimage.stdin?.write).not.toHaveBeenCalled()
-  const sheetPromise = sheets.next()
+  const sheetPromise = sheets.scanSheet()
   expect(scanimage.stdin?.write).toHaveBeenCalledWith('\n\n')
 
   scanimage.stdout.append('/tmp/front.png\n')
   scanimage.stdout.append('/tmp/back.png\n')
-  await expect(sheetPromise).resolves.toEqual({
-    done: false,
-    value: ['/tmp/front.png', '/tmp/back.png'],
-  })
+  await expect(sheetPromise).resolves.toEqual([
+    '/tmp/front.png',
+    '/tmp/back.png',
+  ])
 })
 
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
@@ -212,31 +209,12 @@ test('fujitsu scanner ends the scanimage process on generator return', async () 
   // we haven't already ended it…
   expect(scanimage.stdin?.end).not.toHaveBeenCalled()
 
-  // but returning ends stdin, telling `scanimage` to exit
-  await sheets.return(undefined)
+  // tell `scanimage` to exit
+  await sheets.endBatch()
   expect(scanimage.stdin?.end).toHaveBeenCalledTimes(1)
 
-  // returning again doesn't call `end` again
-  await sheets.return(undefined)
-  expect(scanimage.stdin?.end).toHaveBeenCalledTimes(1)
-})
-
-test('fujitsu scanner ends the scanimage process on generator throw', async () => {
-  const scanimage = makeMockChildProcess()
-  const scanner = new FujitsuScanner()
-
-  exec.mockReturnValueOnce(scanimage)
-  const sheets = scanner.scanSheets()
-
-  // we haven't already ended it…
-  expect(scanimage.stdin?.end).not.toHaveBeenCalled()
-
-  // but throwing ends stdin, telling `scanimage` to exit
-  await sheets.throw(undefined)
-  expect(scanimage.stdin?.end).toHaveBeenCalledTimes(1)
-
-  // throwing again doesn't call `end` again
-  await sheets.throw(undefined)
+  // ending the batch again does nothing
+  await sheets.endBatch()
   expect(scanimage.stdin?.end).toHaveBeenCalledTimes(1)
 })
 
@@ -248,5 +226,5 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
   const sheets = scanner.scanSheets()
 
   scanimage.emit('exit', 1, null)
-  await expect(sheets.next()).rejects.toThrowError()
+  await expect(sheets.scanSheet()).rejects.toThrowError()
 })

@@ -1,17 +1,22 @@
+import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import {
   asElectionDefinition,
   electionSample as election,
 } from '@votingworks/fixtures'
-import { BallotType } from '@votingworks/types'
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import { BallotType } from '@votingworks/types'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
 import Importer, { sleep } from './importer'
-import { Scanner } from './scanner'
+import {
+  BatchControl,
+  makeBatchControl,
+  makeBatchControlMethod,
+  Scanner,
+} from './scanner'
 import { SheetOf } from './types'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { createWorkspace, Workspace } from './util/workspace'
@@ -48,41 +53,33 @@ test('startImport calls scanner.scanSheet', async () => {
   await importer.configure(asElectionDefinition(election))
 
   // failed scan
-  const generator: AsyncGenerator<SheetOf<string>> = {
-    async next(): Promise<IteratorResult<SheetOf<string>>> {
+  const generator: BatchControl = makeBatchControl(
+    // eslint-disable-next-line require-yield
+    (async function* (): AsyncGenerator<SheetOf<string>> {
       throw new Error('scanner is a banana')
-    },
+    })()
+  )
 
-    return(): Promise<IteratorResult<SheetOf<string>>> {
-      throw new Error('scanner is a banana')
-    },
-
-    throw: jest.fn(),
-
-    [Symbol.asyncIterator](): AsyncGenerator<SheetOf<string>> {
-      return generator
-    },
-  }
-
+  jest.spyOn(generator, 'endBatch')
   scanner.scanSheets.mockImplementationOnce(() => generator)
 
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
 
-  expect(generator.throw).toHaveBeenCalled()
+  expect(generator.endBatch).toHaveBeenCalled()
 
   const batches = await workspace.store.batchStatus()
   expect(batches[0].error).toEqual('Error: scanner is a banana')
 
   // successful scan
-  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    SheetOf<string>
-  > {
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
-  })
+  scanner.scanSheets.mockImplementationOnce(
+    makeBatchControlMethod(async function* (): AsyncGenerator<SheetOf<string>> {
+      yield [
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ]
+    })
+  )
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
   await importer.unconfigure()
@@ -358,24 +355,24 @@ test('scanning pauses on adjudication then continues', async () => {
       return 'sheet-3'
     })
 
-  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    SheetOf<string>
-  > {
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
+  scanner.scanSheets.mockImplementationOnce(
+    makeBatchControlMethod(async function* (): AsyncGenerator<SheetOf<string>> {
+      yield [
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ]
 
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
+      yield [
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ]
 
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
-  })
+      yield [
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ]
+    })
+  )
 
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()

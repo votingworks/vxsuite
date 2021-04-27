@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing'
-import { Scanner } from '../../src/scanner'
+import { makeBatchControlMethod, Scanner } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
 import { writeImageData } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
@@ -105,7 +105,9 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined
 
   return {
-    async *scanSheets(): AsyncGenerator<SheetOf<string>> {
+    scanSheets: makeBatchControlMethod(async function* (): AsyncGenerator<
+      SheetOf<string>
+    > {
       const session = nextScannerSession
       nextScannerSession = undefined
 
@@ -125,7 +127,7 @@ export function makeMockScanner(): MockScanner {
             throw step.error
         }
       }
-    },
+    }),
 
     /**
      * Gets the next scanner session to be used when `scanSheets` is called.

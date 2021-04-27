@@ -10,7 +10,7 @@ import * as streams from 'memory-streams'
 import { join } from 'path'
 import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
-import { Scanner } from './scanner'
+import { BatchControl, Scanner } from './scanner'
 import { BallotMetadata, ScanStatus, SheetOf, Side } from './types'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
@@ -63,7 +63,7 @@ export async function saveImages(
 export default class Importer {
   private workspace: Workspace
   private scanner: Scanner
-  private sheetGenerator: AsyncGenerator<SheetOf<string>> | undefined
+  private sheetGenerator: BatchControl | undefined
   private batchId: string | undefined
   private workerPool?: WorkerPool<workers.Input, workers.Output>
   private workerPoolProvider: () => WorkerPool<workers.Input, workers.Output>
@@ -348,9 +348,7 @@ export default class Importer {
     }
 
     if (this.sheetGenerator) {
-      if (error) {
-        await this.sheetGenerator.throw(new Error(error))
-      }
+      await this.sheetGenerator.endBatch()
       this.sheetGenerator = undefined
     }
   }
@@ -363,9 +361,9 @@ export default class Importer {
       return
     }
 
-    const { done, value: sheet } = await this.sheetGenerator.next()
+    const sheet = await this.sheetGenerator.scanSheet()
 
-    if (done) {
+    if (!sheet) {
       debug('closing batch %s', this.batchId)
       await this.finishBatch()
     } else {

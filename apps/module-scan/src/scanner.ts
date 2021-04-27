@@ -8,8 +8,39 @@ import { StreamLines } from './util/Lines'
 
 const debug = makeDebug('module-scan:scanner')
 
+export interface BatchControl {
+  scanSheet(): Promise<SheetOf<string> | undefined>
+  endBatch(): Promise<void>
+}
+
+export function makeBatchControlMethod(
+  factory: () => AsyncGenerator<SheetOf<string>>
+): () => BatchControl {
+  return function (this: never): BatchControl {
+    return makeBatchControl(factory.call(this))
+  }
+}
+
+export function makeBatchControl(
+  generator: AsyncGenerator<SheetOf<string>>
+): BatchControl {
+  return {
+    scanSheet: async (): Promise<SheetOf<string> | undefined> => {
+      const next = await generator.next()
+      if (next.done) {
+        return undefined
+      } else {
+        return next.value
+      }
+    },
+    endBatch: async (): Promise<void> => {
+      await generator.return(undefined)
+    },
+  }
+}
+
 export interface Scanner {
-  scanSheets(directory?: string): AsyncGenerator<SheetOf<string>>
+  scanSheets(directory?: string): BatchControl
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -64,9 +95,7 @@ export class FujitsuScanner implements Scanner {
     this.mode = mode
   }
 
-  public scanSheets(
-    directory = dirSync().name
-  ): AsyncGenerator<SheetOf<string>> {
+  public scanSheets(directory = dirSync().name): BatchControl {
     const args: string[] = [
       '-d',
       'fujitsu',
@@ -189,6 +218,6 @@ export class FujitsuScanner implements Scanner {
       },
     }
 
-    return generator
+    return makeBatchControl(generator)
   }
 }
