@@ -719,6 +719,7 @@ importers:
       '@types/react-dom': 17.0.0
       '@types/react-modal': 3.10.6
       '@types/react-router-dom': 5.1.7
+      '@votingworks/ui': link:../../libs/ui
       http-proxy-middleware: 1.0.6
       i18next: 19.8.4
       normalize.css: 8.0.1
@@ -775,6 +776,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
       '@votingworks/test-utils': workspace:*
+      '@votingworks/ui': workspace:*
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
       eslint-config-prettier: ^6.10.0

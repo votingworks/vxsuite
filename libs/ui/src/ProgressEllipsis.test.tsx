@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from '@testing-library/react'
 
-import ProgressEllipsis from './ProgressEllipsis'
+import { ProgressEllipsis } from './ProgressEllipsis'
 
 it('renders ProgressEllipsis', () => {
   const { container } = render(<ProgressEllipsis />)

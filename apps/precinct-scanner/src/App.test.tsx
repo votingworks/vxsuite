@@ -4,5 +4,5 @@ import App from './App'
 
 test('app can load with local storage', () => {
   const { getByText } = render(<App />)
-  getByText('Hello Precinct Scanner World!')
+  getByText('Precinct Scanner is Not Configured')
 })

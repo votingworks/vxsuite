@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 const ellipsisWidth = '1.4em'
-const ProgressEllipsis = styled.span`
+export const ProgressEllipsis = styled.span`
   margin-left: -${ellipsisWidth};
   text-align: center;
   white-space: nowrap;
@@ -24,5 +24,3 @@ const ProgressEllipsis = styled.span`
     }
   }
 `
-
-export default ProgressEllipsis
