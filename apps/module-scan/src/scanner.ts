@@ -8,8 +8,13 @@ import { StreamLines } from './util/Lines'
 
 const debug = makeDebug('module-scan:scanner')
 
+export interface BatchControl {
+  scanSheet(): Promise<SheetOf<string> | undefined>
+  endBatch(): Promise<void>
+}
+
 export interface Scanner {
-  scanSheets(directory?: string): AsyncGenerator<SheetOf<string>>
+  scanSheets(directory?: string): BatchControl
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -64,9 +69,7 @@ export class FujitsuScanner implements Scanner {
     this.mode = mode
   }
 
-  public scanSheets(
-    directory = dirSync().name
-  ): AsyncGenerator<SheetOf<string>> {
+  public scanSheets(directory = dirSync().name): BatchControl {
     const args: string[] = [
       '-d',
       'fujitsu',
@@ -97,7 +100,7 @@ export class FujitsuScanner implements Scanner {
     )
 
     const scannedFiles: string[] = []
-    const results = queue<Promise<IteratorResult<SheetOf<string>>>>()
+    const results = queue<Promise<SheetOf<string> | undefined>>()
     let done = false
     const scanimage = streamExecFile('scanimage', args)
 
@@ -114,10 +117,7 @@ export class FujitsuScanner implements Scanner {
       scannedFiles.push(path)
       if (scannedFiles.length % 2 === 0) {
         results.resolve(
-          Promise.resolve({
-            value: scannedFiles.slice(-2) as SheetOf<string>,
-            done: false,
-          })
+          Promise.resolve(scannedFiles.slice(-2) as SheetOf<string>)
         )
       }
     })
@@ -132,12 +132,12 @@ export class FujitsuScanner implements Scanner {
       if (code !== 0) {
         results.rejectAll(new Error(`scanimage exited with code=${code}`))
       } else {
-        results.resolveAll(Promise.resolve({ value: undefined, done }))
+        results.resolveAll(Promise.resolve(undefined))
       }
     })
 
-    const generator: AsyncGenerator<SheetOf<string>> = {
-      async next(): Promise<IteratorResult<SheetOf<string>>> {
+    return {
+      scanSheet: async (): Promise<SheetOf<string> | undefined> => {
         if (results.isEmpty() && !done) {
           debug(
             'scanimage [pid=%d] sending RETURN twice to scan another sheet',
@@ -149,46 +149,20 @@ export class FujitsuScanner implements Scanner {
         return results.get()
       },
 
-      return(value: unknown): Promise<IteratorResult<SheetOf<string>>> {
+      endBatch: async (): Promise<void> => {
         if (!done) {
           done = true
           debug(
-            'scanimage [pid=%d] generator return called, stopping scan by closing stdin',
+            'scanimage [pid=%d] stopping scan by closing stdin',
             scanimage.pid
           )
-          return new Promise((resolve) => {
+          await new Promise<void>((resolve) => {
             scanimage.stdin?.end(() => {
-              resolve({ value, done: true })
+              resolve()
             })
           })
         }
-
-        return Promise.resolve({ value, done })
-      },
-
-      throw(): Promise<IteratorResult<SheetOf<string>>> {
-        if (!done) {
-          done = true
-          debug(
-            'scanimage [pid=%d] generator throw called, stopping scan by closing stdin',
-            scanimage.pid
-          )
-          return new Promise((resolve) => {
-            scanimage.stdin?.end(() => {
-              resolve({ value: undefined, done: true })
-            })
-          })
-        }
-
-        return Promise.resolve({ value: undefined, done })
-      },
-
-      /* istanbul ignore next - required by TS, but unclear of what use it is */
-      [Symbol.asyncIterator](): AsyncGenerator<SheetOf<string>> {
-        return generator
       },
     }
-
-    return generator
   }
 }

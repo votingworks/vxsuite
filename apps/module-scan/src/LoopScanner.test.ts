@@ -15,15 +15,15 @@ test('copies files in pairs', async () => {
   })
   const scanner = new LoopScanner([[[f1, f2]], [[f3, f4]]])
 
-  expect(readFiles((await scanner.scanSheets().next()).value)).toEqual([
+  expect(readFiles((await scanner.scanSheets().scanSheet())!)).toEqual([
     '1',
     '2',
   ])
-  expect(readFiles((await scanner.scanSheets().next()).value)).toEqual([
+  expect(readFiles((await scanner.scanSheets().scanSheet())!)).toEqual([
     '3',
     '4',
   ])
-  expect(readFiles((await scanner.scanSheets().next()).value)).toEqual([
+  expect(readFiles((await scanner.scanSheets().scanSheet())!)).toEqual([
     '1',
     '2',
   ])

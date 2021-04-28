@@ -8,7 +8,7 @@ import request from 'supertest'
 import * as fsExtra from 'fs-extra'
 import { dirSync } from 'tmp'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
-import SystemImporter from './importer'
+import Importer from './importer'
 import { buildApp } from './server'
 import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
@@ -23,14 +23,14 @@ const sampleBallotImagesPath = path.join(
 jest.setTimeout(20000)
 
 let app: Application
-let importer: SystemImporter
+let importer: Importer
 let workspace: Workspace
 let scanner: MockScanner
 
 beforeEach(async () => {
   scanner = makeMockScanner()
   workspace = await createWorkspace(dirSync().name)
-  importer = new SystemImporter({
+  importer = new Importer({
     workspace,
     scanner,
   })

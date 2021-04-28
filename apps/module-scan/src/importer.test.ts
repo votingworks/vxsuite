@@ -1,18 +1,17 @@
+import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import {
   asElectionDefinition,
   electionSample as election,
 } from '@votingworks/fixtures'
-import { BallotType } from '@votingworks/types'
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import { BallotType } from '@votingworks/types'
 import * as fs from 'fs-extra'
 import { join } from 'path'
 import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
-import SystemImporter, { sleep } from './importer'
-import { Scanner } from './scanner'
-import { SheetOf } from './types'
+import Importer, { sleep } from './importer'
+import { BatchControl, Scanner } from './scanner'
 import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
@@ -36,7 +35,7 @@ test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -48,41 +47,33 @@ test('startImport calls scanner.scanSheet', async () => {
   await importer.configure(asElectionDefinition(election))
 
   // failed scan
-  const generator: AsyncGenerator<SheetOf<string>> = {
-    async next(): Promise<IteratorResult<SheetOf<string>>> {
-      throw new Error('scanner is a banana')
-    },
-
-    return(): Promise<IteratorResult<SheetOf<string>>> {
-      throw new Error('scanner is a banana')
-    },
-
-    throw: jest.fn(),
-
-    [Symbol.asyncIterator](): AsyncGenerator<SheetOf<string>> {
-      return generator
-    },
+  const batchControl: BatchControl = {
+    scanSheet: jest
+      .fn()
+      .mockRejectedValueOnce(new Error('scanner is a banana')),
+    endBatch: jest.fn(),
   }
-
-  scanner.scanSheets.mockImplementationOnce(() => generator)
+  scanner.scanSheets.mockReturnValueOnce(batchControl)
 
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
 
-  expect(generator.throw).toHaveBeenCalled()
+  expect(batchControl.endBatch).toHaveBeenCalled()
 
   const batches = await workspace.store.batchStatus()
   expect(batches[0].error).toEqual('Error: scanner is a banana')
 
   // successful scan
-  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    SheetOf<string>
-  > {
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
+  scanner.scanSheets.mockReturnValueOnce({
+    scanSheet: jest
+      .fn()
+      .mockResolvedValueOnce([
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ]),
+    endBatch: jest.fn(),
   })
+
   await importer.startImport()
   await importer.waitForEndOfBatchOrScanningPause()
   await importer.unconfigure()
@@ -92,7 +83,7 @@ test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -107,7 +98,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -161,7 +152,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
     workers.Input,
     workers.Output
   >(workerCall)
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
@@ -179,7 +170,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
     scanSheets: jest.fn(),
   }
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -207,7 +198,7 @@ test('manually importing files', async () => {
     workers.Input,
     workers.Output
   >(workerCall)
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
@@ -326,7 +317,7 @@ test('scanning pauses on adjudication then continues', async () => {
     }
   }
 
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
   })
@@ -358,23 +349,22 @@ test('scanning pauses on adjudication then continues', async () => {
       return 'sheet-3'
     })
 
-  scanner.scanSheets.mockImplementationOnce(async function* (): AsyncGenerator<
-    SheetOf<string>
-  > {
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
-
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
-
-    yield [
-      join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
-      join(sampleBallotImagesPath, 'blank-page.png'),
-    ]
+  scanner.scanSheets.mockReturnValueOnce({
+    scanSheet: jest
+      .fn()
+      .mockResolvedValueOnce([
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ])
+      .mockResolvedValueOnce([
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ])
+      .mockResolvedValueOnce([
+        join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
+        join(sampleBallotImagesPath, 'blank-page.png'),
+      ]),
+    endBatch: jest.fn(),
   })
 
   await importer.startImport()
@@ -432,7 +422,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     workers.Output
   >(workerCall)
 
-  const importer = new SystemImporter({
+  const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,

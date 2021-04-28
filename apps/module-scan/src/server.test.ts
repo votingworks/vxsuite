@@ -3,9 +3,9 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import {
   AdjudicationReason,
+  BallotType,
   CandidateContest,
   YesNoContest,
-  BallotType,
 } from '@votingworks/types'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
@@ -16,8 +16,8 @@ import { dirSync } from 'tmp'
 import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
-import { makeMockImporter } from '../test/util/mocks'
-import { Importer } from './importer'
+import { makeMock } from '../test/util/mocks'
+import Importer from './importer'
 import { buildApp, start } from './server'
 import { ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
@@ -26,13 +26,11 @@ import { createWorkspace, Workspace } from './util/workspace'
 jest.mock('./importer')
 
 let app: Application
-let importer: Importer
 let workspace: Workspace
-let importerMock: jest.Mocked<Importer>
+let importer: jest.Mocked<Importer>
 
 beforeEach(async () => {
-  importer = makeMockImporter()
-  importerMock = importer as jest.Mocked<Importer>
+  importer = makeMock(Importer)
   workspace = await createWorkspace(dirSync().name)
   await workspace.store.setElection({
     election,
@@ -88,7 +86,7 @@ test('GET /scan/status', async () => {
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
   }
-  importerMock.getStatus.mockResolvedValue(status)
+  importer.getStatus.mockResolvedValue(status)
   await request(app)
     .get('/scan/status')
     .set('Accept', 'application/json')
@@ -185,7 +183,7 @@ test('PATCH /config/election', async () => {
 })
 
 test('DELETE /config/election', async () => {
-  importerMock.unconfigure.mockResolvedValue()
+  importer.unconfigure.mockResolvedValue()
 
   await request(app)
     .delete('/config/election')
@@ -195,7 +193,7 @@ test('DELETE /config/election', async () => {
 })
 
 test('PATCH /config/testMode', async () => {
-  importerMock.setTestMode.mockResolvedValueOnce(undefined)
+  importer.setTestMode.mockResolvedValueOnce(undefined)
 
   await request(app)
     .patch('/config/testMode')
@@ -204,7 +202,7 @@ test('PATCH /config/testMode', async () => {
     .set('Accept', 'application/json')
     .expect(200)
 
-  expect(importerMock.setTestMode).toHaveBeenNthCalledWith(1, true)
+  expect(importer.setTestMode).toHaveBeenNthCalledWith(1, true)
 
   await request(app)
     .patch('/config/testMode')
@@ -213,11 +211,11 @@ test('PATCH /config/testMode', async () => {
     .send({ testMode: false })
     .expect(200)
 
-  expect(importerMock.setTestMode).toHaveBeenNthCalledWith(2, false)
+  expect(importer.setTestMode).toHaveBeenNthCalledWith(2, false)
 })
 
 test('PATCH /config/markThresholdOverrides', async () => {
-  importerMock.setMarkThresholdOverrides.mockResolvedValue(undefined)
+  importer.setMarkThresholdOverrides.mockResolvedValue(undefined)
 
   await request(app)
     .patch('/config/markThresholdOverrides')
@@ -226,7 +224,7 @@ test('PATCH /config/markThresholdOverrides', async () => {
     .set('Accept', 'application/json')
     .expect(200)
 
-  expect(importerMock.setMarkThresholdOverrides).toHaveBeenNthCalledWith(1, {
+  expect(importer.setMarkThresholdOverrides).toHaveBeenNthCalledWith(1, {
     marginal: 0.2,
     definite: 0.3,
   })
@@ -237,14 +235,14 @@ test('PATCH /config/markThresholdOverrides', async () => {
     .set('Accept', 'application/json')
     .expect(200)
 
-  expect(importerMock.setMarkThresholdOverrides).toHaveBeenNthCalledWith(
+  expect(importer.setMarkThresholdOverrides).toHaveBeenNthCalledWith(
     2,
     undefined
   )
 })
 
 test('POST /scan/scanBatch', async () => {
-  importerMock.startImport.mockResolvedValue('mock-batch-id')
+  importer.startImport.mockResolvedValue('mock-batch-id')
   await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
@@ -253,7 +251,7 @@ test('POST /scan/scanBatch', async () => {
 })
 
 test('POST /scan/scanContinue', async () => {
-  importerMock.continueImport.mockResolvedValue(undefined)
+  importer.continueImport.mockResolvedValue(undefined)
   await request(app)
     .post('/scan/scanContinue')
     .set('Accept', 'application/json')
@@ -262,7 +260,7 @@ test('POST /scan/scanContinue', async () => {
 })
 
 test('POST /scan/scanBatch errors', async () => {
-  importerMock.startImport.mockRejectedValue(new Error('scanner is a teapot'))
+  importer.startImport.mockRejectedValue(new Error('scanner is a teapot'))
   await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
@@ -271,7 +269,7 @@ test('POST /scan/scanBatch errors', async () => {
 })
 
 test('POST /scan/scanFiles', async () => {
-  importerMock.importFile.mockResolvedValueOnce(uuid())
+  importer.importFile.mockResolvedValueOnce(uuid())
   await request(app)
     .post('/scan/scanFiles')
     .attach('files', Buffer.of(), {
@@ -286,7 +284,7 @@ test('POST /scan/scanFiles', async () => {
 })
 
 test('POST /scan/export', async () => {
-  importerMock.doExport.mockResolvedValue('')
+  importer.doExport.mockResolvedValue('')
 
   await request(app)
     .post('/scan/export')
@@ -296,7 +294,7 @@ test('POST /scan/export', async () => {
 })
 
 test('POST /scan/zero', async () => {
-  importerMock.doZero.mockResolvedValue()
+  importer.doZero.mockResolvedValue()
 
   await request(app)
     .post('/scan/zero')
@@ -725,7 +723,7 @@ test('POST /scan/hmpb/addTemplates bad metadata', async () => {
 })
 
 test('POST /scan/hmpb/addTemplates', async () => {
-  importerMock.addHmpbTemplates.mockResolvedValueOnce([
+  importer.addHmpbTemplates.mockResolvedValueOnce([
     {
       ballotImage: {
         imageData: {

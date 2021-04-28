@@ -15,7 +15,7 @@ import multer from 'multer'
 import * as path from 'path'
 import { inspect } from 'util'
 import backup from './backup'
-import SystemImporter, { Importer } from './importer'
+import Importer from './importer'
 import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
 import Store from './store'
 import { BallotConfig } from './types'
@@ -585,7 +585,7 @@ export async function start({
   scanner = scanner ?? new FujitsuScanner({ mode: ScannerMode.Gray })
   importer =
     importer ??
-    new SystemImporter({
+    new Importer({
       workspace,
       scanner,
       workerPoolProvider: (): WorkerPool<workers.Input, workers.Output> =>
@@ -596,7 +596,7 @@ export async function start({
   app.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)
 
-    if (importer instanceof SystemImporter) {
+    if (importer instanceof Importer) {
       log(`Scanning ballots into ${workspace?.ballotImagesPath}`)
     }
   })
