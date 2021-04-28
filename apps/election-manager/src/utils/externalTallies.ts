@@ -281,7 +281,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
   }
 }
 
-const getEmptyContestTallies = (
+export const getEmptyContestTallies = (
   election: Election
 ): Dictionary<ContestTally> => {
   const contestTallies: Dictionary<ContestTally> = {}
