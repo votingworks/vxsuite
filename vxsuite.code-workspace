@@ -38,6 +38,9 @@
     },
     {
       "path": "libs/ui"
+    },
+    {
+      "path": "apps/precinct-scanner"
     }
   ],
   "settings": {}

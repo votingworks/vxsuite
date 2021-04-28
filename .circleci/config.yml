@@ -187,6 +187,20 @@ jobs:
           command: |
             pnpm --dir libs/ui test:coverage
 
+  test-precinct-scanner:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir apps/precinct-scanner lint
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            pnpm --dir apps/precinct-scanner test:coverage
+
 workflows:
   test:
     jobs:
@@ -202,6 +216,7 @@ workflows:
       - test-module-smartcards
       - test-types
       - test-ui
+      - test-precinct-scanner
 
 commands:
   checkout-and-install:
@@ -233,6 +248,7 @@ commands:
             - apps/bsd/node_modules
             - apps/election-manager/node_modules
             - apps/module-scan/node_modules
+            - apps/precinct-scanner/node_modules
             - libs/ballot-encoder/node_modules
             - libs/eslint-plugin-no-array-sort-mutation/node_modules
             - libs/fixtures/node_modules
@@ -241,3 +257,4 @@ commands:
             - libs/types/node_modules
             - libs/@types/jsfeat/node_modules
             - libs/@types/node-quirc/node_modules
+            - libs/ui/node_modules
