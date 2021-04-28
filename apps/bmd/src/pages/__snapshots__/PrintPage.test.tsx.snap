@@ -710,28 +710,6 @@ exports[`renders PrintPage without votes 1`] = `
   margin: 1rem 0;
 }
 
-.c5 {
-  margin-left: -1.4em;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.c5::before,
-.c5::after {
-  display: inline-block;
-  width: 0;
-  overflow: hidden;
-  vertical-align: bottom;
-  text-align: left;
-  content: '…';
-  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
-  animation: loadingEllipsis steps(4,end) 2s infinite;
-}
-
-.c5::before {
-  color: transparent;
-}
-
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -797,7 +775,7 @@ exports[`renders PrintPage without votes 1`] = `
         <h1>
           <span
             aria-label="Printing your official ballot."
-            class="c5"
+            class="sc-bdvvaa etEPtU"
           >
             Printing Official Ballot
           </span>

@@ -66,6 +66,7 @@
     "@types/react-modal": "^3.10.6",
     "@types/styled-components": "^5.0.0",
     "@votingworks/hmpb-interpreter": "workspace:*",
+    "@votingworks/ui": "workspace:*",
     "fast-text-encoding": "^1.0.2",
     "http-proxy-middleware": "^1.0.0",
     "js-file-download": "^0.4.6",
