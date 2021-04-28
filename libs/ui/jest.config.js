@@ -2,6 +2,9 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   clearMocks: true,
+  testPathIgnorePatterns: [
+    "<rootDir>/dist"
+  ],
   watchPathIgnorePatterns: [
     "<rootDir>/node_modules",
     "<rootDir>/dist"

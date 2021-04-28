@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Prose with defaults 1`] = `
+<div
+  class="sc-bdvvaa fgnmIK"
+>
+  <div>
+    Hello
+  </div>
+   
+  <div>
+    World
+  </div>
+</div>
+`;
+
+exports[`renders Prose with with all non-default options 1`] = `
+<div
+  class="sc-bdvvaa fnFHGz"
+>
+  <div>
+    Hello
+  </div>
+   
+  <div>
+    World
+  </div>
+</div>
+`;
