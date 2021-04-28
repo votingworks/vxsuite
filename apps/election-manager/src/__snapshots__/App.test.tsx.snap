@@ -42,6 +42,13 @@ exports[`printing ballots, print report, and test decks 1`] = `
           role="option"
           type="button"
         >
+          Cards
+        </button>
+        <button
+          class="sc-jrAGrp hAHAue"
+          role="option"
+          type="button"
+        >
           Ballots
         </button>
         <button
@@ -217,6 +224,13 @@ exports[`printing ballots, print report, and test decks 2`] = `
           type="button"
         >
           Definition
+        </button>
+        <button
+          class="sc-jrAGrp hAHAue"
+          role="option"
+          type="button"
+        >
+          Cards
         </button>
         <button
           class="sc-jrAGrp hAHAue"
