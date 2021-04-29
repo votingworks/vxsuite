@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Button as DecoyButton with options: small warning 1`] = `
+<div
+  class="sc-bdvvaa bZHMdE"
+>
+  DecoyButton
+</div>
+`;
+
+exports[`renders Button with defaults 1`] = `
+<button
+  class="sc-gsDJrp cypNzY"
+  type="button"
+>
+  foo
+</button>
+`;
+
+exports[`renders Button with options: big danger 1`] = `
+<button
+  class="sc-gsDJrp bjQjXI"
+  type="button"
+>
+  I’m a big button!
+</button>
+`;
+
+exports[`renders Button with options: full-width disabled submit 1`] = `
+<button
+  class="sc-gsDJrp cVDICp"
+  disabled=""
+  type="submit"
+>
+  Disabled Button
+</button>
+`;
+
+exports[`renders Button with options: primary noFocus 1`] = `
+<button
+  class="sc-gsDJrp hGmRdt"
+  type="button"
+>
+  Primary
+</button>
+`;

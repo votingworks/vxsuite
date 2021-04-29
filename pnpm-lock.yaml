@@ -1081,6 +1081,7 @@ importers:
     devDependencies:
       '@types/jest': 26.0.20
       '@types/node': 14.14.35
+      '@types/react': 17.0.4
       '@typescript-eslint/eslint-plugin': 4.16.1_8360ec0b6468ab52d7ec43304a9826d1
       '@typescript-eslint/parser': 4.16.1_eslint@7.19.0+typescript@4.2.3
       '@votingworks/fixtures': link:../fixtures
@@ -1095,6 +1096,7 @@ importers:
       '@antongolub/iso8601': ^1.2.1
       '@types/jest': ^26.0.20
       '@types/node': ^14.14.35
+      '@types/react': ^17.0.4
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
       '@votingworks/fixtures': workspace:*
@@ -1119,6 +1121,7 @@ importers:
       '@types/styled-components': 5.1.9
       '@typescript-eslint/eslint-plugin': 4.16.1_4b7c75eac308ba454583af097e0ad94d
       '@typescript-eslint/parser': 4.16.1_eslint@7.19.0+typescript@4.2.4
+      '@votingworks/types': link:../types
       eslint: 7.19.0
       eslint-config-airbnb: 17.1.1_269fe49487e42607dd7c62d316648398
       eslint-config-prettier: 6.15.0_eslint@7.19.0
@@ -1153,6 +1156,7 @@ importers:
       '@types/styled-components': ^5.1.9
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
+      '@votingworks/types': workspace:*
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
       eslint-config-prettier: ^6.10.0
@@ -11330,18 +11334,18 @@ packages:
       integrity: sha512-pGIZ8t0mFLcV+6ZirRgYK6RVqUIKRIi9MmgzUEmrIknsn3AdO0I32asO86dJgloHq+9ZPl8UIg8mYrvgP5u2wQ==
   /eslint-config-react-app/6.0.0_99e1c64aae30be736f1e64f5f43b0ebd:
     dependencies:
-      '@typescript-eslint/eslint-plugin': 4.13.0_7c35a77949eef03106c52e13aece0106
-      '@typescript-eslint/parser': 4.13.0_eslint@7.17.0+typescript@4.2.4
+      '@typescript-eslint/eslint-plugin': 4.13.0_8020b167ee7d7f543c2fef182c50aa77
+      '@typescript-eslint/parser': 4.13.0_eslint@7.17.0+typescript@4.2.3
       babel-eslint: 10.1.0_eslint@7.17.0
       confusing-browser-globals: 1.0.10
       eslint: 7.17.0
       eslint-plugin-flowtype: 5.2.0_eslint@7.17.0
-      eslint-plugin-import: 2.22.1_eslint@7.17.0+typescript@4.2.4
-      eslint-plugin-jest: 24.1.3_eslint@7.17.0+typescript@4.2.4
+      eslint-plugin-import: 2.22.1_eslint@7.17.0+typescript@4.2.3
+      eslint-plugin-jest: 24.1.3_eslint@7.17.0+typescript@4.2.3
       eslint-plugin-jsx-a11y: 6.4.1_eslint@7.17.0
       eslint-plugin-react: 7.22.0_eslint@7.17.0
       eslint-plugin-react-hooks: 4.2.0_eslint@7.17.0
-      eslint-plugin-testing-library: 3.10.1_eslint@7.17.0+typescript@4.2.4
+      eslint-plugin-testing-library: 3.10.1_eslint@7.17.0+typescript@4.2.3
     dev: false
     engines:
       node: ^10.12.0 || >=12.0.0
