@@ -1,0 +1,39 @@
+<body>
+  <span id="status"></span><br>
+  <button onclick="scan()">Scan</button>
+  <button onclick="accept()">Accept</button>
+  <button onclick="reject({ hold: false })">Reject</button>
+  <button onclick="reject({ hold: true })">Reject &amp; Hold</button>
+
+  <br>
+  <div id="images"></div>
+</body>
+<script>
+  setInterval(async () => {
+    const response = await fetch('/status')
+    document.getElementById('status').textContent = await response.text()
+  }, 1000);
+
+  async function scan() {
+    const response = await fetch('/scan')
+    const imageURLs = (await response.text()).split('\n')
+    const images = document.getElementById('images')
+
+    for (const imageURL of imageURLs) {
+      const image = document.createElement('img')
+      image.src = imageURL
+      image.style.maxWidth = '600px'
+      images.prepend(image)
+    }
+  }
+
+  async function accept() {
+    const response = await fetch('/accept')
+    console.log(response.text())
+  }
+
+  async function reject({ hold }) {
+    const response = await fetch(hold ? '/reject-hold' : '/reject')
+    console.log(response.text())
+  }
+</script>

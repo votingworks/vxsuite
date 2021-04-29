@@ -41,7 +41,14 @@
     },
     {
       "path": "apps/precinct-scanner"
+    },
+    {
+      "path": "libs/plustek-sdk"
     }
   ],
-  "settings": {}
+  "settings": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true
+    }
+  }
 }
