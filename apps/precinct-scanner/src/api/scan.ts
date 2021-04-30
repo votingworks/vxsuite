@@ -24,7 +24,10 @@ export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
   const response = await fetchJSON<ScanStatusResponse>('/scan/status')
   const { scanner, batches, adjudication } = response
   const ballotCount =
-    batches && batches.reduce((prev, batch) => prev + batch.count, 0)
+    batches &&
+    batches
+      .filter((batch) => batch.endedAt)
+      .reduce((prev, batch) => prev + batch.count, 0)
   return {
     ballotNeedsReview: adjudication.remaining > 0,
     scannerState: scanner,
