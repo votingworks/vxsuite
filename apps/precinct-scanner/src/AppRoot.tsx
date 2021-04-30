@@ -347,6 +347,9 @@ const appReducer = (state: State, action: AppAction): State => {
   }
 }
 
+const sleep = (ms = 1000): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms))
+
 const AppRoot: React.FC<Props> = ({ hardware, card }) => {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
@@ -387,7 +390,6 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
 
   const scanDetectedBallot = useCallback(async () => {
     try {
-      dispatchAppState({ type: 'disableStatusPolling' })
       const scanningResult = await scan.scanDetectedSheet()
       switch (scanningResult.resultType) {
         case ScanningResultType.Rejected: {
@@ -454,9 +456,6 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
 
   const endBatch = useCallback(async () => {
     try {
-      dispatchAppState({
-        type: 'disableStatusPolling',
-      })
       await scan.endBatch()
     } finally {
       dispatchAppState({
@@ -527,6 +526,23 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         case ScannerStatus.ReadyToScan:
           if (isCapableOfBeginingNewScan) {
             // If we are going to reset the machine back to the insert ballot screen, cancel that.
+            dispatchAppState({ type: 'disableStatusPolling' })
+            await sleep(100)
+            const {
+              scannerState: scannerStateFirstCheck,
+            } = await scan.getCurrentStatus()
+            if (scannerStateFirstCheck !== scannerState) {
+              dispatchAppState({ type: 'enableStatusPolling' })
+              return
+            }
+            await sleep(100)
+            const {
+              scannerState: scannerStateSecondCheck,
+            } = await scan.getCurrentStatus()
+            if (scannerStateSecondCheck !== scannerState) {
+              dispatchAppState({ type: 'enableStatusPolling' })
+              return
+            }
             if (timeoutToInsertScreen) {
               window.clearTimeout(timeoutToInsertScreen)
             }
@@ -544,19 +560,31 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
           // a ballot.
           if (isHoldingPaperForVoterRemoval) {
             // double check that we're still waiting for paper and it wasn't a very brief blip
+            dispatchAppState({ type: 'disableStatusPolling' })
+            await sleep(100)
             const {
-              scannerState: scannerStateAgain,
+              scannerState: scannerStateFirstCheck,
             } = await scan.getCurrentStatus()
-            if (scannerStateAgain === ScannerStatus.WaitingForPaper) {
-              // The voter has removed the ballot, end the batch and reset to the insert screen.
-              await endBatch()
-              /* istanbul ignore next */
-              if (timeoutToInsertScreen) {
-                window.clearTimeout(timeoutToInsertScreen)
-              }
-              dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
+            if (scannerStateFirstCheck !== scannerState) {
+              dispatchAppState({ type: 'enableStatusPolling' })
               return
             }
+            await sleep(100)
+            const {
+              scannerState: scannerStateSecondCheck,
+            } = await scan.getCurrentStatus()
+            if (scannerStateSecondCheck !== scannerState) {
+              dispatchAppState({ type: 'enableStatusPolling' })
+              return
+            }
+            // The voter has removed the ballot, end the batch and reset to the insert screen.
+            await endBatch()
+            /* istanbul ignore next */
+            if (timeoutToInsertScreen) {
+              window.clearTimeout(timeoutToInsertScreen)
+            }
+            dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
+            return
           }
           if (ballotState === BallotState.SCANNING) {
             // Is this dangerous? When a ballot is cast succesfully could this polling return waiting for paper before the ballotState is cast?
