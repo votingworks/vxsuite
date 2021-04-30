@@ -461,14 +461,20 @@ const AppRoot: React.FC<Props> = () => {
           // This will happen if someone is ripping the paper out of the scanner while scanning, or reviewing
           // a ballot.
           if (isHoldingPaperForVoterRemoval) {
-            // The voter has removed the ballot, end the batch and reset to the insert screen.
-            await endBatch()
-            /* istanbul ignore next */
-            if (timeoutToInsertScreen) {
-              window.clearTimeout(timeoutToInsertScreen)
+            // double check that we're still waiting for paper and it wasn't a very brief blip
+            const {
+              scannerState: scannerStateAgain,
+            } = await scan.getCurrentStatus()
+            if (scannerStateAgain === ScannerStatus.WaitingForPaper) {
+              // The voter has removed the ballot, end the batch and reset to the insert screen.
+              await endBatch()
+              /* istanbul ignore next */
+              if (timeoutToInsertScreen) {
+                window.clearTimeout(timeoutToInsertScreen)
+              }
+              dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
+              return
             }
-            dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
-            return
           }
           if (ballotState === BallotState.SCANNING) {
             // Is this dangerous? When a ballot is cast succesfully could this polling return waiting for paper before the ballotState is cast?
