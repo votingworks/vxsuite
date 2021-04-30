@@ -21,10 +21,35 @@ export enum BallotState {
   SCANNER_ERROR = 'error',
 }
 
-export enum ScanningResult {
+export enum ScanningResultType {
   Accepted = 'accepted',
   Rejected = 'rejected',
   NeedsReview = 'needs-review',
+}
+
+export enum RejectedScanningReason {
+  InvalidTestMode = 'invalid_test_mode',
+  InvalidElectionHash = 'invalid_election_hash',
+  Unreadable = 'unreadable',
+}
+
+export type ScanningResult =
+  | AcceptedScanningResult
+  | RejectedScanningResult
+  | ScanningResultNeedsReview
+
+export interface AcceptedScanningResult {
+  resultType: ScanningResultType.Accepted
+}
+
+export interface RejectedScanningResult {
+  resultType: ScanningResultType.Rejected
+  rejectionReason: RejectedScanningReason
+}
+
+export interface ScanningResultNeedsReview {
+  resultType: ScanningResultType.NeedsReview
+  adjudicationReasons: AdjudicationReason[]
 }
 
 export type ISO8601Timestamp = string

@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Button, Prose, Text } from '@votingworks/ui'
 
+import { AdjudicationReason } from '@votingworks/types'
 import { PlaceholderGraphic } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
@@ -10,8 +11,12 @@ import Modal from '../components/Modal'
 
 interface Props {
   acceptBallot: () => Promise<void>
+  adjudicationReasons: AdjudicationReason[]
 }
-const ScanWarningScreen: React.FC<Props> = ({ acceptBallot }) => {
+const ScanWarningScreen: React.FC<Props> = ({
+  acceptBallot,
+  adjudicationReasons,
+}) => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = () => setConfirmTabulate(true)
   const closeConfirmTabulateModal = () => setConfirmTabulate(false)
@@ -21,11 +26,20 @@ const ScanWarningScreen: React.FC<Props> = ({ acceptBallot }) => {
     acceptBallot()
   }
 
+  const isOvervote = adjudicationReasons.includes(AdjudicationReason.Overvote)
+  const isBlank = adjudicationReasons.includes(AdjudicationReason.BlankBallot)
+
   return (
     <CenteredScreen infoBar={false}>
       <PlaceholderGraphic />
       <CenteredLargeProse>
-        <h1>Overvote Warning</h1>
+        <h1>
+          {isOvervote
+            ? 'Overvote Warning'
+            : isBlank
+            ? 'Blank Ballot'
+            : 'Ballot Requires Review'}
+        </h1>
         <p>Remove the ballot, fix the issue, then scan again.</p>
         <Text italic>Ask a poll worker if you need assistance.</Text>
       </CenteredLargeProse>

@@ -3,17 +3,42 @@ import { Button } from '@votingworks/ui'
 import { Absolute } from '../components/Absolute'
 import { PlaceholderGraphic } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import { RejectedScanningReason } from '../config/types'
 
 interface Props {
   dismissError?: () => void
+  rejectionReason?: RejectedScanningReason
 }
 
-const ScanErrorScreen: React.FC<Props> = ({ dismissError }) => {
+const ScanErrorScreen: React.FC<Props> = ({
+  dismissError,
+  rejectionReason,
+}) => {
+  let errorInformation = ''
+  if (rejectionReason) {
+    switch (rejectionReason) {
+      case RejectedScanningReason.InvalidTestMode: {
+        // TODO(caro) use current isTestMode here
+        errorInformation = 'Test ballot detected.'
+        break
+      }
+      case RejectedScanningReason.InvalidElectionHash: {
+        errorInformation =
+          'Scanned ballot does not match the election this scanner is configured for.'
+        break
+      }
+      case RejectedScanningReason.Unreadable: {
+        errorInformation =
+          'There was a problem reading this ballot. Please try again.'
+      }
+    }
+  }
   return (
     <CenteredScreen infoBar={false}>
       <PlaceholderGraphic />
       <CenteredLargeProse>
         <h1>Scanning Error</h1>
+        <p>{errorInformation}</p>
         <p>Please request Poll Worker assistance.</p>
       </CenteredLargeProse>
       {dismissError && (

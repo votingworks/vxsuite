@@ -1,9 +1,15 @@
+import { AdjudicationReason } from '@votingworks/types'
 import {
   ScanStatusResponse,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
-import { BallotSheetInfo, ScanningResult } from '../config/types'
+import {
+  BallotSheetInfo,
+  RejectedScanningReason,
+  ScanningResult,
+  ScanningResultType,
+} from '../config/types'
 import fetchJSON from '../utils/fetchJSON'
 
 const debug = makeDebug('precinct-scanner:api:scan')
@@ -57,22 +63,50 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
     }
 
     if (batch.endedAt && status.adjudication.remaining === 0) {
-      return ScanningResult.Accepted
+      return { resultType: ScanningResultType.Accepted }
     }
 
+    const adjudicationReasons: AdjudicationReason[] = []
     if (status.adjudication.remaining > 0) {
       const sheetInfo = await fetchJSON<BallotSheetInfo>(
         '/scan/hmpb/review/next-sheet'
       )
 
-      if (
-        sheetInfo.front.interpretation.type === 'InterpretedHmpbPage' &&
-        sheetInfo.back.interpretation.type === 'InterpretedHmpbPage'
-      ) {
-        return ScanningResult.NeedsReview
+      for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
+        if (interpretation.type === 'InvalidTestModePage') {
+          return {
+            resultType: ScanningResultType.Rejected,
+            rejectionReason: RejectedScanningReason.InvalidTestMode,
+          }
+        }
+        if (interpretation.type === 'InvalidElectionHashPage') {
+          return {
+            resultType: ScanningResultType.Rejected,
+            rejectionReason: RejectedScanningReason.InvalidElectionHash,
+          }
+        }
+        if (interpretation.type === 'InterpretedHmpbPage') {
+          if (interpretation.adjudicationInfo.requiresAdjudication) {
+            for (const { type } of interpretation.adjudicationInfo
+              .allReasonInfos) {
+              if (
+                interpretation.adjudicationInfo.enabledReasons.includes(type)
+              ) {
+                adjudicationReasons.push(type)
+              }
+            }
+          }
+        } else {
+          return {
+            resultType: ScanningResultType.Rejected,
+            rejectionReason: RejectedScanningReason.Unreadable,
+          }
+        }
       }
-
-      return ScanningResult.Rejected
+      return {
+        resultType: ScanningResultType.NeedsReview,
+        adjudicationReasons,
+      }
     }
 
     await new Promise((resolve) => setTimeout(resolve, 100))

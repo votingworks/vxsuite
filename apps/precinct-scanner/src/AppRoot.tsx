@@ -5,6 +5,7 @@ import useInterval from '@rooks/use-interval'
 import 'normalize.css'
 
 import {
+  AdjudicationReason,
   ElectionDefinition,
   OptionalElectionDefinition,
 } from '@votingworks/types'
@@ -49,7 +50,12 @@ import {
   doMount,
   UsbDriveStatus,
 } from './utils/usbstick'
-import { BallotState, ScanningResult, ISO8601Timestamp } from './config/types'
+import {
+  BallotState,
+  ScanningResultType,
+  ISO8601Timestamp,
+  RejectedScanningReason,
+} from './config/types'
 import * as config from './api/config'
 import * as scan from './api/scan'
 import throwIllegalValue from './utils/throwIllegalValue'
@@ -82,6 +88,8 @@ interface SharedState {
   ballotState: BallotState
   timeoutToInsertScreen?: number
   isStatusPollingEnabled: boolean
+  adjudicationReasons: AdjudicationReason[]
+  rejectionReason?: RejectedScanningReason
 }
 
 export interface State extends HardwareState, SharedState {}
@@ -99,6 +107,8 @@ const initialSharedState: Readonly<SharedState> = {
   scannedBallotCount: 0,
   ballotState: BallotState.IDLE,
   isStatusPollingEnabled: true,
+  adjudicationReasons: [],
+  rejectionReason: undefined,
 }
 
 const initialAppState: Readonly<State> = {
@@ -129,9 +139,11 @@ type AppAction =
     }
   | {
       type: 'ballotNeedsReview'
+      adjudicationReasons: AdjudicationReason[]
     }
   | {
       type: 'ballotRejected'
+      rejectionReason?: RejectedScanningReason
     }
   | {
       type: 'scannerError'
@@ -188,6 +200,8 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         ballotState: BallotState.SCANNING,
+        rejectionReason: undefined,
+        adjudicationReasons: [],
         timeoutToInsertScreen: undefined,
         scannedBallotCount:
           action.ballotCount === undefined
@@ -198,6 +212,8 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         ballotState: BallotState.CAST,
+        rejectionReason: undefined,
+        adjudicationReasons: [],
         timeoutToInsertScreen: action.timeoutToInsertScreen,
       }
     case 'scannerError':
@@ -205,6 +221,8 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         ballotState: BallotState.SCANNER_ERROR,
         timeoutToInsertScreen: action.timeoutToInsertScreen,
+        rejectionReason: undefined,
+        adjudicationReasons: [],
         scannedBallotCount:
           action.ballotCount === undefined
             ? state.scannedBallotCount
@@ -213,17 +231,23 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'ballotRejected':
       return {
         ...state,
+        rejectionReason: action.rejectionReason,
+        adjudicationReasons: [],
         ballotState: BallotState.REJECTED,
       }
     case 'ballotNeedsReview':
       return {
         ...state,
+        rejectionReason: undefined,
+        adjudicationReasons: action.adjudicationReasons,
         ballotState: BallotState.NEEDS_REVIEW,
       }
     case 'readyToInsertBallot':
       return {
         ...state,
         ballotState: BallotState.IDLE,
+        rejectionReason: undefined,
+        adjudicationReasons: [],
         scannedBallotCount:
           action.ballotCount === undefined
             ? state.scannedBallotCount
@@ -258,6 +282,8 @@ const AppRoot: React.FC<Props> = () => {
     scannedBallotCount,
     timeoutToInsertScreen,
     isStatusPollingEnabled,
+    adjudicationReasons,
+    rejectionReason,
   } = appState
 
   const refreshConfig = useCallback(async () => {
@@ -281,17 +307,21 @@ const AppRoot: React.FC<Props> = () => {
     try {
       dispatchAppState({ type: 'disableStatusPolling' })
       const scanningResult = await scan.scanDetectedSheet()
-      switch (scanningResult) {
-        case ScanningResult.Rejected: {
+      switch (scanningResult.resultType) {
+        case ScanningResultType.Rejected: {
           dispatchAppState({
             type: 'ballotRejected',
+            rejectionReason: scanningResult.rejectionReason,
           })
           break
         }
-        case ScanningResult.NeedsReview:
-          dispatchAppState({ type: 'ballotNeedsReview' })
+        case ScanningResultType.NeedsReview:
+          dispatchAppState({
+            type: 'ballotNeedsReview',
+            adjudicationReasons: scanningResult.adjudicationReasons,
+          })
           break
-        case ScanningResult.Accepted: {
+        case ScanningResultType.Accepted: {
           dispatchAppState({
             type: 'ballotCast',
             timeoutToInsertScreen: dismissCurrentBallotMessage(),
@@ -538,7 +568,12 @@ const AppRoot: React.FC<Props> = () => {
     case BallotState.SCANNING:
       return <BallotScanningScreen />
     case BallotState.NEEDS_REVIEW:
-      return <ScanWarningScreen acceptBallot={acceptBallot} />
+      return (
+        <ScanWarningScreen
+          acceptBallot={acceptBallot}
+          adjudicationReasons={adjudicationReasons}
+        />
+      )
     case BallotState.CAST:
       return (
         <ScanSuccessScreen
@@ -550,7 +585,7 @@ const AppRoot: React.FC<Props> = () => {
       // TODO(caro) update to generic error screen
       return <ScanErrorScreen dismissError={dismissError} />
     case BallotState.REJECTED:
-      return <ScanErrorScreen />
+      return <ScanErrorScreen rejectionReason={rejectionReason} />
     /* istanbul ignore next */
     default:
       throwIllegalValue(ballotState)
