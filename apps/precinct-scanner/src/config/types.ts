@@ -31,6 +31,7 @@ export enum RejectedScanningReason {
   InvalidTestMode = 'invalid_test_mode',
   InvalidElectionHash = 'invalid_election_hash',
   Unreadable = 'unreadable',
+  Unknown = 'unknown',
 }
 
 export type ScanningResult =

@@ -66,6 +66,13 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
     }
 
     if (batch.endedAt && status.adjudication.remaining === 0) {
+      if (batch.count === 0) {
+        // This can happen if the paper is janked out during scanning.
+        return {
+          resultType: ScanningResultType.Rejected,
+          rejectionReason: RejectedScanningReason.Unknown,
+        }
+      }
       return { resultType: ScanningResultType.Accepted }
     }
 

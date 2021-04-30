@@ -15,7 +15,7 @@ const ScanErrorScreen: React.FC<Props> = ({
   rejectionReason,
 }) => {
   let errorInformation = ''
-  if (rejectionReason) {
+  if (rejectionReason && rejectionReason !== RejectedScanningReason.Unknown) {
     switch (rejectionReason) {
       case RejectedScanningReason.InvalidTestMode: {
         // TODO(caro) use current isTestMode here
