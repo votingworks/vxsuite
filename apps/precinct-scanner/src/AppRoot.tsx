@@ -233,7 +233,6 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'updateBallotCount':
       return {
         ...state,
-        ballotState: BallotState.IDLE,
         scannedBallotCount: action.ballotCount,
       }
     case 'disableStatusPolling':
