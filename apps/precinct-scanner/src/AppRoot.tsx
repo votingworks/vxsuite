@@ -636,7 +636,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
       endBallotStatusPolling()
       await refreshConfig()
     } catch (error) {
-      debug('failed unconfigureServer()', error) // eslint-disable-line no-console
+      debug('failed unconfigureServer()', error)
     } finally {
       dispatchAppState({ type: 'endLoading' })
     }
