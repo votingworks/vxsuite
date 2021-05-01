@@ -4,7 +4,6 @@ import {
   GetElectionConfigResponse,
   GetElectionConfigResponseSchema,
   GetTestModeConfigResponseSchema,
-  PatchElectionConfigRequest,
   PatchTestModeConfigRequest,
 } from '@votingworks/types/api/module-scan'
 
@@ -58,10 +57,8 @@ export async function setElection(electionData?: string): Promise<void> {
   if (typeof electionData === 'undefined') {
     await del('/config/election')
   } else {
-    await patch<PatchElectionConfigRequest>(
-      '/config/election',
-      new TextEncoder().encode(electionData)
-    )
+    // TODO(caro) add proper typing here
+    await patch('/config/election', electionData)
   }
 }
 
