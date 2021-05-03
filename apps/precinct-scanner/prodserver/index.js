@@ -24,4 +24,4 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'))
 })
 
-app.listen(port, () => console.log(`Election Manager running at http://localhost:${port}/`))
+app.listen(port, () => console.log(`Precinct Scanner running at http://localhost:${port}/`))

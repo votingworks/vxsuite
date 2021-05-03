@@ -5,6 +5,14 @@ export type Optional<T> = T | undefined
 export interface Provider<T> {
   get(): Promise<T>
 }
+export interface OkAPIResponse {
+  status: 'ok'
+}
+
+export interface ErrorAPIResponse {
+  status: 'error'
+  error: string
+}
 
 /**
  * Represents either success with a value `T` or failure with error `E`.
