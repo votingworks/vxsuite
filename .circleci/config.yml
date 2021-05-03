@@ -159,6 +159,38 @@ jobs:
           command: |
             make -C apps/module-smartcards typecheck
 
+  test-plustek-sdk:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/plustek-sdk build
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir libs/plustek-sdk lint
+      - run:
+          name: Run Tests with Coverage
+          command: |
+            pnpm --dir libs/plustek-sdk test:coverage
+
+  test-precinct-scanner:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir apps/precinct-scanner lint
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            pnpm --dir apps/precinct-scanner test:coverage
+
   test-types:
     executor: nodejs
     resource_class: xlarge
@@ -187,20 +219,6 @@ jobs:
           command: |
             pnpm --dir libs/ui test:coverage
 
-  test-precinct-scanner:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Run Linters
-          command: |
-            pnpm --dir apps/precinct-scanner lint
-      - run:
-          name: Run Front-End Test and Coverage
-          command: |
-            pnpm --dir apps/precinct-scanner test:coverage
-
 workflows:
   test:
     jobs:
@@ -214,9 +232,10 @@ workflows:
       - test-lsd
       - test-module-scan
       - test-module-smartcards
+      - test-plustek-sdk
+      - test-precinct-scanner
       - test-types
       - test-ui
-      - test-precinct-scanner
 
 commands:
   checkout-and-install:
@@ -254,6 +273,7 @@ commands:
             - libs/fixtures/node_modules
             - libs/hmpb-interpreter/node_modules
             - libs/lsd/node_modules
+            - libs/plustek-sdk/node_modules
             - libs/types/node_modules
             - libs/@types/jsfeat/node_modules
             - libs/@types/node-quirc/node_modules
