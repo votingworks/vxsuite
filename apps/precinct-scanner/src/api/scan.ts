@@ -1,6 +1,7 @@
 import { AdjudicationReason } from '@votingworks/types'
 import {
   GetScanStatusResponse,
+  ScanContinueRequest,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
@@ -113,12 +114,14 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 }
 
 export async function acceptBallotAfterReview(): Promise<boolean> {
-  const data = new URLSearchParams()
-  data.append('override', '1')
+  const body: ScanContinueRequest = { override: true }
   const result = await (
     await fetch('/scan/scanContinue', {
       method: 'post',
-      body: data,
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
   ).json()
   if (result.status !== 'ok') {
