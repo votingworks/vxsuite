@@ -1,5 +1,6 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, { useState } from 'react'
 import styled, { css, StyledComponent } from 'styled-components'
+import { EventTargetFunction } from '../config/types'
 
 export interface ButtonInterface {
   readonly big?: boolean
@@ -16,15 +17,19 @@ interface StyledButtonProps
   extends ButtonInterface,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
+export const buttonFocusStyle = css`
+  outline: none;
+`
 const buttonStyles = css<StyledButtonProps>`
-  border: none;
   display: inline-block;
+  border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
-  background: ${({ danger = false, primary = false, warning = false }) =>
+  background: ${({ disabled, danger, warning, primary }) =>
+    (disabled && 'rgb(211, 211, 211)') ||
     (danger && 'red') ||
+    (warning && 'darkorange') ||
     (primary && 'rgb(71, 167, 75)') ||
-    (warning && '#ffff00') ||
     'rgb(211, 211, 211)'};
   cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
@@ -44,20 +49,27 @@ const buttonStyles = css<StyledButtonProps>`
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 1),
       0 0 0 4px rgba(100, 100, 100, 0.9);
   }
+  &:focus {
+    ${buttonFocusStyle}/* stylelint-disable-line value-keyword-case */
+  }
+  &:hover,
+  &:active {
+    outline: none;
+  }
 `
 
 export const DecoyButton = styled.div`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
-const StyledButton = styled('button').attrs((props) => ({
-  type: props.type ?? 'button',
+const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
+  type,
 }))`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
 export interface Props extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
-  onPress: MouseEventHandler
+  onPress: EventTargetFunction
   ref?: React.Ref<HTMLButtonElement>
 }
 
@@ -77,8 +89,7 @@ const Button = React.forwardRef<HTMLButtonElement, Props>(
         Math.abs(startCoordinates[0] - clientX) < maxMove &&
         Math.abs(startCoordinates[1] - clientY) < maxMove
       ) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onPress(event as any)
+        onPress(event)
         event.preventDefault()
       }
     }
@@ -122,10 +133,6 @@ export const SegmentedButton = styled.span`
 
 export const LabelButton = styled.label`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
-`
-
-export const buttonFocusStyle = css`
-  outline: none;
 `
 
 export default Button

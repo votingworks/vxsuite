@@ -2,6 +2,7 @@
 
 exports[`renders CastBallotPage 1`] = `
 .c7 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -12,6 +13,15 @@ exports[`renders CastBallotPage 1`] = `
   line-height: 1.25;
   color: black;
   touch-action: manipulation;
+}
+
+.c7:focus {
+  outline: none;
+}
+
+.c7:hover,
+.c7:active {
+  outline: none;
 }
 
 .c1 {

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 
-import { ButtonEventFunction } from '../config/types'
+import { EventTargetFunction } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
 import NavigationScreen from '../components/NavigationScreen'
@@ -15,8 +15,9 @@ const DefinitionScreen: React.FC = () => {
 
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
 
-  const programCard: ButtonEventFunction = async (event) => {
-    const { id } = event.currentTarget.dataset
+  const programCard: EventTargetFunction = async (event) => {
+    const target = event.currentTarget as HTMLButtonElement
+    const { id } = target.dataset
     setIsProgrammingCard(true)
 
     if (id === 'override') {

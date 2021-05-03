@@ -283,6 +283,7 @@ exports[`renders StartPage 1`] = `
 }
 
 .c9 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -296,7 +297,17 @@ exports[`renders StartPage 1`] = `
   touch-action: manipulation;
 }
 
+.c9:focus {
+  outline: none;
+}
+
+.c9:hover,
+.c9:active {
+  outline: none;
+}
+
 .c16 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -309,7 +320,17 @@ exports[`renders StartPage 1`] = `
   touch-action: manipulation;
 }
 
+.c16:focus {
+  outline: none;
+}
+
+.c16:hover,
+.c16:active {
+  outline: none;
+}
+
 .c17 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -320,6 +341,15 @@ exports[`renders StartPage 1`] = `
   line-height: 1.25;
   color: #FFFFFF;
   touch-action: manipulation;
+}
+
+.c17:focus {
+  outline: none;
+}
+
+.c17:hover,
+.c17:active {
+  outline: none;
 }
 
 .c15 {
@@ -965,6 +995,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 .c9 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -978,7 +1009,17 @@ exports[`renders StartPage with inline SVG 1`] = `
   touch-action: manipulation;
 }
 
+.c9:focus {
+  outline: none;
+}
+
+.c9:hover,
+.c9:active {
+  outline: none;
+}
+
 .c16 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -991,7 +1032,17 @@ exports[`renders StartPage with inline SVG 1`] = `
   touch-action: manipulation;
 }
 
+.c16:focus {
+  outline: none;
+}
+
+.c16:hover,
+.c16:active {
+  outline: none;
+}
+
 .c17 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -1002,6 +1053,15 @@ exports[`renders StartPage with inline SVG 1`] = `
   line-height: 1.25;
   color: #FFFFFF;
   touch-action: manipulation;
+}
+
+.c17:focus {
+  outline: none;
+}
+
+.c17:hover,
+.c17:active {
+  outline: none;
 }
 
 .c15 {
@@ -1800,6 +1860,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 .c9 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -1813,7 +1874,17 @@ exports[`renders StartPage with no seal 1`] = `
   touch-action: manipulation;
 }
 
+.c9:focus {
+  outline: none;
+}
+
+.c9:hover,
+.c9:active {
+  outline: none;
+}
+
 .c16 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -1826,7 +1897,17 @@ exports[`renders StartPage with no seal 1`] = `
   touch-action: manipulation;
 }
 
+.c16:focus {
+  outline: none;
+}
+
+.c16:hover,
+.c16:active {
+  outline: none;
+}
+
 .c17 {
+  display: inline-block;
   border: none;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0 rgba(71,167,75,1);
@@ -1837,6 +1918,15 @@ exports[`renders StartPage with no seal 1`] = `
   line-height: 1.25;
   color: #FFFFFF;
   touch-action: manipulation;
+}
+
+.c17:focus {
+  outline: none;
+}
+
+.c17:hover,
+.c17:active {
+  outline: none;
 }
 
 .c15 {

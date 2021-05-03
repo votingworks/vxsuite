@@ -34,6 +34,15 @@ it('renders danger Button', () => {
   expect(container.firstChild).toMatchSnapshot()
 })
 
+it('renders warning Button', () => {
+  const { container } = render(
+    <Button onPress={jest.fn()} warning>
+      Danger!
+    </Button>
+  )
+  expect(container.firstChild).toMatchSnapshot()
+})
+
 it('renders big Button', () => {
   const { container } = render(
     <Button onPress={jest.fn()} big>
@@ -46,6 +55,15 @@ it('renders big Button', () => {
 it('renders small Button', () => {
   const { container } = render(
     <Button onPress={jest.fn()} small>
+      I’m a small button!
+    </Button>
+  )
+  expect(container.firstChild).toMatchSnapshot()
+})
+
+it('renders disabled Button', () => {
+  const { container } = render(
+    <Button onPress={jest.fn()} disabled>
       I’m a small button!
     </Button>
   )
