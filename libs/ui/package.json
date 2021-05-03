@@ -47,6 +47,7 @@
     "@types/styled-components": "^5.1.9",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
+    "@votingworks/types": "workspace:*",
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.10.0",
