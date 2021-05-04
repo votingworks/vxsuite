@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders Prose with defaults 1`] = `
+exports[`renders Screen with defaults 1`] = `
 <div
   class="sc-bdvvaa fgnmIK"
 >
@@ -14,7 +14,7 @@ exports[`renders Prose with defaults 1`] = `
 </div>
 `;
 
-exports[`renders Prose with with all non-default options 1`] = `
+exports[`renders Screen with with all non-default options 1`] = `
 <div
   class="sc-bdvvaa fnFHGz"
 >

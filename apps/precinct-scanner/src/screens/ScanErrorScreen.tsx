@@ -1,22 +1,28 @@
 /* istanbul ignore file */
 import React from 'react'
-import { Prose, Main, MainChild, Screen } from '@votingworks/ui'
+import { Prose, Main, MainChild, Screen, Button } from '@votingworks/ui'
+import { TopRightContent } from '../components/AbsoluteElements'
 
-const ScanErrorScreen: React.FC = () => (
-  <Screen>
-    <Main>
-      <MainChild center>
-        <Prose textCenter>
-          <h1>Scan Error</h1>
-          <p>Error message here.</p>
-          <p>
-            “OK” Button to dismiss screen. Inserting another ballot into the
-            scanner will also dismiss the error screen.
-          </p>
-        </Prose>
-      </MainChild>
-    </Main>
-  </Screen>
-)
+const ScanErrorScreen: React.FC = () => {
+  const onPressPlaceholder = () => {
+    // eslint-disable-next-line no-console
+    console.log('dismiss screen')
+  }
+  return (
+    <Screen>
+      <Main>
+        <MainChild center>
+          <Prose textCenter>
+            <h1>Scanning Error</h1>
+            <p>Please request Poll Worker assistance.</p>
+          </Prose>
+          <TopRightContent>
+            <Button onPress={onPressPlaceholder}>Dismiss</Button>
+          </TopRightContent>
+        </MainChild>
+      </Main>
+    </Screen>
+  )
+}
 
 export default ScanErrorScreen

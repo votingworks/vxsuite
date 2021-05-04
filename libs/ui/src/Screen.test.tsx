@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import { Screen } from './Screen'
 
-describe('renders Prose', () => {
+describe('renders Screen', () => {
   test('with defaults', async () => {
     const { container } = render(
       <Screen>

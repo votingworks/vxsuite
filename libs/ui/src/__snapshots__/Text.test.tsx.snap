@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Text align left preLine normal italic 1`] = `
+<p
+  class="sc-bdvvaa gaMBRT"
+>
+  align left preLine
+</p>
+`;
+
+exports[`renders Text align right nowrap light 1`] = `
+<p
+  class="sc-bdvvaa kSkmOo"
+>
+  align right nowrap
+</p>
+`;
+
+exports[`renders Text as paragraph tag 1`] = `
+<p
+  class="sc-bdvvaa NLRzK"
+>
+  paragraph
+</p>
+`;
+
+exports[`renders Text center muted 1`] = `
+<p
+  class="sc-bdvvaa gNjqFD"
+>
+  center muted?
+</p>
+`;
+
+exports[`renders Text displays error style 1`] = `
+<p
+  class="sc-bdvvaa fqphgu"
+>
+  Error Text?
+</p>
+`;
+
+exports[`renders Text narrow wordBreak warning 1`] = `
+<p
+  class="sc-bdvvaa gaOGIS"
+>
+  narrow wordBreak
+</p>
+`;
+
+exports[`renders Text small white bold 1`] = `
+<p
+  class="sc-bdvvaa bvaQuG"
+>
+  small white bold
+</p>
+`;
+
+exports[`renders Text vote icon 1`] = `
+<p
+  class="sc-bdvvaa jElMFl"
+>
+  vote!
+</p>
+`;
+
+exports[`renders Text warning icon 1`] = `
+<p
+  class="sc-bdvvaa gOYdAO"
+>
+  Warning
+</p>
+`;
