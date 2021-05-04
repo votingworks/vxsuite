@@ -1,6 +1,8 @@
 /* istanbul ignore file */
 import React from 'react'
 import { Prose, Main, MainChild, Screen } from '@votingworks/ui'
+import { TopLeftContent } from '../components/AbsoluteElements'
+import ElectionInfoBar from '../components/ElectionInfoBar'
 
 const InsertBallotScreen: React.FC = () => (
   <Screen>
@@ -8,15 +10,16 @@ const InsertBallotScreen: React.FC = () => (
       <MainChild center>
         <Prose textCenter>
           <h1>Insert Ballot</h1>
-          <p>Insert one single sheet at a time.</p>
-          <small>
-            <p>
-              Election Info: title, date, county, state, precinct name, election
-              ID
-            </p>
-            <p>Ballots Scanned: 0</p>
-          </small>
+          <p>Insert each sheet individually.</p>
         </Prose>
+        <TopLeftContent>
+          <Prose>
+            <p>
+              Ballots Scanned: <strong>0</strong>
+            </p>
+          </Prose>
+        </TopLeftContent>
+        <ElectionInfoBar />
       </MainChild>
     </Main>
   </Screen>

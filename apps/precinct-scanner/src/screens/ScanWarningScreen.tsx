@@ -1,22 +1,46 @@
 /* istanbul ignore file */
 import React from 'react'
-import { Prose, Main, MainChild, Screen } from '@votingworks/ui'
+import { Prose, Main, MainChild, Screen, Button } from '@votingworks/ui'
+import { BottomRightContent } from '../components/AbsoluteElements'
 
-const ScanErrorScreen: React.FC = () => (
-  <Screen>
-    <Main>
-      <MainChild center>
-        <Prose textCenter>
-          <h1>Scan Warning (overvote, undervote, blank)</h1>
-          <p>Warning description message here.</p>
-          <p>
-            Tabulate Button - “Tabulate with Overvote” “Tabulate Blank Ballot”
-            or “Tabulate with Undervote”
-          </p>
-        </Prose>
-      </MainChild>
-    </Main>
-  </Screen>
-)
+const ScanWarningScreen: React.FC = () => {
+  const onPressPlaceholder = () => {
+    // eslint-disable-next-line no-console
+    console.log('dismiss screen')
+  }
 
-export default ScanErrorScreen
+  return (
+    <Screen>
+      <Main>
+        <MainChild center>
+          <Prose textCenter>
+            <h1>
+              Overvote Warning
+              {/* Undervote Warning */}
+              {/* Blank Ballot Warning */}
+              {/* Multiple Issues Detected */}
+            </h1>
+            <p>Details of the overvote/undervote/blank here.</p>
+            <p>
+              <strong>Remove the ballot and correct this error.</strong>
+              <br />
+              Ask a poll worker if you need assistance.
+            </p>
+            <BottomRightContent>
+              <p>
+                If you wish to cast the ballot as is, you may{' '}
+                <Button onPress={onPressPlaceholder}>
+                  Tabulate Ballot with Overvote
+                </Button>
+                {/* “Tabulate Blank Ballot” */}
+                {/* “Tabulate with Undervote” */}
+              </p>
+            </BottomRightContent>
+          </Prose>
+        </MainChild>
+      </Main>
+    </Screen>
+  )
+}
+
+export default ScanWarningScreen
