@@ -61,7 +61,7 @@ const ScanWarningScreen: React.FC<Props> = ({
           }
           actions={
             <React.Fragment>
-              <Button danger onPress={tabulateBallot}>
+              <Button primary onPress={tabulateBallot}>
                 Yes, Tabulate Ballot
               </Button>
               <Button onPress={closeConfirmTabulateModal}>Cancel</Button>
