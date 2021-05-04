@@ -11,7 +11,6 @@ import {
   Precinct,
   VotesDict,
   YesNoContest,
-  YesNoVote,
 } from '@votingworks/types'
 import { Printer } from '../utils/printer'
 
@@ -83,7 +82,6 @@ export interface SerializableActivationData {
 }
 
 // Votes
-export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
 export type TallyCount = number
 export interface CandidateVoteTally {
   candidates: TallyCount[]

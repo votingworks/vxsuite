@@ -10,13 +10,13 @@ import {
   OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
   Optional,
+  YesOrNo,
 } from '@votingworks/types'
 
 import {
   EventTargetFunction,
   ScrollDirections,
   UpdateVoteFunction,
-  YesOrNo,
 } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'

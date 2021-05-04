@@ -1,5 +1,4 @@
-import { YesNoVote } from '@votingworks/types'
-import { YesOrNo } from '../config/types'
+import { YesNoVote, YesOrNo } from '@votingworks/types'
 
 export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   if (vote?.length === 1) {

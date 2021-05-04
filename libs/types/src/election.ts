@@ -128,6 +128,7 @@ export type OptionalElectionDefinition = Optional<ElectionDefinition>
 
 // Votes
 export type CandidateVote = readonly Candidate[]
+export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
 export type YesNoVote =
   | readonly ['yes']
   | readonly ['no']
