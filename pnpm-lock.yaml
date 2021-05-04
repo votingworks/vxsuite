@@ -581,6 +581,7 @@ importers:
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/plustek-sdk': link:../../libs/plustek-sdk
       '@votingworks/qrdetect': 1.0.1
       '@votingworks/types': link:../../libs/types
       base64-js: 1.5.1
@@ -667,6 +668,7 @@ importers:
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/plustek-sdk': workspace:*
       '@votingworks/qrdetect': ^1.0.1
       '@votingworks/types': workspace:*
       base64-js: ^1.5.1
