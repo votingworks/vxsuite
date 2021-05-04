@@ -542,7 +542,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         case ScannerStatus.Error:
         case ScannerStatus.Unknown: {
           // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
-          // TODO(caro) Bugs in module-scan make this happen at confusing moments, ignore for now.
+          // TODO(531) Bugs in module-scan make this happen at confusing moments, ignore for now.
           debug('got a bad scanner status', scannerState)
           /* dispatchAppState({
             type: 'scannerError',
@@ -832,9 +832,16 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         />
       )
     case BallotState.SCANNER_ERROR:
-      return <ScanErrorScreen dismissError={dismissError} />
+      return (
+        <ScanErrorScreen dismissError={dismissError} isTestMode={isTestMode} />
+      )
     case BallotState.REJECTED:
-      return <ScanErrorScreen rejectionReason={rejectionReason} />
+      return (
+        <ScanErrorScreen
+          rejectionReason={rejectionReason}
+          isTestMode={isTestMode}
+        />
+      )
     /* istanbul ignore next */
     default:
       throwIllegalValue(ballotState)

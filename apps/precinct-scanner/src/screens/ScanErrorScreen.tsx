@@ -8,18 +8,21 @@ import { RejectedScanningReason } from '../config/types'
 interface Props {
   dismissError?: () => void
   rejectionReason?: RejectedScanningReason
+  isTestMode: boolean
 }
 
 const ScanErrorScreen: React.FC<Props> = ({
   dismissError,
   rejectionReason,
+  isTestMode,
 }) => {
   let errorInformation = ''
   if (rejectionReason && rejectionReason !== RejectedScanningReason.Unknown) {
     switch (rejectionReason) {
       case RejectedScanningReason.InvalidTestMode: {
-        // TODO(caro) use current isTestMode here
-        errorInformation = 'Test ballot detected.'
+        errorInformation = isTestMode
+          ? 'Live Ballot detected.'
+          : 'Test ballot detected.'
         break
       }
       case RejectedScanningReason.InvalidElectionHash: {

@@ -57,7 +57,7 @@ export async function setElection(electionData?: string): Promise<void> {
   if (typeof electionData === 'undefined') {
     await del('/config/election')
   } else {
-    // TODO(caro) add proper typing here
+    // TODO(528) add proper typing here
     await patch('/config/election', electionData)
   }
 }

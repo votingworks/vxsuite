@@ -1,5 +1,4 @@
 import { waitFor, act } from '@testing-library/react'
-// TODO(caro) move to test-utils submodule
 export const IDLE_TIMEOUT_SECONDS = 5 * 60 // 5 minute
 export const advanceTimers = (seconds = 0): void => {
   const maxSeconds = IDLE_TIMEOUT_SECONDS
