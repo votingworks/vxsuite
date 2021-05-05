@@ -7,7 +7,7 @@ import {
   computeTallyForEitherNeitherContests,
 } from './cardTallies'
 
-import electionSample from '../data/electionSample.json'
+import electionSample from './data/electionSample.json'
 
 const election = electionSample as Election
 

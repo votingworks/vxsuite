@@ -68,6 +68,7 @@ export const buildVoteFromCvr = ({
       return
     }
 
+    /* istanbul ignore else */
     if (contest.type === 'candidate') {
       vote[contest.id] = (cvr[contest.id] as string[])
         .map((candidateId) => normalizeWriteInId(candidateId))

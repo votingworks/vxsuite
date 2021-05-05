@@ -1,4 +1,3 @@
-
 export type TallyCount = number
 export interface CandidateVoteTally {
   candidates: TallyCount[]
@@ -25,6 +24,7 @@ export interface MsEitherNeitherTally {
   pickOneUndervotes: TallyCount
   pickOneOvervotes: TallyCount
 }
+
 export type Tally = (
   | CandidateVoteTally
   | YesNoVoteTally
