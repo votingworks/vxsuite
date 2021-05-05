@@ -1,20 +1,31 @@
-/* istanbul ignore file */
 import React, { useState } from 'react'
 
-import { Precinct, ElectionDefinition } from '@votingworks/types'
-import { Button, Prose } from '@votingworks/ui'
+import { ElectionDefinition, Precinct } from '@votingworks/types'
+import { Button, Prose, Loading } from '@votingworks/ui'
 import { CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
+import {
+  PrecinctScannerCardTally,
+  CardTallyMetadataEntry,
+  CastVoteRecord,
+  TallySourceMachineType,
+  MachineConfig,
+} from '../config/types'
+
+import { calculateTallyFromCVRs } from '../utils/tallies'
 
 interface Props {
-  appPrecinctId: string
+  appPrecinctId: string | undefined
   ballotsScannedCount: number
   electionDefinition: ElectionDefinition
   isPollsOpen: boolean
-  openPolls: () => void
-  closePolls: () => void
+  isLiveMode: boolean
+  togglePollsOpen: () => void
+  getCVRsFromExport: () => Promise<CastVoteRecord[]>
+  saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>
+  machineConfig: Readonly<MachineConfig>
 }
 
 const PollWorkerScreen: React.FC<Props> = ({
@@ -22,9 +33,36 @@ const PollWorkerScreen: React.FC<Props> = ({
   ballotsScannedCount,
   electionDefinition,
   isPollsOpen,
-  openPolls,
-  closePolls,
+  togglePollsOpen,
+  getCVRsFromExport,
+  saveTallyToCard,
+  isLiveMode,
+  machineConfig,
 }) => {
+  const [isSavingTallyToCard, setIsSavingTallyToCard] = useState(false)
+
+  const calculateAndSaveTally = async () => {
+    const castVoteRecords = await getCVRsFromExport()
+    const tally = calculateTallyFromCVRs(
+      castVoteRecords,
+      electionDefinition.election
+    )
+    const cardTally = {
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: ballotsScannedCount,
+      isLiveMode,
+      tally,
+      metadata: [
+        {
+          machineId: machineConfig.machineId,
+          timeSaved: Date.now(),
+          ballotCount: ballotsScannedCount,
+        } as CardTallyMetadataEntry,
+      ],
+    } as PrecinctScannerCardTally
+    await saveTallyToCard(cardTally)
+  }
+
   const { election } = electionDefinition
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId
@@ -33,18 +71,26 @@ const PollWorkerScreen: React.FC<Props> = ({
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false)
   const openConfirmOpenPollsModal = () => setConfirmOpenPolls(true)
   const closeConfirmOpenPollsModal = () => setConfirmOpenPolls(false)
-  const openPollsAndSaveZeroReport = () => {
-    openPolls()
+  const openPollsAndSaveZeroReport = async () => {
+    setIsSavingTallyToCard(true)
+    await calculateAndSaveTally()
+    togglePollsOpen()
+    setIsSavingTallyToCard(false)
     closeConfirmOpenPollsModal()
   }
 
   const [confirmClosePolls, setConfirmClosePolls] = useState(false)
   const openConfirmClosePollsModal = () => setConfirmClosePolls(true)
   const closeConfirmClosePollsModal = () => setConfirmClosePolls(false)
-  const closePollsAndSaveTabulationReport = () => {
-    closePolls()
+  const closePollsAndSaveTabulationReport = async () => {
+    setIsSavingTallyToCard(true)
+    await calculateAndSaveTally()
+    togglePollsOpen()
+    setIsSavingTallyToCard(false)
     closeConfirmClosePollsModal()
   }
+
+  const precinctName = precinct === undefined ? 'All Precincts' : precinct.name
 
   return (
     <CenteredScreen infoBarMode="pollworker">
@@ -53,11 +99,11 @@ const PollWorkerScreen: React.FC<Props> = ({
         <p>
           {isPollsOpen ? (
             <Button large onPress={openConfirmClosePollsModal}>
-              Close Polls for {precinct.name}
+              Close Polls for {precinctName}
             </Button>
           ) : (
             <Button large onPress={openConfirmOpenPollsModal}>
-              Open Polls for {precinct.name}
+              Open Polls for {precinctName}
             </Button>
           )}
         </p>
@@ -69,7 +115,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           </div>
         </Bar>
       </Absolute>
-      {confirmOpenPolls && (
+      {confirmOpenPolls && !isSavingTallyToCard && (
         <Modal
           content={
             <Prose>
@@ -91,7 +137,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           }
         />
       )}
-      {confirmClosePolls && (
+      {confirmClosePolls && !isSavingTallyToCard && (
         <Modal
           content={
             <Prose>
@@ -112,6 +158,9 @@ const PollWorkerScreen: React.FC<Props> = ({
             </React.Fragment>
           }
         />
+      )}
+      {isSavingTallyToCard && (
+        <Modal content={<Loading>Saving to Card</Loading>} />
       )}
     </CenteredScreen>
   )

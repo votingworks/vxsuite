@@ -30,7 +30,7 @@ const InsertBallotScreen: React.FC<Props> = ({
       <Absolute top left>
         <Bar>
           <div>
-            Ballots Scanned:
+            Ballots Scanned:{' '}
             <strong data-testid="ballot-count">
               {format.count(scannedBallotCount)}
             </strong>

@@ -3,35 +3,35 @@
 exports[`Renders ElectionInfoBar 1`] = `
 <div>
   <div
-    class="sc-bqiQRQ frArmS"
+    class="sc-ksdxAp jvhYGX"
   >
     <div
-      class="sc-pVTma fVjNBH"
+      class="sc-iCfLBT bmLaUT"
     >
       <strong
-        class="sc-crHlIS ZRmpD"
+        class="sc-egiSv efaHyy"
       >
         General Election
       </strong>
        —
        
       <span
-        class="sc-crHlIS ZRmpD"
+        class="sc-egiSv efaHyy"
       >
         Tuesday, November 3, 2020
       </span>
       <div
-        class="sc-iqsfdx hHUHJL"
+        class="sc-crHlIS TTqOp"
       >
         <span
-          class="sc-crHlIS ZRmpD"
+          class="sc-egiSv efaHyy"
         >
           All Precincts
         </span>
          —
          
         <span
-          class="sc-crHlIS ZRmpD"
+          class="sc-egiSv efaHyy"
         >
           Franklin County
           ,
@@ -41,13 +41,13 @@ exports[`Renders ElectionInfoBar 1`] = `
       </div>
     </div>
     <div
-      class="sc-ksdxAp eeMtQw"
+      class="sc-hBURRC kpEZax"
     />
     <div
-      class="sc-pVTma cSFpjP"
+      class="sc-iCfLBT bBUTlz"
     >
       <div
-        class="sc-iqsfdx hHUHJL"
+        class="sc-crHlIS TTqOp"
       >
         Election ID
       </div>

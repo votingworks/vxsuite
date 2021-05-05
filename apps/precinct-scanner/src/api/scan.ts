@@ -8,6 +8,7 @@ import {
 import makeDebug from 'debug'
 import {
   BallotSheetInfo,
+  CastVoteRecord,
   RejectedScanningReason,
   ScanningResult,
   ScanningResultType,
@@ -164,4 +165,21 @@ export async function calibrate(): Promise<boolean> {
     () => false,
     ({ status }) => status === 'ok'
   )
+}
+
+export async function getExport(): Promise<CastVoteRecord[]> {
+  const response = await fetch('/scan/export', {
+    method: 'post',
+  })
+  if (response.status !== 200) {
+    debug('failed to get scan export: %o', response)
+    throw new Error('failed to generate scan export')
+  }
+  const castVoteRecordsString = await response.text()
+  const lines = castVoteRecordsString.split('\n')
+  const cvrs = lines.flatMap((line) =>
+    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
+  )
+  // TODO add more validation of the CVR, move the validation code from election-manager to utils
+  return cvrs.filter((cvr) => cvr._precinctId !== undefined)
 }

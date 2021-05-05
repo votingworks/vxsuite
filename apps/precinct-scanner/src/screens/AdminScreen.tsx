@@ -41,6 +41,7 @@ const AdminScreen: React.FC<Props> = ({
   const systemDate = useNow()
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
   const [isSettingClock, setIsSettingClock] = useState(false)
+
   const setClock = useCallback(
     async (date: DateTime) => {
       setIsSettingClock(true)

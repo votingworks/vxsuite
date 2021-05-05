@@ -19,17 +19,28 @@ import { electionSampleDefinition } from '@votingworks/fixtures'
 
 import { DateTime } from 'luxon'
 import { AdjudicationReason } from '@votingworks/types'
+import { getZeroTally } from '@votingworks/utils/src'
 import App from './App'
-import { BallotSheetInfo } from './config/types'
+import { BallotSheetInfo, TallySourceMachineType } from './config/types'
 import { interpretedHmpb } from '../test/fixtures'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
-import { adminCardForElection } from '../test/helpers/smartcards'
+import { MemoryStorage } from './utils/Storage'
+import {
+  adminCardForElection,
+  pollWorkerCardForElection,
+} from '../test/helpers/smartcards'
+import { stateStorageKey } from './AppRoot'
 
 beforeEach(() => {
   jest.useFakeTimers()
   fetchMock.reset()
 })
+
+const getMachineConfigBody = {
+  machineId: '0002',
+  codeVersion: '3.14',
+}
 
 const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
   status: 'ok',
@@ -53,14 +64,17 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
 }
 
 test('app can load and configure from a usb stick', async () => {
+  const storage = new MemoryStorage()
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .getOnce('/config/election', new Response('null'))
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
-  render(<App card={card} hardware={hardware} />)
+  render(<App storage={storage} card={card} hardware={hardware} />)
   await screen.findByText('Loading Configuration…')
   jest.advanceTimersByTime(1001)
   await screen.findByText('Precinct Scanner is Not Configured')
@@ -132,7 +146,7 @@ test('app can load and configure from a usb stick', async () => {
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
   await advanceTimersAndPromises(0)
-  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Polls Closed')
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
   )
@@ -143,6 +157,42 @@ test('app can load and configure from a usb stick', async () => {
     body: '{"status": "ok"}',
     status: 200,
   })
+
+  // Insert a pollworker card
+  fetchMock.post('/scan/export', {})
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionSampleDefinition.electionHash
+  )
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Poll Worker Actions')
+
+  // Open Polls
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
+  fireEvent.click(await screen.findByText('Save Report and Open Polls'))
+  await screen.findByText('Saving to Card')
+  await screen.findByText('Close Polls for All Precincts')
+  expect(writeLongObjectMock).toHaveBeenCalledTimes(1)
+  expect(writeLongObjectMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      isLiveMode: false,
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 0,
+      metadata: [
+        {
+          ballotCount: 0,
+          machineId: '0002',
+          timeSaved: expect.anything(),
+        },
+      ],
+      tally: getZeroTally(electionSampleDefinition.election),
+    })
+  )
+  expect(fetchMock.calls('/scan/export')).toHaveLength(1)
+
+  // Remove card and see Insert Ballot Screen
+  card.removeCard()
+  await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')
   await screen.findByText('General Election')
   await screen.findByText(/Franklin County/)
@@ -171,12 +221,17 @@ test('app can load and configure from a usb stick', async () => {
 test('voter can cast a ballot that scans succesfully ', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
+
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
-  render(<App card={card} hardware={hardware} />)
+  render(<App card={card} hardware={hardware} storage={storage} />)
   await advanceTimersAndPromises(1)
   await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')
@@ -254,17 +309,97 @@ test('voter can cast a ballot that scans succesfully ', async () => {
   await advanceTimersAndPromises(1)
   await screen.findByText('Scan one ballot sheet at a time.')
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
+
+  // Insert a pollworker card
+  fetchMock.post('/scan/export', {
+    _precinctId: '23',
+    _ballotStyleId: '12',
+    president: ['cramer-vuocolo'],
+    senator: [],
+    'secretary-of-state': ['shamsi', 'talarico'],
+    'county-registrar-of-wills': ['writein'],
+    'judicial-robert-demergue': ['yes'],
+  })
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionSampleDefinition.electionHash
+  )
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Poll Worker Actions')
+
+  // Close Polls
+  fireEvent.click(await screen.findByText('Close Polls for All Precincts'))
+  fireEvent.click(await screen.findByText('Save Report and Close Polls'))
+  await screen.findByText('Saving to Card')
+  await screen.findByText('Open Polls for All Precincts')
+  expect(writeLongObjectMock).toHaveBeenCalledTimes(1)
+  expect(writeLongObjectMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      isLiveMode: false,
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 1,
+      metadata: [
+        {
+          ballotCount: 1,
+          machineId: '0002',
+          timeSaved: expect.anything(),
+        },
+      ],
+      // The export endpoint is mocked to return no CVR data so we still expect a zero tally
+      tally: expect.arrayContaining([
+        {
+          candidates: [0, 1, 0, 0, 0, 0],
+          writeIns: 0,
+          undervotes: 0,
+          overvotes: 0,
+          ballotsCast: 1,
+        }, // President expected tally
+        {
+          candidates: [0, 0, 0, 0, 0, 0, 0],
+          writeIns: 0,
+          undervotes: 1,
+          overvotes: 0,
+          ballotsCast: 1,
+        }, // Senator expected tally
+        {
+          candidates: [0, 0],
+          writeIns: 0,
+          undervotes: 0,
+          overvotes: 1,
+          ballotsCast: 1,
+        }, // Secretary of State expected tally
+        {
+          candidates: [0],
+          writeIns: 1,
+          undervotes: 0,
+          overvotes: 0,
+          ballotsCast: 1,
+        }, // County Registrar of Wills expected tally
+        {
+          yes: 1,
+          no: 0,
+          undervotes: 0,
+          overvotes: 0,
+          ballotsCast: 1,
+        }, // Judicial Robert Demergue expected tally
+      ]),
+    })
+  )
+  expect(fetchMock.calls('/scan/export')).toHaveLength(1)
 })
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  render(<App card={card} hardware={hardware} />)
+  render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')
@@ -478,14 +613,17 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 })
 
 test('voter can cast a rejected ballot', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .getOnce('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  render(<App card={card} hardware={hardware} />)
+  render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')
@@ -593,14 +731,17 @@ test('voter can cast a rejected ballot', async () => {
 })
 
 test('voter can cast another ballot while the success screen is showing', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
-  render(<App card={card} hardware={hardware} />)
+  render(<App storage={storage} card={card} hardware={hardware} />)
   await advanceTimersAndPromises(1)
   await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')
