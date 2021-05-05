@@ -27,5 +27,6 @@ module.exports = {
     'no-dupe-class-members': 'off',
     '@typescript-eslint/no-dupe-class-members': ['error'],
     '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
   },
 }

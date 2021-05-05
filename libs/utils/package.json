@@ -17,13 +17,16 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "luxon": "^1.27.0"
+    "luxon": "^1.27.0",
+    "@types/node": "^12.20.11"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/luxon": "^1.26.5",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-no-array-sort-mutation": "workspace:*",
