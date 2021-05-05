@@ -5,11 +5,14 @@
   <button onclick="reject({ hold: false })">Reject</button>
   <button onclick="reject({ hold: true })">Reject &amp; Hold</button>
 
-  <br>
+  <br><br>
+
+  <button onclick="scanContinuously()">Scan Continously</button>
+  
   <div id="images"></div>
 </body>
 <script>
-  setInterval(async () => {
+  const interval = setInterval(async () => {
     const response = await fetch('/status')
     document.getElementById('status').textContent = await response.text()
   }, 1000);
@@ -35,5 +38,21 @@
   async function reject({ hold }) {
     const response = await fetch(hold ? '/reject-hold' : '/reject')
     console.log(response.text())
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function scanContinuously() {
+    while(true) {
+      const response = await (await fetch('/status')).text()
+      if (response == "PLKSS_ERRCODE_VTM_PS_READY_TO_SCAN") {
+	const scanResponse = await fetch('/scan')
+	const acceptResponse = await fetch('/accept')
+      }
+
+      await sleep(250)
+    }
   }
 </script>
