@@ -9,6 +9,11 @@ export interface Candidate {
   readonly partyId?: string
   readonly isWriteIn?: boolean
 }
+export const writeInCandidate: Candidate = {
+  id: '__write-in',
+  name: 'Write-In',
+  isWriteIn: true,
+}
 export type OptionalCandidate = Optional<Candidate>
 
 // Contests
@@ -223,6 +228,37 @@ export const getEitherNeitherContests = (
 ): MsEitherNeitherContest[] => {
   return contests.filter(
     (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
+  )
+}
+
+export const expandEitherNeitherContests = (
+  contests: Contests
+): Exclude<AnyContest, MsEitherNeitherContest>[] => {
+  return contests.flatMap((contest) =>
+    contest.type !== 'ms-either-neither'
+      ? [contest]
+      : [
+          {
+            type: 'yesno',
+            id: contest.eitherNeitherContestId,
+            title: `${contest.title} – Either/Neither`,
+            districtId: contest.districtId,
+            section: contest.section,
+            description: contest.description,
+            yesOption: contest.eitherOption,
+            noOption: contest.neitherOption,
+          },
+          {
+            type: 'yesno',
+            id: contest.pickOneContestId,
+            title: `${contest.title} – Pick One`,
+            districtId: contest.districtId,
+            section: contest.section,
+            description: contest.description,
+            yesOption: contest.firstOption,
+            noOption: contest.secondOption,
+          },
+        ]
   )
 }
 
