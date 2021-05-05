@@ -1,6 +1,7 @@
 export * from './Button'
 export * from './ButtonBar'
 export * from './InputGroup'
+export * from './Loading'
 export * from './Main'
 export * from './ProgressEllipsis'
 export * from './Prose'
