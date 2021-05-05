@@ -227,7 +227,7 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir /libs/utils build
+            pnpm --dir libs/utils build
       - run:
           name: Run Linters
           command: |
