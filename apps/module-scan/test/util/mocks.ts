@@ -1,9 +1,10 @@
+import { ScannerClient } from '@votingworks/plustek-sdk'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
 import { fileSync } from 'tmp'
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing'
-import { BatchControl, Scanner } from '../../src/scanner'
+import { BatchControl, Scanner, ScannerStatus } from '../../src/scanner'
 import { SheetOf } from '../../src/types'
 import { writeImageData } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
@@ -86,6 +87,7 @@ class ScannerSessionPlan {
 
 export interface MockScanner extends Scanner {
   withNextScannerSession(): ScannerSessionPlan
+  getStatus: jest.MockedFunction<Scanner['getStatus']>
 }
 
 /**
@@ -105,6 +107,10 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined
 
   return {
+    getStatus: jest.fn().mockResolvedValue(ScannerStatus.Unknown),
+
+    canRejectSheets: (): boolean => false,
+
     scanSheets(): BatchControl {
       const session = nextScannerSession
       nextScannerSession = undefined
@@ -117,6 +123,10 @@ export function makeMockScanner(): MockScanner {
       }
 
       return {
+        acceptSheet: jest.fn(),
+        reviewSheet: jest.fn(),
+        rejectSheet: jest.fn(),
+
         scanSheet: async (): Promise<SheetOf<string>> => {
           const step = session.steps[stepIndex++]
 
@@ -274,4 +284,15 @@ export async function makeImageFile(): Promise<string> {
     height: 1,
   })
   return imageFile.name
+}
+
+export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
+  return {
+    accept: jest.fn(),
+    close: jest.fn(),
+    getPaperStatus: jest.fn(),
+    isConnected: jest.fn(),
+    reject: jest.fn(),
+    scan: jest.fn(),
+  }
 }

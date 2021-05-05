@@ -4,7 +4,13 @@
 //
 
 import {
+  createClient,
+  DEFAULT_CONFIG,
+  ScannerClient,
+} from '@votingworks/plustek-sdk'
+import {
   BallotType,
+  Result,
   safeParseElectionDefinition,
   schema,
 } from '@votingworks/types'
@@ -16,9 +22,10 @@ import * as path from 'path'
 import { inspect } from 'util'
 import backup from './backup'
 import Importer from './importer'
-import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
+import { FujitsuScanner, PlustekScanner, Scanner, ScannerMode } from './scanner'
 import Store from './store'
 import { BallotConfig } from './types'
+import { Castability } from './util/castability'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 import { childProcessPool, WorkerPool } from './workers/pool'
@@ -26,13 +33,18 @@ import { childProcessPool, WorkerPool } from './workers/pool'
 export interface AppOptions {
   store: Store
   importer: Importer
+  scanner: Scanner
 }
 
 /**
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
  */
-export function buildApp({ store, importer }: AppOptions): Application {
+export function buildApp({
+  store,
+  importer,
+  scanner,
+}: AppOptions): Application {
   const app: Application = express()
   const upload = multer({ storage: multer.diskStorage({}) })
 
@@ -536,6 +548,43 @@ export function buildApp({ store, importer }: AppOptions): Application {
       .pipe(response)
   })
 
+  app.get('/scan/precinct/status', async (_request, response) => {
+    response.json({ status: await scanner.getStatus() })
+  })
+
+  app.post('/scan/precinct/scan', async (_request, response) => {
+    try {
+      await importer.startImport()
+      await importer.waitForEndOfBatchOrScanningPause()
+      switch (await importer.getNextAdjudicationCastability()) {
+        case Castability.CastableWithReview:
+          response.json({ status: 'RequiresAdjudication' })
+          break
+
+        case Castability.CastableWithoutReview:
+          response.json({ status: 'ok' })
+          break
+
+        default:
+          response.json({ status: 'Rejected' })
+          break
+      }
+    } catch (err) {
+      console.error(err.stack)
+      response.json({ status: `could not scan: ${err.message}` })
+    }
+  })
+
+  app.post('/scan/precinct/accept', async (_request, response) => {
+    await importer.continueImport(true)
+    response.json({ status: 'ok' })
+  })
+
+  app.post('/scan/precinct/reject', async (_request, response) => {
+    await importer.continueImport()
+    response.json({ status: 'ok' })
+  })
+
   app.use(express.static(path.join(__dirname, '..', 'public')))
   app.get('/*', (request, response) => {
     const url = new URL(`http://${request.get('host')}${request.originalUrl}`)
@@ -553,6 +602,19 @@ export interface StartOptions {
   app: Application
   log: typeof console.log
   workspace: Workspace
+}
+
+function memo<T>(fn: () => T): () => T {
+  let storedValue: T | undefined
+  let hasStoredValue = false
+
+  return (): T => {
+    if (!hasStoredValue) {
+      storedValue = fn()
+      hasStoredValue = true
+    }
+    return storedValue as T
+  }
 }
 
 /**
@@ -582,16 +644,42 @@ export async function start({
     workspace = await createWorkspace(workspacePath)
   }
 
-  scanner = scanner ?? new FujitsuScanner({ mode: ScannerMode.Gray })
-  importer =
-    importer ??
-    new Importer({
-      workspace,
-      scanner,
-      workerPoolProvider: (): WorkerPool<workers.Input, workers.Output> =>
-        childProcessPool(workers.workerPath, 2 /* front and back */),
-    })
-  app = app ?? buildApp({ importer, store: workspace.store })
+  scanner ??=
+    process.env.VX_MACHINE_TYPE === 'bsd'
+      ? new FujitsuScanner({ mode: ScannerMode.Gray })
+      : process.env.VX_MACHINE_TYPE === 'precinct-scanner'
+      ? new PlustekScanner({
+          get: memo(
+            (): Promise<Result<ScannerClient, Error>> =>
+              createClient({
+                ...DEFAULT_CONFIG,
+                savepath: workspace!.ballotImagesPath,
+              })
+          ),
+        })
+      : ((): never => {
+          throw new Error(
+            `invalid VX_MACHINE_TYPE=${
+              process.env.VX_MACHINE_TYPE ?? '(blank)'
+            }; expected bsd or precinct-scanner`
+          )
+        })()
+  let workerPool: WorkerPool<workers.Input, workers.Output> | undefined
+  const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
+    return (
+      workerPool ??
+      (workerPool = childProcessPool(
+        workers.workerPath,
+        2 /* front and back */
+      ))
+    )
+  }
+  importer ??= new Importer({
+    workspace,
+    scanner,
+    workerPoolProvider,
+  })
+  app = app ?? buildApp({ importer, store: workspace.store, scanner })
 
   app.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)

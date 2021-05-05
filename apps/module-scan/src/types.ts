@@ -14,6 +14,7 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import { MarkInfo, PageInterpretation } from './interpreter'
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
+import { ScannerStatus } from './scanner'
 
 export type SheetOf<T> = [T, T]
 export type Side = 'front' | 'back'
@@ -50,10 +51,11 @@ export interface ScanStatus {
   electionHash?: string
   batches: BatchInfo[]
   adjudication: AdjudicationStatus
+  scanner: ScannerStatus
 }
 
 export interface BatchInfo {
-  id: number
+  id: string
   startedAt: Date
   endedAt: Date
   error: string

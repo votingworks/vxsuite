@@ -95,6 +95,14 @@ export interface ScanStatusResponse {
   electionHash?: string
   batches: Batch[]
   adjudication: AdjudicationStatus
+  scanner: ScannerStatus
+}
+
+export enum ScannerStatus {
+  WaitingForPaper = 'WaitingForPaper',
+  ReadyToScan = 'ReadyToScan',
+  Error = 'Error',
+  Unknown = 'Unknown',
 }
 
 // eslint-disable-next-line import/no-cycle

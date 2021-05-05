@@ -1,10 +1,12 @@
 /* eslint-disable jest/expect-expect */
 
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
+import { createClient } from '@votingworks/plustek-sdk'
 import {
   AdjudicationReason,
   BallotType,
   CandidateContest,
+  ok,
   YesNoContest,
 } from '@votingworks/types'
 import { Application } from 'express'
@@ -13,24 +15,38 @@ import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
 import { dirSync } from 'tmp'
+import { mocked } from 'ts-jest/utils'
 import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
-import { makeMock } from '../test/util/mocks'
+import {
+  makeMock,
+  makeMockPlustekClient,
+  makeMockScanner,
+  MockScanner,
+} from '../test/util/mocks'
 import Importer from './importer'
+import { ScannerStatus } from './scanner'
 import { buildApp, start } from './server'
 import { ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
+import { Castability } from './util/castability'
 import { createWorkspace, Workspace } from './util/workspace'
 
+jest.mock('@votingworks/plustek-sdk')
 jest.mock('./importer')
+
+const createClientMock = mocked(createClient)
 
 let app: Application
 let workspace: Workspace
+let scanner: MockScanner
 let importer: jest.Mocked<Importer>
 
 beforeEach(async () => {
+  process.env.VX_MACHINE_TYPE = 'bsd'
   importer = makeMock(Importer)
+  scanner = makeMockScanner()
   workspace = await createWorkspace(dirSync().name)
   await workspace.store.setElection({
     election,
@@ -78,13 +94,14 @@ beforeEach(async () => {
       },
     ]
   )
-  app = buildApp({ importer, store: workspace.store })
+  app = buildApp({ importer, store: workspace.store, scanner })
 })
 
 test('GET /scan/status', async () => {
   const status: ScanStatus = {
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
+    scanner: ScannerStatus.Unknown,
   }
   importer.getStatus.mockResolvedValue(status)
   await request(app)
@@ -813,4 +830,64 @@ test('get next sheet', async () => {
         interpretation: { type: 'BlankPage' },
       },
     })
+})
+
+test('GET /scan/precinct/status with no paper', async () => {
+  scanner.getStatus.mockResolvedValueOnce(ScannerStatus.WaitingForPaper)
+  await request(app).get('/scan/precinct/status').expect(200, {
+    status: 'WaitingForPaper',
+  })
+})
+
+test('GET /scan/precinct/status with paper', async () => {
+  scanner.getStatus.mockResolvedValueOnce(ScannerStatus.ReadyToScan)
+  await request(app).get('/scan/precinct/status').expect(200, {
+    status: 'ReadyToScan',
+  })
+})
+
+test('GET /scan/precinct/status with error', async () => {
+  scanner.getStatus.mockResolvedValueOnce(ScannerStatus.Error)
+  await request(app).get('/scan/precinct/status').expect(200, {
+    status: 'Error',
+  })
+})
+
+test('POST /scan/precinct/scan with no need to review', async () => {
+  const client = makeMockPlustekClient()
+  createClientMock.mockResolvedValueOnce(ok(client))
+
+  importer.getNextAdjudicationCastability.mockResolvedValueOnce(
+    Castability.CastableWithoutReview
+  )
+
+  await request(app).post('/scan/precinct/scan').expect(200, {
+    status: 'ok',
+  })
+})
+
+test('POST /scan/precinct/scan needing review', async () => {
+  const client = makeMockPlustekClient()
+  createClientMock.mockResolvedValueOnce(ok(client))
+
+  importer.getNextAdjudicationCastability.mockResolvedValueOnce(
+    Castability.CastableWithReview
+  )
+
+  await request(app).post('/scan/precinct/scan').expect(200, {
+    status: 'RequiresAdjudication',
+  })
+})
+
+test('POST /scan/precinct/scan uncastable', async () => {
+  const client = makeMockPlustekClient()
+  createClientMock.mockResolvedValueOnce(ok(client))
+
+  importer.getNextAdjudicationCastability.mockResolvedValueOnce(
+    Castability.Uncastable
+  )
+
+  await request(app).post('/scan/precinct/scan').expect(200, {
+    status: 'Rejected',
+  })
 })

@@ -34,7 +34,7 @@ beforeEach(async () => {
     workspace,
     scanner,
   })
-  app = buildApp({ importer, store: workspace.store })
+  app = buildApp({ importer, store: workspace.store, scanner })
 })
 
 afterEach(async () => {

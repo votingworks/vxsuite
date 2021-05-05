@@ -8,7 +8,11 @@ import {
 } from '@votingworks/types'
 import styled from 'styled-components'
 
-import { ScanStatusResponse, MachineConfig } from './config/types'
+import {
+  ScanStatusResponse,
+  MachineConfig,
+  ScannerStatus,
+} from './config/types'
 import AppContext from './contexts/AppContext'
 
 import {
@@ -66,6 +70,7 @@ const App: React.FC = () => {
   const [status, setStatus] = useState<ScanStatusResponse>({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
+    scanner: ScannerStatus.Unknown,
   })
 
   const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
@@ -270,6 +275,7 @@ const App: React.FC = () => {
     recentlyEjected && usbStatus !== UsbDriveStatus.ejecting
       ? UsbDriveStatus.recentlyEjected
       : usbStatus
+  const isEjecting = adjudication.remaining > 0 && !isScanning
 
   useEffect(() => {
     updateStatus()
@@ -283,6 +289,13 @@ const App: React.FC = () => {
       setElectionJustLoaded(false)
     }
   }, [electionJustLoaded, displayUsbStatus])
+
+  useEffect(() => {
+    if (isEjecting && status.scanner === ScannerStatus.WaitingForPaper) {
+      // paper removed!
+      continueScanning(false)
+    }
+  }, [status, isEjecting])
 
   if (electionDefinition) {
     if (electionJustLoaded) {
@@ -318,7 +331,7 @@ const App: React.FC = () => {
         </AppContext.Provider>
       )
     }
-    if (adjudication.remaining > 0 && !isScanning) {
+    if (isEjecting) {
       return (
         <AppContext.Provider
           value={{
