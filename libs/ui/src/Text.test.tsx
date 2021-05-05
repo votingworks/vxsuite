@@ -12,14 +12,6 @@ describe('renders Text', () => {
     expect(element).toMatchSnapshot()
   })
 
-  // test('outputs "span" tag specified by "as" prop', async () => {
-  //   const text = 'Text in a span?'
-  //   const { getByText } = render(<Text as="span">{text}</Text>)
-  //   const element = getByText(text)
-  //   expect(element.tagName).toEqual('SPAN')
-  //   expect(element).toMatchSnapshot()
-  // })
-
   test('center muted', async () => {
     const { container } = render(
       <Text center muted>

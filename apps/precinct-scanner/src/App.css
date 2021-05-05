@@ -69,7 +69,7 @@ html {
   font-family: 'Vx Helvetica Neue', 'Helvetica Neue', -apple-system,
     BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
     'Fira Sans', 'Droid Sans', sans-serif;
-  font-size: 20px; /* Magic number, must synced with JavaScript global defaults */
+  font-size: 28px; /* Magic number, must synced with JavaScript global default */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -123,18 +123,4 @@ html body .cvox_indicator_container {
 @page {
   margin: 0.5in;
   size: letter portrait;
-}
-
-/* Layout Utilities */
-
-.w-50 {
-  width: 50%;
-}
-
-.w-66 {
-  width: 66.666%;
-}
-
-.w-75 {
-  width: 75%;
 }

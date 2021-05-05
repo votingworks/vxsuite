@@ -46,7 +46,21 @@ describe('renders Prose', () => {
   test('with with all non-default options', async () => {
     const { container } = render(
       <Prose compact textCenter maxWidth={false}>
-        {proseContent}{' '}
+        {proseContent}
+      </Prose>
+    )
+    expect(container.firstChild).toMatchSnapshot()
+  })
+
+  test('with theme', async () => {
+    const { container } = render(
+      <Prose
+        theme={{
+          fontSize: '10px',
+          color: '#666666',
+        }}
+      >
+        {proseContent}
       </Prose>
     )
     expect(container.firstChild).toMatchSnapshot()
