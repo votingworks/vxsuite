@@ -2,7 +2,7 @@
 
 exports[`renders Main with MainChild with no max width 1`] = `
 <main
-  class="sc-bdvvaa lyEiN"
+  class="sc-bdvvaa jjWlUk"
 >
   <div
     class="sc-gsDJrp jxSnOT"
@@ -14,7 +14,7 @@ exports[`renders Main with MainChild with no max width 1`] = `
 
 exports[`renders Main with all non-default Main options and common MainChild options 1`] = `
 <main
-  class="sc-bdvvaa hwUMQP"
+  class="sc-bdvvaa eJTuRt"
 >
   <div
     class="sc-gsDJrp gTPMtF"
@@ -26,7 +26,7 @@ exports[`renders Main with all non-default Main options and common MainChild opt
 
 exports[`renders Main with defaults 1`] = `
 <main
-  class="sc-bdvvaa lyEiN"
+  class="sc-bdvvaa jjWlUk"
 >
   <div
     class="sc-gsDJrp hkJJbd"

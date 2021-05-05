@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import path from 'path'
-import { Prose, Main, MainChild, Screen } from '@votingworks/ui'
+import { Prose, Main, MainChild, Screen, fontSizeTheme } from '@votingworks/ui'
 import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
 import { getDevicePath, UsbDriveStatus } from '../utils/usbstick'
 import { readBallotPackageFromFilePointer } from '../utils/ballot-package'
@@ -8,7 +8,7 @@ import { addTemplates, doneTemplates } from '../api/hmpb'
 import {
   PRECINCT_SCANNER_FOLDER,
   BALLOT_PACKAGE_FILENAME,
-} from '../config/constants'
+} from '../config/globals'
 
 interface Props {
   usbDriveStatus: UsbDriveStatus
@@ -110,83 +110,61 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
     attemptToLoadBallotPackageFromUSB()
   }, [usbDriveStatus])
 
+  let content = (
+    <React.Fragment>
+      <h1>Precinct Scanner is Not Configured</h1>
+      <p>
+        {errorMessage === ''
+          ? 'Insert USB Drive with configuration.'
+          : `Error in configuration: ${errorMessage}`}
+      </p>
+    </React.Fragment>
+  )
   if (isLoadingBallotPackage) {
-    return (
-      <Screen>
-        <Main>
-          <MainChild center>
-            <Prose textCenter>
-              <h1>Searching USB for ballot package…</h1>
-            </Prose>
-          </MainChild>
-        </Main>
-      </Screen>
-    )
+    content = <h1>Searching USB for ballot package…</h1>
   }
 
   if (isLoadingTemplates) {
-    return (
-      <Screen>
-        <Main>
-          <MainChild center>
-            <Prose textCenter>
-              <h1>Preparing scanner…</h1>
-            </Prose>
-          </MainChild>
-        </Main>
-      </Screen>
-    )
+    content = <h1>Preparing scanner…</h1>
   }
 
   if (totalTemplates > 0 && currentUploadingBallot) {
-    return (
-      <Screen>
-        <Main>
-          <MainChild center>
-            <Prose textCenter>
-              <h1>
-                Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
-                {totalTemplates}
-              </h1>
-              <ul style={{ textAlign: 'left' }}>
-                <li>
-                  <strong>Ballot Style:</strong>{' '}
-                  {currentUploadingBallot.ballotStyle}
-                </li>
-                <li>
-                  <strong>Precinct:</strong> {currentUploadingBallot.precinct}
-                </li>
-                <li>
-                  <strong>Test Ballot:</strong>{' '}
-                  {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
-                </li>
-                <li>
-                  <strong>Languages:</strong>{' '}
-                  {
-                    /* istanbul ignore next */ currentUploadingBallot.locales ?? (
-                      <em>(unknown)</em>
-                    )
-                  }
-                </li>
-              </ul>
-            </Prose>
-          </MainChild>
-        </Main>
-      </Screen>
+    content = (
+      <React.Fragment>
+        <h1>
+          Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
+          {totalTemplates}
+        </h1>
+        <ul style={{ textAlign: 'left' }}>
+          <li>
+            <strong>Ballot Style:</strong> {currentUploadingBallot.ballotStyle}
+          </li>
+          <li>
+            <strong>Precinct:</strong> {currentUploadingBallot.precinct}
+          </li>
+          <li>
+            <strong>Test Ballot:</strong>{' '}
+            {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
+          </li>
+          <li>
+            <strong>Languages:</strong>{' '}
+            {
+              /* istanbul ignore next */ currentUploadingBallot.locales ?? (
+                <em>(unknown)</em>
+              )
+            }
+          </li>
+        </ul>
+      </React.Fragment>
     )
   }
 
   return (
     <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>Precinct Scanner is Not Configured</h1>
-            <p>
-              {errorMessage === ''
-                ? 'Insert USB Drive with configuration.'
-                : `Error in configuration: ${errorMessage}`}
-            </p>
+      <Main padded>
+        <MainChild center maxWidth={false}>
+          <Prose textCenter maxWidth={false} theme={{ ...fontSizeTheme.large }}>
+            {content}
           </Prose>
         </MainChild>
       </Main>

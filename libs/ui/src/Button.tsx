@@ -25,7 +25,7 @@ export const buttonNoFocusOutlineStyle = css`
 const buttonStyles = css<StyledButtonProps>`
   display: inline-block;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 0.25em;
   box-shadow: 0 0 0 0 rgba(71, 167, 75, 1);
   box-sizing: border-box;
   background: ${({ disabled, danger, warning, primary }) =>
@@ -37,7 +37,7 @@ const buttonStyles = css<StyledButtonProps>`
   cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
   padding: ${({ big = false, small = false }) =>
-    small ? '0.35rem 0.5rem' : big ? '1rem 1.75rem' : '0.75rem 1rem'};
+    small ? '0.35em 0.5em' : big ? '1em 1.75em' : '0.75em 1em'};
   text-align: ${({ textAlign }) => textAlign};
   line-height: 1.25;
   color: ${({ disabled, danger, warning, primary }) =>
@@ -46,7 +46,7 @@ const buttonStyles = css<StyledButtonProps>`
     (warning && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
-  font-size: ${({ big = false }) => (big ? '1.25rem' : undefined)};
+  font-size: ${({ big = false }) => (big ? '1.25em' : undefined)};
   touch-action: manipulation;
   &:focus {
     /* stylelint-disable-next-line value-keyword-case */

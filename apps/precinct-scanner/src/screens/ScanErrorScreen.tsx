@@ -1,7 +1,15 @@
 /* istanbul ignore file */
 import React from 'react'
-import { Prose, Main, MainChild, Screen, Button } from '@votingworks/ui'
-import { TopRightContent } from '../components/AbsoluteElements'
+import {
+  Prose,
+  Main,
+  MainChild,
+  Screen,
+  Button,
+  fontSizeTheme,
+} from '@votingworks/ui'
+import { Absolute } from '../components/Absolute'
+import { PlaceholderGraphic } from '../components/Graphics'
 
 const ScanErrorScreen: React.FC = () => {
   const onPressPlaceholder = () => {
@@ -10,15 +18,16 @@ const ScanErrorScreen: React.FC = () => {
   }
   return (
     <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
+      <Main padded>
+        <MainChild center maxWidth={false}>
+          <PlaceholderGraphic />
+          <Prose textCenter maxWidth={false} theme={{ ...fontSizeTheme.large }}>
             <h1>Scanning Error</h1>
             <p>Please request Poll Worker assistance.</p>
           </Prose>
-          <TopRightContent>
-            <Button onPress={onPressPlaceholder}>Dismiss</Button>
-          </TopRightContent>
+          <Absolute top right padded>
+            <Button onPress={onPressPlaceholder}>Dismiss Error</Button>
+          </Absolute>
         </MainChild>
       </Main>
     </Screen>

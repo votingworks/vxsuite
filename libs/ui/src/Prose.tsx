@@ -1,6 +1,8 @@
 import styled from 'styled-components'
+import { Theme } from './themes'
 
 interface Props {
+  theme?: Theme
   compact?: boolean
   maxWidth?: boolean
   textCenter?: boolean
@@ -8,14 +10,11 @@ interface Props {
 
 export const Prose = styled('div')<Props>`
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
-
-  /* width: 100%; */
   max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
   line-height: 1.2;
-  @media (min-width: 480px) {
-    line-height: 1.3;
-  }
+  color: ${({ theme }) => theme.color};
+  font-size: ${({ theme }) => theme.fontSize};
   & h1 {
     margin: 2em 0 1em;
     line-height: 1.1;

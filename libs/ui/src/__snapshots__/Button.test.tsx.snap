@@ -2,7 +2,7 @@
 
 exports[`renders Button as DecoyButton with options: small warning 1`] = `
 <div
-  class="sc-bdvvaa bZHMdE"
+  class="sc-bdvvaa jeCamy"
 >
   DecoyButton
 </div>
@@ -10,7 +10,7 @@ exports[`renders Button as DecoyButton with options: small warning 1`] = `
 
 exports[`renders Button with defaults 1`] = `
 <button
-  class="sc-gsDJrp cypNzY"
+  class="sc-gsDJrp dmKzwC"
   type="button"
 >
   foo
@@ -19,7 +19,7 @@ exports[`renders Button with defaults 1`] = `
 
 exports[`renders Button with options: big danger 1`] = `
 <button
-  class="sc-gsDJrp bjQjXI"
+  class="sc-gsDJrp nvHjI"
   type="button"
 >
   I’m a big button!
@@ -28,7 +28,7 @@ exports[`renders Button with options: big danger 1`] = `
 
 exports[`renders Button with options: full-width disabled submit 1`] = `
 <button
-  class="sc-gsDJrp cVDICp"
+  class="sc-gsDJrp cmfItr"
   disabled=""
   type="submit"
 >
@@ -38,7 +38,7 @@ exports[`renders Button with options: full-width disabled submit 1`] = `
 
 exports[`renders Button with options: primary noFocus 1`] = `
 <button
-  class="sc-gsDJrp hGmRdt"
+  class="sc-gsDJrp gDeqDP"
   type="button"
 >
   Primary

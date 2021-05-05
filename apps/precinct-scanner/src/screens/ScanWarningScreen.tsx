@@ -1,7 +1,16 @@
 /* istanbul ignore file */
 import React from 'react'
-import { Prose, Main, MainChild, Screen, Button } from '@votingworks/ui'
-import { BottomRightContent } from '../components/AbsoluteElements'
+import {
+  Prose,
+  Main,
+  MainChild,
+  Screen,
+  Button,
+  Text,
+  fontSizeTheme,
+} from '@votingworks/ui'
+
+import { PlaceholderGraphic } from '../components/Graphics'
 
 const ScanWarningScreen: React.FC = () => {
   const onPressPlaceholder = () => {
@@ -11,31 +20,38 @@ const ScanWarningScreen: React.FC = () => {
 
   return (
     <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
+      <Main padded>
+        <MainChild center maxWidth={false}>
+          <PlaceholderGraphic />
+          <Prose textCenter maxWidth={false} theme={{ ...fontSizeTheme.large }}>
             <h1>
               Overvote Warning
               {/* Undervote Warning */}
+              {/* Overvote and Undervote Warning */}
               {/* Blank Ballot Warning */}
-              {/* Multiple Issues Detected */}
             </h1>
-            <p>Details of the overvote/undervote/blank here.</p>
             <p>
-              <strong>Remove the ballot and correct this error.</strong>
-              <br />
-              Ask a poll worker if you need assistance.
+              Contests:{' '}
+              <Text as="span" noWrap>
+                “Mayor”,
+              </Text>{' '}
+              <Text as="span" noWrap>
+                “Dog Catcher”,
+              </Text>{' '}
+              <Text as="span" noWrap>
+                “Board of Supervisors”
+              </Text>
             </p>
-            <BottomRightContent>
-              <p>
-                If you wish to cast the ballot as is, you may{' '}
-                <Button onPress={onPressPlaceholder}>
-                  Tabulate Ballot with Overvote
-                </Button>
-                {/* “Tabulate Blank Ballot” */}
-                {/* “Tabulate with Undervote” */}
-              </p>
-            </BottomRightContent>
+            <p>
+              <Button primary onPress={onPressPlaceholder}>
+                Tabulate Ballot
+              </Button>{' '}
+              — or —{' '}
+              <Button primary onPress={onPressPlaceholder}>
+                Eject Ballot
+              </Button>
+            </p>
+            <Text italic>Ask a poll worker if you need assistance.</Text>
           </Prose>
         </MainChild>
       </Main>
