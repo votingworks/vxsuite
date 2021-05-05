@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
+import { getZeroTally, TallySourceMachineType } from '@votingworks/utils'
 import * as GLOBALS from './config/globals'
 
 import { electionSampleDefinition } from './data'
@@ -34,7 +35,6 @@ import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxMarkPlusVxPrint } from './config/types'
-import { getZeroTally } from './utils/election'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -375,11 +375,12 @@ it('VxMark+Print end-to-end flow', async () => {
     pollWorkerCard,
     JSON.stringify({
       tally: getZeroTally(election),
+      tallyMachineType: TallySourceMachineType.BMD,
       metadata: [
         {
           machineId: '002',
           timeSaved: new Date('2020-10-31').getTime(),
-          ballotsPrinted: 3,
+          ballotCount: 3,
         },
       ],
       totalBallotsPrinted: 10,

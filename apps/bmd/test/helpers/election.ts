@@ -10,7 +10,7 @@ import {
   getContests,
   getBallotStyle,
 } from '@votingworks/types'
-import { getZeroTally } from '../../src/utils/election'
+import { getZeroTally } from '@votingworks/utils'
 
 import { electionStorageKey, stateStorageKey, State } from '../../src/AppRoot'
 import { Storage } from '../../src/utils/Storage'

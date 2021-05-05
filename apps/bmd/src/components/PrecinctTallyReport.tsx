@@ -6,7 +6,8 @@ import {
   CandidateVoteTally,
   YesNoVoteTally,
   MsEitherNeitherTally,
-} from '../config/types'
+  TallySourceMachineType,
+} from '@votingworks/utils'
 
 import numberWithCommas from '../utils/numberWithCommas'
 
@@ -28,7 +29,8 @@ const Contest = styled.div`
 `
 
 interface Props {
-  ballotsPrintedCount: number
+  ballotCount: number
+  sourceMachineType: TallySourceMachineType
   currentDateTime: string
   election: Election
   isPollsOpen: boolean
@@ -38,7 +40,8 @@ interface Props {
 }
 
 const PrecinctTallyReport: React.FC<Props> = ({
-  ballotsPrintedCount,
+  ballotCount,
+  sourceMachineType,
   currentDateTime,
   election,
   isPollsOpen,
@@ -48,6 +51,8 @@ const PrecinctTallyReport: React.FC<Props> = ({
 }) => {
   const { ballotStyles, contests, precincts } = election
   const precinct = precincts.find((p) => p.id === precinctId) as Precinct
+  const ballotAction =
+    sourceMachineType === TallySourceMachineType.BMD ? 'printed' : 'scanned'
 
   const precinctBalotStyles = ballotStyles.filter((bs) =>
     bs.precincts.includes(precinctId)
@@ -69,11 +74,11 @@ const PrecinctTallyReport: React.FC<Props> = ({
         This report should be <strong>{reportPurpose}</strong>.
       </p>
       <p>
-        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report printed at:{' '}
-        <strong>{currentDateTime}</strong>
+        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report{' '}
+        {ballotAction} at: <strong>{currentDateTime}</strong>
       </p>
       <p>
-        Ballots printed count: <strong>{ballotsPrintedCount}</strong>
+        Ballots {ballotAction} count: <strong>{ballotCount}</strong>
       </p>
       {contests.map((contest, contestIndex) => {
         const isContestInPrecinct = precinctContestIds.includes(contest.id)

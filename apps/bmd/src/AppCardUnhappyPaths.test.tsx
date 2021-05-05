@@ -5,6 +5,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures'
 
+import { getZeroTally } from '@votingworks/utils'
 import App from './App'
 
 import { CARD_EXPIRATION_SECONDS } from './config/globals'
@@ -28,7 +29,6 @@ import { MemoryStorage } from './utils/Storage'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { VxPrintOnly } from './config/types'
-import { getZeroTally } from './utils/election'
 
 jest.useFakeTimers()
 
