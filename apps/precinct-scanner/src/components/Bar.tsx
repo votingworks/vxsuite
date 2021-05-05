@@ -10,6 +10,12 @@ export const Bar = styled.div<Props>`
   flex-direction: row;
   justify-content: space-between;
   background: ${({ theme: { background } }) => background};
-  padding: 0.5rem 0.75rem;
   color: ${({ theme: { color } }) => color};
+  & > div {
+    padding: 0.5rem 0.75rem;
+  }
+`
+
+export const BarSpacer = styled.div`
+  flex: 1;
 `

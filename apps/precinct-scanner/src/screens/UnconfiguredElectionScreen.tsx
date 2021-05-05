@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import path from 'path'
-import { Prose, Main, MainChild, Screen, fontSizeTheme } from '@votingworks/ui'
 import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
 import { getDevicePath, UsbDriveStatus } from '../utils/usbstick'
 import { readBallotPackageFromFilePointer } from '../utils/ballot-package'
@@ -9,6 +8,7 @@ import {
   PRECINCT_SCANNER_FOLDER,
   BALLOT_PACKAGE_FILENAME,
 } from '../config/globals'
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 
 interface Props {
   usbDriveStatus: UsbDriveStatus
@@ -160,15 +160,9 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
   }
 
   return (
-    <Screen>
-      <Main padded>
-        <MainChild center maxWidth={false}>
-          <Prose textCenter maxWidth={false} theme={{ ...fontSizeTheme.large }}>
-            {content}
-          </Prose>
-        </MainChild>
-      </Main>
-    </Screen>
+    <CenteredScreen infoBar={false}>
+      <CenteredLargeProse>{content}</CenteredLargeProse>
+    </CenteredScreen>
   )
 }
 

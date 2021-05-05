@@ -1,33 +1,25 @@
 /* istanbul ignore file */
 import React from 'react'
-import { Prose, Main, MainChild, Screen, fontSizeTheme } from '@votingworks/ui'
 import { Absolute } from '../components/Absolute'
-import ElectionInfoBar from '../components/ElectionInfoBar'
 import { PlaceholderGraphic } from '../components/Graphics'
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Bar } from '../components/Bar'
 
 const InsertBallotScreen: React.FC = () => (
-  <Screen>
-    <Main padded>
-      <MainChild center>
-        <PlaceholderGraphic />
-        <Prose textCenter theme={fontSizeTheme.large}>
-          <h1>Insert Ballot</h1>
-          <p>Scan one ballot sheet at a time.</p>
-        </Prose>
-        <Absolute top left>
-          <Bar>
-            <Prose textCenter>
-              <p>
-                Ballots Scanned: <strong>0</strong>
-              </p>
-            </Prose>
-          </Bar>
-        </Absolute>
-        <ElectionInfoBar />
-      </MainChild>
-    </Main>
-  </Screen>
+  <CenteredScreen>
+    <PlaceholderGraphic />
+    <CenteredLargeProse>
+      <h1>Insert Ballot</h1>
+      <p>Scan one ballot sheet at a time.</p>
+    </CenteredLargeProse>
+    <Absolute top left>
+      <Bar>
+        <div>
+          Ballots Scanned: <strong>0</strong>
+        </div>
+      </Bar>
+    </Absolute>
+  </CenteredScreen>
 )
 
 export default InsertBallotScreen

@@ -1,16 +1,12 @@
 import React from 'react'
-import { Prose, Main, MainChild, Screen, fontSizeTheme } from '@votingworks/ui'
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 
 const LoadingConfigurationScreen: React.FC = () => (
-  <Screen>
-    <Main padded>
-      <MainChild center maxWidth={false}>
-        <Prose textCenter maxWidth={false} theme={{ ...fontSizeTheme.large }}>
-          <h1>Loading Configuration…</h1>
-        </Prose>
-      </MainChild>
-    </Main>
-  </Screen>
+  <CenteredScreen infoBar={false}>
+    <CenteredLargeProse>
+      <h1>Loading Configuration…</h1>
+    </CenteredLargeProse>
+  </CenteredScreen>
 )
 
 export default LoadingConfigurationScreen
