@@ -1,26 +1,20 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui'
-import {
-  getPrecinctById,
-  OptionalElectionDefinition,
-  Precinct,
-} from '@votingworks/types'
+import { getPrecinctById } from '@votingworks/types'
 import { Bar, BarSpacer } from './Bar'
 import { localeWeekdayAndDate } from '../utils/IntlDateTimeFormats'
+import AppContext from '../contexts/AppContext'
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin'
 
 interface Props {
   mode?: InfoBarMode
-  electionDefinition: OptionalElectionDefinition
-  currentPrecinctId?: Precinct['id']
 }
-const ElectionInfoBar: React.FC<Props> = ({
-  electionDefinition,
-  mode = 'voter',
-  currentPrecinctId,
-}) => {
+const ElectionInfoBar: React.FC<Props> = ({ mode = 'voter' }) => {
+  const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
+    AppContext
+  )
   if (!electionDefinition) {
     return null
   }
@@ -28,7 +22,7 @@ const ElectionInfoBar: React.FC<Props> = ({
     new Date(electionDefinition.election.date)
   )
   const precinct =
-    typeof currentPrecinctId === 'string'
+    currentPrecinctId !== undefined
       ? getPrecinctById({
           election: electionDefinition.election,
           precinctId: currentPrecinctId,
@@ -54,13 +48,13 @@ const ElectionInfoBar: React.FC<Props> = ({
             <Text as="div" small>
               Software Version
             </Text>
-            <strong>2020-05-05-TODOTODO</strong>
+            <strong>{machineConfig.codeVersion}</strong>
           </Prose>
           <Prose maxWidth={false} compact textRight>
             <Text as="div" small>
               Machine ID
             </Text>
-            <strong>TODO</strong>
+            <strong>{machineConfig.machineId}</strong>
           </Prose>
         </React.Fragment>
       )}

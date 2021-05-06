@@ -1,10 +1,7 @@
 /* istanbul ignore file */
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useContext } from 'react'
 import { Button, Prose, SegmentedButton, Select } from '@votingworks/ui'
-import {
-  ElectionDefinition,
-  SelectChangeEventFunction,
-} from '@votingworks/types'
+import { SelectChangeEventFunction } from '@votingworks/types'
 import { DateTime } from 'luxon'
 import { formatFullDateTimeZone } from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
@@ -14,11 +11,10 @@ import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
 import CalibrateScannerModal from '../components/CalibrateScannerModal'
+import AppContext from '../contexts/AppContext'
 
 interface Props {
-  appPrecinctId?: string
   ballotsScannedCount: number
-  electionDefinition: ElectionDefinition
   isLiveMode: boolean
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
@@ -27,16 +23,15 @@ interface Props {
 }
 
 const AdminScreen: React.FC<Props> = ({
-  appPrecinctId,
   ballotsScannedCount,
-  electionDefinition,
   isLiveMode,
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
   calibrate,
 }) => {
-  const { election } = electionDefinition
+  const { electionDefinition, currentPrecinctId } = useContext(AppContext)
+  const { election } = electionDefinition!
 
   const systemDate = useNow()
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
@@ -89,7 +84,7 @@ const AdminScreen: React.FC<Props> = ({
         <p>
           <Select
             id="selectPrecinct"
-            value={appPrecinctId}
+            value={currentPrecinctId}
             onBlur={changeAppPrecinctId}
             onChange={changeAppPrecinctId}
             large

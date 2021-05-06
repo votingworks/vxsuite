@@ -58,3 +58,86 @@ exports[`Renders ElectionInfoBar 1`] = `
   </div>
 </div>
 `;
+
+exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
+<div>
+  <div
+    class="sc-ksdxAp jvhYGX"
+  >
+    <div
+      class="sc-iCfLBT bmLaUT"
+    >
+      <strong
+        class="sc-egiSv efaHyy"
+      >
+        General Election
+      </strong>
+       —
+       
+      <span
+        class="sc-egiSv efaHyy"
+      >
+        Tuesday, November 3, 2020
+      </span>
+      <div
+        class="sc-crHlIS TTqOp"
+      >
+        <span
+          class="sc-egiSv efaHyy"
+        >
+          Center Springfield
+        </span>
+         —
+         
+        <span
+          class="sc-egiSv efaHyy"
+        >
+          Franklin County
+          ,
+           
+          State of Hamilton
+        </span>
+      </div>
+    </div>
+    <div
+      class="sc-hBURRC kpEZax"
+    />
+    <div
+      class="sc-iCfLBT bBUTlz"
+    >
+      <div
+        class="sc-crHlIS TTqOp"
+      >
+        Software Version
+      </div>
+      <strong>
+        DEV
+      </strong>
+    </div>
+    <div
+      class="sc-iCfLBT bBUTlz"
+    >
+      <div
+        class="sc-crHlIS TTqOp"
+      >
+        Machine ID
+      </div>
+      <strong>
+        0002
+      </strong>
+    </div>
+    <div
+      class="sc-iCfLBT bBUTlz"
+    >
+      <div
+        class="sc-crHlIS TTqOp"
+      >
+        Election ID
+      </div>
+      <strong>
+        2f6b1553c7
+      </strong>
+    </div>
+  </div>
+</div>
+`;
