@@ -11,7 +11,7 @@ import Loading from '../components/Loading'
 
 const DefinitionScreen: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
-  const { election, electionHash } = electionDefinition!
+  const { electionData, electionHash } = electionDefinition!
 
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
 
@@ -30,7 +30,6 @@ const DefinitionScreen: React.FC = () => {
       return
     }
 
-    const electionJSON = JSON.stringify(election)
     const shortValue = JSON.stringify({
       t: id,
       h: electionHash,
@@ -47,7 +46,7 @@ const DefinitionScreen: React.FC = () => {
         break
       case 'admin':
         formData.append('short_value', shortValue)
-        formData.append('long_value', electionJSON)
+        formData.append('long_value', electionData)
         await fetch('/card/write_short_and_long', {
           method: 'post',
           body: formData,
