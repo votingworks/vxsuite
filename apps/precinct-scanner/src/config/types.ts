@@ -51,7 +51,7 @@ export interface RejectedScanningResult {
 
 export interface ScanningResultNeedsReview {
   resultType: ScanningResultType.NeedsReview
-  adjudicationReasons: AdjudicationReason[]
+  adjudicationReasonInfo: AdjudicationReasonInfo[]
 }
 
 export type ISO8601Timestamp = string

@@ -209,7 +209,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await screen.findByText('Overvote Warning')
+  await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   fetchMock.post('/scan/scanContinue', {
     body: { status: 'error' },
@@ -319,7 +319,7 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await screen.findByText('Overvote Warning')
+  await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   fetchMock.post('/scan/scanContinue', {
     body: { status: 'error' },
