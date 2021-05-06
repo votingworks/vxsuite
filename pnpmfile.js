@@ -9,6 +9,7 @@ module.exports = {
 /**
  * @typedef {object} Package
  * @property {string} name
+ * @property {string} version
  * @property {Record<string, string>} dependencies
  */
 
@@ -97,6 +98,13 @@ function readPackage(pkg, context) {
       'prettier': '*',
     }
     context.log('jest-circus requires prettier to format code for inline snapshots')
+  }
+
+  if (/^\^?4\.2\./.test(pkg.dependencies['graceful-fs'])) {
+    // Object prototype may only be an Object or null: undefined
+    // Caused by https://github.com/isaacs/node-graceful-fs/commit/c55c1b8cb32510f92bd33d7c833364ecd3964dea
+    pkg.dependencies['graceful-fs'] = '4.2.4'
+    context.log(`${pkg.name}@${pkg.version} may use Object.setPrototypeOf with fs.read, which is undefined in the browser, which crashes`)
   }
 
   return pkg
