@@ -391,7 +391,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                     : `Open Polls for ${precinct.name}`}
                 </Button>
               </p>
-              {!isPollsOpen && isPrintMode && isTallyOnCardFromPrecinctScanner && (
+              {isPrintMode && isTallyOnCardFromPrecinctScanner && (
                 <Prose>
                   <h1> Results Reports </h1>
                   <Button
@@ -602,8 +602,12 @@ const PollWorkerScreen: React.FC<Props> = ({
                   }
                   currentDateTime={currentDateTime}
                   election={election}
-                  isLiveMode={isLiveMode}
-                  isPollsOpen={false}
+                  isLiveMode={
+                    (talliesOnCard as PrecinctScannerCardTally).isLiveMode
+                  }
+                  isPollsOpen={
+                    (talliesOnCard as PrecinctScannerCardTally).isPollsOpen
+                  }
                   machineMetadata={talliesOnCard?.metadata}
                   machineConfig={machineConfig} // not used
                   precinctId={appPrecinctId}
@@ -618,7 +622,9 @@ const PollWorkerScreen: React.FC<Props> = ({
                   }
                   currentDateTime={currentDateTime}
                   election={election}
-                  isPollsOpen={false}
+                  isPollsOpen={
+                    (talliesOnCard as PrecinctScannerCardTally).isPollsOpen
+                  }
                   tally={talliesOnCard!.tally}
                   precinctId={appPrecinctId}
                   reportPurpose={reportPurpose}

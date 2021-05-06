@@ -56,6 +56,7 @@ const PollWorkerScreen: React.FC<Props> = ({
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: castVoteRecords.length,
       isLiveMode,
+      isPollsOpen: !isPollsOpen, // When we are saving we are about to either open or close polls and want the state to reflect what it will be after that is complete.
       tally,
       metadata: [
         {
