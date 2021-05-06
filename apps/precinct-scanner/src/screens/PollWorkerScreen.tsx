@@ -2,16 +2,16 @@ import React, { useContext, useState } from 'react'
 
 import { Precinct } from '@votingworks/types'
 import { Button, Prose, Loading } from '@votingworks/ui'
+import {
+  PrecinctScannerCardTally,
+  CardTallyMetadataEntry,
+  TallySourceMachineType,
+} from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
-import {
-  PrecinctScannerCardTally,
-  CardTallyMetadataEntry,
-  CastVoteRecord,
-  TallySourceMachineType,
-} from '../config/types'
+import { CastVoteRecord } from '../config/types'
 
 import { calculateTallyFromCVRs } from '../utils/tallies'
 import AppContext from '../contexts/AppContext'
