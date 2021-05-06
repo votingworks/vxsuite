@@ -12,15 +12,9 @@ import type {
 } from '@votingworks/hmpb-interpreter'
 import type { AdjudicationInfo } from './ballot-review-types'
 
-export type ISO8601Timestamp = string
 export interface MachineConfig {
   machineId: string
 }
-
-// Events
-export type InputEvent = React.FormEvent<EventTarget>
-export type ButtonEvent = React.MouseEvent<HTMLButtonElement>
-export type ButtonEventFunction = (event: ButtonEvent) => void
 
 // Election
 export type SetElectionDefinition = (value?: ElectionDefinition) => void
@@ -34,19 +28,6 @@ export interface CastVoteRecord
   _ballotId: string
   _testBallot: boolean
   _scannerId: string
-}
-
-export interface Batch {
-  id: string
-  count: number
-  ballots: Ballot[]
-  startedAt: string
-  endedAt?: string
-}
-
-export interface AdjudicationStatus {
-  adjudicated: number
-  remaining: number
 }
 
 export type Ballot = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
@@ -80,12 +61,6 @@ export type SerializableBallotPageLayout = Omit<
 export interface MarkInfo {
   marks: BallotMark[]
   ballotSize: Size
-}
-
-export interface ScanStatusResponse {
-  electionHash?: string
-  batches: Batch[]
-  adjudication: AdjudicationStatus
 }
 
 // these data structures live here until we can refactor the code

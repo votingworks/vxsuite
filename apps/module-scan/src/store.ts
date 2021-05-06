@@ -11,6 +11,10 @@ import {
   Optional,
 } from '@votingworks/types'
 import {
+  AdjudicationStatus,
+  BatchInfo,
+} from '@votingworks/types/api/module-scan'
+import {
   BallotMark,
   BallotPageMetadata,
   BallotTargetMark,
@@ -31,9 +35,7 @@ import {
   sheetRequiresAdjudication,
 } from './interpreter'
 import {
-  AdjudicationStatus,
   BallotMetadata,
-  BatchInfo,
   getMarkStatus,
   isMarginalMark,
   PageInterpretationWithFiles,

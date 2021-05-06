@@ -8,7 +8,8 @@ import {
 } from '@votingworks/types'
 import styled from 'styled-components'
 
-import { ScanStatusResponse, MachineConfig } from './config/types'
+import { ScanStatusResponse } from '@votingworks/types/api/module-scan'
+import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
 
 import {

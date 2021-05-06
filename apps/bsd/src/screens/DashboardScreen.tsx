@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
-import { ScanStatusResponse, AdjudicationStatus } from '../config/types'
+import {
+  ScanStatusResponse,
+  AdjudicationStatus,
+} from '@votingworks/types/api/module-scan'
 
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'

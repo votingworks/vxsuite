@@ -4,6 +4,7 @@ import {
   MarkThresholds,
   Optional,
 } from '@votingworks/types'
+import { ScanStatus } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
@@ -11,7 +12,7 @@ import { join } from 'path'
 import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
 import { BatchControl, Scanner } from './scanner'
-import { BallotMetadata, ScanStatus, SheetOf, Side } from './types'
+import { BallotMetadata, SheetOf, Side } from './types'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
