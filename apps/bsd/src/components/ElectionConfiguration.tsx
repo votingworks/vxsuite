@@ -2,6 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react'
 import path from 'path'
 
 import styled from 'styled-components'
+import {
+  parseBallotExportPackageInfoFromFilename,
+  BALLOT_PACKAGE_FOLDER,
+} from '@votingworks/utils'
 import Prose from './Prose'
 import Main, { MainChild } from './Main'
 import MainNav from './MainNav'
@@ -12,10 +16,6 @@ import FileInputButton from './FileInputButton'
 
 import USBControllerButton from './USBControllerButton'
 import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
-import {
-  parseBallotExportPackageInfoFromFilename,
-  BALLOT_PACKAGE_FOLDER,
-} from '../util/filenames'
 import Button from './Button'
 import Table, { TD } from './Table'
 

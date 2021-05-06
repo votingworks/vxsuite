@@ -4,6 +4,11 @@ import styled from 'styled-components'
 import fileDownload from 'js-file-download'
 import path from 'path'
 
+import {
+  generateElectionBasedSubfolderName,
+  generateFilenameForScanningResults,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Button from './Button'
@@ -12,11 +17,6 @@ import LinkButton from './LinkButton'
 import Loading from './Loading'
 import USBControllerButton from './USBControllerButton'
 import { getDevicePath, UsbDriveStatus } from '../lib/usbstick'
-import {
-  generateElectionBasedSubfolderName,
-  generateFilenameForScanningResults,
-  SCANNER_RESULTS_FOLDER,
-} from '../util/filenames'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
