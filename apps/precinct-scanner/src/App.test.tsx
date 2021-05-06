@@ -213,7 +213,7 @@ test('app can load and configure from a usb stick', async () => {
 
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
   fireEvent.click(await screen.findByText('Unconfigure'))
-  await screen.findByText('Loading…')
+  await screen.findByText('Loading')
   await waitFor(() =>
     expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
   )

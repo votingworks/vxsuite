@@ -89,7 +89,7 @@ test('module-scan fails to unconfigure', async () => {
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
   fireEvent.click(await screen.findByText('Unconfigure'))
 
-  await screen.findByText('Loading…')
+  await screen.findByText('Loading')
 })
 
 test('Show invalid card screen when unsupported cards are given', async () => {

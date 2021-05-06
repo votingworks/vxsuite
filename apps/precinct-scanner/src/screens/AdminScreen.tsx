@@ -1,7 +1,14 @@
 /* istanbul ignore file */
 import React, { useCallback, useState, useContext } from 'react'
-import { Button, Prose, SegmentedButton, Select } from '@votingworks/ui'
+import {
+  Button,
+  Prose,
+  SegmentedButton,
+  Select,
+  Loading,
+} from '@votingworks/ui'
 import { SelectChangeEventFunction } from '@votingworks/types'
+
 import { DateTime } from 'luxon'
 import { formatFullDateTimeZone } from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
@@ -36,6 +43,7 @@ const AdminScreen: React.FC<Props> = ({
   const systemDate = useNow()
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
   const [isSettingClock, setIsSettingClock] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const setClock = useCallback(
     async (date: DateTime) => {
@@ -73,8 +81,20 @@ const AdminScreen: React.FC<Props> = ({
     []
   )
 
-  const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
-    updateAppPrecinctId(event.currentTarget.value)
+  const changeAppPrecinctId: SelectChangeEventFunction = async (event) => {
+    await updateAppPrecinctId(event.currentTarget.value)
+  }
+
+  const handleTogglingLiveMode = async () => {
+    setIsLoading(true)
+    await toggleLiveMode()
+    setIsLoading(false)
+  }
+
+  const handleUnconfigure = async () => {
+    setIsLoading(true)
+    await unconfigure()
+    setIsLoading(false)
   }
 
   return (
@@ -107,10 +127,18 @@ const AdminScreen: React.FC<Props> = ({
         </p>
         <p>
           <SegmentedButton>
-            <Button large onPress={toggleLiveMode} disabled={!isLiveMode}>
+            <Button
+              large
+              onPress={handleTogglingLiveMode}
+              disabled={!isLiveMode}
+            >
               Testing Mode
             </Button>
-            <Button large onPress={toggleLiveMode} disabled={isLiveMode}>
+            <Button
+              large
+              onPress={handleTogglingLiveMode}
+              disabled={isLiveMode}
+            >
               Live Election Mode
             </Button>
           </SegmentedButton>
@@ -165,7 +193,7 @@ const AdminScreen: React.FC<Props> = ({
           }
           actions={
             <React.Fragment>
-              <Button danger onPress={unconfigure}>
+              <Button danger onPress={handleUnconfigure}>
                 Unconfigure
               </Button>
               <Button onPress={closeConfirmUnconfigureModal}>Cancel</Button>
@@ -180,6 +208,7 @@ const AdminScreen: React.FC<Props> = ({
           onCancel={closeCalibrateScannerModal}
         />
       )}
+      {isLoading && <Modal content={<Loading />} />}
     </CenteredScreen>
   )
 }
