@@ -2,7 +2,44 @@
 
 exports[`renders Prose with defaults 1`] = `
 <div
-  class="sc-bdvvaa iRIoAs"
+  class="sc-bdvvaa bnaJnM"
+>
+  <h1>
+    Heading 1
+  </h1>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h1>
+    Heading 1
+  </h1>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h2>
+    Heading 2
+  </h2>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+  <h3>
+    Heading 3
+  </h3>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor omnis quam modi magnam neque. Molestias recusandae, officia maiores nam pariatur earum qui inventore minus enim adipisci nemo voluptate at harum?
+  </p>
+</div>
+`;
+
+exports[`renders Prose with right-aligned text 1`] = `
+<div
+  class="sc-bdvvaa hNfOpU"
 >
   <h1>
     Heading 1
@@ -39,7 +76,7 @@ exports[`renders Prose with defaults 1`] = `
 
 exports[`renders Prose with theme 1`] = `
 <div
-  class="sc-bdvvaa jvdaaq"
+  class="sc-bdvvaa cLgjBe"
 >
   <h1>
     Heading 1
@@ -74,9 +111,9 @@ exports[`renders Prose with theme 1`] = `
 </div>
 `;
 
-exports[`renders Prose with with all non-default options 1`] = `
+exports[`renders Prose with with non-default options 1`] = `
 <div
-  class="sc-bdvvaa kuOtmX"
+  class="sc-bdvvaa bAMuWr"
 >
   <h1>
     Heading 1

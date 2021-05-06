@@ -3,8 +3,10 @@ import React from 'react'
 import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui'
 import { Bar, BarSpacer } from './Bar'
 
+export type InfoBarMode = 'voter' | 'pollworker' | 'admin'
+
 interface Props {
-  mode?: 'voter' | 'pollworker' | 'admin'
+  mode?: InfoBarMode
 }
 
 const ElectionInfoBar: React.FC<Props> = ({ mode = 'voter' }) => (
@@ -19,19 +21,21 @@ const ElectionInfoBar: React.FC<Props> = ({ mode = 'voter' }) => (
     </Prose>
     <BarSpacer />
     {mode !== 'voter' && (
-      <Prose maxWidth={false} compact textRight>
-        <Text as="div" small>
-          Software Version
-        </Text>
-        <strong>2020-05-05-JS6D8K3N</strong>
-      </Prose>
+      <React.Fragment>
+        <Prose maxWidth={false} compact textRight>
+          <Text as="div" small>
+            Software Version
+          </Text>
+          <strong>2020-05-05-JS6D8K3N</strong>
+        </Prose>
+        <Prose maxWidth={false} compact textRight>
+          <Text as="div" small>
+            Machine ID
+          </Text>
+          <strong>057</strong>
+        </Prose>
+      </React.Fragment>
     )}
-    <Prose maxWidth={false} compact textRight>
-      <Text as="div" small>
-        Machine ID
-      </Text>
-      <strong>057</strong>
-    </Prose>
     <Prose maxWidth={false} compact textRight>
       <Text as="div" small>
         Election ID

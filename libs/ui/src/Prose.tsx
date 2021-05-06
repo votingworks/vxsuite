@@ -76,6 +76,6 @@ export const Prose = styled('div')<Props>`
   }
   & hr {
     border: 0;
-    border-top: 0.1em solid #000000;
+    border-top: 0.1em solid #666666;
   }
 `
