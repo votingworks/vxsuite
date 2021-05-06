@@ -387,6 +387,33 @@ test('voter can cast a ballot that scans succesfully ', async () => {
     })
   )
   expect(fetchMock.calls('/scan/export')).toHaveLength(1)
+
+  // Insert Admin Card
+  const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
+  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  await screen.findByText('Administrator Settings')
+  fireEvent.click(await screen.findByText('Export Results to USB'))
+  await screen.findByText('No USB Drive Detected')
+
+  // Insert usb drive
+  const kiosk = fakeKiosk()
+  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
+  window.kiosk = kiosk
+  advanceTimersAndPromises(2)
+  await screen.findByText('Export Results')
+  fireEvent.click(await screen.findByText('Export'))
+  await screen.findByText('Download Complete')
+  expect(kiosk.writeFile).toHaveBeenCalledTimes(1)
+  expect(kiosk.writeFile).toHaveBeenCalledWith(
+    expect.stringMatching(
+      `fake mount point/cast-vote-records/franklin-county_general-election_${electionSampleDefinition.electionHash.slice(
+        0,
+        10
+      )}/TEST__machine_0002__1_ballots`
+    ),
+    expect.anything()
+  )
+  expect(fetchMock.calls('/scan/export')).toHaveLength(2)
 })
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {

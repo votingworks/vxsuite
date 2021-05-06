@@ -2,10 +2,10 @@
 import React, { useCallback, useState, useContext } from 'react'
 import {
   Button,
+  Loading,
   Prose,
   SegmentedButton,
   Select,
-  Loading,
 } from '@votingworks/ui'
 import { SelectChangeEventFunction } from '@votingworks/types'
 
@@ -19,23 +19,29 @@ import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
 import CalibrateScannerModal from '../components/CalibrateScannerModal'
 import AppContext from '../contexts/AppContext'
+import { UsbDriveStatus } from '../utils/usbstick'
+import ExportResultsModal from '../components/ExportResultsModal'
 
 interface Props {
-  ballotsScannedCount: number
-  isLiveMode: boolean
+  scannedBallotCount: number
+  isTestMode: boolean
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
   calibrate(): Promise<boolean>
+  usbDriveStatus: UsbDriveStatus
+  usbDriveEject: () => void
 }
 
 const AdminScreen: React.FC<Props> = ({
-  ballotsScannedCount,
-  isLiveMode,
+  scannedBallotCount,
+  isTestMode,
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
   calibrate,
+  usbDriveStatus,
+  usbDriveEject,
 }) => {
   const { electionDefinition, currentPrecinctId } = useContext(AppContext)
   const { election } = electionDefinition!
@@ -44,6 +50,7 @@ const AdminScreen: React.FC<Props> = ({
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
   const [isSettingClock, setIsSettingClock] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isExportingResults, setIsExportingResults] = useState(false)
 
   const setClock = useCallback(
     async (date: DateTime) => {
@@ -94,7 +101,6 @@ const AdminScreen: React.FC<Props> = ({
   const handleUnconfigure = async () => {
     setIsLoading(true)
     await unconfigure()
-    setIsLoading(false)
   }
 
   return (
@@ -130,14 +136,14 @@ const AdminScreen: React.FC<Props> = ({
             <Button
               large
               onPress={handleTogglingLiveMode}
-              disabled={!isLiveMode}
+              disabled={isTestMode}
             >
               Testing Mode
             </Button>
             <Button
               large
               onPress={handleTogglingLiveMode}
-              disabled={isLiveMode}
+              disabled={!isTestMode}
             >
               Live Election Mode
             </Button>
@@ -149,6 +155,11 @@ const AdminScreen: React.FC<Props> = ({
               🕓
             </span>{' '}
             {formatFullDateTimeZone(systemDate, { includeTimezone: true })}
+          </Button>
+        </p>
+        <p>
+          <Button onPress={() => setIsExportingResults(true)}>
+            Export Results to USB
           </Button>
         </p>
         <p>
@@ -167,7 +178,7 @@ const AdminScreen: React.FC<Props> = ({
         <Bar>
           <div>
             Ballots Scanned:{' '}
-            <strong data-testid="ballot-count">{ballotsScannedCount}</strong>{' '}
+            <strong data-testid="ballot-count">{scannedBallotCount}</strong>{' '}
           </div>
         </Bar>
       </Absolute>
@@ -209,6 +220,15 @@ const AdminScreen: React.FC<Props> = ({
         />
       )}
       {isLoading && <Modal content={<Loading />} />}
+      {isExportingResults && (
+        <ExportResultsModal
+          onClose={() => setIsExportingResults(false)}
+          usbDriveStatus={usbDriveStatus}
+          usbDriveEject={usbDriveEject}
+          isTestMode={isTestMode}
+          scannedBallotCount={scannedBallotCount}
+        />
+      )}
     </CenteredScreen>
   )
 }

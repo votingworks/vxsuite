@@ -38,6 +38,7 @@ import {
 import {
   getStatus as usbDriveGetStatus,
   doMount,
+  doUnmount,
   UsbDriveStatus,
 } from './utils/usbstick'
 
@@ -80,6 +81,7 @@ interface HardwareState {
   hasCardReaderAttached: boolean
   hasPrinterAttached: boolean
   usbDriveStatus: UsbDriveStatus
+  usbRecentlyEjected: boolean
   adminCardElectionHash: string
   isAdminCardPresent: boolean
   isPollWorkerCardPresent: boolean
@@ -114,6 +116,7 @@ const initialHardwareState: Readonly<HardwareState> = {
   hasCardReaderAttached: true,
   hasPrinterAttached: true,
   usbDriveStatus: UsbDriveStatus.absent,
+  usbRecentlyEjected: false,
   adminCardElectionHash: '',
   isAdminCardPresent: false,
   isPollWorkerCardPresent: false,
@@ -152,7 +155,11 @@ type AppAction =
       type: 'updateElectionDefinition'
       electionDefinition: OptionalElectionDefinition
     }
-  | { type: 'updateUsbDriveStatus'; usbDriveStatus: UsbDriveStatus }
+  | {
+      type: 'updateUsbDriveStatus'
+      usbDriveStatus: UsbDriveStatus
+      usbRecentlyEjected?: boolean
+    }
   | {
       type: 'refreshConfigFromScanner'
       electionDefinition: OptionalElectionDefinition
@@ -229,6 +236,9 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         usbDriveStatus: action.usbDriveStatus,
+        usbRecentlyEjected: action.usbRecentlyEjected
+          ? action.usbRecentlyEjected
+          : state.usbRecentlyEjected,
       }
     case 'updateElectionDefinition':
       return {
@@ -400,7 +410,13 @@ const AppRoot: React.FC<Props> = ({
     isPollsOpen,
     isPollWorkerCardPresent,
     machineConfig,
+    usbRecentlyEjected,
   } = appState
+
+  const usbDriveDisplayStatus =
+    usbRecentlyEjected && usbDriveStatus !== UsbDriveStatus.ejecting
+      ? UsbDriveStatus.recentlyEjected
+      : usbDriveStatus
 
   const hasCardInserted =
     isAdminCardPresent || invalidCardPresent || isPollWorkerCardPresent
@@ -533,7 +549,7 @@ const AppRoot: React.FC<Props> = ({
         })
       }
       /* istanbul ignore next */
-      if (status === UsbDriveStatus.present) {
+      if (status === UsbDriveStatus.present && !usbRecentlyEjected) {
         await doMount()
       }
     },
@@ -543,6 +559,15 @@ const AppRoot: React.FC<Props> = ({
       : POLLING_INTERVAL_FOR_USB,
     true
   )
+
+  const usbDriveEject = async () => {
+    dispatchAppState({
+      type: 'updateUsbDriveStatus',
+      usbDriveStatus: UsbDriveStatus.ejecting,
+      usbRecentlyEjected: true,
+    })
+    await doUnmount()
+  }
 
   const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(
     async () => {
@@ -682,7 +707,7 @@ const AppRoot: React.FC<Props> = ({
   const toggleTestMode = useCallback(async () => {
     await config.setTestMode(!isTestMode)
     await refreshConfig()
-  }, [dispatchAppState, refreshConfig])
+  }, [dispatchAppState, refreshConfig, isTestMode])
 
   const unconfigureServer = useCallback(async () => {
     try {
@@ -874,7 +899,7 @@ const AppRoot: React.FC<Props> = ({
   if (!electionDefinition) {
     return (
       <UnconfiguredElectionScreen
-        usbDriveStatus={usbDriveStatus}
+        usbDriveStatus={usbDriveDisplayStatus}
         setElectionDefinition={setElectionDefinition}
       />
     )
@@ -895,11 +920,13 @@ const AppRoot: React.FC<Props> = ({
       >
         <AdminScreen
           updateAppPrecinctId={updatePrecinctId}
-          ballotsScannedCount={scannedBallotCount}
-          isLiveMode={!isTestMode}
+          scannedBallotCount={scannedBallotCount}
+          isTestMode={isTestMode}
           toggleLiveMode={toggleTestMode}
           unconfigure={unconfigureServer}
           calibrate={scan.calibrate}
+          usbDriveStatus={usbDriveDisplayStatus}
+          usbDriveEject={usbDriveEject}
         />
       </AppContext.Provider>
     )
