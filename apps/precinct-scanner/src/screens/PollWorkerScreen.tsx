@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import makeDebug from 'debug'
 
 import { Precinct } from '@votingworks/types'
 import { Button, Prose, Loading } from '@votingworks/ui'
@@ -15,6 +16,8 @@ import { CastVoteRecord } from '../config/types'
 
 import { calculateTallyFromCVRs } from '../utils/tallies'
 import AppContext from '../contexts/AppContext'
+
+const debug = makeDebug('precinct-scanner:pollworker-screen')
 
 interface Props {
   ballotsScannedCount: number
@@ -44,16 +47,21 @@ const PollWorkerScreen: React.FC<Props> = ({
       castVoteRecords,
       electionDefinition!.election
     )
+    if (castVoteRecords.length !== ballotsScannedCount) {
+      debug(
+        `Warning, ballots scanned count from status endpoint (${ballotsScannedCount}) does not match number of CVRs (${castVoteRecords.length}) `
+      )
+    }
     const cardTally = {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: ballotsScannedCount,
+      totalBallotsScanned: castVoteRecords.length,
       isLiveMode,
       tally,
       metadata: [
         {
           machineId: machineConfig.machineId,
           timeSaved: Date.now(),
-          ballotCount: ballotsScannedCount,
+          ballotCount: castVoteRecords.length,
         } as CardTallyMetadataEntry,
       ],
     } as PrecinctScannerCardTally
@@ -108,7 +116,8 @@ const PollWorkerScreen: React.FC<Props> = ({
       <Absolute top left>
         <Bar>
           <div>
-            Ballots Scanned: <strong>{ballotsScannedCount}</strong>{' '}
+            Ballots Scanned:{' '}
+            <strong data-testid="ballot-count">{ballotsScannedCount}</strong>{' '}
           </div>
         </Bar>
       </Absolute>
