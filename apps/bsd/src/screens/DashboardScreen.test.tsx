@@ -1,8 +1,8 @@
 import { act, render, waitFor } from '@testing-library/react'
+import { ScanStatusResponse } from '@votingworks/types/api/module-scan'
 import { createMemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
-import { ScanStatusResponse } from '../config/types'
 import DashboardScreen from './DashboardScreen'
 
 const noneLeftAdjudicationStatus = {
@@ -41,18 +41,12 @@ test('shows scanned ballot count', () => {
         count: 1,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
-        ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
       },
       {
         id: 'b',
         count: 3,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
-        ballots: [
-          { id: 2, filename: '/tmp/img2.jpg' },
-          { id: 3, filename: '/tmp/img3.jpg' },
-          { id: 4, filename: '/tmp/img4.jpg' },
-        ],
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
@@ -81,11 +75,6 @@ test('shows whether a batch is scanning', () => {
         id: 'a',
         count: 3,
         startedAt: new Date(0).toISOString(),
-        ballots: [
-          { id: 2, filename: '/tmp/img2.jpg' },
-          { id: 3, filename: '/tmp/img3.jpg' },
-          { id: 4, filename: '/tmp/img4.jpg' },
-        ],
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
@@ -113,18 +102,12 @@ test('allows deleting a batch', async () => {
         count: 1,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
-        ballots: [{ id: 1, filename: '/tmp/img1.jpg' }],
       },
       {
         id: 'b',
         count: 3,
         startedAt: new Date(0).toISOString(),
         endedAt: new Date(0).toISOString(),
-        ballots: [
-          { id: 2, filename: '/tmp/img2.jpg' },
-          { id: 3, filename: '/tmp/img3.jpg' },
-          { id: 4, filename: '/tmp/img4.jpg' },
-        ],
       },
     ],
     adjudication: noneLeftAdjudicationStatus,

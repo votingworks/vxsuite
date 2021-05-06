@@ -46,25 +46,6 @@ export interface CastVoteRecord
   _locales?: BallotLocales
 }
 
-export interface ScanStatus {
-  electionHash?: string
-  batches: BatchInfo[]
-  adjudication: AdjudicationStatus
-}
-
-export interface BatchInfo {
-  id: number
-  startedAt: Date
-  endedAt: Date
-  error: string
-  count: number
-}
-
-export interface AdjudicationStatus {
-  adjudicated: number
-  remaining: number
-}
-
 export type BallotInfo = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
 
 export interface BmdBallotInfo {

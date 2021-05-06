@@ -1,3 +1,4 @@
+import { AdjudicationStatus } from '@votingworks/types/api/module-scan'
 import { ReadonlyDeep } from 'type-fest'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
@@ -11,7 +12,6 @@ import {
   ContestOption,
   MarkStatus,
   ReviewMarginalMarksBallot,
-  AdjudicationStatus,
   EventTargetFunction,
 } from '../config/types'
 import fetchJSON from '../util/fetchJSON'

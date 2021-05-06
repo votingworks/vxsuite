@@ -7,6 +7,7 @@ import {
   CandidateContest,
   YesNoContest,
 } from '@votingworks/types'
+import { ScanStatusResponse } from '@votingworks/types/api/module-scan'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
@@ -19,7 +20,6 @@ import zeroRect from '../test/fixtures/zeroRect'
 import { makeMock } from '../test/util/mocks'
 import Importer from './importer'
 import { buildApp, start } from './server'
-import { ScanStatus } from './types'
 import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
 
@@ -82,7 +82,7 @@ beforeEach(async () => {
 })
 
 test('GET /scan/status', async () => {
-  const status: ScanStatus = {
+  const status: ScanStatusResponse = {
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
   }

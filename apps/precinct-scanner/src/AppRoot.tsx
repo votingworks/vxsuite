@@ -1,3 +1,4 @@
+import { ISO8601Timestamp } from '@votingworks/types/api'
 import React, { useCallback, useEffect, useReducer } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import useInterval from '@rooks/use-interval'
@@ -24,7 +25,6 @@ import {
   doMount,
   UsbDriveStatus,
 } from './utils/usbstick'
-import { ISO8601Timestamp } from './config/types'
 import * as config from './api/config'
 
 export interface AppStorage {

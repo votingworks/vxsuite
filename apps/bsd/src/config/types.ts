@@ -45,19 +45,6 @@ export interface ErrorResponse {
   error: string
 }
 
-export interface Batch {
-  id: string
-  count: number
-  ballots: Ballot[]
-  startedAt: string
-  endedAt?: string
-}
-
-export interface AdjudicationStatus {
-  adjudicated: number
-  remaining: number
-}
-
 export type Ballot = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
 
 export interface BmdBallotInfo {
@@ -89,12 +76,6 @@ export type SerializableBallotPageLayout = Omit<
 export interface MarkInfo {
   marks: BallotMark[]
   ballotSize: Size
-}
-
-export interface ScanStatusResponse {
-  electionHash?: string
-  batches: Batch[]
-  adjudication: AdjudicationStatus
 }
 
 // eslint-disable-next-line import/no-cycle
