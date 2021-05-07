@@ -26,7 +26,9 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
     method: 'PATCH',
     body: isJSON ? JSON.stringify(value) : (value as BodyInit),
     headers: {
-      'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
+      'Content-Type': /* istanbul ignore next */ isJSON
+        ? 'application/json'
+        : 'application/octet-stream',
     },
   })
   const body: OkResponse | ErrorsResponse = await response.json()
@@ -46,7 +48,9 @@ async function put<Body extends string | ArrayBuffer | unknown>(
     !(value instanceof Uint8Array)
   const response = await fetch(url, {
     method: 'PUT',
-    body: isJSON ? JSON.stringify(value) : (value as BodyInit),
+    body: /* istanbul ignore next */ isJSON
+      ? JSON.stringify(value)
+      : (value as BodyInit),
     headers: {
       'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
     },

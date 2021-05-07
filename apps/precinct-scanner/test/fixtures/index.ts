@@ -29,13 +29,24 @@ export function interpretedHmpb({
             expected: contest.seats,
           },
         ]
+      : adjudicationReason === AdjudicationReason.BlankBallot
+      ? [
+          {
+            type: adjudicationReason,
+          },
+        ]
       : []
   return {
     type: 'InterpretedHmpbPage',
     adjudicationInfo: {
       allReasonInfos,
-      enabledReasons: [AdjudicationReason.Overvote],
-      requiresAdjudication: adjudicationReason === AdjudicationReason.Overvote,
+      enabledReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.BlankBallot,
+      ],
+      requiresAdjudication:
+        adjudicationReason === AdjudicationReason.Overvote ||
+        adjudicationReason === AdjudicationReason.BlankBallot,
     },
     markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
     metadata: {

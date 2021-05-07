@@ -51,7 +51,6 @@ export const doUnmount = async (): Promise<void> => {
   if (!device?.mountPoint) {
     return
   }
-
   window.kiosk!.unmountUsbDrive(device.deviceName)
   return await new Promise((resolve) => setTimeout(resolve, 10000))
 }
