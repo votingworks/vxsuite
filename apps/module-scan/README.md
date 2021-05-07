@@ -37,7 +37,11 @@ pnpm build && pnpm start
 
 ## Mock Scanning
 
-You can also scan directly from image files instead of using a real scanner:
+There are a few ways of scanning using a mock scanner instead of a real one.
+
+### Define batches upfront
+
+You can defined the batches of sheets to scan upfront.
 
 ```sh
 # single batch with single sheet
@@ -69,6 +73,21 @@ MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 If you are seeing unhandled promise rejection errors you may have an issue with
 where your image files are located, try moving them into the local scope of the
 app.
+
+### Define batches dynamically
+
+Use an HTTP-controlled scanner to add and update batches as `module-scan` runs:
+
+```sh
+# start module-scan
+MOCK_SCANNER=remote pnpm dev
+
+# in another terminal:
+./bin/mock-scanner new-batch path/to/front.jpg path/to/back.jpg
+./bin/mock-scanner add-to-batch path/to/front2.jpg path/to/back2.jpg
+```
+
+You can issue updates to the remote scanner as long as `module-scan` is running.
 
 ## Switching Workspaces
 

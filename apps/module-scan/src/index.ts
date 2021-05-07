@@ -1,8 +1,14 @@
 // Import the rest of our application.
 import LoopScanner, { parseBatchesFromEnv } from './LoopScanner'
+import RemoteControlScanner from './RemoteControlScanner'
+import { Scanner } from './scanner'
 import * as server from './server'
 
-function getScanner(): LoopScanner | undefined {
+function getScanner(): Scanner | undefined {
+  if (process.env.MOCK_SCANNER === 'remote') {
+    return new RemoteControlScanner()
+  }
+
   const mockScannerFiles = parseBatchesFromEnv(process.env.MOCK_SCANNER_FILES)
 
   if (mockScannerFiles) {
