@@ -429,6 +429,7 @@ importers:
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
+      '@votingworks/utils': link:../../libs/utils
       array-unique: 0.3.2
       base64-js: 1.5.1
       dashify: 2.0.0
@@ -526,6 +527,7 @@ importers:
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/ui': workspace:*
+      '@votingworks/utils': workspace:*
       array-unique: ^0.3.2
       base64-js: ^1.3.1
       dashify: ^2.0.0

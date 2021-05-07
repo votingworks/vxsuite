@@ -3,17 +3,17 @@ import styled from 'styled-components'
 import path from 'path'
 import moment from 'moment'
 
+import {
+  generateElectionBasedSubfolderName,
+  parseCVRFileInfoFromFilename,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
-import {
-  generateElectionBasedSubfolderName,
-  parseCVRFileInfoFromFilename,
-  SCANNER_RESULTS_FOLDER,
-} from '../utils/filenames'
 import { InputEventFunction } from '../config/types'
 import FileInputButton from './FileInputButton'
 import Table, { TD } from './Table'

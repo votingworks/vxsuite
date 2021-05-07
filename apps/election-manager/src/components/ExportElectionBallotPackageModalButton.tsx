@@ -4,6 +4,10 @@ import styled from 'styled-components'
 import path from 'path'
 import { getElectionLocales, getPrecinctById } from '@votingworks/types'
 
+import {
+  generateFilenameForBallotExportPackage,
+  BALLOT_PACKAGE_FOLDER,
+} from '@votingworks/utils'
 import { DEFAULT_LOCALE } from '../config/globals'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 
@@ -19,10 +23,6 @@ import { getDevicePath, UsbDriveStatus } from '../lib/usbstick'
 import USBControllerButton from './USBControllerButton'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
-import {
-  generateFilenameForBallotExportPackage,
-  BALLOT_PACKAGES_FOLDER,
-} from '../utils/filenames'
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -114,7 +114,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     }
     try {
       const usbPath = await getDevicePath()
-      const pathToFolder = usbPath && path.join(usbPath, BALLOT_PACKAGES_FOLDER)
+      const pathToFolder = usbPath && path.join(usbPath, BALLOT_PACKAGE_FOLDER)
       const pathToFile = path.join(pathToFolder ?? '.', defaultFileName)
       if (openDialog || !pathToFolder) {
         await state.archive.beginWithDialog({

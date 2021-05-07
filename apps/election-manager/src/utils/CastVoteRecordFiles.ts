@@ -1,6 +1,7 @@
 import arrayUnique from 'array-unique'
 import { sha256 } from 'js-sha256'
 import { Election } from '@votingworks/types'
+import { parseCVRFileInfoFromFilename } from '@votingworks/utils'
 import {
   CastVoteRecord,
   CastVoteRecordFile,
@@ -9,7 +10,6 @@ import {
 } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
 import { parseCVRs } from '../lib/votecounting'
-import { parseCVRFileInfoFromFilename } from './filenames'
 
 /**
  * Adds elements to a set by creating a new set with the contents of the

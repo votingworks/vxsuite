@@ -60,10 +60,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "statements": 80,
+        "statements": 79,
         "branches": 67,
         "functions": 76,
-        "lines": 80
+        "lines": 79
       }
     }
   },
@@ -87,6 +87,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/qrcode.react": "^1.0.2",
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "array-unique": "^0.3.2",
     "base64-js": "^1.3.1",
