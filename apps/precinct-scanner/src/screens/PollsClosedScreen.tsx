@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import React from 'react'
 
 import { ElectionDefinition } from '@votingworks/types'

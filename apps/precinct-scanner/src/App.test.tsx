@@ -64,6 +64,20 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
   status: 'ok',
 }
 
+test('shows setup card reader screen when there is no card reader', async () => {
+  const storage = new MemoryStorage()
+  const hardware = MemoryHardware.standard
+  hardware.setCardReaderConnected(false)
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+  render(<App storage={storage} hardware={hardware} />)
+  await screen.findByText('No Card Reader Detected')
+})
+
 test('app can load and configure from a usb stick', async () => {
   const storage = new MemoryStorage()
   const card = new MemoryCard()
@@ -151,7 +165,7 @@ test('app can load and configure from a usb stick', async () => {
   // Reinsert USB now that fake zip file on it is setup
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
-  await advanceTimersAndPromises(0)
+  await advanceTimersAndPromises(1)
   await screen.findByText('Polls Closed')
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
@@ -210,12 +224,50 @@ test('app can load and configure from a usb stick', async () => {
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(1)
 
-  // Insert admin card to unconfigure
+  // Insert admin card to set precinct
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
+  await fireEvent.click(await screen.findByText('Live Election Mode'))
+  await screen.findByText('Loading')
+  await advanceTimersAndPromises(1)
+  expect(fetchMock.calls('/config/testMode', { method: 'PATCH' })).toHaveLength(
+    1
+  )
+  fetchMock.putOnce('/config/precinct', { body: { status: 'ok' } })
+  fireEvent.change(await screen.getByTestId('selectPrecinct'), {
+    target: { value: '23' },
+  })
+  expect(fetchMock.calls('/config/precinct', { method: 'PUT' })).toHaveLength(1)
+  fetchMock.patch(
+    '/config/testMode',
+    { body: { status: 'ok' } },
+    { overwriteRoutes: true }
+  )
 
+  fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } })
+  await fireEvent.click(await screen.findByText('Calibrate Scanner'))
+  await screen.findByText('Cannot Calibrate')
+  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
+    overwriteRoutes: true,
+  })
+  await advanceTimersAndPromises(1)
+  fireEvent.click(await screen.findByText('Calibrate'))
+  expect(fetchMock.calls('/scan/calibrate')).toHaveLength(1)
+
+  // Remove card and insert pollworker card, verify the right precinct was set
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Close Polls for Center Springfield')
+
+  // Remove card and insert admin card to unconfigure
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  await advanceTimersAndPromises(1)
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
   fireEvent.click(await screen.findByText('Unconfigure'))
   await screen.findByText('Loading')
@@ -910,7 +962,7 @@ test('voter can cast another ballot while the success screen is showing', async 
         interpretation: interpretedHmpb({
           electionDefinition: electionSampleDefinition,
           pageNumber: 1,
-          adjudicationReason: AdjudicationReason.Overvote,
+          adjudicationReason: AdjudicationReason.BlankBallot,
         }),
         image: { url: '/not/real.jpg' },
       },
@@ -950,10 +1002,10 @@ test('voter can cast another ballot while the success screen is showing', async 
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await waitFor(() => expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2))
-  await screen.findByText('Ballot Requires Review')
+  await screen.findByText('Blank Ballot')
   // Even after the timeout to expire the success screen occurs we stay on the review screen.
   await advanceTimersAndPromises(5)
-  await screen.findByText('Ballot Requires Review')
+  await screen.findByText('Blank Ballot')
   // No more ballots have scanned even though the scanner is ready for paper
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
@@ -987,6 +1039,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
       adjudication: { adjudicated: 0, remaining: 0 },
     } as GetScanStatusResponse) // Set up the status endpoint with 15 ballots scanned
   render(<App storage={storage} card={card} hardware={hardware} />)
+  await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   await screen.findByText('Polls Closed')
   // Make sure the status endpoint was only called once
