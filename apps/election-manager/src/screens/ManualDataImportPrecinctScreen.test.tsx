@@ -1,13 +1,11 @@
 import React from 'react'
 import {
-  multiPartyPrimaryElectionDefinition,
   electionWithMsEitherNeitherDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures'
 import { Route } from 'react-router-dom'
-import { fireEvent, within } from '@testing-library/react'
+import { fireEvent } from '@testing-library/react'
 
-import ManualDataImportScreen from './ManualDataImportScreen'
 import renderInAppContext from '../../test/renderInAppContext'
 import {
   ContestOptionTally,
@@ -21,106 +19,102 @@ import {
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
 } from '../utils/externalTallies'
+import ManualDataImportPrecinctScreen from './ManualDataImportPrecinctScreen'
 
-test('can toggle ballot types for data', async () => {
-  const saveExternalTallies = jest.fn()
-  const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
+test('displays error screen for invalid precinct', async () => {
+  const { getByText } = renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import',
-      electionDefinition: multiPartyPrimaryElectionDefinition,
-      saveExternalTallies,
+      route: '/tally/manual-data-import/precinct/12345',
+      electionDefinition: electionWithMsEitherNeitherDefinition,
     }
   )
-  getByText('Manually Add External Results')
-
-  // Precinct ballots should be selected by default but should be able to toggle to absentee.
-  expect(getByTestId('ballottype-precinct').closest('button')).toBeDisabled()
-  expect(
-    getByTestId('ballottype-absentee').closest('button')
-  ).not.toBeDisabled()
-
-  fireEvent.click(getByTestId('ballottype-absentee'))
-  expect(
-    getByTestId('ballottype-precinct').closest('button')
-  ).not.toBeDisabled()
-  expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled()
-
-  fireEvent.click(getByText('Save Manual Data'))
-  expect(saveExternalTallies).toHaveBeenCalled()
-  expect(saveExternalTallies).toHaveBeenCalledWith([
-    expect.objectContaining({
-      source: ExternalTallySourceType.Manual,
-      votingMethod: VotingMethod.Absentee,
-    }),
-  ])
-
-  fireEvent.click(getByTestId('ballottype-precinct'))
-  fireEvent.click(getByText('Save Manual Data'))
-  expect(saveExternalTallies).toHaveBeenCalledTimes(2)
-  expect(saveExternalTallies).toHaveBeenCalledWith([
-    expect.objectContaining({
-      source: ExternalTallySourceType.Manual,
-      votingMethod: VotingMethod.Precinct,
-    }),
-  ])
+  getByText('Error: Could not find precinct 12345.')
+  getByText('Back to Index')
 })
 
-test('can toggle precincts and view correct contests for each precinct', async () => {
+test('displays correct contests for each precinct', async () => {
   const saveExternalTallies = jest.fn()
-  const { getByText, queryAllByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
-    </Route>,
+  const commissionerRaces = [
+    'Election Commissioner 01',
+    'Election Commissioner 02',
+    'Election Commissioner 03',
+    'Election Commissioner 04',
+    'Election Commissioner 05',
+  ]
+  const testcases = [
     {
-      route: '/tally/manual-data-import',
-      electionDefinition: electionWithMsEitherNeitherDefinition,
-      saveExternalTallies,
-    }
-  )
-  getByText('Manually Add External Results')
+      precinctId: '6538',
+      precinctName: 'Bywy',
+      expectedCommissionerRace: commissionerRaces[0],
+    },
+    {
+      precinctId: '6528',
+      precinctName: 'Hebron',
+      expectedCommissionerRace: commissionerRaces[1],
+    },
+    {
+      precinctId: '6539',
+      precinctName: 'West Weir',
+      expectedCommissionerRace: commissionerRaces[2],
+    },
+    {
+      precinctId: '6532',
+      precinctName: 'Panhandle',
+      expectedCommissionerRace: commissionerRaces[3],
+    },
+    {
+      precinctId: '6522',
+      precinctName: 'District 5',
+      expectedCommissionerRace: commissionerRaces[4],
+    },
+  ]
 
-  getByText('Contest Results for District 5')
-  // Check that contests that don't exist in ballot styles for District 5 don't show up
-  expect(queryAllByText('Election Commissioner 01').length).toBe(0)
-  expect(queryAllByText('Election Commissioner 02').length).toBe(0)
-  getByText('Election Commissioner 05')
-  getByText('President')
+  for (const {
+    precinctId,
+    precinctName,
+    expectedCommissionerRace,
+  } of testcases) {
+    const { getByText, queryAllByText, unmount } = renderInAppContext(
+      <Route path="/tally/manual-data-import/precinct/:precinctId">
+        <ManualDataImportPrecinctScreen />
+      </Route>,
+      {
+        route: `/tally/manual-data-import/precinct/${precinctId}`,
+        electionDefinition: electionWithMsEitherNeitherDefinition,
+        saveExternalTallies,
+      }
+    )
+    getByText(`Manually Add Precinct Data for ${precinctName}`)
 
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '6532' } })
+    // All precincts have the president contest
+    getByText('President')
+    // Check that only the expected election commissioner race is shown
+    commissionerRaces.forEach((raceName) => {
+      expect(queryAllByText(raceName)).toHaveLength(
+        raceName === expectedCommissionerRace ? 1 : 0
+      )
+    })
 
-  getByText('Contest Results for Panhandle')
-  // Check that contests that don't exist in ballot styles for District 5 don't show up
-  expect(queryAllByText('Election Commissioner 01').length).toBe(0)
-  expect(queryAllByText('Election Commissioner 05').length).toBe(0)
-  getByText('Election Commissioner 04')
-  getByText('President')
-
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '6539' } })
-
-  getByText('Contest Results for West Weir')
-  // Check that contests that don't exist in ballot styles for District 5 don't show up
-  expect(queryAllByText('Election Commissioner 04').length).toBe(0)
-  expect(queryAllByText('Election Commissioner 05').length).toBe(0)
-  getByText('Election Commissioner 03')
-  getByText('President')
+    unmount()
+  }
 })
 
 test('can enter data for candidate contests as expected', async () => {
   const saveExternalTallies = jest.fn()
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import',
+      route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
     }
   )
-  getByText('Manually Add External Results')
+  getByText('Manually Add Precinct Data for Center Springfield')
 
   // Input elements start as 0
   expect(getByTestId('president-numBallots').closest('input')!.value).toBe('0')
@@ -129,6 +123,11 @@ test('can enter data for candidate contests as expected', async () => {
     target: { value: 'daylight' },
   })
   expect(getByTestId('president-numBallots').closest('input')!.value).toBe('0')
+  // We can change the input to an empty string
+  fireEvent.change(getByTestId('president-numBallots').closest('input')!, {
+    target: { value: '' },
+  })
+  expect(getByTestId('president-numBallots').closest('input')!.value).toBe('')
 
   // We can change the input to a number
   fireEvent.change(getByTestId('president-numBallots').closest('input')!, {
@@ -158,7 +157,7 @@ test('can enter data for candidate contests as expected', async () => {
 
   // A contest that does not allow write ins has no write in row.
   expect(queryAllByTestId('president-__write-in').length).toBe(0)
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Data for Center Springfield'))
   expect(saveExternalTallies).toHaveBeenCalledTimes(1)
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
@@ -195,7 +194,7 @@ test('can enter data for candidate contests as expected', async () => {
       target: { value: '10' },
     }
   )
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Data for Center Springfield'))
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
       overallTally: {
@@ -219,16 +218,16 @@ test('can enter data for candidate contests as expected', async () => {
 test('can enter data for yes no contests as expected', async () => {
   const saveExternalTallies = jest.fn()
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import',
+      route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
     }
   )
-  getByText('Manually Add External Results')
+  getByText('Manually Add Precinct Data for Center Springfield')
 
   // Input elements start as 0
   expect(
@@ -282,7 +281,7 @@ test('can enter data for yes no contests as expected', async () => {
 
   // A yes no contest does not allow write ins has no write in row.
   expect(queryAllByTestId('president-__write-in').length).toBe(0)
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Data for Center Springfield'))
   expect(saveExternalTallies).toHaveBeenCalledTimes(1)
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
@@ -302,99 +301,21 @@ test('can enter data for yes no contests as expected', async () => {
   ])
 })
 
-test('summary table stays up to date', async () => {
-  const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
-    </Route>,
-    {
-      route: '/tally/manual-data-import',
-      electionDefinition: electionSampleDefinition,
-    }
-  )
-  getByText('Manually Add External Results')
-
-  // Everything should start as 0s
-  const summaryTable = getByTestId('summary-data')
-  const centerSpringfield = within(summaryTable)
-    .getByText('Center Springfield')
-    .closest('tr')!
-  expect(within(centerSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '0'
-  )
-  const southSpringfield = within(summaryTable)
-    .getByText('South Springfield')
-    .closest('tr')!
-  expect(within(southSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '0'
-  )
-  const northSpringfield = within(summaryTable)
-    .getByText('North Springfield')
-    .closest('tr')!
-  expect(within(northSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '0'
-  )
-  expect(getByTestId('total-ballots-entered')).toHaveTextContent('0')
-
-  // Change the number of ballots in center springfield
-  fireEvent.change(getByTestId('president-numBallots').closest('input')!, {
-    target: { value: '100' },
-  })
-  expect(within(centerSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '100'
-  )
-  expect(within(southSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '0'
-  )
-  expect(within(northSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '0'
-  )
-  expect(getByTestId('total-ballots-entered')).toHaveTextContent('100')
-
-  // Change the number of ballots in south springfield
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '20' } })
-  fireEvent.change(
-    getByTestId('primary-constitution-head-of-party-numBallots').closest(
-      'input'
-    )!,
-    {
-      target: { value: '50' },
-    }
-  )
-  expect(within(centerSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '100'
-  )
-  expect(within(southSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '50'
-  )
-  expect(within(northSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '0'
-  )
-  expect(getByTestId('total-ballots-entered')).toHaveTextContent('150')
-})
-
 test('warning is shown when a contests ballot totals dont add up', async () => {
-  const { getByText, getByTestId, queryAllByText } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
+  const saveExternalTallies = jest.fn()
+  const { getByText, queryAllByText, getByTestId } = renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import',
+      route: '/tally/manual-data-import/precinct/23',
+      saveExternalTallies,
       electionDefinition: electionSampleDefinition,
     }
   )
-  getByText('Manually Add External Results')
+  getByText('Manually Add Precinct Data for Center Springfield')
 
   // There should be no warnings to start.
-  const summaryTable = getByTestId('summary-data')
-  const centerSpringfield = within(summaryTable)
-    .getByText('Center Springfield')
-    .closest('tr')!
-  expect(
-    within(centerSpringfield).queryAllByText(
-      /Data for precinct contains possible errors/
-    )
-  ).toHaveLength(0)
   expect(
     queryAllByText(/The ballots entered for this contest sum to/)
   ).toHaveLength(0)
@@ -408,9 +329,6 @@ test('warning is shown when a contests ballot totals dont add up', async () => {
   getByText(
     'The ballots entered for this contest sum to 0 but you have specified that there were 100 ballots cast.'
   )
-  within(centerSpringfield).getByText(
-    'Data for precinct contains possible errors'
-  )
 
   // Update the number of undervotes to match the number of ballots expected.
   fireEvent.change(getByTestId('president-undervotes').closest('input')!, {
@@ -418,11 +336,6 @@ test('warning is shown when a contests ballot totals dont add up', async () => {
   })
 
   // Check that warnings are gone
-  expect(
-    within(centerSpringfield).queryAllByText(
-      /Data for precinct contains possible errors/
-    )
-  ).toHaveLength(0)
   expect(
     queryAllByText(/The ballots entered for this contest sum to/)
   ).toHaveLength(0)
@@ -497,128 +410,166 @@ test('loads prexisting manual data to edit', async () => {
   }
 
   const saveExternalTallies = jest.fn()
-  const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportScreen />
+  const centerSpringfield = renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import',
-      electionDefinition: electionSampleDefinition,
+      route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
+      electionDefinition: electionSampleDefinition,
       fullElectionExternalTallies: [externalTally],
     }
   )
-  getByText('Manually Add External Results')
-  // Absentee ballot type should be selected
-  expect(
-    getByTestId('ballottype-precinct').closest('button')
-  ).not.toBeDisabled()
-  expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled()
-
-  // Make sure all the summary loaded as expected
-  expect(getByTestId('total-ballots-entered')).toHaveTextContent('157')
-  const summaryTable = getByTestId('summary-data')
-  const centerSpringfield = within(summaryTable)
-    .getByText('Center Springfield')
-    .closest('tr')!
-  expect(within(centerSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '100'
-  )
-  const southSpringfield = within(summaryTable)
-    .getByText('South Springfield')
-    .closest('tr')!
-  expect(within(southSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '50'
-  )
-  const northSpringfield = within(summaryTable)
-    .getByText('North Springfield')
-    .closest('tr')!
-  expect(within(northSpringfield).getByTestId('numBallots')).toHaveTextContent(
-    '7'
+  centerSpringfield.getByText(
+    'Manually Add Absentee Data for Center Springfield'
   )
 
-  // Make sure the specific contests loaded as expected. First for Center Springfield
-  getByText('Contest Results for Center Springfield')
+  // Make sure the specific contests loaded as expected.
   expect(
-    getByTestId('county-commissioners-numBallots').closest('input')!.value
+    centerSpringfield
+      .getByTestId('county-commissioners-numBallots')
+      .closest('input')!.value
   ).toBe('100')
   expect(
-    getByTestId('county-commissioners-undervotes').closest('input')!.value
+    centerSpringfield
+      .getByTestId('county-commissioners-undervotes')
+      .closest('input')!.value
   ).toBe('220')
   expect(
-    getByTestId('county-commissioners-overvotes').closest('input')!.value
+    centerSpringfield
+      .getByTestId('county-commissioners-overvotes')
+      .closest('input')!.value
   ).toBe('0')
   expect(
-    getByTestId('county-commissioners-argent').closest('input')!.value
+    centerSpringfield
+      .getByTestId('county-commissioners-argent')
+      .closest('input')!.value
   ).toBe('80')
   expect(
-    getByTestId('county-commissioners-witherspoonsmithson').closest('input')!
-      .value
+    centerSpringfield
+      .getByTestId('county-commissioners-witherspoonsmithson')
+      .closest('input')!.value
   ).toBe('40')
   expect(
-    getByTestId('county-commissioners-bainbridge').closest('input')!.value
+    centerSpringfield
+      .getByTestId('county-commissioners-bainbridge')
+      .closest('input')!.value
   ).toBe('0')
   expect(
-    getByTestId('county-commissioners-__write-in').closest('input')!.value
+    centerSpringfield
+      .getByTestId('county-commissioners-__write-in')
+      .closest('input')!.value
   ).toBe('60')
 
   expect(
-    getByTestId('judicial-robert-demergue-numBallots').closest('input')!.value
+    centerSpringfield
+      .getByTestId('judicial-robert-demergue-numBallots')
+      .closest('input')!.value
   ).toBe('90')
   expect(
-    getByTestId('judicial-robert-demergue-undervotes').closest('input')!.value
+    centerSpringfield
+      .getByTestId('judicial-robert-demergue-undervotes')
+      .closest('input')!.value
   ).toBe('12')
   expect(
-    getByTestId('judicial-robert-demergue-overvotes').closest('input')!.value
+    centerSpringfield
+      .getByTestId('judicial-robert-demergue-overvotes')
+      .closest('input')!.value
   ).toBe('8')
   expect(
-    getByTestId('judicial-robert-demergue-yes').closest('input')!.value
+    centerSpringfield
+      .getByTestId('judicial-robert-demergue-yes')
+      .closest('input')!.value
   ).toBe('40')
   expect(
-    getByTestId('judicial-robert-demergue-no').closest('input')!.value
+    centerSpringfield
+      .getByTestId('judicial-robert-demergue-no')
+      .closest('input')!.value
   ).toBe('30')
 
   // Check South Springfield
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '20' } })
+  centerSpringfield.unmount()
+  const southSpringfieldComponent = renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
+    </Route>,
+    {
+      route: '/tally/manual-data-import/precinct/20',
+      saveExternalTallies,
+      electionDefinition: electionSampleDefinition,
+      fullElectionExternalTallies: [externalTally],
+    }
+  )
+  southSpringfieldComponent.getByText(
+    'Manually Add Absentee Data for South Springfield'
+  )
   expect(
-    getByTestId('primary-constitution-head-of-party-numBallots').closest(
-      'input'
-    )!.value
+    southSpringfieldComponent
+      .getByTestId('primary-constitution-head-of-party-numBallots')
+      .closest('input')!.value
   ).toBe('50')
   expect(
-    getByTestId('primary-constitution-head-of-party-undervotes').closest(
-      'input'
-    )!.value
+    southSpringfieldComponent
+      .getByTestId('primary-constitution-head-of-party-undervotes')
+      .closest('input')!.value
   ).toBe('4')
   expect(
-    getByTestId('primary-constitution-head-of-party-overvotes').closest(
-      'input'
-    )!.value
+    southSpringfieldComponent
+      .getByTestId('primary-constitution-head-of-party-overvotes')
+      .closest('input')!.value
   ).toBe('6')
   expect(
-    getByTestId('primary-constitution-head-of-party-alice').closest('input')!
-      .value
+    southSpringfieldComponent
+      .getByTestId('primary-constitution-head-of-party-alice')
+      .closest('input')!.value
   ).toBe('25')
   expect(
-    getByTestId('primary-constitution-head-of-party-bob').closest('input')!
-      .value
+    southSpringfieldComponent
+      .getByTestId('primary-constitution-head-of-party-bob')
+      .closest('input')!.value
   ).toBe('5')
 
   // Check North Springfield
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '21' } })
+  southSpringfieldComponent.unmount()
+  const northSpringfieldComponent = renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
+    </Route>,
+    {
+      route: '/tally/manual-data-import/precinct/21',
+      saveExternalTallies,
+      electionDefinition: electionSampleDefinition,
+      fullElectionExternalTallies: [externalTally],
+    }
+  )
+  northSpringfieldComponent.getByText(
+    'Manually Add Absentee Data for North Springfield'
+  )
+
   expect(
-    getByTestId('judicial-robert-demergue-numBallots').closest('input')!.value
+    northSpringfieldComponent
+      .getByTestId('judicial-robert-demergue-numBallots')
+      .closest('input')!.value
   ).toBe('7')
   expect(
-    getByTestId('judicial-robert-demergue-undervotes').closest('input')!.value
+    northSpringfieldComponent
+      .getByTestId('judicial-robert-demergue-undervotes')
+      .closest('input')!.value
   ).toBe('0')
   expect(
-    getByTestId('judicial-robert-demergue-overvotes').closest('input')!.value
+    northSpringfieldComponent
+      .getByTestId('judicial-robert-demergue-overvotes')
+      .closest('input')!.value
   ).toBe('0')
   expect(
-    getByTestId('judicial-robert-demergue-yes').closest('input')!.value
+    northSpringfieldComponent
+      .getByTestId('judicial-robert-demergue-yes')
+      .closest('input')!.value
   ).toBe('4')
   expect(
-    getByTestId('judicial-robert-demergue-no').closest('input')!.value
+    northSpringfieldComponent
+      .getByTestId('judicial-robert-demergue-no')
+      .closest('input')!.value
   ).toBe('3')
 })

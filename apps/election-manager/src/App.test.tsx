@@ -488,8 +488,9 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   )
 
   fireEvent.click(getByText('Add Manually Entered Data'))
-  getByText('Manually Add External Results')
-  getByText('Contest Results for District 5')
+  getByText('Manually Added External Results')
+  fireEvent.click(getByText('Edit District 5 Precinct Data'))
+  getByText('Manually Add Precinct Data for District 5')
   fireEvent.change(getByTestId('775020876-numBallots'), {
     target: { value: '100' },
   })
@@ -512,7 +513,12 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     target: { value: '10' },
   })
 
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Data for District 5'))
+  await waitFor(() => getByText('Manually Added External Results'))
+  await waitFor(() => {
+    expect(getByTestId('total-ballots-entered').textContent).toEqual('100')
+  })
+  fireEvent.click(getByText('Back to Tally'))
   await waitFor(() => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   })
@@ -546,16 +552,15 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   fireEvent.click(getByText('Edit Manually Entered Data'))
 
   // Existing data is still there
-  expect(getByTestId('775020876-numBallots').closest('input')!.value).toEqual(
-    '100'
-  )
+  const district5Row = getByText('District 5').closest('tr')!
+  expect(domGetByTestId(district5Row, 'numBallots')!.textContent).toEqual('100')
 
   // Change the manual data to absentee
   fireEvent.click(getByText('Absentee'))
 
   // Change to another precinct
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '6532' } })
-  getByText('Contest Results for Panhandle')
+  fireEvent.click(getByText('Edit Panhandle Absentee Data'))
+  getByText('Manually Add Absentee Data for Panhandle')
   fireEvent.change(getByTestId('750000017-numBallots'), {
     target: { value: '100' },
   })
@@ -572,7 +577,12 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     target: { value: '26' },
   })
 
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Data for Panhandle'))
+  await waitFor(() => {
+    expect(getByTestId('total-ballots-entered').textContent).toEqual('200')
+  })
+  fireEvent.click(getByText('Back to Tally'))
+
   await waitFor(() => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('400')
   })
