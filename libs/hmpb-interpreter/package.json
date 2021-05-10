@@ -4,7 +4,7 @@
   "description": "Interprets hand-marked paper ballots.",
   "repository": "https://github.com/votingworks/hmpb-interpreter",
   "license": "GPL-3.0",
-  "author": "Brian Donovan <brian@voting.works>",
+  "author": "VotingWorks Eng <eng@voting.works>",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
