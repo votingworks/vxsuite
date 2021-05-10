@@ -23,14 +23,20 @@
     "fetch-mock": "^9.11.0",
     "jest-fetch-mock": "^3.0.3",
     "luxon": "^1.27.0",
-    "moment": "^2.29.1"
+    "moment": "^2.29.1",
+    "yauzl": "^2.10.0",
+    "fast-text-encoding": "^1.0.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/luxon": "^1.26.5",
+    "@types/fast-text-encoding": "^1.0.1",
+    "@types/yauzl": "^2.9.1",
+    "@types/kiosk-browser": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",

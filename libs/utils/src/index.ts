@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * from './ballotPackage'
 export * from './Card'
 export * from './cardTallies'
 export * from './date'
