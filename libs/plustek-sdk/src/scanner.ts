@@ -8,6 +8,7 @@ import deferred from './util/deferred'
 import { Config, DEFAULT_CONFIG } from './config'
 import { file as createTempFile, dir as createTempDir } from './util/temp'
 import makeDebug from 'debug'
+import sleep from './util/sleep'
 
 const debug = makeDebug('plustek-sdk:scanner')
 
@@ -31,6 +32,11 @@ export type CloseResult = Result<void, ScannerError | Error>
 export interface ScannerClient {
   isConnected(): boolean
   getPaperStatus(): Promise<GetPaperStatusResult>
+  waitForStatus(options: {
+    status: PaperStatus
+    timeout?: number
+    interval?: number
+  }): Promise<GetPaperStatusResult | undefined>
   scan(): Promise<ScanResult>
   accept(): Promise<AcceptResult>
   reject(options: { hold: boolean }): Promise<RejectResult>
@@ -203,16 +209,35 @@ export async function createClient(
 
   await connectedPromise
 
+  const getPaperStatus: ScannerClient['getPaperStatus'] = () =>
+    doIPC('get-paper-status', {
+      data: (data, resolve) => resolve(safeParse(PaperStatusSchema, data)),
+      error: (error, resolve) => resolve(err(error)),
+      else: (line, resolve) =>
+        resolve(err(new Error(`invalid response: ${line}`))),
+    })
+
   return ok({
     isConnected: () => connected,
 
-    getPaperStatus: () =>
-      doIPC('get-paper-status', {
-        data: (data, resolve) => resolve(safeParse(PaperStatusSchema, data)),
-        error: (error, resolve) => resolve(err(error)),
-        else: (line, resolve) =>
-          resolve(err(new Error(`invalid response: ${line}`))),
-      }),
+    getPaperStatus,
+
+    waitForStatus: async ({ status, interval = 50, timeout }) => {
+      const until =
+        typeof timeout === 'undefined' ? Infinity : Date.now() + timeout
+      let result: GetPaperStatusResult | undefined
+
+      while (Date.now() < until) {
+        result = await getPaperStatus()
+        if (result.ok() === status) {
+          break
+        }
+
+        await sleep(interval)
+      }
+
+      return result
+    },
 
     scan: () => {
       const files: string[] = []

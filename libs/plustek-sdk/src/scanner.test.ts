@@ -682,3 +682,85 @@ test('overlapping calls', async () => {
   plustekctl.stdout.append(`<<<>>>\naccept: ok\n<<<>>>\n`)
   ;(await acceptResultPromise).unwrap()
 })
+
+test('waitForStatus does not have to wait', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.waitForStatus({
+    status: PaperStatus.VtmReadyToScan,
+  })
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
+  plustekctl.stdout.append(
+    `<<<>>>\nget-paper-status: ${PaperStatus.VtmReadyToScan}\n<<<>>>\n`
+  )
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+  const result = await resultPromise
+  expect(result?.unwrap()).toEqual(PaperStatus.VtmReadyToScan)
+})
+
+test('waitForStatus times out', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.waitForStatus({
+    status: PaperStatus.VtmReadyToScan,
+    timeout: 1,
+    interval: 2,
+  })
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
+  plustekctl.stdout.append(
+    `<<<>>>\nget-paper-status: ${PaperStatus.Jam}\n<<<>>>\n`
+  )
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+  const result = await resultPromise
+  expect(result?.unwrap()).toEqual(PaperStatus.Jam)
+})
+
+test('waitForStatus immediate timeout', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.waitForStatus({
+    status: PaperStatus.VtmReadyToScan,
+    timeout: 0,
+    interval: 1,
+  })
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('')
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+  const result = await resultPromise
+  expect(result).toBeUndefined()
+})
