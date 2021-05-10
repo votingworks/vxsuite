@@ -12,6 +12,7 @@ import {
   MemoryCard,
   ballotPackageUtils,
   MemoryHardware,
+  MemoryStorage,
 } from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
@@ -31,7 +32,6 @@ import App from './App'
 import { BallotSheetInfo } from './config/types'
 import { interpretedHmpb } from '../test/fixtures'
 
-import { MemoryStorage } from './utils/Storage'
 import {
   adminCardForElection,
   pollWorkerCardForElection,
