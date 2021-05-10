@@ -1,7 +1,9 @@
 /* istanbul ignore file */
+export * from './Card'
 export * from './cardTallies'
 export * from './date'
 export * from './deferred'
+export * from './fetchJSON'
 export * from './filenames'
 export * from './sleep'
 export * from './types'

@@ -3,6 +3,7 @@ module.exports = {
   clearMocks: true,
   watchPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/build'],
   collectCoverageFrom: ['src/**/*.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   coverageThreshold: {
     global: {
       branches: 100,
