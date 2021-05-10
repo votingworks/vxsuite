@@ -1,3 +1,4 @@
+import { ScannerClient } from '@votingworks/plustek-sdk'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
@@ -282,4 +283,15 @@ export async function makeImageFile(): Promise<string> {
     height: 1,
   })
   return imageFile.name
+}
+
+export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
+  return {
+    accept: jest.fn(),
+    close: jest.fn(),
+    getPaperStatus: jest.fn(),
+    isConnected: jest.fn(),
+    reject: jest.fn(),
+    scan: jest.fn(),
+  }
 }
