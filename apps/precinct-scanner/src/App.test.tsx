@@ -7,7 +7,11 @@ import {
   GetTestModeConfigResponse,
   GetCurrentPrecinctConfigResponse,
 } from '@votingworks/types/api/module-scan'
-import { TallySourceMachineType, MemoryCard } from '@votingworks/utils'
+import {
+  TallySourceMachineType,
+  MemoryCard,
+  ballotPackageUtils,
+} from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
   fakeKiosk,
@@ -21,6 +25,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures'
 import { DateTime } from 'luxon'
 import { AdjudicationReason } from '@votingworks/types'
 import { getZeroTally } from '@votingworks/utils/src'
+
 import App from './App'
 import { BallotSheetInfo } from './config/types'
 import { interpretedHmpb } from '../test/fixtures'
@@ -32,7 +37,6 @@ import {
   pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 import { stateStorageKey } from './AppRoot'
-import * as ballotPackageModule from './utils/ballot-package'
 
 beforeEach(() => {
   jest.useFakeTimers()
@@ -140,7 +144,7 @@ test('app can load and configure from a usb stick', async () => {
   ])
   const fileContent = await fs.readFile(pathToFile)
   kiosk.readFile.mockResolvedValue((fileContent as unknown) as string)
-  const ballotPackage = await ballotPackageModule.readBallotPackageFromFile(
+  const ballotPackage = await ballotPackageUtils.readBallotPackageFromFile(
     new File([fileContent], 'ballot-package.zip')
   )
   /* This function can take too long when the test is running for the results to be seen in time for the
@@ -148,7 +152,7 @@ test('app can load and configure from a usb stick', async () => {
    * pass consistently.
    */
   jest
-    .spyOn(ballotPackageModule, 'readBallotPackageFromFilePointer')
+    .spyOn(ballotPackageUtils, 'readBallotPackageFromFilePointer')
     .mockResolvedValue(ballotPackage)
 
   fetchMock
