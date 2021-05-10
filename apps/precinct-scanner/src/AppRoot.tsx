@@ -15,6 +15,7 @@ import {
 } from '@votingworks/types'
 import {
   sleep,
+  throwIllegalValue,
   PrecinctScannerCardTally,
   Card,
   CardPresentAPI,
@@ -47,7 +48,6 @@ import {
 
 import * as config from './api/config'
 import * as scan from './api/scan'
-import throwIllegalValue from './utils/throwIllegalValue'
 
 import { Storage } from './utils/Storage'
 

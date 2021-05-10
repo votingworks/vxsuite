@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import path from 'path'
 import fileDownload from 'js-file-download'
 
+import { throwIllegalValue } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Button from './Button'
@@ -11,7 +12,6 @@ import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { MainChild } from './Main'
 import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
-import throwIllegalValue from '../utils/throwIllegalValue'
 import USBControllerButton from './USBControllerButton'
 
 const USBImage = styled.img`

@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import pluralize from 'pluralize'
 
+import { throwIllegalValue } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import { ExternalTallySourceType, ResultsFileType } from '../config/types'
-import throwIllegalValue from '../utils/throwIllegalValue'
 
 import Button from './Button'
 import Prose from './Prose'

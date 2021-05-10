@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
+import { throwIllegalValue } from '@votingworks/utils'
 import { TallyCategory, VotingMethod } from '../config/types'
 
 import * as format from '../utils/format'
-import throwIllegalValue from '../utils/throwIllegalValue'
 import { getPartiesWithPrimaryElections } from '../utils/election'
 
 import AppContext from '../contexts/AppContext'

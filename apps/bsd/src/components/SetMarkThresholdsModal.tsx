@@ -3,12 +3,12 @@ import styled from 'styled-components'
 
 import { MarkThresholds } from '@votingworks/types'
 
+import { throwIllegalValue } from '@votingworks/utils'
 import Modal from './Modal'
 import Button from './Button'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
-import throwIllegalValue from '../util/throwIllegalValue'
 import TextInput from './TextInput'
 import Text from './Text'
 
