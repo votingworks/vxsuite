@@ -6,6 +6,7 @@ import {
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
+import { fetchJSON } from '@votingworks/utils'
 import {
   AdjudicationReasonInfo,
   BallotSheetInfo,
@@ -14,7 +15,6 @@ import {
   ScanningResult,
   ScanningResultType,
 } from '../config/types'
-import fetchJSON from '../utils/fetchJSON'
 
 const debug = makeDebug('precinct-scanner:api:scan')
 

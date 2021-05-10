@@ -1,9 +1,9 @@
 import { ElectionDefinition } from '@votingworks/types'
 import { EventEmitter } from 'events'
+import { fetchJSON } from '@votingworks/utils'
 import { BallotSheetInfo } from '../config/types'
 import { ReviewBallot } from '../config/ballot-review-types'
 import { BallotPackage, BallotPackageEntry } from '../utils/ballot-package'
-import fetchJSON from '../utils/fetchJSON'
 import { setElection } from './config'
 
 export interface AddTemplatesEvents extends EventEmitter {
