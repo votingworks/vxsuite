@@ -1,5 +1,8 @@
 import { act, render, waitFor } from '@testing-library/react'
-import { ScanStatusResponse } from '@votingworks/types/api/module-scan'
+import {
+  ScannerStatus,
+  ScanStatusResponse,
+} from '@votingworks/types/api/module-scan'
 import { createMemoryHistory } from 'history'
 import React from 'react'
 import { Router } from 'react-router-dom'
@@ -15,6 +18,7 @@ test('null state', () => {
   const status: ScanStatusResponse = {
     batches: [],
     adjudication: noneLeftAdjudicationStatus,
+    scanner: ScannerStatus.Unknown,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -50,6 +54,7 @@ test('shows scanned ballot count', () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
+    scanner: ScannerStatus.Unknown,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -78,6 +83,7 @@ test('shows whether a batch is scanning', () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
+    scanner: ScannerStatus.Unknown,
   }
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -111,6 +117,7 @@ test('allows deleting a batch', async () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
+    scanner: ScannerStatus.Unknown,
   }
   const component = render(
     <Router history={createMemoryHistory()}>

@@ -7,7 +7,10 @@ import {
   CandidateContest,
   YesNoContest,
 } from '@votingworks/types'
-import { ScanStatusResponse } from '@votingworks/types/api/module-scan'
+import {
+  ScannerStatus,
+  ScanStatusResponse,
+} from '@votingworks/types/api/module-scan'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
@@ -85,6 +88,7 @@ test('GET /scan/status', async () => {
   const status: ScanStatusResponse = {
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
+    scanner: ScannerStatus.Unknown,
   }
   importer.getStatus.mockResolvedValue(status)
   await request(app)

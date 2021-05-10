@@ -1,3 +1,4 @@
+import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
 import { join } from 'path'
 import { dirSync } from 'tmp'
@@ -10,10 +11,14 @@ const debug = makeDebug('module-scan:scanner')
 
 export interface BatchControl {
   scanSheet(): Promise<SheetOf<string> | undefined>
+  acceptSheet(): Promise<boolean>
+  reviewSheet(): Promise<boolean>
+  rejectSheet(): Promise<boolean>
   endBatch(): Promise<void>
 }
 
 export interface Scanner {
+  getStatus(): Promise<ScannerStatus>
   scanSheets(directory?: string): BatchControl
 }
 
@@ -67,6 +72,10 @@ export class FujitsuScanner implements Scanner {
     this.format = format
     this.pageSize = pageSize
     this.mode = mode
+  }
+
+  public async getStatus(): Promise<ScannerStatus> {
+    return ScannerStatus.Unknown
   }
 
   public scanSheets(directory = dirSync().name): BatchControl {
@@ -147,6 +156,18 @@ export class FujitsuScanner implements Scanner {
         }
 
         return results.get()
+      },
+
+      acceptSheet: async (): Promise<boolean> => {
+        return true
+      },
+
+      reviewSheet: async (): Promise<boolean> => {
+        return false
+      },
+
+      rejectSheet: async (): Promise<boolean> => {
+        return false
       },
 
       endBatch: async (): Promise<void> => {

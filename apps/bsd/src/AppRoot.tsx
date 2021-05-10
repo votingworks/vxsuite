@@ -8,7 +8,10 @@ import {
 } from '@votingworks/types'
 import styled from 'styled-components'
 
-import { ScanStatusResponse } from '@votingworks/types/api/module-scan'
+import {
+  ScannerStatus,
+  ScanStatusResponse,
+} from '@votingworks/types/api/module-scan'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
 
@@ -67,6 +70,7 @@ const App: React.FC = () => {
   const [status, setStatus] = useState<ScanStatusResponse>({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
+    scanner: ScannerStatus.Unknown,
   })
 
   const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)

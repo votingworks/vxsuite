@@ -1,7 +1,8 @@
-import { FujitsuScanner, ScannerMode, ScannerPageSize } from './scanner'
-import { streamExecFile } from './exec'
+import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { ChildProcess } from 'child_process'
 import { makeMockChildProcess } from '../test/util/mocks'
+import { streamExecFile } from './exec'
+import { FujitsuScanner, ScannerMode, ScannerPageSize } from './scanner'
 
 jest.mock('./exec')
 
@@ -227,4 +228,19 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
 
   scanimage.emit('exit', 1, null)
   await expect(sheets.scanSheet()).rejects.toThrowError()
+})
+
+test('fujitsu status', async () => {
+  expect(await new FujitsuScanner().getStatus()).toEqual(ScannerStatus.Unknown)
+})
+
+test('fujitsu accept/review/reject', async () => {
+  const scanimage = makeMockChildProcess()
+  exec.mockReturnValueOnce(scanimage)
+
+  const scanner = new FujitsuScanner()
+  const sheets = scanner.scanSheets()
+  expect(await sheets.acceptSheet()).toEqual(true)
+  expect(await sheets.reviewSheet()).toEqual(false)
+  expect(await sheets.rejectSheet()).toEqual(false)
 })
