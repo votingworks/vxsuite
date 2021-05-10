@@ -32,6 +32,7 @@ import {
   pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 import { stateStorageKey } from './AppRoot'
+import * as ballotPackageModule from './utils/ballot-package'
 
 beforeEach(() => {
   jest.useFakeTimers()
@@ -139,6 +140,16 @@ test('app can load and configure from a usb stick', async () => {
   ])
   const fileContent = await fs.readFile(pathToFile)
   kiosk.readFile.mockResolvedValue((fileContent as unknown) as string)
+  const ballotPackage = await ballotPackageModule.readBallotPackageFromFile(
+    new File([fileContent], 'ballot-package.zip')
+  )
+  /* This function can take too long when the test is running for the results to be seen in time for the
+   * test to pass consistently. By running it above and mocking out the result we guarantee the test will
+   * pass consistently.
+   */
+  jest
+    .spyOn(ballotPackageModule, 'readBallotPackageFromFilePointer')
+    .mockResolvedValue(ballotPackage)
 
   fetchMock
     .patchOnce('/config/testMode', {
