@@ -9,7 +9,7 @@ import {
 import { SelectChangeEventFunction } from '@votingworks/types'
 
 import { DateTime } from 'luxon'
-import { formatFullDateTimeZone } from '@votingworks/utils'
+import { formatFullDateTimeZone, usbstick } from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
 import useNow from '../hooks/useNow'
 import PickDateTimeModal from '../components/PickDateTimeModal'
@@ -18,7 +18,6 @@ import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
 import CalibrateScannerModal from '../components/CalibrateScannerModal'
 import AppContext from '../contexts/AppContext'
-import { UsbDriveStatus } from '../utils/usbstick'
 import ExportResultsModal from '../components/ExportResultsModal'
 
 interface Props {
@@ -28,7 +27,7 @@ interface Props {
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
   calibrate(): Promise<boolean>
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => void
 }
 

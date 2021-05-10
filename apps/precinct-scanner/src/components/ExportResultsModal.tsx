@@ -8,11 +8,11 @@ import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
+  usbstick,
 } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import USBControllerButton from './USBControllerButton'
-import { getDevicePath, UsbDriveStatus } from '../utils/usbstick'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
@@ -26,7 +26,7 @@ const USBImage = styled.img`
 
 export interface Props {
   onClose: () => void
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => void
   scannedBallotCount: number
   isTestMode: boolean
@@ -77,7 +77,7 @@ const ExportResultsModal: React.FC<Props> = ({
       )
 
       if (window.kiosk) {
-        const usbPath = await getDevicePath()
+        const usbPath = await usbstick.getDevicePath()
         if (!usbPath) {
           throw new Error('could not begin download; path to usb drive missing')
         }
@@ -146,7 +146,7 @@ const ExportResultsModal: React.FC<Props> = ({
         />
       </React.Fragment>
     )
-    if (usbDriveStatus === UsbDriveStatus.recentlyEjected) {
+    if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {
       actions = <Button onPress={onClose}>Close</Button>
     }
     return (
@@ -175,9 +175,9 @@ const ExportResultsModal: React.FC<Props> = ({
   }
 
   switch (usbDriveStatus) {
-    case UsbDriveStatus.absent:
-    case UsbDriveStatus.notavailable:
-    case UsbDriveStatus.recentlyEjected:
+    case usbstick.UsbDriveStatus.absent:
+    case usbstick.UsbDriveStatus.notavailable:
+    case usbstick.UsbDriveStatus.recentlyEjected:
       // When run not through kiosk mode let the user download the file
       // on the machine for internal debugging use
       return (
@@ -211,8 +211,8 @@ const ExportResultsModal: React.FC<Props> = ({
           }
         />
       )
-    case UsbDriveStatus.ejecting:
-    case UsbDriveStatus.present:
+    case usbstick.UsbDriveStatus.ejecting:
+    case usbstick.UsbDriveStatus.present:
       return (
         <Modal
           content={<Loading />}
@@ -224,7 +224,7 @@ const ExportResultsModal: React.FC<Props> = ({
           }
         />
       )
-    case UsbDriveStatus.mounted:
+    case usbstick.UsbDriveStatus.mounted:
       return (
         <Modal
           content={

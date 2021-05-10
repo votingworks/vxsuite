@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import path from 'path'
 import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
-import { ballotPackageUtils } from '@votingworks/utils'
-import { getDevicePath, UsbDriveStatus } from '../utils/usbstick'
+import { ballotPackageUtils, usbstick } from '@votingworks/utils'
 import { addTemplates, doneTemplates } from '../api/hmpb'
 import {
   PRECINCT_SCANNER_FOLDER,
@@ -15,7 +14,7 @@ import {
 } from '../components/Graphics'
 
 interface Props {
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
   setElectionDefinition: (
     electionDefinition: OptionalElectionDefinition
   ) => Promise<void>
@@ -43,7 +42,7 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
 
   useEffect(() => {
     const attemptToLoadBallotPackageFromUSB = async () => {
-      if (usbDriveStatus !== UsbDriveStatus.mounted) {
+      if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
         setErrorMessage('')
         setIsLoadingBallotPackage(false)
         setLoadingTemplates(false)
@@ -53,7 +52,7 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
       setIsLoadingBallotPackage(true)
 
       try {
-        const usbPath = await getDevicePath()
+        const usbPath = await usbstick.getDevicePath()
         let files: KioskBrowser.FileSystemEntry[]
         try {
           files = await window.kiosk!.getFileSystemEntries(
