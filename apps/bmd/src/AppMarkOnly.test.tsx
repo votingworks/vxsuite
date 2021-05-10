@@ -24,6 +24,8 @@ import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
+jest.setTimeout(10_000)
+
 beforeEach(() => {
   window.location.href = '/'
 })
