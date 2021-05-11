@@ -1,18 +1,29 @@
 <body>
-  <span id="status"></span><br>
+  <span id="status"></span><br />
   <button onclick="scan()">Scan</button>
   <button onclick="accept()">Accept</button>
   <button onclick="reject({ hold: false })">Reject</button>
   <button onclick="reject({ hold: true })">Reject &amp; Hold</button>
 
-  <br>
+  <br /><br />
+
+  <label>
+    <input type="checkbox" onclick="scanContinuously = event.target.checked" />
+    Scan Continuously
+  </label>
+
   <div id="images"></div>
 </body>
 <script>
-  setInterval(async () => {
-    const response = await fetch('/status')
-    document.getElementById('status').textContent = await response.text()
-  }, 1000);
+  let currentStatus
+  async function updateStatusThread() {
+    while (true) {
+      const response = await fetch('/status')
+      currentStatus = await response.text()
+      document.getElementById('status').textContent = currentStatus
+      await sleep(250)
+    }
+  }
 
   async function scan() {
     const response = await fetch('/scan')
@@ -29,11 +40,36 @@
 
   async function accept() {
     const response = await fetch('/accept')
-    console.log(response.text())
+    console.log(await response.text())
   }
 
   async function reject({ hold }) {
     const response = await fetch(hold ? '/reject-hold' : '/reject')
-    console.log(response.text())
+    console.log(await response.text())
   }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  let scanContinuously = false
+  function toggleScanContinuously() {
+    scanContinuously = !scanContinuously
+  }
+
+  async function scanContinuouslyThread() {
+    while (true) {
+      if (scanContinuously) {
+        if (currentStatus == 'PLKSS_ERRCODE_VTM_PS_READY_TO_SCAN') {
+          const scanResponse = await fetch('/scan')
+          const acceptResponse = await fetch('/accept')
+        }
+      }
+
+      await sleep(50)
+    }
+  }
+
+  updateStatusThread()
+  scanContinuouslyThread()
 </script>
