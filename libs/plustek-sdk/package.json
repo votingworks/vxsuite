@@ -1,11 +1,13 @@
 {
-  "name": "plustek-sdk",
+  "name": "@votingworks/plustek-sdk",
+  "private": true,
   "version": "1.0.0",
   "description": "Wraps the official plustek SDK for use with the VTM 300 via NodeJS.",
   "keywords": [],
   "license": "AGPL",
   "author": "VotingWorks <eng@voting.works>",
-  "main": "build/index.js",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "scripts": {
     "build": "tsc --build tsconfig.test.json",
     "build:watch": "tsc --build --watch tsconfig.test.json",

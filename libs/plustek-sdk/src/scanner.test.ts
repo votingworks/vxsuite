@@ -10,6 +10,7 @@ import { createClient } from './scanner'
 
 const findBinaryPath = mocked(plustekctl.findBinaryPath)
 const spawn = mocked(cp.spawn)
+const nextTick = Promise.resolve()
 
 jest.mock('./plustekctl')
 jest.mock('child_process')
@@ -123,6 +124,7 @@ test('client connects and disconnects successfully', async () => {
 
   // initiate quit
   const closeResultPromise = client.close()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('quit\n')
   plustekctl.stdout.append('<<<>>>\nquit: ok\n<<<>>>\n')
   ;(await closeResultPromise).unwrap()
@@ -152,6 +154,7 @@ test('unsuccessful disconnect returns error', async () => {
 
   // initiate quit
   const closeResultPromise = client.close()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('quit\n')
   plustekctl.stdout.append(
     `<<<>>>\nuh uh uh! you didn't say the magic word!\n<<<>>>\n`
@@ -213,6 +216,7 @@ test('client responds with wrong IPC command', async () => {
   ).unwrap()
 
   const resultPromise = client.getPaperStatus()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
   plustekctl.stdout.append(
     `<<<>>>\nunknown-response-thing: hey there!\n<<<>>>\n`
@@ -239,6 +243,7 @@ test('getPaperStatus succeeds', async () => {
   ).unwrap()
 
   const resultPromise = client.getPaperStatus()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
   plustekctl.stdout.append(
     `<<<>>>\nget-paper-status: ${PaperStatus.VtmReadyToScan}\n<<<>>>\n`
@@ -263,6 +268,7 @@ test('getPaperStatus returns error for invalid response', async () => {
   ).unwrap()
 
   const resultPromise = client.getPaperStatus()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
   plustekctl.stdout.append(
     '<<<>>>\nget-paper-status: not a real status\n<<<>>>\n'
@@ -289,6 +295,7 @@ test('getPaperStatus returns known error', async () => {
   ).unwrap()
 
   const resultPromise = client.getPaperStatus()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
   plustekctl.stdout.append(
     `<<<>>>\nget-paper-status: err=${ScannerError.NoDevices}\n<<<>>>\n`
@@ -313,6 +320,7 @@ test('getPaperStatus returns unknown error', async () => {
   ).unwrap()
 
   const resultPromise = client.getPaperStatus()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('get-paper-status\n')
   plustekctl.stdout.append(`<<<>>>\nget-paper-status: err=WHAT??\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -335,6 +343,7 @@ test('scan succeeds', async () => {
   ).unwrap()
 
   const resultPromise = client.scan()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('scan\n')
   plustekctl.stdout.append(`<<<>>>\nscan: file=file01.jpg\n<<<>>>\n`)
   plustekctl.stdout.append(`<<<>>>\nscan: file=file02.jpg\n<<<>>>\n`)
@@ -361,6 +370,7 @@ test('scan responds with error', async () => {
   ).unwrap()
 
   const resultPromise = client.scan()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('scan\n')
   plustekctl.stdout.append(
     `<<<>>>\nscan: err=${ScannerError.InvalidParam}\n<<<>>>\n`
@@ -385,6 +395,7 @@ test('scan returns error for invalid response', async () => {
   ).unwrap()
 
   const resultPromise = client.scan()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('scan\n')
   plustekctl.stdout.append(`<<<>>>\nbooga booga!\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -409,6 +420,7 @@ test('scan returns error for unknown data', async () => {
   ).unwrap()
 
   const resultPromise = client.scan()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('scan\n')
   plustekctl.stdout.append(`<<<>>>\nscan: url=localhost\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -433,6 +445,7 @@ test('accept succeeds', async () => {
   ).unwrap()
 
   const resultPromise = client.accept()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('accept\n')
   plustekctl.stdout.append(`<<<>>>\naccept: ok\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -454,6 +467,7 @@ test('accept returns known error', async () => {
   ).unwrap()
 
   const resultPromise = client.accept()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('accept\n')
   plustekctl.stdout.append(
     `<<<>>>\naccept: err=${ScannerError.NoSupportEject}\n<<<>>>\n`
@@ -478,6 +492,7 @@ test('accept returns error for invalid response', async () => {
   ).unwrap()
 
   const resultPromise = client.accept()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('accept\n')
   plustekctl.stdout.append(`<<<>>>\naccept: NOPE\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -502,6 +517,7 @@ test('reject succeeds', async () => {
   ).unwrap()
 
   const resultPromise = client.reject({ hold: false })
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('reject\n')
   plustekctl.stdout.append(`<<<>>>\nreject: ok\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -523,6 +539,7 @@ test('reject returns known error', async () => {
   ).unwrap()
 
   const resultPromise = client.reject({ hold: false })
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('reject\n')
   plustekctl.stdout.append(
     `<<<>>>\nreject: err=${ScannerError.NoSupportEject}\n<<<>>>\n`
@@ -547,6 +564,7 @@ test('reject returns error for invalid response', async () => {
   ).unwrap()
 
   const resultPromise = client.reject({ hold: false })
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('reject\n')
   plustekctl.stdout.append(`<<<>>>\nreject: NOPE\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -571,6 +589,7 @@ test('reject-hold succeeds', async () => {
   ).unwrap()
 
   const resultPromise = client.reject({ hold: true })
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('reject-hold\n')
   plustekctl.stdout.append(`<<<>>>\nreject-hold: ok\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -592,6 +611,7 @@ test('scan followed by reject succeeds', async () => {
   ).unwrap()
 
   const scanResultPromise = client.scan()
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('scan\n')
   plustekctl.stdout.append(`<<<>>>\nscan: file=file01.jpg\n<<<>>>\n`)
   plustekctl.stdout.append(`<<<>>>\nscan: file=file02.jpg\n<<<>>>\n`)
@@ -603,6 +623,7 @@ test('scan followed by reject succeeds', async () => {
   })
 
   const rejectResultPromise = client.reject({ hold: false })
+  await nextTick
   expect(plustekctl.stdin.toString()).toEqual('scan\nreject\n')
   plustekctl.stdout.append('<<<>>>\nreject: ok\n<<<>>>\n')
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
@@ -623,11 +644,12 @@ test('overlapping calls', async () => {
     })
   ).unwrap()
 
-  // enqueue RPCs #1 & #2
+  // enqueue IPCs #1 & #2
   const scanResultPromise = client.scan()
   const getPaperStatusResultPromise = client.getPaperStatus()
+  await nextTick
 
-  // RPC #1 is going
+  // IPC #1 is going
   expect(plustekctl.stdin.toString()).toEqual('scan\n')
   plustekctl.stdout.append(`<<<>>>\nscan: file=file01.jpg\n<<<>>>\n`)
   plustekctl.stdout.append(`<<<>>>\nscan: file=file02.jpg\n<<<>>>\n`)
@@ -637,7 +659,11 @@ test('overlapping calls', async () => {
     files: ['file01.jpg', 'file02.jpg'],
   })
 
-  // now RPC #2 runs
+  // enqueue IPC #3
+  const acceptResultPromise = client.accept()
+  await nextTick
+
+  // now IPC #2 runs
   expect(plustekctl.stdin.toString()).toEqual('scan\nget-paper-status\n')
 
   plustekctl.stdout.append(
@@ -647,4 +673,12 @@ test('overlapping calls', async () => {
   expect((await getPaperStatusResultPromise).unwrap()).toEqual(
     PaperStatus.ReadyToEject
   )
+
+  // now IPC #3 runs
+  expect(plustekctl.stdin.toString()).toEqual(
+    'scan\nget-paper-status\naccept\n'
+  )
+
+  plustekctl.stdout.append(`<<<>>>\naccept: ok\n<<<>>>\n`)
+  ;(await acceptResultPromise).unwrap()
 })

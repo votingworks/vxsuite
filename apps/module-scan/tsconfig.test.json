@@ -4,5 +4,11 @@
     "noEmit": true
   },
   "include": ["src", "test"],
-  "exclude": []
+  "exclude": [],
+  "references": [
+    { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/hmpb-interpreter" },
+    { "path": "../../libs/plustek-sdk" },
+    { "path": "../../libs/types" }
+  ]
 }
