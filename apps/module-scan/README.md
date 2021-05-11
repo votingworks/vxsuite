@@ -37,7 +37,9 @@ pnpm build && pnpm start
 
 ## Mock Scanning
 
-You can also scan directly from image files instead of using a real scanner:
+There are a couple different modes the mock scanners operate in. Choose the one that's appropriate for you.
+
+### Multi-sheet scanner
 
 ```sh
 # single batch with single sheet
@@ -69,6 +71,21 @@ MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 If you are seeing unhandled promise rejection errors you may have an issue with
 where your image files are located, try moving them into the local scope of the
 app.
+
+### Single-sheet scanner
+
+This mode is designed for use with `precinct-scanner`.
+
+```sh
+# start the server with an HTTP-based mock
+VX_MACHINE_TYPE=precinct-scanner MOCK_SCANNER_HTTP=1 pnpm dev
+
+# in another terminal, simulate the user feeding paper into the scanner:
+curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:9999/mock
+
+# simulate the user pulling the loaded paper out of the scanner:
+curl -X DELETE http://localhost:9999/mock
+```
 
 ## Switching Workspaces
 

@@ -2,7 +2,7 @@ import { BallotType, getPrecinctById } from '@votingworks/types'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
 import { basename, dirname, extname, join } from 'path'
-import { ScannerImageFormat } from '../scanner'
+import { ScannerImageFormat } from '../scanners'
 import Store from '../store'
 
 export function printHelp(out: typeof process.stdout): void {

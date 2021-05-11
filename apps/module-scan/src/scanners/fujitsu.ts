@@ -2,24 +2,24 @@ import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
 import { join } from 'path'
 import { dirSync } from 'tmp'
-import { streamExecFile } from './exec'
-import { SheetOf } from './types'
-import { queue } from './util/deferred'
-import { StreamLines } from './util/Lines'
+import {
+  BatchControl,
+  Scanner,
+  ScannerImageFormat,
+  ScannerMode,
+  ScannerPageSize,
+} from '.'
+import { streamExecFile } from '../exec'
+import { SheetOf } from '../types'
+import { queue } from '../util/deferred'
+import { StreamLines } from '../util/Lines'
 
 const debug = makeDebug('module-scan:scanner')
 
-export interface BatchControl {
-  scanSheet(): Promise<SheetOf<string> | undefined>
-  acceptSheet(): Promise<boolean>
-  reviewSheet(): Promise<boolean>
-  rejectSheet(): Promise<boolean>
-  endBatch(): Promise<void>
-}
-
-export interface Scanner {
-  getStatus(): Promise<ScannerStatus>
-  scanSheets(directory?: string): BatchControl
+export interface Options {
+  format?: ScannerImageFormat
+  pageSize?: ScannerPageSize
+  mode?: ScannerMode
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -32,28 +32,6 @@ function dateStamp(date: Date = new Date()): string {
   )}${zeroPad(date.getDay())}_${zeroPad(date.getHours())}${zeroPad(
     date.getMinutes()
   )}${zeroPad(date.getSeconds())}`
-}
-
-export enum ScannerImageFormat {
-  JPEG = 'jpeg',
-  PNG = 'png',
-}
-
-export enum ScannerPageSize {
-  Letter = 'letter',
-  Legal = 'legal',
-}
-
-export enum ScannerMode {
-  Lineart = 'lineart',
-  Gray = 'gray',
-  Color = 'color',
-}
-
-export interface Options {
-  format?: ScannerImageFormat
-  pageSize?: ScannerPageSize
-  mode?: ScannerMode
 }
 
 /**
