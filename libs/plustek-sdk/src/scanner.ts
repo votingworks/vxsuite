@@ -91,7 +91,7 @@ export async function createClient(
   let interpreting = false
   let quitting = false
   let currentLineHandler: ((line: string) => void) | undefined
-  let currentIPCPromise: Promise<void> | undefined
+  let currentIPCPromise = Promise.resolve()
 
   /* istanbul ignore next */
   createInterface(plustekctl.stderr).on('line', (line) => {
@@ -148,15 +148,13 @@ export async function createClient(
     method: string,
     handlers: IpcHandlers<T>
   ): Promise<T> {
+    debug('doIPC BEGIN (method=%s)', method)
     const { promise, resolve } = deferred<T>()
 
-    if (currentIPCPromise) {
-      const previousIPCPromise = currentIPCPromise
-      currentIPCPromise = promise.then()
-      await previousIPCPromise
-    } else {
-      currentIPCPromise = promise.then()
-    }
+    // Build an IPC queue
+    const previousIPCPromise = currentIPCPromise
+    currentIPCPromise = promise.then()
+    await previousIPCPromise
 
     if (!connected) {
       handlers.error(new Error('client is disconnected'), resolve)
@@ -192,7 +190,7 @@ export async function createClient(
       return await promise
     } finally {
       currentLineHandler = undefined
-      currentIPCPromise = undefined
+      debug('doIPC END (method=%s)', method)
     }
   }
 
