@@ -3,7 +3,7 @@ import styled, { css, StyledComponent } from 'styled-components'
 import { EventTargetFunction } from '@votingworks/types'
 
 export interface ButtonInterface {
-  readonly big?: boolean
+  readonly large?: boolean
   readonly danger?: boolean
   readonly fullWidth?: boolean
   readonly noFocus?: boolean
@@ -36,8 +36,8 @@ const buttonStyles = css<StyledButtonProps>`
     'rgb(211, 211, 211)'};
   cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
-  padding: ${({ big = false, small = false }) =>
-    small ? '0.35em 0.5em' : big ? '1em 1.75em' : '0.75em 1em'};
+  padding: ${({ large = false, small = false }) =>
+    small ? '0.35em 0.5em' : large ? '1em 1.75em' : '0.75em 1em'};
   text-align: ${({ textAlign }) => textAlign};
   line-height: 1.25;
   color: ${({ disabled, danger, warning, primary }) =>
@@ -46,7 +46,7 @@ const buttonStyles = css<StyledButtonProps>`
     (warning && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
     'black'};
-  font-size: ${({ big = false }) => (big ? '1.25em' : undefined)};
+  font-size: ${({ large = false }) => (large ? '1.25em' : undefined)};
   touch-action: manipulation;
   &:focus {
     /* stylelint-disable-next-line value-keyword-case */

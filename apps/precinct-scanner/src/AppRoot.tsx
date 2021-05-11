@@ -13,9 +13,26 @@ import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
 import { Storage } from './utils/Storage'
 
 // import AdminScreen from './screens/AdminScreen'
+// <AdminScreen
+//   appPrecinctId="42"
+//   ballotsScannedCount={42}
+//   electionDefinition={electionDefinition}
+//   isLiveMode={false}
+//   updateAppPrecinctId={(appPrecinctId: string) => { ... }}
+//   toggleLiveMode={() => {}}
+//   unconfigure={() => {}}
+// />
 // import InsertBallotScreen from './screens/InsertBallotScreen'
 // import PollsClosedScreen from './screens/PollsClosedScreen'
 // import PollWorkerScreen from './screens/PollWorkerScreen'
+// <PollWorkerScreen
+//   appPrecinctId="42"
+//   ballotsScannedCount={42}
+//   electionDefinition={electionDefinition}
+//   isPollsOpen={false}
+//   togglePollsOpen={() => {}}
+// />
+
 // import ScanErrorScreen from './screens/ScanErrorScreen'
 // import ScanSuccessScreen from './screens/ScanSuccessScreen'
 // import ScanWarningScreen from './screens/ScanWarningScreen'

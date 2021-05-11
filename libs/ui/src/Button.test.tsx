@@ -37,7 +37,7 @@ describe('renders Button', () => {
 
   test('with options: big danger', () => {
     const { container } = render(
-      <Button onPress={jest.fn()} big danger>
+      <Button onPress={jest.fn()} large danger>
         I’m a big button!
       </Button>
     )

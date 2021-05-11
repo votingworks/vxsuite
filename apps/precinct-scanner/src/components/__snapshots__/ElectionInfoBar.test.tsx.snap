@@ -3,33 +3,54 @@
 exports[`Renders ElectionInfoBar 1`] = `
 <div>
   <div
-    class="sc-iqsfdx jlEWBR"
+    class="sc-bqiQRQ frArmS"
   >
     <div
-      class="sc-crHlIS bmXZbQ"
+      class="sc-pVTma fVjNBH"
+    >
+      <strong
+        class="sc-crHlIS ZRmpD"
+      >
+        2020 Republican Primary Election
+      </strong>
+       —
+       
+      <span
+        class="sc-crHlIS ZRmpD"
+      >
+        Tuesday, Nov 8, 2020
+      </span>
+      <div
+        class="sc-iqsfdx hHUHJL"
+      >
+        <span
+          class="sc-crHlIS ZRmpD"
+        >
+          Town Hall Precinct
+        </span>
+         —
+         
+        <span
+          class="sc-crHlIS ZRmpD"
+        >
+          Franklin County, State of Hamilton
+        </span>
+      </div>
+    </div>
+    <div
+      class="sc-ksdxAp eeMtQw"
+    />
+    <div
+      class="sc-pVTma cSFpjP"
     >
       <div
-        class="sc-iCfLBT hdwdvT"
+        class="sc-iqsfdx hHUHJL"
       >
-        <p
-          class="sc-pVTma buSLuf"
-        >
-          <strong>
-            General Election
-          </strong>
-           — Tuesday, Nov 8, 2020 — Town Hall Precinct, Franklin County, State of Hamilton
-        </p>
+        Election ID
       </div>
-      <div
-        class="sc-iCfLBT hdwdvT"
-      >
-        <p>
-          Election ID: 
-          <strong>
-            6RK8NWD34K
-          </strong>
-        </p>
-      </div>
+      <strong>
+        6RK8NWD34K
+      </strong>
     </div>
   </div>
 </div>

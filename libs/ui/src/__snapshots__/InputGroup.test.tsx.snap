@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders InputGroup 1`] = `
+<div
+  class="sc-bdvvaa bJmuVn"
+>
+  <select
+    class="sc-gsDJrp qkOnw"
+  >
+    <option
+      value="1"
+    >
+      1
+    </option>
+  </select>
+  <select
+    class="sc-gsDJrp qkOnw"
+  >
+    <option
+      value="2"
+    >
+      2
+    </option>
+  </select>
+  <select
+    class="sc-gsDJrp qkOnw"
+  >
+    <option
+      value="3"
+    >
+      3
+    </option>
+  </select>
+</div>
+`;

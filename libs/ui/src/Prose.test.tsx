@@ -43,12 +43,17 @@ describe('renders Prose', () => {
     expect(container.firstChild).toMatchSnapshot()
   })
 
-  test('with with all non-default options', async () => {
+  test('with with non-default options', async () => {
     const { container } = render(
       <Prose compact textCenter maxWidth={false}>
         {proseContent}
       </Prose>
     )
+    expect(container.firstChild).toMatchSnapshot()
+  })
+
+  test('with right-aligned text', async () => {
+    const { container } = render(<Prose textRight>{proseContent}</Prose>)
     expect(container.firstChild).toMatchSnapshot()
   })
 

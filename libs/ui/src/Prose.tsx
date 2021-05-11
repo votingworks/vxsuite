@@ -6,12 +6,14 @@ interface Props {
   compact?: boolean
   maxWidth?: boolean
   textCenter?: boolean
+  textRight?: boolean
 }
 
 export const Prose = styled('div')<Props>`
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
   max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
-  text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
+  text-align: ${({ textCenter, textRight }) =>
+    (textCenter && 'center') || (textRight && 'right')};
   line-height: 1.2;
   color: ${({ theme }) => theme.color};
   font-size: ${({ theme }) => theme.fontSize};
@@ -74,6 +76,6 @@ export const Prose = styled('div')<Props>`
   }
   & hr {
     border: 0;
-    border-top: 0.1em solid #000000;
+    border-top: 0.1em solid #666666;
   }
 `
