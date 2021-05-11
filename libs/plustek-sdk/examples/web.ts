@@ -1,12 +1,12 @@
 /**
  * This example provides a basic web application to test the scanner.
- * 
+ *
  * Run it:
- * 
+ *
  *   pnpx ts-node -T examples/web.ts
- * 
+ *
  * With debugging:
- * 
+ *
  *   DEBUG=* pnpx ts-node -T examples/web.ts
  */
 
@@ -70,7 +70,7 @@ async function main(): Promise<number> {
         } else {
           debug('scan error: %s', result.err())
           res.writeHead(500)
-          res.end(result.err().toString())
+          res.end(`${result.err()}`)
         }
         break
       }
@@ -103,7 +103,7 @@ async function main(): Promise<number> {
       }
 
       default: {
-        if (/^\/images\/([^/]+).jpg$/.test(req.url)) {
+        if (/^\/images\/([^/]+).jpg$/.test(req.url ?? '')) {
           const imageHash = RegExp.$1
           const imagePath = scannedImages.get(imageHash)
           if (imagePath) {
