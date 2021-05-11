@@ -1,7 +1,7 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { readFileSync } from 'fs-extra'
 import { join, resolve } from 'path'
-import { BatchControl, Scanner } from './scanner'
+import { BatchControl, Scanner } from './scanners'
 import { SheetOf } from './types'
 
 type Batch = readonly SheetOf<string>[]

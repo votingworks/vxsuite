@@ -4,7 +4,13 @@
 //
 
 import {
+  createClient,
+  DEFAULT_CONFIG,
+  ScannerClient,
+} from '@votingworks/plustek-sdk'
+import {
   BallotType,
+  Result,
   safeParseElectionDefinition,
   schema,
 } from '@votingworks/types'
@@ -16,7 +22,12 @@ import * as path from 'path'
 import { inspect } from 'util'
 import backup from './backup'
 import Importer from './importer'
-import { FujitsuScanner, Scanner, ScannerMode } from './scanner'
+import {
+  FujitsuScanner,
+  PlustekScanner,
+  Scanner,
+  ScannerMode,
+} from './scanners'
 import Store from './store'
 import { BallotConfig } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
@@ -555,6 +566,19 @@ export interface StartOptions {
   workspace: Workspace
 }
 
+function memo<T>(fn: () => T): () => T {
+  let storedValue: T | undefined
+  let hasStoredValue = false
+
+  return (): T => {
+    if (!hasStoredValue) {
+      storedValue = fn()
+      hasStoredValue = true
+    }
+    return storedValue as T
+  }
+}
+
 /**
  * Starts the server with all the default options.
  */
@@ -582,15 +606,30 @@ export async function start({
     workspace = await createWorkspace(workspacePath)
   }
 
-  scanner = scanner ?? new FujitsuScanner({ mode: ScannerMode.Gray })
-  importer =
-    importer ??
-    new Importer({
-      workspace,
-      scanner,
-      workerPoolProvider: (): WorkerPool<workers.Input, workers.Output> =>
-        childProcessPool(workers.workerPath, 2 /* front and back */),
-    })
+  scanner ??=
+    process.env.VX_MACHINE_TYPE === 'precinct-scanner'
+      ? new PlustekScanner({
+          get: memo(
+            (): Promise<Result<ScannerClient, Error>> =>
+              createClient({
+                ...DEFAULT_CONFIG,
+                savepath: workspace!.ballotImagesPath,
+              })
+          ),
+        })
+      : new FujitsuScanner({ mode: ScannerMode.Gray })
+  let workerPool: WorkerPool<workers.Input, workers.Output> | undefined
+  const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
+    return (workerPool ??= childProcessPool(
+      workers.workerPath,
+      2 /* front and back */
+    ))
+  }
+  importer ??= new Importer({
+    workspace,
+    scanner,
+    workerPoolProvider,
+  })
   app = app ?? buildApp({ importer, store: workspace.store })
 
   app.listen(port, () => {
