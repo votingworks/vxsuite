@@ -8,6 +8,9 @@ import {
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
+  isAccessibleController,
+  AccessibleControllerVendorId,
+  AccessibleControllerProductId,
 } from './Hardware'
 
 describe('KioskHardware', () => {
@@ -203,6 +206,24 @@ describe('MemoryHardware', () => {
     await hardware.setPrinterConnected(false)
     expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
   })
+
+  it('can set and read battery level', async () => {
+    const hardware = new MemoryHardware()
+    expect(await hardware.readBatteryStatus()).toEqual({
+      discharging: false,
+      level: 0.8,
+    })
+    await hardware.setBatteryLevel(0.25)
+    expect(await hardware.readBatteryStatus()).toEqual({
+      discharging: false,
+      level: 0.25,
+    })
+    await hardware.setBatteryDischarging(true)
+    expect(await hardware.readBatteryStatus()).toEqual({
+      discharging: true,
+      level: 0.25,
+    })
+  })
 })
 
 describe('isCardReader', () => {
@@ -238,6 +259,23 @@ describe('isCardReader', () => {
         fakeDevice({
           deviceName: OmniKeyCardReaderDeviceName.replace(/ /g, '_'),
           manufacturer: OmniKeyCardReaderManufacturer.replace(/ /g, '_'),
+        })
+      )
+    ).toBe(true)
+  })
+})
+
+describe('isAccessibleController', () => {
+  it('does not match just any device', () => {
+    expect(isAccessibleController(fakeDevice())).toBe(false)
+  })
+
+  it('matches a device with the right vendor and product id', () => {
+    expect(
+      isAccessibleController(
+        fakeDevice({
+          vendorId: AccessibleControllerVendorId,
+          productId: AccessibleControllerProductId,
         })
       )
     ).toBe(true)
