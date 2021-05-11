@@ -125,6 +125,20 @@ test('plustek scanner reject sheet', async () => {
   expect(await scanner.scanSheets().rejectSheet()).toEqual(false)
 })
 
+test('plustek scanner reject sheet w/alwaysHoldOnReject', async () => {
+  const plustekClient = makeMockPlustekClient()
+  const scanner = new PlustekScanner(
+    {
+      get: jest.fn().mockResolvedValue(ok(plustekClient)),
+    },
+    true
+  )
+
+  plustekClient.reject.mockResolvedValueOnce(ok(undefined))
+  plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.VtmReadyToScan))
+  expect(await scanner.scanSheets().rejectSheet()).toEqual(true)
+})
+
 // eslint-disable-next-line jest/expect-expect
 test('mock server', async () => {
   const client = new MockScannerClient({

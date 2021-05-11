@@ -21,9 +21,12 @@ async function getScanner(): Promise<Scanner | undefined> {
         `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
       )
       plustekMockServer(client).listen(port)
-      return new PlustekScanner({
-        get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
-      })
+      return new PlustekScanner(
+        {
+          get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
+        },
+        process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
+      )
     }
   } else {
     const mockScannerFiles = parseBatchesFromEnv(process.env.MOCK_SCANNER_FILES)

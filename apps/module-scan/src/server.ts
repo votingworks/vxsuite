@@ -608,15 +608,18 @@ export async function start({
 
   scanner ??=
     process.env.VX_MACHINE_TYPE === 'precinct-scanner'
-      ? new PlustekScanner({
-          get: memo(
-            (): Promise<Result<ScannerClient, Error>> =>
-              createClient({
-                ...DEFAULT_CONFIG,
-                savepath: workspace!.ballotImagesPath,
-              })
-          ),
-        })
+      ? new PlustekScanner(
+          {
+            get: memo(
+              (): Promise<Result<ScannerClient, Error>> =>
+                createClient({
+                  ...DEFAULT_CONFIG,
+                  savepath: workspace!.ballotImagesPath,
+                })
+            ),
+          },
+          process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
+        )
       : new FujitsuScanner({ mode: ScannerMode.Gray })
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined
   const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
