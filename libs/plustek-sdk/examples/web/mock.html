@@ -1,0 +1,25 @@
+<body>
+  <label>Front path: <input type="text" id="front-path" /></label>
+  <label>Back path: <input type="text" id="back-path" /></label>
+  <button onclick="load()">Load</button>
+  <button onclick="remove()">Remove</button>
+
+  <script>
+    async function load() {
+      const files = [
+        document.getElementById('front-path').value,
+        document.getElementById('back-path').value,
+      ]
+
+      await fetch('/mock', {
+        method: 'PUT',
+        body: JSON.stringify({ files }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    async function remove() {
+      await fetch('/mock', { method: 'DELETE' })
+    }
+  </script>
+</body>

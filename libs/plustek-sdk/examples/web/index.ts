@@ -3,23 +3,30 @@
  *
  * Run it:
  *
- *   pnpx ts-node -T examples/web.ts
+ *   pnpx ts-node -T examples/web
  *
  * With debugging:
  *
- *   DEBUG=* pnpx ts-node -T examples/web.ts
+ *   DEBUG=* pnpx ts-node -T examples/web
  */
 
+import { safeParseJSON } from '@votingworks/types'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { createReadStream } from 'fs'
-import { createServer } from 'http'
+import { createServer, IncomingMessage } from 'http'
 import { join } from 'path'
-import { createClient } from '../src'
+import * as z from 'zod'
+import { createClient, MockScannerClient } from '../../src'
+import deferred from '../../src/util/deferred'
 
 const debug = makeDebug('plustek-sdk:example')
 
-main()
+const LoadRequestSchema = z.object({
+  files: z.array(z.string()),
+})
+
+main(process.argv.slice(2))
   .catch((error) => {
     console.error('CRASH:', error.stack)
     return 1
@@ -28,8 +35,32 @@ main()
     process.exitCode = code
   })
 
-async function main(): Promise<number> {
-  const scanner = (await createClient()).unwrap()
+async function main(args: readonly string[]): Promise<number> {
+  let useMockClient = false
+  let port = process.env.PORT || 8000
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (arg === '--mock' || arg === '-m') {
+      useMockClient = true
+    } else if (arg === '--port' || arg === '-p') {
+      const value = args[++i]
+      if (/^\d+$/.test(value ?? '')) {
+        port = Number(value)
+      } else {
+        console.error(`invalid port: ${value}`)
+        return -1
+      }
+    }
+  }
+
+  const scanner = useMockClient
+    ? await (async () => {
+        const mock = new MockScannerClient()
+        await mock.connect()
+        return mock
+      })()
+    : (await createClient()).unwrap()
   const scannedImages = new Map<string, string>()
 
   createServer(async (req, res) => {
@@ -38,7 +69,7 @@ async function main(): Promise<number> {
     switch (req.url) {
       case '/': {
         res.writeHead(200, { 'Content-Type': 'text/html' })
-        createReadStream(join(__dirname, 'web.html')).pipe(res)
+        createReadStream(join(__dirname, 'index.html')).pipe(res)
         break
       }
 
@@ -97,8 +128,41 @@ async function main(): Promise<number> {
         debug('rejecting & holding')
         const result = await scanner.reject({ hold: true })
         debug('reject result: %s', result.isOk() ? 'ok' : result.err())
-        res.writeHead(result.isErr() ? 500 : 200)
-        res.end(result.err()?.toString())
+        res.writeHead(result.isErr() ? 500 : 200).end(result.err()?.toString())
+        break
+      }
+
+      case '/mock': {
+        if (!(scanner instanceof MockScannerClient)) {
+          res.writeHead(404).end('mocking not enabled; use --mock')
+        } else {
+          if (req.method === 'GET') {
+            res.writeHead(200, { 'Content-Type': 'text/html' })
+            createReadStream(join(__dirname, 'mock.html')).pipe(res)
+          } else if (req.method === 'PUT') {
+            if (req.headers['content-type'] !== 'application/json') {
+              res.writeHead(406).end()
+            } else {
+              const body = await readRequestBody(req)
+              debug('PUT /mock body=%s', body)
+              safeParseJSON(body, LoadRequestSchema).mapOrElse(
+                (error) => res.writeHead(400).end(`${error}`),
+                async ({ files }) => {
+                  debug('loading a mock sheet: %o', files)
+                  ;(await scanner.manualLoad(files)).mapOrElse(
+                    (error) => res.writeHead(500).end(`${error}`),
+                    () => res.writeHead(200).end()
+                  )
+                }
+              )
+            }
+          } else if (req.method === 'DELETE') {
+            (await scanner.manualRemove()).mapOrElse(
+              (error) => res.writeHead(500).end(`${error}`),
+              () => res.writeHead(200).end()
+            )
+          }
+        }
         break
       }
 
@@ -122,7 +186,29 @@ async function main(): Promise<number> {
         }
       }
     }
-  }).listen(process.env.PORT ?? 8000)
+  }).listen(port, () => {
+    console.log(`Scanner controls: http://localhost:${port}/`)
+    if (useMockClient) {
+      console.log(`   Mock controls: http://localhost:${port}/mock`)
+    }
+  })
 
   return 0
+}
+
+async function readRequestBody(request: IncomingMessage): Promise<string> {
+  const { promise, resolve } = deferred<string>()
+  let body = ''
+
+  request
+    .setEncoding('utf-8')
+    .on('data', (chunk: string) => {
+      body += chunk
+    })
+    .on('end', () => {
+      resolve(body)
+    })
+    .resume()
+
+  return promise
 }
