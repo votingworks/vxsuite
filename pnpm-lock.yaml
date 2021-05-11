@@ -748,7 +748,7 @@ importers:
       base64-js: 1.5.1
       debug: 4.3.1
       fetch-mock: 9.11.0
-      http-proxy-middleware: 1.0.6_debug@4.3.1
+      http-proxy-middleware: 1.0.6
       i18next: 19.8.4
       jest-fetch-mock: 3.0.3
       js-file-download: 0.4.12
@@ -1379,6 +1379,7 @@ importers:
       luxon: ^1.27.0
       moment: ^2.29.1
       prettier: ^2.3.0
+      rxjs: ^6.6.6
       ts-jest: ^26.5.6
       typescript: ^4.2.4
       yauzl: ^2.10.0
@@ -14616,7 +14617,7 @@ packages:
       integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.1_supports-color@6.1.0
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -15512,20 +15513,6 @@ packages:
     dev: false
     engines:
       node: '>=8.0.0'
-    resolution:
-      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
-  /http-proxy-middleware/1.0.6_debug@4.3.1:
-    dependencies:
-      '@types/http-proxy': 1.17.4
-      http-proxy: 1.18.1_debug@4.3.1
-      is-glob: 4.0.1
-      lodash: 4.17.20
-      micromatch: 4.0.2
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
     resolution:
       integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
   /http-proxy/1.18.1:
