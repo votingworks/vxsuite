@@ -5,7 +5,7 @@ module.exports = {
     "<rootDir>/node_modules",
     "<rootDir>/dist"
   ],
-  collectCoverageFrom: ['src/**/*.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/api/module-scan.ts'],
   coverageThreshold: {
     global: {
       branches: 100,

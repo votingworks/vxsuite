@@ -17,6 +17,14 @@ export interface ScanStatus {
   electionHash?: string
   batches: BatchInfo[]
   adjudication: AdjudicationStatus
+  scanner: ScannerStatus
+}
+
+export enum ScannerStatus {
+  WaitingForPaper = 'WaitingForPaper',
+  ReadyToScan = 'ReadyToScan',
+  Error = 'Error',
+  Unknown = 'Unknown',
 }
 
 /**

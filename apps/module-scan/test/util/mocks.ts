@@ -1,3 +1,4 @@
+import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
@@ -86,6 +87,7 @@ class ScannerSessionPlan {
 
 export interface MockScanner extends Scanner {
   withNextScannerSession(): ScannerSessionPlan
+  getStatus: jest.MockedFunction<Scanner['getStatus']>
 }
 
 /**
@@ -105,6 +107,8 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined
 
   return {
+    getStatus: jest.fn().mockResolvedValue(ScannerStatus.Unknown),
+
     scanSheets(): BatchControl {
       const session = nextScannerSession
       nextScannerSession = undefined
@@ -117,6 +121,10 @@ export function makeMockScanner(): MockScanner {
       }
 
       return {
+        acceptSheet: jest.fn(),
+        reviewSheet: jest.fn(),
+        rejectSheet: jest.fn(),
+
         scanSheet: async (): Promise<SheetOf<string>> => {
           const step = session.steps[stepIndex++]
 

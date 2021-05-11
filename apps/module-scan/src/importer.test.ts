@@ -33,6 +33,7 @@ jest.setTimeout(20000)
 
 test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const importer = new Importer({
@@ -48,6 +49,9 @@ test('startImport calls scanner.scanSheet', async () => {
 
   // failed scan
   const batchControl: BatchControl = {
+    acceptSheet: jest.fn(),
+    reviewSheet: jest.fn(),
+    rejectSheet: jest.fn(),
     scanSheet: jest
       .fn()
       .mockRejectedValueOnce(new Error('scanner is a banana')),
@@ -65,6 +69,9 @@ test('startImport calls scanner.scanSheet', async () => {
 
   // successful scan
   scanner.scanSheets.mockReturnValueOnce({
+    acceptSheet: jest.fn(),
+    reviewSheet: jest.fn(),
+    rejectSheet: jest.fn(),
     scanSheet: jest
       .fn()
       .mockResolvedValueOnce([
@@ -81,6 +88,7 @@ test('startImport calls scanner.scanSheet', async () => {
 
 test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const importer = new Importer({
@@ -96,6 +104,7 @@ test('unconfigure clears all data.', async () => {
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const importer = new Importer({
@@ -145,6 +154,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 
 test('restoreConfig reconfigures the interpreter worker', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const workerCall = jest.fn()
@@ -168,6 +178,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
 
 test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const importer = new Importer({
@@ -191,6 +202,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
 
 test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
@@ -301,6 +313,7 @@ test('manually importing files', async () => {
 
 test('scanning pauses on adjudication then continues', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => {
@@ -350,6 +363,9 @@ test('scanning pauses on adjudication then continues', async () => {
     })
 
   scanner.scanSheets.mockReturnValueOnce({
+    acceptSheet: jest.fn(),
+    reviewSheet: jest.fn(),
+    rejectSheet: jest.fn(),
     scanSheet: jest
       .fn()
       .mockResolvedValueOnce([
@@ -414,6 +430,7 @@ test('scanning pauses on adjudication then continues', async () => {
 
 test('importing a sheet normalizes and orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
     scanSheets: jest.fn(),
   }
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()

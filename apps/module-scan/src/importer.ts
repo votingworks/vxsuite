@@ -13,6 +13,7 @@ import { v4 as uuid } from 'uuid'
 import { PageInterpretation } from './interpreter'
 import { BatchControl, Scanner } from './scanner'
 import { BallotMetadata, SheetOf, Side } from './types'
+import { Castability, checkSheetCastability } from './util/castability'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
@@ -374,8 +375,32 @@ export default class Importer {
 
       const adjudicationStatus = await this.workspace.store.adjudicationStatus()
       if (adjudicationStatus.remaining === 0) {
+        if (!(await this.sheetGenerator.acceptSheet())) {
+          debug('failed to accept interpreted sheet: %s', sheetId)
+        }
         await this.continueImport()
+      } else {
+        const castability = await this.getNextAdjudicationCastability()
+        if (castability) {
+          if (castability === Castability.Uncastable) {
+            await this.sheetGenerator.rejectSheet()
+          } else {
+            await this.sheetGenerator.reviewSheet()
+          }
+        }
       }
+    }
+  }
+
+  public async getNextAdjudicationCastability(): Promise<
+    Castability | undefined
+  > {
+    const sheet = await this.workspace.store.getNextAdjudicationSheet()
+    if (sheet) {
+      return checkSheetCastability([
+        sheet.front.interpretation,
+        sheet.back.interpretation,
+      ])
     }
   }
 
@@ -423,10 +448,12 @@ export default class Importer {
 
     if (sheet) {
       if (override) {
+        await this.sheetGenerator?.acceptSheet()
         for (const side of ['front', 'back'] as Side[]) {
           await this.workspace.store.saveBallotAdjudication(sheet.id, side, {})
         }
       } else {
+        await this.sheetGenerator?.rejectSheet()
         await this.workspace.store.deleteSheet(sheet.id)
       }
     }
@@ -489,10 +516,13 @@ export default class Importer {
     const election = await this.workspace.store.getElectionDefinition()
     const batches = await this.workspace.store.batchStatus()
     const adjudication = await this.workspace.store.adjudicationStatus()
-    if (election) {
-      return { electionHash: election.electionHash, batches, adjudication }
+    const scanner = await this.scanner.getStatus()
+    return {
+      electionHash: election?.electionHash,
+      batches,
+      adjudication,
+      scanner,
     }
-    return { batches, adjudication }
   }
 
   /**

@@ -1,3 +1,4 @@
+import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { readFileSync } from 'fs-extra'
 import { join, resolve } from 'path'
 import { BatchControl, Scanner } from './scanner'
@@ -92,6 +93,10 @@ export default class LoopScanner implements Scanner {
     this.batches = batches
   }
 
+  public async getStatus(): Promise<ScannerStatus> {
+    return ScannerStatus.Unknown
+  }
+
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */
@@ -102,6 +107,18 @@ export default class LoopScanner implements Scanner {
     let sheetIndex = 0
 
     return {
+      async acceptSheet(): Promise<boolean> {
+        return true
+      },
+
+      async reviewSheet(): Promise<boolean> {
+        return false
+      },
+
+      async rejectSheet(): Promise<boolean> {
+        return false
+      },
+
       async scanSheet(): Promise<SheetOf<string> | undefined> {
         return currentBatch?.[sheetIndex++]
       },
