@@ -1,13 +1,20 @@
-import React from 'react'
-import fetchMock from 'fetch-mock'
-import { render, waitFor, fireEvent } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import {
   advanceTimers,
   advanceTimersAndPromises,
 } from '@votingworks/test-utils'
-import { ScannerStatus } from '@votingworks/types/api/module-scan'
+import { AdjudicationReason } from '@votingworks/types'
+import {
+  ScannerStatus,
+  ScanStatusResponse,
+} from '@votingworks/types/api/module-scan'
+import fetchMock from 'fetch-mock'
+import { DateTime } from 'luxon'
+import React from 'react'
+import { interpretedHmpb } from '../test/fixtures'
 import App from './App'
+import { BallotSheetInfo } from './config/types'
 
 beforeEach(() => {
   jest.useFakeTimers()
@@ -72,9 +79,11 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   fetchMock.get('/scan/status', {
     status: 'ok',
     scanner: 'WaitingForPaper',
-  })
+    batches: [],
+    adjudication: { adjudicated: 0, remaining: 0 },
+  } as ScanStatusResponse)
   const { getByText } = render(<App />)
-  await advanceTimers(1)
+  advanceTimers(1)
   await waitFor(() => getByText('Insert Ballot'))
 
   fetchMock.get(
@@ -86,9 +95,43 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     },
     { overwriteRoutes: true }
   )
-  fetchMock.post('/scan/scanSingle', {
-    body: { status: 'RequiresAdjudication' },
+  fetchMock.post('/scan/scanBatch', {
+    body: { status: 'ok', batchId: 'test-batch' },
   })
+  fetchMock.get(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        { id: 'test-batch', count: 1, startedAt: DateTime.now().toISO() },
+      ],
+      adjudication: { adjudicated: 0, remaining: 1 },
+    } as ScanStatusResponse,
+    { overwriteRoutes: true }
+  )
+  fetchMock.get('/scan/hmpb/review/next-sheet', {
+    id: 'test-sheet',
+    front: {
+      interpretation: interpretedHmpb({
+        electionDefinition: electionSampleDefinition,
+        pageNumber: 1,
+        adjudicationReason: AdjudicationReason.Overvote,
+      }),
+      image: {
+        url: '/not/real.jpg',
+      },
+    },
+    back: {
+      interpretation: interpretedHmpb({
+        electionDefinition: electionSampleDefinition,
+        pageNumber: 2,
+      }),
+      image: {
+        url: '/not/real.jpg',
+      },
+    },
+  } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
   await waitFor(() => getByText('Overvote Warning'))
   fetchMock.post('/scan/scanContinue', {
@@ -109,7 +152,8 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
       status: 'ok',
       scanner: ScannerStatus.WaitingForPaper,
       batches: [],
-    },
+      adjudication: { adjudicated: 0, remaining: 0 },
+    } as ScanStatusResponse,
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)

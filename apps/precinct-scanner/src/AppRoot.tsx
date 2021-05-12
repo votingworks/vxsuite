@@ -81,6 +81,7 @@ interface SharedState {
   scannedBallotCount: number
   ballotState: BallotState
   timeoutToInsertScreen?: number
+  isStatusPollingEnabled: boolean
 }
 
 export interface State extends HardwareState, SharedState {}
@@ -97,6 +98,7 @@ const initialSharedState: Readonly<SharedState> = {
   isTestMode: false,
   scannedBallotCount: 0,
   ballotState: BallotState.IDLE,
+  isStatusPollingEnabled: true,
 }
 
 const initialAppState: Readonly<State> = {
@@ -144,19 +146,21 @@ type AppAction =
       type: 'updateBallotCount'
       ballotCount: number
     }
+  | { type: 'disableStatusPolling' }
+  | { type: 'enableStatusPolling' }
 
 const appReducer = (state: State, action: AppAction): State => {
   // useful for debugging
-  /* console.log(
-    '%cReducer "%s"',
-    'color: green',
-    action.type,
-    { ...action, electionDefinition: undefined },
-    {
-      ...state,
-      electionDefinition: undefined,
-    }
-  ) */
+  // console.log(
+  //   '%cReducer "%s"',
+  //   'color: green',
+  //   action.type,
+  //   { ...action, electionDefinition: undefined },
+  //   {
+  //     ...state,
+  //     electionDefinition: undefined,
+  //   }
+  // )
   switch (action.type) {
     case 'updateUsbDriveStatus':
       return {
@@ -232,6 +236,16 @@ const appReducer = (state: State, action: AppAction): State => {
         ballotState: BallotState.IDLE,
         scannedBallotCount: action.ballotCount,
       }
+    case 'disableStatusPolling':
+      return {
+        ...state,
+        isStatusPollingEnabled: false,
+      }
+    case 'enableStatusPolling':
+      return {
+        ...state,
+        isStatusPollingEnabled: true,
+      }
   }
 }
 
@@ -244,6 +258,7 @@ const AppRoot: React.FC<Props> = () => {
     ballotState,
     scannedBallotCount,
     timeoutToInsertScreen,
+    isStatusPollingEnabled,
   } = appState
 
   const refreshConfig = useCallback(async () => {
@@ -254,17 +269,18 @@ const AppRoot: React.FC<Props> = () => {
       electionDefinition,
       isTestMode,
     })
-  }, [])
+  }, [dispatchAppState])
 
-  const dismissCurrentBallotMessage = (): number => {
+  const dismissCurrentBallotMessage = useCallback((): number => {
     return window.setTimeout(
       () => dispatchAppState({ type: 'readyToInsertBallot' }),
       TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
     )
-  }
+  }, [dispatchAppState])
 
-  const scanDetectedBallot = async () => {
+  const scanDetectedBallot = useCallback(async () => {
     try {
+      dispatchAppState({ type: 'disableStatusPolling' })
       const scanningResult = await scan.scanDetectedSheet()
       switch (scanningResult) {
         case ScanningResult.Rejected: {
@@ -292,25 +308,51 @@ const AppRoot: React.FC<Props> = () => {
       dispatchAppState({
         type: 'ballotRejected',
       })
+    } finally {
+      dispatchAppState({
+        type: 'enableStatusPolling',
+      })
     }
-  }
+  }, [dispatchAppState, dismissCurrentBallotMessage])
 
-  const acceptBallot = async () => {
-    dispatchAppState({
-      type: 'ballotScanning',
-    })
-    const success = await scan.acceptBallotAfterReview()
-    if (success) {
+  const acceptBallot = useCallback(async () => {
+    try {
       dispatchAppState({
-        type: 'ballotCast',
-        timeoutToInsertScreen: dismissCurrentBallotMessage(),
+        type: 'disableStatusPolling',
       })
-    } else {
       dispatchAppState({
-        type: 'ballotRejected',
+        type: 'ballotScanning',
+      })
+      const success = await scan.acceptBallotAfterReview()
+      if (success) {
+        dispatchAppState({
+          type: 'ballotCast',
+          timeoutToInsertScreen: dismissCurrentBallotMessage(),
+        })
+      } else {
+        dispatchAppState({
+          type: 'ballotRejected',
+        })
+      }
+    } finally {
+      dispatchAppState({
+        type: 'enableStatusPolling',
       })
     }
-  }
+  }, [dispatchAppState, dismissCurrentBallotMessage])
+
+  const endBatch = useCallback(async () => {
+    try {
+      dispatchAppState({
+        type: 'disableStatusPolling',
+      })
+      await scan.endBatch()
+    } finally {
+      dispatchAppState({
+        type: 'enableStatusPolling',
+      })
+    }
+  }, [dispatchAppState])
 
   useInterval(
     async () => {
@@ -335,6 +377,10 @@ const AppRoot: React.FC<Props> = () => {
 
   const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(
     async () => {
+      if (!isStatusPollingEnabled) {
+        return
+      }
+
       const { scannerState, ballotCount } = await scan.getCurrentStatus()
 
       const isCapableOfBeginingNewScan =
@@ -345,6 +391,14 @@ const AppRoot: React.FC<Props> = () => {
       const isHoldingPaperForVoterRemoval =
         ballotState === BallotState.REJECTED ||
         ballotState === BallotState.NEEDS_REVIEW
+
+      // console.log('%cStatus update', 'color: cyan', {
+      //   scannerState,
+      //   ballotCount,
+      //   ballotState,
+      //   isCapableOfBeginingNewScan,
+      //   isHoldingPaperForVoterRemoval,
+      // })
 
       // Figure out what ballot state we are in, defaulting to the current state.
       switch (scannerState) {
@@ -378,7 +432,8 @@ const AppRoot: React.FC<Props> = () => {
           // This will happen if someone is ripping the paper out of the scanner while scanning, or reviewing
           // a ballot.
           if (isHoldingPaperForVoterRemoval) {
-            // The voter has removed the ballot, reset to the insert screen.
+            // The voter has removed the ballot, end the batch and reset to the insert screen.
+            await endBatch()
             /* istanbul ignore next */
             if (timeoutToInsertScreen) {
               window.clearTimeout(timeoutToInsertScreen)
