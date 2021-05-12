@@ -16,7 +16,8 @@ const debug = makeDebug('module-scan:scanner')
 
 export class PlustekScanner implements Scanner {
   public constructor(
-    private readonly clientProvider: Provider<Result<ScannerClient, Error>>
+    private readonly clientProvider: Provider<Result<ScannerClient, Error>>,
+    private readonly alwaysHoldOnReject = false
   ) {}
 
   public async getStatus(): Promise<ScannerStatus> {
@@ -46,92 +47,59 @@ export class PlustekScanner implements Scanner {
 
   public scanSheets(directory?: string): BatchControl {
     debug('scanSheets: ignoring directory: %s', directory)
-    return {
-      scanSheet: async (): Promise<SheetOf<string> | undefined> => {
-        debug('PlustekScanner#scanSheet BEGIN')
-        const clientResult = await this.clientProvider.get()
 
-        if (clientResult.isErr()) {
-          return undefined
-        }
+    const scanSheet = async (): Promise<SheetOf<string> | undefined> => {
+      debug('PlustekScanner#scanSheet BEGIN')
+      const clientResult = await this.clientProvider.get()
 
-        const client = clientResult.unwrap()
-        const scanResult = await client.scan()
+      if (clientResult.isErr()) {
+        return undefined
+      }
 
-        if (scanResult.isErr()) {
-          return undefined
-        }
+      const client = clientResult.unwrap()
+      const scanResult = await client.scan()
 
-        const { files } = scanResult.unwrap()
-        return [files[0], files[1]]
-      },
+      if (scanResult.isErr()) {
+        return undefined
+      }
 
-      acceptSheet: async (): Promise<boolean> => {
-        debug('PlustekScanner#acceptSheet BEGIN')
-        const clientResult = await this.clientProvider.get()
+      const { files } = scanResult.unwrap()
+      return [files[0], files[1]]
+    }
 
-        if (clientResult.isErr()) {
-          debug(
-            'PlustekScanner#acceptSheet failed to get client: %s',
-            clientResult.err()
-          )
-          return false
-        }
+    const acceptSheet = async (): Promise<boolean> => {
+      debug('PlustekScanner#acceptSheet BEGIN')
+      const clientResult = await this.clientProvider.get()
 
-        const client = clientResult.unwrap()
-        const acceptResult = await client.accept()
-
-        if (acceptResult.isErr()) {
-          debug('PlustekScanner#acceptSheet failed: %s', acceptResult.err())
-          return false
-        }
-
-        return (
-          (
-            await client.waitForStatus({
-              status: PaperStatus.NoPaper,
-              timeout: 1000,
-            })
-          )?.ok() === PaperStatus.NoPaper
+      if (clientResult.isErr()) {
+        debug(
+          'PlustekScanner#acceptSheet failed to get client: %s',
+          clientResult.err()
         )
-      },
+        return false
+      }
 
-      reviewSheet: async (): Promise<boolean> => {
-        try {
-          debug('PlustekScanner#reviewSheet BEGIN')
-          const clientResult = await this.clientProvider.get()
+      const client = clientResult.unwrap()
+      const acceptResult = await client.accept()
 
-          if (clientResult.isErr()) {
-            debug(
-              'PlustekScanner#reviewSheet failed to get client: %s',
-              clientResult.err()
-            )
-            return false
-          }
+      if (acceptResult.isErr()) {
+        debug('PlustekScanner#acceptSheet failed: %s', acceptResult.err())
+        return false
+      }
 
-          const client = clientResult.unwrap()
-          const rejectResult = await client.reject({ hold: true })
+      return (
+        (
+          await client.waitForStatus({
+            status: PaperStatus.NoPaper,
+            timeout: 1000,
+          })
+        )?.ok() === PaperStatus.NoPaper
+      )
+    }
 
-          if (rejectResult.isErr()) {
-            debug('PlustekScanner#reviewSheet failed: %s', rejectResult.err())
-            return false
-          }
-
-          return (
-            (
-              await client.waitForStatus({
-                status: PaperStatus.VtmReadyToScan,
-                timeout: 1000,
-              })
-            )?.ok() === PaperStatus.VtmReadyToScan
-          )
-        } finally {
-          debug('PlustekScanner#reviewSheet END')
-        }
-      },
-
-      rejectSheet: async (): Promise<boolean> => {
-        debug('PlustekScanner#rejectSheet BEGIN')
+    const reviewSheet = async (): Promise<boolean> => {
+      try {
+        debug('PlustekScanner#reviewSheet BEGIN')
         const clientResult = await this.clientProvider.get()
 
         if (clientResult.isErr()) {
@@ -143,37 +111,83 @@ export class PlustekScanner implements Scanner {
         }
 
         const client = clientResult.unwrap()
-        const rejectResult = await client.reject({ hold: false })
+        const rejectResult = await client.reject({ hold: true })
 
         if (rejectResult.isErr()) {
-          debug('PlustekScanner#rejectSheet failed: %s', rejectResult.err())
+          debug('PlustekScanner#reviewSheet failed: %s', rejectResult.err())
           return false
         }
 
         return (
           (
             await client.waitForStatus({
-              status: PaperStatus.VtmDevReadyNoPaper,
+              status: PaperStatus.VtmReadyToScan,
               timeout: 1000,
             })
-          )?.ok() === PaperStatus.VtmDevReadyNoPaper
+          )?.ok() === PaperStatus.VtmReadyToScan
         )
-      },
+      } finally {
+        debug('PlustekScanner#reviewSheet END')
+      }
+    }
 
-      endBatch: async (): Promise<void> => {
-        const clientResult = await this.clientProvider.get()
+    const rejectSheet = async (): Promise<boolean> => {
+      debug('PlustekScanner#rejectSheet BEGIN')
 
-        if (clientResult.isErr()) {
-          debug(
-            'PlustekScanner#endBatch failed to get client: %s',
-            clientResult.err()
-          )
-          return
-        }
+      if (this.alwaysHoldOnReject) {
+        debug('alwaysHoldOnReject is true, forwarding to reviewSheet')
+        return await reviewSheet()
+      }
 
-        const client = clientResult.unwrap()
-        await client.reject({ hold: false })
-      },
+      const clientResult = await this.clientProvider.get()
+
+      if (clientResult.isErr()) {
+        debug(
+          'PlustekScanner#reviewSheet failed to get client: %s',
+          clientResult.err()
+        )
+        return false
+      }
+
+      const client = clientResult.unwrap()
+      const rejectResult = await client.reject({ hold: false })
+
+      if (rejectResult.isErr()) {
+        debug('PlustekScanner#rejectSheet failed: %s', rejectResult.err())
+        return false
+      }
+
+      return (
+        (
+          await client.waitForStatus({
+            status: PaperStatus.VtmDevReadyNoPaper,
+            timeout: 1000,
+          })
+        )?.ok() === PaperStatus.VtmDevReadyNoPaper
+      )
+    }
+
+    const endBatch = async (): Promise<void> => {
+      const clientResult = await this.clientProvider.get()
+
+      if (clientResult.isErr()) {
+        debug(
+          'PlustekScanner#endBatch failed to get client: %s',
+          clientResult.err()
+        )
+        return
+      }
+
+      const client = clientResult.unwrap()
+      await client.reject({ hold: false })
+    }
+
+    return {
+      scanSheet,
+      acceptSheet,
+      reviewSheet,
+      rejectSheet,
+      endBatch,
     }
   }
 }
