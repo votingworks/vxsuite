@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@votingworks/ui'
 import { Absolute } from '../components/Absolute'
-import { PlaceholderGraphic } from '../components/Graphics'
+import { TimesCircle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { RejectedScanningReason } from '../config/types'
 
@@ -35,7 +35,7 @@ const ScanErrorScreen: React.FC<Props> = ({
   }
   return (
     <CenteredScreen infoBar={false}>
-      <PlaceholderGraphic />
+      <TimesCircle />
       <CenteredLargeProse>
         <h1>Scanning Error</h1>
         <p>{errorInformation}</p>

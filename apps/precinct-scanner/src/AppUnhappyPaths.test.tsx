@@ -70,7 +70,7 @@ test('when module scan doesnt respond shows loading screen', async () => {
   await advanceTimers(1)
   await waitFor(() => getByText('Scanning Error'))
   fireEvent.click(getByText('Dismiss Error'))
-  getByText('Insert Ballot')
+  getByText('Insert Your Ballot Below')
 }) */
 
 test('error from module-scan in accepting a reviewable ballot', async () => {
@@ -84,7 +84,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   } as ScanStatusResponse)
   const { getByText } = render(<App />)
   advanceTimers(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 
   fetchMock.get(
     '/scan/status',
@@ -157,7 +157,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 })
 
 /* test('error from module-scan in ejecting a reviewable ballot', async () => {
@@ -170,7 +170,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   })
   const { getByText } = render(<App />)
   await advanceTimers(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 
   fetchMock.get(
     '/scan/status',
@@ -203,7 +203,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   await waitFor(() => getByText('Scanning Error'))
   expect(fetchMock.calls('/scan/precinct/reject')).toHaveLength(1)
   await advanceTimersAndPromises(5)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 }) */
 
 /* test('paper pulled out while scanning', async () => {
@@ -216,7 +216,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   })
   const { getByText } = render(<App />)
   await advanceTimers(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 
   fetchMock.get(
     '/scan/status',
@@ -252,5 +252,5 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
 
   await waitFor(() => getByText('Scanning Error'))
   await advanceTimersAndPromises(5)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 }) */
