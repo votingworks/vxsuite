@@ -1,7 +1,10 @@
 import React from 'react'
 import fetchMock from 'fetch-mock'
 import { promises as fs } from 'fs'
-import { ScannerStatus } from '@votingworks/types/api/module-scan'
+import {
+  ScannerStatus,
+  ScanStatusResponse,
+} from '@votingworks/types/api/module-scan'
 import { render, waitFor, fireEvent } from '@testing-library/react'
 import {
   fakeKiosk,
@@ -11,7 +14,10 @@ import {
 } from '@votingworks/test-utils'
 import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
+import { DateTime } from 'luxon'
 import App from './App'
+import { BallotSheetInfo } from './config/types'
+import { interpretedHmpb } from '../test/fixtures'
 
 beforeEach(() => {
   jest.useFakeTimers()
@@ -126,10 +132,12 @@ test('app can load and configure from a usb stick', async () => {
 test('voter can cast a ballot that scans succesfully ', async () => {
   fetchMock.getOnce('/config/election', electionSampleDefinition)
   fetchMock.get('/config/testMode', { testMode: true })
-  fetchMock.get('/scan/status', {
+  fetchMock.getOnce('/scan/status', {
     status: 'ok',
     scanner: 'WaitingForPaper',
-  })
+    batches: [],
+    adjudication: { adjudicated: 0, remaining: 0 },
+  } as ScanStatusResponse)
   const { getByText, getByTestId } = render(<App />)
   await advanceTimersAndPromises(1)
   await waitFor(() => getByText('Insert Ballot'))
@@ -140,27 +148,63 @@ test('voter can cast a ballot that scans succesfully ', async () => {
   getByText('Election ID')
   getByText('2f6b1553c7')
 
-  fetchMock.post('/scan/scanSingle', {
+  fetchMock.post('/scan/scanBatch', {
     body: { status: 'ok' },
   })
-  fetchMock.get(
+  fetchMock.getOnce(
     '/scan/status',
     {
       status: 'ok',
       scanner: ScannerStatus.ReadyToScan,
       batches: [],
-    },
-    { overwriteRoutes: true, repeat: 1 }
+      adjudication: { adjudicated: 0, remaining: 0 },
+    } as ScanStatusResponse,
+    { overwriteRoutes: false }
   )
-  await advanceTimersAndPromises(1)
-  fetchMock.get(
+  fetchMock.getOnce(
     '/scan/status',
     {
       status: 'ok',
       scanner: ScannerStatus.WaitingForPaper,
-      batches: [{ count: 1 }],
+      batches: [
+        { id: 'test-batch', count: 1, startedAt: DateTime.now().toISO() },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    } as ScanStatusResponse,
+    { overwriteRoutes: false }
+  )
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
+    id: 'test-sheet',
+    front: {
+      interpretation: interpretedHmpb({
+        electionDefinition: electionSampleDefinition,
+        pageNumber: 1,
+      }),
+      image: { url: '/not/real.jpg' },
     },
-    { overwriteRoutes: true }
+    back: {
+      interpretation: interpretedHmpb({
+        electionDefinition: electionSampleDefinition,
+        pageNumber: 2,
+      }),
+      image: { url: '/not/real.jpg' },
+    },
+  } as BallotSheetInfo)
+  fetchMock.postOnce('/scan/scanContinue', {
+    status: 'ok',
+  })
+  await advanceTimersAndPromises(1)
+  fetchMock.getOnce(
+    '/scan/status',
+    {
+      status: 'ok',
+      scanner: ScannerStatus.WaitingForPaper,
+      batches: [
+        { id: 'test-batch', count: 1, startedAt: DateTime.now().toISO() },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    } as ScanStatusResponse,
+    { overwriteRoutes: false }
   )
   await waitFor(() => getByText('Successful Scan!'))
   expect(fetchMock.calls('scan/scanSingle')).toHaveLength(1)
