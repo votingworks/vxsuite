@@ -9,6 +9,10 @@ import {
   BALLOT_PACKAGE_FILENAME,
 } from '../config/globals'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import {
+  QuestionCircle,
+  IndeterminateProgressBar,
+} from '../components/Graphics'
 
 interface Props {
   usbDriveStatus: UsbDriveStatus
@@ -112,58 +116,75 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
 
   let content = (
     <React.Fragment>
-      <h1>Precinct Scanner is Not Configured</h1>
-      <p>
-        {errorMessage === ''
-          ? 'Insert USB Drive with configuration.'
-          : `Error in configuration: ${errorMessage}`}
-      </p>
+      <QuestionCircle />
+      <CenteredLargeProse>
+        <h1>Precinct Scanner is Not Configured</h1>
+        <p>
+          {errorMessage === ''
+            ? 'Insert USB Drive with configuration.'
+            : `Error in configuration: ${errorMessage}`}
+        </p>
+      </CenteredLargeProse>
     </React.Fragment>
   )
   if (isLoadingBallotPackage) {
-    content = <h1>Searching USB for ballot package…</h1>
+    content = (
+      <React.Fragment>
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>Searching USB for ballot package…</h1>
+        </CenteredLargeProse>
+      </React.Fragment>
+    )
   }
 
   if (isLoadingTemplates) {
-    content = <h1>Preparing scanner…</h1>
+    content = (
+      <React.Fragment>
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>Preparing scanner…</h1>
+        </CenteredLargeProse>
+      </React.Fragment>
+    )
   }
 
   if (totalTemplates > 0 && currentUploadingBallot) {
     content = (
       <React.Fragment>
-        <h1>
-          Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
-          {totalTemplates}
-        </h1>
-        <ul style={{ textAlign: 'left' }}>
-          <li>
-            <strong>Ballot Style:</strong> {currentUploadingBallot.ballotStyle}
-          </li>
-          <li>
-            <strong>Precinct:</strong> {currentUploadingBallot.precinct}
-          </li>
-          <li>
-            <strong>Test Ballot:</strong>{' '}
-            {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
-          </li>
-          <li>
-            <strong>Languages:</strong>{' '}
-            {
-              /* istanbul ignore next */ currentUploadingBallot.locales ?? (
-                <em>(unknown)</em>
-              )
-            }
-          </li>
-        </ul>
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>
+            Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
+            {totalTemplates}
+          </h1>
+          <ul style={{ textAlign: 'left' }}>
+            <li>
+              <strong>Ballot Style:</strong>{' '}
+              {currentUploadingBallot.ballotStyle}
+            </li>
+            <li>
+              <strong>Precinct:</strong> {currentUploadingBallot.precinct}
+            </li>
+            <li>
+              <strong>Test Ballot:</strong>{' '}
+              {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
+            </li>
+            <li>
+              <strong>Languages:</strong>{' '}
+              {
+                /* istanbul ignore next */ currentUploadingBallot.locales ?? (
+                  <em>(unknown)</em>
+                )
+              }
+            </li>
+          </ul>
+        </CenteredLargeProse>
       </React.Fragment>
     )
   }
 
-  return (
-    <CenteredScreen infoBar={false}>
-      <CenteredLargeProse>{content}</CenteredLargeProse>
-    </CenteredScreen>
-  )
+  return <CenteredScreen infoBar={false}>{content}</CenteredScreen>
 }
 
 export default UnconfiguredElectionScreen

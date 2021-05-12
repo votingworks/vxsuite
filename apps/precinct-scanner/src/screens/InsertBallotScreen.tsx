@@ -1,7 +1,7 @@
 import React from 'react'
 import { ElectionDefinition } from '@votingworks/types'
 import { Absolute } from '../components/Absolute'
-import { PlaceholderGraphic } from '../components/Graphics'
+import { InsertBallot } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Bar } from '../components/Bar'
 import * as format from '../utils/format'
@@ -17,9 +17,9 @@ const InsertBallotScreen: React.FC<Props> = ({
 }) => {
   return (
     <CenteredScreen electionDefinition={electionDefinition}>
-      <PlaceholderGraphic />
+      <InsertBallot />
       <CenteredLargeProse>
-        <h1>Insert Ballot</h1>
+        <h1>Insert Your Ballot Below</h1>
         <p>Scan one ballot sheet at a time.</p>
       </CenteredLargeProse>
       <Absolute top left>

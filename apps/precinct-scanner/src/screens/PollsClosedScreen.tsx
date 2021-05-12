@@ -2,7 +2,7 @@
 import React from 'react'
 
 import { ElectionDefinition } from '@votingworks/types'
-import { PlaceholderGraphic } from '../components/Graphics'
+import { DoNotEnter } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 const PollsClosedScreen: React.FC<Props> = () => {
   return (
     <CenteredScreen>
-      <PlaceholderGraphic />
+      <DoNotEnter />
       <CenteredLargeProse>
         <h1>Polls Closed</h1>
         <p>Insert a Poll Worker Card to Open Polls.</p>

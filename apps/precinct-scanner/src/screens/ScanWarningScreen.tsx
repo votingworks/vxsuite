@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Button, Prose, Text } from '@votingworks/ui'
 
 import { AdjudicationReason } from '@votingworks/types'
-import { PlaceholderGraphic } from '../components/Graphics'
+import { ExclamationTriangle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
@@ -31,7 +31,7 @@ const ScanWarningScreen: React.FC<Props> = ({
 
   return (
     <CenteredScreen infoBar={false}>
-      <PlaceholderGraphic />
+      <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>
           {isOvervote

@@ -2,7 +2,7 @@ import React from 'react'
 import { Prose } from '@votingworks/ui'
 import { ElectionDefinition } from '@votingworks/types'
 import { Absolute } from '../components/Absolute'
-import { PlaceholderGraphic } from '../components/Graphics'
+import { CircleCheck } from '../components/Graphics'
 import { Bar } from '../components/Bar'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import * as format from '../utils/format'
@@ -18,7 +18,7 @@ const ScanSuccessScreen: React.FC<Props> = ({
 }) => {
   return (
     <CenteredScreen electionDefinition={electionDefinition}>
-      <PlaceholderGraphic />
+      <CircleCheck />
       <CenteredLargeProse>
         <h1>Successful Scan!</h1>
         <p>Ready to scan next ballot sheet.</p>

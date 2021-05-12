@@ -103,7 +103,7 @@ test('app can load and configure from a usb stick', async () => {
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
   await advanceTimersAndPromises(0)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
   )
@@ -122,7 +122,7 @@ test('app can load and configure from a usb stick', async () => {
   getByText('2f6b1553c7')
 
   /*  TODO(caro): Test unconfiguring election from admin screen when implemented
-  
+
   fireEvent.click(getByText('Unconfigure'))
   await waitFor(() =>
     expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
@@ -140,7 +140,7 @@ test('voter can cast a ballot that scans succesfully ', async () => {
   } as ScanStatusResponse)
   const { getByText, getByTestId } = render(<App />)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
   getByText('Scan one ballot sheet at a time.')
   getByText('General Election')
   getByText(/Franklin County/)
@@ -223,7 +223,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   })
   const { getByText, getByTestId } = render(<App />)
   await advanceTimers(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
   getByText('Scan one ballot sheet at a time.')
   getByText('General Election')
   getByText(/Franklin County/)
@@ -266,7 +266,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await waitFor(() => getByText('Successful Scan!'))
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
   await advanceTimers(5)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
   expect(getByTestId('ballot-count').textContent).toBe('1')
 
   // Simulate another ballot
@@ -294,7 +294,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
 })
 
 test('voter can cast a rejected ballot', async () => {
@@ -307,7 +307,7 @@ test('voter can cast a rejected ballot', async () => {
   })
   const { getByText } = render(<App />)
   await advanceTimers(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
   getByText('Scan one ballot sheet at a time.')
   getByText('General Election')
   getByText(/Franklin County/)
@@ -342,7 +342,7 @@ test('voter can cast a rejected ballot', async () => {
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  getByText('Insert Ballot')
+  getByText('Insert Your Ballot Below')
 })
 
 test('voter can cast another ballot while the success screen is showing', async () => {
@@ -354,7 +354,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   })
   const { getByText } = render(<App />)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Ballot'))
+  await waitFor(() => getByText('Insert Your Ballot Below'))
   getByText('Scan one ballot sheet at a time.')
   getByText('General Election')
   getByText(/Franklin County/)
