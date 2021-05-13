@@ -3,26 +3,35 @@ import React, { useCallback, useEffect, useReducer } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import useInterval from '@rooks/use-interval'
 import 'normalize.css'
+import { map } from 'rxjs/operators'
 
 import {
   AdjudicationReason,
+  AdminCardData,
+  CardData,
   ElectionDefinition,
   OptionalElectionDefinition,
 } from '@votingworks/types'
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
-import { Storage } from './utils/Storage'
+import { Hardware, isCardReader } from './utils/Hardware'
+import {
+  CardPresentAPI,
+  BallotState,
+  ScanningResultType,
+  ISO8601Timestamp,
+  RejectedScanningReason,
+} from './config/types'
+import {
+  CARD_POLLING_INTERVAL,
+  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+  POLLING_INTERVAL_FOR_USB,
+  TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
+} from './config/globals'
 
-// import AdminScreen from './screens/AdminScreen'
-// <AdminScreen
-//   appPrecinctId="42"
-//   ballotsScannedCount={42}
-//   electionDefinition={electionDefinition}
-//   isLiveMode={false}
-//   updateAppPrecinctId={(appPrecinctId: string) => { ... }}
-//   toggleLiveMode={() => {}}
-//   unconfigure={() => {}}
-// />
+import AdminScreen from './screens/AdminScreen'
+import SetupCardReaderPage from './screens/SetupCardReaderPage'
+import InvalidCardScreen from './screens/InvalidCardScreen'
 // import InsertBallotScreen from './screens/InsertBallotScreen'
 // import PollsClosedScreen from './screens/PollsClosedScreen'
 // import PollWorkerScreen from './screens/PollWorkerScreen'
@@ -50,20 +59,13 @@ import {
   doMount,
   UsbDriveStatus,
 } from './utils/usbstick'
-import {
-  BallotState,
-  ScanningResultType,
-  ISO8601Timestamp,
-  RejectedScanningReason,
-} from './config/types'
+
 import * as config from './api/config'
 import * as scan from './api/scan'
 import throwIllegalValue from './utils/throwIllegalValue'
-import {
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  POLLING_INTERVAL_FOR_USB,
-  TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
-} from './config/globals'
+
+import { Card } from './utils/Card'
+import LoadingScreen from './screens/LoadingScreen'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition
@@ -71,13 +73,19 @@ export interface AppStorage {
 }
 
 export interface Props extends RouteComponentProps {
-  storage: Storage
+  hardware: Hardware
+  card: Card
 }
 
 interface HardwareState {
   hasCardReaderAttached: boolean
   hasPrinterAttached: boolean
   usbDriveStatus: UsbDriveStatus
+  adminCardElectionHash: string
+  isAdminCardPresent: boolean
+  invalidCardPresent: boolean
+  lastCardDataString: string
+  // machineConfig: Readonly<MachineConfig>
 }
 
 interface SharedState {
@@ -90,6 +98,8 @@ interface SharedState {
   isStatusPollingEnabled: boolean
   adjudicationReasons: AdjudicationReason[]
   rejectionReason?: RejectedScanningReason
+  currentPrecinctId: string
+  isLoading: boolean
 }
 
 export interface State extends HardwareState, SharedState {}
@@ -98,6 +108,11 @@ const initialHardwareState: Readonly<HardwareState> = {
   hasCardReaderAttached: true,
   hasPrinterAttached: true,
   usbDriveStatus: UsbDriveStatus.absent,
+  adminCardElectionHash: '',
+  isAdminCardPresent: false,
+  invalidCardPresent: false,
+  lastCardDataString: '',
+  // machineConfig: { machineId: '0000', codeVersion: 'dev' },
 }
 
 const initialSharedState: Readonly<SharedState> = {
@@ -109,6 +124,8 @@ const initialSharedState: Readonly<SharedState> = {
   isStatusPollingEnabled: true,
   adjudicationReasons: [],
   rejectionReason: undefined,
+  currentPrecinctId: '',
+  isLoading: false,
 }
 
 const initialAppState: Readonly<State> = {
@@ -160,6 +177,19 @@ type AppAction =
     }
   | { type: 'disableStatusPolling' }
   | { type: 'enableStatusPolling' }
+  | { type: 'updateHardwareState'; hasCardReaderAttached: boolean }
+  | {
+      type: 'invalidCard'
+    }
+  | {
+      type: 'processAdminCard'
+      electionHash: string
+    }
+  | { type: 'updateLastCardDataString'; currentCardDataString: string }
+  | { type: 'cardRemoved' }
+  | { type: 'updatePrecinctId'; precinctId: string }
+  | { type: 'startLoading' }
+  | { type: 'endLoading' }
 
 const appReducer = (state: State, action: AppAction): State => {
   // useful for debugging
@@ -269,10 +299,55 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         isStatusPollingEnabled: true,
       }
+    case 'updateHardwareState':
+      return {
+        ...state,
+        hasCardReaderAttached: action.hasCardReaderAttached,
+      }
+    case 'invalidCard':
+      return {
+        ...state,
+        invalidCardPresent: true,
+      }
+    case 'processAdminCard':
+      return {
+        ...state,
+        isAdminCardPresent: true,
+        adminCardElectionHash: action.electionHash,
+      }
+    case 'updateLastCardDataString': {
+      return {
+        ...state,
+        lastCardDataString: action.currentCardDataString,
+      }
+    }
+    case 'cardRemoved':
+      return {
+        ...state,
+        isAdminCardPresent: false,
+        invalidCardPresent: false,
+      }
+    case 'updatePrecinctId':
+      return {
+        ...state,
+        currentPrecinctId: action.precinctId,
+      }
+    case 'startLoading':
+      return {
+        ...state,
+        isStatusPollingEnabled: false,
+        isLoading: true,
+      }
+    case 'endLoading':
+      return {
+        ...state,
+        isStatusPollingEnabled: true,
+        isLoading: false,
+      }
   }
 }
 
-const AppRoot: React.FC<Props> = () => {
+const AppRoot: React.FC<Props> = ({ hardware, card }) => {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
     usbDriveStatus,
@@ -284,6 +359,13 @@ const AppRoot: React.FC<Props> = () => {
     isStatusPollingEnabled,
     adjudicationReasons,
     rejectionReason,
+    isTestMode,
+    hasCardReaderAttached,
+    isAdminCardPresent,
+    lastCardDataString,
+    invalidCardPresent,
+    currentPrecinctId,
+    isLoading,
   } = appState
 
   const refreshConfig = useCallback(async () => {
@@ -383,7 +465,7 @@ const AppRoot: React.FC<Props> = () => {
     }
   }, [dispatchAppState])
 
-  useInterval(
+  const usbStatusInterval = useInterval(
     async () => {
       const status = await usbDriveGetStatus()
       if (status !== usbDriveStatus) {
@@ -493,6 +575,8 @@ const AppRoot: React.FC<Props> = () => {
     },
     POLLING_INTERVAL_FOR_SCANNER_STATUS_MS
   )
+  const startUsbStatusPolling = useCallback(usbStatusInterval[0], [])
+  const stopUsbStatusPolling = useCallback(usbStatusInterval[0], [])
 
   useEffect(() => {
     const initialize = async () => {
@@ -527,19 +611,149 @@ const AppRoot: React.FC<Props> = () => {
     await refreshConfig()
   }
 
-  /* TODO(caro) this will be used for the admin screen
+  const toggleTestMode = async () => {
+    dispatchAppState({ type: 'startLoading' })
+    await config.setTestMode(!isTestMode)
+    await refreshConfig()
+    dispatchAppState({ type: 'endLoading' })
+  }
+
   const unconfigureServer = useCallback(async () => {
+    dispatchAppState({ type: 'startLoading' })
     try {
       await config.setElection(undefined)
       endBallotStatusPolling()
       await refreshConfig()
     } catch (error) {
       console.error('failed unconfigureServer()', error) // eslint-disable-line no-console
+    } finally {
+      dispatchAppState({ type: 'endLoading' })
     }
-  }, [refreshConfig]) */
+  }, [refreshConfig])
+
+  const processCard = useCallback(
+    async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
+      const cardData: CardData = JSON.parse(cardShortValue!)
+      if (!electionDefinition && cardData.t !== 'admin') {
+        return
+      }
+      switch (cardData.t) {
+        case 'voter': {
+          dispatchAppState({
+            type: 'invalidCard',
+          })
+          break
+        }
+        case 'pollworker': {
+          // TODO(caro) Properly process pollworker cards
+          dispatchAppState({
+            type: 'invalidCard',
+          })
+          break
+        }
+        case 'admin': {
+          /* istanbul ignore else */
+          if (longValueExists) {
+            dispatchAppState({
+              type: 'processAdminCard',
+              electionHash: (cardData as AdminCardData).h,
+            })
+          }
+          break
+        }
+        default: {
+          dispatchAppState({
+            type: 'invalidCard',
+          })
+          break
+        }
+      }
+    },
+    [card, electionDefinition]
+  )
+
+  const cardShortValueReadInterval = useInterval(async () => {
+    if (!hasCardReaderAttached) {
+      return
+    }
+    const insertedCard = await card.readStatus()
+
+    // we compare last card and current card without the longValuePresent flag
+    // otherwise when we first write the ballot to the card, it reprocesses it
+    // and may cause a race condition where an old ballot on the card
+    // overwrites a newer one in memory.
+    //
+    // TODO: embed a card dip UUID in the card data string so even an unlikely
+    // identical card swap within 200ms is always detected.
+    // https://github.com/votingworks/module-smartcards/issues/59
+    const cardCopy = {
+      ...insertedCard,
+      longValueExists: undefined, // override longValueExists (see above comment)
+    }
+    const currentCardDataString = JSON.stringify(cardCopy)
+    if (currentCardDataString === lastCardDataString) {
+      return
+    }
+
+    dispatchAppState({
+      type: 'updateLastCardDataString',
+      currentCardDataString,
+    })
+
+    if (insertedCard.present) {
+      processCard(insertedCard)
+    } else {
+      dispatchAppState({ type: 'cardRemoved' })
+    }
+  }, CARD_POLLING_INTERVAL)
+  const startCardShortValueReadPolling = useCallback(
+    cardShortValueReadInterval[0],
+    [card]
+  )
+  const stopCardShortValueReadPolling = useCallback(
+    cardShortValueReadInterval[1],
+    [card]
+  )
+
+  useEffect(() => {
+    const hardwareStatusSubscription = hardware.devices
+      .pipe(map((devices) => Array.from(devices)))
+      .subscribe(async (devices) => {
+        const hasCardReaderAttached = devices.some(isCardReader)
+        dispatchAppState({
+          type: 'updateHardwareState',
+          hasCardReaderAttached,
+        })
+      })
+    return () => {
+      hardwareStatusSubscription.unsubscribe()
+    }
+  }, [hardware])
+
+  // Initilize app state
+  useEffect(() => {
+    startUsbStatusPolling()
+    startCardShortValueReadPolling()
+    return () => {
+      stopCardShortValueReadPolling()
+      stopUsbStatusPolling()
+    }
+  }, [startUsbStatusPolling, startCardShortValueReadPolling])
+
+  const updatePrecinctId = (precinctId: string) => {
+    dispatchAppState({ type: 'updatePrecinctId', precinctId })
+  }
+
+  if (!hasCardReaderAttached) {
+    return <SetupCardReaderPage />
+  }
 
   if (!isScannerConfigured) {
     return <LoadingConfigurationScreen />
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />
   }
 
   if (!electionDefinition) {
@@ -561,6 +775,24 @@ const AppRoot: React.FC<Props> = () => {
 
   // TODO(caro): After implementing admin and pollworker screens, we should check whether polls are opened
   // or closed and possibly return the PollsClosedScreen here.
+  if (invalidCardPresent) {
+    return <InvalidCardScreen />
+  }
+
+  if (isAdminCardPresent) {
+    // TODO(caro) update with real ballots scanned count
+    return (
+      <AdminScreen
+        appPrecinctId={currentPrecinctId}
+        updateAppPrecinctId={updatePrecinctId}
+        ballotsScannedCount={0}
+        electionDefinition={electionDefinition}
+        isLiveMode={!isTestMode}
+        toggleLiveMode={toggleTestMode}
+        unconfigure={unconfigureServer}
+      />
+    )
+  }
 
   // The polls are open for voters to utilize.
   switch (ballotState) {
