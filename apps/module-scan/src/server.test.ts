@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types'
 import {
   ScannerStatus,
-  ScanStatusResponse,
+  GetScanStatusResponse,
 } from '@votingworks/types/api/module-scan'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
@@ -85,7 +85,7 @@ beforeEach(async () => {
 })
 
 test('GET /scan/status', async () => {
-  const status: ScanStatusResponse = {
+  const status: GetScanStatusResponse = {
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
@@ -150,6 +150,7 @@ test('GET /config/testMode', async () => {
   await workspace.store.setMarkThresholdOverrides(undefined)
   const response = await request(app).get('/config/testMode').expect(200)
   expect(response.body).toEqual({
+    status: 'ok',
     testMode: true,
   })
 })
@@ -166,6 +167,7 @@ test('GET /config/markThresholdOverrrides', async () => {
     .expect(200)
 
   expect(response.body).toEqual({
+    status: 'ok',
     markThresholdOverrides: { definite: 0.3, marginal: 0.4 },
   })
 })
@@ -223,7 +225,7 @@ test('PATCH /config/markThresholdOverrides', async () => {
 
   await request(app)
     .patch('/config/markThresholdOverrides')
-    .send({ marginal: 0.2, definite: 0.3 })
+    .send({ markThresholdOverrides: { marginal: 0.2, definite: 0.3 } })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200)
@@ -268,7 +270,10 @@ test('POST /scan/scanBatch errors', async () => {
   await request(app)
     .post('/scan/scanBatch')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'could not scan: scanner is a teapot' })
+    .expect(200, {
+      status: 'error',
+      errors: [{ type: 'scan-error', message: 'scanner is a teapot' }],
+    })
   expect(importer.startImport).toBeCalled()
 })
 
@@ -697,6 +702,7 @@ test('POST /scan/hmpb/addTemplates bad template', async () => {
     })
     .expect(400)
   expect(JSON.parse(response.text)).toEqual({
+    status: 'error',
     errors: [
       {
         type: 'invalid-ballot-type',
@@ -716,6 +722,7 @@ test('POST /scan/hmpb/addTemplates bad metadata', async () => {
     })
     .expect(400)
   expect(JSON.parse(response.text)).toEqual({
+    status: 'error',
     errors: [
       {
         type: 'invalid-metadata-type',

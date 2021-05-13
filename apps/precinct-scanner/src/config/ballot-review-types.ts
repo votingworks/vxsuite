@@ -1,5 +1,6 @@
 import * as t from '@votingworks/types'
 import type { Point, Rect } from '@votingworks/hmpb-interpreter'
+import { OkResponse } from '@votingworks/types/api'
 import { AdjudicationReasonInfo } from './types'
 
 type ContestId = t.Contest['id']
@@ -20,7 +21,7 @@ export interface MarksByOptionId {
   [key: string]: MarkStatus | undefined
 }
 
-export type PutBallotResponse = t.OkAPIResponse
+export type PutBallotResponse = OkResponse
 
 export interface ContestLayout {
   bounds: Rect

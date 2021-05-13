@@ -5,12 +5,18 @@ import {
   ElectionDefinition,
   MarkThresholds,
   Optional,
+  safeParseJSON,
 } from '@votingworks/types'
 import styled from 'styled-components'
 
 import {
   ScannerStatus,
-  ScanStatusResponse,
+  GetScanStatusResponse,
+  GetScanStatusResponseSchema,
+  ScanBatchResponseSchema,
+  ScanContinueRequest,
+  ScanContinueResponseSchema,
+  ZeroResponseSchema,
 } from '@votingworks/types/api/module-scan'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
@@ -40,7 +46,6 @@ import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen'
 
 import 'normalize.css'
 import './App.css'
-import fetchJSON from './util/fetchJSON'
 import download from './util/download'
 import * as config from './api/config'
 import LinkButton from './components/LinkButton'
@@ -67,7 +72,7 @@ const App: React.FC = () => {
   const [electionJustLoaded, setElectionJustLoaded] = useState(false)
   const [isTestMode, setTestMode] = useState(false)
   const [isTogglingTestMode, setTogglingTestMode] = useState(false)
-  const [status, setStatus] = useState<ScanStatusResponse>({
+  const [status, setStatus] = useState<GetScanStatusResponse>({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
@@ -130,7 +135,11 @@ const App: React.FC = () => {
 
   const updateStatus = useCallback(async () => {
     try {
-      const newStatus = await fetchJSON<ScanStatusResponse>('/scan/status')
+      const body = await (await fetch('/scan/status')).text()
+      const newStatus = safeParseJSON(
+        body,
+        GetScanStatusResponseSchema
+      ).unwrap()
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
@@ -160,14 +169,17 @@ const App: React.FC = () => {
   const scanBatch = useCallback(async () => {
     setIsScanning(true)
     try {
-      const result = await (
-        await fetch('/scan/scanBatch', {
-          method: 'post',
-        })
-      ).json()
+      const result = safeParseJSON(
+        await (
+          await fetch('/scan/scanBatch', {
+            method: 'post',
+          })
+        ).text(),
+        ScanBatchResponseSchema
+      ).unwrap()
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
-        window.alert(`could not scan: ${result.status}`)
+        window.alert(`could not scan: ${JSON.stringify(result.errors)}`)
         setIsScanning(false)
       }
     } catch (error) {
@@ -178,16 +190,19 @@ const App: React.FC = () => {
   const continueScanning = useCallback(async (override = false) => {
     setIsScanning(true)
     try {
-      await fetch('/scan/scanContinue', {
-        method: 'post',
-        body: override
-          ? (() => {
-              const data = new URLSearchParams()
-              data.append('override', '1')
-              return data
-            })()
-          : undefined,
-      })
+      const body: ScanContinueRequest = { override }
+      safeParseJSON(
+        await (
+          await fetch('/scan/scanContinue', {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+        ).text(),
+        ScanContinueResponseSchema
+      ).unwrap()
     } catch (error) {
       console.log('failed handleFileInput()', error) // eslint-disable-line no-console
     }
@@ -195,9 +210,14 @@ const App: React.FC = () => {
 
   const zeroData = useCallback(async () => {
     try {
-      await fetch('/scan/zero', {
-        method: 'post',
-      })
+      safeParseJSON(
+        await (
+          await fetch('/scan/zero', {
+            method: 'post',
+          })
+        ).text(),
+        ZeroResponseSchema
+      ).unwrap()
       await refreshConfig()
       history.replace('/')
     } catch (error) {
@@ -230,7 +250,7 @@ const App: React.FC = () => {
   )
 
   const deleteBatch = useCallback(async (id: string) => {
-    await fetchJSON(`/scan/batch/${id}`, {
+    await fetch(`/scan/batch/${id}`, {
       method: 'DELETE',
     })
   }, [])

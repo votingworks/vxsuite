@@ -1,7 +1,7 @@
 import { act, render, waitFor } from '@testing-library/react'
 import {
   ScannerStatus,
-  ScanStatusResponse,
+  GetScanStatusResponse,
 } from '@votingworks/types/api/module-scan'
 import { createMemoryHistory } from 'history'
 import React from 'react'
@@ -15,7 +15,7 @@ const noneLeftAdjudicationStatus = {
 
 test('null state', () => {
   const deleteBatch = jest.fn()
-  const status: ScanStatusResponse = {
+  const status: GetScanStatusResponse = {
     batches: [],
     adjudication: noneLeftAdjudicationStatus,
     scanner: ScannerStatus.Unknown,
@@ -38,7 +38,7 @@ test('null state', () => {
 
 test('shows scanned ballot count', () => {
   const deleteBatch = jest.fn()
-  const status: ScanStatusResponse = {
+  const status: GetScanStatusResponse = {
     batches: [
       {
         id: 'a',
@@ -74,7 +74,7 @@ test('shows scanned ballot count', () => {
 
 test('shows whether a batch is scanning', () => {
   const deleteBatch = jest.fn()
-  const status: ScanStatusResponse = {
+  const status: GetScanStatusResponse = {
     batches: [
       {
         id: 'a',
@@ -101,7 +101,7 @@ test('shows whether a batch is scanning', () => {
 
 test('allows deleting a batch', async () => {
   const deleteBatch = jest.fn()
-  const status: ScanStatusResponse = {
+  const status: GetScanStatusResponse = {
     batches: [
       {
         id: 'a',

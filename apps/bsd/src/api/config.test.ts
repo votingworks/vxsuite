@@ -15,13 +15,17 @@ test('PATCH /config/election', async () => {
 test('PATCH /config/election fails', async () => {
   fetchMock.patchOnce(
     '/config/election',
-    new Response(JSON.stringify({ status: 'error', error: 'bad election!' }), {
-      status: 400,
-    })
+    new Response(
+      JSON.stringify({
+        status: 'error',
+        errors: [{ type: 'invalid-value', message: 'bad election!' }],
+      }),
+      { status: 400 }
+    )
   )
   await expect(
     config.setElection(testElectionDefinition.electionData)
-  ).rejects.toThrowError('PATCH /config/election failed: bad election!')
+  ).rejects.toThrowError('bad election!')
 })
 
 test('DELETE /config/election to delete election', async () => {
