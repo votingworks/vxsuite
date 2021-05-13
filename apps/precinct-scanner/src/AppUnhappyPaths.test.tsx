@@ -62,7 +62,7 @@ test('when module-scan does not respond shows loading screen', async () => {
   fetchMock.get('/machine-config', { body: getMachineConfigBody })
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
   await screen.findByText('Loading Configuration…')
 })
@@ -79,7 +79,7 @@ test('module-scan fails to unconfigure', async () => {
     .deleteOnce('/config/election', { status: 404 })
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
@@ -104,7 +104,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
     .get('/scan/status', scanStatusWaitingForPaperResponseBody)
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
   await screen.findByText('Polls Closed')
   const voterCard = getVoterCard()
@@ -147,7 +147,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
@@ -252,7 +252,7 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')

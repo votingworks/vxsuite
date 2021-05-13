@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 import './App.css'
@@ -16,25 +16,40 @@ export interface Props {
 }
 
 const App: React.FC<Props> = ({
-  hardware = getHardware(),
+  hardware,
   card = new WebServiceCard(),
   storage = new LocalStorage(),
   machineConfig = machineConfigProvider,
-}) => (
-  <BrowserRouter>
-    <Route
-      path="/"
-      render={(props) => (
-        <AppRoot
-          card={card}
-          hardware={hardware}
-          machineConfig={machineConfig}
-          storage={storage}
-          {...props}
-        />
-      )}
-    />
-  </BrowserRouter>
-)
+}) => {
+  const [internalHardware, setInternalHardware] = useState(hardware)
+  useEffect(() => {
+    const updateHardware = async () => {
+      if (internalHardware === undefined) {
+        setInternalHardware(await getHardware())
+      }
+    }
+    updateHardware()
+  }, [hardware])
+
+  if (!internalHardware) {
+    return <BrowserRouter />
+  }
+  return (
+    <BrowserRouter>
+      <Route
+        path="/"
+        render={(props) => (
+          <AppRoot
+            card={card}
+            hardware={internalHardware}
+            machineConfig={machineConfig}
+            storage={storage}
+            {...props}
+          />
+        )}
+      />
+    </BrowserRouter>
+  )
+}
 
 export default App
