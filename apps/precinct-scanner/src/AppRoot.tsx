@@ -52,7 +52,8 @@ import InsertBallotScreen from './screens/InsertBallotScreen'
 import ScanErrorScreen from './screens/ScanErrorScreen'
 import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
-import BallotScanningScreen from './screens/BallotScanningScreen'
+// import BallotScanningScreen from './screens/BallotScanningScreen'
+import ScanProcessingScreen from './screens/ScanProcessingScreen'
 
 import {
   getStatus as usbDriveGetStatus,
@@ -832,7 +833,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         />
       )
     case BallotState.SCANNING:
-      return <BallotScanningScreen />
+      return <ScanProcessingScreen />
     case BallotState.NEEDS_REVIEW:
       return (
         <ScanWarningScreen
