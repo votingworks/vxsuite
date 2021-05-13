@@ -14,19 +14,19 @@ import {
 } from './Hardware'
 
 describe('KioskHardware', () => {
-  it('is used by getHardware when window.kiosk is set', () => {
+  it('is used by getHardware when window.kiosk is set', async () => {
     try {
       window.kiosk = fakeKiosk()
-      const hardware = getHardware()
+      const hardware = await getHardware()
       expect(hardware).toBeInstanceOf(KioskHardware)
     } finally {
       window.kiosk = undefined
     }
   })
 
-  it('is not used by getHardware when window.kiosk is not set', () => {
+  it('is not used by getHardware when window.kiosk is not set', async () => {
     expect(window.kiosk).toBeUndefined()
-    const hardware = getHardware()
+    const hardware = await getHardware()
     expect(hardware).not.toBeInstanceOf(KioskHardware)
   })
 
@@ -62,8 +62,8 @@ describe('KioskHardware', () => {
 })
 
 describe('MemoryHardware', () => {
-  it('has a standard config with all the typical hardware', (done) => {
-    const hardware = MemoryHardware.standard
+  it('has a standard config with all the typical hardware', async (done) => {
+    const hardware = await MemoryHardware.buildStandard()
 
     hardware.devices.subscribe((devices) => {
       expect(
@@ -80,8 +80,8 @@ describe('MemoryHardware', () => {
     })
   })
 
-  it('has no connected devices by default', (done) => {
-    const hardware = new MemoryHardware()
+  it('has no connected devices by default', async (done) => {
+    const hardware = await MemoryHardware.build()
 
     hardware.devices.subscribe((devices) => {
       expect(Array.from(devices)).toEqual([])
@@ -89,21 +89,21 @@ describe('MemoryHardware', () => {
     })
   })
 
-  it('does not have devices that have not been added', () => {
-    const hardware = new MemoryHardware()
+  it('does not have devices that have not been added', async () => {
+    const hardware = await MemoryHardware.build()
     expect(hardware.hasDevice(fakeDevice())).toBe(false)
   })
 
-  it('has devices that have been added', () => {
-    const hardware = new MemoryHardware()
+  it('has devices that have been added', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     hardware.addDevice(device)
     expect(hardware.hasDevice(device)).toBe(true)
   })
 
-  it('sets connected to true by adding a missing device', () => {
-    const hardware = new MemoryHardware()
+  it('sets connected to true by adding a missing device', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     jest.spyOn(hardware, 'addDevice')
@@ -112,8 +112,8 @@ describe('MemoryHardware', () => {
     expect(hardware.addDevice).toHaveBeenCalledWith(device)
   })
 
-  it('does nothing when setting connected to true for an already added device', () => {
-    const hardware = new MemoryHardware()
+  it('does nothing when setting connected to true for an already added device', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     hardware.addDevice(device)
@@ -123,8 +123,8 @@ describe('MemoryHardware', () => {
     expect(hardware.addDevice).not.toHaveBeenCalled()
   })
 
-  it('sets connected to false by removing a connected device', () => {
-    const hardware = new MemoryHardware()
+  it('sets connected to false by removing a connected device', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     hardware.addDevice(device)
@@ -134,8 +134,8 @@ describe('MemoryHardware', () => {
     expect(hardware.removeDevice).toHaveBeenCalledWith(device)
   })
 
-  it('does nothing when setting connected to false for an already missing device', () => {
-    const hardware = new MemoryHardware()
+  it('does nothing when setting connected to false for an already missing device', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     jest.spyOn(hardware, 'removeDevice')
@@ -144,8 +144,8 @@ describe('MemoryHardware', () => {
     expect(hardware.removeDevice).not.toHaveBeenCalled()
   })
 
-  it('triggers callbacks when adding devices', () => {
-    const hardware = new MemoryHardware()
+  it('triggers callbacks when adding devices', async () => {
+    const hardware = await MemoryHardware.build()
     const callback = jest.fn()
     const device = fakeDevice()
 
@@ -154,8 +154,8 @@ describe('MemoryHardware', () => {
     expect(callback).toHaveBeenCalledWith(new Set([device]))
   })
 
-  it('triggers callbacks when removing devices', () => {
-    const hardware = new MemoryHardware()
+  it('triggers callbacks when removing devices', async () => {
+    const hardware = await MemoryHardware.build()
     const callback = jest.fn()
     const device = fakeDevice()
 
@@ -168,23 +168,23 @@ describe('MemoryHardware', () => {
     expect(callback).toHaveBeenNthCalledWith(2, new Set([]))
   })
 
-  it('throws when adding the same device twice', () => {
-    const hardware = new MemoryHardware()
+  it('throws when adding the same device twice', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     hardware.addDevice(device)
     expect(() => hardware.addDevice(device)).toThrowError(/already added/)
   })
 
-  it('throws when removing a device that was never added', () => {
-    const hardware = new MemoryHardware()
+  it('throws when removing a device that was never added', async () => {
+    const hardware = await MemoryHardware.build()
     const device = fakeDevice()
 
     expect(() => hardware.removeDevice(device)).toThrowError(/never added/)
   })
 
-  it('allows unsubscribing from a device subscription', () => {
-    const hardware = new MemoryHardware()
+  it('allows unsubscribing from a device subscription', async () => {
+    const hardware = await MemoryHardware.build()
     const callback = jest.fn()
     const device = fakeDevice()
 
@@ -196,19 +196,19 @@ describe('MemoryHardware', () => {
   })
 
   it('reports printer status as connected if there are any connected printers', async () => {
-    const hardware = new MemoryHardware()
+    const hardware = await MemoryHardware.build()
     await hardware.setPrinterConnected(true)
     expect(await hardware.readPrinterStatus()).toEqual({ connected: true })
   })
 
   it('reports printer status as not connected if there are no connected printers', async () => {
-    const hardware = new MemoryHardware()
+    const hardware = await MemoryHardware.build()
     await hardware.setPrinterConnected(false)
     expect(await hardware.readPrinterStatus()).toEqual({ connected: false })
   })
 
   it('can set and read battery level', async () => {
-    const hardware = new MemoryHardware()
+    const hardware = await MemoryHardware.build()
     expect(await hardware.readBatteryStatus()).toEqual({
       discharging: false,
       level: 0.8,

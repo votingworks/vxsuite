@@ -113,7 +113,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   }
 
-  public constructor({
+  public static async build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
@@ -121,22 +121,26 @@ export class MemoryHardware implements Hardware {
     connectPrinter?: boolean
     connectAccessibleController?: boolean
     connectCardReader?: boolean
-  } = {}) {
-    void this.setPrinterConnected(connectPrinter)
-    void this.setAccessibleControllerConnected(connectAccessibleController)
-    void this.setCardReaderConnected(connectCardReader)
+  } = {}): Promise<MemoryHardware> {
+    const newMemoryHardware = new MemoryHardware()
+    await newMemoryHardware.setPrinterConnected(connectPrinter)
+    await newMemoryHardware.setAccessibleControllerConnected(
+      connectAccessibleController
+    )
+    await newMemoryHardware.setCardReaderConnected(connectCardReader)
+    return newMemoryHardware
   }
 
-  public static get standard(): MemoryHardware {
-    return new MemoryHardware({
+  public static async buildStandard(): Promise<MemoryHardware> {
+    return await MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: true,
       connectCardReader: true,
     })
   }
 
-  public static get demo(): MemoryHardware {
-    return new MemoryHardware({
+  public static async buildDemo(): Promise<MemoryHardware> {
+    return await MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: false,
       connectCardReader: true,
@@ -326,10 +330,10 @@ export class KioskHardware extends MemoryHardware {
 /**
  * Get Hardware based upon environment.
  */
-export function getHardware(): Hardware {
+export async function getHardware(): Promise<Hardware> {
   return window.kiosk
     ? // Running in kiosk-browser, so use that to access real hardware.
       new KioskHardware(window.kiosk)
     : // Running in normal browser, so emulate hardware.
-      MemoryHardware.demo
+      await MemoryHardware.buildDemo()
 }
