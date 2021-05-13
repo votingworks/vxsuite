@@ -36,15 +36,6 @@ export interface CastVoteRecord
   _scannerId: string
 }
 
-export interface OkResponse {
-  status: 'ok'
-}
-
-export interface ErrorResponse {
-  status: 'error'
-  error: string
-}
-
 export type Ballot = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
 
 export interface BmdBallotInfo {

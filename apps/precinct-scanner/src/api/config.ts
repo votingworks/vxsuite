@@ -1,11 +1,17 @@
+import { ElectionDefinition, safeParseJSON } from '@votingworks/types'
+import { ErrorsResponse, OkResponse } from '@votingworks/types/api'
 import {
-  ElectionDefinition,
-  ErrorAPIResponse,
-  OkAPIResponse,
-} from '@votingworks/types'
-import fetchJSON from '../utils/fetchJSON'
+  GetElectionConfigResponse,
+  GetElectionConfigResponseSchema,
+  GetTestModeConfigResponseSchema,
+  PatchElectionConfigRequest,
+  PatchTestModeConfigRequest,
+} from '@votingworks/types/api/module-scan'
 
-async function patch(url: string, value: unknown): Promise<void> {
+async function patch<Body extends string | ArrayBuffer | unknown>(
+  url: string,
+  value: Body
+): Promise<void> {
   const isJSON = typeof value !== 'string' && !(value instanceof ArrayBuffer)
   const response = await fetch(url, {
     method: 'PATCH',
@@ -14,10 +20,10 @@ async function patch(url: string, value: unknown): Promise<void> {
       'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
     },
   })
-  const body: OkAPIResponse | ErrorAPIResponse = await response.json()
+  const body: OkResponse | ErrorsResponse = await response.json()
 
   if (body.status !== 'ok') {
-    throw new Error(`PATCH ${url} failed: ${body.error}`)
+    throw new Error(`PATCH ${url} failed: ${JSON.stringify(body.errors)}`)
   }
 }
 
@@ -26,32 +32,48 @@ async function del(url: string): Promise<void> {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   })
-  const body: OkAPIResponse | ErrorAPIResponse = await response.json()
+  const body: OkResponse | ErrorsResponse = await response.json()
 
   if (body.status !== 'ok') {
-    throw new Error(`DELETE ${url} failed: ${body.error}`)
+    throw new Error(`DELETE ${url} failed: ${JSON.stringify(body.errors)}`)
   }
 }
 
 export async function getElectionDefinition(): Promise<
   ElectionDefinition | undefined
 > {
-  return (await fetchJSON('/config/election')) ?? undefined
+  return (
+    (safeParseJSON(
+      await (
+        await fetch('/config/election', {
+          headers: { Accept: 'application/json' },
+        })
+      ).text(),
+      GetElectionConfigResponseSchema
+    ).unwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
+  )
 }
 
 export async function setElection(electionData?: string): Promise<void> {
   if (typeof electionData === 'undefined') {
     await del('/config/election')
   } else {
-    await patch('/config/election', electionData)
+    await patch<PatchElectionConfigRequest>(
+      '/config/election',
+      new TextEncoder().encode(electionData)
+    )
   }
 }
 
 export async function getTestMode(): Promise<boolean> {
-  const { testMode } = await fetchJSON('/config/testMode')
-  return testMode
+  return safeParseJSON(
+    await (await fetch('/config/testMode')).text(),
+    GetTestModeConfigResponseSchema
+  ).unwrap().testMode
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch('/config/testMode', { testMode })
+  await patch<PatchTestModeConfigRequest>('/config/testMode', {
+    testMode,
+  })
 }

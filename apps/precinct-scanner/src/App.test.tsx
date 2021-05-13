@@ -5,6 +5,7 @@ import { render, waitFor, fireEvent } from '@testing-library/react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
+import { GetTestModeConfigResponse } from '@votingworks/types/api/module-scan'
 import App from './App'
 
 beforeEach(() => {
@@ -12,8 +13,12 @@ beforeEach(() => {
 })
 
 test('app can load and configure from a usb stick', async () => {
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
   fetchMock.getOnce('/config/election', new Response('null'))
-  fetchMock.get('/config/testMode', { testMode: true })
+  fetchMock.get('/config/testMode', getTestModeResponseBody)
   const { getByText } = render(<App />)
   await waitFor(() => getByText('Loading Configuration…'))
   jest.advanceTimersByTime(1001)

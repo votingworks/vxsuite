@@ -101,7 +101,8 @@ test('going through the whole process works', async () => {
     .expect(200)
     .then((response) => {
       expect(response.body).toEqual({
-        status: 'could not scan: interpreter still loading',
+        status: 'error',
+        errors: [{ type: 'scan-error', message: 'interpreter still loading' }],
       })
     })
 

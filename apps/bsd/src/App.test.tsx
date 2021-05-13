@@ -11,6 +11,14 @@ import { act } from 'react-dom/test-utils'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import { fakeKiosk } from '@votingworks/test-utils'
+import {
+  GetElectionConfigResponse,
+  GetMarkThresholdOverridesConfigResponse,
+  GetScanStatusResponse,
+  GetTestModeConfigResponse,
+  ScanBatchResponse,
+  ScannerStatus,
+} from '@votingworks/types/api/module-scan'
 import App from './App'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
 
@@ -20,10 +28,12 @@ const sleep = (ms = 1000): Promise<void> =>
 jest.mock('js-file-download')
 
 beforeEach(() => {
-  fetchMock.get('/scan/status', {
+  const scanStatusResponse: GetScanStatusResponse = {
     batches: [],
     adjudication: { adjudicated: 0, remaining: 0 },
-  })
+    scanner: ScannerStatus.Unknown,
+  }
+  fetchMock.get('/scan/status', scanStatusResponse)
   fetchMock.get('/machine-config', {
     machineId: '0001',
   })
@@ -39,10 +49,20 @@ beforeEach(() => {
 })
 
 test('renders without crashing', async () => {
+  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
   fetchMock
-    .getOnce('/config/election', electionSampleDefinition)
-    .getOnce('/config/testMode', { testMode: false })
-    .getOnce('/config/markThresholdOverrides', {})
+    .getOnce('/config/election', { body: getElectionResponseBody })
+    .getOnce('/config/testMode', { body: getTestModeResponseBody })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    })
 
   await act(async () => {
     render(<App />)
@@ -51,10 +71,20 @@ test('renders without crashing', async () => {
 })
 
 test('shows a "Test mode" button if the app is in Live Mode', async () => {
+  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: false,
+  }
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
   fetchMock
-    .getOnce('/config/election', electionSampleDefinition)
-    .getOnce('/config/testMode', { testMode: false })
-    .getOnce('/config/markThresholdOverrides', {})
+    .getOnce('/config/election', { body: getElectionResponseBody })
+    .getOnce('/config/testMode', { body: getTestModeResponseBody })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    })
 
   let result!: RenderResult
 
@@ -69,10 +99,20 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
 })
 
 test('shows a "Live mode" button if the app is in Test Mode', async () => {
+  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
   fetchMock
-    .getOnce('/config/election', electionSampleDefinition)
-    .getOnce('/config/testMode', { testMode: true })
-    .getOnce('/config/markThresholdOverrides', {})
+    .getOnce('/config/election', { body: getElectionResponseBody })
+    .getOnce('/config/testMode', { body: getTestModeResponseBody })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    })
 
   let result!: RenderResult
 
@@ -87,13 +127,25 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 })
 
 test('clicking Scan Batch will scan a batch', async () => {
+  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
+  const scanBatchResponseBody: ScanBatchResponse = {
+    status: 'error',
+    errors: [{ type: 'scan-error', message: 'interpreter not ready' }],
+  }
   fetchMock
-    .getOnce('/config/election', electionSampleDefinition)
-    .getOnce('/config/testMode', { testMode: true })
-    .getOnce('/config/markThresholdOverrides', {})
-    .postOnce('/scan/scanBatch', {
-      body: { status: 'could not scan: interpreter not ready' },
+    .getOnce('/config/election', { body: getElectionResponseBody })
+    .getOnce('/config/testMode', { body: getTestModeResponseBody })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
     })
+    .postOnce('/scan/scanBatch', { body: scanBatchResponseBody })
 
   const mockAlert = jest.fn()
   window.alert = mockAlert
@@ -118,16 +170,30 @@ test('clicking Scan Batch will scan a batch', async () => {
 })
 
 test('clicking export shows modal and makes a request to export', async () => {
+  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
+  const scanStatusResponseBody: GetScanStatusResponse = {
+    batches: [
+      { id: 'test-batch', count: 2, startedAt: '2021-05-13T13:19:42.353Z' },
+    ],
+    adjudication: { adjudicated: 0, remaining: 0 },
+    scanner: ScannerStatus.Unknown,
+  }
   fetchMock
-    .getOnce('/config/election', electionSampleDefinition)
-    .getOnce('/config/testMode', { testMode: true })
-    .getOnce('/config/markThresholdOverrides', {})
+    .getOnce('/config/election', { body: getElectionResponseBody })
+    .getOnce('/config/testMode', { body: getTestModeResponseBody })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    })
     .getOnce(
       '/scan/status',
-      {
-        batches: [{ id: 1, count: 2, ballots: [], startedAt: '' }],
-        adjudication: { adjudicated: 0, remaining: 0 },
-      },
+      { body: scanStatusResponseBody },
       { overwriteRoutes: true }
     )
     .postOnce('/scan/export', {
@@ -154,10 +220,19 @@ test('clicking export shows modal and makes a request to export', async () => {
 })
 
 test('configuring election from usb ballot package works end to end', async () => {
+  const getTestModeConfigResponse: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const getMarkThresholdOverridesResponse: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
   fetchMock
     .getOnce('/config/election', new Response('null'))
-    .getOnce('/config/testMode', { testMode: true })
-    .getOnce('/config/markThresholdOverrides', {})
+    .getOnce('/config/testMode', { body: getTestModeConfigResponse })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponse,
+    })
     .patchOnce('/config/testMode', {
       body: '{"status": "ok"}',
       status: 200,

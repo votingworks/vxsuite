@@ -1,5 +1,9 @@
-import fetchMock from 'fetch-mock'
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
+import {
+  GetTestModeConfigResponse,
+  PatchElectionConfigResponse,
+} from '@votingworks/types/api/module-scan'
+import fetchMock from 'fetch-mock'
 import * as config from './config'
 
 test('GET /config/election', async () => {
@@ -13,15 +17,17 @@ test('PATCH /config/election', async () => {
 })
 
 test('PATCH /config/election fails', async () => {
-  fetchMock.patchOnce(
-    '/config/election',
-    new Response(JSON.stringify({ status: 'error', error: 'bad election!' }), {
-      status: 400,
-    })
-  )
+  const body: PatchElectionConfigResponse = {
+    status: 'error',
+    errors: [{ type: 'invalid-value', message: 'bad election!' }],
+  }
+  fetchMock.patchOnce('/config/election', {
+    status: 400,
+    body,
+  })
   await expect(
     config.setElection(testElectionDefinition.electionData)
-  ).rejects.toThrowError('PATCH /config/election failed: bad election!')
+  ).rejects.toThrowError('bad election!')
 })
 
 test('DELETE /config/election to delete election', async () => {
@@ -37,14 +43,20 @@ test('DELETE /config/election to delete election with bad API response', async (
 })
 
 test('GET /config/testMode', async () => {
-  fetchMock.getOnce('/config/testMode', { testMode: true })
+  const testModeTrueResponse: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const testModeFalseResponse: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: false,
+  }
+  fetchMock.getOnce('/config/testMode', { body: testModeTrueResponse })
   expect(await config.getTestMode()).toEqual(true)
 
-  fetchMock.getOnce(
-    '/config/testMode',
-    { testMode: false },
-    { overwriteRoutes: true }
-  )
+  fetchMock.getOnce('/config/testMode', testModeFalseResponse, {
+    overwriteRoutes: true,
+  })
   expect(await config.getTestMode()).toEqual(false)
 })
 

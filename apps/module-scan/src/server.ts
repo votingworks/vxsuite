@@ -11,15 +11,44 @@ import {
 import {
   BallotType,
   Result,
+  safeParse,
   safeParseElectionDefinition,
-  schema,
 } from '@votingworks/types'
+import {
+  AddTemplatesRequest,
+  AddTemplatesResponse,
+  DeleteElectionConfigResponse,
+  DeleteMarkThresholdOverridesConfigResponse,
+  ExportRequest,
+  ExportResponse,
+  GetElectionConfigResponse,
+  GetMarkThresholdOverridesConfigResponse,
+  GetScanStatusResponse,
+  GetTestModeConfigResponse,
+  PatchElectionConfigRequest,
+  PatchElectionConfigResponse,
+  PatchMarkThresholdOverridesConfigRequest,
+  PatchMarkThresholdOverridesConfigRequestSchema,
+  PatchMarkThresholdOverridesConfigResponse,
+  PatchSkipElectionHashCheckConfigRequest,
+  PatchSkipElectionHashCheckConfigRequestSchema,
+  PatchSkipElectionHashCheckConfigResponse,
+  PatchTestModeConfigRequest,
+  PatchTestModeConfigRequestSchema,
+  PatchTestModeConfigResponse,
+  ScanBatchRequest,
+  ScanBatchResponse,
+  ScanContinueRequest,
+  ScanContinueRequestSchema,
+  ScanContinueResponse,
+  ZeroRequest,
+  ZeroResponse,
+} from '@votingworks/types/api/module-scan'
 import bodyParser from 'body-parser'
 import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
-import { inspect } from 'util'
 import backup from './backup'
 import Importer from './importer'
 import {
@@ -33,6 +62,8 @@ import { BallotConfig } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 import { childProcessPool, WorkerPool } from './workers/pool'
+
+type NoParams = never
 
 export interface AppOptions {
   store: Store
@@ -51,151 +82,200 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.use(express.json({ limit: '5mb', type: 'application/json' }))
   app.use(bodyParser.urlencoded({ extended: false }))
 
-  app.get('/config/election', async (request, response) => {
-    const electionDefinition = await store.getElectionDefinition()
+  app.get<NoParams, GetElectionConfigResponse>(
+    '/config/election',
+    async (request, response) => {
+      const electionDefinition = await store.getElectionDefinition()
 
-    if (request.accepts('application/octet-stream')) {
-      if (electionDefinition) {
-        response
-          .header('content-type', 'application/octet-stream')
-          .send(electionDefinition.electionData)
+      if (request.accepts('application/octet-stream')) {
+        if (electionDefinition) {
+          response
+            .header('content-type', 'application/octet-stream')
+            .send(electionDefinition.electionData)
+        } else {
+          response.status(404).end()
+        }
       } else {
-        response.status(404).end()
+        response.json(electionDefinition ?? null)
       }
-    } else {
-      response.json(electionDefinition ?? null)
     }
-  })
+  )
 
-  app.patch('/config/election', async (request, response) => {
-    const body = request.body
+  app.patch<NoParams, PatchElectionConfigResponse, PatchElectionConfigRequest>(
+    '/config/election',
+    async (request, response) => {
+      const body = request.body
 
-    if (!Buffer.isBuffer(body)) {
-      response.status(400).json({
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `expected content type to be application/octet-stream, got ${request.header(
-              'content-type'
-            )}`,
-          },
-        ],
-      })
-      return
-    }
-
-    safeParseElectionDefinition(
-      new TextDecoder('utf-8', { fatal: false }).decode(body)
-    ).mapOrElse(
-      (error) => {
+      if (!Buffer.isBuffer(body)) {
         response.status(400).json({
+          status: 'error',
           errors: [
             {
-              type: error.name,
-              message: error.message,
+              type: 'invalid-value',
+              message: `expected content type to be application/octet-stream, got ${request.header(
+                'content-type'
+              )}`,
             },
           ],
         })
+        return
+      }
+
+      safeParseElectionDefinition(
+        new TextDecoder('utf-8', { fatal: false }).decode(body)
+      ).mapOrElse(
+        (error) => {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: error.name,
+                message: error.message,
+              },
+            ],
+          })
+        },
+        async (electionDefinition) => {
+          await importer.configure(electionDefinition)
+          response.json({ status: 'ok' })
+        }
+      )
+    }
+  )
+
+  app.delete<NoParams, DeleteElectionConfigResponse>(
+    '/config/election',
+    async (_request, response) => {
+      await importer.unconfigure()
+      response.json({ status: 'ok' })
+    }
+  )
+
+  app.get<NoParams, GetTestModeConfigResponse>(
+    '/config/testMode',
+    async (_request, response) => {
+      const testMode = await store.getTestMode()
+      response.json({ status: 'ok', testMode })
+    }
+  )
+
+  app.patch<NoParams, PatchTestModeConfigResponse, PatchTestModeConfigRequest>(
+    '/config/testMode',
+    async (request, response) => {
+      safeParse(PatchTestModeConfigRequestSchema, request.body).mapOrElse(
+        (error) => {
+          response.status(400).json({
+            status: 'error',
+            errors: [{ type: error.name, message: error.message }],
+          })
+        },
+        async ({ testMode }) => {
+          await importer.setTestMode(testMode)
+          response.json({ status: 'ok' })
+        }
+      )
+    }
+  )
+
+  app.get<NoParams, GetMarkThresholdOverridesConfigResponse>(
+    '/config/markThresholdOverrides',
+    async (_request, response) => {
+      const markThresholdOverrides = await store.getMarkThresholdOverrides()
+      response.json({ status: 'ok', markThresholdOverrides })
+    }
+  )
+
+  app.delete<NoParams, DeleteMarkThresholdOverridesConfigResponse>(
+    '/config/markThresholdOverrides',
+    async (_request, response) => {
+      await importer.setMarkThresholdOverrides(undefined)
+      response.json({ status: 'ok' })
+    }
+  )
+
+  app.patch<
+    NoParams,
+    PatchMarkThresholdOverridesConfigResponse,
+    PatchMarkThresholdOverridesConfigRequest
+  >('/config/markThresholdOverrides', async (request, response) => {
+    safeParse(
+      PatchMarkThresholdOverridesConfigRequestSchema,
+      request.body
+    ).mapOrElse(
+      (error) => {
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        })
       },
-      async (electionDefinition) => {
-        await importer.configure(electionDefinition)
+      async ({ markThresholdOverrides }) => {
+        await importer.setMarkThresholdOverrides(markThresholdOverrides)
         response.json({ status: 'ok' })
       }
     )
   })
 
-  app.delete('/config/election', async (_request, response) => {
-    await importer.unconfigure()
-    response.json({ status: 'ok' })
+  app.patch<
+    NoParams,
+    PatchSkipElectionHashCheckConfigResponse,
+    PatchSkipElectionHashCheckConfigRequest
+  >('/config/skipElectionHashCheck', async (request, response) => {
+    safeParse(
+      PatchSkipElectionHashCheckConfigRequestSchema,
+      request.body
+    ).mapOrElse(
+      (error) => {
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        })
+      },
+      async ({ skipElectionHashCheck }) => {
+        await importer.setSkipElectionHashCheck(skipElectionHashCheck)
+        response.json({ status: 'ok' })
+      }
+    )
   })
 
-  app.get('/config/testMode', async (_request, response) => {
-    const testMode = await store.getTestMode()
-    response.json({ testMode })
-  })
-
-  app.patch('/config/testMode', async (request, response) => {
-    const { testMode } = request.body
-    if (typeof testMode !== 'boolean') {
-      response.status(400).json({
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `invalid testMode value: ${inspect(testMode)}`,
-          },
-        ],
-      })
-      return
+  app.post<NoParams, ScanBatchResponse, ScanBatchRequest>(
+    '/scan/scanBatch',
+    async (_request, response) => {
+      try {
+        const batchId = await importer.startImport()
+        response.json({ status: 'ok', batchId })
+      } catch (err) {
+        response.json({
+          status: 'error',
+          errors: [{ type: 'scan-error', message: err.message }],
+        })
+      }
     }
+  )
 
-    await importer.setTestMode(testMode)
-    response.json({ status: 'ok' })
-  })
-
-  app.get('/config/markThresholdOverrides', async (_request, response) => {
-    const markThresholdOverrides = await store.getMarkThresholdOverrides()
-    response.json({ markThresholdOverrides })
-  })
-
-  app.delete('/config/markThresholdOverrides', async (_request, response) => {
-    await importer.setMarkThresholdOverrides(undefined)
-    response.json({ status: 'ok' })
-  })
-
-  app.patch('/config/markThresholdOverrides', async (request, response) => {
-    try {
-      const markThresholdOverrides = schema.MarkThresholds.parse(request.body)
-      await importer.setMarkThresholdOverrides(markThresholdOverrides)
-      response.json({ status: 'ok' })
-    } catch (error) {
-      response.status(400).json({
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `invalid markThresholdOverrides: ${inspect(request.body)}`,
-          },
-        ],
-      })
+  app.post<NoParams, ScanContinueResponse, ScanContinueRequest>(
+    '/scan/scanContinue',
+    async (request, response) => {
+      safeParse(ScanContinueRequestSchema, request.body).mapOrElse(
+        (error) => {
+          response.status(400).json({
+            status: 'error',
+            errors: [{ type: error.name, message: error.message }],
+          })
+        },
+        async ({ override }) => {
+          try {
+            await importer.continueImport(!!override)
+            response.json({ status: 'ok' })
+          } catch (error) {
+            response.json({
+              status: 'error',
+              errors: [{ type: 'scan-error', message: error.message }],
+            })
+          }
+        }
+      )
     }
-  })
-
-  app.patch('/config/skipElectionHashCheck', async (request, response) => {
-    const { skipElectionHashCheck } = request.body
-    if (typeof skipElectionHashCheck !== 'boolean') {
-      response.status(400).json({
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `invalid skipElectionHashCheck value: ${inspect(
-              skipElectionHashCheck
-            )}`,
-          },
-        ],
-      })
-      return
-    }
-
-    await importer.setSkipElectionHashCheck(skipElectionHashCheck)
-    response.json({ status: 'ok' })
-  })
-
-  app.post('/scan/scanBatch', async (_request, response) => {
-    try {
-      const batchId = await importer.startImport()
-      response.json({ status: 'ok', batchId })
-    } catch (err) {
-      response.json({ status: `could not scan: ${err.message}` })
-    }
-  })
-
-  app.post('/scan/scanContinue', async (request, response) => {
-    try {
-      await importer.continueImport(!!request.body.override)
-      response.json({ status: 'ok' })
-    } catch (err) {
-      response.json({ status: `could not continue scan: ${err.message}` })
-    }
-  })
+  )
 
   if (process.env.NODE_ENV !== 'production') {
     app.post(
@@ -304,7 +384,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     })
   }
 
-  app.post(
+  app.post<NoParams, AddTemplatesResponse, AddTemplatesRequest>(
     '/scan/hmpb/addTemplates',
     upload.fields([
       { name: 'ballots' },
@@ -314,6 +394,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
       /* istanbul ignore next */
       if (Array.isArray(request.files)) {
         response.status(400).json({
+          status: 'error',
           errors: [
             {
               type: 'missing-ballot-files',
@@ -333,6 +414,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
           if (ballotFile?.mimetype !== 'application/pdf') {
             response.status(400).json({
+              status: 'error',
               errors: [
                 {
                   type: 'invalid-ballot-type',
@@ -345,6 +427,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
           if (metadataFile?.mimetype !== 'application/json') {
             response.status(400).json({
+              status: 'error',
               errors: [
                 {
                   type: 'invalid-metadata-type',
@@ -373,6 +456,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
       } catch (error) {
         console.log(error)
         response.status(500).json({
+          status: 'error',
           errors: [
             {
               type: 'internal-server-error',
@@ -389,16 +473,22 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' })
   })
 
-  app.post('/scan/export', async (_request, response) => {
-    const cvrs = await importer.doExport()
-    response.set('Content-Type', 'text/plain')
-    response.send(cvrs)
-  })
+  app.post<NoParams, ExportResponse, ExportRequest>(
+    '/scan/export',
+    async (_request, response) => {
+      const cvrs = await importer.doExport()
+      response.set('Content-Type', 'text/plain; charset=utf-8')
+      response.send(cvrs)
+    }
+  )
 
-  app.get('/scan/status', async (_request, response) => {
-    const status = await importer.getStatus()
-    response.json(status)
-  })
+  app.get<NoParams, GetScanStatusResponse>(
+    '/scan/status',
+    async (_request, response) => {
+      const status = await importer.getStatus()
+      response.json(status)
+    }
+  )
 
   app.get('/scan/hmpb/ballot/:sheetId/:side', async (request, response) => {
     const { sheetId, side } = request.params
@@ -500,10 +590,13 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.post('/scan/zero', async (_request, response) => {
-    await importer.doZero()
-    response.json({ status: 'ok' })
-  })
+  app.post<NoParams, ZeroResponse, ZeroRequest>(
+    '/scan/zero',
+    async (_request, response) => {
+      await importer.doZero()
+      response.json({ status: 'ok' })
+    }
+  )
 
   app.get('/scan/backup', async (_request, response) => {
     const electionDefinition = await store.getElectionDefinition()

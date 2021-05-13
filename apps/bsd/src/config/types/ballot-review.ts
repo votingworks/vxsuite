@@ -1,6 +1,7 @@
-import * as t from '@votingworks/types'
 import type { Point, Rect } from '@votingworks/hmpb-interpreter'
-import { OkResponse, AdjudicationReasonInfo } from '../types'
+import * as t from '@votingworks/types'
+import { OkResponse } from '@votingworks/types/src/api'
+import { AdjudicationReasonInfo } from '../types'
 
 type ContestId = t.Contest['id']
 

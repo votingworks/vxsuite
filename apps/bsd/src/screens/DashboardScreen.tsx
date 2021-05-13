@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import pluralize from 'pluralize'
 
 import {
-  ScanStatusResponse,
+  GetScanStatusResponse,
   AdjudicationStatus,
 } from '@votingworks/types/api/module-scan'
 
@@ -32,7 +32,7 @@ const shortDateTime = (iso8601Timestamp: string) => {
 interface Props {
   adjudicationStatus: AdjudicationStatus
   isScanning: boolean
-  status: ScanStatusResponse
+  status: GetScanStatusResponse
   deleteBatch(batchId: string): Promise<void>
 }
 
