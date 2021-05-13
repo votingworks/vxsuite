@@ -22,19 +22,24 @@ import './App.css'
 import IdleTimer from 'react-idle-timer'
 import { map } from 'rxjs/operators'
 import useInterval from '@rooks/use-interval'
-
 import {
+  Card,
+  Storage,
+  Hardware,
+  isAccessibleController,
+  isCardReader,
   getZeroTally,
   calculateTally,
   Tally,
   CardTally,
+  CardAPI,
+  CardPresentAPI,
 } from '@votingworks/utils'
+
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
-  CardAPI,
   CardData,
-  CardPresentAPI,
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
@@ -64,13 +69,6 @@ import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
-import { Card } from './utils/Card'
-import { Storage } from './utils/Storage'
-import {
-  Hardware,
-  isAccessibleController,
-  isCardReader,
-} from './utils/Hardware'
 
 interface CardState {
   adminCardElectionHash: string
@@ -121,6 +119,7 @@ interface OtherState {
   forceSaveVoteFlag: boolean
   writingVoteToCard: boolean
   lastCardDataString: string
+  initializedFromStorage: boolean
 }
 
 export interface InitialUserState extends CardState, UserState, SharedState {}
@@ -195,6 +194,7 @@ const initialOtherState: Readonly<OtherState> = {
   forceSaveVoteFlag: false,
   writingVoteToCard: false,
   lastCardDataString: '',
+  initializedFromStorage: false,
 }
 
 const initialUserState: Readonly<InitialUserState> = {
@@ -409,6 +409,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         ...action.appState,
+        initializedFromStorage: true,
       }
     case 'updateLastCardDataString': {
       return {
@@ -477,6 +478,7 @@ const AppRoot: React.FC<Props> = ({
     isVoterCardPrinted,
     isVoterCardValid,
     isPollWorkerCardValid,
+    initializedFromStorage,
     lastCardDataString,
     machineConfig,
     pauseProcessingUntilNoCardPresent,
@@ -525,8 +527,8 @@ const AppRoot: React.FC<Props> = ({
 
   // Handle Storing Election Locally
   useEffect(() => {
-    const storeElection = (electionDefinition: ElectionDefinition) => {
-      storage.set(electionStorageKey, electionDefinition)
+    const storeElection = async (electionDefinition: ElectionDefinition) => {
+      await storage.set(electionStorageKey, electionDefinition)
     }
     if (optionalElectionDefinition) {
       storeElection(optionalElectionDefinition)
@@ -536,11 +538,12 @@ const AppRoot: React.FC<Props> = ({
   // Handle Vote Updated (and store votes locally in !production)
   useEffect(() => {
     const storeVotes = async (votes: VotesDict) => {
-      const storedVotes = storage.get(votesStorageKey) || blankBallotVotes
+      const storedVotes =
+        (await storage.get(votesStorageKey)) || blankBallotVotes
       if (JSON.stringify(storedVotes) !== JSON.stringify(votes)) {
         /* istanbul ignore else */
         if (process.env.NODE_ENV !== 'production') {
-          storage.set(votesStorageKey, votes)
+          await storage.set(votesStorageKey, votes)
         }
 
         dispatchAppState({ type: 'updateLastVoteUpdateAt', date: Date.now() })
@@ -552,9 +555,9 @@ const AppRoot: React.FC<Props> = ({
   }, [votes, storage])
 
   const resetBallot = useCallback(
-    (showPostVotingInstructions?: PostVotingInstructions) => {
-      storage.remove(activationStorageKey)
-      storage.remove(votesStorageKey)
+    async (showPostVotingInstructions?: PostVotingInstructions) => {
+      await storage.remove(activationStorageKey)
+      await storage.remove(votesStorageKey)
       dispatchAppState({ type: 'resetBallot', showPostVotingInstructions })
       history.push('/')
     },
@@ -579,9 +582,9 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [showPostVotingInstructions])
 
-  const unconfigure = useCallback(() => {
+  const unconfigure = useCallback(async () => {
+    await storage.clear()
     dispatchAppState({ type: 'unconfigure' })
-    storage.clear()
     history.push('/')
   }, [storage, history])
 
@@ -772,6 +775,9 @@ const AppRoot: React.FC<Props> = ({
       }
       dispatchAppState({ type: 'resumeCardProcessing' })
     }
+    if (!initializedFromStorage) {
+      return
+    }
     // we compare last card and current card without the longValuePresent flag
     // otherwise when we first write the ballot to the card, it reprocesses it
     // and may cause a race condition where an old ballot on the card
@@ -802,10 +808,10 @@ const AppRoot: React.FC<Props> = ({
         return
       }
 
-      resetBallot()
+      await resetBallot()
       return
     }
-    processCard(insertedCard)
+    await processCard(insertedCard)
   }, GLOBALS.CARD_POLLING_INTERVAL)
   const startCardShortValueReadPolling = useCallback(
     cardShortValueReadInterval[0],
@@ -878,7 +884,7 @@ const AppRoot: React.FC<Props> = ({
 
     /* istanbul ignore next - this should never happen */
     if (voidedVoterCardData.uz !== updatedShortValue.uz) {
-      resetBallot()
+      await resetBallot()
       return false
     }
     return true
@@ -916,7 +922,7 @@ const AppRoot: React.FC<Props> = ({
       updatedCard.present && JSON.parse(updatedCard.shortValue!)
     /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
     if (usedVoterCardData.bp !== updatedShortValue.bp) {
-      resetBallot()
+      await resetBallot()
       return false
     }
     return true
@@ -977,10 +983,10 @@ const AppRoot: React.FC<Props> = ({
       })
     const printerStatusSubscription = hardware.printers
       .pipe(map((printers) => Array.from(printers)))
-      .subscribe((printers) => {
+      .subscribe(async (printers) => {
         const hasPrinterAttached = printers.some(({ connected }) => connected)
         if (!hasPrinterAttached) {
-          resetBallot()
+          await resetBallot()
           // stop+start forces a last-card-value cache flush
           stopCardShortValueReadPolling()
           startCardShortValueReadPolling()
@@ -1030,52 +1036,56 @@ const AppRoot: React.FC<Props> = ({
 
   // Bootstraps the AppRoot Component
   useEffect(() => {
-    // TODO: validate this with zod schema
-    const retrieveVotes = () =>
-      storage.get(votesStorageKey) as VotesDict | undefined
-    // TODO: validate this with zod schema
-    const storedElectionDefinition = storage.get(electionStorageKey) as
-      | ElectionDefinition
-      | undefined
-    const retrieveBallotActivation = (): SerializableActivationData =>
+    const updateStorage = async () => {
       // TODO: validate this with zod schema
-      (storage.get(activationStorageKey) as
-        | SerializableActivationData
-        | undefined) || (({} as unknown) as SerializableActivationData)
-
-    const storedAppState: Partial<State> =
+      const retrieveVotes = async () =>
+        (await storage.get(votesStorageKey)) as VotesDict | undefined
       // TODO: validate this with zod schema
-      (storage.get(stateStorageKey) as Partial<State> | undefined) || {}
+      const storedElectionDefinition = (await storage.get(
+        electionStorageKey
+      )) as ElectionDefinition | undefined
+      const retrieveBallotActivation = async (): Promise<SerializableActivationData> =>
+        // TODO: validate this with zod schema
+        ((await storage.get(activationStorageKey)) as
+          | SerializableActivationData
+          | undefined) || (({} as unknown) as SerializableActivationData)
 
-    const {
-      ballotStyleId: retrievedBallotStyleId,
-      isCardlessVoter: retrievedCardlessActivatedAt,
-      precinctId: retrievedPrecinctId,
-    } = retrieveBallotActivation()
-    const {
-      appPrecinctId = initialAppState.appPrecinctId,
-      ballotsPrintedCount = initialAppState.ballotsPrintedCount,
-      isLiveMode = initialAppState.isLiveMode,
-      isPollsOpen = initialAppState.isPollsOpen,
-      tally = storedElectionDefinition?.election
-        ? getZeroTally(storedElectionDefinition.election)
-        : initialAppState.tally,
-    } = storedAppState
-    dispatchAppState({
-      type: 'initializeAppState',
-      appState: {
-        appPrecinctId,
-        ballotsPrintedCount,
+      const storedAppState: Partial<State> =
+        // TODO: validate this with zod schema
+        ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
+        {}
+
+      const {
         ballotStyleId: retrievedBallotStyleId,
-        electionDefinition: storedElectionDefinition,
         isCardlessVoter: retrievedCardlessActivatedAt,
-        isLiveMode,
-        isPollsOpen,
         precinctId: retrievedPrecinctId,
-        tally,
-        votes: retrieveVotes(),
-      },
-    })
+      } = await retrieveBallotActivation()
+      const {
+        appPrecinctId = initialAppState.appPrecinctId,
+        ballotsPrintedCount = initialAppState.ballotsPrintedCount,
+        isLiveMode = initialAppState.isLiveMode,
+        isPollsOpen = initialAppState.isPollsOpen,
+        tally = storedElectionDefinition?.election
+          ? getZeroTally(storedElectionDefinition.election)
+          : initialAppState.tally,
+      } = storedAppState
+      dispatchAppState({
+        type: 'initializeAppState',
+        appState: {
+          appPrecinctId,
+          ballotsPrintedCount,
+          ballotStyleId: retrievedBallotStyleId,
+          electionDefinition: storedElectionDefinition,
+          isCardlessVoter: retrievedCardlessActivatedAt,
+          isLiveMode,
+          isPollsOpen,
+          precinctId: retrievedPrecinctId,
+          tally,
+          votes: await retrieveVotes(),
+        },
+      })
+    }
+    updateStorage()
     startCardShortValueReadPolling()
     startLongValueWritePolling()
     startHardwareStatusPolling()
@@ -1094,28 +1104,32 @@ const AppRoot: React.FC<Props> = ({
 
   // Handle Ballot Activation (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
+    const updateStorage = async () =>
+      await storage.set(activationStorageKey, {
+        ballotStyleId,
+        isCardlessVoter,
+        precinctId,
+      })
     if (precinctId && ballotStyleId) {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
-        storage.set(activationStorageKey, {
-          ballotStyleId,
-          isCardlessVoter,
-          precinctId,
-        })
+        updateStorage()
       }
     }
   }, [ballotStyleId, isCardlessVoter, precinctId, storage, voterCardCreatedAt])
 
   // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
-    const storeAppState = () => {
-      storage.set(stateStorageKey, {
-        appPrecinctId,
-        ballotsPrintedCount,
-        isLiveMode,
-        isPollsOpen,
-        tally,
-      })
+    const storeAppState = async () => {
+      if (initializedFromStorage) {
+        await storage.set(stateStorageKey, {
+          appPrecinctId,
+          ballotsPrintedCount,
+          isLiveMode,
+          isPollsOpen,
+          tally,
+        })
+      }
     }
 
     storeAppState()
@@ -1126,6 +1140,7 @@ const AppRoot: React.FC<Props> = ({
     isPollsOpen,
     storage,
     tally,
+    initializedFromStorage,
   ])
 
   if (!hasCardReaderAttached) {

@@ -27,7 +27,7 @@ interface Props {
   fetchElection: VoidFunction
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
-  unconfigure: VoidFunction
+  unconfigure: () => Promise<void>
   machineConfig: MachineConfig
 }
 

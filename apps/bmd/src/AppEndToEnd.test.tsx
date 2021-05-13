@@ -1,7 +1,13 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
-import { getZeroTally, TallySourceMachineType } from '@votingworks/utils'
+import {
+  getZeroTally,
+  TallySourceMachineType,
+  MemoryStorage,
+  MemoryCard,
+  MemoryHardware,
+} from '@votingworks/utils'
 import * as GLOBALS from './config/globals'
 
 import { electionSampleDefinition } from './data'
@@ -28,10 +34,7 @@ import {
   voterContests,
   election,
 } from '../test/helpers/election'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxMarkPlusVxPrint } from './config/types'
@@ -46,7 +49,7 @@ jest.setTimeout(15000)
 it('VxMark+Print end-to-end flow', async () => {
   const electionDefinition = electionSampleDefinition
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const printer = fakePrinter()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
@@ -63,6 +66,7 @@ it('VxMark+Print end-to-end flow', async () => {
       storage={storage}
     />
   )
+  await advanceTimersAndPromises()
   const adminCard = adminCardForElection(electionDefinition.electionHash)
   const pollWorkerCard = pollWorkerCardForElection(
     electionDefinition.electionHash
@@ -232,6 +236,7 @@ it('VxMark+Print end-to-end flow', async () => {
     // Vote for candidate contest
     if (title === presidentContest.title) {
       fireEvent.click(getByText(presidentContest.candidates[0].name))
+      await advanceTimersAndPromises() // Update the vote being saved internally
 
       // We write to the card when no changes to the ballot state have happened for a second.
       // To test that this is happening, we advance time by a bit more than a second

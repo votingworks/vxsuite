@@ -1,5 +1,6 @@
 import React from 'react'
 import { render } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 import DemoApp, { getSampleStorage } from './DemoApp'
@@ -11,10 +12,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 import { advanceTimersAndPromises } from '../test/helpers/smartcards'
-import { MemoryStorage } from './utils/Storage'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import { MemoryHardware } from './utils/Hardware'
-import { MemoryCard } from './utils/Card'
 
 jest.useFakeTimers()
 
@@ -24,11 +22,12 @@ beforeEach(() => {
 
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
+    const hardware = await MemoryHardware.buildStandard()
     const { getByText } = render(
       <App
         machineConfig={fakeMachineConfigProvider()}
         card={new MemoryCard()}
-        hardware={MemoryHardware.standard}
+        hardware={hardware}
       />
     )
 
@@ -42,6 +41,7 @@ describe('loads election', () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
+    const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText } = render(
@@ -49,7 +49,7 @@ describe('loads election', () => {
         card={card}
         storage={storage}
         machineConfig={machineConfig}
-        hardware={MemoryHardware.standard}
+        hardware={hardware}
       />
     )
 
@@ -65,6 +65,7 @@ describe('loads election', () => {
     const { getAllByText, getByText } = render(<DemoApp storage={storage} />)
 
     // Let the initial hardware detection run.
+    await advanceTimersAndPromises()
     await advanceTimersAndPromises()
 
     expect(getAllByText(election.title).length).toBeGreaterThan(1)

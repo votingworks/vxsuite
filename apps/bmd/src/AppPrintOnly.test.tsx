@@ -6,6 +6,7 @@ import {
 } from '@votingworks/fixtures'
 import { encodeBallot } from '@votingworks/ballot-encoder'
 import { BallotType } from '@votingworks/types'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
@@ -26,10 +27,7 @@ import {
 import withMarkup from '../test/helpers/withMarkup'
 
 import * as GLOBALS from './config/globals'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxPrintOnly } from './config/types'
@@ -49,7 +47,7 @@ test('VxPrintOnly flow', async () => {
   const adminCard = adminCardForElection(electionHash)
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const printer = fakePrinter()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getAllByText, getByLabelText, getByText, getByTestId } = render(
@@ -61,6 +59,7 @@ test('VxPrintOnly flow', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   const getAllByTextWithMarkup = withMarkup(getAllByText)
 
@@ -430,7 +429,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
   const adminCard = adminCardForElection(electionHash)
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
   const printer = fakePrinter()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getByLabelText, getByText, getByTestId } = render(
@@ -541,7 +540,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   )
   const card = new MemoryCard()
   const printer = fakePrinter()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
   const { getByText, getByLabelText, getByTestId } = render(
@@ -553,6 +552,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // Default Unconfigured
   getByText('Device Not Configured')

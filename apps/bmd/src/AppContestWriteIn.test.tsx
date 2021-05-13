@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
 
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import App from './App'
 
 import withMarkup from '../test/helpers/withMarkup'
@@ -17,10 +18,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 import { VxMarkPlusVxPrint } from './config/types'
-import { MemoryCard } from './utils/Card'
-import { MemoryStorage } from './utils/Storage'
 import fakePrinter from '../test/helpers/fakePrinter'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
@@ -34,7 +32,7 @@ it('Single Seat Contest with Write In', async () => {
 
   const card = new MemoryCard()
   const printer = fakePrinter()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
     appMode: VxMarkPlusVxPrint,
@@ -52,6 +50,7 @@ it('Single Seat Contest with Write In', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup(getByText)
 
   const getWithinKeyboard = (text: string) =>

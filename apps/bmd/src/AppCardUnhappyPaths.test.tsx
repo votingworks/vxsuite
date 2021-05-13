@@ -4,8 +4,13 @@ import {
   electionSampleDefinition as election,
   electionSampleDefinition,
 } from '@votingworks/fixtures'
+import {
+  MemoryStorage,
+  MemoryCard,
+  MemoryHardware,
+  getZeroTally,
+} from '@votingworks/utils'
 
-import { getZeroTally } from '@votingworks/utils'
 import App from './App'
 
 import { CARD_EXPIRATION_SECONDS } from './config/globals'
@@ -24,9 +29,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 import utcTimestamp from './utils/utcTimestamp'
-import { MemoryCard } from './utils/Card'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { VxPrintOnly } from './config/types'
 
@@ -40,7 +42,7 @@ test('Display App Card Unhappy Paths', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -57,6 +59,7 @@ test('Display App Card Unhappy Paths', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -156,7 +159,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -170,6 +173,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -186,7 +190,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
 
@@ -206,6 +210,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 

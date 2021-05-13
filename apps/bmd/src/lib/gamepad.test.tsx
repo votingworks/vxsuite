@@ -1,9 +1,14 @@
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import App from '../App'
 
-import { advanceTimers, getNewVoterCard } from '../../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  getNewVoterCard,
+} from '../../test/helpers/smartcards'
 
 import {
   contest0,
@@ -15,9 +20,6 @@ import {
 } from '../../test/helpers/election'
 
 import { getActiveElement, handleGamepadButtonDown } from './gamepad'
-import { MemoryStorage } from '../utils/Storage'
-import { MemoryCard } from '../utils/Card'
-import { MemoryHardware } from '../utils/Hardware'
 import { fakeMachineConfigProvider } from '../../test/helpers/fakeMachineConfig'
 
 beforeEach(() => {
@@ -28,7 +30,7 @@ it('gamepad controls work', async () => {
   jest.useFakeTimers()
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -43,6 +45,7 @@ it('gamepad controls work', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   card.insertCard(getNewVoterCard())
   advanceTimers()

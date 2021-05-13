@@ -142,16 +142,6 @@ export interface AdminCardData {
 }
 export type CardData = VoterCardData | PollworkerCardData | AdminCardData
 
-export interface CardAbsentAPI {
-  present: false
-}
-export interface CardPresentAPI {
-  present: true
-  shortValue?: string
-  longValueExists?: boolean
-}
-export type CardAPI = CardAbsentAPI | CardPresentAPI
-
 // User Interface
 export type ScrollDirections = 'up' | 'down'
 export interface ScrollShadows {

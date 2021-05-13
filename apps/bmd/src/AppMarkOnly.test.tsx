@@ -1,5 +1,6 @@
 import React from 'react'
 import { fireEvent, render, within } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import { electionSampleDefinition } from './data'
 
 import App from './App'
@@ -19,9 +20,6 @@ import {
   measure102Contest,
   voterContests,
 } from '../test/helpers/election'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.setTimeout(10_000)
@@ -39,7 +37,7 @@ it('VxMarkOnly flow', async () => {
   const pollWorkerCard = pollWorkerCardForElection(
     electionDefinition.electionHash
   )
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
   const { getByTestId, getByLabelText, getByText } = render(
@@ -50,6 +48,7 @@ it('VxMarkOnly flow', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup(getByText)
 
   card.removeCard()

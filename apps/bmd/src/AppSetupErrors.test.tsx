@@ -1,11 +1,10 @@
 import React from 'react'
 import { render, waitFor } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { electionSampleDefinition } from './data'
 
 import App from './App'
-import { MemoryHardware } from './utils/Hardware'
-import { MemoryStorage } from './utils/Storage'
 
 import {
   adminCardForElection,
@@ -19,7 +18,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 import withMarkup from '../test/helpers/withMarkup'
-import { MemoryCard } from './utils/Card'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import {
   HARDWARE_POLLING_INTERVAL,
@@ -42,7 +40,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     hardware.setAccessibleControllerConnected(true)
 
     setElectionInStorage(storage)
@@ -83,7 +81,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
@@ -117,7 +115,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText } = render(
@@ -152,7 +150,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText, queryByText } = render(
@@ -191,7 +189,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const machineConfig = fakeMachineConfigProvider({
       appMode: VxPrintOnly,
     })
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage, electionDefinition)
     setStateInStorage(storage)
     const { getByText } = render(
@@ -228,7 +226,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
     const { getByText, queryByText } = render(

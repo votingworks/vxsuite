@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { render } from '@testing-library/react'
 import { fakeKiosk } from '@votingworks/test-utils'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
@@ -11,9 +12,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals'
 
@@ -30,7 +28,7 @@ afterEach(() => {
 
 test('Insert Card screen idle timeout to quit app', async () => {
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
     // machineId used to determine whether we quit. Now they all do.
@@ -57,6 +55,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
   expect(window.kiosk?.quit).not.toHaveBeenCalled()
 
   // Check that we requested a quit after the idle timer fired.
+  await advanceTimersAndPromises()
   await advanceTimersAndPromises(QUIT_KIOSK_IDLE_SECONDS)
   expect(window.kiosk?.quit).toHaveBeenCalledTimes(1)
 })

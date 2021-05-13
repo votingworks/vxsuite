@@ -1,5 +1,6 @@
 import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
@@ -17,9 +18,6 @@ import {
   IDLE_TIMEOUT_SECONDS,
   IDLE_RESET_TIMEOUT_SECONDS,
 } from './config/globals'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 beforeEach(() => {
@@ -34,12 +32,12 @@ const idleScreenCopy =
 describe('Mark Card Void when voter is idle too long', () => {
   test('Display expired card if card marked as voided', async () => {
     const card = new MemoryCard()
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
 
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
 
     const { getByText, queryByText } = render(
       <App
@@ -49,11 +47,14 @@ describe('Mark Card Void when voter is idle too long', () => {
         machineConfig={machineConfig}
       />
     )
+    // Initialize app
+    await advanceTimersAndPromises()
 
     // Insert Voter card
     card.insertCard(getNewVoterCard())
     await advanceTimersAndPromises()
     getByText(/Center Springfield/)
+    getByText('Start Voting')
 
     // Elapse idle timeout
     await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
@@ -99,12 +100,12 @@ describe('Mark Card Void when voter is idle too long', () => {
 
   test('Reset ballot when card write does not match card read.', async () => {
     const card = new MemoryCard()
-    const hardware = MemoryHardware.standard
+    const hardware = await MemoryHardware.buildStandard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
 
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
 
     const { getByText } = render(
       <App
@@ -114,6 +115,8 @@ describe('Mark Card Void when voter is idle too long', () => {
         machineConfig={machineConfig}
       />
     )
+    // Initialize app
+    await advanceTimersAndPromises()
 
     // Insert Voter card
     card.insertCard(getNewVoterCard())
