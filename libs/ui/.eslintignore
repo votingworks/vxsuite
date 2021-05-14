@@ -1,5 +1,6 @@
 /coverage
-/dist
+/build
 /src/**/*.js
 /.eslintrc.js
+/jest.config.js
 *.d.ts

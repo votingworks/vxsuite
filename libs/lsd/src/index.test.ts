@@ -71,7 +71,7 @@ gctest('garbage collection reclaims buffer', () => {
 
   const medianMemory = [...externalMemory].sort()[
     Math.round(externalMemory.length / 2)
-  ]
-  const finalMemory = externalMemory[externalMemory.length - 1]
+  ] as number
+  const finalMemory = externalMemory[externalMemory.length - 1] as number
   expect(Math.abs(medianMemory - finalMemory) / medianMemory).toBeLessThan(0.1)
 })

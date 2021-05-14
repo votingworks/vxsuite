@@ -1,13 +1,6 @@
-node_modules
+# development & debug
 dev-workspace/
-hmpb-templates
-!hmpb-templates/.gitkeep
-*~
-*.log
-coverage/
-.DS_Store
 debug-dump*.zip
 /*.png
 /*.jpeg
 /*.jpg
-/lib

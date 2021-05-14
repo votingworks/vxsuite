@@ -1,5 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src", "src/data/*.json", "test"],
-  "exclude": []
+  "exclude": [],
+  // https://github.com/microsoft/TypeScript/issues/27098
+  "references": [{ "path": "../fixtures" }, { "path": "../types" }]
 }

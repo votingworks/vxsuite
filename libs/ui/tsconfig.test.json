@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src"],
+  "exclude": [],
+  // https://github.com/microsoft/TypeScript/issues/27098
+  "references": [{ "path": "../../libs/types" }]
+}

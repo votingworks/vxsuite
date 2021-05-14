@@ -61,7 +61,7 @@ export async function readGrayscaleImage(
   const dst = new Uint8ClampedArray(size.width * size.height)
 
   for (let offset = 0, size = src32.length; offset < size; offset++) {
-    const px = src32[offset]
+    const px = src32[offset] as number
     const r = px & 0xff
     const g = (px >>> 8) & 0xff
     const b = (px >>> 16) & 0xff

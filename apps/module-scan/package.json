@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
     "dev": "ts-node --transpile-only --files ./src/index.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "tsc --build && eslint '{src,test}/**/*.{js,jsx,ts,tsx}' --quiet",
-    "start": "node ./lib/index.js",
+    "lint": "tsc --build tsconfig.test.json && eslint '{src,test}/**/*.{js,jsx,ts,tsx}' --quiet",
+    "start": "node ./build/index.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",

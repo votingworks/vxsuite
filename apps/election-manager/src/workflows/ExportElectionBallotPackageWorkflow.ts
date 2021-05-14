@@ -151,7 +151,7 @@ export function next(state: State): State {
   }
 }
 
-export function error(state: State, error: Error): State {
+export function error(_state: State, error: Error): State {
   return {
     type: 'Failed',
     message: error.message,

@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src", "test", "test/fixtures/**/*.json", "types"],
+  "exclude": [],
+  // https://github.com/microsoft/TypeScript/issues/27098
+  "references": [{ "path": "../ballot-encoder" }, { "path": "../types" }]
+}

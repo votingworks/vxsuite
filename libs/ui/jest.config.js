@@ -3,11 +3,11 @@ module.exports = {
   testEnvironment: 'jsdom',
   clearMocks: true,
   testPathIgnorePatterns: [
-    "<rootDir>/dist"
+    "<rootDir>/build"
   ],
   watchPathIgnorePatterns: [
     "<rootDir>/node_modules",
-    "<rootDir>/dist"
+    "<rootDir>/build"
   ],
   collectCoverageFrom: ['src/**/*.tsx'],
   coverageThreshold: {

@@ -109,7 +109,7 @@
     "react-idle-timer": "4.2.12",
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.0",
+    "react-scripts": "4.0.3",
     "rxjs": "^6.6.6",
     "styled-components": "^4.4.1",
     "typescript": "^4.2.0",

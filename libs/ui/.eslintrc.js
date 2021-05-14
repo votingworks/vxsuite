@@ -38,7 +38,7 @@ module.exports = {
       jsx: true,
     },
     ecmaVersion: 2018,
-    project: './tsconfig.json',
+    project: './tsconfig.test.json',
     sourceType: 'module',
   },
   plugins: [
@@ -91,6 +91,8 @@ module.exports = {
     quotes: ['error', 'single', { avoidEscape: true }],
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
+    'react/jsx-uses-react': 'off',
+    'react/react-in-jsx-scope': 'off',
     //
     // ADDED RULES for election-manager
     //

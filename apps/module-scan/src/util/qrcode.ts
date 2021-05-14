@@ -1,6 +1,5 @@
 import { detect } from '@votingworks/ballot-encoder'
-import { Rect, Size } from '@votingworks/hmpb-interpreter'
-import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
+import { Rect, Size, crop } from '@votingworks/hmpb-interpreter'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import jsQR from 'jsqr'
@@ -135,6 +134,8 @@ export const detectQRCode = async (
         }
       }
     }
+
+    return undefined
   } finally {
     timer.end()
   }

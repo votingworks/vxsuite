@@ -1,20 +1,10 @@
 {
+  "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": false,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "outDir": "lib",
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2017"
+    "outDir": "build",
+
+    /* Overrides */
+    "noUncheckedIndexedAccess": false
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts", "test"],

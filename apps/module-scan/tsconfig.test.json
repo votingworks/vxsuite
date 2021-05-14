@@ -5,6 +5,7 @@
   },
   "include": ["src", "test"],
   "exclude": [],
+  // https://github.com/microsoft/TypeScript/issues/27098
   "references": [
     { "path": "../../libs/ballot-encoder" },
     { "path": "../../libs/hmpb-interpreter" },

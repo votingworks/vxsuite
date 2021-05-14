@@ -68,16 +68,19 @@ export interface Props extends StyledButtonProps {
 
 const Button = React.forwardRef<HTMLButtonElement, Props>(
   ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
-    const [startCoordinates, setStartCoordinates] = useState([0, 0])
+    const [startCoordinates, setStartCoordinates] = useState<[number, number]>([
+      0,
+      0,
+    ])
 
     const onTouchStart = (event: React.TouchEvent) => {
-      const { clientX, clientY } = event.touches[0]
+      const { clientX, clientY } = event.touches[0]!
       setStartCoordinates([clientX, clientY])
     }
 
     const onTouchEnd = (event: React.TouchEvent) => {
       const maxMove = 30
-      const { clientX, clientY } = event.changedTouches[0]
+      const { clientX, clientY } = event.changedTouches[0]!
       if (
         Math.abs(startCoordinates[0] - clientX) < maxMove &&
         Math.abs(startCoordinates[1] - clientY) < maxMove

@@ -1,1 +1,1 @@
-export * from '../../dist/src/api/module-scan'
+export * from '../../build/src/api/module-scan'

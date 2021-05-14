@@ -39,15 +39,15 @@ export function parseOptions(args: readonly string[]): Options {
   let minLength: LengthThreshold | undefined
 
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
+    const arg = args[i] as string
     if (arg === '--min-length') {
-      const value = args[++i]
+      const value = args[++i] ?? ''
       if (/^\d+$/.test(value)) {
         minLength = parseInt(value, 10)
       } else {
-        const match = /^(\d+)%([wh])$/.exec(value)
+        const match = /^(\d+)%([wh])$/.exec(value ?? '')
         if (match) {
-          const percent = parseInt(match[1], 10)
+          const percent = parseInt(match[1] as string, 10)
           minLength =
             match[2] === 'w' ? { width: percent } : { height: percent }
         } else {
@@ -55,7 +55,7 @@ export function parseOptions(args: readonly string[]): Options {
         }
       }
     } else if (arg === '--scale') {
-      const value = args[++i]
+      const value = args[++i] ?? ''
       if (value.endsWith('%')) {
         scale = parseFloat(value.slice(0, -1)) / 100
       } else {
@@ -66,22 +66,25 @@ export function parseOptions(args: readonly string[]): Options {
         throw new Error(`invalid format for ${arg}: ${value}`)
       }
     } else if (arg === '--size') {
-      const value = args[++i]
+      const value = args[++i] ?? ''
       const match = /^(\d+)x(\d+)$/.exec(value)
       if (match) {
-        size = { width: parseInt(match[1], 10), height: parseInt(match[2], 10) }
+        size = {
+          width: parseInt(match[1] as string, 10),
+          height: parseInt(match[2] as string, 10),
+        }
       } else {
         throw new Error(`invalid size '${value}', expected 'WxH'`)
       }
     } else if (arg === '--format' || arg === '-f') {
-      const value = args[++i]
+      const value = args[++i] ?? ''
       if (value === 'svg' || value === 'png') {
         format = value
       } else {
         throw new Error(`invalid format '${value}', expected 'svg' or 'png'`)
       }
     } else if (arg === '--background' || arg === '-b') {
-      const value = args[++i]
+      const value = args[++i] ?? ''
       if (value === 'none' || value === 'white' || value === 'original') {
         background = value
       } else {

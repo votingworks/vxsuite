@@ -69,7 +69,6 @@ export default class Importer {
   private batchId: string | undefined
   private workerPool?: WorkerPool<workers.Input, workers.Output>
   private workerPoolProvider: () => WorkerPool<workers.Input, workers.Output>
-  private interpreterReady = true
 
   public constructor({
     workspace,
@@ -83,12 +82,11 @@ export default class Importer {
   }
 
   private invalidateInterpreterConfig(): void {
-    this.interpreterReady = false
     this.workerPool?.stop()
     this.workerPool = undefined
   }
 
-  private async getWorkerPooll(): Promise<
+  private async getWorkerPool(): Promise<
     WorkerPool<workers.Input, workers.Output>
   > {
     if (!this.workerPool) {
@@ -98,7 +96,6 @@ export default class Importer {
         action: 'configure',
         dbPath: this.workspace.store.dbPath,
       })
-      this.interpreterReady = true
     }
     return this.workerPool
   }
@@ -155,7 +152,7 @@ export default class Importer {
    * Tell the importer that we have all the templates
    */
   public async doneHmpbTemplates(): Promise<void> {
-    await this.getWorkerPooll()
+    await this.getWorkerPool()
   }
 
   /**
@@ -197,7 +194,7 @@ export default class Importer {
    */
   public async restoreConfig(): Promise<void> {
     this.invalidateInterpreterConfig()
-    await this.getWorkerPooll()
+    await this.getWorkerPool()
   }
 
   private async sheetAdded(
@@ -230,7 +227,7 @@ export default class Importer {
       throw new Error('missing election definition')
     }
 
-    const workerPool = await this.getWorkerPooll()
+    const workerPool = await this.getWorkerPool()
     const frontDetectQrcodePromise = workerPool.call({
       action: 'detect-qrcode',
       imagePath: frontImagePath,
@@ -396,12 +393,15 @@ export default class Importer {
     Castability | undefined
   > {
     const sheet = await this.workspace.store.getNextAdjudicationSheet()
-    if (sheet) {
-      return checkSheetCastability([
-        sheet.front.interpretation,
-        sheet.back.interpretation,
-      ])
+
+    if (!sheet) {
+      return undefined
     }
+
+    return checkSheetCastability([
+      sheet.front.interpretation,
+      sheet.back.interpretation,
+    ])
   }
 
   /**
@@ -416,10 +416,6 @@ export default class Importer {
 
     if (this.sheetGenerator) {
       throw new Error('scanning already in progess')
-    }
-
-    if (!this.interpreterReady) {
-      throw new Error('interpreter still loading')
     }
 
     this.batchId = await this.workspace.store.addBatch()

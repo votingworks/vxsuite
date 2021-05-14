@@ -1,1 +1,1 @@
-export * from '../dist/src/api'
+export * from '../build/src/api'

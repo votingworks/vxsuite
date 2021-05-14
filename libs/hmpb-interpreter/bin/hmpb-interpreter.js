@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-const main = require('../dist/src/cli').default
+/* eslint-disable @typescript-eslint/no-var-requires */
+const main = require('../build/src/cli').default
 
 main(process.argv, process.stdin, process.stdout, process.stderr).catch(
   (error) => {

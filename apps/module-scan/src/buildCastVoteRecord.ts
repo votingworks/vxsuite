@@ -298,4 +298,6 @@ export function buildCastVoteRecord(
       BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
     >)
   }
+
+  return undefined
 }

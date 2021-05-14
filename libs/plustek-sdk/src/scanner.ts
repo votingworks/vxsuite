@@ -170,7 +170,12 @@ export async function createClient(
       const match = line.trim().match(/^([^\s:]+):\s*(err=)?(.*)$/)
 
       if (match) {
-        const [, responder, isError, data] = match
+        const [, responder, isError, data] = match as [
+          string,
+          string,
+          string,
+          string
+        ]
 
         if (responder !== method) {
           handlers.else(line, resolve)
@@ -246,7 +251,7 @@ export async function createClient(
           const match = data.match(/^file=(.+)$/)
 
           if (match) {
-            files.push(match[1])
+            files.push(match[1] as string)
           } else {
             resolve(err(new Error(`unexpected response data: ${data}`)))
           }

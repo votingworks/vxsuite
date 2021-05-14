@@ -512,11 +512,13 @@ export default class Interpreter {
         ): Promise<DetectQRCodeResult | undefined> => {
           const result = await detectQRCode(imageData)
 
-          if (result) {
-            return {
-              data: result.data,
-              rightSideUp: result.position === 'bottom',
-            }
+          if (!result) {
+            return undefined
+          }
+
+          return {
+            data: result.data,
+            rightSideUp: result.position === 'bottom',
           }
         },
       })

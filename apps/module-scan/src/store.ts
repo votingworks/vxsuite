@@ -790,6 +790,7 @@ export default class Store {
       return this.getPage(row.id, row.front ? 'front' : 'back')
     } else {
       debug('no review sheets requiring adjudication')
+      return undefined
     }
   }
 
@@ -840,6 +841,7 @@ export default class Store {
       }
     } else {
       debug('no review sheets requiring adjudication')
+      return undefined
     }
   }
 

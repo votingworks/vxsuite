@@ -1,4 +1,4 @@
-import otsu from '@votingworks/hmpb-interpreter/dist/src/utils/otsu'
+import { otsu } from '@votingworks/hmpb-interpreter'
 import makeDebug from 'debug'
 
 const debug = makeDebug('module-scan:threshold')
