@@ -3,6 +3,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types'
 import React, { useState } from 'react'
+import { usbstick, BallotPackage, ballotPackageUtils } from '@votingworks/utils'
 import * as config from '../api/config'
 import { addTemplates, doneTemplates } from '../api/hmpb'
 import ElectionConfiguration from '../components/ElectionConfiguration'
@@ -10,16 +11,10 @@ import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { SetElectionDefinition } from '../config/types'
-import { UsbDriveStatus } from '../lib/usbstick'
-import {
-  BallotPackage,
-  readBallotPackageFromFile,
-  readBallotPackageFromFilePointer,
-} from '../util/ballot-package'
 
 interface Props {
   setElectionDefinition: SetElectionDefinition
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
 }
 
 const LoadElectionScreen: React.FC<Props> = ({
@@ -91,13 +86,17 @@ const LoadElectionScreen: React.FC<Props> = ({
         reader.readAsText(file)
       })
     } else {
-      await handleBallotLoading(await readBallotPackageFromFile(file))
+      await handleBallotLoading(
+        await ballotPackageUtils.readBallotPackageFromFile(file)
+      )
     }
   }
 
   const onAutomaticFileImport = async (file: KioskBrowser.FileSystemEntry) => {
     // All automatic file imports will be on zip packages
-    await handleBallotLoading(await readBallotPackageFromFilePointer(file))
+    await handleBallotLoading(
+      await ballotPackageUtils.readBallotPackageFromFilePointer(file)
+    )
   }
 
   if (isLoadingTemplates) {

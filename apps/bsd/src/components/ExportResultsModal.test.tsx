@@ -7,9 +7,11 @@ import { createMemoryHistory } from 'history'
 import fetchMock from 'fetch-mock'
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
-import { UsbDriveStatus } from '../lib/usbstick'
+import { usbstick } from '@votingworks/utils'
 import ExportResultsModal from './ExportResultsModal'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
+
+const { UsbDriveStatus } = usbstick
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]

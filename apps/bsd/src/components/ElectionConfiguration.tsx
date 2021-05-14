@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import {
   parseBallotExportPackageInfoFromFilename,
   BALLOT_PACKAGE_FOLDER,
+  usbstick,
 } from '@votingworks/utils'
 import Prose from './Prose'
 import Main, { MainChild } from './Main'
@@ -15,7 +16,7 @@ import Loading from './Loading'
 import FileInputButton from './FileInputButton'
 
 import USBControllerButton from './USBControllerButton'
-import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
+
 import Button from './Button'
 import Table, { TD } from './Table'
 
@@ -39,7 +40,7 @@ export interface Props {
   acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
   ): Promise<void>
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
 }
 
 const ElectionConfiguration: React.FC<Props> = ({
@@ -73,7 +74,7 @@ const ElectionConfiguration: React.FC<Props> = ({
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true)
-    const usbPath = await getDevicePath()
+    const usbPath = await usbstick.getDevicePath()
     try {
       const files = await window.kiosk!.getFileSystemEntries(
         path.join(usbPath!, BALLOT_PACKAGE_FOLDER)
@@ -95,7 +96,7 @@ const ElectionConfiguration: React.FC<Props> = ({
   }, [setFoundFilenames, setLoadingFiles, usbDriveStatus])
 
   useEffect(() => {
-    if (usbDriveStatus === UsbDriveStatus.mounted) {
+    if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
       fetchFilenames()
     }
   }, [usbDriveStatus])
@@ -115,8 +116,8 @@ const ElectionConfiguration: React.FC<Props> = ({
   )
 
   if (
-    usbDriveStatus === UsbDriveStatus.present ||
-    usbDriveStatus === UsbDriveStatus.ejecting ||
+    usbDriveStatus === usbstick.UsbDriveStatus.present ||
+    usbDriveStatus === usbstick.UsbDriveStatus.ejecting ||
     loadingFiles
   ) {
     return (
@@ -131,7 +132,7 @@ const ElectionConfiguration: React.FC<Props> = ({
     )
   }
 
-  if (usbDriveStatus === UsbDriveStatus.mounted && !loadingFiles) {
+  if (usbDriveStatus === usbstick.UsbDriveStatus.mounted && !loadingFiles) {
     // Parse information from the file names and sort by export date.
     const parsedFileInformation = foundFilenames
       .map((f) => {

@@ -1,11 +1,11 @@
 import React from 'react'
 
+import { usbstick } from '@votingworks/utils'
 import USBControllerButton from './USBControllerButton'
 
-import { UsbDriveStatus } from '../lib/usbstick'
 import renderInAppContext from '../../test/renderInAppContext'
 
-jest.mock('../lib/usbstick')
+const { UsbDriveStatus } = usbstick
 
 beforeAll(() => {
   jest.useFakeTimers()

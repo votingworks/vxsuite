@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useParams, useHistory } from 'react-router-dom'
 import pluralize from 'pluralize'
 
+import { fetchJSON } from '@votingworks/utils'
 import { fetchBallotInfo, fetchNextBallotToReview } from '../api/hmpb'
 import ContestOptionButton from '../components/ContestOptionButton'
 import {
@@ -14,7 +15,6 @@ import {
   ReviewMarginalMarksBallot,
   EventTargetFunction,
 } from '../config/types'
-import fetchJSON from '../util/fetchJSON'
 import relativeRect from '../util/relativeRect'
 import * as workflow from '../workflows/BallotReviewScreenWorkflow'
 import Main, { MainChild } from '../components/Main'

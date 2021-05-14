@@ -6,7 +6,7 @@ import { Router } from 'react-router-dom'
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import { ElectionDefinition } from '@votingworks/types'
 
-import { UsbDriveStatus } from '../src/lib/usbstick'
+import { usbstick } from '@votingworks/utils'
 import AppContext from '../src/contexts/AppContext'
 
 interface RenderInAppContextParams {
@@ -14,7 +14,7 @@ interface RenderInAppContextParams {
   history?: MemoryHistory<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   electionDefinition?: ElectionDefinition
   machineId?: string
-  usbDriveStatus?: UsbDriveStatus
+  usbDriveStatus?: usbstick.UsbDriveStatus
   usbDriveEject?: () => void
 }
 
@@ -25,7 +25,7 @@ export default function renderInAppContext(
     history = createMemoryHistory({ initialEntries: [route] }),
     electionDefinition = testElectionDefinition,
     machineId = '0000',
-    usbDriveStatus = UsbDriveStatus.absent,
+    usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
   } = {} as RenderInAppContextParams
 ): RenderResult {
