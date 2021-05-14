@@ -8,7 +8,7 @@ import {
   CastVoteRecord,
   Candidate,
 } from '@votingworks/types'
-import find from './find'
+import { find } from './find'
 
 export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   if (vote?.length === 1) {
