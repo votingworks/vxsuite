@@ -8,6 +8,7 @@ import {
   Dictionary,
   Election,
   YesNoContest,
+  expandEitherNeitherContests,
 } from '@votingworks/types'
 import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
 
@@ -20,7 +21,6 @@ import {
   TallyCategory,
   VotingMethod,
 } from '../config/types'
-import { expandEitherNeitherContests } from './election'
 import {
   combineContestTallies,
   convertExternalTalliesToStorageString,

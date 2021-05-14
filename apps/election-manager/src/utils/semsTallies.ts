@@ -7,6 +7,7 @@ import {
   Dictionary,
   Election,
   YesNoContest,
+  expandEitherNeitherContests,
 } from '@votingworks/types'
 
 import {
@@ -18,7 +19,6 @@ import {
   VotingMethod,
   YesNoOption,
 } from '../config/types'
-import { expandEitherNeitherContests } from './election'
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getTotalNumberOfBallots,

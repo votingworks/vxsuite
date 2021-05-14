@@ -6,8 +6,8 @@ import { act } from 'react-dom/test-utils'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 // import { electionSample } from '@votingworks/fixtures'
+import { MemoryStorage } from '@votingworks/utils'
 import AppRoot from './AppRoot'
-import { MemoryStorage } from './utils/Storage'
 
 beforeEach(() => {
   fetchMock.get(/^\/convert/, {})

@@ -2,10 +2,7 @@ import React from 'react'
 
 import { Election } from '@votingworks/types'
 
-import {
-  localeWeedkayAndDate,
-  localeLongDateAndTime,
-} from '../utils/IntlDateTimeFormats'
+import { format } from '@votingworks/utils'
 
 import Text from './Text'
 
@@ -18,8 +15,8 @@ const TallyReportMetadata: React.FC<Props> = ({
   election,
   generatedAtTime,
 }) => {
-  const electionDate = localeWeedkayAndDate.format(new Date(election.date))
-  const generatedAt = localeLongDateAndTime.format(generatedAtTime)
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
+  const generatedAt = format.localeLongDateAndTime(generatedAtTime)
 
   return (
     <p>

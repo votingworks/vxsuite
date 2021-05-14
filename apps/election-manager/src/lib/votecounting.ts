@@ -12,8 +12,10 @@ import {
   getContests,
   getEitherNeitherContests,
   Dictionary,
+  expandEitherNeitherContests,
 } from '@votingworks/types'
 import { strict as assert } from 'assert'
+import { find } from '@votingworks/utils'
 import {
   ContestOptionTally,
   CastVoteRecord,
@@ -27,13 +29,7 @@ import {
   ContestOption,
   VotingMethod,
 } from '../config/types'
-import {
-  expandEitherNeitherContests,
-  writeInCandidate,
-  getDistrictIdsForPartyId,
-} from '../utils/election'
-
-import find from '../utils/find'
+import { writeInCandidate, getDistrictIdsForPartyId } from '../utils/election'
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord

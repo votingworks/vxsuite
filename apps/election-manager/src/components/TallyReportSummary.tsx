@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { Dictionary, Election } from '@votingworks/types'
 
-import * as format from '../utils/format'
+import { format } from '@votingworks/utils'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import { VotingMethod } from '../config/types'
 

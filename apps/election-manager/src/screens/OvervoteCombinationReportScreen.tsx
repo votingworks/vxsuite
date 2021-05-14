@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
+import { format } from '@votingworks/utils'
 import NavigationScreen from '../components/NavigationScreen'
 import PrintButton from '../components/PrintButton'
 import LinkButton from '../components/LinkButton'
@@ -15,10 +16,6 @@ import {
 import Table, { TD } from '../components/Table'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
-import {
-  localeWeedkayAndDate,
-  localeLongDateAndTime,
-} from '../utils/IntlDateTimeFormats'
 import HorizontalRule from '../components/HorizontalRule'
 import LogoMark from '../components/LogoMark'
 
@@ -57,8 +54,8 @@ const PairsReportScreen: React.FC = () => {
     castVoteRecords,
   })
 
-  const electionDate = localeWeedkayAndDate.format(new Date(election.date))
-  const generatedAt = localeLongDateAndTime.format(new Date())
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
+  const generatedAt = format.localeLongDateAndTime(new Date())
 
   const contestTallyMeta = getContestTallyMeta({
     election,

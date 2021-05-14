@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 
-import * as format from '../utils/format'
+import { format } from '@votingworks/utils'
 import { VotingMethod } from '../config/types'
 import AppContext from '../contexts/AppContext'
 import readFileAsync from '../lib/readFileAsync'

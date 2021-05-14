@@ -5,6 +5,7 @@ import {
   Candidate,
   YesNoContest,
   AnyContest,
+  expandEitherNeitherContests,
 } from '@votingworks/types'
 import pluralize from 'pluralize'
 
@@ -13,10 +14,7 @@ import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
 import Table, { TD } from './Table'
-import {
-  expandEitherNeitherContests,
-  getContestOptionsForContest,
-} from '../utils/election'
+import { getContestOptionsForContest } from '../utils/election'
 import { getTallyForContestOption } from '../lib/votecounting'
 import { combineContestTallies } from '../utils/externalTallies'
 

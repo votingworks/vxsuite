@@ -12,11 +12,10 @@ import {
 } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
-import { sleep } from '@votingworks/utils'
+import { sleep, MemoryStorage } from '@votingworks/utils'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { ElectionDefinition } from '@votingworks/types'
 
-import { MemoryStorage } from './utils/Storage'
 import {
   configuredAtStorageKey,
   cvrsStorageKey,
