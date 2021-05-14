@@ -20,8 +20,8 @@ const ScanSuccessScreen: React.FC<Props> = ({
     <CenteredScreen electionDefinition={electionDefinition}>
       <CircleCheck />
       <CenteredLargeProse>
-        <h1>Successful Scan!</h1>
-        <p>Ready to scan next ballot sheet.</p>
+        <h1>Your ballot was counted!</h1>
+        <p>Thank you for voting.</p>
       </CenteredLargeProse>
       <Absolute top left>
         <Bar>

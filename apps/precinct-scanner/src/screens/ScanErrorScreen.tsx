@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@votingworks/ui'
+import { Button, Text } from '@votingworks/ui'
 import { Absolute } from '../components/Absolute'
 import { TimesCircle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
@@ -39,7 +39,7 @@ const ScanErrorScreen: React.FC<Props> = ({
       <CenteredLargeProse>
         <h1>Scanning Error</h1>
         <p>{errorInformation}</p>
-        <p>Please request Poll Worker assistance.</p>
+        <Text italic>Ask a poll worker for assistance.</Text>
       </CenteredLargeProse>
       {dismissError && (
         <Absolute top right padded>

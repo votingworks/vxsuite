@@ -245,7 +245,7 @@ test('voter can cast a ballot that scans succesfully ', async () => {
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Successful Scan!'))
+  await waitFor(() => getByText('Your ballot was counted!'))
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
@@ -372,7 +372,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     } as GetScanStatusResponse,
     { overwriteRoutes: true }
   )
-  await waitFor(() => getByText('Successful Scan!'))
+  await waitFor(() => getByText('Your ballot was counted!'))
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
   await advanceTimers(5)
   await waitFor(() => getByText('Insert Your Ballot Below'))
@@ -688,13 +688,13 @@ test('voter can cast another ballot while the success screen is showing', async 
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Successful Scan!'))
+  await waitFor(() => getByText('Your ballot was counted!'))
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   expect(getByTestId('ballot-count').textContent).toBe('1')
-  getByText('Successful Scan!') // Still on the success screen
+  getByText('Your ballot was counted!') // Still on the success screen
   fetchMock.get(
     '/scan/status',
     {

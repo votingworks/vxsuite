@@ -56,6 +56,7 @@ import InvalidCardScreen from './screens/InvalidCardScreen'
 // />
 
 import InsertBallotScreen from './screens/InsertBallotScreen'
+// import PollsClosedScreen from './screens/PollsClosedScreen'
 import ScanErrorScreen from './screens/ScanErrorScreen'
 import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
