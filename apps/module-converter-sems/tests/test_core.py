@@ -42,11 +42,6 @@ def test_election_files(client):
     assert 'inputFiles' in rv
     assert 'outputFiles' in rv
 
-def test_results_filelist(client):
-    rv = json.loads(client.get('/convert/results/files').data)
-    assert 'inputFiles' in rv
-    assert 'outputFiles' in rv
-
 def test_tallies_filelist(client):
     rv = json.loads(client.get('/convert/tallies/files').data)
     assert 'inputFiles' in rv
@@ -61,22 +56,6 @@ def test_election_submitfile(client):
     filelist = json.loads(client.get('/convert/election/files').data)
     assert filelist['inputFiles'][0]['name'] == 'SEMS main file'
 
-def test_results_submitfile(client):
-    reset()
-
-    upload_file(client, '/convert/results/submitfile', EXPECTED_ELECTION_FILE, {
-        'name': 'Vx Election Definition'
-    })
-
-    upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {
-        'name': 'Vx CVRs'
-    })
-    
-    # check the file got there
-    filelist = json.loads(client.get('/convert/results/files').data)
-    assert filelist['inputFiles'][0]['path']    
-    assert filelist['inputFiles'][1]['path']
-    
 def test_election_process(client):
     reset()
     
@@ -109,52 +88,6 @@ def test_election_process(client):
 
     # try file after reset, shouldn't be there
     rv = client.get(election_url).data
-    assert rv == b""
-
-def test_results_process(client):
-    reset()
-
-    upload_file(client, '/convert/results/submitfile', EXPECTED_ELECTION_FILE, {'name': 'Vx Election Definition'})
-
-    rv = client.post("/convert/results/process").data
-    assert b"not all files" in rv
-    
-    upload_file(client, '/convert/results/submitfile', SAMPLE_CVRS_FILE, {'name': 'Vx CVRs'})
-
-    # try file before done, shouldn't be there
-    results_url = '/convert/results/output?name=SEMS%20Results'
-    rv = client.get(results_url).data
-    assert rv == b""
-    
-    rv = client.post("/convert/results/process").data
-    assert json.loads(rv) == {"status": "ok"}
-    
-    # download and check that it's the right file
-    results = client.get(results_url).data
-    expected_results = open(EXPECTED_RESULTS_FILE, "rb").read()
-
-    assert results == expected_results
-
-    # combine the results file with itself, make sure it works
-    data = {}
-    data['firstFile'] = open(EXPECTED_RESULTS_FILE,"rb")
-    data['secondFile'] = open(EXPECTED_RESULTS_FILE, "rb")
-    rv = client.post(
-        '/convert/results/combine',
-        data=data,
-        content_type="multipart/form-data"
-    )    
-
-    expected_results = open(DOUBLED_EXPECTED_RESULTS_FILE, "rb").read()
-
-    assert rv.data == expected_results
-    
-    # request reset files
-    reset_url = '/convert/reset'
-    rv = client.post(reset_url).data
-
-    # try file after reset, shouldn't be there
-    rv = client.get(results_url).data
     assert rv == b""
 
 def test_tallies_process(client):
