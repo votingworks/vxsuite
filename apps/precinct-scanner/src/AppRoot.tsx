@@ -32,8 +32,6 @@ import {
 import AdminScreen from './screens/AdminScreen'
 import SetupCardReaderPage from './screens/SetupCardReaderPage'
 import InvalidCardScreen from './screens/InvalidCardScreen'
-// import InsertBallotScreen from './screens/InsertBallotScreen'
-// import PollsClosedScreen from './screens/PollsClosedScreen'
 // import PollWorkerScreen from './screens/PollWorkerScreen'
 // <PollWorkerScreen
 //   appPrecinctId="42"
@@ -43,16 +41,11 @@ import InvalidCardScreen from './screens/InvalidCardScreen'
 //   togglePollsOpen={() => {}}
 // />
 
-// import ScanErrorScreen from './screens/ScanErrorScreen'
-// import ScanSuccessScreen from './screens/ScanSuccessScreen'
-// import ScanWarningScreen from './screens/ScanWarningScreen'
 import InsertBallotScreen from './screens/InsertBallotScreen'
 // import PollsClosedScreen from './screens/PollsClosedScreen'
-// import PollWorkerScreen from './screens/PollWorkerScreen'
 import ScanErrorScreen from './screens/ScanErrorScreen'
 import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
-// import BallotScanningScreen from './screens/BallotScanningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
 
 import {

@@ -1,16 +1,13 @@
 import React from 'react'
-import { Prose, Main, MainChild, Screen, fontSizeTheme } from '@votingworks/ui'
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 
 const SetupCardReaderPage: React.FC = () => (
-  <Screen>
-    <Main padded>
-      <MainChild center>
-        <Prose textCenter theme={fontSizeTheme.large}>
-          <h1>No Card Reader Detected</h1>
-        </Prose>
-      </MainChild>
-    </Main>
-  </Screen>
+  <CenteredScreen infoBar={false}>
+    <CenteredLargeProse>
+      <h1>No Card Reader Detected</h1>
+      <p>Attach a card reader.</p>
+    </CenteredLargeProse>
+  </CenteredScreen>
 )
 
 export default SetupCardReaderPage
