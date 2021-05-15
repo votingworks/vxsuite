@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import fileDownload from 'js-file-download'
 import path from 'path'
 
-import { Button, Prose, Loading } from '@votingworks/ui'
+import { Button, Prose, Loading, USBControllerButton } from '@votingworks/ui'
 import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
@@ -12,7 +12,6 @@ import {
 } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
-import USBControllerButton from './USBControllerButton'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
