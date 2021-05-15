@@ -1,9 +1,10 @@
 import { ElectionDefinition } from '@votingworks/types'
+import { usbstick } from '@votingworks/utils'
 import { createContext } from 'react'
 import { MachineConfig } from '../config/types'
 
 interface AppContextInterface {
-  usbDriveStatus: string
+  usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => void
   machineConfig: MachineConfig
   electionDefinition?: ElectionDefinition
@@ -11,7 +12,7 @@ interface AppContextInterface {
 }
 
 const appContext: AppContextInterface = {
-  usbDriveStatus: '',
+  usbDriveStatus: usbstick.UsbDriveStatus.absent,
   usbDriveEject: () => undefined,
   machineConfig: { machineId: '0000' },
   electionDefinition: undefined,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, useContext } from 'react'
 import path from 'path'
 
 import styled from 'styled-components'
@@ -7,6 +7,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
 } from '@votingworks/utils'
+import { USBControllerButton } from '@votingworks/ui'
 import Prose from './Prose'
 import Main, { MainChild } from './Main'
 import MainNav from './MainNav'
@@ -14,8 +15,7 @@ import Screen from './Screen'
 import Text from './Text'
 import Loading from './Loading'
 import FileInputButton from './FileInputButton'
-
-import USBControllerButton from './USBControllerButton'
+import AppContext from '../contexts/AppContext'
 
 import Button from './Button'
 import Table, { TD } from './Table'
@@ -40,19 +40,18 @@ export interface Props {
   acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
   ): Promise<void>
-  usbDriveStatus: usbstick.UsbDriveStatus
 }
 
 const ElectionConfiguration: React.FC<Props> = ({
   acceptAutomaticallyChosenFile: acceptAutomaticallyChosenFileFromProps,
   acceptManuallyChosenFile: acceptManuallyChosenFileFromProps,
-  usbDriveStatus,
 }) => {
   const [foundFilenames, setFoundFilenames] = useState<
     KioskBrowser.FileSystemEntry[]
   >([])
   const [loadingFiles, setLoadingFiles] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const { usbDriveStatus, usbDriveEject } = useContext(AppContext)
 
   const acceptAutomaticallyChosenFile = async (
     file: KioskBrowser.FileSystemEntry
@@ -111,7 +110,10 @@ const ElectionConfiguration: React.FC<Props> = ({
 
   const mainNav = (
     <MainNav isTestMode={false}>
-      <USBControllerButton />
+      <USBControllerButton
+        usbDriveEject={usbDriveEject}
+        usbDriveStatus={usbDriveStatus}
+      />
     </MainNav>
   )
 

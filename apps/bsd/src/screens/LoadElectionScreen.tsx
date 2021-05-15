@@ -3,7 +3,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types'
 import React, { useState } from 'react'
-import { usbstick, BallotPackage, ballotPackageUtils } from '@votingworks/utils'
+import { BallotPackage, ballotPackageUtils } from '@votingworks/utils'
 import * as config from '../api/config'
 import { addTemplates, doneTemplates } from '../api/hmpb'
 import ElectionConfiguration from '../components/ElectionConfiguration'
@@ -14,13 +14,9 @@ import { SetElectionDefinition } from '../config/types'
 
 interface Props {
   setElectionDefinition: SetElectionDefinition
-  usbDriveStatus: usbstick.UsbDriveStatus
 }
 
-const LoadElectionScreen: React.FC<Props> = ({
-  setElectionDefinition,
-  usbDriveStatus,
-}) => {
+const LoadElectionScreen: React.FC<Props> = ({ setElectionDefinition }) => {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,
@@ -151,7 +147,6 @@ const LoadElectionScreen: React.FC<Props> = ({
     <ElectionConfiguration
       acceptManuallyChosenFile={onManualFileImport}
       acceptAutomaticallyChosenFile={onAutomaticFileImport}
-      usbDriveStatus={usbDriveStatus}
     />
   )
 }

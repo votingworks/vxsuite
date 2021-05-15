@@ -1,5 +1,4 @@
 import {
-  render,
   fireEvent,
   waitFor,
   getByText as domGetByText,
@@ -8,6 +7,7 @@ import React from 'react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { usbstick } from '@votingworks/utils'
 import ElectionConfiguration from './ElectionConfiguration'
+import renderInAppContext from '../../test/renderInAppContext'
 
 const { UsbDriveStatus } = usbstick
 
@@ -15,12 +15,12 @@ test('shows loading screen when usb is mounting or ejecting', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]
 
   for (const status of usbStatuses) {
-    const { getByText, unmount } = render(
+    const { getByText, unmount } = renderInAppContext(
       <ElectionConfiguration
         acceptManuallyChosenFile={jest.fn()}
         acceptAutomaticallyChosenFile={jest.fn()}
-        usbDriveStatus={status}
-      />
+      />,
+      { usbDriveStatus: status }
     )
     getByText('Loading')
     unmount()
@@ -36,12 +36,17 @@ test('shows insert usb screen when no usb is present with manual upload button',
 
   for (const status of usbStatuses) {
     const manualUpload = jest.fn()
-    const { getByText, unmount, getByAltText, getByTestId } = render(
+    const {
+      getByText,
+      unmount,
+      getByAltText,
+      getByTestId,
+    } = renderInAppContext(
       <ElectionConfiguration
         acceptManuallyChosenFile={manualUpload}
         acceptAutomaticallyChosenFile={jest.fn()}
-        usbDriveStatus={status}
-      />
+      />,
+      { usbDriveStatus: status }
     )
     getByText('Load Election Configuration')
     getByText(
@@ -67,12 +72,16 @@ test('reads files from usb when mounted and shows proper display when there are 
   mockKiosk.getFileSystemEntries = jest.fn().mockResolvedValue([])
   window.kiosk = mockKiosk
   const manualUpload = jest.fn()
-  const { getByText, getByAltText, getByTestId } = render(
+  const {
+    getByText,
+    getByAltText,
+    getByTestId,
+  } = renderInAppContext(
     <ElectionConfiguration
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={jest.fn()}
-      usbDriveStatus={UsbDriveStatus.mounted}
-    />
+    />,
+    { usbDriveStatus: UsbDriveStatus.mounted }
   )
 
   await waitFor(() => getByText('No Election Ballot Package Files Found'))
@@ -104,12 +113,16 @@ test('reads files from usb when mounted and shows list of files', async () => {
   window.kiosk = mockKiosk
   const automaticUpload = jest.fn()
   const manualUpload = jest.fn()
-  const { getByText, getAllByTestId, getByTestId } = render(
+  const {
+    getByText,
+    getAllByTestId,
+    getByTestId,
+  } = renderInAppContext(
     <ElectionConfiguration
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={automaticUpload}
-      usbDriveStatus={UsbDriveStatus.mounted}
-    />
+    />,
+    { usbDriveStatus: UsbDriveStatus.mounted }
   )
 
   await waitFor(() => getByText('Choose Election Configuration'))
@@ -152,14 +165,18 @@ test('shows errors that occur when importing in file list screen', async () => {
     .fn()
     .mockResolvedValue([{ name: file1, type: 1 }])
   window.kiosk = mockKiosk
-  const { getByText, getAllByTestId, queryAllByText } = render(
+  const {
+    getByText,
+    getAllByTestId,
+    queryAllByText,
+  } = renderInAppContext(
     <ElectionConfiguration
       acceptManuallyChosenFile={jest.fn()}
       acceptAutomaticallyChosenFile={jest
         .fn()
         .mockRejectedValueOnce({ message: 'FAKE-ERROR' })}
-      usbDriveStatus={UsbDriveStatus.mounted}
-    />
+    />,
+    { usbDriveStatus: UsbDriveStatus.mounted }
   )
 
   await waitFor(() => getByText('Choose Election Configuration'))
