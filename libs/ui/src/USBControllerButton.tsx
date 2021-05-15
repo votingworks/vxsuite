@@ -5,6 +5,7 @@ import { Button } from './Button'
 
 const { UsbDriveStatus } = usbstick
 
+/* istanbul ignore next */
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const doNothing = () => {}
 
