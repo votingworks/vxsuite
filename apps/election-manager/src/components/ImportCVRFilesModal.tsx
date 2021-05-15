@@ -239,7 +239,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         actions={
           <React.Fragment>
             <LinkButton onPress={onClose}>Cancel</LinkButton>
-            {!window.kiosk && (
+            {(!window.kiosk || process.env.NODE_ENV === 'development') && (
               <FileInputButton
                 onChange={processCastVoteRecordFileFromFilePicker}
                 data-testid="manual-input"
