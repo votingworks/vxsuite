@@ -7,18 +7,20 @@ import {
   generateElectionBasedSubfolderName,
   parseCVRFileInfoFromFilename,
   SCANNER_RESULTS_FOLDER,
+  usbstick,
 } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
-import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
 import { InputEventFunction } from '../config/types'
 import FileInputButton from './FileInputButton'
 import Table, { TD } from './Table'
 import { MainChild } from './Main'
 import { CHECK_ICON, TIME_FORMAT } from '../config/globals'
+
+const { UsbDriveStatus } = usbstick
 
 const CVRFileTable = styled(Table)`
   margin-top: 20px;
@@ -126,7 +128,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
 
   const fetchFilenames = async () => {
     setCurrentState(ModalState.LOADING)
-    const usbPath = await getDevicePath()
+    const usbPath = await usbstick.getDevicePath()
     try {
       const files = await window.kiosk!.getFileSystemEntries(
         path.join(
@@ -151,7 +153,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
   }
 
   useEffect(() => {
-    if (usbDriveStatus === UsbDriveStatus.mounted) {
+    if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
       fetchFilenames()
     }
   }, [usbDriveStatus])
@@ -200,8 +202,8 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
 
   if (
     currentState === ModalState.LOADING ||
-    usbDriveStatus === UsbDriveStatus.ejecting ||
-    usbDriveStatus === UsbDriveStatus.present
+    usbDriveStatus === usbstick.UsbDriveStatus.ejecting ||
+    usbDriveStatus === usbstick.UsbDriveStatus.present
   ) {
     return (
       <Modal
@@ -219,8 +221,8 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
   }
 
   if (
-    usbDriveStatus === UsbDriveStatus.absent ||
-    usbDriveStatus === UsbDriveStatus.notavailable ||
+    usbDriveStatus === usbstick.UsbDriveStatus.absent ||
+    usbDriveStatus === usbstick.UsbDriveStatus.notavailable ||
     usbDriveStatus === UsbDriveStatus.recentlyEjected
   ) {
     return (

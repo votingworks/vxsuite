@@ -7,13 +7,7 @@ import { sha256 } from 'js-sha256'
 
 import { ElectionDefinition, parseElection } from '@votingworks/types'
 
-import { Storage } from '@votingworks/utils'
-import {
-  getStatus as usbDriveGetStatus,
-  doMount,
-  doUnmount,
-  UsbDriveStatus,
-} from './lib/usbstick'
+import { Storage, usbstick } from '@votingworks/utils'
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -105,7 +99,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
     await storage.set(isOfficialResultsKey, true)
   }
 
-  const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
+  const [usbStatus, setUsbStatus] = useState(usbstick.UsbDriveStatus.absent)
   const [recentlyEjected, setRecentlyEjected] = useState(false)
 
   const [fullElectionTally, setFullElectionTally] = useState(
@@ -119,34 +113,34 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {
-      await doMount()
+      await usbstick.doMount()
     }
   }, [recentlyEjected])
 
   const doEject = async () => {
-    setUsbStatus(UsbDriveStatus.ejecting)
+    setUsbStatus(usbstick.UsbDriveStatus.ejecting)
     setRecentlyEjected(true)
-    await doUnmount()
+    await usbstick.doUnmount()
   }
 
   useInterval(
     () => {
       ;(async () => {
-        const status = await usbDriveGetStatus()
+        const status = await usbstick.getStatus()
         setUsbStatus(status)
-        if (status === UsbDriveStatus.present) {
+        if (status === usbstick.UsbDriveStatus.present) {
           await doMountIfNotRecentlyEjected()
         } else {
           setRecentlyEjected(false)
         }
       })()
     },
-    usbStatus === UsbDriveStatus.notavailable ? false : 2000
+    usbStatus === usbstick.UsbDriveStatus.notavailable ? false : 2000
   )
 
   const displayUsbStatus =
-    recentlyEjected && usbStatus === UsbDriveStatus.present
-      ? UsbDriveStatus.recentlyEjected
+    recentlyEjected && usbStatus === usbstick.UsbDriveStatus.present
+      ? usbstick.UsbDriveStatus.recentlyEjected
       : usbStatus
 
   const [printedBallots, setPrintedBallots] = useState<

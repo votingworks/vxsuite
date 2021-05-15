@@ -6,6 +6,7 @@ import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
 import { Election, ElectionDefinition } from '@votingworks/types'
+import { usbstick } from '@votingworks/utils'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -19,7 +20,6 @@ import {
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../src/utils/CastVoteRecordFiles'
-import { UsbDriveStatus } from '../src/lib/usbstick'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
 
 export const eitherNeitherElectionDefinition = {
@@ -42,7 +42,7 @@ interface RenderInAppContextParams {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults?: () => void
-  usbDriveStatus?: UsbDriveStatus
+  usbDriveStatus?: usbstick.UsbDriveStatus
   usbDriveEject?: () => void
   addPrintedBallot?: (printedBallot: PrintedBallot) => void
   printedBallots?: PrintedBallot[]
@@ -69,7 +69,7 @@ export default function renderInAppContext(
     saveElection = jest.fn(),
     setCastVoteRecordFiles = jest.fn(),
     saveIsOfficialResults = jest.fn(),
-    usbDriveStatus = UsbDriveStatus.absent,
+    usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
     addPrintedBallot = jest.fn(),
     printedBallots = [],

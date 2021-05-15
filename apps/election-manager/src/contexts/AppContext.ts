@@ -1,5 +1,6 @@
 import { createContext, RefObject } from 'react'
 import { ElectionDefinition } from '@votingworks/types'
+import { usbstick } from '@votingworks/utils'
 import {
   SaveElection,
   PrintedBallot,
@@ -8,7 +9,6 @@ import {
   ExportableTallies,
   FullElectionExternalTally,
 } from '../config/types'
-import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles'
@@ -27,7 +27,7 @@ export interface AppContextInterface {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults: () => void
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => void
   addPrintedBallot: (printedBallot: PrintedBallot) => void
   printedBallots: PrintedBallot[]
@@ -50,7 +50,7 @@ const appContext: AppContextInterface = {
   saveElection: () => undefined,
   setCastVoteRecordFiles: () => undefined,
   saveIsOfficialResults: () => undefined,
-  usbDriveStatus: UsbDriveStatus.notavailable,
+  usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
   usbDriveEject: () => undefined,
   addPrintedBallot: () => undefined,
   printedBallots: [],

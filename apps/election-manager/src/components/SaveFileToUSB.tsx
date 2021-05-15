@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import path from 'path'
 import fileDownload from 'js-file-download'
+import { usbstick, throwIllegalValue } from '@votingworks/utils'
 
-import { throwIllegalValue } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Button from './Button'
@@ -11,8 +11,9 @@ import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { MainChild } from './Main'
-import { UsbDriveStatus, getDevicePath } from '../lib/usbstick'
 import USBControllerButton from './USBControllerButton'
+
+const { UsbDriveStatus } = usbstick
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -67,7 +68,7 @@ const SaveFileToUSB: React.FC<Props> = ({
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv')
       } else {
-        const usbPath = await getDevicePath()
+        const usbPath = await usbstick.getDevicePath()
         const pathToFile =
           !usbPath && process.env.NODE_ENV === 'development'
             ? defaultFilename
