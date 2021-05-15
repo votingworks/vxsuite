@@ -9,6 +9,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
 } from '@votingworks/utils'
+import { USBControllerButton } from '@votingworks/ui'
 import { DEFAULT_LOCALE } from '../config/globals'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 
@@ -20,7 +21,6 @@ import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { Monospace } from './Text'
-import USBControllerButton from './USBControllerButton'
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
 
@@ -32,7 +32,9 @@ const USBImage = styled.img`
 `
 
 const ExportElectionBallotPackageModalButton: React.FC = () => {
-  const { electionDefinition, usbDriveStatus } = useContext(AppContext)
+  const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
+    AppContext
+  )
   const { election, electionData, electionHash } = electionDefinition!
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
 
@@ -287,7 +289,12 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         actions = (
           <React.Fragment>
             <LinkButton onPress={closeModal}>Close</LinkButton>
-            <USBControllerButton primary small={false} />
+            <USBControllerButton
+              primary
+              small={false}
+              usbDriveEject={usbDriveEject}
+              usbDriveStatus={usbDriveStatus}
+            />
           </React.Fragment>
         )
       } else {

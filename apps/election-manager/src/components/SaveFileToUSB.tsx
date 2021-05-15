@@ -4,6 +4,7 @@ import path from 'path'
 import fileDownload from 'js-file-download'
 import { usbstick, throwIllegalValue } from '@votingworks/utils'
 
+import { USBControllerButton } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Button from './Button'
@@ -11,7 +12,6 @@ import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { MainChild } from './Main'
-import USBControllerButton from './USBControllerButton'
 
 const { UsbDriveStatus } = usbstick
 
@@ -50,7 +50,9 @@ const SaveFileToUSB: React.FC<Props> = ({
   fileType,
   promptToEjectUSB = false,
 }) => {
-  const { usbDriveStatus, isOfficialResults } = useContext(AppContext)
+  const { usbDriveStatus, usbDriveEject, isOfficialResults } = useContext(
+    AppContext
+  )
 
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
@@ -145,7 +147,12 @@ const SaveFileToUSB: React.FC<Props> = ({
       actions = (
         <React.Fragment>
           <LinkButton onPress={onClose}>Close</LinkButton>
-          <USBControllerButton small={false} primary />
+          <USBControllerButton
+            small={false}
+            primary
+            usbDriveStatus={usbDriveStatus}
+            usbDriveEject={usbDriveEject}
+          />
         </React.Fragment>
       )
     }

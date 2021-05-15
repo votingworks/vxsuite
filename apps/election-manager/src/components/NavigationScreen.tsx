@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { USBControllerButton } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
@@ -8,7 +9,6 @@ import Screen from './Screen'
 import Main, { MainChild } from './Main'
 import Navigation from './Navigation'
 import LinkButton from './LinkButton'
-import USBControllerButton from './USBControllerButton'
 import StatusFooter from './StatusFooter'
 
 interface Props {
@@ -26,7 +26,9 @@ const NavigationScreen: React.FC<Props> = ({
   const isActiveSection = (path: string) =>
     new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''
 
-  const { electionDefinition } = useContext(AppContext)
+  const { electionDefinition, usbDriveEject, usbDriveStatus } = useContext(
+    AppContext
+  )
   const election = electionDefinition?.election
 
   return (
@@ -63,7 +65,12 @@ const NavigationScreen: React.FC<Props> = ({
             </React.Fragment>
           )
         }
-        secondaryNav={<USBControllerButton />}
+        secondaryNav={
+          <USBControllerButton
+            usbDriveEject={usbDriveEject}
+            usbDriveStatus={usbDriveStatus}
+          />
+        }
       />
       <Main padded>
         <MainChild center={mainChildCenter} flexContainer={mainChildFlex}>
