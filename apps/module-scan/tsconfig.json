@@ -10,7 +10,7 @@
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "lib",
+    "outDir": "build",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
