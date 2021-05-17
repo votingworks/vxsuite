@@ -159,7 +159,7 @@ test('GET /config/markThresholdOverrrides', async () => {
   await workspace.store.setElection(testElectionDefinition)
   await workspace.store.setTestMode(true)
   await workspace.store.setMarkThresholdOverrides({
-    definite: 0.3,
+    definite: 0.5,
     marginal: 0.4,
   })
   const response = await request(app)
@@ -168,7 +168,7 @@ test('GET /config/markThresholdOverrrides', async () => {
 
   expect(response.body).toEqual({
     status: 'ok',
-    markThresholdOverrides: { definite: 0.3, marginal: 0.4 },
+    markThresholdOverrides: { definite: 0.5, marginal: 0.4 },
   })
 })
 
