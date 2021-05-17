@@ -27,6 +27,7 @@ export type GetPaperStatusResult = Result<PaperStatus, ScannerError | Error>
 export type ScanResult = Result<{ files: string[] }, ScannerError | Error>
 export type AcceptResult = Result<void, ScannerError | Error>
 export type RejectResult = Result<void, ScannerError | Error>
+export type CalibrateResult = Result<void, ScannerError | Error>
 export type CloseResult = Result<void, ScannerError | Error>
 
 export interface ScannerClient {
@@ -40,6 +41,7 @@ export interface ScannerClient {
   scan(): Promise<ScanResult>
   accept(): Promise<AcceptResult>
   reject(options: { hold: boolean }): Promise<RejectResult>
+  calibrate(): Promise<CalibrateResult>
   close(): Promise<CloseResult>
 }
 
@@ -268,6 +270,14 @@ export async function createClient(
 
     reject: ({ hold }) =>
       doIPC(hold ? 'reject-hold' : 'reject', {
+        ok: (resolve) => resolve(ok(undefined)),
+        error: (error, resolve) => resolve(err(error)),
+        else: (line, resolve) =>
+          resolve(err(new Error(`invalid response: ${line}`))),
+      }),
+
+    calibrate: () =>
+      doIPC('calibrate', {
         ok: (resolve) => resolve(ok(undefined)),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>

@@ -430,6 +430,104 @@ test('scan returns error for unknown data', async () => {
   )
 })
 
+test('calibrate succeeds', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.calibrate()
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('calibrate\n')
+  plustekctl.stdout.append(`<<<>>>\ncalibrate: ok\n<<<>>>\n`)
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+
+  ;(await resultPromise).unwrap()
+})
+
+test('calibrate responds with error', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.calibrate()
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('calibrate\n')
+  plustekctl.stdout.append(
+    `<<<>>>\ncalibrate: err=${ScannerError.InvalidParam}\n<<<>>>\n`
+  )
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+
+  expect((await resultPromise).unwrapErr()).toEqual(ScannerError.InvalidParam)
+})
+
+test('calibrate returns error for invalid response', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.calibrate()
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('calibrate\n')
+  plustekctl.stdout.append(`<<<>>>\nbooga booga!\n<<<>>>\n`)
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+
+  expect(((await resultPromise).unwrapErr() as Error).message).toEqual(
+    'invalid response: booga booga!'
+  )
+})
+
+test('calibrate returns error for unknown data', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unwrap()
+
+  const resultPromise = client.calibrate()
+  await nextTick
+  expect(plustekctl.stdin.toString()).toEqual('calibrate\n')
+  plustekctl.stdout.append(`<<<>>>\ncalibrate: key=value\n<<<>>>\n`)
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+
+  expect(((await resultPromise).unwrapErr() as Error).message).toEqual(
+    'invalid response: calibrate: key=value'
+  )
+})
+
 test('accept succeeds', async () => {
   const plustekctl = fakeChildProcess()
   spawn.mockReturnValueOnce(plustekctl)

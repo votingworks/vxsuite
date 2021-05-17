@@ -128,4 +128,8 @@ export default class LoopScanner implements Scanner {
       },
     }
   }
+
+  public async calibrate(): Promise<boolean> {
+    return false
+  }
 }

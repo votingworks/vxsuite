@@ -35,6 +35,7 @@ test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const importer = new Importer({
     workspace,
@@ -90,6 +91,7 @@ test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const importer = new Importer({
     workspace,
@@ -106,6 +108,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const importer = new Importer({
     workspace,
@@ -156,6 +159,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const workerCall = jest.fn()
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -180,6 +184,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const importer = new Importer({
     workspace,
@@ -204,6 +209,7 @@ test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -315,6 +321,7 @@ test('scanning pauses on adjudication then continues', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => {
     return {
@@ -432,6 +439,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
+    calibrate: jest.fn(),
   }
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
   const workerPoolProvider = mockWorkerPoolProvider<

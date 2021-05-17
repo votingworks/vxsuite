@@ -4,6 +4,7 @@ import { ScannerError } from './errors'
 import { PaperStatus } from './paper-status'
 import {
   AcceptResult,
+  CalibrateResult,
   CloseResult,
   GetPaperStatusResult,
   RejectResult,
@@ -269,6 +270,31 @@ export class MockScannerClient implements ScannerClient {
     }
 
     debug('reject success')
+    return ok(undefined)
+  }
+
+  public async calibrate(): Promise<CalibrateResult> {
+    debug('calibrate')
+
+    if (!this.connected) {
+      debug('cannot reject, not connected')
+      return err(ScannerError.NoDevices)
+    }
+
+    if (!this.loaded) {
+      debug('cannot calibrate, no paper')
+      return err(ScannerError.VtmPsDevReadyNoPaper)
+    }
+
+    if (this.loadedAt === 'back') {
+      debug('cannot calibrate, paper held at back')
+      return err(ScannerError.SaneStatusNoDocs)
+    }
+
+    await sleep(this.passthroughDuration * 3)
+    delete this.loaded
+    delete this.loadedAt
+    debug('calibrate success')
     return ok(undefined)
   }
 
