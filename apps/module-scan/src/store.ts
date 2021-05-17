@@ -3,31 +3,35 @@
 //
 
 import {
+  BallotMark,
+  BallotPageMetadata,
+  BallotTargetMark,
+  Size,
+} from '@votingworks/hmpb-interpreter'
+import {
   AnyContest,
   ElectionDefinition,
   getBallotStyle,
   getContests,
   MarkThresholds,
   Optional,
+  safeParseJSON,
+  schema,
 } from '@votingworks/types'
 import {
   AdjudicationStatus,
   BatchInfo,
 } from '@votingworks/types/api/module-scan'
-import {
-  BallotMark,
-  BallotPageMetadata,
-  BallotTargetMark,
-  Size,
-} from '@votingworks/hmpb-interpreter'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
+import { DateTime } from 'luxon'
 import { dirname, join } from 'path'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
 import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
+import { z } from 'zod'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
 import {
   MarkInfo,
@@ -337,7 +341,10 @@ export default class Store {
   > {
     const electionDefinition:
       | ElectionDefinition
-      | undefined = await this.getConfig(ConfigKey.Election)
+      | undefined = await this.getConfig(
+      ConfigKey.Election,
+      schema.ElectionDefinition
+    )
 
     if (electionDefinition) {
       return {
@@ -365,14 +372,18 @@ export default class Store {
    * Gets the current test mode setting value.
    */
   public async getTestMode(): Promise<boolean> {
-    return await this.getConfig(ConfigKey.TestMode, false)
+    return await this.getConfig(ConfigKey.TestMode, false, z.boolean())
   }
 
   /**
    * Gets whether to skip election hash checks.
    */
   public async getSkipElectionHashCheck(): Promise<boolean> {
-    return await this.getConfig(ConfigKey.SkipElectionHashCheck, false)
+    return await this.getConfig(
+      ConfigKey.SkipElectionHashCheck,
+      false,
+      z.boolean()
+    )
   }
 
   /**
@@ -396,12 +407,15 @@ export default class Store {
    * If there are no overrides set, returns undefined.
    */
   public async getMarkThresholdOverrides(): Promise<Optional<MarkThresholds>> {
-    return await this.getConfig(ConfigKey.MarkThresholdOverrides, undefined)
+    return await this.getConfig(
+      ConfigKey.MarkThresholdOverrides,
+      schema.MarkThresholds
+    )
   }
 
   public async getCurrentMarkThresholds(): Promise<Optional<MarkThresholds>> {
     return (
-      (await this.getMarkThresholdOverrides()) ||
+      (await this.getMarkThresholdOverrides()) ??
       (await this.getElectionDefinition())?.election.markThresholds
     )
   }
@@ -420,11 +434,19 @@ export default class Store {
   /**
    * Gets a config value by key.
    */
-  private async getConfig<T>(key: ConfigKey): Promise<T | undefined>
-  private async getConfig<T>(key: ConfigKey, defaultValue: T): Promise<T>
   private async getConfig<T>(
     key: ConfigKey,
-    defaultValue?: T
+    schema: z.ZodSchema<T>
+  ): Promise<T | undefined>
+  private async getConfig<T>(
+    key: ConfigKey,
+    defaultValue: T,
+    schema: z.ZodSchema<T>
+  ): Promise<T>
+  private async getConfig<T>(
+    key: ConfigKey,
+    defaultValueOrSchema: z.ZodSchema<T> | T,
+    maybeSchema?: z.ZodSchema<T>
   ): Promise<T | undefined> {
     debug('get config %s', key)
 
@@ -433,18 +455,36 @@ export default class Store {
       key
     )
 
+    let defaultValue: T | undefined
+    let schema: z.ZodSchema<T>
+
+    if (maybeSchema) {
+      defaultValue = defaultValueOrSchema as T
+      schema = maybeSchema
+    } else {
+      schema = defaultValueOrSchema as z.ZodSchema<T>
+    }
+
     if (typeof row === 'undefined') {
       debug('returning default value for config %s: %o', key, defaultValue)
       return defaultValue
     }
 
-    const result = JSON.parse(row.value)
-    let inspectedResult = inspect(result, false, 2, true)
-    if (inspectedResult.length > 200) {
-      inspectedResult = inspectedResult.slice(0, 199) + '…'
-    }
-    debug('returning stored value for config %s: %s', key, inspectedResult)
-    return result
+    const result = safeParseJSON(row.value, schema)
+    return result.mapOrElse(
+      (error) => {
+        debug('failed to validate stored config %s: %s', key, error)
+        return undefined
+      },
+      (value) => {
+        let inspectedResult = inspect(value, false, 2, true)
+        if (inspectedResult.length > 200) {
+          inspectedResult = inspectedResult.slice(0, 199) + '…'
+        }
+        debug('returning stored value for config %s: %s', key, inspectedResult)
+        return value
+      }
+    )
   }
 
   /**
@@ -986,11 +1026,11 @@ export default class Store {
    * Gets all batches, including their sheet count.
    */
   public async batchStatus(): Promise<BatchInfo[]> {
-    return this.dbAllAsync(`
+    const batchInfo = await this.dbAllAsync<BatchInfo>(`
       select
         batches.id as id,
-        started_at || 'Z' as startedAt,
-        (case when ended_at is null then ended_at else ended_at || 'Z' end) as endedAt,
+        strftime('%s', started_at) as startedAt,
+        (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -1007,6 +1047,13 @@ export default class Store {
       order by
         batches.started_at desc
     `)
+
+    return batchInfo.map((info) => ({
+      ...info,
+      startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
+      endedAt:
+        info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO(),
+    }))
   }
 
   /**

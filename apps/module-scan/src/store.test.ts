@@ -48,9 +48,9 @@ test('get/set mark threshold overrides', async () => {
 
   expect(await store.getMarkThresholdOverrides()).toBe(undefined)
 
-  await store.setMarkThresholdOverrides({ definite: 0.4, marginal: 0.5 })
+  await store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 })
   expect(await store.getMarkThresholdOverrides()).toStrictEqual({
-    definite: 0.4,
+    definite: 0.6,
     marginal: 0.5,
   })
 
@@ -66,9 +66,9 @@ test('get current mark thresholds falls back to election definition defaults', a
     marginal: 0.12,
   })
 
-  await store.setMarkThresholdOverrides({ definite: 0.4, marginal: 0.5 })
+  await store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 })
   expect(await store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.4,
+    definite: 0.6,
     marginal: 0.5,
   })
 
