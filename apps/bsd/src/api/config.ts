@@ -18,7 +18,10 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
   value: Body
 ): Promise<void> {
-  const isJSON = typeof value !== 'string' && !(value instanceof ArrayBuffer)
+  const isJSON =
+    typeof value !== 'string' &&
+    !(value instanceof ArrayBuffer) &&
+    !(value instanceof Uint8Array)
   const response = await fetch(url, {
     method: 'PATCH',
     body: isJSON ? JSON.stringify(value) : (value as BodyInit),
@@ -60,7 +63,11 @@ export async function getElectionDefinition(): Promise<
 > {
   return (
     (safeParseJSON(
-      await (await fetch('/config/election')).text(),
+      await (
+        await fetch('/config/election', {
+          headers: { Accept: 'application/json' },
+        })
+      ).text(),
       GetElectionConfigResponseSchema
     ).unwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
   )
