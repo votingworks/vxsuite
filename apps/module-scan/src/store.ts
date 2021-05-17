@@ -25,6 +25,7 @@ import {
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
+import { DateTime } from 'luxon'
 import { dirname, join } from 'path'
 import * as sqlite3 from 'sqlite3'
 import { Writable } from 'stream'
@@ -1025,11 +1026,11 @@ export default class Store {
    * Gets all batches, including their sheet count.
    */
   public async batchStatus(): Promise<BatchInfo[]> {
-    return this.dbAllAsync(`
+    const batchInfo = await this.dbAllAsync<BatchInfo>(`
       select
         batches.id as id,
-        started_at || 'Z' as startedAt,
-        (case when ended_at is null then ended_at else ended_at || 'Z' end) as endedAt,
+        strftime('%s', started_at) as startedAt,
+        (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -1046,6 +1047,13 @@ export default class Store {
       order by
         batches.started_at desc
     `)
+
+    return batchInfo.map((info) => ({
+      ...info,
+      startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
+      endedAt:
+        info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO(),
+    }))
   }
 
   /**
