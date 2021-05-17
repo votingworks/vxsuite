@@ -60,7 +60,11 @@ export async function getElectionDefinition(): Promise<
 > {
   return (
     (safeParseJSON(
-      await (await fetch('/config/election')).text(),
+      await (
+        await fetch('/config/election', {
+          headers: { Accept: 'application/json' },
+        })
+      ).text(),
       GetElectionConfigResponseSchema
     ).unwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
   )
