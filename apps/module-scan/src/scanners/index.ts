@@ -14,6 +14,7 @@ export interface BatchControl {
 export interface Scanner {
   getStatus(): Promise<ScannerStatus>
   scanSheets(directory?: string): BatchControl
+  calibrate(): Promise<boolean>
 }
 
 export enum ScannerImageFormat {

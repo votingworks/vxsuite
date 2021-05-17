@@ -144,6 +144,10 @@ export function makeMockScanner(): MockScanner {
       }
     },
 
+    async calibrate(): Promise<boolean> {
+      return true
+    },
+
     /**
      * Gets the next scanner session to be used when `scanSheets` is called.
      */
@@ -294,5 +298,6 @@ export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
     reject: jest.fn(),
     scan: jest.fn(),
     waitForStatus: jest.fn(),
+    calibrate: jest.fn(),
   }
 }

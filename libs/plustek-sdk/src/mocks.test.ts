@@ -144,6 +144,29 @@ test('reject w/o hold', async () => {
   )
 })
 
+test('calibrate', async () => {
+  const mock = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  })
+  expect((await mock.calibrate()).err()).toEqual(ScannerError.NoDevices)
+  await mock.connect()
+
+  expect((await mock.calibrate()).err()).toEqual(
+    ScannerError.VtmPsDevReadyNoPaper
+  )
+
+  await mock.manualLoad(files)
+  await mock.scan()
+  expect((await mock.calibrate()).err()).toEqual(ScannerError.SaneStatusNoDocs)
+  await mock.reject({ hold: true })
+
+  ;(await mock.calibrate()).unwrap()
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmDevReadyNoPaper
+  )
+})
+
 test('waitForStatus', async () => {
   const mock = new MockScannerClient({
     toggleHoldDuration: 0,
@@ -165,9 +188,7 @@ test('waitForStatus', async () => {
   ).toBeUndefined()
 
   expect(
-    (
-      await mock.waitForStatus({ status: PaperStatus.VtmDevReadyNoPaper })
-    )?.ok()
+    (await mock.waitForStatus({ status: PaperStatus.VtmDevReadyNoPaper }))?.ok()
   ).toEqual(PaperStatus.VtmDevReadyNoPaper)
 })
 

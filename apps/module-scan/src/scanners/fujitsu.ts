@@ -164,4 +164,8 @@ export class FujitsuScanner implements Scanner {
       },
     }
   }
+
+  public async calibrate(): Promise<boolean> {
+    return false
+  }
 }

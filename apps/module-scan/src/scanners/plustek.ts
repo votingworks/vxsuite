@@ -190,6 +190,10 @@ export class PlustekScanner implements Scanner {
       endBatch,
     }
   }
+
+  public async calibrate(): Promise<boolean> {
+    return false
+  }
 }
 
 const PutMockRequestSchema = z.object({
