@@ -6,7 +6,7 @@ import {
   GetScanStatusResponse,
   GetTestModeConfigResponse,
 } from '@votingworks/types/api/module-scan'
-import { render, waitFor, fireEvent } from '@testing-library/react'
+import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
   fakeKiosk,
   fakeUsbDrive,
@@ -45,42 +45,38 @@ test('app can load and configure from a usb stick', async () => {
     batches: [],
     adjudication: { adjudicated: 0, remaining: 0 },
   } as GetScanStatusResponse)
-  const { getByText } = render(<App card={card} hardware={hardware} />)
-  await waitFor(() => getByText('Loading Configuration…'))
+  render(<App card={card} hardware={hardware} />)
+  await screen.findByText('Loading Configuration…')
   jest.advanceTimersByTime(1001)
-  await waitFor(() => getByText('Precinct Scanner is Not Configured'))
-  getByText('Insert USB Drive with configuration.')
+  await screen.findByText('Precinct Scanner is Not Configured')
+  await screen.findByText('Insert USB Drive with configuration.')
 
   const kiosk = fakeKiosk()
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
   window.kiosk = kiosk
   jest.advanceTimersByTime(2001)
 
-  await waitFor(() =>
-    getByText(
-      'Error in configuration: No ballot package found on the inserted USB drive.'
-    )
+  await screen.findByText(
+    'Error in configuration: No ballot package found on the inserted USB drive.'
   )
 
   // Remove the USB
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([])
   await advanceTimersAndPromises(2)
-  await waitFor(() => getByText('Insert USB Drive with configuration.'))
+  await screen.findByText('Insert USB Drive with configuration.')
 
   // Mock getFileSystemEntries returning an error
   kiosk.getFileSystemEntries = jest.fn().mockRejectedValueOnce('error')
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
-  await waitFor(() =>
-    getByText(
-      'Error in configuration: No ballot package found on the inserted USB drive.'
-    )
+  await screen.findByText(
+    'Error in configuration: No ballot package found on the inserted USB drive.'
   )
 
   // Remove the USB
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([])
   await advanceTimersAndPromises(2)
-  await waitFor(() => getByText('Insert USB Drive with configuration.'))
+  await screen.findByText('Insert USB Drive with configuration.')
 
   const pathToFile = join(
     __dirname,
@@ -121,7 +117,7 @@ test('app can load and configure from a usb stick', async () => {
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
   await advanceTimersAndPromises(0)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
+  await screen.findByText('Insert Your Ballot Below')
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
   )
@@ -132,12 +128,12 @@ test('app can load and configure from a usb stick', async () => {
     body: '{"status": "ok"}',
     status: 200,
   })
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   // Remove the USB drive
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
@@ -147,11 +143,11 @@ test('app can load and configure from a usb stick', async () => {
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
-  getByText('Administrator Settings')
+  await screen.findByText('Administrator Settings')
 
-  fireEvent.click(getByText('Unconfigure Machine'))
-  fireEvent.click(getByText('Unconfigure'))
-  getByText('Loading…')
+  fireEvent.click(await screen.findByText('Unconfigure Machine'))
+  fireEvent.click(await screen.findByText('Unconfigure'))
+  await screen.findByText('Loading…')
   await waitFor(() =>
     expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
   )
@@ -168,17 +164,15 @@ test('voter can cast a ballot that scans succesfully ', async () => {
     batches: [],
     adjudication: { adjudicated: 0, remaining: 0 },
   } as GetScanStatusResponse)
-  const { getByText, getByTestId } = render(
-    <App card={card} hardware={hardware} />
-  )
+  render(<App card={card} hardware={hardware} />)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   fetchMock.post('/scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
@@ -245,15 +239,15 @@ test('voter can cast a ballot that scans succesfully ', async () => {
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Your ballot was counted!'))
+  await screen.findByText('Your ballot was counted!')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Scan one ballot sheet at a time.'))
-  expect(getByTestId('ballot-count').textContent).toBe('1')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
 })
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
@@ -267,17 +261,15 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   } as GetScanStatusResponse)
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const { getByText, getByTestId } = render(
-    <App card={card} hardware={hardware} />
-  )
-  await advanceTimers(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  render(<App card={card} hardware={hardware} />)
+  advanceTimers(1)
+  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   fetchMock.getOnce(
     '/scan/status',
@@ -345,16 +337,16 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Overvote Warning'))
+  await screen.findByText('Overvote Warning')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
 
   fetchMock.post('/scan/scanContinue', {
     body: { status: 'ok' },
   })
 
-  fireEvent.click(getByText('Tabulate Ballot'))
-  getByText('Tabulate Ballot with Errors?')
-  fireEvent.click(getByText('Yes, Tabulate Ballot'))
+  fireEvent.click(await screen.findByText('Tabulate Ballot'))
+  await screen.findByText('Tabulate Ballot with Errors?')
+  fireEvent.click(await screen.findByText('Yes, Tabulate Ballot'))
   fetchMock.get(
     '/scan/status',
     {
@@ -372,11 +364,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     } as GetScanStatusResponse,
     { overwriteRoutes: true }
   )
-  await waitFor(() => getByText('Your ballot was counted!'))
+  await screen.findByText('Your ballot was counted!')
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
-  await advanceTimers(5)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  expect(getByTestId('ballot-count').textContent).toBe('1')
+  advanceTimers(5)
+  await screen.findByText('Insert Your Ballot Below')
+  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
 
   // Simulate another ballot
   fetchMock.getOnce(
@@ -450,7 +442,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Overvote Warning'))
+  await screen.findByText('Overvote Warning')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
 
   // Simulate voter pulling out the ballot
@@ -478,7 +470,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
+  await screen.findByText('Insert Your Ballot Below')
   expect(fetchMock.calls('scan/scanContinue')).toHaveLength(2)
 })
 
@@ -493,15 +485,15 @@ test('voter can cast a rejected ballot', async () => {
   } as GetScanStatusResponse)
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const { getByText } = render(<App card={card} hardware={hardware} />)
-  await advanceTimers(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  render(<App card={card} hardware={hardware} />)
+  advanceTimers(1)
+  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   fetchMock.post('/scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
@@ -568,8 +560,8 @@ test('voter can cast a rejected ballot', async () => {
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Scanning Error'))
-  getByText(
+  await screen.findByText('Scanning Error')
+  await screen.findByText(
     'Scanned ballot does not match the election this scanner is configured for.'
   )
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
@@ -596,7 +588,7 @@ test('voter can cast a rejected ballot', async () => {
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
+  await screen.findByText('Insert Your Ballot Below')
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
 })
 
@@ -611,17 +603,15 @@ test('voter can cast another ballot while the success screen is showing', async 
     batches: [],
     adjudication: { adjudicated: 0, remaining: 0 },
   } as GetScanStatusResponse)
-  const { getByText, getByTestId } = render(
-    <App card={card} hardware={hardware} />
-  )
+  render(<App card={card} hardware={hardware} />)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   fetchMock.post('/scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
@@ -688,13 +678,13 @@ test('voter can cast another ballot while the success screen is showing', async 
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Your ballot was counted!'))
+  await screen.findByText('Your ballot was counted!')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)
-  expect(getByTestId('ballot-count').textContent).toBe('1')
-  getByText('Your ballot was counted!') // Still on the success screen
+  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
+  await screen.findByText('Your ballot was counted!') // Still on the success screen
   fetchMock.get(
     '/scan/status',
     {
@@ -789,15 +779,15 @@ test('voter can cast another ballot while the success screen is showing', async 
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await waitFor(() => expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2))
-  getByText('Overvote Warning')
+  await screen.findByText('Overvote Warning')
   // Even after the timeout to expire the success screen occurs we stay on the review screen.
   await advanceTimersAndPromises(5)
-  getByText('Overvote Warning')
+  await screen.findByText('Overvote Warning')
   // No more ballots have scanned even though the scanner is ready for paper
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
-  getByText('Administrator Settings')
-  expect(getByTestId('ballot-count').textContent).toBe('1')
+  await screen.findByText('Administrator Settings')
+  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
 })
