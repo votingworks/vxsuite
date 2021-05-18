@@ -101,7 +101,7 @@ interface SharedState {
   ballotState: BallotState
   timeoutToInsertScreen?: number
   isStatusPollingEnabled: boolean
-  currentPrecinctId: string // TODO(caro) make this actually do anything
+  currentPrecinctId?: string
   isLoading: boolean
 }
 
@@ -128,7 +128,7 @@ const initialSharedState: Readonly<SharedState> = {
   scannedBallotCount: 0,
   ballotState: BallotState.IDLE,
   isStatusPollingEnabled: true,
-  currentPrecinctId: '',
+  currentPrecinctId: undefined,
   isLoading: false,
 }
 
@@ -155,6 +155,7 @@ type AppAction =
       type: 'refreshConfigFromScanner'
       electionDefinition: OptionalElectionDefinition
       isTestMode: boolean
+      currentPrecinctId?: string
     }
   | {
       type: 'ballotScanning'
@@ -197,7 +198,7 @@ type AppAction =
     }
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | { type: 'cardRemoved' }
-  | { type: 'updatePrecinctId'; precinctId: string }
+  | { type: 'updatePrecinctId'; precinctId?: string }
   | { type: 'startLoading' }
   | { type: 'endLoading' }
 
@@ -227,6 +228,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         electionDefinition: action.electionDefinition,
+        currentPrecinctId: action.currentPrecinctId,
         isTestMode: action.isTestMode,
         isScannerConfigured: true,
       }
@@ -384,10 +386,14 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
       config.getElectionDefinition()
     )
     const isTestMode = await makeCancelable(config.getTestMode())
+    const currentPrecinctId = await makeCancelable(
+      config.getCurrentPrecinctId()
+    )
     dispatchAppState({
       type: 'refreshConfigFromScanner',
       electionDefinition,
       isTestMode,
+      currentPrecinctId,
     })
   }, [dispatchAppState])
 
@@ -515,7 +521,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         )
         // If the state has already changed, abort and start the polling again.
         if (scannerStateAgain !== scannerState) {
-          debug('saw a momentary blip in scanner status, aborting', {
+          debug('saw a momentary blip in scanner status, aborting: %O', {
             firstStatus: scannerState,
             nextStatus: scannerStateAgain,
           })
@@ -620,19 +626,20 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     }
   }, [isScannerConfigured, electionDefinition, hasCardInserted])
 
-  const setElectionDefinition = async (
-    electionDefinition: OptionalElectionDefinition
-  ) => {
-    dispatchAppState({ type: 'updateElectionDefinition', electionDefinition })
-    await refreshConfig()
-  }
+  const setElectionDefinition = useCallback(
+    async (electionDefinition: OptionalElectionDefinition) => {
+      dispatchAppState({ type: 'updateElectionDefinition', electionDefinition })
+      await refreshConfig()
+    },
+    [dispatchAppState, refreshConfig]
+  )
 
-  const toggleTestMode = async () => {
+  const toggleTestMode = useCallback(async () => {
     dispatchAppState({ type: 'startLoading' })
     await config.setTestMode(!isTestMode)
     await refreshConfig()
     dispatchAppState({ type: 'endLoading' })
-  }
+  }, [dispatchAppState, refreshConfig])
 
   const unconfigureServer = useCallback(async () => {
     dispatchAppState({ type: 'startLoading' })
@@ -645,7 +652,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     } finally {
       dispatchAppState({ type: 'endLoading' })
     }
-  }, [refreshConfig])
+  }, [dispatchAppState, refreshConfig])
 
   const processCard = useCallback(
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
@@ -756,9 +763,10 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     }
   }, [startUsbStatusPolling, startCardShortValueReadPolling])
 
-  const updatePrecinctId = (precinctId: string) => {
+  const updatePrecinctId = useCallback(async (precinctId: string) => {
     dispatchAppState({ type: 'updatePrecinctId', precinctId })
-  }
+    await config.setCurrentPrecinctId(precinctId)
+  }, [])
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />
@@ -818,6 +826,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         <InsertBallotScreen
           electionDefinition={electionDefinition}
           scannedBallotCount={scannedBallotCount}
+          currentPrecinctId={currentPrecinctId}
         />
       )
     case BallotState.SCANNING:
@@ -834,6 +843,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         <ScanSuccessScreen
           electionDefinition={electionDefinition}
           scannedBallotCount={scannedBallotCount}
+          currentPrecinctId={currentPrecinctId}
         />
       )
     case BallotState.SCANNER_ERROR:

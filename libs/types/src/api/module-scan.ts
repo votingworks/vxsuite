@@ -7,7 +7,7 @@ import {
   OkResponse,
   OkResponseSchema,
 } from '.'
-import { ElectionDefinition, MarkThresholds } from '../election'
+import { ElectionDefinition, MarkThresholds, Precinct } from '../election'
 import * as s from '../schema'
 
 export interface AdjudicationStatus {
@@ -176,6 +176,69 @@ export type PatchTestModeConfigResponse = OkResponse | ErrorsResponse
 export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigResponse> = z.union(
   [OkResponseSchema, ErrorsResponseSchema]
 )
+
+/**
+ * @url /config/precinct
+ * @method GET
+ */
+export type GetCurrentPrecinctConfigResponse = OkResponse<{
+  precinctId?: Precinct['id']
+}>
+
+/**
+ * @url /config/precinct
+ * @method GET
+ */
+export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> = z.object(
+  {
+    status: z.literal('ok'),
+    precinctId: z.optional(s.Id),
+  }
+)
+
+/**
+ * @url /config/precinct
+ * @method PUT
+ */
+export interface PutCurrentPrecinctConfigRequest {
+  precinctId?: Precinct['id']
+}
+
+/**
+ * @url /config/precinct
+ * @method PUT
+ */
+export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> = z.object(
+  {
+    precinctId: z.optional(s.Id),
+  }
+)
+
+/**
+ * @url /config/precinct
+ * @method PUT
+ */
+export type PutCurrentPrecinctConfigResponse = OkResponse | ErrorsResponse
+
+/**
+ * @url /config/precinct
+ * @method PUT
+ */
+export const PutCurrentPrecinctConfigResponseSchema: z.ZodSchema<PutCurrentPrecinctConfigResponse> = z.union(
+  [OkResponseSchema, ErrorsResponseSchema]
+)
+
+/**
+ * @url /config/precinct
+ * @method DELETE
+ */
+export type DeleteCurrentPrecinctConfigResponse = OkResponse
+
+/**
+ * @url /config/precinct
+ * @method DELETE
+ */
+export const DeleteCurrentPrecinctConfigResponseSchema = OkResponseSchema
 
 /**
  * @url /config/markThresholdOverrides

@@ -30,6 +30,11 @@ const ScanErrorScreen: React.FC<Props> = ({
           'Scanned ballot does not match the election this scanner is configured for.'
         break
       }
+      case RejectedScanningReason.InvalidPrecinct: {
+        errorInformation =
+          'Scanned ballot does not match the precinct this scanner is configured for.'
+        break
+      }
       case RejectedScanningReason.Unreadable: {
         errorInformation =
           'There was a problem reading this ballot. Please try again.'

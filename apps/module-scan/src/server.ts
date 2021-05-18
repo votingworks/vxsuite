@@ -17,10 +17,12 @@ import {
 import {
   AddTemplatesRequest,
   AddTemplatesResponse,
+  DeleteCurrentPrecinctConfigResponse,
   DeleteElectionConfigResponse,
   DeleteMarkThresholdOverridesConfigResponse,
   ExportRequest,
   ExportResponse,
+  GetCurrentPrecinctConfigResponse,
   GetElectionConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
   GetScanStatusResponse,
@@ -36,6 +38,9 @@ import {
   PatchTestModeConfigRequest,
   PatchTestModeConfigRequestSchema,
   PatchTestModeConfigResponse,
+  PutCurrentPrecinctConfigRequest,
+  PutCurrentPrecinctConfigRequestSchema,
+  PutCurrentPrecinctConfigResponse,
   ScanBatchRequest,
   ScanBatchResponse,
   ScanContinueRequest,
@@ -174,6 +179,41 @@ export function buildApp({ store, importer }: AppOptions): Application {
           response.json({ status: 'ok' })
         }
       )
+    }
+  )
+
+  app.get<NoParams, GetCurrentPrecinctConfigResponse>(
+    '/config/precinct',
+    async (_request, response) => {
+      const precinctId = await store.getCurrentPrecinctId()
+      response.json({ status: 'ok', precinctId })
+    }
+  )
+
+  app.put<
+    NoParams,
+    PutCurrentPrecinctConfigResponse,
+    PutCurrentPrecinctConfigRequest
+  >('/config/precinct', async (request, response) => {
+    safeParse(PutCurrentPrecinctConfigRequestSchema, request.body).mapOrElse(
+      (error) => {
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        })
+      },
+      async ({ precinctId }) => {
+        await store.setCurrentPrecinctId(precinctId)
+        response.json({ status: 'ok' })
+      }
+    )
+  })
+
+  app.delete<NoParams, DeleteCurrentPrecinctConfigResponse>(
+    '/config/precinct',
+    async (_request, response) => {
+      await store.setCurrentPrecinctId(undefined)
+      response.json({ status: 'ok' })
     }
   )
 

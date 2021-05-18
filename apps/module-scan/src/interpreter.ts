@@ -65,6 +65,7 @@ export type PageInterpretation =
   | InterpretedHmpbPage
   | InvalidElectionHashPage
   | InvalidTestModePage
+  | InvalidPrecinctPage
   | UninterpretedHmpbPage
   | UnreadablePage
 
@@ -96,6 +97,11 @@ export interface InvalidElectionHashPage {
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage'
+  metadata: BallotMetadata | BallotPageMetadata
+}
+
+export interface InvalidPrecinctPage {
+  type: 'InvalidPrecinctPage'
   metadata: BallotMetadata | BallotPageMetadata
 }
 
@@ -157,6 +163,7 @@ export function sheetRequiresAdjudication([
       pi.type === 'UnreadablePage' ||
       pi.type === 'InvalidTestModePage' ||
       pi.type === 'InvalidElectionHashPage' ||
+      pi.type === 'InvalidPrecinctPage' ||
       (pi.type === 'InterpretedHmpbPage' &&
         pi.adjudicationInfo.requiresAdjudication &&
         !pi.adjudicationInfo.allReasonInfos.some(

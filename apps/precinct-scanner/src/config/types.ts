@@ -30,6 +30,7 @@ export enum ScanningResultType {
 export enum RejectedScanningReason {
   InvalidTestMode = 'invalid_test_mode',
   InvalidElectionHash = 'invalid_election_hash',
+  InvalidPrecinct = 'invalid_precinct',
   Unreadable = 'unreadable',
   Unknown = 'unknown',
 }
@@ -141,6 +142,7 @@ export type PageInterpretation =
   | InterpretedBmdPage
   | InterpretedHmpbPage
   | InvalidTestModePage
+  | InvalidPrecinctPage
   | UninterpretedHmpbPage
   | UnreadablePage
   | InvalidElectionHashPage
@@ -167,6 +169,11 @@ export interface InterpretedHmpbPage {
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage'
+  metadata: BallotMetadata | BallotPageMetadata
+}
+
+export interface InvalidPrecinctPage {
+  type: 'InvalidPrecinctPage'
   metadata: BallotMetadata | BallotPageMetadata
 }
 

@@ -15,6 +15,7 @@ import {
   getContests,
   MarkThresholds,
   Optional,
+  Precinct,
   safeParseJSON,
   schema,
 } from '@votingworks/types'
@@ -69,6 +70,7 @@ export enum ConfigKey {
   MarkThresholdOverrides = 'markThresholdOverrides',
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
+  CurrentPrecinctId = 'currentPrecinctId',
 }
 
 const SchemaPath = join(__dirname, '../schema.sql')
@@ -429,6 +431,25 @@ export default class Store {
     markThresholds: Optional<MarkThresholds>
   ): Promise<void> {
     await this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds)
+  }
+
+  /**
+   * Gets the current precinct `module-scan` is accepting ballots for. If set to
+   * `undefined`, ballots from all precincts will be accepted (this is the
+   * default).
+   */
+  public async getCurrentPrecinctId(): Promise<Optional<Precinct['id']>> {
+    return this.getConfig(ConfigKey.CurrentPrecinctId, z.string())
+  }
+
+  /**
+   * Sets the current precinct `module-scan` is accepting ballots for. Set to
+   * `undefined` to accept from all precincts (this is the default).
+   */
+  public async setCurrentPrecinctId(
+    currentPrecinctId?: Precinct['id']
+  ): Promise<void> {
+    await this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId)
   }
 
   /**
@@ -1026,7 +1047,14 @@ export default class Store {
    * Gets all batches, including their sheet count.
    */
   public async batchStatus(): Promise<BatchInfo[]> {
-    const batchInfo = await this.dbAllAsync<BatchInfo>(`
+    interface SqliteBatchInfo {
+      id: string
+      startedAt: string
+      endedAt: string | null
+      error: string | null
+      count: number
+    }
+    const batchInfo = await this.dbAllAsync<SqliteBatchInfo>(`
       select
         batches.id as id,
         strftime('%s', started_at) as startedAt,
@@ -1049,10 +1077,13 @@ export default class Store {
     `)
 
     return batchInfo.map((info) => ({
-      ...info,
+      id: info.id,
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:
-        info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO(),
+        (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
+        undefined,
+      error: info.error || undefined,
+      count: info.count,
     }))
   }
 

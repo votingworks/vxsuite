@@ -85,6 +85,12 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
             rejectionReason: RejectedScanningReason.InvalidElectionHash,
           }
         }
+        if (interpretation.type === 'InvalidPrecinctPage') {
+          return {
+            resultType: ScanningResultType.Rejected,
+            rejectionReason: RejectedScanningReason.InvalidPrecinct,
+          }
+        }
         if (interpretation.type === 'InterpretedHmpbPage') {
           if (interpretation.adjudicationInfo.requiresAdjudication) {
             for (const { type } of interpretation.adjudicationInfo

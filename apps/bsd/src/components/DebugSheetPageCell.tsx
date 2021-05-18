@@ -59,6 +59,9 @@ function interpretationTitle(interpretation: PageInterpretation) {
     case 'InvalidTestModePage':
       return 'invalid test mode'
 
+    case 'InvalidPrecinctPage':
+      return 'invalid precinct'
+
     case 'UninterpretedHmpbPage':
       return 'HMPB (uninterpreted)'
 
