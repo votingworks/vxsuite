@@ -63,6 +63,7 @@ import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
 import LoadingScreen from './screens/LoadingScreen'
+import useCancelablePromise from './hooks/useCancelablePromise'
 
 const debug = makeDebug('precinct-scanner:app-root')
 
@@ -376,10 +377,13 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
   } = appState
 
   const hasCardInserted = isAdminCardPresent || invalidCardPresent
+  const makeCancelable = useCancelablePromise()
 
   const refreshConfig = useCallback(async () => {
-    const electionDefinition = await config.getElectionDefinition()
-    const isTestMode = await config.getTestMode()
+    const electionDefinition = await makeCancelable(
+      config.getElectionDefinition()
+    )
+    const isTestMode = await makeCancelable(config.getTestMode())
     dispatchAppState({
       type: 'refreshConfigFromScanner',
       electionDefinition,
@@ -506,9 +510,9 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
       // state for 200ms before making any changes.
       for (let i = 0; i < STATUS_POLLING_EXTRA_CHECKS; i++) {
         await sleep(100)
-        const {
-          scannerState: scannerStateAgain,
-        } = await scan.getCurrentStatus()
+        const { scannerState: scannerStateAgain } = await makeCancelable(
+          scan.getCurrentStatus()
+        )
         // If the state has already changed, abort and start the polling again.
         if (scannerStateAgain !== scannerState) {
           debug('saw a momentary blip in scanner status, aborting', {
