@@ -35,7 +35,7 @@ test('when module-scan does not respond shows loading screen', async () => {
 })
 
 test('module-scan fails to unconfigure', async () => {
-  fetchMock.getOnce('/config/election', electionSampleDefinition)
+  fetchMock.get('/config/election', electionSampleDefinition)
   fetchMock.getOnce('/config/testMode', { status: 'ok', testMode: true })
   fetchMock.deleteOnce('/config/election', { status: 404 })
 
