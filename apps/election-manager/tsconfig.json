@@ -17,6 +17,7 @@
     "target": "es2015"
   },
   "include": ["src", "test", "types"],
+  "exclude": ["src/setupProxy.js"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
     { "path": "../../libs/fixtures" },
