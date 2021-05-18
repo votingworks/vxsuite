@@ -73,17 +73,18 @@ const PollWorkerScreen: React.FC<Props> = ({
         <Modal
           content={
             <Prose>
-              <h1>Open Polls and Save Zero Report</h1>
+              <h1>Save Zero Report?</h1>
               <p>
-                Zero Report will be saved to the current poll worker card.
-                Insert this card into VxMark to print the report.
+                The <strong>Zero Report</strong> will be saved on the currently
+                inserted poll worker card. After the report is saved on the
+                card, insert the card into VxMark to print this report.
               </p>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button onPress={openPollsAndSaveZeroReport}>
-                Save Zero Report and Open Polls
+              <Button onPress={openPollsAndSaveZeroReport} primary>
+                Save Report and Open Polls
               </Button>
               <Button onPress={closeConfirmOpenPollsModal}>Cancel</Button>
             </React.Fragment>
@@ -94,17 +95,18 @@ const PollWorkerScreen: React.FC<Props> = ({
         <Modal
           content={
             <Prose>
-              <h1>Close Polls and Save Tabulation Report</h1>
+              <h1>Save Tabulation Report?</h1>
               <p>
-                Tabulation Report will be saved to the current poll worker card.
-                Insert this card into VxMark to print the report.
+                The <strong>Tabulation Report</strong> will be saved on the
+                currently inserted poll worker card. After the report is saved
+                on the card, insert the card into VxMark to print this report.
               </p>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button onPress={closePollsAndSaveTabulationReport}>
-                Save Tabulation Report and Close Polls
+              <Button onPress={closePollsAndSaveTabulationReport} primary>
+                Save Report and Close Polls
               </Button>
               <Button onPress={closeConfirmClosePollsModal}>Cancel</Button>
             </React.Fragment>

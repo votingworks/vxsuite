@@ -11,15 +11,16 @@ export const ButtonBar = styled('nav')`
 
   & > *:first-child {
     order: 2;
+    min-width: 50%;
   }
 
   & > * {
-    flex: 1;
+    flex-grow: 1;
     margin: 0.25rem;
   }
   & > *:only-child {
     @media (min-width: 480px) {
-      flex: 0;
+      flex-grow: initial;
       margin: auto;
       min-width: 33.333%;
     }
