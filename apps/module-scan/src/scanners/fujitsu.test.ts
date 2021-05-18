@@ -1,3 +1,4 @@
+import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { ChildProcess } from 'child_process'
 import { FujitsuScanner, ScannerMode, ScannerPageSize } from '.'
 import { makeMockChildProcess } from '../../test/util/mocks'
@@ -227,4 +228,26 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
 
   scanimage.emit('exit', 1, null)
   await expect(sheets.scanSheet()).rejects.toThrowError()
+})
+
+test('fujitsu scanner status is always unknown', async () => {
+  const scanner = new FujitsuScanner()
+  expect(await scanner.getStatus()).toEqual(ScannerStatus.Unknown)
+})
+
+test('fujitsu scanner accept/reject/review are no-ops', async () => {
+  const scanimage = makeMockChildProcess()
+  const scanner = new FujitsuScanner()
+
+  exec.mockReturnValueOnce(scanimage)
+  const sheets = scanner.scanSheets()
+
+  expect(await sheets.acceptSheet()).toEqual(true)
+  expect(await sheets.rejectSheet()).toEqual(false)
+  expect(await sheets.reviewSheet()).toEqual(false)
+})
+
+test('fujitsu scanner calibrate is a no-op', async () => {
+  const scanner = new FujitsuScanner()
+  expect(await scanner.calibrate()).toEqual(false)
 })
