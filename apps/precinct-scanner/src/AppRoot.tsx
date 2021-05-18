@@ -52,7 +52,8 @@ import InvalidCardScreen from './screens/InvalidCardScreen'
 //   ballotsScannedCount={42}
 //   electionDefinition={electionDefinition}
 //   isPollsOpen={false}
-//   togglePollsOpen={() => {}}
+//   openPolls={() => {}}
+//   closePolls={() => {}}
 // />
 
 import InsertBallotScreen from './screens/InsertBallotScreen'
