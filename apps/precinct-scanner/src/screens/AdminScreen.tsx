@@ -13,6 +13,7 @@ import PickDateTimeModal from '../components/PickDateTimeModal'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
+import CalibrateScannerModal from '../components/CalibrateScannerModal'
 
 interface Props {
   appPrecinctId?: string
@@ -22,6 +23,7 @@ interface Props {
   updateAppPrecinctId: (appPrecinctId: string) => void
   toggleLiveMode: VoidFunction
   unconfigure: VoidFunction
+  calibrate(): Promise<boolean>
 }
 
 const AdminScreen: React.FC<Props> = ({
@@ -32,6 +34,7 @@ const AdminScreen: React.FC<Props> = ({
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
+  calibrate,
 }) => {
   const { election } = electionDefinition
 
@@ -55,8 +58,24 @@ const AdminScreen: React.FC<Props> = ({
   )
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false)
-  const openConfirmUnconfigureModal = () => setConfirmUnconfigure(true)
-  const closeConfirmUnconfigureModal = () => setConfirmUnconfigure(false)
+  const openConfirmUnconfigureModal = useCallback(
+    () => setConfirmUnconfigure(true),
+    []
+  )
+  const closeConfirmUnconfigureModal = useCallback(
+    () => setConfirmUnconfigure(false),
+    []
+  )
+
+  const [isCalibratingScanner, setIsCalibratingScanner] = useState(false)
+  const openCalibrateScannerModal = useCallback(
+    () => setIsCalibratingScanner(true),
+    []
+  )
+  const closeCalibrateScannerModal = useCallback(
+    () => setIsCalibratingScanner(false),
+    []
+  )
 
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     updateAppPrecinctId(event.currentTarget.value)
@@ -109,6 +128,9 @@ const AdminScreen: React.FC<Props> = ({
           </Button>
         </p>
         <p>
+          <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
+        </p>
+        <p>
           <Button danger small onPress={openConfirmUnconfigureModal}>
             <span role="img" aria-label="Warning">
               ⚠️
@@ -154,6 +176,12 @@ const AdminScreen: React.FC<Props> = ({
             </React.Fragment>
           }
           onOverlayClick={closeConfirmUnconfigureModal}
+        />
+      )}
+      {isCalibratingScanner && (
+        <CalibrateScannerModal
+          onCalibrate={calibrate}
+          onCancel={closeCalibrateScannerModal}
         />
       )}
     </CenteredScreen>

@@ -14,6 +14,7 @@ test('plustek scanner cannot get client', async () => {
     get: jest.fn().mockResolvedValue(err(new Error('no client for you!'))),
   })
   expect(await scanner.getStatus()).toEqual(ScannerStatus.Error)
+  expect(await scanner.calibrate()).toEqual(false)
 
   const batch = scanner.scanSheets()
   expect(await batch.scanSheet()).toBeUndefined()
@@ -137,6 +138,24 @@ test('plustek scanner reject sheet w/alwaysHoldOnReject', async () => {
   plustekClient.reject.mockResolvedValueOnce(ok(undefined))
   plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.VtmReadyToScan))
   expect(await scanner.scanSheets().rejectSheet()).toEqual(true)
+})
+
+test('plustek scanner calibrate', async () => {
+  const plustekClient = makeMockPlustekClient()
+  const scanner = new PlustekScanner(
+    {
+      get: jest.fn().mockResolvedValue(ok(plustekClient)),
+    },
+    true
+  )
+
+  plustekClient.calibrate.mockResolvedValueOnce(ok(undefined))
+  expect(await scanner.calibrate()).toEqual(true)
+
+  plustekClient.calibrate.mockResolvedValueOnce(
+    err(ScannerError.VtmPsDevReadyNoPaper)
+  )
+  expect(await scanner.calibrate()).toEqual(false)
 })
 
 // eslint-disable-next-line jest/expect-expect

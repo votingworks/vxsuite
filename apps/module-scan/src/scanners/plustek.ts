@@ -192,7 +192,21 @@ export class PlustekScanner implements Scanner {
   }
 
   public async calibrate(): Promise<boolean> {
-    return false
+    const clientResult = await this.clientProvider.get()
+
+    if (clientResult.isErr()) {
+      debug(
+        'PlustekScanner#calibrate: failed to get client: %s',
+        clientResult.err()
+      )
+      return false
+    }
+
+    const client = clientResult.unwrap()
+    const result = await client.calibrate()
+
+    debug('PlustekScanner#calibrate: success=%s', result.isOk())
+    return result.isOk()
   }
 }
 

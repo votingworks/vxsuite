@@ -1,4 +1,4 @@
-import deferred, { queue } from './deferred'
+import { deferred, deferredQueue } from './deferred'
 
 test('resolves with value passed to resolve', async () => {
   const { promise, resolve } = deferred<number>()
@@ -14,15 +14,24 @@ test('rejects with value passed to reject', async () => {
   await expect(promise).rejects.toThrowError('NOPE')
 })
 
+test('queue isEmpty', async () => {
+  const q = deferredQueue<number>()
+  expect(q.isEmpty()).toBeTruthy()
+  q.resolve(1)
+  expect(q.isEmpty()).toBeFalsy()
+  expect(await q.get())
+  expect(q.isEmpty()).toBeTruthy()
+})
+
 test('queues can resolve values before getting them', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.resolve(12)
   await expect(q.get()).resolves.toEqual(12)
 })
 
 test('queues can get before resolving', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
   const getPromise = q.get()
 
   q.resolve(12)
@@ -30,7 +39,7 @@ test('queues can get before resolving', async () => {
 })
 
 test('queues can resolve multiple items to be gotten', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.resolve(1)
   q.resolve(2)
@@ -41,7 +50,7 @@ test('queues can resolve multiple items to be gotten', async () => {
 })
 
 test('queues can get multiple items that are later resolved', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   const v1 = q.get()
   const v2 = q.get()
@@ -57,7 +66,7 @@ test('queues can get multiple items that are later resolved', async () => {
 })
 
 test('queues can interleave gets and resolves', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.resolve(1)
   const v1 = q.get()
@@ -72,14 +81,14 @@ test('queues can interleave gets and resolves', async () => {
 })
 
 test('queues can reject then get', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.reject(new Error('no way!'))
   await expect(q.get()).rejects.toThrowError('no way!')
 })
 
 test('queues can get then reject', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
   const getPromise = q.get()
 
   q.reject(new Error('no way!'))
@@ -87,7 +96,7 @@ test('queues can get then reject', async () => {
 })
 
 test('queues can resolve all future gets', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.resolve(1)
   q.resolve(2)
@@ -101,7 +110,7 @@ test('queues can resolve all future gets', async () => {
 })
 
 test('queues can resolve all past gets', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   const gets = [q.get(), q.get()]
   q.resolveAll(3)
@@ -109,7 +118,7 @@ test('queues can resolve all past gets', async () => {
 })
 
 test('queues can reject all future gets', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.resolve(1)
   q.resolve(2)
@@ -123,7 +132,7 @@ test('queues can reject all future gets', async () => {
 })
 
 test('queues can reject all past gets', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   const gets = [q.get(), q.get()]
   q.rejectAll(NaN)
@@ -134,7 +143,7 @@ test('queues can reject all past gets', async () => {
 })
 
 test('queues disallow mutation after resolveAll', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.resolveAll(1)
 
@@ -153,7 +162,7 @@ test('queues disallow mutation after resolveAll', async () => {
 })
 
 test('queues disallow mutation after rejectAll', async () => {
-  const q = queue<number>()
+  const q = deferredQueue<number>()
 
   q.rejectAll()
 

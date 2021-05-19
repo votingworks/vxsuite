@@ -529,6 +529,15 @@ export default class Importer {
   }
 
   /**
+   * Tell the scanner to calibrate itself.
+   *
+   * @returns whether the calibration succeeded
+   */
+  public async doCalibrate(): Promise<boolean> {
+    return await this.scanner.calibrate()
+  }
+
+  /**
    * Export the current CVRs to a string.
    */
   public async doExport(): Promise<string> {

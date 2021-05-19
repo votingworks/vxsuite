@@ -1,4 +1,5 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
+import { deferredQueue } from '@votingworks/utils'
 import makeDebug from 'debug'
 import { join } from 'path'
 import { dirSync } from 'tmp'
@@ -11,7 +12,6 @@ import {
 } from '.'
 import { streamExecFile } from '../exec'
 import { SheetOf } from '../types'
-import { queue } from '../util/deferred'
 import { StreamLines } from '../util/Lines'
 
 const debug = makeDebug('module-scan:scanner')
@@ -87,7 +87,7 @@ export class FujitsuScanner implements Scanner {
     )
 
     const scannedFiles: string[] = []
-    const results = queue<Promise<SheetOf<string> | undefined>>()
+    const results = deferredQueue<Promise<SheetOf<string> | undefined>>()
     let done = false
     const scanimage = streamExecFile('scanimage', args)
 

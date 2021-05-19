@@ -69,5 +69,5 @@
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts"],
-  "references": [{ "path": "../test-utils" }, { "path": "../types" }]
+  "references": [{ "path": "../test-utils" }, { "path": "../types" }, { "path": "../utils" }]
 }

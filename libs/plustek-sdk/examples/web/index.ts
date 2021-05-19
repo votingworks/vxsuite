@@ -11,6 +11,7 @@
  */
 
 import { safeParseJSON } from '@votingworks/types'
+import { deferred } from '@votingworks/utils'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { createReadStream } from 'fs'
@@ -18,7 +19,6 @@ import { createServer, IncomingMessage } from 'http'
 import { join } from 'path'
 import * as z from 'zod'
 import { createClient, MockScannerClient } from '../../src'
-import deferred from '../../src/util/deferred'
 
 const debug = makeDebug('plustek-sdk:example')
 

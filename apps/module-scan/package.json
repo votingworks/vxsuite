@@ -37,6 +37,7 @@
     "@votingworks/plustek-sdk": "workspace:*",
     "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "base64-js": "^1.5.1",
     "body-parser": "^1.19.0",
     "busboy": "^0.3.1",
