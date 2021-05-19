@@ -1,4 +1,4 @@
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import {
   GetScanStatusResponse,
@@ -25,31 +25,31 @@ beforeEach(() => {
   fetchMock.reset()
 })
 
-test('when module scan doesnt respond shows loading screen', async () => {
+test('when module-scan does not respond shows loading screen', async () => {
   fetchMock.get('/config/election', { status: 404 })
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const { getByText } = render(<App card={card} hardware={hardware} />)
-  await waitFor(() => getByText('Loading Configuration…'))
+  render(<App card={card} hardware={hardware} />)
+  await screen.findByText('Loading Configuration…')
 })
 
 test('module-scan fails to unconfigure', async () => {
-  fetchMock.getOnce('/config/election', electionSampleDefinition)
+  fetchMock.get('/config/election', electionSampleDefinition)
   fetchMock.getOnce('/config/testMode', { status: 'ok', testMode: true })
   fetchMock.deleteOnce('/config/election', { status: 404 })
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const { getByText } = render(<App card={card} hardware={hardware} />)
+  render(<App card={card} hardware={hardware} />)
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
-  getByText('Administrator Settings')
+  await screen.findByText('Administrator Settings')
 
-  fireEvent.click(getByText('Unconfigure Machine'))
-  fireEvent.click(getByText('Unconfigure'))
-  getByText('Loading…')
+  fireEvent.click(await screen.findByText('Unconfigure Machine'))
+  fireEvent.click(await screen.findByText('Unconfigure'))
+  await screen.findByText('Loading…')
 })
 
 test('error from module-scan in accepting a reviewable ballot', async () => {
@@ -63,15 +63,15 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   } as GetScanStatusResponse)
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const { getByText } = render(<App card={card} hardware={hardware} />)
-  await advanceTimers(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  render(<App card={card} hardware={hardware} />)
+  advanceTimers(1)
+  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   fetchMock.getOnce(
     '/scan/status',
@@ -139,19 +139,19 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Overvote Warning'))
+  await screen.findByText('Overvote Warning')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   fetchMock.post('/scan/scanContinue', {
     body: { status: 'error' },
   })
 
-  fireEvent.click(getByText('Tabulate Ballot'))
-  fireEvent.click(getByText('Yes, Tabulate Ballot'))
-  await waitFor(() => getByText('Scanning Error'))
+  fireEvent.click(await screen.findByText('Tabulate Ballot'))
+  fireEvent.click(await screen.findByText('Yes, Tabulate Ballot'))
+  await screen.findByText('Scanning Error')
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
   await advanceTimersAndPromises(5)
   // Screen does NOT reset automatically to insert ballot screen
-  getByText('Scanning Error')
+  await screen.findByText('Scanning Error')
   // Removing ballot resets to insert screen
   fetchMock.get(
     '/scan/status',
@@ -164,7 +164,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
+  await screen.findByText('Insert Your Ballot Below')
 })
 
 test('error from module-scan in ejecting a reviewable ballot', async () => {
@@ -178,15 +178,15 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
   } as GetScanStatusResponse)
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const { getByText } = render(<App card={card} hardware={hardware} />)
-  await advanceTimers(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
-  getByText('Scan one ballot sheet at a time.')
-  getByText('General Election')
-  getByText(/Franklin County/)
-  getByText(/State of Hamilton/)
-  getByText('Election ID')
-  getByText('2f6b1553c7')
+  render(<App card={card} hardware={hardware} />)
+  advanceTimers(1)
+  await screen.findByText('Insert Your Ballot Below')
+  await screen.findByText('Scan one ballot sheet at a time.')
+  await screen.findByText('General Election')
+  await screen.findByText(/Franklin County/)
+  await screen.findByText(/State of Hamilton/)
+  await screen.findByText('Election ID')
+  await screen.findByText('2f6b1553c7')
 
   fetchMock.getOnce(
     '/scan/status',
@@ -254,7 +254,7 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Overvote Warning'))
+  await waitFor(async () => await screen.findByText('Overvote Warning'))
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   fetchMock.post('/scan/scanContinue', {
     body: { status: 'error' },
@@ -277,6 +277,6 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
-  await waitFor(() => getByText('Insert Your Ballot Below'))
+  await waitFor(async () => await screen.findByText('Insert Your Ballot Below'))
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
 })
