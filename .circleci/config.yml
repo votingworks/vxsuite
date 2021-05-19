@@ -276,21 +276,4 @@ commands:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
           paths:
-            - node_modules
-            - apps/bas/node_modules
-            - apps/bmd/node_modules
-            - apps/bsd/node_modules
-            - apps/election-manager/node_modules
-            - apps/module-scan/node_modules
-            - apps/precinct-scanner/node_modules
-            - libs/ballot-encoder/node_modules
-            - libs/eslint-plugin-no-array-sort-mutation/node_modules
-            - libs/fixtures/node_modules
-            - libs/hmpb-interpreter/node_modules
-            - libs/lsd/node_modules
-            - libs/plustek-sdk/node_modules
-            - libs/types/node_modules
-            - libs/@types/jsfeat/node_modules
-            - libs/@types/node-quirc/node_modules
-            - libs/ui/node_modules
-            - libs/utils/node_modules
+            - ~/.pnpm-store
