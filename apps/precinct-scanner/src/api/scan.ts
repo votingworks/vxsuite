@@ -1,5 +1,6 @@
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, safeParseJSON } from '@votingworks/types'
 import {
+  CalibrateResponseSchema,
   GetScanStatusResponse,
   ScanContinueRequest,
   ScannerStatus,
@@ -148,4 +149,19 @@ export async function endBatch(): Promise<boolean> {
     return false
   }
   return true
+}
+
+export async function calibrate(): Promise<boolean> {
+  const response = await fetch('/scan/calibrate', {
+    method: 'post',
+    headers: { Accept: 'application/json' },
+  })
+
+  return safeParseJSON(
+    await response.text(),
+    CalibrateResponseSchema
+  ).mapOrElse(
+    () => false,
+    ({ status }) => status === 'ok'
+  )
 }

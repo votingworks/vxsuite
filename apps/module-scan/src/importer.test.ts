@@ -685,3 +685,20 @@ test('rejects pages that do not match the current precinct', async () => {
     ]
   )
 })
+
+test('doCalibrate', async () => {
+  const scanner: jest.Mocked<Scanner> = {
+    getStatus: jest.fn(),
+    scanSheets: jest.fn(),
+    calibrate: jest.fn(),
+  }
+  const importer = new Importer({
+    workspace,
+    scanner,
+  })
+
+  scanner.calibrate.mockResolvedValueOnce(true)
+  expect(await importer.doCalibrate()).toEqual(true)
+  scanner.calibrate.mockResolvedValueOnce(false)
+  expect(await importer.doCalibrate()).toEqual(false)
+})

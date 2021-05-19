@@ -17,6 +17,8 @@ import {
 import {
   AddTemplatesRequest,
   AddTemplatesResponse,
+  CalibrateRequest,
+  CalibrateResponse,
   DeleteCurrentPrecinctConfigResponse,
   DeleteElectionConfigResponse,
   DeleteMarkThresholdOverridesConfigResponse,
@@ -527,6 +529,28 @@ export function buildApp({ store, importer }: AppOptions): Application {
     async (_request, response) => {
       const status = await importer.getStatus()
       response.json(status)
+    }
+  )
+
+  app.post<NoParams, CalibrateResponse, CalibrateRequest>(
+    '/scan/calibrate',
+    async (_request, response) => {
+      const success = await importer.doCalibrate()
+      response.json(
+        success
+          ? {
+              status: 'ok',
+            }
+          : {
+              status: 'error',
+              errors: [
+                {
+                  type: 'calibration-error',
+                  message: 'scanner could not be calibrated',
+                },
+              ],
+            }
+      )
     }
   )
 

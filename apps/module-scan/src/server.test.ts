@@ -825,3 +825,27 @@ test('get next sheet', async () => {
       },
     })
 })
+
+test('calibrate success', async () => {
+  importer.doCalibrate.mockResolvedValueOnce(true)
+
+  await request(app).post('/scan/calibrate').expect(200, {
+    status: 'ok',
+  })
+})
+
+test('calibrate error', async () => {
+  importer.doCalibrate.mockResolvedValueOnce(false)
+
+  await request(app)
+    .post('/scan/calibrate')
+    .expect(200, {
+      status: 'error',
+      errors: [
+        {
+          type: 'calibration-error',
+          message: 'scanner could not be calibrated',
+        },
+      ],
+    })
+})
