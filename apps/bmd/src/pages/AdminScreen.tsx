@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import React, { useCallback, useState } from 'react'
 
 import { OptionalElectionDefinition } from '@votingworks/types'
+import { formatFullDateTimeZone } from '@votingworks/utils'
 import { MachineConfig, SelectChangeEventFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
@@ -14,7 +15,6 @@ import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import Screen from '../components/Screen'
 import Select from '../components/Select'
-import { formatFullDateTimeZone } from '../utils/date'
 import VersionsData from '../components/VersionsData'
 import PickDateTimeModal from '../components/PickDateTimeModal'
 import useNow from '../hooks/useNow'
@@ -166,7 +166,11 @@ const AdminScreen: React.FC<Props> = ({
                   </React.Fragment>
                 )}
                 <h1>Current Date and Time</h1>
-                <p>{formatFullDateTimeZone(systemDate, true)}</p>
+                <p>
+                  {formatFullDateTimeZone(systemDate, {
+                    includeTimezone: true,
+                  })}
+                </p>
                 <p>
                   <Button onPress={() => setIsSystemDateModalActive(true)}>
                     Update Date and Time

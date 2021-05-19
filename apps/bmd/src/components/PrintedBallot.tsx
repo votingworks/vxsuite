@@ -1,4 +1,5 @@
 import { fromByteArray } from 'base64-js'
+import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -15,6 +16,7 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
 } from '@votingworks/types'
+import { formatLongDate } from '@votingworks/utils'
 
 import * as GLOBALS from '../config/globals'
 
@@ -30,8 +32,6 @@ import {
   MsEitherNeitherContestResultInterface,
   YesNoContestResultInterface,
 } from '../config/types'
-
-import { dateLong } from '../utils/date'
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -269,7 +269,7 @@ const PrintBallot: React.FC<Props> = ({
             {partyPrimaryAdjective} {title}
           </h3>
           <p>
-            {dateLong(date)}
+            {formatLongDate(DateTime.fromISO(date))}
             <br />
             {county.name}, {state}
           </p>

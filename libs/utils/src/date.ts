@@ -1,5 +1,4 @@
 import { DateTime, Duration } from 'luxon'
-import moment from 'moment'
 
 export const AMERICA_TIMEZONES = [
   'Pacific/Honolulu',
@@ -26,17 +25,18 @@ function* getShortMonthNames(): Generator<string> {
 }
 export const MONTHS_SHORT = [...getShortMonthNames()]
 
-export const formatTimeZoneName = (date: DateTime): string | undefined =>
+export const formatTimeZoneName = (date: DateTime): string =>
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   new Intl.DateTimeFormat(undefined, {
     timeZoneName: 'long',
     timeZone: date.zoneName,
   })
     .formatToParts(date.toJSDate())
-    .find((part) => part.type === 'timeZoneName')?.value
+    .find((part) => part.type === 'timeZoneName')!.value
 
 export const formatFullDateTimeZone = (
   date: DateTime,
-  includeTimezone = false
+  { includeTimezone = false } = {}
 ): string | undefined =>
   new Intl.DateTimeFormat(undefined, {
     timeZone: date.zoneName,
@@ -49,17 +49,13 @@ export const formatFullDateTimeZone = (
     timeZoneName: includeTimezone ? 'short' : undefined,
   }).format(date.toJSDate())
 
-export const formatLongDate = (date: Date, timeZone?: string): string =>
+export const formatLongDate = (date: DateTime, timeZone?: string): string =>
   new Intl.DateTimeFormat(undefined, {
     timeZone,
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }).format(date)
-
-// TODO: replace `dateLong` with `formatLongDate`
-export const dateLong = (dateString: string): string =>
-  moment(new Date(dateString)).format('LL')
+  }).format(date.toJSDate())
 
 /**
  * Get days in given month and year.
@@ -72,11 +68,4 @@ export function getDaysInMonth(year: number, month: number): DateTime[] {
     date = date.plus(Duration.fromObject({ day: 1 }))
   }
   return days
-}
-
-/**
- * Determines whether two dates are the same day in the current timezone.
- */
-export function isSameDay(a: Date, b: Date): boolean {
-  return formatLongDate(a) === formatLongDate(b)
 }

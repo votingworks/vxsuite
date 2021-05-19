@@ -219,6 +219,20 @@ jobs:
           command: |
             pnpm --dir libs/ui test:coverage
 
+  test-utils:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir libs/utils lint
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            pnpm --dir libs/utils test:coverage
+
 workflows:
   test:
     jobs:
@@ -236,6 +250,7 @@ workflows:
       - test-precinct-scanner
       - test-types
       - test-ui
+      - test-utils
 
 commands:
   checkout-and-install:
@@ -278,3 +293,4 @@ commands:
             - libs/@types/jsfeat/node_modules
             - libs/@types/node-quirc/node_modules
             - libs/ui/node_modules
+            - libs/utils/node_modules
