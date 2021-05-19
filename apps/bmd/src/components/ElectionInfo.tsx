@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -6,7 +7,7 @@ import {
   Precinct,
   getPartyPrimaryAdjectiveFromBallotStyle,
 } from '@votingworks/types'
-import { dateLong } from '../utils/date'
+import { formatLongDate } from '@votingworks/utils/build'
 
 import Seal from './Seal'
 import Prose from './Prose'
@@ -69,7 +70,7 @@ const ElectionInfo: React.FC<Props> = ({
           <Prose compact>
             <h5 aria-label={`${title}.`}>{title}</h5>
             <Text small>
-              {dateLong(date)}
+              {formatLongDate(DateTime.fromISO(date))}
               <br />
               <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
             </Text>
@@ -93,7 +94,7 @@ const ElectionInfo: React.FC<Props> = ({
       <Prose textCenter>
         <h1 aria-label={`${title}.`}>{title}</h1>
         <p>
-          {dateLong(date)}
+          {formatLongDate(DateTime.fromISO(date))}
           <br />
           {county.name}
           <br />

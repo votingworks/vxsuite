@@ -1,15 +1,14 @@
+import { Election, Precinct } from '@votingworks/types'
+import { formatFullDateTimeZone, formatLongDate } from '@votingworks/utils'
 import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
-import { Precinct, Election } from '@votingworks/types'
 import {
   AppModeNames,
   CardTallyMetadataEntry,
   MachineConfig,
 } from '../config/types'
 import Prose from './Prose'
-
-import { dateLong, formatFullDateTimeZone } from '../utils/date'
 import Table from './Table'
 
 const Report = styled.div`
@@ -177,7 +176,7 @@ const PollsReport: React.FC<Props> = ({
           </h2>
           <h3>{title}</h3>
           <p>
-            {dateLong(date)}
+            {formatLongDate(DateTime.fromISO(date))}
             <br />
             {county.name}, {state}
           </p>

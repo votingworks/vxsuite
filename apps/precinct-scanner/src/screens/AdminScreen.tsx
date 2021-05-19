@@ -6,8 +6,8 @@ import {
   SelectChangeEventFunction,
 } from '@votingworks/types'
 import { DateTime } from 'luxon'
+import { formatFullDateTimeZone } from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
-import { formatFullDateTimeZone } from '../utils/date'
 import useNow from '../hooks/useNow'
 import PickDateTimeModal from '../components/PickDateTimeModal'
 import { Absolute } from '../components/Absolute'
@@ -105,7 +105,7 @@ const AdminScreen: React.FC<Props> = ({
             <span role="img" aria-label="Clock">
               🕓
             </span>{' '}
-            {formatFullDateTimeZone(systemDate, true)}
+            {formatFullDateTimeZone(systemDate, { includeTimezone: true })}
           </Button>
         </p>
         <p>

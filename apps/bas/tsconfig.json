@@ -18,5 +18,5 @@
   },
   "exclude": ["src/setupProxy.js"],
   "include": ["src"],
-  "references": [{ "path": "../../libs/types" }]
+  "references": [{ "path": "../../libs/types" }, { "path": "../../libs/utils" }]
 }

@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
+import { formatFullDateTimeZone } from '@votingworks/utils'
 
 import { Tally, MachineConfig, CardTally } from '../config/types'
 
@@ -15,7 +16,6 @@ import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import { Printer } from '../utils/printer'
-import { formatFullDateTimeZone, isSameDay } from '../utils/date'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
 import Loading from '../components/Loading'
@@ -63,8 +63,8 @@ const PollWorkerScreen: React.FC<Props> = ({
   clearTalliesOnCard,
 }) => {
   const { election } = electionDefinition
-  const electionDate = new Date(electionDefinition.election.date)
-  const isElectionDay = isSameDay(electionDate, new Date())
+  const electionDate = DateTime.fromISO(electionDefinition.election.date)
+  const isElectionDay = electionDate.hasSame(DateTime.now(), 'day')
   const precinct = election.precincts.find(
     (p) => p.id === appPrecinctId
   ) as Precinct

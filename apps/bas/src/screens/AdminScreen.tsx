@@ -1,7 +1,9 @@
 import React from 'react'
 import pluralize from 'pluralize'
+import { DateTime } from 'luxon'
 
 import { BallotStyle, OptionalElection } from '@votingworks/types'
+import { formatFullDateTimeZone } from '@votingworks/utils'
 
 import { compareName } from '../utils/sort'
 import Button from '../components/Button'
@@ -11,7 +13,6 @@ import MainNav from '../components/MainNav'
 import Screen from '../components/Screen'
 import Select from '../components/Select'
 import Text from '../components/Text'
-import { formatFullDateTimeZone } from '../utils/date'
 
 interface Props {
   election: OptionalElection
@@ -29,9 +30,6 @@ interface Props {
   setIsSinglePrecinctMode: (enabled: boolean) => void
   precinctBallotStyles: BallotStyle[]
 }
-
-const getMachineTimezone = () =>
-  Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const AdminScreen: React.FC<Props> = ({
   election,
@@ -132,7 +130,9 @@ const AdminScreen: React.FC<Props> = ({
                 )}
                 <h1>Current Date and Time</h1>
                 <p>
-                  {formatFullDateTimeZone(new Date(), getMachineTimezone())}
+                  {formatFullDateTimeZone(DateTime.now(), {
+                    includeTimezone: true,
+                  })}
                 </p>
               </React.Fragment>
             )}

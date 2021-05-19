@@ -44,6 +44,9 @@
     },
     {
       "path": "libs/plustek-sdk"
+    },
+    {
+      "path": "libs/utils"
     }
   ],
   "settings": {

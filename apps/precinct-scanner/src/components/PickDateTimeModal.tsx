@@ -8,7 +8,7 @@ import {
   formatTimeZoneName,
   getDaysInMonth,
   MONTHS_SHORT,
-} from '../utils/date'
+} from '@votingworks/utils'
 import Modal from './Modal'
 
 export interface Props {
