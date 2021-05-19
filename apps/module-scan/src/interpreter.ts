@@ -245,7 +245,7 @@ export default class Interpreter {
     imageDataOrLayout: ImageData | BallotPageLayout,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout> {
-    const interpreter = this.getHmbpInterpreter()
+    const interpreter = this.getHmpbInterpreter()
     let layout: BallotPageLayout
 
     if ('data' in imageDataOrLayout) {
@@ -425,7 +425,7 @@ export default class Interpreter {
     image,
     qrcode,
   }: BallotImageData): Promise<InterpretFileResult | undefined> {
-    const hmpbInterpreter = this.getHmbpInterpreter()
+    const hmpbInterpreter = this.getHmpbInterpreter()
     const {
       ballot,
       marks,
@@ -503,7 +503,7 @@ export default class Interpreter {
     }
   }
 
-  private getHmbpInterpreter(): HMPBInterpreter {
+  private getHmpbInterpreter(): HMPBInterpreter {
     if (!this.hmpbInterpreter) {
       if (typeof this.testMode === 'undefined') {
         throw new Error(

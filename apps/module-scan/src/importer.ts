@@ -88,7 +88,7 @@ export default class Importer {
     this.workerPool = undefined
   }
 
-  private async getWorkerPooll(): Promise<
+  private async getWorkerPool(): Promise<
     WorkerPool<workers.Input, workers.Output>
   > {
     if (!this.workerPool) {
@@ -155,7 +155,7 @@ export default class Importer {
    * Tell the importer that we have all the templates
    */
   public async doneHmpbTemplates(): Promise<void> {
-    await this.getWorkerPooll()
+    await this.getWorkerPool()
   }
 
   /**
@@ -197,7 +197,7 @@ export default class Importer {
    */
   public async restoreConfig(): Promise<void> {
     this.invalidateInterpreterConfig()
-    await this.getWorkerPooll()
+    await this.getWorkerPool()
   }
 
   private async sheetAdded(
@@ -231,7 +231,7 @@ export default class Importer {
     }
     const currentPrecinctId = await this.workspace.store.getCurrentPrecinctId()
 
-    const workerPool = await this.getWorkerPooll()
+    const workerPool = await this.getWorkerPool()
     const frontDetectQrcodePromise = workerPool.call({
       action: 'detect-qrcode',
       imagePath: frontImagePath,
@@ -458,7 +458,7 @@ export default class Importer {
     }
 
     if (this.sheetGenerator) {
-      throw new Error('scanning already in progess')
+      throw new Error('scanning already in progress')
     }
 
     if (!this.interpreterReady) {
