@@ -56,13 +56,19 @@
     "cSpell.words": [
       "AGPL",
       "Hmpb",
+      "Serializable",
+      "Uncastable",
+      "castability",
       "cvrs",
+      "jsonl",
       "luxon",
       "plustek",
+      "qrcode",
       "stylelint",
       "unconfigure",
       "unconfigured",
-      "votingworks"
+      "votingworks",
+      "yesno"
     ]
   },
   "extensions": {
