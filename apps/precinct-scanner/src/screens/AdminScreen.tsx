@@ -15,7 +15,7 @@ import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
 
 interface Props {
-  appPrecinctId: string
+  appPrecinctId?: string
   ballotsScannedCount: number
   electionDefinition: ElectionDefinition
   isLiveMode: boolean

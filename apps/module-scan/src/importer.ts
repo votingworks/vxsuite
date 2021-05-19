@@ -229,6 +229,7 @@ export default class Importer {
     if (!electionDefinition) {
       throw new Error('missing election definition')
     }
+    const currentPrecinctId = await this.workspace.store.getCurrentPrecinctId()
 
     const workerPool = await this.getWorkerPooll()
     const frontDetectQrcodePromise = workerPool.call({
@@ -261,8 +262,8 @@ export default class Importer {
       detectQrcodeResult: backDetectQrcodeOutput,
     })
 
-    const frontWorkerOutput = (await frontInterpretPromise) as InterpretOutput
-    const backWorkerOutput = (await backInterpretPromise) as InterpretOutput
+    let frontWorkerOutput = (await frontInterpretPromise) as InterpretOutput
+    let backWorkerOutput = (await backInterpretPromise) as InterpretOutput
 
     debug(
       'interpreted %s (%s): %O',
@@ -276,6 +277,48 @@ export default class Importer {
       backWorkerOutput.interpretation.type,
       backWorkerOutput.interpretation
     )
+
+    debug('currentPrecinctId=%s', currentPrecinctId)
+    if (currentPrecinctId) {
+      if (
+        (frontWorkerOutput.interpretation.type === 'InterpretedHmpbPage' ||
+          frontWorkerOutput.interpretation.type === 'InterpretedBmdPage') &&
+        frontWorkerOutput.interpretation.metadata.precinctId !==
+          currentPrecinctId
+      ) {
+        debug(
+          'rejecting front page %s because it does not match the current precinct id: %s',
+          frontImagePath,
+          currentPrecinctId
+        )
+        frontWorkerOutput = {
+          ...frontWorkerOutput,
+          interpretation: {
+            type: 'InvalidPrecinctPage',
+            metadata: frontWorkerOutput.interpretation.metadata,
+          },
+        }
+      }
+      if (
+        (backWorkerOutput.interpretation.type === 'InterpretedHmpbPage' ||
+          backWorkerOutput.interpretation.type === 'InterpretedBmdPage') &&
+        backWorkerOutput.interpretation.metadata.precinctId !==
+          currentPrecinctId
+      ) {
+        debug(
+          'rejecting back page %s because it does not match the current precinct id: %s',
+          frontImagePath,
+          currentPrecinctId
+        )
+        backWorkerOutput = {
+          ...backWorkerOutput,
+          interpretation: {
+            type: 'InvalidPrecinctPage',
+            metadata: backWorkerOutput.interpretation.metadata,
+          },
+        }
+      }
+    }
 
     sheetId = await this.addSheet(
       batchId,

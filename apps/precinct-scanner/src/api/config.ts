@@ -1,10 +1,17 @@
-import { ElectionDefinition, safeParseJSON } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  Optional,
+  Precinct,
+  safeParseJSON,
+} from '@votingworks/types'
 import { ErrorsResponse, OkResponse } from '@votingworks/types/api'
 import {
+  GetCurrentPrecinctResponseSchema,
   GetElectionConfigResponse,
   GetElectionConfigResponseSchema,
   GetTestModeConfigResponseSchema,
   PatchTestModeConfigRequest,
+  PutCurrentPrecinctConfigRequest,
 } from '@votingworks/types/api/module-scan'
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
@@ -26,6 +33,28 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
 
   if (body.status !== 'ok') {
     throw new Error(`PATCH ${url} failed: ${JSON.stringify(body.errors)}`)
+  }
+}
+
+async function put<Body extends string | ArrayBuffer | unknown>(
+  url: string,
+  value: Body
+): Promise<void> {
+  const isJSON =
+    typeof value !== 'string' &&
+    !(value instanceof ArrayBuffer) &&
+    !(value instanceof Uint8Array)
+  const response = await fetch(url, {
+    method: 'PUT',
+    body: isJSON ? JSON.stringify(value) : (value as BodyInit),
+    headers: {
+      'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
+    },
+  })
+  const body: OkResponse | ErrorsResponse = await response.json()
+
+  if (body.status !== 'ok') {
+    throw new Error(`PUT ${url} failed: ${JSON.stringify(body.errors)}`)
   }
 }
 
@@ -76,4 +105,23 @@ export async function setTestMode(testMode: boolean): Promise<void> {
   await patch<PatchTestModeConfigRequest>('/config/testMode', {
     testMode,
   })
+}
+
+export async function getCurrentPrecinctId(): Promise<
+  Optional<Precinct['id']>
+> {
+  return safeParseJSON(
+    await (
+      await fetch('/config/precinct', {
+        headers: { Accept: 'application/json' },
+      })
+    ).text(),
+    GetCurrentPrecinctResponseSchema
+  ).unwrap().precinctId
+}
+
+export async function setCurrentPrecinctId(
+  precinctId: Precinct['id']
+): Promise<void> {
+  await put<PutCurrentPrecinctConfigRequest>('/config/precinct', { precinctId })
 }

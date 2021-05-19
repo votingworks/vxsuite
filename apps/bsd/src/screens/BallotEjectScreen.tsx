@@ -83,6 +83,7 @@ const BallotEjectScreen: React.FC<Props> = ({
   let isUnreadableSheet = false
   let isInvalidTestModeSheet = false
   let isInvalidElectionHashSheet = false
+  let isInvalidPrecinctSheet = false
 
   let actualElectionHash: string
 
@@ -92,6 +93,8 @@ const BallotEjectScreen: React.FC<Props> = ({
     } else if (interpretation.type === 'InvalidElectionHashPage') {
       isInvalidElectionHashSheet = true
       actualElectionHash = interpretation.actualElectionHash
+    } else if (interpretation.type === 'InvalidPrecinctPage') {
+      isInvalidPrecinctSheet = true
     } else if (interpretation.type === 'InterpretedHmpbPage') {
       if (interpretation.adjudicationInfo.requiresAdjudication) {
         for (const { type } of interpretation.adjudicationInfo.allReasonInfos) {
@@ -110,7 +113,10 @@ const BallotEjectScreen: React.FC<Props> = ({
   }
 
   const allowBallotDuplication =
-    !isInvalidTestModeSheet && !isInvalidElectionHashSheet && !isUnreadableSheet
+    !isInvalidTestModeSheet &&
+    !isInvalidElectionHashSheet &&
+    !isInvalidPrecinctSheet &&
+    !isUnreadableSheet
 
   return (
     <Screen>
@@ -143,6 +149,8 @@ const BallotEjectScreen: React.FC<Props> = ({
                   : 'Test Ballot'
                 : isInvalidElectionHashSheet
                 ? 'Wrong Election'
+                : isInvalidPrecinctSheet
+                ? 'Wrong Precinct'
                 : isUnreadableSheet
                 ? 'Unreadable'
                 : isOvervotedSheet
@@ -213,6 +221,13 @@ const BallotEjectScreen: React.FC<Props> = ({
                 <Text small>
                   Ballot Election Hash: {actualElectionHash!.slice(0, 10)}
                 </Text>
+              </React.Fragment>
+            ) : isInvalidPrecinctSheet ? (
+              <React.Fragment>
+                <p>
+                  The scanned ballot does not match the precinct this scanner is
+                  configured for. Remove the invalid ballot before continuing.
+                </p>
               </React.Fragment>
             ) : (
               // Unreadable

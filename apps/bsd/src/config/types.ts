@@ -96,6 +96,7 @@ export type PageInterpretation =
   | InterpretedBmdPage
   | InterpretedHmpbPage
   | InvalidTestModePage
+  | InvalidPrecinctPage
   | UninterpretedHmpbPage
   | UnreadablePage
   | InvalidElectionHashPage
@@ -122,6 +123,11 @@ export interface InterpretedHmpbPage {
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage'
+  metadata: BallotMetadata | BallotPageMetadata
+}
+
+export interface InvalidPrecinctPage {
+  type: 'InvalidPrecinctPage'
   metadata: BallotMetadata | BallotPageMetadata
 }
 

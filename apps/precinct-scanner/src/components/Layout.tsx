@@ -1,6 +1,6 @@
 import React from 'react'
 import { Screen, Main, MainChild, Prose, fontSizeTheme } from '@votingworks/ui'
-import { ElectionDefinition } from '@votingworks/types'
+import { ElectionDefinition, Precinct } from '@votingworks/types'
 import ElectionInfoBar, { InfoBarMode } from './ElectionInfoBar'
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   infoBar?: boolean
   infoBarMode?: InfoBarMode
   electionDefinition?: ElectionDefinition
+  currentPrecinctId?: Precinct['id']
 }
 
 export const CenteredScreen: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const CenteredScreen: React.FC<Props> = ({
   infoBar = true,
   infoBarMode,
   electionDefinition,
+  currentPrecinctId,
 }) => (
   <Screen flexDirection="column">
     <Main padded>
@@ -26,6 +28,7 @@ export const CenteredScreen: React.FC<Props> = ({
       <ElectionInfoBar
         mode={infoBarMode}
         electionDefinition={electionDefinition}
+        currentPrecinctId={currentPrecinctId}
       />
     )}
   </Screen>

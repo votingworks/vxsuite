@@ -1,7 +1,11 @@
 import React from 'react'
 
 import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui'
-import { OptionalElectionDefinition } from '@votingworks/types'
+import {
+  getPrecinctById,
+  OptionalElectionDefinition,
+  Precinct,
+} from '@votingworks/types'
 import { Bar, BarSpacer } from './Bar'
 import { localeWeekdayAndDate } from '../utils/IntlDateTimeFormats'
 
@@ -10,10 +14,12 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin'
 interface Props {
   mode?: InfoBarMode
   electionDefinition: OptionalElectionDefinition
+  currentPrecinctId?: Precinct['id']
 }
 const ElectionInfoBar: React.FC<Props> = ({
   electionDefinition,
   mode = 'voter',
+  currentPrecinctId,
 }) => {
   if (!electionDefinition) {
     return null
@@ -21,13 +27,20 @@ const ElectionInfoBar: React.FC<Props> = ({
   const electionDate = localeWeekdayAndDate.format(
     new Date(electionDefinition.election.date)
   )
+  const precinct =
+    typeof currentPrecinctId === 'string'
+      ? getPrecinctById({
+          election: electionDefinition.election,
+          precinctId: currentPrecinctId,
+        })
+      : undefined
   return (
     <Bar theme={{ ...contrastTheme.dark }}>
       <Prose maxWidth={false} compact>
         <NoWrap as="strong">{electionDefinition.election.title}</NoWrap> —{' '}
         <NoWrap>{electionDate}</NoWrap>
         <Text as="div" small>
-          <NoWrap>PRECINCT NAME HERE</NoWrap> —{' '}
+          <NoWrap>{precinct?.name ?? 'All Precincts'}</NoWrap> —{' '}
           <NoWrap>
             {electionDefinition.election.county.name},{' '}
             {electionDefinition.election.state}

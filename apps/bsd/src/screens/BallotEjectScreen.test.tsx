@@ -341,3 +341,56 @@ test('shows invalid election screen when appropriate', async () => {
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
   expect(continueScanning).toHaveBeenCalledWith()
 })
+
+test('shows invalid election screen when appropriate', async () => {
+  const response: BallotSheetInfo = {
+    id: 'mock-sheet-id',
+    front: {
+      image: { url: '/front/url' },
+      interpretation: {
+        type: 'InvalidPrecinctPage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 1,
+        },
+      },
+    },
+    back: {
+      image: { url: '/back/url' },
+      interpretation: {
+        type: 'InvalidPrecinctPage',
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 2,
+        },
+      },
+    },
+  }
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+
+  const continueScanning = jest.fn()
+
+  const { getByText, queryAllByText } = renderInAppContext(
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode={false} />
+  )
+
+  await act(async () => {
+    await waitFor(() => fetchMock.called)
+  })
+
+  getByText('Wrong Precinct')
+  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0)
+
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
+  expect(continueScanning).toHaveBeenCalledWith()
+})

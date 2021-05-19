@@ -5,6 +5,7 @@ import {
   ScannerStatus,
   GetScanStatusResponse,
   GetTestModeConfigResponse,
+  GetCurrentPrecinctConfigResponse,
 } from '@votingworks/types/api/module-scan'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
@@ -30,21 +31,35 @@ beforeEach(() => {
   fetchMock.reset()
 })
 
+const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
+  status: 'ok',
+  testMode: true,
+}
+
+const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
+  scanner: ScannerStatus.WaitingForPaper,
+  batches: [],
+  adjudication: { adjudicated: 0, remaining: 0 },
+}
+
+const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
+  scanner: ScannerStatus.ReadyToScan,
+  batches: [],
+  adjudication: { adjudicated: 0, remaining: 0 },
+}
+
+const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse = {
+  status: 'ok',
+}
+
 test('app can load and configure from a usb stick', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  }
-  fetchMock.getOnce('/config/election', new Response('null'))
-  fetchMock.get('/config/testMode', getTestModeResponseBody)
-  fetchMock.get('/scan/status', {
-    status: 'ok',
-    scanner: 'WaitingForPaper',
-    batches: [],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  } as GetScanStatusResponse)
+  fetchMock
+    .getOnce('/config/election', new Response('null'))
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   render(<App card={card} hardware={hardware} />)
   await screen.findByText('Loading Configuration…')
   jest.advanceTimersByTime(1001)
@@ -109,7 +124,7 @@ test('app can load and configure from a usb stick', async () => {
       body: '{"status": "ok"}',
       status: 200,
     })
-    .get('./config/election', electionSampleDefinition, {
+    .get('/config/election', electionSampleDefinition, {
       overwriteRoutes: true,
     })
 
@@ -156,14 +171,11 @@ test('app can load and configure from a usb stick', async () => {
 test('voter can cast a ballot that scans succesfully ', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  fetchMock.get('/config/election', electionSampleDefinition)
-  fetchMock.get('/config/testMode', { status: 'ok', testMode: true })
-  fetchMock.get('/scan/status', {
-    status: 'ok',
-    scanner: 'WaitingForPaper',
-    batches: [],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  } as GetScanStatusResponse)
+  fetchMock
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   render(<App card={card} hardware={hardware} />)
   await advanceTimersAndPromises(1)
   await screen.findByText('Insert Your Ballot Below')
@@ -177,16 +189,10 @@ test('voter can cast a ballot that scans succesfully ', async () => {
   fetchMock.post('/scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get(
-    '/scan/status',
-    {
-      status: 'ok',
-      scanner: ScannerStatus.ReadyToScan,
-      batches: [],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
-    { overwriteRoutes: true, repeat: 3 }
-  )
+  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
+    overwriteRoutes: true,
+    repeat: 3,
+  })
   fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
     id: 'test-sheet',
     front: {
@@ -251,14 +257,11 @@ test('voter can cast a ballot that scans succesfully ', async () => {
 })
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
-  fetchMock.get('/config/election', electionSampleDefinition)
-  fetchMock.get('/config/testMode', { status: 'ok', testMode: true })
-  fetchMock.get('/scan/status', {
-    status: 'ok',
-    scanner: 'WaitingForPaper',
-    batches: [],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  } as GetScanStatusResponse)
+  fetchMock
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   render(<App card={card} hardware={hardware} />)
@@ -475,14 +478,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 })
 
 test('voter can cast a rejected ballot', async () => {
-  fetchMock.getOnce('/config/election', electionSampleDefinition)
-  fetchMock.get('/config/testMode', { status: 'ok', testMode: true })
-  fetchMock.get('/scan/status', {
-    status: 'ok',
-    scanner: 'WaitingForPaper',
-    batches: [],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  } as GetScanStatusResponse)
+  fetchMock
+    .getOnce('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   render(<App card={card} hardware={hardware} />)
@@ -595,14 +595,11 @@ test('voter can cast a rejected ballot', async () => {
 test('voter can cast another ballot while the success screen is showing', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  fetchMock.get('/config/election', electionSampleDefinition)
-  fetchMock.get('/config/testMode', { status: 'ok', testMode: true })
-  fetchMock.get('/scan/status', {
-    status: 'ok',
-    scanner: 'WaitingForPaper',
-    batches: [],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  } as GetScanStatusResponse)
+  fetchMock
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   render(<App card={card} hardware={hardware} />)
   await advanceTimersAndPromises(1)
   await screen.findByText('Insert Your Ballot Below')

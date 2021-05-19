@@ -68,6 +68,7 @@ const DebugSheet: React.FC = () => {
   if (
     interpretation.type === 'BlankPage' ||
     interpretation.type === 'InvalidTestModePage' ||
+    interpretation.type === 'InvalidPrecinctPage' ||
     interpretation.type === 'UnreadablePage' ||
     interpretation.type === 'UninterpretedHmpbPage' ||
     interpretation.type === 'InterpretedBmdPage' ||
