@@ -763,10 +763,13 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     }
   }, [startUsbStatusPolling, startCardShortValueReadPolling])
 
-  const updatePrecinctId = useCallback(async (precinctId: string) => {
-    dispatchAppState({ type: 'updatePrecinctId', precinctId })
-    await config.setCurrentPrecinctId(precinctId)
-  }, [])
+  const updatePrecinctId = useCallback(
+    async (precinctId: string) => {
+      dispatchAppState({ type: 'updatePrecinctId', precinctId })
+      await config.setCurrentPrecinctId(precinctId)
+    },
+    [dispatchAppState]
+  )
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />
