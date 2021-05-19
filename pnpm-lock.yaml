@@ -592,6 +592,7 @@ importers:
       '@votingworks/plustek-sdk': link:../../libs/plustek-sdk
       '@votingworks/qrdetect': 1.0.1
       '@votingworks/types': link:../../libs/types
+      '@votingworks/utils': link:../../libs/utils
       base64-js: 1.5.1
       body-parser: 1.19.0
       busboy: 0.3.1
@@ -682,6 +683,7 @@ importers:
       '@votingworks/plustek-sdk': workspace:*
       '@votingworks/qrdetect': ^1.0.1
       '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
       base64-js: ^1.5.1
       body-parser: ^1.19.0
       busboy: ^0.3.1
@@ -1123,6 +1125,7 @@ importers:
   libs/plustek-sdk:
     dependencies:
       '@votingworks/types': link:../types
+      '@votingworks/utils': link:../utils
       debug: 4.3.1
       temp: 0.9.4
       zod: 3.0.0-alpha.8
@@ -1149,6 +1152,7 @@ importers:
       '@typescript-eslint/parser': ^4.22.0
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
       debug: ^4.3.1
       eslint: ^7.25.0
       jest: ^26.6.3
@@ -5925,7 +5929,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       '@types/istanbul-reports': 3.0.0
-      '@types/node': 15.3.0
+      '@types/node': 12.20.13
       '@types/yargs': 15.0.13
       chalk: 4.1.1
     engines:
@@ -6867,6 +6871,9 @@ packages:
     dev: false
     resolution:
       integrity: sha512-gema+apZ6qLQK7k7F0dGkGCWQYsL0qqKORWOQO6tq46q+x+1C0vbOiOqOwRVlh4RAdbQwV/j/ryr3u5NOG1fPQ==
+  /@types/node/12.20.13:
+    resolution:
+      integrity: sha512-1x8W5OpxPq+T85OUsHRP6BqXeosKmeXRtjoF39STcdf/UWLqUsoehstZKOi0CunhVqHG17AyZgpj20eRVooK6A==
   /@types/node/14.0.1:
     dev: false
     resolution:
@@ -16875,7 +16882,7 @@ packages:
   /jest-util/26.6.2:
     dependencies:
       '@jest/types': 26.6.2
-      '@types/node': 15.3.0
+      '@types/node': 12.20.13
       chalk: 4.1.1
       graceful-fs: 4.2.4
       is-ci: 2.0.0

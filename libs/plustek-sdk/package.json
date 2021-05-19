@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "debug": "^4.3.1",
     "temp": "^0.9.4",
     "zod": "3.0.0-alpha.8"

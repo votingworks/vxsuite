@@ -21,7 +21,7 @@ export interface Deferred<T> {
  *   }
  * })
  */
-export default function deferred<T>(): Deferred<T> {
+export function deferred<T>(): Deferred<T> {
   let resolve!: Deferred<T>['resolve']
   let reject!: Deferred<T>['reject']
   const promise = new Promise<T>((res, rej) => {
@@ -147,6 +147,6 @@ class DeferredQueue<T> {
 /**
  * Builds an async FIFO queue.
  */
-export function queue<T>(): DeferredQueue<T> {
+export function deferredQueue<T>(): DeferredQueue<T> {
   return new DeferredQueue()
 }

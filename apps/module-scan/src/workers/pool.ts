@@ -1,3 +1,4 @@
+import { deferred, Deferred } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import { ChildProcess, fork } from 'child_process'
 import makeDebug from 'debug'
@@ -7,7 +8,6 @@ import { join } from 'path'
 import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 import { Worker } from 'worker_threads'
-import deferred, { Deferred } from '../util/deferred'
 import * as json from './json-serialization'
 
 const debug = makeDebug('module-scan:pool')
