@@ -52,6 +52,25 @@
   "settings": {
     "editor.codeActionsOnSave": {
       "source.fixAll": true
-    }
+    },
+    "cSpell.words": [
+      "AGPL",
+      "Hmpb",
+      "cvrs",
+      "luxon",
+      "plustek",
+      "stylelint",
+      "unconfigure",
+      "unconfigured",
+      "votingworks"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "stylelint.vscode-stylelint",
+      "streetsidesoftware.code-spell-checker"
+    ]
   }
 }
