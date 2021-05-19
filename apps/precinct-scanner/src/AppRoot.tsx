@@ -815,6 +815,7 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
         isLiveMode={!isTestMode}
         toggleLiveMode={toggleTestMode}
         unconfigure={unconfigureServer}
+        calibrate={scan.calibrate}
       />
     )
   }
