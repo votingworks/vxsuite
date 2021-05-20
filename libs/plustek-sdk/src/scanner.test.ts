@@ -7,6 +7,7 @@ import { ScannerError } from './errors'
 import { PaperStatus } from './paper-status'
 import * as plustekctl from './plustekctl'
 import { createClient } from './scanner'
+import sleep from './util/sleep'
 
 const findBinaryPath = mocked(plustekctl.findBinaryPath)
 const spawn = mocked(cp.spawn)
@@ -95,6 +96,27 @@ test('plustekctl spawns but immediately exits', async () => {
   expect(result.unwrapErr()).toEqual(
     new Error(
       'connection error: plustekctl exited unexpectedly (code=0, signal=undefined)'
+    )
+  )
+})
+
+test('plustekctl spawns but fails the handshake', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('plustekctl'))
+  const result = await createClient(DEFAULT_CONFIG, {
+    async onWaitingForHandshake() {
+      // simulate "cannot find scanners" after startup delay
+      await sleep(1)
+      plustekctl.emit('exit', 1)
+    },
+    onConnected: jest.fn(() => {
+      throw new Error('onConnected unexpectedly called!')
+    }),
+  })
+  expect(result.unwrapErr()).toEqual(
+    new Error(
+      'connection error: plustekctl exited unexpectedly (code=1, signal=undefined)'
     )
   )
 })

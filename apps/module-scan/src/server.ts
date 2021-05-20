@@ -3,14 +3,9 @@
 // All actual implementations are in importer.ts and scanner.ts
 //
 
-import {
-  createClient,
-  DEFAULT_CONFIG,
-  ScannerClient,
-} from '@votingworks/plustek-sdk'
+import { createClient, DEFAULT_CONFIG } from '@votingworks/plustek-sdk'
 import {
   BallotType,
-  Result,
   safeParse,
   safeParseElectionDefinition,
 } from '@votingworks/types'
@@ -63,6 +58,7 @@ import {
   PlustekScanner,
   Scanner,
   ScannerMode,
+  withReconnect,
 } from './scanners'
 import Store from './store'
 import { BallotConfig } from './types'
@@ -723,19 +719,6 @@ export interface StartOptions {
   workspace: Workspace
 }
 
-function memo<T>(fn: () => T): () => T {
-  let storedValue: T | undefined
-  let hasStoredValue = false
-
-  return (): T => {
-    if (!hasStoredValue) {
-      storedValue = fn()
-      hasStoredValue = true
-    }
-    return storedValue as T
-  }
-}
-
 /**
  * Starts the server with all the default options.
  */
@@ -766,15 +749,13 @@ export async function start({
   scanner ??=
     process.env.VX_MACHINE_TYPE === 'precinct-scanner'
       ? new PlustekScanner(
-          {
-            get: memo(
-              (): Promise<Result<ScannerClient, Error>> =>
-                createClient({
-                  ...DEFAULT_CONFIG,
-                  savepath: workspace!.ballotImagesPath,
-                })
-            ),
-          },
+          withReconnect({
+            get: () =>
+              createClient({
+                ...DEFAULT_CONFIG,
+                savepath: workspace!.ballotImagesPath,
+              }),
+          }),
           process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
         )
       : new FujitsuScanner({ mode: ScannerMode.Gray })
