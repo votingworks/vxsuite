@@ -66,7 +66,7 @@ const ContestInternal = z.object({
   id: Id,
   districtId: Id,
   partyId: Id.optional(),
-  section: z.string().nonempty(),
+  section: z.string().optional(),
   title: z.string().nonempty(),
   type: ContestTypes,
 })
@@ -246,7 +246,7 @@ export const Election: z.ZodSchema<t.Election> = z
     ballotStrings: z.record(z.union([z.string(), Translations])).optional(),
     ballotStyles: BallotStyles,
     contests: Contests,
-    county: County,
+    county: County.optional(),
     date: ISO8601Date,
     districts: Districts,
     markThresholds: MarkThresholds.optional(),

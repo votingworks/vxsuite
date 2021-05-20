@@ -26,7 +26,8 @@ const StatusFooter: React.FC = () => {
     <StatusBar>
       <Text small white center as="div">
         <strong>{election.title}</strong> — {electionDate} —{' '}
-        {election.county.name}, {election.state}{' '}
+        {election.county && `${election.county.name}, `}
+        {election.state}{' '}
       </Text>
       <Text small white center as="div">
         <React.Fragment>

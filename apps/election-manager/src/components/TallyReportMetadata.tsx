@@ -23,7 +23,8 @@ const TallyReportMetadata: React.FC<Props> = ({
 
   return (
     <p>
-      {electionDate}, {election.county.name}, {election.state}
+      {electionDate}, {election.county && `${election.county.name}, `},{' '}
+      {election.state}
       <br />
       <Text small as="span">
         This report was created on {generatedAt}

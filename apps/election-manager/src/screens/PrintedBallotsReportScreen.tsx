@@ -91,7 +91,8 @@ const PrintedBallotsReportScreen: React.FC = () => {
     <Prose maxWidth={false}>
       <h1>Printed Ballots Report</h1>
       <p>
-        {electionDate}, {election.county.name}, {election.state}
+        {electionDate}, {election.county && `${election.county.name}, `}
+        {election.state}
         <br />
         <Text small as="span">
           This report was created on {generatedAt}.

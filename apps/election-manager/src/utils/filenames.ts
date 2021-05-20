@@ -24,10 +24,9 @@ function sanitizeString(input: string, replacement = ''): string {
 }
 
 function generateElectionName(election: Election): string {
-  const electionCountyName = sanitizeString(
-    election.county.name,
-    WORD_SEPARATOR
-  )
+  const electionCountyName = election.county
+    ? sanitizeString(election.county.name, WORD_SEPARATOR)
+    : ''
   const electionTitle = sanitizeString(election.title, WORD_SEPARATOR)
   return `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`
 }
@@ -50,10 +49,9 @@ export function generateElectionBasedSubfolderName(
   election: Election,
   electionHash: string
 ): string {
-  const electionCountyName = sanitizeString(
-    election.county.name,
-    WORD_SEPARATOR
-  )
+  const electionCountyName = election.county
+    ? sanitizeString(election.county.name, WORD_SEPARATOR)
+    : ''
   const electionTitle = sanitizeString(election.title, WORD_SEPARATOR)
   return `${`${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`.toLocaleLowerCase()}${SUBSECTION_SEPARATOR}${electionHash.slice(
     0,

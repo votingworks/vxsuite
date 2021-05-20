@@ -9,7 +9,9 @@ export function generateDefaultReportFilename(
   election: Election,
   fileSuffix = 'all-precincts'
 ): string {
-  return `${`${fileNamePrefix}-${election.county.name}-${election.title}-${fileSuffix}`
+  return `${`${fileNamePrefix}-${election.county && election.county.name}-${
+    election.title
+  }-${fileSuffix}`
     .replace(/[^a-z0-9]+/gi, '-')
     .replace(/(^-|-$)+/g, '')
     .toLocaleLowerCase()}.pdf`

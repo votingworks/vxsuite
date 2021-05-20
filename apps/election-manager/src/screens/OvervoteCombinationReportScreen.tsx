@@ -69,7 +69,8 @@ const PairsReportScreen: React.FC = () => {
     <React.Fragment>
       <h1>{statusPrefix} Overvote Combination Report</h1>
       <p>
-        {electionDate}, {election.county.name}, {election.state}
+        {electionDate}, {election.county && `${election.county.name}, `}
+        {election.state}
         <br />
         <Text small as="span">
           This report was created on {generatedAt}

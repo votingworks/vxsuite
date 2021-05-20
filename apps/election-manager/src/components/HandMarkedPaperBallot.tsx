@@ -64,13 +64,16 @@ const dualPhraseWithBreak = (t1: string, t2?: string) => {
 }
 
 const dualPhraseWithSlash = (
-  t1: string,
+  t1?: string,
   t2?: string,
   {
     separator = ' / ',
     normal = false,
   }: { separator?: string; normal?: boolean } = {}
 ) => {
+  if (!t1 && !t2) {
+    return ''
+  }
   if (!t2 || t1 === t2) {
     return t1
   }
@@ -246,18 +249,18 @@ const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
 `
-const OfficialInitials = styled.div`
-  display: none;
-  align-items: flex-start;
-  justify-content: center;
-  margin-right: 0.08in;
-  border: 1px solid #000000;
-  width: 1in;
-  /* stylelint-disable-next-line selector-class-pattern */
-  .pagedjs_left_page & {
-    display: flex;
-  }
-`
+// const OfficialInitials = styled.div`
+//   display: none;
+//   align-items: flex-start;
+//   justify-content: center;
+//   margin-right: 0.08in;
+//   border: 1px solid #000000;
+//   width: 1in;
+//   /* stylelint-disable-next-line selector-class-pattern */
+//   .pagedjs_left_page & {
+//     display: flex;
+//   }
+// `
 const PageFooterMain = styled.div`
   display: flex;
   flex: 1;
@@ -393,6 +396,12 @@ const CandidateDescription = styled.span<{ isSmall?: boolean }>`
   font-size: ${({ isSmall }) => (isSmall ? '0.9em' : undefined)};
 `
 
+const CandidateParty = styled.span`
+  display: block;
+  line-height: 1;
+  font-size: 0.8em;
+`
+
 export interface CandidateContestChoicesProps {
   contest: CandidateContest
   locales: BallotLocale
@@ -420,10 +429,9 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
                 {candidate.name}
               </strong>
               {candidate.partyId && (
-                <React.Fragment>
-                  <br />
+                <CandidateParty>
                   {findPartyById(parties, candidate.partyId)!.name}
-                </React.Fragment>
+                </CandidateParty>
               )}
             </CandidateDescription>
           </BubbleMark>
@@ -617,7 +625,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
               </Text>
             </AbsenteeFooter>
           )}
-          <OfficialInitials>
+          {/* <OfficialInitials>
             <Text as="span" small>
               <Trans
                 i18nKey="officialInitials"
@@ -626,7 +634,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 Official’s Initials
               </Trans>
             </Text>
-          </OfficialInitials>
+          </OfficialInitials> */}
           <PageFooterMain>
             <PageFooterRow>
               <div>
@@ -637,7 +645,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
               </div>
               <div>
                 <Text small right as="div">
-                  {dualLanguageWithBreak('Style')}
+                  {dualLanguageWithBreak('Region')}
                 </Text>
                 <Text as="h2">{ballotStyle.id}</Text>
               </div>
@@ -680,9 +688,13 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
               <div>
                 <Text small center as="div">
                   {dualPhraseWithBreak(
-                    `${county.name}, ${state}`,
+                    `${county ? `${county.name}, ` : ''}${state}`,
                     localeElection &&
-                      `${localeElection.county.name}, ${localeElection.state}`
+                      `${
+                        localeElection.county
+                          ? `${localeElection.county.name}, `
+                          : ''
+                      }${localeElection.state}`
                   )}
                 </Text>
               </div>
@@ -758,8 +770,12 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 </h3>
                 <p>
                   {state}
-                  <br />
-                  {county.name}
+                  {county && (
+                    <React.Fragment>
+                      <br />
+                      {county.name}
+                    </React.Fragment>
+                  )}
                   <br />
                   {localeDateLong(date, locales.primary)}
                 </p>
@@ -784,8 +800,12 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     </strong>
                     <br />
                     {localeElection.state}
-                    <br />
-                    {localeElection.county.name}
+                    {localeElection.county && (
+                      <React.Fragment>
+                        <br />
+                        {localeElection.county.name}
+                      </React.Fragment>
+                    )}
                     <br />
                     {localeDateLong(date, locales.secondary)}
                   </p>
@@ -794,70 +814,61 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
             </BallotHeader>
             <Instructions>
               <Prose>
-                <img
-                  src="/ballot/instructions-fill-oval.svg"
-                  alt=""
-                  className="ignore-prose"
-                />
-                <h4>{t('Instructions', { lng: locales.primary })}</h4>
+                <h4>{t('Voting Instructions', { lng: locales.primary })}</h4>
                 <Text small>
-                  {t(
-                    'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                    { lng: locales.primary }
-                  )}
-                </Text>
-                <h4>{t('To Vote for a Write-In', { lng: locales.primary })}</h4>
-                <Text small>
-                  <img src="/ballot/instructions-write-in.svg" alt="" />
-                  {t(
-                    'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                    { lng: locales.primary }
-                  )}
+                  You may vote for a slate of candidates <strong>OR</strong> you
+                  may vote for individual candidates. A slate vote counts as a
+                  vote for each of the individual candidates on that slate. A
+                  vote for a slate of candidates overrides all votes for any
+                  individual candidate not on that slate.
                 </Text>
                 <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
                 <Text small>
-                  {t(
-                    'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                    { lng: locales.primary }
-                  )}
+                  To make a correction, request a replacement ballot from the
+                  IBT Election Supervisor by calling{' '}
+                  <strong>1-844-428-8683</strong>. Any marks other than filled
+                  ovals may cause your ballot not to be counted.
+                </Text>
+                <h4>{t('Returning your ballot', { lng: locales.primary })}</h4>
+                <Text small>
+                  Insert your marked ballot into the “Secret Ballot Security
+                  Sleeve” to ensure the secrecy of your ballot. Place the secret
+                  ballot security sleeve in the postage-paid return envelope.
+                  Other than instructed, do not alter, mark, tape, staple, etc
+                  your ballot, privacy sleve, or return envelope. Your ballot
+                  must be received by 9:00 a.m. on November 14, 2016 in order to
+                  be counted.
                 </Text>
                 {locales.secondary && (
                   <React.Fragment>
                     <HorizontalRule />
-                    <img
-                      src="/ballot/instructions-fill-oval.svg"
-                      alt=""
-                      className="ignore-prose"
-                    />
-                    <h4>{t('Instructions', { lng: locales.secondary })}</h4>
+                    <h4>Instrucciones para Votar</h4>
                     <Text small>
-                      {t(
-                        'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                        { lng: locales.secondary }
-                      )}
+                      Puede votar por una lista de candidatos <strong>O</strong>{' '}
+                      puede votar por candidatos individuales. Un voto en lista
+                      cuenta como un voto para cada uno de los candidatos
+                      individuales en esa lista. Un voto para una lista de
+                      candidatos anula todos los votos para cualquier candidato
+                      individual que no está en esa lista.
                     </Text>
-                    <h4>
-                      {t('To Vote for a Write-In', {
-                        lng: locales.secondary,
-                      })}
-                    </h4>
+                    <h4>Para corregir un error</h4>
                     <Text small>
-                      <img src="/ballot/instructions-write-in.svg" alt="" />
-                      {t(
-                        'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                        { lng: locales.secondary }
-                      )}
+                      Para hacer una corrección, solicite una boleta de
+                      reemplazo a al Supervisor de Elecciones de IBT llamando al{' '}
+                      <strong>1-844-428-8683</strong>. Alguna Las marcas que no
+                      sean óvalos rellenos pueden hacer que su boleta no ser
+                      contados.
                     </Text>
-                    <h4>
-                      {t('To correct a mistake', {
-                        lng: locales.secondary,
-                      })}
-                    </h4>
+                    <h4>Devolver su boleta</h4>
                     <Text small>
-                      {t(
-                        'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                        { lng: locales.secondary }
-                      )}
+                      Inserte su boleta marcada en la casilla “Secret Ballot
+                      Security Sleeve” para garantizar el secreto de su voto.
+                      Colocar el funda de seguridad de voto secreto en la
+                      declaración con franqueo pagado sobre. Aparte de las
+                      instrucciones, no altere, marque, pegue, Engrape, etc. su
+                      boleta, su permiso de privacidad o su devolución. sobre.
+                      Su boleta debe recibirse antes de las 9:00 a.m. del 14 de
+                      noviembre de 2016 para ser contados.
                     </Text>
                   </React.Fragment>
                 )}

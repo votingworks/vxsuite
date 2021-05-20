@@ -37,7 +37,7 @@ const DefinitionScreen: React.FC = () => {
         prev[existingIndex].contests.push(curr)
       } else {
         prev.push({
-          name: curr.section,
+          name: curr.section || 'no-section',
           contests: [curr],
         })
       }
@@ -62,8 +62,12 @@ const DefinitionScreen: React.FC = () => {
             title: <strong>{election.title}</strong>
             <br />
             date: <strong>{election.date}</strong>
-            <br />
-            county name: <strong>{election.county.name}</strong>
+            {election.county && (
+              <React.Fragment>
+                <br />
+                county name: <strong>{election.county.name}</strong>
+              </React.Fragment>
+            )}
             <br />
             state: <strong>{election.state}</strong>
             <br />

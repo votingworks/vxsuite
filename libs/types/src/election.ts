@@ -17,7 +17,7 @@ export interface Contest {
   readonly id: string
   readonly districtId: string
   readonly partyId?: string
-  readonly section: string
+  readonly section?: string
   readonly title: string
   readonly type: ContestTypes
 }
@@ -107,7 +107,7 @@ export interface Election {
   readonly ballotStrings?: BallotStrings
   readonly ballotStyles: readonly BallotStyle[]
   readonly contests: Contests
-  readonly county: County
+  readonly county?: County
   readonly date: string
   readonly districts: readonly District[]
   readonly markThresholds?: MarkThresholds

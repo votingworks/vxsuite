@@ -73,9 +73,9 @@ const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
   const downloadElectionDefinition = () => {
     fileDownload(
       electionData,
-      `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
-        election.title
-      )}-vx-election-definition.json`,
+      `${dashify(election.date)}-${
+        election.county && dashify(election.county.name)
+      }-${dashify(election.title)}-vx-election-definition.json`,
       'application/json'
     )
   }
