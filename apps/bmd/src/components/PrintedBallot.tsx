@@ -16,13 +16,12 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
 } from '@votingworks/types'
-import { formatLongDate } from '@votingworks/utils'
+import { formatLongDate, getSingleYesNoVote } from '@votingworks/utils'
 
 import * as GLOBALS from '../config/globals'
 
 import { randomBase64 } from '../utils/random'
 import { findPartyById } from '../utils/find'
-import { getSingleYesNoVote } from '../utils/votes'
 
 import QRCode from './QRCode'
 import Prose from './Prose'

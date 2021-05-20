@@ -6,22 +6,34 @@ import './App.css'
 import AppRoot, { Props as AppRootProps } from './AppRoot'
 import { getHardware } from './utils/Hardware'
 import { WebServiceCard } from './utils/Card'
+import { LocalStorage } from './utils/Storage'
+import machineConfigProvider from './utils/machineConfig'
 
 export interface Props {
   hardware?: AppRootProps['hardware']
   card?: AppRootProps['card']
+  machineConfig?: AppRootProps['machineConfig']
+  storage?: AppRootProps['storage']
 }
-
-/* istanbul ignore next - need to figure out how to test this */
 
 const App: React.FC<Props> = ({
   hardware = getHardware(),
   card = new WebServiceCard(),
+  storage = new LocalStorage(),
+  machineConfig = machineConfigProvider,
 }) => (
   <BrowserRouter>
     <Route
       path="/"
-      render={(props) => <AppRoot card={card} hardware={hardware} {...props} />}
+      render={(props) => (
+        <AppRoot
+          card={card}
+          hardware={hardware}
+          machineConfig={machineConfig}
+          storage={storage}
+          {...props}
+        />
+      )}
     />
   </BrowserRouter>
 )

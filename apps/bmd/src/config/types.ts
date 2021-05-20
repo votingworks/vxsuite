@@ -11,7 +11,6 @@ import {
   Precinct,
   VotesDict,
   YesNoContest,
-  YesNoVote,
 } from '@votingworks/types'
 import { Printer } from '../utils/printer'
 
@@ -80,48 +79,6 @@ export interface SerializableActivationData {
   ballotStyleId: string
   isCardlessVoter: boolean
   precinctId: string
-}
-
-// Votes
-export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
-export type TallyCount = number
-export interface CandidateVoteTally {
-  candidates: TallyCount[]
-  writeIns: TallyCount
-  undervotes: TallyCount
-  ballotsCast: TallyCount
-}
-export interface YesNoVoteTally {
-  yes: TallyCount
-  no: TallyCount
-  undervotes: TallyCount
-  ballotsCast: TallyCount
-}
-export interface MsEitherNeitherTally {
-  ballotsCast: TallyCount
-  eitherOption: TallyCount
-  neitherOption: TallyCount
-  eitherNeitherUndervotes: TallyCount
-  firstOption: TallyCount
-  secondOption: TallyCount
-  pickOneUndervotes: TallyCount
-}
-export type Tally = (
-  | CandidateVoteTally
-  | YesNoVoteTally
-  | MsEitherNeitherTally
-)[]
-
-export interface CardTallyMetadataEntry {
-  readonly machineId: string
-  readonly timeSaved: number
-  readonly ballotsPrinted: number
-}
-
-export interface CardTally {
-  readonly tally: Tally
-  readonly metadata: readonly CardTallyMetadataEntry[]
-  readonly totalBallotsPrinted: number
 }
 
 // Ballot

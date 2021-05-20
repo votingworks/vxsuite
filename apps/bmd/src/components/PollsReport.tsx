@@ -1,13 +1,15 @@
 import { Election, Precinct } from '@votingworks/types'
-import { formatFullDateTimeZone, formatLongDate } from '@votingworks/utils'
+import {
+  formatFullDateTimeZone,
+  formatLongDate,
+  CardTallyMetadataEntry,
+  TallySourceMachineType,
+} from '@votingworks/utils'
 import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
-import {
-  AppModeNames,
-  CardTallyMetadataEntry,
-  MachineConfig,
-} from '../config/types'
+import { AppModeNames, MachineConfig } from '../config/types'
+
 import Prose from './Prose'
 import Table from './Table'
 
@@ -73,8 +75,9 @@ const SignatureLine = styled.div`
 `
 
 interface Props {
-  appName: AppModeNames
-  ballotsPrintedCount: number
+  appName: AppModeNames | 'Precinct Scanner'
+  sourceMachineType: TallySourceMachineType
+  ballotCount: number
   currentDateTime: string
   election: Election
   isLiveMode: boolean
@@ -87,13 +90,14 @@ interface Props {
 
 const PollsReport: React.FC<Props> = ({
   appName,
-  ballotsPrintedCount,
+  ballotCount,
   currentDateTime,
   election,
   isLiveMode,
   isPollsOpen,
   machineConfig,
   machineMetadata,
+  sourceMachineType,
   precinctId,
   reportPurpose,
 }) => {
@@ -117,7 +121,12 @@ const PollsReport: React.FC<Props> = ({
           <tbody>
             <tr>
               <th>Machine ID</th>
-              <th>Number of Ballots Printed</th>
+              <th>
+                Number of Ballots{' '}
+                {sourceMachineType === TallySourceMachineType.PRECINCT_SCANNER
+                  ? 'Scanned'
+                  : 'Printed'}
+              </th>
               <th>Time Tally Saved</th>
             </tr>
             {machineMetadata.map((metadata) => (
@@ -125,7 +134,7 @@ const PollsReport: React.FC<Props> = ({
                 <td>
                   {appName} #{metadata.machineId}
                 </td>
-                <td>{metadata.ballotsPrinted}</td>
+                <td>{metadata.ballotCount}</td>
                 <td>
                   {formatFullDateTimeZone(
                     DateTime.fromMillis(metadata.timeSaved)
@@ -197,9 +206,15 @@ const PollsReport: React.FC<Props> = ({
             <dd>
               <span>{currentDateTime}</span>
             </dd>
-            <dt>Ballots Printed Count</dt>
+            <dt>
+              Ballots{' '}
+              {sourceMachineType === TallySourceMachineType.PRECINCT_SCANNER
+                ? 'Scanned'
+                : 'Printed'}{' '}
+              Count
+            </dt>
             <dd>
-              <span>{ballotsPrintedCount}</span>
+              <span>{ballotCount}</span>
             </dd>
             <dt>Certification Signatures</dt>
             <dd>

@@ -23,6 +23,12 @@ import IdleTimer from 'react-idle-timer'
 import { map } from 'rxjs/operators'
 import useInterval from '@rooks/use-interval'
 
+import {
+  getZeroTally,
+  calculateTally,
+  Tally,
+  CardTally,
+} from '@votingworks/utils'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
@@ -34,11 +40,9 @@ import {
   UserSettings,
   VoterCardData,
   VxMarkOnly,
-  Tally,
   SerializableActivationData,
   MachineConfig,
   PostVotingInstructions,
-  CardTally,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -58,8 +62,6 @@ import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
 import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
-import { getZeroTally } from './utils/election'
-import { calculateTally } from './utils/tallies'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { Card } from './utils/Card'
@@ -736,7 +738,7 @@ const AppRoot: React.FC<Props> = ({
           if (
             possibleCardTally?.metadata === undefined ||
             possibleCardTally?.tally === undefined ||
-            possibleCardTally?.totalBallotsPrinted === undefined
+            possibleCardTally?.tallyMachineType === undefined
           ) {
             possibleCardTally = undefined
           }

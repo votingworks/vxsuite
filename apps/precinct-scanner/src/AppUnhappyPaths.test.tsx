@@ -15,11 +15,22 @@ import fetchMock from 'fetch-mock'
 import { DateTime } from 'luxon'
 import React from 'react'
 import { interpretedHmpb } from '../test/fixtures'
-import { adminCardForElection } from '../test/helpers/smartcards'
+import {
+  adminCardForElection,
+  pollWorkerCardForElection,
+  getVoterCard,
+} from '../test/helpers/smartcards'
 import App from './App'
 import { BallotSheetInfo } from './config/types'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
+import { MemoryStorage } from './utils/Storage'
+import { stateStorageKey } from './AppRoot'
+
+const getMachineConfigBody = {
+  machineId: '0002',
+  codeVersion: '3.14',
+}
 
 const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
   status: 'ok',
@@ -49,6 +60,7 @@ beforeEach(() => {
 
 test('when module-scan does not respond shows loading screen', async () => {
   fetchMock.get('/config/election', { status: 404 })
+  fetchMock.get('/machine-config', { body: getMachineConfigBody })
 
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
@@ -58,6 +70,7 @@ test('when module-scan does not respond shows loading screen', async () => {
 
 test('module-scan fails to unconfigure', async () => {
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', {
@@ -79,8 +92,43 @@ test('module-scan fails to unconfigure', async () => {
   await screen.findByText('Loading…')
 })
 
-test('error from module-scan in accepting a reviewable ballot', async () => {
+test('Show invalid card screen when unsupported cards are given', async () => {
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .deleteOnce('/config/election', { status: 404 })
+    .get('/scan/status', scanStatusWaitingForPaperResponseBody)
+
+  const card = new MemoryCard()
+  const hardware = MemoryHardware.standard
+  render(<App card={card} hardware={hardware} />)
+  await screen.findByText('Polls Closed')
+  const voterCard = getVoterCard()
+  card.insertCard(voterCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Invalid Card, please remove.')
+
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Polls Closed')
+
+  const pollWorkerCardWrongElection = pollWorkerCardForElection(
+    'this-is-not-the-right-hash'
+  )
+  card.insertCard(pollWorkerCardWrongElection)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Invalid Card, please remove.')
+})
+
+test('error from module-scan in accepting a reviewable ballot', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', {
@@ -88,7 +136,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  render(<App card={card} hardware={hardware} />)
+  render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')
@@ -183,14 +231,17 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
 })
 
 test('error from module-scan in ejecting a reviewable ballot', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
   fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', electionSampleDefinition)
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
-  render(<App card={card} hardware={hardware} />)
+  render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
   await screen.findByText('Scan one ballot sheet at a time.')

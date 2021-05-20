@@ -9,6 +9,7 @@ import React, {
 import styled from 'styled-components'
 import { CandidateVote, YesNoVote, OptionalYesNoVote } from '@votingworks/types'
 
+import { getSingleYesNoVote } from '@votingworks/utils'
 import { findPartyById } from '../utils/find'
 import {
   CandidateContestResultInterface,
@@ -31,7 +32,6 @@ import Screen from '../components/Screen'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
 import SettingsTextSize from '../components/SettingsTextSize'
-import { getSingleYesNoVote } from '../utils/votes'
 
 const ContentHeader = styled.div`
   margin: 0 auto;

@@ -2,8 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "src/data/*.json"],
   "exclude": []
 }

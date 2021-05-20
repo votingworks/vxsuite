@@ -6,6 +6,7 @@ import {
 import {
   CandidateContest,
   getEitherNeitherContests,
+  expandEitherNeitherContests,
   getElectionLocales,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
@@ -17,6 +18,7 @@ import {
   withLocale,
   YesNoContest,
 } from './election'
+import { ContestTypes } from './schema'
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC')
@@ -73,6 +75,25 @@ test('can get ms-either-neither contests from a list', () => {
   expect(
     getEitherNeitherContests(electionWithMsEitherNeither.contests)
   ).toHaveLength(1)
+})
+
+test('can expand ms-either-neither contests into yes no contests', () => {
+  const expandedContests = expandEitherNeitherContests(
+    electionWithMsEitherNeither.contests
+  )
+  // There is 1 contest that should have expanded into two.
+  expect(expandedContests).toHaveLength(
+    1 + electionWithMsEitherNeither.contests.length
+  )
+  for (let i = 0; i < electionWithMsEitherNeither.contests.length; i++) {
+    const originalContest = electionWithMsEitherNeither.contests[i]
+    if (originalContest.type !== 'ms-either-neither') {
+      expect(originalContest).toEqual(expandedContests[i])
+    } else {
+      expect(expandedContests[i].type).toBe('yesno')
+      expect(expandedContests[i + 1].type).toBe('yesno')
+    }
+  }
 })
 
 test('can build votes from a candidates array', () => {

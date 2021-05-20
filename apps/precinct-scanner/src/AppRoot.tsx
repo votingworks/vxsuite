@@ -10,9 +10,11 @@ import {
   AdjudicationReason,
   AdminCardData,
   CardData,
-  ElectionDefinition,
   OptionalElectionDefinition,
+  PollworkerCardData,
+  Provider,
 } from '@votingworks/types'
+
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
 import { Hardware, isCardReader } from './utils/Hardware'
@@ -20,8 +22,10 @@ import {
   CardPresentAPI,
   BallotState,
   ScanningResultType,
-  ISO8601Timestamp,
   RejectedScanningReason,
+  CastVoteRecord,
+  PrecinctScannerCardTally,
+  MachineConfig,
 } from './config/types'
 import {
   CARD_POLLING_INTERVAL,
@@ -41,23 +45,14 @@ import * as scan from './api/scan'
 import throwIllegalValue from './utils/throwIllegalValue'
 
 import { Card } from './utils/Card'
+import { Storage } from './utils/Storage'
 
 import AdminScreen from './screens/AdminScreen'
 import SetupCardReaderPage from './screens/SetupCardReaderPage'
 import InvalidCardScreen from './screens/InvalidCardScreen'
-// import PollsClosedScreen from './screens/PollsClosedScreen'
-// import PollWorkerScreen from './screens/PollWorkerScreen'
-// <PollWorkerScreen
-//   appPrecinctId="42"
-//   ballotsScannedCount={42}
-//   electionDefinition={electionDefinition}
-//   isPollsOpen={false}
-//   openPolls={() => {}}
-//   closePolls={() => {}}
-// />
-
+import PollsClosedScreen from './screens/PollsClosedScreen'
+import PollWorkerScreen from './screens/PollWorkerScreen'
 import InsertBallotScreen from './screens/InsertBallotScreen'
-// import PollsClosedScreen from './screens/PollsClosedScreen'
 import ScanErrorScreen from './screens/ScanErrorScreen'
 import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
@@ -68,13 +63,16 @@ import useCancelablePromise from './hooks/useCancelablePromise'
 const debug = makeDebug('precinct-scanner:app-root')
 
 export interface AppStorage {
-  electionDefinition?: ElectionDefinition
-  configuredAt?: ISO8601Timestamp
+  state?: Partial<State>
 }
+
+export const stateStorageKey = 'state'
 
 export interface Props extends RouteComponentProps {
   hardware: Hardware
   card: Card
+  storage: Storage
+  machineConfig: Provider<MachineConfig>
 }
 
 interface HardwareState {
@@ -83,9 +81,10 @@ interface HardwareState {
   usbDriveStatus: UsbDriveStatus
   adminCardElectionHash: string
   isAdminCardPresent: boolean
+  isPollWorkerCardPresent: boolean
   invalidCardPresent: boolean
   lastCardDataString: string
-  // machineConfig: Readonly<MachineConfig>
+  machineConfig: Readonly<MachineConfig>
 }
 
 interface ScanInformationState {
@@ -103,6 +102,7 @@ interface SharedState {
   isStatusPollingEnabled: boolean
   currentPrecinctId?: string
   isLoading: boolean
+  isPollsOpen: boolean
 }
 
 export interface State
@@ -116,9 +116,10 @@ const initialHardwareState: Readonly<HardwareState> = {
   usbDriveStatus: UsbDriveStatus.absent,
   adminCardElectionHash: '',
   isAdminCardPresent: false,
+  isPollWorkerCardPresent: false,
   invalidCardPresent: false,
   lastCardDataString: '',
-  // machineConfig: { machineId: '0000', codeVersion: 'dev' },
+  machineConfig: { machineId: '0000', codeVersion: 'dev' },
 }
 
 const initialSharedState: Readonly<SharedState> = {
@@ -130,6 +131,7 @@ const initialSharedState: Readonly<SharedState> = {
   isStatusPollingEnabled: true,
   currentPrecinctId: undefined,
   isLoading: false,
+  isPollsOpen: false,
 }
 
 const initialScanInformationState: Readonly<ScanInformationState> = {
@@ -145,6 +147,7 @@ const initialAppState: Readonly<State> = {
 
 // Sets State.
 type AppAction =
+  | { type: 'initializeAppState'; isPollsOpen: boolean }
   | { type: 'unconfigureScanner' }
   | {
       type: 'updateElectionDefinition'
@@ -196,11 +199,17 @@ type AppAction =
       type: 'processAdminCard'
       electionHash: string
     }
+  | {
+      type: 'processPollWorkerCard'
+      isPollWorkerCardValid: boolean
+    }
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | { type: 'cardRemoved' }
   | { type: 'updatePrecinctId'; precinctId?: string }
   | { type: 'startLoading' }
   | { type: 'endLoading' }
+  | { type: 'togglePollsOpen' }
+  | { type: 'setMachineConfig'; machineConfig: MachineConfig }
 
 const appReducer = (state: State, action: AppAction): State => {
   debug(
@@ -214,6 +223,11 @@ const appReducer = (state: State, action: AppAction): State => {
     }
   )
   switch (action.type) {
+    case 'initializeAppState':
+      return {
+        ...state,
+        isPollsOpen: action.isPollsOpen,
+      }
     case 'updateUsbDriveStatus':
       return {
         ...state,
@@ -322,6 +336,12 @@ const appReducer = (state: State, action: AppAction): State => {
         isAdminCardPresent: true,
         adminCardElectionHash: action.electionHash,
       }
+    case 'processPollWorkerCard':
+      return {
+        ...state,
+        isPollWorkerCardPresent: true,
+        invalidCardPresent: !action.isPollWorkerCardValid,
+      }
     case 'updateLastCardDataString': {
       return {
         ...state,
@@ -333,6 +353,7 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         isAdminCardPresent: false,
         invalidCardPresent: false,
+        isPollWorkerCardPresent: false,
       }
     case 'updatePrecinctId':
       return {
@@ -351,13 +372,29 @@ const appReducer = (state: State, action: AppAction): State => {
         isStatusPollingEnabled: true,
         isLoading: false,
       }
+    case 'togglePollsOpen':
+      return {
+        ...state,
+        isPollsOpen: !state.isPollsOpen,
+      }
+    case 'setMachineConfig':
+      return {
+        ...state,
+        machineConfig:
+          action.machineConfig ?? initialHardwareState.machineConfig,
+      }
   }
 }
 
 const sleep = (ms = 1000): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
-const AppRoot: React.FC<Props> = ({ hardware, card }) => {
+const AppRoot: React.FC<Props> = ({
+  hardware,
+  card,
+  storage,
+  machineConfig: machineConfigProvider,
+}) => {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
     usbDriveStatus,
@@ -376,9 +413,13 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     invalidCardPresent,
     currentPrecinctId,
     isLoading,
+    isPollsOpen,
+    isPollWorkerCardPresent,
+    machineConfig,
   } = appState
 
-  const hasCardInserted = isAdminCardPresent || invalidCardPresent
+  const hasCardInserted =
+    isAdminCardPresent || invalidCardPresent || isPollWorkerCardPresent
   const makeCancelable = useCancelablePromise()
 
   const refreshConfig = useCallback(async () => {
@@ -403,6 +444,22 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
       TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
     )
   }, [dispatchAppState])
+
+  // Handle Machine Config
+  useEffect(() => {
+    const setMachineConfig = async () => {
+      try {
+        const newMachineConfig = await machineConfigProvider.get()
+        dispatchAppState({
+          type: 'setMachineConfig',
+          machineConfig: newMachineConfig,
+        })
+      } catch {
+        // Do nothing if machineConfig fails. Default values will be used.
+      }
+    }
+    setMachineConfig()
+  }, [machineConfigProvider])
 
   const scanDetectedBallot = useCallback(async () => {
     dispatchAppState({ type: 'disableStatusPolling' })
@@ -510,89 +567,94 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
       }
       dispatchAppState({ type: 'disableStatusPolling' })
 
-      const { scannerState, ballotCount } = await scan.getCurrentStatus()
+      try {
+        const { scannerState, ballotCount } = await scan.getCurrentStatus()
 
-      // The scanner can occasionally be very briefly in an unexpected state, we should make sure that the scanner stays in the current
-      // state for 200ms before making any changes.
-      for (let i = 0; i < STATUS_POLLING_EXTRA_CHECKS; i++) {
-        await sleep(100)
-        const { scannerState: scannerStateAgain } = await makeCancelable(
-          scan.getCurrentStatus()
-        )
-        // If the state has already changed, abort and start the polling again.
-        if (scannerStateAgain !== scannerState) {
-          debug('saw a momentary blip in scanner status, aborting: %O', {
-            firstStatus: scannerState,
-            nextStatus: scannerStateAgain,
-          })
-          dispatchAppState({ type: 'enableStatusPolling' })
-          return
+        // The scanner can occasionally be very briefly in an unexpected state, we should make sure that the scanner stays in the current
+        // state for 200ms before making any changes.
+        for (let i = 0; i < STATUS_POLLING_EXTRA_CHECKS; i++) {
+          await sleep(100)
+          const { scannerState: scannerStateAgain } = await makeCancelable(
+            scan.getCurrentStatus()
+          )
+          // If the state has already changed, abort and start the polling again.
+          if (scannerStateAgain !== scannerState) {
+            debug('saw a momentary blip in scanner status, aborting: %O', {
+              firstStatus: scannerState,
+              nextStatus: scannerStateAgain,
+            })
+            dispatchAppState({ type: 'enableStatusPolling' })
+            return
+          }
         }
-      }
-      dispatchAppState({ type: 'enableStatusPolling' })
+        dispatchAppState({ type: 'enableStatusPolling' })
 
-      const isCapableOfBeginingNewScan =
-        ballotState === BallotState.IDLE ||
-        ballotState === BallotState.CAST ||
-        ballotState === BallotState.SCANNER_ERROR
+        const isCapableOfBeginingNewScan =
+          ballotState === BallotState.IDLE ||
+          ballotState === BallotState.CAST ||
+          ballotState === BallotState.SCANNER_ERROR
 
-      const isHoldingPaperForVoterRemoval =
-        ballotState === BallotState.REJECTED ||
-        ballotState === BallotState.NEEDS_REVIEW
+        const isHoldingPaperForVoterRemoval =
+          ballotState === BallotState.REJECTED ||
+          ballotState === BallotState.NEEDS_REVIEW
 
-      debug({
-        scannerState,
-        ballotCount,
-        ballotState,
-        isCapableOfBeginingNewScan,
-        isHoldingPaperForVoterRemoval,
-      })
+        debug({
+          scannerState,
+          ballotCount,
+          ballotState,
+          isCapableOfBeginingNewScan,
+          isHoldingPaperForVoterRemoval,
+        })
 
-      // Figure out what ballot state we are in, defaulting to the current state.
-      switch (scannerState) {
-        case ScannerStatus.Error:
-        case ScannerStatus.Unknown: {
-          // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
-          // TODO(531) Bugs in module-scan make this happen at confusing moments, ignore for now.
-          debug('got a bad scanner status', scannerState)
-          /* dispatchAppState({
+        // Figure out what ballot state we are in, defaulting to the current state.
+        switch (scannerState) {
+          case ScannerStatus.Error:
+          case ScannerStatus.Unknown: {
+            // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
+            // TODO(531) Bugs in module-scan make this happen at confusing moments, ignore for now.
+            debug('got a bad scanner status', scannerState)
+            /* dispatchAppState({
             type: 'scannerError',
             timeoutToInsertScreen: dismissCurrentBallotMessage(),
             ballotCount,
           }) */
-          return
-        }
-        case ScannerStatus.ReadyToScan:
-          if (isCapableOfBeginingNewScan) {
-            // If we are going to reset the machine back to the insert ballot screen, cancel that.
-            if (timeoutToInsertScreen) {
-              window.clearTimeout(timeoutToInsertScreen)
-            }
-            // begin scanning
-            dispatchAppState({
-              type: 'ballotScanning',
-              ballotCount,
-            })
-            await scanDetectedBallot()
-          }
-          return
-        case ScannerStatus.WaitingForPaper:
-          // When we can not begin a new scan we are not expecting to be waiting for paper
-          // This will happen if someone is ripping the paper out of the scanner while scanning, or reviewing
-          // a ballot.
-          if (isHoldingPaperForVoterRemoval) {
-            // The voter has removed the ballot, end the batch and reset to the insert screen.
-            await endBatch()
-            /* istanbul ignore next */
-            if (timeoutToInsertScreen) {
-              window.clearTimeout(timeoutToInsertScreen)
-            }
-            dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
             return
           }
-      }
-      if (ballotCount !== scannedBallotCount) {
-        dispatchAppState({ type: 'updateBallotCount', ballotCount })
+          case ScannerStatus.ReadyToScan:
+            if (isCapableOfBeginingNewScan) {
+              // If we are going to reset the machine back to the insert ballot screen, cancel that.
+              if (timeoutToInsertScreen) {
+                window.clearTimeout(timeoutToInsertScreen)
+              }
+              // begin scanning
+              dispatchAppState({
+                type: 'ballotScanning',
+                ballotCount,
+              })
+              await scanDetectedBallot()
+            }
+            return
+          case ScannerStatus.WaitingForPaper:
+            // When we can not begin a new scan we are not expecting to be waiting for paper
+            // This will happen if someone is ripping the paper out of the scanner while scanning, or reviewing
+            // a ballot.
+            if (isHoldingPaperForVoterRemoval) {
+              // The voter has removed the ballot, end the batch and reset to the insert screen.
+              await endBatch()
+              /* istanbul ignore next */
+              if (timeoutToInsertScreen) {
+                window.clearTimeout(timeoutToInsertScreen)
+              }
+              dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
+              return
+            }
+        }
+        if (ballotCount !== scannedBallotCount) {
+          dispatchAppState({ type: 'updateBallotCount', ballotCount })
+        }
+      } catch (err) {
+        debug('error in fetching module scan status')
+        dispatchAppState({ type: 'enableStatusPolling' })
       }
     },
     POLLING_INTERVAL_FOR_SCANNER_STATUS_MS
@@ -618,13 +680,12 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
   }, [refreshConfig])
 
   useEffect(() => {
-    // TODO(caro): also check for polls open and no card insertted
-    if (isScannerConfigured && electionDefinition && !hasCardInserted) {
+    if (isScannerConfigured && electionDefinition) {
       startBallotStatusPolling()
     } else {
       endBallotStatusPolling()
     }
-  }, [isScannerConfigured, electionDefinition, hasCardInserted])
+  }, [isScannerConfigured, electionDefinition])
 
   const setElectionDefinition = useCallback(
     async (electionDefinition: OptionalElectionDefinition) => {
@@ -668,9 +729,13 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
           break
         }
         case 'pollworker': {
-          // TODO(caro) Properly process pollworker cards
+          const isValid =
+            (cardData as PollworkerCardData).h ===
+            electionDefinition?.electionHash
+
           dispatchAppState({
-            type: 'invalidCard',
+            type: 'processPollWorkerCard',
+            isPollWorkerCardValid: isValid,
           })
           break
         }
@@ -738,6 +803,20 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     [card]
   )
 
+  const getCVRsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
+    if (electionDefinition) {
+      return await scan.getExport()
+    }
+    return []
+  }, [electionDefinition, scannedBallotCount])
+
+  const saveTallyToCard = useCallback(
+    async (cardTally: PrecinctScannerCardTally) => {
+      await card.writeLongObject(cardTally)
+    },
+    [card]
+  )
+
   useEffect(() => {
     const hardwareStatusSubscription = hardware.devices
       .pipe(map((devices) => Array.from(devices)))
@@ -755,13 +834,25 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
 
   // Initilize app state
   useEffect(() => {
+    const updateStateFromStorage = async () => {
+      const storedAppState: Partial<State> =
+        ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
+        {}
+      const { isPollsOpen = initialAppState.isPollsOpen } = storedAppState
+      dispatchAppState({
+        type: 'initializeAppState',
+        isPollsOpen,
+      })
+    }
+
+    updateStateFromStorage()
     startUsbStatusPolling()
     startCardShortValueReadPolling()
     return () => {
       stopCardShortValueReadPolling()
       stopUsbStatusPolling()
     }
-  }, [startUsbStatusPolling, startCardShortValueReadPolling])
+  }, [startUsbStatusPolling, startCardShortValueReadPolling, storage])
 
   const updatePrecinctId = useCallback(
     async (precinctId: string) => {
@@ -770,6 +861,20 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     },
     [dispatchAppState]
   )
+
+  const togglePollsOpen = useCallback(() => {
+    dispatchAppState({ type: 'togglePollsOpen' })
+  }, [])
+
+  useEffect(() => {
+    const storeAppState = () => {
+      storage.set(stateStorageKey, {
+        isPollsOpen,
+      })
+    }
+
+    storeAppState()
+  }, [isPollsOpen])
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />
@@ -820,8 +925,25 @@ const AppRoot: React.FC<Props> = ({ hardware, card }) => {
     )
   }
 
-  // TODO(caro): After implementing pollworker screens, we should check whether polls are opened
-  // or closed and possibly return the PollsClosedScreen here.
+  if (isPollWorkerCardPresent) {
+    return (
+      <PollWorkerScreen
+        appPrecinctId={currentPrecinctId}
+        ballotsScannedCount={scannedBallotCount}
+        electionDefinition={electionDefinition}
+        isPollsOpen={isPollsOpen}
+        togglePollsOpen={togglePollsOpen}
+        saveTallyToCard={saveTallyToCard}
+        getCVRsFromExport={getCVRsFromExport}
+        isLiveMode={!isTestMode}
+        machineConfig={machineConfig}
+      />
+    )
+  }
+
+  if (!isPollsOpen) {
+    return <PollsClosedScreen electionDefinition={electionDefinition} />
+  }
 
   // The polls are open for voters to utilize.
   switch (ballotState) {

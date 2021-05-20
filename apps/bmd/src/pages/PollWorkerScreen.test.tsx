@@ -7,6 +7,11 @@ import {
   getByText as domGetByText,
   waitFor,
 } from '@testing-library/react'
+import {
+  getZeroTally,
+  combineTallies,
+  TallySourceMachineType,
+} from '@votingworks/utils'
 import { VxMarkOnly, VxPrintOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
@@ -15,10 +20,8 @@ import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
 import { defaultPrecinctId } from '../../test/helpers/election'
 
 import PollWorkerScreen from './PollWorkerScreen'
-import { getZeroTally } from '../utils/election'
 import fakePrinter from '../../test/helpers/fakePrinter'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
-import { combineTallies } from '../utils/tallies'
 
 jest.useFakeTimers()
 
@@ -235,22 +238,24 @@ test('results combination option is shown with prior tally results when provided
   existingTally[0] = {
     candidates: [5, 5, 5, 5, 5, 0],
     undervotes: 3,
+    overvotes: 0,
     writeIns: 0,
     ballotsCast: 28,
   }
   const talliesOnCard = {
     tally: existingTally,
+    tallyMachineType: TallySourceMachineType.BMD,
     totalBallotsPrinted: 28,
     metadata: [
       {
         machineId: '001',
         timeSaved: new Date('2020-10-31').getTime(),
-        ballotsPrinted: 3,
+        ballotCount: 3,
       },
       {
         machineId: '002',
         timeSaved: new Date('2020-10-30').getTime(),
-        ballotsPrinted: 2,
+        ballotCount: 2,
       },
     ],
   }
@@ -259,6 +264,7 @@ test('results combination option is shown with prior tally results when provided
   currentTally[0] = {
     candidates: [1, 0, 1, 0, 1, 0],
     undervotes: 3,
+    overvotes: 0,
     writeIns: 0,
     ballotsCast: 6,
   }
@@ -332,27 +338,29 @@ test('results combination option is shown with prior tally results when results 
   existingTally[0] = {
     candidates: [6, 5, 6, 5, 6, 0],
     undervotes: 6,
+    overvotes: 0,
     writeIns: 0,
     ballotsCast: 34,
   }
   const talliesOnCard = {
     tally: existingTally,
+    tallyMachineType: TallySourceMachineType.BMD,
     totalBallotsPrinted: 31,
     metadata: [
       {
         machineId: '001',
         timeSaved: new Date('2020-10-31').getTime(),
-        ballotsPrinted: 2,
+        ballotCount: 2,
       },
       {
         machineId: '002',
         timeSaved: new Date('2020-10-30').getTime(),
-        ballotsPrinted: 2,
+        ballotCount: 2,
       },
       {
         machineId: '314',
         timeSaved: new Date('2020-11-01').getTime(),
-        ballotsPrinted: 2,
+        ballotCount: 2,
       },
     ],
   }
@@ -361,6 +369,7 @@ test('results combination option is shown with prior tally results when results 
   currentTally[0] = {
     candidates: [1, 0, 1, 0, 1, 0],
     undervotes: 3,
+    overvotes: 0,
     writeIns: 0,
     ballotsCast: 6,
   }
@@ -412,5 +421,90 @@ test('results combination option is shown with prior tally results when results 
     expect(
       queryByText(/Do you want to print the combined results report/)
     ).toBeNull()
+  })
+})
+
+test('printing precicnt scanner report option is shown when precinct scanner tally data is on the card', async () => {
+  const election = electionSampleWithSeal as Election
+  const saveTally = jest.fn()
+  const clearTallies = jest.fn()
+  const printFn = jest.fn()
+
+  const existingTally = getZeroTally(election)
+  existingTally[0] = {
+    candidates: [6, 5, 6, 5, 6, 0],
+    undervotes: 6,
+    overvotes: 0,
+    writeIns: 0,
+    ballotsCast: 34,
+  }
+  const talliesOnCard = {
+    tally: existingTally,
+    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    totalBallotsScanned: 25,
+    metadata: [
+      {
+        machineId: '001',
+        timeSaved: new Date('2020-10-31').getTime(),
+        ballotCount: 25,
+      },
+    ],
+  }
+
+  const currentTally = getZeroTally(election)
+  currentTally[0] = {
+    candidates: [1, 0, 1, 0, 1, 0],
+    undervotes: 3,
+    overvotes: 0,
+    writeIns: 0,
+    ballotsCast: 6,
+  }
+
+  const { getByText, queryByText } = render(
+    <PollWorkerScreen
+      activateCardlessBallotStyleId={jest.fn()}
+      appPrecinctId={defaultPrecinctId}
+      ballotsPrintedCount={3}
+      ballotStyleId=""
+      electionDefinition={asElectionDefinition(election)}
+      enableLiveMode={jest.fn()}
+      hasVotes={false}
+      isLiveMode
+      isPollsOpen={false}
+      machineConfig={fakeMachineConfig({
+        appMode: VxPrintOnly,
+        machineId: '314',
+      })}
+      printer={{
+        ...fakePrinter(),
+        print: printFn,
+      }}
+      tally={currentTally}
+      togglePollsOpen={jest.fn()}
+      saveTallyToCard={saveTally}
+      talliesOnCard={talliesOnCard}
+      clearTalliesOnCard={clearTallies}
+    />
+  )
+
+  getByText('Results Reports')
+  fireEvent.click(getByText('Print Precinct Scanner Tally Report'))
+  await waitFor(() => {
+    getByText(/Do you want to print the precinct scanner results report/)
+  })
+  fireEvent.click(getByText('Close'))
+
+  await waitFor(() => {
+    expect(
+      queryByText(/Do you want to print the precinct scanner results report/)
+    ).toBeNull()
+  })
+
+  fireEvent.click(getByText('Print Precinct Scanner Tally Report'))
+  fireEvent.click(getByText('Print Report'))
+
+  await waitFor(() => {
+    expect(clearTallies).toHaveBeenCalledTimes(1)
+    expect(printFn).toHaveBeenCalledTimes(1)
   })
 })

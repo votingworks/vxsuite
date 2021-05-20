@@ -1,9 +1,13 @@
 import { CandidateContest, Election } from '@votingworks/types'
 
-import { calculateTally, combineTallies } from './tallies'
-import { getZeroTally } from './election'
+import {
+  calculateTally,
+  combineTallies,
+  getZeroTally,
+  computeTallyForEitherNeitherContests,
+} from './cardTallies'
 
-import electionSample from '../data/electionSample.json'
+import electionSample from './data/electionSample.json'
 
 const election = electionSample as Election
 
@@ -33,6 +37,7 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
         candidates: contest.candidates.map(() => 0),
         writeIns: 0,
         undervotes: contest.seats,
+        overvotes: 0,
         ballotsCast: 1,
       }
       expect(tally[contestIdx]).toEqual(expectedResults)
@@ -41,6 +46,7 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
         yes: 0,
         no: 0,
         undervotes: 1,
+        overvotes: 0,
         ballotsCast: 1,
       })
     } else if (contest.type === 'ms-either-neither') {
@@ -48,9 +54,11 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
         eitherOption: 0,
         neitherOption: 0,
         eitherNeitherUndervotes: 1,
+        eitherNeitherOvervotes: 0,
         firstOption: 0,
         secondOption: 0,
         pickOneUndervotes: 1,
+        pickOneOvervotes: 0,
         ballotsCast: 1,
       })
     }
@@ -60,7 +68,9 @@ test('counts missing votes counts as undervotes for appropriate ballot style', (
 
 test('adds vote to tally as expected', () => {
   const contestId = 'primary-constitution-head-of-party'
-  const sampleContest = electionSample.contests.find((c) => c.id === contestId)
+  const sampleContest = election.contests.find(
+    (c) => c.id === contestId
+  ) as CandidateContest
   const alice = sampleContest!.candidates!.find((c) => c.id === 'alice')!
   const bob = sampleContest!.candidates!.find((c) => c.id === 'bob')!
   const zeroTally = getZeroTally(election)
@@ -80,6 +90,7 @@ test('adds vote to tally as expected', () => {
         candidates: [1, 0],
         writeIns: 0,
         undervotes: 0,
+        overvotes: 0,
         ballotsCast: 1,
       })
     }
@@ -102,6 +113,7 @@ test('adds vote to tally as expected', () => {
         candidates: [1, 1],
         writeIns: 0,
         undervotes: 0,
+        overvotes: 0,
         ballotsCast: 2,
       })
     }
@@ -124,7 +136,30 @@ test('adds vote to tally as expected', () => {
         candidates: [1, 1],
         writeIns: 0,
         undervotes: 1,
+        overvotes: 0,
         ballotsCast: 3,
+      })
+    }
+    contestIdx += 1
+  })
+
+  const tally4 = calculateTally({
+    election,
+    tally: tally3,
+    votes: { 'primary-constitution-head-of-party': [alice, bob] },
+    ballotStyleId: '7C',
+  })
+  contestIdx = 0
+  election.contests.forEach((contest) => {
+    if (contest.id !== contestId) {
+      expect(tally4[contestIdx]).toEqual(zeroTally[contestIdx])
+    } else {
+      expect(tally4[contestIdx]).toEqual({
+        candidates: [1, 1],
+        writeIns: 0,
+        undervotes: 1,
+        overvotes: 1,
+        ballotsCast: 4,
       })
     }
     contestIdx += 1
@@ -141,6 +176,10 @@ test('tallies votes across many contests appropriately', () => {
       'representative-district-6': [
         (election.contests[2] as CandidateContest).candidates[0]!,
       ],
+      governor: [
+        (election.contests[3] as CandidateContest).candidates[0]!,
+        (election.contests[3] as CandidateContest).candidates[1]!,
+      ], // Overvote in 1 seat contest
       'county-commissioners': [
         (election.contests[8] as CandidateContest).candidates[0]!,
         (election.contests[8] as CandidateContest).candidates[1]!,
@@ -148,9 +187,16 @@ test('tallies votes across many contests appropriately', () => {
       'county-registrar-of-wills': [
         { id: 'write_in_vote', name: 'WRITE IN', isWriteIn: true },
       ], // write in
+      'city-council': [
+        (election.contests[11] as CandidateContest).candidates[0]!,
+        (election.contests[11] as CandidateContest).candidates[1]!,
+        (election.contests[11] as CandidateContest).candidates[2]!,
+        (election.contests[11] as CandidateContest).candidates[3]!,
+      ], // 4 seats in 3 seat contest
       'judicial-robert-demergue': ['yes'],
       'judicial-elmer-hull': ['no'],
       'question-a': [],
+      'question-b': ['yes', 'no'],
       '420A': ['yes'],
       '420B': [],
     },
@@ -161,57 +207,88 @@ test('tallies votes across many contests appropriately', () => {
     candidates: [0, 0, 1, 0, 0, 0],
     writeIns: 0,
     undervotes: 0,
+    overvotes: 0,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('senator')]).toEqual({
     candidates: [0, 0, 0, 0, 0, 0, 0],
     writeIns: 0,
     undervotes: 1,
+    overvotes: 0,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('representative-district-6')]).toEqual({
     candidates: [1, 0, 0, 0, 0],
     writeIns: 0,
     undervotes: 0,
+    overvotes: 0,
+    ballotsCast: 1,
+  })
+  expect(tally[getIdxForContestId('governor')]).toEqual({
+    candidates: Array(26).fill(0),
+    writeIns: 0,
+    undervotes: 0,
+    overvotes: 1,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('county-commissioners')]).toEqual({
     candidates: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     writeIns: 0,
     undervotes: 2,
+    overvotes: 0,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('county-registrar-of-wills')]).toEqual({
     candidates: [0],
     writeIns: 1,
     undervotes: 0,
+    overvotes: 0,
+    ballotsCast: 1,
+  })
+  expect(tally[getIdxForContestId('city-council')]).toEqual({
+    candidates: [0, 0, 0, 0, 0, 0],
+    writeIns: 0,
+    undervotes: 0,
+    overvotes: 3,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('judicial-robert-demergue')]).toEqual({
     yes: 1,
     no: 0,
     undervotes: 0,
+    overvotes: 0,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('judicial-elmer-hull')]).toEqual({
     yes: 0,
     no: 1,
     undervotes: 0,
+    overvotes: 0,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('question-a')]).toEqual({
     yes: 0,
     no: 0,
     undervotes: 1,
+    overvotes: 0,
+    ballotsCast: 1,
+  })
+  expect(tally[getIdxForContestId('question-b')]).toEqual({
+    yes: 0,
+    no: 0,
+    undervotes: 0,
+    overvotes: 1,
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('measure-420')]).toEqual({
     eitherOption: 1,
     neitherOption: 0,
     eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
     firstOption: 0,
     secondOption: 0,
     pickOneUndervotes: 1,
+    pickOneOvervotes: 0,
     ballotsCast: 1,
   })
 })
@@ -223,12 +300,14 @@ test('can combine contest tallies as expected', () => {
   // Modify the president candidate contest which is the first in the array.
   tally1[getIdxForContestId('president')] = {
     candidates: [11, 2, 5, 1, 0, 0],
+    overvotes: 2,
     undervotes: 3,
     writeIns: 10,
     ballotsCast: 32,
   }
   tally2[getIdxForContestId('president')] = {
     candidates: [3, 0, 2, 1, 5, 0],
+    overvotes: 1,
     undervotes: 2,
     writeIns: 5,
     ballotsCast: 18,
@@ -239,12 +318,14 @@ test('can combine contest tallies as expected', () => {
     yes: 5,
     no: 17,
     undervotes: 3,
+    overvotes: 1,
     ballotsCast: 25,
   }
   tally2[getIdxForContestId('judicial-robert-demergue')] = {
     yes: 3,
     no: 2,
     undervotes: 10,
+    overvotes: 3,
     ballotsCast: 15,
   }
 
@@ -253,18 +334,22 @@ test('can combine contest tallies as expected', () => {
     eitherOption: 3,
     neitherOption: 2,
     eitherNeitherUndervotes: 10,
+    eitherNeitherOvervotes: 5,
     firstOption: 18,
     secondOption: 4,
     pickOneUndervotes: 3,
+    pickOneOvervotes: 3,
     ballotsCast: 40,
   }
   tally2[getIdxForContestId('measure-420')] = {
     eitherOption: 2,
     neitherOption: 3,
     eitherNeitherUndervotes: 10,
+    eitherNeitherOvervotes: 3,
     firstOption: 2,
     secondOption: 16,
     pickOneUndervotes: 2,
+    pickOneOvervotes: 7,
     ballotsCast: 35,
   }
 
@@ -272,6 +357,7 @@ test('can combine contest tallies as expected', () => {
 
   expect(combinedTallies[getIdxForContestId('president')]).toEqual({
     candidates: [14, 2, 7, 2, 5, 0],
+    overvotes: 3,
     undervotes: 5,
     writeIns: 15,
     ballotsCast: 50,
@@ -283,6 +369,7 @@ test('can combine contest tallies as expected', () => {
     yes: 8,
     no: 19,
     undervotes: 13,
+    overvotes: 4,
     ballotsCast: 40,
   })
 
@@ -290,9 +377,11 @@ test('can combine contest tallies as expected', () => {
     eitherOption: 5,
     neitherOption: 5,
     eitherNeitherUndervotes: 20,
+    eitherNeitherOvervotes: 8,
     firstOption: 20,
     secondOption: 20,
     pickOneUndervotes: 5,
+    pickOneOvervotes: 10,
     ballotsCast: 75,
   })
 
@@ -330,10 +419,229 @@ test('combineTallies throws error when given incompatible tallies', () => {
   tally1[getIdxForContestId('president')] = {
     candidates: [0, 0, 0],
     undervotes: 0,
+    overvotes: 0,
     writeIns: 0,
     ballotsCast: 0,
   }
   expect(() => {
     combineTallies(election, tally1, tally2)
   }).toThrowError()
+})
+
+const measure420Index = election.contests.findIndex(
+  (c) => c.id === 'measure-420'
+)
+const zeroTally = getZeroTally(election)
+
+test('counts first option without first answer', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': [],
+      '420B': ['yes'],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 0,
+    neitherOption: 0,
+    eitherNeitherUndervotes: 1,
+    eitherNeitherOvervotes: 0,
+    firstOption: 1,
+    secondOption: 0,
+    pickOneUndervotes: 0,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts second option without first answer', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': [],
+      '420B': ['no'],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 0,
+    neitherOption: 0,
+    eitherNeitherUndervotes: 1,
+    eitherNeitherOvervotes: 0,
+    firstOption: 0,
+    secondOption: 1,
+    pickOneUndervotes: 0,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts first option with either answer', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': ['yes'],
+      '420B': ['yes'],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 1,
+    neitherOption: 0,
+    eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
+    firstOption: 1,
+    secondOption: 0,
+    pickOneUndervotes: 0,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts second option with either answer', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': ['yes'],
+      '420B': ['no'],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 1,
+    neitherOption: 0,
+    eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
+    firstOption: 0,
+    secondOption: 1,
+    pickOneUndervotes: 0,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts first option with neither answer', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': ['no'],
+      '420B': ['yes'],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 0,
+    neitherOption: 1,
+    eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
+    firstOption: 1,
+    secondOption: 0,
+    pickOneUndervotes: 0,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts second option with neither answer', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': ['no'],
+      '420B': ['no'],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 0,
+    neitherOption: 1,
+    eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
+    firstOption: 0,
+    secondOption: 1,
+    pickOneUndervotes: 0,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts either option with no selected preference', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': ['yes'],
+      '420B': [],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 1,
+    neitherOption: 0,
+    eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
+    firstOption: 0,
+    secondOption: 0,
+    pickOneUndervotes: 1,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('happily counts neither option with no selected preference', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {
+      '420A': ['no'],
+      '420B': [],
+    },
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 0,
+    neitherOption: 1,
+    eitherNeitherUndervotes: 0,
+    eitherNeitherOvervotes: 0,
+    firstOption: 0,
+    secondOption: 0,
+    pickOneUndervotes: 1,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
+})
+
+test('counts missing contests from votes dict as undervotes', () => {
+  const tally = computeTallyForEitherNeitherContests({
+    election,
+    tally: zeroTally,
+    votes: {},
+    contests: election.contests,
+  })
+
+  expect(tally[measure420Index]).toEqual({
+    eitherOption: 0,
+    neitherOption: 0,
+    eitherNeitherUndervotes: 1,
+    eitherNeitherOvervotes: 0,
+    firstOption: 0,
+    secondOption: 0,
+    pickOneUndervotes: 1,
+    pickOneOvervotes: 0,
+    ballotsCast: 1,
+  })
 })

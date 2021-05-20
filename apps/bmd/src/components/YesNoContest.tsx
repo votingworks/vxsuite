@@ -10,13 +10,14 @@ import {
   OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
   Optional,
+  YesOrNo,
 } from '@votingworks/types'
 
+import { getSingleYesNoVote } from '@votingworks/utils'
 import {
   EventTargetFunction,
   ScrollDirections,
   UpdateVoteFunction,
-  YesOrNo,
 } from '../config/types'
 
 import BallotContext from '../contexts/ballotContext'
@@ -28,7 +29,6 @@ import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
 import Text, { TextWithLineBreaks } from './Text'
-import { getSingleYesNoVote } from '../utils/votes'
 import {
   ContentHeader,
   ContestFooter,
