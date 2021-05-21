@@ -58,7 +58,6 @@ import ScanErrorScreen from './screens/ScanErrorScreen'
 import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
-import LoadingScreen from './screens/LoadingScreen'
 import useCancelablePromise from './hooks/useCancelablePromise'
 import AppContext from './contexts/AppContext'
 
@@ -103,7 +102,6 @@ interface SharedState {
   timeoutToInsertScreen?: number
   isStatusPollingEnabled: boolean
   currentPrecinctId?: string
-  isLoading: boolean
   isPollsOpen: boolean
 }
 
@@ -132,7 +130,6 @@ const initialSharedState: Readonly<SharedState> = {
   ballotState: BallotState.IDLE,
   isStatusPollingEnabled: true,
   currentPrecinctId: undefined,
-  isLoading: false,
   isPollsOpen: false,
 }
 
@@ -208,8 +205,6 @@ type AppAction =
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | { type: 'cardRemoved' }
   | { type: 'updatePrecinctId'; precinctId?: string }
-  | { type: 'startLoading' }
-  | { type: 'endLoading' }
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
 
@@ -362,18 +357,6 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         currentPrecinctId: action.precinctId,
       }
-    case 'startLoading':
-      return {
-        ...state,
-        isStatusPollingEnabled: false,
-        isLoading: true,
-      }
-    case 'endLoading':
-      return {
-        ...state,
-        isStatusPollingEnabled: true,
-        isLoading: false,
-      }
     case 'togglePollsOpen':
       return {
         ...state,
@@ -414,7 +397,6 @@ const AppRoot: React.FC<Props> = ({
     lastCardDataString,
     invalidCardPresent,
     currentPrecinctId,
-    isLoading,
     isPollsOpen,
     isPollWorkerCardPresent,
     machineConfig,
@@ -698,22 +680,17 @@ const AppRoot: React.FC<Props> = ({
   )
 
   const toggleTestMode = useCallback(async () => {
-    dispatchAppState({ type: 'startLoading' })
     await config.setTestMode(!isTestMode)
     await refreshConfig()
-    dispatchAppState({ type: 'endLoading' })
   }, [dispatchAppState, refreshConfig])
 
   const unconfigureServer = useCallback(async () => {
-    dispatchAppState({ type: 'startLoading' })
     try {
       await config.setElection(undefined)
       endBallotStatusPolling()
       await refreshConfig()
     } catch (error) {
       debug('failed unconfigureServer()', error)
-    } finally {
-      dispatchAppState({ type: 'endLoading' })
     }
   }, [dispatchAppState, refreshConfig])
 
@@ -892,11 +869,6 @@ const AppRoot: React.FC<Props> = ({
 
   if (!isScannerConfigured) {
     return <LoadingConfigurationScreen />
-  }
-
-  if (isLoading) {
-    // TODO(caro) make this a modal or spinning icon or something better?
-    return <LoadingScreen />
   }
 
   if (!electionDefinition) {
