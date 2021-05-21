@@ -2,8 +2,9 @@ import {
   MockScannerClient,
   PaperStatus,
   ScannerClient,
+  ScannerError,
 } from '@votingworks/plustek-sdk'
-import { Provider, Result, safeParse } from '@votingworks/types'
+import { ok, Provider, Result, safeParse } from '@votingworks/types'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import bodyParser from 'body-parser'
 import makeDebug from 'debug'
@@ -13,6 +14,8 @@ import { BatchControl, Scanner } from '.'
 import { SheetOf } from '../types'
 
 const debug = makeDebug('module-scan:scanner')
+
+export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>
 
 export class PlustekScanner implements Scanner {
   public constructor(
@@ -224,7 +227,7 @@ export function plustekMockServer(client: MockScannerClient): Application {
         async (error) =>
           response.status(400).json({ status: 'error', error: `${error}` }),
         async ({ files }) =>
-          (await client.manualLoad(files)).mapOrElse(
+          (await client.simulateLoadSheet(files)).mapOrElse(
             (error) =>
               response.status(400).json({ status: 'error', error: `${error}` }),
             () => response.json({ status: 'ok' })
@@ -232,10 +235,130 @@ export function plustekMockServer(client: MockScannerClient): Application {
       )
     })
     .delete('/mock', async (_request, response) => {
-      ;(await client.manualRemove()).mapOrElse(
+      ;(await client.simulateRemoveSheet()).mapOrElse(
         (error) =>
           response.status(400).json({ status: 'error', error: `${error}` }),
         () => response.json({ status: 'ok' })
       )
     })
+}
+
+export function withReconnect(
+  provider: ScannerClientProvider
+): ScannerClientProvider {
+  let client: ScannerClient | undefined
+
+  const ensureClient = async (): Promise<ScannerClient> => {
+    while (!client) {
+      debug('withReconnect: establishing new connection')
+      client = (await provider.get()).ok()
+      debug('withReconnect: client=%o', client)
+    }
+    return client
+  }
+
+  const wrapper: ScannerClient = {
+    accept: async () => {
+      for (;;) {
+        const result = await (await ensureClient()).accept()
+
+        if (result.err() === ScannerError.SaneStatusIoError) {
+          client = undefined
+          continue
+        }
+
+        return result
+      }
+    },
+
+    calibrate: async () => {
+      for (;;) {
+        const result = await (await ensureClient()).calibrate()
+
+        if (result.err() === ScannerError.SaneStatusIoError) {
+          client = undefined
+          continue
+        }
+
+        return result
+      }
+    },
+
+    close: async () => {
+      return (await client?.close()) ?? ok(undefined)
+    },
+
+    getPaperStatus: async () => {
+      debug('withReconnect: getPaperStatus')
+      for (;;) {
+        const result = await (await ensureClient()).getPaperStatus()
+
+        if (result.err() === ScannerError.SaneStatusIoError) {
+          debug(
+            'withReconnect: getPaperStatus: got %s, reconnecting',
+            result.err()
+          )
+          client = undefined
+          continue
+        }
+
+        return result
+      }
+    },
+
+    isConnected: () => {
+      return client?.isConnected() ?? false
+    },
+
+    reject: async ({ hold }) => {
+      for (;;) {
+        const result = await (await ensureClient()).reject({ hold })
+
+        if (result.err() === ScannerError.SaneStatusIoError) {
+          client = undefined
+          continue
+        }
+
+        return result
+      }
+    },
+
+    scan: async () => {
+      for (;;) {
+        const result = await (await ensureClient()).scan()
+
+        if (
+          result.isErr() &&
+          result.err() === ScannerError.PaperStatusErrorFeeding
+        ) {
+          client = undefined
+          continue
+        }
+
+        return result
+      }
+    },
+
+    waitForStatus: async (options) => {
+      for (;;) {
+        const result = await (await ensureClient()).waitForStatus(options)
+
+        if (
+          result?.isErr() &&
+          result.err() === ScannerError.SaneStatusIoError
+        ) {
+          client = undefined
+          continue
+        }
+
+        return result
+      }
+    },
+  }
+
+  const wrapperProvider: ScannerClientProvider = {
+    get: async () => ok(wrapper),
+  }
+
+  return wrapperProvider
 }

@@ -89,10 +89,15 @@ export async function createClient(
   const plustekctlPath = plustekctlResult.unwrap()
   debug('spawning: %s %o', plustekctlPath, args)
   const plustekctl = spawn(plustekctlPath, args, { stdio: 'pipe' })
+  debug('spawned %s with pid=%d', plustekctlPath, plustekctl.pid)
 
   const {
     promise: connectedPromise,
     resolve: connectedResolve,
+  } = deferred<void>()
+  const {
+    promise: exitPromise,
+    resolve: exitResolve,
   } = deferred<void>()
   let setupError: Error | undefined
   let connected = false
@@ -108,10 +113,13 @@ export async function createClient(
 
   plustekctl
     .on('error', (error) => {
+      debug('plustekctl error: %s', error)
       setupError = new Error(`connection error: ${error}`)
       onError(setupError)
+      exitResolve()
     })
     .on('exit', (code, signal) => {
+      debug('plustekctl exit: code=%d, signal=%s', code, signal)
       if (quitting && code === 0) {
         connected = false
         onDisconnected()
@@ -122,6 +130,7 @@ export async function createClient(
         onError(setupError)
         connected = false
       }
+      exitResolve()
     })
 
   onConnecting()
@@ -209,7 +218,12 @@ export async function createClient(
     return err(setupError)
   }
 
-  await connectedPromise
+  await Promise.race([connectedPromise, exitPromise])
+
+  /* istanbul ignore next - unsure how to test this case */
+  if (setupError) {
+    return err(setupError)
+  }
 
   const getPaperStatus: ScannerClient['getPaperStatus'] = () =>
     doIPC('get-paper-status', {

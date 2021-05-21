@@ -17,6 +17,7 @@ const debug = makeDebug('plustek-sdk:mock-client')
 
 export enum Errors {
   DuplicateLoad = 'DuplicateLoad',
+  Unresponsive = 'Unresponsive',
   NotConnected = 'NotConnected',
   NoPaperToRemove = 'NoPaperToRemove',
 }
@@ -39,6 +40,7 @@ export interface Options {
  */
 export class MockScannerClient implements ScannerClient {
   private connected = false
+  private unresponsive = false
   private loaded?: readonly string[]
   private loadedAt?: 'front' | 'back'
   private toggleHoldDuration: number
@@ -71,10 +73,15 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Loads a sheet with scan images from `files`.
    */
-  public async manualLoad(
+  public async simulateLoadSheet(
     files: readonly string[]
   ): Promise<Result<void, Errors>> {
     debug('manualLoad files=%o', files)
+
+    if (this.unresponsive) {
+      debug('cannot load, scanner unresponsive')
+      return err(Errors.Unresponsive)
+    }
 
     if (!this.connected) {
       debug('cannot load, not connected')
@@ -96,8 +103,13 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Removes a loaded sheet if present.
    */
-  public async manualRemove(): Promise<Result<void, Errors>> {
+  public async simulateRemoveSheet(): Promise<Result<void, Errors>> {
     debug('manualRemove')
+
+    if (this.unresponsive) {
+      debug('cannot remove, scanner unresponsive')
+      return err(Errors.Unresponsive)
+    }
 
     if (!this.connected) {
       debug('cannot remove, not connected')
@@ -116,6 +128,15 @@ export class MockScannerClient implements ScannerClient {
   }
 
   /**
+   * Simulates an unresponsive scanner, i.e. the once-connected scanner had its
+   * cable removed or power turned off. Once a scanner is unresponsive it cannot
+   * become responsive again, and a new client/connection must be established.
+   */
+  public async simulateUnresponsive(): Promise<void> {
+    this.unresponsive = true
+  }
+
+  /**
    * Determines whether the client is connected.
    */
   public isConnected(): boolean {
@@ -127,6 +148,11 @@ export class MockScannerClient implements ScannerClient {
    */
   public async getPaperStatus(): Promise<GetPaperStatusResult> {
     debug('getPaperStatus')
+
+    if (this.unresponsive) {
+      debug('cannot get paper status, scanner unresponsive')
+      return err(ScannerError.SaneStatusIoError)
+    }
 
     if (!this.connected) {
       debug('cannot get paper status, not connected')
@@ -161,6 +187,11 @@ export class MockScannerClient implements ScannerClient {
   }): Promise<GetPaperStatusResult | undefined> {
     debug('waitForStatus')
 
+    if (this.unresponsive) {
+      debug('cannot wait for status, scanner unresponsive')
+      return err(ScannerError.SaneStatusIoError)
+    }
+
     if (!this.connected) {
       debug('cannot wait for status, not connected')
       return err(ScannerError.NoDevices)
@@ -191,6 +222,11 @@ export class MockScannerClient implements ScannerClient {
   public async scan(): Promise<ScanResult> {
     debug('scan')
 
+    if (this.unresponsive) {
+      debug('cannot scan, scanner unresponsive')
+      return err(ScannerError.PaperStatusErrorFeeding)
+    }
+
     if (!this.connected) {
       debug('cannot scan, not connected')
       return err(ScannerError.NoDevices)
@@ -217,6 +253,11 @@ export class MockScannerClient implements ScannerClient {
    */
   public async accept(): Promise<AcceptResult> {
     debug('accept')
+
+    if (this.unresponsive) {
+      debug('cannot accept, scanner unresponsive')
+      return err(ScannerError.SaneStatusIoError)
+    }
 
     if (!this.connected) {
       debug('cannot accept, not connected')
@@ -245,6 +286,11 @@ export class MockScannerClient implements ScannerClient {
    */
   public async reject({ hold }: { hold: boolean }): Promise<RejectResult> {
     debug('reject hold=%s', hold)
+
+    if (this.unresponsive) {
+      debug('cannot reject, scanner unresponsive')
+      return err(ScannerError.SaneStatusIoError)
+    }
 
     if (!this.connected) {
       debug('cannot reject, not connected')
@@ -275,6 +321,11 @@ export class MockScannerClient implements ScannerClient {
 
   public async calibrate(): Promise<CalibrateResult> {
     debug('calibrate')
+
+    if (this.unresponsive) {
+      debug('cannot calibrate, scanner unresponsive')
+      return err(ScannerError.SaneStatusIoError)
+    }
 
     if (!this.connected) {
       debug('cannot reject, not connected')

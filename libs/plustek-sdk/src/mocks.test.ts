@@ -25,24 +25,62 @@ test('loading', async () => {
     passthroughDuration: 0,
   })
 
-  expect((await mock.manualLoad(files)).err()).toEqual(Errors.NotConnected)
+  expect((await mock.simulateLoadSheet(files)).err()).toEqual(
+    Errors.NotConnected
+  )
   expect((await mock.getPaperStatus()).err()).toEqual(ScannerError.NoDevices)
-  expect((await mock.manualRemove()).err()).toEqual(Errors.NotConnected)
+  expect((await mock.simulateRemoveSheet()).err()).toEqual(Errors.NotConnected)
 
   await mock.connect()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
-  expect((await mock.manualRemove()).err()).toEqual(Errors.NoPaperToRemove)
-  expect((await mock.manualLoad(files)).err()).toBeUndefined()
+  expect((await mock.simulateRemoveSheet()).err()).toEqual(
+    Errors.NoPaperToRemove
+  )
+  expect((await mock.simulateLoadSheet(files)).err()).toBeUndefined()
   expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmReadyToScan)
-  expect((await mock.manualLoad(files)).err()).toEqual(Errors.DuplicateLoad)
-  expect((await mock.manualRemove()).err()).toBeUndefined()
+  expect((await mock.simulateLoadSheet(files)).err()).toEqual(
+    Errors.DuplicateLoad
+  )
+  expect((await mock.simulateRemoveSheet()).err()).toBeUndefined()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
-  expect((await mock.manualLoad(files)).err()).toBeUndefined()
+  expect((await mock.simulateLoadSheet(files)).err()).toBeUndefined()
   expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmReadyToScan)
+})
+
+test('unresponsive', async () => {
+  const mock = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  })
+
+  await mock.connect()
+  expect(mock.isConnected()).toEqual(true)
+  await mock.simulateUnresponsive()
+
+  expect(mock.isConnected()).toEqual(true)
+  expect((await mock.simulateLoadSheet(files)).err()).toEqual(
+    Errors.Unresponsive
+  )
+  expect((await mock.simulateRemoveSheet()).err()).toEqual(Errors.Unresponsive)
+  expect((await mock.accept()).err()).toEqual(ScannerError.SaneStatusIoError)
+  expect((await mock.calibrate()).err()).toEqual(ScannerError.SaneStatusIoError)
+  expect((await mock.getPaperStatus()).err()).toEqual(
+    ScannerError.SaneStatusIoError
+  )
+  expect((await mock.reject({ hold: true })).err()).toEqual(
+    ScannerError.SaneStatusIoError
+  )
+  expect((await mock.scan()).err()).toEqual(
+    ScannerError.PaperStatusErrorFeeding
+  )
+  expect(
+    (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
+  ).toEqual(ScannerError.SaneStatusIoError)
+  ;(await mock.close()).unwrap()
 })
 
 test('scanning', async () => {
@@ -54,7 +92,7 @@ test('scanning', async () => {
   await mock.connect()
 
   expect((await mock.scan()).err()).toEqual(ScannerError.VtmPsDevReadyNoPaper)
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   expect((await mock.scan()).ok()).toEqual({ files })
   expect((await mock.scan()).err()).toEqual(ScannerError.VtmPsReadyToEject)
   expect((await mock.getPaperStatus()).ok()).toEqual(
@@ -73,14 +111,14 @@ test('accept', async () => {
   expect((await mock.accept()).err()).toEqual(ScannerError.VtmPsDevReadyNoPaper)
 
   // accept w/o scan
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   ;(await mock.accept()).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
 
   // accept w/scan
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   await mock.scan()
   ;(await mock.accept()).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
@@ -103,12 +141,12 @@ test('reject & hold', async () => {
   )
 
   // reject w/o scan
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   ;(await mock.reject({ hold: true })).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmReadyToScan)
 
   // reject w/scan
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   await mock.scan()
   ;(await mock.reject({ hold: true })).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmReadyToScan)
@@ -129,14 +167,14 @@ test('reject w/o hold', async () => {
   )
 
   // reject w/o scan
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   ;(await mock.reject({ hold: false })).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
 
   // reject w/scan
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   await mock.scan()
   ;(await mock.reject({ hold: false })).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
@@ -156,11 +194,10 @@ test('calibrate', async () => {
     ScannerError.VtmPsDevReadyNoPaper
   )
 
-  await mock.manualLoad(files)
+  await mock.simulateLoadSheet(files)
   await mock.scan()
   expect((await mock.calibrate()).err()).toEqual(ScannerError.SaneStatusNoDocs)
   await mock.reject({ hold: true })
-
   ;(await mock.calibrate()).unwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
@@ -208,7 +245,7 @@ test('operation timing', async () => {
   const mock = new MockScannerClient()
   await mock.connect()
 
-  const loadPromise = mock.manualLoad(files)
+  const loadPromise = mock.simulateLoadSheet(files)
   jest.advanceTimersByTime(100)
   await loadPromise
 
