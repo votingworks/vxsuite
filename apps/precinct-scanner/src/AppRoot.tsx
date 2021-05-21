@@ -59,6 +59,7 @@ import ScanWarningScreen from './screens/ScanWarningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
 import LoadingScreen from './screens/LoadingScreen'
 import useCancelablePromise from './hooks/useCancelablePromise'
+import AppContext from './contexts/AppContext'
 
 const debug = makeDebug('precinct-scanner:app-root')
 
@@ -876,6 +877,14 @@ const AppRoot: React.FC<Props> = ({
     storeAppState()
   }, [isPollsOpen])
 
+  const dismissError = () => {
+    /* istanbul ignore next */
+    if (timeoutToInsertScreen) {
+      window.clearTimeout(timeoutToInsertScreen)
+    }
+    dispatchAppState({ type: 'readyToInsertBallot' })
+  }
+
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />
   }
@@ -898,95 +907,118 @@ const AppRoot: React.FC<Props> = ({
     )
   }
 
-  const dismissError = () => {
-    /* istanbul ignore next */
-    if (timeoutToInsertScreen) {
-      window.clearTimeout(timeoutToInsertScreen)
-    }
-    dispatchAppState({ type: 'readyToInsertBallot' })
-  }
-
   if (invalidCardPresent) {
     return <InvalidCardScreen />
   }
 
   if (isAdminCardPresent) {
     return (
-      <AdminScreen
-        appPrecinctId={currentPrecinctId}
-        updateAppPrecinctId={updatePrecinctId}
-        ballotsScannedCount={scannedBallotCount}
-        electionDefinition={electionDefinition}
-        isLiveMode={!isTestMode}
-        toggleLiveMode={toggleTestMode}
-        unconfigure={unconfigureServer}
-        calibrate={scan.calibrate}
-      />
+      <AppContext.Provider
+        value={{
+          electionDefinition,
+          currentPrecinctId,
+          machineConfig,
+        }}
+      >
+        <AdminScreen
+          updateAppPrecinctId={updatePrecinctId}
+          ballotsScannedCount={scannedBallotCount}
+          isLiveMode={!isTestMode}
+          toggleLiveMode={toggleTestMode}
+          unconfigure={unconfigureServer}
+          calibrate={scan.calibrate}
+        />
+      </AppContext.Provider>
     )
   }
 
   if (isPollWorkerCardPresent) {
     return (
-      <PollWorkerScreen
-        appPrecinctId={currentPrecinctId}
-        ballotsScannedCount={scannedBallotCount}
-        electionDefinition={electionDefinition}
-        isPollsOpen={isPollsOpen}
-        togglePollsOpen={togglePollsOpen}
-        saveTallyToCard={saveTallyToCard}
-        getCVRsFromExport={getCVRsFromExport}
-        isLiveMode={!isTestMode}
-        machineConfig={machineConfig}
-      />
+      <AppContext.Provider
+        value={{
+          electionDefinition,
+          currentPrecinctId,
+          machineConfig,
+        }}
+      >
+        <PollWorkerScreen
+          ballotsScannedCount={scannedBallotCount}
+          isPollsOpen={isPollsOpen}
+          togglePollsOpen={togglePollsOpen}
+          saveTallyToCard={saveTallyToCard}
+          getCVRsFromExport={getCVRsFromExport}
+          isLiveMode={!isTestMode}
+        />
+      </AppContext.Provider>
     )
   }
 
-  if (!isPollsOpen) {
-    return <PollsClosedScreen electionDefinition={electionDefinition} />
-  }
+  let voterScreen = (
+    <PollsClosedScreen electionDefinition={electionDefinition} />
+  )
 
   // The polls are open for voters to utilize.
-  switch (ballotState) {
-    case BallotState.IDLE:
-      return (
-        <InsertBallotScreen
-          electionDefinition={electionDefinition}
-          scannedBallotCount={scannedBallotCount}
-          currentPrecinctId={currentPrecinctId}
-        />
-      )
-    case BallotState.SCANNING:
-      return <ScanProcessingScreen />
-    case BallotState.NEEDS_REVIEW:
-      return (
-        <ScanWarningScreen
-          acceptBallot={acceptBallot}
-          adjudicationReasons={adjudicationReasons}
-        />
-      )
-    case BallotState.CAST:
-      return (
-        <ScanSuccessScreen
-          electionDefinition={electionDefinition}
-          scannedBallotCount={scannedBallotCount}
-          currentPrecinctId={currentPrecinctId}
-        />
-      )
-    case BallotState.SCANNER_ERROR:
-      return (
-        <ScanErrorScreen dismissError={dismissError} isTestMode={isTestMode} />
-      )
-    case BallotState.REJECTED:
-      return (
-        <ScanErrorScreen
-          rejectionReason={rejectionReason}
-          isTestMode={isTestMode}
-        />
-      )
-    /* istanbul ignore next */
-    default:
-      throwIllegalValue(ballotState)
+  if (isPollsOpen) {
+    switch (ballotState) {
+      case BallotState.IDLE: {
+        voterScreen = (
+          <InsertBallotScreen scannedBallotCount={scannedBallotCount} />
+        )
+        break
+      }
+      case BallotState.SCANNING: {
+        voterScreen = <ScanProcessingScreen />
+        break
+      }
+      case BallotState.NEEDS_REVIEW: {
+        voterScreen = (
+          <ScanWarningScreen
+            acceptBallot={acceptBallot}
+            adjudicationReasons={adjudicationReasons}
+          />
+        )
+        break
+      }
+      case BallotState.CAST: {
+        voterScreen = (
+          <ScanSuccessScreen scannedBallotCount={scannedBallotCount} />
+        )
+        break
+      }
+      case BallotState.SCANNER_ERROR: {
+        voterScreen = (
+          <ScanErrorScreen
+            dismissError={dismissError}
+            isTestMode={isTestMode}
+          />
+        )
+        break
+      }
+      case BallotState.REJECTED: {
+        voterScreen = (
+          <ScanErrorScreen
+            rejectionReason={rejectionReason}
+            isTestMode={isTestMode}
+          />
+        )
+        break
+      }
+      /* istanbul ignore next */
+      default:
+        throwIllegalValue(ballotState)
+    }
   }
+  return (
+    <AppContext.Provider
+      value={{
+        electionDefinition,
+        machineConfig,
+        currentPrecinctId,
+      }}
+    >
+      {voterScreen}
+    </AppContext.Provider>
+  )
 }
 
 export default AppRoot

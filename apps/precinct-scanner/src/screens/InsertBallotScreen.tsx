@@ -1,5 +1,4 @@
 import React from 'react'
-import { ElectionDefinition, Precinct } from '@votingworks/types'
 import { Absolute } from '../components/Absolute'
 import { InsertBallot } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
@@ -8,20 +7,11 @@ import * as format from '../utils/format'
 
 interface Props {
   scannedBallotCount: number
-  electionDefinition: ElectionDefinition
-  currentPrecinctId?: Precinct['id']
 }
 
-const InsertBallotScreen: React.FC<Props> = ({
-  scannedBallotCount,
-  electionDefinition,
-  currentPrecinctId,
-}) => {
+const InsertBallotScreen: React.FC<Props> = ({ scannedBallotCount }) => {
   return (
-    <CenteredScreen
-      electionDefinition={electionDefinition}
-      currentPrecinctId={currentPrecinctId}
-    >
+    <CenteredScreen>
       <InsertBallot />
       <CenteredLargeProse>
         <h1>Insert Your Ballot Below</h1>

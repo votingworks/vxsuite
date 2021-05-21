@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 
-import { ElectionDefinition, Precinct } from '@votingworks/types'
+import { Precinct } from '@votingworks/types'
 import { Button, Prose, Loading } from '@votingworks/ui'
 import { CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
@@ -11,41 +11,38 @@ import {
   CardTallyMetadataEntry,
   CastVoteRecord,
   TallySourceMachineType,
-  MachineConfig,
 } from '../config/types'
 
 import { calculateTallyFromCVRs } from '../utils/tallies'
+import AppContext from '../contexts/AppContext'
 
 interface Props {
-  appPrecinctId: string | undefined
   ballotsScannedCount: number
-  electionDefinition: ElectionDefinition
   isPollsOpen: boolean
   isLiveMode: boolean
   togglePollsOpen: () => void
   getCVRsFromExport: () => Promise<CastVoteRecord[]>
   saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>
-  machineConfig: Readonly<MachineConfig>
 }
 
 const PollWorkerScreen: React.FC<Props> = ({
-  appPrecinctId,
   ballotsScannedCount,
-  electionDefinition,
   isPollsOpen,
   togglePollsOpen,
   getCVRsFromExport,
   saveTallyToCard,
   isLiveMode,
-  machineConfig,
 }) => {
+  const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
+    AppContext
+  )
   const [isSavingTallyToCard, setIsSavingTallyToCard] = useState(false)
 
   const calculateAndSaveTally = async () => {
     const castVoteRecords = await getCVRsFromExport()
     const tally = calculateTallyFromCVRs(
       castVoteRecords,
-      electionDefinition.election
+      electionDefinition!.election
     )
     const cardTally = {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
@@ -63,9 +60,9 @@ const PollWorkerScreen: React.FC<Props> = ({
     await saveTallyToCard(cardTally)
   }
 
-  const { election } = electionDefinition
+  const { election } = electionDefinition!
   const precinct = election.precincts.find(
-    (p) => p.id === appPrecinctId
+    (p) => p.id === currentPrecinctId
   ) as Precinct
 
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false)
