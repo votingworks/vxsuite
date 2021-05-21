@@ -12,12 +12,8 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
 
     const parsedInfo = parseBallotExportPackageInfoFromFilename(name)
     expect(parsedInfo).toBeTruthy()
-    const {
-      electionCounty,
-      electionName,
-      electionHash,
-      timestamp,
-    } = parsedInfo!
+    const { electionCounty, electionName, electionHash, timestamp } =
+      parsedInfo!
     expect(electionCounty).toBe('choctaw county')
     expect(electionName).toBe('2020 general election')
     expect(electionHash).toBe('a5753d5776')
@@ -35,6 +31,15 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
     const name =
       'choctaw-county_2020-general_election_a5753d5776__2020-12-02_09-42-50.zip'
 
+    expect(parseBallotExportPackageInfoFromFilename(name)).toBeUndefined()
+  })
+
+  test('fails to parse a name with no section seperator', () => {
+    expect(parseBallotExportPackageInfoFromFilename('string')).toBeUndefined()
+  })
+
+  test('fails to parse a name without all election segments', () => {
+    const name = 'string__2020-12-02_09-42-50.zip'
     expect(parseBallotExportPackageInfoFromFilename(name)).toBeUndefined()
   })
 })
@@ -105,5 +110,11 @@ describe('generateFilenameForScanningResults', () => {
     expect(
       generateFilenameForScanningResults('<3-u!n#icorn<3', 1, false, time)
     ).toBe('machine_3unicorn3__1_ballots__2019-03-14_15-09-26.jsonl')
+  })
+
+  test('generates basic scanning results filename with default time', () => {
+    expect(generateFilenameForScanningResults('1', 0, false)).toEqual(
+      expect.stringMatching('machine_1__0_ballots__')
+    )
   })
 })

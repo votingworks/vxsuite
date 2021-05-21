@@ -38,7 +38,7 @@ export function parseBallotExportPackageInfoFromFilename(
 
   const [electionString, timeString] = segments
 
-  let electionSegments = electionString.split(SUBSECTION_SEPARATOR)
+  let electionSegments = electionString!.split(SUBSECTION_SEPARATOR)
   if (electionSegments.length !== 3) {
     return
   }
@@ -47,9 +47,9 @@ export function parseBallotExportPackageInfoFromFilename(
 
   const parsedTime = moment(timeString, TIME_FORMAT_STRING)
   return {
-    electionCounty,
-    electionName,
-    electionHash,
+    electionCounty: electionCounty!,
+    electionName: electionName!,
+    electionHash: electionHash!,
     timestamp: parsedTime.toDate(),
   }
 }

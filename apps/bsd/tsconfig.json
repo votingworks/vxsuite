@@ -23,6 +23,7 @@
     { "path": "../../libs/hmpb-interpreter" },
     { "path": "../../libs/test-utils" },
     { "path": "../../libs/types" },
-    { "path": "../../libs/ui" }
+    { "path": "../../libs/ui" },
+    { "path": "../../libs/utils" }
   ]
 }

@@ -1,9 +1,9 @@
-import { ElectionDefinition } from '@votingworks/types'
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import fileDownload from 'js-file-download'
 import path from 'path'
 
+import { Button, Prose, Loading } from '@votingworks/ui'
 import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
@@ -11,12 +11,8 @@ import {
 } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
-import Button from './Button'
-import Prose from './Prose'
-import LinkButton from './LinkButton'
-import Loading from './Loading'
 import USBControllerButton from './USBControllerButton'
-import { getDevicePath, UsbDriveStatus } from '../lib/usbstick'
+import { getDevicePath, UsbDriveStatus } from '../utils/usbstick'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
@@ -31,8 +27,8 @@ const USBImage = styled.img`
 export interface Props {
   onClose: () => void
   usbDriveStatus: UsbDriveStatus
-  electionDefinition: ElectionDefinition
-  numberOfBallots: number
+  usbDriveEject: () => void
+  scannedBallotCount: number
   isTestMode: boolean
 }
 
@@ -46,20 +42,20 @@ enum ModalState {
 const ExportResultsModal: React.FC<Props> = ({
   onClose,
   usbDriveStatus,
-  electionDefinition,
-  numberOfBallots,
+  usbDriveEject,
+  scannedBallotCount,
   isTestMode,
 }) => {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const { machineConfig } = useContext(AppContext)
+  const { electionDefinition, machineConfig } = useContext(AppContext)
 
   const exportResults = async (openDialog: boolean) => {
     setCurrentState(ModalState.SAVING)
 
     try {
-      const response = await fetch(`/scan/export`, {
+      const response = await fetch('/scan/export', {
         method: 'post',
       })
 
@@ -67,7 +63,7 @@ const ExportResultsModal: React.FC<Props> = ({
 
       if (response.status !== 200) {
         setErrorMessage(
-          `Failed to save results. Error retrieving CVRs from the scanner.`
+          'Failed to save results. Error retrieving CVRs from the scanner.'
         )
         setCurrentState(ModalState.ERROR)
         return
@@ -75,7 +71,7 @@ const ExportResultsModal: React.FC<Props> = ({
 
       const cvrFilename = generateFilenameForScanningResults(
         machineConfig.machineId,
-        numberOfBallots,
+        scannedBallotCount,
         isTestMode,
         new Date()
       )
@@ -88,8 +84,8 @@ const ExportResultsModal: React.FC<Props> = ({
           )
         }
         const electionFolderName = generateElectionBasedSubfolderName(
-          electionDefinition.election,
-          electionDefinition.electionHash
+          electionDefinition!.election,
+          electionDefinition!.electionHash
         )
         const pathToFolder = path.join(
           usbPath,
@@ -135,7 +131,7 @@ const ExportResultsModal: React.FC<Props> = ({
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     )
   }
@@ -143,12 +139,17 @@ const ExportResultsModal: React.FC<Props> = ({
   if (currentState === ModalState.DONE) {
     let actions = (
       <React.Fragment>
-        <LinkButton onPress={onClose}>Cancel</LinkButton>
-        <USBControllerButton small={false} primary />
+        <Button onPress={onClose}>Cancel</Button>
+        <USBControllerButton
+          small={false}
+          primary
+          usbDriveStatus={usbDriveStatus}
+          usbDriveEject={usbDriveEject}
+        />
       </React.Fragment>
     )
     if (usbDriveStatus === UsbDriveStatus.recentlyEjected) {
-      actions = <LinkButton onPress={onClose}>Close</LinkButton>
+      actions = <Button onPress={onClose}>Close</Button>
     }
     return (
       <Modal
@@ -187,7 +188,10 @@ const ExportResultsModal: React.FC<Props> = ({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage src="usb-stick.svg" alt="Insert USB Image" />
+                <USBImage
+                  src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
+                  alt="Insert USB Image"
+                />
                 Please insert a USB drive in order to export the scanner
                 results.
               </p>
@@ -196,7 +200,7 @@ const ExportResultsModal: React.FC<Props> = ({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
+              <Button onPress={onClose}>Cancel</Button>
               {!window.kiosk && (
                 <Button
                   data-testid="manual-export"
@@ -217,7 +221,7 @@ const ExportResultsModal: React.FC<Props> = ({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
+              <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
         />
@@ -228,7 +232,10 @@ const ExportResultsModal: React.FC<Props> = ({
           content={
             <Prose>
               <h1>Export Results</h1>
-              <USBImage src="usb-stick.svg" alt="Insert USB Image" />
+              <USBImage
+                src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
+                alt="Insert USB Image"
+              />
               <p>
                 A CVR file will automatically be saved to the default location
                 on the mounted USB drive. Optionally, you may pick a custom
@@ -239,11 +246,11 @@ const ExportResultsModal: React.FC<Props> = ({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
-              <Button onPress={() => exportResults(true)}>Custom</Button>
               <Button primary onPress={() => exportResults(false)}>
                 Export
               </Button>
+              <Button onPress={onClose}>Cancel</Button>
+              <Button onPress={() => exportResults(true)}>Custom</Button>
             </React.Fragment>
           }
         />
