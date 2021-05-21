@@ -6,6 +6,8 @@ import 'normalize.css'
 import { map } from 'rxjs/operators'
 import makeDebug from 'debug'
 
+import { PrecinctScannerCardTally } from '@votingworks/utils'
+
 import {
   AdjudicationReason,
   AdminCardData,
@@ -24,7 +26,6 @@ import {
   ScanningResultType,
   RejectedScanningReason,
   CastVoteRecord,
-  PrecinctScannerCardTally,
   MachineConfig,
 } from './config/types'
 import {

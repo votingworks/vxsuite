@@ -7,6 +7,7 @@ import {
   GetTestModeConfigResponse,
   GetCurrentPrecinctConfigResponse,
 } from '@votingworks/types/api/module-scan'
+import { TallySourceMachineType } from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
   fakeKiosk,
@@ -21,7 +22,7 @@ import { DateTime } from 'luxon'
 import { AdjudicationReason } from '@votingworks/types'
 import { getZeroTally } from '@votingworks/utils/src'
 import App from './App'
-import { BallotSheetInfo, TallySourceMachineType } from './config/types'
+import { BallotSheetInfo } from './config/types'
 import { interpretedHmpb } from '../test/fixtures'
 import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
