@@ -61,4 +61,5 @@ export interface PrecinctScannerCardTally {
   readonly metadata: readonly CardTallyMetadataEntry[]
   readonly totalBallotsScanned: number
   readonly isLiveMode: boolean
+  readonly isPollsOpen: boolean
 }
