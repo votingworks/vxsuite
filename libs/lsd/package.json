@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build": "node-gyp configure build && tsc --build",
+    "build:watch": "tsc --build --watch",
     "lint": "tsc --build && eslint src",
     "test": "jest",
     "test:coverage": "jest --coverage",

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "script/react-scripts build",
+    "build:watch": "tsc --build --watch",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --browser chrome",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
