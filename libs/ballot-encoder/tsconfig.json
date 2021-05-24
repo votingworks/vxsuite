@@ -13,7 +13,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "outDir": "lib",
+    "outDir": "build",
     "strict": true,
     "target": "es2015",
     "composite": true

@@ -4,13 +4,13 @@
   "private": true,
   "description": "Line Segment Detector for NodeJS",
   "license": "AGPL-3.0",
-  "main": "lib/src/index.js",
-  "types": "lib/src/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "bin": "bin/lsd.js",
   "files": [
     "addon",
     "bin",
-    "lib",
+    "build",
     "binding.gyp"
   ],
   "scripts": {

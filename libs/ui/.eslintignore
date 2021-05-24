@@ -1,5 +1,5 @@
 /coverage
-/dist
+/build
 /src/**/*.js
 /.eslintrc.js
 *.d.ts

@@ -5,16 +5,16 @@
   "repository": "https://github.com/votingworks/hmpb-interpreter",
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "bin": {
     "hmpb": "bin/hmpb-interpreter.js",
     "hmpb-interpreter": "bin/hmpb-interpreter.js"
   },
   "files": [
-    "dist",
+    "build",
     "!*.test.{js,d.ts}",
-    "!dist/test"
+    "!build/test"
   ],
   "scripts": {
     "build": "tsc --build",

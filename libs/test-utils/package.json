@@ -4,10 +4,10 @@
   "private": true,
   "description": "Test utilities for the monorepo.",
   "license": "AGPL-3.0",
-  "main": "lib/src/index.js",
-  "types": "lib/src/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "files": [
-    "lib"
+    "build"
   ],
   "scripts": {
     "build": "tsc --build",

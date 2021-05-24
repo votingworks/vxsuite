@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testPathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: ['<rootDir>/build/', '<rootDir>/node_modules/'],
   collectCoverageFrom: ['src/**/*', '!test/fixtures/**/*'],
   coverageThreshold: {
     global: {
