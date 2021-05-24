@@ -165,6 +165,7 @@ type AppAction =
       electionDefinition: OptionalElectionDefinition
       isTestMode: boolean
       currentPrecinctId?: string
+      ballotCount: number
     }
   | {
       type: 'ballotScanning'
@@ -251,6 +252,7 @@ const appReducer = (state: State, action: AppAction): State => {
         electionDefinition: action.electionDefinition,
         currentPrecinctId: action.currentPrecinctId,
         isTestMode: action.isTestMode,
+        scannedBallotCount: action.ballotCount,
         isScannerConfigured: true,
       }
     case 'unconfigureScanner':
@@ -430,11 +432,14 @@ const AppRoot: React.FC<Props> = ({
     const currentPrecinctId = await makeCancelable(
       config.getCurrentPrecinctId()
     )
+    // Get the ballot count off module-scan
+    const { ballotCount } = await makeCancelable(scan.getCurrentStatus())
     dispatchAppState({
       type: 'refreshConfigFromScanner',
       electionDefinition,
       isTestMode,
       currentPrecinctId,
+      ballotCount,
     })
   }, [dispatchAppState])
 
@@ -689,12 +694,17 @@ const AppRoot: React.FC<Props> = ({
   }, [refreshConfig])
 
   useEffect(() => {
-    if (isScannerConfigured && electionDefinition) {
+    if (
+      isScannerConfigured &&
+      electionDefinition &&
+      isPollsOpen &&
+      !hasCardInserted
+    ) {
       startBallotStatusPolling()
     } else {
       endBallotStatusPolling()
     }
-  }, [isScannerConfigured, electionDefinition])
+  }, [isScannerConfigured, electionDefinition, isPollsOpen, hasCardInserted])
 
   const setElectionDefinition = useCallback(
     async (electionDefinition: OptionalElectionDefinition) => {

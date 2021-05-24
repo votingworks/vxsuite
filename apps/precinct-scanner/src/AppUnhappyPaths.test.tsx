@@ -76,6 +76,7 @@ test('module-scan fails to unconfigure', async () => {
     .get('/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
+    .get('/scan/status', scanStatusWaitingForPaperResponseBody)
     .deleteOnce('/config/election', { status: 404 })
 
   const card = new MemoryCard()
@@ -134,6 +135,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     .get('/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   render(<App storage={storage} card={card} hardware={hardware} />)

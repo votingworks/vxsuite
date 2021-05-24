@@ -957,3 +957,60 @@ test('voter can cast another ballot while the success screen is showing', async 
   await screen.findByText('Administrator Settings')
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
 })
+
+test('scanning is not triggered when polls closed or cards present', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: false })
+  const card = new MemoryCard()
+  const hardware = MemoryHardware.standard
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', {
+      status: 'ok',
+      scanner: ScannerStatus.WaitingForPaper,
+      batches: [
+        {
+          id: 'test-batch',
+          count: 15,
+          startedAt: DateTime.now().toISO(),
+          endedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    } as GetScanStatusResponse) // Set up the status endpoint with 15 ballots scanned
+  render(<App storage={storage} card={card} hardware={hardware} />)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Polls Closed')
+  // Make sure the status endpoint was only called once
+  expect(fetchMock.calls('/scan/status')).toHaveLength(1)
+  const pollWorkerCard = pollWorkerCardForElection(
+    electionSampleDefinition.electionHash
+  )
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Poll Worker Actions')
+  // We should see 15 ballots were scanned
+  expect((await screen.findByTestId('ballot-count')).textContent).toBe('15')
+  // Check that we have not polled the status endpoint
+  await advanceTimersAndPromises(1)
+  expect(fetchMock.calls('/scan/status')).toHaveLength(1)
+  // Open Polls
+  fetchMock.post('/scan/export', {})
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
+  fireEvent.click(await screen.findByText('Save Report and Open Polls'))
+  await screen.findByText('Saving to Card')
+  await screen.findByText('Close Polls for All Precincts')
+  // Check that we have not polled the status endpoint
+  await advanceTimersAndPromises(1)
+  expect(fetchMock.calls('/scan/status')).toHaveLength(1)
+
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  // We are now polling the status endpoint
+  await screen.findByText('Insert Your Ballot Below')
+  await advanceTimersAndPromises(1)
+  await waitFor(() => expect(fetchMock.calls('/scan/status')).toHaveLength(10))
+})
