@@ -5,8 +5,8 @@
   "description": "Generic UI components for VotingWorks UIs",
   "license": "GPL-3.0",
   "author": "VotingWorks <eng@voting.works>",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",

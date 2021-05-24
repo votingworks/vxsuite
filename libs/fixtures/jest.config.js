@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   clearMocks: true,
-  watchPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/lib'],
+  watchPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/build'],
   collectCoverageFrom: ['src/**/*.ts'],
   coverageThreshold: {
     global: {

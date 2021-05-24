@@ -1,1 +1,1 @@
-module.exports = require('../../dist/src/api/module-scan')
+module.exports = require('../../build/src/api/module-scan')

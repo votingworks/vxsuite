@@ -1,6 +1,6 @@
 import { detect } from '@votingworks/ballot-encoder'
 import { Rect, Size } from '@votingworks/hmpb-interpreter'
-import crop from '@votingworks/hmpb-interpreter/dist/src/utils/crop'
+import crop from '@votingworks/hmpb-interpreter/build/src/utils/crop'
 import { detect as qrdetect } from '@votingworks/qrdetect'
 import makeDebug from 'debug'
 import jsQR from 'jsqr'

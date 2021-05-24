@@ -4,7 +4,6 @@ module.exports = {
   watchPathIgnorePatterns: [
     "<rootDir>/node_modules",
     "<rootDir>/build",
-    "<rootDir>/lib"
   ],
   collectCoverageFrom: ['src/**/*.ts'],
   coverageThreshold: {

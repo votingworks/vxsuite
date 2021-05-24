@@ -4,12 +4,10 @@ module.exports = {
   testPathIgnorePatterns: [
     '<rootDir>/node_modules',
     '<rootDir>/build',
-    '<rootDir>/lib',
   ],
   watchPathIgnorePatterns: [
     '<rootDir>/node_modules',
     '<rootDir>/build',
-    '<rootDir>/lib',
   ],
   collectCoverageFrom: ['src/**/*.ts'],
   coverageThreshold: {
