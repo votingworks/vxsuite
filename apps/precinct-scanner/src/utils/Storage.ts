@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert'
 
 /**
- * Describes the API for application-level persistant storage. Values must be
+ * Describes the API for application-level persistent storage. Values must be
  * objects that can be persisted via JSON.stringify and JSON.parse.
  */
 export interface Storage {
