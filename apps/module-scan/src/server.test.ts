@@ -1,15 +1,17 @@
 /* eslint-disable jest/expect-expect */
 
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
+import * as plusteksdk from '@votingworks/plustek-sdk'
 import {
   AdjudicationReason,
   BallotType,
   CandidateContest,
+  ok,
   YesNoContest,
 } from '@votingworks/types'
 import {
-  ScannerStatus,
   GetScanStatusResponse,
+  ScannerStatus,
 } from '@votingworks/types/api/module-scan'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
@@ -17,6 +19,7 @@ import { Server } from 'http'
 import { join } from 'path'
 import request from 'supertest'
 import { dirSync } from 'tmp'
+import { mocked } from 'ts-jest/dist/utils/testing'
 import { v4 as uuid } from 'uuid'
 import election from '../test/fixtures/state-of-hamilton/election'
 import zeroRect from '../test/fixtures/zeroRect'
@@ -27,6 +30,7 @@ import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
 
 jest.mock('./importer')
+jest.mock('@votingworks/plustek-sdk')
 
 let app: Application
 let workspace: Workspace
@@ -792,6 +796,37 @@ test('start reloads configuration from the store', async () => {
 
   // did we load everything from the store?
   expect(importer.restoreConfig).toHaveBeenCalled()
+})
+
+test('start as precinct-scanner rejects a held sheet at startup', async () => {
+  // don't actually listen
+  jest.spyOn(app, 'listen').mockImplementation()
+  const {
+    MockScannerClient,
+    PaperStatus,
+  }: typeof plusteksdk = jest.requireActual('@votingworks/plustek-sdk')
+
+  const mockClient = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  })
+  await mockClient.connect()
+  ;(await mockClient.simulateLoadSheet(['a.jpg', 'b.jpg'])).unwrap()
+  ;(await mockClient.scan()).unwrap()
+  mocked(plusteksdk.createClient).mockResolvedValueOnce(ok(mockClient))
+
+  // start up the server
+  await start({
+    importer,
+    app,
+    log: jest.fn(),
+    workspace,
+    machineType: 'precinct-scanner',
+  })
+
+  expect((await mockClient.getPaperStatus()).unwrap()).toEqual(
+    PaperStatus.VtmReadyToScan
+  )
 })
 
 test('get next sheet', async () => {

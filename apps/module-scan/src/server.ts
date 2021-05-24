@@ -51,6 +51,7 @@ import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
+import { z } from 'zod'
 import backup from './backup'
 import Importer from './importer'
 import {
@@ -717,7 +718,13 @@ export interface StartOptions {
   app: Application
   log: typeof console.log
   workspace: Workspace
+  machineType: 'bsd' | 'precinct-scanner'
 }
+
+const MachineTypeSchema = z.union([
+  z.literal('bsd'),
+  z.literal('precinct-scanner'),
+])
 
 /**
  * Starts the server with all the default options.
@@ -729,6 +736,10 @@ export async function start({
   app,
   log = console.log,
   workspace,
+  machineType = safeParse(
+    MachineTypeSchema,
+    process.env.VX_MACHINE_TYPE ?? 'bsd'
+  ).unwrap(),
 }: Partial<StartOptions> = {}): Promise<void> {
   if (!workspace) {
     let workspacePath = process.env.MODULE_SCAN_WORKSPACE
@@ -746,19 +757,21 @@ export async function start({
     workspace = await createWorkspace(workspacePath)
   }
 
-  scanner ??=
-    process.env.VX_MACHINE_TYPE === 'precinct-scanner'
-      ? new PlustekScanner(
-          withReconnect({
-            get: () =>
-              createClient({
-                ...DEFAULT_CONFIG,
-                savepath: workspace!.ballotImagesPath,
-              }),
-          }),
-          process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
-        )
-      : new FujitsuScanner({ mode: ScannerMode.Gray })
+  const usingPrecinctScanner = machineType === 'precinct-scanner'
+  const plustekScannerClientProvider = withReconnect({
+    get: () =>
+      createClient({
+        ...DEFAULT_CONFIG,
+        savepath: workspace!.ballotImagesPath,
+      }),
+  })
+
+  scanner ??= usingPrecinctScanner
+    ? new PlustekScanner(
+        plustekScannerClientProvider,
+        process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
+      )
+    : new FujitsuScanner({ mode: ScannerMode.Gray })
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined
   const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
     return (workerPool ??= childProcessPool(
@@ -790,4 +803,16 @@ export async function start({
 
   // cleanup incomplete batches from before
   await workspace.store.cleanupIncompleteBatches()
+
+  if (usingPrecinctScanner) {
+    if (
+      (
+        await (await plustekScannerClientProvider.get())
+          .ok()
+          ?.reject({ hold: true })
+      )?.isOk()
+    ) {
+      log('Rejected sheet from the scanner on startup')
+    }
+  }
 }
