@@ -37,13 +37,13 @@ const insertCardScreenText = 'Insert voter card to load ballot.'
 const lowBatteryErrorScreenText = 'No Power Detected and Battery is Low'
 const noPowerDetectedWarningText = 'No Power Detected.'
 
-describe('Displays setup warning messages and errors scrrens', () => {
+describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     const card = new MemoryCard()
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = MemoryHardware.standard
-    hardware.setAccesssibleControllerConnected(true)
+    hardware.setAccessibleControllerConnected(true)
 
     setElectionInStorage(storage)
     setStateInStorage(storage)
@@ -67,13 +67,13 @@ describe('Displays setup warning messages and errors scrrens', () => {
     expect(queryByText(accessibleControllerWarningText)).toBeFalsy()
 
     // Disconnect Accessible Controller
-    hardware.setAccesssibleControllerConnected(false)
+    hardware.setAccessibleControllerConnected(false)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await waitFor(() => getByText(accessibleControllerWarningText))
     getByText(insertCardScreenText)
 
     // Reconnect Accessible Controller
-    hardware.setAccesssibleControllerConnected(true)
+    hardware.setAccessibleControllerConnected(true)
     advanceTimers(HARDWARE_POLLING_INTERVAL / 1000)
     await waitFor(() => !queryByText(accessibleControllerWarningText))
     getByText(insertCardScreenText)

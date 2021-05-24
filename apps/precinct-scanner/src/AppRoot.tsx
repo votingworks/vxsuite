@@ -598,7 +598,7 @@ const AppRoot: React.FC<Props> = ({
         }
         dispatchAppState({ type: 'enableStatusPolling' })
 
-        const isCapableOfBeginingNewScan =
+        const isCapableOfBeginningNewScan =
           ballotState === BallotState.IDLE ||
           ballotState === BallotState.CAST ||
           ballotState === BallotState.SCANNER_ERROR
@@ -611,7 +611,7 @@ const AppRoot: React.FC<Props> = ({
           scannerState,
           ballotCount,
           ballotState,
-          isCapableOfBeginingNewScan,
+          isCapableOfBeginningNewScan,
           isHoldingPaperForVoterRemoval,
         })
 
@@ -630,7 +630,7 @@ const AppRoot: React.FC<Props> = ({
             return
           }
           case ScannerStatus.ReadyToScan:
-            if (isCapableOfBeginingNewScan) {
+            if (isCapableOfBeginningNewScan) {
               // If we are going to reset the machine back to the insert ballot screen, cancel that.
               if (timeoutToInsertScreen) {
                 window.clearTimeout(timeoutToInsertScreen)
@@ -836,7 +836,7 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [hardware])
 
-  // Initilize app state
+  // Initialize app state
   useEffect(() => {
     const updateStateFromStorage = async () => {
       const storedAppState: Partial<State> =

@@ -123,7 +123,7 @@ export class MemoryHardware implements Hardware {
     connectCardReader?: boolean
   } = {}) {
     this.setPrinterConnected(connectPrinter)
-    this.setAccesssibleControllerConnected(connectAccessibleController)
+    this.setAccessibleControllerConnected(connectAccessibleController)
     this.setCardReaderConnected(connectCardReader)
   }
 
@@ -146,7 +146,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Sets Accessible Controller connected
    */
-  public async setAccesssibleControllerConnected(
+  public async setAccessibleControllerConnected(
     connected: boolean
   ): Promise<void> {
     this.setDeviceConnected(this.accessibleController, connected)
