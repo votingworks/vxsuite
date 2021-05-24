@@ -242,3 +242,35 @@ test('withReconnect', async () => {
   await client.simulateLoadSheet(['/tmp/blank.jpg', '/tmp/blank.jpg'])
   ;(await wrappedClient.calibrate()).unwrap()
 })
+
+test('withReconnect only re-creates the client once per failure', async () => {
+  const client = new MockScannerClient({
+    passthroughDuration: 0,
+    toggleHoldDuration: 0,
+  })
+  await client.connect()
+  const unresponsiveClient = new MockScannerClient({
+    passthroughDuration: 0,
+    toggleHoldDuration: 0,
+  })
+  await client.connect()
+  await unresponsiveClient.simulateUnresponsive()
+
+  // set up provider to once
+  const getClient = jest
+    .fn()
+    .mockResolvedValueOnce(ok(unresponsiveClient))
+    .mockResolvedValueOnce(ok(client))
+  const provider = withReconnect({ get: getClient })
+
+  const wrappedClient = (await provider.get()).unwrap()
+
+  await Promise.all([
+    wrappedClient.getPaperStatus(),
+    wrappedClient.getPaperStatus(),
+    wrappedClient.getPaperStatus(),
+    wrappedClient.getPaperStatus(),
+  ])
+
+  expect(getClient).toHaveBeenCalledTimes(2)
+})
