@@ -9,6 +9,7 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
     "dev": "tsc --build --watch",
     "lint": "tsc --build && eslint src",
     "prepack": "tsc --build && jest --coverage",

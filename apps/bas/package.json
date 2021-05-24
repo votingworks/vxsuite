@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "script/react-scripts build",
+    "build:watch": "tsc --build --watch",
     "eject": "script/react-scripts eject",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix && pnpm stylelint:run",
