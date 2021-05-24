@@ -246,9 +246,11 @@ export function plustekMockServer(client: MockScannerClient): Application {
 export function withReconnect(
   provider: ScannerClientProvider
 ): ScannerClientProvider {
+  let clientPromise: Promise<ScannerClient> | undefined
   let client: ScannerClient | undefined
 
-  const ensureClient = async (): Promise<ScannerClient> => {
+  const getClient = async (): Promise<ScannerClient> => {
+    let client: ScannerClient | undefined
     while (!client) {
       debug('withReconnect: establishing new connection')
       client = (await provider.get()).ok()
@@ -257,13 +259,25 @@ export function withReconnect(
     return client
   }
 
+  const ensureClient = async (): Promise<ScannerClient> => {
+    clientPromise ??= getClient()
+    client = await clientPromise
+    return clientPromise
+  }
+
+  const discardClient = async (): Promise<void> => {
+    debug('withReconnect: closing client')
+    await (await clientPromise)?.close()
+    clientPromise = undefined
+  }
+
   const wrapper: ScannerClient = {
     accept: async () => {
       for (;;) {
         const result = await (await ensureClient()).accept()
 
         if (result.err() === ScannerError.SaneStatusIoError) {
-          client = undefined
+          await discardClient()
           continue
         }
 
@@ -276,7 +290,7 @@ export function withReconnect(
         const result = await (await ensureClient()).calibrate()
 
         if (result.err() === ScannerError.SaneStatusIoError) {
-          client = undefined
+          await discardClient()
           continue
         }
 
@@ -285,7 +299,7 @@ export function withReconnect(
     },
 
     close: async () => {
-      return (await client?.close()) ?? ok(undefined)
+      return (await (await clientPromise)?.close()) ?? ok(undefined)
     },
 
     getPaperStatus: async () => {
@@ -298,7 +312,7 @@ export function withReconnect(
             'withReconnect: getPaperStatus: got %s, reconnecting',
             result.err()
           )
-          client = undefined
+          await discardClient()
           continue
         }
 
@@ -315,7 +329,7 @@ export function withReconnect(
         const result = await (await ensureClient()).reject({ hold })
 
         if (result.err() === ScannerError.SaneStatusIoError) {
-          client = undefined
+          await discardClient()
           continue
         }
 
@@ -331,7 +345,7 @@ export function withReconnect(
           result.isErr() &&
           result.err() === ScannerError.PaperStatusErrorFeeding
         ) {
-          client = undefined
+          await discardClient()
           continue
         }
 
@@ -347,7 +361,7 @@ export function withReconnect(
           result?.isErr() &&
           result.err() === ScannerError.SaneStatusIoError
         ) {
-          client = undefined
+          await discardClient()
           continue
         }
 
