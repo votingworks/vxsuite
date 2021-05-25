@@ -1,23 +1,25 @@
 /* istanbul ignore file */
-import React, { useState, useContext } from 'react'
+import { AdjudicationReason } from '@votingworks/types'
 import { Button, Prose, Text } from '@votingworks/ui'
-
-import { AdjudicationReason, AnyContest } from '@votingworks/types'
-import {
-  AdjudicationReasonInfo,
-  OvervoteAdjudicationReasonInfo,
-} from '../config/types'
-import { ExclamationTriangle } from '../components/Graphics'
-import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import React, { useContext, useState } from 'react'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
+import { ExclamationTriangle } from '../components/Graphics'
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import Modal from '../components/Modal'
+import {
+  AdjudicationReasonInfo,
+  BlankBallotAdjudicationReasonInfo,
+  OvervoteAdjudicationReasonInfo,
+} from '../config/types'
 import AppContext from '../contexts/AppContext'
+import { toSentence } from '../utils/toSentence'
 
 interface Props {
   acceptBallot: () => Promise<void>
   adjudicationReasonInfo: AdjudicationReasonInfo[]
 }
+
 const ScanWarningScreen: React.FC<Props> = ({
   acceptBallot,
   adjudicationReasonInfo,
@@ -33,30 +35,22 @@ const ScanWarningScreen: React.FC<Props> = ({
   }
 
   const overvoteReasons = adjudicationReasonInfo.filter(
-    (a) => a.type === AdjudicationReason.Overvote
+    (a): a is OvervoteAdjudicationReasonInfo =>
+      a.type === AdjudicationReason.Overvote
   )
   const blankReasons = adjudicationReasonInfo.filter(
-    (a) => a.type === AdjudicationReason.BlankBallot
+    (a): a is BlankBallotAdjudicationReasonInfo =>
+      a.type === AdjudicationReason.BlankBallot
   )
   const isOvervote = overvoteReasons.length > 0
   const isBlank = blankReasons.length > 0
 
-  const overvoteContests: AnyContest[] = overvoteReasons
-    .map((o) =>
-      electionDefinition!.election.contests.find(
-        (c) => c.id === (o as OvervoteAdjudicationReasonInfo).contestId
-      )
-    )
-    .filter((c): c is AnyContest => !!c)
-  let overvoteContestNames = ''
-  if (overvoteContests.length === 1) {
-    overvoteContestNames = overvoteContests[0]!.title
-  } else if (overvoteContests.length > 1) {
-    overvoteContestNames = `${overvoteContests
-      .slice(0, overvoteContests.length - 1)
-      .map((c) => c.title)
-      .join(', ')} and ${overvoteContests[overvoteContests.length - 1]!.title} `
-  }
+  const overvoteContests = electionDefinition!.election.contests.filter((c) =>
+    overvoteReasons.some((o) => c.id === o.contestId)
+  )
+  const overvoteContestNames = toSentence(
+    overvoteContests.map(({ id, title }) => <strong key={id}>{title}</strong>)
+  )
 
   return (
     <CenteredScreen infoBar={false}>
@@ -68,7 +62,7 @@ const ScanWarningScreen: React.FC<Props> = ({
             <p>Too many marks for:</p>
             <p>{overvoteContestNames}</p>
             <Text italic>
-              Remove ballot and ask the poll worker for a new ballot.
+              Remove ballot and ask a poll worker for a new ballot.
             </Text>
           </React.Fragment>
         ) : (
