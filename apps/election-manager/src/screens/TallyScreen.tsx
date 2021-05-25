@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react'
 import moment from 'moment'
 
 import { Optional } from '@votingworks/types'
+import { generateFinalExportDefaultFilename } from '@votingworks/utils'
 import {
   TallyCategory,
   InputEventFunction,
@@ -33,7 +34,6 @@ import { TIME_FORMAT } from '../config/globals'
 import { getPartiesWithPrimaryElections } from '../utils/election'
 import ImportExternalResultsModal from '../components/ImportExternalResultsModal'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
-import { generateFinalExportDefaultFilename } from '../utils/filenames'
 
 const TallyScreen: React.FC = () => {
   const {
