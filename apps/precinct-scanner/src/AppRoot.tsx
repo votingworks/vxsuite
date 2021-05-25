@@ -9,7 +9,6 @@ import makeDebug from 'debug'
 import { PrecinctScannerCardTally } from '@votingworks/utils'
 
 import {
-  AdjudicationReason,
   AdminCardData,
   CardData,
   OptionalElectionDefinition,
@@ -27,6 +26,7 @@ import {
   RejectedScanningReason,
   CastVoteRecord,
   MachineConfig,
+  AdjudicationReasonInfo,
 } from './config/types'
 import {
   CARD_POLLING_INTERVAL,
@@ -91,7 +91,7 @@ interface HardwareState {
 }
 
 interface ScanInformationState {
-  adjudicationReasons: AdjudicationReason[]
+  adjudicationReasonInfo: AdjudicationReasonInfo[]
   rejectionReason?: RejectedScanningReason
 }
 
@@ -137,7 +137,7 @@ const initialSharedState: Readonly<SharedState> = {
 }
 
 const initialScanInformationState: Readonly<ScanInformationState> = {
-  adjudicationReasons: [],
+  adjudicationReasonInfo: [],
   rejectionReason: undefined,
 }
 
@@ -177,7 +177,7 @@ type AppAction =
     }
   | {
       type: 'ballotNeedsReview'
-      adjudicationReasons: AdjudicationReason[]
+      adjudicationReasonInfo: AdjudicationReasonInfo[]
     }
   | {
       type: 'ballotRejected'
@@ -300,7 +300,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         ...initialScanInformationState,
-        adjudicationReasons: action.adjudicationReasons,
+        adjudicationReasonInfo: action.adjudicationReasonInfo,
         ballotState: BallotState.NEEDS_REVIEW,
       }
     case 'readyToInsertBallot':
@@ -401,7 +401,7 @@ const AppRoot: React.FC<Props> = ({
     scannedBallotCount,
     timeoutToInsertScreen,
     isStatusPollingEnabled,
-    adjudicationReasons,
+    adjudicationReasonInfo,
     rejectionReason,
     isTestMode,
     hasCardReaderAttached,
@@ -481,7 +481,7 @@ const AppRoot: React.FC<Props> = ({
         case ScanningResultType.NeedsReview:
           dispatchAppState({
             type: 'ballotNeedsReview',
-            adjudicationReasons: scanningResult.adjudicationReasons,
+            adjudicationReasonInfo: scanningResult.adjudicationReasonInfo,
           })
           break
         case ScanningResultType.Accepted: {
@@ -984,7 +984,7 @@ const AppRoot: React.FC<Props> = ({
         voterScreen = (
           <ScanWarningScreen
             acceptBallot={acceptBallot}
-            adjudicationReasons={adjudicationReasons}
+            adjudicationReasonInfo={adjudicationReasonInfo}
           />
         )
         break

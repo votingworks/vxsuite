@@ -1,4 +1,4 @@
-import { AdjudicationReason, safeParseJSON } from '@votingworks/types'
+import { safeParseJSON } from '@votingworks/types'
 import {
   CalibrateResponseSchema,
   GetScanStatusResponse,
@@ -7,6 +7,7 @@ import {
 } from '@votingworks/types/api/module-scan'
 import makeDebug from 'debug'
 import {
+  AdjudicationReasonInfo,
   BallotSheetInfo,
   CastVoteRecord,
   RejectedScanningReason,
@@ -68,7 +69,7 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
       return { resultType: ScanningResultType.Accepted }
     }
 
-    const adjudicationReasons: AdjudicationReason[] = []
+    const adjudicationReasons: AdjudicationReasonInfo[] = []
     if (status.adjudication.remaining > 0) {
       const sheetInfo = await fetchJSON<BallotSheetInfo>(
         '/scan/hmpb/review/next-sheet'
@@ -95,12 +96,14 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
         }
         if (interpretation.type === 'InterpretedHmpbPage') {
           if (interpretation.adjudicationInfo.requiresAdjudication) {
-            for (const { type } of interpretation.adjudicationInfo
+            for (const reasonInfo of interpretation.adjudicationInfo
               .allReasonInfos) {
               if (
-                interpretation.adjudicationInfo.enabledReasons.includes(type)
+                interpretation.adjudicationInfo.enabledReasons.includes(
+                  reasonInfo.type
+                )
               ) {
-                adjudicationReasons.push(type)
+                adjudicationReasons.push(reasonInfo)
               }
             }
           }
@@ -113,7 +116,7 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
       }
       return {
         resultType: ScanningResultType.NeedsReview,
-        adjudicationReasons,
+        adjudicationReasonInfo: adjudicationReasons,
       }
     }
 

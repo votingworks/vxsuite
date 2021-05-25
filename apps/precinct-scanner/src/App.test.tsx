@@ -503,7 +503,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     },
   } as BallotSheetInfo)
   await advanceTimersAndPromises(1)
-  await screen.findByText('Overvote Warning')
+  await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
 
   fetchMock.post('/scan/scanContinue', {
@@ -608,7 +608,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
-  await screen.findByText('Overvote Warning')
+  await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
 
   // Simulate voter pulling out the ballot
@@ -945,10 +945,10 @@ test('voter can cast another ballot while the success screen is showing', async 
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
   await advanceTimersAndPromises(1)
   await waitFor(() => expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2))
-  await screen.findByText('Overvote Warning')
+  await screen.findByText('Ballot Requires Review')
   // Even after the timeout to expire the success screen occurs we stay on the review screen.
   await advanceTimersAndPromises(5)
-  await screen.findByText('Overvote Warning')
+  await screen.findByText('Ballot Requires Review')
   // No more ballots have scanned even though the scanner is ready for paper
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
   const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
