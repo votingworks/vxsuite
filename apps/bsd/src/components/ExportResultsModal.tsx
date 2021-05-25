@@ -83,9 +83,7 @@ const ExportResultsModal: React.FC<Props> = ({
       if (window.kiosk) {
         const usbPath = await getDevicePath()
         if (!usbPath) {
-          throw new Error(
-            'could not begin downloand; path to usb drive missing'
-          )
+          throw new Error('could not begin download; path to usb drive missing')
         }
         const electionFolderName = generateElectionBasedSubfolderName(
           electionDefinition.election,
