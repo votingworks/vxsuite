@@ -1,4 +1,5 @@
 import { fakeChildProcess } from '@votingworks/test-utils'
+import { sleep } from '@votingworks/utils'
 import { err, ok } from '@votingworks/types'
 import * as cp from 'child_process'
 import { mocked } from 'ts-jest/utils'
@@ -7,7 +8,6 @@ import { ScannerError } from './errors'
 import { PaperStatus } from './paper-status'
 import * as plustekctl from './plustekctl'
 import { createClient } from './scanner'
-import sleep from './util/sleep'
 
 const findBinaryPath = mocked(plustekctl.findBinaryPath)
 const spawn = mocked(cp.spawn)

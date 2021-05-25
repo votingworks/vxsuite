@@ -3,13 +3,10 @@ import {
   GetScanStatusResponse,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
+import { sleep } from '@votingworks/utils'
 import React from 'react'
 import fetchMock, { MockResponseFunction } from 'fetch-mock'
 import usePrecinctScannerStatus from './usePrecinctScannerStatus'
-
-async function sleep(duration: number) {
-  await new Promise((resolve) => setTimeout(resolve, duration))
-}
 
 const scanStatusWaitingForPaperResponse: GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },

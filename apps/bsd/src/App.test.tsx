@@ -11,6 +11,7 @@ import { act } from 'react-dom/test-utils'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import { fakeKiosk } from '@votingworks/test-utils'
+import { sleep } from '@votingworks/utils'
 import {
   GetElectionConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
@@ -21,9 +22,6 @@ import {
 } from '@votingworks/types/api/module-scan'
 import App from './App'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
-
-const sleep = (ms = 1000): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms))
 
 jest.mock('js-file-download')
 

@@ -12,6 +12,7 @@ import {
 } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
+import { sleep } from '@votingworks/utils'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { ElectionDefinition } from '@votingworks/types'
 
@@ -27,7 +28,6 @@ import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 
 import App from './App'
 
-import sleep from './utils/sleep'
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'

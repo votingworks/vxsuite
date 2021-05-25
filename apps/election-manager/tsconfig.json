@@ -23,6 +23,7 @@
     { "path": "../../libs/fixtures" },
     { "path": "../../libs/test-utils" },
     { "path": "../../libs/types" },
+    { "path": "../../libs/utils" },
     { "path": "../../libs/ui" }
   ]
 }

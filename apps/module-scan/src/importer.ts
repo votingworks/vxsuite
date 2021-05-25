@@ -5,6 +5,7 @@ import {
   Optional,
 } from '@votingworks/types'
 import { ScanStatus } from '@votingworks/types/api/module-scan'
+import { sleep } from '@votingworks/utils'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
@@ -23,9 +24,6 @@ import { inlinePool, WorkerPool } from './workers/pool'
 import * as qrcodeWorker from './workers/qrcode'
 
 const debug = makeDebug('module-scan:importer')
-
-export const sleep = (ms = 1000): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms))
 
 export interface Options {
   workspace: Workspace

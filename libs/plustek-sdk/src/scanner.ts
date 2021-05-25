@@ -1,5 +1,5 @@
 import { err, ok, Result, safeParse } from '@votingworks/types'
-import { deferred } from '@votingworks/utils'
+import { deferred, sleep } from '@votingworks/utils'
 import { spawn } from 'child_process'
 import makeDebug from 'debug'
 import { createInterface } from 'readline'
@@ -7,7 +7,6 @@ import { Config, DEFAULT_CONFIG } from './config'
 import { parseScannerError, ScannerError } from './errors'
 import { PaperStatus, PaperStatusSchema } from './paper-status'
 import { findBinaryPath } from './plustekctl'
-import sleep from './util/sleep'
 import { dir as createTempDir, file as createTempFile } from './util/temp'
 
 const debug = makeDebug('plustek-sdk:scanner')
