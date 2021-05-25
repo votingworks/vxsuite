@@ -242,9 +242,27 @@ const AbsenteeFooter = styled.div`
   width: 1in;
   color: #ffffff;
 `
+const Watermark = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  & > div {
+    transform: rotate(305deg);
+    color: #eaeaea;
+    font-size: 18em;
+    font-weight: 700;
+  }
+`
 const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
+  position: relative;
+  z-index: 1;
 `
 const OfficialInitials = styled.div`
   display: none;
@@ -303,7 +321,11 @@ const PageFooterRow = styled.div`
 `
 const PageFooterQRCode = styled.div`
   margin-left: 0.15in;
+  background: #000000;
   width: 0.55in;
+  & > div {
+    visibility: hidden;
+  }
 `
 const CandidateContestsLayout = styled.div`
   columns: 3;
@@ -723,6 +745,14 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         </PageFooter>
       </div>
 
+      <div className="watermark">
+        {!isLiveMode && (
+          <Watermark>
+            <div>SAMPLE</div>
+          </Watermark>
+        )}
+      </div>
+
       <Content>
         <CandidateContestsLayout>
           <IntroColumn>
@@ -751,7 +781,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 <h2>
                   {isLiveMode
                     ? t('Official Ballot', { lng: locales.primary })
-                    : t('TEST BALLOT', { lng: locales.primary })}
+                    : t('SAMPLE BALLOT', { lng: locales.primary })}
                 </h2>
                 <h3>
                   {ballotStyle.partyId && primaryPartyName} {title}

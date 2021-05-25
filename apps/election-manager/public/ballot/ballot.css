@@ -18,3 +18,7 @@
 .ballot-footer {
   position: running(ballotfooter);
 }
+
+.watermark {
+  position: running(watermark);
+}
