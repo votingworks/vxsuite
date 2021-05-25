@@ -1,4 +1,5 @@
 import { err, ok, Result } from '@votingworks/types'
+import { sleep } from '@votingworks/utils'
 import makeDebug from 'debug'
 import { ScannerError } from './errors'
 import { PaperStatus } from './paper-status'
@@ -11,7 +12,6 @@ import {
   ScannerClient,
   ScanResult
 } from './scanner'
-import sleep from './util/sleep'
 
 const debug = makeDebug('plustek-sdk:mock-client')
 

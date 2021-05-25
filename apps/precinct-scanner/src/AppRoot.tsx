@@ -6,8 +6,6 @@ import 'normalize.css'
 import { map } from 'rxjs/operators'
 import makeDebug from 'debug'
 
-import { PrecinctScannerCardTally } from '@votingworks/utils'
-
 import {
   AdjudicationReason,
   AdminCardData,
@@ -16,6 +14,7 @@ import {
   PollworkerCardData,
   Provider,
 } from '@votingworks/types'
+import { sleep, PrecinctScannerCardTally } from '@votingworks/utils'
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
@@ -382,9 +381,6 @@ const appReducer = (state: State, action: AppAction): State => {
       }
   }
 }
-
-const sleep = (ms = 1000): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms))
 
 const AppRoot: React.FC<Props> = ({
   hardware,

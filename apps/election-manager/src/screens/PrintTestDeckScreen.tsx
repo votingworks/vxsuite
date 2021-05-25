@@ -1,6 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Election, getPrecinctById, VotesDict } from '@votingworks/types'
+import { sleep } from '@votingworks/utils'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
@@ -14,8 +15,6 @@ import Loading from '../components/Loading'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
 import { PrecinctReportScreenProps } from '../config/types'
-
-import sleep from '../utils/sleep'
 
 import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 
