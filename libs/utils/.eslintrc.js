@@ -13,6 +13,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
+    project: 'tsconfig.test.json'
   },
   env: {
     jest: true,
@@ -26,6 +27,7 @@ module.exports = {
     'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-dupe-class-members': 'off',
     '@typescript-eslint/no-dupe-class-members': ['error'],
+    '@typescript-eslint/no-floating-promises': ['error'],
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
   },
