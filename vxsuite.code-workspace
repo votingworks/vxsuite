@@ -64,6 +64,7 @@
       "jsonl",
       "luxon",
       "overvote",
+      "overvotes",
       "plustek",
       "pollworker",
       "qrcode",
@@ -72,9 +73,20 @@
       "testid",
       "unconfigure",
       "unconfigured",
+      "undervote",
+      "undervotes",
       "votingworks",
       "yesno"
-    ]
+    ],
+    "search.exclude": {
+      "**/build": true,
+      "**/coverage": true
+    },
+    "files.exclude": {
+      "**/*.tsbuildinfo": true,
+      "**/build": true,
+      "**/coverage": true
+    }
   },
   "extensions": {
     "recommendations": [
