@@ -371,7 +371,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: '',
-            ballotType: BallotType.Standard,
+            ballotType: BallotType.Absentee,
             ballotStyleId,
             precinctId,
             isTestMode: false,

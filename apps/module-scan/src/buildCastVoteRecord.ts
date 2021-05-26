@@ -23,6 +23,10 @@ import {
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
 import allContestOptions from './util/allContestOptions'
 import { getMachineId } from './util/machineId'
+import {
+  describeValidationError,
+  validateSheetInterpretation,
+} from './validation'
 
 export function buildCastVoteRecordMetadataEntries(
   ballotId: string,
@@ -181,7 +185,7 @@ export function buildCastVoteRecordFromBmdPage(
   }
 }
 
-export function buildCastVoteRecordFromHmpbPage(
+function buildCastVoteRecordFromHmpbPage(
   sheetId: string,
   ballotId: string,
   election: Election,
@@ -194,33 +198,6 @@ export function buildCastVoteRecordFromHmpbPage(
     back.interpretation.metadata.pageNumber
   ) {
     ;[front, back] = [back, front]
-  }
-
-  if (
-    front.interpretation.metadata.pageNumber + 1 !==
-    back.interpretation.metadata.pageNumber
-  ) {
-    throw new Error(
-      `expected a sheet to have consecutive page numbers, but got front=${front.interpretation.metadata.pageNumber} back=${back.interpretation.metadata.pageNumber} with sheet ${sheetId}`
-    )
-  }
-
-  if (
-    front.interpretation.metadata.ballotStyleId !==
-    back.interpretation.metadata.ballotStyleId
-  ) {
-    throw new Error(
-      `expected a sheet to have the same ballot style, but got front=${front.interpretation.metadata.ballotStyleId} back=${back.interpretation.metadata.ballotStyleId} with sheet ${sheetId}`
-    )
-  }
-
-  if (
-    front.interpretation.metadata.precinctId !==
-    back.interpretation.metadata.precinctId
-  ) {
-    throw new Error(
-      `expected a sheet to have the same precinct, but got front=${front.interpretation.metadata.precinctId} back=${back.interpretation.metadata.precinctId} with sheet ${sheetId}`
-    )
   }
 
   if (!front.contestIds || !back.contestIds) {
@@ -259,6 +236,15 @@ export function buildCastVoteRecord(
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>
 ): CastVoteRecord | undefined {
+  const validationResult = validateSheetInterpretation([
+    front.interpretation,
+    back.interpretation,
+  ])
+
+  if (validationResult.isErr()) {
+    throw new Error(describeValidationError(validationResult.err()))
+  }
+
   const blankPages = ['BlankPage', 'UnreadablePage']
 
   if (blankPages.includes(front.interpretation.type)) {
@@ -266,11 +252,6 @@ export function buildCastVoteRecord(
   }
 
   if (front.interpretation.type === 'InterpretedBmdPage') {
-    if (!blankPages.includes(back.interpretation.type)) {
-      throw new Error(
-        `expected the back of a BMD page to be blank, but got '${back.interpretation.type}'`
-      )
-    }
     return buildCastVoteRecordFromBmdPage(
       ballotId,
       election,
@@ -282,15 +263,6 @@ export function buildCastVoteRecord(
     front.interpretation.type === 'InterpretedHmpbPage' ||
     front.interpretation.type === 'UninterpretedHmpbPage'
   ) {
-    if (
-      back.interpretation.type !== 'InterpretedHmpbPage' &&
-      back.interpretation.type !== 'UninterpretedHmpbPage'
-    ) {
-      throw new Error(
-        `expected the back of a HMPB page to be another HMPB page, but got '${back.interpretation.type}'`
-      )
-    }
-
     return buildCastVoteRecordFromHmpbPage(sheetId, ballotId, election, [
       front,
       back,
