@@ -69,6 +69,9 @@ test('app can load and configure from a usb stick', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
+  const kiosk = fakeKiosk()
+  kiosk.getUsbDrives.mockResolvedValue([])
+  window.kiosk = kiosk
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .getOnce('/config/election', new Response('null'))
@@ -81,9 +84,7 @@ test('app can load and configure from a usb stick', async () => {
   await screen.findByText('Precinct Scanner is Not Configured')
   await screen.findByText('Insert USB Drive with configuration.')
 
-  const kiosk = fakeKiosk()
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
-  window.kiosk = kiosk
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   jest.advanceTimersByTime(2001)
 
   await screen.findByText(
@@ -91,20 +92,20 @@ test('app can load and configure from a usb stick', async () => {
   )
 
   // Remove the USB
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([])
+  kiosk.getUsbDrives.mockResolvedValue([])
   await advanceTimersAndPromises(2)
   await screen.findByText('Insert USB Drive with configuration.')
 
   // Mock getFileSystemEntries returning an error
-  kiosk.getFileSystemEntries = jest.fn().mockRejectedValueOnce('error')
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
+  kiosk.getFileSystemEntries.mockRejectedValueOnce('error')
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
   await screen.findByText(
     'Error in configuration: No ballot package found on the inserted USB drive.'
   )
 
   // Remove the USB
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([])
+  kiosk.getUsbDrives.mockResolvedValue([])
   await advanceTimersAndPromises(2)
   await screen.findByText('Insert USB Drive with configuration.')
 
@@ -112,15 +113,19 @@ test('app can load and configure from a usb stick', async () => {
     __dirname,
     '../test/fixtures/ballot-package-state-of-hamilton.zip'
   )
-  kiosk.getFileSystemEntries = jest.fn().mockResolvedValue([
+  kiosk.getFileSystemEntries.mockResolvedValue([
     {
       name: 'ballot-package.zip',
       path: pathToFile,
       type: 1,
+      size: 1,
+      atime: new Date(),
+      ctime: new Date(),
+      mtime: new Date(),
     },
   ])
   const fileContent = await fs.readFile(pathToFile)
-  kiosk.readFile = jest.fn().mockResolvedValue(fileContent)
+  kiosk.readFile.mockResolvedValue((fileContent as unknown) as string)
 
   fetchMock
     .patchOnce('/config/testMode', {
@@ -144,7 +149,7 @@ test('app can load and configure from a usb stick', async () => {
     })
 
   // Reinsert USB now that fake zip file on it is setup
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(2)
   await advanceTimersAndPromises(0)
   await screen.findByText('Polls Closed')
@@ -202,7 +207,7 @@ test('app can load and configure from a usb stick', async () => {
   await screen.findByText('2f6b1553c7')
 
   // Remove the USB drive
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(1)
 
   // Insert admin card to unconfigure
@@ -219,13 +224,15 @@ test('app can load and configure from a usb stick', async () => {
   )
 })
 
-test('voter can cast a ballot that scans succesfully ', async () => {
+test('voter can cast a ballot that scans successfully ', async () => {
   const card = new MemoryCard()
   const hardware = MemoryHardware.standard
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: true })
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
-
+  const kiosk = fakeKiosk()
+  kiosk.getUsbDrives.mockResolvedValue([])
+  window.kiosk = kiosk
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -396,10 +403,8 @@ test('voter can cast a ballot that scans succesfully ', async () => {
   await screen.findByText('No USB Drive Detected')
 
   // Insert usb drive
-  const kiosk = fakeKiosk()
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()])
-  window.kiosk = kiosk
-  advanceTimersAndPromises(2)
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+  await advanceTimersAndPromises(2)
   await screen.findByText('Export Results')
   fireEvent.click(await screen.findByText('Export'))
   await screen.findByText('Download Complete')
