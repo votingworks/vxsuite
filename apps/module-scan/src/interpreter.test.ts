@@ -12,6 +12,7 @@ import Interpreter, {
   getBallotImageData,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  PageInterpretation,
   sheetRequiresAdjudication,
   UninterpretedHmpbPage,
   UnreadablePage,
@@ -3084,6 +3085,36 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
   },
 }
 
+function withPageNumber(
+  page: PageInterpretation,
+  pageNumber: number
+): PageInterpretation {
+  switch (page.type) {
+    case 'BlankPage':
+    case 'InterpretedBmdPage':
+    case 'InvalidElectionHashPage':
+    case 'UnreadablePage':
+      return page
+
+    case 'InterpretedHmpbPage':
+    case 'UninterpretedHmpbPage':
+      return { ...page, metadata: { ...page.metadata, pageNumber } }
+
+    case 'InvalidPrecinctPage':
+    case 'InvalidTestModePage':
+      if ('pageNumber' in page.metadata) {
+        return { ...page, metadata: { ...page.metadata, pageNumber } }
+      } else {
+        return page
+      }
+
+    default:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      throw new Error(`unknown page type: ${page.type}`)
+  }
+}
+
 test('sheetRequiresAdjudication triggers if front or back requires adjudication', async () => {
   const sideYes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
@@ -3109,10 +3140,30 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
     },
   }
 
-  expect(sheetRequiresAdjudication([sideYes, sideNo])).toBe(true)
-  expect(sheetRequiresAdjudication([sideNo, sideYes])).toBe(true)
-  expect(sheetRequiresAdjudication([sideYes, sideYes])).toBe(true)
-  expect(sheetRequiresAdjudication([sideNo, sideNo])).toBe(false)
+  expect(
+    sheetRequiresAdjudication([
+      withPageNumber(sideYes, 1),
+      withPageNumber(sideNo, 2),
+    ])
+  ).toBe(true)
+  expect(
+    sheetRequiresAdjudication([
+      withPageNumber(sideNo, 1),
+      withPageNumber(sideYes, 2),
+    ])
+  ).toBe(true)
+  expect(
+    sheetRequiresAdjudication([
+      withPageNumber(sideYes, 1),
+      withPageNumber(sideYes, 2),
+    ])
+  ).toBe(true)
+  expect(
+    sheetRequiresAdjudication([
+      withPageNumber(sideNo, 1),
+      withPageNumber(sideNo, 2),
+    ])
+  ).toBe(false)
 })
 
 test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
@@ -3142,8 +3193,18 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
   }
 
   expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toBe(true)
-  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbWithVotes])).toBe(false)
-  expect(sheetRequiresAdjudication([hmpbWithVotes, hmpbWithVotes])).toBe(false)
+  expect(
+    sheetRequiresAdjudication([
+      withPageNumber(hmpbNoVotes, 1),
+      withPageNumber(hmpbWithVotes, 2),
+    ])
+  ).toBe(false)
+  expect(
+    sheetRequiresAdjudication([
+      withPageNumber(hmpbWithVotes, 1),
+      withPageNumber(hmpbWithVotes, 2),
+    ])
+  ).toBe(false)
 
   expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toBe(true)
   expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toBe(true)
