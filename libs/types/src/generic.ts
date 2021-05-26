@@ -258,7 +258,9 @@ export interface Err<E> extends Result<never, E> {
   expectErr(throwable: unknown): E
 }
 
-export function ok<T, E>(value: T): Result<T, E> {
+export function ok<E>(): Result<void, E>
+export function ok<T, E>(value: T): Result<T, E>
+export function ok<T, E>(value: T = (undefined as unknown) as T): Result<T, E> {
   return {
     isOk: () => true,
     isErr: () => false,

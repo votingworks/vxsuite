@@ -299,7 +299,7 @@ export function withReconnect(
     },
 
     close: async () => {
-      return (await (await clientPromise)?.close()) ?? ok(undefined)
+      return (await (await clientPromise)?.close()) ?? ok()
     },
 
     getPaperStatus: async () => {

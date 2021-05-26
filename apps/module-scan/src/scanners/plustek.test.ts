@@ -68,7 +68,7 @@ test('plustek scanner accept sheet', async () => {
   })
 
   // successful accept
-  plustekClient.accept.mockResolvedValueOnce(ok(undefined))
+  plustekClient.accept.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.NoPaper))
   expect(await scanner.scanSheets().acceptSheet()).toEqual(true)
 
@@ -77,7 +77,7 @@ test('plustek scanner accept sheet', async () => {
   expect(await scanner.scanSheets().acceptSheet()).toEqual(false)
 
   // failed to get correct final status
-  plustekClient.accept.mockResolvedValueOnce(ok(undefined))
+  plustekClient.accept.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(undefined)
   expect(await scanner.scanSheets().acceptSheet()).toEqual(false)
 })
@@ -89,7 +89,7 @@ test('plustek scanner review sheet', async () => {
   })
 
   // successful review
-  plustekClient.reject.mockResolvedValueOnce(ok(undefined))
+  plustekClient.reject.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.VtmReadyToScan))
   expect(await scanner.scanSheets().reviewSheet()).toEqual(true)
 
@@ -98,7 +98,7 @@ test('plustek scanner review sheet', async () => {
   expect(await scanner.scanSheets().reviewSheet()).toEqual(false)
 
   // failed to get correct final status
-  plustekClient.reject.mockResolvedValueOnce(ok(undefined))
+  plustekClient.reject.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(undefined)
   expect(await scanner.scanSheets().reviewSheet()).toEqual(false)
 })
@@ -110,7 +110,7 @@ test('plustek scanner reject sheet', async () => {
   })
 
   // successful reject
-  plustekClient.reject.mockResolvedValueOnce(ok(undefined))
+  plustekClient.reject.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(
     ok(PaperStatus.VtmDevReadyNoPaper)
   )
@@ -121,7 +121,7 @@ test('plustek scanner reject sheet', async () => {
   expect(await scanner.scanSheets().rejectSheet()).toEqual(false)
 
   // failed to get correct final status
-  plustekClient.reject.mockResolvedValueOnce(ok(undefined))
+  plustekClient.reject.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(undefined)
   expect(await scanner.scanSheets().rejectSheet()).toEqual(false)
 })
@@ -135,7 +135,7 @@ test('plustek scanner reject sheet w/alwaysHoldOnReject', async () => {
     true
   )
 
-  plustekClient.reject.mockResolvedValueOnce(ok(undefined))
+  plustekClient.reject.mockResolvedValueOnce(ok())
   plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.VtmReadyToScan))
   expect(await scanner.scanSheets().rejectSheet()).toEqual(true)
 })
@@ -149,7 +149,7 @@ test('plustek scanner calibrate', async () => {
     true
   )
 
-  plustekClient.calibrate.mockResolvedValueOnce(ok(undefined))
+  plustekClient.calibrate.mockResolvedValueOnce(ok())
   expect(await scanner.calibrate()).toEqual(true)
 
   plustekClient.calibrate.mockResolvedValueOnce(
