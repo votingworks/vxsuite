@@ -294,103 +294,104 @@ export default class Interpreter {
       detectQrcodeResult
     )
 
-    if (result.isErr()) {
-      timer.end()
-      return { interpretation: result.err() }
-    }
+    return await result.async().mapOrElse(
+      (error) => {
+        timer.end()
+        return { interpretation: error }
+      },
+      async (ballotImageData) => {
+        if (typeof this.electionHash === 'string') {
+          const actualElectionHash =
+            decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found'
+          const expectedElectionHash = this.electionHash.slice(
+            0,
+            ELECTION_HASH_LENGTH
+          )
 
-    const ballotImageData = result.unwrap()
+          if (actualElectionHash !== expectedElectionHash) {
+            return {
+              interpretation: {
+                type: 'InvalidElectionHashPage',
+                expectedElectionHash,
+                actualElectionHash,
+              },
+            }
+          }
+        }
 
-    if (typeof this.electionHash === 'string') {
-      const actualElectionHash =
-        decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found'
-      const expectedElectionHash = this.electionHash.slice(
-        0,
-        ELECTION_HASH_LENGTH
-      )
+        const bmdResult = await this.interpretBMDFile(ballotImageData)
 
-      if (actualElectionHash !== expectedElectionHash) {
-        return {
-          interpretation: {
-            type: 'InvalidElectionHashPage',
-            expectedElectionHash,
-            actualElectionHash,
-          },
+        if (bmdResult) {
+          const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
+            .metadata
+          if (bmdMetadata.isTestMode === this.testMode) {
+            timer.end()
+            return bmdResult
+          } else {
+            timer.end()
+            return {
+              interpretation: {
+                type: 'InvalidTestModePage',
+                metadata: bmdMetadata,
+              },
+            }
+          }
+        }
+
+        try {
+          const hmpbResult = await this.interpretHMPBFile(ballotImageData)
+
+          if (hmpbResult) {
+            timer.end()
+            return hmpbResult
+          }
+        } catch (error) {
+          debug('interpretHMPBFile failed: %s', error.message)
+        }
+
+        try {
+          debug(
+            'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
+            new TextDecoder().decode(ballotImageData.qrcode.data)
+          )
+          const metadata = metadataFromBytes(
+            this.election,
+            Buffer.from(ballotImageData.qrcode.data)
+          )
+
+          if (metadata.isTestMode !== this.testMode) {
+            debug(
+              'cannot process a HMPB with isTestMode=%s when testMode=%s',
+              metadata.isTestMode,
+              this.testMode
+            )
+            timer.end()
+            return {
+              interpretation: {
+                type: 'InvalidTestModePage',
+                metadata,
+              },
+            }
+          }
+
+          timer.end()
+          return {
+            interpretation: {
+              type: 'UninterpretedHmpbPage',
+              metadata,
+            },
+          }
+        } catch (error) {
+          timer.end()
+          return {
+            interpretation: {
+              type: 'UnreadablePage',
+              reason: error.message,
+            },
+          }
         }
       }
-    }
-
-    const bmdResult = await this.interpretBMDFile(ballotImageData)
-
-    if (bmdResult) {
-      const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
-        .metadata
-      if (bmdMetadata.isTestMode === this.testMode) {
-        timer.end()
-        return bmdResult
-      } else {
-        timer.end()
-        return {
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: bmdMetadata,
-          },
-        }
-      }
-    }
-
-    try {
-      const hmpbResult = await this.interpretHMPBFile(ballotImageData)
-
-      if (hmpbResult) {
-        timer.end()
-        return hmpbResult
-      }
-    } catch (error) {
-      debug('interpretHMPBFile failed: %s', error.message)
-    }
-
-    try {
-      debug(
-        'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
-        new TextDecoder().decode(ballotImageData.qrcode.data)
-      )
-      const metadata = metadataFromBytes(
-        this.election,
-        Buffer.from(ballotImageData.qrcode.data)
-      )
-
-      if (metadata.isTestMode !== this.testMode) {
-        debug(
-          'cannot process a HMPB with isTestMode=%s when testMode=%s',
-          metadata.isTestMode,
-          this.testMode
-        )
-        timer.end()
-        return {
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata,
-          },
-        }
-      }
-
-      timer.end()
-      return {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata,
-        },
-      }
-    } catch (error) {
-      timer.end()
-      return {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: error.message,
-        },
-      }
-    }
+    )
   }
 
   private async interpretBMDFile({

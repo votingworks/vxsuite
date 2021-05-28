@@ -149,7 +149,7 @@ async function main(args: readonly string[]): Promise<number> {
                 (error) => res.writeHead(400).end(`${error}`),
                 async ({ files }) => {
                   debug('loading a mock sheet: %o', files)
-                  ;(await scanner.manualLoad(files)).mapOrElse(
+                  ;(await scanner.simulateLoadSheet(files)).mapOrElse(
                     (error) => res.writeHead(500).end(`${error}`),
                     () => res.writeHead(200).end()
                   )
@@ -157,7 +157,7 @@ async function main(args: readonly string[]): Promise<number> {
               )
             }
           } else if (req.method === 'DELETE') {
-            (await scanner.manualRemove()).mapOrElse(
+            (await scanner.simulateRemoveSheet()).mapOrElse(
               (error) => res.writeHead(500).end(`${error}`),
               () => res.writeHead(200).end()
             )
