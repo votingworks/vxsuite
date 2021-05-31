@@ -13,6 +13,10 @@ test('ok has contained value', () => {
   expect(ok(value).ok()).toBe(value)
 })
 
+test('ok without contained value', () => {
+  expect(ok().ok()).toBeUndefined()
+})
+
 test('ok has no contained error', () => {
   expect(ok(0).err()).toBeUndefined()
 })

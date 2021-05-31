@@ -97,7 +97,7 @@ export class MockScannerClient implements ScannerClient {
     this.loaded = files
     this.loadedAt = 'front'
     debug('manualLoad success')
-    return ok(undefined)
+    return ok()
   }
 
   /**
@@ -124,7 +124,7 @@ export class MockScannerClient implements ScannerClient {
     delete this.loaded
     delete this.loadedAt
     debug('manualRemove success')
-    return ok(undefined)
+    return ok()
   }
 
   /**
@@ -278,7 +278,7 @@ export class MockScannerClient implements ScannerClient {
     delete this.loaded
     delete this.loadedAt
     debug('accept success')
-    return ok(undefined)
+    return ok()
   }
 
   /**
@@ -316,7 +316,7 @@ export class MockScannerClient implements ScannerClient {
     }
 
     debug('reject success')
-    return ok(undefined)
+    return ok()
   }
 
   public async calibrate(): Promise<CalibrateResult> {
@@ -346,7 +346,7 @@ export class MockScannerClient implements ScannerClient {
     delete this.loaded
     delete this.loadedAt
     debug('calibrate success')
-    return ok(undefined)
+    return ok()
   }
 
   /**
@@ -355,6 +355,6 @@ export class MockScannerClient implements ScannerClient {
   public async close(): Promise<CloseResult> {
     debug('close')
     this.connected = false
-    return ok(undefined)
+    return ok()
   }
 }

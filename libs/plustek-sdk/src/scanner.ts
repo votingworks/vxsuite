@@ -275,7 +275,7 @@ export async function createClient(
 
     accept: () =>
       doIPC('accept', {
-        ok: (resolve) => resolve(ok(undefined)),
+        ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
           resolve(err(new Error(`invalid response: ${line}`))),
@@ -283,7 +283,7 @@ export async function createClient(
 
     reject: ({ hold }) =>
       doIPC(hold ? 'reject-hold' : 'reject', {
-        ok: (resolve) => resolve(ok(undefined)),
+        ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
           resolve(err(new Error(`invalid response: ${line}`))),
@@ -291,7 +291,7 @@ export async function createClient(
 
     calibrate: () =>
       doIPC('calibrate', {
-        ok: (resolve) => resolve(ok(undefined)),
+        ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
           resolve(err(new Error(`invalid response: ${line}`))),
@@ -300,7 +300,7 @@ export async function createClient(
     close: () => {
       quitting = true
       return doIPC('quit', {
-        ok: (resolve) => resolve(ok(undefined)),
+        ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
           resolve(err(new Error(`invalid response: ${line}`))),
