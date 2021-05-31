@@ -250,11 +250,11 @@ export const calculateTally = ({
       if (vote && vote.length > 1) {
         yesnoContestTally.overvotes++
       } else {
-        const yesnovote = getSingleYesNoVote(vote)!
-        if (yesnovote === undefined) {
+        const yesnoVote = getSingleYesNoVote(vote)!
+        if (yesnoVote === undefined) {
           yesnoContestTally.undervotes++
         } else {
-          yesnoContestTally[yesnovote]++
+          yesnoContestTally[yesnoVote]++
         }
       }
       yesnoContestTally.ballotsCast++

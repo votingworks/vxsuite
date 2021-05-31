@@ -26,7 +26,7 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
     expect(timestamp).toStrictEqual(new Date(2020, 11, 2, 9, 42, 50))
   })
 
-  test('fails to parse a name with the section seperator twice', () => {
+  test('fails to parse a name with the section separator twice', () => {
     const name =
       'choctaw-county_2020-general-election__a5753d5776__2020-12-02_09-42-50.zip'
 
@@ -40,7 +40,7 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
     expect(parseBallotExportPackageInfoFromFilename(name)).toBeUndefined()
   })
 
-  test('fails to parse a name with no section seperator', () => {
+  test('fails to parse a name with no section separator', () => {
     expect(parseBallotExportPackageInfoFromFilename('string')).toBeUndefined()
   })
 

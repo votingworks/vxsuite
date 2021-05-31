@@ -1,1 +1,3 @@
 build
+.eslintrc.js
+jest.config.js
