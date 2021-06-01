@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import React from 'react'
 import { IndeterminateProgressBar } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'

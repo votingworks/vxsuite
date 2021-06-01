@@ -68,3 +68,19 @@ test('PATCH /config/testMode', async () => {
     1
   )
 })
+
+test('setCurrentPrecinctId suceeds', async () => {
+  fetchMock.putOnce('/config/precinct', JSON.stringify({ status: 'ok' }))
+  await config.setCurrentPrecinctId('23')
+
+  expect(fetchMock.calls('/config/precinct', { method: 'PUT' })).toHaveLength(1)
+})
+
+test('setCurrentPrecinctId fails', async () => {
+  fetchMock.putOnce('/config/precinct', JSON.stringify({ status: 'error' }))
+  expect(
+    config.setCurrentPrecinctId('23')
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '"PUT /config/precinct failed: undefined"'
+  )
+})

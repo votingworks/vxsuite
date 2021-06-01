@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import React, { useCallback, useState, useContext } from 'react'
 import {
   Button,
@@ -110,6 +109,7 @@ const AdminScreen: React.FC<Props> = ({
         <p>
           <Select
             id="selectPrecinct"
+            data-testid="selectPrecinct"
             value={currentPrecinctId}
             onBlur={changeAppPrecinctId}
             onChange={changeAppPrecinctId}

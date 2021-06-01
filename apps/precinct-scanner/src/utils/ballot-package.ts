@@ -131,7 +131,7 @@ async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
   return JSON.parse(await readTextEntry(zipfile, entry))
 }
 
-async function readBallotPackageFromZip(
+export async function readBallotPackageFromZip(
   zipfile: ZipFile,
   fileName: string,
   fileSize: number

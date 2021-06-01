@@ -12,8 +12,8 @@
     "start": "script/react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
-    "test": "TZ=PST script/react-scripts test --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=PST pnpm test -- --coverage --watchAll=false"
+    "test": "TZ=UTC script/react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:coverage": "TZ=UTC pnpm test -- --coverage --watchAll=false"
   },
   "husky": {
     "hooks": {
@@ -60,10 +60,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "statements": 60,
-        "branches": 60,
-        "functions": 60,
-        "lines": 60
+        "statements": 95,
+        "branches": 90,
+        "functions": 95,
+        "lines": 95
       }
     }
   },

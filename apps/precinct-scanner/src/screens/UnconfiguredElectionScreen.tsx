@@ -70,7 +70,6 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
         if (ballotPackages.length < 1) {
           throw new Error('No ballot package found on the inserted USB drive.')
         }
-
         const ballotPackage = await readBallotPackageFromFilePointer(
           ballotPackages[0]
         )

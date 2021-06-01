@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { AdjudicationReason } from '@votingworks/types'
 import { Button, Prose, Text } from '@votingworks/ui'
 import React, { useContext, useState } from 'react'
