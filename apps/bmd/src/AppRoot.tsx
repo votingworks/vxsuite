@@ -658,7 +658,7 @@ const AppRoot: React.FC<Props> = ({
       const electionDefinitionResult = safeParseElectionDefinition(electionData)
       dispatchAppState({
         type: 'updateElectionDefinition',
-        electionDefinition: electionDefinitionResult.unwrap(),
+        electionDefinition: electionDefinitionResult.unsafeUnwrap(),
       })
     }
   }, [card, adminCardElectionHash])

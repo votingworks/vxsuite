@@ -15,28 +15,27 @@ import {
   safeParseJSON,
 } from './schema'
 
-test('parseElection throws on error', () => {
+test('parseElection', () => {
   expect(() => parseElection({})).toThrowError()
+  expect(() => parseElection(electionSample)).not.toThrowError()
 })
 
 test('parsing fails on an empty object', () => {
-  safeParseElection({}).expectErr('empty object should fail')
+  safeParseElection({}).unsafeUnwrapErr()
 })
 
 test('parsing JSON.parses a string', () => {
-  expect(
-    safeParseElection(electionData).expect('expected parsing to succeed')
-  ).toEqual(electionSample)
+  expect(safeParseElection(electionData).unsafeUnwrap()).toEqual(electionSample)
 })
 
 test('parsing invalid JSON', () => {
-  expect(safeParseElection('{').unwrapErr().message).toEqual(
+  expect(safeParseElection('{').unsafeUnwrapErr().message).toEqual(
     'Unexpected end of JSON input'
   )
 })
 
 test('parsing JSON without a schema', () => {
-  expect(safeParseJSON('{}').unwrap()).toEqual({})
+  expect(safeParseJSON('{}').unsafeUnwrap()).toEqual({})
 })
 
 test('parsing gives specific errors for nested objects', () => {
@@ -51,7 +50,7 @@ test('parsing gives specific errors for nested objects', () => {
           title: 42,
         },
       ],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -250,7 +249,7 @@ test('ensures dates are ISO 8601-formatted', () => {
     safeParseElection({
       ...electionSample,
       date: 'not ISO',
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -265,7 +264,7 @@ test('ensures dates are ISO 8601-formatted', () => {
 })
 
 test('parsing a valid election object succeeds', () => {
-  const parsed = safeParseElection(electionSample as unknown).unwrap()
+  const parsed = safeParseElection(electionSample as unknown).unsafeUnwrap()
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
   expect(parsed.title).toEqual(electionSample.title)
@@ -277,7 +276,7 @@ test('parsing a valid election object succeeds', () => {
 test('parsing a valid election with ms-either-neither succeeds', () => {
   const parsed = safeParseElection(
     electionWithMsEitherNeither as unknown
-  ).unwrap()
+  ).unsafeUnwrap()
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
   expect(parsed.title).toEqual(electionWithMsEitherNeither.title)
@@ -287,7 +286,9 @@ test('parsing a valid election with ms-either-neither succeeds', () => {
 })
 
 test('parsing a valid election', () => {
-  expect(safeParseElection(electionSample).unwrap()).toEqual(electionSample)
+  expect(safeParseElection(electionSample).unsafeUnwrap()).toEqual(
+    electionSample
+  )
 })
 
 test('contest IDs cannot start with an underscore', () => {
@@ -295,7 +296,7 @@ test('contest IDs cannot start with an underscore', () => {
     safeParse(CandidateContest, {
       ...electionSample.contests[0],
       id: '_president',
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -313,12 +314,12 @@ test('allows valid mark thresholds', () => {
   safeParseElection({
     ...electionSample,
     markThresholds: { definite: 0.2, marginal: 0.2 },
-  }).unwrap()
+  }).unsafeUnwrap()
 
   safeParseElection({
     ...electionSample,
     markThresholds: { definite: 0.2, marginal: 0.1 },
-  }).unwrap()
+  }).unsafeUnwrap()
 })
 
 test('disallows invalid mark thresholds', () => {
@@ -326,7 +327,7 @@ test('disallows invalid mark thresholds', () => {
     safeParseElection({
       ...electionSample,
       markThresholds: { definite: 0.2, marginal: 0.3 },
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -343,7 +344,7 @@ test('disallows invalid mark thresholds', () => {
     safeParseElection({
       ...electionSample,
       markThresholds: { marginal: 0.3 },
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -363,7 +364,7 @@ test('disallows invalid mark thresholds', () => {
     safeParseElection({
       ...electionSample,
       markThresholds: { definite: 1.2, marginal: 0.3 },
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -385,7 +386,7 @@ test('allows valid adjudication reasons', () => {
   safeParseElection({
     ...electionSample,
     adjudicationReasons: [],
-  }).unwrap()
+  }).unsafeUnwrap()
 
   safeParseElection({
     ...electionSample,
@@ -393,7 +394,7 @@ test('allows valid adjudication reasons', () => {
       t.AdjudicationReason.MarginalMark,
       t.AdjudicationReason.UninterpretableBallot,
     ],
-  }).unwrap()
+  }).unsafeUnwrap()
 })
 
 test('disallows invalid adjudication reasons', () => {
@@ -401,7 +402,7 @@ test('disallows invalid adjudication reasons', () => {
     safeParseElection({
       ...electionSample,
       adjudicationReasons: ['abcdefg'],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -427,7 +428,7 @@ test('disallows invalid adjudication reasons', () => {
     safeParseElection({
       ...electionSample,
       adjudicationReasons: 'foooo',
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -450,7 +451,7 @@ test('supports ballot layout paper size', () => {
       ballotLayout: {
         paperSize: 'A4',
       },
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -472,7 +473,7 @@ test('supports ballot layout paper size', () => {
     safeParseElection({
       ...electionSample,
       ballotLayout: 'letter',
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -493,7 +494,7 @@ test('parsing validates district references', () => {
     safeParseElection({
       ...electionSample,
       districts: [{ id: 'DIS', name: 'DIS' }],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -515,7 +516,7 @@ test('parsing validates precinct references', () => {
     safeParseElection({
       ...electionSample,
       precincts: [{ id: 'PRE', name: 'PRE' }],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -548,7 +549,7 @@ test('parsing validates contest party references', () => {
         },
         ...remainingContests,
       ],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -586,7 +587,7 @@ test('parsing validates candidate party references', () => {
         },
         ...remainingContests,
       ],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -609,7 +610,7 @@ test('validates uniqueness of district ids', () => {
     safeParseElection({
       ...electionSample,
       districts: [...electionSample.districts, ...electionSample.districts],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -630,7 +631,7 @@ test('validates uniqueness of ballot style ids', () => {
     safeParse(BallotStyles, [
       ...electionSample.ballotStyles,
       ...electionSample.ballotStyles,
-    ]).unwrapErr()
+    ]).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -650,7 +651,7 @@ test('validates uniqueness of precinct ids', () => {
     safeParseElection({
       ...electionSample,
       precincts: [...electionSample.precincts, ...electionSample.precincts],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -671,7 +672,7 @@ test('validates uniqueness of contest ids', () => {
     safeParseElection({
       ...electionSample,
       contests: [...electionSample.contests, ...electionSample.contests],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -701,7 +702,7 @@ test('validates uniqueness of party ids', () => {
     safeParseElection({
       ...electionSample,
       parties: [...electionSample.parties, ...electionSample.parties],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -724,7 +725,7 @@ test('validates uniqueness of candidate ids within a contest', () => {
     safeParse(CandidateContest, {
       ...contest,
       candidates: [...contest.candidates, ...contest.candidates],
-    }).unwrapErr()
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -741,9 +742,10 @@ test('validates uniqueness of candidate ids within a contest', () => {
 })
 
 test('validates admin cards have hex-encoded hashes', () => {
-  safeParse(AdminCardData, { t: 'admin', h: 'd34db33f' }).unwrap()
-  expect(safeParse(AdminCardData, { t: 'admin', h: 'not hex' }).unwrapErr())
-    .toMatchInlineSnapshot(`
+  safeParse(AdminCardData, { t: 'admin', h: 'd34db33f' }).unsafeUnwrap()
+  expect(
+    safeParse(AdminCardData, { t: 'admin', h: 'not hex' }).unsafeUnwrapErr()
+  ).toMatchInlineSnapshot(`
     [Error: [
       {
         "code": "custom",
@@ -758,8 +760,12 @@ test('validates admin cards have hex-encoded hashes', () => {
 
 test('safeParseElectionDefinition computes the election hash', () => {
   expect(
-    safeParseElectionDefinition(electionData).unwrap().electionHash
+    safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
   ).toMatchInlineSnapshot(
     `"d5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c"`
   )
+})
+
+test('safeParseElectionDefinition error result', () => {
+  expect(safeParseElectionDefinition('').err()).toBeDefined()
 })

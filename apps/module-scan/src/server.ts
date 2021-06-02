@@ -125,25 +125,26 @@ export function buildApp({ store, importer }: AppOptions): Application {
         return
       }
 
-      safeParseElectionDefinition(
+      const bodyParseResult = safeParseElectionDefinition(
         new TextDecoder('utf-8', { fatal: false }).decode(body)
-      ).mapOrElse(
-        (error) => {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: error.name,
-                message: error.message,
-              },
-            ],
-          })
-        },
-        async (electionDefinition) => {
-          await importer.configure(electionDefinition)
-          response.json({ status: 'ok' })
-        }
       )
+
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err()
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: error.name,
+              message: error.message,
+            },
+          ],
+        })
+        return
+      }
+
+      await importer.configure(bodyParseResult.ok())
+      response.json({ status: 'ok' })
     }
   )
 
@@ -166,18 +167,22 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.patch<NoParams, PatchTestModeConfigResponse, PatchTestModeConfigRequest>(
     '/config/testMode',
     async (request, response) => {
-      safeParse(PatchTestModeConfigRequestSchema, request.body).mapOrElse(
-        (error) => {
-          response.status(400).json({
-            status: 'error',
-            errors: [{ type: error.name, message: error.message }],
-          })
-        },
-        async ({ testMode }) => {
-          await importer.setTestMode(testMode)
-          response.json({ status: 'ok' })
-        }
+      const bodyParseResult = safeParse(
+        PatchTestModeConfigRequestSchema,
+        request.body
       )
+
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err()
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        })
+        return
+      }
+
+      await importer.setTestMode(bodyParseResult.ok().testMode)
+      response.json({ status: 'ok' })
     }
   )
 
@@ -194,18 +199,22 @@ export function buildApp({ store, importer }: AppOptions): Application {
     PutCurrentPrecinctConfigResponse,
     PutCurrentPrecinctConfigRequest
   >('/config/precinct', async (request, response) => {
-    safeParse(PutCurrentPrecinctConfigRequestSchema, request.body).mapOrElse(
-      (error) => {
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        })
-      },
-      async ({ precinctId }) => {
-        await store.setCurrentPrecinctId(precinctId)
-        response.json({ status: 'ok' })
-      }
+    const bodyParseResult = safeParse(
+      PutCurrentPrecinctConfigRequestSchema,
+      request.body
     )
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err()
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      })
+      return
+    }
+
+    await store.setCurrentPrecinctId(bodyParseResult.ok().precinctId)
+    response.json({ status: 'ok' })
   })
 
   app.delete<NoParams, DeleteCurrentPrecinctConfigResponse>(
@@ -237,21 +246,24 @@ export function buildApp({ store, importer }: AppOptions): Application {
     PatchMarkThresholdOverridesConfigResponse,
     PatchMarkThresholdOverridesConfigRequest
   >('/config/markThresholdOverrides', async (request, response) => {
-    safeParse(
+    const bodyParseResult = safeParse(
       PatchMarkThresholdOverridesConfigRequestSchema,
       request.body
-    ).mapOrElse(
-      (error) => {
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        })
-      },
-      async ({ markThresholdOverrides }) => {
-        await importer.setMarkThresholdOverrides(markThresholdOverrides)
-        response.json({ status: 'ok' })
-      }
     )
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err()
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      })
+      return
+    }
+
+    await importer.setMarkThresholdOverrides(
+      bodyParseResult.ok().markThresholdOverrides
+    )
+    response.json({ status: 'ok' })
   })
 
   app.patch<
@@ -259,21 +271,24 @@ export function buildApp({ store, importer }: AppOptions): Application {
     PatchSkipElectionHashCheckConfigResponse,
     PatchSkipElectionHashCheckConfigRequest
   >('/config/skipElectionHashCheck', async (request, response) => {
-    safeParse(
+    const bodyParseResult = safeParse(
       PatchSkipElectionHashCheckConfigRequestSchema,
       request.body
-    ).mapOrElse(
-      (error) => {
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        })
-      },
-      async ({ skipElectionHashCheck }) => {
-        await importer.setSkipElectionHashCheck(skipElectionHashCheck)
-        response.json({ status: 'ok' })
-      }
     )
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err()
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      })
+      return
+    }
+
+    await importer.setSkipElectionHashCheck(
+      bodyParseResult.ok().skipElectionHashCheck
+    )
+    response.json({ status: 'ok' })
   })
 
   app.post<NoParams, ScanBatchResponse, ScanBatchRequest>(
@@ -294,25 +309,25 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.post<NoParams, ScanContinueResponse, ScanContinueRequest>(
     '/scan/scanContinue',
     async (request, response) => {
-      safeParse(ScanContinueRequestSchema, request.body).mapOrElse(
-        (error) => {
-          response.status(400).json({
-            status: 'error',
-            errors: [{ type: error.name, message: error.message }],
-          })
-        },
-        async ({ override }) => {
-          try {
-            await importer.continueImport(!!override)
-            response.json({ status: 'ok' })
-          } catch (error) {
-            response.json({
-              status: 'error',
-              errors: [{ type: 'scan-error', message: error.message }],
-            })
-          }
-        }
-      )
+      const bodyParseResult = safeParse(ScanContinueRequestSchema, request.body)
+
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err()
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        })
+      }
+
+      try {
+        await importer.continueImport(!!bodyParseResult.ok()?.override)
+        response.json({ status: 'ok' })
+      } catch (error) {
+        response.json({
+          status: 'error',
+          errors: [{ type: 'scan-error', message: error.message }],
+        })
+      }
     }
   )
 
@@ -739,7 +754,7 @@ export async function start({
   machineType = safeParse(
     MachineTypeSchema,
     process.env.VX_MACHINE_TYPE ?? 'bsd'
-  ).unwrap(),
+  ).unsafeUnwrap(),
 }: Partial<StartOptions> = {}): Promise<void> {
   if (!workspace) {
     let workspacePath = process.env.MODULE_SCAN_WORKSPACE

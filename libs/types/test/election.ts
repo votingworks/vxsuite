@@ -67,7 +67,7 @@ export const electionData = `
   ],
   "state": "STATE"
 }`
-export const election: Election = safeParseElection(electionData).unwrap()
+export const election: Election = safeParseElection(electionData).unsafeUnwrap()
 export const primaryElection: Election = {
   ...election,
   ballotStyles: [

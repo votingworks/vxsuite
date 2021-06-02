@@ -69,7 +69,9 @@ test('plustek scanner accept sheet', async () => {
 
   // successful accept
   plustekClient.accept.mockResolvedValueOnce(ok())
-  plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.NoPaper))
+  plustekClient.waitForStatus.mockResolvedValue(
+    ok(PaperStatus.VtmDevReadyNoPaper)
+  )
   expect(await scanner.scanSheets().acceptSheet()).toEqual(true)
 
   // failed accept
@@ -221,26 +223,26 @@ test('withReconnect', async () => {
   const provider = withReconnect({ get: getClient })
 
   // ensure we tried until we got to the good client
-  const wrappedClient = (await provider.get()).unwrap()
+  const wrappedClient = (await provider.get()).unsafeUnwrap()
   expect(wrappedClient).toBeDefined()
-  expect((await wrappedClient.getPaperStatus()).unwrap()).toEqual(
+  expect((await wrappedClient.getPaperStatus()).unsafeUnwrap()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
   expect(getClient).toHaveBeenCalledTimes(4)
 
   // getting the client again should return the same one
-  const wrappedClientAgain = (await provider.get()).unwrap()
+  const wrappedClientAgain = (await provider.get()).unsafeUnwrap()
   expect(wrappedClientAgain).toBe(wrappedClient)
   expect(getClient).toHaveBeenCalledTimes(4)
 
   // interacting with the good client works
   await client.simulateLoadSheet(['/tmp/a.jpg', '/tmp/b.jpg'])
-  ;(await wrappedClient.scan()).unwrap()
-  ;(await wrappedClient.reject({ hold: true })).unwrap()
-  ;(await wrappedClient.accept()).unwrap()
+  ;(await wrappedClient.scan()).unsafeUnwrap()
+  ;(await wrappedClient.reject({ hold: true })).unsafeUnwrap()
+  ;(await wrappedClient.accept()).unsafeUnwrap()
 
   await client.simulateLoadSheet(['/tmp/blank.jpg', '/tmp/blank.jpg'])
-  ;(await wrappedClient.calibrate()).unwrap()
+  ;(await wrappedClient.calibrate()).unsafeUnwrap()
 })
 
 test('withReconnect only re-creates the client once per failure', async () => {
@@ -263,7 +265,7 @@ test('withReconnect only re-creates the client once per failure', async () => {
     .mockResolvedValueOnce(ok(client))
   const provider = withReconnect({ get: getClient })
 
-  const wrappedClient = (await provider.get()).unwrap()
+  const wrappedClient = (await provider.get()).unsafeUnwrap()
 
   await Promise.all([
     wrappedClient.getPaperStatus(),

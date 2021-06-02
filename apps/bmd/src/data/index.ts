@@ -8,7 +8,7 @@ import { join } from 'path'
 function electionDefinitionFromFile(path: string): ElectionDefinition {
   const electionData = readFileSync(path, 'utf-8')
   return {
-    ...safeParseElectionDefinition(electionData).unwrap(),
+    ...safeParseElectionDefinition(electionData).unsafeUnwrap(),
     electionData,
   }
 }

@@ -811,8 +811,8 @@ test('start as precinct-scanner rejects a held sheet at startup', async () => {
     passthroughDuration: 0,
   })
   await mockClient.connect()
-  ;(await mockClient.simulateLoadSheet(['a.jpg', 'b.jpg'])).unwrap()
-  ;(await mockClient.scan()).unwrap()
+  ;(await mockClient.simulateLoadSheet(['a.jpg', 'b.jpg'])).unsafeUnwrap()
+  ;(await mockClient.scan()).unsafeUnwrap()
   mocked(plusteksdk.createClient).mockResolvedValueOnce(ok(mockClient))
 
   // start up the server
@@ -824,7 +824,7 @@ test('start as precinct-scanner rejects a held sheet at startup', async () => {
     machineType: 'precinct-scanner',
   })
 
-  expect((await mockClient.getPaperStatus()).unwrap()).toEqual(
+  expect((await mockClient.getPaperStatus()).unsafeUnwrap()).toEqual(
     PaperStatus.VtmReadyToScan
   )
 })

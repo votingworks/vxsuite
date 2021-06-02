@@ -28,11 +28,11 @@ async function main(): Promise<number> {
 
   debug('open result: %s', openResult.isOk() ? 'ok' : 'not ok')
   if (openResult.isErr()) {
-    console.error('failed to open scanner:', openResult.unwrapErr())
+    console.error('failed to open scanner:', openResult.unsafeUnwrapErr())
     return
   }
 
-  const scanner = openResult.unwrap()
+  const scanner = openResult.unsafeUnwrap()
   await waitUntilReadyToScan(scanner)
   const scanResult = await scanner.scan()
 
@@ -41,7 +41,7 @@ async function main(): Promise<number> {
       process.stdout.write(`${file}\n`)
     }
   } else {
-    process.stderr.write(`failed to scan: ${scanResult.unwrapErr()}\n`)
+    process.stderr.write(`failed to scan: ${scanResult.unsafeUnwrapErr()}\n`)
   }
 
   await scanner.close()
@@ -62,7 +62,7 @@ async function waitUntilReadyToScan(scanner: ScannerClient): Promise<void> {
 
 async function isReadyToScan(scanner: ScannerClient): Promise<boolean> {
   debug('getting paper status')
-  return (await scanner.getPaperStatus()).unwrap() === PaperStatus.VtmReadyToScan
+  return (await scanner.getPaperStatus()).unsafeUnwrap() === PaperStatus.VtmReadyToScan
 }
 
 async function sleep(duration: number): Promise<void> {
