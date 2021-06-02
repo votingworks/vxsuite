@@ -190,39 +190,6 @@ test('PATCH /config/election', async () => {
       }),
     })
   )
-
-  // bad content type
-  await request(app)
-    .patch('/config/election')
-    .send('gibberish')
-    .set('Content-Type', 'text/plain')
-    .set('Accept', 'application/json')
-    .expect(400, {
-      status: 'error',
-      errors: [
-        {
-          type: 'invalid-value',
-          message:
-            'expected content type to be application/octet-stream, got text/plain',
-        },
-      ],
-    })
-
-  // bad JSON
-  await request(app)
-    .patch('/config/election')
-    .send('gibberish')
-    .set('Content-Type', 'application/octet-stream')
-    .set('Accept', 'application/json')
-    .expect(400, {
-      status: 'error',
-      errors: [
-        {
-          type: 'SyntaxError',
-          message: 'Unexpected token g in JSON at position 0',
-        },
-      ],
-    })
 })
 
 test('DELETE /config/election', async () => {

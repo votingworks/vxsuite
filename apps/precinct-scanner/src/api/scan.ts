@@ -161,9 +161,12 @@ export async function calibrate(): Promise<boolean> {
     headers: { Accept: 'application/json' },
   })
 
-  return (
-    safeParseJSON(await response.text(), CalibrateResponseSchema).ok()
-      ?.status === 'ok'
+  return safeParseJSON(
+    await response.text(),
+    CalibrateResponseSchema
+  ).mapOrElse(
+    () => false,
+    ({ status }) => status === 'ok'
   )
 }
 

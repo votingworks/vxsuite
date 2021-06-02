@@ -4,118 +4,10 @@ import {
   getContests,
   vote,
   BallotType,
-  CandidateContest,
-  YesNoContest,
-  AnyContest,
-  MsEitherNeitherContest,
 } from '@votingworks/types'
-import { electionWithMsEitherNeither } from '@votingworks/fixtures'
 import election from '../test/fixtures/2020-choctaw/election'
-import {
-  buildCastVoteRecord,
-  getCVRBallotType,
-  getOptionIdsForContestVote,
-  getWriteInOptionIdsForContestVote,
-} from './buildCastVoteRecord'
+import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { MarkStatus } from './types/ballot-review'
-
-const candidateContest = electionWithMsEitherNeither.contests.find(
-  (contest): contest is CandidateContest => contest.type === 'candidate'
-)!
-const yesnoContest = electionWithMsEitherNeither.contests.find(
-  (contest): contest is YesNoContest => contest.type === 'yesno'
-)!
-const msEitherNeitherContest = electionWithMsEitherNeither.contests.find(
-  (contest): contest is MsEitherNeitherContest =>
-    contest.type === 'ms-either-neither'
-)!
-
-test('getCVRBallotType', () => {
-  expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee')
-  expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional')
-  expect(getCVRBallotType(BallotType.Standard)).toEqual('standard')
-  expect(() => getCVRBallotType(-1)).toThrowError('unknown ballot type: -1')
-})
-
-test('getWriteInOptionIdsForContestVote', () => {
-  expect(getWriteInOptionIdsForContestVote(candidateContest, {})).toEqual([])
-  expect(
-    getWriteInOptionIdsForContestVote(
-      { ...candidateContest, allowWriteIns: true },
-      {}
-    )
-  ).toEqual([])
-  expect(
-    getWriteInOptionIdsForContestVote(
-      {
-        ...candidateContest,
-        allowWriteIns: true,
-      },
-      {
-        [candidateContest.id]: [
-          { id: '__write-in-0', name: 'BOB', isWriteIn: true },
-        ],
-      }
-    )
-  ).toEqual(['__write-in-0'])
-  expect(getWriteInOptionIdsForContestVote(yesnoContest, {})).toEqual([])
-  expect(getWriteInOptionIdsForContestVote(msEitherNeitherContest, {})).toEqual(
-    []
-  )
-  expect(() =>
-    getWriteInOptionIdsForContestVote(
-      ({
-        ...yesnoContest,
-        type: 'not-supported-type',
-      } as unknown) as AnyContest,
-      {}
-    )
-  ).toThrowError('contest type not yet supported: not-supported-type')
-})
-
-test('getOptionIdsForContestVote', () => {
-  expect(getOptionIdsForContestVote(candidateContest, {})).toEqual([])
-  expect(
-    getOptionIdsForContestVote(
-      candidateContest,
-      vote(electionWithMsEitherNeither.contests, {
-        [candidateContest.id]: [candidateContest.candidates[0].id],
-      })
-    )
-  ).toEqual([[candidateContest.id, candidateContest.candidates[0].id]])
-  expect(
-    getOptionIdsForContestVote(
-      yesnoContest,
-      vote(electionWithMsEitherNeither.contests, {
-        [yesnoContest.id]: ['yes'],
-      })
-    )
-  ).toEqual([[yesnoContest.id, 'yes']])
-  expect(
-    getOptionIdsForContestVote(
-      msEitherNeitherContest,
-      vote(electionWithMsEitherNeither.contests, {
-        [msEitherNeitherContest.eitherNeitherContestId]: [
-          msEitherNeitherContest.eitherOption.id,
-        ],
-      })
-    )
-  ).toEqual([
-    [
-      msEitherNeitherContest.eitherNeitherContestId,
-      msEitherNeitherContest.eitherOption.id,
-    ],
-  ])
-  expect(() =>
-    getOptionIdsForContestVote(
-      ({
-        ...yesnoContest,
-        type: 'not-supported-type',
-      } as unknown) as AnyContest,
-      {}
-    )
-  ).toThrowError('contest type not yet supported: not-supported-type')
-})
 
 test('generates a CVR from a completed BMD ballot', () => {
   const sheetId = 'sheetid'
@@ -479,7 +371,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: '',
-            ballotType: BallotType.Absentee,
+            ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
             isTestMode: false,
