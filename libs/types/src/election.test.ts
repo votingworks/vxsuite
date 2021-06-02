@@ -5,8 +5,8 @@ import {
 } from '../test/election'
 import {
   CandidateContest,
-  getEitherNeitherContests,
   expandEitherNeitherContests,
+  getEitherNeitherContests,
   getElectionLocales,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
@@ -18,7 +18,6 @@ import {
   withLocale,
   YesNoContest,
 } from './election'
-import { ContestTypes } from './schema'
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC')

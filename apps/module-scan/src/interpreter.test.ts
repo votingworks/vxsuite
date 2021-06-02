@@ -42,7 +42,7 @@ test('does not find QR codes when there are none to find', async () => {
         filepath,
         await detectQrcodeInFilePath(filepath)
       )
-    ).unwrapErr()
+    ).unsafeUnwrapErr()
   ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' })
 })
 
@@ -123,7 +123,7 @@ test('can read metadata encoded in a QR code with base64', async () => {
       fixtures.blankPage1,
       await detectQrcodeInFilePath(fixtures.blankPage1)
     )
-  ).unwrap()
+  ).unsafeUnwrap()
 
   expect(metadataFromBytes(election, Buffer.from(qrcode.data)))
     .toMatchInlineSnapshot(`
@@ -151,7 +151,7 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
       fixtures.skewedQRCodeBallotPage,
       await detectQrcodeInFilePath(fixtures.skewedQRCodeBallotPage)
     )
-  ).unwrap()
+  ).unsafeUnwrap()
 
   expect(qrcode.data).toMatchInlineSnapshot(`
     Object {

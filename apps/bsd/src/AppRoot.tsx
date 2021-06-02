@@ -139,7 +139,7 @@ const App: React.FC = () => {
       const newStatus = safeParseJSON(
         body,
         GetScanStatusResponseSchema
-      ).unwrap()
+      ).unsafeUnwrap()
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus
@@ -176,7 +176,7 @@ const App: React.FC = () => {
           })
         ).text(),
         ScanBatchResponseSchema
-      ).unwrap()
+      ).unsafeUnwrap()
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${JSON.stringify(result.errors)}`)
@@ -202,7 +202,7 @@ const App: React.FC = () => {
           })
         ).text(),
         ScanContinueResponseSchema
-      ).unwrap()
+      ).unsafeUnwrap()
     } catch (error) {
       console.log('failed handleFileInput()', error) // eslint-disable-line no-console
     }
@@ -217,7 +217,7 @@ const App: React.FC = () => {
           })
         ).text(),
         ZeroResponseSchema
-      ).unwrap()
+      ).unsafeUnwrap()
       await refreshConfig()
       history.replace('/')
     } catch (error) {

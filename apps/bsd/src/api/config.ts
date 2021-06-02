@@ -95,7 +95,7 @@ export async function getElectionDefinition(): Promise<
         })
       ).text(),
       GetElectionConfigResponseSchema
-    ).unwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
+    ).unsafeUnwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
   )
 }
 
@@ -114,7 +114,7 @@ export async function getTestMode(): Promise<boolean> {
   return safeParseJSON(
     await (await fetch('/config/testMode')).text(),
     GetTestModeConfigResponseSchema
-  ).unwrap().testMode
+  ).unsafeUnwrap().testMode
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
@@ -153,7 +153,7 @@ export async function getCurrentPrecinctId(): Promise<
       })
     ).text(),
     GetCurrentPrecinctResponseSchema
-  ).unwrap().precinctId
+  ).unsafeUnwrap().precinctId
 }
 
 export async function setCurrentPrecinctId(

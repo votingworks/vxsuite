@@ -299,8 +299,7 @@ export default class Interpreter {
       return { interpretation: result.err() }
     }
 
-    const ballotImageData = result.unwrap()
-
+    const ballotImageData = result.ok()
     if (typeof this.electionHash === 'string') {
       const actualElectionHash =
         decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found'

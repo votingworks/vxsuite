@@ -80,7 +80,7 @@ test('unresponsive', async () => {
   expect(
     (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
   ).toEqual(ScannerError.SaneStatusIoError)
-  ;(await mock.close()).unwrap()
+  ;(await mock.close()).unsafeUnwrap()
 })
 
 test('scanning', async () => {
@@ -112,7 +112,7 @@ test('accept', async () => {
 
   // accept w/o scan
   await mock.simulateLoadSheet(files)
-  ;(await mock.accept()).unwrap()
+  ;(await mock.accept()).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
@@ -120,7 +120,7 @@ test('accept', async () => {
   // accept w/scan
   await mock.simulateLoadSheet(files)
   await mock.scan()
-  ;(await mock.accept()).unwrap()
+  ;(await mock.accept()).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
@@ -142,13 +142,13 @@ test('reject & hold', async () => {
 
   // reject w/o scan
   await mock.simulateLoadSheet(files)
-  ;(await mock.reject({ hold: true })).unwrap()
+  ;(await mock.reject({ hold: true })).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmReadyToScan)
 
   // reject w/scan
   await mock.simulateLoadSheet(files)
   await mock.scan()
-  ;(await mock.reject({ hold: true })).unwrap()
+  ;(await mock.reject({ hold: true })).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmReadyToScan)
 })
 
@@ -168,7 +168,7 @@ test('reject w/o hold', async () => {
 
   // reject w/o scan
   await mock.simulateLoadSheet(files)
-  ;(await mock.reject({ hold: false })).unwrap()
+  ;(await mock.reject({ hold: false })).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
@@ -176,7 +176,7 @@ test('reject w/o hold', async () => {
   // reject w/scan
   await mock.simulateLoadSheet(files)
   await mock.scan()
-  ;(await mock.reject({ hold: false })).unwrap()
+  ;(await mock.reject({ hold: false })).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )
@@ -198,7 +198,7 @@ test('calibrate', async () => {
   await mock.scan()
   expect((await mock.calibrate()).err()).toEqual(ScannerError.SaneStatusNoDocs)
   await mock.reject({ hold: true })
-  ;(await mock.calibrate()).unwrap()
+  ;(await mock.calibrate()).unsafeUnwrap()
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmDevReadyNoPaper
   )

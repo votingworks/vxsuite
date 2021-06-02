@@ -492,20 +492,19 @@ export default class Store {
     }
 
     const result = safeParseJSON(row.value, schema)
-    return result.mapOrElse(
-      (error) => {
-        debug('failed to validate stored config %s: %s', key, error)
-        return undefined
-      },
-      (value) => {
-        let inspectedResult = inspect(value, false, 2, true)
-        if (inspectedResult.length > 200) {
-          inspectedResult = inspectedResult.slice(0, 199) + '…'
-        }
-        debug('returning stored value for config %s: %s', key, inspectedResult)
-        return value
-      }
-    )
+
+    if (result.isErr()) {
+      debug('failed to validate stored config %s: %s', key, result.err())
+      return undefined
+    }
+
+    const value = result.ok()
+    let inspectedResult = inspect(value, false, 2, true)
+    if (inspectedResult.length > 200) {
+      inspectedResult = inspectedResult.slice(0, 199) + '…'
+    }
+    debug('returning stored value for config %s: %s', key, inspectedResult)
+    return value
   }
 
   /**
