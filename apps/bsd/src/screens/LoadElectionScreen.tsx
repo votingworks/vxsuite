@@ -75,16 +75,17 @@ const LoadElectionScreen: React.FC<Props> = ({
 
     if (isElectionJSON) {
       await new Promise<void>((resolve, reject) => {
-        reader.onload = () => {
+        reader.onload = async () => {
           const electionData = reader.result as string
-          safeParseElectionDefinition(electionData).mapOrElse(
-            reject,
-            async (electionDefinition) => {
-              await config.setElection(electionData)
-              setElectionDefinition(electionDefinition)
-              resolve()
-            }
-          )
+          const result = safeParseElectionDefinition(electionData)
+
+          if (result.isErr()) {
+            reject(result.err())
+          } else {
+            await config.setElection(electionData)
+            setElectionDefinition(result.ok())
+            resolve()
+          }
         }
 
         reader.readAsText(file)

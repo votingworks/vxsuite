@@ -24,13 +24,9 @@ export default function usePrecinctScannerStatus(
       fetch('/scan/status', { headers: { Accept: 'application/json' } })
     )
 
-    safeParseJSON(await response.text(), GetScanStatusResponseSchema).mapOrElse(
-      () => {
-        setScannerStatus(ScannerStatus.Error)
-      },
-      ({ scanner }) => {
-        setScannerStatus(scanner)
-      }
+    setScannerStatus(
+      safeParseJSON(await response.text(), GetScanStatusResponseSchema).ok()
+        ?.scanner ?? ScannerStatus.Error
     )
     setIsFetchingStatus(false)
   }, interval)

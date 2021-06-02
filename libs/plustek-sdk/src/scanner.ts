@@ -85,7 +85,7 @@ export async function createClient(
     JSON.stringify(resolvedConfig, undefined, 2)
   )
   const args = ['--config', configFilePath, '--delimiter', CLI_DELIMITER]
-  const plustekctlPath = plustekctlResult.unwrap()
+  const plustekctlPath = plustekctlResult.ok()
   debug('spawning: %s %o', plustekctlPath, args)
   const plustekctl = spawn(plustekctlPath, args, { stdio: 'pipe' })
   debug('spawned %s with pid=%d', plustekctlPath, plustekctl.pid)

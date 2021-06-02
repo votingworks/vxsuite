@@ -69,7 +69,9 @@ test('plustek scanner accept sheet', async () => {
 
   // successful accept
   plustekClient.accept.mockResolvedValueOnce(ok())
-  plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.NoPaper))
+  plustekClient.waitForStatus.mockResolvedValue(
+    ok(PaperStatus.VtmDevReadyNoPaper)
+  )
   expect(await scanner.scanSheets().acceptSheet()).toEqual(true)
 
   // failed accept
