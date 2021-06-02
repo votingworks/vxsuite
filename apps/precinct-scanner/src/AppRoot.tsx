@@ -150,6 +150,7 @@ const initialAppState: Readonly<State> = {
 type AppAction =
   | { type: 'initializeAppState'; isPollsOpen: boolean }
   | { type: 'unconfigureScanner' }
+  | { type: 'resetPollsToClosed' }
   | {
       type: 'updateElectionDefinition'
       electionDefinition: OptionalElectionDefinition
@@ -244,8 +245,14 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         electionDefinition: action.electionDefinition,
+        isPollsOpen: false,
       }
-    case 'refreshConfigFromScanner':
+    case 'resetPollsToClosed':
+      return {
+        ...state,
+        isPollsOpen: false,
+      }
+    case 'refreshConfigFromScanner': {
       return {
         ...state,
         electionDefinition: action.electionDefinition,
@@ -254,10 +261,12 @@ const appReducer = (state: State, action: AppAction): State => {
         scannedBallotCount: action.ballotCount,
         isScannerConfigured: true,
       }
+    }
     case 'unconfigureScanner':
       return {
         ...state,
         isScannerConfigured: false,
+        isPollsOpen: false,
       }
     case 'ballotScanning':
       return {
@@ -367,6 +376,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         currentPrecinctId: action.precinctId,
+        isPollsOpen: false,
       }
     case 'togglePollsOpen':
       return {
@@ -672,22 +682,9 @@ const AppRoot: React.FC<Props> = ({
   const startUsbStatusPolling = useCallback(usbStatusInterval[0], [])
   const stopUsbStatusPolling = useCallback(usbStatusInterval[0], [])
 
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        await refreshConfig()
-      } catch (e) {
-        debug('failed to initialize:', e)
-        dispatchAppState({
-          type: 'unconfigureScanner',
-        })
-        endBallotStatusPolling()
-        window.setTimeout(initialize, 1000)
-      }
-    }
-
-    initialize()
-  }, [refreshConfig])
+  const togglePollsOpen = useCallback(() => {
+    dispatchAppState({ type: 'togglePollsOpen' })
+  }, [])
 
   useEffect(() => {
     if (
@@ -712,6 +709,7 @@ const AppRoot: React.FC<Props> = ({
 
   const toggleTestMode = useCallback(async () => {
     await config.setTestMode(!isTestMode)
+    dispatchAppState({ type: 'resetPollsToClosed' })
     await refreshConfig()
   }, [dispatchAppState, refreshConfig, isTestMode])
 
@@ -719,6 +717,7 @@ const AppRoot: React.FC<Props> = ({
     try {
       await config.setElection(undefined)
       endBallotStatusPolling()
+      dispatchAppState({ type: 'resetPollsToClosed' })
       await refreshConfig()
     } catch (error) {
       debug('failed unconfigureServer()', error)
@@ -844,6 +843,19 @@ const AppRoot: React.FC<Props> = ({
 
   // Initialize app state
   useEffect(() => {
+    const initializeScanner = async () => {
+      try {
+        await refreshConfig()
+      } catch (e) {
+        debug('failed to initialize:', e)
+        dispatchAppState({
+          type: 'unconfigureScanner',
+        })
+        endBallotStatusPolling()
+        window.setTimeout(initializeScanner, 1000)
+      }
+    }
+
     const updateStateFromStorage = async () => {
       const storedAppState: Partial<State> =
         ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
@@ -855,6 +867,7 @@ const AppRoot: React.FC<Props> = ({
       })
     }
 
+    initializeScanner()
     updateStateFromStorage()
     startUsbStatusPolling()
     startCardShortValueReadPolling()
@@ -862,7 +875,12 @@ const AppRoot: React.FC<Props> = ({
       stopCardShortValueReadPolling()
       stopUsbStatusPolling()
     }
-  }, [startUsbStatusPolling, startCardShortValueReadPolling, storage])
+  }, [
+    refreshConfig,
+    startUsbStatusPolling,
+    startCardShortValueReadPolling,
+    storage,
+  ])
 
   const updatePrecinctId = useCallback(
     async (precinctId: string) => {
@@ -871,10 +889,6 @@ const AppRoot: React.FC<Props> = ({
     },
     [dispatchAppState]
   )
-
-  const togglePollsOpen = useCallback(() => {
-    dispatchAppState({ type: 'togglePollsOpen' })
-  }, [])
 
   useEffect(() => {
     const storeAppState = () => {

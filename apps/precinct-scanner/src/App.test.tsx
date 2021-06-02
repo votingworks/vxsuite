@@ -254,6 +254,26 @@ test('admin and pollworker configuration', async () => {
     1
   )
   fetchMock.putOnce('/config/precinct', { body: { status: 'ok' } })
+
+  // Remove Card and check polls were reset to closed.
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Polls Closed')
+
+  // Open Polls again
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
+  fireEvent.click(await screen.findByText('Save Report and Open Polls'))
+  await screen.findByText('Close Polls for All Precincts')
+
+  // Switch back to admin screen
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Administrator Settings')
+  // Change precinct
   fireEvent.change(await screen.getByTestId('selectPrecinct'), {
     target: { value: '23' },
   })
@@ -264,6 +284,21 @@ test('admin and pollworker configuration', async () => {
     { overwriteRoutes: true }
   )
 
+  // Remove card and insert pollworker card, verify the right precinct was set
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  // Polls should be reset to closed.
+  await screen.findByText('Open Polls for Center Springfield')
+
+  // Switch back to admin screen
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  await advanceTimersAndPromises(1)
+
+  // Calibrate scanner
   fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } })
   await fireEvent.click(await screen.findByText('Calibrate Scanner'))
   await screen.findByText('Cannot Calibrate')
@@ -279,13 +314,6 @@ test('admin and pollworker configuration', async () => {
   fetchMock.get('/scan/status', scanStatusWaitingForPaperResponseBody, {
     overwriteRoutes: true,
   })
-
-  // Remove card and insert pollworker card, verify the right precinct was set
-  card.removeCard()
-  await advanceTimersAndPromises(1)
-  card.insertCard(pollWorkerCard)
-  await advanceTimersAndPromises(1)
-  await screen.findByText('Close Polls for Center Springfield')
 
   // Remove card and insert admin card to unconfigure
   fetchMock.delete('./config/election', {
