@@ -87,6 +87,8 @@ export enum ScannerError {
 export const ScannerErrorSchema = z.nativeEnum(ScannerError)
 
 export function parseScannerError(error: string): ScannerError | Error {
-  const result = safeParse(ScannerErrorSchema, error)
-  return result.isErr() ? new Error(error) : result.ok()
+  return safeParse(ScannerErrorSchema, error).mapOrElse<ScannerError | Error>(
+    () => new Error(error),
+    (scannerError) => scannerError
+  )
 }
