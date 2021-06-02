@@ -24,6 +24,7 @@ module.exports = {
     'plugin:jsx-a11y/recommended',
     'prettier/react', // Overrides some of the rules in 'airbnb' to have more relaxed formatting in react.
     'plugin:cypress/recommended',
+    'plugin:vx/all',
   ],
   globals: {
     Atomics: 'readonly',
@@ -47,7 +48,6 @@ module.exports = {
     'react',
     'cypress',
     'jsx-a11y',
-    'no-array-sort-mutation',
   ],
   settings: {
     react: {
@@ -79,7 +79,6 @@ module.exports = {
     ],
     'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
     'max-classes-per-file': 'off',
-    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-await-in-loop': 'off',
     'no-continue': 'off',
     'no-nested-ternary': 'off',

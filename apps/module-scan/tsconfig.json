@@ -21,6 +21,7 @@
   "exclude": ["src/**/*.test.ts", "test"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/hmpb-interpreter" },
     { "path": "../../libs/plustek-sdk" },
     { "path": "../../libs/types" },

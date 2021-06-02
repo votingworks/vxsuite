@@ -22,6 +22,7 @@ module.exports = {
     'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
     'plugin:jsx-a11y/recommended',
     'prettier/react', // Overrides some of the rules in 'airbnb' to have more relaxed formatting in react.
+    'plugin:vx/all',
   ],
   globals: {
     Atomics: 'readonly',
@@ -40,7 +41,6 @@ module.exports = {
     'jest',
     'react',
     'jsx-a11y',
-    'no-array-sort-mutation',
   ],
   settings: {
     react: {
@@ -66,7 +66,6 @@ module.exports = {
         devDependencies: true,
       },
     ],
-    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-await-in-loop': 'off',
     'no-nested-ternary': 'off',
     'no-unused-expressions': 'off',

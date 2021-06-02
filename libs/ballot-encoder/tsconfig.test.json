@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src", "src/data/*.json", "test"],
-  "exclude": []
+  "exclude": [],
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../fixtures" },
+    { "path": "../types" }
+  ]
 }

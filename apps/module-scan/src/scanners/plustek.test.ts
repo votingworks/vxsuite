@@ -59,6 +59,10 @@ test('plustek scanner scanning', async () => {
 
   plustekClient.scan.mockResolvedValueOnce(err(ScannerError.NoDevices))
   expect(await scanner.scanSheets().scanSheet()).toBeUndefined()
+
+  plustekClient.reject.mockResolvedValueOnce(ok())
+  await scanner.scanSheets().endBatch()
+  expect(plustekClient.reject).toHaveBeenCalledWith({ hold: false })
 })
 
 test('plustek scanner accept sheet', async () => {
@@ -236,12 +240,13 @@ test('withReconnect', async () => {
   expect(getClient).toHaveBeenCalledTimes(4)
 
   // interacting with the good client works
-  await client.simulateLoadSheet(['/tmp/a.jpg', '/tmp/b.jpg'])
+  ;(await client.simulateLoadSheet(['/tmp/a.jpg', '/tmp/b.jpg'])).unsafeUnwrap()
   ;(await wrappedClient.scan()).unsafeUnwrap()
   ;(await wrappedClient.reject({ hold: true })).unsafeUnwrap()
   ;(await wrappedClient.accept()).unsafeUnwrap()
-
-  await client.simulateLoadSheet(['/tmp/blank.jpg', '/tmp/blank.jpg'])
+  ;(
+    await client.simulateLoadSheet(['/tmp/blank.jpg', '/tmp/blank.jpg'])
+  ).unsafeUnwrap()
   ;(await wrappedClient.calibrate()).unsafeUnwrap()
 })
 

@@ -1,3 +1,4 @@
 build
+coverage
 .eslintrc.js
 jest.config.js

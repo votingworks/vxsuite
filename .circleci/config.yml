@@ -79,6 +79,24 @@ jobs:
           command: |
             pnpm --dir apps/election-manager test:coverage
 
+  test-eslint-plugin-vx:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/eslint-plugin-vx build
+      - run:
+          name: Run Linters
+          command: |
+            pnpm --dir libs/eslint-plugin-vx lint
+      - run:
+          name: Run Front-End Test and Coverage
+          command: |
+            pnpm --dir libs/eslint-plugin-vx test:coverage
+
   test-fixtures:
     executor: nodejs
     resource_class: xlarge
@@ -245,6 +263,7 @@ workflows:
       - test-bmd
       - test-bsd
       - test-election-manager
+      - test-eslint-plugin-vx
       - test-fixtures
       - test-hmpb-interpreter
       - test-lsd

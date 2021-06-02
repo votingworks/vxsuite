@@ -7,5 +7,10 @@
     "noEmit": true
   },
   "include": ["src", "src/data/*.json"],
-  "exclude": []
+  "exclude": [],
+  "references": [
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/types" },
+    { "path": "../../libs/fixtures" }
+  ]
 }

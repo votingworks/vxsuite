@@ -70,5 +70,10 @@
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts"],
-  "references": [{ "path": "../test-utils" }, { "path": "../types" }, { "path": "../utils" }]
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../test-utils" },
+    { "path": "../types" },
+    { "path": "../utils" }
+  ]
 }
