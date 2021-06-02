@@ -40,6 +40,10 @@ import optionMarkStatus from './util/optionMarkStatus'
 import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
 import * as qrcodeWorker from './workers/qrcode'
+import {
+  describeValidationError,
+  validateSheetInterpretation,
+} from './validation'
 
 const debug = makeDebug('module-scan:interpreter')
 
@@ -198,7 +202,20 @@ export function sheetRequiresAdjudication([
   )
 
   // blank-page adjudication is a "recessive" trait: both pages need to be blank to trigger
-  return frontIsBlankHmpbPage && backIsBlankHmpbPage
+  if (frontIsBlankHmpbPage && backIsBlankHmpbPage) {
+    return true
+  }
+
+  const validationResult = validateSheetInterpretation([front, back])
+
+  if (validationResult.isErr()) {
+    debug(
+      'sheet failed validation: %s',
+      describeValidationError(validationResult.err())
+    )
+  }
+
+  return validationResult.isErr()
 }
 
 export interface InterpreterOptions {
@@ -299,8 +316,7 @@ export default class Interpreter {
       return { interpretation: result.err() }
     }
 
-    const ballotImageData = result.unwrap()
-
+    const ballotImageData = result.ok()
     if (typeof this.electionHash === 'string') {
       const actualElectionHash =
         decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found'

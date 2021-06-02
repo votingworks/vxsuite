@@ -465,7 +465,13 @@ export function safeParseJSON<T>(
  * @deprecated use `safeParseElection(…)` instead
  */
 export function parseElection(value: unknown): t.Election {
-  return safeParseElection(value).unwrap()
+  const result = safeParseElection(value)
+
+  if (result.isErr()) {
+    throw result.err()
+  }
+
+  return result.ok()
 }
 
 /**
@@ -499,9 +505,12 @@ export function safeParseElection(
 export function safeParseElectionDefinition(
   value: string
 ): Result<t.ElectionDefinition, z.ZodError | SyntaxError> {
-  return safeParseElection(value).map((election) => ({
-    election,
-    electionData: value,
-    electionHash: createHash('sha256').update(value).digest('hex'),
-  }))
+  const result = safeParseElection(value)
+  return result.isErr()
+    ? result
+    : ok({
+        election: result.ok(),
+        electionData: value,
+        electionHash: createHash('sha256').update(value).digest('hex'),
+      })
 }

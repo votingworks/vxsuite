@@ -15,18 +15,17 @@ import {
   safeParseJSON,
 } from './schema'
 
-test('parseElection throws on error', () => {
+test('parseElection', () => {
   expect(() => parseElection({})).toThrowError()
+  expect(() => parseElection(electionSample)).not.toThrowError()
 })
 
 test('parsing fails on an empty object', () => {
-  safeParseElection({}).expectErr('empty object should fail')
+  safeParseElection({}).unwrapErr()
 })
 
 test('parsing JSON.parses a string', () => {
-  expect(
-    safeParseElection(electionData).expect('expected parsing to succeed')
-  ).toEqual(electionSample)
+  expect(safeParseElection(electionData).unwrap()).toEqual(electionSample)
 })
 
 test('parsing invalid JSON', () => {
@@ -762,4 +761,8 @@ test('safeParseElectionDefinition computes the election hash', () => {
   ).toMatchInlineSnapshot(
     `"d5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c"`
   )
+})
+
+test('safeParseElectionDefinition error result', () => {
+  expect(safeParseElectionDefinition('').err()).toBeDefined()
 })
