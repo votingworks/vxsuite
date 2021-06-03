@@ -17,6 +17,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
     'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    'plugin:vx/all',
   ],
   globals: {
     Atomics: 'readonly',
@@ -29,7 +30,7 @@ module.exports = {
     project: './tsconfig.test.json',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'jest', 'no-null', 'no-array-sort-mutation'],
+  plugins: ['@typescript-eslint', 'jest', 'no-null'],
   settings: {
     'import/extensions': allExtensions,
     'import/parsers': {
@@ -51,7 +52,6 @@ module.exports = {
       },
     ],
     'import/prefer-default-export': 'off',
-    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-dupe-class-members': 'off',
     'no-restricted-globals': 'off',
     'no-restricted-syntax': 'off',

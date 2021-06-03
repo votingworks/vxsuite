@@ -21,5 +21,9 @@
   },
   "include": ["src", "src/data/*.json"],
   "exclude": ["**/*.test.ts", "test"],
-  "references": [{ "path": "../fixtures" }, { "path": "../types" }]
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../fixtures" },
+    { "path": "../types" }
+  ]
 }

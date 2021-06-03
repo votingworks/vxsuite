@@ -3,12 +3,12 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
+    'plugin:vx/all',
   ],
   parser: '@typescript-eslint/parser',
   plugins: [
     'prettier',
     '@typescript-eslint/eslint-plugin',
-    'no-array-sort-mutation',
   ],
   parserOptions: {
     ecmaVersion: 2020,
@@ -24,7 +24,6 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     '@typescript-eslint/camelcase': 'off',
-    'no-array-sort-mutation/no-array-sort-mutation': 'error',
     'no-dupe-class-members': 'off',
     '@typescript-eslint/no-dupe-class-members': ['error'],
     '@typescript-eslint/no-floating-promises': ['error'],

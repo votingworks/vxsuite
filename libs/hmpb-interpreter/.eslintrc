@@ -3,13 +3,15 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:vx/all"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier", "@typescript-eslint/eslint-plugin", "no-array-sort-mutation"],
+  "plugins": ["prettier", "@typescript-eslint/eslint-plugin"],
   "parserOptions": {
     "ecmaVersion": 2020,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
   "env": {
     "jest": true,
@@ -20,7 +22,6 @@
   "rules": {
     "prettier/prettier": "error",
     "@typescript-eslint/camelcase": "off",
-    "no-array-sort-mutation/no-array-sort-mutation": "error",
     "no-dupe-class-members": "off",
     "@typescript-eslint/no-dupe-class-members": ["error"],
     "@typescript-eslint/no-use-before-define": "off"
