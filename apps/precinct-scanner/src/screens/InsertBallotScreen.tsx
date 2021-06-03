@@ -1,9 +1,9 @@
 import React from 'react'
+import { format } from '@votingworks/utils'
 import { Absolute } from '../components/Absolute'
 import { InsertBallot } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Bar } from '../components/Bar'
-import * as format from '../utils/format'
 
 interface Props {
   scannedBallotCount: number

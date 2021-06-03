@@ -1,10 +1,10 @@
 import React from 'react'
 import { Prose } from '@votingworks/ui'
+import { format } from '@votingworks/utils'
 import { Absolute } from '../components/Absolute'
 import { CircleCheck } from '../components/Graphics'
 import { Bar } from '../components/Bar'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
-import * as format from '../utils/format'
 
 interface Props {
   scannedBallotCount: number
