@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock'
-import fetchJSON from './fetchJSON'
+import { fetchJSON } from './fetchJSON'
 
 test('passes the URL through as-is to fetch', async () => {
   fetchMock.getOnce((url) => {
@@ -12,6 +12,7 @@ test('passes the URL through as-is to fetch', async () => {
 
 test('adds "Accept: application/json" by default', async () => {
   fetchMock.getOnce((url, opts) => {
+    expect(url).toEqual('/example')
     expect(opts.headers).toEqual({ Accept: 'application/json' })
     return true
   }, {})
@@ -21,6 +22,7 @@ test('adds "Accept: application/json" by default', async () => {
 
 test('allows overriding Accept header', async () => {
   fetchMock.getOnce((url, opts) => {
+    expect(url).toEqual('/example')
     expect(opts.headers).toEqual({ Accept: 'x-custom-json' })
     return true
   }, {})
@@ -30,6 +32,7 @@ test('allows overriding Accept header', async () => {
 
 test('preserves custom headers', async () => {
   fetchMock.getOnce((url, opts) => {
+    expect(url).toEqual('/example')
     expect(opts.headers).toEqual(expect.objectContaining({ 'X-Custom': '123' }))
     return true
   }, {})

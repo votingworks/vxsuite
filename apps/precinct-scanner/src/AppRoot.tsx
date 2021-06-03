@@ -13,13 +13,17 @@ import {
   PollworkerCardData,
   Provider,
 } from '@votingworks/types'
-import { sleep, PrecinctScannerCardTally } from '@votingworks/utils'
+import {
+  sleep,
+  PrecinctScannerCardTally,
+  Card,
+  CardPresentAPI,
+} from '@votingworks/utils'
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
 import { Hardware, isCardReader } from './utils/Hardware'
 import {
-  CardPresentAPI,
   BallotState,
   ScanningResultType,
   RejectedScanningReason,
@@ -45,7 +49,6 @@ import * as config from './api/config'
 import * as scan from './api/scan'
 import throwIllegalValue from './utils/throwIllegalValue'
 
-import { Card } from './utils/Card'
 import { Storage } from './utils/Storage'
 
 import AdminScreen from './screens/AdminScreen'

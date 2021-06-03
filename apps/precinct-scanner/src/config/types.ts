@@ -56,17 +56,6 @@ export interface ScanningResultNeedsReview {
 
 export type ISO8601Timestamp = string
 
-// TODO(530): Move the following types, imported from bsd, to a shared util.
-export interface CardAbsentAPI {
-  present: false
-}
-export interface CardPresentAPI {
-  present: true
-  shortValue?: string
-  longValueExists?: boolean
-}
-export type CardAPI = CardAbsentAPI | CardPresentAPI
-
 export interface MachineConfig {
   machineId: string
   codeVersion: string

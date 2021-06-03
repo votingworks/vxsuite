@@ -49,6 +49,7 @@ describe('WebServiceCard', () => {
 
   it('writes short value using /card/write', async () => {
     fetchMock.post('/card/write', (url: string, mockRequest: MockRequest) => {
+      expect(url).toBe('/card/write')
       expect(mockRequest.body).toEqual('abc')
       return { success: true }
     })
@@ -60,6 +61,7 @@ describe('WebServiceCard', () => {
     fetchMock.post(
       '/card/write_long_b64',
       (url: string, mockRequest: MockRequest) => {
+        expect(url).toBe('/card/write_long_b64')
         const longValue = (mockRequest.body as FormData).get(
           'long_value'
         ) as string
@@ -79,6 +81,7 @@ describe('WebServiceCard', () => {
     fetchMock.post(
       '/card/write_long_b64',
       (url: string, mockRequest: MockRequest) => {
+        expect(url).toBe('/card/write_long_b64')
         const longValue = (mockRequest.body as FormData).get(
           'long_value'
         ) as string

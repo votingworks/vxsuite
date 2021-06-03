@@ -1,7 +1,16 @@
 import { Optional } from '@votingworks/types'
 import { toByteArray, fromByteArray } from 'base64-js'
-import { CardAPI } from '../config/types'
-import fetchJSON from './fetchJSON'
+import { fetchJSON } from './fetchJSON'
+
+export interface CardAbsentAPI {
+  present: false
+}
+export interface CardPresentAPI {
+  present: true
+  shortValue?: string
+  longValueExists?: boolean
+}
+export type CardAPI = CardAbsentAPI | CardPresentAPI
 
 /**
  * Defines the API for accessing a smart card reader.

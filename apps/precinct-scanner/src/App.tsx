@@ -3,9 +3,9 @@ import { BrowserRouter, Route } from 'react-router-dom'
 
 import './App.css'
 
+import { WebServiceCard } from '@votingworks/utils'
 import AppRoot, { Props as AppRootProps } from './AppRoot'
 import { getHardware } from './utils/Hardware'
-import { WebServiceCard } from './utils/Card'
 import { LocalStorage } from './utils/Storage'
 import machineConfigProvider from './utils/machineConfig'
 

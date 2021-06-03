@@ -14,6 +14,7 @@ import {
 import fetchMock from 'fetch-mock'
 import { DateTime } from 'luxon'
 import React from 'react'
+import { MemoryCard } from '@votingworks/utils'
 import { interpretedHmpb } from '../test/fixtures'
 import {
   adminCardForElection,
@@ -22,7 +23,6 @@ import {
 } from '../test/helpers/smartcards'
 import App from './App'
 import { BallotSheetInfo } from './config/types'
-import { MemoryCard } from './utils/Card'
 import { MemoryHardware } from './utils/Hardware'
 import { MemoryStorage } from './utils/Storage'
 import { stateStorageKey } from './AppRoot'
