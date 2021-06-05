@@ -390,11 +390,11 @@ test('VxPrintOnly flow', async () => {
   expect(
     getAllByText('Franklin County, Measure 666: The Question No One Gets To')[0]
       .nextSibling!.textContent
-  ).toBe('YesXNoX')
+  ).toBe('Yes0No0')
   expect(
     getAllByText('Franklin County, Head of Constitution Party')[0].nextSibling!
       .textContent
-  ).toBe('Alice JonesXBob SmithX')
+  ).toBe('Alice Jones0Bob Smith0')
 
   // Close Polls
   fireEvent.click(getByText('Close Polls for Center Springfield'))
