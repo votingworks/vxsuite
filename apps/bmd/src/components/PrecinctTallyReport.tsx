@@ -49,21 +49,11 @@ const PrecinctTallyReport: React.FC<Props> = ({
   precinctId,
   reportPurpose,
 }) => {
-  const { ballotStyles, contests, precincts } = election
+  const { contests, precincts } = election
   const precinct = precincts.find((p) => p.id === precinctId) as Precinct
   const ballotAction =
     sourceMachineType === TallySourceMachineType.BMD ? 'printed' : 'scanned'
 
-  const precinctBalotStyles = ballotStyles.filter((bs) =>
-    bs.precincts.includes(precinctId)
-  )
-  const precinctContestIds = contests
-    .filter((c) =>
-      precinctBalotStyles.find(
-        (bs) => bs.partyId === c.partyId && bs.districts.includes(c.districtId)
-      )
-    )
-    .map((c) => c.id)
   return (
     <Report>
       <h1>
@@ -81,7 +71,6 @@ const PrecinctTallyReport: React.FC<Props> = ({
         Ballots {ballotAction} count: <strong>{ballotCount}</strong>
       </p>
       {contests.map((contest, contestIndex) => {
-        const isContestInPrecinct = precinctContestIds.includes(contest.id)
         const candidateContest = contest.type === 'candidate' && contest
         const yesnoContest = contest.type === 'yesno' && contest
         const eitherNeitherContest =
@@ -104,13 +93,8 @@ const PrecinctTallyReport: React.FC<Props> = ({
                           }
                         </td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
-                                  .eitherOption
-                              )
-                            : /* istanbul ignore next */
-                              'X'}
+                          numberWithCommas( (tally[contestIndex] as
+                          MsEitherNeitherTally) .eitherOption )
                         </TD>
                       </tr>
                       <tr>
@@ -121,15 +105,10 @@ const PrecinctTallyReport: React.FC<Props> = ({
                           }
                         </td>
                         <TD narrow textAlign="right">
-                          {
-                            /* istanbul ignore else */ isContestInPrecinct
-                              ? numberWithCommas(
-                                  (tally[contestIndex] as MsEitherNeitherTally)
-                                    .neitherOption
-                                )
-                              : /* istanbul ignore next */
-                                'X'
-                          }
+                          {numberWithCommas(
+                            (tally[contestIndex] as MsEitherNeitherTally)
+                              .neitherOption
+                          )}
                         </TD>
                       </tr>
                       <tr>
@@ -140,13 +119,10 @@ const PrecinctTallyReport: React.FC<Props> = ({
                           }
                         </td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
-                                  .firstOption
-                              )
-                            : /* istanbul ignore next */
-                              'X'}
+                          {numberWithCommas(
+                            (tally[contestIndex] as MsEitherNeitherTally)
+                              .firstOption
+                          )}
                         </TD>
                       </tr>
                       <tr>
@@ -157,13 +133,10 @@ const PrecinctTallyReport: React.FC<Props> = ({
                           }
                         </td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
-                                  .secondOption
-                              )
-                            : /* istanbul ignore next */
-                              'X'}
+                          {numberWithCommas(
+                            (tally[contestIndex] as MsEitherNeitherTally)
+                              .secondOption
+                          )}
                         </TD>
                       </tr>
                     </React.Fragment>
@@ -174,12 +147,10 @@ const PrecinctTallyReport: React.FC<Props> = ({
                         <tr key={candidate.id}>
                           <td>{candidate.name}</td>
                           <TD narrow textAlign="right">
-                            {isContestInPrecinct
-                              ? numberWithCommas(
-                                  (tally[contestIndex] as CandidateVoteTally)
-                                    .candidates[candidateIndex]
-                                )
-                              : 'X'}
+                            {numberWithCommas(
+                              (tally[contestIndex] as CandidateVoteTally)
+                                .candidates[candidateIndex]
+                            )}
                           </TD>
                         </tr>
                       )
@@ -189,21 +160,17 @@ const PrecinctTallyReport: React.FC<Props> = ({
                       <tr>
                         <td>Yes</td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                (tally[contestIndex] as YesNoVoteTally).yes
-                              )
-                            : 'X'}
+                          {numberWithCommas(
+                            (tally[contestIndex] as YesNoVoteTally).yes
+                          )}
                         </TD>
                       </tr>
                       <tr>
                         <td>No</td>
                         <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                (tally[contestIndex] as YesNoVoteTally).no
-                              )
-                            : 'X'}
+                          {numberWithCommas(
+                            (tally[contestIndex] as YesNoVoteTally).no
+                          )}
                         </TD>
                       </tr>
                     </React.Fragment>
