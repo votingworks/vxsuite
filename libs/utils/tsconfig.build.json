@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "build",
+    "composite": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
+  "references": [
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/fixtures/tsconfig.build.json" }
+  ]
+}

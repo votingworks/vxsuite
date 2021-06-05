@@ -132,7 +132,7 @@ export function fakeWritable(): FakeWritable {
 
   writable.toBuffer = () =>
     writes.reduce(
-      (result, { chunk, encoding }) =>
+      (result, { chunk }) =>
         Buffer.concat([result, Buffer.from(chunk as Buffer | string)]),
       Buffer.of()
     )

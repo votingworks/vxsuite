@@ -63,6 +63,7 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
       const timer = setTimeout(() => setDeselectedVote(''), 100)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [deselectedVote])
 
   const updateContestChoicesScrollStates = useCallback(() => {

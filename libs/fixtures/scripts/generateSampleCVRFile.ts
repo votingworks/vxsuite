@@ -57,7 +57,7 @@ function generateCombinations<T>(
   ) => {
     const oneAwayFromComboLength = remainingCount == 1
 
-    // For each element that remaines to be added to the working combination.
+    // For each element that remains to be added to the working combination.
     for (
       let sourceIndex = currentIndex;
       sourceIndex < sourceLength;

@@ -22,6 +22,8 @@ function readContentDispositionFilename(header: string): string | undefined {
     const [, quoted, unquoted] = match
     return quoted || unquoted
   }
+
+  return undefined
 }
 
 /**

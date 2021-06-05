@@ -48,7 +48,7 @@ export default ESLintUtils.RuleCreator(() => 'https://voting.works/')({
     return {
       ExpressionStatement(node): void {
         if (isUnhandledResult(checker, node.expression)) {
-          if (options.ignoreVoid) {
+          if (options?.ignoreVoid) {
             context.report({
               node,
               messageId: 'floatingVoid',
@@ -85,7 +85,7 @@ export default ESLintUtils.RuleCreator(() => 'https://voting.works/')({
       }
 
       if (
-        !options.ignoreVoid &&
+        !options?.ignoreVoid &&
         node.type === AST_NODE_TYPES.UnaryExpression &&
         node.operator === 'void'
       ) {

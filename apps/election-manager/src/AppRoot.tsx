@@ -76,6 +76,8 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
       assert.equal(sha256(electionData), electionHash)
       return electionDefinition
     }
+
+    return undefined
   }, [storage])
 
   const getCVRFiles = async (): Promise<string | undefined> =>

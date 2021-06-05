@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { render, fireEvent, waitFor } from '@testing-library/react'
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import { Router } from 'react-router-dom'

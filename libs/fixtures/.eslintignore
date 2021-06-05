@@ -1,2 +1,4 @@
+build
+coverage
 jest.config.js
 src/data/**/**/*.csv.ts

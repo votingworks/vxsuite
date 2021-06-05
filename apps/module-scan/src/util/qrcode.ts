@@ -138,4 +138,6 @@ export const detectQRCode = async (
   } finally {
     timer.end()
   }
+
+  return undefined
 }

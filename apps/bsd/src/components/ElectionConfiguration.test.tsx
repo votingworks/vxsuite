@@ -4,7 +4,6 @@ import {
   waitFor,
   getByText as domGetByText,
 } from '@testing-library/react'
-import React from 'react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import ElectionConfiguration from './ElectionConfiguration'
 import { UsbDriveStatus } from '../lib/usbstick'

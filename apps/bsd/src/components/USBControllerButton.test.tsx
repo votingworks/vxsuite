@@ -1,5 +1,3 @@
-import React from 'react'
-
 import USBControllerButton from './USBControllerButton'
 
 import { UsbDriveStatus } from '../lib/usbstick'

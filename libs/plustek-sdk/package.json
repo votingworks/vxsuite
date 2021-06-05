@@ -9,12 +9,14 @@
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.test.json",
-    "build:watch": "tsc --build --watch tsconfig.test.json",
-    "test": "jest",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "is-ci test:ci test:watch",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint"
+    "test:ci": "pnpm build && pnpm test:coverage"
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",
@@ -32,6 +34,7 @@
     "@typescript-eslint/parser": "^4.22.0",
     "@votingworks/test-utils": "workspace:*",
     "eslint": "^7.25.0",
+    "is-ci-cli": "^2.1.2",
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.4",
     "prettier": "^2.2.1",

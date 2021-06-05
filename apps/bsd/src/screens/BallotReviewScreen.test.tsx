@@ -1,7 +1,6 @@
 import { render, RenderResult, waitFor } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import { createMemoryHistory } from 'history'
-import React from 'react'
 import { act } from 'react-dom/test-utils'
 import { Route, Router } from 'react-router-dom'
 import { GetBallotResponse } from '../config/types'

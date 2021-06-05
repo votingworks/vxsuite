@@ -541,6 +541,8 @@ export default class Interpreter {
               rightSideUp: result.position === 'bottom',
             }
           }
+
+          return undefined
         },
       })
     }

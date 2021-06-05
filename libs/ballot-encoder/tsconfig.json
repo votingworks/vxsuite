@@ -1,29 +1,10 @@
 {
-  "extends": "../../tsconfig.shared.json",
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": false,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true,
-    "outDir": "build",
-    "strict": true,
-    "target": "es2015",
-    "composite": true
-  },
-  "include": ["src", "src/data/*.json"],
-  "exclude": ["**/*.test.ts", "test"],
+  "extends": "./tsconfig.build.json",
+  "include": ["src", "src/data/*.json", "test"],
+  "exclude": [],
   "references": [
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../fixtures" },
-    { "path": "../types" }
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
   ]
 }

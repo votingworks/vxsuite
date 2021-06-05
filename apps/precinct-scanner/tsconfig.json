@@ -12,6 +12,8 @@
     "moduleResolution": "node",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "noPropertyAccessFromIndexSignature": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,12 +22,12 @@
   "include": ["src", "test", "types"],
   "exclude": ["src/setupProxy.js"],
   "references": [
-    { "path": "../../libs/ballot-encoder" },
-    { "path": "../../libs/hmpb-interpreter" },
-    { "path": "../../libs/fixtures" },
-    { "path": "../../libs/test-utils" },
-    { "path": "../../libs/types" },
-    { "path": "../../libs/ui" },
-    { "path": "../../libs/utils" }
+    { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
+    { "path": "../../libs/hmpb-interpreter/tsconfig.build.json" },
+    { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/test-utils/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/ui/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" }
   ]
 }

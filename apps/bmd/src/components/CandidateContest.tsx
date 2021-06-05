@@ -156,6 +156,7 @@ const CandidateContest: React.FC<Props> = ({
       }, 100)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [deselectedCandidate])
 
   const addCandidateToVote = (id: string) => {

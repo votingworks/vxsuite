@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": false,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "outDir": "build",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false,
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "test"],
+  "references": [
+    { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/hmpb-interpreter" },
+    { "path": "../../libs/plustek-sdk/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" }
+  ]
+}

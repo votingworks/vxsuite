@@ -79,6 +79,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
         isMounted = false
       }
     }
+    return undefined
   }, [isFactoryResetting, unconfigureServer])
 
   return (

@@ -4,7 +4,6 @@ import {
   GetScanStatusResponse,
 } from '@votingworks/types/api/module-scan'
 import { createMemoryHistory } from 'history'
-import React from 'react'
 import { Router } from 'react-router-dom'
 import DashboardScreen from './DashboardScreen'
 

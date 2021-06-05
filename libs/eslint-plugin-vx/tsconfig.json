@@ -1,12 +1,9 @@
 {
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "composite": true
+    "rootDir": "."
   },
-  "references": [
-    { "path": "../types" }
-  ]
+  "include": ["src", "tests"],
+  "exclude": ["tests/fixtures"],
+  "references": [{ "path": "../types/tsconfig.build.json" }]
 }

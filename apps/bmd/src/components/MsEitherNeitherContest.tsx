@@ -199,6 +199,7 @@ const MsEitherNeitherContest: React.FC<Props> = ({
       const timer = setTimeout(() => setDeselectedOption(undefined), 100)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [deselectedOption])
 
   return (

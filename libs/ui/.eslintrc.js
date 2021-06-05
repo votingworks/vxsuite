@@ -90,6 +90,7 @@ module.exports = {
     quotes: ['error', 'single', { avoidEscape: true }],
     'react/destructuring-assignment': 'off',
     'react/jsx-boolean-value': [2, 'never'],
+    'react/react-in-jsx-scope': 'off',
     //
     // ADDED RULES for election-manager
     //

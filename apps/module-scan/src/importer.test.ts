@@ -244,7 +244,7 @@ test('manually importing files', async () => {
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        return
 
       case 'detect-qrcode':
         if (input.imagePath === frontImagePath) {
@@ -481,7 +481,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        return
 
       case 'detect-qrcode':
         if (
@@ -606,7 +606,7 @@ test('rejects pages that do not match the current precinct', async () => {
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        return
 
       case 'detect-qrcode':
         if (

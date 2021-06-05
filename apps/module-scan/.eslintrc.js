@@ -33,7 +33,7 @@ module.exports = {
       jsx: true,
     },
     ecmaVersion: 2018,
-    project: ['./tsconfig.test.json'],
+    project: ['./tsconfig.json'],
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'jest'],

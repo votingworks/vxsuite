@@ -48,7 +48,7 @@ describe('WebServiceCard', () => {
   })
 
   it('writes short value using /card/write', async () => {
-    fetchMock.post('/card/write', (url: string, mockRequest: MockRequest) => {
+    fetchMock.post('/card/write', (_url: string, mockRequest: MockRequest) => {
       expect(mockRequest.body).toEqual('abc')
       return { success: true }
     })
@@ -59,7 +59,7 @@ describe('WebServiceCard', () => {
   it('writes objects using /card/write_long_b64', async () => {
     fetchMock.post(
       '/card/write_long_b64',
-      (url: string, mockRequest: MockRequest) => {
+      (_url: string, mockRequest: MockRequest) => {
         const longValue = (mockRequest.body as FormData).get(
           'long_value'
         ) as string
@@ -78,7 +78,7 @@ describe('WebServiceCard', () => {
   it('writes binary data using /card/write_long_b64', async () => {
     fetchMock.post(
       '/card/write_long_b64',
-      (url: string, mockRequest: MockRequest) => {
+      (_url: string, mockRequest: MockRequest) => {
         const longValue = (mockRequest.body as FormData).get(
           'long_value'
         ) as string

@@ -781,6 +781,8 @@ const findOvervotePairTally = (
       return pairTally
     }
   }
+
+  return undefined
 }
 
 // filters the CVR so it doesn't contain contests it shouldn't (TODO: should we cancel it altogether if it does?)

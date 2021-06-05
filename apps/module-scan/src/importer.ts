@@ -443,6 +443,7 @@ export default class Importer {
         sheet.back.interpretation,
       ])
     }
+    return undefined
   }
 
   /**

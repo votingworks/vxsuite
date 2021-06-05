@@ -91,6 +91,7 @@ module.exports = {
     ],
     'react/jsx-fragments': ['error', 'element'],
     'react/jsx-props-no-spreading': 'off',
+    'react/react-in-jsx-scope': 'off',
     'react/require-default-props': 'off',
     'react/prop-types': 'off',
     strict: 0,

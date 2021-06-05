@@ -100,6 +100,7 @@ const DashboardScreen: React.FC<Props> = ({
         isMounted = false
       }
     }
+    return undefined
   }, [pendingDeleteBatchId, isDeletingBatch, deleteBatch])
 
   return (

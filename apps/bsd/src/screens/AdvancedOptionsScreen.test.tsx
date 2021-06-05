@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, waitFor } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
 import { Router } from 'react-router-dom'

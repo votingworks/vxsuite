@@ -12,6 +12,8 @@
     "moduleResolution": "node",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "noPropertyAccessFromIndexSignature": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,5 +21,8 @@
   },
   "exclude": ["src/setupProxy.js"],
   "include": ["src"],
-  "references": [{ "path": "../../libs/types" }, { "path": "../../libs/utils" }]
+  "references": [
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" }
+  ]
 }
