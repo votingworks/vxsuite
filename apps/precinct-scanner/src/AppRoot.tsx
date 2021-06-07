@@ -21,6 +21,7 @@ import {
   CardPresentAPI,
   Hardware,
   isCardReader,
+  Storage,
 } from '@votingworks/utils'
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
@@ -49,8 +50,6 @@ import {
 
 import * as config from './api/config'
 import * as scan from './api/scan'
-
-import { Storage } from './utils/Storage'
 
 import AdminScreen from './screens/AdminScreen'
 import SetupCardReaderPage from './screens/SetupCardReaderPage'

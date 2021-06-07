@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
+    "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^1.26.5",
     "@types/fast-text-encoding": "^1.0.1",
     "@types/yauzl": "^2.9.1",

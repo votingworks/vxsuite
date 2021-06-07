@@ -30,7 +30,7 @@ describe('LocalStorage', () => {
     expect(await storage.get('a')).toBeUndefined()
     window.localStorage.setItem('a', JSON.stringify({}))
     expect(await storage.get('a')).toBeDefined()
-    storage.remove('a')
+    await storage.remove('a')
     expect(await storage.get('a')).toBeUndefined()
   })
 

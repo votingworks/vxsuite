@@ -114,7 +114,7 @@ export class MemoryStorage implements Storage {
       for (const key in initial) {
         /* istanbul ignore else */
         if (Object.prototype.hasOwnProperty.call(initial, key)) {
-          this.set(key, initial[key])
+          void this.set(key, initial[key])
         }
       }
     }
