@@ -1335,6 +1335,7 @@ importers:
       jest-fetch-mock: 3.0.3
       luxon: 1.27.0
       moment: 2.29.1
+      rxjs: 6.6.6
       yauzl: 2.10.0
     devDependencies:
       '@types/fast-text-encoding': 1.0.1
@@ -1379,6 +1380,7 @@ importers:
       luxon: ^1.27.0
       moment: ^2.29.1
       prettier: ^2.3.0
+      rxjs: ^6.6.6
       ts-jest: ^26.5.6
       typescript: ^4.2.4
       yauzl: ^2.10.0
@@ -14603,17 +14605,6 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.13.1:
-    dev: false
-    engines:
-      node: '>=4.0'
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    resolution:
-      integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
   /follow-redirects/1.13.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
@@ -15531,7 +15522,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.13.1
+      follow-redirects: 1.13.1_debug@4.3.1
       requires-port: 1.0.0
     dev: false
     engines:

@@ -19,11 +19,12 @@ import {
   PrecinctScannerCardTally,
   Card,
   CardPresentAPI,
+  Hardware,
+  isCardReader,
 } from '@votingworks/utils'
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
-import { Hardware, isCardReader } from './utils/Hardware'
 import {
   BallotState,
   ScanningResultType,

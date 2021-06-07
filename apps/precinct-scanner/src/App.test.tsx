@@ -11,6 +11,7 @@ import {
   TallySourceMachineType,
   MemoryCard,
   ballotPackageUtils,
+  MemoryHardware,
 } from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
@@ -30,7 +31,6 @@ import App from './App'
 import { BallotSheetInfo } from './config/types'
 import { interpretedHmpb } from '../test/fixtures'
 
-import { MemoryHardware } from './utils/Hardware'
 import { MemoryStorage } from './utils/Storage'
 import {
   adminCardForElection,
@@ -71,7 +71,7 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
 
 test('shows setup card reader screen when there is no card reader', async () => {
   const storage = new MemoryStorage()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   hardware.setCardReaderConnected(false)
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
@@ -86,7 +86,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
 test('app can load and configure from a usb stick', async () => {
   const storage = new MemoryStorage()
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const kiosk = fakeKiosk()
   kiosk.getUsbDrives.mockResolvedValue([])
   window.kiosk = kiosk
@@ -190,7 +190,7 @@ test('app can load and configure from a usb stick', async () => {
 
 test('admin and pollworker configuration', async () => {
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: false })
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
@@ -359,7 +359,7 @@ test('admin and pollworker configuration', async () => {
 
 test('voter can cast a ballot that scans successfully ', async () => {
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: true })
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
@@ -571,7 +571,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
@@ -795,7 +795,7 @@ test('voter can cast a rejected ballot', async () => {
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   render(<App storage={storage} card={card} hardware={hardware} />)
   advanceTimers(1)
   await screen.findByText('Insert Your Ballot Below')
@@ -907,7 +907,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: true })
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -1107,7 +1107,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: false })
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })

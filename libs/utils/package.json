@@ -25,7 +25,8 @@
     "luxon": "^1.27.0",
     "moment": "^2.29.1",
     "yauzl": "^2.10.0",
-    "fast-text-encoding": "^1.0.2"
+    "fast-text-encoding": "^1.0.2",
+    "rxjs": "^6.6.6"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

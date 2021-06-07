@@ -113,7 +113,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   }
 
-  public constructor({
+  public static async build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
@@ -121,22 +121,26 @@ export class MemoryHardware implements Hardware {
     connectPrinter?: boolean
     connectAccessibleController?: boolean
     connectCardReader?: boolean
-  } = {}) {
-    this.setPrinterConnected(connectPrinter)
-    this.setAccessibleControllerConnected(connectAccessibleController)
-    this.setCardReaderConnected(connectCardReader)
+  } = {}): Promise<MemoryHardware> {
+    const newMemoryHardware = new MemoryHardware()
+    await newMemoryHardware.setPrinterConnected(connectPrinter)
+    await newMemoryHardware.setAccessibleControllerConnected(
+      connectAccessibleController
+    )
+    await newMemoryHardware.setCardReaderConnected(connectCardReader)
+    return newMemoryHardware
   }
 
-  public static get standard(): MemoryHardware {
-    return new MemoryHardware({
+  public static async buildStandard(): Promise<MemoryHardware> {
+    return await MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: true,
       connectCardReader: true,
     })
   }
 
-  public static get demo(): MemoryHardware {
-    return new MemoryHardware({
+  public static async buildDemo(): Promise<MemoryHardware> {
+    return await MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: false,
       connectCardReader: true,
@@ -216,8 +220,8 @@ export class MemoryHardware implements Hardware {
   /**
    * Subscribe to USB device updates.
    */
-  public devices: Observable<Iterable<KioskBrowser.Device>> = this
-    .devicesSubject
+  public devices: Observable<Iterable<KioskBrowser.Device>> =
+    this.devicesSubject
 
   private printersSubject = new BehaviorSubject<
     Iterable<KioskBrowser.PrinterInfo>
@@ -226,8 +230,8 @@ export class MemoryHardware implements Hardware {
   /**
    * Subscribe to printer updates.
    */
-  public printers: Observable<Iterable<KioskBrowser.PrinterInfo>> = this
-    .printersSubject
+  public printers: Observable<Iterable<KioskBrowser.PrinterInfo>> =
+    this.printersSubject
 
   /**
    * Determines whether a device is in the list of connected devices.
@@ -326,9 +330,10 @@ export class KioskHardware extends MemoryHardware {
 /**
  * Get Hardware based upon environment.
  */
-export const getHardware = (): Hardware =>
-  window.kiosk
+export async function getHardware(): Promise<Hardware> {
+  return window.kiosk
     ? // Running in kiosk-browser, so use that to access real hardware.
       new KioskHardware(window.kiosk)
     : // Running in normal browser, so emulate hardware.
-      MemoryHardware.demo
+      await MemoryHardware.buildDemo()
+}
