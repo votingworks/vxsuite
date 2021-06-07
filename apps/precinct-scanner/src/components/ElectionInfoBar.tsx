@@ -2,8 +2,8 @@ import React, { useContext } from 'react'
 
 import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui'
 import { getPrecinctById } from '@votingworks/types'
+import { format } from '@votingworks/utils'
 import { Bar, BarSpacer } from './Bar'
-import { localeWeekdayAndDate } from '../utils/IntlDateTimeFormats'
 import AppContext from '../contexts/AppContext'
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin'
@@ -18,7 +18,7 @@ const ElectionInfoBar: React.FC<Props> = ({ mode = 'voter' }) => {
   if (!electionDefinition) {
     return null
   }
-  const electionDate = localeWeekdayAndDate.format(
+  const electionDate = format.localeWeekdayAndDate(
     new Date(electionDefinition.election.date)
   )
   const precinct =
