@@ -1,8 +1,8 @@
+const shared = require('../../jest.config.shared')
+
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testPathIgnorePatterns: ['<rootDir>/build/', '<rootDir>/node_modules/'],
-  collectCoverageFrom: ['src/**/*', '!test/fixtures/**/*'],
+  ...shared,
+  collectCoverageFrom: [...shared.collectCoverageFrom, '!test/fixtures/**/*'],
   coverageThreshold: {
     global: {
       statements: 90,

@@ -2,10 +2,6 @@ import { strict as assert } from 'assert'
 import { randomBytes } from 'crypto'
 import { Rect } from '../src/types'
 import { createImageData } from '../src/utils/canvas'
-import {
-  assertGrayscaleImage,
-  makeImageTransform,
-} from '../src/utils/imageFormatUtils'
 
 export function randomImage({
   width = 0,
@@ -71,33 +67,4 @@ export function randomInt(
 ): number {
   assert(min <= max)
   return (min + Math.random() * (max - min + 1)) | 0
-}
-
-/**
- * Converts an image to an RGBA image.
- */
-export const toRGBA = makeImageTransform(grayToRGBA, (imageData) => imageData)
-
-/**
- * Converts a grayscale image to an RGBA image.
- */
-export function grayToRGBA(imageData: ImageData): ImageData {
-  assertGrayscaleImage(imageData)
-
-  const { data: src, width, height } = imageData
-  const dst = new Uint8ClampedArray(width * height * 4)
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const srcOffset = x + y * width
-      const dstOffset = srcOffset << 2
-
-      dst[dstOffset] = src[srcOffset]
-      dst[dstOffset + 1] = src[srcOffset]
-      dst[dstOffset + 2] = src[srcOffset]
-      dst[dstOffset + 3] = 255
-    }
-  }
-
-  return createImageData(dst, width, height)
 }

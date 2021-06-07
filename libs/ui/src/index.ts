@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 export * from './Button'
 export * from './ButtonBar'
 export * from './InputGroup'
