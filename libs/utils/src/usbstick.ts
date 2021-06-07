@@ -39,11 +39,11 @@ export const getStatus = async (): Promise<UsbDriveStatus> => {
 
 export const doMount = async (): Promise<void> => {
   const device = await getDevice()
-  if (!device || device?.mountPoint) {
+  if (!device || device.mountPoint) {
     return
   }
 
-  window.kiosk!.mountUsbDrive(device.deviceName)
+  await window.kiosk!.mountUsbDrive(device.deviceName)
 }
 
 export const doUnmount = async (): Promise<void> => {
@@ -51,6 +51,6 @@ export const doUnmount = async (): Promise<void> => {
   if (!device?.mountPoint) {
     return
   }
-  window.kiosk!.unmountUsbDrive(device.deviceName)
+  await window.kiosk!.unmountUsbDrive(device.deviceName)
   return await new Promise((resolve) => setTimeout(resolve, 10000))
 }

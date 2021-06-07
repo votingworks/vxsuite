@@ -4,8 +4,8 @@ import MockDate from 'mockdate'
 
 import { fakeKiosk } from '@votingworks/test-utils'
 import { electionSampleDefinition } from '@votingworks/fixtures'
+import { usbstick } from '@votingworks/utils'
 import AdminScreen from './AdminScreen'
-import { UsbDriveStatus } from '../utils/usbstick'
 import AppContext from '../contexts/AppContext'
 
 MockDate.set('2020-10-31T00:00:00.000Z')
@@ -37,7 +37,7 @@ test('renders date and time settings modal', async () => {
         unconfigure={jest.fn()}
         calibrate={jest.fn()}
         usbDriveEject={jest.fn()}
-        usbDriveStatus={UsbDriveStatus.absent}
+        usbDriveStatus={usbstick.UsbDriveStatus.absent}
       />
     </AppContext.Provider>
   )

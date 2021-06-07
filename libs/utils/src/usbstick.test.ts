@@ -1,5 +1,11 @@
 import { fakeKiosk } from '@votingworks/test-utils'
-import { UsbDriveStatus, getStatus, doMount, doUnmount } from './usbstick'
+import {
+  UsbDriveStatus,
+  getStatus,
+  doMount,
+  doUnmount,
+  getDevicePath,
+} from './usbstick'
 
 const mountedDevices = [
   {
@@ -36,6 +42,10 @@ test('can mount and unmount USB drive', async () => {
   const fKiosk = fakeKiosk()
   window.kiosk = fKiosk
 
+  // mount should do nothing
+  await doMount()
+  expect(window.kiosk.mountUsbDrive).not.toBeCalled()
+
   fKiosk.getUsbDrives.mockResolvedValue(unmountedDevices)
 
   // unmount should do nothing
@@ -63,4 +73,13 @@ test('without a kiosk, calls do not crash', async () => {
 
   await doMount()
   await doUnmount()
+})
+
+test('can get device path', async () => {
+  const fKiosk = fakeKiosk()
+  window.kiosk = fKiosk
+  expect(await getDevicePath()).toEqual(undefined)
+  fKiosk.getUsbDrives.mockResolvedValue(mountedDevices)
+
+  expect(await getDevicePath()).toEqual('/media/usb-drive-sdb')
 })

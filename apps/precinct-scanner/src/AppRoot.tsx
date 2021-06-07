@@ -22,6 +22,7 @@ import {
   Hardware,
   isCardReader,
   Storage,
+  usbstick,
 } from '@votingworks/utils'
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
@@ -41,12 +42,6 @@ import {
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
   STATUS_POLLING_EXTRA_CHECKS,
 } from './config/globals'
-import {
-  getStatus as usbDriveGetStatus,
-  doMount,
-  doUnmount,
-  UsbDriveStatus,
-} from './utils/usbstick'
 
 import * as config from './api/config'
 import * as scan from './api/scan'
@@ -82,7 +77,7 @@ export interface Props extends RouteComponentProps {
 interface HardwareState {
   hasCardReaderAttached: boolean
   hasPrinterAttached: boolean
-  usbDriveStatus: UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus
   usbRecentlyEjected: boolean
   adminCardElectionHash: string
   isAdminCardPresent: boolean
@@ -117,7 +112,7 @@ export interface State
 const initialHardwareState: Readonly<HardwareState> = {
   hasCardReaderAttached: true,
   hasPrinterAttached: true,
-  usbDriveStatus: UsbDriveStatus.absent,
+  usbDriveStatus: usbstick.UsbDriveStatus.absent,
   usbRecentlyEjected: false,
   adminCardElectionHash: '',
   isAdminCardPresent: false,
@@ -160,7 +155,7 @@ type AppAction =
     }
   | {
       type: 'updateUsbDriveStatus'
-      usbDriveStatus: UsbDriveStatus
+      usbDriveStatus: usbstick.UsbDriveStatus
       usbRecentlyEjected?: boolean
     }
   | {
@@ -425,8 +420,8 @@ const AppRoot: React.FC<Props> = ({
   } = appState
 
   const usbDriveDisplayStatus =
-    usbRecentlyEjected && usbDriveStatus !== UsbDriveStatus.ejecting
-      ? UsbDriveStatus.recentlyEjected
+    usbRecentlyEjected && usbDriveStatus !== usbstick.UsbDriveStatus.ejecting
+      ? usbstick.UsbDriveStatus.recentlyEjected
       : usbDriveStatus
 
   const hasCardInserted =
@@ -555,7 +550,7 @@ const AppRoot: React.FC<Props> = ({
 
   const usbStatusInterval = useInterval(
     async () => {
-      const status = await usbDriveGetStatus()
+      const status = await usbstick.getStatus()
       if (status !== usbDriveStatus) {
         dispatchAppState({
           type: 'updateUsbDriveStatus',
@@ -563,12 +558,12 @@ const AppRoot: React.FC<Props> = ({
         })
       }
       /* istanbul ignore next */
-      if (status === UsbDriveStatus.present && !usbRecentlyEjected) {
-        await doMount()
+      if (status === usbstick.UsbDriveStatus.present && !usbRecentlyEjected) {
+        await usbstick.doMount()
       }
     },
     /* istanbul ignore next */
-    usbDriveStatus === UsbDriveStatus.notavailable
+    usbDriveStatus === usbstick.UsbDriveStatus.notavailable
       ? null
       : POLLING_INTERVAL_FOR_USB,
     true
@@ -577,10 +572,10 @@ const AppRoot: React.FC<Props> = ({
   const usbDriveEject = async () => {
     dispatchAppState({
       type: 'updateUsbDriveStatus',
-      usbDriveStatus: UsbDriveStatus.ejecting,
+      usbDriveStatus: usbstick.UsbDriveStatus.ejecting,
       usbRecentlyEjected: true,
     })
-    await doUnmount()
+    await usbstick.doUnmount()
   }
 
   const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(

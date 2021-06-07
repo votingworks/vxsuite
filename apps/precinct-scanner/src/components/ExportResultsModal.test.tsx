@@ -5,13 +5,15 @@ import {
   electionSampleDefinition as electionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures'
+import { usbstick } from '@votingworks/utils'
 import fetchMock from 'fetch-mock'
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
-import { UsbDriveStatus } from '../utils/usbstick'
 import ExportResultsModal from './ExportResultsModal'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 import AppContext from '../contexts/AppContext'
+
+const { UsbDriveStatus } = usbstick
 
 const machineConfig = { machineId: '0003', codeVersion: 'TEST' }
 
