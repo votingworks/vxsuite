@@ -5,7 +5,7 @@ import {
   Precinct,
   safeParseElectionDefinition,
 } from '@votingworks/types'
-import type { BallotLocales } from '@votingworks/hmpb-interpreter'
+import type { BallotLocales } from '@votingworks/types'
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
 
@@ -131,7 +131,7 @@ async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
   return JSON.parse(await readTextEntry(zipfile, entry))
 }
 
-export async function readBallotPackageFromZip(
+async function readBallotPackageFromZip(
   zipfile: ZipFile,
   fileName: string,
   fileSize: number
@@ -183,23 +183,25 @@ export async function readBallotPackageFromZip(
   }
 
   return {
-    electionDefinition: safeParseElectionDefinition(
-      electionData
-    ).unsafeUnwrap(),
+    electionDefinition:
+      safeParseElectionDefinition(electionData).unsafeUnwrap(),
     ballots,
   }
 }
 
-export async function readBallotPackageFromFile(
-  file: File
-): Promise<BallotPackage> {
+async function readBallotPackageFromFile(file: File): Promise<BallotPackage> {
   const zipFile = await openZip(await readFile(file))
   return readBallotPackageFromZip(zipFile, file.name, file.size)
 }
 
-export async function readBallotPackageFromFilePointer(
+async function readBallotPackageFromFilePointer(
   file: KioskBrowser.FileSystemEntry
 ): Promise<BallotPackage> {
   const zipFile = await openZip(await window.kiosk!.readFile(file.path))
   return readBallotPackageFromZip(zipFile, file.name, file.size)
+}
+
+export const ballotPackageUtils = {
+  readBallotPackageFromFile,
+  readBallotPackageFromFilePointer,
 }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import path from 'path'
 import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
+import { ballotPackageUtils } from '@votingworks/utils'
 import { getDevicePath, UsbDriveStatus } from '../utils/usbstick'
-import { readBallotPackageFromFilePointer } from '../utils/ballot-package'
 import { addTemplates, doneTemplates } from '../api/hmpb'
 import {
   PRECINCT_SCANNER_FOLDER,
@@ -70,7 +70,7 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
         if (ballotPackages.length < 1) {
           throw new Error('No ballot package found on the inserted USB drive.')
         }
-        const ballotPackage = await readBallotPackageFromFilePointer(
+        const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
           ballotPackages[0]
         )
         addTemplates(ballotPackage)

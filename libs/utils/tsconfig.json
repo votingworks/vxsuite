@@ -24,6 +24,7 @@
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/types" },
+    { "path": "../../libs/test-utils" },
     { "path": "../../libs/fixtures" }
   ]
 }
