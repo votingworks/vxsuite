@@ -49,7 +49,7 @@ jobs:
       - run:
           name: Run Front-End Test and Coverage
           command: |
-            pnpm --dir apps/bmd test:coverage
+            pnpm --dir apps/bmd test
 
   test-bsd:
     executor: nodejs-browsers
