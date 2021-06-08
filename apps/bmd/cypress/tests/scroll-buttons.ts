@@ -3,7 +3,7 @@ describe('Scroll Buttons', () => {
   const waitTime = 500
 
   it('Scroll buttons appear and function correctly', () => {
-    cy.visit('/#sample')
+    cy.visit('/#demo')
     cy.wait(waitTime)
     cy.get('nav').contains('Start Voting').click()
     cy.contains('Next').click()

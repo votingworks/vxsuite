@@ -3,7 +3,7 @@ describe('Font Settings', () => {
   const label = 'Change Text Size'
   const buttons = '[data-testid="change-text-size-buttons"]'
   it('Voter can adjust font settings', () => {
-    cy.visit('/#sample')
+    cy.visit('/#demo')
 
     // Default font size
     cy.contains(label)

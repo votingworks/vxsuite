@@ -4,7 +4,7 @@ describe('Review Page', () => {
   const waitTime = 250
   const clickThoughPages = new Array(20) // number of contests for activation code 'VX.23.12'
   it('When navigating from contest, scroll to contest and place focus on contest.', () => {
-    cy.visit('/#sample')
+    cy.visit('/#demo')
     cy.wait(waitTime)
     cy.get('nav').contains('Start Voting').click()
     cy.wrap(clickThoughPages).each(() => {

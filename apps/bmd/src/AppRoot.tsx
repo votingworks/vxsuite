@@ -462,7 +462,6 @@ const AppRoot: React.FC<Props> = ({
   const PostVotingInstructionsTimeout = useRef(0)
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
-    adminCardElectionHash,
     appPrecinctId,
     ballotsPrintedCount,
     ballotStyleId,
@@ -661,7 +660,7 @@ const AppRoot: React.FC<Props> = ({
         electionDefinition: electionDefinitionResult.unsafeUnwrap(),
       })
     }
-  }, [card, adminCardElectionHash])
+  }, [card])
 
   const activateCardlessBallotStyleId = (ballotStyleId: string) => {
     dispatchAppState({
