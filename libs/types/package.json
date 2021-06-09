@@ -10,9 +10,8 @@
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
-    "dev": "tsc --build --watch",
-    "lint": "tsc --build && eslint src",
-    "prepack": "tsc --build && jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"

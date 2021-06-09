@@ -67,7 +67,7 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["src", "test", "test/fixtures/**/*.json", "types"],
+  "include": ["src", "test", "test/fixtures/**/*.json", "types", "__mocks__"],
   "references": [
     { "path": "../ballot-encoder" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },

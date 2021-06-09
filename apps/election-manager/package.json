@@ -7,13 +7,14 @@
     "build:watch": "tsc --build --watch",
     "eject": "script/react-scripts eject",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --quiet && pnpm stylelint:run",
-    "lint:fix": "tsc --build && eslint '*/**/*.{js,jsx,ts,tsx}' --fix --quiet && pnpm stylelint:run:fix",
+    "lint": "eslint . --quiet && pnpm stylelint:run",
+    "lint:fix": "eslint . --fix --quiet && pnpm stylelint:run:fix",
     "start": "script/react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
-    "test": "TZ=PST script/react-scripts test --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=PST pnpm test -- --coverage --watchAll=false"
+    "test": "is-ci test:coverage test:watch",
+    "test:watch": "TZ=PST script/react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:coverage": "TZ=PST script/react-scripts test --coverage --watchAll=false"
   },
   "husky": {
     "hooks": {
@@ -87,8 +88,8 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/qrcode.react": "^1.0.2",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "@votingworks/ui": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "array-unique": "^0.3.2",
     "base64-js": "^1.3.1",
     "dashify": "^2.0.0",
@@ -145,6 +146,7 @@
     "eslint-plugin-react-hooks": "^4.0.5",
     "eslint-plugin-vx": "workspace:*",
     "husky": "^4.2.1",
+    "is-ci-cli": "^2.1.2",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.0.7",
     "prettier": "^2.0.5",

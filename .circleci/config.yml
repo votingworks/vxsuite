@@ -15,13 +15,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-encoder build
+      - run:
+          name: Lint
           command: |
             pnpm --dir libs/ballot-encoder lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir libs/ballot-encoder test:coverage
+            pnpm --dir libs/ballot-encoder test
 
   test-bas:
     executor: nodejs-browsers
@@ -29,13 +33,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir apps/bas build
+      - run:
+          name: Lint
           command: |
             pnpm --dir apps/bas lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir apps/bas test:coverage
+            pnpm --dir apps/bas test
 
   test-bmd:
     executor: nodejs-browsers
@@ -43,11 +51,15 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir apps/bmd build
+      - run:
+          name: Lint
           command: |
             pnpm --dir apps/bmd lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
             pnpm --dir apps/bmd test
 
@@ -57,13 +69,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir apps/bsd build
+      - run:
+          name: Lint
           command: |
             pnpm --dir apps/bsd lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir apps/bsd test:coverage
+            pnpm --dir apps/bsd test
 
   test-election-manager:
     executor: nodejs-browsers
@@ -71,13 +87,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir apps/election-manager build
+      - run:
+          name: Lint
           command: |
             pnpm --dir apps/election-manager lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir apps/election-manager test:coverage
+            pnpm --dir apps/election-manager test
 
   test-eslint-plugin-vx:
     executor: nodejs-browsers
@@ -89,13 +109,13 @@ jobs:
           command: |
             pnpm --dir libs/eslint-plugin-vx build
       - run:
-          name: Run Linters
+          name: Lint
           command: |
             pnpm --dir libs/eslint-plugin-vx lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir libs/eslint-plugin-vx test:coverage
+            pnpm --dir libs/eslint-plugin-vx test
 
   test-fixtures:
     executor: nodejs
@@ -103,13 +123,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir libs/fixtures build
+      - run:
+          name: Lint
           command: |
             pnpm --dir libs/fixtures lint
       - run:
-          name: Run Tests with Coverage
+          name: Test
           command: |
-            pnpm --dir libs/fixtures test:coverage
+            pnpm --dir libs/fixtures test
 
   test-hmpb-interpreter:
     executor: nodejs
@@ -117,13 +141,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir libs/hmpb-interpreter build
+      - run:
+          name: Lint
           command: |
             pnpm --dir libs/hmpb-interpreter lint
       - run:
-          name: Run Tests with Coverage
+          name: Test
           command: |
-            pnpm --dir libs/hmpb-interpreter test:coverage
+            pnpm --dir libs/hmpb-interpreter test
 
   test-lsd:
     executor: nodejs
@@ -135,13 +163,13 @@ jobs:
           command: |
             pnpm --dir libs/lsd build
       - run:
-          name: Run Linters
+          name: Lint
           command: |
             pnpm --dir libs/lsd lint
       - run:
-          name: Run Tests with Coverage
+          name: Test
           command: |
-            pnpm --dir libs/lsd test:coverage
+            pnpm --dir libs/lsd test
 
   test-module-scan:
     executor: nodejs
@@ -149,13 +177,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir apps/module-scan build
+      - run:
+          name: Lint
           command: |
             pnpm --dir apps/module-scan lint
       - run:
-          name: Run Tests with Coverage
+          name: Test
           command: |
-            pnpm --dir apps/module-scan test:coverage
+            pnpm --dir apps/module-scan test
 
   test-module-smartcards:
     docker:
@@ -163,17 +195,17 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Set up python tools for backend
+          name: Dependencies
           command: |
             sudo apt update -y
             make -C apps/module-smartcards install-smartcard
             make -C apps/module-smartcards build-dev
       - run:
-          name: Run Python Tests and Coverage
+          name: Test
           command: |
             make -C apps/module-smartcards coverage
       - run:
-          name: Run Mypy Type Checking
+          name: Typecheck
           command: |
             make -C apps/module-smartcards typecheck
 
@@ -187,13 +219,13 @@ jobs:
           command: |
             pnpm --dir libs/plustek-sdk build
       - run:
-          name: Run Linters
+          name: Lint
           command: |
             pnpm --dir libs/plustek-sdk lint
       - run:
-          name: Run Tests with Coverage
+          name: Test
           command: |
-            pnpm --dir libs/plustek-sdk test:coverage
+            pnpm --dir libs/plustek-sdk test
 
   test-precinct-scanner:
     executor: nodejs-browsers
@@ -201,13 +233,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir apps/precinct-scanner build
+      - run:
+          name: Lint
           command: |
             pnpm --dir apps/precinct-scanner lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir apps/precinct-scanner test:coverage
+            pnpm --dir apps/precinct-scanner test
 
   test-types:
     executor: nodejs
@@ -215,13 +251,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir libs/types build
+      - run:
+          name: Lint
           command: |
             pnpm --dir libs/types lint
       - run:
-          name: Run Tests with Coverage
+          name: Test
           command: |
-            pnpm --dir libs/types test:coverage
+            pnpm --dir libs/types test
 
   test-ui:
     executor: nodejs-browsers
@@ -229,13 +269,17 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Run Linters
+          name: Build
+          command: |
+            pnpm --dir libs/ui build
+      - run:
+          name: Lint
           command: |
             pnpm --dir libs/ui lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir libs/ui test:coverage
+            pnpm --dir libs/ui test
 
   test-utils:
     executor: nodejs-browsers
@@ -247,13 +291,13 @@ jobs:
           command: |
             pnpm --dir libs/utils build
       - run:
-          name: Run Linters
+          name: Lint
           command: |
             pnpm --dir libs/utils lint
       - run:
-          name: Run Front-End Test and Coverage
+          name: Test
           command: |
-            pnpm --dir libs/utils test:coverage
+            pnpm --dir libs/utils test
 
 workflows:
   test:

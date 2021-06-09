@@ -2,3 +2,4 @@
 /coverage
 /prodserver
 /src/setupProxy.js
+.eslintrc.js
