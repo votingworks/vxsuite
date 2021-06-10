@@ -23,9 +23,9 @@ import ExportResultsModal from '../components/ExportResultsModal'
 interface Props {
   scannedBallotCount: number
   isTestMode: boolean
-  updateAppPrecinctId: (appPrecinctId: string) => void
-  toggleLiveMode: VoidFunction
-  unconfigure: VoidFunction
+  updateAppPrecinctId(appPrecinctId: string): Promise<void>
+  toggleLiveMode(): Promise<void>
+  unconfigure(): Promise<void>
   calibrate(): Promise<boolean>
   usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => void
@@ -114,9 +114,7 @@ const AdminScreen: React.FC<Props> = ({
             onChange={changeAppPrecinctId}
             large
           >
-            <option value="" disabled>
-              Select precinct…
-            </option>
+            <option value="">All Precincts</option>
             {[...election.precincts]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {

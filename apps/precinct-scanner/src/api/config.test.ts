@@ -69,11 +69,20 @@ test('PATCH /config/testMode', async () => {
   )
 })
 
-test('setCurrentPrecinctId suceeds', async () => {
+test('setCurrentPrecinctId updates', async () => {
   fetchMock.putOnce('/config/precinct', JSON.stringify({ status: 'ok' }))
   await config.setCurrentPrecinctId('23')
 
   expect(fetchMock.calls('/config/precinct', { method: 'PUT' })).toHaveLength(1)
+})
+
+test('setCurrentPrecinctId deletes', async () => {
+  fetchMock.deleteOnce('/config/precinct', { body: { status: 'ok' } })
+  await config.setCurrentPrecinctId(undefined)
+
+  expect(
+    fetchMock.calls('/config/precinct', { method: 'DELETE' })
+  ).toHaveLength(1)
 })
 
 test('setCurrentPrecinctId fails', async () => {

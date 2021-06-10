@@ -125,7 +125,13 @@ export async function getCurrentPrecinctId(): Promise<
 }
 
 export async function setCurrentPrecinctId(
-  precinctId: Precinct['id']
+  precinctId: Precinct['id'] | undefined
 ): Promise<void> {
-  await put<PutCurrentPrecinctConfigRequest>('/config/precinct', { precinctId })
+  if (!precinctId) {
+    await del('/config/precinct')
+  } else {
+    await put<PutCurrentPrecinctConfigRequest>('/config/precinct', {
+      precinctId,
+    })
+  }
 }
