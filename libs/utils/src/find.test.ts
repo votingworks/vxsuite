@@ -1,4 +1,4 @@
-import find from './find'
+import { find } from './find'
 test('find', () => {
   expect(find([1, 2, 3, 4], (number: number) => number > 2, 10)).toBe(3)
   expect(find([1, 2, 3, 4], (number: number) => number > 20, 10)).toBe(10)

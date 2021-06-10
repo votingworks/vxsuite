@@ -1,7 +1,11 @@
 import React, { ReactChild, useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
-import { Contest, Dictionary } from '@votingworks/types'
+import {
+  Contest,
+  Dictionary,
+  expandEitherNeitherContests,
+} from '@votingworks/types'
 
 import {
   ContestOption,
@@ -23,7 +27,6 @@ import NavigationScreen from '../components/NavigationScreen'
 import Button, { SegmentedButton } from '../components/Button'
 import Select from '../components/Select'
 import {
-  expandEitherNeitherContests,
   getContestsForPrecinct,
   getAllPossibleCandidatesForCandidateContest,
 } from '../utils/election'

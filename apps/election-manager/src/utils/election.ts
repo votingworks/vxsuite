@@ -1,9 +1,7 @@
 import {
   AnyContest,
   Candidate,
-  Contests,
   Election,
-  MsEitherNeitherContest,
   Party,
   VotesDict,
   getContests,
@@ -12,10 +10,10 @@ import {
   CandidateContest,
 } from '@votingworks/types'
 import dashify from 'dashify'
+import { find } from '@votingworks/utils'
 import { LANGUAGES } from '../config/globals'
 import { BallotLocale, YesNoOption, ContestOption } from '../config/types'
 
-import find from './find'
 import sortBy from './sortBy'
 
 // the generic write-in candidate to keep count
@@ -56,36 +54,6 @@ export function getContestOptionsForContest(
   }
   throw new Error(`Unexpected contest type: ${contest.type}`)
 }
-
-export const expandEitherNeitherContests = (
-  contests: Contests
-): Exclude<AnyContest, MsEitherNeitherContest>[] =>
-  contests.flatMap((contest) =>
-    contest.type !== 'ms-either-neither'
-      ? [contest]
-      : [
-          {
-            type: 'yesno',
-            id: contest.eitherNeitherContestId,
-            title: `${contest.title} – Either/Neither`,
-            districtId: contest.districtId,
-            section: contest.section,
-            description: contest.description,
-            yesOption: contest.eitherOption,
-            noOption: contest.neitherOption,
-          },
-          {
-            type: 'yesno',
-            id: contest.pickOneContestId,
-            title: `${contest.title} – Pick One`,
-            districtId: contest.districtId,
-            section: contest.section,
-            description: contest.description,
-            yesOption: contest.firstOption,
-            noOption: contest.secondOption,
-          },
-        ]
-  )
 
 interface BallotStyleData {
   ballotStyleId: string

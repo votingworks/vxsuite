@@ -3,7 +3,7 @@ import { BrowserRouter, Route } from 'react-router-dom'
 
 import './App.css'
 
-import { LocalStorage, KioskStorage } from './utils/Storage'
+import { LocalStorage, KioskStorage } from '@votingworks/utils'
 
 import AppRoot, { Props as AppRootProps } from './AppRoot'
 

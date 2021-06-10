@@ -1,4 +1,9 @@
-import { Dictionary, Election, getContests } from '@votingworks/types'
+import {
+  Dictionary,
+  Election,
+  getContests,
+  expandEitherNeitherContests,
+} from '@votingworks/types'
 
 import { strict as assert } from 'assert'
 import {
@@ -13,7 +18,6 @@ import {
   VotingMethod,
 } from '../config/types'
 import {
-  expandEitherNeitherContests,
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
   writeInCandidate,

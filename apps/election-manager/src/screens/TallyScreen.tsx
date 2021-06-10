@@ -2,15 +2,13 @@ import React, { useContext, useState, useEffect, useRef } from 'react'
 import moment from 'moment'
 
 import { Optional } from '@votingworks/types'
-import { generateFinalExportDefaultFilename } from '@votingworks/utils'
+import { generateFinalExportDefaultFilename, format } from '@votingworks/utils'
 import {
   TallyCategory,
   InputEventFunction,
   ResultsFileType,
   ExternalTallySourceType,
 } from '../config/types'
-
-import * as format from '../utils/format'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'

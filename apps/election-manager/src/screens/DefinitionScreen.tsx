@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Contest } from '@votingworks/types'
 import styled from 'styled-components'
 
-import { localeLongDateAndTime } from '../utils/IntlDateTimeFormats'
+import { format } from '@votingworks/utils'
 
 import AppContext from '../contexts/AppContext'
 
@@ -54,7 +54,7 @@ const DefinitionScreen: React.FC = () => {
           <Text small>
             Configured with the current election at{' '}
             <strong>
-              {localeLongDateAndTime.format(new Date(configuredAt))}
+              {format.localeLongDateAndTime(new Date(configuredAt))}
             </strong>
           </Text>
           <h2>Election Metadata</h2>

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
+import { format } from '@votingworks/utils'
 import Text from './Text'
-import { localeWeedkayAndDate } from '../utils/IntlDateTimeFormats'
 import AppContext from '../contexts/AppContext'
 
 const StatusBar = styled.div`
@@ -20,7 +20,7 @@ const StatusFooter: React.FC = () => {
   }
 
   const { election, electionHash } = electionDefinition
-  const electionDate = localeWeedkayAndDate.format(new Date(election?.date))
+  const electionDate = format.localeWeekdayAndDate(new Date(election?.date))
 
   return (
     <StatusBar>

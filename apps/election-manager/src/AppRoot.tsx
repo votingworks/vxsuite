@@ -7,6 +7,7 @@ import { sha256 } from 'js-sha256'
 
 import { ElectionDefinition, parseElection } from '@votingworks/types'
 
+import { Storage } from '@votingworks/utils'
 import {
   getStatus as usbDriveGetStatus,
   doMount,
@@ -23,7 +24,6 @@ import AppContext from './contexts/AppContext'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from './utils/CastVoteRecordFiles'
-import { Storage } from './utils/Storage'
 
 import ElectionManager from './components/ElectionManager'
 import {

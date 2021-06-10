@@ -1,4 +1,9 @@
-import { Dictionary, Election, getContests } from '@votingworks/types'
+import {
+  Dictionary,
+  Election,
+  getContests,
+  expandEitherNeitherContests,
+} from '@votingworks/types'
 import {
   ContestTally,
   ExportableContestTally,
@@ -9,7 +14,6 @@ import {
   FullElectionTally,
   TallyCategory,
 } from '../config/types'
-import { expandEitherNeitherContests } from './election'
 
 export function getEmptyExportableTallies(): ExportableTallies {
   return {

@@ -3,6 +3,7 @@ import pluralize from 'pluralize'
 import _ from 'lodash'
 
 import { Dictionary } from '@votingworks/types'
+import { format, find } from '@votingworks/utils'
 import { PrintableBallotType } from '../config/types'
 import routerPaths from '../routerPaths'
 
@@ -14,12 +15,7 @@ import Text from '../components/Text'
 import Table, { TD } from '../components/Table'
 
 import NavigationScreen from '../components/NavigationScreen'
-import {
-  localeWeedkayAndDate,
-  localeLongDateAndTime,
-} from '../utils/IntlDateTimeFormats'
 
-import find from '../utils/find'
 import LogoMark from '../components/LogoMark'
 import LinkButton from '../components/LinkButton'
 
@@ -84,8 +80,8 @@ const PrintedBallotsReportScreen: React.FC = () => {
     zeroCountsByType
   )
 
-  const electionDate = localeWeedkayAndDate.format(new Date(election.date))
-  const generatedAt = localeLongDateAndTime.format(new Date())
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
+  const generatedAt = format.localeLongDateAndTime(new Date())
 
   const reportContent = (
     <Prose maxWidth={false}>
@@ -99,7 +95,7 @@ const PrintedBallotsReportScreen: React.FC = () => {
         <br />
         <Text small as="span">
           Configured with the current election at{' '}
-          {localeLongDateAndTime.format(new Date(configuredAt))}.
+          {format.localeLongDateAndTime(new Date(configuredAt))}.
         </Text>
       </p>
       <p>
