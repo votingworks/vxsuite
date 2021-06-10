@@ -12,7 +12,7 @@
     "lint:fix": "eslint . --fix --quiet && pnpm stylelint:run -- --fix",
     "start": "script/react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
-    "test": "is-ci test:coverage test:watch",
+    "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=UTC CI=true script/react-scripts test --maxWorkers 2 --env=jest-environment-jsdom-sixteen --coverage && pnpm test:e2e:ci",
     "test:coverage": "TZ=UTC script/react-scripts test --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:debug": "script/react-scripts --inspect-brk test --runInBand --no-cache --env=jest-environment-jsdom-sixteen",
