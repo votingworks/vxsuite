@@ -1,16 +1,23 @@
 // Import the rest of our application.
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk'
 import { ok, Result } from '@votingworks/types'
+import {
+  MOCK_SCANNER_FILES,
+  MOCK_SCANNER_HTTP,
+  MOCK_SCANNER_PORT,
+  MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
+  VX_MACHINE_TYPE,
+} from './globals'
 import LoopScanner, { parseBatchesFromEnv } from './LoopScanner'
 import { plustekMockServer, PlustekScanner, Scanner } from './scanners'
 import * as server from './server'
 
 async function getScanner(): Promise<Scanner | undefined> {
-  if (process.env.VX_MACHINE_TYPE === 'precinct-scanner') {
-    if (process.env.MOCK_SCANNER_HTTP) {
+  if (VX_MACHINE_TYPE === 'precinct-scanner') {
+    if (MOCK_SCANNER_HTTP) {
       const client = new MockScannerClient()
       await client.connect()
-      const port = 9999
+      const port = MOCK_SCANNER_PORT
       process.stdout.write(
         `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
       )
@@ -25,11 +32,11 @@ async function getScanner(): Promise<Scanner | undefined> {
         {
           get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
         },
-        process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
+        MODULE_SCAN_ALWAYS_HOLD_ON_REJECT
       )
     }
   } else {
-    const mockScannerFiles = parseBatchesFromEnv(process.env.MOCK_SCANNER_FILES)
+    const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES)
 
     if (mockScannerFiles) {
       process.stdout.write(
@@ -50,11 +57,13 @@ async function main(): Promise<number> {
   return 0
 }
 
-main()
-  .catch((error) => {
-    console.error('CRASH:', error)
-    return 1
-  })
-  .then((code) => {
-    process.exitCode = code
-  })
+if (require.main === module) {
+  main()
+    .catch((error) => {
+      console.error('CRASH:', error)
+      return 1
+    })
+    .then((code) => {
+      process.exitCode = code
+    })
+}

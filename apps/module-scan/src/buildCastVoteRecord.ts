@@ -9,6 +9,7 @@ import {
   getContests,
   VotesDict,
 } from '@votingworks/types'
+import { VX_MACHINE_ID } from './globals'
 import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
@@ -22,7 +23,6 @@ import {
 } from './types'
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
 import allContestOptions from './util/allContestOptions'
-import { getMachineId } from './util/machineId'
 import {
   describeValidationError,
   validateSheetInterpretation,
@@ -37,7 +37,7 @@ export function buildCastVoteRecordMetadataEntries(
     _ballotStyleId: metadata.ballotStyleId,
     _ballotType: getCVRBallotType(metadata.ballotType),
     _precinctId: metadata.precinctId,
-    _scannerId: getMachineId(),
+    _scannerId: VX_MACHINE_ID,
     _testBallot: metadata.isTestMode,
     _locales: metadata.locales,
   }

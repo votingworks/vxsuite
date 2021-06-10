@@ -81,10 +81,10 @@ This mode is designed for use with `precinct-scanner`.
 VX_MACHINE_TYPE=precinct-scanner MOCK_SCANNER_HTTP=1 pnpm dev
 
 # in another terminal, simulate the user feeding paper into the scanner:
-curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:9999/mock
+./bin/mock-scanner load path/to/front.jpg path/to/back.jpg
 
 # simulate the user pulling the loaded paper out of the scanner:
-curl -X DELETE http://localhost:9999/mock
+./bin/mock-scanner remove
 ```
 
 ## Switching Workspaces
