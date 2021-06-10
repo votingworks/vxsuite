@@ -10,10 +10,9 @@ import {
   getContests,
   getBallotStyle,
 } from '@votingworks/types'
-import { getZeroTally } from '@votingworks/utils'
+import { getZeroTally, Storage } from '@votingworks/utils'
 
 import { electionStorageKey, stateStorageKey, State } from '../../src/AppRoot'
-import { Storage } from '../../src/utils/Storage'
 
 const electionSampleData = fs.readFileSync(
   path.resolve(__dirname, '../../src/data/electionSample.json'),
@@ -69,18 +68,18 @@ export const voterContests = getContests({
   election,
 })
 
-export const setElectionInStorage = (
+export const setElectionInStorage = async (
   storage: Storage,
   newElectionDefinition = electionDefinition
-): void => {
-  storage.set(electionStorageKey, newElectionDefinition)
+): Promise<void> => {
+  await storage.set(electionStorageKey, newElectionDefinition)
 }
 
-export const setStateInStorage = (
+export const setStateInStorage = async (
   storage: Storage,
   state: Partial<State> = {}
-): void => {
-  storage.set(stateStorageKey, {
+): Promise<void> => {
+  await storage.set(stateStorageKey, {
     appPrecinctId: defaultPrecinctId,
     ballotsPrintedCount: 0,
     isLiveMode: true,

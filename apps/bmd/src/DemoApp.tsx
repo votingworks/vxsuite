@@ -2,12 +2,16 @@ import * as React from 'react'
 
 import { Provider, VoterCardData } from '@votingworks/types'
 import { electionSampleDefinition } from '@votingworks/fixtures'
+import {
+  Card,
+  MemoryCard,
+  Storage,
+  MemoryStorage,
+  MemoryHardware,
+} from '@votingworks/utils'
 import App, { Props } from './App'
-import { Card, MemoryCard } from './utils/Card'
 import utcTimestamp from './utils/utcTimestamp'
-import { Storage, MemoryStorage } from './utils/Storage'
 import { MachineConfig, VxMarkPlusVxPrint } from './config/types'
-import { MemoryHardware } from './utils/Hardware'
 
 const ballotStyleId = '12'
 const precinctId = '23'
@@ -62,16 +66,30 @@ const DemoApp: React.FC<Props> = ({
   card = getSampleCard(),
   storage = getSampleStorage(),
   machineConfig = getSampleMachineConfigProvider(),
-  hardware = MemoryHardware.demo,
+  hardware,
   ...rest
-}) => (
-  <App
-    card={card}
-    storage={storage}
-    machineConfig={machineConfig}
-    hardware={hardware}
-    {...rest}
-  />
-)
+}) => {
+  const [internalHardware, setInternalHardware] = React.useState(hardware)
+  React.useEffect(() => {
+    const updateHardware = async () => {
+      if (internalHardware === undefined) {
+        setInternalHardware(await MemoryHardware.buildDemo())
+      }
+    }
+    updateHardware()
+  }, [internalHardware])
+  if (internalHardware === undefined) {
+    return <div />
+  }
+  return (
+    <App
+      card={card}
+      storage={storage}
+      machineConfig={machineConfig}
+      hardware={internalHardware}
+      {...rest}
+    />
+  )
+}
 
 export default DemoApp

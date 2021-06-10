@@ -1,18 +1,20 @@
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { Election } from '@votingworks/types'
 import { asElectionDefinition } from '@votingworks/fixtures'
 import App from './App'
 
-import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  getNewVoterCard,
+} from '../test/helpers/smartcards'
 
 import { setStateInStorage } from '../test/helpers/election'
 import electionSample from './data/electionSample.json'
-import { MemoryCard } from './utils/Card'
-import { MemoryStorage } from './utils/Storage'
 import { electionStorageKey } from './AppRoot'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 const election = electionSample as Election
@@ -44,7 +46,7 @@ it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -62,6 +64,7 @@ it('Single Seat Contest', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())

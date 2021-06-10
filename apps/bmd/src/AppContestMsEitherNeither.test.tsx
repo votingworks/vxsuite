@@ -1,5 +1,6 @@
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import { Route } from 'react-router-dom'
 import {
   getBallotStyle,
@@ -15,19 +16,20 @@ import PrintPage from './pages/PrintPage'
 
 import { render as renderWithBallotContext } from '../test/testUtils'
 import withMarkup from '../test/helpers/withMarkup'
-import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  getNewVoterCard,
+} from '../test/helpers/smartcards'
 
 import {
   measure420Contest,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election'
-import { MemoryCard } from './utils/Card'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
-test('Renders Ballot with EitherNeither: blank', () => {
+test('Renders Ballot with EitherNeither: blank', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
@@ -52,6 +54,7 @@ test('Renders Ballot with EitherNeither: blank', () => {
       ),
     }
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
@@ -59,7 +62,7 @@ test('Renders Ballot with EitherNeither: blank', () => {
   )
 })
 
-test('Renders Ballot with EitherNeither: Either & blank', () => {
+test('Renders Ballot with EitherNeither: Either & blank', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
@@ -84,6 +87,7 @@ test('Renders Ballot with EitherNeither: Either & blank', () => {
       ),
     }
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
@@ -94,7 +98,7 @@ test('Renders Ballot with EitherNeither: Either & blank', () => {
   ).toBe('• [no selection]')
 })
 
-test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
+test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
@@ -119,6 +123,7 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
       ),
     }
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
@@ -129,7 +134,7 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', () => {
   ).toBe(`• ${measure420Contest.firstOption.label}`)
 })
 
-test('Renders Ballot with EitherNeither: blank & secondOption', () => {
+test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
   const { getByText } = renderWithBallotContext(
@@ -154,6 +159,7 @@ test('Renders Ballot with EitherNeither: blank & secondOption', () => {
       ),
     }
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
@@ -174,7 +180,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -189,6 +195,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())

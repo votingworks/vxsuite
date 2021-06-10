@@ -2,9 +2,14 @@ import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import App from './App'
 
-import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  getNewVoterCard,
+} from '../test/helpers/smartcards'
 
 import {
   presidentContest,
@@ -12,9 +17,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election'
 
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
@@ -27,7 +29,7 @@ it('Refresh window and expect to be on same contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -42,6 +44,7 @@ it('Refresh window and expect to be on same contest', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
@@ -77,6 +80,8 @@ it('Refresh window and expect to be on same contest', async () => {
     />
   ))
 
+  await advanceTimersAndPromises()
+  await advanceTimersAndPromises(1)
   advanceTimers()
 
   // App is on first contest

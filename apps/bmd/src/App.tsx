@@ -1,20 +1,23 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 import 'normalize.css'
 import './App.css'
 
+import {
+  WebServiceCard,
+  LocalStorage,
+  getHardware,
+  isAccessibleController,
+} from '@votingworks/utils'
 import memoize from './utils/memoize'
 import {
   ScreenReader,
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
 } from './utils/ScreenReader'
-import { WebServiceCard } from './utils/Card'
-import { LocalStorage } from './utils/Storage'
 import { getUSEnglishVoice } from './utils/voices'
 import getPrinter from './utils/printer'
-import { getHardware, isAccessibleController } from './utils/Hardware'
 
 import AppRoot, { Props as AppRootProps } from './AppRoot'
 import FocusManager from './components/FocusManager'
@@ -41,21 +44,32 @@ const App: React.FC<Props> = ({
   card = new WebServiceCard(),
   storage = new LocalStorage(),
   printer = getPrinter(),
-  hardware = getHardware(),
+  hardware,
   machineConfig = machineConfigProvider,
 }) => {
   screenReader.mute()
+  const [internalHardware, setInternalHardware] = useState(hardware)
+
+  useEffect(() => {
+    const updateHardware = async () => {
+      if (internalHardware === undefined) {
+        setInternalHardware(await getHardware())
+      }
+    }
+    updateHardware()
+  }, [internalHardware])
 
   /* istanbul ignore next - need to figure out how to test this */
   useEffect(() => {
-    const subscription = hardware.devices.subscribe((devices) =>
-      screenReader.toggleMuted(
-        !Array.from(devices).some(isAccessibleController)
+    if (internalHardware !== undefined) {
+      const subscription = internalHardware.devices.subscribe((devices) =>
+        screenReader.toggleMuted(
+          !Array.from(devices).some(isAccessibleController)
+        )
       )
-    )
-
-    return () => subscription.unsubscribe()
-  }, [hardware, screenReader])
+      return () => subscription.unsubscribe()
+    }
+  }, [internalHardware, screenReader])
 
   /* istanbul ignore next - need to figure out how to test this */
   const onKeyPress = useCallback(
@@ -108,6 +122,9 @@ const App: React.FC<Props> = ({
     },
     [screenReader]
   )
+  if (internalHardware === undefined) {
+    return <BrowserRouter />
+  }
   return (
     <BrowserRouter>
       <FocusManager
@@ -122,7 +139,7 @@ const App: React.FC<Props> = ({
             <AppRoot
               card={card}
               printer={printer}
-              hardware={hardware}
+              hardware={internalHardware}
               storage={storage}
               machineConfig={machineConfig}
               {...props}

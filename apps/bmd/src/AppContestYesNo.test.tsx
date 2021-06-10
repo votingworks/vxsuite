@@ -1,20 +1,22 @@
 import React from 'react'
 import { fireEvent, render, within, act, waitFor } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
 import withMarkup from '../test/helpers/withMarkup'
 
-import { advanceTimers, getNewVoterCard } from '../test/helpers/smartcards'
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  getNewVoterCard,
+} from '../test/helpers/smartcards'
 
 import {
   measure102Contest,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election'
-import { MemoryCard } from './utils/Card'
-import { MemoryStorage } from './utils/Storage'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.useFakeTimers()
@@ -27,7 +29,7 @@ it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard()
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
@@ -42,6 +44,7 @@ it('Single Seat Contest', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())

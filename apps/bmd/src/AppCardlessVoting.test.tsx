@@ -1,5 +1,6 @@
 import React from 'react'
 import { fireEvent, render, waitFor, within } from '@testing-library/react'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import * as GLOBALS from './config/globals'
 
 import { electionSampleDefinition } from './data'
@@ -21,10 +22,7 @@ import {
   pollWorkerCardForElection,
 } from '../test/helpers/smartcards'
 
-import { MemoryStorage } from './utils/Storage'
-import { MemoryCard } from './utils/Card'
 import fakePrinter from '../test/helpers/fakePrinter'
-import { MemoryHardware } from './utils/Hardware'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxMarkPlusVxPrint } from './config/types'
@@ -42,7 +40,7 @@ test('Cardless Voting Flow', async () => {
   const card = new MemoryCard()
   const adminCard = adminCardForElection(electionHash)
   const pollWorkerCard = pollWorkerCardForElection(electionHash)
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const printer = fakePrinter()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
@@ -57,6 +55,7 @@ test('Cardless Voting Flow', async () => {
       storage={storage}
     />
   )
+  await advanceTimersAndPromises()
   const getByTextWithMarkup = withMarkup(getByText)
 
   card.removeCard()
@@ -214,7 +213,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const pollWorkerCard = pollWorkerCardForElection(
     electionDefinition.electionHash
   )
-  const hardware = MemoryHardware.standard
+  const hardware = await MemoryHardware.buildStandard()
   const printer = fakePrinter()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({
@@ -235,6 +234,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
       machineConfig={machineConfig}
     />
   )
+  await advanceTimersAndPromises()
 
   const getByTextWithMarkup = withMarkup(getByText)
 

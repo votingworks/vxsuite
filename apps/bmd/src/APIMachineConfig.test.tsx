@@ -3,16 +3,18 @@ import { render } from '@testing-library/react'
 
 import fetchMock from 'fetch-mock'
 import { Provider } from '@votingworks/types'
+import { MemoryStorage } from '@votingworks/utils'
 import App from './App'
 
-import { MemoryStorage } from './utils/Storage'
 import {
   VxMarkOnly,
   MachineConfigResponse,
   MachineConfig,
 } from './config/types'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 beforeEach(() => {
+  jest.useFakeTimers()
   window.location.href = '/'
 })
 
@@ -26,6 +28,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
   fetchMock.get('/machine-config', () => JSON.stringify(machineConfigResponse))
 
   render(<App storage={new MemoryStorage()} />)
+  await advanceTimersAndPromises()
 
   expect(fetchMock.called('/machine-config')).toBe(true)
 })
@@ -37,6 +40,7 @@ test('machineConfig fetch fails', async () => {
 
   // Render app which gets machineConfig in componentDidMount
   render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />)
+  await advanceTimersAndPromises()
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage
@@ -52,6 +56,7 @@ test('machineId is empty', async () => {
 
   // Render app which gets machineConfig in componentDidMount
   render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />)
+  await advanceTimersAndPromises()
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage
@@ -68,6 +73,7 @@ test('machineConfig is empty', async () => {
 
   // Render app which gets machineConfig in componentDidMount
   render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />)
+  await advanceTimersAndPromises()
 
   // No expect?
   // Unfortunately, the only thing this test does is provide code-coverage
