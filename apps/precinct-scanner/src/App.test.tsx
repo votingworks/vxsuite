@@ -262,7 +262,7 @@ test('admin and pollworker configuration', async () => {
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
-  await fireEvent.click(await screen.findByText('Live Election Mode'))
+  fireEvent.click(await screen.findByText('Live Election Mode'))
   await screen.findByText('Loading')
   await advanceTimersAndPromises(1)
   expect(fetchMock.calls('/config/testMode', { method: 'PATCH' })).toHaveLength(
@@ -289,7 +289,7 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
   // Change precinct
-  fireEvent.change(await screen.getByTestId('selectPrecinct'), {
+  fireEvent.change(await screen.findByTestId('selectPrecinct'), {
     target: { value: '23' },
   })
   expect(fetchMock.calls('/config/precinct', { method: 'PUT' })).toHaveLength(1)

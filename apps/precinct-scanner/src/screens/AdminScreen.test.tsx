@@ -163,3 +163,42 @@ test('renders date and time settings modal', async () => {
   // Date is reset to system time after save to kiosk-browser
   getByText(startDate)
 })
+
+test('setting and un-setting the precinct', async () => {
+  const updateAppPrecinctId = jest.fn()
+
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+      }}
+    >
+      <AdminScreen
+        scannedBallotCount={10}
+        isTestMode={false}
+        updateAppPrecinctId={updateAppPrecinctId}
+        toggleLiveMode={jest.fn()}
+        unconfigure={jest.fn()}
+        calibrate={jest.fn()}
+        usbDriveEject={jest.fn()}
+        usbDriveStatus={usbstick.UsbDriveStatus.absent}
+      />
+    </AppContext.Provider>
+  )
+
+  const precinct = electionSampleDefinition.election.precincts[0]
+  const selectPrecinct = await screen.findByTestId('selectPrecinct')
+
+  // set precinct
+  fireEvent.change(selectPrecinct, {
+    target: { value: electionSampleDefinition.election.precincts[0].id },
+  })
+  expect(updateAppPrecinctId).toHaveBeenNthCalledWith(1, precinct.id)
+
+  // unset precinct
+  fireEvent.change(selectPrecinct, {
+    target: { value: '' },
+  })
+  expect(updateAppPrecinctId).toHaveBeenNthCalledWith(2, '')
+})
