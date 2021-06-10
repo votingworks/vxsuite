@@ -1,5 +1,5 @@
 import { Provider } from '@votingworks/types'
-import fetchJSON from './fetchJSON'
+import { fetchJSON } from '@votingworks/utils'
 
 interface MachineConfigResponse {
   machineId: string

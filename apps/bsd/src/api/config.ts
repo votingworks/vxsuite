@@ -16,7 +16,7 @@ import {
   PutCurrentPrecinctConfigRequest,
 } from '@votingworks/types/api/module-scan'
 import { ErrorsResponse, OkResponse } from '@votingworks/types/src/api'
-import fetchJSON from '../util/fetchJSON'
+import { fetchJSON } from '@votingworks/utils'
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,

@@ -18,15 +18,9 @@ import {
   ScanContinueResponseSchema,
   ZeroResponseSchema,
 } from '@votingworks/types/api/module-scan'
+import { usbstick } from '@votingworks/utils'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
-
-import {
-  getStatus as usbDriveGetStatus,
-  doMount,
-  doUnmount,
-  UsbDriveStatus,
-} from './lib/usbstick'
 
 import Button from './components/Button'
 import Main, { MainChild } from './components/Main'
@@ -78,7 +72,7 @@ const App: React.FC = () => {
     scanner: ScannerStatus.Unknown,
   })
 
-  const [usbStatus, setUsbStatus] = useState(UsbDriveStatus.absent)
+  const [usbStatus, setUsbStatus] = useState(usbstick.UsbDriveStatus.absent)
   const [recentlyEjected, setRecentlyEjected] = useState(false)
 
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
@@ -266,34 +260,34 @@ const App: React.FC = () => {
 
   const doMountIfNotRecentlyEjected = useCallback(async () => {
     if (!recentlyEjected) {
-      await doMount()
+      await usbstick.doMount()
     }
   }, [recentlyEjected])
 
   const doEject = async () => {
-    setUsbStatus(UsbDriveStatus.ejecting)
+    setUsbStatus(usbstick.UsbDriveStatus.ejecting)
     setRecentlyEjected(true)
-    await doUnmount()
+    await usbstick.doUnmount()
   }
 
   useInterval(
     () => {
       ;(async () => {
-        const usbDriveStatus = await usbDriveGetStatus()
+        const usbDriveStatus = await usbstick.getStatus()
         setUsbStatus(usbDriveStatus)
-        if (usbDriveStatus === UsbDriveStatus.present) {
+        if (usbDriveStatus === usbstick.UsbDriveStatus.present) {
           await doMountIfNotRecentlyEjected()
         } else {
           setRecentlyEjected(false)
         }
       })()
     },
-    usbStatus === UsbDriveStatus.notavailable ? 0 : 2000
+    usbStatus === usbstick.UsbDriveStatus.notavailable ? 0 : 2000
   )
 
   const displayUsbStatus =
-    recentlyEjected && usbStatus !== UsbDriveStatus.ejecting
-      ? UsbDriveStatus.recentlyEjected
+    recentlyEjected && usbStatus !== usbstick.UsbDriveStatus.ejecting
+      ? usbstick.UsbDriveStatus.recentlyEjected
       : usbStatus
 
   useEffect(() => {
@@ -303,7 +297,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (
       electionJustLoaded &&
-      displayUsbStatus === UsbDriveStatus.recentlyEjected
+      displayUsbStatus === usbstick.UsbDriveStatus.recentlyEjected
     ) {
       setElectionJustLoaded(false)
     }

@@ -1,9 +1,10 @@
 import React, { useContext } from 'react'
+import { usbstick } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 
 import Button from './Button'
 
-import { UsbDriveStatus } from '../lib/usbstick'
+const { UsbDriveStatus } = usbstick
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const doNothing = () => {}

@@ -6,8 +6,10 @@ import {
 } from '@testing-library/react'
 import React from 'react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
+import { usbstick } from '@votingworks/utils'
 import ElectionConfiguration from './ElectionConfiguration'
-import { UsbDriveStatus } from '../lib/usbstick'
+
+const { UsbDriveStatus } = usbstick
 
 test('shows loading screen when usb is mounting or ejecting', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]
