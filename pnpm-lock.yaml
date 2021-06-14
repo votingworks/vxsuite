@@ -1037,6 +1037,7 @@ importers:
   libs/hmpb-interpreter:
     dependencies:
       '@votingworks/ballot-encoder': link:../ballot-encoder
+      '@votingworks/utils': link:../utils
       canvas: 2.6.1
       chalk: 4.1.0
       debug: 4.3.1
@@ -1090,6 +1091,7 @@ importers:
       '@typescript-eslint/parser': ^4.16.1
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
       benchmark: ^2.1.4
       canvas: ^2.6.1
       chalk: ^4.1.0
