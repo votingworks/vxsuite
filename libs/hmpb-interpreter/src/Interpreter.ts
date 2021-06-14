@@ -20,7 +20,7 @@ import getVotesFromMarks from './getVotesFromMarks'
 import findContestOptions from './hmpb/findContestOptions'
 import findContests, {
   ContestShape,
-  findBallotLayoutCorrespondance,
+  findBallotLayoutCorrespondence,
 } from './hmpb/findContests'
 import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
@@ -462,16 +462,16 @@ export default class Interpreter {
       `ballot and election definition have different numbers of contests (${ballotLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
     )
 
-    const correspondance = findBallotLayoutCorrespondance(
+    const correspondence = findBallotLayoutCorrespondence(
       contests,
       ballotLayout,
       template
     )
 
     assert(
-      correspondance.corresponds,
+      correspondence.corresponds,
       `ballot and template contest shapes do not correspond: ${inspect(
-        correspondance,
+        correspondence,
         undefined,
         null
       )}`

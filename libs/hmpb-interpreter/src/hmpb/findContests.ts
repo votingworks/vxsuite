@@ -225,7 +225,7 @@ function findTopBorderInset(
   return y - consecutiveWhitePixels
 }
 
-export interface BallotLayoutCorrespondance {
+export interface BallotLayoutCorrespondence {
   corresponds: boolean
   mismatchedContests: {
     template: BallotPageContestLayout
@@ -234,19 +234,19 @@ export interface BallotLayoutCorrespondance {
   }[]
 }
 
-export function findBallotLayoutCorrespondance(
+export function findBallotLayoutCorrespondence(
   contests: Contests,
   ballot: BallotPageLayout,
   template: BallotPageLayout,
   { allowedScaleErrorRatio = 0.1 } = {}
-): BallotLayoutCorrespondance {
+): BallotLayoutCorrespondence {
   const expectedAreaScale =
     (ballot.ballotImage.imageData.width * ballot.ballotImage.imageData.height) /
     (template.ballotImage.imageData.width *
       template.ballotImage.imageData.height)
   const minAreaScale = expectedAreaScale * (1 - allowedScaleErrorRatio)
   const maxAreaScale = expectedAreaScale * (1 + allowedScaleErrorRatio)
-  const mismatchedContests: BallotLayoutCorrespondance['mismatchedContests'] = []
+  const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] = []
 
   for (const [definition, templateContest, ballotContest] of zip(
     contests,
