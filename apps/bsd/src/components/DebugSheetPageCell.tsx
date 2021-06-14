@@ -1,8 +1,5 @@
-import { BallotType } from '@votingworks/types'
-import {
-  BallotLocales,
-  BallotPageMetadata,
-} from '@votingworks/hmpb-interpreter'
+import { BallotLocales, BallotType } from '@votingworks/types'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import React from 'react'
 import styled from 'styled-components'
 import { BallotMetadata, PageInterpretation } from '../config/types'

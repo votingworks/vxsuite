@@ -1,4 +1,5 @@
 import {
+  BallotLocales,
   BallotStyle,
   Contest,
   Dictionary,
@@ -6,7 +7,6 @@ import {
   Precinct,
 } from '@votingworks/types'
 import {
-  BallotLocales,
   BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
