@@ -106,6 +106,7 @@ const App: React.FC = () => {
         await refreshConfig()
         setIsConfigLoaded(true)
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error('failed to initialize:', e)
         window.setTimeout(initialize, 1000)
       }
