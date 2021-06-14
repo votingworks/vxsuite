@@ -2,10 +2,12 @@ import React from 'react'
 
 import { fireEvent, waitFor } from '@testing-library/react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
+import { usbstick } from '@votingworks/utils'
 
-import { UsbDriveStatus } from '../lib/usbstick'
 import SaveFileToUSB, { FileType } from './SaveFileToUSB'
 import renderInAppContext from '../../test/renderInAppContext'
+
+const { UsbDriveStatus } = usbstick
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]

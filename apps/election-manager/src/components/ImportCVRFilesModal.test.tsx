@@ -6,11 +6,11 @@ import {
 } from '@testing-library/react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 
+import { usbstick } from '@votingworks/utils'
 import ImportCVRFilesModal from './ImportCVRFilesModal'
 import renderInAppContext, {
   eitherNeitherElectionDefinition,
 } from '../../test/renderInAppContext'
-import { UsbDriveStatus } from '../lib/usbstick'
 import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 import { CastVoteRecord } from '../config/types'
 import * as GLOBALS from '../config/globals'
@@ -18,6 +18,8 @@ import * as GLOBALS from '../config/globals'
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl'
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl'
 const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl'
+
+const { UsbDriveStatus } = usbstick
 
 test('No USB screen shows when there is no USB drive', async () => {
   const usbStatuses = [
