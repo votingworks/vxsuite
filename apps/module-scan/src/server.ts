@@ -51,13 +51,20 @@ import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import * as path from 'path'
-import { z } from 'zod'
 import backup from './backup'
+import {
+  MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
+  MODULE_SCAN_PORT,
+  MODULE_SCAN_WORKSPACE,
+  NODE_ENV,
+  VX_MACHINE_TYPE,
+} from './globals'
 import Importer from './importer'
 import {
   FujitsuScanner,
   PlustekScanner,
   Scanner,
+  ScannerClientProvider,
   ScannerMode,
   withReconnect,
 } from './scanners'
@@ -331,7 +338,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   )
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (NODE_ENV !== 'production') {
     app.post(
       '/scan/scanFiles',
       upload.fields([{ name: 'files' }]) as RequestHandler,
@@ -736,34 +743,20 @@ export interface StartOptions {
   machineType: 'bsd' | 'precinct-scanner'
 }
 
-const MachineTypeSchema = z.union([
-  z.literal('bsd'),
-  z.literal('precinct-scanner'),
-])
-
 /**
  * Starts the server with all the default options.
  */
 export async function start({
-  port = process.env.PORT || 3002,
+  port = MODULE_SCAN_PORT,
   scanner,
   importer,
   app,
   log = console.log,
   workspace,
-  machineType = safeParse(
-    MachineTypeSchema,
-    process.env.VX_MACHINE_TYPE ?? 'bsd'
-  ).unsafeUnwrap(),
+  machineType = VX_MACHINE_TYPE,
 }: Partial<StartOptions> = {}): Promise<void> {
   if (!workspace) {
-    let workspacePath = process.env.MODULE_SCAN_WORKSPACE
-    if (
-      !workspacePath &&
-      (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
-    ) {
-      workspacePath = path.join(__dirname, '../dev-workspace')
-    }
+    const workspacePath = MODULE_SCAN_WORKSPACE
     if (!workspacePath) {
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with MODULE_SCAN_WORKSPACE'
@@ -773,20 +766,24 @@ export async function start({
   }
 
   const usingPrecinctScanner = machineType === 'precinct-scanner'
-  const plustekScannerClientProvider = withReconnect({
-    get: () =>
-      createClient({
-        ...DEFAULT_CONFIG,
-        savepath: workspace!.ballotImagesPath,
-      }),
-  })
+  let plustekScannerClientProvider: ScannerClientProvider | undefined
 
-  scanner ??= usingPrecinctScanner
-    ? new PlustekScanner(
-        plustekScannerClientProvider,
-        process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0'
-      )
-    : new FujitsuScanner({ mode: ScannerMode.Gray })
+  if (!scanner) {
+    plustekScannerClientProvider = withReconnect({
+      get: () =>
+        createClient({
+          ...DEFAULT_CONFIG,
+          savepath: workspace!.ballotImagesPath,
+        }),
+    })
+
+    scanner = usingPrecinctScanner
+      ? new PlustekScanner(
+          plustekScannerClientProvider,
+          MODULE_SCAN_ALWAYS_HOLD_ON_REJECT
+        )
+      : new FujitsuScanner({ mode: ScannerMode.Gray })
+  }
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined
   const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
     return (workerPool ??= childProcessPool(
@@ -819,7 +816,7 @@ export async function start({
   // cleanup incomplete batches from before
   await workspace.store.cleanupIncompleteBatches()
 
-  if (usingPrecinctScanner) {
+  if (usingPrecinctScanner && plustekScannerClientProvider) {
     if (
       (
         await (await plustekScannerClientProvider.get())
