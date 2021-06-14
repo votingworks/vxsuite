@@ -1,4 +1,5 @@
 import {
+  BallotLocales,
   BallotType,
   Candidate,
   CandidateContest,
@@ -26,7 +27,6 @@ import findTargets, { TargetShape } from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
   BallotCandidateTargetMark,
-  BallotLocales,
   BallotMark,
   BallotMsEitherNeitherTargetMark,
   BallotPageContestOptionLayout,

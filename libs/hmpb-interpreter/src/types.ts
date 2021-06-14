@@ -44,11 +44,6 @@ export interface BallotPageLayout {
   contests: readonly BallotPageContestLayout[]
 }
 
-export interface BallotLocales {
-  primary: string
-  secondary?: string
-}
-
 export type BallotPageMetadata = HMPBBallotPageMetadata
 
 export interface BallotPageContestLayout {
