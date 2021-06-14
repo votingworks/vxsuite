@@ -4,6 +4,9 @@ module.exports = {
   testEnvironment: 'node',
   testMatch: ['<rootDir>/{src,test}/**/*.test.{ts,tsx}'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/build'],
+  modulePathIgnorePatterns: [
+    '<rootDir>[/\\\\](build|docs|node_modules|deploy|scripts)[/\\\\]'
+  ],
   collectCoverageFrom: ['{src,test}/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   coverageThreshold: {
     global: {
