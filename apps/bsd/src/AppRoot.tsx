@@ -19,6 +19,7 @@ import {
   ZeroResponseSchema,
 } from '@votingworks/types/api/module-scan'
 import { usbstick } from '@votingworks/utils'
+import { USBControllerButton } from '@votingworks/ui'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
 
@@ -28,7 +29,6 @@ import Screen from './components/Screen'
 import Prose from './components/Prose'
 import Text from './components/Text'
 import ScanButton from './components/ScanButton'
-import USBControllerButton from './components/USBControllerButton'
 import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
@@ -328,7 +328,12 @@ const App: React.FC = () => {
                   <Button onPress={() => setElectionJustLoaded(false)}>
                     Close
                   </Button>
-                  <USBControllerButton small={false} primary />
+                  <USBControllerButton
+                    small={false}
+                    primary
+                    usbDriveStatus={displayUsbStatus}
+                    usbDriveEject={doEject}
+                  />
                 </Buttons>
               </MainChild>
             </Main>
@@ -412,7 +417,10 @@ const App: React.FC = () => {
                 </MainChild>
               </Main>
               <MainNav isTestMode={isTestMode}>
-                <USBControllerButton />
+                <USBControllerButton
+                  usbDriveStatus={displayUsbStatus}
+                  usbDriveEject={doEject}
+                />
                 <LinkButton small to="/advanced">
                   Advanced
                 </LinkButton>
@@ -444,7 +452,6 @@ const App: React.FC = () => {
             {isExportingCVRs && (
               <ExportResultsModal
                 onClose={() => setIsExportingCVRs(false)}
-                usbDriveStatus={displayUsbStatus}
                 electionDefinition={electionDefinition}
                 isTestMode={isTestMode}
                 numberOfBallots={status.batches.reduce(
@@ -469,10 +476,7 @@ const App: React.FC = () => {
           electionDefinition,
         }}
       >
-        <LoadElectionScreen
-          setElectionDefinition={updateElectionDefinition}
-          usbDriveStatus={displayUsbStatus}
-        />
+        <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />
       </AppContext.Provider>
     )
   }

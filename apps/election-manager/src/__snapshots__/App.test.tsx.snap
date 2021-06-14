@@ -63,7 +63,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-fubCfw kBiVZq"
       >
         <button
-          class="sc-jrAGrp iWxjsY"
+          class="sc-gsDJrp gwgkfw"
           type="button"
         >
           Eject USB
@@ -251,7 +251,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-fubCfw kBiVZq"
       >
         <button
-          class="sc-jrAGrp iWxjsY"
+          class="sc-gsDJrp gwgkfw"
           type="button"
         >
           Eject USB

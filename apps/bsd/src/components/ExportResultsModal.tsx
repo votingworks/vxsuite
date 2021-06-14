@@ -10,13 +10,13 @@ import {
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils'
+import { USBControllerButton } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Button from './Button'
 import Prose from './Prose'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
-import USBControllerButton from './USBControllerButton'
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
@@ -30,7 +30,6 @@ const USBImage = styled.img`
 
 export interface Props {
   onClose: () => void
-  usbDriveStatus: usbstick.UsbDriveStatus
   electionDefinition: ElectionDefinition
   numberOfBallots: number
   isTestMode: boolean
@@ -45,7 +44,6 @@ enum ModalState {
 
 const ExportResultsModal: React.FC<Props> = ({
   onClose,
-  usbDriveStatus,
   electionDefinition,
   numberOfBallots,
   isTestMode,
@@ -53,7 +51,9 @@ const ExportResultsModal: React.FC<Props> = ({
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const { machineConfig } = useContext(AppContext)
+  const { machineConfig, usbDriveEject, usbDriveStatus } = useContext(
+    AppContext
+  )
 
   const exportResults = async (openDialog: boolean) => {
     setCurrentState(ModalState.SAVING)
@@ -142,7 +142,12 @@ const ExportResultsModal: React.FC<Props> = ({
     let actions = (
       <React.Fragment>
         <LinkButton onPress={onClose}>Cancel</LinkButton>
-        <USBControllerButton small={false} primary />
+        <USBControllerButton
+          small={false}
+          primary
+          usbDriveStatus={usbDriveStatus}
+          usbDriveEject={usbDriveEject}
+        />
       </React.Fragment>
     )
     if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { render, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, waitFor } from '@testing-library/react'
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
@@ -10,6 +10,7 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 import { usbstick } from '@votingworks/utils'
 import ExportResultsModal from './ExportResultsModal'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
+import renderInAppContext from '../../test/renderInAppContext'
 
 const { UsbDriveStatus } = usbstick
 
@@ -18,16 +19,16 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn()
-    const { getByText, unmount } = render(
+    const { getByText, unmount } = renderInAppContext(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal
           onClose={closeFn}
-          usbDriveStatus={status}
           electionDefinition={electionDefinition}
           numberOfBallots={5}
           isTestMode
         />
-      </Router>
+      </Router>,
+      { usbDriveStatus: status }
     )
     getByText('Loading')
     unmount()
@@ -43,16 +44,16 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn()
-    const { getByText, unmount, getByAltText } = render(
+    const { getByText, unmount, getByAltText } = renderInAppContext(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal
           onClose={closeFn}
-          usbDriveStatus={status}
           electionDefinition={electionDefinition}
           numberOfBallots={5}
           isTestMode
         />
-      </Router>
+      </Router>,
+      { usbDriveStatus: status }
     )
     getByText('No USB Drive Detected')
     getByText(
@@ -80,16 +81,16 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   })
 
   const closeFn = jest.fn()
-  const { getByText, getByAltText } = render(
+  const { getByText, getByAltText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
         electionDefinition={electionDefinition}
         numberOfBallots={5}
         isTestMode
       />
-    </Router>
+    </Router>,
+    { usbDriveStatus: UsbDriveStatus.mounted }
   )
   getByText('Export Results')
   getByText(
@@ -118,16 +119,16 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   })
 
   const closeFn = jest.fn()
-  const { getByText } = render(
+  const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
         electionDefinition={electionDefinition}
         numberOfBallots={5}
         isTestMode
       />
-    </Router>
+    </Router>,
+    { usbDriveStatus: UsbDriveStatus.mounted }
   )
   getByText('Export Results')
 
@@ -162,16 +163,16 @@ test('render export modal with errors when appropriate', async () => {
   })
 
   const closeFn = jest.fn()
-  const { getByText } = render(
+  const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
         electionDefinition={electionDefinition}
         numberOfBallots={5}
         isTestMode
       />
-    </Router>
+    </Router>,
+    { usbDriveStatus: UsbDriveStatus.mounted }
   )
   getByText('Export Results')
 

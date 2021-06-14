@@ -1,7 +1,11 @@
 import React from 'react'
-import { Button } from '@votingworks/ui'
 import { usbstick } from '@votingworks/utils'
 
+import { Button } from './Button'
+
+const { UsbDriveStatus } = usbstick
+
+/* istanbul ignore next */
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const doNothing = () => {}
 
@@ -12,17 +16,17 @@ interface Props {
   small?: boolean
 }
 
-const USBControllerButton: React.FC<Props> = ({
+export const USBControllerButton: React.FC<Props> = ({
   usbDriveStatus,
   usbDriveEject,
   primary = false,
   small = true,
 }) => {
-  if (usbDriveStatus === usbstick.UsbDriveStatus.notavailable) {
+  if (usbDriveStatus === UsbDriveStatus.notavailable) {
     return null
   }
 
-  if (usbDriveStatus === usbstick.UsbDriveStatus.absent) {
+  if (usbDriveStatus === UsbDriveStatus.absent) {
     return (
       <Button small={small} disabled onPress={doNothing}>
         No USB
@@ -30,7 +34,7 @@ const USBControllerButton: React.FC<Props> = ({
     )
   }
 
-  if (usbDriveStatus === usbstick.UsbDriveStatus.present) {
+  if (usbDriveStatus === UsbDriveStatus.present) {
     return (
       <Button small={small} disabled onPress={doNothing}>
         Connecting…
@@ -38,7 +42,7 @@ const USBControllerButton: React.FC<Props> = ({
     )
   }
 
-  if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {
+  if (usbDriveStatus === UsbDriveStatus.recentlyEjected) {
     return (
       <Button small={small} disabled onPress={doNothing}>
         Ejected
@@ -46,7 +50,7 @@ const USBControllerButton: React.FC<Props> = ({
     )
   }
 
-  if (usbDriveStatus === usbstick.UsbDriveStatus.ejecting) {
+  if (usbDriveStatus === UsbDriveStatus.ejecting) {
     return (
       <Button small={small} disabled onPress={doNothing}>
         Ejecting…
@@ -60,5 +64,3 @@ const USBControllerButton: React.FC<Props> = ({
     </Button>
   )
 }
-
-export default USBControllerButton

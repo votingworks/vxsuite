@@ -77,6 +77,7 @@
   "exclude": [],
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/types" }
+    { "path": "../../libs/types" },
+    { "path": "../../libs/utils" }
   ]
 }
