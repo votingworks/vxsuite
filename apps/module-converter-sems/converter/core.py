@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 
 from . import SEMSinput
 from . import SEMSoutput
-from . import combineSEMSresults
 
 # directory for all files (from env variable first)
 FILES_DIR = os.getenv("MODULE_SEMS_CONVERTER_WORKSPACE") or os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'election_files')
@@ -54,10 +53,6 @@ def find_by_name(lst_of_obj, name):
 def election_filelist():
     return json.dumps(ELECTION_FILES)
 
-@app.route('/convert/results/files', methods=["GET"])
-def results_filelist():
-    return json.dumps(RESULTS_FILES)
-
 @app.route('/convert/tallies/files', methods=["GET"])
 def tallies_filelist():
     return json.dumps(RESULT_TALLIES_FILES)
@@ -75,11 +70,6 @@ def submitfile(request, file_list):
 @app.route('/convert/election/submitfile', methods=["POST"])
 def election_submitfile():
     submitfile(request, ELECTION_FILES)
-    return json.dumps({"status": "ok"})
-
-@app.route('/convert/results/submitfile', methods=["POST"])
-def results_submitfile():
-    submitfile(request, RESULTS_FILES)
     return json.dumps({"status": "ok"})
 
 @app.route('/convert/tallies/submitfile', methods=["POST"])
@@ -120,36 +110,6 @@ def election_output():
     else:
         return "", 404
 
-@app.route('/convert/results/process', methods=["POST"])
-def results_process():
-    for f in RESULTS_FILES['inputFiles']:
-        if not f['path']:
-            return json.dumps({"status": "not all files are ready to process"})
-
-    sems_result = SEMSoutput.process_results_file(
-        find_by_name(RESULTS_FILES['inputFiles'], 'Vx Election Definition')['path'],
-        find_by_name(RESULTS_FILES['inputFiles'], 'Vx CVRs')['path']
-    )
-    the_path = os.path.join(FILES_DIR, 'SEMS Results')
-    result_file = open(the_path, "w")
-    result_file.write(sems_result)
-    result_file.close()
-
-    find_by_name(RESULTS_FILES['outputFiles'], 'SEMS Results')['path'] = the_path
-
-    return json.dumps({"status": "ok"})
-    
-    
-@app.route('/convert/results/output', methods=["GET"])
-def results_output():
-    the_name = request.args.get('name', None)
-    the_entry = find_by_name(RESULTS_FILES['outputFiles'], the_name)
-
-    if the_entry and the_entry['path']:
-        return send_file(the_entry['path'])
-    else:
-        return "", 404
-
 @app.route('/convert/tallies/process', methods=["POST"])
 def tallies_process():
     for f in RESULT_TALLIES_FILES['inputFiles']:
@@ -180,25 +140,6 @@ def tallies_output():
     else:
         return "", 404
 
-@app.route('/convert/results/combine', methods=["POST"])
-def results_combine(): 
-    first = request.files['firstFile']
-    second = request.files['secondFile']
-
-    # create temp files for everything, since combination works on files for now
-    firstInputFile = tempfile.NamedTemporaryFile()
-    secondInputFile = tempfile.NamedTemporaryFile()
-    outputFile = tempfile.NamedTemporaryFile()
-
-    first.save(firstInputFile)
-    second.save(secondInputFile)
-    firstInputFile.flush()
-    secondInputFile.flush()
-    
-    combineSEMSresults.main(firstInputFile.name, secondInputFile.name, outputFile.name)
-    outputFile.flush()
-    return send_file(outputFile, mimetype='text/csv')
-    
 @app.route('/convert/reset', methods=["POST"])
 def convert_reset():
     reset()
