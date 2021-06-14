@@ -4,14 +4,14 @@
  *
  * @throws when no element matches and no default value is provided
  */
-export function find<T>(
+export function find<T, S extends T>(
   array: readonly T[],
-  predicate: (element: T) => boolean
-): T
+  predicate: (element: T) => element is S
+): S
 export function find<T>(
   array: readonly T[],
   predicate: (element: T) => boolean,
-  defaultValue: T
+  defaultValue?: T
 ): T
 export function find<T>(
   array: readonly T[],
