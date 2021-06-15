@@ -337,6 +337,24 @@ jobs:
           command: |
             pnpm --dir libs/utils test
 
+  test-integration-testing-bsd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir integration-testing/bsd build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir integration-testing/bsd lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir integration-testing/bsd test
+
 workflows:
   test:
     jobs:
@@ -349,6 +367,7 @@ workflows:
       - test-eslint-plugin-vx
       - test-fixtures
       - test-hmpb-interpreter
+      - test-integration-testing-bsd
       - test-lsd
       - test-module-converter-ms-sems
       - test-module-scan

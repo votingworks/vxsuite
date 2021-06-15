@@ -6,3 +6,6 @@ packages:
   # include all the libraries and our custom types
   - 'libs/*'
   - 'libs/@types/*'
+
+  # include all integration tests
+  - 'integration-testing/*'

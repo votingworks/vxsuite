@@ -50,6 +50,10 @@
     },
     {
       "path": "apps/module-converter-ms-sems"
+    },
+    {
+      "path": "integration-testing/bsd",
+      "name": "integration-testing/bsd"
     }
   ],
   "settings": {
