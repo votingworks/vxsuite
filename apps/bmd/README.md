@@ -111,6 +111,13 @@ help you contribute.
    In the root of the project there is a `coverage` directory. Open
    `coverage/lcov-report/index.html` in a browser to navigate the files to view
    test coverage.
+   
+1. Run integration tests. You will need to make sure to have cypress dependencies installed see: https://on.cypress.io/required-dependencies. You will also need to have chrome installed. While the server is running in another terminal window run:
+
+   ```
+   pnpm cypress:run
+   ```
+
 
 1. Push your branch to your fork on Github.
 1. Create a pull request to merge your branch into `voingworks/bmd/main`. Once
