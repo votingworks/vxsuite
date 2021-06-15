@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
 describe('Review Page', () => {
-  const waitTime = 250
+  const waitTime = 500
   const clickThoughPages = new Array(20) // number of contests for activation code 'VX.23.12'
   it('When navigating from contest, scroll to contest and place focus on contest.', () => {
     cy.visit('/#demo')
