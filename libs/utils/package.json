@@ -7,6 +7,9 @@
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",

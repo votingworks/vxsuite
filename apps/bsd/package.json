@@ -2,6 +2,11 @@
   "name": "bsd",
   "version": "0.1.0",
   "private": true,
+  "files": [
+    "build",
+    "Makefile",
+    "prodserver"
+  ],
   "scripts": {
     "build": "script/react-scripts build",
     "build:watch": "tsc --build --watch",

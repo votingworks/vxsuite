@@ -7,6 +7,10 @@
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
+  "files": [
+    "api",
+    "build"
+  ],
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",

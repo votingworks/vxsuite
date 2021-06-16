@@ -8,6 +8,9 @@
   "author": "VotingWorks",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",

@@ -4,7 +4,7 @@
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [
-    "build/**/*.{js,d.ts,d.ts.map,json}"
+    "build"
   ],
   "scripts": {
     "build": "tsc --build",

@@ -7,6 +7,9 @@
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build --watch tsconfig.build.json",

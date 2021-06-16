@@ -2,6 +2,12 @@
   "name": "module-scan",
   "version": "0.1.0",
   "private": true,
+  "files": [
+    "build",
+    "bin",
+    "Makefile",
+    "schema.sql"
+  ],
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
