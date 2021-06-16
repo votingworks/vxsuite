@@ -98,7 +98,7 @@
     "dompurify": "^2.0.17",
     "fetch-mock": "^9.5.0",
     "history": "^4.10.1",
-    "http-proxy-middleware": "^1.0.0",
+    "http-proxy-middleware": "1.0.6",
     "lodash.camelcase": "^4.3.0",
     "luxon": "^1.26.0",
     "mockdate": "^3.0.2",
