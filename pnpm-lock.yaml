@@ -632,6 +632,7 @@ importers:
       tmp: 0.2.1
       uuid: 8.3.2
       zip-stream: 4.0.4
+      zod: 3.2.0
     devDependencies:
       '@types/base64-js': 1.3.0
       '@types/body-parser': 1.19.0
@@ -676,7 +677,6 @@ importers:
       ts-node: 9.1.1_typescript@4.2.3
       typescript: 4.2.3
       yauzl: 2.10.0
-      zod: 3.2.0
     specifiers:
       '@types/base64-js': ^1.3.0
       '@types/body-parser': ^1.19.0
@@ -929,6 +929,7 @@ importers:
   libs/ballot-encoder:
     dependencies:
       '@antongolub/iso8601': 1.2.1
+      '@votingworks/types': link:../types
       js-sha256: 0.9.0
       zod: 3.2.0
     devDependencies:
@@ -938,7 +939,6 @@ importers:
       '@typescript-eslint/eslint-plugin': 4.16.1_a4e9925a57f7bf9df758cdf52b1a7795
       '@typescript-eslint/parser': 4.16.1_eslint@7.17.0+typescript@4.2.3
       '@votingworks/fixtures': link:../fixtures
-      '@votingworks/types': link:../types
       eslint: 7.17.0
       eslint-config-prettier: 6.15.0_eslint@7.17.0
       eslint-import-resolver-node: 0.3.4
@@ -1061,6 +1061,7 @@ importers:
   libs/hmpb-interpreter:
     dependencies:
       '@votingworks/ballot-encoder': link:../ballot-encoder
+      '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       canvas: 2.6.1
       chalk: 4.1.0
@@ -1083,7 +1084,6 @@ importers:
       '@types/uuid': 8.3.0
       '@typescript-eslint/eslint-plugin': 4.16.1_a4e9925a57f7bf9df758cdf52b1a7795
       '@typescript-eslint/parser': 4.16.1_eslint@7.17.0+typescript@4.2.3
-      '@votingworks/types': link:../types
       benchmark: 2.1.4
       eslint: 7.17.0
       eslint-config-prettier: 6.15.0_eslint@7.17.0
@@ -1385,6 +1385,7 @@ importers:
   libs/utils:
     dependencies:
       '@types/node': 12.20.11
+      '@votingworks/types': link:../types
       base64-js: 1.5.1
       fast-text-encoding: 1.0.3
       fetch-mock: 9.11.0
@@ -1403,7 +1404,6 @@ importers:
       '@typescript-eslint/parser': 4.24.0_eslint@7.26.0+typescript@4.2.4
       '@votingworks/fixtures': link:../fixtures
       '@votingworks/test-utils': link:../test-utils
-      '@votingworks/types': link:../types
       eslint: 7.26.0
       eslint-config-prettier: 8.3.0_eslint@7.26.0
       eslint-plugin-prettier: 3.4.0_39fed7ca8f33f3403e39ca7e7aa90c0f
@@ -7476,12 +7476,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-c3Xy026kOF7QOTn00hbIllV1dLR9hG9NkSrLQgCVs8NF6sBU+VGWjD3wLPhmh1TYAc7ugCFsvHYMN4VcBN1U1A==
-  /@types/http-proxy/1.17.4:
+  /@types/http-proxy/1.17.6:
     dependencies:
-      '@types/node': 15.6.2
+      '@types/node': 15.12.2
     dev: false
     resolution:
-      integrity: sha512-IrSHl2u6AWXduUaDLqYpt45tLVCtYv7o4Z0s1KghBCDgIIS9oW5K1H8mZG/A2CfeLdEa7rTd1ACOiHBc1EMT2Q==
+      integrity: sha512-+qsjqR75S/ib0ig0R9WN+CDoZeOBU6F2XLewgC4KVgdXiNHiKKHFEMRHOrs5PbYE97D5vataw5wPj4KLYfUkuQ==
   /@types/istanbul-lib-coverage/2.0.3:
     resolution:
       integrity: sha512-sz7iLqvVUg1gIedBOvlkxPlc8/uVzyS5OwGz1cKjXzkl3FpL3al0crU8YGU1WoHkxn0Wxbw5tyi6hvzJKNzFsw==
@@ -7664,6 +7664,10 @@ packages:
   /@types/node/15.0.1:
     resolution:
       integrity: sha512-TMkXt0Ck1y0KKsGr9gJtWGjttxlZnnvDtphxUOSd0bfaR6Q1jle+sPvrzNR1urqYTWMinoKvjKfXUGsumaO1PA==
+  /@types/node/15.12.2:
+    dev: false
+    resolution:
+      integrity: sha512-zjQ69G564OCIWIOHSXyQEEDpdpGl+G348RAKY0XXy9Z5kU9Vzv1GMNnkar/ZJ8dzXB3COzD9Mo9NtRZ4xfgUww==
   /@types/node/15.3.0:
     resolution:
       integrity: sha512-8/bnjSZD86ZfpBsDlCIkNXIvm+h6wi9g7IqL+kmFkQ+Wvu3JrasgLElfiPgoo8V8vVfnEi0QVS12gbl94h9YsQ==
@@ -9966,7 +9970,7 @@ packages:
       integrity: sha512-5Kgy8Cz6LPC9DJcNb3yjAXTu3XihQgEdnIg50c//zOC/MyLP0Clg+Y8Sh9ZjjnvBrDZU4DgXS9C3T9r4/scGZQ==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.13.1
+      follow-redirects: 1.13.1_debug@4.3.1
     dev: true
     peerDependencies:
       debug: '*'
@@ -15175,7 +15179,10 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.13.1:
+  /follow-redirects/1.13.1_debug@4.3.1:
+    dependencies:
+      debug: 4.3.1
+    dev: true
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -15185,7 +15192,18 @@ packages:
         optional: true
     resolution:
       integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
-  /follow-redirects/1.13.1_debug@4.3.1:
+  /follow-redirects/1.14.1:
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
+  /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
     dev: false
@@ -15197,7 +15215,7 @@ packages:
       debug:
         optional: true
     resolution:
-      integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
+      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /for-each/0.3.3:
     dependencies:
       is-callable: 1.2.2
@@ -16098,7 +16116,7 @@ packages:
       integrity: sha512-yHYTgWMQO8VvwNS22eLLloAkvungsKdKTLO8AJlftYIKNfJr3GK3zK0ZCfzDDGUBttdGc8xFy1mCitvNKQtC3Q==
   /http-proxy-middleware/1.0.6:
     dependencies:
-      '@types/http-proxy': 1.17.4
+      '@types/http-proxy': 1.17.6
       http-proxy: 1.18.1
       is-glob: 4.0.1
       lodash: 4.17.21
@@ -16110,7 +16128,7 @@ packages:
       integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
   /http-proxy-middleware/1.0.6_debug@4.3.1:
     dependencies:
-      '@types/http-proxy': 1.17.4
+      '@types/http-proxy': 1.17.6
       http-proxy: 1.18.1_debug@4.3.1
       is-glob: 4.0.1
       lodash: 4.17.21
@@ -16125,7 +16143,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.13.1
+      follow-redirects: 1.14.1
       requires-port: 1.0.0
     dev: false
     engines:
@@ -16135,7 +16153,7 @@ packages:
   /http-proxy/1.18.1_debug@4.3.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.13.1_debug@4.3.1
+      follow-redirects: 1.14.1_debug@4.3.1
       requires-port: 1.0.0
     dev: false
     engines:
@@ -27783,6 +27801,7 @@ packages:
     resolution:
       integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==
   /zod/3.2.0:
+    dev: false
     resolution:
       integrity: sha512-yvcO3FZ8URR+LliMGqaW7tlVOOTzmup3vzKEe9Ds7twyJtdhvYa7dIYr0FbD1wVfWC1OuS83vZfHtCKslPuRhA==
   /zwitch/1.0.5:
