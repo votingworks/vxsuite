@@ -315,8 +315,8 @@ const TallyScreen: React.FC = () => {
             disabled={isOfficialResults}
           >
             {hasExternalManualData
-              ? 'Edit Manually Entered Data'
-              : 'Add Manually Entered Data'}
+              ? 'Edit Manually Entered Results'
+              : 'Add Manually Entered Results'}
           </LinkButton>{' '}
           <Button
             disabled={!hasCastVoteRecordFiles || isOfficialResults}

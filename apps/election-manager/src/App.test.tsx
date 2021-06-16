@@ -487,7 +487,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   )
 
-  fireEvent.click(getByText('Add Manually Entered Data'))
+  fireEvent.click(getByText('Add Manually Entered Results'))
   getByText('Manually Added External Results')
   fireEvent.click(getByText('Edit District 5 Precinct Data'))
   getByText('Manually Add Precinct Data for District 5')
@@ -549,7 +549,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   // Now edit the manual data
   fireEvent.click(getByText('Back to Tally Index'))
-  fireEvent.click(getByText('Edit Manually Entered Data'))
+  fireEvent.click(getByText('Edit Manually Entered Results'))
 
   // Existing data is still there
   const district5Row = getByText('District 5').closest('tr')!

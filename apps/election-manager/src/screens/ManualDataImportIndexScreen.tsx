@@ -17,10 +17,6 @@ import Table, { TD } from '../components/Table'
 
 import NavigationScreen from '../components/NavigationScreen'
 import Button, { SegmentedButton } from '../components/Button'
-import {
-  expandEitherNeitherContests,
-  getContestsForPrecinct,
-} from '../utils/election'
 import Text from '../components/Text'
 import {
   convertTalliesByPrecinctToFullExternalTally,
@@ -28,7 +24,6 @@ import {
   getEmptyExternalTally,
 } from '../utils/externalTallies'
 import LinkButton from '../components/LinkButton'
-import { getExpectedNumberOfBallotsForContestInTally } from './ManualDataImportPrecinctScreen'
 import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
 
 const MANUAL_DATA_NAME = 'Manually Added Data'
@@ -45,8 +40,6 @@ const PrecinctRowText = styled(Text)`
     padding: 0;
   }
 `
-
-type EmptyValue = ''
 
 const ManualDataImportIndexScreen: React.FC = () => {
   const {
@@ -73,6 +66,8 @@ const ManualDataImportIndexScreen: React.FC = () => {
     existingManualData?.votingMethod ?? VotingMethod.Precinct
   )
   const [isClearing, setIsClearing] = useState(false)
+  const hasManualData = !!existingManualData?.overallTally
+    .numberOfBallotsCounted
 
   const handleSettingBallotType = async (ballotType: VotingMethod) => {
     setBallotType(ballotType)
@@ -95,15 +90,6 @@ const ManualDataImportIndexScreen: React.FC = () => {
     await saveExternalTallies(newTallies)
   }
 
-  const getNumberOfBallotsForContest = (
-    precinctId: string,
-    contestId: string
-  ): number | EmptyValue => {
-    const precinctTally = talliesByPrecinct[precinctId]!
-    const contestTally = precinctTally.contestTallies[contestId]!
-    return contestTally.metadata.ballots
-  }
-
   useEffect(() => {
     // If the data gets cleared, reset voting method.
     if (existingManualData === undefined) {
@@ -119,30 +105,12 @@ const ManualDataImportIndexScreen: React.FC = () => {
   for (const precinct of election.precincts) {
     /* istanbul ignore next */
     const tally = talliesByPrecinct[precinct.id] ?? getEmptyExternalTally()
-    const contestsWithWarnings = expandEitherNeitherContests(
-      getContestsForPrecinct(election, precinct.id)
-    ).filter((contest) => {
-      const enteredNumberOfBallots = getNumberOfBallotsForContest(
-        precinct.id,
-        contest.id
-      )
-      const expectedNumberOfBallots = getExpectedNumberOfBallotsForContestInTally(
-        tally,
-        contest.id
-      )
-      return enteredNumberOfBallots !== expectedNumberOfBallots
-    })
     enteredDataRows.push(
       <tr key={precinct.id}>
         <TD>
-          <PrecinctRowText>{precinct.name}</PrecinctRowText>
-          {contestsWithWarnings.length > 0 && (
-            <PrecinctRowText warning warningIcon small>
-              Data for precinct contains possible errors
-            </PrecinctRowText>
-          )}
+          <PrecinctRowText noWrap>{precinct.name}</PrecinctRowText>
         </TD>
-        <TD nowrap data-testid="numBallots">
+        <TD nowrap textAlign="center" data-testid="numBallots">
           <PrecinctRowText>{tally.numberOfBallotsCounted}</PrecinctRowText>
         </TD>
         <TD nowrap>
@@ -152,7 +120,7 @@ const ManualDataImportIndexScreen: React.FC = () => {
               precinctId: precinct.id,
             })}
           >
-            Edit {precinct.name} {votingMethodName} Data
+            Edit {votingMethodName} Results for {precinct.name}
           </LinkButton>
         </TD>
       </tr>
@@ -164,33 +132,42 @@ const ManualDataImportIndexScreen: React.FC = () => {
     <React.Fragment>
       <NavigationScreen>
         <SummaryInfo>
-          <Prose>
-            <h1>Manually Added External Results </h1>
+          <Prose maxWidth={false}>
             <p>
-              Select the voting method for these ballots.
+              <Button onPress={() => history.push(routerPaths.tally)}>
+                Back to Tally
+              </Button>
+            </p>
+            <p>Select the voting method for manually entered results:</p>
+            <p>
               <SegmentedButton>
                 <Button
                   data-testid="ballottype-precinct"
                   disabled={ballotType === VotingMethod.Precinct}
                   onPress={() => handleSettingBallotType(VotingMethod.Precinct)}
                 >
-                  Precinct
+                  Precinct Results
                 </Button>
                 <Button
                   data-testid="ballottype-absentee"
                   disabled={ballotType === VotingMethod.Absentee}
                   onPress={() => handleSettingBallotType(VotingMethod.Absentee)}
                 >
-                  Absentee
+                  Absentee Results
                 </Button>
               </SegmentedButton>
             </p>
+            <h1>Manually Entered {votingMethodName} Results</h1>
             <Table condensed data-testid="summary-data">
               <thead>
                 <tr>
-                  <TD as="th">Precinct</TD>
-                  <TD as="th">Ballots Entered</TD>
-                  <TD as="th">Edit Ballot Data</TD>
+                  <TD as="th" narrow>
+                    Precinct
+                  </TD>
+                  <TD as="th" nowrap narrow textAlign="center">
+                    Manual Ballot Count
+                  </TD>
+                  <TD as="th" />
                 </tr>
               </thead>
               <tbody>
@@ -199,8 +176,8 @@ const ManualDataImportIndexScreen: React.FC = () => {
                   <TD>
                     <strong>Total</strong>
                   </TD>
-                  <TD data-testid="total-ballots-entered">
-                    {totalNumberBallotsEntered}
+                  <TD textAlign="center" data-testid="total-ballots-entered">
+                    <strong>{totalNumberBallotsEntered}</strong>
                   </TD>
                   <TD />
                 </tr>
@@ -209,14 +186,11 @@ const ManualDataImportIndexScreen: React.FC = () => {
             <p>
               <Button
                 danger
-                disabled={existingManualData === undefined}
+                disabled={!hasManualData}
                 onPress={() => setIsClearing(true)}
               >
                 Clear Manual Data…
-              </Button>{' '}
-              <Button onPress={() => history.push(routerPaths.tally)}>
-                Back to Tally
-              </Button>{' '}
+              </Button>
             </p>
           </Prose>
         </SummaryInfo>
