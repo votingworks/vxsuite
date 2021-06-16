@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  echo "script/prod-build [--skip-build] [--skip-pack]"
+  echo
+  echo "Build, pack, and stage all applications for production."
+  echo
+  echo "      --skip-build   Do not build packages, only pack and stage them."
+  echo "      --skip-pack    Do not build or pack packages, only stage them."
+  echo "  -v  --debug        Print debug messages."
+}
+
+get-package-archive() {
+  node -pe '`${require("./package").name.replace(/^@/, "").replace(/[^a-z0-9]+/gi, "-")}-${require("./package").version}.tgz`'
+}
+
+###
+# Option Parsing
+###
+
+skip_build=false
+skip_pack=false
+debug=false
+
+while [ $# -gt 0 ]; do
+  arg=$1
+  case "${arg}" in
+    --skip-build)
+      skip_build=true
+    ;;
+
+    --skip-pack)
+      skip_build=true
+      skip_pack=true
+    ;;
+
+    -v|--debug)
+      debug=true
+    ;;
+
+    -h|--help|help)
+      usage
+      exit 0
+    ;;
+
+    *)
+      echo "error: unknown option ${arg}" >&2
+      usage >&2
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+
+###
+# Build – e.g. compile TypeScript
+###
+
+if [ "${skip_build}" != true ]; then
+  for app in apps/*; do
+    echo "🛠 build ${app}"
+    PIPENV_VENV_IN_PROJECT=1 make -C ${app} build
+    echo
+  done
+fi
+
+
+###
+# Pack – e.g. `npm pack` compiled code into archive
+###
+
+if [ "${skip_pack}" != true ]; then
+  for pkg in apps/* libs/* libs/@types/*; do
+    if [ -f "${pkg}/package.json" ]; then
+      echo "📦 pack ${pkg}"
+
+      (
+        cd "${pkg}"
+        if [ "${debug}" = true ]; then
+          npm pack
+        else
+          npm pack >/dev/null 2>&1
+        fi
+      )
+
+      archive=$(cd "${pkg}" && get-package-archive)
+      echo "→ ${pkg}/${archive}"
+      echo
+    fi
+  done
+fi
+
+
+###
+# Stage – unpack built code & prune dependencies
+###
+
+if [ "${debug}" = true ]; then
+  PNPM_VERBOSITY=''
+  RSYNC_VERBOSITY=--verbose
+else
+  PNPM_VERBOSITY=--silent
+  RSYNC_VERBOSITY=--quiet
+fi
+
+echo "🚧 staging into build"
+rm -rf build
+mkdir -p build
+cp -rp pnpm-lock.yaml pnpm-workspace.yaml pnpmfile.js build
+
+for pkg in apps/* libs/* libs/@types/*; do
+  echo "🚧 stage ${pkg}"
+  build_app="build/${pkg}"
+  mkdir -p "${build_app}"
+
+  if [ -f "${pkg}/package.json" ]; then
+    archive=$(cd "${pkg}" && get-package-archive)
+    echo "→ unpacking ${pkg}/${archive}"
+    tar xzf "${pkg}/${archive}" --strip-components 1 -C "${build_app}"
+    echo
+  elif [ -f "${pkg}/Pipfile" ]; then
+    echo "→ rsyncing ${pkg}/${archive}"
+    rsync --recursive --links $RSYNC_VERBOSITY "${pkg}/" "${build_app}"
+  fi
+done
+
+echo "🚧 install dependencies"
+(cd build && pnpm install --frozen-lockfile ${PNPM_VERBOSITY})
+
+for pkg in apps/* libs/* libs/@types/*; do
+  echo "🚧 stage ${pkg}"
+  if [ -f "${pkg}/package.json" ]; then
+    build_app="build/${pkg}"
+    echo "→ removing devDependencies from ${build_app}/package.json"
+    (
+      cd "${build_app}"
+      node <<JS | xargs --no-run-if-empty pnpm remove ${PNPM_VERBOSITY}
+        const pkg = require('./package')
+        if (pkg.devDependencies) {
+          process.stdout.write(Object.keys(pkg.devDependencies).join('\n'))
+        }
+JS
+      pnpm install --offline ${PNPM_VERBOSITY}
+    )
+  fi
+
+  if [ -d "${pkg}/prodserver" ]; then
+    build_app="build/${pkg}"
+    echo "→ removing dependencies from ${build_app}/package.json"
+    (
+      cd "${build_app}"
+      node <<JS | xargs --no-run-if-empty pnpm remove ${PNPM_VERBOSITY}
+        const pkg = require('./package')
+        if (pkg.dependencies) {
+          process.stdout.write(Object.keys(pkg.dependencies).join('\n'))
+        }
+JS
+      pnpm install --offline ${PNPM_VERBOSITY}
+    )
+  fi
+
+  echo
+done
