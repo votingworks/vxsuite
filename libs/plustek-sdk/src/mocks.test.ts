@@ -204,6 +204,34 @@ test('calibrate', async () => {
   )
 })
 
+test('paper held at both sides', async () => {
+  const mock = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  })
+  expect((await mock.scan()).err()).toEqual(ScannerError.NoDevices)
+  await mock.connect()
+
+  expect((await mock.scan()).err()).toEqual(ScannerError.VtmPsDevReadyNoPaper)
+  await mock.simulateLoadSheet(files)
+  expect((await mock.scan()).ok()).toEqual({ files })
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToEject
+  )
+
+  await mock.simulateLoadSheet(files)
+  expect((await mock.getPaperStatus()).ok()).toEqual(PaperStatus.VtmBothSideHavePaper)
+  expect((await mock.scan()).err()).toEqual(ScannerError.VtmBothSideHavePaper)
+  expect((await mock.accept()).err()).toEqual(ScannerError.VtmBothSideHavePaper)
+  expect((await mock.reject({ hold: false })).err()).toEqual(ScannerError.VtmBothSideHavePaper)
+  expect((await mock.reject({ hold: true })).err()).toEqual(ScannerError.VtmBothSideHavePaper)
+  expect((await mock.calibrate()).err()).toEqual(ScannerError.VtmBothSideHavePaper)
+  await mock.simulateRemoveSheet()
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToEject
+  )
+})
+
 test('waitForStatus', async () => {
   const mock = new MockScannerClient({
     toggleHoldDuration: 0,

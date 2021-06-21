@@ -41,8 +41,8 @@ export interface Options {
 export class MockScannerClient implements ScannerClient {
   private connected = false
   private unresponsive = false
-  private loaded?: readonly string[]
-  private loadedAt?: 'front' | 'back'
+  private frontSheet?: readonly string[]
+  private backSheet?: readonly string[]
   private toggleHoldDuration: number
   private passthroughDuration: number
 
@@ -88,14 +88,13 @@ export class MockScannerClient implements ScannerClient {
       return err(Errors.NotConnected)
     }
 
-    if (this.loaded) {
+    if (this.frontSheet) {
       debug('cannot load, already loaded')
       return err(Errors.DuplicateLoad)
     }
 
     await sleep(this.toggleHoldDuration)
-    this.loaded = files
-    this.loadedAt = 'front'
+    this.frontSheet = files
     debug('manualLoad success')
     return ok()
   }
@@ -116,13 +115,12 @@ export class MockScannerClient implements ScannerClient {
       return err(Errors.NotConnected)
     }
 
-    if (!this.loaded) {
+    if (!this.frontSheet) {
       debug('cannot remove, no paper')
       return err(Errors.NoPaperToRemove)
     }
 
-    delete this.loaded
-    delete this.loadedAt
+    delete this.frontSheet
     debug('manualRemove success')
     return ok()
   }
@@ -159,17 +157,23 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.NoDevices)
     }
 
-    if (!this.loaded) {
+    if (!this.frontSheet && !this.backSheet) {
       debug('nothing loaded')
       return ok(PaperStatus.VtmDevReadyNoPaper)
     }
 
-    debug('paper is loaded at %s', this.loadedAt)
-    if (this.loadedAt === 'front') {
+    if (this.frontSheet && !this.backSheet) {
+      debug('only front has paper')
       return ok(PaperStatus.VtmReadyToScan)
-    } else {
+    }
+
+    if (!this.frontSheet && this.backSheet) {
+      debug('only back has paper')
       return ok(PaperStatus.VtmReadyToEject)
     }
+
+    debug('front and back both have paper')
+    return ok(PaperStatus.VtmBothSideHavePaper)
   }
 
   /**
@@ -232,20 +236,26 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.NoDevices)
     }
 
-    if (!this.loaded) {
-      debug('cannot scan, no paper')
-      return err(ScannerError.VtmPsDevReadyNoPaper)
-    }
-
-    if (this.loadedAt === 'back') {
+    if (!this.frontSheet && this.backSheet) {
       debug('cannot scan, paper is held at back')
       return err(ScannerError.VtmPsReadyToEject)
     }
 
+    if (!this.frontSheet && !this.backSheet) {
+      debug('cannot scan, no paper')
+      return err(ScannerError.VtmPsDevReadyNoPaper)
+    }
+
+    if (this.frontSheet && this.backSheet) {
+      debug('cannot scan, both sides have paper')
+      return err(ScannerError.VtmBothSideHavePaper)
+    }
+
     await sleep(this.passthroughDuration)
-    this.loadedAt = 'back'
-    debug('scanned files=%o', this.loaded)
-    return ok({ files: this.loaded.slice() })
+    this.backSheet = this.frontSheet!
+    delete this.frontSheet
+    debug('scanned files=%o', this.backSheet)
+    return ok({ files: this.backSheet.slice() })
   }
 
   /**
@@ -264,19 +274,24 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.NoDevices)
     }
 
-    if (!this.loaded) {
+    if (this.frontSheet && this.backSheet) {
+      debug('cannot accept, both sides have paper')
+      return err(ScannerError.VtmBothSideHavePaper)
+    }
+
+    if (!this.frontSheet && !this.backSheet) {
       debug('cannot accept, no paper')
       return err(ScannerError.VtmPsDevReadyNoPaper)
     }
 
-    if (this.loadedAt === 'front') {
+    if (this.frontSheet) {
       await sleep(this.passthroughDuration)
     } else {
       await sleep(this.toggleHoldDuration)
     }
 
-    delete this.loaded
-    delete this.loadedAt
+    delete this.frontSheet
+    delete this.backSheet
     debug('accept success')
     return ok()
   }
@@ -297,22 +312,28 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.NoDevices)
     }
 
-    if (!this.loaded) {
+    if (this.frontSheet && this.backSheet) {
+      debug('cannot reject, both sides have paper')
+      return err(ScannerError.VtmBothSideHavePaper)
+    }
+
+    if (!this.frontSheet && !this.backSheet) {
       debug('cannot reject, no paper')
       return err(ScannerError.VtmPsDevReadyNoPaper)
     }
 
-    if (this.loadedAt === 'back') {
+    if (this.frontSheet) {
       await sleep(this.passthroughDuration)
     } else {
       await sleep(this.toggleHoldDuration)
     }
 
     if (hold) {
-      this.loadedAt = 'front'
+      this.frontSheet = this.backSheet ?? this.frontSheet
+      delete this.backSheet
     } else {
-      delete this.loaded
-      delete this.loadedAt
+      delete this.frontSheet
+      delete this.backSheet
     }
 
     debug('reject success')
@@ -332,19 +353,24 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.NoDevices)
     }
 
-    if (!this.loaded) {
+    if (this.frontSheet && this.backSheet) {
+      debug('cannot calibrate, both sides have paper')
+      return err(ScannerError.VtmBothSideHavePaper)
+    }
+
+    if (!this.frontSheet && !this.backSheet) {
       debug('cannot calibrate, no paper')
       return err(ScannerError.VtmPsDevReadyNoPaper)
     }
 
-    if (this.loadedAt === 'back') {
+    if (!this.frontSheet && this.backSheet) {
       debug('cannot calibrate, paper held at back')
       return err(ScannerError.SaneStatusNoDocs)
     }
 
     await sleep(this.passthroughDuration * 3)
-    delete this.loaded
-    delete this.loadedAt
+    delete this.frontSheet
+    delete this.backSheet
     debug('calibrate success')
     return ok()
   }
