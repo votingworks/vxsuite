@@ -18,6 +18,7 @@ export enum PaperStatus {
   VtmReadyToScan = 'PLKSS_ERRCODE_VTM_PS_READY_TO_SCAN',
   VtmReadyToEject = 'PLKSS_ERRCODE_VTM_PS_READY_TO_EJECT',
   VtmFrontAndBackSensorHavePaperReady = 'PLKSS_ERRCODE_VTM_PS_FRONT_AND_BACK_SENSOR_HAVE_PAPER_READY',
+  VtmBothSideHavePaper = 'PLKSS_ERRCODE_VTM_BOTH_SIDE_HAVE_PAPER',
 }
 
 export const PaperStatusSchema = z.nativeEnum(PaperStatus)

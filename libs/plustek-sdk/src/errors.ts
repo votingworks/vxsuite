@@ -6,6 +6,7 @@ export enum ScannerError {
   VtmScanOvertime = 'PLKSS_ERRCODE_VTM_SCAN_OVERTIME',
   VtmGratingSensorNotMove = 'PLKSS_ERRCODE_VTM_GRATING_SENSOR_NOT_MOVE',
   VtmNoDevicesAfterEject = 'PLKSS_ERRCODE_VTM_NO_DEVICES_AFTER_EJECT',
+  VtmBothSideHavePaper = 'PLKSS_ERRCODE_VTM_BOTH_SIDE_HAVE_PAPER',
   /*CallBack STATUS*/
   CbStatusIlReadImageFail = 'PLKSS_ERRCODE_CB_STATUS_IL_READ_IMAGE_FAIL',
   CbStatusIlAutoDeskewExFail = 'PLKSS_ERRCODE_CB_STATUS_IL_AUTO_DESKEW_EX_FAIL',
