@@ -488,12 +488,9 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   )
 
   fireEvent.click(getByText('Add Manually Entered Results'))
-  getByText('Manually Added External Results')
-  fireEvent.click(getByText('Edit District 5 Precinct Data'))
-  getByText('Manually Add Precinct Data for District 5')
-  fireEvent.change(getByTestId('775020876-numBallots'), {
-    target: { value: '100' },
-  })
+  getByText('Manually Entered Precinct Results')
+  fireEvent.click(getByText('Edit Precinct Results for District 5'))
+  getAllByText('Save Data for District 5')
   fireEvent.change(getByTestId('775020876-undervotes'), {
     target: { value: '12' },
   })
@@ -513,8 +510,8 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     target: { value: '10' },
   })
 
-  fireEvent.click(getByText('Save Data for District 5'))
-  await waitFor(() => getByText('Manually Added External Results'))
+  fireEvent.click(getAllByText('Save Data for District 5')[0])
+  await waitFor(() => getByText('Manually Entered Precinct Results'))
   await waitFor(() => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('100')
   })
@@ -556,14 +553,11 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   expect(domGetByTestId(district5Row, 'numBallots')!.textContent).toEqual('100')
 
   // Change the manual data to absentee
-  fireEvent.click(getByText('Absentee'))
+  fireEvent.click(getByText('Absentee Results'))
 
   // Change to another precinct
-  fireEvent.click(getByText('Edit Panhandle Absentee Data'))
-  getByText('Manually Add Absentee Data for Panhandle')
-  fireEvent.change(getByTestId('750000017-numBallots'), {
-    target: { value: '100' },
-  })
+  fireEvent.click(getByText('Edit Absentee Results for Panhandle'))
+  getAllByText('Save Data for Panhandle')
   fireEvent.change(getByTestId('750000017-undervotes'), {
     target: { value: '17' },
   })
@@ -577,7 +571,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     target: { value: '26' },
   })
 
-  fireEvent.click(getByText('Save Data for Panhandle'))
+  fireEvent.click(getAllByText('Save Data for Panhandle')[0])
   await waitFor(() => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('200')
   })

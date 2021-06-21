@@ -34,21 +34,21 @@ test('can toggle ballot types for data', async () => {
       saveExternalTallies,
     }
   )
-  getByText('Manually Added External Results')
+  getByText('Manually Entered Precinct Results')
 
   // Precinct ballots should be selected by default but should be able to toggle to absentee.
   expect(getByTestId('ballottype-precinct').closest('button')).toBeDisabled()
   expect(
     getByTestId('ballottype-absentee').closest('button')
   ).not.toBeDisabled()
-  getByText('Edit Precinct 5 Precinct Data')
+  getByText('Edit Precinct Results for Precinct 5')
 
   fireEvent.click(getByTestId('ballottype-absentee'))
   expect(
     getByTestId('ballottype-precinct').closest('button')
   ).not.toBeDisabled()
   expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled()
-  getByText('Edit Precinct 5 Absentee Data')
+  getByText('Edit Absentee Results for Precinct 5')
 
   expect(saveExternalTallies).toHaveBeenCalled()
   expect(saveExternalTallies).toHaveBeenCalledWith([
@@ -66,7 +66,7 @@ test('can toggle ballot types for data', async () => {
       votingMethod: VotingMethod.Precinct,
     }),
   ])
-  getByText('Edit Precinct 5 Precinct Data')
+  getByText('Edit Precinct Results for Precinct 5')
 })
 
 test('precinct table renders properly when there is no data', async () => {
@@ -82,7 +82,7 @@ test('precinct table renders properly when there is no data', async () => {
       saveExternalTallies,
     }
   )
-  getByText('Manually Added External Results')
+  getByText('Manually Entered Precinct Results')
   // Everything should start as 0s
   const summaryTable = getByTestId('summary-data')
   const centerSpringfield = within(summaryTable)
@@ -104,11 +104,11 @@ test('precinct table renders properly when there is no data', async () => {
     '0'
   )
   expect(getByTestId('total-ballots-entered')).toHaveTextContent('0')
-  fireEvent.click(getByText('Edit Center Springfield Precinct Data'))
+  fireEvent.click(getByText('Edit Precinct Results for Center Springfield'))
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-import/precinct/23'
   )
-  fireEvent.click(getByText('Edit North Springfield Precinct Data'))
+  fireEvent.click(getByText('Edit Precinct Results for North Springfield'))
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-import/precinct/21'
   )
@@ -171,10 +171,14 @@ test('loads prexisting manual data to edit', async () => {
       } as unknown) as ContestTally,
     },
   }
+  const overallTally = {
+    ...getEmptyExternalTally(),
+    numberOfBallotsCounted: 100,
+  }
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct)
   const externalTally: FullElectionExternalTally = {
-    overallTally: getEmptyExternalTally(),
+    overallTally,
     resultsByCategory,
     votingMethod: VotingMethod.Absentee,
     inputSourceName: 'Doesnt matter',
@@ -193,7 +197,7 @@ test('loads prexisting manual data to edit', async () => {
       fullElectionExternalTallies: [externalTally],
     }
   )
-  getByText('Manually Added External Results')
+  getByText('Manually Entered Absentee Results')
   // Absentee ballot type should be selected
   expect(
     getByTestId('ballottype-precinct').closest('button')
@@ -209,34 +213,20 @@ test('loads prexisting manual data to edit', async () => {
   expect(within(centerSpringfield).getByTestId('numBallots')).toHaveTextContent(
     '100'
   )
-  // There should be a data warning for center springfield
-  within(centerSpringfield).getByText(
-    /Data for precinct contains possible errors/
-  )
+
   const southSpringfield = within(summaryTable)
     .getByText('South Springfield')
     .closest('tr')!
   expect(within(southSpringfield).getByTestId('numBallots')).toHaveTextContent(
     '50'
   )
-  // No data warning for south springfield
-  expect(
-    within(southSpringfield).queryAllByText(
-      /Data for precinct contains possible errors/
-    )
-  ).toHaveLength(0)
+
   const northSpringfield = within(summaryTable)
     .getByText('North Springfield')
     .closest('tr')!
   expect(within(northSpringfield).getByTestId('numBallots')).toHaveTextContent(
     '7'
   )
-  // No data warning for north springfield
-  expect(
-    within(northSpringfield).queryAllByText(
-      /Data for precinct contains possible errors/
-    )
-  ).toHaveLength(0)
 
   fireEvent.click(getByText('Clear Manual Data…'))
   fireEvent.click(getByText('Remove Manual Data'))
