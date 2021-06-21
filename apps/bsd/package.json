@@ -2,6 +2,11 @@
   "name": "bsd",
   "version": "0.1.0",
   "private": true,
+  "files": [
+    "build",
+    "Makefile",
+    "prodserver"
+  ],
   "scripts": {
     "build": "script/react-scripts build",
     "build:watch": "tsc --build --watch",
@@ -71,7 +76,7 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "fast-text-encoding": "^1.0.2",
-    "http-proxy-middleware": "^1.0.0",
+    "http-proxy-middleware": "1.0.6",
     "js-file-download": "^0.4.6",
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",

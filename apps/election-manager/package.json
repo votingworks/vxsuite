@@ -2,6 +2,11 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "files": [
+    "build",
+    "Makefile",
+    "prodserver"
+  ],
   "scripts": {
     "build": "script/react-scripts build",
     "build:watch": "tsc --build --watch",
@@ -96,7 +101,7 @@
     "dompurify": "^2.0.12",
     "fetch-mock": "^9.10.7",
     "history": "^4.10.1",
-    "http-proxy-middleware": "^1.0.0",
+    "http-proxy-middleware": "1.0.6",
     "i18next": "^19.4.5",
     "js-file-download": "^0.4.12",
     "js-sha256": "^0.9.0",

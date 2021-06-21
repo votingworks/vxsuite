@@ -6,8 +6,9 @@
 /* istanbul ignore file */
 
 const express = require('express')
-const proxy = require('../src/setupProxy')
+const path = require('path')
 
+const proxy = require('./setupProxy')
 const app = express()
 const port = 3000
 

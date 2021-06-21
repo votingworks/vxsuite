@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "canvas": "^2.6.1",
     "chalk": "^4.1.0",
@@ -68,7 +69,6 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
-    "@votingworks/types": "workspace:*",
     "benchmark": "^2.1.4",
     "eslint": "^7.17.0",
     "eslint-config-prettier": "^6.15.0",

@@ -11,7 +11,7 @@ const ora = require('ora')
 const { spawn } = require('child_process')
 
 /**
- * @param {() => void} onCompile
+ * @param {VoidFunction} onCompile
  * @returns {import('child_process').ChildProcess}
  */
 function watchCompileTS(onCompile) {
@@ -34,6 +34,16 @@ function watchCompileTS(onCompile) {
 }
 
 /**
+ * @param {VoidFunction} onCompile
+ * @returns {import('child_process').ChildProcess}
+ */
+function compileTS(onCompile) {
+  return spawn('pnpx', ['tsc', '--build'], { stdio: 'pipe' }).on('exit', () =>
+    onCompile()
+  )
+}
+
+/**
  * @param {string[]} args
  * @returns {import('child_process').ChildProcess}
  */
@@ -45,9 +55,11 @@ function runApp(args) {
   return app
 }
 
+const args = process.argv.slice(2)
+const noWatch = args.includes('build')
 const spinner = ora('Running initial build…').start()
 let app
-const tsc = watchCompileTS(() => {
+const tsc = (noWatch ? compileTS : watchCompileTS)(() => {
   if (!app) {
     spinner.stop()
     app = runApp(process.argv.slice(2))

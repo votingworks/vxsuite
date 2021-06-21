@@ -5,6 +5,7 @@ node_modules
 
 # production
 build
+*-*.*.*.tgz
 *.tsbuildinfo
 
 # testing
