@@ -76,10 +76,9 @@ async function main(args: readonly string[]): Promise<number> {
       case '/status': {
         debug('getting paper status')
         const result = await scanner.getPaperStatus()
-        const paperStatus = result.mapOrElse(
-          (error) => (error instanceof Error ? error.message : error),
-          (status) => status
-        )
+        const paperStatus = result.ok() ?? ((err) => 
+          err instanceof Error ? err.message : err
+        )(result.err())
         debug('paper status: %s', paperStatus)
         res.writeHead(200, { 'Content-Type': 'text/plain' })
         res.end(paperStatus)
@@ -145,22 +144,28 @@ async function main(args: readonly string[]): Promise<number> {
             } else {
               const body = await readRequestBody(req)
               debug('PUT /mock body=%s', body)
-              safeParseJSON(body, LoadRequestSchema).mapOrElse(
-                (error) => res.writeHead(400).end(`${error}`),
-                async ({ files }) => {
+              const parseResult = safeParseJSON(body, LoadRequestSchema)
+
+              if (parseResult.isErr()) {
+                res.writeHead(400).end(`${parseResult.err()}`)
+              } else {
+                const {files} = parseResult.ok()
                   debug('loading a mock sheet: %o', files)
-                  ;(await scanner.simulateLoadSheet(files)).mapOrElse(
-                    (error) => res.writeHead(500).end(`${error}`),
-                    () => res.writeHead(200).end()
-                  )
-                }
-              )
+                  const simulateLoadResult = await scanner.simulateLoadSheet(files)
+                  if (simulateLoadResult.isErr()) {
+                    res.writeHead(500).end(`${simulateLoadResult.err()}`)
+                  } else {
+                    res.writeHead(200).end()
+                  }
+              }
             }
           } else if (req.method === 'DELETE') {
-            (await scanner.simulateRemoveSheet()).mapOrElse(
-              (error) => res.writeHead(500).end(`${error}`),
-              () => res.writeHead(200).end()
-            )
+            const simulateRemoveResult = (await scanner.simulateRemoveSheet())
+            if (simulateRemoveResult.isErr()) {
+              res.writeHead(500).end(`${simulateRemoveResult.err()}`)
+            } else {
+              res.writeHead(200).end()
+            }
           }
         }
         break
