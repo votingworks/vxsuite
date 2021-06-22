@@ -1,4 +1,4 @@
-import got from 'got'
+import got, { Response } from 'got'
 import { resolve } from 'path'
 import { MOCK_SCANNER_PORT } from '../../globals'
 
@@ -38,17 +38,20 @@ export async function main(args: readonly string[]): Promise<number> {
 
   switch (command?.type) {
     case 'load':
-      await got.put(`${BASE_URL}/mock`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ files: command.files }),
-      })
-      break
+      return handleResponse(
+        await got.put(`${BASE_URL}/mock`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ files: command.files }),
+          throwHttpErrors: false,
+        })
+      )
 
     case 'remove':
-      await got.delete(`${BASE_URL}/mock`)
-      break
+      return handleResponse(
+        await got.delete(`${BASE_URL}/mock`, { throwHttpErrors: false })
+      )
 
     case 'help':
       help(process.stdout)
@@ -60,6 +63,18 @@ export async function main(args: readonly string[]): Promise<number> {
   }
 
   return 0
+}
+
+function handleResponse(response: Response<string>): number {
+  if (response.statusCode < 300) {
+    return 0
+  }
+
+  process.stderr.write(
+    `error: ${response.statusCode} ${response.statusMessage}\n`
+  )
+  process.stderr.write(response.body)
+  return -1
 }
 
 function help(out: NodeJS.WritableStream): void {
