@@ -189,6 +189,26 @@ jobs:
           command: |
             pnpm --dir libs/lsd test
 
+  test-module-converter-sems:
+    docker:
+      - image: circleci/python:3.7.7
+    steps:
+      - checkout
+      - run:
+          name: Dependencies
+          command: |
+            sudo apt update -y
+            make -C apps/module-converter-sems install-dependencies
+            make -C apps/module-converter-sems install-dev-dependencies
+      - run:
+          name: Test
+          command: |
+            make -C apps/module-converter-sems coverage
+      # - run:
+      #     name: Typecheck
+      #     command: |
+      #       make -C apps/module-converter-sems typecheck
+
   test-module-scan:
     executor: nodejs
     resource_class: xlarge
@@ -330,6 +350,7 @@ workflows:
       - test-fixtures
       - test-hmpb-interpreter
       - test-lsd
+      - test-module-converter-sems
       - test-module-scan
       - test-module-smartcards
       - test-plustek-sdk
