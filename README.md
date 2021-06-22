@@ -161,10 +161,10 @@ This should be enforced by eslint when a variable is never reassigned. This does
 Rather than assigning to an object property, consider building a new object:
 
 ```ts
-// toggle test mode by mutating `settings` (not preferred)
+// NOT PREFERRED: toggle test mode by mutating `settings`
 settings.testMode = !settings.testMode
 
-// toggle test mode by creating a new object (preferred)
+// PREFERRED: toggle test mode by creating a new object
 settings = { ...settings, testMode: !settings.testMode }
 ```
 
