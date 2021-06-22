@@ -1,0 +1,10 @@
+/build
+/coverage
+/cypress/plugins
+/cypress/integration/examples
+/cypress/support
+/prodserver
+/src/**/*.js
+/.eslintrc.js
+*.d.ts
+/src/serviceWorker.ts

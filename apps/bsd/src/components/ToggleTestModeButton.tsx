@@ -68,7 +68,12 @@ const ToggleTestModeButton: React.FC<Props> = ({
             !isTogglingTestMode && (
               <React.Fragment>
                 <Button onPress={toggleIsConfirming}>Cancel</Button>
-                <Button ref={defaultButtonRef} primary onPress={toggleTestMode}>
+                <Button
+                  data-testid="confirm-toggle"
+                  ref={defaultButtonRef}
+                  primary
+                  onPress={toggleTestMode}
+                >
                   {isTestMode ? 'Toggle to Live Mode' : 'Toggle to Test Mode'}
                 </Button>
               </React.Fragment>

@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.shared.json",
+  "compilerOptions": {
+    "types": ["cypress", "cypress-file-upload"],
+    "isolatedModules": false,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2015"
+  },
+  "include": [
+    "../node_modules/cypress",
+    "../node_modules/@testing-library/cypress",
+    "**/*.ts"
+  ],
+  "references": [{ "path": "../../../libs/fixtures" }]
+}
