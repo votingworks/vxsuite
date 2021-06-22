@@ -1,57 +1,57 @@
 {
   "folders": [
-		{
-			"path": "apps/bas"
-		},
-		{
-			"path": "apps/bmd"
-		},
-		{
-			"path": "apps/bsd"
-		},
-		{
-			"path": "apps/election-manager"
-		},
-		{
-			"path": "apps/module-scan"
-		},
-		{
-			"path": "apps/module-smartcards"
-		},
-		{
-			"path": "libs/ballot-encoder"
-		},
-		{
-			"path": "libs/hmpb-interpreter"
-		},
-		{
-			"path": "libs/lsd"
-		},
-		{
-			"path": "libs/types"
-		},
-		{
-			"path": "libs/fixtures"
-		},
-		{
-			"path": "libs/test-utils"
-		},
-		{
-			"path": "libs/ui"
-		},
-		{
-			"path": "apps/precinct-scanner"
-		},
-		{
-			"path": "libs/plustek-sdk"
-		},
-		{
-			"path": "libs/utils"
-		},
-		{
-			"path": "apps/module-converter-sems"
-		}
-	],
+    {
+      "path": "apps/bas"
+    },
+    {
+      "path": "apps/bmd"
+    },
+    {
+      "path": "apps/bsd"
+    },
+    {
+      "path": "apps/election-manager"
+    },
+    {
+      "path": "apps/module-scan"
+    },
+    {
+      "path": "apps/module-smartcards"
+    },
+    {
+      "path": "libs/ballot-encoder"
+    },
+    {
+      "path": "libs/hmpb-interpreter"
+    },
+    {
+      "path": "libs/lsd"
+    },
+    {
+      "path": "libs/types"
+    },
+    {
+      "path": "libs/fixtures"
+    },
+    {
+      "path": "libs/test-utils"
+    },
+    {
+      "path": "libs/ui"
+    },
+    {
+      "path": "apps/precinct-scanner"
+    },
+    {
+      "path": "libs/plustek-sdk"
+    },
+    {
+      "path": "libs/utils"
+    },
+    {
+      "path": "apps/module-converter-ms-sems"
+    }
+  ],
   "settings": {
     "editor.codeActionsOnSave": {
       "source.fixAll": true
