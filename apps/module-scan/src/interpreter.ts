@@ -325,6 +325,11 @@ export default class Interpreter {
         ELECTION_HASH_LENGTH
       )
 
+      debug(
+        'comparing election hash (%s) to expected value (%s)',
+        actualElectionHash,
+        expectedElectionHash
+      )
       if (actualElectionHash !== expectedElectionHash) {
         return {
           interpretation: {
