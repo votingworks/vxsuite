@@ -197,6 +197,52 @@ if (result.isErr()) {
 }
 ```
 
+### Use the `debug` package
+
+In development and production scenarios, debug logs are sometimes the best we have to figure out what's going wrong. We use the [`debug`](https://www.npmjs.com/package/debug) package to log interesting events and data to get a sense of what happened. Use it to tell a story: what happened and why? Don't just log when things go wrong; log all the time!
+
+### Naming
+
+Typically you'll name things with two levels of namespace, i.e. `app:scope`. Sometimes more specificity is needed, i.e. `app:scope-outer:scope-inner`. Here's an example:
+
+```ts
+// libs/math/geometry.ts
+import makeDebug from 'debug'
+
+const debug = makeDebug('math:geometry')
+
+export function angleBetweenVectors(v1: Vector, v2: Vector): number {
+  debug('computing angle between v1 ({x:%d, y:%d}) & v2 ({x:%d, y:%d})', v1.x, v1.y, v2.x, v2.y)
+  const result = …
+  debug('computed angle: %d', result)
+  return result
+}
+```
+
+### Logging in apps
+
+By default nothing is logged to the terminal. If you run your tests/server/etc with `DEBUG` set to the right value, you'll get logging. Example:
+
+```sh
+# log from the geometry module
+DEBUG=math:geomery pnpm start
+# log from the whole math library
+DEBUG=math:* pnpm start
+# log everything
+DEBUG=* pnpm start
+# log everything except the math library
+DEBUG=*,-math:* pnpm start
+```
+
+### Logging in tests
+
+You may want to enable logging even after starting a `test:watch` session. To log in a single test file, add this above all the other code in the file:
+
+```ts
+import { enable } from 'debug'
+enable('math:*') // or whatever globs you want
+```
+
 ## License
 
 GPLv3
