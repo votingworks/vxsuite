@@ -201,7 +201,7 @@ if (result.isErr()) {
 
 In development and production scenarios, debug logs are sometimes the best we have to figure out what's going wrong. We use the [`debug`](https://www.npmjs.com/package/debug) package to log interesting events and data to get a sense of what happened. Use it to tell a story: what happened and why? Don't just log when things go wrong; log all the time!
 
-### Naming
+#### Naming
 
 Typically you'll name things with two levels of namespace, i.e. `app:scope`. Sometimes more specificity is needed, i.e. `app:scope-outer:scope-inner`. Here's an example:
 
@@ -219,7 +219,7 @@ export function angleBetweenVectors(v1: Vector, v2: Vector): number {
 }
 ```
 
-### Logging in apps
+#### Logging in apps
 
 By default nothing is logged to the terminal. If you run your tests/server/etc with `DEBUG` set to the right value, you'll get logging. Example:
 
@@ -234,7 +234,7 @@ DEBUG=* pnpm start
 DEBUG=*,-math:* pnpm start
 ```
 
-### Logging in tests
+#### Logging in tests
 
 You may want to enable logging even after starting a `test:watch` session. To log in a single test file, add this above all the other code in the file:
 
