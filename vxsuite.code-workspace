@@ -47,6 +47,9 @@
     },
     {
       "path": "libs/utils"
+    },
+    {
+      "path": "apps/module-converter-ms-sems"
     }
   ],
   "settings": {

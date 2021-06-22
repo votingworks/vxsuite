@@ -1,0 +1,332 @@
+0, "GEMS Import Data", 1, 5, 1, 1, 1, 1
+1, "Mock General Election Choctaw 2020", "8/26/2020"
+2, -1, 1, "United States"
+2, -1, 100000275, "State Of Mississippi"
+2, -1, 100000047, "US House Of Representatives"
+2, -1, 100000174, "Northern District"
+2, -1, 575000501, "Election Commissioner 01"
+2, -1, 575000502, "Election Commissioner 02"
+2, -1, 575000503, "Election Commissioner 03"
+2, -1, 575000504, "Election Commissioner 04"
+2, -1, 575000505, "Election Commissioner 05"
+2, -1, 575000084, "School Board District 5"
+3, 0, 775000001, "ACKERMAN COMMUNITY CENTER"
+3, 0, 2890, "BEAT 3 COUNTY BARN"
+3, 0, 2888, "BLANTON'S PIANO SERVICE"
+3, 0, 2898, "BYWY FIRE DEPARTMENT"
+3, 0, 2885, "CHESTER COMMUNITY CENTER"
+3, 0, 2887, "FRENCH CAMP FIRE DEPARTMENT"
+3, 0, 2897, "MT HERMON UMC"
+3, 0, 2889, "MT. PISGAH BAPTIST CHURCH"
+3, 0, 775000002, "PANHANDLE FIRE DEPARTMENT"
+3, 0, 2894, "REFORM FIRE DEPARTMENT"
+3, 0, 2896, "SHERWOOD COMMUNITY CENTER"
+3, 0, 2886, "WEIR FIRE DEPARTMENT"
+3, 0, 2899, "WEIR SCHOOL GYMNASIUM"
+4, 2898, 6538, 22725, "Bywy", 0, "4"
+4, 2898, 6538, 575002363, "Bywy", 0, "4"
+4, 2885, 6524, 22683, "Chester", 0, "4"
+4, 775000001, 6522, 22713, "District 5", 0, "5"
+4, 775000001, 6522, 775000004, "District 5", 0, "5"
+4, 775000001, 6522, 775000993, "District 5", 0, "5"
+4, 775000001, 6522, 775000994, "District 5", 0, "5"
+4, 775000001, 6522, 775000995, "District 5", 0, "5"
+4, 775000001, 6522, 775000996, "District 5", 0, "5"
+4, 775000001, 6522, 775001002, "District 5", 0, "5"
+4, 775000001, 6522, 775001003, "District 5", 0, "5"
+4, 775000001, 6522, 775001004, "District 5", 0, "5"
+4, 775000001, 6522, 775001005, "District 5", 0, "5"
+4, 2886, 6525, 22686, "East Weir", 0, "1"
+4, 2886, 6525, 22687, "East Weir", 0, "1"
+4, 2886, 6525, 775001116, "East Weir", 0, "1"
+4, 2886, 6525, 775001117, "East Weir", 0, "1"
+4, 2887, 6526, 22689, "French Camp", 0, "2"
+4, 2887, 6526, 575000859, "French Camp", 0, "2"
+4, 2888, 6527, 22691, "Fentress", 0, "4"
+4, 2888, 6527, 22692, "Fentress", 0, "4"
+4, 2888, 6527, 775000997, "Fentress", 0, "4"
+4, 2888, 6527, 775000998, "Fentress", 0, "4"
+4, 2888, 6527, 775002731, "Fentress", 0, "4"
+4, 2889, 6528, 22695, "Hebron", 0, "3"
+4, 2890, 6529, 22697, "Kenego", 0, "2"
+4, 775000002, 6532, 22706, "Panhandle", 0, "1"
+4, 2894, 6534, 22710, "Reform", 0, "3"
+4, 2896, 6536, 22719, "Sherwood", 0, "3"
+4, 2896, 6536, 775002424, "Sherwood", 0, "3"
+4, 2897, 6537, 22724, "Southwest Ackerman", 0, "1"
+4, 2897, 6537, 775000999, "Southwest Ackerman", 0, "1"
+4, 2897, 6537, 775001000, "Southwest Ackerman", 0, "1"
+4, 2897, 6537, 775002728, "Southwest Ackerman", 0, "1"
+4, 2899, 6539, 22728, "West Weir", 0, "2"
+4, 2899, 6539, 775001118, "West Weir", 0, "2"
+5, 22683, 100000174
+5, 22683, 100000275
+5, 22683, 100000047
+5, 22683, 1
+5, 22683, 575000501
+5, 22686, 1
+5, 22686, 100000047
+5, 22686, 100000174
+5, 22686, 100000275
+5, 22686, 575000504
+5, 22687, 100000047
+5, 22687, 1
+5, 22687, 100000174
+5, 22687, 575000504
+5, 22687, 100000275
+5, 22689, 1
+5, 22689, 100000047
+5, 22689, 100000174
+5, 22689, 100000275
+5, 22689, 575000503
+5, 22691, 1
+5, 22691, 100000047
+5, 22691, 100000275
+5, 22691, 100000174
+5, 22691, 575000501
+5, 22692, 100000275
+5, 22692, 100000174
+5, 22692, 100000047
+5, 22692, 1
+5, 22692, 575000501
+5, 22695, 100000275
+5, 22695, 100000174
+5, 22695, 100000047
+5, 22695, 1
+5, 22695, 575000502
+5, 22697, 1
+5, 22697, 100000047
+5, 22697, 100000174
+5, 22697, 100000275
+5, 22697, 575000503
+5, 22706, 100000275
+5, 22706, 100000174
+5, 22706, 100000047
+5, 22706, 1
+5, 22706, 575000504
+5, 22709, 100000174
+5, 22709, 100000047
+5, 22709, 1
+5, 22709, 100000275
+5, 22710, 100000174
+5, 22710, 100000047
+5, 22710, 1
+5, 22710, 100000275
+5, 22710, 575000502
+5, 22713, 1
+5, 22713, 100000047
+5, 22713, 100000174
+5, 22713, 100000275
+5, 22713, 575000084
+5, 22713, 575000505
+5, 22719, 575000502
+5, 22719, 1
+5, 22719, 100000047
+5, 22719, 100000174
+5, 22719, 100000275
+5, 22724, 100000047
+5, 22724, 1
+5, 22724, 100000174
+5, 22724, 100000275
+5, 22724, 575000504
+5, 22725, 100000047
+5, 22725, 1
+5, 22725, 100000174
+5, 22725, 575000501
+5, 22725, 100000275
+5, 22728, 1
+5, 22728, 100000047
+5, 22728, 100000275
+5, 22728, 100000174
+5, 22728, 575000503
+5, 575000859, 100000047
+5, 575000859, 1
+5, 575000859, 100000174
+5, 575000859, 100000275
+5, 575000859, 575000503
+5, 575002363, 100000047
+5, 575002363, 1
+5, 575002363, 100000174
+5, 575002363, 575000501
+5, 575002363, 100000275
+5, 775000004, 1
+5, 775000004, 100000047
+5, 775000004, 100000174
+5, 775000004, 575000084
+5, 775000004, 100000275
+5, 775000004, 575000505
+5, 775000993, 1
+5, 775000993, 100000047
+5, 775000993, 100000174
+5, 775000993, 100000275
+5, 775000993, 575000084
+5, 775000993, 575000505
+5, 775000994, 100000275
+5, 775000994, 100000174
+5, 775000994, 100000047
+5, 775000994, 1
+5, 775000994, 575000084
+5, 775000994, 575000505
+5, 775000995, 1
+5, 775000995, 100000047
+5, 775000995, 100000174
+5, 775000995, 100000275
+5, 775000995, 575000084
+5, 775000995, 575000505
+5, 775000996, 100000275
+5, 775000996, 100000174
+5, 775000996, 100000047
+5, 775000996, 1
+5, 775000996, 575000084
+5, 775000996, 575000505
+5, 775000997, 100000047
+5, 775000997, 1
+5, 775000997, 100000174
+5, 775000997, 100000275
+5, 775000997, 575000501
+5, 775000998, 100000047
+5, 775000998, 1
+5, 775000998, 100000174
+5, 775000998, 575000501
+5, 775000998, 100000275
+5, 775000999, 1
+5, 775000999, 100000047
+5, 775000999, 100000275
+5, 775000999, 100000174
+5, 775000999, 575000504
+5, 775001000, 1
+5, 775001000, 100000047
+5, 775001000, 100000174
+5, 775001000, 100000275
+5, 775001000, 575000504
+5, 775001002, 575000084
+5, 775001002, 100000275
+5, 775001002, 100000174
+5, 775001002, 100000047
+5, 775001002, 1
+5, 775001002, 575000505
+5, 775001003, 575000084
+5, 775001003, 100000275
+5, 775001003, 100000174
+5, 775001003, 100000047
+5, 775001003, 1
+5, 775001003, 575000505
+5, 775001004, 1
+5, 775001004, 100000047
+5, 775001004, 100000174
+5, 775001004, 100000275
+5, 775001004, 575000084
+5, 775001004, 575000505
+5, 775001005, 1
+5, 775001005, 100000047
+5, 775001005, 100000174
+5, 775001005, 100000275
+5, 775001005, 575000084
+5, 775001005, 575000505
+5, 775001116, 100000047
+5, 775001116, 1
+5, 775001116, 100000174
+5, 775001116, 100000275
+5, 775001116, 575000504
+5, 775001117, 100000047
+5, 775001117, 1
+5, 775001117, 100000174
+5, 775001117, 575000504
+5, 775001117, 100000275
+5, 775001118, 1
+5, 775001118, 100000047
+5, 775001118, 100000275
+5, 775001118, 100000174
+5, 775001118, 575000503
+5, 775002424, 1
+5, 775002424, 100000047
+5, 775002424, 575000502
+5, 775002424, 100000275
+5, 775002424, 100000174
+5, 775002728, 1
+5, 775002728, 100000047
+5, 775002728, 100000174
+5, 775002728, 100000275
+5, 775002728, 575000504
+5, 775002731, 1
+5, 775002731, 100000047
+5, 775002731, 100000174
+5, 775002731, 100000275
+5, 775002731, 575000501
+6, 2, "Democrat", "D", 2, "Democrat"
+6, 3, "Republican", "R", 3, "Republican"
+6, 4, "Libertarian", "L", 4, "Libertarian"
+6, 5, "Reform", "REF", 5, "Reform"
+6, 6, "Natural Law", "N", 6, "Natural Law"
+6, 8, "Constitution", "C", 8, "Constitution"
+6, 9, "Green", "G", 9, "Green"
+6, 10, "America First", "A", 10, "America First"
+6, 11, "Independent", "I", 11, "Independent"
+6, 12, "Nonpartisan", "NP", 12, "Nonpartisan"
+6, 575000001, "Justice", "JUS", 575000001, "Justice"
+6, 575000002, "Prohibition", "PRO", 575000002, "Prohibition"
+6, 575000003, "American Delta", "ADP", 575000003, "American Delta"
+6, 575000004, "Veterans", "VET", 575000004, "Veterans"
+7, 775020876, "President",0, 0, 1, 1, 1, "United States\nPresident\n4 YEAR TERM\nVote for ONE", 0, 0
+7, 775020877, "Senate",0, 0, 1, 1, 1, "United States\nSenate \n6 YEAR TERM\nVote for ONE", 0, 0
+7, 775020872, "1st Congressional District",0, 0, 100000047, 1, 1, "US House Of Rep 01\n1st Congressional District\n2 YEAR TERM\nVote for ONE", 0, 0
+7, 775020870, "Supreme Court District 3(Northern) Position 3",0, 0, 100000174, 1, 1, "Northern District\nSupreme Court District 3(Northern) Position 3\n8 YEAR TERM\nVote for ONE", 0, 0
+7, 775020899, "Election Commissioner 01",0, 0, 575000501, 1, 1, "Election Commissioner 01\nElection Commissioner  01\n4 YEAR TERM\nVote for ONE", 0, 0
+7, 775020900, "Election Commissioner 02",0, 0, 575000502, 1, 1, "Election Commissioner 02\nElection Commissioner 02\n4 YEAR TERM\nVote for ONE", 0, 0
+7, 775020901, "Election Commissioner 03",0, 0, 575000503, 1, 1, "Election Commissioner 03\nElection Commissioner 03\n4 YEAR TERM\nVote for ONE", 0, 0
+7, 775020902, "Election Commissioner 04",0, 0, 575000504, 1, 1, "Election Commissioner 04\nElection Commissioner 04\n4 YEAR TERM\nVote for ONE", 0, 0
+7, 775020903, "Election Commissioner 05",0, 0, 575000505, 1, 1, "Election Commissioner 05\nElection Commissioner 05\n4 YEAR TERM\nVote for ONE", 0, 0
+7, 775020904, "School Board 05",0, 0, 575000084, 1, 1, "School Board District 5\nSchool Board 05\n6 YEAR TERM\nVote for ONE", 0, 0
+7, 750000015, "Initiated by Petition and Alternative by Legislature",1, 0, 100000275, 1, 0, "Ballot Measure 1\nInitiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?
+
+Legislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants – seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.
+
+Legislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants – seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.
+\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?
+
+Legislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.
+
+
+\n\n", 0, 0
+7, 750000016, "Initiated by Petition and Alternative by Legislature",1, 0, 100000275, 1, 0, "Ballot Measure 1\nInitiative Measure No. 65, Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?
+
+Legislative Budget Office Fiscal Analysis: The anticipated expenses for year one (1) to implement a medical marijuana program is $24,068,150 (Plants – seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $16,220,150; and Cost to Collect Revenue: $2,848,000). The anticipated revenue is $13,000,000 (User ID Cards: $2,500,000; Commercial Licenses: $500,000 and Tax Revenue at 7 percent: $10,000,000). The overall cost for year one (1) is anticipated to be $11,068,150.
+
+Legislative Budget Office Fiscal Analysis: The anticipated expenses for year after the first for a medical marijuana program is $15,338,000 (Plants – seeds to Sale: $5,000,000; Licensing, Monitoring, Inspection: $8,756,000; and Cost to Collect Revenue: $1,582,000). The anticipated revenue is $26,000,000 (User ID Cards: $5,000,000; Commercial Licenses: $1,000,000 and Tax Revenue at 7 percent: $20,000,000). The overall annual revenue is anticipated to be $10,662.000.
+\nAlternative Measure No. 65 A, Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?
+
+Legislative Budget Office Fiscal Analysis: There is no determinable cost or revenue impact associated with this initiative.
+
+
+\n\n", 0, 0
+7, 750000017, "House Concurrent Resolution No. 47",1, 0, 100000275, 1, 0, "Ballot Measure 2\nThis amendment provides that to be elected Governor, or to any other statewide office, a candidate must receive a majority of the votes in the general election. If no candidate receives a majority of the votes, then a runoff election shall be held as provided by general law. The requirement of receiving the most votes in a majority of Mississippi House of Representative’s districts is removed.\n\n\n", 0, 0
+7, 750000018, "House Bill 1796 - Flag Referendum",1, 0, 100000275, 1, 0, "Ballot Measure 3\nPlease vote ‘Yes’ or ‘No’ on whether the following design shall be the official Mississippi State Flag
+
+\n\n\n", 0, 0
+8, 775020876, 1, "BIDEN JOSEPH",0, 1, 2, "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President"
+8, 775020876, 2, "TRUMP DONALD",0, 2, 3, "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President"
+8, 775020876, 3, "COLLINS PHIL",0, 3, 11, "Presidential Electors for Phil Collins for President and Bill Parker for Vice President"
+8, 775020877, 1, "ESPY MICHAEL WILLIAM",0, 1, 2, "Mike Espy"
+8, 775020877, 2, "SMITH CINDY HYDE",0, 2, 3, "Cindy Hyde-Smith"
+8, 775020877, 3, "EDWARDS JIMMY",0, 3, 4, "Jimmy Edwards"
+8, 775020872, 1, "ELIASON ANTONIA LILLIAN",0, 1, 2, "Antonia Eliason"
+8, 775020872, 2, "KELLY TRENT",0, 2, 3, "Trent Kelly"
+8, 775020870, 1, "COLEMAN JOSIAH D",0, 1, 12, "Josiah Dennis Coleman"
+8, 775020870, 2, "LYNCHARD PERCY L",0, 2, 12, "Percy L. Lynchard"
+8, 775020899, 1, "FULCE GLYNDA CHANEY",0, 1, "", "Glynda Chaney Fulce"
+8, 775020900, 1, "BECK CHARLES",0, 1, "", "Charles Beck"
+8, 775020900, 2, "BROOKS SHARON L",0, 2, "", "Sharon Brooks"
+8, 775020901, 1, "ANDERSON DOROTHY",0, 1, "", "Dorothy Anderson"
+8, 775020902, 1, "GUILLORY WILLIE MAE",0, 1, "", "Willie Mae Guillory"
+8, 775020902, 2, "WRIGHT LEWIS",0, 2, "", "Lewis Wright"
+8, 775020903, 1, "LOPER OUIDA A",0, 1, 11, "Ouida A Loper"
+8, 775020903, 2, "MCLEOD RAYBURN WAYNE",0, 2, "", "Wayne McLeod"
+8, 775020904, 1, "THOMAS MICHAEL D",0, 1, "", "Michael D Thomas"
+8, 750000015, 750000088, "FOR APPROVAL OF EITH",0, 1, 0, "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH\nFOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A"
+8, 750000016, 750000090, "FOR Initiative Measu",0, 1, 0, "AND VOTE FOR ONE\nFOR Initiative Measure No. 65"
+8, 750000017, 750000094, "YES",0, 1, 0, "Vote for ONE\nYES"
+8, 750000018, 750000092, "YES",0, 1, 0, "----------------------------------------------------------------------Vote for ONE\nYES"
+8, 750000015, 750000089, "AGAINST BOTH Initiat",0, 2, 0, "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH\nAGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A"
+8, 750000016, 750000091, "FOR Alternative Meas",0, 2, 0, "AND VOTE FOR ONE\nFOR Alternative Measure 65 A"
+8, 750000017, 750000095, "NO",0, 2, 0, "Vote for ONE\nNO"
+8, 750000018, 750000093, "NO",0, 2, 0, "----------------------------------------------------------------------Vote for ONE\nNO"
