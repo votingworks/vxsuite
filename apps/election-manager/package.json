@@ -163,5 +163,12 @@
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.10.0"
+  },
+  "vx": {
+    "isBundled": true,
+    "modules": [
+      "../module-converter-ms-sems",
+      "../module-smartcards"
+    ]
   }
 }

@@ -138,5 +138,11 @@
     "stylelint-processor-styled-components": "^1.10.0",
     "type-fest": "^0.18.0",
     "zip-stream": "^3.0.1"
+  },
+  "vx": {
+    "isBundled": true,
+    "modules": [
+      "../module-scan"
+    ]
   }
 }

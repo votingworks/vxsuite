@@ -9,3 +9,6 @@ packages:
 
   # include all integration tests
   - 'integration-testing/*'
+
+  # include top-level script project
+  - 'script'
