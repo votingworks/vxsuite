@@ -18,6 +18,7 @@ import { rmrf } from './utils/rmrf'
 export function main({ stdout }: IO): void {
   const root = getDependencyGraph(process.cwd(), PackageType.App)
   stdout.write(`ℹ️ Building ${root.path} for production\n`)
+  stdout.write(`ℹ️ Output: ${BUILD_ROOT}\n`)
   stdout.write(`\n`)
 
   const allPackages = getPackages(root)
