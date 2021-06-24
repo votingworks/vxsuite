@@ -1,0 +1,52 @@
+{
+  "name": "@votingworks/integration-testing-election-manager",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm install && make build",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "lint": "eslint . --quiet",
+    "lint:fix": "eslint . --fix --quiet",
+    "start": "make run",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",
+    "test:watch": "cypress open",
+    "cypress:run": "cypress run --browser chrome"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/cypress": "^5.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.16.1",
+    "@typescript-eslint/parser": "^4.16.1",
+    "@votingworks/fixtures": "workspace:*",
+    "cypress": "^7.5.0",
+    "cypress-file-upload": "^5.0.7",
+    "eslint": "^7.17.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-plugin-cypress": "^2.11.2",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jest": "^23.6.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "^2.1.2",
+    "prettier": "^2.0.5",
+    "sort-package-json": "^1.44.0",
+    "start-server-and-test": "^1.12.5",
+    "typescript": "^4.2.0"
+  }
+}

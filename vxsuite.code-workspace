@@ -54,6 +54,10 @@
     {
       "path": "integration-testing/bsd",
       "name": "integration-testing/bsd"
+    },
+    {
+      "path": "integration-testing/election-manager",
+      "name": "integration-testing/election-manager"
     }
   ],
   "settings": {
