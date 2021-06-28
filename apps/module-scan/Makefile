@@ -6,7 +6,9 @@ TIMESTAMP := $(shell date --iso-8601=seconds --utc | sed 's/+.*$\//g' | tr ':' '
 FORCE:
 
 install:
-	sudo apt install -y build-essential libx11-dev libjpeg-dev libpng-dev
+	sudo add-apt-repository -y ppa:sane-project/sane-release
+	sudo apt-get -y update
+	sudo apt install -y libsane build-essential libx11-dev libjpeg-dev libpng-dev
 
 build: FORCE
 	pnpm install && pnpm build
