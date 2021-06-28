@@ -30,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "cypress": "^7.5.0",
     "cypress-file-upload": "^5.0.7",
     "eslint": "^7.17.0",

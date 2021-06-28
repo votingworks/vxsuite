@@ -7,12 +7,12 @@ import {
 } from '@votingworks/types'
 
 export interface CastVoteRecordOptions {
-  readonly _precinctId: string
-  readonly _ballotId: string
-  readonly _ballotStyleId: string
-  readonly _ballotType: 'absentee' | 'provisional' | 'standard'
-  readonly _testBallot: boolean
-  readonly _scannerId: string
+  readonly _precinctId?: string
+  readonly _ballotId?: string
+  readonly _ballotStyleId?: string
+  readonly _ballotType?: 'absentee' | 'provisional' | 'standard'
+  readonly _testBallot?: boolean
+  readonly _scannerId?: string
 }
 
 export function generateCVR(
@@ -50,7 +50,7 @@ export function generateCVR(
   } as CastVoteRecord
 }
 
-export function generateFileContentFromBCVRs(cvrs: CastVoteRecord[]): string {
+export function generateFileContentFromCVRs(cvrs: CastVoteRecord[]): string {
   let fileContent = ''
   cvrs.forEach((cvr) => {
     fileContent += `${JSON.stringify(cvr)}\n`
