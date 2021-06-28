@@ -77,12 +77,7 @@ test('displays correct contests for each precinct', async () => {
     precinctName,
     expectedCommissionerRace,
   } of testcases) {
-    const {
-      getByText,
-      getAllByText,
-      queryAllByText,
-      unmount,
-    } = renderInAppContext(
+    const { getByText, queryAllByText, unmount } = renderInAppContext(
       <Route path="/tally/manual-data-import/precinct/:precinctId">
         <ManualDataImportPrecinctScreen />
       </Route>,
@@ -110,12 +105,7 @@ test('displays correct contests for each precinct', async () => {
 
 test('can enter data for candidate contests as expected', async () => {
   const saveExternalTallies = jest.fn()
-  const {
-    getByText,
-    getAllByText,
-    queryAllByTestId,
-    getByTestId,
-  } = renderInAppContext(
+  const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
     </Route>,
@@ -225,12 +215,7 @@ test('can enter data for candidate contests as expected', async () => {
 
 test('can enter data for yes no contests as expected', async () => {
   const saveExternalTallies = jest.fn()
-  const {
-    getByText,
-    getAllByText,
-    queryAllByTestId,
-    getByTestId,
-  } = renderInAppContext(
+  const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
     </Route>,
