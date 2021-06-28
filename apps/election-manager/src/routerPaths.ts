@@ -4,6 +4,7 @@ import {
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
   VotingMethodReportScreenProps,
+  ManualDataPrecinctScreenProps,
 } from './config/types'
 
 const routerPaths = {
@@ -23,6 +24,10 @@ const routerPaths = {
   }: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   manualDataImport: '/tally/manual-data-import',
+  manualDataImportForPrecinct: ({
+    precinctId,
+  }: ManualDataPrecinctScreenProps): string =>
+    `/tally/manual-data-import/precinct/${precinctId}`,
   printedBallotsReport: '/ballots/printed-report',
   tally: '/tally',
   printTestDecks: '/tally/print-test-deck',

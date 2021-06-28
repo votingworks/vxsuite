@@ -73,6 +73,9 @@ export interface PartyReportScreenProps {
 export interface VotingMethodReportScreenProps {
   votingMethod: string
 }
+export interface ManualDataPrecinctScreenProps {
+  precinctId: string
+}
 
 // Tallies
 export type YesNoOption = ['yes'] | ['no'] | []

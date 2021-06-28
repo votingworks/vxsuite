@@ -487,12 +487,10 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   )
 
-  fireEvent.click(getByText('Add Manually Entered Data'))
-  getByText('Manually Add External Results')
-  getByText('Contest Results for District 5')
-  fireEvent.change(getByTestId('775020876-numBallots'), {
-    target: { value: '100' },
-  })
+  fireEvent.click(getByText('Add Manually Entered Results'))
+  getByText('Manually Entered Precinct Results')
+  fireEvent.click(getByText('Edit Precinct Results for District 5'))
+  getByText('Save Precinct Results for District 5')
   fireEvent.change(getByTestId('775020876-undervotes'), {
     target: { value: '12' },
   })
@@ -512,7 +510,12 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     target: { value: '10' },
   })
 
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Precinct Results for District 5'))
+  await waitFor(() => getByText('Manually Entered Precinct Results'))
+  await waitFor(() => {
+    expect(getByTestId('total-ballots-entered').textContent).toEqual('100')
+  })
+  fireEvent.click(getByText('Back to Tally'))
   await waitFor(() => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   })
@@ -543,22 +546,18 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   // Now edit the manual data
   fireEvent.click(getByText('Back to Tally Index'))
-  fireEvent.click(getByText('Edit Manually Entered Data'))
+  fireEvent.click(getByText('Edit Manually Entered Results'))
 
   // Existing data is still there
-  expect(getByTestId('775020876-numBallots').closest('input')!.value).toEqual(
-    '100'
-  )
+  const district5Row = getByText('District 5').closest('tr')!
+  expect(domGetByTestId(district5Row, 'numBallots')!.textContent).toEqual('100')
 
   // Change the manual data to absentee
-  fireEvent.click(getByText('Absentee'))
+  fireEvent.click(getByText('Absentee Results'))
 
   // Change to another precinct
-  fireEvent.change(getByTestId('selectPrecinct'), { target: { value: '6532' } })
-  getByText('Contest Results for Panhandle')
-  fireEvent.change(getByTestId('750000017-numBallots'), {
-    target: { value: '100' },
-  })
+  fireEvent.click(getByText('Edit Absentee Results for Panhandle'))
+  getByText('Save Absentee Results for Panhandle')
   fireEvent.change(getByTestId('750000017-undervotes'), {
     target: { value: '17' },
   })
@@ -572,7 +571,12 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     target: { value: '26' },
   })
 
-  fireEvent.click(getByText('Save Manual Data'))
+  fireEvent.click(getByText('Save Absentee Results for Panhandle'))
+  await waitFor(() => {
+    expect(getByTestId('total-ballots-entered').textContent).toEqual('200')
+  })
+  fireEvent.click(getByText('Back to Tally'))
+
   await waitFor(() => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('400')
   })

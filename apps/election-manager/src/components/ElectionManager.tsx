@@ -16,7 +16,8 @@ import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationRepor
 import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
 import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
 import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
-import ManualDataImportScreen from '../screens/ManualDataImportScreen'
+import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen'
+import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen'
 import SmartcardsScreen from '../screens/SmartcardsScreen'
 
 const ElectionManager: React.FC = () => {
@@ -48,7 +49,14 @@ const ElectionManager: React.FC = () => {
         <PrintedBallotsReportScreen />
       </Route>
       <Route exact path={routerPaths.manualDataImport}>
-        <ManualDataImportScreen />
+        <ManualDataImportIndexScreen />
+      </Route>
+      <Route
+        path={routerPaths.manualDataImportForPrecinct({
+          precinctId: ':precinctId',
+        })}
+      >
+        <ManualDataImportPrecinctScreen />
       </Route>
       <Route
         path={[
