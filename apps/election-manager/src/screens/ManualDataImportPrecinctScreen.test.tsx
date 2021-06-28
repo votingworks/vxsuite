@@ -93,7 +93,7 @@ test('displays correct contests for each precinct', async () => {
       }
     )
     getByText('Manually Entered Precinct Results:')
-    getAllByText(`Save Data for ${precinctName}`)
+    getByText(`Save Precinct Results for ${precinctName}`)
 
     // All precincts have the president contest
     getByText('President')
@@ -164,7 +164,7 @@ test('can enter data for candidate contests as expected', async () => {
 
   // A contest that does not allow write ins has no write in row.
   expect(queryAllByTestId('president-__write-in').length).toBe(0)
-  fireEvent.click(getAllByText('Save Data for Center Springfield')[0])
+  fireEvent.click(getByText('Save Precinct Results for Center Springfield'))
   expect(saveExternalTallies).toHaveBeenCalledTimes(1)
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
@@ -201,7 +201,7 @@ test('can enter data for candidate contests as expected', async () => {
       target: { value: '30' },
     }
   )
-  fireEvent.click(getAllByText('Save Data for Center Springfield')[1])
+  fireEvent.click(getByText('Save Precinct Results for Center Springfield'))
   expect(saveExternalTallies).toHaveBeenCalledTimes(2)
   expect(saveExternalTallies).toHaveBeenNthCalledWith(2, [
     expect.objectContaining({
@@ -289,7 +289,7 @@ test('can enter data for yes no contests as expected', async () => {
 
   // A yes no contest does not allow write ins has no write in row.
   expect(queryAllByTestId('president-__write-in').length).toBe(0)
-  fireEvent.click(getAllByText('Save Data for Center Springfield')[0])
+  fireEvent.click(getByText('Save Precinct Results for Center Springfield'))
   expect(saveExternalTallies).toHaveBeenCalledTimes(1)
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({

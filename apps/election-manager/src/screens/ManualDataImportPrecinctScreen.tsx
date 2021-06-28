@@ -358,12 +358,6 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
             <br />
             {currentPrecinct.name}
           </h1>
-          <p>
-            <LinkButton to={routerPaths.manualDataImport}>Cancel</LinkButton>{' '}
-            <Button primary onPress={handleImportingData}>
-              Save Data for {currentPrecinct.name}
-            </Button>
-          </p>
           <p>Enter the number of votes for each contest option.</p>
           {currentContests.map((contest) => {
             let contestTitle = contest.title
@@ -475,7 +469,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
           <p>
             <LinkButton to={routerPaths.manualDataImport}>Cancel</LinkButton>{' '}
             <Button primary onPress={handleImportingData}>
-              Save Data for {currentPrecinct.name}
+              Save {votingMethodName} Results for {currentPrecinct.name}
             </Button>
           </p>
         </Prose>
