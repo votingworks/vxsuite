@@ -355,6 +355,25 @@ jobs:
           command: |
             pnpm --dir integration-testing/bsd test
 
+  test-integration-testing-election-manager:
+    docker:
+      - image: circleci/python:3.7.7-node-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir integration-testing/election-manager build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir integration-testing/election-manager lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir integration-testing/election-manager test
+
 workflows:
   test:
     jobs:
@@ -368,6 +387,7 @@ workflows:
       - test-fixtures
       - test-hmpb-interpreter
       - test-integration-testing-bsd
+      - test-integration-testing-election-manager
       - test-lsd
       - test-module-converter-ms-sems
       - test-module-scan
