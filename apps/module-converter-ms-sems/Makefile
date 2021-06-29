@@ -1,6 +1,6 @@
 
 install-python:
-	sudo apt install python3.7 python3.7-dev python3-pip
+	sudo apt install -y python3.7 python3.7-dev python3-pip
 
 install: install-python
 

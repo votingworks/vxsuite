@@ -46,7 +46,7 @@ git clone https://github.com/votingworks/vxsuite.git
 
 # install dependencies:
 cd vxsuite
-pnpm install
+./script/bootstrap
 
 # try out BMD:
 cd apps/bmd
