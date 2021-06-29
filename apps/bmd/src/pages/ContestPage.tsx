@@ -126,7 +126,7 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
             <React.Fragment>
               <p>
                 <LinkButton
-                  big
+                  large
                   primary={isVoteComplete}
                   to={`/review#contest-${contest.id}`}
                   id="next"
@@ -141,7 +141,7 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
             <React.Fragment>
               <p>
                 <LinkButton
-                  big
+                  large
                   id="next"
                   primary={isVoteComplete}
                   to={nextContest ? `/contests/${nextContestIndex}` : '/review'}

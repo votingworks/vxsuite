@@ -1,29 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders NotFoundPage 1`] = `
-.c4 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
-}
-
-.c4:focus {
-  outline: none;
-}
-
-.c4:hover,
-.c4:active {
-  outline: none;
-}
-
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -176,7 +153,7 @@ exports[`renders NotFoundPage 1`] = `
         </p>
         <p>
           <button
-            class="c4"
+            class="sc-gsDJrp dmKzwC"
             type="button"
           >
             Start Over

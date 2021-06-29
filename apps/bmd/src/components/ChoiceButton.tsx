@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import * as GLOBALS from '../config/globals'
+import { Button, ButtonProps } from '@votingworks/ui'
 
-import Button, { Props as ButtonProps } from './Button'
+import * as GLOBALS from '../config/globals'
 
 interface Props
   extends ButtonProps,

@@ -1,7 +1,10 @@
 import { DateTime } from 'luxon'
 import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
+
 import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
+import { Button } from '@votingworks/ui'
+
 import {
   formatFullDateTimeZone,
   Tally,
@@ -14,7 +17,6 @@ import {
 
 import { MachineConfig } from '../config/types'
 
-import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
 import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
@@ -385,7 +387,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 </p>
               )}
               <p>
-                <Button big onPress={togglePolls}>
+                <Button large onPress={togglePolls}>
                   {isPollsOpen
                     ? `Close Polls for ${precinct.name}`
                     : `Open Polls for ${precinct.name}`}

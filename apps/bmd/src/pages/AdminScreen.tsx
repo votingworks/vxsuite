@@ -3,11 +3,11 @@ import React, { useCallback, useState } from 'react'
 
 import { OptionalElectionDefinition } from '@votingworks/types'
 import { formatFullDateTimeZone } from '@votingworks/utils'
+import { Button, SegmentedButton } from '@votingworks/ui'
 import { MachineConfig, SelectChangeEventFunction } from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
-import Button, { SegmentedButton } from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Text from '../components/Text'

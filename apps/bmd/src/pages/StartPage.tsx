@@ -91,7 +91,7 @@ const StartPage: React.FC<Props> = ({ history }) => {
           <SidebarSpacer />
           <Wobble as="p">
             <LinkButton
-              big
+              large
               primary
               onPress={onStart}
               id="next"

@@ -1,107 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c17 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-  touch-action: manipulation;
-}
-
-.c17:focus {
-  outline: none;
-}
-
-.c17:hover,
-.c17:active {
-  outline: none;
-}
-
-.c19 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
-}
-
-.c19:focus {
-  outline: none;
-}
-
-.c19:hover,
-.c19:active {
-  outline: none;
-}
-
-.c27 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c27:focus {
-  outline: none;
-}
-
-.c27:hover,
-.c27:active {
-  outline: none;
-}
-
-.c26 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c26 > button {
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c26 > button:first-child {
-  box-shadow: none;
-}
-
-.c26 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c26 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c26 > button:disabled {
-  background: #028099;
-  color: #ffffff;
-}
-
 .c13 {
   position: relative;
   border-radius: 0.125rem;
@@ -271,78 +170,78 @@ exports[`Single Seat Contest 1`] = `
   margin: 1rem 0;
 }
 
-.c32 {
+.c28 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c32 h1 {
+.c28 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c32 h2 {
+.c28 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c32 h3 {
+.c28 h3 {
   font-size: 1.17rem;
 }
 
-.c32 h4 {
+.c28 h4 {
   font-size: 1rem;
 }
 
-.c32 h5 {
+.c28 h5 {
   font-size: 0.9rem;
 }
 
-.c32 h3,
-.c32 h4,
-.c32 h5,
-.c32 p,
-.c32 ol,
-.c32 ul {
+.c28 h3,
+.c28 h4,
+.c28 h5,
+.c28 p,
+.c28 ol,
+.c28 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.c32 h1 + h2 {
+.c28 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c32 h1 + p,
-.c32 h2 + p,
-.c32 h1 + ol,
-.c32 h2 + ol,
-.c32 h1 + ul,
-.c32 h2 + ul {
+.c28 h1 + p,
+.c28 h2 + p,
+.c28 h1 + ol,
+.c28 h2 + ol,
+.c28 h1 + ul,
+.c28 h2 + ul {
   margin-top: -0.75rem;
 }
 
-.c32 h3 + p,
-.c32 h4 + p,
-.c32 h5 + p,
-.c32 h3 + ol,
-.c32 h4 + ol,
-.c32 h5 + ol,
-.c32 h3 + ul,
-.c32 h4 + ul,
-.c32 h5 + ul {
+.c28 h3 + p,
+.c28 h4 + p,
+.c28 h5 + p,
+.c28 h3 + ol,
+.c28 h4 + ol,
+.c28 h5 + ol,
+.c28 h3 + ul,
+.c28 h4 + ul,
+.c28 h5 + ul {
   margin-top: 0;
 }
 
-.c32 > :first-child {
+.c28 > :first-child {
   margin-top: 0;
 }
 
-.c32 > :last-child {
+.c28 > :last-child {
   margin-bottom: 0;
 }
 
-.c32 dl {
+.c28 dl {
   margin: 1rem 0;
 }
 
@@ -350,11 +249,11 @@ exports[`Single Seat Contest 1`] = `
   font-weight: 600;
 }
 
-.c33 {
+.c29 {
   font-size: 0.8rem;
 }
 
-.c35 {
+.c31 {
   font-size: 0.8rem;
   font-weight: 300;
 }
@@ -367,7 +266,7 @@ exports[`Single Seat Contest 1`] = `
   text-align: center;
 }
 
-.c34 {
+.c30 {
   white-space: nowrap;
 }
 
@@ -438,15 +337,15 @@ exports[`Single Seat Contest 1`] = `
   grid-gap: 1rem;
 }
 
-.c30 {
+.c26 {
   max-width: 250px;
 }
 
-.c31 {
+.c27 {
   max-width: 250px;
 }
 
-.c28 {
+.c24 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -454,7 +353,7 @@ exports[`Single Seat Contest 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c29 {
+.c25 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -469,7 +368,7 @@ exports[`Single Seat Contest 1`] = `
   margin: auto;
 }
 
-.c29 div:first-child {
+.c25 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
@@ -527,11 +426,11 @@ exports[`Single Seat Contest 1`] = `
   width: 100%;
 }
 
-.c21 {
+.c19 {
   margin: 1rem;
 }
 
-.c22 {
+.c20 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -545,7 +444,7 @@ exports[`Single Seat Contest 1`] = `
   padding: 1rem 0;
 }
 
-.c23 {
+.c21 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -556,28 +455,28 @@ exports[`Single Seat Contest 1`] = `
   justify-content: center;
 }
 
-.c25 button {
+.c23 button {
   min-width: 112px;
 }
 
-.c25 button[data-size='0'] {
+.c23 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c25 button[data-size='1'] {
+.c23 button[data-size='1'] {
   font-size: 28px !important;
 }
 
-.c25 button[data-size='2'] {
+.c23 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c24 {
+.c22 {
   display: block;
   margin-bottom: 0.4rem;
 }
 
-.c20::before {
+.c18::before {
   display: inline-block;
   margin-right: 0.5rem;
   background: url('/images/arrow-left-open-black.svg') no-repeat;
@@ -587,7 +486,7 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c18::after {
+.c17::after {
   display: inline-block;
   margin-left: 0.5rem;
   background: url('/images/arrow-right-open-white.svg') no-repeat;
@@ -624,7 +523,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (min-width:480px) {
-  .c32 {
+  .c28 {
     line-height: 1.3;
   }
 }
@@ -859,13 +758,13 @@ exports[`Single Seat Contest 1`] = `
           </p>
           <p>
             <button
-              class="c17"
+              class="sc-gsDJrp kiClTd"
               id="next"
               role="option"
               type="button"
             >
               <span
-                class="c18"
+                class="c17"
               >
                 Next
               </span>
@@ -873,13 +772,13 @@ exports[`Single Seat Contest 1`] = `
           </p>
           <p>
             <button
-              class="c19"
+              class="sc-gsDJrp gwgkfw"
               id="previous"
               role="option"
               type="button"
             >
               <span
-                class="c20"
+                class="c18"
               >
                 Back
               </span>
@@ -888,30 +787,30 @@ exports[`Single Seat Contest 1`] = `
         </div>
       </div>
       <div
-        class="c21"
+        class="c19"
       >
         <div
           aria-hidden="true"
-          class="c22"
+          class="c20"
         >
           <div
-            class="c23"
+            class="c21"
           >
             <div>
               <div
-                class="c24"
+                class="c22"
               >
                 Change Text Size
               </div>
               <div
-                class="c25"
+                class="c23"
               >
                 <span
-                  class="c26"
+                  class="sc-dkPtyc bMgDJv"
                   data-testid="change-text-size-buttons"
                 >
                   <button
-                    class="c19"
+                    class="sc-gsDJrp gwgkfw"
                     data-size="0"
                     type="button"
                     value="0"
@@ -919,7 +818,7 @@ exports[`Single Seat Contest 1`] = `
                     A
                   </button>
                   <button
-                    class="c27"
+                    class="sc-gsDJrp eRXSeO"
                     data-size="1"
                     type="button"
                     value="1"
@@ -927,7 +826,7 @@ exports[`Single Seat Contest 1`] = `
                     A
                   </button>
                   <button
-                    class="c19"
+                    class="sc-gsDJrp gwgkfw"
                     data-size="2"
                     type="button"
                     value="2"
@@ -941,24 +840,24 @@ exports[`Single Seat Contest 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="c28"
+          class="c24"
           data-testid="election-info"
         >
           <div
-            class="c29"
+            class="c25"
           >
             <div
               aria-hidden="true"
-              class="c30"
+              class="c26"
             >
               <img
                 alt="state seal"
-                class="c31"
+                class="c27"
                 src="/seals/Sample-Seal.svg"
               />
             </div>
             <div
-              class="c32"
+              class="c28"
             >
               <h5
                 aria-label=" General Election."
@@ -966,35 +865,35 @@ exports[`Single Seat Contest 1`] = `
                  General Election
               </h5>
               <p
-                class="c33"
+                class="c29"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="c34"
+                  class="c30"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="c34"
+                  class="c30"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="c35"
+                class="c31"
               >
                 <span
-                  class="c34"
+                  class="c30"
                 >
                   Center Springfield
                   , 
                 </span>
                  
                 <span
-                  class="c34"
+                  class="c30"
                 >
                   ballot style 
                   12

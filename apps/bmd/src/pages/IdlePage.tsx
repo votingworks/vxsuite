@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import useInterval from 'use-interval'
 
+import { Button } from '@votingworks/ui'
+
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
   IDLE_TIMEOUT_SECONDS,
@@ -9,7 +11,6 @@ import {
 
 import BallotContext from '../contexts/ballotContext'
 
-import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Loading from '../components/Loading'

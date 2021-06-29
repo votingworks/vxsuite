@@ -12,6 +12,7 @@ import {
   Optional,
   YesOrNo,
 } from '@votingworks/types'
+import { Button } from '@votingworks/ui'
 
 import { getSingleYesNoVote } from '@votingworks/utils'
 import {
@@ -24,7 +25,6 @@ import BallotContext from '../contexts/ballotContext'
 
 import { FONT_SIZES, YES_NO_VOTES } from '../config/globals'
 import ChoiceButton from './ChoiceButton'
-import Button from './Button'
 import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
@@ -178,7 +178,7 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
             <ScrollControls aria-hidden>
               <Button
                 className="scroll-up"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="up"
@@ -189,7 +189,7 @@ const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
               </Button>
               <Button
                 className="scroll-down"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="down"

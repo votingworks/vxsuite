@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
+import { Button } from '@votingworks/ui'
 import BallotContext from '../contexts/ballotContext'
 
-import Button from '../components/Button'
 import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'

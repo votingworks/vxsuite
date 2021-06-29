@@ -12,6 +12,7 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
   OptionalYesNoVote,
 } from '@votingworks/types'
+import { Button } from '@votingworks/ui'
 
 import {
   EventTargetFunction,
@@ -24,7 +25,6 @@ import { FONT_SIZES } from '../config/globals'
 import Main from './Main'
 import ChoiceButton from './ChoiceButton'
 import Prose from './Prose'
-import Button from './Button'
 import Text, { TextWithLineBreaks } from './Text'
 import {
   ContentHeader,
@@ -269,7 +269,7 @@ const MsEitherNeitherContest: React.FC<Props> = ({
             <ScrollControls aria-hidden>
               <Button
                 className="scroll-up"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="up"
@@ -280,7 +280,7 @@ const MsEitherNeitherContest: React.FC<Props> = ({
               </Button>
               <Button
                 className="scroll-down"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="down"
