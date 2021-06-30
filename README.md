@@ -55,11 +55,13 @@ pnpm start
 # if it worked, go to http://localhost:3000/
 ```
 
-See the individual README documents for more information on how to run the individual services.
+See the individual README documents for more information on how to run the
+individual services.
 
 ### Adding a monorepo project
 
-This repository is a multi-package repository, or "monorepo". Most of them are NPM packages for NodeJS. Here's how to add a library:
+This repository is a multi-package repository, or "monorepo". Most of them are
+NPM packages for NodeJS. Here's how to add a library:
 
 ```sh
 # put the real name here
@@ -80,21 +82,28 @@ pnpx tsc --init
 pnpx ts-jest config:init
 ```
 
-- Edit `package.json` as needed, i.e. set `"scripts"` → `"test"` to `"jest"` and `"main"` and `"types"` as appropriate. See existing `libs` for examples.
-- Edit `tsconfig.json` as needed, i.e. set `"composite": true` and `"outDir": "./lib"`. See existing `libs` for examples.
-- Edit `jest.config.js` as needed, i.e. set coverage thresholds and watch ignore globs. See existing `libs` for examples.
+- Edit `package.json` as needed, i.e. set `"scripts"` → `"test"` to `"jest"` and
+  `"main"` and `"types"` as appropriate. See existing `libs` for examples.
+- Edit `tsconfig.json` as needed, i.e. set `"composite": true` and
+  `"outDir": "./lib"`. See existing `libs` for examples.
+- Edit `jest.config.js` as needed, i.e. set coverage thresholds and watch ignore
+  globs. See existing `libs` for examples.
 
 To add a workspace package `foo` as a dependency, do this:
-1. Add `"@votingworks/foo": "workspace:*"` to `dependencies` or `devDependencies` as appropriate.
+
+1. Add `"@votingworks/foo": "workspace:*"` to `dependencies` or
+   `devDependencies` as appropriate.
 2. Run `pnpm i`.
 
-If you need to add a `@types/` package it's easier to just copy one of the existing `libs/@types` directories than to do the above.
+If you need to add a `@types/` package it's easier to just copy one of the
+existing `libs/@types` directories than to do the above.
 
 ## Development Best Practices
 
 ### Use `zod` for validating/parsing JSON data
 
-[`zod`](https://github.com/colinhacks/zod) allows you to build a schema that describes an object's structure:
+[`zod`](https://github.com/colinhacks/zod) allows you to build a schema that
+describes an object's structure:
 
 ```ts
 import { z } from 'zod'
@@ -105,7 +114,8 @@ const Point2dSchema = z.object({
 })
 ```
 
-Schemas can be used to parse incoming JSON data using a helper from `@votingworks/types`:
+Schemas can be used to parse incoming JSON data using a helper from
+`@votingworks/types`:
 
 ```ts
 import { safeParseJSON } from '@votingworks/types'
@@ -120,9 +130,12 @@ if (parsed.isOk()) {
 }
 ```
 
-> **Note:** If you already have an `unknown` object from JSON, parse it with `safeParse` e.g. `safeParse(Point2dSchema, obj)`.
+> **Note:** If you already have an `unknown` object from JSON, parse it with
+> `safeParse` e.g. `safeParse(Point2dSchema, obj)`.
 
-The type of `parsed.ok()` in the example above will be `{ x: number; y: number }`. Not bad, but not as descriptive as we'd like. Use this instead to get a more descriptive name:
+The type of `parsed.ok()` in the example above will be
+`{ x: number; y: number }`. Not bad, but not as descriptive as we'd like. Use
+this instead to get a more descriptive name:
 
 ```ts
 import { z, ZodSchema } from 'zod'
@@ -138,7 +151,9 @@ const Point2dSchema: ZodSchema<Point2d> = z.object({
 })
 ```
 
-Now `parsed.ok()` will have type `Point2d`, which is functionally equivalent but easier to work with. TypeScript will report an error if the types get out of sync.
+Now `parsed.ok()` will have type `Point2d`, which is functionally equivalent but
+easier to work with. TypeScript will report an error if the types get out of
+sync.
 
 ### Use immutability when feasible
 
@@ -155,7 +170,10 @@ interface Point2d {
 
 **Example: Use `const` instead of `let` (and never use `var`)**
 
-This should be enforced by eslint when a variable is never reassigned. This doesn't mean you should _never_ use `let`, just that a `const` version might be better. If it's better to use `let`, that's fine. There's almost no reason to use `var`, though.
+This should be enforced by eslint when a variable is never reassigned. This
+doesn't mean you should _never_ use `let`, just that a `const` version might be
+better. If it's better to use `let`, that's fine. There's almost no reason to
+use `var`, though.
 
 **Example: Update objects and arrays with rest values**
 
@@ -171,14 +189,23 @@ settings = { ...settings, testMode: !settings.testMode }
 
 ### Avoid exceptions when possible
 
-If you expect a situation to happen and you expect to handle it specifically, it's not an exception. Use `Result` from `@votingworks/types` to represent a result that could fail. For example, `safeParseJSON<T>` returns a `Result<T, SyntaxError | ZodError>` that represents either a successfully-parsed object _or_ a parse error of some kind. And (bonus!) the error is typed, whereas it would not be in a `catch` clause. Here's how to make your own fail-able function:
+If you expect a situation to happen and you expect to handle it specifically,
+it's not an exception. Use `Result` from `@votingworks/types` to represent a
+result that could fail. For example, `safeParseJSON<T>` returns a
+`Result<T, SyntaxError | ZodError>` that represents either a successfully-parsed
+object _or_ a parse error of some kind. And (bonus!) the error is typed, whereas
+it would not be in a `catch` clause. Here's how to make your own fail-able
+function:
 
 ```ts
 import { err, ok, Result } from '@votingworks/types'
 
 class DivideByZeroError extends Error {}
 
-function div(numerator: number, denominator: number): Result<number, DivideByZeroError> {
+function div(
+  numerator: number,
+  denominator: number
+): Result<number, DivideByZeroError> {
   if (denominator === 0) {
     return err(new DivideByZeroError())
   }
@@ -200,11 +227,17 @@ if (result.isErr()) {
 
 ### Use the `debug` package
 
-In development and production scenarios, debug logs are sometimes the best we have to figure out what's going wrong. We use the [`debug`](https://www.npmjs.com/package/debug) package to log interesting events and data to get a sense of what happened. Use it to tell a story: what happened and why? Don't just log when things go wrong; log all the time!
+In development and production scenarios, debug logs are sometimes the best we
+have to figure out what's going wrong. We use the
+[`debug`](https://www.npmjs.com/package/debug) package to log interesting events
+and data to get a sense of what happened. Use it to tell a story: what happened
+and why? Don't just log when things go wrong; log all the time!
 
 #### Naming
 
-Typically you'll name things with two levels of namespace, i.e. `app:scope`. Sometimes more specificity is needed, i.e. `app:scope-outer:scope-inner`. Here's an example:
+Typically you'll name things with two levels of namespace, i.e. `app:scope`.
+Sometimes more specificity is needed, i.e. `app:scope-outer:scope-inner`. Here's
+an example:
 
 ```ts
 // libs/math/geometry.ts
@@ -222,7 +255,8 @@ export function angleBetweenVectors(v1: Vector, v2: Vector): number {
 
 #### Logging in apps
 
-By default nothing is logged to the terminal. If you run your tests/server/etc with `DEBUG` set to the right value, you'll get logging. Example:
+By default nothing is logged to the terminal. If you run your tests/server/etc
+with `DEBUG` set to the right value, you'll get logging. Example:
 
 ```sh
 # log from the geometry module
@@ -237,7 +271,8 @@ DEBUG=*,-math:* pnpm start
 
 #### Logging in tests
 
-You may want to enable logging even after starting a `test:watch` session. To log in a single test file, add this above all the other code in the file:
+You may want to enable logging even after starting a `test:watch` session. To
+log in a single test file, add this above all the other code in the file:
 
 ```ts
 import { enable } from 'debug'
