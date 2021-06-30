@@ -775,7 +775,7 @@ exports[`renders PrintPage without votes 1`] = `
         <h1>
           <span
             aria-label="Printing your official ballot."
-            class="sc-gKckTs jQCUnB"
+            class="sc-iCfLBT iZvMEs"
           >
             Printing Official Ballot
           </span>

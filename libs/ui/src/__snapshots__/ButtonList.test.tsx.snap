@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders ButtonList with defaults 1`] = `
+<p
+  class="sc-eCImvq hflinM"
+>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    foo
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    foo
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    foo
+  </button>
+</p>
+`;
