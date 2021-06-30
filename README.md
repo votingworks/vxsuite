@@ -49,6 +49,7 @@ cd vxsuite
 ./script/bootstrap
 
 # try out BMD:
+make -C apps/module-smartcards build run &
 cd apps/bmd
 pnpm start
 # if it worked, go to http://localhost:3000/
