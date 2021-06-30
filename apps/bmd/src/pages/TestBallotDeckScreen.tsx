@@ -7,11 +7,10 @@ import {
   Election,
   ElectionDefinition,
 } from '@votingworks/types'
-import { Button } from '@votingworks/ui'
+import { Button, ButtonList } from '@votingworks/ui'
 
 import { EventTargetFunction, MachineConfig } from '../config/types'
 
-import ButtonList from '../components/ButtonList'
 import ElectionInfo from '../components/ElectionInfo'
 import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
