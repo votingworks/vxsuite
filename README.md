@@ -37,7 +37,7 @@ export PATH="${PATH}:${NODE_ROOT}"
 node -v # should print "v12.19.0"
 
 # install pnpm:
-npm i -g pnpm
+npm i -g pnpm@5
 
 # clone the repository:
 sudo apt install git -y # in case you don't have git
