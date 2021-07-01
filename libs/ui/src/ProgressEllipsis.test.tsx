@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import { ProgressEllipsis } from './ProgressEllipsis'
 
-it('renders ProgressEllipsis', () => {
+test('renders ProgressEllipsis', () => {
   const { container } = render(<ProgressEllipsis />)
   expect(container).toMatchInlineSnapshot(`
     <div>

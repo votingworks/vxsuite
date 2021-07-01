@@ -1,19 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders default 1`] = `
-<div
-  class="sc-gsDJrp bYhHee"
->
-  <h1
-    aria-label="Loading."
-    class="sc-bdvvaa etEPtU"
-  >
-    Loading
-  </h1>
-</div>
-`;
-
-exports[`renders fullscreen with tag and label 1`] = `
+exports[`Renders Loading fullscreen with tag and label 1`] = `
 <div
   class="sc-dkPtyc ktJCZe"
 >
@@ -27,5 +14,18 @@ exports[`renders fullscreen with tag and label 1`] = `
       Printing
     </p>
   </div>
+</div>
+`;
+
+exports[`Renders Loading with defaults 1`] = `
+<div
+  class="sc-gsDJrp bYhHee"
+>
+  <h1
+    aria-label="Loading."
+    class="sc-bdvvaa etEPtU"
+  >
+    Loading
+  </h1>
 </div>
 `;
