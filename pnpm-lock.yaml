@@ -1404,7 +1404,9 @@ importers:
       zod: 3.2.0
   libs/ui:
     dependencies:
+      '@types/react-router-dom': 5.1.7
       react-dom: 17.0.1_react@17.0.1
+      react-router-dom: 5.2.0_react@17.0.1
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
     devDependencies:
       '@codemod/parser': 1.1.0
@@ -1449,6 +1451,7 @@ importers:
       '@types/jest': ^26.0.23
       '@types/node': ^15.0.0
       '@types/react': ^17.0.4
+      '@types/react-router-dom': ^5.1.7
       '@types/styled-components': ^5.1.9
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
@@ -1473,6 +1476,7 @@ importers:
       prettier: ^2.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
+      react-router-dom: ^5.2.0
       sort-package-json: ^1.44.0
       styled-components: ^5.2.3
       stylelint: ^13.1.0
@@ -5635,6 +5639,13 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-121rumjddw9c3NCQ55KGkyE1h/nzWhU/owjhw0l4mQrkzz4x9SGS1X8gFLraHwX7td3Yo4QTL+qj0NcIzN87BA==
+  /@babel/runtime/7.14.6:
+    dependencies:
+      regenerator-runtime: 0.13.7
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-/PCB2uJ7oM44tz8YhC4Z/6PeOKXp4K588f+5M3clr1M4zbqztlo0XEfJ2LEzj/FgwfgGcIdl8n7YYjTCI0BYwg==
   /@babel/runtime/7.9.0:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -7814,22 +7825,29 @@ packages:
   /@types/react-router-dom/5.1.7:
     dependencies:
       '@types/history': 4.7.8
-      '@types/react': 17.0.0
-      '@types/react-router': 5.1.11
+      '@types/react': 17.0.13
+      '@types/react-router': 5.1.15
     resolution:
       integrity: sha512-D5mHD6TbdV/DNHYsnwBTv+y73ei+mMjrkGrla86HthE4/PVvL1J94Bu3qABU+COXzpL23T1EZapVVpwHuBXiUg==
-  /@types/react-router/5.1.11:
+  /@types/react-router/5.1.15:
     dependencies:
       '@types/history': 4.7.8
-      '@types/react': 17.0.0
+      '@types/react': 17.0.13
     resolution:
-      integrity: sha512-ofHbZMlp0Y2baOHgsWBQ4K3AttxY61bDMkwTiBOkPg7U6C/3UwwB5WaIx28JmSVi/eX3uFEMRo61BV22fDQIvg==
+      integrity: sha512-z3UlMG/x91SFEVmmvykk9FLTliDvfdIUky4k2rCfXWQ0NKbrP8o9BTCaCTPuYsB8gDkUnUmkcA2vYlm2DR+HAA==
   /@types/react/17.0.0:
     dependencies:
       '@types/prop-types': 15.7.3
       csstype: 3.0.6
     resolution:
       integrity: sha512-aj/L7RIMsRlWML3YB6KZiXB3fV2t41+5RBGYF8z+tAKU43Px8C3cYUZsDvf1/+Bm4FK21QWBrDutu8ZJ/70qOw==
+  /@types/react/17.0.13:
+    dependencies:
+      '@types/prop-types': 15.7.3
+      '@types/scheduler': 0.16.1
+      csstype: 3.0.8
+    resolution:
+      integrity: sha512-D/G3PiuqTfE3IMNjLn/DCp6umjVCSvtZTPdtAFy5+Ved6CsdRvivfKeCzw79W4AatShtU4nGqgvOv5Gro534vQ==
   /@types/react/17.0.4:
     dependencies:
       '@types/prop-types': 15.7.3
@@ -16379,7 +16397,7 @@ packages:
       integrity: sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
   /history/4.10.1:
     dependencies:
-      '@babel/runtime': 7.12.5
+      '@babel/runtime': 7.14.6
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.1.0
@@ -19409,7 +19427,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.1
-      jest: 26.6.3_canvas@2.6.1
+      jest: 26.6.3
       jest-regex-util: 27.0.1
       jest-watcher: 27.0.2
       slash: 3.0.0
@@ -20852,7 +20870,7 @@ packages:
       integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==
   /mini-create-react-context/0.4.1_prop-types@15.7.2+react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.12.5
+      '@babel/runtime': 7.14.6
       prop-types: 15.7.2
       react: 17.0.1
       tiny-warning: 1.0.3
@@ -23663,7 +23681,7 @@ packages:
       integrity: sha512-Gvzk7OZpiqKSkxsQvO/mbTN1poglhmAV7gR/DdIrRrSMXraRQQlfikRJOr3Nb9GTMPC5kof948Zy6jJZIFtDvQ==
   /react-router-dom/5.2.0_react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.12.5
+      '@babel/runtime': 7.14.6
       history: 4.10.1
       loose-envify: 1.4.0
       prop-types: 15.7.2
@@ -23678,7 +23696,7 @@ packages:
       integrity: sha512-gxAmfylo2QUjcwxI63RhQ5G85Qqt4voZpUXSEqCwykV0baaOTQDR1f0PmY8AELqIyVc0NEZUj0Gov5lNGcXgsA==
   /react-router/5.2.0_react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.12.5
+      '@babel/runtime': 7.14.6
       history: 4.10.1
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
@@ -26609,7 +26627,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3_ts-node@9.1.1
+      jest: 26.6.3
       jest-util: 26.6.2
       json5: 2.2.0
       lodash: 4.17.21
