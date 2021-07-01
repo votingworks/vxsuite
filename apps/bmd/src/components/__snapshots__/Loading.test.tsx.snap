@@ -87,7 +87,7 @@ exports[`renders default 1`] = `
 >
   <h1
     aria-label="Loading."
-    class="sc-iCfLBT iZvMEs"
+    class="sc-furvIG dKNWMT"
   >
     Loading
   </h1>
@@ -202,7 +202,7 @@ exports[`renders fullscreen with tag and label 1`] = `
   >
     <p
       aria-label="Printing."
-      class="sc-iCfLBT iZvMEs"
+      class="sc-furvIG dKNWMT"
     >
       Printing
     </p>
