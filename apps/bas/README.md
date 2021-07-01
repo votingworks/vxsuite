@@ -1,53 +1,26 @@
-# VotingWorks Ballot Activation System
+# VotingWorks Ballot Activation System (BAS)
 
-## Public Demo
+Activates voter cards for use with the VxSuite
+[Ballot Marking Device (BMD)](../bmd).
 
-- <https://bas.votingworks.app>
+## Setup
 
-Each [pull request](https://github.com/votingworks/bas/pulls) will have a unique
-demo url which can be found in the comments of the pull request.
+Follow the instructions in the [VxSuite README](../../README.md) to get set up,
+then run the app like so:
 
-## Install and Run App Locally
+```sh
+# in apps/bas
+pnpm start
+```
 
-This assumes you have `git` and `pnpm` installed.
+The server will be available at http://localhost:3000/.
 
-1. Clone the repo:
+## Testing
 
-   ```
-   git clone https://github.com/votingworks/bmd.git
-   ```
+```sh
+pnpm test
+```
 
-2. Install dependencies:
+## License
 
-   ```
-   pnpm install
-   ```
-
-3. Run the app in your local browser:
-
-   ```
-   pnpm start
-   ```
-
-## Contributing
-
-TBD
-
-## Local Development Scripts
-
-- `pnpm install` - Install the dependencies.
-- `pnpm start` - Run the app locally.
-- `pnpm test`- Run tests in interactive mode.
-- `pnpm lint` - lint and format JavaScript & TypeScript
-- `pnpm format` - format other files (non JavaScript & TypeScript files)
-
-See `package.json` for all available scripts.
-
-## Technical Implementation
-
-This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app).
-
-[ESLint](https://eslint.org/) is configured to support TypeScript, additional
-linting via [StyleLint](https://stylelint.io/) and formatting via
-[Prettier](https://prettier.io/).
+GPLv3

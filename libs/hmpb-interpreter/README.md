@@ -2,14 +2,22 @@
 
 Interprets VotingWorks ballots marked by hand and scanned into images.
 
-## Install
+## Setup
+
+This package is private and is not intended to be published to NPM, but is for
+use within the `vxsuite` monorepo. To use it from a library or app within the
+monorepo, run `pnpm i -S '@votingworks/hmpb-interpreter@workspace:*'` in the library/app
+root.
+
+Follow the instructions in the [VxSuite README](../../README.md) to get set up,
+then get started like so:
 
 ```sh
-# Local install for API usage.
-$ npm install @votingworks/hmpb-interpreter
+# automatically build changes
+pnpm build:watch
 
-# Global install for CLI usage, or just use `npx hmpb-interpreter`.
-$ npm install -g @votingworks/hmpb-interpreter
+# test on changes
+pnpm test:watch
 ```
 
 ## API Usage
@@ -507,4 +515,4 @@ $ hmpb interpret -e election.json -f json \
 
 ## License
 
-GPL-3.0
+AGPL-3.0

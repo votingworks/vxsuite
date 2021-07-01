@@ -6,7 +6,8 @@ The VotingWorks in-person voting system.
 
 Includes software for a [ballot-marking device (BMD)](./apps/bmd), a
 [ballot activation system (BAS)](./apps/bas), a
-[ballot scanning device (BSD)](./apps/bsd), and an
+[ballot scanning device (BSD)](./apps/bsd), a
+[precinct scanner](./apps/precinct-scanner), and an
 [election manager](./apps/election-manager). See https://voting.works for more
 information about VotingWorks.
 
@@ -97,6 +98,104 @@ To add a workspace package `foo` as a dependency, do this:
 
 If you need to add a `@types/` package it's easier to just copy one of the
 existing `libs/@types` directories than to do the above.
+
+## Contributing
+
+Hey, we’re stoked that you’d like to contribute. Please let us know how we can
+help you contribute.
+
+1. Fork this repo: <https://github.com/votingworks/vxsuite>
+1. Clone the repo locally:
+
+   ```sh
+   git clone https://github.com/YOUR_GITHUB_USERNAME/vxsuite.git
+   ```
+
+   Optionally, if you already cloned the main repo, you can update your local
+   repo to have two remotes, `votingworks` for the main repo and `origin` for
+   your fork:
+
+   ```sh
+   git remote rename origin votingworks
+   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/vxsuite.git
+   ```
+
+1. Ensure you're set up for development by following the instructions in the
+   [Development](#Development) section.
+
+1. Create a branch for the feature/bug/etc:
+
+   ```sh
+   git checkout -b name-of-your-branch
+   ```
+
+1. For an app, run the app:
+
+   ```sh
+   pnpm start
+   ```
+
+   Or, for a library, run the build watcher:
+
+   ```sh
+   pnpm build:watch
+   ```
+
+1. In a second console window, run the tests:
+
+   ```sh
+   pnpm test
+   ```
+
+   Tests default to watch-mode: only tests related to changed code will run. Use
+   the available commands in watch-mode to run the tests you want.
+
+1. Add features, fix bugs, etc. Follow the best practices described below. Then
+   use `git` to commit your changes in logical commits.
+
+   You may wish to run this before committing to fix code styling:
+
+   ```sh
+   pnpm lint:fix
+   ```
+
+   **Using Visual Studio Code?** Autorun linting and code formatting by
+   installing/enabling/disabling the following plugins (which will pick up the
+   respective config files in this project):
+
+   - disable `TSLint` as ESLint handles this functionality
+   - install/enable `ESLint` for (ECMAScript) JavaScript linting
+   - install/enable `stylelint` for modern CSS linting
+
+1. Check for test coverage. When you push your branch to github, CircleCI will
+   run all the tests and check for test coverage. To check this yourself, run:
+
+   ```sh
+   pnpm test:coverage
+   ```
+
+   In the root of the project there is a `coverage` directory. Open
+   `coverage/lcov-report/index.html` in a browser to navigate the files to view
+   test coverage.
+
+   > **NOTE:** You can probably run `python -m SimpleHTTPServer` to serve the
+   > files, then view them at http://localhost:8080/.
+
+1. Run integration tests. You will need to make sure to have cypress
+   dependencies installed see: https://on.cypress.io/required-dependencies. You
+   will also need to have chrome installed. While the server is running in
+   another terminal window run:
+
+   ```
+   pnpm cypress:run
+   ```
+
+1. Push your branch to your fork on Github.
+1. Create a pull request to merge your branch into `votingworks/vxsuite/main`.
+   Once the pull request is created CircleCI will automatically run all the
+   tests to ensure the app is working correctly.
+1. @votingworks/eng will review the pull request and ask questions, request
+   changes, or just merge right away.
 
 ## Development Best Practices
 
