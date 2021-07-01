@@ -2,6 +2,7 @@
 export * from './Button'
 export * from './ButtonBar'
 export * from './ButtonList'
+export * from './HorizontalRule'
 export * from './InputGroup'
 export * from './Loading'
 export * from './Main'

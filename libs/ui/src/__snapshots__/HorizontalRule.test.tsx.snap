@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders HorizontalRule with custom green color 1`] = `
+<p
+  class="sc-bdvvaa InMLu"
+  color="#00FF00"
+>
+  or
+</p>
+`;
+
+exports[`Renders HorizontalRule with defaults 1`] = `
+<p
+  class="sc-bdvvaa jHuSWr"
+>
+  or
+</p>
+`;
