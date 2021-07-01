@@ -1,11 +1,11 @@
 
 install-python:
-	apt install python3.7 python3.7-dev python3-pip
+	sudo apt install -y python3.7 python3.7-dev python3-pip
 
 install: install-python
 
 install-dependencies:
-	python3 -m pip install pipenv
+	sudo python3 -m pip install pipenv
 	python3 -m pipenv install
 
 install-dev-dependencies:

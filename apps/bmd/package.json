@@ -166,5 +166,11 @@
   },
   "engines": {
     "node": ">= 12"
+  },
+  "vx": {
+    "isBundled": true,
+    "modules": [
+      "../module-smartcards"
+    ]
   }
 }
