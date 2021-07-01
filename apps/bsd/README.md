@@ -1,51 +1,35 @@
-# VotingWorks Ballot Scanner
+# VotingWorks Ballot Scanner (BSD)
 
-Previously known as Ballot Scanning Device (BSD) or VxScan.
+Scans ballots printed by the VxSuite [Ballot Marking Device (BMD)](../bmd) or
+the VxSuite [Election Manager](../election-manager).
 
-## Public Demo
+## Setup
 
-- <https://bsd.votingworks.app>
+Follow the instructions in the [VxSuite README](../../README.md) to get set up,
+then run the app like so:
 
-Each [pull request](https://github.com/votingworks/bsd/pulls) will have a unique
-demo url which can be found in the comments of the pull request.
-
-## Install
-
-Prerequisites:
-
-- `git`
-- `pnpm`
-- [`module-scan`](https://github.com/votingworks/vxsuite/tree/main/apps/module-scan)
-- [`module-smartcards`](https://github.com/votingworks/vxsuite/tree/main/apps/module-smartcards)
-
-Then…
-
-```
-git clone https://github.com/votingworks/bsd.git
-cd bsd
-pnpm install
+```sh
+# in apps/bsd
+pnpm start
 ```
 
-## Run
+The server will be available at http://localhost:3000/.
 
-1. Start [`module-scan`](https://github.com/votingworks/vxsuite/tree/main/apps/module-scan).
-2. Start
-   [`module-smartcards`](https://github.com/votingworks/vxsuite/tree/main/apps/module-smartcards).
-3. Start the app:
+To set the election configuration you will either need to scan a smartcard (you
+can use the mockCardReader script in [module-smartcards](../module-smartcards)
+for this), load an election.json file, or load a ballot export zip file from
+[election-manager](../election-manager). You should load a ballot export zip if
+you intend to test hand-marked paper ballots (HMPBs).
 
-   ```
-   pnpm start
-   ```
+To display a batch of scanned ballots use the `MOCK_SCANNER_FILES` environment
+variable set as described in [`module-scan`](../module-scan).
 
-To set the election configuration you will either need to scan a smartcard (you can use the mockCardReader script in module-smartcards for this), load an election.json file, or load a ballot export zip file. You should load a ballot export zip if you intend to test hand-marked paper ballots (HMPBs).
+## Testing
 
-To display a batch of scanned ballots use the MOCK_SCANNER_FILES environment variable set as described in [`module-scan`](https://github.com/votingworks/vxsuite/tree/main/apps/module-scan).
+```sh
+pnpm test
+```
 
-## Technical Implementation
+## License
 
-This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app).
-
-[ESLint](https://eslint.org/) is configured to support TypeScript, additional
-linting via [StyleLint](https://stylelint.io/) and formatting via
-[Prettier](https://prettier.io/).
+GPLv3

@@ -2,13 +2,15 @@
 
 Provides encoding and decoding services for completed ballots.
 
-## Development
+## Setup
+
+Follow the instructions in the [VxSuite README](../../README.md) to get set up,
+then get started like so:
 
 ```sh
-# setup
-pnpm install
-# automatically build changes for other monorepo projects
-pnpm dev
+# automatically build changes
+pnpm build:watch
+
 # test on changes
 pnpm test:watch
 ```
@@ -64,3 +66,7 @@ console.log(decodeBallot(election, encodeBallot(ballot)).votes)
 }
 */
 ```
+
+## License
+
+AGPL-3.0

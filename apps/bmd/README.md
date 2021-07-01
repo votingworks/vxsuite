@@ -1,154 +1,32 @@
-# VotingWorks Ballot Marking Device
+# VotingWorks Ballot Marking Device (BMD)
 
-## Live Demo
+Marks and/or prints ballots for a voter.
 
-The `main` branch of this repo is auto-deployed to:
+## Setup
 
-- <https://bmd.votingworks.app>
+Follow the instructions in the [VxSuite README](../../README.md) to get set up,
+then run BMD like so:
 
-Each [pull request](https://github.com/votingworks/bmd/pulls) will have a unique
-demo url which can be found in the comments of the pull request.
+```sh
+# in apps/bmd
+# Run VxMark by default
+pnpm start
 
-## Install and Run App Locally
+# Or run VxPrint
+VX_APP_MODE=VxPrint pnpm start
 
-This assumes you have `git` and `pnpm` installed.
+# Or run VxMark + VxPrint
+VX_APP_MODE="VxMark + VxPrint" pnpm start
+```
 
-1. Clone the repo:
+The server will be available at http://localhost:3000/.
 
-   ```sh
-   git clone https://github.com/votingworks/bmd.git
-   ```
+## Testing
 
-2. Install dependencies:
+```sh
+pnpm test
+```
 
-   ```sh
-   pnpm install
-   ```
+## License
 
-3. Run the app in your local browser:
-
-   ```sh
-   # Run VxMark by default
-   pnpm start
-
-   # Or run VxPrint
-   VX_APP_MODE=VxPrint pnpm start
-
-   # Or run VxMark + VxPrint
-   VX_APP_MODE="VxMark + VxPrint" pnpm start
-   ```
-
-## Contributing
-
-Hey, we’re stoked that you’d like to contribute. Please let us know how we can
-help you contribute.
-
-1. Fork this repo: <https://github.com/votingworks/bmd>
-1. Clone the repo locally:
-
-   ```
-   git clone https://github.com/YOUR_GITHUB_USERNAME/bmd.git
-   ```
-
-   Optionally, if you already cloned the main repo, you can update your local
-   repo to have two remotes, `votingworks` for the main repo and `origin` for
-   your fork:
-
-   ```
-   git remote rename origin votingworks
-   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/bmd.git
-   ```
-
-1. Create a branch for the feature/bug/etc:
-
-   ```
-   git checkout -b name-of-your-branch
-   ```
-
-1. Run the app:
-
-   ```
-   pnpm start
-   ```
-
-1. In a second console window, run the tests:
-
-   ```
-   pnpm test
-   ```
-
-   Tests default to watch-mode: only tests related to changed code will run. Use
-   the available commands in watch-mode to run the tests you want.
-
-1. Add features, fix bugs, etc. and then use `git` to commit your changes in
-   logical commits.
-
-   There is a pre-commit hook (see `lint-staged` in package.json) which will run
-   linting and code formatting scripts. You can run these manually with these
-   commands which are found in the `package.json` scripts:
-
-   ```
-   pnpm lint
-   pnpm format
-   ```
-
-   **Using Visual Studio Code?** Autorun linting and code formatting by
-   installing/enabling/disabling the following plugins (which will pick up the
-   respective config files in this project):
-
-   - disable `TSLint` as ESLint handles this functionality
-   - install/enable `ESLint` for (ECMAScript) JavaScript linting
-   - install/enable `stylelint` for modern CSS linting
-   - install/enable `Prettier - Code formatter` for code formatting
-
-1. Check for test coverage. When you push your branch to github, CircleCI will
-   run all the tests and check for test coverage. To check this yourself, run:
-
-   ```
-   pnpm test:coverage
-   ```
-
-   In the root of the project there is a `coverage` directory. Open
-   `coverage/lcov-report/index.html` in a browser to navigate the files to view
-   test coverage.
-   
-1. Run integration tests. You will need to make sure to have cypress dependencies installed see: https://on.cypress.io/required-dependencies. You will also need to have chrome installed. While the server is running in another terminal window run:
-
-   ```
-   pnpm cypress:run
-   ```
-
-
-1. Push your branch to your fork on Github.
-1. Create a pull request to merge your branch into `voingworks/bmd/main`. Once
-   the pull request is created CircleCI will automatically run all the tests to
-   ensure the app is working correctly.
-1. The VotingWorks maintainers will
-
-## Local Development Scripts
-
-- `pnpm install` - Install the dependencies.
-- `pnpm start` - Run the app locally.
-- `pnpm test`- Run tests in interactive mode.
-- `pnpm test:coverage` - Run all tests and update test coverage report.
-
-See `package.json` for all available scripts.
-
-## Technical Implementation
-
-This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app) for TypeScript.
-It uses [Styled Components](https://www.styled-components.com/docs/) for styles
-(and some `css` files too). [ESLint](https://eslint.org/) is configured to lint
-Javascript and TypeScript files, and format code using
-[Prettier](https://prettier.io/). [stylelint](https://stylelint.io/) is used to
-lint modern css. [Jest](https://jestjs.io/),
-[dom-testing-library](https://testing-library.com),
-[react-testing-library](https://github.com/kentcdodds/react-testing-library),
-and [Cypress](https://www.cypress.io/) are used to test components and
-end-to-end user flows.
-
-## Credits
-
-Center for Civic Design and Oxide Design consulted on the initial design of this
-project. Thanks CCD and Oxide!
+GPLv3

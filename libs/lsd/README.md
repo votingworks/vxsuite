@@ -22,17 +22,28 @@ article:
 | ![molecule](./docs/molecule.png) | ![molecule](./docs/molecule-lsd.svg) |
 | ![noise](./docs/noise.png)       | ![noise](./docs/noise-lsd.svg)       |
 
-# Install
+## Setup
 
 This package is private and is not intended to be published to NPM, but is for
 use within the `vxsuite` monorepo. To use it from a library or app within the
 monorepo, run `pnpm i -S '@votingworks/lsd@workspace:*'` in the library/app
 root.
 
-# Library Usage
+Follow the instructions in the [VxSuite README](../../README.md) to get set up,
+then get started like so:
+
+```sh
+# automatically build changes
+pnpm build:watch
+
+# test on changes
+pnpm test:watch
+```
+
+# API Usage
 
 ```ts
-import lsd from 'lsd'
+import lsd from '@votingworks/lsd'
 
 // get a 1-channel grayscale `ImageData` object somehow
 const gray = await readGrayscaleImage(path)
@@ -53,7 +64,8 @@ $ pnpx lsd path/to/image.png
 📝 path/to/image-lsd.svg
 ```
 
-Open the SVG file in an SVG viewer (e.g. Chrome) to view it. See `pnpx lsd --help` for more options.
+Open the SVG file in an SVG viewer (e.g. Chrome) to view it. See
+`pnpx lsd --help` for more options.
 
 # Credits
 
