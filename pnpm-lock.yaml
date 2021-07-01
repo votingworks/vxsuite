@@ -770,7 +770,7 @@ importers:
       base64-js: 1.5.1
       debug: 4.3.1
       fetch-mock: 9.11.0
-      http-proxy-middleware: 1.0.6_debug@4.3.1
+      http-proxy-middleware: 1.0.6
       i18next: 19.8.4
       jest-fetch-mock: 3.0.3
       js-file-download: 0.4.12
@@ -964,6 +964,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 4.26.1_32063fd84aa902daa9d61c6be8e2f18d
       '@typescript-eslint/parser': 4.26.1_eslint@7.28.0+typescript@4.2.4
       '@votingworks/fixtures': link:../../libs/fixtures
+      '@votingworks/test-utils': link:../../libs/test-utils
       cypress: 7.5.0
       cypress-file-upload: 5.0.7_cypress@7.5.0
       eslint: 7.28.0
@@ -987,6 +988,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.16.1
       '@typescript-eslint/parser': ^4.16.1
       '@votingworks/fixtures': workspace:*
+      '@votingworks/test-utils': workspace:*
       cypress: ^7.5.0
       cypress-file-upload: ^5.0.7
       eslint: ^7.17.0
@@ -1341,6 +1343,7 @@ importers:
       '@types/zip-stream': link:../@types/zip-stream
       '@typescript-eslint/eslint-plugin': 4.26.1_0be4038d25fbcd7758c2465536e0bd02
       '@typescript-eslint/parser': 4.26.1_eslint@7.28.0+typescript@4.2.3
+      '@votingworks/types': link:../types
       eslint: 7.28.0
       eslint-config-prettier: 8.3.0_eslint@7.28.0
       eslint-plugin-prettier: 3.4.0_441ef98f5280b4c825fe505e43fc5698
@@ -1357,6 +1360,7 @@ importers:
       '@types/zip-stream': workspace:*
       '@typescript-eslint/eslint-plugin': ^4.26.1
       '@typescript-eslint/parser': ^4.26.1
+      '@votingworks/types': workspace:*
       eslint: ^7.28.0
       eslint-config-prettier: ^8.3.0
       eslint-plugin-prettier: ^3.4.0
@@ -6714,10 +6718,9 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 14.14.21
+      '@types/node': 15.12.2
       '@types/yargs': 16.0.3
       chalk: 4.1.1
-    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
@@ -7586,7 +7589,7 @@ packages:
       integrity: sha512-c3mAZEuK0lvBp8tmuL74XRKn1+y2dcwOUpH7x4WrF6gk1GIgiluDRgMYQtw2OFcBvAJWlt6ASU3tSqxp0Uu0Aw==
   /@types/jest-diff/24.3.0:
     dependencies:
-      jest-diff: 26.6.2
+      jest-diff: 27.0.2
     deprecated: This is a stub types definition. jest-diff provides its own type definitions, so you do not need this installed.
     dev: false
     resolution:
@@ -8030,7 +8033,6 @@ packages:
   /@types/yargs/16.0.3:
     dependencies:
       '@types/yargs-parser': 20.2.0
-    dev: true
     resolution:
       integrity: sha512-YlFfTGS+zqCgXuXNV26rOIeETOkXnGQXP/pjjL9P0gO/EP9jTmc7pUBhx+jVEIxpq41RX33GQ7N3DzOSfZoglQ==
   /@types/yauzl/2.9.1:
@@ -9852,7 +9854,6 @@ packages:
     resolution:
       integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
   /ansi-styles/5.2.0:
-    dev: true
     engines:
       node: '>=10'
     resolution:
@@ -12844,7 +12845,6 @@ packages:
     resolution:
       integrity: sha512-Mv/TDa3nZ9sbc5soK+OoA74BsS3mL37yixCvUAQkiuA4Wz6YtwP/K47n2rv2ovzHZvoiQeA5FTQOschKkEwB0Q==
   /diff-sequences/27.0.1:
-    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
@@ -16612,20 +16612,6 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
-  /http-proxy-middleware/1.0.6_debug@4.3.1:
-    dependencies:
-      '@types/http-proxy': 1.17.6
-      http-proxy: 1.18.1_debug@4.3.1
-      is-glob: 4.0.1
-      lodash: 4.17.21
-      micromatch: 4.0.4
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
-    resolution:
-      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
@@ -18054,7 +18040,6 @@ packages:
       diff-sequences: 27.0.1
       jest-get-type: 27.0.1
       pretty-format: 27.0.2
-    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
@@ -18256,7 +18241,6 @@ packages:
     resolution:
       integrity: sha512-TpfaviN1R2pQWkIihlfEanwOXK0zcxrKEE4MlU6Tn7keoXdN6/3gK/xl0yEh8DOunn5pOVGKf8hB4R9gVh04ig==
   /jest-get-type/27.0.1:
-    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
@@ -23182,7 +23166,6 @@ packages:
       ansi-regex: 5.0.0
       ansi-styles: 5.2.0
       react-is: 17.0.2
-    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:

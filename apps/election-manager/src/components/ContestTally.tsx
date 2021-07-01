@@ -96,7 +96,7 @@ const ContestTally: React.FC<Props> = ({
 
         return (
           <Contest key={`div-${contest.id}`} dim={!talliesRelevant}>
-            <Prose maxWidth={false}>
+            <Prose maxWidth={false} data-testid={`results-table-${contest.id}`}>
               <Text small>{contest.section}</Text>
               <h3>{contest.title}</h3>
               <Text small>
@@ -126,7 +126,7 @@ const ContestTally: React.FC<Props> = ({
                         ? (contest as YesNoContest).yesOption?.label || 'Yes'
                         : (contest as YesNoContest).noOption?.label || 'No'
                     return (
-                      <tr key={key}>
+                      <tr key={key} data-testid={key}>
                         <td>{choice}</td>
                         <TD narrow textAlign="right">
                           {talliesRelevant ? tally.tally : 'X'}
