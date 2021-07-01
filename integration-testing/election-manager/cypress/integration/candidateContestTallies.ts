@@ -3,6 +3,7 @@ import {
   generateCVR,
   generateFileContentFromCVRs,
 } from '@votingworks/test-utils'
+import { assertExpectedResultsMatchSEMsFile } from '../support/assertions'
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for candidate contests compute end to end as expected', () => {
@@ -190,66 +191,68 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains('Save Results File').click()
     cy.get('[data-testid="manual-export"]').click()
     cy.contains('Results Saved')
-    cy.task('readMostRecentFile', 'cypress/downloads').then((fileContent) => {
-      cy.assertExpectedResultsMatchSEMsFile(
-        [
-          {
-            contestId: 'governor-contest-liberty',
-            precinctId: 'precinct-2',
-            candidateId: 'aaron-aligator',
-            numberOfVotes: 2,
-          },
-          {
-            contestId: 'governor-contest-liberty',
-            precinctId: 'precinct-2',
-            candidateId: 'peter-pigeon',
-            numberOfVotes: 1,
-          },
-          {
-            contestId: 'governor-contest-liberty',
-            precinctId: 'precinct-2',
-            candidateId: '2', // undervotes
-            numberOfVotes: 1,
-          },
-          {
-            contestId: 'governor-contest-liberty',
-            precinctId: 'precinct-2',
-            candidateId: '1', // overvotes
-            numberOfVotes: 1,
-          },
-          {
-            contestId: 'schoolboard-liberty',
-            precinctId: 'precinct-2',
-            candidateId: '2', // undervotes
-            numberOfVotes: 3,
-          },
-          {
-            contestId: 'schoolboard-liberty',
-            precinctId: 'precinct-2',
-            candidateId: '1', // overvotes
-            numberOfVotes: 4,
-          },
-          {
-            contestId: 'schoolboard-liberty',
-            precinctId: 'precinct-2',
-            candidateId: 'amber-brkich',
-            numberOfVotes: 2,
-          },
-          {
-            contestId: 'schoolboard-liberty',
-            precinctId: 'precinct-2',
-            candidateId: 'chris-daugherty',
-            numberOfVotes: 1,
-          },
-          {
-            contestId: 'chief-pokemon-liberty',
-            precinctId: 'precinct-2',
-            candidateId: '2', // undervotes
-            numberOfVotes: 5,
-          },
-        ],
-        fileContent as string
-      )
-    })
+    cy.task<string>('readMostRecentFile', 'cypress/downloads').then(
+      (fileContent) => {
+        assertExpectedResultsMatchSEMsFile(
+          [
+            {
+              contestId: 'governor-contest-liberty',
+              precinctId: 'precinct-2',
+              candidateId: 'aaron-aligator',
+              numberOfVotes: 2,
+            },
+            {
+              contestId: 'governor-contest-liberty',
+              precinctId: 'precinct-2',
+              candidateId: 'peter-pigeon',
+              numberOfVotes: 1,
+            },
+            {
+              contestId: 'governor-contest-liberty',
+              precinctId: 'precinct-2',
+              candidateId: '2', // undervotes
+              numberOfVotes: 1,
+            },
+            {
+              contestId: 'governor-contest-liberty',
+              precinctId: 'precinct-2',
+              candidateId: '1', // overvotes
+              numberOfVotes: 1,
+            },
+            {
+              contestId: 'schoolboard-liberty',
+              precinctId: 'precinct-2',
+              candidateId: '2', // undervotes
+              numberOfVotes: 3,
+            },
+            {
+              contestId: 'schoolboard-liberty',
+              precinctId: 'precinct-2',
+              candidateId: '1', // overvotes
+              numberOfVotes: 4,
+            },
+            {
+              contestId: 'schoolboard-liberty',
+              precinctId: 'precinct-2',
+              candidateId: 'amber-brkich',
+              numberOfVotes: 2,
+            },
+            {
+              contestId: 'schoolboard-liberty',
+              precinctId: 'precinct-2',
+              candidateId: 'chris-daugherty',
+              numberOfVotes: 1,
+            },
+            {
+              contestId: 'chief-pokemon-liberty',
+              precinctId: 'precinct-2',
+              candidateId: '2', // undervotes
+              numberOfVotes: 5,
+            },
+          ],
+          fileContent
+        )
+      }
+    )
   })
 })
