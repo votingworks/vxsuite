@@ -18,7 +18,13 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "package.json": "sort-package-json",
+    "**/*.{ts,js,tsx,jsx}": "eslint --fix",
+    "**/*.{md,json}": "prettier --write"
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",
@@ -38,7 +44,9 @@
     "eslint": "^7.25.0",
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.4",
+    "lint-staged": "^11.0.0",
     "prettier": "^2.2.1",
+    "sort-package-json": "^1.50.0",
     "ts-jest": "^26.5.5",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"

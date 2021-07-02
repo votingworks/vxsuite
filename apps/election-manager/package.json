@@ -19,12 +19,8 @@
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:coverage test:watch",
     "test:watch": "TZ=PST script/react-scripts test --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=PST script/react-scripts test --coverage --watchAll=false"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsc && lint-staged"
-    }
+    "test:coverage": "TZ=PST script/react-scripts test --coverage --watchAll=false",
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -150,14 +146,13 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^4.0.5",
     "eslint-plugin-vx": "workspace:*",
-    "husky": "^4.2.1",
     "is-ci-cli": "^2.1.2",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.0.7",
     "prettier": "^2.0.5",
     "react-refresh": "^0.9.0",
     "react-test-renderer": "^16.13.1",
-    "sort-package-json": "^1.44.0",
+    "sort-package-json": "^1.50.0",
     "stylelint": "^13.1.0",
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",

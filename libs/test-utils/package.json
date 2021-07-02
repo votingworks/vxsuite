@@ -16,7 +16,19 @@
     "lint:fix": "eslint . --fix",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
   },
   "dependencies": {
     "@testing-library/react": "^11.2.6",
@@ -35,9 +47,11 @@
     "eslint": "^7.28.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "lint-staged": "^11.0.0",
     "prettier": "^2.3.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "sort-package-json": "^1.50.0",
     "typescript": "^4.2.3"
   }
 }

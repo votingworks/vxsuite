@@ -19,29 +19,23 @@
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:coverage test:watch",
     "test:watch": "script/react-scripts test",
-    "test:coverage": "script/react-scripts test --coverage --watchAll=false"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsc --build && lint-staged"
-    }
+    "test:coverage": "script/react-scripts test --coverage --watchAll=false",
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "linters": {
-      "*.+(js|jsx|ts|tsx)": [
-        "stylelint --fix",
-        "eslint --quiet --fix",
-        "git add"
-      ],
-      "*.css": [
-        "stylelint --config .stylelintrc-css.js --fix",
-        "git add"
-      ],
-      "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-        "prettier --write",
-        "git add"
-      ]
-    }
+    "*.+(js|jsx|ts|tsx)": [
+      "stylelint --fix",
+      "eslint --quiet --fix"
+    ],
+    "*.css": [
+      "stylelint --config .stylelintrc-css.js --fix"
+    ],
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
   },
   "browserslist": {
     "production": [
@@ -92,10 +86,10 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-vx": "workspace:*",
-    "husky": "^2.1.0",
     "is-ci-cli": "^2.1.2",
     "lint-staged": "^8.1.5",
     "prettier": "^2.1.2",
+    "sort-package-json": "^1.50.0",
     "stylelint": "^13.7.2",
     "stylelint-config-palantir": "^5.0.0",
     "stylelint-config-prettier": "^8.0.2",

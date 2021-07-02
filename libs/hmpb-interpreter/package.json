@@ -25,12 +25,8 @@
     "test": "jest",
     "test:all": "REGRESSION_TESTS=1 jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsc --build --noEmit && lint-staged"
-    }
+    "test:watch": "jest --watch",
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -74,13 +70,12 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-vx": "workspace:*",
-    "husky": "^4.3.0",
     "jest": "^26.6.0",
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^10.4.2",
     "memorystream": "^0.3.1",
     "prettier": "^2.1.2",
-    "sort-package-json": "^1.46.1",
+    "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
     "ts-jest": "^26.4.1",
     "ts-node": "^9.0.0",

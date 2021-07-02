@@ -44,7 +44,9 @@ make coverage
 
 ## Mock a Smart Card
 
-Once you're running the server, you can enable a mock card reader with fixture data as in the examples below. Supply your own election definition, or use one of the existing [`fixtures/`](./fixtures).
+Once you're running the server, you can enable a mock card reader with fixture
+data as in the examples below. Supply your own election definition, or use one
+of the existing [`fixtures/`](./fixtures).
 
 ### Using your own election definition
 
