@@ -2,6 +2,7 @@ import {
   CastVoteRecord,
   Dictionary,
   Election,
+  expandEitherNeitherContests,
   getBallotStyle,
   getContests,
 } from '@votingworks/types'
@@ -25,7 +26,7 @@ export function generateCVR(
   const _ballotStyleId = options._ballotStyleId ?? election.ballotStyles[0].id
   const _ballotId = options._ballotId ?? ''
   const _ballotType = options._ballotType ?? 'standard'
-  const _testBallot = !!options._ballotType // default to false
+  const _testBallot = !!options._testBallot // default to false
   const _scannerId = options._scannerId ?? 'scanner-1'
 
   // Add in blank votes for any contest in the ballot style not specified.
@@ -34,7 +35,9 @@ export function generateCVR(
       ballotStyleId: _ballotStyleId,
       election,
     }) || election.ballotStyles[0]
-  const contestsInBallot = getContests({ ballotStyle, election })
+  const contestsInBallot = expandEitherNeitherContests(
+    getContests({ ballotStyle, election })
+  )
   const allVotes: Dictionary<string[]> = {}
   contestsInBallot.forEach((contest) => {
     allVotes[contest.id] = contest.id in votes ? votes[contest.id] : []

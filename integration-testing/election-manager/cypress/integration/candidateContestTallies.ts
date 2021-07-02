@@ -3,7 +3,10 @@ import {
   generateCVR,
   generateFileContentFromCVRs,
 } from '@votingworks/test-utils'
-import { assertExpectedResultsMatchSEMsFile } from '../support/assertions'
+import {
+  assertExpectedResultsMatchSEMsFile,
+  assertExpectedResultsMatchTallyReport,
+} from '../support/assertions'
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for candidate contests compute end to end as expected', () => {
@@ -78,113 +81,98 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('5'))
 
     // Check that the internal tally reports have the correct tallies
-    const assertTallyReportHasFullTally = () => {
-      cy.contains('Preview Report').click()
-      cy.get('[data-testid="absentee"]').within(() => cy.contains('0'))
-      cy.get('[data-testid="standard"]').within(() => cy.contains('5'))
-      cy.get('[data-testid="total"]').within(() => cy.contains('5'))
-      cy.get('[data-testid="results-table-governor-contest-liberty').within(
-        () => {
-          cy.contains('5 ballots cast')
-          cy.contains('1 overvote')
-          cy.contains('1 undervote')
-        }
-      )
-      cy.get('[data-testid="governor-contest-liberty-aaron-aligator"]').within(
-        () => cy.contains('2')
-      )
-      cy.get('[data-testid="governor-contest-liberty-peter-pigeon"]').within(
-        () => cy.contains('1')
-      )
-      cy.get('[data-testid="governor-contest-liberty-__write-in"]').within(() =>
-        cy.contains('0')
-      )
-      cy.get('[data-testid="results-table-schoolboard-liberty').within(() => {
-        cy.contains('5 ballots cast')
-        cy.contains('4 overvotes')
-        cy.contains('3 undervotes')
-      })
-      cy.get('[data-testid="schoolboard-liberty-amber-brkich"]').within(() =>
-        cy.contains('2')
-      )
-      cy.get('[data-testid="schoolboard-liberty-chris-daugherty"]').within(() =>
-        cy.contains('1')
-      )
-      cy.get('[data-testid="schoolboard-liberty-tom-westman"]').within(() =>
-        cy.contains('0')
-      )
-      cy.get('[data-testid="schoolboard-liberty-danni-boatwright"]').within(
-        () => cy.contains('0')
-      )
-      cy.get('[data-testid="schoolboard-liberty-__write-in"]').within(() =>
-        cy.contains('0')
-      )
-    }
-    const assertTallyReportHasEmptyTally = () => {
-      cy.contains('Preview Report').click()
-      cy.get('[data-testid="absentee"]').within(() => cy.contains('0'))
-      cy.get('[data-testid="standard"]').within(() => cy.contains('0'))
-      cy.get('[data-testid="total"]').within(() => cy.contains('0'))
-      cy.get('[data-testid="results-table-governor-contest-liberty').within(
-        () => {
-          cy.contains('0 ballots cast')
-          cy.contains('0 overvotes')
-          cy.contains('0 undervotes')
-        }
-      )
-      cy.get('[data-testid="governor-contest-liberty-aaron-aligator"]').within(
-        () => cy.contains('0')
-      )
-      cy.get('[data-testid="governor-contest-liberty-peter-pigeon"]').within(
-        () => cy.contains('0')
-      )
-      cy.get('[data-testid="governor-contest-liberty-__write-in"]').within(() =>
-        cy.contains('0')
-      )
-      cy.get('[data-testid="results-table-schoolboard-liberty').within(() => {
-        cy.contains('0 ballots cast')
-        cy.contains('0 overvotes')
-        cy.contains('0 undervotes')
-      })
-      cy.get('[data-testid="schoolboard-liberty-amber-brkich"]').within(() =>
-        cy.contains('0')
-      )
-      cy.get('[data-testid="schoolboard-liberty-chris-daugherty"]').within(() =>
-        cy.contains('0')
-      )
-      cy.get('[data-testid="schoolboard-liberty-tom-westman"]').within(() =>
-        cy.contains('0')
-      )
-      cy.get('[data-testid="schoolboard-liberty-danni-boatwright"]').within(
-        () => cy.contains('0')
-      )
-      cy.get('[data-testid="schoolboard-liberty-__write-in"]').within(() =>
-        cy.contains('0')
-      )
-    }
+    const expectedFullResults = [
+      {
+        contestId: 'governor-contest-liberty',
+        metadata: { ballots: 5, undervotes: 1, overvotes: 1 },
+        votesByOptionId: {
+          'aaron-aligator': 2,
+          'peter-pigeon': 1,
+          '__write-in': 0,
+        },
+      },
+      {
+        contestId: 'schoolboard-liberty',
+        metadata: { ballots: 5, undervotes: 3, overvotes: 4 },
+        votesByOptionId: {
+          'amber-brkich': 2,
+          'chris-daugherty': 1,
+          'tom-westman': 0,
+          'danni-boatwright': 0,
+          '__write-in': 0,
+        },
+      },
+    ]
+
+    const expectedEmptyResults = [
+      {
+        contestId: 'governor-contest-liberty',
+        metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+        votesByOptionId: {
+          'aaron-aligator': 0,
+          'peter-pigeon': 0,
+          '__write-in': 0,
+        },
+      },
+      {
+        contestId: 'schoolboard-liberty',
+        metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+        votesByOptionId: {
+          'amber-brkich': 0,
+          'chris-daugherty': 0,
+          'tom-westman': 0,
+          'danni-boatwright': 0,
+          '__write-in': 0,
+        },
+      },
+    ]
     cy.contains('View Unofficial Full Election Tally Report').click()
-    assertTallyReportHasFullTally()
+    assertExpectedResultsMatchTallyReport(expectedFullResults, {
+      absentee: 0,
+      precinct: 5,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Precinct 2 Tally Report').click()
-    assertTallyReportHasFullTally()
+    assertExpectedResultsMatchTallyReport(expectedFullResults, {
+      absentee: 0,
+      precinct: 5,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Precinct 1 Tally Report').click()
-    assertTallyReportHasEmptyTally()
+    assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
+      absentee: 0,
+      precinct: 0,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Precinct 3 Tally Report').click()
-    assertTallyReportHasEmptyTally()
+    assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
+      absentee: 0,
+      precinct: 0,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Precinct 4 Tally Report').click()
-    assertTallyReportHasEmptyTally()
+    assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
+      absentee: 0,
+      precinct: 0,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Precinct 5 Tally Report').click()
-    assertTallyReportHasEmptyTally()
+    assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
+      absentee: 0,
+      precinct: 0,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Liberty Party Tally Report').click()
-    assertTallyReportHasFullTally()
+    assertExpectedResultsMatchTallyReport(expectedFullResults, {
+      absentee: 0,
+      precinct: 5,
+    })
     cy.contains('Back to Tally Index').click()
     cy.contains('View Unofficial Scanner scanner-1 Tally Report').click()
-    assertTallyReportHasFullTally()
+    assertExpectedResultsMatchTallyReport(expectedFullResults, {
+      absentee: 0,
+      precinct: 5,
+    })
     cy.contains('Back to Tally Index').click()
 
     // Check that the exported SEMS result file as the correct tallies
