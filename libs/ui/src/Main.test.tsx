@@ -34,4 +34,13 @@ describe('renders Main', () => {
     )
     expect(container.firstChild).toMatchSnapshot()
   })
+
+  test('with not centered content', () => {
+    const { container } = render(
+      <Main noOverflow>
+        <MainChild centerHorizontal={false}>foo</MainChild>
+      </Main>
+    )
+    expect(container.firstChild).toMatchSnapshot()
+  })
 })

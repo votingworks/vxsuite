@@ -3,7 +3,14 @@ import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 
 import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
-import { Button, ButtonList, HorizontalRule, Loading } from '@votingworks/ui'
+import {
+  Button,
+  ButtonList,
+  HorizontalRule,
+  Loading,
+  Main,
+  MainChild,
+} from '@votingworks/ui'
 import {
   formatFullDateTimeZone,
   Tally,
@@ -16,7 +23,6 @@ import {
 
 import { MachineConfig } from '../config/types'
 
-import Main, { MainChild } from '../components/Main'
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'

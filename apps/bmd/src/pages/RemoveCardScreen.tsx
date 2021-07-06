@@ -1,7 +1,8 @@
 import React from 'react'
 
+import { Main, MainChild } from '@votingworks/ui'
+
 import styled from 'styled-components'
-import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 

@@ -12,7 +12,7 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
   OptionalYesNoVote,
 } from '@votingworks/types'
-import { Button } from '@votingworks/ui'
+import { Button, Main } from '@votingworks/ui'
 
 import {
   EventTargetFunction,
@@ -22,7 +22,6 @@ import {
 
 import { FONT_SIZES } from '../config/globals'
 
-import Main from './Main'
 import ChoiceButton from './ChoiceButton'
 import Prose from './Prose'
 import Text, { TextWithLineBreaks } from './Text'

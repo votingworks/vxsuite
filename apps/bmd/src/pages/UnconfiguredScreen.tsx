@@ -1,6 +1,8 @@
 import React from 'react'
+
+import { Main, MainChild } from '@votingworks/ui'
+
 import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
 import Screen from '../components/Screen'
 
 const UnconfiguredScreen: React.FC = () => (

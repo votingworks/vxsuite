@@ -9,7 +9,7 @@ import React, {
 } from 'react'
 import styled from 'styled-components'
 import { CandidateVote, YesNoVote, OptionalYesNoVote } from '@votingworks/types'
-import { Button, DecoyButton, LinkButton } from '@votingworks/ui'
+import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui'
 
 import { getSingleYesNoVote } from '@votingworks/utils'
 import { findPartyById } from '../utils/find'
@@ -23,7 +23,6 @@ import {
   YesNoContestResultInterface,
 } from '../config/types'
 
-import Main from '../components/Main'
 import Prose from '../components/Prose'
 import Text, { NoWrap } from '../components/Text'
 import { FONT_SIZES, YES_NO_VOTES } from '../config/globals'
