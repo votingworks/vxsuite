@@ -1,12 +1,14 @@
 import React from 'react'
 import styled from 'styled-components'
+
+import { Button, SegmentedButton } from '@votingworks/ui'
+
 import {
   EventTargetFunction,
   SetUserSettings,
   TextSizeSetting,
   UserSettings,
 } from '../config/types'
-import Button, { SegmentedButton } from './Button'
 import { FONT_SIZES } from '../config/globals'
 
 const Container = styled.div`

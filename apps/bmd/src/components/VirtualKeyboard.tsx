@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { EventTargetFunction } from '../config/types'
 
-import Button from './Button'
+import { Button } from '@votingworks/ui'
+
+import { EventTargetFunction } from '../config/types'
 
 const Keyboard = styled.div`
   & div {

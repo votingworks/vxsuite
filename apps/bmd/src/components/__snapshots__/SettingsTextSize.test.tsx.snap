@@ -1,83 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders SettingsTextSize 1`] = `
-.c5 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
-}
-
-.c5:focus {
-  outline: none;
-}
-
-.c5:hover,
-.c5:active {
-  outline: none;
-}
-
-.c6 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c6:focus {
-  outline: none;
-}
-
-.c6:hover,
-.c6:active {
-  outline: none;
-}
-
-.c4 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c4 > button {
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c4 > button:first-child {
-  box-shadow: none;
-}
-
-.c4 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c4 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c4 > button:disabled {
-  background: #028099;
-  color: #ffffff;
-}
-
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -141,11 +64,11 @@ exports[`renders SettingsTextSize 1`] = `
         class="c3"
       >
         <span
-          class="c4"
+          class="sc-dkPtyc bMgDJv"
           data-testid="change-text-size-buttons"
         >
           <button
-            class="c5"
+            class="sc-gsDJrp gwgkfw"
             data-size="0"
             type="button"
             value="0"
@@ -153,7 +76,7 @@ exports[`renders SettingsTextSize 1`] = `
             A
           </button>
           <button
-            class="c6"
+            class="sc-gsDJrp eRXSeO"
             data-size="1"
             type="button"
             value="1"
@@ -161,7 +84,7 @@ exports[`renders SettingsTextSize 1`] = `
             A
           </button>
           <button
-            class="c5"
+            class="sc-gsDJrp gwgkfw"
             data-size="2"
             type="button"
             value="2"

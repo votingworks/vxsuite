@@ -3,9 +3,9 @@ import styled, { css, StyledComponent } from 'styled-components'
 import { EventTargetFunction } from '@votingworks/types'
 
 export interface ButtonInterface {
-  readonly large?: boolean
   readonly danger?: boolean
   readonly fullWidth?: boolean
+  readonly large?: boolean
   readonly noFocus?: boolean
   readonly noWrap?: boolean
   readonly primary?: boolean
@@ -69,13 +69,13 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `
 
-export interface Props extends StyledButtonProps {
+export interface ButtonProps extends StyledButtonProps {
   component?: StyledComponent<'button', never, StyledButtonProps, never>
   onPress: EventTargetFunction
   ref?: React.Ref<HTMLButtonElement>
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, Props>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
     const [startCoordinates, setStartCoordinates] = useState([0, 0])
 

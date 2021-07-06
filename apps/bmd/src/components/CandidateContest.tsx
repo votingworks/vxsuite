@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react'
 import styled from 'styled-components'
+
 import {
   Candidate,
   OptionalCandidate,
@@ -14,6 +15,7 @@ import {
   CandidateContest as CandidateContestInterface,
   Parties,
 } from '@votingworks/types'
+import { Button } from '@votingworks/ui'
 
 import { findPartyById } from '../utils/find'
 import stripQuotes from '../utils/stripQuotes'
@@ -29,7 +31,6 @@ import BallotContext from '../contexts/ballotContext'
 import { Blink } from './Animations'
 import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals'
 import ChoiceButton from './ChoiceButton'
-import Button from './Button'
 import Main from './Main'
 import Modal from './Modal'
 import Prose from './Prose'
@@ -407,7 +408,7 @@ const CandidateContest: React.FC<Props> = ({
             <ScrollControls aria-hidden>
               <Button
                 className="scroll-up"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="up"
@@ -418,7 +419,7 @@ const CandidateContest: React.FC<Props> = ({
               </Button>
               <Button
                 className="scroll-down"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="down"

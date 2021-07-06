@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import pluralize from 'pluralize'
+
 import {
   VotesDict,
   CandidateContest,
   Election,
   ElectionDefinition,
 } from '@votingworks/types'
+import { Button } from '@votingworks/ui'
 
 import { EventTargetFunction, MachineConfig } from '../config/types'
 
-import Button from '../components/Button'
 import ButtonList from '../components/ButtonList'
 import ElectionInfo from '../components/ElectionInfo'
 import Main, { MainChild } from '../components/Main'
@@ -179,7 +180,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
                   for {precinct.name}.
                 </p>
                 <p>
-                  <Button big primary onPress={handlePrinting}>
+                  <Button large primary onPress={handlePrinting}>
                     Print {ballots.length} ballots
                   </Button>
                 </p>

@@ -2,9 +2,9 @@ import React, { ReactNode } from 'react'
 import ReactModal from 'react-modal'
 import styled from 'styled-components'
 
-import './Modal.css'
+import { ButtonBar } from '@votingworks/ui'
 
-import ButtonBar from './ButtonBar'
+import './Modal.css'
 
 interface ModalContentInterface {
   centerContent?: boolean

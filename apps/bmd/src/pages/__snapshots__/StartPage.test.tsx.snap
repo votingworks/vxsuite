@@ -6,11 +6,11 @@ exports[`renders StartPage 1`] = `
   animation: hktaaY 10s ease-in-out infinite;
 }
 
-.c20 {
+.c16 {
   max-width: 250px;
 }
 
-.c21 {
+.c17 {
   max-width: 250px;
 }
 
@@ -166,95 +166,95 @@ exports[`renders StartPage 1`] = `
   margin: 1rem 0;
 }
 
-.c22 {
+.c18 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c22 h1 {
+.c18 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c22 h2 {
+.c18 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c22 h3 {
+.c18 h3 {
   font-size: 1.17rem;
 }
 
-.c22 h4 {
+.c18 h4 {
   font-size: 1rem;
 }
 
-.c22 h5 {
+.c18 h5 {
   font-size: 0.9rem;
 }
 
-.c22 h3,
-.c22 h4,
-.c22 h5,
-.c22 p,
-.c22 ol,
-.c22 ul {
+.c18 h3,
+.c18 h4,
+.c18 h5,
+.c18 p,
+.c18 ol,
+.c18 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.c22 h1 + h2 {
+.c18 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c22 h1 + p,
-.c22 h2 + p,
-.c22 h1 + ol,
-.c22 h2 + ol,
-.c22 h1 + ul,
-.c22 h2 + ul {
+.c18 h1 + p,
+.c18 h2 + p,
+.c18 h1 + ol,
+.c18 h2 + ol,
+.c18 h1 + ul,
+.c18 h2 + ul {
   margin-top: -0.75rem;
 }
 
-.c22 h3 + p,
-.c22 h4 + p,
-.c22 h5 + p,
-.c22 h3 + ol,
-.c22 h4 + ol,
-.c22 h5 + ol,
-.c22 h3 + ul,
-.c22 h4 + ul,
-.c22 h5 + ul {
+.c18 h3 + p,
+.c18 h4 + p,
+.c18 h5 + p,
+.c18 h3 + ol,
+.c18 h4 + ol,
+.c18 h5 + ol,
+.c18 h3 + ul,
+.c18 h4 + ul,
+.c18 h5 + ul {
   margin-top: 0;
 }
 
-.c22 > :first-child {
+.c18 > :first-child {
   margin-top: 0;
 }
 
-.c22 > :last-child {
+.c18 > :last-child {
   margin-bottom: 0;
 }
 
-.c22 dl {
+.c18 dl {
   margin: 1rem 0;
 }
 
-.c23 {
+.c19 {
   font-size: 0.8rem;
 }
 
-.c25 {
+.c21 {
   font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c24 {
+.c20 {
   white-space: nowrap;
 }
 
-.c18 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -262,7 +262,7 @@ exports[`renders StartPage 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c19 {
+.c15 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -277,110 +277,9 @@ exports[`renders StartPage 1`] = `
   margin: auto;
 }
 
-.c19 div:first-child {
+.c15 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
-}
-
-.c9 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-  touch-action: manipulation;
-}
-
-.c9:focus {
-  outline: none;
-}
-
-.c9:hover,
-.c9:active {
-  outline: none;
-}
-
-.c16 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
-}
-
-.c16:focus {
-  outline: none;
-}
-
-.c16:hover,
-.c16:active {
-  outline: none;
-}
-
-.c17 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c17:focus {
-  outline: none;
-}
-
-.c17:hover,
-.c17:active {
-  outline: none;
-}
-
-.c15 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c15 > button {
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c15 > button:first-child {
-  box-shadow: none;
-}
-
-.c15 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c15 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c15 > button:disabled {
-  background: #028099;
-  color: #ffffff;
 }
 
 .c1 {
@@ -429,7 +328,7 @@ exports[`renders StartPage 1`] = `
   width: 100%;
 }
 
-.c10 {
+.c9 {
   margin: 1rem;
 }
 
@@ -456,7 +355,7 @@ exports[`renders StartPage 1`] = `
   flex: 2;
 }
 
-.c11 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -470,7 +369,7 @@ exports[`renders StartPage 1`] = `
   padding: 1rem 0;
 }
 
-.c12 {
+.c11 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -481,23 +380,23 @@ exports[`renders StartPage 1`] = `
   justify-content: center;
 }
 
-.c14 button {
+.c13 button {
   min-width: 112px;
 }
 
-.c14 button[data-size='0'] {
+.c13 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c14 button[data-size='1'] {
+.c13 button[data-size='1'] {
   font-size: 28px !important;
 }
 
-.c14 button[data-size='2'] {
+.c13 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c13 {
+.c12 {
   display: block;
   margin-bottom: 0.4rem;
 }
@@ -519,7 +418,7 @@ exports[`renders StartPage 1`] = `
 }
 
 @media (min-width:480px) {
-  .c22 {
+  .c18 {
     line-height: 1.3;
   }
 }
@@ -585,7 +484,7 @@ exports[`renders StartPage 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="c9"
+            class="sc-gsDJrp kiClTd"
             id="next"
             role="option"
             type="button"
@@ -596,30 +495,30 @@ exports[`renders StartPage 1`] = `
       </div>
     </div>
     <div
-      class="c10"
+      class="c9"
     >
       <div
         aria-hidden="true"
-        class="c11"
+        class="c10"
       >
         <div
-          class="c12"
+          class="c11"
         >
           <div>
             <div
-              class="c13"
+              class="c12"
             >
               Change Text Size
             </div>
             <div
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="sc-dkPtyc bMgDJv"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="c16"
+                  class="sc-gsDJrp gwgkfw"
                   data-size="0"
                   type="button"
                   value="0"
@@ -627,7 +526,7 @@ exports[`renders StartPage 1`] = `
                   A
                 </button>
                 <button
-                  class="c17"
+                  class="sc-gsDJrp eRXSeO"
                   data-size="1"
                   type="button"
                   value="1"
@@ -635,7 +534,7 @@ exports[`renders StartPage 1`] = `
                   A
                 </button>
                 <button
-                  class="c16"
+                  class="sc-gsDJrp gwgkfw"
                   data-size="2"
                   type="button"
                   value="2"
@@ -649,24 +548,24 @@ exports[`renders StartPage 1`] = `
       </div>
       <div
         aria-hidden="true"
-        class="c18"
+        class="c14"
         data-testid="election-info"
       >
         <div
-          class="c19"
+          class="c15"
         >
           <div
             aria-hidden="true"
-            class="c20"
+            class="c16"
           >
             <img
               alt="state seal"
-              class="c21"
+              class="c17"
               src="/seals/Sample-Seal.svg"
             />
           </div>
           <div
-            class="c22"
+            class="c18"
           >
             <h5
               aria-label="Democratic Primary Election."
@@ -674,35 +573,35 @@ exports[`renders StartPage 1`] = `
               Democratic Primary Election
             </h5>
             <p
-              class="c23"
+              class="c19"
             >
               November 3, 2020
               <br />
               <span
-                class="c24"
+                class="c20"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="c24"
+                class="c20"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="c25"
+              class="c21"
             >
               <span
-                class="c24"
+                class="c20"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="c24"
+                class="c20"
               >
                 ballot style 
                 12D
@@ -722,7 +621,7 @@ exports[`renders StartPage with inline SVG 1`] = `
   animation: hktaaY 10s ease-in-out infinite;
 }
 
-.c20 {
+.c16 {
   max-width: 250px;
 }
 
@@ -878,95 +777,95 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin: 1rem 0;
 }
 
-.c21 {
+.c17 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c21 h1 {
+.c17 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c21 h2 {
+.c17 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c21 h3 {
+.c17 h3 {
   font-size: 1.17rem;
 }
 
-.c21 h4 {
+.c17 h4 {
   font-size: 1rem;
 }
 
-.c21 h5 {
+.c17 h5 {
   font-size: 0.9rem;
 }
 
-.c21 h3,
-.c21 h4,
-.c21 h5,
-.c21 p,
-.c21 ol,
-.c21 ul {
+.c17 h3,
+.c17 h4,
+.c17 h5,
+.c17 p,
+.c17 ol,
+.c17 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.c21 h1 + h2 {
+.c17 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c21 h1 + p,
-.c21 h2 + p,
-.c21 h1 + ol,
-.c21 h2 + ol,
-.c21 h1 + ul,
-.c21 h2 + ul {
+.c17 h1 + p,
+.c17 h2 + p,
+.c17 h1 + ol,
+.c17 h2 + ol,
+.c17 h1 + ul,
+.c17 h2 + ul {
   margin-top: -0.75rem;
 }
 
-.c21 h3 + p,
-.c21 h4 + p,
-.c21 h5 + p,
-.c21 h3 + ol,
-.c21 h4 + ol,
-.c21 h5 + ol,
-.c21 h3 + ul,
-.c21 h4 + ul,
-.c21 h5 + ul {
+.c17 h3 + p,
+.c17 h4 + p,
+.c17 h5 + p,
+.c17 h3 + ol,
+.c17 h4 + ol,
+.c17 h5 + ol,
+.c17 h3 + ul,
+.c17 h4 + ul,
+.c17 h5 + ul {
   margin-top: 0;
 }
 
-.c21 > :first-child {
+.c17 > :first-child {
   margin-top: 0;
 }
 
-.c21 > :last-child {
+.c17 > :last-child {
   margin-bottom: 0;
 }
 
-.c21 dl {
+.c17 dl {
   margin: 1rem 0;
 }
 
-.c22 {
+.c18 {
   font-size: 0.8rem;
 }
 
-.c24 {
+.c20 {
   font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c23 {
+.c19 {
   white-space: nowrap;
 }
 
-.c18 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -974,7 +873,7 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c19 {
+.c15 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -989,110 +888,9 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin: auto;
 }
 
-.c19 div:first-child {
+.c15 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
-}
-
-.c9 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-  touch-action: manipulation;
-}
-
-.c9:focus {
-  outline: none;
-}
-
-.c9:hover,
-.c9:active {
-  outline: none;
-}
-
-.c16 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
-}
-
-.c16:focus {
-  outline: none;
-}
-
-.c16:hover,
-.c16:active {
-  outline: none;
-}
-
-.c17 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c17:focus {
-  outline: none;
-}
-
-.c17:hover,
-.c17:active {
-  outline: none;
-}
-
-.c15 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c15 > button {
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c15 > button:first-child {
-  box-shadow: none;
-}
-
-.c15 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c15 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c15 > button:disabled {
-  background: #028099;
-  color: #ffffff;
 }
 
 .c1 {
@@ -1141,7 +939,7 @@ exports[`renders StartPage with inline SVG 1`] = `
   width: 100%;
 }
 
-.c10 {
+.c9 {
   margin: 1rem;
 }
 
@@ -1168,7 +966,7 @@ exports[`renders StartPage with inline SVG 1`] = `
   flex: 2;
 }
 
-.c11 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1182,7 +980,7 @@ exports[`renders StartPage with inline SVG 1`] = `
   padding: 1rem 0;
 }
 
-.c12 {
+.c11 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1193,23 +991,23 @@ exports[`renders StartPage with inline SVG 1`] = `
   justify-content: center;
 }
 
-.c14 button {
+.c13 button {
   min-width: 112px;
 }
 
-.c14 button[data-size='0'] {
+.c13 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c14 button[data-size='1'] {
+.c13 button[data-size='1'] {
   font-size: 28px !important;
 }
 
-.c14 button[data-size='2'] {
+.c13 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c13 {
+.c12 {
   display: block;
   margin-bottom: 0.4rem;
 }
@@ -1231,7 +1029,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 @media (min-width:480px) {
-  .c21 {
+  .c17 {
     line-height: 1.3;
   }
 }
@@ -1297,7 +1095,7 @@ exports[`renders StartPage with inline SVG 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="c9"
+            class="sc-gsDJrp kiClTd"
             id="next"
             role="option"
             type="button"
@@ -1308,30 +1106,30 @@ exports[`renders StartPage with inline SVG 1`] = `
       </div>
     </div>
     <div
-      class="c10"
+      class="c9"
     >
       <div
         aria-hidden="true"
-        class="c11"
+        class="c10"
       >
         <div
-          class="c12"
+          class="c11"
         >
           <div>
             <div
-              class="c13"
+              class="c12"
             >
               Change Text Size
             </div>
             <div
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="sc-dkPtyc bMgDJv"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="c16"
+                  class="sc-gsDJrp gwgkfw"
                   data-size="0"
                   type="button"
                   value="0"
@@ -1339,7 +1137,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                   A
                 </button>
                 <button
-                  class="c17"
+                  class="sc-gsDJrp eRXSeO"
                   data-size="1"
                   type="button"
                   value="1"
@@ -1347,7 +1145,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                   A
                 </button>
                 <button
-                  class="c16"
+                  class="sc-gsDJrp gwgkfw"
                   data-size="2"
                   type="button"
                   value="2"
@@ -1361,15 +1159,15 @@ exports[`renders StartPage with inline SVG 1`] = `
       </div>
       <div
         aria-hidden="true"
-        class="c18"
+        class="c14"
         data-testid="election-info"
       >
         <div
-          class="c19"
+          class="c15"
         >
           <div
             aria-hidden="true"
-            class="c20"
+            class="c16"
           >
             <svg
               version="1.1"
@@ -1536,7 +1334,7 @@ exports[`renders StartPage with inline SVG 1`] = `
             </svg>
           </div>
           <div
-            class="c21"
+            class="c17"
           >
             <h5
               aria-label=" General Election."
@@ -1544,28 +1342,28 @@ exports[`renders StartPage with inline SVG 1`] = `
                General Election
             </h5>
             <p
-              class="c22"
+              class="c18"
             >
               November 3, 2020
               <br />
               <span
-                class="c23"
+                class="c19"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="c23"
+                class="c19"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="c24"
+              class="c20"
             >
               <span
-                class="c23"
+                class="c19"
               >
                 Center Springfield
                 
@@ -1587,7 +1385,7 @@ exports[`renders StartPage with no seal 1`] = `
   animation: hktaaY 10s ease-in-out infinite;
 }
 
-.c20 {
+.c16 {
   max-width: 250px;
 }
 
@@ -1743,95 +1541,95 @@ exports[`renders StartPage with no seal 1`] = `
   margin: 1rem 0;
 }
 
-.c21 {
+.c17 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c21 h1 {
+.c17 h1 {
   margin: 2rem 0 1rem;
   line-height: 1.1;
   font-size: 1.5rem;
 }
 
-.c21 h2 {
+.c17 h2 {
   margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
 }
 
-.c21 h3 {
+.c17 h3 {
   font-size: 1.17rem;
 }
 
-.c21 h4 {
+.c17 h4 {
   font-size: 1rem;
 }
 
-.c21 h5 {
+.c17 h5 {
   font-size: 0.9rem;
 }
 
-.c21 h3,
-.c21 h4,
-.c21 h5,
-.c21 p,
-.c21 ol,
-.c21 ul {
+.c17 h3,
+.c17 h4,
+.c17 h5,
+.c17 p,
+.c17 ol,
+.c17 ul {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.c21 h1 + h2 {
+.c17 h1 + h2 {
   margin-top: -0.75rem;
 }
 
-.c21 h1 + p,
-.c21 h2 + p,
-.c21 h1 + ol,
-.c21 h2 + ol,
-.c21 h1 + ul,
-.c21 h2 + ul {
+.c17 h1 + p,
+.c17 h2 + p,
+.c17 h1 + ol,
+.c17 h2 + ol,
+.c17 h1 + ul,
+.c17 h2 + ul {
   margin-top: -0.75rem;
 }
 
-.c21 h3 + p,
-.c21 h4 + p,
-.c21 h5 + p,
-.c21 h3 + ol,
-.c21 h4 + ol,
-.c21 h5 + ol,
-.c21 h3 + ul,
-.c21 h4 + ul,
-.c21 h5 + ul {
+.c17 h3 + p,
+.c17 h4 + p,
+.c17 h5 + p,
+.c17 h3 + ol,
+.c17 h4 + ol,
+.c17 h5 + ol,
+.c17 h3 + ul,
+.c17 h4 + ul,
+.c17 h5 + ul {
   margin-top: 0;
 }
 
-.c21 > :first-child {
+.c17 > :first-child {
   margin-top: 0;
 }
 
-.c21 > :last-child {
+.c17 > :last-child {
   margin-bottom: 0;
 }
 
-.c21 dl {
+.c17 dl {
   margin: 1rem 0;
 }
 
-.c22 {
+.c18 {
   font-size: 0.8rem;
 }
 
-.c24 {
+.c20 {
   font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c23 {
+.c19 {
   white-space: nowrap;
 }
 
-.c18 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1839,7 +1637,7 @@ exports[`renders StartPage with no seal 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c19 {
+.c15 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1854,110 +1652,9 @@ exports[`renders StartPage with no seal 1`] = `
   margin: auto;
 }
 
-.c19 div:first-child {
+.c15 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
-}
-
-.c9 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 1rem 1.75rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  font-size: 1.25rem;
-  touch-action: manipulation;
-}
-
-.c9:focus {
-  outline: none;
-}
-
-.c9:hover,
-.c9:active {
-  outline: none;
-}
-
-.c16 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(211,211,211);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: black;
-  touch-action: manipulation;
-}
-
-.c16:focus {
-  outline: none;
-}
-
-.c16:hover,
-.c16:active {
-  outline: none;
-}
-
-.c17 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 0 rgba(71,167,75,1);
-  box-sizing: border-box;
-  background: rgb(71,167,75);
-  cursor: pointer;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25;
-  color: #FFFFFF;
-  touch-action: manipulation;
-}
-
-.c17:focus {
-  outline: none;
-}
-
-.c17:hover,
-.c17:active {
-  outline: none;
-}
-
-.c15 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c15 > button {
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c15 > button:first-child {
-  box-shadow: none;
-}
-
-.c15 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c15 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c15 > button:disabled {
-  background: #028099;
-  color: #ffffff;
 }
 
 .c1 {
@@ -2006,7 +1703,7 @@ exports[`renders StartPage with no seal 1`] = `
   width: 100%;
 }
 
-.c10 {
+.c9 {
   margin: 1rem;
 }
 
@@ -2033,7 +1730,7 @@ exports[`renders StartPage with no seal 1`] = `
   flex: 2;
 }
 
-.c11 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2047,7 +1744,7 @@ exports[`renders StartPage with no seal 1`] = `
   padding: 1rem 0;
 }
 
-.c12 {
+.c11 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2058,23 +1755,23 @@ exports[`renders StartPage with no seal 1`] = `
   justify-content: center;
 }
 
-.c14 button {
+.c13 button {
   min-width: 112px;
 }
 
-.c14 button[data-size='0'] {
+.c13 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c14 button[data-size='1'] {
+.c13 button[data-size='1'] {
   font-size: 28px !important;
 }
 
-.c14 button[data-size='2'] {
+.c13 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c13 {
+.c12 {
   display: block;
   margin-bottom: 0.4rem;
 }
@@ -2096,7 +1793,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 @media (min-width:480px) {
-  .c21 {
+  .c17 {
     line-height: 1.3;
   }
 }
@@ -2162,7 +1859,7 @@ exports[`renders StartPage with no seal 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="c9"
+            class="sc-gsDJrp kiClTd"
             id="next"
             role="option"
             type="button"
@@ -2173,30 +1870,30 @@ exports[`renders StartPage with no seal 1`] = `
       </div>
     </div>
     <div
-      class="c10"
+      class="c9"
     >
       <div
         aria-hidden="true"
-        class="c11"
+        class="c10"
       >
         <div
-          class="c12"
+          class="c11"
         >
           <div>
             <div
-              class="c13"
+              class="c12"
             >
               Change Text Size
             </div>
             <div
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="sc-dkPtyc bMgDJv"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="c16"
+                  class="sc-gsDJrp gwgkfw"
                   data-size="0"
                   type="button"
                   value="0"
@@ -2204,7 +1901,7 @@ exports[`renders StartPage with no seal 1`] = `
                   A
                 </button>
                 <button
-                  class="c17"
+                  class="sc-gsDJrp eRXSeO"
                   data-size="1"
                   type="button"
                   value="1"
@@ -2212,7 +1909,7 @@ exports[`renders StartPage with no seal 1`] = `
                   A
                 </button>
                 <button
-                  class="c16"
+                  class="sc-gsDJrp gwgkfw"
                   data-size="2"
                   type="button"
                   value="2"
@@ -2226,18 +1923,18 @@ exports[`renders StartPage with no seal 1`] = `
       </div>
       <div
         aria-hidden="true"
-        class="c18"
+        class="c14"
         data-testid="election-info"
       >
         <div
-          class="c19"
+          class="c15"
         >
           <div
             aria-hidden="true"
-            class="c20"
+            class="c16"
           />
           <div
-            class="c21"
+            class="c17"
           >
             <h5
               aria-label=" General Election."
@@ -2245,28 +1942,28 @@ exports[`renders StartPage with no seal 1`] = `
                General Election
             </h5>
             <p
-              class="c22"
+              class="c18"
             >
               November 3, 2020
               <br />
               <span
-                class="c23"
+                class="c19"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="c23"
+                class="c19"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="c24"
+              class="c20"
             >
               <span
-                class="c23"
+                class="c19"
               >
                 Center Springfield
                 

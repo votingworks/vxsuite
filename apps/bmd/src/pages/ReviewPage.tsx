@@ -8,6 +8,7 @@ import React, {
 } from 'react'
 import styled from 'styled-components'
 import { CandidateVote, YesNoVote, OptionalYesNoVote } from '@votingworks/types'
+import { Button, DecoyButton } from '@votingworks/ui'
 
 import { getSingleYesNoVote } from '@votingworks/utils'
 import { findPartyById } from '../utils/find'
@@ -21,7 +22,6 @@ import {
   YesNoContestResultInterface,
 } from '../config/types'
 
-import Button, { DecoyButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Main from '../components/Main'
 import Prose from '../components/Prose'
@@ -450,7 +450,7 @@ const ReviewPage: React.FC = () => {
             <ScrollControls aria-hidden>
               <Button
                 className="scroll-up"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="up"
@@ -461,7 +461,7 @@ const ReviewPage: React.FC = () => {
               </Button>
               <Button
                 className="scroll-down"
-                big
+                large
                 primary
                 aria-hidden
                 data-direction="down"
@@ -496,7 +496,7 @@ const ReviewPage: React.FC = () => {
           <p>Confirm your votes are correct.</p>
           <p>
             <LinkButton
-              big
+              large
               primary
               to={machineConfig.appMode.isVxPrint ? '/print' : '/save'}
               id="next"

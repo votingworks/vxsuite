@@ -1,8 +1,9 @@
 import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { EventTargetFunction } from '../config/types'
 
-import Button, { ButtonInterface } from './Button'
+import { Button, ButtonInterface } from '@votingworks/ui'
+
+import { EventTargetFunction } from '../config/types'
 
 interface Props
   extends ButtonInterface,
