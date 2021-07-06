@@ -190,7 +190,11 @@ const ExportResultsModal: React.FC<Props> = ({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage src="usb-stick.svg" alt="Insert USB Image" />
+                <USBImage
+                  src="usb-stick.svg"
+                  alt="Insert USB Image"
+                  onDoubleClick={() => exportResults(true)}
+                />
                 Please insert a USB drive in order to export the scanner
                 results.
               </p>
@@ -231,7 +235,11 @@ const ExportResultsModal: React.FC<Props> = ({
           content={
             <Prose>
               <h1>Export Results</h1>
-              <USBImage src="usb-stick.svg" alt="Insert USB Image" />
+              <USBImage
+                src="usb-stick.svg"
+                alt="Insert USB Image"
+                onDoubleClick={() => exportResults(true)}
+              />
               <p>
                 A CVR file will automatically be saved to the default location
                 on the mounted USB drive. Optionally, you may pick a custom
