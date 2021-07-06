@@ -10,17 +10,17 @@ const Fullscreen = styled.div`
   justify-content: center;
 `
 
-interface Props {
+interface LoadingProps {
   children?: string
   isFullscreen?: boolean
   as?: keyof JSX.IntrinsicElements
 }
 
-export const Loading: React.FC<Props> = ({
+export const Loading: React.FC<LoadingProps> = ({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
-}: Props) => {
+}: LoadingProps) => {
   const content = (
     <Prose>
       {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}

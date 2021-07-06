@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { VotesDict, ElectionDefinition } from '@votingworks/types'
 
-import Loading from '../components/Loading'
+import { VotesDict, ElectionDefinition } from '@votingworks/types'
+import { Loading } from '@votingworks/ui'
+
 import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'

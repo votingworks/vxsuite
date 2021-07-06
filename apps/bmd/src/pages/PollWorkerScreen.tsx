@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 
 import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
-import { Button, ButtonList, HorizontalRule } from '@votingworks/ui'
+import { Button, ButtonList, HorizontalRule, Loading } from '@votingworks/ui'
 import {
   formatFullDateTimeZone,
   Tally,
@@ -26,7 +26,6 @@ import ElectionInfo from '../components/ElectionInfo'
 import { Printer } from '../utils/printer'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
-import Loading from '../components/Loading'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import Table from '../components/Table'
 import VersionsData from '../components/VersionsData'
