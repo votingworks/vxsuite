@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import { Loading, Main, MainChild } from '@votingworks/ui'
+import { Loading, Main, MainChild, ProgressBar } from '@votingworks/ui'
 
-import ProgressBar from '../components/ProgressBar'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 
