@@ -26,12 +26,8 @@
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
     "test:update": "TZ=UTC script/react-scripts test -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
-    "test:watch": "TZ=UTC script/react-scripts test --env=jest-environment-jsdom-sixteen"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsc --build && lint-staged"
-    }
+    "test:watch": "TZ=UTC script/react-scripts test --env=jest-environment-jsdom-sixteen",
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [
@@ -43,6 +39,9 @@
     ],
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
       "prettier --write"
+    ],
+    "package.json": [
+      "sort-package-json"
     ]
   },
   "browserslist": {
@@ -148,7 +147,6 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-vx": "workspace:*",
-    "husky": "^4.2.5",
     "is-ci-cli": "^2.0.0",
     "jest-date-mock": "^1.0.8",
     "jest-environment-jsdom-sixteen": "^1.0.3",
@@ -157,6 +155,7 @@
     "lint-staged": "^10.2.4",
     "prettier": "^2.1.1",
     "react-dev-utils": "^11.0.3",
+    "sort-package-json": "^1.50.0",
     "start-server-and-test": "^1.11.0",
     "stylelint": "^13.3.3",
     "stylelint-config-palantir": "^4.0.1",
