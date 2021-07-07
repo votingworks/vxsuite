@@ -1,3 +1,5 @@
+import { Dictionary } from '@votingworks/types'
+
 export interface SingleSEMsResultInfo {
   precinctId: string
   contestId: string
@@ -5,7 +7,12 @@ export interface SingleSEMsResultInfo {
   numberOfVotes: number
 }
 
-export function assertExpectedResultsMatchSEMsFile(expectedResults: SingleSEMsResultInfo[], semsFileContent: string): void {
+// Assert that the sems file content matches the expected tally results.
+// Unspecified contests or candidates in contests ARE checked to have a tally of 0.
+export function assertExpectedResultsMatchSEMsFile(
+  expectedResults: SingleSEMsResultInfo[],
+  semsFileContent: string
+): void {
   const resultRows = semsFileContent
     .split('\r\n')
     .map((r) => r.replace('\n', ': '))
@@ -29,4 +36,55 @@ export function assertExpectedResultsMatchSEMsFile(expectedResults: SingleSEMsRe
       `results for precinct: ${rowPrecinctId} contest: ${rowContestId} candidate: ${rowCandidateId}`
     ).to.eqls(JSON.stringify(expectedNumberOfVotes))
   })
+}
+
+export interface ExpectedContestResults {
+  contestId: string
+  metadata: { ballots: number; undervotes: number; overvotes: number }
+  votesByOptionId: Dictionary<number>
+}
+
+export interface ExpectedSummaryData {
+  hide?: boolean // Do not check summary data, there is none when view Absentee or Precinct only reports
+  absentee?: number
+  precinct?: number
+}
+
+// Assert that the current tally report screen matches the expected tally results.
+// Unspecified contests or candidates in contests are NOT checked for any particular result.
+export function assertExpectedResultsMatchTallyReport(
+  expectedContestResults: ExpectedContestResults[], // {Contest-Id: {Candidate-Id: Number of Votes}}
+  summaryData: ExpectedSummaryData
+): void {
+  cy.contains('Preview Report').click() // Not relevant to the test but useful when debugging with the live video.
+  if (!summaryData.hide) {
+    const expectedAbsenteeVotes = summaryData.absentee ?? 0
+    const expectedPrecinctVotes = summaryData.precinct ?? 0
+    cy.get('[data-testid="absentee"]').within(() =>
+      cy.contains(expectedAbsenteeVotes)
+    )
+    cy.get('[data-testid="standard"]').within(() =>
+      cy.contains(expectedPrecinctVotes)
+    )
+    cy.get('[data-testid="total"]').within(() =>
+      cy.contains(expectedPrecinctVotes + expectedAbsenteeVotes)
+    )
+  }
+  for (const expectedContestResult of expectedContestResults) {
+    const { ballots, undervotes, overvotes } = expectedContestResult.metadata
+    cy.get(
+      `[data-testid="results-table-${expectedContestResult.contestId}`
+    ).within(() => {
+      cy.contains(`${ballots} ballot`)
+      cy.contains(`${overvotes} overvote`)
+      cy.contains(`${undervotes} undervote`)
+    })
+    for (const [optionId, numberOfVotes] of Object.entries(
+      expectedContestResult.votesByOptionId
+    )) {
+      cy.get(
+        `[data-testid="${expectedContestResult.contestId}-${optionId}"]`
+      ).within(() => cy.contains(numberOfVotes!))
+    }
+  }
 }
