@@ -84,6 +84,10 @@ export default ESLintUtils.RuleCreator(() => 'https://voting.works/')({
         return node.expressions.some((item) => isUnhandledResult(checker, item))
       }
 
+      if (node.type === AST_NODE_TYPES.AssignmentExpression) {
+        return false
+      }
+
       if (
         !options.ignoreVoid &&
         node.type === AST_NODE_TYPES.UnaryExpression &&

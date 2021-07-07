@@ -29,6 +29,15 @@ ok().ok()
 import { ok } from '@votingworks/types'
 ok().err()
     `,
+    `
+import { ok, Result } from '@votingworks/types'
+let result: Result<void, void>
+if (true) {
+  result = ok()
+} else {
+  result = ok()
+}
+    `,
     {
       options: [{ ignoreVoid: true }],
       code: `
