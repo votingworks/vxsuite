@@ -34,7 +34,7 @@ const PrintPage: React.FC = () => {
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print()
+      await printer.print({ sides: 'one-sided' })
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         resetBallot(isCardlessVoter ? 'cardless' : 'card')

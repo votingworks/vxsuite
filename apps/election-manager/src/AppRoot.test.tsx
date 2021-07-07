@@ -8,6 +8,7 @@ import { BrowserRouter, Route } from 'react-router-dom'
 // import { electionSample } from '@votingworks/fixtures'
 import { MemoryStorage } from '@votingworks/utils'
 import AppRoot from './AppRoot'
+import { NullPrinter } from './utils/printer'
 
 beforeEach(() => {
   fetchMock.get(/^\/convert/, {})
@@ -20,7 +21,9 @@ test('renders without crashing', async () => {
       <BrowserRouter>
         <Route
           path="/"
-          render={(props) => <AppRoot storage={storage} {...props} />}
+          render={(props) => (
+            <AppRoot storage={storage} printer={new NullPrinter()} {...props} />
+          )}
         />
       </BrowserRouter>
     )

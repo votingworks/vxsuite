@@ -21,6 +21,7 @@ import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../src/utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
+import { NullPrinter, Printer } from '../src/utils/printer'
 
 export const eitherNeitherElectionDefinition = {
   election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
@@ -35,6 +36,7 @@ interface RenderInAppContextParams {
   electionDefinition?: ElectionDefinition
   configuredAt?: ISO8601Timestamp
   isOfficialResults?: boolean
+  printer?: Printer
   printBallotRef?: RefObject<HTMLElement>
   saveCastVoteRecordFiles?: SaveCastVoteRecordFiles
   saveElection?: SaveElection
@@ -64,6 +66,7 @@ export default function renderInAppContext(
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = '',
     isOfficialResults = false,
+    printer = new NullPrinter(),
     printBallotRef = undefined,
     saveCastVoteRecordFiles = jest.fn(),
     saveElection = jest.fn(),
@@ -89,6 +92,7 @@ export default function renderInAppContext(
         electionDefinition,
         configuredAt,
         isOfficialResults,
+        printer,
         printBallotRef,
         saveCastVoteRecordFiles,
         saveElection,

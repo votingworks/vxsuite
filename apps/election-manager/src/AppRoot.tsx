@@ -33,6 +33,7 @@ import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from './utils/externalTallies'
+import { Printer } from './utils/printer'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition
@@ -45,6 +46,7 @@ export interface AppStorage {
 
 export interface Props extends RouteComponentProps {
   storage: Storage
+  printer: Printer
 }
 
 export const electionDefinitionStorageKey = 'electionDefinition'
@@ -54,7 +56,7 @@ export const printedBallotsStorageKey = 'printedBallots'
 export const configuredAtStorageKey = 'configuredAt'
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies'
 
-const AppRoot: React.FC<Props> = ({ storage }) => {
+const AppRoot: React.FC<Props> = ({ storage, printer }) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElectionDefinition = useCallback(async (): Promise<
@@ -323,6 +325,7 @@ const AppRoot: React.FC<Props> = ({ storage }) => {
         electionDefinition,
         configuredAt,
         isOfficialResults,
+        printer,
         printBallotRef,
         saveCastVoteRecordFiles,
         saveElection,

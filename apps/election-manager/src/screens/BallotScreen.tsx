@@ -230,6 +230,7 @@ const BallotScreen: React.FC = () => {
                 confirmButtonLabel: 'Yes, Print',
               }}
               copies={ballotCopies}
+              sides="two-sided-long-edge"
               warning={!isLiveMode}
             >
               Print {ballotCopies}{' '}

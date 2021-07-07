@@ -1,8 +1,10 @@
 import React from 'react'
-import { render, act, fireEvent, waitFor } from '@testing-library/react'
+import { act, fireEvent, waitFor } from '@testing-library/react'
 import { fakeKiosk } from '@votingworks/test-utils'
 
 import PrintButton from './PrintButton'
+import fakePrinter from '../../test/helpers/fakePrinter'
+import renderInAppContext from '../../test/renderInAppContext'
 
 beforeAll(() => {
   window.kiosk = fakeKiosk()
@@ -31,9 +33,13 @@ test('if only disconnected printers, show error modal', async () => {
     },
   ])
 
+  const printer = fakePrinter()
   const afterPrint = jest.fn()
-  const { getByText } = render(
-    <PrintButton afterPrint={afterPrint}>Print Now</PrintButton>
+  const { getByText } = renderInAppContext(
+    <PrintButton sides="two-sided-long-edge" afterPrint={afterPrint}>
+      Print Now
+    </PrintButton>,
+    { printer }
   )
 
   await act(async () => {
@@ -46,7 +52,7 @@ test('if only disconnected printers, show error modal', async () => {
 
   expect(mockKiosk.getPrinterInfo).toBeCalled()
 
-  expect(mockKiosk.print).not.toBeCalled()
+  expect(printer.print).not.toBeCalled()
   expect(afterPrint).not.toBeCalled()
 })
 
@@ -69,9 +75,13 @@ test('if connected printers, show printing modal', async () => {
     },
   ])
 
+  const printer = fakePrinter()
   const afterPrint = jest.fn()
-  const { getByText } = render(
-    <PrintButton afterPrint={afterPrint}>Print Now</PrintButton>
+  const { getByText } = renderInAppContext(
+    <PrintButton afterPrint={afterPrint} sides="two-sided-long-edge">
+      Print Now
+    </PrintButton>,
+    { printer }
   )
 
   await act(async () => {
@@ -82,6 +92,6 @@ test('if connected printers, show printing modal', async () => {
 
   expect(mockKiosk.getPrinterInfo).toBeCalled()
 
-  expect(mockKiosk.print).toBeCalled()
+  expect(printer.print).toBeCalled()
   expect(afterPrint).toBeCalled()
 })

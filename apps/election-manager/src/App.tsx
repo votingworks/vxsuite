@@ -6,18 +6,25 @@ import './App.css'
 import { LocalStorage, KioskStorage } from '@votingworks/utils'
 
 import AppRoot, { Props as AppRootProps } from './AppRoot'
+import getPrinter from './utils/printer'
 
 export interface Props {
   storage?: AppRootProps['storage']
+  printer?: AppRootProps['printer']
 }
 
 const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage()
 
-const App: React.FC<Props> = ({ storage = defaultStorage }) => (
+const App: React.FC<Props> = ({
+  storage = defaultStorage,
+  printer = getPrinter(),
+}) => (
   <BrowserRouter>
     <Route
       path="/"
-      render={(props) => <AppRoot storage={storage} {...props} />}
+      render={(props) => (
+        <AppRoot storage={storage} printer={printer} {...props} />
+      )}
     />
   </BrowserRouter>
 )

@@ -1,8 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils'
-import { mockOf } from '../../test/testUtils'
 import getPrinter, { LocalPrinter, NullPrinter } from './printer'
-
-const printMock = mockOf(window.print)
 
 test('`getPrinter` makes a kiosk printer if kiosk printing is available', async () => {
   try {
@@ -20,6 +17,7 @@ test('`getPrinter` makes a `LocalPrinter` if kiosk printing is unavailable', () 
 
 describe('a local printer', () => {
   it('calls `window.print` when printing', async () => {
+    const printMock = jest.spyOn(window, 'print')
     printMock.mockReturnValueOnce(undefined)
     await new LocalPrinter().print({ sides: 'one-sided' })
     expect(window.print).toHaveBeenCalled()
@@ -28,6 +26,7 @@ describe('a local printer', () => {
 
 describe('a null printer', () => {
   it('does not print to `window.print`', async () => {
+    const printMock = jest.spyOn(window, 'print')
     printMock.mockReturnValueOnce(undefined)
     await new NullPrinter().print()
     expect(window.print).not.toHaveBeenCalled()
