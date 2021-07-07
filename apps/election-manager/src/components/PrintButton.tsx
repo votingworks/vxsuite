@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 
 import Button, { StyledButtonProps } from './Button'
 import Modal from './Modal'
 import Loading from './Loading'
 import Prose from './Prose'
+import { PrintOptions } from '../utils/printer'
+import AppContext from '../contexts/AppContext'
 
 interface ConfirmModal {
   content: React.ReactNode
@@ -14,6 +16,7 @@ interface PrintButtonProps extends StyledButtonProps {
   title?: string
   afterPrint?: () => void
   copies?: number
+  sides: PrintOptions['sides']
   confirmModal?: ConfirmModal
 }
 
@@ -22,9 +25,11 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   afterPrint,
   children,
   copies,
+  sides,
   confirmModal,
   ...rest
 }) => {
+  const { printer } = useContext(AppContext)
   const [isConfirming, setIsConfirming] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
   const [showPrintingError, setShowPrintingError] = useState(false)
@@ -46,17 +51,7 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
     if (title) {
       document.title = title
     }
-    if (window.kiosk) {
-      await window.kiosk.print({ copies })
-    } else {
-      copies &&
-        copies > 1 &&
-        // eslint-disable-next-line no-console
-        console.error(
-          'Printing more than 1 copy can only be done with KioskBrowser.'
-        )
-      window.print()
-    }
+    await printer.print({ sides, copies })
     if (title) {
       document.title = documentTitle
     }

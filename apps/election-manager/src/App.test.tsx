@@ -28,6 +28,7 @@ import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
 import App from './App'
 
 import fakeFileWriter from '../test/helpers/fakeFileWriter'
+import fakePrinter from '../test/helpers/fakePrinter'
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
 import { ExternalTallySourceType, VotingMethod } from './config/types'
@@ -126,13 +127,14 @@ test('printing ballots, print report, and test decks', async () => {
   })
   jest.useFakeTimers()
 
+  const printer = fakePrinter()
   const {
     container,
     getByText,
     getAllByText,
     queryAllByText,
     getAllByTestId,
-  } = render(<App storage={storage} />)
+  } = render(<App storage={storage} printer={printer} />)
   jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
 
   await screen.findByText('0 official ballots')
@@ -178,16 +180,16 @@ test('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Print 1 Official', { exact: false }))
   fireEvent.click(getByText('Yes, Print'))
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(1)
+  expect(printer.print).toHaveBeenCalledTimes(1)
   fireEvent.click(getByText('Print 1 Official', { exact: false }))
   fireEvent.click(getByText('Yes, Print'))
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(2)
+  expect(printer.print).toHaveBeenCalledTimes(2)
   fireEvent.click(getByText('Precinct'))
   fireEvent.click(getByText('Print 1 Official', { exact: false }))
   fireEvent.click(getByText('Yes, Print'))
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(3)
+  expect(printer.print).toHaveBeenCalledTimes(3)
 
   // this is ugly but necessary for now to wait just a bit for the data to be stored
   await sleep(0)
@@ -206,7 +208,7 @@ test('printing ballots, print report, and test decks', async () => {
   fireEvent.click(queryAllByText('Print Report')[0])
 
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(4)
+  expect(printer.print).toHaveBeenCalledTimes(4)
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('Print Test Decks'))
@@ -220,7 +222,7 @@ test('printing ballots, print report, and test decks', async () => {
   })
   expect(container).toMatchSnapshot()
 
-  expect(mockKiosk.print).toHaveBeenCalledTimes(5)
+  expect(printer.print).toHaveBeenCalledTimes(5)
 
   fireEvent.click(getByText('Tally'))
   fireEvent.click(getByText('View Test Ballot Deck Tally'))
@@ -230,7 +232,7 @@ test('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Print Results Report'))
 
   await waitFor(() => getByText('Printing'))
-  expect(mockKiosk.print).toHaveBeenCalledTimes(6)
+  expect(printer.print).toHaveBeenCalledTimes(6)
 })
 
 test('tabulating CVRs', async () => {
@@ -302,7 +304,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Tally'))
   await waitFor(() => getByText('Save Results File'))
   fireEvent.click(getByText('Save Results File'))
-  await jest.advanceTimersByTime(2001)
+  jest.advanceTimersByTime(2001)
   getByText('Save Results')
   getByText(/Save the election results as /)
   getByText(

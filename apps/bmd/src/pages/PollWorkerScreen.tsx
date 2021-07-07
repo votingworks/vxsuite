@@ -151,7 +151,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           isPrintingCombinedReport ||
           isPrintingPrecinctScannerReport)
       ) {
-        await printer.print()
+        await printer.print({ sides: 'one-sided' })
         window.setTimeout(() => {
           if (isPrintingReport) {
             togglePollsOpen()

@@ -111,7 +111,9 @@ const PrintedBallotsReportScreen: React.FC = () => {
       </p>
 
       <p className="no-print">
-        <PrintButton primary>Print Report</PrintButton>
+        <PrintButton primary sides="one-sided">
+          Print Report
+        </PrintButton>
       </p>
       <p className="no-print">
         <LinkButton small to={routerPaths.ballotsList}>

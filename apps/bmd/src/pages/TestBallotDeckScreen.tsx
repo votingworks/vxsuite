@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import pluralize from 'pluralize'
 
 import {
@@ -21,6 +21,7 @@ import Screen from '../components/Screen'
 import Modal from '../components/Modal'
 import Loading from '../components/Loading'
 import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
+import BallotContext from '../contexts/ballotContext'
 
 interface Ballot {
   ballotId?: string
@@ -124,6 +125,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
   isLiveMode,
   machineConfig,
 }) => {
+  const { printer } = useContext(BallotContext)
   const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
@@ -159,11 +161,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
       setIsPrinting(false)
     }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000)
 
-    if (window.kiosk) {
-      await window.kiosk.print({ sides: 'one-sided' })
-    } else {
-      window.print()
-    }
+    await printer.print({ sides: 'one-sided' })
   }
 
   return (

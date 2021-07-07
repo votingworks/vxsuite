@@ -171,7 +171,9 @@ const TallyReportScreen: React.FC = () => {
             election={election}
           />
           <p>
-            <PrintButton primary>Print Report</PrintButton>{' '}
+            <PrintButton primary sides="one-sided">
+              Print Report
+            </PrintButton>{' '}
             <Button onPress={toggleReportPreview}>
               {showPreview ? 'Hide Preview' : 'Preview Report'}
             </Button>{' '}

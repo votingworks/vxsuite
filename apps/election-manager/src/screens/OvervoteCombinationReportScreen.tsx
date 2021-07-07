@@ -86,7 +86,9 @@ const PairsReportScreen: React.FC = () => {
         <Prose maxWidth={false}>
           {reportHeader}
           <p>
-            <PrintButton primary>Print {statusPrefix} Tally Report</PrintButton>
+            <PrintButton primary sides="one-sided">
+              Print {statusPrefix} Tally Report
+            </PrintButton>
           </p>
           <p>
             <LinkButton small to={routerPaths.tally}>

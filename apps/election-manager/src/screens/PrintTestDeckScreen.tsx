@@ -66,7 +66,7 @@ const TestDeckBallots = ({
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
 
 const PrintTestDeckScreen: React.FC = () => {
-  const { electionDefinition } = useContext(AppContext)
+  const { electionDefinition, printer } = useContext(AppContext)
   const { election, electionHash } = electionDefinition!
   const [precinctIds, setPrecinctIds] = useState<string[]>([])
   const [precinctIndex, setPrecinctIndex] = useState<number | undefined>(
@@ -114,11 +114,7 @@ const PrintTestDeckScreen: React.FC = () => {
 
   const onAllRendered = useCallback(
     async (pIndex, numBallots) => {
-      if (window.kiosk) {
-        await window.kiosk.print()
-      } else {
-        await window.print()
-      }
+      await printer.print({ sides: 'two-sided-long-edge' })
 
       if (pIndex < precinctIds.length - 1) {
         // wait 5s per ballot printed

@@ -81,7 +81,7 @@ const PrintOnlyScreen: React.FC<Props> = ({
     const isUsed = await markVoterCardPrinted()
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print()
+      await printer.print({ sides: 'one-sided' })
       updateTally()
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true)

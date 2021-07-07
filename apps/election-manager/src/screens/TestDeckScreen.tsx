@@ -99,7 +99,9 @@ const TestDeckScreen: React.FC = () => {
               election={election}
             />
             <p>
-              <PrintButton primary>Print Results Report</PrintButton>
+              <PrintButton primary sides="one-sided">
+                Print Results Report
+              </PrintButton>
             </p>
             {window.kiosk && (
               <p>

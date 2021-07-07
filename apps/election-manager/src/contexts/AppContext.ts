@@ -14,12 +14,14 @@ import CastVoteRecordFiles, {
 } from '../utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../lib/votecounting'
 import { getEmptyExportableTallies } from '../utils/exportableTallies'
+import { NullPrinter, Printer } from '../utils/printer'
 
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles
   electionDefinition?: ElectionDefinition
   configuredAt: ISO8601Timestamp
   isOfficialResults: boolean
+  printer: Printer
   printBallotRef?: RefObject<HTMLElement>
   saveCastVoteRecordFiles: SaveCastVoteRecordFiles
   saveElection: SaveElection
@@ -45,6 +47,7 @@ const appContext: AppContextInterface = {
   electionDefinition: undefined,
   configuredAt: '',
   isOfficialResults: false,
+  printer: new NullPrinter(),
   printBallotRef: undefined,
   saveCastVoteRecordFiles: () => undefined,
   saveElection: () => undefined,

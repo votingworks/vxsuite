@@ -14,6 +14,7 @@ import { randomBase64 } from '../utils/random'
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 import { VxPrintOnly } from '../config/types'
+import fakePrinter from '../../test/helpers/fakePrinter'
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random')
@@ -21,6 +22,7 @@ const randomBase64Mock = mockOf(randomBase64)
 randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w')
 
 it('renders test decks appropriately', async () => {
+  const printer = fakePrinter()
   const { getAllByText, getByText, queryAllByText } = render(
     <TestBallotDeckScreen
       appPrecinctId="23"
@@ -30,7 +32,8 @@ it('renders test decks appropriately', async () => {
         appMode: VxPrintOnly,
       })}
       isLiveMode={false}
-    />
+    />,
+    { printer }
   )
 
   fireEvent.click(getByText('All Precincts'))
@@ -40,13 +43,9 @@ it('renders test decks appropriately', async () => {
   expect(getAllByText('FOR Measure 420A', { exact: false })).toHaveLength(31)
   expect(getAllByText('County Commissioners')).toHaveLength(52)
 
-  const printSpy = jest.spyOn(window, 'print').mockReturnValue()
-
   fireEvent.click(getByText('Print 63 ballots'))
 
-  expect(window.print).toHaveBeenCalled()
-
-  printSpy.mockRestore()
+  expect(printer.print).toHaveBeenCalled()
 
   const kiosk = fakeKiosk()
   window.kiosk = kiosk
@@ -58,7 +57,7 @@ it('renders test decks appropriately', async () => {
   fireEvent.click(getByText('Print 63 ballots'))
 
   await waitFor(() => {
-    expect(kiosk.print).toHaveBeenCalledWith({ sides: 'one-sided' })
+    expect(printer.print).toHaveBeenCalledWith({ sides: 'one-sided' })
   })
 
   getByText('Printing Ballots…')
