@@ -15,9 +15,11 @@ export function toSentence(
     return elements
   }
 
-  return [
-    ...elements.slice(0, -1).flatMap((element) => [element, comma]),
-    and,
-    elements[elements.length - 1],
-  ]
+  if (elements.length === 2) {
+    return [elements[0], and, elements[1]]
+  }
+
+  const head = elements
+  const tail = head.pop()!
+  return [...head.flatMap((element) => [element, comma]), and, tail]
 }
