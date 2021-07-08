@@ -1,11 +1,10 @@
 import React from 'react'
-import { fireEvent, render, act, waitFor } from '@testing-library/react'
+import { fireEvent, render, act } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   getNewVoterCard,
 } from '../test/helpers/smartcards'
@@ -46,11 +45,11 @@ it('Single Seat Contest', async () => {
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Go to First Contest
-  await waitFor(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
+  fireEvent.click(getByText('Start Voting'))
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -59,11 +58,13 @@ it('Single Seat Contest', async () => {
 
   getByText(presidentContest.title)
 
-  // Select first candiate
+  // Select first candidate
   fireEvent.click(getByText(candidate0))
+  await advanceTimersAndPromises()
 
   // Select second candidate
   fireEvent.click(getByText(candidate1))
+  await advanceTimersAndPromises()
 
   // Overvote modal is displayed
   getByText(
@@ -75,6 +76,7 @@ it('Single Seat Contest', async () => {
 
   // Close the modal
   fireEvent.click(getByText('Okay'))
+  await advanceTimersAndPromises()
 
   // First candidate is selected
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')
@@ -100,4 +102,6 @@ it('Single Seat Contest', async () => {
   expect(
     getByText(candidate0).closest('button')?.getAttribute('aria-label')
   ).not.toContain('Deselected,')
+
+  await advanceTimersAndPromises()
 })

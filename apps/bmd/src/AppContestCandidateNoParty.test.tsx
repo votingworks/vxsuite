@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { Election } from '@votingworks/types'
@@ -7,7 +7,6 @@ import { asElectionDefinition } from '@votingworks/fixtures'
 import App from './App'
 
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   getNewVoterCard,
 } from '../test/helpers/smartcards'
@@ -68,11 +67,11 @@ it('Single Seat Contest', async () => {
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Go to First Contest
-  await waitFor(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
+  fireEvent.click(getByText('Start Voting'))
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
