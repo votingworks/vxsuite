@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, waitFor } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { electionSampleDefinition } from './data'
@@ -45,7 +45,7 @@ describe('Displays setup warning messages and errors screens', () => {
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
-    const { getByText, queryByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -60,24 +60,24 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises()
 
     // Start on VxMark Insert Card screen
-    getByText(insertCardScreenText)
-    expect(queryByText(accessibleControllerWarningText)).toBeFalsy()
+    screen.getByText(insertCardScreenText)
+    expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy()
 
     // Disconnect Accessible Controller
     act(() => {
       hardware.setAccessibleControllerConnected(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    getByText(accessibleControllerWarningText)
-    getByText(insertCardScreenText)
+    screen.getByText(accessibleControllerWarningText)
+    screen.getByText(insertCardScreenText)
 
     // Reconnect Accessible Controller
     act(() => {
       hardware.setAccessibleControllerConnected(true)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    expect(queryByText(accessibleControllerWarningText)).toBeFalsy()
-    getByText(insertCardScreenText)
+    expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy()
+    screen.getByText(insertCardScreenText)
   })
 
   it('Displays error screen if Card Reader connection is lost', async () => {
@@ -88,7 +88,7 @@ describe('Displays setup warning messages and errors screens', () => {
     setElectionInStorage(storage)
     setStateInStorage(storage)
 
-    const { getByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -101,21 +101,21 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises()
 
     // Start on VxMark Insert Card screen
-    getByText(insertCardScreenText)
+    screen.getByText(insertCardScreenText)
 
     // Disconnect Card Reader
     act(() => {
       hardware.setCardReaderConnected(false)
     })
     await advanceTimersAndPromises()
-    getByText('Card Reader Not Detected')
+    screen.getByText('Card Reader Not Detected')
 
     // Reconnect Card Reader
     act(() => {
       hardware.setCardReaderConnected(true)
     })
     await advanceTimersAndPromises()
-    getByText(insertCardScreenText)
+    screen.getByText(insertCardScreenText)
   })
 
   it('Displays error screen if Printer connection is lost', async () => {
@@ -125,7 +125,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
-    const { getByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -140,21 +140,21 @@ describe('Displays setup warning messages and errors screens', () => {
     // Start on VxPrint Insert Card screen
     const vxPrintInsertCardScreenText =
       'Insert Card to print your official ballot.'
-    getByText(vxPrintInsertCardScreenText)
+    screen.getByText(vxPrintInsertCardScreenText)
 
     // Disconnect Printer
     act(() => {
       hardware.setPrinterConnected(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    getByText('No Printer Detected')
+    screen.getByText('No Printer Detected')
 
     // Reconnect Printer
     act(() => {
       hardware.setPrinterConnected(true)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    getByText(vxPrintInsertCardScreenText)
+    screen.getByText(vxPrintInsertCardScreenText)
   })
 
   it('Displays error screen if Power connection is lost', async () => {
@@ -164,7 +164,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
-    const { getByText, queryByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -179,22 +179,22 @@ describe('Displays setup warning messages and errors screens', () => {
     // Start on VxPrint Insert Card screen
     const vxPrintInsertCardScreenText =
       'Insert Card to print your official ballot.'
-    getByText(vxPrintInsertCardScreenText)
+    screen.getByText(vxPrintInsertCardScreenText)
 
     // Disconnect Power
     act(() => {
       hardware.setBatteryDischarging(true)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    await waitFor(() => getByText(noPowerDetectedWarningText))
+    screen.getByText(noPowerDetectedWarningText)
 
     // Reconnect Power
     act(() => {
       hardware.setBatteryDischarging(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    expect(queryByText(noPowerDetectedWarningText)).toBeFalsy()
-    getByText(vxPrintInsertCardScreenText)
+    expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy()
+    screen.getByText(vxPrintInsertCardScreenText)
   })
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
@@ -207,7 +207,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage, electionDefinition)
     setStateInStorage(storage)
-    const { getByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -222,21 +222,21 @@ describe('Displays setup warning messages and errors screens', () => {
     // Start on VxPrint Insert Card screen
     const vxPrintInsertCardScreenText =
       'Insert Card to print your official ballot.'
-    getByText(vxPrintInsertCardScreenText)
+    screen.getByText(vxPrintInsertCardScreenText)
 
     // Disconnect Printer
     act(() => {
       hardware.setPrinterConnected(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    getByText('No Printer Detected')
+    screen.getByText('No Printer Detected')
 
     // Insert admin card
     card.insertCard(adminCard, electionSampleDefinition.electionData)
     await advanceTimersAndPromises()
 
     // expect to see admin screen
-    getByText('Election Admin Actions')
+    screen.getByText('Election Admin Actions')
   })
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
@@ -246,7 +246,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
-    const { getByText, queryByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -254,13 +254,13 @@ describe('Displays setup warning messages and errors screens', () => {
         machineConfig={machineConfig}
       />
     )
-    const getByTextWithMarkup = withMarkup(getByText)
+    const getByTextWithMarkup = withMarkup(screen.getByText)
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises()
 
     // Start on VxMark Insert Card screen
-    getByText(insertCardScreenText)
+    screen.getByText(insertCardScreenText)
 
     // Remove charger and reduce battery level slightly
     act(() => {
@@ -268,8 +268,8 @@ describe('Displays setup warning messages and errors screens', () => {
       hardware.setBatteryLevel(0.6)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    await waitFor(() => getByText(noPowerDetectedWarningText))
-    getByText(insertCardScreenText)
+    screen.getByText(noPowerDetectedWarningText)
+    screen.getByText(insertCardScreenText)
 
     // Battery level drains below low threshold
     act(() => {
@@ -283,7 +283,7 @@ describe('Displays setup warning messages and errors screens', () => {
       hardware.setBatteryDischarging(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
-    expect(queryByText(noPowerDetectedWarningText)).toBeFalsy()
-    getByText(insertCardScreenText)
+    expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy()
+    screen.getByText(insertCardScreenText)
   })
 })

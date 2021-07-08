@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, within, act } from '@testing-library/react'
+import { fireEvent, render, within, act, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
@@ -35,7 +35,7 @@ it('Single Seat Contest', async () => {
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { getByText, queryByText, getByTestId } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -50,60 +50,69 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises()
 
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  fireEvent.click(screen.getByText('Start Voting'))
   await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
 
   // Advance to multi-seat contest
-  while (!queryByText(measure102Contest.title)) {
-    fireEvent.click(getByText('Next'))
+  while (!screen.queryByText(measure102Contest.title)) {
+    fireEvent.click(screen.getByText('Next'))
     await advanceTimersAndPromises()
   }
 
   // Select Yes
-  fireEvent.click(getByText('Yes'))
-  expect(getByText('Yes').closest('button')!.dataset.selected).toBe('true')
+  fireEvent.click(screen.getByText('Yes'))
+  expect(screen.getByText('Yes').closest('button')!.dataset.selected).toBe(
+    'true'
+  )
 
   // Unselect Yes
-  fireEvent.click(getByText('Yes'))
-  expect(getByText('Yes').closest('button')!.dataset.selected).toBe('false')
+  fireEvent.click(screen.getByText('Yes'))
+  expect(screen.getByText('Yes').closest('button')!.dataset.selected).toBe(
+    'false'
+  )
 
   // Check that the aria label was updated to be deselected properly and is then removed
-  expect(getByText('Yes').getAttribute('aria-label')).toContain('Deselected,')
-  expect(getByText('No').getAttribute('aria-label')).not.toContain(
+  expect(screen.getByText('Yes').getAttribute('aria-label')).toContain(
+    'Deselected,'
+  )
+  expect(screen.getByText('No').getAttribute('aria-label')).not.toContain(
     'Deselected,'
   )
   act(() => {
     jest.advanceTimersByTime(101)
   })
-  expect(getByText('Yes').getAttribute('aria-label')).not.toContain(
+  expect(screen.getByText('Yes').getAttribute('aria-label')).not.toContain(
     'Deselected,'
   )
 
   // Select Yes
-  fireEvent.click(getByText('Yes'))
-  expect(getByText('Yes').closest('button')!.dataset.selected).toBe('true')
+  fireEvent.click(screen.getByText('Yes'))
+  expect(screen.getByText('Yes').closest('button')!.dataset.selected).toBe(
+    'true'
+  )
 
   // Select No
-  fireEvent.click(getByText('No'))
+  fireEvent.click(screen.getByText('No'))
   expect(
-    within(getByTestId('contest-choices')).getByText('No').closest('button')!
-      .dataset.selected
+    within(screen.getByTestId('contest-choices'))
+      .getByText('No')
+      .closest('button')!.dataset.selected
   ).toBe('false')
 
   // Overvote modal is displayed
   getByTextWithMarkup(
     'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
   )
-  fireEvent.click(getByText('Okay'))
+  fireEvent.click(screen.getByText('Okay'))
   await advanceTimersAndPromises() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
-  while (!queryByText('Review Your Votes')) {
-    fireEvent.click(getByText('Next'))
+  while (!screen.queryByText('Review Your Votes')) {
+    fireEvent.click(screen.getByText('Next'))
     await advanceTimersAndPromises()
   }
 

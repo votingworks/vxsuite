@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 import {
   getZeroTally,
@@ -57,7 +57,7 @@ it('VxMark+Print end-to-end flow', async () => {
   })
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10)
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array')
-  const { getByLabelText, getByText, getByTestId, queryByText } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -72,120 +72,120 @@ it('VxMark+Print end-to-end flow', async () => {
     electionDefinition.electionHash
   )
   const invalidPollWorkerCard = getInvalidPollWorkerCard()
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
 
   card.removeCard()
   await advanceTimersAndPromises()
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   // ---------------
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
-  fireEvent.click(getByText('Load Election Definition'))
+  fireEvent.click(screen.getByText('Load Election Definition'))
 
   await advanceTimersAndPromises()
-  getByText('Election definition is loaded.')
+  screen.getByText('Election definition is loaded.')
 
   // Remove card and expect not configured because precinct not selected
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   // ---------------
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
-  getByLabelText('Precinct')
-  queryByText(`Election ID: ${expectedElectionHash}`)
-  queryByText('Machine ID: 000')
+  screen.getByLabelText('Precinct')
+  screen.queryByText(`Election ID: ${expectedElectionHash}`)
+  screen.queryByText('Machine ID: 000')
 
   // Select precinct
-  getByText('State of Hamilton')
-  const precinctSelect = getByLabelText('Precinct')
+  screen.getByText('State of Hamilton')
+  const precinctSelect = screen.getByLabelText('Precinct')
   const precinctId = (within(precinctSelect).getByText(
     'Center Springfield'
   ) as HTMLOptionElement).value
   fireEvent.change(precinctSelect, { target: { value: precinctId } })
-  within(getByTestId('election-info')).getByText('Center Springfield')
+  within(screen.getByTestId('election-info')).getByText('Center Springfield')
 
-  fireEvent.click(getByText('Live Election Mode'))
+  fireEvent.click(screen.getByText('Live Election Mode'))
   expect(
-    (getByText('Live Election Mode') as HTMLButtonElement).disabled
+    (screen.getByText('Live Election Mode') as HTMLButtonElement).disabled
   ).toBeTruthy()
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Polls Closed')
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Polls Closed')
+  screen.getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Using an invalid Poll Worker Card shows an error
   card.insertCard(invalidPollWorkerCard)
   await advanceTimersAndPromises()
-  getByText('Invalid Card Data')
-  getByText('Card is not configured for this election.')
-  getByText('Please ask admin for assistance.')
+  screen.getByText('Invalid Card Data')
+  screen.getByText('Card is not configured for this election.')
+  screen.getByText('Please ask admin for assistance.')
   card.removeCard()
 
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
-  queryByText(`Election ID: ${expectedElectionHash}`)
-  fireEvent.click(getByText('Open Polls for Center Springfield'))
-  fireEvent.click(within(getByTestId('modal')).getByText('Cancel'))
-  fireEvent.click(getByText('Open Polls for Center Springfield'))
-  getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  screen.queryByText(`Election ID: ${expectedElectionHash}`)
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Cancel'))
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
+  screen.getByText('Open polls and print Polls Opened report?')
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
-  getByText('Printing Polls Opened report for Center Springfield')
+  screen.getByText('Printing Polls Opened report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Close Polls for Center Springfield')
+  screen.getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  await waitFor(() => getByText('Insert voter card to load ballot.'))
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Voter partially votes, remove card, and is on insert card screen.
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
-  await waitFor(() => getByText(/Center Springfield/))
-  expect(queryByText(expectedElectionHash)).toBeNull()
+  screen.getByText(/Center Springfield/)
+  expect(screen.queryByText(expectedElectionHash)).toBeNull()
   expect(
-    within(getByTestId('election-info')).queryByText(
+    within(screen.getByTestId('election-info')).queryByText(
       `Election ID: ${expectedElectionHash}`
     )
   ).toBeNull()
-  getByText(/ballot style 12/)
+  screen.getByText(/ballot style 12/)
   getByTextWithMarkup('Your ballot has 21 contests.')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  await waitFor(() => getByText('Insert voter card to load ballot.'))
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Alternate Precinct
   card.insertCard(getAlternateNewVoterCard())
   await advanceTimersAndPromises()
-  getByText('Invalid Card Data')
-  getByText('Card is not configured for this precinct.')
+  screen.getByText('Invalid Card Data')
+  screen.getByText('Card is not configured for this precinct.')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
@@ -194,17 +194,17 @@ it('VxMark+Print end-to-end flow', async () => {
   // Insert Voter card
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
-  getByText(/Center Springfield/)
-  getByText(/ballot style 12/)
+  screen.getByText(/Center Springfield/)
+  screen.getByText(/ballot style 12/)
   expect(
-    within(getByTestId('election-info')).queryByText(
+    within(screen.getByTestId('election-info')).queryByText(
       `Election ID: ${expectedElectionHash}`
     )
   ).toBeNull()
   getByTextWithMarkup('Your ballot has 21 contests.')
 
   // Adjust Text Size
-  const changeTextSize = within(getByTestId('change-text-size-buttons'))
+  const changeTextSize = within(screen.getByTestId('change-text-size-buttons'))
   const textSizeButtons = changeTextSize.getAllByText('A')
   expect(textSizeButtons.length).toBe(3)
   fireEvent.click(textSizeButtons[0]) // html element has new font size
@@ -215,7 +215,7 @@ it('VxMark+Print end-to-end flow', async () => {
   expect(window.document.documentElement.style.fontSize).toBe('36px')
 
   // Start Voting
-  fireEvent.click(getByText('Start Voting'))
+  fireEvent.click(screen.getByText('Start Voting'))
 
   // Initial empty votes written to the card after tapping "Start Voting".
   await advanceTimersAndPromises()
@@ -226,16 +226,16 @@ it('VxMark+Print end-to-end flow', async () => {
     const { title } = voterContests[i]
 
     await advanceTimersAndPromises()
-    getByText(title)
+    screen.getByText(title)
     expect(
-      within(getByTestId('election-info')).queryByText(
+      within(screen.getByTestId('election-info')).queryByText(
         `Election ID: ${expectedElectionHash}`
       )
     ).toBeNull()
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
-      fireEvent.click(getByText(presidentContest.candidates[0].name))
+      fireEvent.click(screen.getByText(presidentContest.candidates[0].name))
       await advanceTimersAndPromises() // Update the vote being saved internally
 
       // We write to the card when no changes to the ballot state have happened for a second.
@@ -255,28 +255,28 @@ it('VxMark+Print end-to-end flow', async () => {
 
     // Vote for yesno contest
     else if (title === measure102Contest.title) {
-      fireEvent.click(getByText('Yes'))
+      fireEvent.click(screen.getByText('Yes'))
     }
 
     // Vote for MsEitherNeither contest
     else if (title === measure420Contest.title) {
-      fireEvent.click(getByText(measure420Contest.neitherOption.label))
-      fireEvent.click(getByText(measure420Contest.firstOption.label))
+      fireEvent.click(screen.getByText(measure420Contest.neitherOption.label))
+      fireEvent.click(screen.getByText(measure420Contest.firstOption.label))
     }
 
-    fireEvent.click(getByText('Next'))
+    fireEvent.click(screen.getByText('Next'))
   }
 
   // Review Screen
   await advanceTimersAndPromises()
-  getByText('Review Votes')
+  screen.getByText('Review Votes')
   expect(
-    within(getByTestId('election-info')).queryByText(
+    within(screen.getByTestId('election-info')).queryByText(
       `Election ID: ${expectedElectionHash}`
     )
   ).toBeNull()
-  getByText(presidentContest.candidates[0].name)
-  getByText(`Yes on ${measure102Contest.shortTitle}`)
+  screen.getByText(presidentContest.candidates[0].name)
+  screen.getByText(`Yes on ${measure102Contest.shortTitle}`)
 
   // Change "County Commissioners" Contest
   fireEvent.click(
@@ -285,26 +285,30 @@ it('VxMark+Print end-to-end flow', async () => {
     )
   )
   await advanceTimersAndPromises()
-  getByText(/Vote for 4/i)
+  screen.getByText(/Vote for 4/i)
 
   // Select first candidate
-  fireEvent.click(getByText(countyCommissionersContest.candidates[0].name))
-  fireEvent.click(getByText(countyCommissionersContest.candidates[1].name))
+  fireEvent.click(
+    screen.getByText(countyCommissionersContest.candidates[0].name)
+  )
+  fireEvent.click(
+    screen.getByText(countyCommissionersContest.candidates[1].name)
+  )
 
   // Back to Review screen
-  fireEvent.click(getByText('Review'))
+  fireEvent.click(screen.getByText('Review'))
   await advanceTimersAndPromises()
-  getByText('Review Your Votes')
-  getByText(countyCommissionersContest.candidates[0].name)
-  getByText(countyCommissionersContest.candidates[1].name)
-  getByText('You may still vote for 2 more candidates.')
+  screen.getByText('Review Your Votes')
+  screen.getByText(countyCommissionersContest.candidates[0].name)
+  screen.getByText(countyCommissionersContest.candidates[1].name)
+  screen.getByText('You may still vote for 2 more candidates.')
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'))
-  getByText('Printing Official Ballot')
+  screen.getByText('Printing Official Ballot')
 
   // Trigger seal image loaded
-  fireEvent.load(getByTestId('printed-ballot-seal-image'))
+  fireEvent.load(screen.getByTestId('printed-ballot-seal-image'))
 
   // Mark card used and then read card again
   await advanceTimersAndPromises()
@@ -317,8 +321,8 @@ it('VxMark+Print end-to-end flow', async () => {
 
   // Reset Ballot is called with instructions type "card"
   // Show Verify and Cast Instructions
-  getByText('You’re Almost Done')
-  getByText('3. Return the card to a poll worker.')
+  screen.getByText('You’re Almost Done')
+  screen.getByText('3. Return the card to a poll worker.')
 
   // Check that ballots printed count is correct
   expect(printer.print).toHaveBeenCalledTimes(2)
@@ -326,7 +330,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // Font size has been reset to default on Insert Card screen
   expect(window.document.documentElement.style.fontSize).toBe('28px')
@@ -334,46 +338,46 @@ it('VxMark+Print end-to-end flow', async () => {
   // Insert Voter card which has just printed, it should say "used card"
   card.insertCard(getUsedVoterCard())
   await advanceTimersAndPromises()
-  getByText('Used Card')
+  screen.getByText('Used Card')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Close Polls with Poll Worker Card
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
-  fireEvent.click(getByText('Close Polls for Center Springfield'))
-  getByText('Close Polls and print Polls Closed report?')
-  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  fireEvent.click(screen.getByText('Close Polls for Center Springfield'))
+  screen.getByText('Close Polls and print Polls Closed report?')
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
-  getByText('Printing Polls Closed report for Center Springfield')
+  screen.getByText('Printing Polls Closed report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Open Polls for Center Springfield')
+  screen.getByText('Open Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Save tally to card to accumulate results with other machines
-  fireEvent.click(getByText('Save to Card'))
+  fireEvent.click(screen.getByText('Save to Card'))
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4)
   await advanceTimersAndPromises()
-  expect(queryByText('Save to Card')).toBeNull()
+  expect(screen.queryByText('Save to Card')).toBeNull()
 
-  fireEvent.click(getByText('Print Combined Report for 1 Machine'))
-  fireEvent.click(getByText('Print Report'))
+  fireEvent.click(screen.getByText('Print Combined Report for 1 Machine'))
+  fireEvent.click(screen.getByText('Print Report'))
   expect(printer.print).toHaveBeenCalledTimes(4)
   await advanceTimersAndPromises()
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
 
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(5)
-  getByText('Save to Card')
+  screen.getByText('Save to Card')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Insert Poll Worker card to open.')
 
   // Insert a pollworker card with tally data on it.
   card.insertCard(
@@ -392,18 +396,18 @@ it('VxMark+Print end-to-end flow', async () => {
     })
   )
   await advanceTimersAndPromises()
-  getByText('Open Polls for Center Springfield')
-  getByText('Print Combined Report for 2 Machines')
+  screen.getByText('Open Polls for Center Springfield')
+  screen.getByText('Print Combined Report for 2 Machines')
 
   // ---------------
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
-  getByText('Election definition is loaded.')
-  fireEvent.click(getByText('Remove'))
+  screen.getByText('Election definition is loaded.')
+  fireEvent.click(screen.getByText('Remove'))
   await advanceTimersAndPromises()
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 })

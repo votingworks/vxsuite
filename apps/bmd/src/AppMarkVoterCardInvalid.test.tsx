@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
@@ -39,7 +39,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     await setElectionInStorage(storage)
     await setStateInStorage(storage)
 
-    const { getByText, queryByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -53,49 +53,49 @@ describe('Mark Card Void when voter is idle too long', () => {
     // Insert Voter card
     card.insertCard(getNewVoterCard())
     await advanceTimersAndPromises()
-    getByText(/Center Springfield/)
-    getByText('Start Voting')
+    screen.getByText(/Center Springfield/)
+    screen.getByText('Start Voting')
 
     // Elapse idle timeout
     await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
-    getByText(idleScreenCopy)
+    screen.getByText(idleScreenCopy)
 
     // User action removes Idle Screen
-    fireEvent.click(getByText('Yes, I’m still voting.'))
+    fireEvent.click(screen.getByText('Yes, I’m still voting.'))
     fireEvent.mouseDown(document)
     await advanceTimersAndPromises()
-    expect(queryByText(idleScreenCopy)).toBeFalsy()
+    expect(screen.queryByText(idleScreenCopy)).toBeFalsy()
 
     // Elapse idle timeout
     await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
-    getByText(idleScreenCopy)
+    screen.getByText(idleScreenCopy)
 
     // Countdown works
     const secondsRemaining = 20
     advanceTimers(IDLE_RESET_TIMEOUT_SECONDS - secondsRemaining)
-    getByText(`${secondsRemaining} seconds`)
+    screen.getByText(`${secondsRemaining} seconds`)
 
     advanceTimers(secondsRemaining)
-    getByText('Clearing ballot')
+    screen.getByText('Clearing ballot')
 
     // Idle reset timeout expires
     await advanceTimersAndPromises()
 
     // Insert Card screen displays while card is read again.
-    getByText('Insert Card')
+    screen.getByText('Insert Card')
 
     // Card read again and now displays expired msg.
     await advanceTimersAndPromises()
-    getByText('Expired Card')
+    screen.getByText('Expired Card')
 
     // Remove card
     card.removeCard()
     await advanceTimersAndPromises()
-    getByText('Insert voter card to load ballot.')
+    screen.getByText('Insert voter card to load ballot.')
   })
 
   test('Reset ballot when card write does not match card read.', async () => {
@@ -107,7 +107,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     await setElectionInStorage(storage)
     await setStateInStorage(storage)
 
-    const { getByText } = render(
+    render(
       <App
         card={card}
         hardware={hardware}
@@ -121,23 +121,23 @@ describe('Mark Card Void when voter is idle too long', () => {
     // Insert Voter card
     card.insertCard(getNewVoterCard())
     await advanceTimersAndPromises()
-    getByText(/Center Springfield/)
+    screen.getByText(/Center Springfield/)
 
     // Elapse idle timeout
     await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS)
 
     // Idle Screen is displayed
-    getByText(idleScreenCopy)
+    screen.getByText(idleScreenCopy)
 
     // Countdown works
     advanceTimers(IDLE_RESET_TIMEOUT_SECONDS)
-    getByText('Clearing ballot')
+    screen.getByText('Clearing ballot')
 
     // Insert Card with corrupted data.
     card.insertCard('{"all": "your base are belong to us"}')
 
     // 30 seconds passes, Expect voided card
     await advanceTimersAndPromises()
-    getByText('Insert Card')
+    screen.getByText('Insert Card')
   })
 })

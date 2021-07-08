@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
+import { screen } from '@testing-library/react'
 import { asElectionDefinition } from '@votingworks/fixtures'
 import { parseElection } from '@votingworks/types'
 
@@ -14,17 +15,16 @@ it('renders StartPage', async () => {
   const electionDefinition = asElectionDefinition(
     parseElection(electionPrimarySample)
   )
-  const { container, getAllByText, getByText } = render(
-    <Route path="/" component={StartPage} />,
-    {
-      ballotStyleId: '12D',
-      electionDefinition,
-      precinctId: '23',
-      route: '/',
-    }
-  )
-  expect(getAllByText('Democratic Primary Election').length).toBeGreaterThan(1)
-  getByText(/ballot style 12D/)
+  const { container } = render(<Route path="/" component={StartPage} />, {
+    ballotStyleId: '12D',
+    electionDefinition,
+    precinctId: '23',
+    route: '/',
+  })
+  expect(
+    screen.getAllByText('Democratic Primary Election').length
+  ).toBeGreaterThan(1)
+  screen.getByText(/ballot style 12D/)
   expect(container.firstChild).toMatchSnapshot()
 })
 

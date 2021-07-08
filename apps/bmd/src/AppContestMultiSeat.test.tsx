@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
@@ -33,7 +33,7 @@ it('Single Seat Contest', async () => {
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { container, getByText, queryByText } = render(
+  const { container } = render(
     <App
       card={card}
       hardware={hardware}
@@ -48,7 +48,7 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises()
 
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  fireEvent.click(screen.getByText('Start Voting'))
   await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
@@ -60,25 +60,25 @@ it('Single Seat Contest', async () => {
   const candidate4 = countyCommissionersContest.candidates[4]
 
   // Advance to multi-seat contest
-  while (!queryByText(countyCommissionersContest.title)) {
-    fireEvent.click(getByText('Next'))
+  while (!screen.queryByText(countyCommissionersContest.title)) {
+    fireEvent.click(screen.getByText('Next'))
     await advanceTimersAndPromises()
   }
 
   // Select 5 candidates for 4 seats
-  fireEvent.click(getByText(candidate0.name))
+  fireEvent.click(screen.getByText(candidate0.name))
   await advanceTimersAndPromises()
-  fireEvent.click(getByText(candidate1.name))
+  fireEvent.click(screen.getByText(candidate1.name))
   await advanceTimersAndPromises()
-  fireEvent.click(getByText(candidate2.name))
+  fireEvent.click(screen.getByText(candidate2.name))
   await advanceTimersAndPromises()
-  fireEvent.click(getByText(candidate3.name))
+  fireEvent.click(screen.getByText(candidate3.name))
   await advanceTimersAndPromises()
-  fireEvent.click(getByText(candidate4.name))
+  fireEvent.click(screen.getByText(candidate4.name))
   await advanceTimersAndPromises()
 
   // Overvote modal is displayed
-  getByText(
+  screen.getByText(
     `You may only select ${countyCommissionersContest.seats} candidates in this contest. To vote for ${candidate4.name}, you must first unselect the selected candidates.`
   )
 
@@ -86,14 +86,14 @@ it('Single Seat Contest', async () => {
   expect(container.firstChild).toMatchSnapshot()
 
   // Go to Review Screen
-  while (!queryByText('Review Your Votes')) {
-    fireEvent.click(getByText('Next'))
+  while (!screen.queryByText('Review Your Votes')) {
+    fireEvent.click(screen.getByText('Next'))
     await advanceTimersAndPromises()
   }
 
   // Expect to see the first four selected candidates
-  expect(getByText(candidate0.name)).toBeTruthy()
-  expect(getByText(candidate1.name)).toBeTruthy()
-  expect(getByText(candidate2.name)).toBeTruthy()
-  expect(getByText(candidate3.name)).toBeTruthy()
+  expect(screen.getByText(candidate0.name)).toBeTruthy()
+  expect(screen.getByText(candidate1.name)).toBeTruthy()
+  expect(screen.getByText(candidate2.name)).toBeTruthy()
+  expect(screen.getByText(candidate3.name)).toBeTruthy()
 })

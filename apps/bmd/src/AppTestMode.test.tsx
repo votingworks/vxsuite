@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
@@ -26,7 +26,7 @@ it('Displays testing message if not live mode', async () => {
   setStateInStorage(storage, {
     isLiveMode: false,
   })
-  const { getByText } = render(
+  render(
     <App
       card={card}
       storage={storage}
@@ -38,5 +38,5 @@ it('Displays testing message if not live mode', async () => {
   // Let the initial hardware detection run.
   await advanceTimersAndPromises()
 
-  getByText('Testing Mode')
+  screen.getByText('Testing Mode')
 })

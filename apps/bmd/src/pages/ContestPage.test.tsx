@@ -1,3 +1,4 @@
+import { screen } from '@testing-library/react'
 import React from 'react'
 import { Route } from 'react-router-dom'
 
@@ -10,12 +11,12 @@ import ContestPage from './ContestPage'
 const firstContestTitle = electionSample.contests[0].title
 
 it('Renders ContestPage', () => {
-  const { container, getByText } = render(
+  const { container } = render(
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
     }
   )
-  getByText(firstContestTitle)
+  screen.getByText(firstContestTitle)
   expect(container).toMatchSnapshot()
 })

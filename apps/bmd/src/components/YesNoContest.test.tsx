@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types'
 
 import YesNoContest from './YesNoContest'
@@ -18,7 +18,7 @@ const contest: YesNoContestInterface = {
 describe('supports yes/no contest', () => {
   it('allows voting for both yes and no', () => {
     const updateVote = jest.fn()
-    const { container, getByText } = render(
+    const { container } = render(
       <YesNoContest
         contest={contest}
         vote={undefined}
@@ -27,27 +27,27 @@ describe('supports yes/no contest', () => {
     )
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(getByText('Yes').closest('button')!)
+    fireEvent.click(screen.getByText('Yes').closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText('No').closest('button')!)
+    fireEvent.click(screen.getByText('No').closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(2)
   })
 
   it('displays warning when attempting to change vote', () => {
     const updateVote = jest.fn()
-    const { container, getByText, getAllByText } = render(
+    const { container } = render(
       <YesNoContest contest={contest} vote={['yes']} updateVote={updateVote} />
     )
     expect(container).toMatchSnapshot()
-    fireEvent.click(getByText('No').closest('button')!)
+    fireEvent.click(screen.getByText('No').closest('button')!)
     expect(
-      getAllByText(
+      screen.getAllByText(
         (_, element) =>
           element?.textContent ===
           'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
       )
     ).toBeTruthy()
-    fireEvent.click(getByText('Okay'))
+    fireEvent.click(screen.getByText('Okay'))
   })
 })

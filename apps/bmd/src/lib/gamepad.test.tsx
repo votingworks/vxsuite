@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import App from '../App'
@@ -36,7 +36,7 @@ it('gamepad controls work', async () => {
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { getByText } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -48,14 +48,14 @@ it('gamepad controls work', async () => {
 
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
-  getByText(/Center Springfield/)
+  screen.getByText(/Center Springfield/)
 
   // Go to First Contest
   handleGamepadButtonDown('DPadRight')
   await advanceTimersAndPromises()
 
   // First Contest Page
-  getByText(contest0.title)
+  screen.getByText(contest0.title)
 
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1)
@@ -95,8 +95,8 @@ it('gamepad controls work', async () => {
   expect(getActiveElement().dataset.selected).toBe('false')
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
-  fireEvent.click(getByText(contest0candidate0.name))
-  fireEvent.click(getByText(contest0candidate1.name))
+  fireEvent.click(screen.getByText(contest0candidate0.name))
+  fireEvent.click(screen.getByText(contest0candidate1.name))
   handleGamepadButtonDown('DPadDown') // selects Okay button
   handleGamepadButtonDown('DPadDown') // Okay button should still be selected
   handleGamepadButtonDown('DPadDown') // Okay button should still be selected

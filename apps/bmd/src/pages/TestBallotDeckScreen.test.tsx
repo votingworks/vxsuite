@@ -5,7 +5,7 @@ import {
 // TODO: Tally: Use electionSample from @votingworks/fixtures once published.
 
 import React from 'react'
-import { fireEvent, waitFor, act } from '@testing-library/react'
+import { fireEvent, waitFor, act, screen } from '@testing-library/react'
 import { asElectionDefinition } from '@votingworks/fixtures'
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils'
 import electionSample from '../data/electionSample.json'
@@ -23,7 +23,7 @@ randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w')
 
 it('renders test decks appropriately', async () => {
   const printer = fakePrinter()
-  const { getAllByText, getByText, queryAllByText } = render(
+  render(
     <TestBallotDeckScreen
       appPrecinctId="23"
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
@@ -36,14 +36,16 @@ it('renders test decks appropriately', async () => {
     { printer }
   )
 
-  fireEvent.click(getByText('All Precincts'))
+  fireEvent.click(screen.getByText('All Precincts'))
 
-  expect(getAllByText('Unofficial TEST Ballot')).toHaveLength(63)
-  expect(getAllByText('For either', { exact: false })).toHaveLength(31)
-  expect(getAllByText('FOR Measure 420A', { exact: false })).toHaveLength(31)
-  expect(getAllByText('County Commissioners')).toHaveLength(52)
+  expect(screen.getAllByText('Unofficial TEST Ballot')).toHaveLength(63)
+  expect(screen.getAllByText('For either', { exact: false })).toHaveLength(31)
+  expect(
+    screen.getAllByText('FOR Measure 420A', { exact: false })
+  ).toHaveLength(31)
+  expect(screen.getAllByText('County Commissioners')).toHaveLength(52)
 
-  fireEvent.click(getByText('Print 63 ballots'))
+  fireEvent.click(screen.getByText('Print 63 ballots'))
 
   expect(printer.print).toHaveBeenCalled()
 
@@ -54,22 +56,22 @@ it('renders test decks appropriately', async () => {
     .mockResolvedValue([fakePrinterInfo({ connected: true })])
 
   jest.useFakeTimers()
-  fireEvent.click(getByText('Print 63 ballots'))
+  fireEvent.click(screen.getByText('Print 63 ballots'))
 
   await waitFor(() => {
     expect(printer.print).toHaveBeenCalledWith({ sides: 'one-sided' })
   })
 
-  getByText('Printing Ballots…')
+  screen.getByText('Printing Ballots…')
   act(() => {
     jest.advanceTimersByTime(66000)
   })
-  expect(queryAllByText('Printing Ballots…').length).toBe(0)
+  expect(screen.queryAllByText('Printing Ballots…').length).toBe(0)
   jest.useRealTimers()
 })
 
 it('shows printer not connected when appropriate', async () => {
-  const { getByText } = render(
+  render(
     <TestBallotDeckScreen
       appPrecinctId="23"
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
@@ -84,15 +86,15 @@ it('shows printer not connected when appropriate', async () => {
   const kiosk = fakeKiosk()
   window.kiosk = kiosk
 
-  fireEvent.click(getByText('All Precincts'))
+  fireEvent.click(screen.getByText('All Precincts'))
 
-  fireEvent.click(getByText('Print 63 ballots'))
+  fireEvent.click(screen.getByText('Print 63 ballots'))
 
   expect(kiosk.getPrinterInfo).toHaveBeenCalled()
 
   await waitFor(() => {
-    getByText('The printer is not connected.')
+    screen.getByText('The printer is not connected.')
   })
 
-  fireEvent.click(getByText('OK'))
+  fireEvent.click(screen.getByText('OK'))
 })

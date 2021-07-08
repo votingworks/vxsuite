@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { fakeKiosk } from '@votingworks/test-utils'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
@@ -39,7 +39,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { getByText } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -51,7 +51,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
   await advanceTimersAndPromises()
 
   // Ensure we're on the Insert Card screen
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
   expect(window.kiosk?.quit).not.toHaveBeenCalled()
 
   // Check that we requested a quit after the idle timer fired.

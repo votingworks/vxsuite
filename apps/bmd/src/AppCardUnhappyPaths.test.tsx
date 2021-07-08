@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, within } from '@testing-library/react'
+import { render, fireEvent, within, screen } from '@testing-library/react'
 import {
   electionSampleDefinition as election,
   electionSampleDefinition,
@@ -51,7 +51,7 @@ test('Display App Card Unhappy Paths', async () => {
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { getByText } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -66,36 +66,36 @@ test('Display App Card Unhappy Paths', async () => {
   // Insert used Voter card
   card.insertCard(getOtherElectionVoterCard())
   await advanceTimersAndPromises()
-  getByText('Card is not configured for this election.')
+  screen.getByText('Card is not configured for this election.')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Insert used Voter card
   card.insertCard(getVoidedVoterCard())
   await advanceTimersAndPromises()
-  getByText('Expired Card')
+  screen.getByText('Expired Card')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
   // Insert expired Voter card
   card.insertCard(getExpiredVoterCard())
   await advanceTimersAndPromises()
-  getByText('Expired Card')
+  screen.getByText('Expired Card')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 
@@ -107,50 +107,50 @@ test('Display App Card Unhappy Paths', async () => {
   // First Insert is Good
   card.insertCard(expiringCard)
   await advanceTimersAndPromises()
-  fireEvent.click(getByText('Start Voting'))
+  fireEvent.click(screen.getByText('Start Voting'))
 
   // Slow voter clicks around, expiration Time passes, card still works.
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
 
   // Card expires, but card still works as expected.
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
   await advanceTimersAndPromises(60)
   fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(getByText('Next'))
+  fireEvent.click(screen.getByText('Next'))
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // Reinsert expired card
   card.insertCard(getExpiredVoterCard())
   await advanceTimersAndPromises()
-  getByText('Expired Card')
+  screen.getByText('Expired Card')
 
   // Remove Card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert voter card to load ballot.')
+  screen.getByText('Insert voter card to load ballot.')
 
   // ---------------
 })
@@ -165,7 +165,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
 
   card.removeCard()
 
-  const { getByText } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -178,12 +178,12 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   // ====================== END CONTEST SETUP ====================== //
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
 
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 })
 
 test('Inserting pollworker card with invalid long data fall back as if there is no long data', async () => {
@@ -202,7 +202,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
     tally: getZeroTally(electionSampleDefinition.election),
   })
 
-  const { getByText, getAllByTestId } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -214,17 +214,17 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
   // ====================== END CONTEST SETUP ====================== //
 
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Insert Poll Worker card to open.')
 
   const pollworkerCard = pollWorkerCardForElection(election.electionHash)
   card.insertCard(pollworkerCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises()
 
   // Land on pollworker screen
-  getByText('Open/Close Polls')
+  screen.getByText('Open/Close Polls')
 
   // Check that tally combination screen loads in the empty tally data state
-  const tableRows = getAllByTestId('tally-machine-row')
+  const tableRows = screen.getAllByTestId('tally-machine-row')
   expect(tableRows.length).toBe(1)
   within(tableRows[0]).getByText('000 (current machine)')
   within(tableRows[0]).getByText('Save to Card')

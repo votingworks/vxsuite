@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import {
   CandidateContest as CandidateContestInterface,
@@ -39,7 +39,7 @@ describe('supports single-seat contest', () => {
     jest.useFakeTimers()
 
     const updateVote = jest.fn()
-    const { container, getByText } = render(
+    const { container } = render(
       <CandidateContest
         contest={contest}
         parties={parties}
@@ -49,13 +49,13 @@ describe('supports single-seat contest', () => {
     )
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(getByText(candidate0.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText(candidate1.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate1.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(2)
 
-    fireEvent.click(getByText(candidate2.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate2.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(3)
 
     act(() => {
@@ -67,7 +67,7 @@ describe('supports single-seat contest', () => {
     jest.useFakeTimers()
 
     const updateVote = jest.fn()
-    const { container, getByText } = render(
+    const { container } = render(
       <CandidateContest
         contest={contest}
         parties={parties}
@@ -77,17 +77,17 @@ describe('supports single-seat contest', () => {
     )
     expect(container).toMatchSnapshot()
 
-    expect(getByText(candidate0.name).closest('button')!.dataset.selected).toBe(
-      'true'
-    )
+    expect(
+      screen.getByText(candidate0.name).closest('button')!.dataset.selected
+    ).toBe('true')
 
-    fireEvent.click(getByText(candidate1.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate1.name).closest('button')!)
     expect(updateVote).not.toHaveBeenCalled()
 
-    fireEvent.click(getByText(candidate2.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate2.name).closest('button')!)
     expect(updateVote).not.toHaveBeenCalled()
 
-    fireEvent.click(getByText(candidate0.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalled()
 
     act(() => {
@@ -99,7 +99,7 @@ describe('supports single-seat contest', () => {
 describe('supports multi-seat contests', () => {
   it('allows a second candidate to be selected when one is selected', () => {
     const updateVote = jest.fn()
-    const { container, getByText } = render(
+    const { container } = render(
       <CandidateContest
         contest={{ ...contest, seats: 2 }}
         parties={parties}
@@ -109,23 +109,23 @@ describe('supports multi-seat contests', () => {
     )
     expect(container).toMatchSnapshot()
 
-    expect(getByText(candidate0.name).closest('button')!.dataset.selected).toBe(
-      'true'
-    )
-    expect(getByText(candidate1.name).closest('button')!.dataset.selected).toBe(
-      'false'
-    )
-    expect(getByText(candidate2.name).closest('button')!.dataset.selected).toBe(
-      'false'
-    )
+    expect(
+      screen.getByText(candidate0.name).closest('button')!.dataset.selected
+    ).toBe('true')
+    expect(
+      screen.getByText(candidate1.name).closest('button')!.dataset.selected
+    ).toBe('false')
+    expect(
+      screen.getByText(candidate2.name).closest('button')!.dataset.selected
+    ).toBe('false')
 
-    fireEvent.click(getByText(candidate1.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate1.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(getByText(candidate2.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate2.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(2)
 
-    fireEvent.click(getByText(candidate0.name).closest('button')!)
+    fireEvent.click(screen.getByText(candidate0.name).closest('button')!)
     expect(updateVote).toHaveBeenCalledTimes(3)
 
     act(() => {
@@ -139,7 +139,7 @@ describe('supports write-in candidates', () => {
     jest.useFakeTimers()
 
     const updateVote = jest.fn()
-    const { getByText, queryByText } = render(
+    render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -147,11 +147,13 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     )
-    fireEvent.click(getByText('add write-in candidate').closest('button')!)
-    getByText('Write-In Candidate')
-    typeKeysInVirtualKeyboard(getByText, 'LIZARD PEOPLE')
-    fireEvent.click(getByText('Accept'))
-    expect(queryByText('Write-In Candidate')).toBeFalsy()
+    fireEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    )
+    screen.getByText('Write-In Candidate')
+    typeKeysInVirtualKeyboard('LIZARD PEOPLE')
+    fireEvent.click(screen.getByText('Accept'))
+    expect(screen.queryByText('Write-In Candidate')).toBeFalsy()
 
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
       { id: 'write-in__lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
@@ -166,7 +168,7 @@ describe('supports write-in candidates', () => {
     jest.useFakeTimers()
 
     const updateVote = jest.fn()
-    const { getByText, queryByText } = render(
+    render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -174,15 +176,14 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     )
-    fireEvent.click(getByText('add write-in candidate').closest('button')!)
-    getByText('Write-In Candidate')
-    typeKeysInVirtualKeyboard(
-      getByText,
-      'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT'
+    fireEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
     )
-    getByText('You have entered 37 of maximum 40 characters.')
-    fireEvent.click(getByText('Cancel'))
-    expect(queryByText('Write-In Candidate')).toBeFalsy()
+    screen.getByText('Write-In Candidate')
+    typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT')
+    screen.getByText('You have entered 37 of maximum 40 characters.')
+    fireEvent.click(screen.getByText('Cancel'))
+    expect(screen.queryByText('Write-In Candidate')).toBeFalsy()
 
     act(() => {
       jest.runOnlyPendingTimers()
@@ -193,7 +194,7 @@ describe('supports write-in candidates', () => {
     jest.useFakeTimers()
 
     const updateVote = jest.fn()
-    const { getByText, queryByText } = render(
+    render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
         parties={parties}
@@ -201,18 +202,20 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     )
-    fireEvent.click(getByText('add write-in candidate').closest('button')!)
-    getByText('Write-In Candidate')
+    fireEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    )
+    screen.getByText('Write-In Candidate')
     const writeInCandidate =
       "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO"
-    typeKeysInVirtualKeyboard(getByText, writeInCandidate)
-    getByText('You have entered 40 of maximum 40 characters.')
+    typeKeysInVirtualKeyboard(writeInCandidate)
+    screen.getByText('You have entered 40 of maximum 40 characters.')
 
-    expect(getByText('space').closest('button')!.hasAttribute('disabled')).toBe(
-      true
-    )
-    fireEvent.click(getByText('Accept'))
-    expect(queryByText('Write-In Candidate')).toBeFalsy()
+    expect(
+      screen.getByText('space').closest('button')!.hasAttribute('disabled')
+    ).toBe(true)
+    fireEvent.click(screen.getByText('Accept'))
+    expect(screen.queryByText('Write-In Candidate')).toBeFalsy()
 
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
       {
@@ -227,13 +230,10 @@ describe('supports write-in candidates', () => {
     })
   })
 
-  function typeKeysInVirtualKeyboard(
-    getByText: (text: string) => HTMLElement,
-    chars: string
-  ): void {
+  function typeKeysInVirtualKeyboard(chars: string): void {
     Array.from(chars).forEach((i) => {
       const key = i === ' ' ? 'space' : i
-      fireEvent.click(getByText(key).closest('button')!)
+      fireEvent.click(screen.getByText(key).closest('button')!)
     })
   }
 })
