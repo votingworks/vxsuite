@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import { Route } from 'react-router-dom'
 import {
@@ -17,7 +17,6 @@ import PrintPage from './pages/PrintPage'
 import { render as renderWithBallotContext } from '../test/testUtils'
 import withMarkup from '../test/helpers/withMarkup'
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   getNewVoterCard,
 } from '../test/helpers/smartcards'
@@ -199,11 +198,11 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Go to First Contest
-  await waitFor(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
+  fireEvent.click(getByText('Start Voting'))
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -212,26 +211,26 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   // Advance to multi-seat contest
   while (!queryByText(measure420Contest.title)) {
     fireEvent.click(getByText('Next'))
-    advanceTimers()
+    await advanceTimersAndPromises()
   }
 
   // Select and Unselect Options
   fireEvent.click(getByText(measure420Contest.eitherOption.label))
   fireEvent.click(getByText(measure420Contest.neitherOption.label))
-  advanceTimers() // allow "deselection" timer to run
+  await advanceTimersAndPromises() // allow "deselection" timer to run
   fireEvent.click(getByText(measure420Contest.neitherOption.label))
-  advanceTimers() // allow "deselection" timer to run
+  await advanceTimersAndPromises() // allow "deselection" timer to run
 
   fireEvent.click(getByText(measure420Contest.firstOption.label))
   fireEvent.click(getByText(measure420Contest.secondOption.label))
-  advanceTimers() // allow "deselection" timer to run
+  await advanceTimersAndPromises() // allow "deselection" timer to run
   fireEvent.click(getByText(measure420Contest.secondOption.label))
-  advanceTimers() // allow "deselection" timer to run
+  await advanceTimersAndPromises() // allow "deselection" timer to run
 
   // Go to Review Screen
   while (!queryByText('Review Your Votes')) {
     fireEvent.click(getByText('Next'))
-    advanceTimers()
+    await advanceTimersAndPromises()
   }
 
   // Confirm there is no vote
@@ -244,7 +243,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Contest Screen
   fireEvent.click(contestReviewTitle)
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Vote for either and first option
   fireEvent.click(getByText(measure420Contest.eitherOption.label))
@@ -252,7 +251,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Review Screen to confirm votes
   fireEvent.click(getByText('Review'))
-  advanceTimers()
+  await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   )
@@ -266,7 +265,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Contest Screen
   fireEvent.click(contestReviewTitle)
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Vote for neither and second option
   fireEvent.click(getByText(measure420Contest.neitherOption.label))
@@ -274,7 +273,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Review Screen to confirm votes
   fireEvent.click(getByText('Review'))
-  advanceTimers()
+  await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   )
@@ -288,14 +287,14 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Contest Screen
   fireEvent.click(contestReviewTitle)
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Vote for none and second option
   fireEvent.click(getByText(measure420Contest.neitherOption.label))
 
   // Go to Review Screen to confirm votes
   fireEvent.click(getByText('Review'))
-  advanceTimers()
+  await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   )
@@ -311,7 +310,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Contest Screen
   fireEvent.click(contestReviewTitle)
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Vote for either and no option
   fireEvent.click(getByText(measure420Contest.eitherOption.label))
@@ -319,7 +318,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Go to Review Screen to confirm votes
   fireEvent.click(getByText('Review'))
-  advanceTimers()
+  await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   )

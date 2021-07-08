@@ -1,11 +1,10 @@
 import React from 'react'
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   getNewVoterCard,
 } from '../test/helpers/smartcards'
@@ -46,11 +45,11 @@ it('Single Seat Contest', async () => {
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Go to First Contest
-  await waitFor(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
+  fireEvent.click(getByText('Start Voting'))
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -63,15 +62,20 @@ it('Single Seat Contest', async () => {
   // Advance to multi-seat contest
   while (!queryByText(countyCommissionersContest.title)) {
     fireEvent.click(getByText('Next'))
-    advanceTimers()
+    await advanceTimersAndPromises()
   }
 
   // Select 5 candidates for 4 seats
   fireEvent.click(getByText(candidate0.name))
+  await advanceTimersAndPromises()
   fireEvent.click(getByText(candidate1.name))
+  await advanceTimersAndPromises()
   fireEvent.click(getByText(candidate2.name))
+  await advanceTimersAndPromises()
   fireEvent.click(getByText(candidate3.name))
+  await advanceTimersAndPromises()
   fireEvent.click(getByText(candidate4.name))
+  await advanceTimersAndPromises()
 
   // Overvote modal is displayed
   getByText(
@@ -84,7 +88,7 @@ it('Single Seat Contest', async () => {
   // Go to Review Screen
   while (!queryByText('Review Your Votes')) {
     fireEvent.click(getByText('Next'))
-    advanceTimers()
+    await advanceTimersAndPromises()
   }
 
   // Expect to see the first four selected candidates

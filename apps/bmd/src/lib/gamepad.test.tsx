@@ -1,11 +1,10 @@
 import React from 'react'
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import App from '../App'
 
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   getNewVoterCard,
 } from '../../test/helpers/smartcards'
@@ -48,12 +47,12 @@ it('gamepad controls work', async () => {
   await advanceTimersAndPromises()
 
   card.insertCard(getNewVoterCard())
-  advanceTimers()
-  await waitFor(() => getByText(/Center Springfield/))
+  await advanceTimersAndPromises()
+  getByText(/Center Springfield/)
 
   // Go to First Contest
   handleGamepadButtonDown('DPadRight')
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // First Contest Page
   getByText(contest0.title)
@@ -76,21 +75,23 @@ it('gamepad controls work', async () => {
   expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
 
   handleGamepadButtonDown('DPadRight')
-  advanceTimers()
+  await advanceTimersAndPromises()
   // go up first without focus, then down once, should be same as down once.
   handleGamepadButtonDown('DPadUp')
   handleGamepadButtonDown('DPadDown')
   expect(getActiveElement().dataset.choice).toEqual(contest1candidate0.id)
   handleGamepadButtonDown('DPadLeft')
-  advanceTimers()
+  await advanceTimersAndPromises()
   // B is same as down
   handleGamepadButtonDown('B')
   expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id)
 
   // select and unselect
   handleGamepadButtonDown('A')
+  await advanceTimersAndPromises()
   expect(getActiveElement().dataset.selected).toBe('true')
   handleGamepadButtonDown('A')
+  await advanceTimersAndPromises()
   expect(getActiveElement().dataset.selected).toBe('false')
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
@@ -100,4 +101,6 @@ it('gamepad controls work', async () => {
   handleGamepadButtonDown('DPadDown') // Okay button should still be selected
   handleGamepadButtonDown('DPadDown') // Okay button should still be selected
   expect(getActiveElement().textContent).toBe('Okay')
+
+  await advanceTimersAndPromises()
 })

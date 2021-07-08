@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, within, act, waitFor } from '@testing-library/react'
+import { fireEvent, render, within, act } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
@@ -7,7 +7,6 @@ import App from './App'
 import withMarkup from '../test/helpers/withMarkup'
 
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   getNewVoterCard,
 } from '../test/helpers/smartcards'
@@ -48,11 +47,11 @@ it('Single Seat Contest', async () => {
 
   // Insert Voter Card
   card.insertCard(getNewVoterCard())
-  advanceTimers()
+  await advanceTimersAndPromises()
 
   // Go to First Contest
-  await waitFor(() => fireEvent.click(getByText('Start Voting')))
-  advanceTimers()
+  fireEvent.click(getByText('Start Voting'))
+  await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -61,7 +60,7 @@ it('Single Seat Contest', async () => {
   // Advance to multi-seat contest
   while (!queryByText(measure102Contest.title)) {
     fireEvent.click(getByText('Next'))
-    advanceTimers()
+    await advanceTimersAndPromises()
   }
 
   // Select Yes
@@ -100,12 +99,12 @@ it('Single Seat Contest', async () => {
     'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
   )
   fireEvent.click(getByText('Okay'))
-  advanceTimers() // For 200ms Delay in closing modal
+  await advanceTimersAndPromises() // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists
   while (!queryByText('Review Your Votes')) {
     fireEvent.click(getByText('Next'))
-    advanceTimers()
+    await advanceTimersAndPromises()
   }
 
   const reviewTitle = getByTextWithMarkup(
