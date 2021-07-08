@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { Election } from '@votingworks/types'
@@ -55,7 +55,7 @@ it('Single Seat Contest', async () => {
   )
   setStateInStorage(storage)
 
-  const { container, getByText, queryByText } = render(
+  const { container } = render(
     <App
       card={card}
       hardware={hardware}
@@ -70,23 +70,23 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises()
 
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  fireEvent.click(screen.getByText('Start Voting'))
   await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
   // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText('Federalist')).toEqual(null)
+  expect(screen.queryByText('Federalist')).toEqual(null)
   // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText('Labor')).toEqual(null)
+  expect(screen.queryByText('Labor')).toEqual(null)
   // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText("People's")).toEqual(null)
+  expect(screen.queryByText("People's")).toEqual(null)
   // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText('Liberty')).toEqual(null)
+  expect(screen.queryByText('Liberty')).toEqual(null)
   // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText('Constitution')).toEqual(null)
+  expect(screen.queryByText('Constitution')).toEqual(null)
   // eslint-disable-next-line no-restricted-syntax
-  expect(queryByText('Whig')).toEqual(null)
+  expect(screen.queryByText('Whig')).toEqual(null)
 
   // Capture styles of Single Candidate Contest
   expect(container.firstChild).toMatchSnapshot()

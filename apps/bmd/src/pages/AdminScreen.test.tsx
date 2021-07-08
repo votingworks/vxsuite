@@ -27,7 +27,7 @@ afterEach(() => {
 })
 
 test('renders ClerkScreen for VxPrintOnly', async () => {
-  const { getByText, getByTestId } = render(
+  render(
     <AdminScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
@@ -48,26 +48,26 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
   advanceTimers()
 
   // View Test Ballot Decks
-  fireEvent.click(getByText('View Test Ballot Decks'))
+  fireEvent.click(screen.getByText('View Test Ballot Decks'))
   fireEvent.click(
-    within(getByTestId('precincts')).getByText('Center Springfield')
+    within(screen.getByTestId('precincts')).getByText('Center Springfield')
   )
 
   // Back All Decks
-  fireEvent.click(getByText('Back to Precincts List'))
+  fireEvent.click(screen.getByText('Back to Precincts List'))
 
   // Single Precinct
-  fireEvent.click(getByText('North Springfield'))
-  fireEvent.click(getByText('Back to Admin Dashboard'))
+  fireEvent.click(screen.getByText('North Springfield'))
+  fireEvent.click(screen.getByText('Back to Admin Dashboard'))
 
   // All Precincts
-  fireEvent.click(getByText('View Test Ballot Decks'))
-  fireEvent.click(getByText('All Precincts'))
-  fireEvent.click(getByText('Back to Admin Dashboard'))
+  fireEvent.click(screen.getByText('View Test Ballot Decks'))
+  fireEvent.click(screen.getByText('All Precincts'))
+  fireEvent.click(screen.getByText('Back to Admin Dashboard'))
 })
 
 test('renders date and time settings modal', async () => {
-  const { getByText, getByTestId } = render(
+  render(
     <AdminScreen
       appPrecinctId={defaultPrecinctId}
       ballotsPrintedCount={0}
@@ -88,53 +88,55 @@ test('renders date and time settings modal', async () => {
   advanceTimers()
 
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC'
-  getByText(startDate)
+  screen.getByText(startDate)
 
   // Open Modal and change date
-  fireEvent.click(getByText('Update Date and Time'))
+  fireEvent.click(screen.getByText('Update Date and Time'))
 
-  within(getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM')
+  within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM')
 
-  const selectYear = getByTestId('selectYear')
+  const selectYear = screen.getByTestId('selectYear')
   const optionYear = (within(selectYear).getByText('2025') as HTMLOptionElement)
     .value
   fireEvent.change(selectYear, { target: { value: optionYear } })
 
-  const selectMonth = getByTestId('selectMonth')
+  const selectMonth = screen.getByTestId('selectMonth')
   const optionMonth = (within(selectMonth).getByText(
     'Feb'
   ) as HTMLOptionElement).value
   fireEvent.change(selectMonth, { target: { value: optionMonth } })
 
   // Expect day to change because Feb doesn't have 31 days.
-  within(getByTestId('modal')).getByText('Fri, Feb 28, 2025, 12:00 AM')
+  within(screen.getByTestId('modal')).getByText('Fri, Feb 28, 2025, 12:00 AM')
 
-  const selectDay = getByTestId('selectDay')
+  const selectDay = screen.getByTestId('selectDay')
   const optionDay = (within(selectDay).getByText('3') as HTMLOptionElement)
     .value
   fireEvent.change(selectDay, { target: { value: optionDay } })
 
-  const selectHour = getByTestId('selectHour')
+  const selectHour = screen.getByTestId('selectHour')
   const optionHour = (within(selectHour).getByText('11') as HTMLOptionElement)
     .value
   fireEvent.change(selectHour, { target: { value: optionHour } })
 
-  const selectMinute = getByTestId('selectMinute')
+  const selectMinute = screen.getByTestId('selectMinute')
   const optionMinute = (within(selectMinute).getByText(
     '21'
   ) as HTMLOptionElement).value
   fireEvent.change(selectMinute, { target: { value: optionMinute } })
 
-  const selectMeridian = getByTestId('selectMeridian')
+  const selectMeridian = screen.getByTestId('selectMeridian')
   const optionMeridian = (within(selectMeridian).getByText(
     'PM'
   ) as HTMLOptionElement).value
   fireEvent.change(selectMeridian, { target: { value: optionMeridian } })
 
   // Expect day, hour, minute, and meridian to update
-  within(getByTestId('modal')).getByText('Mon, Feb 3, 2025, 11:21 PM')
+  within(screen.getByTestId('modal')).getByText('Mon, Feb 3, 2025, 11:21 PM')
 
-  const selectTimezone = getByTestId('selectTimezone') as HTMLSelectElement
+  const selectTimezone = screen.getByTestId(
+    'selectTimezone'
+  ) as HTMLSelectElement
   const optionTimezone = within(selectTimezone).getByText(
     'Central Standard Time (Chicago)'
   ) as HTMLOptionElement
@@ -148,29 +150,29 @@ test('renders date and time settings modal', async () => {
     ) as HTMLOptionElement).selected
   ).toBeTruthy()
 
-  getByText('Mon, Feb 3, 2025, 11:21 PM')
+  screen.getByText('Mon, Feb 3, 2025, 11:21 PM')
 
   // Cancel date change
-  fireEvent.click(within(getByTestId('modal')).getByText('Cancel'))
-  getByText(startDate)
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Cancel'))
+  screen.getByText(startDate)
   expect(window.kiosk?.setClock).not.toHaveBeenCalled()
 
   // Open Modal and change date again
-  fireEvent.click(getByText('Update Date and Time'))
+  fireEvent.click(screen.getByText('Update Date and Time'))
 
-  const selectDay2 = getByTestId('selectDay')
+  const selectDay2 = screen.getByTestId('selectDay')
   const optionDay2 = (within(selectDay2).getByText('21') as HTMLOptionElement)
     .value
   fireEvent.change(selectDay2, { target: { value: optionDay2 } })
 
   // Choose PM, then change hours
-  const selectMeridian2 = getByTestId('selectMeridian')
+  const selectMeridian2 = screen.getByTestId('selectMeridian')
   const optionMeridian2 = (within(selectMeridian2).getByText(
     'PM'
   ) as HTMLOptionElement).value
   fireEvent.change(selectMeridian2, { target: { value: optionMeridian2 } })
 
-  const selectHour2 = getByTestId('selectHour')
+  const selectHour2 = screen.getByTestId('selectHour')
   const optionHour2 = (within(selectHour2).getByText('11') as HTMLOptionElement)
     .value
   fireEvent.change(selectHour2, { target: { value: optionHour2 } })
@@ -179,7 +181,7 @@ test('renders date and time settings modal', async () => {
   screen.getByText('Wed, Oct 21, 2020, 11:00 PM')
 
   // Choose AM, then change hours
-  const selectMeridian3 = getByTestId('selectMeridian')
+  const selectMeridian3 = screen.getByTestId('selectMeridian')
   const optionMeridian3 = (within(selectMeridian3).getByText(
     'AM'
   ) as HTMLOptionElement).value
@@ -188,7 +190,9 @@ test('renders date and time settings modal', async () => {
   // Expect time to be in AM
   screen.getByText('Wed, Oct 21, 2020, 11:00 AM')
 
-  const selectTimezone2 = getByTestId('selectTimezone') as HTMLSelectElement
+  const selectTimezone2 = screen.getByTestId(
+    'selectTimezone'
+  ) as HTMLSelectElement
   const optionTimezone2 = within(selectTimezone2).getByText(
     'Pacific Daylight Time (Los Angeles)'
   ) as HTMLOptionElement
@@ -201,10 +205,10 @@ test('renders date and time settings modal', async () => {
 
   // Save Date and Timezone
   await act(async () => {
-    fireEvent.click(within(getByTestId('modal')).getByText('Save'))
+    fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'))
   })
   expect(window.kiosk?.setClock).toHaveBeenCalled()
 
   // Date is reset to system time after save to kiosk-browser
-  getByText(startDate)
+  screen.getByText(startDate)
 })

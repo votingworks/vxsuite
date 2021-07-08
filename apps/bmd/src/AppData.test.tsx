@@ -1,9 +1,9 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
-import DemoApp, { getSampleStorage } from './DemoApp'
+import DemoApp, { getDemoStorage } from './DemoApp'
 import { activationStorageKey, electionStorageKey } from './AppRoot'
 
 import {
@@ -23,7 +23,7 @@ beforeEach(() => {
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
     const hardware = await MemoryHardware.buildStandard()
-    const { getByText } = render(
+    render(
       <App
         machineConfig={fakeMachineConfigProvider()}
         card={new MemoryCard()}
@@ -34,7 +34,7 @@ describe('loads election', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises()
 
-    getByText('Device Not Configured')
+    screen.getByText('Device Not Configured')
   })
 
   it('from storage', async () => {
@@ -44,7 +44,7 @@ describe('loads election', () => {
     const hardware = await MemoryHardware.buildStandard()
     setElectionInStorage(storage)
     setStateInStorage(storage)
-    const { getByText } = render(
+    render(
       <App
         card={card}
         storage={storage}
@@ -56,21 +56,21 @@ describe('loads election', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises()
 
-    getByText(election.title)
+    screen.getByText(election.title)
     expect(storage.get(electionStorageKey)).toBeTruthy()
   })
 
-  it('sample app loads election and activates ballot', async () => {
-    const storage = getSampleStorage()
-    const { getAllByText, getByText } = render(<DemoApp storage={storage} />)
+  it('demo app loads election and activates ballot', async () => {
+    const storage = getDemoStorage()
+    render(<DemoApp storage={storage} />)
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises()
     await advanceTimersAndPromises()
 
-    expect(getAllByText(election.title).length).toBeGreaterThan(1)
-    getByText(/Center Springfield/)
-    getByText(/ballot style 12/)
+    expect(screen.getAllByText(election.title).length).toBeGreaterThan(1)
+    screen.getByText(/Center Springfield/)
+    screen.getByText(/ballot style 12/)
     expect(storage.get(electionStorageKey)).toBeTruthy()
     expect(storage.get(activationStorageKey)).toBeTruthy()
   })

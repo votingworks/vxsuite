@@ -1,20 +1,20 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 
 import Text, { TextWithLineBreaks } from './Text'
 
 it('outputs paragraph tag', async () => {
   const text = 'paragraph'
-  const { getByText } = render(<Text>{text}</Text>)
-  const element = getByText(text)
+  render(<Text>{text}</Text>)
+  const element = screen.getByText(text)
   expect(element.tagName).toEqual('P')
   expect(element).toMatchSnapshot()
 })
 
 it('outputs "span" tag specified by "as" prop', async () => {
   const text = 'Text in a span?'
-  const { getByText } = render(<Text as="span">{text}</Text>)
-  const element = getByText(text)
+  render(<Text as="span">{text}</Text>)
+  const element = screen.getByText(text)
   expect(element.tagName).toEqual('SPAN')
   expect(element).toMatchSnapshot()
 })

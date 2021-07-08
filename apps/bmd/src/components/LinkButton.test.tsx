@@ -1,6 +1,6 @@
 import React from 'react'
 import { StaticRouter } from 'react-router-dom'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import LinkButton from './LinkButton'
 
@@ -25,14 +25,14 @@ it('navigates back', () => {
 it('renders LinkButton with onClick prop', () => {
   const text = 'Push Me'
   const onClickHandler = jest.fn()
-  const { getByText } = render(
+  render(
     <StaticRouter context={{}}>
       <LinkButton to="/" onPress={onClickHandler}>
         {text}
       </LinkButton>
     </StaticRouter>
   )
-  const button = getByText(text)
+  const button = screen.getByText(text)
   fireEvent.click(button)
   expect(onClickHandler).toHaveBeenCalled()
   expect(button).toMatchSnapshot()
@@ -41,14 +41,14 @@ it('renders LinkButton with onClick prop', () => {
 it('renders LinkButton with onClick and disabled props', () => {
   const text = 'Push Me'
   const onClickHandler = jest.fn()
-  const { getByText } = render(
+  render(
     <StaticRouter context={{}}>
       <LinkButton to="/" onClick={onClickHandler} disabled>
         {text}
       </LinkButton>
     </StaticRouter>
   )
-  const button = getByText(text)
+  const button = screen.getByText(text)
   fireEvent.click(button)
   expect(onClickHandler).not.toHaveBeenCalled()
   expect(button).toMatchSnapshot()

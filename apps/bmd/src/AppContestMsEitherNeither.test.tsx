@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import { Route } from 'react-router-dom'
 import {
@@ -31,30 +31,27 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 test('Renders Ballot with EitherNeither: blank', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
-  const { getByText } = renderWithBallotContext(
-    <Route path="/print" component={PrintPage} />,
-    {
-      ballotStyleId: '12',
-      precinctId: '23',
-      route: '/print',
-      electionDefinition,
-      votes: vote(
-        getContests({
-          ballotStyle: getBallotStyle({
-            election,
-            ballotStyleId: '12',
-          })!,
+  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '12',
+    precinctId: '23',
+    route: '/print',
+    electionDefinition,
+    votes: vote(
+      getContests({
+        ballotStyle: getBallotStyle({
           election,
-        }),
-        {
-          '420A': [],
-          '420B': [],
-        }
-      ),
-    }
-  )
+          ballotStyleId: '12',
+        })!,
+        election,
+      }),
+      {
+        '420A': [],
+        '420B': [],
+      }
+    ),
+  })
   await advanceTimersAndPromises()
-  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     '[no selection]'
@@ -64,30 +61,27 @@ test('Renders Ballot with EitherNeither: blank', async () => {
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
-  const { getByText } = renderWithBallotContext(
-    <Route path="/print" component={PrintPage} />,
-    {
-      ballotStyleId: '12',
-      precinctId: '23',
-      route: '/print',
-      electionDefinition,
-      votes: vote(
-        getContests({
-          ballotStyle: getBallotStyle({
-            election,
-            ballotStyleId: '12',
-          })!,
+  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '12',
+    precinctId: '23',
+    route: '/print',
+    electionDefinition,
+    votes: vote(
+      getContests({
+        ballotStyle: getBallotStyle({
           election,
-        }),
-        {
-          '420A': ['yes'],
-          '420B': [],
-        }
-      ),
-    }
-  )
+          ballotStyleId: '12',
+        })!,
+        election,
+      }),
+      {
+        '420A': ['yes'],
+        '420B': [],
+      }
+    ),
+  })
   await advanceTimersAndPromises()
-  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     `• ${measure420Contest.eitherOption.label}`
@@ -100,30 +94,27 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
-  const { getByText } = renderWithBallotContext(
-    <Route path="/print" component={PrintPage} />,
-    {
-      ballotStyleId: '12',
-      precinctId: '23',
-      route: '/print',
-      electionDefinition,
-      votes: vote(
-        getContests({
-          ballotStyle: getBallotStyle({
-            election,
-            ballotStyleId: '12',
-          })!,
+  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '12',
+    precinctId: '23',
+    route: '/print',
+    electionDefinition,
+    votes: vote(
+      getContests({
+        ballotStyle: getBallotStyle({
           election,
-        }),
-        {
-          '420A': ['no'],
-          '420B': ['yes'],
-        }
-      ),
-    }
-  )
+          ballotStyleId: '12',
+        })!,
+        election,
+      }),
+      {
+        '420A': ['no'],
+        '420B': ['yes'],
+      }
+    ),
+  })
   await advanceTimersAndPromises()
-  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     `• ${measure420Contest.neitherOption.label}`
@@ -136,30 +127,27 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
-  const { getByText } = renderWithBallotContext(
-    <Route path="/print" component={PrintPage} />,
-    {
-      ballotStyleId: '12',
-      precinctId: '23',
-      route: '/print',
-      electionDefinition,
-      votes: vote(
-        getContests({
-          ballotStyle: getBallotStyle({
-            election,
-            ballotStyleId: '12',
-          })!,
+  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    ballotStyleId: '12',
+    precinctId: '23',
+    route: '/print',
+    electionDefinition,
+    votes: vote(
+      getContests({
+        ballotStyle: getBallotStyle({
           election,
-        }),
-        {
-          '420A': [],
-          '420B': ['no'],
-        }
-      ),
-    }
-  )
+          ballotStyleId: '12',
+        })!,
+        election,
+      }),
+      {
+        '420A': [],
+        '420B': ['no'],
+      }
+    ),
+  })
   await advanceTimersAndPromises()
-  const getByTextWithMarkup = withMarkup<HTMLElement>(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
   const contestReviewTitle = getByTextWithMarkup(measure420Contest.title)
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
     '• [no selection]'
@@ -186,7 +174,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   setElectionInStorage(storage)
   setStateInStorage(storage)
 
-  const { getByText, queryByText } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -201,35 +189,35 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises()
 
   // Go to First Contest
-  fireEvent.click(getByText('Start Voting'))
+  fireEvent.click(screen.getByText('Start Voting'))
   await advanceTimersAndPromises()
 
   // ====================== END CONTEST SETUP ====================== //
 
-  const getByTextWithMarkup = withMarkup(getByText)
+  const getByTextWithMarkup = withMarkup(screen.getByText)
 
   // Advance to multi-seat contest
-  while (!queryByText(measure420Contest.title)) {
-    fireEvent.click(getByText('Next'))
+  while (!screen.queryByText(measure420Contest.title)) {
+    fireEvent.click(screen.getByText('Next'))
     await advanceTimersAndPromises()
   }
 
   // Select and Unselect Options
-  fireEvent.click(getByText(measure420Contest.eitherOption.label))
-  fireEvent.click(getByText(measure420Contest.neitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.eitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.neitherOption.label))
   await advanceTimersAndPromises() // allow "deselection" timer to run
-  fireEvent.click(getByText(measure420Contest.neitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.neitherOption.label))
   await advanceTimersAndPromises() // allow "deselection" timer to run
 
-  fireEvent.click(getByText(measure420Contest.firstOption.label))
-  fireEvent.click(getByText(measure420Contest.secondOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.firstOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.secondOption.label))
   await advanceTimersAndPromises() // allow "deselection" timer to run
-  fireEvent.click(getByText(measure420Contest.secondOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.secondOption.label))
   await advanceTimersAndPromises() // allow "deselection" timer to run
 
   // Go to Review Screen
-  while (!queryByText('Review Your Votes')) {
-    fireEvent.click(getByText('Next'))
+  while (!screen.queryByText('Review Your Votes')) {
+    fireEvent.click(screen.getByText('Next'))
     await advanceTimersAndPromises()
   }
 
@@ -246,11 +234,11 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises()
 
   // Vote for either and first option
-  fireEvent.click(getByText(measure420Contest.eitherOption.label))
-  fireEvent.click(getByText(measure420Contest.firstOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.eitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.firstOption.label))
 
   // Go to Review Screen to confirm votes
-  fireEvent.click(getByText('Review'))
+  fireEvent.click(screen.getByText('Review'))
   await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
@@ -268,11 +256,11 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises()
 
   // Vote for neither and second option
-  fireEvent.click(getByText(measure420Contest.neitherOption.label))
-  fireEvent.click(getByText(measure420Contest.secondOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.neitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.secondOption.label))
 
   // Go to Review Screen to confirm votes
-  fireEvent.click(getByText('Review'))
+  fireEvent.click(screen.getByText('Review'))
   await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
@@ -290,10 +278,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises()
 
   // Vote for none and second option
-  fireEvent.click(getByText(measure420Contest.neitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.neitherOption.label))
 
   // Go to Review Screen to confirm votes
-  fireEvent.click(getByText('Review'))
+  fireEvent.click(screen.getByText('Review'))
   await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
@@ -313,11 +301,11 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises()
 
   // Vote for either and no option
-  fireEvent.click(getByText(measure420Contest.eitherOption.label))
-  fireEvent.click(getByText(measure420Contest.secondOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.eitherOption.label))
+  fireEvent.click(screen.getByText(measure420Contest.secondOption.label))
 
   // Go to Review Screen to confirm votes
-  fireEvent.click(getByText('Review'))
+  fireEvent.click(screen.getByText('Review'))
   await advanceTimersAndPromises()
   contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`

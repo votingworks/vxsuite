@@ -5,6 +5,7 @@ import { Election } from '@votingworks/types'
 import {
   fireEvent,
   getByText as domGetByText,
+  screen,
   waitFor,
 } from '@testing-library/react'
 import {
@@ -27,7 +28,7 @@ jest.useFakeTimers()
 
 test('renders PollWorkerScreen', async () => {
   const election = electionSampleWithSeal as Election
-  const { getByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -48,7 +49,7 @@ test('renders PollWorkerScreen', async () => {
     />
   )
 
-  getByText(/Polls are currently open./)
+  screen.getByText(/Polls are currently open./)
 })
 
 test('switching out of test mode on election day', async () => {
@@ -57,7 +58,7 @@ test('switching out of test mode on election day', async () => {
     date: new Date().toISOString(),
   } as Election
   const enableLiveMode = jest.fn()
-  const { getByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -78,8 +79,8 @@ test('switching out of test mode on election day', async () => {
     />
   )
 
-  getByText('Switch to Live Election Mode?')
-  fireEvent.click(getByText('Switch to Live Mode'))
+  screen.getByText('Switch to Live Election Mode?')
+  fireEvent.click(screen.getByText('Switch to Live Mode'))
   expect(enableLiveMode).toHaveBeenCalled()
 })
 
@@ -89,7 +90,7 @@ test('keeping test mode on election day', async () => {
     date: new Date().toISOString(),
   } as Election
   const enableLiveMode = jest.fn()
-  const { getByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -110,15 +111,15 @@ test('keeping test mode on election day', async () => {
     />
   )
 
-  getByText('Switch to Live Election Mode?')
-  fireEvent.click(getByText('Cancel'))
+  screen.getByText('Switch to Live Election Mode?')
+  fireEvent.click(screen.getByText('Cancel'))
   expect(enableLiveMode).not.toHaveBeenCalled()
 })
 
 test('live mode on election day', async () => {
   const election = electionSampleWithSeal as Election
   const enableLiveMode = jest.fn()
-  const { queryByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -139,13 +140,13 @@ test('live mode on election day', async () => {
     />
   )
 
-  expect(queryByText('Switch to Live Election Mode?')).toBeNull()
+  expect(screen.queryByText('Switch to Live Election Mode?')).toBeNull()
 })
 
 test('results combination option is not shown for a non print machine', async () => {
   const election = electionSampleWithSeal as Election
   const enableLiveMode = jest.fn()
-  const { queryByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -166,7 +167,7 @@ test('results combination option is not shown for a non print machine', async ()
     />
   )
 
-  expect(queryByText('Combine Results Reports')).toBeNull()
+  expect(screen.queryByText('Combine Results Reports')).toBeNull()
 })
 
 test('results combination option is shown for a print machine', async () => {
@@ -174,7 +175,7 @@ test('results combination option is shown for a print machine', async () => {
   const saveTally = jest.fn()
   const clearTallies = jest.fn()
   const printFn = jest.fn()
-  const { getByText, getAllByTestId } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -201,11 +202,11 @@ test('results combination option is shown for a print machine', async () => {
     />
   )
 
-  getByText('Combine Results Reports')
-  const tableRows = getAllByTestId('tally-machine-row')
+  screen.getByText('Combine Results Reports')
+  const tableRows = screen.getAllByTestId('tally-machine-row')
   expect(tableRows.length).toBe(1)
   expect(domGetByText(tableRows[0], '314 (current machine)'))
-  fireEvent.click(getByText('Save to Card'))
+  fireEvent.click(screen.getByText('Save to Card'))
   expect(saveTally).toHaveBeenCalledWith(
     expect.objectContaining({
       tally: getZeroTally(election),
@@ -214,13 +215,13 @@ test('results combination option is shown for a print machine', async () => {
     })
   )
 
-  fireEvent.click(getByText('Print Combined Report for 1 Machine'))
+  fireEvent.click(screen.getByText('Print Combined Report for 1 Machine'))
   await waitFor(() => {
-    getByText(
+    screen.getByText(
       /Do you want to print the combined results report from the 1 machine \(314\)/
     )
   })
-  fireEvent.click(getByText('Print Report'))
+  fireEvent.click(screen.getByText('Print Report'))
 
   await waitFor(() => {
     expect(clearTallies).toHaveBeenCalledTimes(1)
@@ -269,7 +270,7 @@ test('results combination option is shown with prior tally results when provided
     ballotsCast: 6,
   }
 
-  const { getByText, getAllByTestId } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -296,13 +297,13 @@ test('results combination option is shown with prior tally results when provided
     />
   )
 
-  getByText('Combine Results Reports')
-  const tableRows = getAllByTestId('tally-machine-row')
+  screen.getByText('Combine Results Reports')
+  const tableRows = screen.getAllByTestId('tally-machine-row')
   expect(tableRows.length).toBe(3)
   expect(domGetByText(tableRows[0], '314 (current machine)'))
   expect(domGetByText(tableRows[1], '001'))
   expect(domGetByText(tableRows[2], '002'))
-  fireEvent.click(getByText('Save to Card'))
+  fireEvent.click(screen.getByText('Save to Card'))
   expect(saveTally).toHaveBeenCalledWith(
     expect.objectContaining({
       tally: combineTallies(election, existingTally, currentTally),
@@ -314,13 +315,13 @@ test('results combination option is shown with prior tally results when provided
     })
   )
 
-  fireEvent.click(getByText('Print Combined Report for 3 Machines'))
+  fireEvent.click(screen.getByText('Print Combined Report for 3 Machines'))
   await waitFor(() => {
-    getByText(
+    screen.getByText(
       /Do you want to print the combined results report from the 3 machines \(001, 002, 314\)/
     )
   })
-  fireEvent.click(getByText('Print Report'))
+  fireEvent.click(screen.getByText('Print Report'))
 
   await waitFor(() => {
     expect(clearTallies).toHaveBeenCalledTimes(1)
@@ -374,7 +375,7 @@ test('results combination option is shown with prior tally results when results 
     ballotsCast: 6,
   }
 
-  const { getByText, getAllByTestId, queryByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -401,30 +402,30 @@ test('results combination option is shown with prior tally results when results 
     />
   )
 
-  getByText('Combine Results Reports')
-  const tableRows = getAllByTestId('tally-machine-row')
+  screen.getByText('Combine Results Reports')
+  const tableRows = screen.getAllByTestId('tally-machine-row')
   expect(tableRows.length).toBe(3)
   expect(domGetByText(tableRows[0], '314 (current machine)'))
   expect(domGetByText(tableRows[1], '001'))
   expect(domGetByText(tableRows[2], '002'))
-  expect(queryByText('Save to Card')).toBeNull()
+  expect(screen.queryByText('Save to Card')).toBeNull()
 
-  fireEvent.click(getByText('Print Combined Report for 3 Machines'))
+  fireEvent.click(screen.getByText('Print Combined Report for 3 Machines'))
   await waitFor(() => {
-    getByText(
+    screen.getByText(
       /Do you want to print the combined results report from the 3 machines \(001, 002, 314\)/
     )
   })
-  fireEvent.click(getByText('Close'))
+  fireEvent.click(screen.getByText('Close'))
 
   await waitFor(() => {
     expect(
-      queryByText(/Do you want to print the combined results report/)
+      screen.queryByText(/Do you want to print the combined results report/)
     ).toBeNull()
   })
 })
 
-test('printing precicnt scanner report option is shown when precinct scanner tally data is on the card', async () => {
+test('printing precinct scanner report option is shown when precinct scanner tally data is on the card', async () => {
   const election = electionSampleWithSeal as Election
   const saveTally = jest.fn()
   const clearTallies = jest.fn()
@@ -460,7 +461,7 @@ test('printing precicnt scanner report option is shown when precinct scanner tal
     ballotsCast: 6,
   }
 
-  const { getByText, queryByText } = render(
+  render(
     <PollWorkerScreen
       activateCardlessBallotStyleId={jest.fn()}
       appPrecinctId={defaultPrecinctId}
@@ -487,21 +488,23 @@ test('printing precicnt scanner report option is shown when precinct scanner tal
     />
   )
 
-  getByText('Results Reports')
-  fireEvent.click(getByText('Print Precinct Scanner Tally Report'))
+  screen.getByText('Results Reports')
+  fireEvent.click(screen.getByText('Print Precinct Scanner Tally Report'))
   await waitFor(() => {
-    getByText(/Do you want to print the precinct scanner results report/)
+    screen.getByText(/Do you want to print the precinct scanner results report/)
   })
-  fireEvent.click(getByText('Close'))
+  fireEvent.click(screen.getByText('Close'))
 
   await waitFor(() => {
     expect(
-      queryByText(/Do you want to print the precinct scanner results report/)
+      screen.queryByText(
+        /Do you want to print the precinct scanner results report/
+      )
     ).toBeNull()
   })
 
-  fireEvent.click(getByText('Print Precinct Scanner Tally Report'))
-  fireEvent.click(getByText('Print Report'))
+  fireEvent.click(screen.getByText('Print Precinct Scanner Tally Report'))
+  fireEvent.click(screen.getByText('Print Report'))
 
   await waitFor(() => {
     expect(clearTallies).toHaveBeenCalledTimes(1)

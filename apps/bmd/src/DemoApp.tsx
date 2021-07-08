@@ -28,7 +28,7 @@ export function getSampleCard(): Card {
   return new MemoryCard().insertCard(JSON.stringify(voterCardData))
 }
 
-export function getSampleStorage(): Storage {
+export function getDemoStorage(): Storage {
   return new MemoryStorage({
     state: {
       electionDefinition: electionSampleDefinition,
@@ -64,7 +64,7 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
 /* istanbul ignore next */
 const DemoApp: React.FC<Props> = ({
   card = getSampleCard(),
-  storage = getSampleStorage(),
+  storage = getDemoStorage(),
   machineConfig = getSampleMachineConfigProvider(),
   hardware,
   ...rest

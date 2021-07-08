@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import {
   asElectionDefinition,
   electionSampleDefinition,
@@ -50,7 +50,7 @@ test('VxPrintOnly flow', async () => {
   const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
-  const { getAllByText, getByLabelText, getByText, getByTestId } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -61,75 +61,75 @@ test('VxPrintOnly flow', async () => {
   )
   await advanceTimersAndPromises()
 
-  const getAllByTextWithMarkup = withMarkup(getAllByText)
+  const getAllByTextWithMarkup = withMarkup(screen.getAllByText)
 
   card.removeCard()
   await advanceTimersAndPromises()
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   // ---------------
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
-  fireEvent.click(getByText('Load Election Definition'))
+  fireEvent.click(screen.getByText('Load Election Definition'))
 
   await advanceTimersAndPromises()
-  getByText('Election definition is loaded.')
+  screen.getByText('Election definition is loaded.')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   // ---------------
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
-  getByLabelText('Precinct')
+  screen.getByLabelText('Precinct')
 
   // Select precinct
-  getByText('State of Hamilton')
-  const precinctSelect = getByLabelText('Precinct')
+  screen.getByText('State of Hamilton')
+  const precinctSelect = screen.getByLabelText('Precinct')
   const precinctId = (within(precinctSelect).getByText(
     'Center Springfield'
   ) as HTMLOptionElement).value
   fireEvent.change(precinctSelect, { target: { value: precinctId } })
-  within(getByTestId('election-info')).getByText('Center Springfield')
+  within(screen.getByTestId('election-info')).getByText('Center Springfield')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Polls Closed')
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Polls Closed')
+  screen.getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Open Polls in Testing Mode with Poll Worker Card
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
-  fireEvent.click(getByText('Open Polls for Center Springfield'))
-  getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
+  screen.getByText('Open polls and print Polls Opened report?')
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
-  getByText('Printing Polls Opened report for Center Springfield')
+  screen.getByText('Printing Polls Opened report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Close Polls for Center Springfield')
+  screen.getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
 
   // Test for Testing Mode
-  getByText('Testing Mode')
+  screen.getByText('Testing Mode')
 
   // ---------------
 
@@ -137,13 +137,13 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
   expect(window.document.documentElement.style.fontSize).toBe('28px')
-  fireEvent.click(getByText('Live Election Mode'))
+  fireEvent.click(screen.getByText('Live Election Mode'))
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Polls Closed')
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Polls Closed')
+  screen.getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
@@ -151,19 +151,19 @@ test('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
 
   // Open Polls with Poll Worker Card
-  fireEvent.click(getByText('Open Polls for Center Springfield'))
-  getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
+  screen.getByText('Open polls and print Polls Opened report?')
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
-  getByText('Printing Polls Opened report for Center Springfield')
+  screen.getByText('Printing Polls Opened report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Close Polls for Center Springfield')
+  screen.getByText('Close Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Check Printed Ballots Count
@@ -174,13 +174,13 @@ test('VxPrintOnly flow', async () => {
   // Insert Expired Voter Card
   card.insertCard(getExpiredVoterCard())
   await advanceTimersAndPromises()
-  getByText('Expired Card')
+  screen.getByText('Expired Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
@@ -188,13 +188,13 @@ test('VxPrintOnly flow', async () => {
   // Insert Used Voter Card
   card.insertCard(getUsedVoterCard())
   await advanceTimersAndPromises()
-  getByText('Used Card')
+  screen.getByText('Used Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
@@ -202,26 +202,26 @@ test('VxPrintOnly flow', async () => {
   // Insert Voter Card with No Votes
   card.insertCard(getNewVoterCard())
   await advanceTimersAndPromises()
-  getByText('Empty Card')
+  screen.getByText('Empty Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Insert Voter for Alternate Precinct
   card.insertCard(getAlternateNewVoterCard())
   await advanceTimersAndPromises()
-  getByText('Invalid Card Data')
-  getByText('Card is not configured for this precinct.')
+  screen.getByText('Invalid Card Data')
+  screen.getByText('Card is not configured for this precinct.')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // ---------------
@@ -242,17 +242,17 @@ test('VxPrintOnly flow', async () => {
 
   // Show Printing Ballot screen
   await advanceTimersAndPromises()
-  getByText('Printing your official ballot')
+  screen.getByText('Printing your official ballot')
 
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Verify and Cast Your Printed Ballot')
+  screen.getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 1')
@@ -278,17 +278,17 @@ test('VxPrintOnly flow', async () => {
 
   // Show Printing Ballot screen
   await advanceTimersAndPromises()
-  getByText('Printing your official ballot')
+  screen.getByText('Printing your official ballot')
 
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Verify and Cast Your Printed Ballot')
+  screen.getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(4)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 2')
@@ -311,17 +311,17 @@ test('VxPrintOnly flow', async () => {
 
   // Show Printing Ballot screen
   await advanceTimersAndPromises()
-  getByText('Printing your official ballot')
+  screen.getByText('Printing your official ballot')
 
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Verify and Cast Your Printed Ballot')
+  screen.getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(5)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 3')
@@ -342,19 +342,19 @@ test('VxPrintOnly flow', async () => {
 
   // Show Printing Ballot screen
   await advanceTimersAndPromises()
-  getByText('Printing your official ballot')
+  screen.getByText('Printing your official ballot')
 
   expect(getAllByTextWithMarkup('[no selection]')).toHaveLength(20)
 
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Verify and Cast Your Printed Ballot')
+  screen.getByText('Verify and Cast Your Printed Ballot')
   expect(printer.print).toHaveBeenCalledTimes(6)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Card')
+  screen.getByText('Insert Card')
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 4')
@@ -364,63 +364,71 @@ test('VxPrintOnly flow', async () => {
   // Pollworker Closes Polls
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
-  getByText('Close Polls for Center Springfield')
+  screen.getByText('Close Polls for Center Springfield')
 
   // Check for Report Details
   expect(getAllByTextWithMarkup('Ballots printed count: 4').length).toBe(2)
   expect(getAllByTextWithMarkup('Edward Shiplett').length).toBe(2)
 
-  expect(getAllByText('Edward Shiplett')[0].nextSibling!.textContent).toBe('3')
-  expect(getAllByText('Rhadka Ramachandrani')[0].nextSibling!.textContent).toBe(
-    '1'
+  expect(
+    screen.getAllByText('Edward Shiplett')[0].nextSibling!.textContent
+  ).toBe('3')
+  expect(
+    screen.getAllByText('Rhadka Ramachandrani')[0].nextSibling!.textContent
+  ).toBe('1')
+  expect(screen.getAllByText('Laila Shamsi')[0].nextSibling!.textContent).toBe(
+    '2'
   )
-  expect(getAllByText('Laila Shamsi')[0].nextSibling!.textContent).toBe('2')
-  expect(getAllByText('Marty Talarico')[0].nextSibling!.textContent).toBe('1')
+  expect(
+    screen.getAllByText('Marty Talarico')[0].nextSibling!.textContent
+  ).toBe('1')
 
   expect(
-    getAllByText('State of Hamilton, Question B: Separation of Powers')[0]
-      .nextSibling!.textContent
+    screen.getAllByText(
+      'State of Hamilton, Question B: Separation of Powers'
+    )[0].nextSibling!.textContent
   ).toBe('Yes2No1')
   expect(
-    getAllByText(
+    screen.getAllByText(
       'Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?'
     )[0].nextSibling!.textContent
   ).toBe('Yes2No1')
   expect(
-    getAllByText('Franklin County, Measure 666: The Question No One Gets To')[0]
-      .nextSibling!.textContent
+    screen.getAllByText(
+      'Franklin County, Measure 666: The Question No One Gets To'
+    )[0].nextSibling!.textContent
   ).toBe('YesXNoX')
   expect(
-    getAllByText('Franklin County, Head of Constitution Party')[0].nextSibling!
-      .textContent
+    screen.getAllByText('Franklin County, Head of Constitution Party')[0]
+      .nextSibling!.textContent
   ).toBe('Alice JonesXBob SmithX')
 
   // Close Polls
-  fireEvent.click(getByText('Close Polls for Center Springfield'))
-  getByText('Close Polls and print Polls Closed report?')
-  fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+  fireEvent.click(screen.getByText('Close Polls for Center Springfield'))
+  screen.getByText('Close Polls and print Polls Closed report?')
+  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
   await advanceTimersAndPromises()
-  getByText('Printing Polls Closed report for Center Springfield')
+  screen.getByText('Printing Polls Closed report for Center Springfield')
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  getByText('Open Polls for Center Springfield')
+  screen.getByText('Open Polls for Center Springfield')
   expect(printer.print).toHaveBeenCalledTimes(7)
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionData)
   await advanceTimersAndPromises()
-  getByText('Election definition is loaded.')
-  fireEvent.click(getByText('Remove'))
+  screen.getByText('Election definition is loaded.')
+  fireEvent.click(screen.getByText('Remove'))
   await advanceTimersAndPromises()
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 })
 
 test('VxPrint retains app mode when unconfigured', async () => {
@@ -432,7 +440,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
   const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
-  const { getByLabelText, getByText, getByTestId } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -448,25 +456,25 @@ test('VxPrint retains app mode when unconfigured', async () => {
     // Configure with Admin Card
     card.insertCard(adminCard, electionData)
     await advanceTimersAndPromises()
-    fireEvent.click(getByText('Load Election Definition'))
+    fireEvent.click(screen.getByText('Load Election Definition'))
 
     await advanceTimersAndPromises()
-    getByText('Election definition is loaded.')
+    screen.getByText('Election definition is loaded.')
 
     // Select precinct
-    getByText('State of Hamilton')
-    const precinctSelect = getByLabelText('Precinct')
+    screen.getByText('State of Hamilton')
+    const precinctSelect = screen.getByLabelText('Precinct')
     const precinctId = (within(precinctSelect).getByText(
       'Center Springfield'
     ) as HTMLOptionElement).value
     fireEvent.change(precinctSelect, { target: { value: precinctId } })
-    within(getByTestId('election-info')).getByText('Center Springfield')
+    within(screen.getByTestId('election-info')).getByText('Center Springfield')
 
     // Remove card
     card.removeCard()
     await advanceTimersAndPromises()
-    getByText('Polls Closed')
-    getByText('Insert Poll Worker card to open.')
+    screen.getByText('Polls Closed')
+    screen.getByText('Insert Poll Worker card to open.')
   }
 
   // Open Polls with Poll Worker Card
@@ -475,14 +483,14 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
     card.insertCard(pollWorkerCard)
     await advanceTimersAndPromises()
-    fireEvent.click(getByText('Open Polls for Center Springfield'))
+    fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
     await advanceTimersAndPromises()
-    getByText('Open polls and print Polls Opened report?')
-    fireEvent.click(within(getByTestId('modal')).getByText('Yes'))
+    screen.getByText('Open polls and print Polls Opened report?')
+    fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
     await advanceTimersAndPromises()
-    getByText('Printing Polls Opened report for Center Springfield')
+    screen.getByText('Printing Polls Opened report for Center Springfield')
     await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-    getByText('Close Polls for Center Springfield')
+    screen.getByText('Close Polls for Center Springfield')
     expect(printer.print).toHaveBeenCalledTimes(currentPrintCallCount + 1)
 
     // Remove card
@@ -494,12 +502,12 @@ test('VxPrint retains app mode when unconfigured', async () => {
     // Unconfigure with Admin Card
     card.insertCard(adminCard, electionData)
     await advanceTimersAndPromises()
-    getByText('Election definition is loaded.')
-    fireEvent.click(getByText('Remove'))
+    screen.getByText('Election definition is loaded.')
+    fireEvent.click(screen.getByText('Remove'))
     await advanceTimersAndPromises()
 
     // Default Unconfigured
-    getByText('Device Not Configured')
+    screen.getByText('Device Not Configured')
 
     // Remove card
     card.removeCard()
@@ -509,14 +517,14 @@ test('VxPrint retains app mode when unconfigured', async () => {
   // ---------------
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   // Do the initial configuration & open polls.
   await configure()
   await openPolls()
 
   // Make sure we're ready to print ballots.
-  getByText('Insert Card to print your official ballot.')
+  screen.getByText('Insert Card to print your official ballot.')
 
   // Remove election configuration.
   await unconfigure()
@@ -526,7 +534,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
   await openPolls()
 
   // Make sure we're again ready to print ballots.
-  getByText('Insert Card to print your official ballot.')
+  screen.getByText('Insert Card to print your official ballot.')
 })
 
 test('VxPrint prompts to change to live mode on election day', async () => {
@@ -543,7 +551,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
-  const { getByText, getByLabelText, getByTestId } = render(
+  render(
     <App
       card={card}
       hardware={hardware}
@@ -555,41 +563,41 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   await advanceTimersAndPromises()
 
   // Default Unconfigured
-  getByText('Device Not Configured')
+  screen.getByText('Device Not Configured')
 
   // ---------------
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData)
   await advanceTimersAndPromises()
-  fireEvent.click(getByText('Load Election Definition'))
+  fireEvent.click(screen.getByText('Load Election Definition'))
 
   await advanceTimersAndPromises()
-  getByText('Election definition is loaded.')
-  getByLabelText('Precinct')
+  screen.getByText('Election definition is loaded.')
+  screen.getByLabelText('Precinct')
 
   // Select precinct
-  getByText('State of Hamilton')
-  const precinctSelect = getByLabelText('Precinct')
+  screen.getByText('State of Hamilton')
+  const precinctSelect = screen.getByLabelText('Precinct')
   const precinctId = (within(precinctSelect).getByText(
     'Center Springfield'
   ) as HTMLOptionElement).value
   fireEvent.change(precinctSelect, { target: { value: precinctId } })
-  within(getByTestId('election-info')).getByText('Center Springfield')
+  within(screen.getByTestId('election-info')).getByText('Center Springfield')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
-  getByText('Polls Closed')
-  getByText('Insert Poll Worker card to open.')
+  screen.getByText('Polls Closed')
+  screen.getByText('Insert Poll Worker card to open.')
 
   // ---------------
 
   // Switch to Live Election Mode with the Poll Worker Card.
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
-  getByText(
+  screen.getByText(
     'Switch to Live Election Mode and reset the tally of printed ballots?'
   )
-  fireEvent.click(getByText('Switch to Live Mode'))
+  fireEvent.click(screen.getByText('Switch to Live Mode'))
 })
