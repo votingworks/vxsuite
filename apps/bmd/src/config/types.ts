@@ -86,14 +86,14 @@ export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void
 export type MarkVoterCardFunction = () => Promise<boolean>
 export interface BallotContextInterface {
   machineConfig: MachineConfig
-  ballotStyleId: string
+  ballotStyleId?: string
   contests: Contests
-  readonly electionDefinition: ElectionDefinition
+  readonly electionDefinition?: ElectionDefinition
   isCardlessVoter: boolean
   isLiveMode: boolean
   markVoterCardPrinted: MarkVoterCardFunction
   markVoterCardVoided: MarkVoterCardFunction
-  precinctId: string
+  precinctId?: string
   printer: Printer
   resetBallot: (instructions?: PostVotingInstructions) => void
   setUserSettings: SetUserSettings

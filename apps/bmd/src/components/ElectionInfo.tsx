@@ -4,7 +4,6 @@ import styled from 'styled-components'
 
 import {
   ElectionDefinition,
-  Precinct,
   getPartyPrimaryAdjectiveFromBallotStyle,
 } from '@votingworks/types'
 import { formatLongDate } from '@votingworks/utils/build'
@@ -38,7 +37,7 @@ const HorizontalContainer = styled.div`
 `
 
 interface Props {
-  precinctId: string
+  precinctId?: string
   ballotStyleId?: string
   electionDefinition: ElectionDefinition
   horizontal?: boolean
@@ -52,9 +51,7 @@ const ElectionInfo: React.FC<Props> = ({
 }) => {
   const { election } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
-  const precinct = election.precincts.find(
-    (p) => p.id === precinctId
-  ) as Precinct
+  const precinct = election.precincts.find((p) => p.id === precinctId)
   const partyPrimaryAdjective = ballotStyleId
     ? getPartyPrimaryAdjectiveFromBallotStyle({
         election,
@@ -100,7 +97,7 @@ const ElectionInfo: React.FC<Props> = ({
           <br />
           {state}
         </p>
-        <Text bold>{precinct.name}</Text>
+        {precinct && <Text bold>{precinct.name}</Text>}
       </Prose>
     </VerticalContainer>
   )

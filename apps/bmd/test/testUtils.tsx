@@ -33,7 +33,7 @@ export function render(
   component: React.ReactNode,
   {
     route = '/',
-    ballotStyleId = '',
+    ballotStyleId,
     electionDefinition = asElectionDefinition(
       parseElection(electionSampleNoSeal)
     ),
@@ -44,7 +44,7 @@ export function render(
     isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = fakeMachineConfig({ appMode: VxMarkOnly }),
-    precinctId = '',
+    precinctId,
     printer = fakePrinter(),
     resetBallot = jest.fn(),
     setUserSettings = jest.fn(),

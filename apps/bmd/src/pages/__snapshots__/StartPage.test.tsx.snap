@@ -1366,10 +1366,15 @@ exports[`renders StartPage with inline SVG 1`] = `
                 class="c19"
               >
                 Center Springfield
-                
+                , 
               </span>
                
-              
+              <span
+                class="c19"
+              >
+                ballot style 
+                12
+              </span>
             </p>
           </div>
         </div>
@@ -1966,10 +1971,15 @@ exports[`renders StartPage with no seal 1`] = `
                 class="c19"
               >
                 Center Springfield
-                
+                , 
               </span>
                
-              
+              <span
+                class="c19"
+              >
+                ballot style 
+                12
+              </span>
             </p>
           </div>
         </div>

@@ -109,7 +109,7 @@ interface Precinct {
 }
 
 interface Props {
-  appPrecinctId: string
+  appPrecinctId?: string
   electionDefinition: ElectionDefinition
   hideTestDeck: () => void
   isLiveMode: boolean

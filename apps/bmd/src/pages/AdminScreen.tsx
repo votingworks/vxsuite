@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import React, { useCallback, useState } from 'react'
 
-import { OptionalElectionDefinition } from '@votingworks/types'
+import { ElectionDefinition } from '@votingworks/types'
 import { formatFullDateTimeZone } from '@votingworks/utils'
 import { Button, SegmentedButton } from '@votingworks/ui'
 import { MachineConfig, SelectChangeEventFunction } from '../config/types'
@@ -20,9 +20,9 @@ import PickDateTimeModal from '../components/PickDateTimeModal'
 import useNow from '../hooks/useNow'
 
 interface Props {
-  appPrecinctId: string
+  appPrecinctId?: string
   ballotsPrintedCount: number
-  electionDefinition: OptionalElectionDefinition
+  electionDefinition?: ElectionDefinition
   isLiveMode: boolean
   fetchElection: VoidFunction
   updateAppPrecinctId: (appPrecinctId: string) => void
@@ -103,7 +103,7 @@ const AdminScreen: React.FC<Props> = ({
                 <p>
                   <Select
                     id="selectPrecinct"
-                    value={appPrecinctId}
+                    value={appPrecinctId ?? ''}
                     onBlur={changeAppPrecinctId}
                     onChange={changeAppPrecinctId}
                   >

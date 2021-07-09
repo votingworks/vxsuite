@@ -1,3 +1,4 @@
+import { ok } from 'assert'
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { ProgressEllipsis } from '@votingworks/ui'
@@ -28,6 +29,9 @@ const PrintPage: React.FC = () => {
     updateTally,
     votes,
   } = useContext(BallotContext)
+  ok(electionDefinition, 'electionDefinition is required to render PrintPage')
+  ok(ballotStyleId, 'ballotStyleId is required to render PrintPage')
+  ok(precinctId, 'precinctId is required to render PrintPage')
   const printerTimer = useRef(0)
 
   const printBallot = useCallback(async () => {

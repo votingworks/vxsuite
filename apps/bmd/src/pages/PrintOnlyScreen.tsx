@@ -30,13 +30,13 @@ const TopRightContent = styled.div`
 `
 
 interface Props {
-  ballotStyleId: string
+  ballotStyleId?: string
   ballotsPrintedCount: number
   electionDefinition: ElectionDefinition
   isLiveMode: boolean
   isVoterCardPresent: boolean
   markVoterCardPrinted: MarkVoterCardFunction
-  precinctId: string
+  precinctId?: string
   printer: Printer
   useEffectToggleLargeDisplay: () => void
   showNoChargerAttachedWarning: boolean
@@ -209,12 +209,13 @@ const PrintOnlyScreen: React.FC<Props> = ({
         </Main>
       </Screen>
       {isReadyToPrint && (
+        // TODO: remove `!` here once we upgrade to TS 4.4 (https://devblogs.microsoft.com/typescript/announcing-typescript-4-4-beta/#cfa-aliased-conditions)
         <PrintedBallot
-          ballotStyleId={ballotStyleId}
+          ballotStyleId={ballotStyleId!}
           electionDefinition={electionDefinition}
           isLiveMode={isLiveMode}
-          precinctId={precinctId}
-          votes={votes!} // votes exists because isReadyToPrint implies votes!=undefined , but tsc unable to reason about it
+          precinctId={precinctId!}
+          votes={votes!}
         />
       )}
     </React.Fragment>

@@ -1,3 +1,4 @@
+import { ok } from 'assert'
 import React, { useContext, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types'
@@ -35,6 +36,7 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
     userSettings,
     votes,
   } = useContext(BallotContext)
+  ok(electionDefinition, 'electionDefinition is required to render ContestPage')
   const { election } = electionDefinition
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
