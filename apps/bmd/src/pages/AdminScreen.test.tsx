@@ -10,7 +10,7 @@ import { election, defaultPrecinctId } from '../../test/helpers/election'
 import { advanceTimers } from '../../test/helpers/smartcards'
 
 import AdminScreen from './AdminScreen'
-import { VxPrintOnly, VxMarkOnly } from '../config/types'
+import { VxPrintOnly, VxMarkOnly, PrecinctSelectionKind } from '../config/types'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
 
 MockDate.set('2020-10-31T00:00:00.000Z')
@@ -29,12 +29,15 @@ afterEach(() => {
 test('renders ClerkScreen for VxPrintOnly', async () => {
   render(
     <AdminScreen
-      appPrecinctId={defaultPrecinctId}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
       isLiveMode={false}
-      updateAppPrecinctId={jest.fn()}
+      updateAppPrecinct={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig({
@@ -69,12 +72,15 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
 test('renders date and time settings modal', async () => {
   render(
     <AdminScreen
-      appPrecinctId={defaultPrecinctId}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
       isLiveMode={false}
-      updateAppPrecinctId={jest.fn()}
+      updateAppPrecinct={jest.fn()}
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig({

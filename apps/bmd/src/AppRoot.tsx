@@ -49,6 +49,7 @@ import {
   SerializableActivationData,
   MachineConfig,
   PostVotingInstructions,
+  PrecinctSelection,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -106,7 +107,7 @@ interface HardwareState {
 }
 
 interface SharedState {
-  appPrecinctId?: string
+  appPrecinct?: PrecinctSelection
   ballotsPrintedCount: number
   electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
@@ -181,7 +182,7 @@ const initialHardwareState: Readonly<HardwareState> = {
 }
 
 const initialSharedState: Readonly<SharedState> = {
-  appPrecinctId: undefined,
+  appPrecinct: undefined,
   ballotsPrintedCount: 0,
   electionDefinition: undefined,
   isLiveMode: false,
@@ -228,7 +229,7 @@ type AppAction =
   | { type: 'forceSaveVote' }
   | { type: 'resetBallot'; showPostVotingInstructions?: PostVotingInstructions }
   | { type: 'setUserSettings'; userSettings: PartialUserSettings }
-  | { type: 'updateAppPrecinctId'; appPrecinctId: string }
+  | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
   | { type: 'togglePollsOpen' }
@@ -347,11 +348,11 @@ const appReducer = (state: State, action: AppAction): State => {
           ...action.userSettings,
         },
       }
-    case 'updateAppPrecinctId':
+    case 'updateAppPrecinct':
       return {
         ...state,
         ...resetTally,
-        appPrecinctId: action.appPrecinctId,
+        appPrecinct: action.appPrecinct,
       }
     case 'enableLiveMode':
       return {
@@ -422,15 +423,12 @@ const appReducer = (state: State, action: AppAction): State => {
       }
     }
     case 'activateCardlessBallot': {
-      ok(
-        state.appPrecinctId,
-        'appPrecinctId is required to activateCardlessBallot'
-      )
+      ok(state.appPrecinct, 'appPrecinct is required to activateCardlessBallot')
       return {
         ...state,
         ballotStyleId: action.ballotStyleId,
         isCardlessVoter: true,
-        precinctId: state.appPrecinctId,
+        precinctId: state.appPrecinct.precinctId,
         votes: initialVoterState.votes,
       }
     }
@@ -471,7 +469,7 @@ const AppRoot: React.FC<Props> = ({
   const PostVotingInstructionsTimeout = useRef(0)
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
-    appPrecinctId,
+    appPrecinct,
     ballotsPrintedCount,
     ballotStyleId,
     isCardlessVoter,
@@ -623,10 +621,10 @@ const AppRoot: React.FC<Props> = ({
     window.dispatchEvent(new Event('resize'))
   }, [userSettingsTextSize])
 
-  const updateAppPrecinctId = useCallback((appPrecinctId: string) => {
+  const updateAppPrecinct = useCallback((appPrecinct: PrecinctSelection) => {
     dispatchAppState({
-      type: 'updateAppPrecinctId',
-      appPrecinctId,
+      type: 'updateAppPrecinct',
+      appPrecinct,
     })
   }, [])
 
@@ -1078,7 +1076,7 @@ const AppRoot: React.FC<Props> = ({
         precinctId: retrievedPrecinctId,
       } = await retrieveBallotActivation()
       const {
-        appPrecinctId = initialAppState.appPrecinctId,
+        appPrecinct = initialAppState.appPrecinct,
         ballotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode = initialAppState.isLiveMode,
         isPollsOpen = initialAppState.isPollsOpen,
@@ -1089,7 +1087,7 @@ const AppRoot: React.FC<Props> = ({
       dispatchAppState({
         type: 'initializeAppState',
         appState: {
-          appPrecinctId,
+          appPrecinct,
           ballotsPrintedCount,
           ballotStyleId: retrievedBallotStyleId,
           electionDefinition: storedElectionDefinition,
@@ -1140,7 +1138,7 @@ const AppRoot: React.FC<Props> = ({
     const storeAppState = async () => {
       if (initializedFromStorage) {
         await storage.set(stateStorageKey, {
-          appPrecinctId,
+          appPrecinct,
           ballotsPrintedCount,
           isLiveMode,
           isPollsOpen,
@@ -1151,7 +1149,7 @@ const AppRoot: React.FC<Props> = ({
 
     void storeAppState()
   }, [
-    appPrecinctId,
+    appPrecinct,
     ballotsPrintedCount,
     isLiveMode,
     isPollsOpen,
@@ -1177,19 +1175,19 @@ const AppRoot: React.FC<Props> = ({
   if (isAdminCardPresent) {
     return (
       <AdminScreen
-        appPrecinctId={appPrecinctId}
+        appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
         fetchElection={fetchElection}
         isLiveMode={isLiveMode}
-        updateAppPrecinctId={updateAppPrecinctId}
+        updateAppPrecinct={updateAppPrecinct}
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
       />
     )
   }
-  if (optionalElectionDefinition && appPrecinctId) {
+  if (optionalElectionDefinition && appPrecinct) {
     if (appMode.isVxPrint && !hasPrinterAttached) {
       return (
         <SetupPrinterPage
@@ -1210,7 +1208,7 @@ const AppRoot: React.FC<Props> = ({
         <PollWorkerScreen
           activateCardlessBallotStyleId={activateCardlessBallotStyleId}
           resetCardlessBallot={resetCardlessBallot}
-          appPrecinctId={appPrecinctId}
+          appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           ballotStyleId={ballotStyleId}
           electionDefinition={optionalElectionDefinition}
@@ -1268,7 +1266,7 @@ const AppRoot: React.FC<Props> = ({
         Boolean(ballotStyleId) &&
         Boolean(precinctId)
 
-      if (isVoterVoting && appPrecinctId !== precinctId) {
+      if (isVoterVoting && appPrecinct.precinctId !== precinctId) {
         return (
           <WrongPrecinctScreen
             useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1332,7 +1330,7 @@ const AppRoot: React.FC<Props> = ({
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
         <InsertCardScreen
-          appPrecinctId={appPrecinctId}
+          appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={
             !!appMode.isVxMark && !hasAccessibleControllerAttached

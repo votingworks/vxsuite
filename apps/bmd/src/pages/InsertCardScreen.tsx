@@ -9,7 +9,7 @@ import Sidebar from '../components/Sidebar'
 import TestMode from '../components/TestMode'
 import Text from '../components/Text'
 import ElectionInfo from '../components/ElectionInfo'
-import { MachineConfig } from '../config/types'
+import { MachineConfig, PrecinctSelection } from '../config/types'
 import VersionsData from '../components/VersionsData'
 
 const InsertCardImage = styled.img`
@@ -18,7 +18,7 @@ const InsertCardImage = styled.img`
 `
 
 interface Props {
-  appPrecinctId: string
+  appPrecinct: PrecinctSelection
   electionDefinition: ElectionDefinition
   showNoChargerAttachedWarning: boolean
   isLiveMode: boolean
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const InsertCardScreen: React.FC<Props> = ({
-  appPrecinctId,
+  appPrecinct,
   electionDefinition,
   showNoChargerAttachedWarning,
   isLiveMode,
@@ -41,7 +41,7 @@ const InsertCardScreen: React.FC<Props> = ({
       <Sidebar>
         <ElectionInfo
           electionDefinition={electionDefinition}
-          precinctId={appPrecinctId}
+          precinctId={appPrecinct.precinctId}
         />
         <VersionsData
           machineConfig={machineConfig}
