@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Precinct, Election, MsEitherNeitherContest } from '@votingworks/types'
+import { Precinct, Election } from '@votingworks/types'
 import {
   Tally,
   CandidateVoteTally,
@@ -54,12 +54,12 @@ const PrecinctTallyReport: React.FC<Props> = ({
   const ballotAction =
     sourceMachineType === TallySourceMachineType.BMD ? 'printed' : 'scanned'
 
-  const precinctBalotStyles = ballotStyles.filter((bs) =>
+  const precinctBallotStyles = ballotStyles.filter((bs) =>
     bs.precincts.includes(precinctId)
   )
   const precinctContestIds = contests
     .filter((c) =>
-      precinctBalotStyles.find(
+      precinctBallotStyles.find(
         (bs) => bs.partyId === c.partyId && bs.districts.includes(c.districtId)
       )
     )
@@ -82,10 +82,11 @@ const PrecinctTallyReport: React.FC<Props> = ({
       </p>
       {contests.map((contest, contestIndex) => {
         const isContestInPrecinct = precinctContestIds.includes(contest.id)
-        const candidateContest = contest.type === 'candidate' && contest
-        const yesnoContest = contest.type === 'yesno' && contest
+        const candidateContest =
+          contest.type === 'candidate' ? contest : undefined
+        const yesnoContest = contest.type === 'yesno' ? contest : undefined
         const eitherNeitherContest =
-          contest.type === 'ms-either-neither' && contest
+          contest.type === 'ms-either-neither' ? contest : undefined
         return (
           <Contest key={contest.id}>
             <Prose>
@@ -97,12 +98,7 @@ const PrecinctTallyReport: React.FC<Props> = ({
                   {eitherNeitherContest && (
                     <React.Fragment>
                       <tr>
-                        <td>
-                          {
-                            (contest as MsEitherNeitherContest).eitherOption
-                              .label
-                          }
-                        </td>
+                        <td>{eitherNeitherContest.eitherOption.label}</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
@@ -114,12 +110,7 @@ const PrecinctTallyReport: React.FC<Props> = ({
                         </TD>
                       </tr>
                       <tr>
-                        <td>
-                          {
-                            (contest as MsEitherNeitherContest).neitherOption
-                              .label
-                          }
-                        </td>
+                        <td>{eitherNeitherContest.neitherOption.label}</td>
                         <TD narrow textAlign="right">
                           {
                             /* istanbul ignore else */ isContestInPrecinct
@@ -133,12 +124,7 @@ const PrecinctTallyReport: React.FC<Props> = ({
                         </TD>
                       </tr>
                       <tr>
-                        <td>
-                          {
-                            (contest as MsEitherNeitherContest).firstOption
-                              .label
-                          }
-                        </td>
+                        <td>{eitherNeitherContest.firstOption.label}</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
@@ -150,12 +136,7 @@ const PrecinctTallyReport: React.FC<Props> = ({
                         </TD>
                       </tr>
                       <tr>
-                        <td>
-                          {
-                            (contest as MsEitherNeitherContest).secondOption
-                              .label
-                          }
-                        </td>
+                        <td>{eitherNeitherContest.secondOption.label}</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
@@ -168,22 +149,21 @@ const PrecinctTallyReport: React.FC<Props> = ({
                       </tr>
                     </React.Fragment>
                   )}
-                  {candidateContest &&
-                    candidateContest.candidates.map(
-                      (candidate, candidateIndex) => (
-                        <tr key={candidate.id}>
-                          <td>{candidate.name}</td>
-                          <TD narrow textAlign="right">
-                            {isContestInPrecinct
-                              ? numberWithCommas(
-                                  (tally[contestIndex] as CandidateVoteTally)
-                                    .candidates[candidateIndex]
-                                )
-                              : 'X'}
-                          </TD>
-                        </tr>
-                      )
-                    )}
+                  {candidateContest?.candidates.map(
+                    (candidate, candidateIndex) => (
+                      <tr key={candidate.id}>
+                        <td>{candidate.name}</td>
+                        <TD narrow textAlign="right">
+                          {isContestInPrecinct
+                            ? numberWithCommas(
+                                (tally[contestIndex] as CandidateVoteTally)
+                                  .candidates[candidateIndex]
+                              )
+                            : 'X'}
+                        </TD>
+                      </tr>
+                    )
+                  )}
                   {yesnoContest && (
                     <React.Fragment>
                       <tr>
