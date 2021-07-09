@@ -28,6 +28,8 @@ import {
 } from '../test/helpers/election'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
+jest.setTimeout(10_000)
+
 test('Renders Ballot with EitherNeither: blank', async () => {
   const electionDefinition = asElectionDefinition(parseElection(electionSample))
   const { election } = electionDefinition
