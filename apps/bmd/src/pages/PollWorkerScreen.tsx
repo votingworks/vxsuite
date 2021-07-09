@@ -19,7 +19,7 @@ import {
   combineTallies,
 } from '@votingworks/utils'
 
-import { MachineConfig } from '../config/types'
+import { MachineConfig, PrecinctSelection } from '../config/types'
 
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
@@ -37,7 +37,7 @@ import VersionsData from '../components/VersionsData'
 interface Props {
   activateCardlessBallotStyleId: (id: string) => void
   resetCardlessBallot: () => void
-  appPrecinctId: string
+  appPrecinct: PrecinctSelection
   ballotsPrintedCount: number
   ballotStyleId?: string
   electionDefinition: ElectionDefinition
@@ -57,7 +57,7 @@ interface Props {
 const PollWorkerScreen: React.FC<Props> = ({
   activateCardlessBallotStyleId,
   resetCardlessBallot,
-  appPrecinctId,
+  appPrecinct,
   ballotsPrintedCount,
   ballotStyleId,
   electionDefinition,
@@ -77,10 +77,10 @@ const PollWorkerScreen: React.FC<Props> = ({
   const electionDate = DateTime.fromISO(electionDefinition.election.date)
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day')
   const precinct = election.precincts.find(
-    (p) => p.id === appPrecinctId
+    (p) => p.id === appPrecinct.precinctId
   ) as Precinct
   const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-    bs.precincts.includes(appPrecinctId)
+    bs.precincts.includes(appPrecinct.precinctId)
   )
 
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
@@ -432,7 +432,7 @@ const PollWorkerScreen: React.FC<Props> = ({
             <React.Fragment>
               <ElectionInfo
                 electionDefinition={electionDefinition}
-                precinctId={appPrecinctId}
+                precinctId={appPrecinct.precinctId}
                 horizontal
               />
               <VersionsData
@@ -599,7 +599,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   isPollsOpen={talliesOnCard.isPollsOpen}
                   machineMetadata={talliesOnCard?.metadata}
                   machineConfig={machineConfig} // not used
-                  precinctId={appPrecinctId}
+                  precinctId={appPrecinct.precinctId}
                   reportPurpose={reportPurpose}
                 />
                 <PrecinctTallyReport
@@ -610,7 +610,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   election={election}
                   isPollsOpen={talliesOnCard.isPollsOpen}
                   tally={talliesOnCard!.tally}
-                  precinctId={appPrecinctId}
+                  precinctId={appPrecinct.precinctId}
                   reportPurpose={reportPurpose}
                 />
               </React.Fragment>
@@ -630,7 +630,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   isPollsOpen={false}
                   machineMetadata={machineMetadata}
                   machineConfig={machineConfig}
-                  precinctId={appPrecinctId}
+                  precinctId={appPrecinct.precinctId}
                   reportPurpose={reportPurpose}
                 />
                 <PrecinctTallyReport
@@ -641,7 +641,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   election={election}
                   isPollsOpen={false}
                   tally={combinedTally}
-                  precinctId={appPrecinctId}
+                  precinctId={appPrecinct.precinctId}
                   reportPurpose={reportPurpose}
                 />
               </React.Fragment>
@@ -661,7 +661,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 isPollsOpen={!isPollsOpen} // This report is printed just before the value of isPollsOpen is updated when opening/closing polls, so we want to print the report with the toggled value.
                 machineMetadata={undefined}
                 machineConfig={machineConfig}
-                precinctId={appPrecinctId}
+                precinctId={appPrecinct.precinctId}
                 reportPurpose={reportPurpose}
               />
               <PrecinctTallyReport
@@ -672,7 +672,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 election={election}
                 isPollsOpen={!isPollsOpen}
                 tally={tally}
-                precinctId={appPrecinctId}
+                precinctId={appPrecinct.precinctId}
                 reportPurpose={reportPurpose}
               />
             </React.Fragment>
