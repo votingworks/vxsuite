@@ -36,9 +36,10 @@ import VersionsData from '../components/VersionsData'
 
 interface Props {
   activateCardlessBallotStyleId: (id: string) => void
+  resetCardlessBallot: () => void
   appPrecinctId: string
   ballotsPrintedCount: number
-  ballotStyleId: string
+  ballotStyleId?: string
   electionDefinition: ElectionDefinition
   enableLiveMode: () => void
   hasVotes: boolean
@@ -55,6 +56,7 @@ interface Props {
 
 const PollWorkerScreen: React.FC<Props> = ({
   activateCardlessBallotStyleId,
+  resetCardlessBallot,
   appPrecinctId,
   ballotsPrintedCount,
   ballotStyleId,
@@ -192,12 +194,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 Remove card to allow voter to continue voting, or reset ballot.
               </p>
               <p>
-                <Button
-                  danger
-                  onPress={() => {
-                    activateCardlessBallotStyleId('')
-                  }}
-                >
+                <Button danger onPress={resetCardlessBallot}>
                   Reset Ballot
                 </Button>
               </p>
@@ -234,12 +231,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 Deactivate this ballot style to select another ballot style.
               </Text>
               <Text center>
-                <Button
-                  small
-                  onPress={() => {
-                    activateCardlessBallotStyleId('')
-                  }}
-                >
+                <Button small onPress={resetCardlessBallot}>
                   Deactivate Ballot Style {ballotStyleId}
                 </Button>
               </Text>

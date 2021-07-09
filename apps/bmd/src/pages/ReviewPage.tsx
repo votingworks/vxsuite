@@ -1,3 +1,4 @@
+import { ok } from 'assert'
 import pluralize from 'pluralize'
 import React, {
   useCallback,
@@ -368,6 +369,7 @@ const ReviewPage: React.FC = () => {
     userSettings,
     setUserSettings,
   } = context
+  ok(electionDefinition, 'electionDefinition is required to render ReviewPage')
   const { election } = electionDefinition
   const { parties } = election
 

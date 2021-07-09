@@ -34,6 +34,7 @@ it('renders StartPage with inline SVG', async () => {
   )
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
+    ballotStyleId: '12',
     precinctId: '23',
     route: '/',
   })
@@ -46,6 +47,7 @@ it('renders StartPage with no seal', async () => {
   )
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
+    ballotStyleId: '12',
     precinctId: '23',
     route: '/',
   })

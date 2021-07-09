@@ -1,3 +1,4 @@
+import { ok } from 'assert'
 import React, { useContext, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
@@ -30,6 +31,8 @@ const StartPage: React.FC<Props> = ({ history }) => {
     userSettings,
     forceSaveVote,
   } = useContext(BallotContext)
+  ok(electionDefinition, 'electionDefinition is required to render StartPage')
+  ok(ballotStyleId, 'ballotStyleId is required to render StartPage')
   const audioFocus = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   const { election } = electionDefinition
   const { title } = election

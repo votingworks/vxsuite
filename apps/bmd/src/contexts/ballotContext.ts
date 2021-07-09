@@ -1,5 +1,4 @@
 import { createContext } from 'react'
-import { Election, ElectionDefinition } from '@votingworks/types'
 import * as GLOBALS from '../config/globals'
 
 import { NullPrinter } from '../utils/printer'
@@ -11,17 +10,11 @@ import {
 
 const ballot: BallotContextInterface = {
   machineConfig: { machineId: '000', appMode: VxMarkOnly, codeVersion: 'dev' },
-  ballotStyleId: '',
   contests: [],
-  electionDefinition: {
-    election: (undefined as unknown) as Election,
-    electionHash: '',
-  } as ElectionDefinition,
   isCardlessVoter: false,
   isLiveMode: false,
   markVoterCardVoided: async () => false,
   markVoterCardPrinted: async () => false,
-  precinctId: '',
   printer: new NullPrinter(),
   resetBallot: () => undefined,
   setUserSettings: () => undefined,
