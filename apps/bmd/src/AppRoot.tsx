@@ -53,6 +53,7 @@ import {
   MachineConfig,
   PostVotingInstructions,
   PrecinctSelection,
+  PrecinctSelectionKind,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -245,7 +246,11 @@ type AppAction =
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
   | { type: 'initializeAppState'; appState: Partial<State> }
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
-  | { type: 'activateCardlessBallot'; ballotStyleId: string }
+  | {
+      type: 'activateCardlessBallot'
+      precinctId: string
+      ballotStyleId?: string
+    }
   | { type: 'resetCardlessBallot' }
   | { type: 'maintainCardlessBallot' }
   | {
@@ -428,12 +433,11 @@ const appReducer = (state: State, action: AppAction): State => {
       }
     }
     case 'activateCardlessBallot': {
-      ok(state.appPrecinct, 'appPrecinct is required to activateCardlessBallot')
       return {
         ...state,
         ballotStyleId: action.ballotStyleId,
         isCardlessVoter: true,
-        precinctId: state.appPrecinct.precinctId,
+        precinctId: action.precinctId,
         votes: initialVoterState.votes,
       }
     }
@@ -677,10 +681,11 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [card])
 
-  const activateCardlessBallotStyleId = useCallback(
-    (ballotStyleId: string) => {
+  const activateCardlessBallot = useCallback(
+    (precinctId: string, ballotStyleId?: string) => {
       dispatchAppState({
         type: 'activateCardlessBallot',
+        precinctId,
         ballotStyleId,
       })
       history.push('/')
@@ -1223,11 +1228,12 @@ const AppRoot: React.FC<Props> = ({
     if (isPollWorkerCardPresent) {
       return (
         <PollWorkerScreen
-          activateCardlessBallotStyleId={activateCardlessBallotStyleId}
-          resetCardlessBallot={resetCardlessBallot}
+          activateCardlessVoterSession={activateCardlessBallot}
+          resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
-          ballotStyleId={ballotStyleId}
+          cardlessVoterSessionPrecinctId={precinctId}
+          cardlessVoterSessionBallotStyleId={ballotStyleId}
           electionDefinition={optionalElectionDefinition}
           enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
@@ -1283,7 +1289,11 @@ const AppRoot: React.FC<Props> = ({
         Boolean(ballotStyleId) &&
         Boolean(precinctId)
 
-      if (isVoterVoting && appPrecinct.precinctId !== precinctId) {
+      if (
+        isVoterVoting &&
+        appPrecinct.kind === PrecinctSelectionKind.SinglePrecinct &&
+        appPrecinct.precinctId !== precinctId
+      ) {
         return (
           <WrongPrecinctScreen
             useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}

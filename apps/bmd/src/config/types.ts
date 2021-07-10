@@ -85,12 +85,12 @@ export interface SerializableActivationData {
 /* eslint-disable-next-line no-shadow */
 export enum PrecinctSelectionKind {
   SinglePrecinct = 'SinglePrecinct',
+  AllPrecincts = 'AllPrecincts',
 }
 
-export type PrecinctSelection = {
-  kind: PrecinctSelectionKind.SinglePrecinct
-  precinctId: Precinct['id']
-}
+export type PrecinctSelection =
+  | { kind: PrecinctSelectionKind.AllPrecincts }
+  | { kind: PrecinctSelectionKind.SinglePrecinct; precinctId: Precinct['id'] }
 
 // Ballot
 export type UpdateVoteFunction = (contestId: string, vote: OptionalVote) => void

@@ -1,5 +1,6 @@
-import { Election, Precinct } from '@votingworks/types'
+import { Election } from '@votingworks/types'
 import {
+  find,
   formatFullDateTimeZone,
   formatLongDate,
   CardTallyMetadataEntry,
@@ -8,7 +9,12 @@ import {
 import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
-import { AppModeNames, MachineConfig } from '../config/types'
+import {
+  AppModeNames,
+  MachineConfig,
+  PrecinctSelection,
+  PrecinctSelectionKind,
+} from '../config/types'
 
 import Prose from './Prose'
 import Table from './Table'
@@ -84,7 +90,7 @@ interface Props {
   isPollsOpen: boolean
   machineConfig: MachineConfig
   machineMetadata?: readonly CardTallyMetadataEntry[]
-  precinctId: string
+  precinctSelection: PrecinctSelection
   reportPurpose: string
 }
 
@@ -98,11 +104,14 @@ const PollsReport: React.FC<Props> = ({
   machineConfig,
   machineMetadata,
   sourceMachineType,
-  precinctId,
+  precinctSelection,
   reportPurpose,
 }) => {
   const { title, date, county, precincts, state, seal, sealURL } = election
-  const precinct = precincts.find((p) => p.id === precinctId) as Precinct
+  const precinctName =
+    precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
+      ? 'All Precincts'
+      : find(precincts, (p) => p.id === precinctSelection.precinctId).name
   let machineSection = (
     <React.Fragment>
       <dt>Machine ID</dt>
@@ -176,7 +185,7 @@ const PollsReport: React.FC<Props> = ({
         }
         <Prose className="ballot-header-content">
           <h2>
-            {precinct.name}{' '}
+            {precinctName}{' '}
             {
               /* istanbul ignore next */
               !isLiveMode ? 'Unofficial TEST' : 'Official'
