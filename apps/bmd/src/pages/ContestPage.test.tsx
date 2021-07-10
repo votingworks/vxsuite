@@ -15,6 +15,8 @@ it('Renders ContestPage', () => {
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
+      precinctId: electionSample.precincts[0].id,
+      ballotStyleId: electionSample.ballotStyles[0].id,
     }
   )
   screen.getByText(firstContestTitle)

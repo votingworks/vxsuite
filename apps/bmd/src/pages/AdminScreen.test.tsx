@@ -218,3 +218,50 @@ test('renders date and time settings modal', async () => {
   // Date is reset to system time after save to kiosk-browser
   screen.getByText(startDate)
 })
+
+test('select All Precincts', async () => {
+  const updateAppPrecinct = jest.fn()
+  render(
+    <AdminScreen
+      ballotsPrintedCount={0}
+      electionDefinition={asElectionDefinition(election)}
+      fetchElection={jest.fn()}
+      isLiveMode
+      updateAppPrecinct={updateAppPrecinct}
+      toggleLiveMode={jest.fn()}
+      unconfigure={jest.fn()}
+      machineConfig={fakeMachineConfig()}
+    />
+  )
+
+  const precinctSelect = screen.getByLabelText('Precinct')
+  const allPrecinctsOption = within(precinctSelect).getByText(
+    'All Precincts'
+  ) as HTMLOptionElement
+  fireEvent.change(precinctSelect, {
+    target: { value: allPrecinctsOption.value },
+  })
+  expect(updateAppPrecinct).toHaveBeenCalledWith({
+    kind: PrecinctSelectionKind.AllPrecincts,
+  })
+})
+
+test('render All Precincts', async () => {
+  const updateAppPrecinct = jest.fn()
+  render(
+    <AdminScreen
+      appPrecinct={{ kind: PrecinctSelectionKind.AllPrecincts }}
+      ballotsPrintedCount={0}
+      electionDefinition={asElectionDefinition(election)}
+      fetchElection={jest.fn()}
+      isLiveMode
+      updateAppPrecinct={updateAppPrecinct}
+      toggleLiveMode={jest.fn()}
+      unconfigure={jest.fn()}
+      machineConfig={fakeMachineConfig()}
+    />
+  )
+
+  const precinctSelect = screen.getByLabelText('Precinct') as HTMLSelectElement
+  expect(precinctSelect.selectedOptions[0].textContent).toEqual('All Precincts')
+})

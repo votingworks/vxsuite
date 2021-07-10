@@ -18,6 +18,7 @@ import YesNoContest from '../components/YesNoContest'
 import SettingsTextSize from '../components/SettingsTextSize'
 import TextIcon from '../components/TextIcon'
 import MsEitherNeitherContest from '../components/MsEitherNeitherContest'
+import { PrecinctSelectionKind } from '../config/types'
 
 interface ContestParams {
   contestNumber: string
@@ -37,6 +38,7 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
     votes,
   } = useContext(BallotContext)
   ok(electionDefinition, 'electionDefinition is required to render ContestPage')
+  ok(precinctId, 'precinctId is required to render ContestPage')
   const { election } = electionDefinition
   const currentContestIndex = parseInt(contestNumber, 10)
   const contest = contests[currentContestIndex]
@@ -113,7 +115,10 @@ const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctId={precinctId}
+              precinctSelection={{
+                kind: PrecinctSelectionKind.SinglePrecinct,
+                precinctId,
+              }}
               horizontal
             />
           </React.Fragment>

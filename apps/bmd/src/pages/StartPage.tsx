@@ -13,6 +13,7 @@ import Prose from '../components/Prose'
 import Sidebar from '../components/Sidebar'
 import Screen from '../components/Screen'
 import SettingsTextSize from '../components/SettingsTextSize'
+import { PrecinctSelectionKind } from '../config/types'
 
 const SidebarSpacer = styled.div`
   height: 90px;
@@ -31,6 +32,7 @@ const StartPage: React.FC<Props> = ({ history }) => {
     forceSaveVote,
   } = useContext(BallotContext)
   ok(electionDefinition, 'electionDefinition is required to render StartPage')
+  ok(precinctId, 'precinctId is required to render StartPage')
   ok(ballotStyleId, 'ballotStyleId is required to render StartPage')
   const audioFocus = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   const { election } = electionDefinition
@@ -83,7 +85,10 @@ const StartPage: React.FC<Props> = ({ history }) => {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctId={precinctId}
+              precinctSelection={{
+                kind: PrecinctSelectionKind.SinglePrecinct,
+                precinctId,
+              }}
               horizontal
             />
           </React.Fragment>
