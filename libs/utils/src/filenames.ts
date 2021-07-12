@@ -8,6 +8,7 @@ const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTI
 
 export const BALLOT_PACKAGE_FOLDER = 'ballot-packages'
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records'
+export const SCANNER_BACKUPS_FOLDER = 'scanner-backups'
 
 export type ElectionData = {
   electionCounty: string

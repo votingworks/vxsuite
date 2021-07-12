@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext } from 'react'
+import { SelectChangeEventFunction } from '@votingworks/types'
 import {
   Button,
   Loading,
@@ -6,19 +6,19 @@ import {
   SegmentedButton,
   Select,
 } from '@votingworks/ui'
-import { SelectChangeEventFunction } from '@votingworks/types'
-
-import { DateTime } from 'luxon'
 import { formatFullDateTimeZone, usbstick } from '@votingworks/utils'
-import { CenteredScreen } from '../components/Layout'
-import useNow from '../hooks/useNow'
-import PickDateTimeModal from '../components/PickDateTimeModal'
+import { DateTime } from 'luxon'
+import React, { useCallback, useContext, useState } from 'react'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
-import Modal from '../components/Modal'
 import CalibrateScannerModal from '../components/CalibrateScannerModal'
-import AppContext from '../contexts/AppContext'
+import ExportBackupModal from '../components/ExportBackupModal'
 import ExportResultsModal from '../components/ExportResultsModal'
+import { CenteredScreen } from '../components/Layout'
+import Modal from '../components/Modal'
+import PickDateTimeModal from '../components/PickDateTimeModal'
+import AppContext from '../contexts/AppContext'
+import useNow from '../hooks/useNow'
 
 interface Props {
   scannedBallotCount: number
@@ -49,6 +49,7 @@ const AdminScreen: React.FC<Props> = ({
   const [isSettingClock, setIsSettingClock] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isExportingResults, setIsExportingResults] = useState(false)
+  const [isExportingBackup, setIsExportingBackup] = useState(false)
 
   const setClock = useCallback(
     async (date: DateTime) => {
@@ -160,6 +161,11 @@ const AdminScreen: React.FC<Props> = ({
           </Button>
         </p>
         <p>
+          <Button onPress={() => setIsExportingBackup(true)}>
+            Export Backup to USB
+          </Button>
+        </p>
+        <p>
           <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
         </p>
         <p>
@@ -224,6 +230,13 @@ const AdminScreen: React.FC<Props> = ({
           usbDriveEject={usbDriveEject}
           isTestMode={isTestMode}
           scannedBallotCount={scannedBallotCount}
+        />
+      )}
+      {isExportingBackup && (
+        <ExportBackupModal
+          onClose={() => setIsExportingBackup(false)}
+          usbDriveStatus={usbDriveStatus}
+          usbDriveEject={usbDriveEject}
         />
       )}
     </CenteredScreen>

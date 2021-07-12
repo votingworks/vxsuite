@@ -1,12 +1,11 @@
-import React from 'react'
-import { act, fireEvent, screen, within, render } from '@testing-library/react'
-import MockDate from 'mockdate'
-
-import { fakeKiosk } from '@votingworks/test-utils'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { electionSampleDefinition } from '@votingworks/fixtures'
+import { fakeKiosk } from '@votingworks/test-utils'
 import { usbstick } from '@votingworks/utils'
-import AdminScreen from './AdminScreen'
+import MockDate from 'mockdate'
+import React from 'react'
 import AppContext from '../contexts/AppContext'
+import AdminScreen from './AdminScreen'
 
 MockDate.set('2020-10-31T00:00:00.000Z')
 
@@ -201,4 +200,28 @@ test('setting and un-setting the precinct', async () => {
     target: { value: '' },
   })
   expect(updateAppPrecinctId).toHaveBeenNthCalledWith(2, '')
+})
+
+test('export from admin screen', async () => {
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+      }}
+    >
+      <AdminScreen
+        scannedBallotCount={10}
+        isTestMode={false}
+        updateAppPrecinctId={jest.fn()}
+        toggleLiveMode={jest.fn()}
+        unconfigure={jest.fn()}
+        calibrate={jest.fn()}
+        usbDriveEject={jest.fn()}
+        usbDriveStatus={usbstick.UsbDriveStatus.absent}
+      />
+    </AppContext.Provider>
+  )
+
+  fireEvent.click(screen.getByText('Export Backup to USB'))
 })
