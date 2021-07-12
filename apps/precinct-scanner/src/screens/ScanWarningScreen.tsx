@@ -28,9 +28,9 @@ const ScanWarningScreen: React.FC<Props> = ({
   const openConfirmTabulateModal = () => setConfirmTabulate(true)
   const closeConfirmTabulateModal = () => setConfirmTabulate(false)
 
-  const tabulateBallot = () => {
+  const tabulateBallot = async () => {
     closeConfirmTabulateModal()
-    acceptBallot()
+    await acceptBallot()
   }
 
   const overvoteReasons = adjudicationReasonInfo.filter(

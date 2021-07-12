@@ -72,7 +72,7 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
 test('shows setup card reader screen when there is no card reader', async () => {
   const storage = new MemoryStorage()
   const hardware = await MemoryHardware.buildStandard()
-  hardware.setCardReaderConnected(false)
+  await hardware.setCardReaderConnected(false)
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })

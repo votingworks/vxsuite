@@ -23,23 +23,23 @@ const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 }
-test('scanDetectedSheet throws on bad status', () => {
+test('scanDetectedSheet throws on bad status', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'error', error: 'hello' },
   })
-  expect(scan.scanDetectedSheet()).rejects.toThrowErrorMatchingInlineSnapshot(
-    '"hello"'
-  )
+  await expect(
+    scan.scanDetectedSheet()
+  ).rejects.toThrowErrorMatchingInlineSnapshot('"hello"')
 })
 
-test('scanDetectedSheet throws on invalid batch', () => {
+test('scanDetectedSheet throws on invalid batch', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody)
-  expect(scan.scanDetectedSheet()).rejects.toThrowErrorMatchingInlineSnapshot(
-    '"batch not found: test-batch"'
-  )
+  await expect(
+    scan.scanDetectedSheet()
+  ).rejects.toThrowErrorMatchingInlineSnapshot('"batch not found: test-batch"')
 })
 
 test('scanDetectedSheet returns rejected ballot if batch has a 0 count', async () => {
@@ -286,8 +286,8 @@ test('getExport returns CVRs on success', async () => {
 })
 
 test('getExport throws on failure', async () => {
-  fetchMock.postOnce('/scan/export', { body: { status: 'error' } })
-  expect(scan.getExport()).rejects.toThrowError(
+  fetchMock.postOnce('/scan/export', { status: 500, body: { status: 'error' } })
+  await expect(scan.getExport()).rejects.toThrowError(
     'failed to generate scan export'
   )
 })

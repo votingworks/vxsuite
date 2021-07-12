@@ -37,9 +37,7 @@ test('DELETE /config/election to delete election', async () => {
 
 test('DELETE /config/election to delete election with bad API response', async () => {
   fetchMock.deleteOnce('/config/election', JSON.stringify({ status: 'not-ok' }))
-  expect(async () => await config.setElection(undefined)).rejects.toThrow(
-    /DELETE/
-  )
+  await expect(config.setElection(undefined)).rejects.toThrow(/DELETE/)
 })
 
 test('GET /config/testMode', async () => {
@@ -87,7 +85,7 @@ test('setCurrentPrecinctId deletes', async () => {
 
 test('setCurrentPrecinctId fails', async () => {
   fetchMock.putOnce('/config/precinct', JSON.stringify({ status: 'error' }))
-  expect(
+  await expect(
     config.setCurrentPrecinctId('23')
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"PUT /config/precinct failed: undefined"'

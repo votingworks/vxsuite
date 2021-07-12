@@ -11,9 +11,11 @@ test('successful fetch from /machine-config', async () => {
   })
 })
 
-test('failed fetch from /machine-config', () => {
+test('failed fetch from /machine-config', async () => {
   fetchMock.get('/machine-config', {
     throws: new Error('fetch failed!'),
   })
-  expect(machineConfigProvider.get()).rejects.toThrowError('fetch failed!')
+  await expect(machineConfigProvider.get()).rejects.toThrowError(
+    'fetch failed!'
+  )
 })
