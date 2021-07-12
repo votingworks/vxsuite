@@ -48,8 +48,8 @@ test('Display App Card Unhappy Paths', async () => {
 
   card.removeCard()
 
-  setElectionInStorage(storage)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage)
 
   render(
     <App
@@ -196,8 +196,8 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
   card.removeCard()
 
-  setElectionInStorage(storage, electionSampleDefinition)
-  setStateInStorage(storage, {
+  await setElectionInStorage(storage, electionSampleDefinition)
+  await setStateInStorage(storage, {
     isPollsOpen: false,
     tally: getZeroTally(electionSampleDefinition.election),
   })

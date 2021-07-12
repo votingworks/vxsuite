@@ -22,8 +22,8 @@ it('Displays testing message if not live mode', async () => {
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
   const hardware = await MemoryHardware.buildStandard()
-  setElectionInStorage(storage)
-  setStateInStorage(storage, {
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage, {
     isLiveMode: false,
   })
   render(

@@ -14,7 +14,7 @@ const DebugSheetList: React.FC = () => {
   const [sheets, setSheets] = useState<Sheet[]>([])
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       setIsLoading(true)
       try {
         const response = await fetch('/scan/sheets')

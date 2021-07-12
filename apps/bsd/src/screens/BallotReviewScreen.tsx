@@ -94,7 +94,7 @@ const BallotReviewScreen: React.FC<Props> = ({
     }
 
     if (state.type === 'init') {
-      ;(async () => {
+      void (async () => {
         try {
           const ballotInfo = ballotId
             ? await fetchBallotInfo(ballotId)
@@ -163,7 +163,7 @@ const BallotReviewScreen: React.FC<Props> = ({
       return
     }
 
-    ;(async () => {
+    void (async () => {
       try {
         await fetchJSON(state.ballot.ballot.url, {
           method: 'PATCH',

@@ -356,7 +356,7 @@ test('tabulating CVRs with SEMS file', async () => {
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const semsFileStorageString = await convertSEMSFileToExternalTally(
+  const semsFileStorageString = convertSEMSFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
@@ -371,7 +371,7 @@ test('tabulating CVRs with SEMS file', async () => {
   const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
     <App storage={storage} />
   )
-  await jest.advanceTimersByTime(2001)
+  jest.advanceTimersByTime(2001)
 
   await screen.findByText('0 official ballots')
 
@@ -412,7 +412,7 @@ test('tabulating CVRs with SEMS file', async () => {
   fetchMock.post('/convert/reset', { body: { status: 'ok' } })
   await waitFor(() => getByText('Save Results File'))
   fireEvent.click(getByText('Save Results File'))
-  await jest.advanceTimersByTime(2001)
+  jest.advanceTimersByTime(2001)
   getByText('Save Results')
   getByText(/Save the election results as /)
   getByText(
@@ -461,7 +461,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const semsFileStorageString = await convertSEMSFileToExternalTally(
+  const semsFileStorageString = convertSEMSFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
@@ -632,7 +632,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const semsFileTally = await convertSEMSFileToExternalTally(
+  const semsFileTally = convertSEMSFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
@@ -687,7 +687,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   )
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
 
-  const semsFileTally = await convertSEMSFileToExternalTally(
+  const semsFileTally = convertSEMSFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,

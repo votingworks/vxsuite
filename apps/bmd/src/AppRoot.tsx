@@ -540,7 +540,7 @@ const AppRoot: React.FC<Props> = ({
       await storage.set(electionStorageKey, electionDefinition)
     }
     if (optionalElectionDefinition) {
-      storeElection(optionalElectionDefinition)
+      void storeElection(optionalElectionDefinition)
     }
   }, [optionalElectionDefinition, storage])
 
@@ -559,7 +559,7 @@ const AppRoot: React.FC<Props> = ({
       }
     }
     if (votes) {
-      storeVotes(votes)
+      void storeVotes(votes)
     }
   }, [votes, storage])
 
@@ -1039,7 +1039,7 @@ const AppRoot: React.FC<Props> = ({
         // Do nothing if machineConfig fails. Default values will be used.
       }
     }
-    setMachineConfig()
+    void setMachineConfig()
   }, [machineConfigProvider])
 
   // Handle Keyboard Input
@@ -1102,7 +1102,7 @@ const AppRoot: React.FC<Props> = ({
         },
       })
     }
-    updateStorage()
+    void updateStorage()
     startCardShortValueReadPolling()
     startLongValueWritePolling()
     startHardwareStatusPolling()
@@ -1130,7 +1130,7 @@ const AppRoot: React.FC<Props> = ({
     if (precinctId && ballotStyleId) {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
-        updateStorage()
+        void updateStorage()
       }
     }
   }, [ballotStyleId, isCardlessVoter, precinctId, storage, voterCardCreatedAt])
@@ -1149,7 +1149,7 @@ const AppRoot: React.FC<Props> = ({
       }
     }
 
-    storeAppState()
+    void storeAppState()
   }, [
     appPrecinctId,
     ballotsPrintedCount,

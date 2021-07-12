@@ -71,9 +71,9 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
     setIsConfirming(false)
   }
 
-  const confirmPrint = () => {
+  const confirmPrint = async () => {
     setIsConfirming(false)
-    print()
+    await print()
   }
 
   return (

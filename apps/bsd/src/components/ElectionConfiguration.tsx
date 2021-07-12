@@ -96,7 +96,7 @@ const ElectionConfiguration: React.FC<Props> = ({
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
-      fetchFilenames()
+      void fetchFilenames()
     }
   }, [usbDriveStatus])
 
@@ -104,7 +104,7 @@ const ElectionConfiguration: React.FC<Props> = ({
     const input = event.currentTarget
     const file = input.files && input.files[0]
     if (file) {
-      acceptManuallyChosenFile(file)
+      await acceptManuallyChosenFile(file)
     }
   }
 

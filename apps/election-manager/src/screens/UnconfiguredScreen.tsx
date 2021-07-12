@@ -61,8 +61,8 @@ const UnconfiguredScreen: React.FC = () => {
   const [client] = useState(new ConverterClient('election'))
   const [isConvertSEMS, setIsConvertSEMS] = useState(false)
 
-  const createNewElection = () => {
-    saveElection(newElection)
+  const createNewElection = async () => {
+    await saveElection(newElection)
     history.push(routerPaths.electionDefinition)
   }
 
@@ -70,9 +70,9 @@ const UnconfiguredScreen: React.FC = () => {
     (electionJSON: string) => {
       parseElection(JSON.parse(electionJSON))
       setShowSuccess(true)
-      setTimeout(() => {
+      setTimeout(async () => {
         setShowSuccess(false)
-        saveElection(electionJSON)
+        await saveElection(electionJSON)
       }, 3000)
     },
     [saveElection, setShowSuccess]
@@ -190,7 +190,7 @@ const UnconfiguredScreen: React.FC = () => {
   }
 
   useEffect(() => {
-    updateStatus()
+    void updateStatus()
   }, [updateStatus])
 
   useEffect(() => {

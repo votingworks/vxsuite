@@ -45,14 +45,16 @@ interface RenderInAppContextParams {
   >
   saveIsOfficialResults?: () => void
   usbDriveStatus?: usbstick.UsbDriveStatus
-  usbDriveEject?: () => void
+  usbDriveEject?: () => Promise<void>
   addPrintedBallot?: (printedBallot: PrintedBallot) => void
   printedBallots?: PrintedBallot[]
   fullElectionTally?: FullElectionTally
   isTabulationRunning?: boolean
   setFullElectionTally?: React.Dispatch<React.SetStateAction<FullElectionTally>>
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
-  saveExternalTallies?: (externalTallies: FullElectionExternalTally[]) => void
+  saveExternalTallies?: (
+    externalTallies: FullElectionExternalTally[]
+  ) => Promise<void>
   fullElectionExternalTallies?: FullElectionExternalTally[]
   generateExportableTallies?: () => ExportableTallies
 }

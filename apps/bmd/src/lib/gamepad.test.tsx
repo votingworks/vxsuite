@@ -33,8 +33,8 @@ it('gamepad controls work', async () => {
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
-  setElectionInStorage(storage)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage)
 
   render(
     <App

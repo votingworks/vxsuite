@@ -69,7 +69,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   useEffect(() => {
     if (isFactoryResetting) {
       let isMounted = true
-      ;(async () => {
+      void (async () => {
         await unconfigureServer()
         if (isMounted) {
           setIsFactoryResetting(false)

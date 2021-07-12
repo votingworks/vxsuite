@@ -42,8 +42,8 @@ describe('loads election', () => {
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = await MemoryHardware.buildStandard()
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
     render(
       <App
         card={card}

@@ -112,7 +112,7 @@ const App: React.FC = () => {
       }
     }
 
-    initialize()
+    void initialize()
   }, [refreshConfig])
 
   useEffect(() => {
@@ -125,7 +125,7 @@ const App: React.FC = () => {
       }
     }
 
-    initialize()
+    void initialize()
   }, [setMachineConfig])
 
   const updateStatus = useCallback(async () => {
@@ -251,9 +251,9 @@ const App: React.FC = () => {
   }, [])
 
   useInterval(
-    useCallback(() => {
+    useCallback(async () => {
       if (electionDefinition) {
-        updateStatus()
+        await updateStatus()
       }
     }, [electionDefinition, updateStatus]),
     1000
@@ -273,7 +273,7 @@ const App: React.FC = () => {
 
   useInterval(
     () => {
-      ;(async () => {
+      void (async () => {
         const usbDriveStatus = await usbstick.getStatus()
         setUsbStatus(usbDriveStatus)
         if (usbDriveStatus === usbstick.UsbDriveStatus.present) {
@@ -292,7 +292,7 @@ const App: React.FC = () => {
       : usbStatus
 
   useEffect(() => {
-    updateStatus()
+    void updateStatus()
   }, [updateStatus])
 
   useEffect(() => {

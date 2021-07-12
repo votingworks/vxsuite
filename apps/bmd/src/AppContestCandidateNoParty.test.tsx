@@ -49,11 +49,11 @@ it('Single Seat Contest', async () => {
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
-  storage.set(
+  await storage.set(
     electionStorageKey,
     asElectionDefinition(electionWithNoPartyCandidateContests)
   )
-  setStateInStorage(storage)
+  await setStateInStorage(storage)
 
   const { container } = render(
     <App

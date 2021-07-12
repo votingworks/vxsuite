@@ -34,7 +34,7 @@ const IdlePage: React.FC = () => {
       await markVoterCardVoided()
       resetBallot()
     }
-    if (countdown === 0) reset()
+    if (countdown === 0) void reset()
   }, [countdown, markVoterCardVoided, resetBallot])
 
   useInterval(() => {

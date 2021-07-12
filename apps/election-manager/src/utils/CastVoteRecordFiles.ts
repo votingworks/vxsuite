@@ -383,4 +383,6 @@ export default class CastVoteRecordFiles {
   }
 }
 
-export type SaveCastVoteRecordFiles = (value?: CastVoteRecordFiles) => void
+export type SaveCastVoteRecordFiles = (
+  value?: CastVoteRecordFiles
+) => Promise<void>

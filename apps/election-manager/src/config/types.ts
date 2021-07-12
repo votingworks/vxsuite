@@ -20,7 +20,7 @@ export type ButtonEventFunction = (
 ) => void | Promise<void>
 
 // Election
-export type SaveElection = (electionJSON?: string) => void
+export type SaveElection = (electionJSON?: string) => Promise<void>
 
 export interface BallotStyleData {
   ballotStyleId: BallotStyle['id']

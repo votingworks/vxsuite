@@ -87,7 +87,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
       [fileEntry],
       election
     )
-    saveCastVoteRecordFiles(newCastVoteRecordFiles)
+    await saveCastVoteRecordFiles(newCastVoteRecordFiles)
 
     if (newCastVoteRecordFiles.duplicateFiles.includes(fileEntry.name)) {
       setCurrentState(ModalState.DUPLICATE)
@@ -110,7 +110,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         files,
         election
       )
-      saveCastVoteRecordFiles(newCastVoteRecordFiles)
+      await saveCastVoteRecordFiles(newCastVoteRecordFiles)
 
       input.value = ''
 
@@ -154,7 +154,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
-      fetchFilenames()
+      void fetchFilenames()
     }
   }, [usbDriveStatus])
 

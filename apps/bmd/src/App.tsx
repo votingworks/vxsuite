@@ -56,7 +56,7 @@ const App: React.FC<Props> = ({
         setInternalHardware(await getHardware())
       }
     }
-    updateHardware()
+    void updateHardware()
   }, [internalHardware])
 
   /* istanbul ignore next - need to figure out how to test this */
@@ -73,9 +73,9 @@ const App: React.FC<Props> = ({
 
   /* istanbul ignore next - need to figure out how to test this */
   const onKeyPress = useCallback(
-    (event: React.KeyboardEvent) => {
+    async (event: React.KeyboardEvent) => {
       if (event.key === 'r') {
-        screenReader.toggle()
+        await screenReader.toggle()
       }
     },
     [screenReader]
@@ -87,14 +87,14 @@ const App: React.FC<Props> = ({
       if (target) {
         const currentPath = window.location.pathname
 
-        setImmediate(() => {
+        setImmediate(async () => {
           // Only send `onClick` to the screen reader if the click didn't
           // trigger navigation and the clicked element is still here.
           if (
             window.location.pathname === currentPath &&
             document.body.contains(target as Node)
           ) {
-            screenReader.onClick(target)
+            await screenReader.onClick(target)
           }
         })
       }
@@ -108,14 +108,14 @@ const App: React.FC<Props> = ({
       if (target) {
         const currentPath = window.location.pathname
 
-        setImmediate(() => {
+        setImmediate(async () => {
           // Only send `onFocus` to the screen reader if the focus didn't
           // trigger navigation and the focused element is still here.
           if (
             window.location.pathname === currentPath &&
             document.body.contains(target as Node)
           ) {
-            screenReader.onFocus(target)
+            await screenReader.onFocus(target)
           }
         })
       }

@@ -35,7 +35,7 @@ const DebugSheet: React.FC = () => {
   const [page, setPage] = useState<ReviewBallot>()
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       try {
         const response = await fetch(`/scan/sheets/${sheetId}`)
         const results: Sheet[] = await response.json()
@@ -51,7 +51,7 @@ const DebugSheet: React.FC = () => {
   }, [sheetId, side])
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       try {
         const response = await fetch(`/scan/hmpb/ballot/${sheetId}/${side}`)
         setPage(await response.json())

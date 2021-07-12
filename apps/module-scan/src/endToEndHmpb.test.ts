@@ -85,7 +85,7 @@ test('going through the whole process works', async () => {
   const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
 
   for (const config of manifest.ballots) {
-    addTemplatesRequest
+    void addTemplatesRequest
       .attach('ballots', join(electionFixturesRoot, config.filename))
       .attach(
         'metadatas',
@@ -226,7 +226,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
 
   for (const config of manifest.ballots) {
-    addTemplatesRequest
+    void addTemplatesRequest
       .attach('ballots', join(electionFixturesRoot, config.filename))
       .attach(
         'metadatas',
@@ -376,7 +376,7 @@ test('ms-either-neither end-to-end', async () => {
   const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
 
   for (const config of manifest.ballots) {
-    addTemplatesRequest
+    void addTemplatesRequest
       .attach('ballots', join(root, config.filename))
       .attach(
         'metadatas',

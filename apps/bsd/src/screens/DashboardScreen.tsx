@@ -83,7 +83,7 @@ const DashboardScreen: React.FC<Props> = ({
   useEffect(() => {
     if (pendingDeleteBatchId && isDeletingBatch) {
       let isMounted = true
-      ;(async () => {
+      void (async () => {
         try {
           await deleteBatch(pendingDeleteBatchId)
 

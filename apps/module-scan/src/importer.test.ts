@@ -454,7 +454,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     workerPoolProvider,
   })
 
-  importer.configure(asElectionDefinition(election))
+  await importer.configure(asElectionDefinition(election))
   jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
 
   workerCall.mockImplementationOnce(async (input) => {

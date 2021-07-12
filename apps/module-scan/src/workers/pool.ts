@@ -49,7 +49,7 @@ export class WorkerThreadWorkerOps<I> implements WorkerOps<I, Worker> {
   }
 
   public stop(worker: Worker): void {
-    worker.terminate()
+    void worker.terminate()
   }
 
   public send(worker: Worker, message: I): void {
@@ -324,7 +324,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     } finally {
       worker.off('message', resolve)
       worker.off('error', reject)
-      this.releaseWorker(worker, traceId)
+      await this.releaseWorker(worker, traceId)
     }
   }
 }
