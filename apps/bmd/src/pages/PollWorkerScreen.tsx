@@ -49,9 +49,9 @@ interface Props {
   printer: Printer
   tally: Tally
   togglePollsOpen: () => void
-  saveTallyToCard: (cardTally: CardTally) => void
+  saveTallyToCard: (cardTally: CardTally) => Promise<void>
   talliesOnCard: Optional<CardTally>
-  clearTalliesOnCard: () => void
+  clearTalliesOnCard: () => Promise<void>
 }
 
 const PollWorkerScreen: React.FC<Props> = ({
