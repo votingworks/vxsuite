@@ -127,7 +127,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
 
   useInterval(
     () => {
-      ;(async () => {
+      void (async () => {
         const status = await usbstick.getStatus()
         setUsbStatus(status)
         if (status === usbstick.UsbDriveStatus.present) {
@@ -170,7 +170,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
   }
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       if (!printedBallots) {
         setPrintedBallots(await getPrintedBallots())
       }
@@ -178,7 +178,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
   })
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       if (!electionDefinition) {
         const storageElectionDefinition = await getElectionDefinition()
         if (storageElectionDefinition) {
@@ -234,21 +234,21 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
     }
   }, [computeVoteCounts, castVoteRecordFiles])
 
-  const saveExternalTallies = (
+  const saveExternalTallies = async (
     externalTallies: FullElectionExternalTally[]
   ) => {
     setFullElectionExternalTallies(externalTallies)
     if (externalTallies.length > 0) {
-      storage.set(
+      await storage.set(
         externalVoteTalliesFileStorageKey,
         convertExternalTalliesToStorageString(externalTallies)
       )
     } else {
-      storage.remove(externalVoteTalliesFileStorageKey)
+      await storage.remove(externalVoteTalliesFileStorageKey)
     }
   }
 
-  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = (
+  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = async (
     newCVRFiles = CastVoteRecordFiles.empty
   ) => {
     setCastVoteRecordFiles(newCVRFiles)
@@ -257,18 +257,18 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
     }
 
     if (newCVRFiles === CastVoteRecordFiles.empty) {
-      storage.remove(cvrsStorageKey)
-      storage.remove(isOfficialResultsKey)
+      await storage.remove(cvrsStorageKey)
+      await storage.remove(isOfficialResultsKey)
       setIsOfficialResults(false)
     } else {
-      storage.set(cvrsStorageKey, newCVRFiles.export())
+      await storage.set(cvrsStorageKey, newCVRFiles.export())
     }
   }
 
   const saveElection: SaveElection = useCallback(
     async (electionJSON) => {
       // we set a new election definition, reset everything
-      storage.clear()
+      await storage.clear()
       setIsOfficialResults(false)
       setCastVoteRecordFiles(CastVoteRecordFiles.empty)
       setFullElectionExternalTallies([])

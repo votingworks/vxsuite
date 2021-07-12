@@ -49,7 +49,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
    * the next state.
    */
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       switch (state.type) {
         case 'Init': {
           setState(workflow.next)

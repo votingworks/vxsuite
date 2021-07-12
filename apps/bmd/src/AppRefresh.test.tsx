@@ -33,8 +33,8 @@ it('Refresh window and expect to be on same contest', async () => {
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
-  setElectionInStorage(storage)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage)
 
   let { getByText, unmount } = render(
     <App

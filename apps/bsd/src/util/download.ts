@@ -54,24 +54,21 @@ async function kioskDownload(
     throw new Error('no file was chosen')
   }
 
-  return new Promise((resolve, reject) => {
-    body.pipeTo(
-      new WritableStream({
-        abort: (error) => {
-          reject(error)
-        },
+  await body.pipeTo(
+    new WritableStream({
+      abort: (error) => {
+        throw error
+      },
 
-        write: (chunk) => {
-          downloadTarget.write(chunk)
-        },
+      async write(chunk) {
+        await downloadTarget.write(chunk)
+      },
 
-        close: () => {
-          downloadTarget.end()
-          resolve()
-        },
-      })
-    )
-  })
+      async close() {
+        await downloadTarget.end()
+      },
+    })
+  )
 }
 
 /**

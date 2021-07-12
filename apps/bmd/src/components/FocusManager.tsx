@@ -35,7 +35,7 @@ const FocusManager: React.FC<Props> = ({
   const screen = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   useEffect(() => {
     const onPageLoad = () => {
-      screenReader.onPageLoad()
+      void screenReader.onPageLoad()
 
       // can't seem to find a better way than this, unfortunately.
       // the delay of 150 is to handle the case the Next button is selected

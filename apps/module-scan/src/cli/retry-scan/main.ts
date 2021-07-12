@@ -194,7 +194,7 @@ export default async function main(
 
 /* istanbul ignore next */
 if (require.main === module) {
-  main(process.argv.slice(2))
+  void main(process.argv.slice(2))
     .catch((error) => {
       console.error(error)
       return 1

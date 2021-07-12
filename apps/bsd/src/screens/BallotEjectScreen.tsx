@@ -69,7 +69,7 @@ const BallotEjectScreen: React.FC<Props> = ({
   const [ballotState, setBallotState] = useState<EjectState>(undefined)
 
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       setSheetInfo(await fetchNextBallotSheetToReview())
     })()
   }, [setSheetInfo])

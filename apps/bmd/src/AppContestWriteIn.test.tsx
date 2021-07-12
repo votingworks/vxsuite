@@ -44,8 +44,8 @@ it('Single Seat Contest with Write In', async () => {
     appMode: VxMarkPlusVxPrint,
   })
 
-  setElectionInStorage(storage)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage)
 
   const { container } = render(
     <App

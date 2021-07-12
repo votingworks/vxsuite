@@ -40,10 +40,10 @@ describe('Displays setup warning messages and errors screens', () => {
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = await MemoryHardware.buildStandard()
-    hardware.setAccessibleControllerConnected(true)
+    await hardware.setAccessibleControllerConnected(true)
 
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
 
     render(
       <App
@@ -64,16 +64,16 @@ describe('Displays setup warning messages and errors screens', () => {
     expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy()
 
     // Disconnect Accessible Controller
-    act(() => {
-      hardware.setAccessibleControllerConnected(false)
+    await act(async () => {
+      await hardware.setAccessibleControllerConnected(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     screen.getByText(accessibleControllerWarningText)
     screen.getByText(insertCardScreenText)
 
     // Reconnect Accessible Controller
-    act(() => {
-      hardware.setAccessibleControllerConnected(true)
+    await act(async () => {
+      await hardware.setAccessibleControllerConnected(true)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy()
@@ -85,8 +85,8 @@ describe('Displays setup warning messages and errors screens', () => {
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = await MemoryHardware.buildStandard()
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
 
     render(
       <App
@@ -104,15 +104,15 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText(insertCardScreenText)
 
     // Disconnect Card Reader
-    act(() => {
-      hardware.setCardReaderConnected(false)
+    await act(async () => {
+      await hardware.setCardReaderConnected(false)
     })
     await advanceTimersAndPromises()
     screen.getByText('Card Reader Not Detected')
 
     // Reconnect Card Reader
-    act(() => {
-      hardware.setCardReaderConnected(true)
+    await act(async () => {
+      await hardware.setCardReaderConnected(true)
     })
     await advanceTimersAndPromises()
     screen.getByText(insertCardScreenText)
@@ -123,8 +123,8 @@ describe('Displays setup warning messages and errors screens', () => {
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
     const hardware = await MemoryHardware.buildStandard()
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
     render(
       <App
         card={card}
@@ -143,15 +143,15 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText(vxPrintInsertCardScreenText)
 
     // Disconnect Printer
-    act(() => {
-      hardware.setPrinterConnected(false)
+    await act(async () => {
+      await hardware.setPrinterConnected(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     screen.getByText('No Printer Detected')
 
     // Reconnect Printer
-    act(() => {
-      hardware.setPrinterConnected(true)
+    await act(async () => {
+      await hardware.setPrinterConnected(true)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     screen.getByText(vxPrintInsertCardScreenText)
@@ -162,8 +162,8 @@ describe('Displays setup warning messages and errors screens', () => {
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
     const hardware = await MemoryHardware.buildStandard()
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
     render(
       <App
         card={card}
@@ -182,15 +182,15 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText(vxPrintInsertCardScreenText)
 
     // Disconnect Power
-    act(() => {
-      hardware.setBatteryDischarging(true)
+    await act(async () => {
+      await hardware.setBatteryDischarging(true)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     screen.getByText(noPowerDetectedWarningText)
 
     // Reconnect Power
-    act(() => {
-      hardware.setBatteryDischarging(false)
+    await act(async () => {
+      await hardware.setBatteryDischarging(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy()
@@ -205,8 +205,8 @@ describe('Displays setup warning messages and errors screens', () => {
       appMode: VxPrintOnly,
     })
     const hardware = await MemoryHardware.buildStandard()
-    setElectionInStorage(storage, electionDefinition)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage, electionDefinition)
+    await setStateInStorage(storage)
     render(
       <App
         card={card}
@@ -225,8 +225,8 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText(vxPrintInsertCardScreenText)
 
     // Disconnect Printer
-    act(() => {
-      hardware.setPrinterConnected(false)
+    await act(async () => {
+      await hardware.setPrinterConnected(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     screen.getByText('No Printer Detected')
@@ -244,8 +244,8 @@ describe('Displays setup warning messages and errors screens', () => {
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider()
     const hardware = await MemoryHardware.buildStandard()
-    setElectionInStorage(storage)
-    setStateInStorage(storage)
+    await setElectionInStorage(storage)
+    await setStateInStorage(storage)
     render(
       <App
         card={card}
@@ -263,24 +263,24 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText(insertCardScreenText)
 
     // Remove charger and reduce battery level slightly
-    act(() => {
-      hardware.setBatteryDischarging(true)
-      hardware.setBatteryLevel(0.6)
+    await act(async () => {
+      await hardware.setBatteryDischarging(true)
+      await hardware.setBatteryLevel(0.6)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     screen.getByText(noPowerDetectedWarningText)
     screen.getByText(insertCardScreenText)
 
     // Battery level drains below low threshold
-    act(() => {
-      hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2)
+    await act(async () => {
+      await hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     getByTextWithMarkup(lowBatteryErrorScreenText)
 
     // Attach charger and back on Insert Card screen
-    act(() => {
-      hardware.setBatteryDischarging(false)
+    await act(async () => {
+      await hardware.setBatteryDischarging(false)
     })
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000)
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy()

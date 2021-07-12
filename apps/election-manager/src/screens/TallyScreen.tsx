@@ -70,9 +70,9 @@ const TallyScreen: React.FC = () => {
   const confirmOfficial = () => {
     setIsConfirmingOfficial(true)
   }
-  const setOfficial = () => {
+  const setOfficial = async () => {
     setIsConfirmingOfficial(false)
-    saveIsOfficialResults()
+    await saveIsOfficialResults()
   }
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
@@ -122,7 +122,7 @@ const TallyScreen: React.FC = () => {
 
   const [hasConverter, setHasConverter] = useState(false)
   useEffect(() => {
-    ;(async () => {
+    void (async () => {
       try {
         await new ConverterClient('tallies').getFiles()
         setHasConverter(true)

@@ -132,7 +132,7 @@ export default class Importer {
       }
     }
 
-    this.workspace.store.addHmpbTemplate(
+    await this.workspace.store.addHmpbTemplate(
       pdf,
       result[0].ballotImage.metadata,
       // remove ballot image for storage
@@ -502,7 +502,7 @@ export default class Importer {
     if (this.sheetGenerator && this.batchId) {
       this.scanOneSheet().catch((err) => {
         debug('processing sheet failed with error: %s', err.stack)
-        this.finishBatch(err.toString())
+        void this.finishBatch(err.toString())
       })
     } else {
       throw new Error('no scanning job in progress')

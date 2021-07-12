@@ -129,7 +129,7 @@ importers:
       dompurify: 2.2.6
       fetch-mock: 9.11.0
       history: 4.10.1
-      http-proxy-middleware: 1.0.6
+      http-proxy-middleware: 1.0.6_debug@4.3.2
       lodash.camelcase: 4.3.0
       luxon: 1.26.0
       mockdate: 3.0.2
@@ -461,7 +461,7 @@ importers:
       dompurify: 2.2.6
       fetch-mock: 9.11.0
       history: 4.10.1
-      http-proxy-middleware: 1.0.6
+      http-proxy-middleware: 1.0.6_debug@4.3.2
       i18next: 19.8.4
       js-file-download: 0.4.12
       js-sha256: 0.9.0
@@ -784,7 +784,7 @@ importers:
       base64-js: 1.5.1
       debug: 4.3.1
       fetch-mock: 9.11.0
-      http-proxy-middleware: 1.0.6
+      http-proxy-middleware: 1.0.6_debug@4.3.1
       i18next: 19.8.4
       jest-fetch-mock: 3.0.3
       js-file-download: 0.4.12
@@ -1100,10 +1100,10 @@ importers:
       zod: 3.2.0
   libs/eslint-plugin-vx:
     dependencies:
+      '@typescript-eslint/eslint-plugin': 4.26.0_942c48837be95e76bb4156c78358cdbe
       '@typescript-eslint/experimental-utils': 4.26.0_eslint@7.27.0+typescript@4.2.3
     devDependencies:
       '@types/node': 15.6.2
-      '@typescript-eslint/eslint-plugin': 4.26.0_942c48837be95e76bb4156c78358cdbe
       '@typescript-eslint/parser': 4.26.0_eslint@7.27.0+typescript@4.2.3
       '@votingworks/types': link:../types
       eslint: 7.27.0
@@ -8473,7 +8473,7 @@ packages:
       semver: 7.3.5
       tsutils: 3.21.0_typescript@4.2.3
       typescript: 4.2.3
-    dev: true
+    dev: false
     engines:
       node: ^10.12.0 || >=12.0.0
     peerDependencies:
@@ -8788,6 +8788,7 @@ packages:
       eslint: 7.27.0
       eslint-scope: 5.1.1
       eslint-utils: 3.0.0_eslint@7.27.0
+    dev: false
     engines:
       node: ^10.12.0 || >=12.0.0
     peerDependencies:
@@ -14787,6 +14788,7 @@ packages:
     dependencies:
       eslint: 7.27.0
       eslint-visitor-keys: 2.1.0
+    dev: false
     engines:
       node: ^10.0.0 || ^12.0.0 || >= 14.0.0
     peerDependencies:
@@ -15973,6 +15975,19 @@ packages:
         optional: true
     resolution:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
+  /follow-redirects/1.14.1_debug@4.3.2:
+    dependencies:
+      debug: 4.3.2
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /for-each/0.3.3:
     dependencies:
       is-callable: 1.2.2
@@ -16911,6 +16926,34 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
+  /http-proxy-middleware/1.0.6_debug@4.3.1:
+    dependencies:
+      '@types/http-proxy': 1.17.6
+      http-proxy: 1.18.1_debug@4.3.1
+      is-glob: 4.0.1
+      lodash: 4.17.21
+      micromatch: 4.0.4
+    dev: false
+    engines:
+      node: '>=8.0.0'
+    peerDependencies:
+      debug: '*'
+    resolution:
+      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
+  /http-proxy-middleware/1.0.6_debug@4.3.2:
+    dependencies:
+      '@types/http-proxy': 1.17.6
+      http-proxy: 1.18.1_debug@4.3.2
+      is-glob: 4.0.1
+      lodash: 4.17.21
+      micromatch: 4.0.4
+    dev: false
+    engines:
+      node: '>=8.0.0'
+    peerDependencies:
+      debug: '*'
+    resolution:
+      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
@@ -16925,6 +16968,18 @@ packages:
     dependencies:
       eventemitter3: 4.0.7
       follow-redirects: 1.14.1_debug@4.3.1
+      requires-port: 1.0.0
+    dev: false
+    engines:
+      node: '>=8.0.0'
+    peerDependencies:
+      debug: '*'
+    resolution:
+      integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==
+  /http-proxy/1.18.1_debug@4.3.2:
+    dependencies:
+      eventemitter3: 4.0.7
+      follow-redirects: 1.14.1_debug@4.3.2
       requires-port: 1.0.0
     dev: false
     engines:

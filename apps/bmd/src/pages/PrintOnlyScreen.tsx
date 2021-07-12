@@ -93,7 +93,7 @@ const PrintOnlyScreen: React.FC<Props> = ({
     if (isReadyToPrint && okToPrint) {
       setOkToPrint(false)
 
-      printBallot()
+      void printBallot()
     }
   }, [votes, printBallot, isReadyToPrint, okToPrint, setOkToPrint])
 

@@ -222,8 +222,8 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
   card.removeCard()
 
-  setElectionInStorage(storage, electionSampleDefinition)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage, electionSampleDefinition)
+  await setStateInStorage(storage)
 
   render(
     <App

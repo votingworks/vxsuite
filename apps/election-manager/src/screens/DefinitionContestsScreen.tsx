@@ -190,7 +190,7 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
   const contestIndex = election.contests.findIndex((c) => c.id === contestId)
   const contest = election.contests[contestIndex]
 
-  const saveContest = (newContest: AnyContest) => {
+  const saveContest = async (newContest: AnyContest) => {
     if (allowEditing) {
       const newElection: Election = {
         ...election,
@@ -200,11 +200,11 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
           ...election.contests.slice(contestIndex + 1),
         ],
       }
-      saveElection(JSON.stringify(newElection))
+      await saveElection(JSON.stringify(newElection))
     }
   }
 
-  const saveTextField: InputEventFunction = (event) => {
+  const saveTextField: InputEventFunction = async (event) => {
     const { name, value: targetValue, type } = event.currentTarget
     let value: string | number = targetValue
     if (type === 'number') {
@@ -213,21 +213,21 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
     if (name === 'seats' && value < 1) {
       value = 1
     }
-    saveContest({
+    await saveContest({
       ...contest,
       [name]: value,
     })
   }
 
-  const saveToggleField: EventTargetFunction = (event) => {
+  const saveToggleField: EventTargetFunction = async (event) => {
     const { name, value } = event.currentTarget as HTMLButtonElement
-    saveContest({
+    await saveContest({
       ...contest,
       [name]: value === 'true',
     })
   }
 
-  const saveCandidateTextField: InputEventFunction = (event) => {
+  const saveCandidateTextField: InputEventFunction = async (event) => {
     const { name, value: targetValue, type } = event.currentTarget
     let value: string | number = targetValue
     if (type === 'number') {
@@ -243,13 +243,13 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
       ...candidates[candidateIndex],
       [candidateKey]: value,
     }
-    saveContest({
+    await saveContest({
       ...candidateContest,
       candidates: newCandidtes,
     })
   }
 
-  const saveMsEitherNeitherOptionLabel: InputEventFunction = (event) => {
+  const saveMsEitherNeitherOptionLabel: InputEventFunction = async (event) => {
     const { name, value } = event.currentTarget
     const optionName = name as
       | 'eitherOption'
@@ -257,7 +257,7 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
       | 'firstOption'
       | 'secondOption'
     const msEitherNeitherContest = contest as MsEitherNeitherContest
-    saveContest({
+    await saveContest({
       ...msEitherNeitherContest,
       [optionName]: {
         ...msEitherNeitherContest[optionName],
@@ -276,7 +276,7 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
         const description = `${yesNoContest.description}
 
 ${fileContent}`
-        saveContest({
+        await saveContest({
           ...yesNoContest,
           description,
         })

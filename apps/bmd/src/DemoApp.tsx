@@ -76,7 +76,7 @@ const DemoApp: React.FC<Props> = ({
         setInternalHardware(await MemoryHardware.buildDemo())
       }
     }
-    updateHardware()
+    void updateHardware()
   }, [internalHardware])
   if (internalHardware === undefined) {
     return <div />

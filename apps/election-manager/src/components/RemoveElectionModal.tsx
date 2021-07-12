@@ -15,8 +15,8 @@ const RemoveElectionModal: React.FC<Props> = ({ onClose }) => {
   const history = useHistory()
   const { saveElection } = useContext(AppContext)
 
-  const unconfigureElection = () => {
-    saveElection(undefined)
+  const unconfigureElection = async () => {
+    await saveElection(undefined)
     history.push(routerPaths.root)
   }
 

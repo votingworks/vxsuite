@@ -30,14 +30,16 @@ export interface AppContextInterface {
   >
   saveIsOfficialResults: () => void
   usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => void
+  usbDriveEject: () => Promise<void>
   addPrintedBallot: (printedBallot: PrintedBallot) => void
   printedBallots: PrintedBallot[]
   fullElectionTally: FullElectionTally
   fullElectionExternalTallies: FullElectionExternalTally[]
   isTabulationRunning: boolean
   setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>
-  saveExternalTallies: (externalTallies: FullElectionExternalTally[]) => void
+  saveExternalTallies: (
+    externalTallies: FullElectionExternalTally[]
+  ) => Promise<void>
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
   generateExportableTallies: () => ExportableTallies
 }
@@ -49,18 +51,18 @@ const appContext: AppContextInterface = {
   isOfficialResults: false,
   printer: new NullPrinter(),
   printBallotRef: undefined,
-  saveCastVoteRecordFiles: () => undefined,
-  saveElection: () => undefined,
+  saveCastVoteRecordFiles: async () => undefined,
+  saveElection: async () => undefined,
   setCastVoteRecordFiles: () => undefined,
   saveIsOfficialResults: () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
-  usbDriveEject: () => undefined,
+  usbDriveEject: async () => undefined,
   addPrintedBallot: () => undefined,
   printedBallots: [],
   fullElectionTally: getEmptyFullElectionTally(),
   fullElectionExternalTallies: [],
   setFullElectionTally: () => undefined,
-  saveExternalTallies: () => undefined,
+  saveExternalTallies: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,

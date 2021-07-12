@@ -72,7 +72,7 @@ const ImportExternalResultsModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (selectedFile !== undefined) {
-      loadFile(selectedFile)
+      void loadFile(selectedFile)
     }
   }, [selectedFile])
 
@@ -87,7 +87,7 @@ const ImportExternalResultsModal: React.FC<Props> = ({
         selectedFile.name,
         new Date(selectedFile.lastModified)
       )
-      saveExternalTallies([...fullElectionExternalTallies, tally])
+      await saveExternalTallies([...fullElectionExternalTallies, tally])
       setIsTabulationRunning(false)
       onClose()
     }

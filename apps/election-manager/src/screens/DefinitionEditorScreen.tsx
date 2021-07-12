@@ -56,10 +56,10 @@ const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
     setDirty(true)
     setElectionString(event.currentTarget.value)
   }
-  const handleSaveElection = () => {
+  const handleSaveElection = async () => {
     const valid = validateElectionDefinition()
     if (valid) {
-      saveElection(electionString)
+      await saveElection(electionString)
       setDirty(false)
       setError('')
     }

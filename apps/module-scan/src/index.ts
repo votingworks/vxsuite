@@ -53,12 +53,12 @@ async function getScanner(): Promise<Scanner | undefined> {
 }
 
 async function main(): Promise<number> {
-  server.start({ scanner: await getScanner() })
+  await server.start({ scanner: await getScanner() })
   return 0
 }
 
 if (require.main === module) {
-  main()
+  void main()
     .catch((error) => {
       console.error('CRASH:', error)
       return 1

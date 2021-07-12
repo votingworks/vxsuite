@@ -13,7 +13,7 @@ async function readStream(stream: Readable): Promise<string> {
 
 test('prints usage examples to stdout', async () => {
   const stdout = new MemoryStream()
-  run(
+  await run(
     { $0: 'hmpb-interpreter' },
     Readable.from('') as NodeJS.ReadStream,
     stdout as NodeJS.WriteStream

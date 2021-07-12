@@ -84,7 +84,7 @@ function help(out: NodeJS.WritableStream): void {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  main(process.argv.slice(2))
+  void main(process.argv.slice(2))
     .catch((error) => {
       console.error('CRASH:', error)
       return 1

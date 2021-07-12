@@ -103,11 +103,11 @@ describe('AriaScreenReader', () => {
     )
   })
 
-  it('does not speak nodes with empty descriptions', () => {
+  it('does not speak nodes with empty descriptions', async () => {
     const tts = fakeTTS()
     const asr = new AriaScreenReader(tts)
 
-    asr.speakNode(text(''))
+    await asr.speakNode(text(''))
     expect(tts.speak).not.toHaveBeenCalled()
   })
 

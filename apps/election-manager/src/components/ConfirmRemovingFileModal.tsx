@@ -28,25 +28,25 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
   const resetFiles = (fileType: ResultsFileType) => {
     switch (fileType) {
       case ResultsFileType.CastVoteRecord:
-        saveCastVoteRecordFiles()
+        void saveCastVoteRecordFiles()
         break
       case ResultsFileType.SEMS: {
         const newFiles = fullElectionExternalTallies.filter(
           (tally) => tally.source !== ExternalTallySourceType.SEMS
         )
-        saveExternalTallies(newFiles)
+        void saveExternalTallies(newFiles)
         break
       }
       case ResultsFileType.Manual: {
         const newFiles = fullElectionExternalTallies.filter(
           (tally) => tally.source !== ExternalTallySourceType.Manual
         )
-        saveExternalTallies(newFiles)
+        void saveExternalTallies(newFiles)
         break
       }
       case ResultsFileType.All:
-        saveCastVoteRecordFiles()
-        saveExternalTallies([])
+        void saveCastVoteRecordFiles()
+        void saveExternalTallies([])
         break
       default:
         throwIllegalValue(fileType)

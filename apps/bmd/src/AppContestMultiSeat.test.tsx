@@ -30,8 +30,8 @@ it('Single Seat Contest', async () => {
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
 
-  setElectionInStorage(storage)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage)
 
   const { container } = render(
     <App

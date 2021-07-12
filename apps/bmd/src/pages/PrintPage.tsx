@@ -51,10 +51,10 @@ const PrintPage: React.FC = () => {
       .getElementById('printedBallotSealContainer')
       ?.getElementsByTagName('img')[0] // for proper type: HTMLImageElement
     if (!printedBallotSealImage || printedBallotSealImage.complete) {
-      printBallot()
+      void printBallot()
     } else {
       printedBallotSealImage.addEventListener('load', () => {
-        printBallot()
+        void printBallot()
       })
     }
     return () => {

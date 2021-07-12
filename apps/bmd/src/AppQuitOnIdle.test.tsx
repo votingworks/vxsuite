@@ -36,8 +36,8 @@ test('Insert Card screen idle timeout to quit app', async () => {
     machineId: '0000',
   })
 
-  setElectionInStorage(storage)
-  setStateInStorage(storage)
+  await setElectionInStorage(storage)
+  await setStateInStorage(storage)
 
   render(
     <App

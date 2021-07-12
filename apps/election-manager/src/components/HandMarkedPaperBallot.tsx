@@ -549,7 +549,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       '/ballot/ballot.css',
     ]
 
-    ;(async () => {
+    void (async () => {
       await new Previewer().preview(
         ballotRef.current!.innerHTML,
         ballotStylesheets,
