@@ -397,17 +397,17 @@ export interface CandidateContestChoicesProps {
   contest: CandidateContest
   locales: BallotLocale
   parties: Parties
-  vote: CandidateVote
+  vote?: CandidateVote
 }
 
 export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = ({
   contest,
   locales,
   parties,
-  vote = [],
+  vote,
 }) => {
   const { t } = useTranslation()
-  const writeInCandidates = vote.filter((c) => c.isWriteIn)
+  const writeInCandidates = vote?.filter((c) => c.isWriteIn)
   const remainingChoices = [...Array(contest.seats).keys()]
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
@@ -429,7 +429,7 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
           </BubbleMark>
         </Text>
       ))}
-      {writeInCandidates.map((candidate) => (
+      {writeInCandidates?.map((candidate) => (
         <Text key={candidate.name} bold noWrap>
           <BubbleMark checked>
             <span>
@@ -484,7 +484,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   precinctId,
   locales,
   ballotId,
-  votes = {},
+  votes,
   onRendered,
 }) => {
   assert.notEqual(
@@ -893,7 +893,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                   <CandidateContestChoices
                     contest={contest}
                     parties={parties}
-                    vote={votes[contest.id] as CandidateVote}
+                    vote={votes?.[contest.id] as CandidateVote | undefined}
                     locales={locales}
                   />
                 </React.Fragment>
@@ -966,7 +966,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                       />
                     )}
                     <Text bold noWrap>
-                      <BubbleMark checked={hasVote(votes[contest.id], 'yes')}>
+                      <BubbleMark checked={hasVote(votes?.[contest.id], 'yes')}>
                         <span>
                           {dualLanguageWithSlash(
                             contest.yesOption?.label || 'Yes'
@@ -975,7 +975,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                       </BubbleMark>
                     </Text>
                     <Text bold noWrap>
-                      <BubbleMark checked={hasVote(votes[contest.id], 'no')}>
+                      <BubbleMark checked={hasVote(votes?.[contest.id], 'no')}>
                         <span>
                           {dualLanguageWithSlash(
                             contest.noOption?.label || 'No'
@@ -1010,7 +1010,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     <Text key={contest.eitherOption.id} bold>
                       <BubbleMark
                         checked={hasVote(
-                          votes[contest.eitherNeitherContestId],
+                          votes?.[contest.eitherNeitherContestId],
                           'yes'
                         )}
                       >
@@ -1022,7 +1022,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     <Text key={contest.neitherOption.id} bold>
                       <BubbleMark
                         checked={hasVote(
-                          votes[contest.eitherNeitherContestId],
+                          votes?.[contest.eitherNeitherContestId],
                           'no'
                         )}
                       >
@@ -1035,7 +1035,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     <Text key={contest.firstOption.id} bold>
                       <BubbleMark
                         checked={hasVote(
-                          votes[contest.pickOneContestId],
+                          votes?.[contest.pickOneContestId],
                           'yes'
                         )}
                       >
@@ -1046,7 +1046,10 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     </Text>
                     <Text key={contest.secondOption.id} bold>
                       <BubbleMark
-                        checked={hasVote(votes[contest.pickOneContestId], 'no')}
+                        checked={hasVote(
+                          votes?.[contest.pickOneContestId],
+                          'no'
+                        )}
                       >
                         <span>
                           {dualLanguageWithSlash(contest.secondOption.label)}

@@ -1,4 +1,10 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -80,10 +86,13 @@ const BallotScreen: React.FC = () => {
   )
   const { election, electionHash } = electionDefinition!
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
-  const locales: BallotLocale = {
-    primary: DEFAULT_LOCALE,
-    secondary: currentLocaleCode,
-  }
+  const locales = useMemo<BallotLocale>(
+    () => ({
+      primary: DEFAULT_LOCALE,
+      secondary: currentLocaleCode,
+    }),
+    [currentLocaleCode]
+  )
 
   const precinctName = getPrecinctById({ election, precinctId })?.name
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!
@@ -137,7 +146,7 @@ const BallotScreen: React.FC = () => {
     }
   }
 
-  const onRendered = () => {
+  const onRendered = useCallback(() => {
     if (ballotPreviewRef?.current && printBallotRef?.current) {
       ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML
     }
@@ -147,7 +156,7 @@ const BallotScreen: React.FC = () => {
       )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
     )
     setBallotPages(pagedJsPageCount)
-  }
+  }, [ballotPreviewRef])
 
   return (
     <React.Fragment>
