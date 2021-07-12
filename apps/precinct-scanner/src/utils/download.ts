@@ -107,24 +107,21 @@ async function kioskDownload(
 
   /* istanbul ignore next - fetch-mock does not support fetch Readable/WritableStream APIs */
   if (typeof body.pipeTo === 'function') {
-    await new Promise<void>((resolve, reject) => {
-      body.pipeTo(
-        new WritableStream({
-          abort(error) {
-            reject(error)
-          },
+    await body.pipeTo(
+      new WritableStream({
+        abort(error) {
+          throw error
+        },
 
-          write(chunk) {
-            downloadTarget.write(chunk)
-          },
+        async write(chunk) {
+          await downloadTarget.write(chunk)
+        },
 
-          close() {
-            downloadTarget.end()
-            resolve()
-          },
-        })
-      )
-    })
+        async close() {
+          await downloadTarget.end()
+        },
+      })
+    )
   } else {
     await downloadTarget.write((body as unknown) as Uint8Array)
     await downloadTarget.end()

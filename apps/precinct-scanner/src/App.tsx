@@ -28,7 +28,7 @@ const App: React.FC<Props> = ({
         setInternalHardware(await getHardware())
       }
     }
-    updateHardware()
+    void updateHardware()
   }, [hardware])
 
   if (!internalHardware) {

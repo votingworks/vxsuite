@@ -27,7 +27,7 @@ test('render correct test ballot error screen when we are in live mode', async (
   )
   await screen.findByText('Scanning Error')
   await screen.findByText('Test ballot detected.')
-  expect(await screen.queryByText('Dismiss Error')).toBeNull()
+  expect(screen.queryByText('Dismiss Error')).toBeNull()
 })
 
 test('render correct invalid precinct screen', async () => {
@@ -41,7 +41,7 @@ test('render correct invalid precinct screen', async () => {
   await screen.findByText(
     'Scanned ballot does not match the precinct this scanner is configured for.'
   )
-  expect(await screen.queryByText('Dismiss Error')).toBeNull()
+  expect(screen.queryByText('Dismiss Error')).toBeNull()
 })
 
 test('render correct test ballot error screen when we are in test mode', async () => {

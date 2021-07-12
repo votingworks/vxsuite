@@ -467,7 +467,7 @@ const AppRoot: React.FC<Props> = ({
         // Do nothing if machineConfig fails. Default values will be used.
       }
     }
-    setMachineConfig()
+    void setMachineConfig()
   }, [machineConfigProvider])
 
   const scanDetectedBallot = useCallback(async () => {
@@ -796,7 +796,7 @@ const AppRoot: React.FC<Props> = ({
     })
 
     if (insertedCard.present) {
-      processCard(insertedCard)
+      await processCard(insertedCard)
     } else if (hasCardInserted) {
       dispatchAppState({ type: 'cardRemoved' })
     }
@@ -865,8 +865,8 @@ const AppRoot: React.FC<Props> = ({
       })
     }
 
-    initializeScanner()
-    updateStateFromStorage()
+    void initializeScanner()
+    void updateStateFromStorage()
     startUsbStatusPolling()
     startCardShortValueReadPolling()
     return () => {
@@ -889,13 +889,13 @@ const AppRoot: React.FC<Props> = ({
   )
 
   useEffect(() => {
-    const storeAppState = () => {
-      storage.set(stateStorageKey, {
+    const storeAppState = async () => {
+      await storage.set(stateStorageKey, {
         isPollsOpen,
       })
     }
 
-    storeAppState()
+    void storeAppState()
   }, [isPollsOpen])
 
   const dismissError = () => {

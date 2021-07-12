@@ -109,7 +109,8 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
       }
     }
 
-    attemptToLoadBallotPackageFromUSB()
+    // function handles its own errors, so no `.catch` needed
+    void attemptToLoadBallotPackageFromUSB()
   }, [usbDriveStatus])
 
   let content = (
