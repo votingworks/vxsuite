@@ -10,49 +10,19 @@ import Prose from './Prose'
 import Modal from './Modal'
 
 export interface Props {
-  onClose: () => void
+  onConfirm: (fileType: ResultsFileType) => void
+  onCancel: () => void
   fileType: ResultsFileType
 }
 
 export const ConfirmRemovingFileModal: React.FC<Props> = ({
-  onClose,
+  onConfirm,
+  onCancel,
   fileType,
 }) => {
-  const {
-    castVoteRecordFiles,
-    saveCastVoteRecordFiles,
-    saveExternalTallies,
-    fullElectionExternalTallies,
-  } = useContext(AppContext)
-
-  const resetFiles = (fileType: ResultsFileType) => {
-    switch (fileType) {
-      case ResultsFileType.CastVoteRecord:
-        void saveCastVoteRecordFiles()
-        break
-      case ResultsFileType.SEMS: {
-        const newFiles = fullElectionExternalTallies.filter(
-          (tally) => tally.source !== ExternalTallySourceType.SEMS
-        )
-        void saveExternalTallies(newFiles)
-        break
-      }
-      case ResultsFileType.Manual: {
-        const newFiles = fullElectionExternalTallies.filter(
-          (tally) => tally.source !== ExternalTallySourceType.Manual
-        )
-        void saveExternalTallies(newFiles)
-        break
-      }
-      case ResultsFileType.All:
-        void saveCastVoteRecordFiles()
-        void saveExternalTallies([])
-        break
-      default:
-        throwIllegalValue(fileType)
-    }
-    onClose()
-  }
+  const { castVoteRecordFiles, fullElectionExternalTallies } = useContext(
+    AppContext
+  )
 
   const semsFile = fullElectionExternalTallies.find(
     (t) => t.source === ExternalTallySourceType.SEMS
@@ -137,13 +107,13 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       content={<Prose textCenter>{mainContent}</Prose>}
       actions={
         <React.Fragment>
-          <Button onPress={onClose}>Cancel</Button>
-          <Button danger onPress={() => resetFiles(fileType)}>
+          <Button onPress={onCancel}>Cancel</Button>
+          <Button danger onPress={() => onConfirm(fileType)}>
             Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
         </React.Fragment>
       }
-      onOverlayClick={onClose}
+      onOverlayClick={onCancel}
     />
   )
 }

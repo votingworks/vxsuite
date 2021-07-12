@@ -46,6 +46,7 @@ const ManualDataImportIndexScreen: React.FC = () => {
     electionDefinition,
     fullElectionExternalTallies,
     saveExternalTallies,
+    resetFiles,
   } = useContext(AppContext)
   const { election } = electionDefinition!
   const history = useHistory()
@@ -68,6 +69,11 @@ const ManualDataImportIndexScreen: React.FC = () => {
   const [isClearing, setIsClearing] = useState(false)
   const hasManualData = !!existingManualData?.overallTally
     .numberOfBallotsCounted
+
+  const confirmClearManualData = async (fileType: ResultsFileType) => {
+    setIsClearing(false)
+    await resetFiles(fileType)
+  }
 
   const handleSettingBallotType = async (ballotType: VotingMethod) => {
     setBallotType(ballotType)
@@ -198,7 +204,8 @@ const ManualDataImportIndexScreen: React.FC = () => {
       {isClearing && (
         <ConfirmRemovingFileModal
           fileType={ResultsFileType.Manual}
-          onClose={() => setIsClearing(false)}
+          onConfirm={confirmClearManualData}
+          onCancel={() => setIsClearing(false)}
         />
       )}
     </React.Fragment>

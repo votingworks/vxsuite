@@ -8,6 +8,7 @@ import {
   FullElectionTally,
   ExportableTallies,
   FullElectionExternalTally,
+  ResultsFileType,
 } from '../config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -29,6 +30,7 @@ export interface AppContextInterface {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults: () => void
+  resetFiles: (fileType: ResultsFileType) => Promise<void>
   usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => Promise<void>
   addPrintedBallot: (printedBallot: PrintedBallot) => void
@@ -55,6 +57,7 @@ const appContext: AppContextInterface = {
   saveElection: async () => undefined,
   setCastVoteRecordFiles: () => undefined,
   saveIsOfficialResults: () => undefined,
+  resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
   usbDriveEject: async () => undefined,
   addPrintedBallot: () => undefined,

@@ -3,10 +3,11 @@ import {
   multiPartyPrimaryElectionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures'
+import { advanceTimersAndPromises } from '@votingworks/test-utils'
+import { createMemoryHistory } from 'history'
 import { Router, Route } from 'react-router-dom'
 import { fireEvent, within } from '@testing-library/react'
 
-import { createMemoryHistory } from 'history'
 import ManualDataImportIndexScreen from './ManualDataImportIndexScreen'
 import renderInAppContext from '../../test/renderInAppContext'
 import {
@@ -14,6 +15,7 @@ import {
   ContestTally,
   ExternalTallySourceType,
   FullElectionExternalTally,
+  ResultsFileType,
   TallyCategory,
   VotingMethod,
 } from '../config/types'
@@ -21,6 +23,8 @@ import {
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
 } from '../utils/externalTallies'
+
+jest.useFakeTimers()
 
 test('can toggle ballot types for data', async () => {
   const saveExternalTallies = jest.fn()
@@ -185,7 +189,7 @@ test('loads prexisting manual data to edit', async () => {
     source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   }
-  const saveExternalTallies = jest.fn()
+  const resetFiles = jest.fn()
   const { getByText, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import">
       <ManualDataImportIndexScreen />
@@ -193,7 +197,7 @@ test('loads prexisting manual data to edit', async () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      saveExternalTallies,
+      resetFiles,
       fullElectionExternalTallies: [externalTally],
     }
   )
@@ -231,5 +235,7 @@ test('loads prexisting manual data to edit', async () => {
   fireEvent.click(getByText('Clear Manual Data…'))
   fireEvent.click(getByText('Remove Manual Data'))
 
-  expect(saveExternalTallies).toHaveBeenCalledWith([])
+  expect(resetFiles).toHaveBeenCalledWith(ResultsFileType.Manual)
+
+  await advanceTimersAndPromises()
 })
