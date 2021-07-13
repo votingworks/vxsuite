@@ -13,9 +13,7 @@
     "noUnusedParameters": true,
     "outDir": "build",
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2017"
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts", "test"],

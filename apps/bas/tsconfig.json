@@ -13,9 +13,7 @@
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es5"
+    "skipLibCheck": true
   },
   "exclude": ["src/setupProxy.js"],
   "include": ["src"],

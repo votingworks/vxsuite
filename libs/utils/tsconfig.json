@@ -1,14 +1,12 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "target": "es2017",
     "module": "commonjs",
     "lib": ["dom", "dom.iterable", "esnext"],
     "declaration": true,
     "rootDir": "src",
     "outDir": "build",
     "composite": true,
-    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
