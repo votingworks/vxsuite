@@ -15,8 +15,6 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "outDir": "build",
-    "strict": true,
-    "target": "es2015",
     "composite": true
   },
   "include": ["src", "src/data/*.json"],
