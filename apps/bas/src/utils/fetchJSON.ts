@@ -6,7 +6,7 @@ export default async function fetchJSON<T>(
     ...init,
     headers: {
       Accept: 'application/json',
-      ...((init && init.headers) || {}),
+      ...(init?.headers ?? {}),
     },
   })
 

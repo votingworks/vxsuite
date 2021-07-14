@@ -44,8 +44,7 @@ const DashboardScreen: React.FC<Props> = ({
 }) => {
   const { batches } = status
   const batchCount = batches.length
-  const ballotCount =
-    batches && batches.reduce((result, b) => result + b.count, 0)
+  const ballotCount = batches.reduce((result, b) => result + b.count, 0)
 
   const adjudicationSentence = (
     <React.Fragment>

@@ -39,9 +39,7 @@ async function registerValidSW(swUrl: string, config?: Config): Promise<void> {
           )
 
           // Execute callback
-          if (config && config.onUpdate) {
-            config.onUpdate(registration)
-          }
+          config?.onUpdate?.(registration)
         } else {
           // At this point, everything has been precached.
           // It's the perfect time to display a
@@ -50,9 +48,7 @@ async function registerValidSW(swUrl: string, config?: Config): Promise<void> {
           console.log('Content is cached for offline use.')
 
           // Execute callback
-          if (config && config.onSuccess) {
-            config.onSuccess(registration)
-          }
+          config?.onSuccess?.(registration)
         }
       }
     }
@@ -65,10 +61,7 @@ async function checkValidServiceWorker(swUrl: string, config?: Config) {
     const response = await fetch(swUrl)
     // Ensure service worker exists, and that we really are getting a JS file.
     const contentType = response.headers.get('content-type')
-    if (
-      response.status === 404 ||
-      (contentType && contentType.indexOf('javascript') === -1)
-    ) {
+    if (response.status === 404 || contentType?.indexOf('javascript') === -1) {
       // No service worker found. Probably a different app. Reload the page.
       const registration = await navigator.serviceWorker.ready
       await registration.unregister()

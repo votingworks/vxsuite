@@ -115,7 +115,7 @@ const TallyScreen: React.FC = () => {
   const closeExternalFileImport = () => {
     setIsImportExternalModalOpen(false)
     setExternalResultsSelectedFile(undefined)
-    if (externalFileInput && externalFileInput.current) {
+    if (externalFileInput?.current) {
       externalFileInput.current.value = ''
     }
   }
@@ -261,7 +261,7 @@ const TallyScreen: React.FC = () => {
                         )}
                       </TD>
                       <TD narrow nowrap>
-                        {scannerIds && scannerIds.join(', ')}
+                        {scannerIds.join(', ')}
                       </TD>
                       <TD narrow>{format.count(count)}</TD>
                       <TD>{getPrecinctNames(precinctIds)}</TD>

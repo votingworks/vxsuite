@@ -86,8 +86,8 @@ const App: React.FC = () => {
 
   // eslint-disable-next-line no-shadow
   const getPartyNameById = (partyId: string) => {
-    const party = election && election.parties.find((p) => p.id === partyId)
-    return (party && party.name) || ''
+    const party = election?.parties.find((p) => p.id === partyId)
+    return party?.name ?? ''
   }
 
   // eslint-disable-next-line no-shadow
@@ -98,15 +98,12 @@ const App: React.FC = () => {
 
   // eslint-disable-next-line no-shadow
   const getPrecinctNameByPrecinctId = (precinctId: string): string => {
-    const precinct =
-      election && election.precincts.find((p) => p.id === precinctId)
-    return (precinct && precinct.name) || ''
+    const precinct = election?.precincts.find((p) => p.id === precinctId)
+    return precinct?.name ?? ''
   }
 
-  const getBallotStylesByPreinctId = (id: string): BallotStyle[] =>
-    (election &&
-      election.ballotStyles.filter((b) => b.precincts.find((p) => p === id))) ||
-    []
+  const getBallotStylesByPrecinctId = (id: string): BallotStyle[] =>
+    election?.ballotStyles.filter((b) => b.precincts.includes(id)) ?? []
 
   const fetchElection = async () => {
     setIsLoadingElection(true)
@@ -235,7 +232,7 @@ const App: React.FC = () => {
       <AdminScreen
         election={election}
         fetchElection={fetchElection}
-        getBallotStylesByPreinctId={getBallotStylesByPreinctId}
+        getBallotStylesByPreinctId={getBallotStylesByPrecinctId}
         isLoadingElection={isLoadingElection}
         partyId={partyId}
         partyName={getPartyAdjectiveById(partyId)}
@@ -246,7 +243,7 @@ const App: React.FC = () => {
         unconfigure={unconfigure}
         isSinglePrecinctMode={isSinglePrecinctMode}
         setIsSinglePrecinctMode={setIsSinglePrecinctMode}
-        precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
+        precinctBallotStyles={getBallotStylesByPrecinctId(precinctId)}
       />
     )
   }
@@ -288,7 +285,7 @@ const App: React.FC = () => {
           isSinglePrecinctMode={isSinglePrecinctMode}
           lockScreen={lockScreen}
           partyId={partyId}
-          precinctBallotStyles={getBallotStylesByPreinctId(precinctId)}
+          precinctBallotStyles={getBallotStylesByPrecinctId(precinctId)}
           precinctName={getPrecinctNameByPrecinctId(precinctId)}
           programCard={programCard}
           showPrecincts={reset}

@@ -347,10 +347,10 @@ export const getPartyPrimaryAdjectiveFromBallotStyle = ({
   ballotStyleId: string
   election: Election
 }): string => {
-  const parts = ballotStyleId && /(\d+)(\w+)/i.exec(ballotStyleId)
-  const abbrev = parts && parts[2]
-  const party = abbrev && election.parties.find((p) => p.abbrev === abbrev)
-  const name = party && party.name
+  const parts = /(\d+)(\w+)/i.exec(ballotStyleId)
+  const abbrev = parts?.[2]
+  const party = election.parties.find((p) => p.abbrev === abbrev)
+  const name = party?.name
   return (name === 'Democrat' && 'Democratic') || name || ''
 }
 

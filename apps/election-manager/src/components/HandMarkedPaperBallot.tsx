@@ -673,7 +673,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                       )
                     : dualPhraseWithBreak(
                         election.title,
-                        localeElection && localeElection.title
+                        localeElection?.title
                       )}
                 </Text>
               </div>
