@@ -1,5 +1,6 @@
-import { Optional } from '@votingworks/types'
+import { ok, Optional, Result, safeParseJSON } from '@votingworks/types'
 import { toByteArray, fromByteArray } from 'base64-js'
+import { z } from 'zod'
 import { fetchJSON } from './fetchJSON'
 
 export interface CardAbsentAPI {
@@ -24,9 +25,11 @@ export interface Card {
 
   /**
    * Reads the long value as an object, or `undefined` if there is no long
-   * value.
+   * value and validates it using `schema`.
    */
-  readLongObject<T>(): Promise<Optional<T>>
+  readLongObject<T>(
+    schema: z.ZodSchema<T>
+  ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>>
 
   /**
    * Reads the long value as a string, or `undefined` if there is no long
@@ -48,7 +51,7 @@ export interface Card {
   /**
    * Writes a new long value as a serialized object.
    */
-  writeLongObject<T>(value: T): Promise<void>
+  writeLongObject(value: unknown): Promise<void>
 
   /**
    * Writes binary data to the long value.
@@ -70,12 +73,14 @@ export class WebServiceCard implements Card {
 
   /**
    * Reads the long value as an object, or `undefined` if there is no long
-   * value.
+   * value and validates it using `schema`.
    */
-  public async readLongObject<T>(): Promise<Optional<T>> {
+  public async readLongObject<T>(
+    schema: z.ZodSchema<T>
+  ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
     const response = await fetch('/card/read_long')
     const { longValue } = await response.json()
-    return longValue ? JSON.parse(longValue) : undefined
+    return longValue ? safeParseJSON(longValue, schema) : ok(undefined)
   }
 
   /**
@@ -112,7 +117,7 @@ export class WebServiceCard implements Card {
   /**
    * Writes a new long value as a serialized object.
    */
-  public async writeLongObject<T>(value: T): Promise<void> {
+  public async writeLongObject(value: unknown): Promise<void> {
     await this.writeLongUint8Array(
       new TextEncoder().encode(JSON.stringify(value))
     )
@@ -166,15 +171,20 @@ export class MemoryCard implements Card {
 
   /**
    * Reads the long value as an object, or `undefined` if there is no long
-   * value.
+   * value and validates it using `schema`.
    */
-  public async readLongObject<T>(): Promise<Optional<T>> {
+  public async readLongObject<T>(
+    schema: z.ZodSchema<T>
+  ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
     const { longValue } = this
     if (!longValue || longValue.length === 0) {
-      return
+      return ok(undefined)
     }
 
-    return JSON.parse(new TextDecoder().decode(longValue))
+    const longValueJSON = new TextDecoder().decode(longValue)
+    return schema
+      ? safeParseJSON(longValueJSON, schema)
+      : JSON.parse(longValueJSON)
   }
 
   /**
@@ -213,7 +223,7 @@ export class MemoryCard implements Card {
   /**
    * Writes a new long value as a serialized object.
    */
-  public async writeLongObject<T>(value: T): Promise<void> {
+  public async writeLongObject(value: unknown): Promise<void> {
     await this.writeLongUint8Array(
       new TextEncoder().encode(JSON.stringify(value))
     )
