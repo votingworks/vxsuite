@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ProgressBar with defaults 1`] = `
+<span
+  class="sc-bdvvaa geUyyh"
+/>
+`;

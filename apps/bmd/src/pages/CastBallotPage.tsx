@@ -1,9 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Button } from '@votingworks/ui'
+import { Button, Main, MainChild } from '@votingworks/ui'
 
-import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import { PostVotingInstructions } from '../config/types'

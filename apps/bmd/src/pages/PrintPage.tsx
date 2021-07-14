@@ -1,8 +1,9 @@
 import { ok } from 'assert'
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import styled from 'styled-components'
-import { ProgressEllipsis } from '@votingworks/ui'
-import Main, { MainChild } from '../components/Main'
+
+import { ProgressEllipsis, Main, MainChild } from '@votingworks/ui'
+
 import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'

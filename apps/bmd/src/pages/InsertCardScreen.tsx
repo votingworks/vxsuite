@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 import { ElectionDefinition } from '@votingworks/types'
+import { Main, MainChild } from '@votingworks/ui'
 
-import Main, { MainChild } from '../components/Main'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import Sidebar from '../components/Sidebar'

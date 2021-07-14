@@ -7,19 +7,16 @@ import {
   Election,
   ElectionDefinition,
 } from '@votingworks/types'
-import { Button } from '@votingworks/ui'
+import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui'
 
 import { EventTargetFunction, MachineConfig } from '../config/types'
 
-import ButtonList from '../components/ButtonList'
 import ElectionInfo from '../components/ElectionInfo'
-import Main, { MainChild } from '../components/Main'
 import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Sidebar from '../components/Sidebar'
 import Screen from '../components/Screen'
 import Modal from '../components/Modal'
-import Loading from '../components/Loading'
 import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import BallotContext from '../contexts/ballotContext'
 

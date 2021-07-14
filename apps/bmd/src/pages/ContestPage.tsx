@@ -2,6 +2,7 @@ import { ok } from 'assert'
 import React, { useContext, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types'
+import { LinkButton } from '@votingworks/ui'
 
 import ordinal from '../utils/ordinal'
 
@@ -9,7 +10,6 @@ import BallotContext from '../contexts/ballotContext'
 
 import CandidateContest from '../components/CandidateContest'
 import ElectionInfo from '../components/ElectionInfo'
-import LinkButton from '../components/LinkButton'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import Sidebar from '../components/Sidebar'

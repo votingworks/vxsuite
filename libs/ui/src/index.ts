@@ -1,9 +1,13 @@
 /* istanbul ignore file */
 export * from './Button'
 export * from './ButtonBar'
+export * from './ButtonList'
+export * from './HorizontalRule'
 export * from './InputGroup'
+export { default as LinkButton, LinkButtonProps } from './LinkButton'
 export * from './Loading'
 export * from './Main'
+export * from './ProgressBar'
 export * from './ProgressEllipsis'
 export * from './Prose'
 export * from './Screen'

@@ -3,12 +3,12 @@ import { render } from '@testing-library/react'
 
 import { Loading } from './Loading'
 
-it('renders default', () => {
+test('Renders Loading with defaults', () => {
   const { container } = render(<Loading />)
   expect(container.firstChild).toMatchSnapshot()
 })
 
-it('renders fullscreen with tag and label', () => {
+test('Renders Loading fullscreen with tag and label', () => {
   const { container } = render(
     <Loading isFullscreen as="p">
       Printing

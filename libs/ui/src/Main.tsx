@@ -10,6 +10,9 @@ export const Main = styled('main')<Props>`
   flex-direction: column;
   overflow: ${({ noOverflow }) => !noOverflow && 'auto'};
   padding: ${({ padded }) => padded && '1rem 0.5rem 2rem'};
+  @media (min-width: 480px) {
+    padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
+  }
 `
 
 interface ChildProps {

@@ -1,11 +1,9 @@
 import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { EventTargetFunction } from '@votingworks/types'
+import { Button, ButtonInterface } from './Button'
 
-import { Button, ButtonInterface } from '@votingworks/ui'
-
-import { EventTargetFunction } from '../config/types'
-
-interface Props
+export interface LinkButtonProps
   extends ButtonInterface,
     RouteComponentProps<Record<string, string | undefined>>,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
@@ -15,7 +13,7 @@ interface Props
   to?: string
 }
 
-const LinkButton: React.FC<Props> = (props) => {
+const LinkButton: React.FC<LinkButtonProps> = (props) => {
   const {
     goBack,
     history,
