@@ -1,5 +1,6 @@
-import { act, waitFor } from '@testing-library/react'
+import { waitFor } from '@testing-library/react'
 import { electionSample as election } from '@votingworks/fixtures'
+import * as testUtils from '@votingworks/test-utils'
 import {
   CandidateContest,
   vote,
@@ -181,15 +182,7 @@ export const getUsedVoterCard = (): string =>
   })
 
 export const advanceTimers = (seconds = 0): void => {
-  const maxSeconds = GLOBALS.IDLE_TIMEOUT_SECONDS
-  if (seconds > maxSeconds) {
-    throw new Error(`Seconds value should not be greater than ${maxSeconds}`)
-  }
-  act(() => {
-    jest.advanceTimersByTime(
-      seconds ? seconds * 1000 : GLOBALS.CARD_POLLING_INTERVAL
-    )
-  })
+  testUtils.advanceTimers(seconds || GLOBALS.CARD_POLLING_INTERVAL / 1000)
 }
 
 export const advanceTimersAndPromises = async (seconds = 0): Promise<void> => {
