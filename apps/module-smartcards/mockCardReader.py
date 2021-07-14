@@ -93,7 +93,7 @@ def enable_fixture(fixture_path: str):
         with open(fixture_long_path_b64, "r") as long_file:
             request_data["longValueB64"] = long_file.read()
             long_value_hash = hashlib.sha256(
-                base64.b64decode(request_data["longValue"])
+                base64.b64decode(request_data["longValueB64"])
             ).hexdigest()
     else:
         request_data["longValue"] = None
