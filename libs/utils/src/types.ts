@@ -42,12 +42,6 @@ export interface CardTallyMetadataEntry {
   readonly ballotCount: number
 }
 
-export interface CardTally {
-  readonly tallyMachineType: TallySourceMachineType
-  readonly tally: Tally
-  readonly metadata: readonly CardTallyMetadataEntry[]
-}
-
 export interface BMDCardTally {
   readonly tallyMachineType: TallySourceMachineType.BMD
   readonly tally: Tally
@@ -63,3 +57,5 @@ export interface PrecinctScannerCardTally {
   readonly isLiveMode: boolean
   readonly isPollsOpen: boolean
 }
+
+export type CardTally = BMDCardTally | PrecinctScannerCardTally
