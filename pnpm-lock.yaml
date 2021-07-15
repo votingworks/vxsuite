@@ -1534,6 +1534,7 @@ importers:
       moment: 2.29.1
       rxjs: 6.6.6
       yauzl: 2.10.0
+      zod: 3.2.0
     devDependencies:
       '@types/fast-text-encoding': 1.0.1
       '@types/jest': 26.0.23
@@ -1586,6 +1587,7 @@ importers:
       ts-jest: ^26.5.6
       typescript: ^4.2.4
       yauzl: ^2.10.0
+      zod: 3.2.0
   script:
     dependencies:
       resolve-from: 5.0.0
@@ -10430,7 +10432,7 @@ packages:
       integrity: sha512-5Kgy8Cz6LPC9DJcNb3yjAXTu3XihQgEdnIg50c//zOC/MyLP0Clg+Y8Sh9ZjjnvBrDZU4DgXS9C3T9r4/scGZQ==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1_debug@4.3.2
     dev: true
     peerDependencies:
       debug: '*'
@@ -15995,6 +15997,7 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -16007,7 +16010,6 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
       debug: 4.3.2
-    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
