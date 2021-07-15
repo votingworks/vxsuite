@@ -268,8 +268,8 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
 
   const appendSvgToDescription: InputEventFunction = async (event) => {
     const { files } = event.currentTarget
-    const file = files && files[0]
-    if (file && file.type === 'image/svg+xml') {
+    const file = files?.[0]
+    if (file?.type === 'image/svg+xml') {
       const yesNoContest = contest as YesNoContest
       try {
         const fileContent = await readFileAsync(file)

@@ -243,8 +243,7 @@ const PollWorkerScreen: React.FC<Props> = ({
   }
 
   const isTallyOnCardFromPrecinctScanner =
-    talliesOnCard &&
-    talliesOnCard.tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
+    talliesOnCard?.tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
 
   const bmdTalliesOnCard =
     talliesOnCard?.tallyMachineType === TallySourceMachineType.BMD
@@ -252,8 +251,7 @@ const PollWorkerScreen: React.FC<Props> = ({
       : undefined
 
   const isMachineTallySaved =
-    bmdTalliesOnCard &&
-    bmdTalliesOnCard.tallyMachineType === TallySourceMachineType.BMD &&
+    bmdTalliesOnCard?.tallyMachineType === TallySourceMachineType.BMD &&
     !!bmdTalliesOnCard.metadata.find(
       (metadata) => metadata.machineId === machineConfig.machineId
     )
