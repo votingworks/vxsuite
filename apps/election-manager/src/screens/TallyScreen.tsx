@@ -106,7 +106,7 @@ const TallyScreen: React.FC = () => {
   const [
     externalResultsSelectedFile,
     setExternalResultsSelectedFile,
-  ] = useState<File | undefined>(undefined)
+  ] = useState<File>()
 
   const importExternalSEMSFile: InputEventFunction = async (event) => {
     const input = event.currentTarget
