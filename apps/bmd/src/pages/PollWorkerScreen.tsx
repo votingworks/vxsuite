@@ -16,8 +16,6 @@ import {
   Tally,
   CardTally,
   TallySourceMachineType,
-  BMDCardTally,
-  PrecinctScannerCardTally,
   combineTallies,
 } from '@votingworks/utils'
 
@@ -250,7 +248,7 @@ const PollWorkerScreen: React.FC<Props> = ({
 
   const bmdTalliesOnCard =
     talliesOnCard?.tallyMachineType === TallySourceMachineType.BMD
-      ? (talliesOnCard as BMDCardTally)
+      ? talliesOnCard
       : undefined
 
   const isMachineTallySaved =
@@ -287,7 +285,7 @@ const PollWorkerScreen: React.FC<Props> = ({
       tally: combinedTally,
       metadata,
       totalBallotsPrinted: combinedBallotsPrinted,
-    } as BMDCardTally)
+    })
     setIsSavingTally(false)
   }
   const metadataRows: React.ReactChild[] = []
@@ -585,25 +583,22 @@ const PollWorkerScreen: React.FC<Props> = ({
       </Screen>
       {isPrintMode &&
         reportPurposes.map((reportPurpose) => {
-          if (isPrintingPrecinctScannerReport && talliesOnCard) {
+          if (
+            isPrintingPrecinctScannerReport &&
+            talliesOnCard?.tallyMachineType ===
+              TallySourceMachineType.PRECINCT_SCANNER
+          ) {
             return (
               <React.Fragment key={reportPurpose}>
                 <PollsReport
                   key={`polls-report-${reportPurpose}`}
-                  sourceMachineType={TallySourceMachineType.PRECINCT_SCANNER}
+                  sourceMachineType={talliesOnCard.tallyMachineType}
                   appName="Precinct Scanner"
-                  ballotCount={
-                    (talliesOnCard as PrecinctScannerCardTally)
-                      .totalBallotsScanned
-                  }
+                  ballotCount={talliesOnCard.totalBallotsScanned}
                   currentDateTime={currentDateTime}
                   election={election}
-                  isLiveMode={
-                    (talliesOnCard as PrecinctScannerCardTally).isLiveMode
-                  }
-                  isPollsOpen={
-                    (talliesOnCard as PrecinctScannerCardTally).isPollsOpen
-                  }
+                  isLiveMode={talliesOnCard.isLiveMode}
+                  isPollsOpen={talliesOnCard.isPollsOpen}
                   machineMetadata={talliesOnCard?.metadata}
                   machineConfig={machineConfig} // not used
                   precinctId={appPrecinctId}
@@ -611,16 +606,11 @@ const PollWorkerScreen: React.FC<Props> = ({
                 />
                 <PrecinctTallyReport
                   key={`tally-report-${reportPurpose}`}
-                  sourceMachineType={TallySourceMachineType.PRECINCT_SCANNER}
-                  ballotCount={
-                    (talliesOnCard as PrecinctScannerCardTally)
-                      .totalBallotsScanned
-                  }
+                  sourceMachineType={talliesOnCard.tallyMachineType}
+                  ballotCount={talliesOnCard.totalBallotsScanned}
                   currentDateTime={currentDateTime}
                   election={election}
-                  isPollsOpen={
-                    (talliesOnCard as PrecinctScannerCardTally).isPollsOpen
-                  }
+                  isPollsOpen={talliesOnCard.isPollsOpen}
                   tally={talliesOnCard!.tally}
                   precinctId={appPrecinctId}
                   reportPurpose={reportPurpose}

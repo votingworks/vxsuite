@@ -1,11 +1,9 @@
 import React, { useContext, useState } from 'react'
 import makeDebug from 'debug'
 
-import { Precinct } from '@votingworks/types'
 import { Button, Prose, Loading } from '@votingworks/ui'
 import {
   PrecinctScannerCardTally,
-  CardTallyMetadataEntry,
   TallySourceMachineType,
 } from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
@@ -52,7 +50,7 @@ const PollWorkerScreen: React.FC<Props> = ({
         `Warning, ballots scanned count from status endpoint (${ballotsScannedCount}) does not match number of CVRs (${castVoteRecords.length}) `
       )
     }
-    const cardTally = {
+    await saveTallyToCard({
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: castVoteRecords.length,
       isLiveMode,
@@ -63,16 +61,13 @@ const PollWorkerScreen: React.FC<Props> = ({
           machineId: machineConfig.machineId,
           timeSaved: Date.now(),
           ballotCount: castVoteRecords.length,
-        } as CardTallyMetadataEntry,
+        },
       ],
-    } as PrecinctScannerCardTally
-    await saveTallyToCard(cardTally)
+    })
   }
 
   const { election } = electionDefinition!
-  const precinct = election.precincts.find(
-    (p) => p.id === currentPrecinctId
-  ) as Precinct
+  const precinct = election.precincts.find((p) => p.id === currentPrecinctId)
 
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false)
   const openConfirmOpenPollsModal = () => setConfirmOpenPolls(true)
