@@ -90,7 +90,7 @@ const PollWorkerScreen: React.FC<Props> = ({
   const cancelEnableLiveMode = () => setIsConfirmingEnableLiveMode(false)
   const [isPrintingReport, setIsPrintingReport] = useState(false)
   const cancelConfirmPrint = () => setIsConfirmingPrintReport(false)
-  const isPrintMode = !!machineConfig.appMode.isVxPrint
+  const isPrintMode = machineConfig.appMode.isVxPrint
   const isMarkAndPrintMode =
     machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark
 
@@ -252,7 +252,7 @@ const PollWorkerScreen: React.FC<Props> = ({
 
   const isMachineTallySaved =
     bmdTalliesOnCard?.tallyMachineType === TallySourceMachineType.BMD &&
-    !!bmdTalliesOnCard.metadata.find(
+    bmdTalliesOnCard.metadata.some(
       (metadata) => metadata.machineId === machineConfig.machineId
     )
 

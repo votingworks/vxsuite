@@ -155,7 +155,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                       </TD>
                       <TD>{format.count(scannerBallotsCount)}</TD>
                       <TD>
-                        {!!scannerBallotsCount && (
+                        {scannerBallotsCount > 0 && (
                           <LinkButton
                             small
                             to={routerPaths.tallyScannerReport({

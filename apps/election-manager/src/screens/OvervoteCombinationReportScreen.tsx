@@ -113,7 +113,7 @@ const PairsReportScreen: React.FC = () => {
           return (
             <Contest key={contest.id}>
               <Prose maxWidth={false}>
-                {!!ballots && (
+                {ballots > 0 && (
                   <ContestMeta className="ignore-prose">
                     <Text as="span" small>
                       {pluralize('ballots', ballots, true)} cast /{' '}

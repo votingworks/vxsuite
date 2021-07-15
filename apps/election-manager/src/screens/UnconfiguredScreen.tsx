@@ -41,8 +41,8 @@ interface InputFile {
   file: File
 }
 
-const allFilesExist = (files: VxFile[]) => files.every((f) => !!f.path)
-const someFilesExist = (files: VxFile[]) => files.some((f) => !!f.path)
+const allFilesExist = (files: VxFile[]) => files.every((f) => f.path)
+const someFilesExist = (files: VxFile[]) => files.some((f) => f.path)
 
 const newElection = JSON.stringify(defaultElection)
 

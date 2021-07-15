@@ -749,7 +749,7 @@ const AppRoot: React.FC<Props> = ({
             cardData.h === optionalElectionDefinition?.electionHash
 
           let possibleCardTally: Optional<CardTally> =
-            isValid && !!longValueExists
+            isValid && longValueExists
               ? ((await card.readLongObject()) as Optional<CardTally>)
               : undefined
 
@@ -1335,7 +1335,7 @@ const AppRoot: React.FC<Props> = ({
           appPrecinctId={appPrecinctId}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={
-            !!appMode.isVxMark && !hasAccessibleControllerAttached
+            appMode.isVxMark && !hasAccessibleControllerAttached
           }
           showNoChargerAttachedWarning={!hasChargerAttached}
           isLiveMode={isLiveMode}

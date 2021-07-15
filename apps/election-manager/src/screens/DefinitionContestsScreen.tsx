@@ -160,7 +160,7 @@ const ToggleField = ({
       <SegmentedButton>
         <Button
           small
-          disabled={!!value}
+          disabled={value}
           name={name}
           value="true"
           onPress={onChange}

@@ -88,17 +88,15 @@ const TallyScreen: React.FC = () => {
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
-    !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
+    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError
   const hasAnyFiles =
     hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0
-  const hasExternalSEMSFile =
-    fullElectionExternalTallies.filter(
-      (t) => t.source === ExternalTallySourceType.SEMS
-    ).length > 0
-  const hasExternalManualData =
-    fullElectionExternalTallies.filter(
-      (t) => t.source === ExternalTallySourceType.Manual
-    ).length > 0
+  const hasExternalSEMSFile = fullElectionExternalTallies.some(
+    (t) => t.source === ExternalTallySourceType.SEMS
+  )
+  const hasExternalManualData = fullElectionExternalTallies.some(
+    (t) => t.source === ExternalTallySourceType.Manual
+  )
 
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
     false
@@ -106,7 +104,7 @@ const TallyScreen: React.FC = () => {
   const [
     externalResultsSelectedFile,
     setExternalResultsSelectedFile,
-  ] = useState<File | undefined>(undefined)
+  ] = useState<File>()
 
   const importExternalSEMSFile: InputEventFunction = async (event) => {
     const input = event.currentTarget

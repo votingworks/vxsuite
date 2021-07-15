@@ -69,9 +69,7 @@ const PrintTestDeckScreen: React.FC = () => {
   const { electionDefinition, printer } = useContext(AppContext)
   const { election, electionHash } = electionDefinition!
   const [precinctIds, setPrecinctIds] = useState<string[]>([])
-  const [precinctIndex, setPrecinctIndex] = useState<number | undefined>(
-    undefined
-  )
+  const [precinctIndex, setPrecinctIndex] = useState<number>()
 
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
   const precinctId = p.trim()
