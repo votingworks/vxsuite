@@ -88,7 +88,7 @@ const TallyScreen: React.FC = () => {
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
-    !!castVoteRecordFileList.length || !!castVoteRecordFiles.lastError
+    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError
   const hasAnyFiles =
     hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0
   const hasExternalSEMSFile =

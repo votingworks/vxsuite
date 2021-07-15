@@ -57,7 +57,7 @@ export const measure420Contest = election.contests.find(
 ) as MsEitherNeitherContest
 
 export const singleSeatContestWithWriteIn = election.contests.find(
-  (c) => c.type === 'candidate' && !!c.allowWriteIns && c.seats === 1
+  (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1
 ) as CandidateContest
 
 export const voterContests = getContests({

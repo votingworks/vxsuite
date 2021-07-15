@@ -144,7 +144,7 @@ const CandidateContestResult: React.FC<CandidateContestResultInterface> = ({
           {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}
-      {!!remainingChoices && (
+      {remainingChoices > 0 && (
         <Text italic muted>
           [no selection for {remainingChoices} of {contest.seats} choices]
         </Text>
