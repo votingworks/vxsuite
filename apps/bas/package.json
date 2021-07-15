@@ -89,6 +89,7 @@
     "is-ci-cli": "^2.1.2",
     "lint-staged": "^8.1.5",
     "prettier": "^2.1.2",
+    "react-refresh": "^0.10.0",
     "sort-package-json": "^1.50.0",
     "stylelint": "^13.7.2",
     "stylelint-config-palantir": "^5.0.0",
