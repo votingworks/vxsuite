@@ -13,8 +13,6 @@ import Screen from '../components/Screen'
 import Text from '../components/Text'
 
 interface Props {
-  cardBallotStyleId: string
-  cardPrecinctName: string
   countyName: string
   lockScreen: () => void
   precincts: readonly Precinct[]
@@ -23,8 +21,6 @@ interface Props {
 }
 
 const PrecinctsScreen: React.FC<Props> = ({
-  // cardBallotStyleId,
-  // cardPrecinctName,
   countyName,
   lockScreen,
   precincts,

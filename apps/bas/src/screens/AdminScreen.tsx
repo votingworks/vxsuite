@@ -17,12 +17,12 @@ import Text from '../components/Text'
 interface Props {
   election: OptionalElection
   fetchElection: () => void
-  getBallotStylesByPreinctId: (id: string) => BallotStyle[]
+  getBallotStylesByPrecinctId: (id?: string) => BallotStyle[]
   isLoadingElection: boolean
-  partyId: string
-  partyName: string
-  precinctId: string
-  precinctName: string
+  partyId?: string
+  partyName?: string
+  precinctId?: string
+  precinctName?: string
   setParty: (id: string) => void
   setPrecinct: (id: string) => void
   unconfigure: () => void
@@ -34,7 +34,7 @@ interface Props {
 const AdminScreen: React.FC<Props> = ({
   election,
   fetchElection,
-  getBallotStylesByPreinctId,
+  getBallotStylesByPrecinctId,
   isLoadingElection,
   isSinglePrecinctMode,
   partyId,
@@ -87,7 +87,7 @@ const AdminScreen: React.FC<Props> = ({
                   <option value="">All precincts</option>
                   {precincts.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({getBallotStylesByPreinctId(p.id).length})
+                      {p.name} ({getBallotStylesByPrecinctId(p.id).length})
                     </option>
                   ))}
                 </Select>{' '}
