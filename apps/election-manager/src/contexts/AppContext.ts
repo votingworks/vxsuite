@@ -29,7 +29,7 @@ export interface AppContextInterface {
   setCastVoteRecordFiles: React.Dispatch<
     React.SetStateAction<CastVoteRecordFiles>
   >
-  saveIsOfficialResults: () => void
+  saveIsOfficialResults: () => Promise<void>
   resetFiles: (fileType: ResultsFileType) => Promise<void>
   usbDriveStatus: usbstick.UsbDriveStatus
   usbDriveEject: () => Promise<void>
@@ -56,7 +56,7 @@ const appContext: AppContextInterface = {
   saveCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
   setCastVoteRecordFiles: () => undefined,
-  saveIsOfficialResults: () => undefined,
+  saveIsOfficialResults: async () => undefined,
   resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
   usbDriveEject: async () => undefined,
