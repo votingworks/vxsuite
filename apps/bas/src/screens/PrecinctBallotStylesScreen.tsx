@@ -18,11 +18,9 @@ const ButtonContainer = styled.div`
 `
 
 interface Props {
-  cardBallotStyleId: string
-  cardPrecinctName: string
   isSinglePrecinctMode: boolean
   lockScreen: () => void
-  partyId: string
+  partyId?: string
   precinctBallotStyles: readonly BallotStyle[]
   precinctName: string
   programCard: EventTargetFunction
@@ -30,8 +28,6 @@ interface Props {
 }
 
 const PrecinctBallotStylesScreen: React.FC<Props> = ({
-  // cardBallotStyleId,
-  // cardPrecinctName,
   isSinglePrecinctMode,
   lockScreen,
   partyId,
