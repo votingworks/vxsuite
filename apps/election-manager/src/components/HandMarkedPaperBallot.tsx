@@ -27,6 +27,7 @@ import {
   getPartyFullNameFromBallotStyle,
   getPrecinctById,
   withLocale,
+  safeParseElection,
 } from '@votingworks/types'
 
 import {
@@ -179,9 +180,9 @@ class PostRenderBallotProcessor extends Handler {
         qrCodeTargetClassName
       )[0]
       if (qrCodeTarget && qrCodeTarget instanceof HTMLElement) {
-        const election: Election = JSON.parse(
+        const election = safeParseElection(
           qrCodeTarget.dataset.election ?? ''
-        )
+        ).unsafeUnwrap()
         const {
           electionHash,
           precinctId,

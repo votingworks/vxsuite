@@ -137,7 +137,7 @@ export const pollWorkerCardForElection = (electionHash: string): string =>
 export const getInvalidPollWorkerCard = (): string =>
   JSON.stringify({
     t: 'pollworker',
-    h: 'notanelectionhash',
+    h: 'd34db33f', // wrong election
   })
 
 export const createVoterCard = (
