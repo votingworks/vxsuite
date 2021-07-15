@@ -28,6 +28,7 @@
 const { default: chalk } = require('chalk')
 const cp = require('child_process')
 const { promisify } = require('util')
+const { z } = require('zod')
 const execFile = promisify(cp.execFile)
 
 /**
@@ -40,42 +41,32 @@ const minCLOCRequirements = new Map([
   [240, 0],
 ])
 
-/**
- * @typedef {Object<string, Stat> & StatsMeta} Stats
- */
-
-/**
- * @typedef {object} StatsMeta
- * @property {StatsHeader} header
- * @property {StatSummary} SUM
- */
-
-/**
- * @typedef {object} StatsHeader
- * @property {string} cloc_url
- * @property {string} cloc_version
- * @property {number} elapsed_seconds
- * @property {number} n_files
- * @property {number} n_lines
- * @property {number} files_per_second
- * @property {number} lines_per_second
- */
-
-/**
- * @typedef {object} StatSummary
- * @property {number} blank
- * @property {number} comment
- * @property {number} code
- * @property {number} nFiles
- */
-
-/**
- * @typedef {object} Stat
- * @property {number} blank
- * @property {number} comment
- * @property {number} code
- * @property {string} language
- */
+const StatsHeaderSchema = z.object({
+  cloc_url: z.string(),
+  cloc_version: z.string(),
+  elapsed_seconds: z.number(),
+  n_files: z.number(),
+  n_lines: z.number(),
+  files_per_second: z.number(),
+  lines_per_second: z.number(),
+})
+const StatSummarySchema = z.object({
+ blank: z.number(),
+ comment: z.number(),
+ code: z.number(),
+ nFiles: z.number(),
+})
+const StatsMetaSchema = z.object({
+  header: StatsHeaderSchema,
+  SUM: StatSummarySchema,
+})
+const StatSchema = z.object({
+  blank: z.number(),
+  comment: z.number(),
+  code: z.number(),
+  language: z.string(),
+})
+const StatsSchema = z.intersection(z.record(StatSchema), StatsMetaSchema)
 
 async function main(out = process.stdout) {
   const { stdout, stderr } = await execFile('cloc', [
@@ -90,12 +81,12 @@ async function main(out = process.stdout) {
     console.error('ERROR:', stderr)
   }
 
-  /** @type {Stats} */
-  const stats = JSON.parse(stdout)
-  /** @type {Map<number, Set<[string, Stat]>>} */
+  const stats = StatsSchema.parse(stdout)
+  /** @type {Map<number, Set<[string, z.TypeOf<typeof StatSchema>]>>} */
   const filesByMinCLOC = new Map(
     [...minCLOCRequirements.keys()].map(minCLOC => [minCLOC, new Set()])
   )
+  /** @type {Map<number, Set<[string, z.TypeOf<typeof StatSchema>]>>} */
   const filesByCLOCRange = new Map(
     [...minCLOCRequirements.keys()].map(minCLOC => [minCLOC, new Set()])
   )

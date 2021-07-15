@@ -1,5 +1,6 @@
 /* eslint-disable no-shadow */
 import { ok } from 'assert'
+import makeDebug from 'debug'
 import {
   BallotType,
   CompletedBallot,
@@ -13,6 +14,8 @@ import {
   getPrecinctById,
   safeParseElectionDefinition,
   Optional,
+  safeParseJSON,
+  schema,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -40,7 +43,6 @@ import {
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
-  CardData,
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
@@ -70,6 +72,8 @@ import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
+
+const debug = makeDebug('bmd:AppRoot')
 
 interface CardState {
   adminCardElectionHash?: string
@@ -692,25 +696,30 @@ const AppRoot: React.FC<Props> = ({
 
   const processCard = useCallback(
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
-      const cardData: CardData = JSON.parse(cardShortValue!)
+      const parseShortValueResult = safeParseJSON(
+        cardShortValue!,
+        schema.AnyCardData
+      )
+      if (parseShortValueResult.isErr()) {
+        debug('ignoring invalid short value: %s', cardShortValue)
+        return
+      }
+      const cardData = parseShortValueResult.ok()
       if (!optionalElectionDefinition && cardData.t !== 'admin') {
         return
       }
       switch (cardData.t) {
         case 'voter': {
-          const voterCardData = cardData as VoterCardData
-          const isVoterCardVoided = Boolean(voterCardData.uz)
-          const ballotPrintedTime = voterCardData.bp
-            ? Number(voterCardData.bp)
-            : 0
+          const isVoterCardVoided = Boolean(cardData.uz)
+          const ballotPrintedTime = cardData.bp ? Number(cardData.bp) : 0
           const isVoterCardPrinted = Boolean(ballotPrintedTime)
           const ballotStyle = getBallotStyle({
             election: optionalElectionDefinition!.election,
-            ballotStyleId: voterCardData.bs,
+            ballotStyleId: cardData.bs,
           })
           const precinct = getPrecinctById({
             election: optionalElectionDefinition!.election,
-            precinctId: voterCardData.pr,
+            precinctId: cardData.pr,
           })
           const isVoterCardValid = Boolean(ballotStyle) && Boolean(precinct)
 
@@ -735,7 +744,7 @@ const AppRoot: React.FC<Props> = ({
               isVoterCardPresent: true,
               isVoterCardPrinted,
               isVoterCardValid,
-              voterCardCreatedAt: voterCardData.c,
+              voterCardCreatedAt: cardData.c,
               ballotStyleId: ballotStyle?.id ?? initialAppState.ballotStyleId,
               precinctId: precinct?.id ?? initialAppState.precinctId,
               votes: ballot.votes,
@@ -886,7 +895,10 @@ const AppRoot: React.FC<Props> = ({
 
     await clearLongValue()
 
-    const currentVoterCardData: VoterCardData = JSON.parse(shortValue!)
+    const currentVoterCardData = safeParseJSON(
+      shortValue!,
+      schema.VoterCardData
+    ).unsafeUnwrap()
     const voidedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
       uz: utcTimestamp(),
@@ -894,13 +906,18 @@ const AppRoot: React.FC<Props> = ({
     await writeCard(voidedVoterCardData)
 
     const updatedCard = await readCard()
-    const updatedShortValue: VoterCardData =
-      updatedCard.present && JSON.parse(updatedCard.shortValue!)
+    const updatedShortValue = updatedCard.present
+      ? safeParseJSON(
+          updatedCard.shortValue!,
+          schema.VoterCardData
+        ).unsafeUnwrap()
+      : /* istanbul ignore next - this should never happen */
+        undefined
 
     startCardShortValueReadPolling()
 
     /* istanbul ignore next - this should never happen */
-    if (voidedVoterCardData.uz !== updatedShortValue.uz) {
+    if (voidedVoterCardData.uz !== updatedShortValue?.uz) {
       await resetBallot()
       return false
     }
@@ -924,7 +941,10 @@ const AppRoot: React.FC<Props> = ({
 
     await clearLongValue()
 
-    const currentVoterCardData: VoterCardData = JSON.parse(shortValue!)
+    const currentVoterCardData = safeParseJSON(
+      shortValue!,
+      schema.VoterCardData
+    ).unsafeUnwrap()
     const usedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
       bp: utcTimestamp(),
@@ -935,10 +955,15 @@ const AppRoot: React.FC<Props> = ({
 
     startCardShortValueReadPolling()
 
-    const updatedShortValue: VoterCardData =
-      updatedCard.present && JSON.parse(updatedCard.shortValue!)
+    const updatedShortValue = updatedCard.present
+      ? safeParseJSON(
+          updatedCard.shortValue!,
+          schema.VoterCardData
+        ).unsafeUnwrap()
+      : /* istanbul ignore next - this should never happen */
+        undefined
     /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
-    if (usedVoterCardData.bp !== updatedShortValue.bp) {
+    if (usedVoterCardData.bp !== updatedShortValue?.bp) {
       await resetBallot()
       return false
     }

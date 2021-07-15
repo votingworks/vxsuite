@@ -5,10 +5,10 @@ import { asElectionDefinition } from '@votingworks/fixtures'
 import {
   CandidateContest,
   YesNoContest,
-  Election,
   MsEitherNeitherContest,
   getContests,
   getBallotStyle,
+  safeParseElection,
 } from '@votingworks/types'
 import { getZeroTally, Storage } from '@votingworks/utils'
 
@@ -18,7 +18,7 @@ const electionSampleData = fs.readFileSync(
   path.resolve(__dirname, '../../src/data/electionSample.json'),
   'utf-8'
 )
-export const election = JSON.parse(electionSampleData) as Election
+export const election = safeParseElection(electionSampleData).unsafeUnwrap()
 export const electionDefinition = asElectionDefinition(election)
 
 export const contest0 = election.contests[0] as CandidateContest
