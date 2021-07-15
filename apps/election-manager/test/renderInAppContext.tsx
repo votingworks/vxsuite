@@ -44,6 +44,7 @@ interface RenderInAppContextParams {
     React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults?: () => void
+  resetFiles?: () => Promise<void>
   usbDriveStatus?: usbstick.UsbDriveStatus
   usbDriveEject?: () => Promise<void>
   addPrintedBallot?: (printedBallot: PrintedBallot) => void
@@ -74,6 +75,7 @@ export default function renderInAppContext(
     saveElection = jest.fn(),
     setCastVoteRecordFiles = jest.fn(),
     saveIsOfficialResults = jest.fn(),
+    resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
     addPrintedBallot = jest.fn(),
@@ -100,6 +102,7 @@ export default function renderInAppContext(
         saveElection,
         setCastVoteRecordFiles,
         saveIsOfficialResults,
+        resetFiles,
         usbDriveStatus,
         usbDriveEject,
         addPrintedBallot,

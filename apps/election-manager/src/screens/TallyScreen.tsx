@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import moment from 'moment'
 
-import { Optional } from '@votingworks/types'
 import { generateFinalExportDefaultFilename, format } from '@votingworks/utils'
 import {
   TallyCategory,
@@ -42,24 +41,30 @@ const TallyScreen: React.FC = () => {
     isTabulationRunning,
     fullElectionExternalTallies,
     generateExportableTallies,
+    resetFiles,
   } = useContext(AppContext)
   const { election } = electionDefinition!
   const isTestMode = castVoteRecordFiles?.fileMode === 'test'
   const externalFileInput = useRef<HTMLInputElement>(null)
 
-  const [confirmingRemoveFileType, setConfirmingRemoveFileType] = useState<
-    Optional<ResultsFileType>
-  >(undefined)
+  const [
+    confirmingRemoveFileType,
+    setConfirmingRemoveFileType,
+  ] = useState<ResultsFileType>()
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
     false
   )
 
+  const beginConfirmRemoveFiles = (fileType: ResultsFileType) => {
+    setConfirmingRemoveFileType(fileType)
+  }
   const cancelConfirmingRemoveFiles = () => {
     setConfirmingRemoveFileType(undefined)
   }
-  const confirmRemoveFiles = (fileType: ResultsFileType) => {
-    setConfirmingRemoveFileType(fileType)
+  const confirmRemoveFiles = async (fileType: ResultsFileType) => {
+    setConfirmingRemoveFileType(undefined)
+    await resetFiles(fileType)
   }
 
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
@@ -330,7 +335,7 @@ const TallyScreen: React.FC = () => {
             <Button
               danger
               disabled={!hasAnyFiles}
-              onPress={() => confirmRemoveFiles(ResultsFileType.All)}
+              onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
             >
               Clear All Results…
             </Button>
@@ -340,21 +345,23 @@ const TallyScreen: React.FC = () => {
             <Button
               danger
               disabled={!hasCastVoteRecordFiles}
-              onPress={() => confirmRemoveFiles(ResultsFileType.CastVoteRecord)}
+              onPress={() =>
+                beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
+              }
             >
               Remove CVR Files…
             </Button>{' '}
             <Button
               danger
               disabled={!hasExternalSEMSFile}
-              onPress={() => confirmRemoveFiles(ResultsFileType.SEMS)}
+              onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
             >
               Remove External Results File…
             </Button>{' '}
             <Button
               danger
               disabled={!hasExternalManualData}
-              onPress={() => confirmRemoveFiles(ResultsFileType.Manual)}
+              onPress={() => beginConfirmRemoveFiles(ResultsFileType.Manual)}
             >
               Remove Manual Data…
             </Button>
@@ -388,8 +395,9 @@ const TallyScreen: React.FC = () => {
       </NavigationScreen>
       {confirmingRemoveFileType && (
         <ConfirmRemovingFileModal
-          fileType={confirmingRemoveFileType || ResultsFileType.CastVoteRecord}
-          onClose={cancelConfirmingRemoveFiles}
+          fileType={confirmingRemoveFileType}
+          onConfirm={confirmRemoveFiles}
+          onCancel={cancelConfirmingRemoveFiles}
         />
       )}
       {isConfirmingOfficial && (

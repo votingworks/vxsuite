@@ -731,7 +731,9 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   )
   fireEvent.click(getByText('Remove All Data'))
 
-  expect(getByText('Remove CVR Files…').closest('button')).toBeDisabled()
+  await waitFor(() =>
+    expect(getByText('Remove CVR Files…').closest('button')).toBeDisabled()
+  )
   expect(
     getByText('Remove External Results File…').closest('button')
   ).toBeDisabled()

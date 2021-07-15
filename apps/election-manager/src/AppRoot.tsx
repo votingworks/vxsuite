@@ -7,7 +7,7 @@ import { sha256 } from 'js-sha256'
 
 import { ElectionDefinition, parseElection } from '@votingworks/types'
 
-import { Storage, usbstick } from '@votingworks/utils'
+import { Storage, throwIllegalValue, usbstick } from '@votingworks/utils'
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -27,6 +27,8 @@ import {
   FullElectionExternalTally,
   CastVoteRecordLists,
   ExportableTallies,
+  ResultsFileType,
+  ExternalTallySourceType,
 } from './config/types'
 import { getExportableTallies } from './utils/exportableTallies'
 import {
@@ -318,6 +320,34 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
     )
   }
 
+  const resetFiles = async (fileType: ResultsFileType) => {
+    switch (fileType) {
+      case ResultsFileType.CastVoteRecord:
+        await saveCastVoteRecordFiles()
+        break
+      case ResultsFileType.SEMS: {
+        const newFiles = fullElectionExternalTallies.filter(
+          (tally) => tally.source !== ExternalTallySourceType.SEMS
+        )
+        await saveExternalTallies(newFiles)
+        break
+      }
+      case ResultsFileType.Manual: {
+        const newFiles = fullElectionExternalTallies.filter(
+          (tally) => tally.source !== ExternalTallySourceType.Manual
+        )
+        await saveExternalTallies(newFiles)
+        break
+      }
+      case ResultsFileType.All:
+        await saveCastVoteRecordFiles()
+        await saveExternalTallies([])
+        break
+      default:
+        throwIllegalValue(fileType)
+    }
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -331,6 +361,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
         saveElection,
         saveIsOfficialResults,
         setCastVoteRecordFiles,
+        resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: doEject,
         printedBallots: printedBallots || [],
