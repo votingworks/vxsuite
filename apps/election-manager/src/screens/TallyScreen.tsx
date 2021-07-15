@@ -91,14 +91,12 @@ const TallyScreen: React.FC = () => {
     castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError
   const hasAnyFiles =
     hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0
-  const hasExternalSEMSFile =
-    fullElectionExternalTallies.filter(
-      (t) => t.source === ExternalTallySourceType.SEMS
-    ).length > 0
-  const hasExternalManualData =
-    fullElectionExternalTallies.filter(
-      (t) => t.source === ExternalTallySourceType.Manual
-    ).length > 0
+  const hasExternalSEMSFile = fullElectionExternalTallies.some(
+    (t) => t.source === ExternalTallySourceType.SEMS
+  )
+  const hasExternalManualData = fullElectionExternalTallies.some(
+    (t) => t.source === ExternalTallySourceType.Manual
+  )
 
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
     false
