@@ -1,15 +1,31 @@
+import { z } from 'zod'
 import { useState, Dispatch, SetStateAction } from 'react'
+import { Optional, safeParseJSON } from '@votingworks/types'
 
-const useStateWithLocalStorage = <S>(
+function useStateWithLocalStorage<S>(
   key: string,
+  schema: z.ZodSchema<S>
+): [Optional<S>, Dispatch<SetStateAction<Optional<S>>>]
+function useStateWithLocalStorage<S>(
+  key: string,
+  schema: z.ZodSchema<S>,
+  initialValue: S
+): [S, Dispatch<SetStateAction<S>>]
+function useStateWithLocalStorage<S>(
+  key: string,
+  schema: z.ZodSchema<S>,
   initialValue?: S
-): [S, Dispatch<SetStateAction<S>>] => {
-  const [item, setInnerValue] = useState<S>(() => {
+): [Optional<S>, Dispatch<SetStateAction<Optional<S>>>] {
+  const [item, setInnerValue] = useState<Optional<S>>(() => {
     const valueItem = window.localStorage.getItem(key)
-    return valueItem ? JSON.parse(valueItem) : initialValue
+    return valueItem
+      ? safeParseJSON(valueItem, schema).unsafeUnwrap()
+      : initialValue
   })
 
-  const setValue = (value: SetStateAction<S>): SetStateAction<S> => {
+  const setValue = (
+    value: SetStateAction<Optional<S>>
+  ): SetStateAction<Optional<S>> => {
     const valueToStore = value instanceof Function ? value(item) : value
     setInnerValue(valueToStore)
     if (valueToStore) {
