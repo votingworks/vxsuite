@@ -13,7 +13,7 @@ import {
   combineTallies,
   TallySourceMachineType,
 } from '@votingworks/utils'
-import { VxMarkOnly, VxPrintOnly } from '../config/types'
+import { PrecinctSelectionKind, VxMarkOnly, VxPrintOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
 
@@ -30,8 +30,12 @@ test('renders PollWorkerScreen', async () => {
   const election = electionSampleWithSeal as Election
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -60,8 +64,12 @@ test('switching out of test mode on election day', async () => {
   const enableLiveMode = jest.fn()
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -92,8 +100,12 @@ test('keeping test mode on election day', async () => {
   const enableLiveMode = jest.fn()
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -121,8 +133,12 @@ test('live mode on election day', async () => {
   const enableLiveMode = jest.fn()
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -148,8 +164,12 @@ test('results combination option is not shown for a non print machine', async ()
   const enableLiveMode = jest.fn()
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -177,8 +197,12 @@ test('results combination option is shown for a print machine', async () => {
   const printFn = jest.fn()
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={0}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -272,8 +296,12 @@ test('results combination option is shown with prior tally results when provided
 
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={3}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -377,8 +405,12 @@ test('results combination option is shown with prior tally results when results 
 
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={3}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}
@@ -463,8 +495,12 @@ test('printing precinct scanner report option is shown when precinct scanner tal
 
   render(
     <PollWorkerScreen
-      activateCardlessBallotStyleId={jest.fn()}
-      appPrecinctId={defaultPrecinctId}
+      activateCardlessBallot={jest.fn()}
+      resetCardlessBallot={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
       ballotsPrintedCount={3}
       ballotStyleId=""
       electionDefinition={asElectionDefinition(election)}

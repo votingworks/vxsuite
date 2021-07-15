@@ -794,7 +794,19 @@ exports[`Renders ContestPage 1`] = `
               <p
                 class="c26"
               >
+                <span
+                  class="c25"
+                >
+                  Center Springfield
+                  , 
+                </span>
                  
+                <span
+                  class="c25"
+                >
+                  ballot style 
+                  12
+                </span>
               </p>
             </div>
           </div>
