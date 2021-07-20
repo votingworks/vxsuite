@@ -51,6 +51,7 @@ importers:
       is-ci-cli: 2.1.2
       lint-staged: 8.2.1
       prettier: 2.2.1
+      react-refresh: 0.10.0
       sort-package-json: 1.50.0
       stylelint: 13.8.0
       stylelint-config-palantir: 5.0.0_stylelint@13.8.0
@@ -89,6 +90,7 @@ importers:
       prettier: ^2.1.2
       react: ^17.0.1
       react-dom: ^17.0.1
+      react-refresh: ^0.10.0
       react-scripts: 4.0.1
       sort-package-json: ^1.50.0
       styled-components: ^5.2.1
@@ -15994,7 +15996,7 @@ packages:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.1_supports-color@6.1.0
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -24020,6 +24022,12 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17
     resolution:
       integrity: sha512-m6yXK7I4YKssQnsjHK7xITSXy2O81BSOHOsg0/uWAsdKtuT9HF2tdoYhRuxNNQg2V+LgepsoHUPJKS8m6no+eg==
+  /react-refresh/0.10.0:
+    dev: true
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-PgidR3wST3dDYKr6b4pJoqQFpPGNKDSCDx4cZoshjXipw3LzO7mG1My2pwEzz2JVkF+inx3xRpDeQLFQGH/hsQ==
   /react-refresh/0.8.3:
     dev: false
     engines:
