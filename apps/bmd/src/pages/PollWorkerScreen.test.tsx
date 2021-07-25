@@ -12,6 +12,7 @@ import {
   getZeroTally,
   combineTallies,
   TallySourceMachineType,
+  CardTally,
 } from '@votingworks/utils'
 import { VxMarkOnly, VxPrintOnly } from '../config/types'
 
@@ -46,6 +47,7 @@ test('renders PollWorkerScreen', async () => {
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -76,6 +78,7 @@ test('switching out of test mode on election day', async () => {
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -108,6 +111,7 @@ test('keeping test mode on election day', async () => {
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -137,6 +141,7 @@ test('live mode on election day', async () => {
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -164,6 +169,7 @@ test('results combination option is not shown for a non print machine', async ()
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -199,6 +205,7 @@ test('results combination option is shown for a print machine', async () => {
       saveTallyToCard={saveTally}
       talliesOnCard={undefined}
       clearTalliesOnCard={clearTallies}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -243,7 +250,7 @@ test('results combination option is shown with prior tally results when provided
     writeIns: 0,
     ballotsCast: 28,
   }
-  const talliesOnCard = {
+  const talliesOnCard: CardTally = {
     tally: existingTally,
     tallyMachineType: TallySourceMachineType.BMD,
     totalBallotsPrinted: 28,
@@ -294,6 +301,7 @@ test('results combination option is shown with prior tally results when provided
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}
       clearTalliesOnCard={clearTallies}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -343,7 +351,7 @@ test('results combination option is shown with prior tally results when results 
     writeIns: 0,
     ballotsCast: 34,
   }
-  const talliesOnCard = {
+  const talliesOnCard: CardTally = {
     tally: existingTally,
     tallyMachineType: TallySourceMachineType.BMD,
     totalBallotsPrinted: 31,
@@ -399,6 +407,7 @@ test('results combination option is shown with prior tally results when results 
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}
       clearTalliesOnCard={clearTallies}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
@@ -439,9 +448,9 @@ test('printing precinct scanner report option is shown when precinct scanner tal
     writeIns: 0,
     ballotsCast: 34,
   }
-  const talliesOnCard = {
-    tally: existingTally,
+  const talliesOnCard: CardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    tally: existingTally,
     totalBallotsScanned: 25,
     metadata: [
       {
@@ -450,6 +459,8 @@ test('printing precinct scanner report option is shown when precinct scanner tal
         ballotCount: 25,
       },
     ],
+    isLiveMode: false,
+    isPollsOpen: false,
   }
 
   const currentTally = getZeroTally(election)
@@ -485,6 +496,7 @@ test('printing precinct scanner report option is shown when precinct scanner tal
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}
       clearTalliesOnCard={clearTallies}
+      resetCardlessBallot={jest.fn()}
     />
   )
 
