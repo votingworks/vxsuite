@@ -41,6 +41,14 @@ export const VX_MACHINE_TYPE = safeParse(
   process.env.VX_MACHINE_TYPE ?? 'bsd'
 ).unsafeUnwrap()
 
+export enum ScannerLocation {
+  Central = 'Central',
+  Precinct = 'Precinct',
+}
+
+export const SCANNER_LOCATION =
+  VX_MACHINE_TYPE === 'bsd' ? ScannerLocation.Central : ScannerLocation.Precinct
+
 /**
  * What's the unique ID for this machine?
  */

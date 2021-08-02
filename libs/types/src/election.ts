@@ -107,16 +107,19 @@ interface BallotLayout {
 
 export interface Election {
   readonly _lang?: Translations
+  /** @deprecated Use `precinctScanAdjudicationReasons` or `centralScanAdjudicationReasons` */
   readonly adjudicationReasons?: readonly AdjudicationReason[]
   readonly ballotLayout?: BallotLayout
   readonly ballotStrings?: BallotStrings
   readonly ballotStyles: readonly BallotStyle[]
+  readonly centralScanAdjudicationReasons?: readonly AdjudicationReason[]
   readonly contests: Contests
   readonly county: County
   readonly date: string
   readonly districts: readonly District[]
   readonly markThresholds?: MarkThresholds
   readonly parties: Parties
+  readonly precinctScanAdjudicationReasons?: readonly AdjudicationReason[]
   readonly precincts: readonly Precinct[]
   readonly seal?: string
   readonly sealURL?: string

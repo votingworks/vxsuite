@@ -894,7 +894,12 @@
   "ballotStrings": {
     "officialInitials": "Initialing Manager"
   },
-  "adjudicationReasons": [
+  "centralScanAdjudicationReasons": [
+    "UninterpretableBallot",
+    "Overvote",
+    "BlankBallot"
+  ],
+  "precinctScanAdjudicationReasons": [
     "UninterpretableBallot",
     "Overvote",
     "BlankBallot"

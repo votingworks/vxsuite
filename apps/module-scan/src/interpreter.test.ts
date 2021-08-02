@@ -60,6 +60,8 @@ test('extracts votes encoded in a QR code', async () => {
           markThresholds: { definite: 0.2, marginal: 0.17 },
         },
         testMode: true,
+        adjudicationReasons:
+          electionSample.centralScanAdjudicationReasons ?? [],
       }).interpretFile({
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
@@ -104,6 +106,7 @@ test('properly detects test ballot in live mode', async () => {
       markThresholds: { definite: 0.2, marginal: 0.17 },
     },
     testMode: false, // this is the test mode
+    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
@@ -188,6 +191,7 @@ test('interprets marks on a HMPB', async () => {
   const interpreter = new Interpreter({
     election: stateOfHamiltonElection,
     testMode: false,
+    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
   })
 
   for await (const { page, pageNumber } of pdfToImages(
@@ -244,6 +248,7 @@ test('interprets marks on an upside-down HMPB', async () => {
   const interpreter = new Interpreter({
     election: stateOfHamiltonElection,
     testMode: false,
+    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
   })
 
   for await (const { page, pageNumber } of pdfToImages(
@@ -273,10 +278,7 @@ test('interprets marks on an upside-down HMPB', async () => {
     Object {
       "adjudicationInfo": Object {
         "allReasonInfos": Array [],
-        "enabledReasons": Array [
-          "UninterpretableBallot",
-          "MarginalMark",
-        ],
+        "enabledReasons": Array [],
         "requiresAdjudication": false,
       },
       "markInfo": Object {
@@ -1784,7 +1786,11 @@ test('interprets marks in PNG ballots', async () => {
     markThresholds: { definite: 0.2, marginal: 0.12 },
     ...choctaw2020Election,
   }
-  const interpreter = new Interpreter({ election, testMode: false })
+  const interpreter = new Interpreter({
+    election,
+    testMode: false,
+    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
+  })
 
   for await (const { page } of pdfToImages(
     await readFile(join(choctaw2020FixturesRoot, 'ballot.pdf')),
@@ -1822,10 +1828,7 @@ test('interprets marks in PNG ballots', async () => {
               "type": "Overvote",
             },
           ],
-          "enabledReasons": Array [
-            "UninterpretableBallot",
-            "MarginalMark",
-          ],
+          "enabledReasons": Array [],
           "requiresAdjudication": false,
         },
         "markInfo": Object {
@@ -2777,10 +2780,7 @@ test('interprets marks in PNG ballots', async () => {
       Object {
         "adjudicationInfo": Object {
           "allReasonInfos": Array [],
-          "enabledReasons": Array [
-            "UninterpretableBallot",
-            "MarginalMark",
-          ],
+          "enabledReasons": Array [],
           "requiresAdjudication": false,
         },
         "markInfo": Object {
@@ -2976,6 +2976,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
   const interpreter = new Interpreter({
     election: stateOfHamiltonElection,
     testMode: false,
+    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
   })
 
   for await (const { page, pageNumber } of pdfToImages(
