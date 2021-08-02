@@ -64,7 +64,7 @@ const BallotEjectScreen: React.FC<Props> = ({
   continueScanning,
   isTestMode,
 }) => {
-  const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo | undefined>()
+  const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo>()
 
   const [ballotState, setBallotState] = useState<EjectState>(undefined)
 

@@ -396,7 +396,7 @@ const App: React.FC = () => {
               unconfigureServer={unconfigureServer}
               zeroData={zeroData}
               backup={backup}
-              hasBatches={!!status.batches.length}
+              hasBatches={status.batches.length > 0}
               isTestMode={isTestMode}
               toggleTestMode={toggleTestMode}
               setMarkThresholdOverrides={setMarkThresholdOverrides}
@@ -442,7 +442,7 @@ const App: React.FC = () => {
                     disabled={adjudication.remaining === 0}
                   >
                     Review{' '}
-                    {!!adjudication.remaining &&
+                    {adjudication.remaining > 0 &&
                       pluralize('ballots', adjudication.remaining, true)}
                   </LinkButton>
                 )}

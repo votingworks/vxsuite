@@ -43,7 +43,7 @@ interface RenderInAppContextParams {
   setCastVoteRecordFiles?: React.Dispatch<
     React.SetStateAction<CastVoteRecordFiles>
   >
-  saveIsOfficialResults?: () => void
+  saveIsOfficialResults?: () => Promise<void>
   resetFiles?: () => Promise<void>
   usbDriveStatus?: usbstick.UsbDriveStatus
   usbDriveEject?: () => Promise<void>

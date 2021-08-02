@@ -143,7 +143,7 @@ const ElectionConfiguration: React.FC<Props> = ({
           fileEntry: f,
         }
       })
-      .filter((f) => !!f.parsedInfo)
+      .filter((f) => f.parsedInfo)
       .sort(
         (a, b) =>
           b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
