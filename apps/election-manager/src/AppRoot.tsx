@@ -5,7 +5,11 @@ import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
 
-import { ElectionDefinition, parseElection } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  parseElection,
+  safeParseElection,
+} from '@votingworks/types'
 
 import { Storage, throwIllegalValue, usbstick } from '@votingworks/utils'
 import {
@@ -280,7 +284,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
       if (electionJSON) {
         const electionData = electionJSON
         const electionHash = sha256(electionData)
-        const election = parseElection(JSON.parse(electionData))
+        const election = safeParseElection(electionData).unsafeUnwrap()
 
         setElectionDefinition({
           electionData,
