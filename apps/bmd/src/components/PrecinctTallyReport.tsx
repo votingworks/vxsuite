@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Precinct, Election } from '@votingworks/types'
+import { Election } from '@votingworks/types'
 import {
+  find,
   Tally,
   CandidateVoteTally,
   YesNoVoteTally,
@@ -14,6 +15,7 @@ import numberWithCommas from '../utils/numberWithCommas'
 import Table, { TD } from './Table'
 import Prose from './Prose'
 import { NoWrap } from './Text'
+import { PrecinctSelection, PrecinctSelectionKind } from '../config/types'
 
 const Report = styled.div`
   margin: 0;
@@ -35,7 +37,7 @@ interface Props {
   election: Election
   isPollsOpen: boolean
   tally: Tally
-  precinctId: string
+  precinctSelection: PrecinctSelection
   reportPurpose: string
 }
 
@@ -46,17 +48,23 @@ const PrecinctTallyReport: React.FC<Props> = ({
   election,
   isPollsOpen,
   tally,
-  precinctId,
+  precinctSelection,
   reportPurpose,
 }) => {
   const { ballotStyles, contests, precincts } = election
-  const precinct = precincts.find((p) => p.id === precinctId) as Precinct
+  const precinctName =
+    precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
+      ? 'All Precincts'
+      : find(precincts, (p) => p.id === precinctSelection.precinctId).name
   const ballotAction =
     sourceMachineType === TallySourceMachineType.BMD ? 'printed' : 'scanned'
 
-  const precinctBallotStyles = ballotStyles.filter((bs) =>
-    bs.precincts.includes(precinctId)
-  )
+  const precinctBallotStyles =
+    precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
+      ? ballotStyles
+      : ballotStyles.filter((bs) =>
+          bs.precincts.includes(precinctSelection.precinctId)
+        )
   const precinctContestIds = contests
     .filter((c) =>
       precinctBallotStyles.find(
@@ -67,7 +75,7 @@ const PrecinctTallyReport: React.FC<Props> = ({
   return (
     <Report>
       <h1>
-        <NoWrap>{precinct.name}</NoWrap> <NoWrap>{election.title}</NoWrap>{' '}
+        <NoWrap>{precinctName}</NoWrap> <NoWrap>{election.title}</NoWrap>{' '}
         <NoWrap>Tally Report</NoWrap>
       </h1>
       <p>

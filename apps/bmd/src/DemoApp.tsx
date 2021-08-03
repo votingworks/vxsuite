@@ -11,7 +11,13 @@ import {
 } from '@votingworks/utils'
 import App, { Props } from './App'
 import utcTimestamp from './utils/utcTimestamp'
-import { MachineConfig, VxMarkPlusVxPrint } from './config/types'
+import {
+  MachineConfig,
+  PrecinctSelectionKind,
+  SerializableActivationData,
+  VxMarkPlusVxPrint,
+} from './config/types'
+import { State } from './AppRoot'
 
 const ballotStyleId = '12'
 const precinctId = '23'
@@ -29,23 +35,28 @@ export function getSampleCard(): Card {
 }
 
 export function getDemoStorage(): Storage {
-  return new MemoryStorage({
-    state: {
-      electionDefinition: electionSampleDefinition,
-      appPrecinctId,
-      ballotsPrintedCount: 0,
-      isLiveMode: true,
-      isPollsOpen: true,
-      ballotStyleId,
-      isCardlessVoter: false,
-      precinctId,
-    },
+  const state: Partial<State> = {
     electionDefinition: electionSampleDefinition,
-    activation: {
-      ballotStyleId,
-      isCardlessVoter: false,
-      precinctId,
+    appPrecinct: {
+      kind: PrecinctSelectionKind.SinglePrecinct,
+      precinctId: appPrecinctId,
     },
+    ballotsPrintedCount: 0,
+    isLiveMode: true,
+    isPollsOpen: true,
+    ballotStyleId,
+    isCardlessVoter: false,
+    precinctId,
+  }
+  const activation: SerializableActivationData = {
+    ballotStyleId,
+    isCardlessVoter: false,
+    precinctId,
+  }
+  return new MemoryStorage({
+    state,
+    electionDefinition: electionSampleDefinition,
+    activation,
   })
 }
 

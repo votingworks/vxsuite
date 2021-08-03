@@ -17,6 +17,7 @@ import {
   CandidateContestResultInterface,
   EventTargetFunction,
   MsEitherNeitherContestResultInterface,
+  PrecinctSelectionKind,
   Scrollable,
   ScrollDirections,
   ScrollShadows,
@@ -368,6 +369,7 @@ const ReviewPage: React.FC = () => {
     setUserSettings,
   } = context
   ok(electionDefinition, 'electionDefinition is required to render ReviewPage')
+  ok(precinctId, 'precinctId is required to render ReviewPage')
   const { election } = electionDefinition
   const { parties } = election
 
@@ -484,7 +486,10 @@ const ReviewPage: React.FC = () => {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctId={precinctId}
+              precinctSelection={{
+                kind: PrecinctSelectionKind.SinglePrecinct,
+                precinctId,
+              }}
               horizontal
             />
           </React.Fragment>

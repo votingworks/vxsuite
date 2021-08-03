@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import React, { useState, useEffect, useCallback } from 'react'
 import pluralize from 'pluralize'
 
-import { Precinct, ElectionDefinition, Optional } from '@votingworks/types'
+import { ElectionDefinition, Optional } from '@votingworks/types'
 import {
   Button,
   ButtonList,
@@ -11,15 +11,21 @@ import {
   Main,
   MainChild,
 } from '@votingworks/ui'
+
 import {
   formatFullDateTimeZone,
   Tally,
   CardTally,
   TallySourceMachineType,
   combineTallies,
+  find,
 } from '@votingworks/utils'
 
-import { MachineConfig } from '../config/types'
+import {
+  MachineConfig,
+  PrecinctSelection,
+  PrecinctSelectionKind,
+} from '../config/types'
 
 import Modal from '../components/Modal'
 import Prose from '../components/Prose'
@@ -35,11 +41,15 @@ import Table from '../components/Table'
 import VersionsData from '../components/VersionsData'
 
 interface Props {
-  activateCardlessBallotStyleId: (id: string) => void
-  resetCardlessBallot: () => void
-  appPrecinctId: string
+  activateCardlessVoterSession: (
+    precinctId: string,
+    ballotStyleId?: string
+  ) => void
+  resetCardlessVoterSession: () => void
+  appPrecinct: PrecinctSelection
   ballotsPrintedCount: number
-  ballotStyleId?: string
+  cardlessVoterSessionPrecinctId?: string
+  cardlessVoterSessionBallotStyleId?: string
   electionDefinition: ElectionDefinition
   enableLiveMode: () => void
   hasVotes: boolean
@@ -55,11 +65,15 @@ interface Props {
 }
 
 const PollWorkerScreen: React.FC<Props> = ({
-  activateCardlessBallotStyleId,
-  resetCardlessBallot,
-  appPrecinctId,
+  activateCardlessVoterSession,
+  resetCardlessVoterSession,
+  appPrecinct,
   ballotsPrintedCount,
-  ballotStyleId,
+  cardlessVoterSessionPrecinctId = appPrecinct.kind ===
+  PrecinctSelectionKind.SinglePrecinct
+    ? appPrecinct.precinctId
+    : undefined,
+  cardlessVoterSessionBallotStyleId,
   electionDefinition,
   enableLiveMode,
   isLiveMode,
@@ -76,12 +90,16 @@ const PollWorkerScreen: React.FC<Props> = ({
   const { election } = electionDefinition
   const electionDate = DateTime.fromISO(electionDefinition.election.date)
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day')
-  const precinct = election.precincts.find(
-    (p) => p.id === appPrecinctId
-  ) as Precinct
-  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-    bs.precincts.includes(appPrecinctId)
-  )
+  const precinctName =
+    appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
+      ? 'All Precincts'
+      : find(election.precincts, (p) => p.id === appPrecinct.precinctId).name
+
+  const precinctBallotStyles = cardlessVoterSessionPrecinctId
+    ? election.ballotStyles.filter((bs) =>
+        bs.precincts.includes(cardlessVoterSessionPrecinctId)
+      )
+    : []
 
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
@@ -194,7 +212,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 Remove card to allow voter to continue voting, or reset ballot.
               </p>
               <p>
-                <Button danger onPress={resetCardlessBallot}>
+                <Button danger onPress={resetCardlessVoterSession}>
                   Reset Ballot
                 </Button>
               </p>
@@ -205,16 +223,21 @@ const PollWorkerScreen: React.FC<Props> = ({
     )
   }
 
-  if (ballotStyleId) {
+  if (cardlessVoterSessionPrecinctId && cardlessVoterSessionBallotStyleId) {
+    const activationPrecinctName = find(
+      election.precincts,
+      (p) => p.id === cardlessVoterSessionPrecinctId
+    ).name
+
     return (
       <Screen>
         <Main>
           <MainChild center narrow>
             <Prose>
-              <h1
-                aria-label={`Ballot style ${ballotStyleId} has been activated.`}
-              >
-                Ballot style {ballotStyleId} has been activated.
+              <h1>
+                {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
+                  ? `Voter session activated: ${cardlessVoterSessionBallotStyleId} @ ${activationPrecinctName}`
+                  : `Voter session activated: ${cardlessVoterSessionBallotStyleId}`}
               </h1>
               <ol>
                 <li>Remove the poll worker card.</li>
@@ -227,12 +250,10 @@ const PollWorkerScreen: React.FC<Props> = ({
                 </li>
               </ol>
               <HorizontalRule>or</HorizontalRule>
+              <Text center>Deactivate this voter session to start over.</Text>
               <Text center>
-                Deactivate this ballot style to select another ballot style.
-              </Text>
-              <Text center>
-                <Button small onPress={resetCardlessBallot}>
-                  Deactivate Ballot Style {ballotStyleId}
+                <Button small onPress={resetCardlessVoterSession}>
+                  Deactivate Voter Session
                 </Button>
               </Text>
             </Prose>
@@ -338,19 +359,50 @@ const PollWorkerScreen: React.FC<Props> = ({
             {isMarkAndPrintMode && isPollsOpen && (
               <React.Fragment>
                 <Prose>
-                  <h1>Activate Ballot Style</h1>
+                  <h1>Activate Voter Session</h1>
                 </Prose>
-                <ButtonList data-testid="precincts">
-                  {precinctBallotStyles.map((bs) => (
-                    <Button
-                      fullWidth
-                      key={bs.id}
-                      onPress={() => activateCardlessBallotStyleId(bs.id)}
-                    >
-                      {bs.id}
-                    </Button>
-                  ))}
-                </ButtonList>
+                {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
+                  <React.Fragment>
+                    <h3>Choose Precinct</h3>
+                    <ButtonList data-testid="precincts">
+                      {election.precincts.map((precinct) => (
+                        <Button
+                          fullWidth
+                          key={precinct.id}
+                          onPress={() =>
+                            activateCardlessVoterSession(precinct.id)
+                          }
+                          primary={
+                            cardlessVoterSessionPrecinctId === precinct.id
+                          }
+                        >
+                          {precinct.name}
+                        </Button>
+                      ))}
+                    </ButtonList>
+                  </React.Fragment>
+                )}
+                {cardlessVoterSessionPrecinctId && (
+                  <React.Fragment>
+                    <h3>Choose Ballot Style</h3>
+                    <ButtonList data-testid="ballot-styles">
+                      {precinctBallotStyles.map((bs) => (
+                        <Button
+                          fullWidth
+                          key={bs.id}
+                          onPress={() =>
+                            activateCardlessVoterSession(
+                              cardlessVoterSessionPrecinctId,
+                              bs.id
+                            )
+                          }
+                        >
+                          {bs.id}
+                        </Button>
+                      ))}
+                    </ButtonList>
+                  </React.Fragment>
+                )}
               </React.Fragment>
             )}
             <Prose>
@@ -379,8 +431,8 @@ const PollWorkerScreen: React.FC<Props> = ({
               <p>
                 <Button large onPress={togglePolls}>
                   {isPollsOpen
-                    ? `Close Polls for ${precinct.name}`
-                    : `Open Polls for ${precinct.name}`}
+                    ? `Close Polls for ${precinctName}`
+                    : `Open Polls for ${precinctName}`}
                 </Button>
               </p>
               {isPrintMode && isTallyOnCardFromPrecinctScanner && (
@@ -432,7 +484,7 @@ const PollWorkerScreen: React.FC<Props> = ({
             <React.Fragment>
               <ElectionInfo
                 electionDefinition={electionDefinition}
-                precinctId={appPrecinctId}
+                precinctSelection={appPrecinct}
                 horizontal
               />
               <VersionsData
@@ -475,8 +527,8 @@ const PollWorkerScreen: React.FC<Props> = ({
               <Prose textCenter>
                 <Loading as="p">
                   {isPollsOpen
-                    ? `Printing Polls Closed report for ${precinct.name}`
-                    : `Printing Polls Opened report for ${precinct.name}`}
+                    ? `Printing Polls Closed report for ${precinctName}`
+                    : `Printing Polls Opened report for ${precinctName}`}
                 </Loading>
               </Prose>
             }
@@ -599,7 +651,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   isPollsOpen={talliesOnCard.isPollsOpen}
                   machineMetadata={talliesOnCard?.metadata}
                   machineConfig={machineConfig} // not used
-                  precinctId={appPrecinctId}
+                  precinctSelection={appPrecinct}
                   reportPurpose={reportPurpose}
                 />
                 <PrecinctTallyReport
@@ -610,7 +662,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   election={election}
                   isPollsOpen={talliesOnCard.isPollsOpen}
                   tally={talliesOnCard!.tally}
-                  precinctId={appPrecinctId}
+                  precinctSelection={appPrecinct}
                   reportPurpose={reportPurpose}
                 />
               </React.Fragment>
@@ -630,7 +682,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   isPollsOpen={false}
                   machineMetadata={machineMetadata}
                   machineConfig={machineConfig}
-                  precinctId={appPrecinctId}
+                  precinctSelection={appPrecinct}
                   reportPurpose={reportPurpose}
                 />
                 <PrecinctTallyReport
@@ -641,7 +693,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   election={election}
                   isPollsOpen={false}
                   tally={combinedTally}
-                  precinctId={appPrecinctId}
+                  precinctSelection={appPrecinct}
                   reportPurpose={reportPurpose}
                 />
               </React.Fragment>
@@ -661,7 +713,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 isPollsOpen={!isPollsOpen} // This report is printed just before the value of isPollsOpen is updated when opening/closing polls, so we want to print the report with the toggled value.
                 machineMetadata={undefined}
                 machineConfig={machineConfig}
-                precinctId={appPrecinctId}
+                precinctSelection={appPrecinct}
                 reportPurpose={reportPurpose}
               />
               <PrecinctTallyReport
@@ -672,7 +724,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                 election={election}
                 isPollsOpen={!isPollsOpen}
                 tally={tally}
-                precinctId={appPrecinctId}
+                precinctSelection={appPrecinct}
                 reportPurpose={reportPurpose}
               />
             </React.Fragment>

@@ -13,7 +13,7 @@ import { mockOf, render } from '../../test/testUtils'
 import { randomBase64 } from '../utils/random'
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
-import { VxPrintOnly } from '../config/types'
+import { PrecinctSelectionKind, VxPrintOnly } from '../config/types'
 import fakePrinter from '../../test/helpers/fakePrinter'
 
 // mock the random value so the snapshots match
@@ -25,7 +25,10 @@ it('renders test decks appropriately', async () => {
   const printer = fakePrinter()
   render(
     <TestBallotDeckScreen
-      appPrecinctId="23"
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: '23',
+      }}
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       hideTestDeck={jest.fn()}
       machineConfig={fakeMachineConfig({
@@ -73,7 +76,10 @@ it('renders test decks appropriately', async () => {
 it('shows printer not connected when appropriate', async () => {
   render(
     <TestBallotDeckScreen
-      appPrecinctId="23"
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: '23',
+      }}
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       machineConfig={fakeMachineConfig({
         appMode: VxPrintOnly,

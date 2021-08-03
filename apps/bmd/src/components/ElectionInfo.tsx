@@ -11,6 +11,8 @@ import { formatLongDate } from '@votingworks/utils/build'
 import Seal from './Seal'
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
+import { PrecinctSelection } from '../config/types'
+import { precinctSelectionName } from '../utils/precinctSelection'
 
 const VerticalContainer = styled.div`
   display: block;
@@ -37,21 +39,23 @@ const HorizontalContainer = styled.div`
 `
 
 interface Props {
-  precinctId?: string
+  precinctSelection?: PrecinctSelection
   ballotStyleId?: string
   electionDefinition: ElectionDefinition
   horizontal?: boolean
 }
 
 const ElectionInfo: React.FC<Props> = ({
-  precinctId,
+  precinctSelection,
   ballotStyleId,
   electionDefinition,
   horizontal = false,
 }) => {
   const { election } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
-  const precinct = election.precincts.find((p) => p.id === precinctId)
+  const precinctName =
+    precinctSelection &&
+    precinctSelectionName(election.precincts, precinctSelection)
   const partyPrimaryAdjective = ballotStyleId
     ? getPartyPrimaryAdjectiveFromBallotStyle({
         election,
@@ -72,9 +76,9 @@ const ElectionInfo: React.FC<Props> = ({
               <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
             </Text>
             <Text small light>
-              {precinct && (
+              {precinctName && (
                 <NoWrap>
-                  {precinct.name}
+                  {precinctName}
                   {ballotStyleId && ', '}
                 </NoWrap>
               )}{' '}
@@ -97,7 +101,7 @@ const ElectionInfo: React.FC<Props> = ({
           <br />
           {state}
         </p>
-        {precinct && <Text bold>{precinct.name}</Text>}
+        {precinctName && <Text bold>{precinctName}</Text>}
       </Prose>
     </VerticalContainer>
   )

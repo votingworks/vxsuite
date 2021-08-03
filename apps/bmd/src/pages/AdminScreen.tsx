@@ -4,7 +4,12 @@ import React, { useCallback, useState } from 'react'
 import { ElectionDefinition } from '@votingworks/types'
 import { formatFullDateTimeZone } from '@votingworks/utils'
 import { Button, Main, MainChild, SegmentedButton } from '@votingworks/ui'
-import { MachineConfig, SelectChangeEventFunction } from '../config/types'
+import {
+  MachineConfig,
+  PrecinctSelection,
+  PrecinctSelectionKind,
+  SelectChangeEventFunction,
+} from '../config/types'
 
 import TestBallotDeckScreen from './TestBallotDeckScreen'
 
@@ -17,33 +22,45 @@ import Select from '../components/Select'
 import VersionsData from '../components/VersionsData'
 import PickDateTimeModal from '../components/PickDateTimeModal'
 import useNow from '../hooks/useNow'
+import { AllPrecinctsDisplayName } from '../utils/precinctSelection'
 
 interface Props {
-  appPrecinctId?: string
+  appPrecinct?: PrecinctSelection
   ballotsPrintedCount: number
   electionDefinition?: ElectionDefinition
   isLiveMode: boolean
   fetchElection: VoidFunction
-  updateAppPrecinctId: (appPrecinctId: string) => void
+  updateAppPrecinct: (appPrecinct: PrecinctSelection) => void
   toggleLiveMode: VoidFunction
   unconfigure: () => Promise<void>
   machineConfig: MachineConfig
 }
 
+const ALL_PRECINCTS_OPTION_VALUE = '_ALL'
+
 const AdminScreen: React.FC<Props> = ({
-  appPrecinctId,
+  appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
   isLiveMode,
   fetchElection,
-  updateAppPrecinctId,
+  updateAppPrecinct,
   toggleLiveMode,
   unconfigure,
   machineConfig,
 }) => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
-    updateAppPrecinctId(event.currentTarget.value)
+    const precinctId = event.currentTarget.value
+
+    if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
+      updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts })
+    } else {
+      updateAppPrecinct({
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: event.currentTarget.value,
+      })
+    }
   }
 
   const [isFetchingElection, setIsFetchingElection] = useState(false)
@@ -79,7 +96,7 @@ const AdminScreen: React.FC<Props> = ({
   if (isTestDeck && electionDefinition) {
     return (
       <TestBallotDeckScreen
-        appPrecinctId={appPrecinctId}
+        appPrecinct={appPrecinct}
         electionDefinition={electionDefinition}
         hideTestDeck={hideTestDeck}
         machineConfig={machineConfig}
@@ -102,12 +119,19 @@ const AdminScreen: React.FC<Props> = ({
                 <p>
                   <Select
                     id="selectPrecinct"
-                    value={appPrecinctId ?? ''}
+                    value={
+                      appPrecinct?.kind === PrecinctSelectionKind.AllPrecincts
+                        ? ALL_PRECINCTS_OPTION_VALUE
+                        : appPrecinct?.precinctId ?? ''
+                    }
                     onBlur={changeAppPrecinctId}
                     onChange={changeAppPrecinctId}
                   >
                     <option value="" disabled>
                       Select a precinct for this device…
+                    </option>
+                    <option value={ALL_PRECINCTS_OPTION_VALUE}>
+                      {AllPrecinctsDisplayName}
                     </option>
                     {[...election.precincts]
                       .sort((a, b) =>
@@ -211,7 +235,7 @@ const AdminScreen: React.FC<Props> = ({
             {electionDefinition && (
               <ElectionInfo
                 electionDefinition={electionDefinition}
-                precinctId={appPrecinctId}
+                precinctSelection={appPrecinct}
                 horizontal
               />
             )}
