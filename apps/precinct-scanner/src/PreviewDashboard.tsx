@@ -1,8 +1,13 @@
 /* istanbul ignore file */
 
-import { electionSampleDefinition } from '@votingworks/fixtures'
-import React from 'react'
+import {
+  ElectionDefinition,
+  safeParseElectionDefinition,
+} from '@votingworks/types'
+import { Select } from '@votingworks/ui'
+import React, { useCallback, useRef, useState } from 'react'
 import { BrowserRouter, Link, Route } from 'react-router-dom'
+import styled from 'styled-components'
 import AppContext from './contexts/AppContext'
 
 export interface PreviewableModule {
@@ -54,10 +59,54 @@ export function getPreviews(mod: PreviewableModule): PreviewableComponent {
 
 export interface Props {
   modules: readonly PreviewableModule[]
+  electionDefinitions: readonly ElectionDefinition[]
 }
 
-const PreviewDashboard: React.FC<Props> = ({ modules }) => {
+const ConfigBox = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  width: auto;
+`
+
+const PreviewDashboard: React.FC<Props> = ({
+  modules,
+  electionDefinitions: initialElectionDefinitions,
+}) => {
   const previewables = modules.map(getPreviews)
+  const [electionDefinition, setElectionDefinition] = useState(
+    initialElectionDefinitions[0]
+  )
+  const [electionDefinitions, setElectionDefinitions] = useState(
+    initialElectionDefinitions
+  )
+  const electionDefinitionFileRef = useRef<HTMLInputElement>(null)
+
+  const onElectionDefinitionSelected: React.ChangeEventHandler<HTMLSelectElement> = useCallback(
+    (event) => {
+      const { value } = event.target.selectedOptions[0]
+      if (value === 'custom') {
+        electionDefinitionFileRef.current?.click()
+      } else {
+        setElectionDefinition(electionDefinitions[event.target.selectedIndex])
+      }
+    },
+    [electionDefinitions, electionDefinitionFileRef]
+  )
+  const onElectionDefinitionFileChosen: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+    async (event) => {
+      const file = event.target.files?.[0]
+      if (file) {
+        const json = await file.text()
+        const result = safeParseElectionDefinition(json)
+        if (result.isOk()) {
+          setElectionDefinitions((prev) => [...prev, result.ok()])
+          setElectionDefinition(result.ok())
+        }
+      }
+    },
+    []
+  )
 
   return (
     <AppContext.Provider
@@ -66,28 +115,62 @@ const PreviewDashboard: React.FC<Props> = ({ modules }) => {
           codeVersion: 'preview',
           machineId: '000',
         },
-        electionDefinition: electionSampleDefinition,
+        electionDefinition,
       }}
     >
       <BrowserRouter>
         <Route path="/preview" exact>
           <h1>Previews</h1>
-          {previewables.map(({ componentName, previews }) => {
-            return (
-              <React.Fragment key={componentName}>
-                <h2>{componentName}</h2>
-                <ul>
-                  {previews.map((preview) => (
-                    <li key={preview.previewName}>
-                      <Link to={getPreviewURL(preview)}>
-                        {preview.previewName}
-                      </Link>
-                    </li>
+          <div style={{ minWidth: '60%' }}>
+            {previewables.map(({ componentName, previews }) => {
+              return (
+                <React.Fragment key={componentName}>
+                  <h2>{componentName}</h2>
+                  <ul>
+                    {previews.map((preview) => (
+                      <li key={preview.previewName}>
+                        <Link to={getPreviewURL(preview)}>
+                          {preview.previewName}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </React.Fragment>
+              )
+            })}
+          </div>
+          <ConfigBox>
+            <Select
+              value={electionDefinition.electionHash}
+              onChange={onElectionDefinitionSelected}
+            >
+              <optgroup label="Presets">
+                {initialElectionDefinitions.map(
+                  ({ election, electionHash }) => (
+                    <option key={electionHash} value={electionHash}>
+                      {election.title}
+                    </option>
+                  )
+                )}
+              </optgroup>
+              <optgroup label="Custom">
+                {electionDefinitions
+                  .slice(initialElectionDefinitions.length)
+                  .map(({ election, electionHash }) => (
+                    <option key={electionHash} value={electionHash}>
+                      {election.title}
+                    </option>
                   ))}
-                </ul>
-              </React.Fragment>
-            )
-          })}
+                <option value="custom">Load from file…</option>
+              </optgroup>
+            </Select>
+            <input
+              ref={electionDefinitionFileRef}
+              style={{ display: 'none' }}
+              type="file"
+              onChange={onElectionDefinitionFileChosen}
+            />
+          </ConfigBox>
         </Route>
         {previewables.map((previewable) =>
           previewable.previews.map((preview) => (
