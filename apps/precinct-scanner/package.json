@@ -73,7 +73,6 @@
     "@rooks/use-interval": "^4.11.2",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^24.0.0",
     "@types/luxon": "^1.26.5",
     "@types/node": "^12.20.11",
@@ -110,6 +109,7 @@
   },
   "devDependencies": {
     "@codemod/parser": "^1.0.6",
+    "@testing-library/user-event": "^12.8.3",
     "@types/debug": "^4.1.5",
     "@types/kiosk-browser": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^4.16.1",

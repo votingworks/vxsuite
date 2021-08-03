@@ -1,11 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
+import PreviewApp from './PreviewApp'
 import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    {process.env.NODE_ENV === 'development' &&
+    window.location.pathname.startsWith('/preview') ? (
+      <PreviewApp />
+    ) : (
+      <App />
+    )}
   </React.StrictMode>,
   document.getElementById('root')
 )

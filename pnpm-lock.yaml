@@ -773,7 +773,6 @@ importers:
       '@rooks/use-interval': 4.11.2_react@17.0.1
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
-      '@testing-library/user-event': 12.6.0
       '@types/jest': 24.9.1
       '@types/luxon': 1.26.5
       '@types/node': 12.20.11
@@ -809,6 +808,7 @@ importers:
       web-vitals: 1.1.1
     devDependencies:
       '@codemod/parser': 1.1.0
+      '@testing-library/user-event': 12.8.3
       '@types/debug': 4.1.5
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
       '@typescript-eslint/eslint-plugin': 4.22.0_7ef97ee536f89da2106f80dea587ccaa
@@ -847,7 +847,7 @@ importers:
       '@rooks/use-interval': ^4.11.2
       '@testing-library/jest-dom': ^5.11.4
       '@testing-library/react': ^11.1.0
-      '@testing-library/user-event': ^12.1.10
+      '@testing-library/user-event': ^12.8.3
       '@types/debug': ^4.1.5
       '@types/jest': ^24.0.0
       '@types/kiosk-browser': workspace:*
@@ -7525,7 +7525,7 @@ packages:
   /@testing-library/dom/7.30.4:
     dependencies:
       '@babel/code-frame': 7.14.5
-      '@babel/runtime': 7.14.5
+      '@babel/runtime': 7.14.6
       '@types/aria-query': 4.2.1
       aria-query: 4.2.2
       chalk: 4.1.1
@@ -7599,14 +7599,23 @@ packages:
   /@testing-library/user-event/12.6.0:
     dependencies:
       '@babel/runtime': 7.12.5
+      '@testing-library/dom': 7.30.4
     dev: false
     engines:
       node: '>=10'
       npm: '>=6'
-    peerDependencies:
-      '@testing-library/dom': '>=7.21.4'
     resolution:
       integrity: sha512-FNEH/HLmOk5GO70I52tKjs7WvGYckeE/SrnLX/ip7z2IGbffyd5zOUM1tZ10vsTphqm+VbDFI0oaXu0wcfQsAQ==
+  /@testing-library/user-event/12.8.3:
+    dependencies:
+      '@babel/runtime': 7.14.6
+      '@testing-library/dom': 7.30.4
+    dev: true
+    engines:
+      node: '>=10'
+      npm: '>=6'
+    resolution:
+      integrity: sha512-IR0iWbFkgd56Bu5ZI/ej8yQwrkCv8Qydx6RzwbKz9faXazR/+5tvYKsZQgyXJiwgpcva127YO6JcWy7YlCfofQ==
   /@tootallnate/once/1.1.2:
     dev: true
     engines:
@@ -19292,7 +19301,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.1
-      jest: 26.6.3_canvas@2.6.1
+      jest: 26.6.3_ts-node@9.1.1
       jest-regex-util: 27.0.1
       jest-watcher: 27.0.2
       slash: 3.0.0
@@ -26413,7 +26422,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3_canvas@2.6.1
+      jest: 26.6.3_ts-node@9.1.1
       jest-util: 26.6.2
       json5: 2.2.0
       lodash: 4.17.20
@@ -26436,7 +26445,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3_ts-node@9.1.1
+      jest: 26.6.3
       jest-util: 26.6.2
       json5: 2.2.0
       lodash: 4.17.21
