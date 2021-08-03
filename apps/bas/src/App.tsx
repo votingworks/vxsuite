@@ -11,7 +11,7 @@ import fetchJSON from './utils/fetchJSON'
 
 import { CardAPI, EventTargetFunction } from './config/types'
 
-import useStateAndLocalStorage from './hooks/useStateWithLocalStorage'
+import useStateWithLocalStorage from './hooks/useStateWithLocalStorage'
 
 import AdminScreen from './screens/AdminScreen'
 import InsertCardScreen from './screens/InsertCardScreen'
@@ -40,16 +40,16 @@ const App: React.FC = () => {
   const [
     isSinglePrecinctMode,
     setIsSinglePrecinctMode,
-  ] = useStateAndLocalStorage<boolean>('singlePrecinctMode')
-  const [election, setElection] = useStateAndLocalStorage<OptionalElection>(
+  ] = useStateWithLocalStorage<boolean>('singlePrecinctMode')
+  const [election, setElection] = useStateWithLocalStorage<OptionalElection>(
     'election'
   )
   const [isLoadingElection, setIsLoadingElection] = useState(false)
-  const [precinctId, setPrecinctId] = useStateAndLocalStorage<string>(
+  const [precinctId, setPrecinctId] = useStateWithLocalStorage<string>(
     'precinctId'
   )
   const [ballotStyleId, setBallotStyleId] = useState<string>('')
-  const [partyId, setPartyId] = useStateAndLocalStorage<string>('partyId')
+  const [partyId, setPartyId] = useStateWithLocalStorage<string>('partyId')
   const [voterCardData, setVoterCardData] = useState<Optional<VoterCardData>>(
     undefined
   )
