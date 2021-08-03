@@ -1,6 +1,9 @@
-import fetchMock, { MockRequest } from 'fetch-mock'
 import { fromByteArray, toByteArray } from 'base64-js'
-import { WebServiceCard, MemoryCard } from './Card'
+import fetchMock, { MockRequest } from 'fetch-mock'
+import { z } from 'zod'
+import { MemoryCard, WebServiceCard } from './Card'
+
+const ABSchema = z.object({ a: z.number(), b: z.number() })
 
 describe('WebServiceCard', () => {
   it('fetches card status and short value from /card/read', async () => {
@@ -22,7 +25,7 @@ describe('WebServiceCard', () => {
       longValue: JSON.stringify({ a: 1, b: 2 }),
     })
 
-    expect(await new WebServiceCard().readLongObject()).toEqual({
+    expect((await new WebServiceCard().readLongObject(ABSchema)).ok()).toEqual({
       a: 1,
       b: 2,
     })
@@ -98,7 +101,9 @@ describe('WebServiceCard', () => {
   it('gets undefined when reading object value if long value is not set', async () => {
     fetchMock.get('/card/read_long', {})
 
-    expect(await new WebServiceCard().readLongObject()).toBeUndefined()
+    expect(
+      (await new WebServiceCard().readLongObject(ABSchema)).ok()
+    ).toBeUndefined()
   })
 
   it('gets undefined when reading string value if long value is not set', async () => {
@@ -135,8 +140,8 @@ describe('MemoryCard', () => {
   it('can round-trip an object long value', async () => {
     const card = new MemoryCard().insertCard()
 
-    await card.writeLongObject({ a: 1 })
-    expect(await card.readLongObject()).toEqual({ a: 1 })
+    await card.writeLongObject({ a: 1, b: 2 })
+    expect((await card.readLongObject(ABSchema)).ok()).toEqual({ a: 1, b: 2 })
   })
 
   it('can read a string long value', async () => {
@@ -164,7 +169,7 @@ describe('MemoryCard', () => {
 
     expect(await card.readLongUint8Array()).toEqual(Uint8Array.of(1, 2, 3))
 
-    card.insertCard(undefined, JSON.stringify({ a: 1 }))
+    card.insertCard(undefined, JSON.stringify({ a: 1, b: 2 }))
 
     expect(await card.readStatus()).toEqual(
       expect.objectContaining({
@@ -172,7 +177,7 @@ describe('MemoryCard', () => {
       })
     )
 
-    expect(await card.readLongObject()).toEqual({ a: 1 })
+    expect((await card.readLongObject(ABSchema)).ok()).toEqual({ a: 1, b: 2 })
   })
 
   it('can remove a card using #removeCard', async () => {
@@ -198,7 +203,9 @@ describe('MemoryCard', () => {
   })
 
   it('gets undefined when reading an object when no long value is set', async () => {
-    expect(await new MemoryCard().insertCard().readLongObject()).toBeUndefined()
+    expect(
+      (await new MemoryCard().insertCard().readLongObject(ABSchema)).ok()
+    ).toBeUndefined()
   })
 
   it('gets undefined when reading a string when no long value is set', async () => {

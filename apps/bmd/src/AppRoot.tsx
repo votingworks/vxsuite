@@ -38,6 +38,7 @@ import {
   CardTally,
   CardAPI,
   CardPresentAPI,
+  CardTallySchema,
 } from '@votingworks/utils'
 
 import Ballot from './components/Ballot'
@@ -651,10 +652,10 @@ const AppRoot: React.FC<Props> = ({
   }, [])
 
   const resetPollWorkerCardTally = useCallback(async () => {
-    const possibleCardTally = (await card.readLongObject()) as Optional<CardTally>
+    const possibleCardTally = await card.readLongObject(CardTallySchema)
     dispatchAppState({
       type: 'updatePollWorkerCardTally',
-      talliesOnCard: possibleCardTally,
+      talliesOnCard: possibleCardTally.ok(),
     })
   }, [card])
 
@@ -757,19 +758,10 @@ const AppRoot: React.FC<Props> = ({
           const isValid =
             cardData.h === optionalElectionDefinition?.electionHash
 
-          let possibleCardTally: Optional<CardTally> =
+          const possibleCardTally =
             isValid && longValueExists
-              ? ((await card.readLongObject()) as Optional<CardTally>)
+              ? (await card.readLongObject(CardTallySchema)).ok()
               : undefined
-
-          // Handle a possible invalid object in the card long value
-          if (
-            possibleCardTally?.metadata === undefined ||
-            possibleCardTally?.tally === undefined ||
-            possibleCardTally?.tallyMachineType === undefined
-          ) {
-            possibleCardTally = undefined
-          }
 
           dispatchAppState({
             type: 'processPollWorkerCard',
