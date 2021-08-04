@@ -34,7 +34,7 @@ export interface ComponentPreview {
 export const PREVIEW_COMPONENT_SUFFIX = 'Preview'
 
 function asTitle(id: string): string {
-  return id.split(/(?=[A-Z])/).join(' ')
+  return id.split(/(?=[A-Z\d]+)/).join(' ')
 }
 
 function getPreviewURL(preview: ComponentPreview): string {
