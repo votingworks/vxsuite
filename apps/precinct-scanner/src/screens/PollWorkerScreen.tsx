@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import makeDebug from 'debug'
 
 import { Button, Prose, Loading } from '@votingworks/ui'
@@ -172,3 +172,27 @@ const PollWorkerScreen: React.FC<Props> = ({
 }
 
 export default PollWorkerScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  const [isPollsOpen, setIsPollsOpen] = useState(false)
+
+  const getCVRsFromExport = useCallback(async () => [], [])
+  const saveTallyToCard = useCallback(async () => {
+    // nothing to do
+  }, [])
+  const togglePollsOpen = useCallback(() => {
+    setIsPollsOpen((prev) => !prev)
+  }, [])
+
+  return (
+    <PollWorkerScreen
+      ballotsScannedCount={0}
+      getCVRsFromExport={getCVRsFromExport}
+      isLiveMode
+      isPollsOpen={isPollsOpen}
+      saveTallyToCard={saveTallyToCard}
+      togglePollsOpen={togglePollsOpen}
+    />
+  )
+}

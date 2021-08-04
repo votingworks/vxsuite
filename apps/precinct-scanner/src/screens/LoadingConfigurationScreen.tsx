@@ -12,3 +12,8 @@ const LoadingConfigurationScreen: React.FC = () => (
 )
 
 export default LoadingConfigurationScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  return <LoadingConfigurationScreen />
+}

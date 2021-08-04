@@ -121,12 +121,12 @@ const PreviewDashboard: React.FC<Props> = ({
       <BrowserRouter>
         <Route path="/preview" exact>
           <h1>Previews</h1>
-          <div style={{ minWidth: '60%' }}>
+          <div style={{ columns: '3' }}>
             {previewables.map(({ componentName, previews }) => {
               return (
-                <React.Fragment key={componentName}>
-                  <h2>{componentName}</h2>
-                  <ul>
+                <div key={componentName} style={{ breakInside: 'avoid' }}>
+                  <h4 style={{ marginBottom: '2px' }}>{componentName}</h4>
+                  <ul style={{ marginTop: '0' }}>
                     {previews.map((preview) => (
                       <li key={preview.previewName}>
                         <Link to={getPreviewURL(preview)}>
@@ -135,7 +135,7 @@ const PreviewDashboard: React.FC<Props> = ({
                       </li>
                     ))}
                   </ul>
-                </React.Fragment>
+                </div>
               )
             })}
           </div>

@@ -59,3 +59,63 @@ const ScanErrorScreen: React.FC<Props> = ({
 }
 
 export default ScanErrorScreen
+
+/* istanbul ignore next */
+export const UnreadablePreview: React.FC = () => {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      rejectionReason={RejectedScanningReason.Unreadable}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const InvalidElectionHashPreview: React.FC = () => {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      rejectionReason={RejectedScanningReason.InvalidElectionHash}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const InvalidTestModeBallotPreview: React.FC = () => {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      rejectionReason={RejectedScanningReason.InvalidTestMode}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const InvalidLiveModeBallotPreview: React.FC = () => {
+  return (
+    <ScanErrorScreen
+      isTestMode
+      rejectionReason={RejectedScanningReason.InvalidTestMode}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const InvalidPrecinctPreview: React.FC = () => {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      rejectionReason={RejectedScanningReason.InvalidPrecinct}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const UnknownErrorPreview: React.FC = () => {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      rejectionReason={RejectedScanningReason.Unknown}
+    />
+  )
+}

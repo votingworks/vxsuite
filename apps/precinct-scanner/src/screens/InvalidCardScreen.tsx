@@ -3,7 +3,7 @@ import React from 'react'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { TimesCircle } from '../components/Graphics'
 
-const SetupCardReaderPage: React.FC = () => (
+const InvalidCardScreen: React.FC = () => (
   <CenteredScreen infoBar={false}>
     <TimesCircle />
     <CenteredLargeProse>
@@ -12,4 +12,9 @@ const SetupCardReaderPage: React.FC = () => (
   </CenteredScreen>
 )
 
-export default SetupCardReaderPage
+export default InvalidCardScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  return <InvalidCardScreen />
+}
