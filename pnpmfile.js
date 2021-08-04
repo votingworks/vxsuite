@@ -100,6 +100,15 @@ function readPackage(pkg, context) {
     context.log('jest-circus requires prettier to format code for inline snapshots')
   }
 
+  if (pkg.name === '@testing-library/user-event') {
+    // Cannot find module '@testing-library/dom'
+    pkg.dependencies = {
+      ...pkg.dependencies,
+      '@testing-library/dom': '*',
+    }
+    context.log('@testing-library/user-event requires @testing-library/dom')
+  }
+
   if (/^\^?4\.2\./.test(pkg.dependencies['graceful-fs'])) {
     // Object prototype may only be an Object or null: undefined
     // Caused by https://github.com/isaacs/node-graceful-fs/commit/c55c1b8cb32510f92bd33d7c833364ecd3964dea

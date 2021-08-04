@@ -1,5 +1,6 @@
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, CandidateContest } from '@votingworks/types'
 import { Button, Prose, Text } from '@votingworks/ui'
+import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
@@ -8,7 +9,6 @@ import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import Modal from '../components/Modal'
 import {
   AdjudicationReasonInfo,
-  BlankBallotAdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
 } from '../config/types'
 import AppContext from '../contexts/AppContext'
@@ -24,6 +24,8 @@ const ScanWarningScreen: React.FC<Props> = ({
   adjudicationReasonInfo,
 }) => {
   const { electionDefinition } = useContext(AppContext)
+  assert(electionDefinition)
+
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = () => setConfirmTabulate(true)
   const closeConfirmTabulateModal = () => setConfirmTabulate(false)
@@ -37,14 +39,12 @@ const ScanWarningScreen: React.FC<Props> = ({
     (a): a is OvervoteAdjudicationReasonInfo =>
       a.type === AdjudicationReason.Overvote
   )
-  const blankReasons = adjudicationReasonInfo.filter(
-    (a): a is BlankBallotAdjudicationReasonInfo =>
-      a.type === AdjudicationReason.BlankBallot
+  const isBlank = adjudicationReasonInfo.some(
+    (a) => a.type === AdjudicationReason.BlankBallot
   )
   const isOvervote = overvoteReasons.length > 0
-  const isBlank = blankReasons.length > 0
 
-  const overvoteContests = electionDefinition!.election.contests.filter((c) =>
+  const overvoteContests = electionDefinition.election.contests.filter((c) =>
     overvoteReasons.some((o) => c.id === o.contestId)
   )
   const overvoteContestNames = toSentence(
@@ -103,3 +103,112 @@ const ScanWarningScreen: React.FC<Props> = ({
 }
 
 export default ScanWarningScreen
+
+/* istanbul ignore next */
+export const OvervotePreview: React.FC = () => {
+  const { electionDefinition } = useContext(AppContext)
+  assert(electionDefinition)
+
+  const contest = electionDefinition.election.contests.find(
+    (c): c is CandidateContest =>
+      c.type === 'candidate' && c.seats === 1 && c.candidates.length > 1
+  )
+  assert(contest)
+
+  return (
+    <ScanWarningScreen
+      acceptBallot={() => Promise.resolve()}
+      adjudicationReasonInfo={[
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: contest.id,
+          optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
+          expected: contest.seats,
+        },
+      ]}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const UndervotePreview: React.FC = () => {
+  const { electionDefinition } = useContext(AppContext)
+  assert(electionDefinition)
+
+  const contest = electionDefinition.election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )
+  assert(contest)
+
+  return (
+    <ScanWarningScreen
+      acceptBallot={() => Promise.resolve()}
+      adjudicationReasonInfo={[
+        {
+          type: AdjudicationReason.Undervote,
+          contestId: contest.id,
+          optionIds: [],
+          expected: contest.seats,
+        },
+      ]}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const OvervoteAndUndervotePreview: React.FC = () => {
+  const { electionDefinition } = useContext(AppContext)
+  assert(electionDefinition)
+
+  const overvotedContest = electionDefinition.election.contests.find(
+    (c): c is CandidateContest =>
+      c.type === 'candidate' && c.seats === 1 && c.candidates.length > 1
+  )
+  assert(overvotedContest)
+  const undervotedContest = electionDefinition.election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )
+  assert(undervotedContest)
+
+  return (
+    <ScanWarningScreen
+      acceptBallot={() => Promise.resolve()}
+      adjudicationReasonInfo={[
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: overvotedContest.id,
+          optionIds: overvotedContest.candidates.map(({ id }) => id),
+          expected: overvotedContest.seats,
+        },
+        {
+          type: AdjudicationReason.Undervote,
+          contestId: undervotedContest.id,
+          optionIds: [],
+          expected: undervotedContest.seats,
+        },
+      ]}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const BlankBallotPreview: React.FC = () => {
+  return (
+    <ScanWarningScreen
+      acceptBallot={() => Promise.resolve()}
+      adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const UninterpretableBallotPreview: React.FC = () => {
+  return (
+    <ScanWarningScreen
+      acceptBallot={() => Promise.resolve()}
+      adjudicationReasonInfo={[
+        { type: AdjudicationReason.UninterpretableBallot },
+      ]}
+    />
+  )
+}

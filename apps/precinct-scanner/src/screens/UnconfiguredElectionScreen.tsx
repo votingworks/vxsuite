@@ -187,3 +187,13 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
 }
 
 export default UnconfiguredElectionScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  return (
+    <UnconfiguredElectionScreen
+      usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
+      setElectionDefinition={() => Promise.resolve()}
+    />
+  )
+}

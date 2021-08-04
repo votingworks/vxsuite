@@ -31,3 +31,13 @@ const InsertBallotScreen: React.FC<Props> = ({ scannedBallotCount }) => {
   )
 }
 export default InsertBallotScreen
+
+/* istanbul ignore next */
+export const ZeroBallotsScannedPreview: React.FC = () => {
+  return <InsertBallotScreen scannedBallotCount={0} />
+}
+
+/* istanbul ignore next */
+export const ManyBallotsScannedPreview: React.FC = () => {
+  return <InsertBallotScreen scannedBallotCount={1234} />
+}

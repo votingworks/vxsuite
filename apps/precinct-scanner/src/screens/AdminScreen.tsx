@@ -1,4 +1,4 @@
-import { SelectChangeEventFunction } from '@votingworks/types'
+import { Precinct, SelectChangeEventFunction } from '@votingworks/types'
 import {
   Button,
   Loading,
@@ -244,3 +244,35 @@ const AdminScreen: React.FC<Props> = ({
 }
 
 export default AdminScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC =
+  process.env.NODE_ENV === 'development'
+    ? () => {
+        const { machineConfig, electionDefinition } = useContext(AppContext)
+        const [isTestMode, setIsTestMode] = useState(false)
+        const [precinctId, setPrecinctId] = useState<Precinct['id']>()
+        return (
+          <AppContext.Provider
+            value={{
+              machineConfig,
+              electionDefinition,
+              currentPrecinctId: precinctId,
+            }}
+          >
+            <AdminScreen
+              calibrate={() => Promise.resolve(true)}
+              isTestMode={isTestMode}
+              toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
+              scannedBallotCount={1234}
+              unconfigure={() => Promise.resolve()}
+              updateAppPrecinctId={async (precinctId) =>
+                setPrecinctId(precinctId)
+              }
+              usbDriveEject={() => Promise.resolve()}
+              usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
+            />
+          </AppContext.Provider>
+        )
+      }
+    : () => null

@@ -15,7 +15,8 @@ then run the app like so:
 pnpm start
 ```
 
-The server will be available at http://localhost:3000/.
+The server will be available at http://localhost:3000/. You may find it easier
+to get to certain states from http://localhost:3000/preview.
 
 To set the election configuration you will need to load a ballot export zip file
 from [election-manager](../election-manager). It should be on a USB drive

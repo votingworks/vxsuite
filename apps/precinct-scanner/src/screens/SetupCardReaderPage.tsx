@@ -11,3 +11,8 @@ const SetupCardReaderPage: React.FC = () => (
 )
 
 export default SetupCardReaderPage
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  return <SetupCardReaderPage />
+}
