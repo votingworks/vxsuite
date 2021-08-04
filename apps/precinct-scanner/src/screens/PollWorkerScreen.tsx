@@ -187,7 +187,7 @@ export const DefaultPreview: React.FC = () => {
 
   return (
     <PollWorkerScreen
-      ballotsScannedCount={0}
+      scannedBallotCount={0}
       getCVRsFromExport={getCVRsFromExport}
       isLiveMode
       isPollsOpen={isPollsOpen}
