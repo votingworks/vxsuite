@@ -35,3 +35,8 @@ const ScanSuccessScreen: React.FC<Props> = ({ scannedBallotCount }) => {
 }
 
 export default ScanSuccessScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  return <ScanSuccessScreen scannedBallotCount={1} />
+}

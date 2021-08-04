@@ -12,3 +12,8 @@ const ScanProcessingScreen: React.FC = () => (
 )
 
 export default ScanProcessingScreen
+
+/* istanbul ignore next */
+export const DefaultPreview: React.FC = () => {
+  return <ScanProcessingScreen />
+}
