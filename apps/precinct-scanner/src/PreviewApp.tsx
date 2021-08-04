@@ -13,6 +13,7 @@ import * as InvalidCardScreen from './screens/InvalidCardScreen'
 import * as LoadingConfigurationScreen from './screens/LoadingConfigurationScreen'
 import * as PollsClosedScreen from './screens/PollsClosedScreen'
 import * as PollWorkerScreen from './screens/PollWorkerScreen'
+import * as ScanErrorScreen from './screens/ScanErrorScreen'
 import * as ScanProcessingScreen from './screens/ScanProcessingScreen'
 import * as ScanSuccessScreen from './screens/ScanSuccessScreen'
 import * as ScanWarningScreen from './screens/ScanWarningScreen'
@@ -34,6 +35,7 @@ const PreviewApp: React.FC = () => {
         LoadingConfigurationScreen,
         PollsClosedScreen,
         PollWorkerScreen,
+        ScanErrorScreen,
         ScanProcessingScreen,
         ScanSuccessScreen,
         ScanWarningScreen,
