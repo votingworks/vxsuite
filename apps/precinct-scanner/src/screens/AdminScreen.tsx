@@ -6,7 +6,7 @@ import {
   SegmentedButton,
   Select,
 } from '@votingworks/ui'
-import { formatFullDateTimeZone, usbstick } from '@votingworks/utils'
+import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils'
 import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useState } from 'react'
 import { Absolute } from '../components/Absolute'
@@ -181,7 +181,9 @@ const AdminScreen: React.FC<Props> = ({
         <Bar>
           <div>
             Ballots Scanned:{' '}
-            <strong data-testid="ballot-count">{scannedBallotCount}</strong>{' '}
+            <strong data-testid="ballot-count">
+              {format.count(scannedBallotCount)}
+            </strong>{' '}
           </div>
         </Bar>
       </Absolute>
