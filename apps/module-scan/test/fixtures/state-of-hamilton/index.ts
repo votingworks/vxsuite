@@ -1,7 +1,8 @@
+import { parseElection } from '@votingworks/types'
 import { join } from 'path'
-import election from './election'
+import electionJSON from './election.json'
 
-export { election }
+export const election = parseElection(electionJSON)
 export const ballotPdf = join(__dirname, 'ballot.pdf')
 export const filledInPage1 = join(__dirname, 'filled-in-dual-language-p1.jpg')
 export const filledInPage2 = join(__dirname, 'filled-in-dual-language-p2.jpg')

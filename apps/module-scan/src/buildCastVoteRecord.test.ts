@@ -10,7 +10,7 @@ import {
   MsEitherNeitherContest,
 } from '@votingworks/types'
 import { electionWithMsEitherNeither } from '@votingworks/fixtures'
-import election from '../test/fixtures/2020-choctaw/election'
+import { election } from '../test/fixtures/2020-choctaw'
 import {
   buildCastVoteRecord,
   getCVRBallotType,
