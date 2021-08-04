@@ -224,8 +224,8 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
     body: { status: 'error' },
   })
 
-  fireEvent.click(await screen.findByText('Tabulate Ballot'))
-  fireEvent.click(await screen.findByText('Yes, Tabulate Ballot'))
+  fireEvent.click(await screen.findByText('Count Ballot'))
+  fireEvent.click(await screen.findByText('Yes, count ballot with errors'))
   await screen.findByText('Scanning Error')
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
   await advanceTimersAndPromises(5)

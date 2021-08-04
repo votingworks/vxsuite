@@ -655,9 +655,9 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     body: { status: 'ok' },
   })
 
-  fireEvent.click(await screen.findByText('Tabulate Ballot'))
-  await screen.findByText('Tabulate Ballot with Errors?')
-  fireEvent.click(await screen.findByText('Yes, Tabulate Ballot'))
+  fireEvent.click(await screen.findByText('Count Ballot'))
+  await screen.findByText('Count ballot with errors?')
+  fireEvent.click(await screen.findByText('Yes, count ballot with errors'))
   fetchMock.get(
     '/scan/status',
     {
