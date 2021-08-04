@@ -960,7 +960,7 @@ const AppRoot: React.FC<Props> = ({
         }}
       >
         <PollWorkerScreen
-          ballotsScannedCount={scannedBallotCount}
+          scannedBallotCount={scannedBallotCount}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
           saveTallyToCard={saveTallyToCard}
