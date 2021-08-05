@@ -396,6 +396,15 @@ export default class Importer {
     }
   }
 
+  private async setScanningComplete(error?: string): Promise<void> {
+    if (this.batchId) {
+      await this.workspace.store.setScanningCompleteForBatch({
+        batchId: this.batchId,
+        error,
+      })
+    }
+  }
+
   /**
    * Scan a single sheet and see how it looks
    */
@@ -416,6 +425,7 @@ export default class Importer {
 
       const adjudicationStatus = await this.workspace.store.adjudicationStatus()
       if (adjudicationStatus.remaining === 0) {
+        await this.setScanningComplete()
         if (!(await this.sheetGenerator.acceptSheet())) {
           debug('failed to accept interpreted sheet: %s', sheetId)
         }
@@ -423,6 +433,7 @@ export default class Importer {
       } else {
         const castability = await this.getNextAdjudicationCastability()
         if (castability) {
+          await this.setScanningComplete()
           if (castability === Castability.Uncastable) {
             await this.sheetGenerator.rejectSheet()
           } else {

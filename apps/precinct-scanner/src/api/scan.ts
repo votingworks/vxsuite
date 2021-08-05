@@ -58,7 +58,10 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
       throw new Error(`batch not found: ${batchId}`)
     }
 
-    if (batch.endedAt && status.adjudication.remaining === 0) {
+    if (
+      (batch.scanningCompleteAt || batch.endedAt) &&
+      status.adjudication.remaining === 0
+    ) {
       if (batch.count === 0) {
         // This can happen if the paper is yanked out during scanning.
         return {

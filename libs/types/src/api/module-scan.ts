@@ -26,6 +26,7 @@ export interface BatchInfo {
   id: string
   startedAt: ISO8601Timestamp
   endedAt?: ISO8601Timestamp
+  scanningCompleteAt?: ISO8601Timestamp
   error?: string
   count: number
 }

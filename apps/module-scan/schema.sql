@@ -2,6 +2,7 @@ create table batches (
   id varchar(36) primary key,
   started_at datetime default current_timestamp not null,
   ended_at datetime,
+  scanning_complete_at datetime,
   error varchar(4000)
 );
 

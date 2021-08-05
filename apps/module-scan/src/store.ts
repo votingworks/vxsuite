@@ -549,6 +549,25 @@ export default class Store {
     )
   }
 
+  /**
+   * Marks scanning complete for the batch with id `batchId`.
+   * This may be different then ended_at in cases such as the precinct_scanner where there are post-scanning
+   * actions like ejecting the ballot to complete.
+   */
+  public async setScanningCompleteForBatch({
+    batchId,
+    error,
+  }: {
+    batchId: string
+    error?: string
+  }): Promise<void> {
+    await this.dbRunAsync(
+      'update batches set scanning_complete_at = current_timestamp, error = ? where id = ?',
+      error,
+      batchId
+    )
+  }
+
   public async addBallotCard(batchId: string): Promise<string> {
     const id = uuid()
     await this.dbRunAsync(
@@ -1050,6 +1069,7 @@ export default class Store {
       id: string
       startedAt: string
       endedAt: string | null
+      scanningCompleteAt: string | null
       error: string | null
       count: number
     }
@@ -1058,6 +1078,7 @@ export default class Store {
         batches.id as id,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
+        (case when scanning_complete_at is null then scanning_complete_at else strftime('%s', scanning_complete_at) end) as scanningCompleteAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -1080,6 +1101,10 @@ export default class Store {
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
+        undefined,
+      scanningCompleteAt:
+        (info.scanningCompleteAt &&
+          DateTime.fromSeconds(Number(info.scanningCompleteAt)).toISO()) ||
         undefined,
       error: info.error || undefined,
       count: info.count,
