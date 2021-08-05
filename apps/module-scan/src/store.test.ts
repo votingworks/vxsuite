@@ -320,9 +320,6 @@ test('adjudication', async () => {
   )
 
   // check the review paths
-  const reviewBallot = await store.getNextReviewBallot()
-  expect(reviewBallot?.ballot?.id).toEqual(ballotId)
-
   const reviewSheet = await store.getNextAdjudicationSheet()
   expect(reviewSheet?.id).toEqual(ballotId)
 

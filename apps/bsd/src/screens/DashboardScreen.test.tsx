@@ -26,7 +26,6 @@ test('null state', () => {
         deleteBatch={deleteBatch}
         isScanning={false}
         status={status}
-        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )
@@ -62,7 +61,6 @@ test('shows scanned ballot count', () => {
         deleteBatch={deleteBatch}
         isScanning={false}
         status={status}
-        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )
@@ -87,12 +85,7 @@ test('shows whether a batch is scanning', () => {
   }
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen
-        deleteBatch={deleteBatch}
-        isScanning
-        status={status}
-        adjudicationStatus={noneLeftAdjudicationStatus}
-      />
+      <DashboardScreen deleteBatch={deleteBatch} isScanning status={status} />
     </Router>
   )
 
@@ -125,7 +118,6 @@ test('allows deleting a batch', async () => {
         deleteBatch={deleteBatch}
         isScanning={false}
         status={status}
-        adjudicationStatus={noneLeftAdjudicationStatus}
       />
     </Router>
   )

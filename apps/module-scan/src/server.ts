@@ -50,13 +50,11 @@ import bodyParser from 'body-parser'
 import express, { Application, RequestHandler } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
-import * as path from 'path'
 import backup from './backup'
 import {
   MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
   MODULE_SCAN_PORT,
   MODULE_SCAN_WORKSPACE,
-  NODE_ENV,
   VX_MACHINE_TYPE,
 } from './globals'
 import Importer from './importer'
@@ -338,113 +336,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   )
 
-  if (NODE_ENV !== 'production') {
-    app.post(
-      '/scan/scanFiles',
-      upload.fields([{ name: 'files' }]) as RequestHandler,
-      async (request, response) => {
-        /* istanbul ignore next */
-        if (Array.isArray(request.files)) {
-          response.status(400).json({
-            errors: [
-              {
-                type: 'missing-ballot-files',
-                message: `expected ballot images in "files", but no files were found`,
-              },
-            ],
-          })
-          return
-        }
-
-        const { files = [] } = request.files
-
-        if (files.length % 2 === 1) {
-          response.status(400).json({
-            errors: [
-              {
-                type: 'invalid-page-count',
-                message: `expected an even number of pages for two per sheet, got ${files.length}`,
-              },
-            ],
-          })
-          return
-        } else if (files.length > 0) {
-          const batchId = await store.addBatch()
-          let i = 0
-
-          try {
-            for (; i < files.length; i += 2) {
-              const front = files[i].path
-              const back = files[i + 1].path
-
-              await importer.importFile(batchId, front, back)
-            }
-          } catch (error) {
-            response.status(400).json([
-              {
-                type: 'import-error',
-                sheet: [files[i].originalname, files[i + 1].originalname],
-                message: error.message,
-              },
-            ])
-            return
-          } finally {
-            await store.finishBatch({ batchId })
-          }
-        }
-
-        response.json({ status: 'ok' })
-      }
-    )
-
-    app.get('/scan/sheets/:sheetId?', async (request, response) => {
-      const { sheetId }: { sheetId?: string } = request.params
-
-      const sheets = await store.dbAllAsync<
-        {
-          id: string
-          batchId: string
-          frontInterpretationJSON: string
-          backInterpretationJSON: string
-          requiresAdjudication: boolean
-          frontAdjudicationJSON: string
-          backAdjudicationJSON: string
-          deletedAt: string
-        },
-        [string] | []
-      >(
-        `
-        select
-          id,
-          batch_id as batchId,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON,
-          requires_adjudication as requiresAdjudication,
-          front_adjudication_json as frontAdjudicationJSON,
-          back_adjudication_json as backAdjudicationJSON,
-          deleted_at as deletedAt
-        from sheets
-        ${sheetId ? `where id = ?` : ''}
-        order by created_at desc
-      `,
-        ...(sheetId ? [sheetId] : [])
-      )
-
-      response.json(
-        sheets.map((sheet) => ({
-          id: sheet.id,
-          batchId: sheet.batchId,
-          frontInterpretation: JSON.parse(sheet.frontInterpretationJSON),
-          backInterpretation: JSON.parse(sheet.backInterpretationJSON),
-          requiresAdjudication: sheet.requiresAdjudication,
-          frontAdjudication: JSON.parse(sheet.frontAdjudicationJSON),
-          backAdjudication: JSON.parse(sheet.backAdjudicationJSON),
-          deletedAt: sheet.deletedAt,
-        }))
-      )
-    })
-  }
-
   app.post<NoParams, AddTemplatesResponse, AddTemplatesRequest>(
     '/scan/hmpb/addTemplates',
     upload.fields([
@@ -590,18 +481,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.patch('/scan/hmpb/ballot/:sheetId/:side', async (request, response) => {
-    const { sheetId, side } = request.params
-
-    if (typeof sheetId !== 'string' || (side !== 'front' && side !== 'back')) {
-      response.status(404)
-      return
-    }
-
-    await store.saveBallotAdjudication(sheetId, side, request.body)
-    response.json({ status: 'ok' })
-  })
-
   app.get(
     '/scan/hmpb/ballot/:sheetId/:side/image',
     async (request, response) => {
@@ -648,16 +527,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.delete('/scan/batch/:batchId', async (request, response) => {
     if (await store.deleteBatch(request.params.batchId)) {
       response.json({ status: 'ok' })
-    } else {
-      response.status(404).end()
-    }
-  })
-
-  app.get('/scan/hmpb/review/next-ballot', async (_request, response) => {
-    const ballot = await store.getNextReviewBallot()
-
-    if (ballot) {
-      response.json(ballot)
     } else {
       response.status(404).end()
     }
@@ -723,7 +592,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
       .pipe(response)
   })
 
-  app.use(express.static(path.join(__dirname, '..', 'public')))
   app.get('/*', (request, response) => {
     const url = new URL(`http://${request.get('host')}${request.originalUrl}`)
     url.port = '3000'
