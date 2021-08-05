@@ -357,7 +357,8 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "ballotStrings": {
             "officialInitials": "Initialing Manager"
         },
-        "adjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
+        "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
+        "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
         "markThresholds": { "definite": 0.17, "marginal": 0.17 }        
     }
 

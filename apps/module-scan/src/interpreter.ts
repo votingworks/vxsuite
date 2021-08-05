@@ -225,6 +225,7 @@ export interface InterpreterOptions {
   // END TODO
   testMode: boolean
   markThresholdOverrides?: MarkThresholds
+  adjudicationReasons: readonly AdjudicationReason[]
 }
 
 export default class Interpreter {
@@ -233,12 +234,14 @@ export default class Interpreter {
   private electionHash?: string
   private testMode: boolean
   private markThresholds: MarkThresholds
+  private adjudicationReasons: readonly AdjudicationReason[]
 
   public constructor({
     election,
     electionHash,
     testMode,
     markThresholdOverrides,
+    adjudicationReasons,
   }: InterpreterOptions) {
     this.election = election
     this.electionHash = electionHash
@@ -251,6 +254,7 @@ export default class Interpreter {
     }
 
     this.markThresholds = markThresholds
+    this.adjudicationReasons = adjudicationReasons
   }
 
   async addHmpbTemplate(
@@ -460,10 +464,7 @@ export default class Interpreter {
     const { votes } = ballot
 
     let requiresAdjudication = false
-    const enabledReasons = this.election.adjudicationReasons ?? [
-      AdjudicationReason.UninterpretableBallot,
-      AdjudicationReason.MarginalMark,
-    ]
+    const enabledReasons = this.adjudicationReasons
 
     const allReasonInfos = [
       ...ballotAdjudicationReasons(

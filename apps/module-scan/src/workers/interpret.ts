@@ -1,6 +1,8 @@
+import { AdjudicationReason } from '@votingworks/types'
 import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
+import { ScannerLocation, SCANNER_LOCATION } from '../globals'
 import { saveImages } from '../importer'
 import Interpreter, {
   InterpretFileResult,
@@ -59,6 +61,12 @@ export async function configure(store: Store): Promise<void> {
       : electionDefinition.electionHash,
     testMode: await store.getTestMode(),
     markThresholdOverrides: await store.getMarkThresholdOverrides(),
+    adjudicationReasons: (SCANNER_LOCATION === ScannerLocation.Central
+      ? electionDefinition.election.centralScanAdjudicationReasons
+      : electionDefinition.election.precinctScanAdjudicationReasons) ?? [
+      AdjudicationReason.UninterpretableBallot,
+      AdjudicationReason.MarginalMark,
+    ],
   })
 
   debug('hand-marked paper ballot templates: %d', templates.length)

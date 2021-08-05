@@ -245,12 +245,14 @@ export const Election: z.ZodSchema<t.Election> = z
     ballotLayout: BallotLayout.optional(),
     ballotStrings: z.record(z.union([z.string(), Translations])).optional(),
     ballotStyles: BallotStyles,
+    centralScanAdjudicationReasons: z.array(AdjudicationReason).optional(),
     contests: Contests,
     county: County,
     date: ISO8601Date,
     districts: Districts,
     markThresholds: MarkThresholds.optional(),
     parties: Parties,
+    precinctScanAdjudicationReasons: z.array(AdjudicationReason).optional(),
     precincts: Precincts,
     seal: z.string().nonempty().optional(),
     sealURL: z.string().nonempty().optional(),
@@ -258,6 +260,24 @@ export const Election: z.ZodSchema<t.Election> = z
     title: z.string().nonempty(),
   })
   .superRefine((election, ctx) => {
+    if (election.adjudicationReasons) {
+      if (election.centralScanAdjudicationReasons) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['adjudicationReasons'],
+          message: `Deprecated 'adjudicationReasons' provided while also providing 'centralScanAdjudicationReasons'.`,
+        })
+      }
+
+      if (election.precinctScanAdjudicationReasons) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['adjudicationReasons'],
+          message: `Deprecated 'adjudicationReasons' provided while also providing 'precinctScanAdjudicationReasons'.`,
+        })
+      }
+    }
+
     for (const [
       ballotStyleIndex,
       { id, districts, precincts },
@@ -342,6 +362,27 @@ export const Election: z.ZodSchema<t.Election> = z
           }
         }
       }
+    }
+  })
+  /**
+   * Support loading election definitions that don't specify central/precinct
+   * for adjudication by assuming it's the same for both.
+   */
+  .transform((election) => {
+    if (
+      election.adjudicationReasons &&
+      !election.centralScanAdjudicationReasons &&
+      !election.precinctScanAdjudicationReasons
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { adjudicationReasons: _adjudicationReasons, ...rest } = election
+      return {
+        ...rest,
+        centralScanAdjudicationReasons: election.adjudicationReasons,
+        precinctScanAdjudicationReasons: election.adjudicationReasons,
+      }
+    } else {
+      return election
     }
   })
 
