@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Route, Switch, useHistory } from 'react-router-dom'
-import pluralize from 'pluralize'
 import {
   ElectionDefinition,
   MarkThresholds,
@@ -34,7 +33,6 @@ import useInterval from './hooks/useInterval'
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import DashboardScreen from './screens/DashboardScreen'
 import DebugScreen from './screens/DebugScreen'
-import BallotReviewScreen from './screens/BallotReviewScreen'
 import BallotEjectScreen from './screens/BallotEjectScreen'
 import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen'
 
@@ -385,12 +383,6 @@ const App: React.FC = () => {
               <DebugScreen isTestMode={isTestMode} />
             </Route>
           )}
-          <Route path="/review">
-            <BallotReviewScreen
-              adjudicationStatus={adjudication}
-              isTestMode={isTestMode}
-            />
-          </Route>
           <Route path="/advanced">
             <AdvancedOptionsScreen
               unconfigureServer={unconfigureServer}
@@ -410,7 +402,6 @@ const App: React.FC = () => {
               <Main>
                 <MainChild maxWidth={false}>
                   <DashboardScreen
-                    adjudicationStatus={adjudication}
                     isScanning={isScanning}
                     status={status}
                     deleteBatch={deleteBatch}
@@ -435,17 +426,6 @@ const App: React.FC = () => {
                 >
                   Export
                 </Button>
-                {false && (
-                  <LinkButton
-                    small
-                    to="/review"
-                    disabled={adjudication.remaining === 0}
-                  >
-                    Review{' '}
-                    {adjudication.remaining > 0 &&
-                      pluralize('ballots', adjudication.remaining, true)}
-                  </LinkButton>
-                )}
                 <ScanButton onPress={scanBatch} disabled={isScanning} />
               </MainNav>
               <StatusFooter />

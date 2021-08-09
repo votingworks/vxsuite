@@ -1,12 +1,6 @@
 import { ElectionDefinition } from '@votingworks/types'
 import { EventEmitter } from 'events'
-import {
-  fetchJSON,
-  BallotPackage,
-  BallotPackageEntry,
-} from '@votingworks/utils'
-import { BallotSheetInfo } from '../config/types'
-import { ReviewBallot } from '../config/ballot-review-types'
+import { BallotPackage, BallotPackageEntry } from '@votingworks/utils'
 
 import { setElection } from './config'
 
@@ -90,28 +84,4 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 
 export async function doneTemplates(): Promise<void> {
   await fetch('/scan/hmpb/doneTemplates', { method: 'POST' })
-}
-
-export function fetchBallotInfo(ballotId: string): Promise<ReviewBallot> {
-  return fetchJSON<ReviewBallot>(`/scan/hmpb/ballot/${ballotId}`)
-}
-
-export async function fetchNextBallotToReview(): Promise<
-  ReviewBallot | undefined
-> {
-  try {
-    return await fetchJSON<ReviewBallot>('/scan/hmpb/review/next-ballot')
-  } catch {
-    return undefined
-  }
-}
-
-export async function fetchNextBallotSheetToReview(): Promise<
-  BallotSheetInfo | undefined
-> {
-  try {
-    return await fetchJSON<BallotSheetInfo>('/scan/hmpb/review/next-sheet')
-  } catch {
-    return undefined
-  }
 }

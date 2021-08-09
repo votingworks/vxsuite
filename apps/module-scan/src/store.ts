@@ -826,33 +826,6 @@ export default class Store {
     }
   }
 
-  public async getNextReviewBallot(): Promise<ReviewBallot | undefined> {
-    const row = await this.dbGetAsync<
-      { id: string; front: boolean; back: boolean } | undefined
-    >(
-      `
-      select
-        id,
-        front_finished_adjudication_at is not null as front,
-        back_finished_adjudication_at is not null as back
-      from sheets
-      where
-        requires_adjudication = 1 and
-        (front_finished_adjudication_at is null or back_finished_adjudication_at is null) and
-        deleted_at is null
-      order by created_at asc
-      limit 1
-    `
-    )
-
-    if (row) {
-      debug('got next review ballot requiring adjudication (id=%s)', row.id)
-      return this.getPage(row.id, row.front ? 'front' : 'back')
-    } else {
-      debug('no review sheets requiring adjudication')
-    }
-  }
-
   public async getNextAdjudicationSheet(): Promise<
     BallotSheetInfo | undefined
   > {

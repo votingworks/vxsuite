@@ -1,11 +1,6 @@
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
 import fetchMock from 'fetch-mock'
-import {
-  addTemplates,
-  fetchBallotInfo,
-  fetchNextBallotSheetToReview,
-  fetchNextBallotToReview,
-} from './hmpb'
+import { addTemplates, fetchNextBallotSheetToReview } from './hmpb'
 import * as config from './config'
 
 jest.mock('./config')
@@ -89,21 +84,6 @@ test('emits error on API failure', async () => {
         })
     })
   ).rejects.toThrowError()
-})
-
-test('can fetch ballot info by id', async () => {
-  fetchMock.getOnce('/scan/hmpb/ballot/42', { status: 200, body: {} })
-  await expect(fetchBallotInfo('42')).resolves.toBeDefined()
-})
-
-test('can fetch the next ballot needing review', async () => {
-  fetchMock.getOnce('/scan/hmpb/review/next-ballot', { status: 200, body: {} })
-  await expect(fetchNextBallotToReview()).resolves.toBeDefined()
-})
-
-test('returns undefined if there are no ballots to review', async () => {
-  fetchMock.getOnce('/scan/hmpb/review/next-ballot', { status: 404, body: {} })
-  await expect(fetchNextBallotToReview()).resolves.toBeUndefined()
 })
 
 test('can fetch the next ballot sheet needing review', async () => {
