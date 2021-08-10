@@ -206,7 +206,11 @@ export class AriaScreenReader implements ScreenReader {
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
-      console.log(`[ScreenReader] speak(now: ${options.now || false}) ${text}`)
+      console.log(
+        `[ScreenReader] speak(now: ${
+          options.now || false
+        }) (muted: ${this.isMuted()}) ${text}`
+      )
     }
     await this.tts.speak(text, options)
   }

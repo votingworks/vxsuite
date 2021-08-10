@@ -142,6 +142,7 @@ const App: React.FC<Props> = ({
               hardware={internalHardware}
               storage={storage}
               machineConfig={machineConfig}
+              screenReader={screenReader}
               {...props}
             />
           )}

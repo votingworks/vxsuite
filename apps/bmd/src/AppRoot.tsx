@@ -75,6 +75,7 @@ import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
+import { ScreenReader } from './utils/ScreenReader'
 
 const debug = makeDebug('bmd:AppRoot')
 
@@ -146,6 +147,7 @@ export interface Props extends RouteComponentProps {
   machineConfig: Provider<MachineConfig>
   printer: Printer
   storage: Storage
+  screenReader: ScreenReader
 }
 
 export const electionStorageKey = 'electionDefinition'
@@ -473,6 +475,7 @@ const AppRoot: React.FC<Props> = ({
   history,
   machineConfig: machineConfigProvider,
   printer,
+  screenReader,
   storage,
 }) => {
   const PostVotingInstructionsTimeout = useRef(0)
@@ -540,6 +543,18 @@ const AppRoot: React.FC<Props> = ({
     },
     [card]
   )
+
+  // Disable the audiotrack when in admin mode
+  useEffect(() => {
+    const updateScreenReader = async () => {
+      if (isAdminCardPresent) {
+        await screenReader.disable()
+      } else {
+        await screenReader.enable()
+      }
+    }
+    void updateScreenReader()
+  }, [isAdminCardPresent, screenReader])
 
   // Handle Storing Election Locally
   useEffect(() => {
