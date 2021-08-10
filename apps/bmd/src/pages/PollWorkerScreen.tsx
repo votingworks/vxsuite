@@ -39,6 +39,7 @@ import PrecinctTallyReport from '../components/PrecinctTallyReport'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
 import Table from '../components/Table'
 import VersionsData from '../components/VersionsData'
+import triggerAudioFocus from '../utils/triggerAudioFocus'
 
 interface Props {
   activateCardlessVoterSession: (
@@ -127,6 +128,32 @@ const PollWorkerScreen: React.FC<Props> = ({
     isPrintingPrecinctScannerReport,
     setIsPrintingPrecinctScannerReport,
   ] = useState(false)
+
+  useEffect(() => {
+    // If none of the modals are open, retrigger audiofocus
+    if (
+      !isConfirmingPrecinctScannerPrint &&
+      !isConfirmingCombinedPrint &&
+      !isPrintingPrecinctScannerReport &&
+      !isPrintingCombinedReport &&
+      !isSavingTally &&
+      !isConfirmingEnableLiveMode &&
+      !isPrintingReport &&
+      !isConfirmingPrintReport
+    ) {
+      triggerAudioFocus()
+    }
+  }, [
+    cardlessVoterSessionBallotStyleId,
+    isConfirmingPrecinctScannerPrint,
+    isConfirmingCombinedPrint,
+    isPrintingPrecinctScannerReport,
+    isPrintingCombinedReport,
+    isSavingTally,
+    isConfirmingEnableLiveMode,
+    isPrintingReport,
+    isConfirmingPrintReport,
+  ])
 
   const requestPrintSingleMachineReport = () => {
     setIsPrintingReport(true)
@@ -233,7 +260,7 @@ const PollWorkerScreen: React.FC<Props> = ({
       <Screen>
         <Main>
           <MainChild center narrow>
-            <Prose>
+            <Prose id="audiofocus">
               <h1>
                 {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
                   ? `Voter session activated: ${cardlessVoterSessionBallotStyleId} @ ${activationPrecinctName}`
@@ -317,7 +344,11 @@ const PollWorkerScreen: React.FC<Props> = ({
           {' (current machine)'}
         </td>
         <td>
-          <Button small onPress={handleSavingTally}>
+          <Button
+            small
+            onPress={handleSavingTally}
+            aria-label="Save current machine tally to card"
+          >
             Save to Card
           </Button>
         </td>
@@ -369,6 +400,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                         <Button
                           fullWidth
                           key={precinct.id}
+                          aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
                           onPress={() =>
                             activateCardlessVoterSession(precinct.id)
                           }
@@ -390,6 +422,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                         <Button
                           fullWidth
                           key={bs.id}
+                          aria-label={`Activate Voter Session for Ballot Style ${bs.id}`}
                           onPress={() =>
                             activateCardlessVoterSession(
                               cardlessVoterSessionPrecinctId,
@@ -480,6 +513,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           appName={machineConfig.appMode.name}
           centerContent
           title="Poll Worker Actions"
+          screenReaderInstructions="To navigate through the available actions, use the down arrow."
           footer={
             <React.Fragment>
               <ElectionInfo
@@ -502,7 +536,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           <Modal
             centerContent
             content={
-              <Prose textCenter>
+              <Prose textCenter id="modalaudiofocus">
                 <p>
                   {isPollsOpen
                     ? 'Close Polls and print Polls Closed report?'
@@ -524,7 +558,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           <Modal
             centerContent
             content={
-              <Prose textCenter>
+              <Prose textCenter id="modalaudiofocus">
                 <Loading as="p">
                   {isPollsOpen
                     ? `Printing Polls Closed report for ${precinctName}`
@@ -538,7 +572,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           <Modal
             centerContent
             content={
-              <Prose textCenter>
+              <Prose textCenter id="modalaudiofocus">
                 {isPrintMode ? (
                   <h1>
                     Switch to Live&nbsp;Election&nbsp;Mode and reset the tally
@@ -573,19 +607,37 @@ const PollWorkerScreen: React.FC<Props> = ({
             }
           />
         )}
-        {isSavingTally && <Modal content={<Loading>Saving to card</Loading>} />}
+        {isSavingTally && (
+          <Modal
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                <Loading>Saving to card</Loading>
+              </Prose>
+            }
+          />
+        )}
         {isPrintingCombinedReport && (
-          <Modal content={<Loading>Printing combined report</Loading>} />
+          <Modal
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                <Loading>Printing combined report</Loading>
+              </Prose>
+            }
+          />
         )}
         {isPrintingPrecinctScannerReport && (
           <Modal
-            content={<Loading>Printing precinct scanner report</Loading>}
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                <Loading>Printing precinct scanner report</Loading>
+              </Prose>
+            }
           />
         )}
         {isConfirmingCombinedPrint && (
           <Modal
             content={
-              <Prose>
+              <Prose id="modalaudiofocus">
                 <p>
                   Do you want to print the combined results report from the{' '}
                   {pluralize('machine', machineMetadata.length, true)} (
@@ -610,7 +662,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           <Modal
             content={
               <Prose>
-                <p>
+                <p id="modalaudiofocus">
                   Do you want to print the precinct scanner results report and
                   clear tally data from the card?
                 </p>

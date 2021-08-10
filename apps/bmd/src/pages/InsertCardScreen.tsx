@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { ElectionDefinition } from '@votingworks/types'
 import { Main, MainChild } from '@votingworks/ui'
@@ -11,6 +11,7 @@ import Text from '../components/Text'
 import ElectionInfo from '../components/ElectionInfo'
 import { MachineConfig, PrecinctSelection } from '../config/types'
 import VersionsData from '../components/VersionsData'
+import triggerAudioFocus from '../utils/triggerAudioFocus'
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
@@ -36,6 +37,7 @@ const InsertCardScreen: React.FC<Props> = ({
   showNoAccessibleControllerWarning,
   machineConfig,
 }) => {
+  useEffect(triggerAudioFocus, [])
   return (
     <Screen flexDirection="row-reverse" white>
       <Sidebar>
@@ -50,7 +52,7 @@ const InsertCardScreen: React.FC<Props> = ({
       </Sidebar>
       <Main>
         <MainChild center>
-          <Prose textCenter>
+          <Prose textCenter id="audiofocus">
             <TestMode isLiveMode={isLiveMode} />
             {showNoChargerAttachedWarning && (
               <Text warning small>

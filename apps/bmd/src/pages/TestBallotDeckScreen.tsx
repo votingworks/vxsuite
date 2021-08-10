@@ -191,7 +191,7 @@ const TestBallotDeckScreen: React.FC<Props> = ({
               </Prose>
             ) : (
               <React.Fragment>
-                <Prose>
+                <Prose id="audiofocus">
                   <h1>Test Ballot Decks</h1>
                   <p>Select desired precinct.</p>
                 </Prose>

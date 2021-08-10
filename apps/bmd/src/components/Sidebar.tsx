@@ -9,6 +9,7 @@ interface Props {
   children?: React.ReactNode
   footer?: React.ReactNode
   title?: string
+  screenReaderInstructions?: string
 }
 
 const StyledSidebar = styled.nav`
@@ -44,17 +45,23 @@ const Sidebar: React.FC<Props> = ({
   footer,
   children,
   title,
+  screenReaderInstructions,
 }) => {
   return (
     <StyledSidebar>
       {title && (
         <Header>
           <Prose>
-            <Text as="h1" center>
+            <Text as="h1" center id="audiofocus">
               {appName} {appName && ' / '}
               <Text as="span" light noWrap>
                 {title}
               </Text>
+              {screenReaderInstructions && (
+                <span className="screen-reader-only">
+                  {screenReaderInstructions}
+                </span>
+              )}
             </Text>
           </Prose>
         </Header>

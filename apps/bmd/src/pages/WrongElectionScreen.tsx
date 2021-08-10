@@ -4,6 +4,7 @@ import { Main, MainChild } from '@votingworks/ui'
 
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
+import triggerAudioFocus from '../utils/triggerAudioFocus'
 
 interface Props {
   useEffectToggleLargeDisplay: () => void
@@ -15,12 +16,13 @@ const WrongElectionScreen: React.FC<Props> = ({
   isVoterCard,
 }: Props) => {
   useEffect(useEffectToggleLargeDisplay, [])
+  useEffect(triggerAudioFocus, [])
 
   return (
     <Screen white>
       <Main>
         <MainChild center>
-          <Prose textCenter>
+          <Prose textCenter id="audiofocus">
             <h1>Invalid Card Data</h1>
             <p>Card is not configured for this election.</p>
             <p>
