@@ -73,6 +73,7 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
  */
 export default class Store {
   private db?: sqlite3.Database
+  private batchNumber?: number
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
@@ -152,6 +153,16 @@ export default class Store {
       return this.dbConnect()
     }
     return this.db
+  }
+
+  private async getBatchNumberAndIncrement(): Promise<number> {
+    if (!this.batchNumber) {
+      const batches = await this.batchStatus()
+      this.batchNumber = batches.length + 1
+    }
+    const oldNumber = this.batchNumber
+    this.batchNumber += 1
+    return oldNumber
   }
 
   /**
@@ -318,6 +329,7 @@ export default class Store {
     }
 
     await this.dbCreate()
+    this.batchNumber = 0
   }
 
   /**
@@ -513,7 +525,13 @@ export default class Store {
    */
   public async addBatch(): Promise<string> {
     const id = uuid()
-    await this.dbRunAsync('insert into batches (id) values (?)', id)
+    const batchNumber = await this.getBatchNumberAndIncrement()
+    const label = `Batch ${batchNumber}`
+    await this.dbRunAsync(
+      'insert into batches (id, label) values (?, ?)',
+      id,
+      label
+    )
     return id
   }
 
@@ -839,6 +857,7 @@ export default class Store {
   public async batchStatus(): Promise<BatchInfo[]> {
     interface SqliteBatchInfo {
       id: string
+      label: string
       startedAt: string
       endedAt: string | null
       error: string | null
@@ -847,6 +866,7 @@ export default class Store {
     const batchInfo = await this.dbAllAsync<SqliteBatchInfo>(`
       select
         batches.id as id,
+        batches.label as label,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
@@ -865,9 +885,9 @@ export default class Store {
       order by
         batches.started_at desc
     `)
-
     return batchInfo.map((info) => ({
       id: info.id,
+      label: info.label,
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
@@ -913,10 +933,13 @@ export default class Store {
 
     const sql = `
       select
-        id,
+        sheets.id as id,
+        batches.id as batchId,
+        batches.label as batchLabel,
         front_interpretation_json as frontInterpretationJSON,
         back_interpretation_json as backInterpretationJSON
-      from sheets
+      from sheets left join batches
+      on sheets.batch_id = batches.id
       where
         (requires_adjudication = 0 or
         (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
@@ -924,12 +947,14 @@ export default class Store {
     `
     for (const {
       id,
+      batchId,
+      batchLabel,
       frontInterpretationJSON,
       backInterpretationJSON,
     } of await this.dbAllAsync<{
       id: string
-      votesJSON?: string
-      metadataJSON?: string
+      batchId: string
+      batchLabel?: string
       frontInterpretationJSON: string
       backInterpretationJSON: string
     }>(sql)) {
@@ -941,6 +966,8 @@ export default class Store {
       )
       const cvr = buildCastVoteRecord(
         id,
+        batchId,
+        batchLabel || '',
         frontInterpretation.type === 'InterpretedBmdPage'
           ? frontInterpretation.ballotId
           : backInterpretation.type === 'InterpretedBmdPage'

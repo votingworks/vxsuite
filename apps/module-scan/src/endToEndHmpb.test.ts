@@ -155,46 +155,27 @@ test('going through the whole process works', async () => {
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
     cvr._ballotId = ''
-    expect(cvr).toMatchInlineSnapshot(`
-      Object {
-        "_ballotId": "",
-        "_ballotStyleId": "12",
-        "_ballotType": "standard",
-        "_locales": Object {
-          "primary": "en-US",
-          "secondary": "es-US",
-        },
-        "_pageNumbers": Array [
-          1,
-          2,
-        ],
-        "_precinctId": "23",
-        "_scannerId": "000",
-        "_testBallot": false,
-        "governor": Array [
-          "windbeck",
-        ],
-        "lieutenant-governor": Array [
-          "davis",
-        ],
-        "president": Array [
-          "barchi-hallaren",
-        ],
-        "representative-district-6": Array [
-          "schott",
-        ],
-        "secretary-of-state": Array [
-          "talarico",
-        ],
-        "senator": Array [
-          "brown",
-        ],
-        "state-assembly-district-54": Array [
-          "keller",
-        ],
-        "state-senator-district-31": Array [],
-      }
-    `)
+    expect(cvr).toMatchObject({
+      _ballotId: '',
+      _ballotStyleId: '12',
+      _ballotType: 'standard',
+      _locales: {
+        primary: 'en-US',
+        secondary: 'es-US',
+      },
+      _pageNumbers: [1, 2],
+      _precinctId: '23',
+      _scannerId: '000',
+      _testBallot: false,
+      governor: ['windbeck'],
+      'lieutenant-governor': ['davis'],
+      president: ['barchi-hallaren'],
+      'representative-district-6': ['schott'],
+      'secretary-of-state': ['talarico'],
+      senator: ['brown'],
+      'state-assembly-district-54': ['keller'],
+      'state-senator-district-31': [],
+    })
   }
 })
 
@@ -284,49 +265,28 @@ test('ms-either-neither end-to-end', async () => {
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
     cvr._ballotId = ''
-    expect(cvr).toMatchInlineSnapshot(`
-      Object {
-        "750000015": Array [
-          "yes",
-        ],
-        "750000016": Array [
-          "yes",
-        ],
-        "750000017": Array [
-          "no",
-        ],
-        "750000018": Array [
-          "yes",
-        ],
-        "775020870": Array [
-          "__write-in-0",
-        ],
-        "775020872": Array [
-          "775031978",
-        ],
-        "775020876": Array [
-          "775031988",
-        ],
-        "775020877": Array [
-          "775031986",
-        ],
-        "775020899": Array [
-          "775032015",
-        ],
-        "_ballotId": "",
-        "_ballotStyleId": "4",
-        "_ballotType": "standard",
-        "_locales": Object {
-          "primary": "en-US",
-        },
-        "_pageNumbers": Array [
-          1,
-          2,
-        ],
-        "_precinctId": "6538",
-        "_scannerId": "000",
-        "_testBallot": false,
-      }
-    `)
+    expect(cvr).toMatchObject({
+      '750000015': ['yes'],
+      '750000016': ['yes'],
+      '750000017': ['no'],
+      '750000018': ['yes'],
+      '775020870': ['__write-in-0'],
+      '775020872': ['775031978'],
+      '775020876': ['775031988'],
+      '775020877': ['775031986'],
+      '775020899': ['775032015'],
+      _ballotId: '',
+      _ballotStyleId: '4',
+      _ballotType: 'standard',
+      _batchId: expect.anything(),
+      _batchLabel: 'Batch 1',
+      _locales: {
+        primary: 'en-US',
+      },
+      _pageNumbers: [1, 2],
+      _precinctId: '6538',
+      _scannerId: '000',
+      _testBallot: false,
+    })
   }
 })

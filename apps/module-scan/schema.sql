@@ -1,5 +1,6 @@
 create table batches (
   id varchar(36) primary key,
+  label text,
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   error varchar(4000)
