@@ -30,6 +30,7 @@ export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> = z.objec
 
 export interface BatchInfo {
   id: string
+  label: string
   startedAt: ISO8601Timestamp
   endedAt?: ISO8601Timestamp
   error?: string
@@ -38,6 +39,7 @@ export interface BatchInfo {
 
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   id: Id,
+  label: z.string(),
   startedAt: ISO8601TimestampSchema,
   endedAt: z.optional(ISO8601TimestampSchema),
   error: z.optional(z.string()),
