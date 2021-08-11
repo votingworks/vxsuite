@@ -73,7 +73,6 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
  */
 export default class Store {
   private db?: sqlite3.Database
-  private batchNumber?: number
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
@@ -153,16 +152,6 @@ export default class Store {
       return this.dbConnect()
     }
     return this.db
-  }
-
-  private async getBatchNumberAndIncrement(): Promise<number> {
-    if (!this.batchNumber) {
-      const batches = await this.batchStatus()
-      this.batchNumber = batches.length + 1
-    }
-    const oldNumber = this.batchNumber
-    this.batchNumber += 1
-    return oldNumber
   }
 
   /**
@@ -329,7 +318,6 @@ export default class Store {
     }
 
     await this.dbCreate()
-    this.batchNumber = 0
   }
 
   /**
@@ -525,12 +513,10 @@ export default class Store {
    */
   public async addBatch(): Promise<string> {
     const id = uuid()
-    const batchNumber = await this.getBatchNumberAndIncrement()
-    const label = `Batch ${batchNumber}`
+    await this.dbRunAsync('insert into batches (id) values (?)', id)
     await this.dbRunAsync(
-      'insert into batches (id, label) values (?, ?)',
-      id,
-      label
+      'update batches set label= "Batch " || batch_number WHERE id = ?',
+      id
     )
     return id
   }

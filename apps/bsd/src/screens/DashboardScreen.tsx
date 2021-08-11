@@ -101,7 +101,7 @@ const DashboardScreen: React.FC<Props> = ({
             <Table>
               <thead>
                 <tr>
-                  <th>Batch ID</th>
+                  <th>Batch Name</th>
                   <th>Ballot Count</th>
                   <th>Started At</th>
                   <th>Finished At</th>
@@ -111,7 +111,7 @@ const DashboardScreen: React.FC<Props> = ({
               <tbody>
                 {batches.map((batch) => (
                   <tr key={batch.id}>
-                    <td>{batch.id}</td>
+                    <td>{batch.label}</td>
                     <td>{batch.count}</td>
                     <TD nowrap>
                       <small>{shortDateTime(batch.startedAt)}</small>
