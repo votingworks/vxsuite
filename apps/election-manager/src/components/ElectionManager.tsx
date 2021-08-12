@@ -118,6 +118,14 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
+          routerPaths.tallyBatchReport({ batchId: ':batchId' }),
+          routerPaths.tallyFullReport,
+        ]}
+      >
+        <TallyReportScreen />
+      </Route>
+      <Route
+        path={[
           routerPaths.tallyVotingMethodReport({
             votingMethod: ':votingMethod',
           }),

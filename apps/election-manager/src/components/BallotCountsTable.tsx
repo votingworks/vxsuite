@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { throwIllegalValue, format } from '@votingworks/utils'
-import { TallyCategory, VotingMethod } from '../config/types'
+import { BatchTally, TallyCategory, VotingMethod } from '../config/types'
 
 import { getPartiesWithPrimaryElections } from '../utils/election'
 
@@ -328,6 +328,73 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                 </tr>
               )
             })}
+            <tr data-testid="table-row">
+              <TD narrow nowrap>
+                <strong>Total Ballot Count</strong>
+              </TD>
+              <TD>
+                <strong>
+                  {format.count(
+                    totalBallotCountInternal + totalBallotCountExternal
+                  )}
+                </strong>
+              </TD>
+              <TD />
+            </tr>
+          </tbody>
+        </Table>
+      )
+    }
+    case TallyCategory.Batch: {
+      const resultsByBatch =
+        fullElectionTally?.resultsByCategory.get(TallyCategory.Batch) || {}
+
+      return (
+        <Table>
+          <tbody>
+            <tr data-testid="table-row">
+              <TD as="th" narrow>
+                Batch Name
+              </TD>
+              <TD as="th">Scanner</TD>
+              <TD as="th">Ballot Count</TD>
+              <TD as="th">View Tally</TD>
+            </tr>
+            {Object.keys(resultsByBatch).map((batchId) => {
+              const batchTally = resultsByBatch[batchId]! as BatchTally
+              const batchBallotsCount = batchTally.numberOfBallotsCounted
+              // This should only be multiple scanners if there are ballots missing batch ids
+              return (
+                <tr key={batchId} data-testid="table-row">
+                  <TD narrow nowrap data-testid={`batch-${batchId}`}>
+                    {batchTally.batchLabel}
+                  </TD>
+                  <TD>{batchTally.scannerIds.join(', ')}</TD>
+                  <TD>{format.count(batchBallotsCount)}</TD>
+                  <TD>
+                    {batchBallotsCount > 0 && (
+                      <LinkButton
+                        small
+                        to={routerPaths.tallyBatchReport({
+                          batchId,
+                        })}
+                      >
+                        View {statusPrefix} {batchTally.batchLabel} Tally Report
+                      </LinkButton>
+                    )}
+                  </TD>
+                </tr>
+              )
+            })}
+            {fullElectionExternalTallies.map((t) => (
+              <tr data-testid="table-row" key={t.inputSourceName}>
+                <TD narrow nowrap data-testid="batch-external">
+                  External Results ({t.inputSourceName})
+                </TD>
+                <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
+                <TD />
+              </tr>
+            ))}
             <tr data-testid="table-row">
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>

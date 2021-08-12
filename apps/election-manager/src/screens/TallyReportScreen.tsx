@@ -12,6 +12,7 @@ import {
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
   PartyReportScreenProps,
+  BatchReportScreenProps,
   VotingMethodReportScreenProps,
   VotingMethod,
   ExternalTally,
@@ -28,7 +29,10 @@ import TallyReportMetadata from '../components/TallyReportMetadata'
 import TallyReportSummary from '../components/TallyReportSummary'
 
 import routerPaths from '../routerPaths'
-import { filterTalliesByParams } from '../lib/votecounting'
+import {
+  filterTalliesByParams,
+  filterTalliesByParamsAndBatchId,
+} from '../lib/votecounting'
 import LogoMark from '../components/LogoMark'
 import { filterExternalTalliesByParams } from '../utils/externalTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
@@ -74,6 +78,7 @@ const TallyReportScreen: React.FC = () => {
     precinctId: precinctIdFromProps,
   } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
+  const { batchId } = useParams<BatchReportScreenProps>()
   const { partyId: partyIdFromProps } = useParams<PartyReportScreenProps>()
   const {
     votingMethod: votingMethodFromProps,
@@ -118,6 +123,7 @@ const TallyReportScreen: React.FC = () => {
     undefined
 
   let fileSuffix = precinctName
+  let batchLabel = ''
   const reportDisplayTitle = () => {
     if (precinctName) {
       return `${statusPrefix} Precinct Tally Report for ${precinctName}`
@@ -125,6 +131,19 @@ const TallyReportScreen: React.FC = () => {
     if (scannerId) {
       fileSuffix = `scanner-${scannerId}`
       return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`
+    }
+    if (batchId) {
+      const batchTally = filterTalliesByParamsAndBatchId(
+        fullElectionTally!,
+        election,
+        batchId,
+        {}
+      )
+      fileSuffix = `batch-${batchId}`
+      batchLabel = `${
+        batchTally.batchLabel
+      } (Scanner: ${batchTally.scannerIds.join(', ')})`
+      return `${statusPrefix} Batch Tally Report for ${batchLabel}`
     }
     if (precinctIdFromProps === 'all') {
       fileSuffix = 'all-precincts'
@@ -219,7 +238,7 @@ const TallyReportScreen: React.FC = () => {
             const tallyForReport = filterTalliesByParams(
               fullElectionTally!,
               election,
-              { precinctId, scannerId, partyId, votingMethod }
+              { precinctId, scannerId, partyId, votingMethod, batchId }
             )
             const ballotCountsByVotingMethod = {
               ...tallyForReport.ballotCountsByVotingMethod,
@@ -231,6 +250,7 @@ const TallyReportScreen: React.FC = () => {
                 precinctId,
                 partyId,
                 scannerId,
+                batchId,
                 votingMethod,
               })
               if (filteredTally !== undefined) {
@@ -285,6 +305,36 @@ const TallyReportScreen: React.FC = () => {
                     <h1>
                       {statusPrefix} Scanner Tally Report for Scanner:{' '}
                       {scannerId}
+                    </h1>
+                    <h2>{electionTitle}</h2>
+                    <TallyReportMetadata
+                      generatedAtTime={generatedAtTime}
+                      election={election}
+                    />
+                  </Prose>
+                  <TallyReportColumns>
+                    <TallyReportSummary
+                      election={election}
+                      totalBallotCount={reportBallotCount}
+                      ballotCountsByVotingMethod={ballotCountsByVotingMethod}
+                    />
+                    <ContestTally
+                      election={election}
+                      electionTally={tallyForReport}
+                      externalTallies={[]}
+                    />
+                  </TallyReportColumns>
+                </ReportSection>
+              )
+            }
+
+            if (batchId) {
+              return (
+                <ReportSection key={`${partyId}-${batchId}`}>
+                  <LogoMark />
+                  <Prose maxWidth={false}>
+                    <h1>
+                      {statusPrefix} Batch Tally Report for {batchLabel}:
                     </h1>
                     <h2>{electionTitle}</h2>
                     <TallyReportMetadata

@@ -168,14 +168,16 @@ export function filterExternalTalliesByParams(
     partyId,
     scannerId,
     votingMethod,
+    batchId,
   }: {
     precinctId?: string
     partyId?: string
     scannerId?: string
     votingMethod?: VotingMethod
+    batchId?: string
   }
 ): OptionalExternalTally {
-  if (!fullTally || scannerId) {
+  if (!fullTally || scannerId || batchId) {
     return undefined
   }
 
