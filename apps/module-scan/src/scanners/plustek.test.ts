@@ -49,20 +49,42 @@ test('plustek scanner scanning', async () => {
     get: jest.fn().mockResolvedValue(ok(plustekClient)),
   })
 
-  plustekClient.scan.mockResolvedValueOnce(
-    ok({ files: ['/tmp/a.jpg', '/tmp/b.jpg'] })
-  )
+  // good scan
+  plustekClient.getPaperStatus.mockResolvedValue(ok(PaperStatus.VtmReadyToScan))
+  plustekClient.scan.mockImplementationOnce(async () => {
+    expect(await scanner.getStatus()).toEqual(ScannerStatus.Scanning)
+    return ok({ files: ['/tmp/a.jpg', '/tmp/b.jpg'] })
+  })
   expect(await scanner.scanSheets().scanSheet()).toEqual([
     '/tmp/a.jpg',
     '/tmp/b.jpg',
   ])
 
-  plustekClient.scan.mockResolvedValueOnce(err(ScannerError.NoDevices))
+  // scan status not okay
+  plustekClient.getPaperStatus.mockResolvedValueOnce(
+    err(ScannerError.NoDevices)
+  )
   expect(await scanner.scanSheets().scanSheet()).toBeUndefined()
 
+  plustekClient.getPaperStatus.mockResolvedValueOnce(
+    ok(PaperStatus.VtmReadyToScan)
+  )
   plustekClient.reject.mockResolvedValueOnce(ok())
   await scanner.scanSheets().endBatch()
   expect(plustekClient.reject).toHaveBeenCalledWith({ hold: false })
+})
+
+test('scan ready but fails', async () => {
+  const plustekClient = makeMockPlustekClient()
+  const scanner = new PlustekScanner({
+    get: jest.fn().mockResolvedValue(ok(plustekClient)),
+  })
+
+  plustekClient.getPaperStatus.mockResolvedValueOnce(
+    ok(PaperStatus.VtmReadyToScan)
+  )
+  plustekClient.scan.mockResolvedValueOnce(err(ScannerError.NoDevices))
+  expect(await scanner.scanSheets().scanSheet()).toBeUndefined()
 })
 
 test('plustek scanner accept sheet', async () => {
@@ -72,7 +94,13 @@ test('plustek scanner accept sheet', async () => {
   })
 
   // successful accept
-  plustekClient.accept.mockResolvedValueOnce(ok())
+  plustekClient.getPaperStatus.mockResolvedValueOnce(
+    ok(PaperStatus.VtmReadyToEject)
+  )
+  plustekClient.accept.mockImplementationOnce(async () => {
+    expect(await scanner.getStatus()).toEqual(ScannerStatus.Accepting)
+    return ok()
+  })
   plustekClient.waitForStatus.mockResolvedValue(
     ok(PaperStatus.VtmDevReadyNoPaper)
   )
@@ -95,7 +123,10 @@ test('plustek scanner review sheet', async () => {
   })
 
   // successful review
-  plustekClient.reject.mockResolvedValueOnce(ok())
+  plustekClient.reject.mockImplementationOnce(async () => {
+    expect(await scanner.getStatus()).toEqual(ScannerStatus.Rejecting)
+    return ok()
+  })
   plustekClient.waitForStatus.mockResolvedValue(ok(PaperStatus.VtmReadyToScan))
   expect(await scanner.scanSheets().reviewSheet()).toEqual(true)
 
@@ -116,7 +147,10 @@ test('plustek scanner reject sheet', async () => {
   })
 
   // successful reject
-  plustekClient.reject.mockResolvedValueOnce(ok())
+  plustekClient.reject.mockImplementationOnce(async () => {
+    expect(await scanner.getStatus()).toEqual(ScannerStatus.Rejecting)
+    return ok()
+  })
   plustekClient.waitForStatus.mockResolvedValue(
     ok(PaperStatus.VtmDevReadyNoPaper)
   )
@@ -155,7 +189,10 @@ test('plustek scanner calibrate', async () => {
     true
   )
 
-  plustekClient.calibrate.mockResolvedValueOnce(ok())
+  plustekClient.calibrate.mockImplementationOnce(async () => {
+    expect(await scanner.getStatus()).toEqual(ScannerStatus.Calibrating)
+    return ok()
+  })
   expect(await scanner.calibrate()).toEqual(true)
 
   plustekClient.calibrate.mockResolvedValueOnce(

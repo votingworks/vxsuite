@@ -4,7 +4,7 @@ import {
   MarkThresholds,
   Optional,
 } from '@votingworks/types'
-import { ScanStatus } from '@votingworks/types/api/module-scan'
+import { ScannerStatus, ScanStatus } from '@votingworks/types/api/module-scan'
 import { sleep } from '@votingworks/utils'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
@@ -563,15 +563,19 @@ export default class Importer {
    * Get the imported batches and current election info, if any.
    */
   public async getStatus(): Promise<ScanStatus> {
-    const election = await this.workspace.store.getElectionDefinition()
+    const electionDefinition = await this.workspace.store.getElectionDefinition()
     const batches = await this.workspace.store.batchStatus()
     const adjudication = await this.workspace.store.adjudicationStatus()
     const scanner = await this.scanner.getStatus()
+
     return {
-      electionHash: election?.electionHash,
+      electionHash: electionDefinition?.electionHash,
       batches,
       adjudication,
-      scanner,
+      scanner:
+        adjudication.remaining > 0 && scanner === ScannerStatus.ReadyToScan
+          ? ScannerStatus.Rejected
+          : scanner,
     }
   }
 
