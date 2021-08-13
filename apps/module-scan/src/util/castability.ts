@@ -1,4 +1,4 @@
-import { PageInterpretation } from '../interpreter'
+import { PageInterpretation } from '@votingworks/types'
 import { SheetOf } from '../types'
 
 export enum Castability {

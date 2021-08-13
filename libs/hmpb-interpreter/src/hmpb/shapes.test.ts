@@ -1,5 +1,5 @@
 import * as fixtures from '../../test/fixtures/choctaw-county-2020-general-election'
-import { Corners } from '../types'
+import { Corners } from '@votingworks/types'
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize'
 import { findShape, parseRectangle } from './shapes'
 

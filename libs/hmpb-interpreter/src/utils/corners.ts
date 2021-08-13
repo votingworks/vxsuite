@@ -1,6 +1,6 @@
 import makeDebug from 'debug'
 import { Edge, Shape } from '../hmpb/shapes'
-import { Corners, Point } from '../types'
+import { Corners, Point } from '@votingworks/types'
 import { editDistance, median, rectCorners } from './geometry'
 
 const debug = makeDebug('hmpb-interpreter:corners')

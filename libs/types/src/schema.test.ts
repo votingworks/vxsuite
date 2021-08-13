@@ -4,32 +4,25 @@ import {
   electionWithMsEitherNeither,
 } from '../test/election'
 import * as t from './election'
-import {
-  AdminCardData,
-  BallotStyles,
-  CandidateContest,
-  parseElection,
-  safeParse,
-  safeParseElection,
-  safeParseElectionDefinition,
-  safeParseJSON,
-} from './schema'
+import { safeParse, safeParseJSON } from './generic'
 
 test('parseElection', () => {
-  expect(() => parseElection({})).toThrowError()
-  expect(() => parseElection(electionSample)).not.toThrowError()
+  expect(() => t.parseElection({})).toThrowError()
+  expect(() => t.parseElection(electionSample)).not.toThrowError()
 })
 
 test('parsing fails on an empty object', () => {
-  safeParseElection({}).unsafeUnwrapErr()
+  t.safeParseElection({}).unsafeUnwrapErr()
 })
 
 test('parsing JSON.parses a string', () => {
-  expect(safeParseElection(electionData).unsafeUnwrap()).toEqual(electionSample)
+  expect(t.safeParseElection(electionData).unsafeUnwrap()).toEqual(
+    electionSample
+  )
 })
 
 test('parsing invalid JSON', () => {
-  expect(safeParseElection('{').unsafeUnwrapErr().message).toEqual(
+  expect(t.safeParseElection('{').unsafeUnwrapErr().message).toEqual(
     'Unexpected end of JSON input'
   )
 })
@@ -40,17 +33,19 @@ test('parsing JSON without a schema', () => {
 
 test('parsing gives specific errors for nested objects', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      contests: [
-        ...electionSample.contests.slice(1),
-        {
-          ...electionSample.contests[0],
-          // give title a type it shouldn't have
-          title: 42,
-        },
-      ],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        contests: [
+          ...electionSample.contests.slice(1),
+          {
+            ...electionSample.contests[0],
+            // give title a type it shouldn't have
+            title: 42,
+          },
+        ],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -246,10 +241,12 @@ test('parsing gives specific errors for nested objects', () => {
 
 test('ensures dates are ISO 8601-formatted', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      date: 'not ISO',
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        date: 'not ISO',
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -264,7 +261,7 @@ test('ensures dates are ISO 8601-formatted', () => {
 })
 
 test('parsing a valid election object succeeds', () => {
-  const parsed = safeParseElection(electionSample as unknown).unsafeUnwrap()
+  const parsed = t.safeParseElection(electionSample as unknown).unsafeUnwrap()
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
   expect(parsed.title).toEqual(electionSample.title)
@@ -274,9 +271,9 @@ test('parsing a valid election object succeeds', () => {
 })
 
 test('parsing a valid election with ms-either-neither succeeds', () => {
-  const parsed = safeParseElection(
-    electionWithMsEitherNeither as unknown
-  ).unsafeUnwrap()
+  const parsed = t
+    .safeParseElection(electionWithMsEitherNeither as unknown)
+    .unsafeUnwrap()
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
   expect(parsed.title).toEqual(electionWithMsEitherNeither.title)
@@ -286,14 +283,14 @@ test('parsing a valid election with ms-either-neither succeeds', () => {
 })
 
 test('parsing a valid election', () => {
-  expect(safeParseElection(electionSample).unsafeUnwrap()).toEqual(
+  expect(t.safeParseElection(electionSample).unsafeUnwrap()).toEqual(
     electionSample
   )
 })
 
 test('contest IDs cannot start with an underscore', () => {
   expect(
-    safeParse(CandidateContest, {
+    safeParse(t.CandidateContestSchema, {
       ...electionSample.contests[0],
       id: '_president',
     }).unsafeUnwrapErr()
@@ -311,12 +308,12 @@ test('contest IDs cannot start with an underscore', () => {
 })
 
 test('allows valid mark thresholds', () => {
-  safeParseElection({
+  t.safeParseElection({
     ...electionSample,
     markThresholds: { definite: 0.2, marginal: 0.2 },
   }).unsafeUnwrap()
 
-  safeParseElection({
+  t.safeParseElection({
     ...electionSample,
     markThresholds: { definite: 0.2, marginal: 0.1 },
   }).unsafeUnwrap()
@@ -324,10 +321,12 @@ test('allows valid mark thresholds', () => {
 
 test('disallows invalid mark thresholds', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      markThresholds: { definite: 0.2, marginal: 0.3 },
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        markThresholds: { definite: 0.2, marginal: 0.3 },
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -341,10 +340,12 @@ test('disallows invalid mark thresholds', () => {
   `)
 
   expect(
-    safeParseElection({
-      ...electionSample,
-      markThresholds: { marginal: 0.3 },
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        markThresholds: { marginal: 0.3 },
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -361,10 +362,12 @@ test('disallows invalid mark thresholds', () => {
   `)
 
   expect(
-    safeParseElection({
-      ...electionSample,
-      markThresholds: { definite: 1.2, marginal: 0.3 },
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        markThresholds: { definite: 1.2, marginal: 0.3 },
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -383,12 +386,12 @@ test('disallows invalid mark thresholds', () => {
 })
 
 test('allows valid adjudication reasons', () => {
-  safeParseElection({
+  t.safeParseElection({
     ...electionSample,
     adjudicationReasons: [],
   }).unsafeUnwrap()
 
-  safeParseElection({
+  t.safeParseElection({
     ...electionSample,
     adjudicationReasons: [
       t.AdjudicationReason.MarginalMark,
@@ -399,10 +402,12 @@ test('allows valid adjudication reasons', () => {
 
 test('disallows invalid adjudication reasons', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      adjudicationReasons: ['abcdefg'],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        adjudicationReasons: ['abcdefg'],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -425,10 +430,12 @@ test('disallows invalid adjudication reasons', () => {
   `)
 
   expect(
-    safeParseElection({
-      ...electionSample,
-      adjudicationReasons: 'foooo',
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        adjudicationReasons: 'foooo',
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -446,12 +453,14 @@ test('disallows invalid adjudication reasons', () => {
 
 test('supports ballot layout paper size', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      ballotLayout: {
-        paperSize: 'A4',
-      },
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        ballotLayout: {
+          paperSize: 'A4',
+        },
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -470,10 +479,12 @@ test('supports ballot layout paper size', () => {
   `)
 
   expect(
-    safeParseElection({
-      ...electionSample,
-      ballotLayout: 'letter',
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        ballotLayout: 'letter',
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -491,10 +502,12 @@ test('supports ballot layout paper size', () => {
 
 test('parsing validates district references', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      districts: [{ id: 'DIS', name: 'DIS' }],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        districts: [{ id: 'DIS', name: 'DIS' }],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -513,10 +526,12 @@ test('parsing validates district references', () => {
 
 test('parsing validates precinct references', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      precincts: [{ id: 'PRE', name: 'PRE' }],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        precincts: [{ id: 'PRE', name: 'PRE' }],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -540,16 +555,18 @@ test('parsing validates contest party references', () => {
   const remainingContests = electionSample.contests.filter((c) => contest !== c)
 
   expect(
-    safeParseElection({
-      ...electionSample,
-      contests: [
-        {
-          ...contest,
-          partyId: 'not-a-party',
-        },
-        ...remainingContests,
-      ],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        contests: [
+          {
+            ...contest,
+            partyId: 'not-a-party',
+          },
+          ...remainingContests,
+        ],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -572,22 +589,24 @@ test('parsing validates candidate party references', () => {
   const remainingContests = electionSample.contests.filter((c) => contest !== c)
 
   expect(
-    safeParseElection({
-      ...electionSample,
-      contests: [
-        {
-          ...contest,
-          candidates: [
-            ...contest.candidates.slice(1),
-            {
-              ...contest.candidates[0],
-              partyId: 'not-a-party',
-            },
-          ],
-        },
-        ...remainingContests,
-      ],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        contests: [
+          {
+            ...contest,
+            candidates: [
+              ...contest.candidates.slice(1),
+              {
+                ...contest.candidates[0],
+                partyId: 'not-a-party',
+              },
+            ],
+          },
+          ...remainingContests,
+        ],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -607,10 +626,12 @@ test('parsing validates candidate party references', () => {
 
 test('validates uniqueness of district ids', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      districts: [...electionSample.districts, ...electionSample.districts],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        districts: [...electionSample.districts, ...electionSample.districts],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -628,7 +649,7 @@ test('validates uniqueness of district ids', () => {
 
 test('validates uniqueness of ballot style ids', () => {
   expect(
-    safeParse(BallotStyles, [
+    safeParse(t.BallotStylesSchema, [
       ...electionSample.ballotStyles,
       ...electionSample.ballotStyles,
     ]).unsafeUnwrapErr()
@@ -648,10 +669,12 @@ test('validates uniqueness of ballot style ids', () => {
 
 test('validates uniqueness of precinct ids', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      precincts: [...electionSample.precincts, ...electionSample.precincts],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        precincts: [...electionSample.precincts, ...electionSample.precincts],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -669,10 +692,12 @@ test('validates uniqueness of precinct ids', () => {
 
 test('validates uniqueness of contest ids', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      contests: [...electionSample.contests, ...electionSample.contests],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        contests: [...electionSample.contests, ...electionSample.contests],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -699,10 +724,12 @@ test('validates uniqueness of contest ids', () => {
 
 test('validates uniqueness of party ids', () => {
   expect(
-    safeParseElection({
-      ...electionSample,
-      parties: [...electionSample.parties, ...electionSample.parties],
-    }).unsafeUnwrapErr()
+    t
+      .safeParseElection({
+        ...electionSample,
+        parties: [...electionSample.parties, ...electionSample.parties],
+      })
+      .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -722,7 +749,7 @@ test('validates uniqueness of candidate ids within a contest', () => {
   const contest = electionSample.contests[0] as t.CandidateContest
 
   expect(
-    safeParse(CandidateContest, {
+    safeParse(t.CandidateContestSchema, {
       ...contest,
       candidates: [...contest.candidates, ...contest.candidates],
     }).unsafeUnwrapErr()
@@ -742,9 +769,12 @@ test('validates uniqueness of candidate ids within a contest', () => {
 })
 
 test('validates admin cards have hex-encoded hashes', () => {
-  safeParse(AdminCardData, { t: 'admin', h: 'd34db33f' }).unsafeUnwrap()
+  safeParse(t.AdminCardDataSchema, { t: 'admin', h: 'd34db33f' }).unsafeUnwrap()
   expect(
-    safeParse(AdminCardData, { t: 'admin', h: 'not hex' }).unsafeUnwrapErr()
+    safeParse(t.AdminCardDataSchema, {
+      t: 'admin',
+      h: 'not hex',
+    }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [Error: [
       {
@@ -760,12 +790,12 @@ test('validates admin cards have hex-encoded hashes', () => {
 
 test('safeParseElectionDefinition computes the election hash', () => {
   expect(
-    safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
+    t.safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
   ).toMatchInlineSnapshot(
     `"d5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c"`
   )
 })
 
 test('safeParseElectionDefinition error result', () => {
-  expect(safeParseElectionDefinition('').err()).toBeDefined()
+  expect(t.safeParseElectionDefinition('').err()).toBeDefined()
 })

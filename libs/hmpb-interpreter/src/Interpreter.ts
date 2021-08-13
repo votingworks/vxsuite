@@ -1,6 +1,10 @@
 import {
+  BallotCandidateTargetMark,
   BallotLocales,
+  BallotMark,
+  BallotMsEitherNeitherTargetMark,
   BallotType,
+  BallotYesNoTargetMark,
   Candidate,
   CandidateContest,
   CompletedBallot,
@@ -9,6 +13,11 @@ import {
   getBallotStyle,
   getContests,
   MsEitherNeitherContest,
+  Offset,
+  Point,
+  Rect,
+  Size,
+  TargetShape,
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types'
@@ -23,23 +32,15 @@ import findContests, {
   ContestShape,
   findBallotLayoutCorrespondence,
 } from './hmpb/findContests'
-import findTargets, { TargetShape } from './hmpb/findTargets'
+import findTargets from './hmpb/findTargets'
 import { detect } from './metadata'
 import {
-  BallotCandidateTargetMark,
-  BallotMark,
-  BallotMsEitherNeitherTargetMark,
   BallotPageContestOptionLayout,
   BallotPageLayout,
   BallotPageMetadata,
-  BallotYesNoTargetMark,
   DetectQRCode,
   FindMarksResult,
   Interpreted,
-  Offset,
-  Point,
-  Rect,
-  Size,
 } from './types'
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize'
 import crop from './utils/crop'

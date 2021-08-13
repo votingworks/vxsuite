@@ -464,23 +464,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   )
 
-  app.get('/scan/hmpb/ballot/:sheetId/:side', async (request, response) => {
-    const { sheetId, side } = request.params
-
-    if (typeof sheetId !== 'string' || (side !== 'front' && side !== 'back')) {
-      response.status(404)
-      return
-    }
-
-    const ballot = await store.getPage(sheetId, side)
-
-    if (ballot) {
-      response.json(ballot)
-    } else {
-      response.status(404).end()
-    }
-  })
-
   app.get(
     '/scan/hmpb/ballot/:sheetId/:side/image',
     async (request, response) => {

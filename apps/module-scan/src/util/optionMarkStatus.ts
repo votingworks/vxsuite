@@ -1,6 +1,10 @@
-import { Contest, MarkThresholds } from '@votingworks/types'
-import { BallotMark } from '@votingworks/hmpb-interpreter'
-import { ContestOption, MarkStatus, getMarkStatus } from '../types'
+import {
+  BallotMark,
+  Contest,
+  ContestOption,
+  MarkThresholds,
+} from '@votingworks/types'
+import { getMarkStatus, MarkStatus } from '../types'
 
 /**
  * state of the mark for a given contest and option

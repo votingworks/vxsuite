@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 import { fetchNextBallotSheetToReview } from '../api/hmpb'
-import { BallotSheetInfo } from '../config/types'
 
 import Main from '../components/Main'
 import Prose from '../components/Prose'

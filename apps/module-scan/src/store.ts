@@ -2,22 +2,23 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import {
-  BallotMark,
-  BallotPageMetadata,
-  BallotTargetMark,
-  Size,
-} from '@votingworks/hmpb-interpreter'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import {
   AnyContest,
+  BallotMark,
+  BallotMetadata,
+  BallotSheetInfo,
+  BallotTargetMark,
   ElectionDefinition,
+  ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
   MarkThresholds,
+  MarkThresholdsSchema,
   Optional,
+  PageInterpretation,
   Precinct,
   safeParseJSON,
-  schema,
 } from '@votingworks/types'
 import {
   AdjudicationStatus,
@@ -34,31 +35,15 @@ import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
+import { sheetRequiresAdjudication } from './interpreter'
 import {
-  MarkInfo,
-  PageInterpretation,
-  sheetRequiresAdjudication,
-} from './interpreter'
-import {
-  BallotMetadata,
-  getMarkStatus,
   isMarginalMark,
   PageInterpretationWithFiles,
   SerializableBallotPageLayout,
   SheetOf,
   Side,
 } from './types'
-import {
-  AdjudicationInfo,
-  Contest,
-  ContestLayout,
-  MarksByContestId,
-  ReviewBallot,
-} from './types/ballot-review'
-import allContestOptions from './util/allContestOptions'
-import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
-import getBallotPageContests from './util/getBallotPageContests'
-import { loadImageData } from './util/images'
+import { MarksByContestId } from './types/ballot-review'
 import { changesFromMarks, mergeChanges } from './util/marks'
 import { normalizeAndJoin } from './util/path'
 
@@ -345,7 +330,7 @@ export default class Store {
       | ElectionDefinition
       | undefined = await this.getConfig(
       ConfigKey.Election,
-      schema.ElectionDefinition
+      ElectionDefinitionSchema
     )
 
     if (electionDefinition) {
@@ -411,7 +396,7 @@ export default class Store {
   public async getMarkThresholdOverrides(): Promise<Optional<MarkThresholds>> {
     return await this.getConfig(
       ConfigKey.MarkThresholdOverrides,
-      schema.MarkThresholds
+      MarkThresholdsSchema
     )
   }
 
@@ -656,173 +641,6 @@ export default class Store {
     return {
       original: normalizeAndJoin(dirname(this.dbPath), row.original),
       normalized: normalizeAndJoin(dirname(this.dbPath), row.normalized),
-    }
-  }
-
-  public async getPage(
-    sheetId: string,
-    side: Side
-  ): Promise<ReviewBallot | undefined> {
-    const electionDefinition = await this.getElectionDefinition()
-
-    if (!electionDefinition) {
-      return
-    }
-
-    const row = await this.dbGetAsync<
-      | {
-          id: number
-          originalFilename: string
-          normalizedFilename: string
-          marksJSON?: string
-          adjudicationJSON?: string
-          adjudicationInfoJSON?: string
-          metadataJSON?: string
-        }
-      | undefined,
-      [string]
-    >(
-      `
-        select
-          id,
-          ${side}_original_filename as originalFilename,
-          ${side}_normalized_filename as normalizedFilename,
-          json_extract(${side}_interpretation_json, '$.markInfo') as marksJSON,
-          json_extract(${side}_interpretation_json, '$.metadata') as metadataJSON,
-          ${side}_adjudication_json as adjudicationJSON,
-          json_extract(${side}_interpretation_json, '$.adjudicationInfo') as adjudicationInfoJSON
-        from sheets
-        where id = ?
-      `,
-      sheetId
-    )
-
-    if (!row) {
-      return
-    }
-
-    const marks: MarkInfo | undefined = row.marksJSON
-      ? JSON.parse(row.marksJSON)
-      : undefined
-    const adjudication: MarksByContestId | undefined = row.adjudicationJSON
-      ? JSON.parse(row.adjudicationJSON)
-      : undefined
-    const adjudicationInfo: AdjudicationInfo = row.adjudicationInfoJSON
-      ? JSON.parse(row.adjudicationInfoJSON)
-      : undefined
-    const metadata: BallotPageMetadata | undefined = row.metadataJSON
-      ? JSON.parse(row.metadataJSON)
-      : undefined
-
-    if (!metadata) {
-      return
-    }
-
-    const layouts = await this.getBallotLayoutsForMetadata(metadata)
-    const layout = layouts[metadata.pageNumber - 1]
-    const ballotStyle = getBallotStyle({
-      ballotStyleId: metadata.ballotStyleId,
-      election: electionDefinition.election,
-    })
-
-    if (!ballotStyle) {
-      return
-    }
-
-    const ballotSize = await (async (): Promise<Size> => {
-      if (marks) {
-        return marks.ballotSize
-      }
-
-      const { width, height } = await loadImageData(row.normalizedFilename)
-
-      if (!width || !height) {
-        throw new Error(
-          `unable to read image size from ${row.normalizedFilename}`
-        )
-      }
-
-      return { width, height }
-    })()
-
-    const ballot: ReviewBallot['ballot'] = {
-      id: sheetId,
-      url: `/scan/hmpb/ballot/${sheetId}/front`,
-      image: {
-        url: `/scan/hmpb/ballot/${sheetId}/front/image`,
-        ...ballotSize,
-      },
-    }
-
-    const ballotPageContests = getBallotPageContests(
-      electionDefinition.election,
-      metadata,
-      layouts
-    )
-
-    const contests: Contest[] = ballotPageContests.map((contestDefinition) => {
-      return {
-        id: contestDefinition.id,
-        title: contestDefinition.title,
-        options: [...allContestOptions(contestDefinition)],
-      }
-    })
-
-    if (!marks) {
-      return {
-        type: 'ReviewUninterpretableHmpbBallot',
-        contests,
-        ballot,
-      }
-    }
-
-    debug('overlaying ballot adjudication: %O', adjudication)
-
-    const markThresholds =
-      (await this.getCurrentMarkThresholds()) || DefaultMarkThresholds
-    const overlay = marks.marks.reduce<MarksByContestId>(
-      (marks, mark) =>
-        mark.type === 'stray'
-          ? marks
-          : {
-              ...marks,
-              [mark.contest.id]: {
-                ...marks[mark.contest.id],
-                [typeof mark.option === 'string'
-                  ? mark.option
-                  : mark.option.id]:
-                  adjudication?.[mark.contest.id]?.[
-                    typeof mark.option === 'string'
-                      ? mark.option
-                      : mark.option.id
-                  ] ?? getMarkStatus(mark, markThresholds),
-              },
-            },
-      {}
-    )
-
-    debug('overlay results: %O', overlay)
-
-    const contestLayouts: ContestLayout[] = ballotPageContests.map(
-      (_contestDefinition, contestIndex) => {
-        const contestLayout = layout.contests[contestIndex]
-        return {
-          bounds: contestLayout.bounds,
-          corners: contestLayout.corners,
-          options: contestLayout.options.map((option) => ({
-            bounds: option.bounds,
-          })),
-        }
-      }
-    )
-
-    return {
-      type: 'ReviewMarginalMarksBallot',
-      ballot,
-      marks: overlay,
-      contests,
-      layout: contestLayouts,
-      adjudicationInfo,
     }
   }
 
@@ -1097,9 +915,7 @@ export default class Store {
       select
         id,
         front_interpretation_json as frontInterpretationJSON,
-        back_interpretation_json as backInterpretationJSON,
-        front_adjudication_json as frontAdjudicationJSON,
-        back_adjudication_json as backAdjudicationJSON
+        back_interpretation_json as backInterpretationJSON
       from sheets
       where
         (requires_adjudication = 0 or
@@ -1110,13 +926,9 @@ export default class Store {
       id,
       frontInterpretationJSON,
       backInterpretationJSON,
-      frontAdjudicationJSON,
-      backAdjudicationJSON,
     } of await this.dbAllAsync<{
       id: string
       votesJSON?: string
-      frontAdjudicationJSON?: string
-      backAdjudicationJSON?: string
       metadataJSON?: string
       frontInterpretationJSON: string
       backInterpretationJSON: string
@@ -1127,12 +939,6 @@ export default class Store {
       const backInterpretation: PageInterpretation = JSON.parse(
         backInterpretationJSON
       )
-      const frontAdjudication: MarksByContestId = frontAdjudicationJSON
-        ? JSON.parse(frontAdjudicationJSON)
-        : undefined
-      const backAdjudication: MarksByContestId = backAdjudicationJSON
-        ? JSON.parse(backAdjudicationJSON)
-        : undefined
       const cvr = buildCastVoteRecord(
         id,
         frontInterpretation.type === 'InterpretedBmdPage'
@@ -1151,7 +957,6 @@ export default class Store {
                     frontInterpretation.metadata
                   )
                 : undefined,
-            adjudication: frontAdjudication,
           },
           {
             interpretation: backInterpretation,
@@ -1162,7 +967,6 @@ export default class Store {
                     backInterpretation.metadata
                   )
                 : undefined,
-            adjudication: backAdjudication,
           },
         ]
       )

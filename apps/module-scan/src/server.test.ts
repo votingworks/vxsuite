@@ -2,13 +2,7 @@
 
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import * as plusteksdk from '@votingworks/plustek-sdk'
-import {
-  AdjudicationReason,
-  BallotType,
-  CandidateContest,
-  ok,
-  YesNoContest,
-} from '@votingworks/types'
+import { BallotType, ok } from '@votingworks/types'
 import {
   GetScanStatusResponse,
   ScannerStatus,
@@ -22,11 +16,9 @@ import { dirSync } from 'tmp'
 import { mocked } from 'ts-jest/dist/utils/testing'
 import { v4 as uuid } from 'uuid'
 import { election } from '../test/fixtures/state-of-hamilton'
-import zeroRect from '../test/fixtures/zeroRect'
 import { makeMock } from '../test/util/mocks'
 import Importer from './importer'
 import { buildApp, start } from './server'
-import { MarkStatus } from './types/ballot-review'
 import { createWorkspace, Workspace } from './util/workspace'
 
 jest.mock('./importer')
@@ -332,135 +324,6 @@ test('POST /scan/zero', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.doZero).toBeCalled()
-})
-
-test('GET /scan/hmpb/ballot/:sheetId/:side', async () => {
-  const president = election.contests.find(
-    ({ id }) => id === 'president'
-  ) as CandidateContest
-  const questionA = election.contests.find(
-    ({ id }) => id === 'question-a'
-  ) as YesNoContest
-  const batchId = await workspace.store.addBatch()
-  const sheetId = await workspace.store.addSheet(uuid(), batchId, [
-    {
-      originalFilename: '/front.png',
-      normalizedFilename: '/front-normalized.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [
-            {
-              type: 'candidate',
-              contest: president,
-              option: president.candidates[0],
-              bounds: zeroRect,
-              score: 1,
-              scoredOffset: { x: 0, y: 0 },
-              target: { bounds: zeroRect, inner: zeroRect },
-            },
-          ],
-        },
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [
-            AdjudicationReason.UninterpretableBallot,
-            AdjudicationReason.MarginalMark,
-          ],
-          allReasonInfos: [],
-        },
-      },
-    },
-    {
-      originalFilename: '/back.png',
-      normalizedFilename: '/back-normalized.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [
-            {
-              type: 'yesno',
-              contest: questionA,
-              option: 'yes',
-              bounds: zeroRect,
-              score: 1,
-              scoredOffset: { x: 0, y: 0 },
-              target: { bounds: zeroRect, inner: zeroRect },
-            },
-          ],
-        },
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: '',
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [
-            AdjudicationReason.UninterpretableBallot,
-            AdjudicationReason.MarginalMark,
-          ],
-          allReasonInfos: [],
-        },
-      },
-    },
-  ])
-  await workspace.store.finishBatch({ batchId })
-
-  await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/front`)
-    .set('Accept', 'application/json')
-    .expect(200, {
-      type: 'ReviewMarginalMarksBallot',
-      ballot: {
-        id: sheetId,
-        url: `/scan/hmpb/ballot/${sheetId}/front`,
-        image: {
-          url: `/scan/hmpb/ballot/${sheetId}/front/image`,
-          width: 0,
-          height: 0,
-        },
-      },
-      marks: { president: { 'barchi-hallaren': MarkStatus.Marked } },
-      contests: [],
-      layout: [],
-      adjudicationInfo: {
-        requiresAdjudication: false,
-        enabledReasons: [
-          AdjudicationReason.UninterpretableBallot,
-          AdjudicationReason.MarginalMark,
-        ],
-        allReasonInfos: [],
-      },
-    })
-})
-
-test('GET /scan/hmpb/ballot/:sheetId/:side 404', async () => {
-  await request(app)
-    .get(`/scan/hmpb/ballot/111/front`)
-    .set('Accept', 'application/json')
-    .expect(404)
-  await request(app)
-    .get(`/scan/hmpb/ballot/111/back`)
-    .set('Accept', 'application/json')
-    .expect(404)
 })
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {

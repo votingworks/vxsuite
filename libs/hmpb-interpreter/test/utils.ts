@@ -1,6 +1,6 @@
+import { Rect } from '@votingworks/types'
 import { strict as assert } from 'assert'
 import { randomBytes } from 'crypto'
-import { Rect } from '../src/types'
 import { createImageData } from '../src/utils/canvas'
 
 export function randomImage({

@@ -7,8 +7,14 @@ import {
   OkResponse,
   OkResponseSchema,
 } from '.'
-import { ElectionDefinition, MarkThresholds, Precinct } from '../election'
-import * as s from '../schema'
+import {
+  ElectionDefinition,
+  ElectionDefinitionSchema,
+  MarkThresholds,
+  MarkThresholdsSchema,
+  Precinct,
+} from '../election'
+import { HexString, Id } from '../generic'
 
 export interface AdjudicationStatus {
   adjudicated: number
@@ -31,7 +37,7 @@ export interface BatchInfo {
 }
 
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
-  id: s.Id,
+  id: Id,
   startedAt: ISO8601TimestampSchema,
   endedAt: z.optional(ISO8601TimestampSchema),
   error: z.optional(z.string()),
@@ -61,7 +67,7 @@ export interface ScanStatus {
 }
 
 export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
-  electionHash: z.optional(s.HexString),
+  electionHash: z.optional(HexString),
   batches: z.array(BatchInfoSchema),
   adjudication: AdjudicationStatusSchema,
   scanner: ScannerStatusSchema,
@@ -90,7 +96,7 @@ export type GetElectionConfigResponse = ElectionDefinition | null | string
  * @method GET
  */
 export const GetElectionConfigResponseSchema: z.ZodSchema<GetElectionConfigResponse> = z.union(
-  [s.ElectionDefinition, z.null(), z.string()]
+  [ElectionDefinitionSchema, z.null(), z.string()]
 )
 
 /**
@@ -198,7 +204,7 @@ export type GetCurrentPrecinctConfigResponse = OkResponse<{
 export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> = z.object(
   {
     status: z.literal('ok'),
-    precinctId: z.optional(s.Id),
+    precinctId: z.optional(Id),
   }
 )
 
@@ -216,7 +222,7 @@ export interface PutCurrentPrecinctConfigRequest {
  */
 export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> = z.object(
   {
-    precinctId: z.optional(s.Id),
+    precinctId: z.optional(Id),
   }
 )
 
@@ -261,7 +267,7 @@ export type GetMarkThresholdOverridesConfigResponse = OkResponse<{
 export const GetMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<GetMarkThresholdOverridesConfigResponse> = z.object(
   {
     status: z.literal('ok'),
-    markThresholdOverrides: z.optional(s.MarkThresholds),
+    markThresholdOverrides: z.optional(MarkThresholdsSchema),
   }
 )
 
@@ -291,7 +297,7 @@ export interface PatchMarkThresholdOverridesConfigRequest {
  */
 export const PatchMarkThresholdOverridesConfigRequestSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigRequest> = z.object(
   {
-    markThresholdOverrides: z.optional(s.MarkThresholds),
+    markThresholdOverrides: z.optional(MarkThresholdsSchema),
   }
 )
 

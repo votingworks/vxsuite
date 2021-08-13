@@ -1,16 +1,6 @@
-import { strict as assert } from 'assert'
-import {
-  BitReader,
-  BitWriter,
-  CustomEncoding,
-  toUint8,
-  Uint8,
-  Uint8Size,
-} from './bits'
 import {
   AnyContest,
   BallotLocale,
-  BallotStyle,
   BallotType,
   BallotTypeMaximumValue,
   Candidate,
@@ -21,13 +11,22 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
+  HMPBBallotPageMetadata,
   isVotePresent,
   Optional,
-  Precinct,
   validateVotes,
   VotesDict,
   YesNoVote,
 } from '@votingworks/types'
+import { strict as assert } from 'assert'
+import {
+  BitReader,
+  BitWriter,
+  CustomEncoding,
+  toUint8,
+  Uint8,
+  Uint8Size,
+} from './bits'
 
 export const MAXIMUM_WRITE_IN_LENGTH = 40
 export const MAXIMUM_PAGE_NUMBERS = 30
@@ -561,17 +560,6 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   }
 
   return votes
-}
-
-export interface HMPBBallotPageMetadata {
-  electionHash: string // a hexadecimal string
-  precinctId: Precinct['id']
-  ballotStyleId: BallotStyle['id']
-  locales: BallotLocale
-  pageNumber: number
-  isTestMode: boolean
-  ballotType: BallotType
-  ballotId?: string
 }
 
 export interface HMPBBallotPageMetadataCheckData {

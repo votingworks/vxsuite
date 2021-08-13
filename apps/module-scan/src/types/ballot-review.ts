@@ -1,6 +1,5 @@
 import * as t from '@votingworks/types'
-import { Rect } from '@votingworks/hmpb-interpreter'
-import { AdjudicationReasonInfo } from '../util/ballotAdjudicationReasons'
+import { AdjudicationInfo, Rect } from '@votingworks/types'
 
 type ContestId = t.Contest['id']
 
@@ -37,12 +36,6 @@ export interface BallotInfo {
   image: { url: string; width: number; height: number }
 }
 
-export interface AdjudicationInfo {
-  requiresAdjudication: boolean
-  enabledReasons: readonly t.AdjudicationReason[]
-  allReasonInfos: readonly AdjudicationReasonInfo[]
-}
-
 export interface ReviewMarginalMarksBallot {
   type: 'ReviewMarginalMarksBallot'
   ballot: BallotInfo
@@ -61,38 +54,5 @@ export interface ReviewUninterpretableHmpbBallot {
 export interface Contest {
   id: ContestId
   title: string
-  options: readonly ContestOption[]
-}
-
-export type ContestOption =
-  | CandidateContestOption
-  | YesNoContestOption
-  | MsEitherNeitherContestOption
-
-export interface CandidateContestOption {
-  type: t.CandidateContest['type']
-  id: t.Candidate['id']
-  contestId: t.CandidateContest['id']
-  name: t.Candidate['name']
-  isWriteIn: boolean
-}
-
-export interface YesNoContestOption {
-  type: t.YesNoContest['type']
-  id: Exclude<t.YesNoVote[0] | t.YesNoVote[1], undefined>
-  contestId: t.YesNoContest['id']
-  name: string
-}
-
-export interface MsEitherNeitherContestOption {
-  type: t.MsEitherNeitherContest['type']
-  id:
-    | t.MsEitherNeitherContest['eitherOption']['id']
-    | t.MsEitherNeitherContest['neitherOption']['id']
-    | t.MsEitherNeitherContest['firstOption']['id']
-    | t.MsEitherNeitherContest['secondOption']['id']
-  contestId:
-    | t.MsEitherNeitherContest['eitherNeitherContestId']
-    | t.MsEitherNeitherContest['pickOneContestId']
-  name: string
+  options: readonly t.ContestOption[]
 }

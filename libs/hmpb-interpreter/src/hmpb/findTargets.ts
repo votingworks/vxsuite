@@ -1,16 +1,11 @@
+import { Rect, TargetShape } from '@votingworks/types'
 import makeDebug from 'debug'
-import { Rect } from '../types'
 import { PIXEL_WHITE } from '../utils/binarize'
 import { rectCenter } from '../utils/geometry'
 import { VisitedPoints } from '../utils/VisitedPoints'
 import { findShape, Shape } from './shapes'
 
 const debug = makeDebug('hmpb-interpreter:findTargets')
-
-export interface TargetShape {
-  bounds: Rect
-  inner: Rect
-}
 
 export default function* findTargets(
   ballotImage: ImageData,

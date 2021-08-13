@@ -1,15 +1,17 @@
-import { safeParseJSON } from '@votingworks/types'
+import {
+  AdjudicationReasonInfo,
+  BallotSheetInfo,
+  safeParseJSON,
+} from '@votingworks/types'
 import {
   CalibrateResponseSchema,
   GetScanStatusResponse,
   ScanContinueRequest,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
-import makeDebug from 'debug'
 import { fetchJSON } from '@votingworks/utils'
+import makeDebug from 'debug'
 import {
-  AdjudicationReasonInfo,
-  BallotSheetInfo,
   CastVoteRecord,
   RejectedScanningReason,
   ScanningResult,

@@ -1,4 +1,5 @@
 import {
+  BallotLocale,
   BallotStyle,
   Candidate,
   Contest,
@@ -6,6 +7,7 @@ import {
   Optional,
   Precinct,
 } from '@votingworks/types'
+import { BallotStyleData } from '@votingworks/utils'
 
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
@@ -22,22 +24,11 @@ export type ButtonEventFunction = (
 // Election
 export type SaveElection = (electionJSON?: string) => Promise<void>
 
-export interface BallotStyleData {
-  ballotStyleId: BallotStyle['id']
-  contestIds: Contest['id'][]
-  precinctId: Precinct['id']
-}
-
 export interface BallotConfig extends BallotStyleData {
   filename: string
   locales: BallotLocale
   isLiveMode: boolean
   isAbsentee: boolean
-}
-
-export interface BallotLocale {
-  primary: string
-  secondary?: string
 }
 
 export const PrintableBallotType = {

@@ -11,12 +11,14 @@ import { TFunction, StringMap } from 'i18next'
 import { useTranslation, Trans } from 'react-i18next'
 import {
   AnyContest,
+  BallotLocale,
   BallotType,
   Candidate,
   CandidateContest,
   CandidateVote,
   Dictionary,
   Election,
+  HMPBBallotPageMetadata,
   OptionalElection,
   Parties,
   Vote,
@@ -30,10 +32,7 @@ import {
   safeParseElection,
 } from '@votingworks/types'
 
-import {
-  encodeHMPBBallotPageMetadata,
-  HMPBBallotPageMetadata,
-} from '@votingworks/ballot-encoder'
+import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import AppContext from '../contexts/AppContext'
 
 import findPartyById from '../utils/findPartyById'
@@ -44,7 +43,6 @@ import QRCode from './QRCode'
 import Prose from './Prose'
 import Text from './Text'
 import HorizontalRule from './HorizontalRule'
-import { BallotLocale } from '../config/types'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
 

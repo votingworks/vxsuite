@@ -8,6 +8,7 @@ import makeDebug from 'debug'
 
 import {
   AdminCardData,
+  AdjudicationReasonInfo,
   CardData,
   OptionalElectionDefinition,
   PollworkerCardData,
@@ -33,7 +34,6 @@ import {
   RejectedScanningReason,
   CastVoteRecord,
   MachineConfig,
-  AdjudicationReasonInfo,
 } from './config/types'
 import {
   CARD_POLLING_INTERVAL,

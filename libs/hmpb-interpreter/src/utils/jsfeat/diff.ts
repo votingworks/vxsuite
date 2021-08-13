@@ -1,4 +1,4 @@
-import { Rect } from '../../types'
+import { Rect } from '@votingworks/types'
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize'
 import {
   assertImageChannelsMatch,

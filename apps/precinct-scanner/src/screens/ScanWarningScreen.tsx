@@ -2,6 +2,9 @@ import {
   AdjudicationReason,
   CandidateContest,
   ElectionDefinition,
+  AdjudicationReasonInfo,
+  OvervoteAdjudicationReasonInfo,
+  UndervoteAdjudicationReasonInfo,
 } from '@votingworks/types'
 import { Button, Prose, Text } from '@votingworks/ui'
 import { strict as assert } from 'assert'
@@ -12,11 +15,7 @@ import { Bar } from '../components/Bar'
 import { ExclamationTriangle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import Modal from '../components/Modal'
-import {
-  AdjudicationReasonInfo,
-  OvervoteAdjudicationReasonInfo,
-  UndervoteAdjudicationReasonInfo,
-} from '../config/types'
+
 import AppContext from '../contexts/AppContext'
 import { toSentence } from '../utils/toSentence'
 

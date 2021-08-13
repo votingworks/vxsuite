@@ -1,10 +1,10 @@
-import { BallotType } from '@votingworks/types'
 import {
+  BallotType,
   BlankPage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   UnreadablePage,
-} from '../interpreter'
+} from '@votingworks/types'
 import { Castability, checkSheetCastability } from './castability'
 
 const interpretedBmdPage: Readonly<InterpretedBmdPage> = {

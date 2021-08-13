@@ -8,6 +8,7 @@ import React, {
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import {
+  BallotLocale,
   getBallotStyle,
   getContests,
   getPrecinctById,
@@ -17,7 +18,6 @@ import pluralize from 'pluralize'
 
 import {
   BallotScreenProps,
-  BallotLocale,
   InputEventFunction,
   PrintableBallotType,
 } from '../config/types'
