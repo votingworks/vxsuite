@@ -123,6 +123,92 @@ test('says the ballot sheet is overvoted if it is', async () => {
   expect(continueScanning).toHaveBeenCalledWith(true)
 })
 
+test('says the ballot sheet is undervoted if it is', async () => {
+  const response: BallotSheetInfo = {
+    id: 'mock-sheet-id',
+    front: {
+      image: { url: '/front/url' },
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        markInfo: {
+          ballotSize: { width: 1, height: 1 },
+          marks: [],
+        },
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 1,
+        },
+        adjudicationInfo: {
+          requiresAdjudication: true,
+          allReasonInfos: [
+            {
+              type: AdjudicationReason.Undervote,
+              contestId: '1',
+              optionIds: [],
+              expected: 1,
+            },
+          ],
+          enabledReasons: [AdjudicationReason.Undervote],
+        },
+        votes: {},
+      },
+    },
+    back: {
+      image: { url: '/back/url' },
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        markInfo: {
+          ballotSize: { width: 1, height: 1 },
+          marks: [],
+        },
+        metadata: {
+          ballotStyleId: '1',
+          precinctId: '1',
+          ballotType: BallotType.Standard,
+          electionHash: '',
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 2,
+        },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          allReasonInfos: [],
+          enabledReasons: [AdjudicationReason.Overvote],
+        },
+        votes: {},
+      },
+    },
+  }
+  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+
+  const continueScanning = jest.fn()
+
+  const { container, getByText } = renderInAppContext(
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode />
+  )
+
+  await act(async () => {
+    await waitFor(() => fetchMock.called)
+  })
+
+  expect(container).toMatchSnapshot()
+
+  fireEvent.click(getByText('Original Ballot Removed'))
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
+  expect(continueScanning).toHaveBeenCalledWith()
+
+  continueScanning.mockClear()
+
+  fireEvent.click(getByText('Tabulate Duplicate Ballot'))
+  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
+  expect(continueScanning).toHaveBeenCalledWith(true)
+})
+
 test('says the ballot sheet is blank if it is', async () => {
   const response: BallotSheetInfo = {
     id: 'mock-sheet-id',

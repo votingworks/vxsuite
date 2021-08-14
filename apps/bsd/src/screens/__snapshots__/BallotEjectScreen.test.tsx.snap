@@ -533,6 +533,150 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
 </div>
 `;
 
+exports[`says the ballot sheet is undervoted if it is 1`] = `
+<div>
+  <div
+    class="sc-bqyKva dgfgdQ"
+  >
+    <div
+      class="sc-fubCfw iyxBWV"
+    >
+      <div
+        class="sc-pFZIQ hrSaSI"
+      >
+        <div
+          class="sc-jrAGrp bYvxaX"
+        >
+          <div
+            class="sc-kEjbxe bgYkJF"
+          >
+            Voting
+            <span>
+              Works
+            </span>
+          </div>
+          <div
+            class="sc-iqHYGH"
+          >
+            Ballot Scanner
+          </div>
+        </div>
+        <div
+          class="sc-crrsfI dGHIEc"
+        >
+          <button
+            class="sc-eCssSg fEkUoC"
+            disabled=""
+            type="button"
+          >
+            Continue Scanning
+          </button>
+        </div>
+      </div>
+    </div>
+    <main
+      class="sc-bdfBwQ jA-DOsk"
+    >
+      <div
+        class="sc-fodVxV czxgUa"
+      >
+        <div
+          class="sc-dlfnbm ddzYNI"
+        >
+          <div
+            class="sc-hBEYos ceYTYH"
+          >
+            Undervote
+          </div>
+          <p>
+            This last scanned sheet 
+            <strong>
+              was not tabulated
+            </strong>
+            .
+          </p>
+          <h4>
+            Original Ballot Scan
+          </h4>
+          <p>
+            Remove ballot and create a duplicate ballot for the Resolution Board to review.
+            <br />
+            <button
+              class="sc-eCssSg bFFZjC"
+              type="button"
+            >
+              Original Ballot Removed
+            </button>
+          </p>
+          <h4>
+            Duplicate Ballot Scan
+          </h4>
+          <p>
+            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballow with issue which could not be determined.
+            <br />
+            <button
+              class="sc-eCssSg bFFZjC"
+              type="button"
+            >
+              Tabulate Duplicate Ballot
+            </button>
+          </p>
+        </div>
+        <div
+          class="sc-fFubgz iIcvCZ"
+        >
+          <div>
+            <img
+              alt="front"
+              src="/front/url"
+            />
+          </div>
+          <div>
+            <img
+              alt="back"
+              src="/back/url"
+            />
+          </div>
+        </div>
+      </div>
+    </main>
+    <div
+      class="sc-kstrdz kvxcls"
+    >
+      <div
+        class="sc-iBPRYJ dBXfiC"
+      >
+        Scanner ID: 
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-iBPRYJ dBXfiC"
+      >
+        <strong>
+          General Election
+        </strong>
+         — 
+        Tuesday, November 3, 2020
+         
+        — 
+        Franklin County
+        ,
+         
+        State of Hamilton
+         
+        — Election Hash:
+         
+        <strong>
+          2f6b1553c7
+        </strong>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`says the sheet is unreadable if it is 1`] = `
 <div>
   <div

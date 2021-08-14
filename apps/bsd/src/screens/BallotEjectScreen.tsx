@@ -79,6 +79,7 @@ const BallotEjectScreen: React.FC<Props> = ({
   }
 
   let isOvervotedSheet = false
+  let isUndervotedSheet = false
   let isBlankSheet = false
   let isUnreadableSheet = false
   let isInvalidTestModeSheet = false
@@ -101,6 +102,8 @@ const BallotEjectScreen: React.FC<Props> = ({
           if (interpretation.adjudicationInfo.enabledReasons.includes(type)) {
             if (type === AdjudicationReason.Overvote) {
               isOvervotedSheet = true
+            } else if (type === AdjudicationReason.Undervote) {
+              isUndervotedSheet = true
             } else if (type === AdjudicationReason.BlankBallot) {
               isBlankSheet = true
             }
@@ -155,6 +158,8 @@ const BallotEjectScreen: React.FC<Props> = ({
                 ? 'Unreadable'
                 : isOvervotedSheet
                 ? 'Overvote'
+                : isUndervotedSheet
+                ? 'Undervote'
                 : isBlankSheet
                 ? 'Blank Ballot'
                 : 'Unknown Reason'}
