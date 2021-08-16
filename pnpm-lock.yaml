@@ -1449,18 +1449,24 @@ importers:
   libs/ui:
     dependencies:
       '@types/react-router-dom': 5.1.7
+      debug: 4.3.2
       react-dom: 17.0.1_react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
+      use-interval: 1.3.0_react@17.0.1
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
+      '@testing-library/user-event': 13.2.1
+      '@types/debug': 4.1.7
       '@types/jest': 26.0.23
+      '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/node': 15.0.1
       '@types/react': 17.0.4
       '@types/styled-components': 5.1.9
       '@typescript-eslint/eslint-plugin': 4.28.4_9308c3eb0582626d69bb7a7a1fefe80e
       '@typescript-eslint/parser': 4.28.4_eslint@7.25.0+typescript@4.3.5
+      '@votingworks/test-utils': link:../test-utils
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       eslint: 7.25.0
@@ -1493,15 +1499,20 @@ importers:
     specifiers:
       '@codemod/parser': ^1.0.6
       '@testing-library/react': ^11.2.6
+      '@testing-library/user-event': ^13.2.1
+      '@types/debug': ^4.1.7
       '@types/jest': ^26.0.23
+      '@types/kiosk-browser': workspace:*
       '@types/node': ^15.0.0
       '@types/react': ^17.0.4
       '@types/react-router-dom': ^5.1.7
       '@types/styled-components': ^5.1.9
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
+      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
+      debug: ^4.3.2
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
       eslint-config-prettier: ^6.10.0
@@ -1532,6 +1543,7 @@ importers:
       stylelint-processor-styled-components: ^1.9.0
       ts-jest: ^26.5.5
       typescript: ^4.3.5
+      use-interval: ^1.3.0
   libs/utils:
     dependencies:
       '@types/node': 12.20.11
@@ -2320,6 +2332,11 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-5lsetuxCLilmVGyiLEfoHBRX8UCFD+1m2x3Rj97WrW3V7H3u4RWRXA4evMjImCsin2J2YT0QaVDGf+z8ondbAg==
+  /@babel/helper-validator-identifier/7.14.9:
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-pQYxPY0UP6IHISRitNe8bsijHex4TWZXi2HwKVsjPiltzlhse2znVcm9Ace510VT1kxIHjGJCZZQBX2gJDbo0g==
   /@babel/helper-validator-option/7.12.11:
     dev: false
     resolution:
@@ -2396,7 +2413,7 @@ packages:
       integrity: sha512-YSCOwxvTYEIMSGaBQb5kDDsCopDdiUGsqpatp3fOlI4+2HQSkTmEVWnVuySdAC5EWCqSWWTv0ib63RjR7dTBdg==
   /@babel/highlight/7.14.5:
     dependencies:
-      '@babel/helper-validator-identifier': 7.14.5
+      '@babel/helper-validator-identifier': 7.14.9
       chalk: 2.4.2
       js-tokens: 4.0.0
     engines:
@@ -5680,12 +5697,14 @@ packages:
       '@babel/core': ^7.0.0-0
     resolution:
       integrity: sha512-S4cueFnGrIbvYJgwsVFKdvOmpiL0XGw9MFW9D0vgRys5g36PBhZRL8NX8Gr2akz8XRtzq6HuDXPD/1nniagNUg==
-  /@babel/runtime-corejs3/7.14.0:
+  /@babel/runtime-corejs3/7.15.3:
     dependencies:
-      core-js-pure: 3.11.3
-      regenerator-runtime: 0.13.7
+      core-js-pure: 3.16.1
+      regenerator-runtime: 0.13.9
+    engines:
+      node: '>=6.9.0'
     resolution:
-      integrity: sha512-0R0HTZWHLk6G8jIk0FtoX+AatCtKnswS98VhXwGImFc759PJRp4Tru0PQYZofyijTFUr+gT8Mu7sgXVJLQ0ceg==
+      integrity: sha512-30A3lP+sRL6ml8uhoJSs+8jwpKzbw8CqBvDc1laeptxPm5FahumJxirigcbD2qTs71Sonvj1cyZB0OKGAmxQ+A==
   /@babel/runtime/7.12.1:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -5716,6 +5735,13 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-/PCB2uJ7oM44tz8YhC4Z/6PeOKXp4K588f+5M3clr1M4zbqztlo0XEfJ2LEzj/FgwfgGcIdl8n7YYjTCI0BYwg==
+  /@babel/runtime/7.15.3:
+    dependencies:
+      regenerator-runtime: 0.13.9
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-OvwMLqNXkCXSz1kSm58sEsNuhqOx/fKpnUnKnFB5v8uDda5bLNEHNgKPvhDN6IU0LDcnHQ90LlJ0Q6jnyBSIBA==
   /@babel/runtime/7.9.0:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -6802,6 +6828,18 @@ packages:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
       integrity: sha512-XpjCtJ/99HB4PmyJ2vgmN7vT+JLP7RW1FBT9RgnMFS4Dt7cvIyBee8O3/j98aUZ34ZpenPZFqmaaObWSeL65dg==
+  /@jest/types/27.0.6:
+    dependencies:
+      '@types/istanbul-lib-coverage': 2.0.3
+      '@types/istanbul-reports': 3.0.1
+      '@types/node': 15.14.7
+      '@types/yargs': 16.0.4
+      chalk: 4.1.2
+    dev: true
+    engines:
+      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
+    resolution:
+      integrity: sha512-aSquT1qa9Pik26JK5/3rvnYb4bGtm1VFNesHKmNTwmPIgOrixvhL2ghIvFRNEpzy3gU+rUgjIF/KodbkFAl++g==
   /@mrmlnc/readdir-enhanced/2.2.1:
     dependencies:
       call-me-maybe: 1.0.1
@@ -7542,6 +7580,21 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-GObDVMaI4ARrZEXaRy4moolNAxWPKvEYNV/fa6Uc2eAzR/t4otS6A7EhrntPBIQLeehL9DbVhscvvv7gd6hWqA==
+  /@testing-library/dom/8.1.0:
+    dependencies:
+      '@babel/code-frame': 7.14.5
+      '@babel/runtime': 7.15.3
+      '@types/aria-query': 4.2.2
+      aria-query: 4.2.2
+      chalk: 4.1.2
+      dom-accessibility-api: 0.5.7
+      lz-string: 1.4.4
+      pretty-format: 27.0.6
+    dev: true
+    engines:
+      node: '>=12'
+    resolution:
+      integrity: sha512-kmW9alndr19qd6DABzQ978zKQ+J65gU2Rzkl8hriIetPnwpesRaK4//jEQyYh8fEALmGhomD/LBQqt+o+DL95Q==
   /@testing-library/jest-dom/4.2.4:
     dependencies:
       '@babel/runtime': 7.12.5
@@ -7622,6 +7675,16 @@ packages:
       npm: '>=6'
     resolution:
       integrity: sha512-IR0iWbFkgd56Bu5ZI/ej8yQwrkCv8Qydx6RzwbKz9faXazR/+5tvYKsZQgyXJiwgpcva127YO6JcWy7YlCfofQ==
+  /@testing-library/user-event/13.2.1:
+    dependencies:
+      '@babel/runtime': 7.15.3
+      '@testing-library/dom': 8.1.0
+    dev: true
+    engines:
+      node: '>=10'
+      npm: '>=6'
+    resolution:
+      integrity: sha512-cczlgVl+krjOb3j1625usarNEibI0IFRJrSWX9UsJ1HKYFgCQv9Nb7QAipUDXl3Xdz8NDTsiS78eAkPSxlzTlw==
   /@tootallnate/once/1.1.2:
     dev: true
     engines:
@@ -7651,6 +7714,10 @@ packages:
   /@types/aria-query/4.2.1:
     resolution:
       integrity: sha512-S6oPal772qJZHoRZLFc/XoZW2gFvwXusYUmXPXkgxJLuEk2vOt7jc4Yo6z/vtI0EBkbPBVrJJ0B+prLIKiWqHg==
+  /@types/aria-query/4.2.2:
+    dev: true
+    resolution:
+      integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==
   /@types/array-unique/0.3.0:
     dev: false
     resolution:
@@ -7753,6 +7820,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-7fDOJFA/x8B+sO1901BmHlf5dE1cxBU8mRXj8QOEDnn16hhGJv/IHxJtZhvsabZsIMn0eLIyeOKAeqSNJJYTpA==
+  /@types/debug/4.1.7:
+    dependencies:
+      '@types/ms': 0.7.31
+    dev: true
+    resolution:
+      integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==
   /@types/dompurify/2.2.1:
     dependencies:
       '@types/trusted-types': 2.0.0
@@ -7966,6 +8039,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-fZQQafSREFyuZcdWFAExYjBiCL7AUCdgsk80iO0q4yihYYdcIiH28CcuPTGFgLOCC8RlW49GSQxdHwZP+I7CNg==
+  /@types/ms/0.7.31:
+    dev: true
+    resolution:
+      integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
   /@types/multer/1.4.5:
     dependencies:
       '@types/express': 4.17.11
@@ -8026,6 +8103,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-zrNj1+yqYF4WskCMOHwN+w9iuD12+dGm0rQ35HLl9/Ouuq52cEtd0CH9qMgrdNmi5ejC1/V7vKEXYubB+65DkA==
+  /@types/node/15.14.7:
+    dev: true
+    resolution:
+      integrity: sha512-FA45p37/mLhpebgbPWWCKfOisTjxGK9lwcHlJ6XVLfu3NgfcazOJHdYUZCWPMK8QX4LhNZdmfo6iMz9FqpUbaw==
   /@types/node/15.3.0:
     resolution:
       integrity: sha512-8/bnjSZD86ZfpBsDlCIkNXIvm+h6wi9g7IqL+kmFkQ+Wvu3JrasgLElfiPgoo8V8vVfnEi0QVS12gbl94h9YsQ==
@@ -8296,6 +8377,10 @@ packages:
   /@types/yargs-parser/20.2.0:
     resolution:
       integrity: sha512-37RSHht+gzzgYeobbG+KWryeAW8J33Nhr69cjTqSYymXVZEN9NbRYWoYlRtDhHKPVT1FyNKwaTPC1NynKZpzRA==
+  /@types/yargs-parser/20.2.1:
+    dev: true
+    resolution:
+      integrity: sha512-7tFImggNeNBVMsn0vLrpn1H1uPrUBdnARPTpZoitY37ZrdJREzf7I16tMrlK3hen349gr1NYh8CmZQa7CTG6Aw==
   /@types/yargs/13.0.11:
     dependencies:
       '@types/yargs-parser': 20.2.0
@@ -8322,6 +8407,12 @@ packages:
       '@types/yargs-parser': 20.2.0
     resolution:
       integrity: sha512-YlFfTGS+zqCgXuXNV26rOIeETOkXnGQXP/pjjL9P0gO/EP9jTmc7pUBhx+jVEIxpq41RX33GQ7N3DzOSfZoglQ==
+  /@types/yargs/16.0.4:
+    dependencies:
+      '@types/yargs-parser': 20.2.1
+    dev: true
+    resolution:
+      integrity: sha512-T8Yc9wt/5LbJyCaLiHPReJa0kApcIgJ7Bn735GjItUfh08Z1pJvu8QZqb9s+mMvKV6WUQRV7K2R46YbjMXTTJw==
   /@types/yauzl/2.9.1:
     dependencies:
       '@types/node': 15.3.0
@@ -9840,8 +9931,8 @@ packages:
       integrity: sha1-ZbP8wcoRVajJrmTW7uKX8V1RM8w=
   /aria-query/4.2.2:
     dependencies:
-      '@babel/runtime': 7.14.5
-      '@babel/runtime-corejs3': 7.14.0
+      '@babel/runtime': 7.15.3
+      '@babel/runtime-corejs3': 7.15.3
     engines:
       node: '>=6.0'
     resolution:
@@ -11189,6 +11280,15 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
+  /chalk/4.1.2:
+    dependencies:
+      ansi-styles: 4.3.0
+      supports-color: 7.2.0
+    dev: true
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
   /char-regex/1.0.2:
     engines:
       node: '>=10'
@@ -11774,10 +11874,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-LO8uL9lOIyRRrQmZxHZFl1RV+ZbcsAkFWTktn5SmH40WgLtSNYN4m4W2v9ONT147PxBY/XrRhrWq8TlvObyUjQ==
-  /core-js-pure/3.11.3:
+  /core-js-pure/3.16.1:
     requiresBuild: true
     resolution:
-      integrity: sha512-1c18Ef3sZh3l6R0I5ciNVxAfXxlQDW/6IoCayUvut4UipK3Ut682iuzhlEaHb4RITkLrzevUB+q/TEVbOA0p6g==
+      integrity: sha512-TyofCdMzx0KMhi84mVRS8rL1XsRk2SPUNz2azmth53iRN0/08Uim9fdhQTaZTG1LqaXHYVci4RDHka6WrXfnvg==
   /core-js/2.6.12:
     deprecated: core-js@<3.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
     dev: false
@@ -12846,6 +12946,10 @@ packages:
   /dom-accessibility-api/0.5.4:
     resolution:
       integrity: sha512-TvrjBckDy2c6v6RLxPv5QXOnU+SmF9nBII5621Ve5fu6Z/BDrENurBEvlC1f44lKEUVqOpK4w9E5Idc5/EgkLQ==
+  /dom-accessibility-api/0.5.7:
+    dev: true
+    resolution:
+      integrity: sha512-ml3lJIq9YjUfM9TUnEPvEYWFSwivwIGBPKpewX7tii7fwCazA8yCioGdqQcNsItPpfFvSJ3VIdMQPj60LJhcQA==
   /dom-converter/0.2.0:
     dependencies:
       utila: 0.4.0
@@ -23122,6 +23226,17 @@ packages:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
       integrity: sha512-mXKbbBPnYTG7Yra9qFBtqj+IXcsvxsvOBco3QHxtxTl+hHKq6QdzMZ+q0CtL4ORHZgwGImRr2XZUX2EWzORxig==
+  /pretty-format/27.0.6:
+    dependencies:
+      '@jest/types': 27.0.6
+      ansi-regex: 5.0.0
+      ansi-styles: 5.2.0
+      react-is: 17.0.2
+    dev: true
+    engines:
+      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
+    resolution:
+      integrity: sha512-8tGD7gBIENgzqA+UBzObyWqQ5B778VIFZA/S66cclyd5YkFLYs2Js7gxDKf0MXtTc9zcS7t1xhdfcElJ3YIvkQ==
   /printj/1.1.2:
     dev: false
     engines:
@@ -24044,6 +24159,9 @@ packages:
   /regenerator-runtime/0.13.7:
     resolution:
       integrity: sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
+  /regenerator-runtime/0.13.9:
+    resolution:
+      integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
   /regenerator-transform/0.14.5:
     dependencies:
       '@babel/runtime': 7.12.5

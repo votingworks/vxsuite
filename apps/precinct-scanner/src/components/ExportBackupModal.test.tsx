@@ -26,8 +26,7 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
       >
         <ExportBackupModal
           onClose={closeFn}
-          usbDriveStatus={status}
-          usbDriveEject={jest.fn()}
+          usbDrive={{ status, eject: jest.fn() }}
         />
       </AppContext.Provider>
     )
@@ -51,8 +50,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
       >
         <ExportBackupModal
           onClose={closeFn}
-          usbDriveStatus={status}
-          usbDriveEject={jest.fn()}
+          usbDrive={{ status, eject: jest.fn() }}
         />
       </AppContext.Provider>
     )
@@ -82,8 +80,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
     >
       <ExportBackupModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )
@@ -115,8 +112,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
     >
       <ExportBackupModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={ejectFn}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
       />
     </AppContext.Provider>
   )
@@ -146,8 +142,7 @@ test('handles no USB drives', async () => {
     >
       <ExportBackupModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )
@@ -173,8 +168,7 @@ test('shows a specific error for file writer failure', async () => {
     >
       <ExportBackupModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )
@@ -207,8 +201,7 @@ test('shows a specific error for fetch failure', async () => {
     >
       <ExportBackupModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )

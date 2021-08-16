@@ -5,6 +5,7 @@ import {
   Prose,
   SegmentedButton,
   Select,
+  UsbDrive,
 } from '@votingworks/ui'
 import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils'
 import { DateTime } from 'luxon'
@@ -27,8 +28,7 @@ interface Props {
   toggleLiveMode(): Promise<void>
   unconfigure(): Promise<void>
   calibrate(): Promise<boolean>
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => void
+  usbDrive: UsbDrive
 }
 
 const AdminScreen: React.FC<Props> = ({
@@ -38,8 +38,7 @@ const AdminScreen: React.FC<Props> = ({
   toggleLiveMode,
   unconfigure,
   calibrate,
-  usbDriveStatus,
-  usbDriveEject,
+  usbDrive,
 }) => {
   const { electionDefinition, currentPrecinctId } = useContext(AppContext)
   const { election } = electionDefinition!
@@ -228,8 +227,7 @@ const AdminScreen: React.FC<Props> = ({
       {isExportingResults && (
         <ExportResultsModal
           onClose={() => setIsExportingResults(false)}
-          usbDriveStatus={usbDriveStatus}
-          usbDriveEject={usbDriveEject}
+          usbDrive={usbDrive}
           isTestMode={isTestMode}
           scannedBallotCount={scannedBallotCount}
         />
@@ -237,8 +235,7 @@ const AdminScreen: React.FC<Props> = ({
       {isExportingBackup && (
         <ExportBackupModal
           onClose={() => setIsExportingBackup(false)}
-          usbDriveStatus={usbDriveStatus}
-          usbDriveEject={usbDriveEject}
+          usbDrive={usbDrive}
         />
       )}
     </CenteredScreen>
@@ -271,8 +268,10 @@ export const DefaultPreview: React.FC =
               updateAppPrecinctId={async (precinctId) =>
                 setPrecinctId(precinctId)
               }
-              usbDriveEject={() => Promise.resolve()}
-              usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
+              usbDrive={{
+                status: usbstick.UsbDriveStatus.notavailable,
+                eject: () => Promise.resolve(),
+              }}
             />
           </AppContext.Provider>
         )

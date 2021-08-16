@@ -28,8 +28,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
       >
         <ExportResultsModal
           onClose={closeFn}
-          usbDriveStatus={status}
-          usbDriveEject={jest.fn()}
+          usbDrive={{ status, eject: jest.fn() }}
           scannedBallotCount={5}
           isTestMode
         />
@@ -55,8 +54,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
       >
         <ExportResultsModal
           onClose={closeFn}
-          usbDriveStatus={status}
-          usbDriveEject={jest.fn()}
+          usbDrive={{ status, eject: jest.fn() }}
           scannedBallotCount={5}
           isTestMode
         />
@@ -94,8 +92,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
     >
       <ExportResultsModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
         scannedBallotCount={5}
         isTestMode
       />
@@ -135,8 +132,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     >
       <ExportResultsModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={ejectFn}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
         scannedBallotCount={5}
         isTestMode
       />
@@ -191,8 +187,7 @@ test('render export modal with errors when appropriate', async () => {
     >
       <ExportResultsModal
         onClose={closeFn}
-        usbDriveStatus={UsbDriveStatus.mounted}
-        usbDriveEject={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
         scannedBallotCount={5}
         isTestMode
       />
