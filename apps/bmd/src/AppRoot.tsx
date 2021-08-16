@@ -781,7 +781,6 @@ const AppRoot: React.FC<Props> = ({
             isValid && longValueExists
               ? (await card.readLongObject(CardTallySchema)).ok()
               : undefined
-
           dispatchAppState({
             type: 'processPollWorkerCard',
             isPollWorkerCardValid: isValid,

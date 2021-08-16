@@ -4,6 +4,7 @@ import { Main, MainChild } from '@votingworks/ui'
 
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
+import triggerAudioFocus from '../utils/triggerAudioFocus'
 
 interface Props {
   useEffectToggleLargeDisplay: () => void
@@ -13,12 +14,13 @@ const WrongPrecinctScreen: React.FC<Props> = ({
   useEffectToggleLargeDisplay,
 }: Props) => {
   useEffect(useEffectToggleLargeDisplay, [])
+  useEffect(triggerAudioFocus, [])
 
   return (
     <Screen white>
       <Main>
         <MainChild center>
-          <Prose textCenter>
+          <Prose textCenter id="audiofocus">
             <h1>Invalid Card Data</h1>
             <p>Card is not configured for this precinct.</p>
             <p>Please ask poll worker for assistance.</p>
