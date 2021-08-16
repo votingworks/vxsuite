@@ -102,6 +102,12 @@ const PollWorkerScreen: React.FC<Props> = ({
       )
     : []
 
+  /*
+   * Various state parameters to handle controlling when certain modals on the page are open or not.
+   * If you are adding a new modal make sure to add the new parameter to the triggerAudiofocus useEffect
+   * dependency. This will retrigger the audio to explain landing on the PollWorker homepage
+   * when the modal closes.
+   */
   const [isConfirmingPrintReport, setIsConfirmingPrintReport] = useState(false)
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
     !isLiveMode && isElectionDay
@@ -109,9 +115,6 @@ const PollWorkerScreen: React.FC<Props> = ({
   const cancelEnableLiveMode = () => setIsConfirmingEnableLiveMode(false)
   const [isPrintingReport, setIsPrintingReport] = useState(false)
   const cancelConfirmPrint = () => setIsConfirmingPrintReport(false)
-  const isPrintMode = machineConfig.appMode.isVxPrint
-  const isMarkAndPrintMode =
-    machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark
 
   const [isSavingTally, setIsSavingTally] = useState(false)
   const [isConfirmingCombinedPrint, setIsConfirmingCombinedPrint] = useState(
@@ -129,8 +132,12 @@ const PollWorkerScreen: React.FC<Props> = ({
     setIsPrintingPrecinctScannerReport,
   ] = useState(false)
 
+  /*
+   * Trigger audiofocus for the PollWorker screen landing page. This occurs when
+   * the component first renders, or any of the modals in the page are closed. If you
+   * add a new modal to this component add it's state parameter as a dependency here.
+   */
   useEffect(() => {
-    // If none of the modals are open, retrigger audiofocus
     if (
       !isConfirmingPrecinctScannerPrint &&
       !isConfirmingCombinedPrint &&
@@ -154,6 +161,10 @@ const PollWorkerScreen: React.FC<Props> = ({
     isPrintingReport,
     isConfirmingPrintReport,
   ])
+
+  const isPrintMode = machineConfig.appMode.isVxPrint
+  const isMarkAndPrintMode =
+    machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark
 
   const requestPrintSingleMachineReport = () => {
     setIsPrintingReport(true)
