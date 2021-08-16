@@ -4,7 +4,7 @@ import {
   electionSample as election,
 } from '@votingworks/fixtures'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
-import { BallotType } from '@votingworks/types'
+import { BallotSheetInfo, BallotType } from '@votingworks/types'
 import { sleep } from '@votingworks/utils'
 import * as fs from 'fs-extra'
 import { join } from 'path'
@@ -13,7 +13,6 @@ import { v4 as uuid } from 'uuid'
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
 import Importer from './importer'
 import { BatchControl, Scanner } from './scanners'
-import { BallotSheetInfo } from './util/ballotAdjudicationReasons'
 import { createWorkspace, Workspace } from './util/workspace'
 import * as workers from './workers/combined'
 

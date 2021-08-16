@@ -1,4 +1,5 @@
 import {
+  BallotMark,
   CandidateContest,
   MsEitherNeitherContest,
   YesNoContest,
@@ -6,7 +7,6 @@ import {
 import { find } from '@votingworks/utils'
 import { election } from '../test/fixtures/choctaw-county-2020-general-election'
 import getVotesFromMarks from './getVotesFromMarks'
-import { BallotMark } from './types'
 
 const candidateContest = find(
   election.contests,

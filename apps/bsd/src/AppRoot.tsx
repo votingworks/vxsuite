@@ -32,7 +32,6 @@ import useInterval from './hooks/useInterval'
 
 import LoadElectionScreen from './screens/LoadElectionScreen'
 import DashboardScreen from './screens/DashboardScreen'
-import DebugScreen from './screens/DebugScreen'
 import BallotEjectScreen from './screens/BallotEjectScreen'
 import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen'
 
@@ -378,11 +377,6 @@ const App: React.FC = () => {
         }}
       >
         <Switch>
-          {process.env.NODE_ENV === 'development' && (
-            <Route path="/debug">
-              <DebugScreen isTestMode={isTestMode} />
-            </Route>
-          )}
           <Route path="/advanced">
             <AdvancedOptionsScreen
               unconfigureServer={unconfigureServer}

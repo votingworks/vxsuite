@@ -1,4 +1,4 @@
-import { Rect } from '../types'
+import { Rect } from '@votingworks/types'
 import { createImageData } from './canvas'
 
 /**

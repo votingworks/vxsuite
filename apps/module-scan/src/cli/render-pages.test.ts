@@ -10,8 +10,7 @@ import { pathExists } from 'fs-extra'
 import { tmpNameSync } from 'tmp'
 import { loadImageData } from '../util/images'
 import Store from '../store'
-import { BallotType } from '@votingworks/types'
-import { BallotMetadata } from '../types'
+import { BallotMetadata, BallotType } from '@votingworks/types'
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream

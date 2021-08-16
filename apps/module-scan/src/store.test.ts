@@ -1,6 +1,7 @@
 import { asElectionDefinition } from '@votingworks/fixtures'
 import {
   AdjudicationReason,
+  BallotMetadata,
   BallotType,
   CandidateContest,
   YesNoContest,
@@ -11,13 +12,7 @@ import { v4 as uuid } from 'uuid'
 import { election } from '../test/fixtures/state-of-hamilton'
 import zeroRect from '../test/fixtures/zeroRect'
 import Store from './store'
-import {
-  BallotMetadata,
-  PageInterpretationWithFiles,
-  SheetOf,
-  Side,
-} from './types'
-import { MarkStatus } from './types/ballot-review'
+import { PageInterpretationWithFiles, SheetOf } from './types'
 
 test('get/set election', async () => {
   const store = await Store.memoryStore()
@@ -327,77 +322,4 @@ test('adjudication', async () => {
 
   // cleaning up batches now should have no impact
   await store.cleanupIncompleteBatches()
-
-  await Promise.all(
-    (['front', 'back'] as Side[]).map(async (side, i) => {
-      expect(await store.getPage(ballotId, side)).toEqual(
-        expect.objectContaining({
-          marks: {
-            [candidateContests[i].id]: {
-              [candidateContests[i].candidates[0].id]: MarkStatus.Marginal,
-            },
-            [yesnoContests[i].id]: { [yesnoOption]: MarkStatus.Marked },
-          },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [
-              AdjudicationReason.UninterpretableBallot,
-              AdjudicationReason.MarginalMark,
-            ],
-            allReasonInfos: [
-              {
-                type: AdjudicationReason.MarginalMark,
-                contestId: candidateContests[i].id,
-                optionId: candidateContests[i].candidates[0].id,
-              },
-              {
-                type: AdjudicationReason.Undervote,
-                contestId: candidateContests[i].id,
-                expected: 1,
-                optionIds: [],
-              },
-            ],
-          },
-        })
-      )
-
-      await store.saveBallotAdjudication(ballotId, side, {
-        [candidateContests[i].id]: {
-          [candidateContests[i].candidates[0].id]: MarkStatus.Marked,
-        },
-        [yesnoContests[i].id]: { [yesnoOption]: MarkStatus.Unmarked },
-      })
-
-      expect(await store.getPage(ballotId, side)).toEqual(
-        expect.objectContaining({
-          marks: {
-            [candidateContests[i].id]: {
-              [candidateContests[i].candidates[0].id]: MarkStatus.Marked,
-            },
-            [yesnoContests[i].id]: { [yesnoOption]: MarkStatus.Unmarked },
-          },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [
-              AdjudicationReason.UninterpretableBallot,
-              AdjudicationReason.MarginalMark,
-            ],
-            allReasonInfos: [
-              {
-                type: AdjudicationReason.MarginalMark,
-                contestId: candidateContests[i].id,
-                optionId: candidateContests[i].candidates[0].id,
-              },
-              {
-                type: AdjudicationReason.Undervote,
-                contestId: candidateContests[i].id,
-                expected: 1,
-                optionIds: [],
-              },
-            ],
-          },
-        })
-      )
-    })
-  )
 })

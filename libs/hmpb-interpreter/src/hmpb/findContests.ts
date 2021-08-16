@@ -1,11 +1,6 @@
-import { AnyContest, Contests } from '@votingworks/types'
+import { AnyContest, Contests, Corners, Rect } from '@votingworks/types'
 import makeDebug from 'debug'
-import {
-  BallotPageContestLayout,
-  BallotPageLayout,
-  Corners,
-  Rect,
-} from '../types'
+import { BallotPageContestLayout, BallotPageLayout } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
 import { euclideanDistance, poly4Area } from '../utils/geometry'

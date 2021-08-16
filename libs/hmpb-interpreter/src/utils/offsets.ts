@@ -1,4 +1,4 @@
-import { Offset } from '../types'
+import { Offset } from '@votingworks/types'
 
 export default function* offsets(): Generator<Offset> {
   let x = 0

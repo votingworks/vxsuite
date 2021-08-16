@@ -4,34 +4,32 @@
 //
 
 import {
-  AdjudicationReason,
-  BallotType,
-  Contests,
-  Election,
-  err,
-  MarkThresholds,
-  ok,
-  Result,
-  VotesDict,
-} from '@votingworks/types'
-import {
   decodeBallot,
   decodeElectionHash,
   detect,
   ELECTION_HASH_LENGTH,
 } from '@votingworks/ballot-encoder'
 import {
-  BallotMark,
   BallotPageLayout,
   BallotPageMetadata,
   DetectQRCodeResult,
   Interpreter as HMPBInterpreter,
   metadataFromBytes,
-  Size,
 } from '@votingworks/hmpb-interpreter'
+import {
+  AdjudicationReason,
+  BallotType,
+  Contests,
+  Election,
+  err,
+  InterpretedBmdPage,
+  MarkThresholds,
+  ok,
+  PageInterpretation,
+  Result,
+} from '@votingworks/types'
 import makeDebug from 'debug'
-import { BallotMetadata, BallotPageQrcode, SheetOf } from './types'
-import { AdjudicationInfo } from './types/ballot-review'
+import { BallotPageQrcode, SheetOf } from './types'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons'
@@ -39,11 +37,11 @@ import { loadImageData } from './util/images'
 import optionMarkStatus from './util/optionMarkStatus'
 import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
-import * as qrcodeWorker from './workers/qrcode'
 import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation'
+import * as qrcodeWorker from './workers/qrcode'
 
 const debug = makeDebug('module-scan:interpreter')
 
@@ -56,67 +54,6 @@ export interface InterpretFileParams {
 export interface InterpretFileResult {
   interpretation: PageInterpretation
   normalizedImage?: ImageData
-}
-
-export interface MarkInfo {
-  marks: BallotMark[]
-  ballotSize: Size
-}
-
-export type PageInterpretation =
-  | BlankPage
-  | InterpretedBmdPage
-  | InterpretedHmpbPage
-  | InvalidElectionHashPage
-  | InvalidTestModePage
-  | InvalidPrecinctPage
-  | UninterpretedHmpbPage
-  | UnreadablePage
-
-export interface BlankPage {
-  type: 'BlankPage'
-}
-
-export interface InterpretedBmdPage {
-  type: 'InterpretedBmdPage'
-  ballotId: string
-  metadata: BallotMetadata
-  votes: VotesDict
-}
-
-export interface InterpretedHmpbPage {
-  type: 'InterpretedHmpbPage'
-  ballotId?: string
-  metadata: BallotPageMetadata
-  markInfo: MarkInfo
-  votes: VotesDict
-  adjudicationInfo: AdjudicationInfo
-}
-
-export interface InvalidElectionHashPage {
-  type: 'InvalidElectionHashPage'
-  expectedElectionHash: string
-  actualElectionHash: string
-}
-
-export interface InvalidTestModePage {
-  type: 'InvalidTestModePage'
-  metadata: BallotMetadata | BallotPageMetadata
-}
-
-export interface InvalidPrecinctPage {
-  type: 'InvalidPrecinctPage'
-  metadata: BallotMetadata | BallotPageMetadata
-}
-
-export interface UninterpretedHmpbPage {
-  type: 'UninterpretedHmpbPage'
-  metadata: BallotPageMetadata
-}
-
-export interface UnreadablePage {
-  type: 'UnreadablePage'
-  reason?: string
 }
 
 interface BallotImageData {

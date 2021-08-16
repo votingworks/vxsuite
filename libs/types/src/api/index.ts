@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { ISO8601Date } from '../schema'
+import { ISO8601Date } from '../generic'
 
 export type ISO8601Timestamp = string
 

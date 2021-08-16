@@ -1,4 +1,5 @@
 import { asElectionDefinition } from '@votingworks/fixtures'
+import { BallotPackageManifest } from '@votingworks/utils'
 import { EventEmitter } from 'events'
 import { Application } from 'express'
 import * as fs from 'fs-extra'
@@ -10,7 +11,7 @@ import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import Importer from './importer'
 import { buildApp } from './server'
-import { BallotPackageManifest, CastVoteRecord } from './types'
+import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
 
 const electionFixturesRoot = join(

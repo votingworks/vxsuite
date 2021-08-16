@@ -1,73 +1,18 @@
-import { AdjudicationReason, Contest, Contests } from '@votingworks/types'
-import { PageInterpretation } from '../interpreter'
-import { ContestOption, MarkStatus } from '../types'
+import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  Contest,
+  ContestOption,
+  Contests,
+} from '@votingworks/types'
+import { MarkStatus } from '../types'
 import allContestOptions from './allContestOptions'
-
-export type AdjudicationReasonInfo =
-  | UninterpretableBallotAdjudicationReasonInfo
-  | MarginalMarkAdjudicationReasonInfo
-  | OvervoteAdjudicationReasonInfo
-  | UndervoteAdjudicationReasonInfo
-  | WriteInAdjudicationReasonInfo
-  | BlankBallotAdjudicationReasonInfo
-
-export interface UninterpretableBallotAdjudicationReasonInfo {
-  type: AdjudicationReason.UninterpretableBallot
-}
-
-export interface MarginalMarkAdjudicationReasonInfo {
-  type: AdjudicationReason.MarginalMark
-  contestId: Contest['id']
-  optionId: ContestOption['id']
-}
-
-export interface OvervoteAdjudicationReasonInfo {
-  type: AdjudicationReason.Overvote
-  contestId: Contest['id']
-  optionIds: readonly ContestOption['id'][]
-  expected: number
-}
-
-export interface UndervoteAdjudicationReasonInfo {
-  type: AdjudicationReason.Undervote
-  contestId: Contest['id']
-  optionIds: readonly ContestOption['id'][]
-  expected: number
-}
-
-export interface WriteInAdjudicationReasonInfo {
-  type: AdjudicationReason.WriteIn
-  contestId: Contest['id']
-  optionId: ContestOption['id']
-}
-
-export interface BlankBallotAdjudicationReasonInfo {
-  type: AdjudicationReason.BlankBallot
-}
 
 export interface Options {
   optionMarkStatus: (
     contestId: Contest['id'],
     optionId: ContestOption['id']
   ) => MarkStatus
-}
-
-// these data structures live here until we can refactor the code
-// to be more sheet-oriented and then place them where they belong.
-interface ImageInfo {
-  url: string
-}
-
-interface BallotPageInfo {
-  image: ImageInfo
-  interpretation: PageInterpretation
-}
-
-export interface BallotSheetInfo {
-  id: string
-  front: BallotPageInfo
-  back: BallotPageInfo
-  adjudicationReason?: AdjudicationReason
 }
 
 /**

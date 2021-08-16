@@ -1,4 +1,4 @@
-import { Corners, Point, Rect } from '../types'
+import { Corners, Point, Rect } from '@votingworks/types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { angleBetweenPoints } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'

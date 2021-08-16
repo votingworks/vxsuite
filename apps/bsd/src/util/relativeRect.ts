@@ -1,4 +1,4 @@
-import type { Rect } from '@votingworks/hmpb-interpreter'
+import type { Rect } from '@votingworks/types'
 
 /**
  * Builds a function to convert rect absolute values to relative percentage

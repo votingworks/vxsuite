@@ -4,7 +4,7 @@ import {
   advanceTimers,
   advanceTimersAndPromises,
 } from '@votingworks/test-utils'
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 import {
   GetCurrentPrecinctConfigResponse,
   GetScanStatusResponse,
@@ -22,7 +22,6 @@ import {
   getVoterCard,
 } from '../test/helpers/smartcards'
 import App from './App'
-import { BallotSheetInfo } from './config/types'
 import { stateStorageKey } from './AppRoot'
 
 const getMachineConfigBody = {

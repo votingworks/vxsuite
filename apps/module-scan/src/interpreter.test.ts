@@ -1,6 +1,15 @@
 import { electionSample } from '@votingworks/fixtures'
 import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
-import { AdjudicationReason, Election } from '@votingworks/types'
+import {
+  AdjudicationReason,
+  BlankPage,
+  Election,
+  InterpretedBmdPage,
+  InterpretedHmpbPage,
+  PageInterpretation,
+  UninterpretedHmpbPage,
+  UnreadablePage,
+} from '@votingworks/types'
 import { readFile } from 'fs-extra'
 import { join } from 'path'
 import { election as choctaw2020Election } from '../test/fixtures/2020-choctaw'
@@ -8,14 +17,8 @@ import * as general2020Fixtures from '../test/fixtures/2020-general'
 import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { election as stateOfHamiltonElection } from '../test/fixtures/state-of-hamilton'
 import Interpreter, {
-  BlankPage,
   getBallotImageData,
-  InterpretedBmdPage,
-  InterpretedHmpbPage,
-  PageInterpretation,
   sheetRequiresAdjudication,
-  UninterpretedHmpbPage,
-  UnreadablePage,
 } from './interpreter'
 import pdfToImages from './util/pdfToImages'
 import { detectQrcodeInFilePath } from './workers/qrcode'

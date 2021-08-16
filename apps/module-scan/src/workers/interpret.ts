@@ -1,13 +1,10 @@
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, PageInterpretation } from '@votingworks/types'
 import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
 import { ScannerLocation, SCANNER_LOCATION } from '../globals'
 import { saveImages } from '../importer'
-import Interpreter, {
-  InterpretFileResult,
-  PageInterpretation,
-} from '../interpreter'
+import Interpreter, { InterpretFileResult } from '../interpreter'
 import Store from '../store'
 import pdfToImages from '../util/pdfToImages'
 import * as qrcodeWorker from './qrcode'

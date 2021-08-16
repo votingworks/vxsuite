@@ -1,18 +1,13 @@
+import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 import {
   BallotLocales,
-  BallotStyle,
-  Contest,
+  BallotMark,
+  BallotTargetMark,
   Dictionary,
   MarkThresholds,
-  Precinct,
+  PageInterpretation,
 } from '@votingworks/types'
-import {
-  BallotMark,
-  BallotPageLayout,
-  BallotPageMetadata,
-  BallotTargetMark,
-} from '@votingworks/hmpb-interpreter'
-import { MarkInfo, PageInterpretation } from './interpreter'
+import { BallotStyleData } from '@votingworks/utils/src'
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
 
 export type SheetOf<T> = [T, T]
@@ -46,35 +41,6 @@ export interface CastVoteRecord
   _locales?: BallotLocales
 }
 
-export type BallotInfo = BmdBallotInfo | HmpbBallotInfo | UnreadableBallotInfo
-
-export interface BmdBallotInfo {
-  id: number
-  filename: string
-  cvr: CastVoteRecord
-}
-
-export interface HmpbBallotInfo {
-  id: number
-  filename: string
-  cvr: CastVoteRecord
-  marks: MarkInfo
-  layout: SerializableBallotPageLayout
-}
-
-export interface UnreadableBallotInfo {
-  id: number
-  filename: string
-}
-
-export interface HmpbTemplateInfo {
-  ballotStyleId: BallotStyle['id']
-  precinctId: Precinct['id']
-  pageNumber: number
-  pageCount: number
-}
-
-export type BallotMetadata = Omit<BallotPageMetadata, 'pageNumber' | 'ballotId'>
 export interface BallotPageQrcode {
   data: Uint8Array
   position: 'top' | 'bottom'
@@ -85,16 +51,6 @@ export type SerializableBallotPageLayout = Omit<
   'ballotImage'
 > & {
   ballotImage: Omit<BallotPageLayout['ballotImage'], 'imageData'>
-}
-
-export interface BallotPackageManifest {
-  ballots: readonly BallotConfig[]
-}
-
-export interface BallotStyleData {
-  ballotStyleId: BallotStyle['id']
-  contestIds: Contest['id'][]
-  precinctId: Precinct['id']
 }
 
 export interface BallotConfig extends BallotStyleData {

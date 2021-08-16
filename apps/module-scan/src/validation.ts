@@ -1,15 +1,15 @@
-import { HMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
 import {
   BallotLocale,
   BallotStyle,
   BallotType,
   ElectionDefinition,
   err,
+  HMPBBallotPageMetadata,
   ok,
+  PageInterpretation,
   Precinct,
   Result,
 } from '@votingworks/types'
-import { PageInterpretation } from './interpreter'
 import { SheetOf } from './types'
 
 const BlankPageTypes: readonly PageInterpretation['type'][] = [

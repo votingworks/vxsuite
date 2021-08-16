@@ -1,7 +1,6 @@
-import { VotesDict } from '@votingworks/types'
+import { BallotMark, VotesDict } from '@votingworks/types'
 import makeDebug from 'debug'
 import { addVote } from './hmpb/votes'
-import { BallotMark } from './types'
 
 const debug = makeDebug('hmpb-interpreter:getVotesFromMarks')
 

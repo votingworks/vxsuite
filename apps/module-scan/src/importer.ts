@@ -1,8 +1,10 @@
 import { BallotPageLayout, Interpreter } from '@votingworks/hmpb-interpreter'
 import {
+  BallotMetadata,
   ElectionDefinition,
   MarkThresholds,
   Optional,
+  PageInterpretation,
 } from '@votingworks/types'
 import { ScannerStatus, ScanStatus } from '@votingworks/types/api/module-scan'
 import { sleep } from '@votingworks/utils'
@@ -11,9 +13,8 @@ import * as fsExtra from 'fs-extra'
 import * as streams from 'memory-streams'
 import { join } from 'path'
 import { v4 as uuid } from 'uuid'
-import { PageInterpretation } from './interpreter'
 import { BatchControl, Scanner } from './scanners'
-import { BallotMetadata, SheetOf, Side } from './types'
+import { SheetOf, Side } from './types'
 import { Castability, checkSheetCastability } from './util/castability'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'

@@ -1,5 +1,4 @@
-import { Election } from '../src/election'
-import { safeParseElection } from '../src/schema'
+import { Election, safeParseElection } from '../src/election'
 
 export const electionData = `
 {

@@ -1,5 +1,4 @@
-import { AnyContest } from '@votingworks/types'
-import { ContestOption } from '../types'
+import { AnyContest, ContestOption } from '@votingworks/types'
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.

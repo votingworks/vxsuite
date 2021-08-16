@@ -15,7 +15,8 @@ import {
   safeParseElectionDefinition,
   Optional,
   safeParseJSON,
-  schema,
+  AnyCardDataSchema,
+  VoterCardDataSchema,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -717,7 +718,7 @@ const AppRoot: React.FC<Props> = ({
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
       const parseShortValueResult = safeParseJSON(
         cardShortValue!,
-        schema.AnyCardData
+        AnyCardDataSchema
       )
       if (parseShortValueResult.isErr()) {
         debug('ignoring invalid short value: %s', cardShortValue)
@@ -907,7 +908,7 @@ const AppRoot: React.FC<Props> = ({
 
     const currentVoterCardData = safeParseJSON(
       shortValue!,
-      schema.VoterCardData
+      VoterCardDataSchema
     ).unsafeUnwrap()
     const voidedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
@@ -919,7 +920,7 @@ const AppRoot: React.FC<Props> = ({
     const updatedShortValue = updatedCard.present
       ? safeParseJSON(
           updatedCard.shortValue!,
-          schema.VoterCardData
+          VoterCardDataSchema
         ).unsafeUnwrap()
       : /* istanbul ignore next - this should never happen */
         undefined
@@ -953,7 +954,7 @@ const AppRoot: React.FC<Props> = ({
 
     const currentVoterCardData = safeParseJSON(
       shortValue!,
-      schema.VoterCardData
+      VoterCardDataSchema
     ).unsafeUnwrap()
     const usedVoterCardData: VoterCardData = {
       ...currentVoterCardData,
@@ -968,7 +969,7 @@ const AppRoot: React.FC<Props> = ({
     const updatedShortValue = updatedCard.present
       ? safeParseJSON(
           updatedCard.shortValue!,
-          schema.VoterCardData
+          VoterCardDataSchema
         ).unsafeUnwrap()
       : /* istanbul ignore next - this should never happen */
         undefined

@@ -1,4 +1,4 @@
-import { BallotType } from '@votingworks/types'
+import { BallotTargetMark, BallotType } from '@votingworks/types'
 import { fail } from 'assert'
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election'
@@ -15,7 +15,7 @@ import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilto
 import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
 import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
 import Interpreter from './Interpreter'
-import { BallotTargetMark, DetectQRCodeResult } from './types'
+import { DetectQRCodeResult } from './types'
 
 test('interpret three-column template with instructions', async () => {
   const interpreter = new Interpreter(election)

@@ -1,6 +1,6 @@
+import { BallotMark } from '@votingworks/types'
 import { MarkStatus } from '../types/ballot-review'
-import { BallotMark } from '@votingworks/hmpb-interpreter'
-import { mergeChanges, changesFromMarks } from './marks'
+import { changesFromMarks, mergeChanges } from './marks'
 
 test('returns an empty object when no changes are given', () => {
   expect(mergeChanges({ contest: { option: MarkStatus.Marked } })).toEqual({})

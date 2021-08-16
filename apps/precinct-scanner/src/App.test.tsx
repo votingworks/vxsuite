@@ -13,6 +13,7 @@ import {
   ballotPackageUtils,
   MemoryHardware,
   MemoryStorage,
+  getZeroTally,
 } from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
@@ -25,11 +26,9 @@ import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 
 import { DateTime } from 'luxon'
-import { AdjudicationReason } from '@votingworks/types'
-import { getZeroTally } from '@votingworks/utils/src'
+import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 
 import App from './App'
-import { BallotSheetInfo } from './config/types'
 import { interpretedHmpb } from '../test/fixtures'
 
 import {

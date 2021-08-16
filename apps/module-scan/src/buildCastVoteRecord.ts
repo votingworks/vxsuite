@@ -1,5 +1,6 @@
 import {
   AnyContest,
+  BallotMetadata,
   BallotType,
   CandidateVote,
   Contests,
@@ -7,16 +8,13 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  InterpretedBmdPage,
+  InterpretedHmpbPage,
+  UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types'
 import { VX_MACHINE_ID } from './globals'
 import {
-  InterpretedBmdPage,
-  InterpretedHmpbPage,
-  UninterpretedHmpbPage,
-} from './interpreter'
-import {
-  BallotMetadata,
   CastVoteRecord,
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
   SheetOf,

@@ -1,19 +1,19 @@
 import {
   AnyContest,
+  BallotLocale,
   Candidate,
+  CandidateContest,
+  Dictionary,
   Election,
-  Party,
-  VotesDict,
   getContests,
   getPrecinctById,
-  Dictionary,
-  CandidateContest,
+  Party,
+  VotesDict,
 } from '@votingworks/types'
+import { BallotStyleData, find } from '@votingworks/utils'
 import dashify from 'dashify'
-import { find } from '@votingworks/utils'
 import { LANGUAGES } from '../config/globals'
-import { BallotLocale, YesNoOption, ContestOption } from '../config/types'
-
+import { ContestOption, YesNoOption } from '../config/types'
 import sortBy from './sortBy'
 
 // the generic write-in candidate to keep count
@@ -53,12 +53,6 @@ export function getContestOptionsForContest(
     return [['yes'] as YesNoOption, ['no'] as YesNoOption]
   }
   throw new Error(`Unexpected contest type: ${contest.type}`)
-}
-
-interface BallotStyleData {
-  ballotStyleId: string
-  contestIds: string[]
-  precinctId: string
 }
 
 const sortOptions = {

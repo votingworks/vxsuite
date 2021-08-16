@@ -2,7 +2,7 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures'
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 import {
   GetScanStatusResponse,
   ScannerStatus,
@@ -10,7 +10,6 @@ import {
 import fetchMock from 'fetch-mock'
 import { interpretedHmpb } from '../../test/fixtures'
 import {
-  BallotSheetInfo,
   RejectedScanningReason,
   RejectedScanningResult,
   ScanningResultNeedsReview,

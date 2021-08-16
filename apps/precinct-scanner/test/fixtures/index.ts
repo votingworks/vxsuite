@@ -1,11 +1,11 @@
 import {
+  AdjudicationInfo,
   AdjudicationReason,
   BallotType,
   CandidateContest,
   ElectionDefinition,
+  InterpretedHmpbPage,
 } from '@votingworks/types'
-import { AdjudicationInfo } from '../../src/config/ballot-review-types'
-import { InterpretedHmpbPage } from '../../src/config/types'
 
 export function interpretedHmpb({
   electionDefinition,

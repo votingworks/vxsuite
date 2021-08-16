@@ -1,7 +1,7 @@
 import { parseElection } from '@votingworks/types'
+import { BallotPackageManifest } from '@votingworks/utils'
 import { readFileSync } from 'fs-extra'
 import { join } from 'path'
-import { BallotPackageManifest } from '../../../src/types'
 import electionJSON from './election.json'
 
 export const election = parseElection(electionJSON)

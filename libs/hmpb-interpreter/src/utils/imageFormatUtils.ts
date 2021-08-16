@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert'
-import { Size } from '../types'
+import { Size } from '@votingworks/types'
 
 export type InPlaceImageTransform<A extends unknown[], R> = (
   srcImageData: ImageData,

@@ -1,4 +1,4 @@
-import { Corners, Point, Rect } from '../types'
+import { Corners, Point, Rect } from '@votingworks/types'
 import { strict as assert } from 'assert'
 
 /**
