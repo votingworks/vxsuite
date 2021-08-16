@@ -41,6 +41,12 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
 export enum ScannerStatus {
   WaitingForPaper = 'WaitingForPaper',
   ReadyToScan = 'ReadyToScan',
+  Scanning = 'Scanning',
+  Accepting = 'Accepting',
+  Rejecting = 'Rejecting',
+  ReadyToAccept = 'ReadyToAccept',
+  Rejected = 'Rejected',
+  Calibrating = 'Calibrating',
   Error = 'Error',
   Unknown = 'Unknown',
 }
