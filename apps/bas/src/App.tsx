@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import {
+  AnyCardData,
+  AnyCardDataSchema,
   BallotStyle,
-  CardData,
-  Optional,
-  OptionalElection,
+  ElectionSchema,
+  safeParseElection,
+  safeParseJSON,
   VoterCardData,
 } from '@votingworks/types'
+import { Card } from '@votingworks/utils'
 
-import fetchJSON from './utils/fetchJSON'
-
-import { CardAPI, EventTargetFunction } from './config/types'
+import { EventTargetFunction } from './config/types'
 
 import useStateWithLocalStorage from './hooks/useStateWithLocalStorage'
 
@@ -26,10 +27,15 @@ import WritingCardScreen from './screens/WritingCardScreen'
 
 import 'normalize.css'
 import './App.css'
+import { z } from 'zod'
 
 let checkCardInterval = 0
 
-const App: React.FC = () => {
+export interface Props {
+  card: Card
+}
+
+const App: React.FC<Props> = ({ card }) => {
   const [isEncodingCard, setIsEncodingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isCardPresent, setIsCardPresent] = useState(false)
@@ -40,43 +46,43 @@ const App: React.FC = () => {
   const [
     isSinglePrecinctMode,
     setIsSinglePrecinctMode,
-  ] = useStateWithLocalStorage<boolean>('singlePrecinctMode')
-  const [election, setElection] = useStateWithLocalStorage<OptionalElection>(
-    'election'
+  ] = useStateWithLocalStorage('singlePrecinctMode', z.boolean(), false)
+  const [election, setElection] = useStateWithLocalStorage(
+    'election',
+    ElectionSchema
   )
   const [isLoadingElection, setIsLoadingElection] = useState(false)
-  const [precinctId, setPrecinctId] = useStateWithLocalStorage<string>(
-    'precinctId'
+  const [precinctId, setPrecinctId] = useStateWithLocalStorage(
+    'precinctId',
+    z.string()
   )
-  const [ballotStyleId, setBallotStyleId] = useState<string>('')
-  const [partyId, setPartyId] = useStateWithLocalStorage<string>('partyId')
-  const [voterCardData, setVoterCardData] = useState<Optional<VoterCardData>>(
-    undefined
-  )
+  const [ballotStyleId, setBallotStyleId] = useState<string>()
+  const [partyId, setPartyId] = useStateWithLocalStorage('partyId', z.string())
+  const [voterCardData, setVoterCardData] = useState<VoterCardData>()
 
   const unconfigure = () => {
     setElection(undefined)
-    setBallotStyleId('')
-    setPrecinctId('')
-    setPartyId('')
+    setBallotStyleId(undefined)
+    setPrecinctId(undefined)
+    setPartyId(undefined)
     setIsSinglePrecinctMode(false)
     window.localStorage.clear()
   }
 
   const reset = () => {
     if (!isSinglePrecinctMode) {
-      setPrecinctId('')
+      setPrecinctId(undefined)
     }
-    setBallotStyleId('')
+    setBallotStyleId(undefined)
   }
 
   const setPrecinct = (id: string) => {
     setPrecinctId(id)
-    setPartyId('')
+    setPartyId(undefined)
   }
 
   const updatePrecinct: EventTargetFunction = (event) => {
-    const { id = '' } = (event.target as HTMLElement).dataset
+    const { id } = (event.target as HTMLElement).dataset
     setPrecinctId(id)
   }
 
@@ -102,13 +108,13 @@ const App: React.FC = () => {
     return precinct?.name ?? ''
   }
 
-  const getBallotStylesByPrecinctId = (id: string): BallotStyle[] =>
-    election?.ballotStyles.filter((b) => b.precincts.includes(id)) ?? []
+  const getBallotStylesByPrecinctId = (id?: string): BallotStyle[] =>
+    election?.ballotStyles.filter((b) => !id || b.precincts.includes(id)) ?? []
 
   const fetchElection = async () => {
     setIsLoadingElection(true)
-    const { longValue } = await fetchJSON('/card/read_long')
-    setElection(JSON.parse(longValue))
+    const longValue = await card.readLongString()
+    setElection(safeParseElection(longValue).unsafeUnwrap())
     setIsLoadingElection(false)
   }
 
@@ -116,7 +122,10 @@ const App: React.FC = () => {
     setIsLocked(true)
   }
 
-  const processCardData = (shortValue: CardData, longValueExists = false) => {
+  const processCardData = (
+    shortValue: AnyCardData,
+    longValueExists = false
+  ) => {
     setIsAdminCardPresent(false)
     setIsPollWorkerCardPresent(false)
     // eslint-disable-next-line no-shadow
@@ -124,7 +133,7 @@ const App: React.FC = () => {
     switch (shortValue.t) {
       case 'voter':
         isWritableCard = true
-        setVoterCardData(shortValue as VoterCardData)
+        setVoterCardData(shortValue)
         break
       case 'pollworker':
         setIsPollWorkerCardPresent(true)
@@ -149,8 +158,8 @@ const App: React.FC = () => {
 
     checkCardInterval = window.setInterval(async () => {
       try {
-        const card = await fetchJSON<CardAPI>('/card/read')
-        const currentCardDataString = JSON.stringify(card)
+        const cardStatus = await card.readStatus()
+        const currentCardDataString = JSON.stringify(cardStatus)
         if (currentCardDataString === lastCardDataString) {
           return
         }
@@ -161,11 +170,16 @@ const App: React.FC = () => {
         setIsPollWorkerCardPresent(false)
         setVoterCardData(undefined)
 
-        if (card.present) {
+        if (cardStatus.present) {
           setIsCardPresent(true)
-          if (card.shortValue) {
-            const shortValue = JSON.parse(card.shortValue) as CardData
-            processCardData(shortValue, card.longValueExists)
+          if (cardStatus.shortValue) {
+            const shortValueResult = safeParseJSON(
+              cardStatus.shortValue,
+              AnyCardDataSchema
+            )
+            if (shortValueResult.isOk()) {
+              processCardData(shortValueResult.ok(), cardStatus.longValueExists)
+            }
           } else {
             setIsWritableCard(true)
           }
@@ -181,7 +195,7 @@ const App: React.FC = () => {
     }, 1000)
   }
 
-  const programCard: EventTargetFunction = (event) => {
+  const programCard: EventTargetFunction = async (event) => {
     const {
       ballotStyleId: localBallotStyleId,
     } = (event.target as HTMLElement).dataset
@@ -196,48 +210,36 @@ const App: React.FC = () => {
         pr: precinctId,
         bs: localBallotStyleId,
       }
-      fetch('/card/write', {
-        method: 'post',
-        body: JSON.stringify(code),
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then((res) => res.json())
-        .then((response) => {
-          if (response.success) {
-            window.setTimeout(() => {
-              setIsEncodingCard(false)
-              setIsReadyToRemove(true)
-            }, 1500)
-          }
-        })
-        .catch(() => {
-          window.setTimeout(() => {
-            // TODO: UI Notification if unable to write to card
-            // https://github.com/votingworks/bas/issues/10
-            console.log(code) // eslint-disable-line no-console
-            reset()
-            setIsEncodingCard(false)
-            setIsReadyToRemove(true)
-          }, 500)
-        })
+      try {
+        await card.writeShortValue(JSON.stringify(code))
+        window.setTimeout(() => {
+          setIsEncodingCard(false)
+          setIsReadyToRemove(true)
+        }, 1500)
+      } catch {
+        window.setTimeout(() => {
+          // TODO: UI Notification if unable to write to card
+          // https://github.com/votingworks/bas/issues/10
+          console.log(code) // eslint-disable-line no-console
+          reset()
+          setIsEncodingCard(false)
+          setIsReadyToRemove(true)
+        }, 500)
+      }
     }
   }
-
-  const { bs = '', pr = '' } = voterCardData || {}
-  const cardBallotStyleId = bs
-  const cardPrecinctName = getPrecinctNameByPrecinctId(pr)
 
   if (isAdminCardPresent) {
     return (
       <AdminScreen
         election={election}
         fetchElection={fetchElection}
-        getBallotStylesByPreinctId={getBallotStylesByPrecinctId}
+        getBallotStylesByPrecinctId={getBallotStylesByPrecinctId}
         isLoadingElection={isLoadingElection}
         partyId={partyId}
-        partyName={getPartyAdjectiveById(partyId)}
+        partyName={partyId && getPartyAdjectiveById(partyId)}
         precinctId={precinctId}
-        precinctName={getPrecinctNameByPrecinctId(precinctId)}
+        precinctName={precinctId && getPrecinctNameByPrecinctId(precinctId)}
         setParty={setParty}
         setPrecinct={setPrecinct}
         unconfigure={unconfigure}
@@ -260,7 +262,7 @@ const App: React.FC = () => {
     if (!isWritableCard) {
       return <NonWritableCardScreen lockScreen={lockScreen} />
     }
-    if (isReadyToRemove) {
+    if (isReadyToRemove && ballotStyleId && precinctId) {
       return (
         <RemoveCardScreen
           ballotStyleId={ballotStyleId}
@@ -269,7 +271,7 @@ const App: React.FC = () => {
         />
       )
     }
-    if (isEncodingCard) {
+    if (isEncodingCard && ballotStyleId && precinctId) {
       return (
         <WritingCardScreen
           ballotStyleId={ballotStyleId}
@@ -280,8 +282,6 @@ const App: React.FC = () => {
     if (precinctId) {
       return (
         <PrecinctBallotStylesScreen
-          cardBallotStyleId={cardBallotStyleId}
-          cardPrecinctName={cardPrecinctName}
           isSinglePrecinctMode={isSinglePrecinctMode}
           lockScreen={lockScreen}
           partyId={partyId}
@@ -294,8 +294,6 @@ const App: React.FC = () => {
     }
     return (
       <PrecinctsScreen
-        cardBallotStyleId={cardBallotStyleId}
-        cardPrecinctName={cardPrecinctName}
         countyName={election.county.name}
         lockScreen={lockScreen}
         precincts={election.precincts}
