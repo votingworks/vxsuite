@@ -6,6 +6,7 @@ import {
   SegmentedButton,
   Select,
   UsbDrive,
+  useNow,
 } from '@votingworks/ui'
 import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils'
 import { DateTime } from 'luxon'
@@ -19,7 +20,6 @@ import { CenteredScreen } from '../components/Layout'
 import Modal from '../components/Modal'
 import PickDateTimeModal from '../components/PickDateTimeModal'
 import AppContext from '../contexts/AppContext'
-import useNow from '../hooks/useNow'
 
 interface Props {
   scannedBallotCount: number

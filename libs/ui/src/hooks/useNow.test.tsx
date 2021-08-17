@@ -1,7 +1,7 @@
 import React from 'react'
 import { act, render, screen } from '@testing-library/react'
 import MockDate from 'mockdate'
-import useNow from './useNow'
+import { useNow } from './useNow'
 
 MockDate.set('2021-03-31T00:00:00Z')
 jest.useFakeTimers()
@@ -17,8 +17,7 @@ test('returns the current date', () => {
   screen.getByText('2021-03-31T00:00:00.000+00:00')
 })
 
-// TODO: figure out why this is failing in precinct-scanner but not bmd
-test.skip('keeps returning the right date as time moves forward', () => {
+test('keeps returning the right date as time moves forward', () => {
   const element = <Clock />
   render(element)
   screen.getByText('2021-03-31T00:00:00.000+00:00')

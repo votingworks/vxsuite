@@ -1,7 +1,6 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
-import { Button, Prose } from '@votingworks/ui'
+import { Button, Prose, useCancelablePromise } from '@votingworks/ui'
 import React, { useCallback, useState } from 'react'
-import useCancelablePromise from '../hooks/useCancelablePromise'
 import usePrecinctScannerStatus from '../hooks/usePrecinctScannerStatus'
 import Modal from './Modal'
 
