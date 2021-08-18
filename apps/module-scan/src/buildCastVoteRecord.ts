@@ -28,12 +28,16 @@ import {
 
 export function buildCastVoteRecordMetadataEntries(
   ballotId: string,
+  batchId: string,
+  batchLabel: string,
   metadata: BallotMetadata
 ): CastVoteRecord {
   return {
     _ballotId: ballotId,
     _ballotStyleId: metadata.ballotStyleId,
     _ballotType: getCVRBallotType(metadata.ballotType),
+    _batchId: batchId,
+    _batchLabel: batchLabel,
     _precinctId: metadata.precinctId,
     _scannerId: VX_MACHINE_ID,
     _testBallot: metadata.isTestMode,
@@ -167,11 +171,18 @@ export function getContestsForBallotStyle(
 
 export function buildCastVoteRecordFromBmdPage(
   ballotId: string,
+  batchId: string,
+  batchLabel: string,
   election: Election,
   interpretation: InterpretedBmdPage
 ): CastVoteRecord {
   return {
-    ...buildCastVoteRecordMetadataEntries(ballotId, interpretation.metadata),
+    ...buildCastVoteRecordMetadataEntries(
+      ballotId,
+      batchId,
+      batchLabel,
+      interpretation.metadata
+    ),
     ...buildCastVoteRecordVotesEntries(
       getContestsForBallotStyle(
         election,
@@ -186,6 +197,8 @@ export function buildCastVoteRecordFromBmdPage(
 function buildCastVoteRecordFromHmpbPage(
   sheetId: string,
   ballotId: string,
+  batchId: string,
+  batchLabel: string,
   election: Election,
   [front, back]: SheetOf<
     BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
@@ -205,6 +218,8 @@ function buildCastVoteRecordFromHmpbPage(
   return {
     ...buildCastVoteRecordMetadataEntries(
       ballotId,
+      batchId,
+      batchLabel,
       front.interpretation.metadata
     ),
     _pageNumbers: [
@@ -230,6 +245,8 @@ function buildCastVoteRecordFromHmpbPage(
 
 export function buildCastVoteRecord(
   sheetId: string,
+  batchId: string,
+  batchLabel: string,
   ballotId: string,
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>
@@ -252,6 +269,8 @@ export function buildCastVoteRecord(
   if (front.interpretation.type === 'InterpretedBmdPage') {
     return buildCastVoteRecordFromBmdPage(
       ballotId,
+      batchId,
+      batchLabel,
       election,
       front.interpretation
     )
@@ -261,11 +280,15 @@ export function buildCastVoteRecord(
     front.interpretation.type === 'InterpretedHmpbPage' ||
     front.interpretation.type === 'UninterpretedHmpbPage'
   ) {
-    return buildCastVoteRecordFromHmpbPage(sheetId, ballotId, election, [
-      front,
-      back,
-    ] as SheetOf<
-      BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-    >)
+    return buildCastVoteRecordFromHmpbPage(
+      sheetId,
+      ballotId,
+      batchId,
+      batchLabel,
+      election,
+      [front, back] as SheetOf<
+        BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
+      >
+    )
   }
 }

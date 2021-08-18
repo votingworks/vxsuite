@@ -178,7 +178,12 @@ test('clicking export shows modal and makes a request to export', async () => {
   }
   const scanStatusResponseBody: GetScanStatusResponse = {
     batches: [
-      { id: 'test-batch', count: 2, startedAt: '2021-05-13T13:19:42.353Z' },
+      {
+        id: 'test-batch',
+        label: 'Batch 1',
+        count: 2,
+        startedAt: '2021-05-13T13:19:42.353Z',
+      },
     ],
     adjudication: { adjudicated: 0, remaining: 0 },
     scanner: ScannerStatus.Unknown,
