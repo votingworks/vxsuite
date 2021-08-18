@@ -79,7 +79,7 @@ test('removes contests that revert back to the original', () => {
 })
 
 test('changesFromMarks works with ms-either-neither', () => {
-  const marks = [
+  const marks: BallotMark[] = [
     {
       type: 'ms-either-neither',
       bounds: { x: 50, y: 50, width: 50, height: 50 },
@@ -123,7 +123,8 @@ test('changesFromMarks works with ms-either-neither', () => {
           'FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A',
       },
       score: 0.9,
-    } as BallotMark,
+      scoredOffset: { x: 0, y: 0 },
+    },
   ]
 
   expect(changesFromMarks(marks, { marginal: 0.12, definite: 0.2 })).toEqual({

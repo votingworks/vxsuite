@@ -11,7 +11,7 @@ import { act } from 'react-dom/test-utils'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import { fakeKiosk } from '@votingworks/test-utils'
-import { sleep } from '@votingworks/utils'
+import { sleep, typedAs } from '@votingworks/utils'
 import {
   GetElectionConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
@@ -22,19 +22,25 @@ import {
 } from '@votingworks/types/api/module-scan'
 import App from './App'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
+import { MachineConfigResponse } from './config/types'
 
 jest.mock('js-file-download')
 
 beforeEach(() => {
-  const scanStatusResponse: GetScanStatusResponse = {
-    batches: [],
-    adjudication: { adjudicated: 0, remaining: 0 },
-    scanner: ScannerStatus.Unknown,
-  }
-  fetchMock.get('/scan/status', scanStatusResponse)
-  fetchMock.get('/machine-config', {
-    machineId: '0001',
-  })
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      batches: [],
+      adjudication: { adjudicated: 0, remaining: 0 },
+      scanner: ScannerStatus.Unknown,
+    })
+  )
+  fetchMock.get(
+    '/machine-config',
+    typedAs<MachineConfigResponse>({
+      machineId: '0001',
+    })
+  )
 
   const oldWindowLocation = window.location
   Object.defineProperty(window, 'location', {

@@ -41,26 +41,28 @@ const PrintedBallotsReportScreen: React.FC = () => {
     .filter((ballot) => ballot.type === PrintableBallotType.Precinct)
     .reduce((count, ballot) => count + ballot.numCopies, 0)
 
-  const zeroCounts = election.precincts.reduce((counts, { id: precinctId }) => {
-    const newCounts = { ...counts }
-    newCounts[precinctId] = election.ballotStyles
-      .filter((bs) => bs.precincts.includes(precinctId))
-      .reduce((bsCounts, { id: ballotStyleId }) => {
-        const newBsCounts = { ...bsCounts }
-        newBsCounts[ballotStyleId] = 0
-        return newBsCounts
-      }, {} as Dictionary<number>)
-    return newCounts
-  }, {} as PrintCounts)
-
-  const zeroCountsByType = Object.values(PrintableBallotType).reduce(
-    (counts, ballotType) => {
+  const zeroCounts = election.precincts.reduce<PrintCounts>(
+    (counts, { id: precinctId }) => {
       const newCounts = { ...counts }
-      newCounts[ballotType] = _.cloneDeep(zeroCounts)
+      newCounts[precinctId] = election.ballotStyles
+        .filter((bs) => bs.precincts.includes(precinctId))
+        .reduce<Dictionary<number>>((bsCounts, { id: ballotStyleId }) => {
+          const newBsCounts = { ...bsCounts }
+          newBsCounts[ballotStyleId] = 0
+          return newBsCounts
+        }, {})
       return newCounts
     },
-    {} as PrintCountsByType
+    {}
   )
+
+  const zeroCountsByType = Object.values(
+    PrintableBallotType
+  ).reduce<PrintCountsByType>((counts, ballotType) => {
+    const newCounts = { ...counts }
+    newCounts[ballotType] = _.cloneDeep(zeroCounts)
+    return newCounts
+  }, {})
 
   const counts: PrintCounts = printedBallots.reduce(
     (accumulatedCounts, { precinctId, ballotStyleId, numCopies }) => {

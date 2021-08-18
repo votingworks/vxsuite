@@ -23,7 +23,7 @@ test('normalizeWriteInId', () => {
 })
 
 test('buildVoteFromCvr', () => {
-  const castVoteRecord = {
+  const castVoteRecord: CastVoteRecord = {
     '750000015': ['yes'],
     '750000016': [],
     '750000017': ['no'],
@@ -41,7 +41,7 @@ test('buildVoteFromCvr', () => {
     _scannerId: 'scanner-6',
     _pageNumber: 1,
     _locales: { primary: 'en-US' },
-  } as CastVoteRecord
+  }
   expect(
     buildVoteFromCvr({
       election: electionWithMsEitherNeither,
@@ -97,7 +97,7 @@ test('buildVoteFromCvr', () => {
   `)
 
   // Handles malformed either/neither data as expected.
-  const castVoteRecord2 = {
+  const castVoteRecord2: CastVoteRecord = {
     '750000015': ['yes'],
     '750000017': ['no'],
     '750000018': ['yes'],
@@ -114,7 +114,7 @@ test('buildVoteFromCvr', () => {
     _scannerId: 'scanner-6',
     _pageNumber: 1,
     _locales: { primary: 'en-US' },
-  } as CastVoteRecord
+  }
   const votes = buildVoteFromCvr({
     election: electionWithMsEitherNeither,
     cvr: castVoteRecord2,

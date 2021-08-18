@@ -1,23 +1,29 @@
 import { fromByteArray, toByteArray } from 'base64-js'
 import fetchMock, { MockRequest } from 'fetch-mock'
 import { z } from 'zod'
-import { MemoryCard, WebServiceCard } from './Card'
+import { CardPresentAPI, MemoryCard, WebServiceCard } from './Card'
+import { typedAs } from './types'
 
 const ABSchema = z.object({ a: z.number(), b: z.number() })
 
 describe('WebServiceCard', () => {
   it('fetches card status and short value from /card/read', async () => {
-    fetchMock.get('/card/read', {
-      present: true,
-      shortValue: 'abc',
-      longValueExists: true,
-    })
+    fetchMock.get(
+      '/card/read',
+      typedAs<CardPresentAPI>({
+        present: true,
+        shortValue: 'abc',
+        longValueExists: true,
+      })
+    )
 
-    expect(await new WebServiceCard().readStatus()).toEqual({
-      present: true,
-      shortValue: 'abc',
-      longValueExists: true,
-    })
+    expect(await new WebServiceCard().readStatus()).toEqual(
+      typedAs<CardPresentAPI>({
+        present: true,
+        shortValue: 'abc',
+        longValueExists: true,
+      })
+    )
   })
 
   it('reads objects from /card/read_long', async () => {

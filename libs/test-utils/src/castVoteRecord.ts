@@ -50,7 +50,7 @@ export function generateCVR(
     _ballotType,
     _testBallot,
     _scannerId,
-  } as CastVoteRecord
+  }
 }
 
 export function generateFileContentFromCVRs(cvrs: CastVoteRecord[]): string {

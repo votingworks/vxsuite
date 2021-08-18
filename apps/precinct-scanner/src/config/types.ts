@@ -47,6 +47,11 @@ export interface MachineConfig {
   codeVersion: string
 }
 
+export interface MachineConfigResponse {
+  machineId: string
+  codeVersion: string
+}
+
 // Scanner Types
 export interface CastVoteRecord
   extends Dictionary<string | string[] | boolean> {

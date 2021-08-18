@@ -7,22 +7,25 @@ import {
   BallotType,
   AdjudicationReason,
 } from '@votingworks/types'
+import { typedAs } from '@votingworks/utils'
 import BallotEjectScreen from './BallotEjectScreen'
 import renderInAppContext from '../../test/renderInAppContext'
 
 test('says the sheet is unreadable if it is', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: { type: 'BlankPage' },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: { type: 'BlankPage' },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: { type: 'BlankPage' },
+      },
+      back: {
+        image: { url: '/back/url' },
+        interpretation: { type: 'BlankPage' },
+      },
+    })
+  )
 
   const continueScanning = jest.fn()
 
@@ -41,67 +44,69 @@ test('says the sheet is unreadable if it is', async () => {
 })
 
 test('says the ballot sheet is overvoted if it is', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            allReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: '1',
+                optionIds: ['1', '2'],
+                expected: 1,
+              },
+            ],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
         },
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          allReasonInfos: [
-            {
-              type: AdjudicationReason.Overvote,
-              contestId: '1',
-              optionIds: ['1', '2'],
-              expected: 1,
-            },
-          ],
-          enabledReasons: [AdjudicationReason.Overvote],
-        },
-        votes: {},
       },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            allReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
         },
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 2,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          allReasonInfos: [],
-          enabledReasons: [AdjudicationReason.Overvote],
-        },
-        votes: {},
       },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+    })
+  )
 
   const continueScanning = jest.fn()
 
@@ -127,67 +132,69 @@ test('says the ballot sheet is overvoted if it is', async () => {
 })
 
 test('says the ballot sheet is undervoted if it is', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            allReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                optionIds: [],
+                expected: 1,
+              },
+            ],
+            enabledReasons: [AdjudicationReason.Undervote],
+          },
+          votes: {},
         },
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          allReasonInfos: [
-            {
-              type: AdjudicationReason.Undervote,
-              contestId: '1',
-              optionIds: [],
-              expected: 1,
-            },
-          ],
-          enabledReasons: [AdjudicationReason.Undervote],
-        },
-        votes: {},
       },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            allReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
         },
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 2,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          allReasonInfos: [],
-          enabledReasons: [AdjudicationReason.Overvote],
-        },
-        votes: {},
       },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+    })
+  )
 
   const continueScanning = jest.fn()
 
@@ -213,60 +220,62 @@ test('says the ballot sheet is undervoted if it is', async () => {
 })
 
 test('says the ballot sheet is blank if it is', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
         },
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-          enabledReasons: [AdjudicationReason.Overvote],
-        },
-        votes: {},
       },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            allReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
         },
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 2,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          allReasonInfos: [],
-          enabledReasons: [AdjudicationReason.Overvote],
-        },
-        votes: {},
       },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+    })
+  )
 
   const continueScanning = jest.fn()
 
@@ -292,40 +301,42 @@ test('says the ballot sheet is blank if it is', async () => {
 })
 
 test('calls out live ballot sheets in test mode', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: {
-        type: 'InvalidTestModePage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+          },
         },
       },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: {
-        type: 'InvalidTestModePage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 2,
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
         },
       },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+    })
+  )
 
   const continueScanning = jest.fn()
 
@@ -344,40 +355,42 @@ test('calls out live ballot sheets in test mode', async () => {
 })
 
 test('calls out test ballot sheets in live mode', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: {
-        type: 'InvalidTestModePage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+          },
         },
       },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: {
-        type: 'InvalidTestModePage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 2,
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
         },
       },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+    })
+  )
 
   const continueScanning = jest.fn()
 
@@ -432,40 +445,42 @@ test('shows invalid election screen when appropriate', async () => {
 })
 
 test('shows invalid election screen when appropriate', async () => {
-  const response: BallotSheetInfo = {
-    id: 'mock-sheet-id',
-    front: {
-      image: { url: '/front/url' },
-      interpretation: {
-        type: 'InvalidPrecinctPage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidPrecinctPage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+          },
         },
       },
-    },
-    back: {
-      image: { url: '/back/url' },
-      interpretation: {
-        type: 'InvalidPrecinctPage',
-        metadata: {
-          ballotStyleId: '1',
-          precinctId: '1',
-          ballotType: BallotType.Standard,
-          electionHash: '',
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 2,
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidPrecinctPage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: '',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
         },
       },
-    },
-  }
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', response)
+    })
+  )
 
   const continueScanning = jest.fn()
 

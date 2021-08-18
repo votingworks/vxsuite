@@ -2,12 +2,18 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures'
-import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
+import {
+  AdjudicationReason,
+  BallotSheetInfo,
+  BallotType,
+} from '@votingworks/types'
 import {
   GetScanStatusResponse,
   ScannerStatus,
 } from '@votingworks/types/src/api/module-scan'
+import { typedAs } from '@votingworks/utils'
 import fetchMock from 'fetch-mock'
+import { DateTime } from 'luxon'
 import { interpretedHmpb } from '../../test/fixtures'
 import {
   RejectedScanningReason,
@@ -45,11 +51,22 @@ test('scanDetectedSheet returns rejected ballot if batch has a 0 count', async (
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', endedAt: Date.now(), count: 0 }],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  })
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          startedAt: DateTime.now().toISO(),
+          endedAt: DateTime.now().toISO(),
+          count: 0,
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.Rejected)
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
@@ -61,11 +78,22 @@ test('scanDetectedSheet returns accepted ballot when successful', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', endedAt: Date.now(), count: 1 }],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  })
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          startedAt: DateTime.now().toISO(),
+          endedAt: DateTime.now().toISO(),
+          count: 1,
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.Accepted)
 })
@@ -79,22 +107,34 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
     batches: [{ id: 'test-batch', count: 1 }],
     adjudication: { adjudicated: 0, remaining: 1 },
   })
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: {
-        type: 'InvalidTestModePage',
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '12',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcdef',
+            isTestMode: true,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+            precinctId: '23',
+          },
+        },
+        image: { url: '/not/real.jpg' },
       },
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.Rejected)
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
@@ -106,27 +146,49 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', count: 1 }],
-    adjudication: { adjudicated: 0, remaining: 1 },
-  })
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: {
-        type: 'InvalidPrecinctPage',
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          count: 1,
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 1 },
+    })
+  )
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: {
+          type: 'InvalidPrecinctPage',
+          metadata: {
+            ballotStyleId: '12',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcdef',
+            isTestMode: true,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
+            precinctId: '23',
+          },
+        },
+        image: { url: '/not/real.jpg' },
       },
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.Rejected)
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
@@ -138,27 +200,42 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', count: 1 }],
-    adjudication: { adjudicated: 0, remaining: 1 },
-  })
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: {
-        type: 'InvalidElectionHashPage',
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          count: 1,
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 1 },
+    })
+  )
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: {
+          type: 'InvalidElectionHashPage',
+          actualElectionHash: 'abcdef',
+          expectedElectionHash: 'fedcba',
+        },
+        image: { url: '/not/real.jpg' },
       },
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.Rejected)
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
@@ -170,27 +247,40 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', count: 1 }],
-    adjudication: { adjudicated: 0, remaining: 1 },
-  })
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: {
-        type: 'UnreadablePage',
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          count: 1,
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 1 },
+    })
+  )
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: {
+          type: 'UnreadablePage',
+        },
+        image: { url: '/not/real.jpg' },
       },
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.Rejected)
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
@@ -202,29 +292,42 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   })
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', count: 1 }],
-    adjudication: { adjudicated: 0, remaining: 1 },
-  })
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-        adjudicationReason: AdjudicationReason.Overvote,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          count: 1,
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 1 },
+    })
+  )
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+          adjudicationReason: AdjudicationReason.Overvote,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   const result = await scan.scanDetectedSheet()
   expect(result.resultType).toEqual(ScanningResultType.NeedsReview)
   expect((result as ScanningResultNeedsReview).adjudicationReasonInfo)

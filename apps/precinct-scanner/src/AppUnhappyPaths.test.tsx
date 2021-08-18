@@ -14,7 +14,12 @@ import {
 import fetchMock from 'fetch-mock'
 import { DateTime } from 'luxon'
 import React from 'react'
-import { MemoryCard, MemoryStorage, MemoryHardware } from '@votingworks/utils'
+import {
+  MemoryCard,
+  MemoryStorage,
+  MemoryHardware,
+  typedAs,
+} from '@votingworks/utils'
 import { interpretedHmpb } from '../test/fixtures'
 import {
   adminCardForElection,
@@ -166,56 +171,59 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   })
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 1 }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
-  fetchMock.get('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 1,
-        adjudicationReason: AdjudicationReason.Overvote,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+  fetchMock.get(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 1,
+          adjudicationReason: AdjudicationReason.Overvote,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   await advanceTimersAndPromises(1)
   await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
@@ -263,12 +271,11 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
 
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true, repeat: 3 }
   )
   fetchMock.post('/scan/scanBatch', {
@@ -276,56 +283,59 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
   })
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 1 }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
-  fetchMock.get('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 1,
-        adjudicationReason: AdjudicationReason.Overvote,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+  fetchMock.get(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 1,
+          adjudicationReason: AdjudicationReason.Overvote,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   await advanceTimersAndPromises(1)
   await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
@@ -334,19 +344,19 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
   })
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
