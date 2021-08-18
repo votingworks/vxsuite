@@ -83,7 +83,7 @@ test('module-scan fails to unconfigure', async () => {
   const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
   const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
 
@@ -120,7 +120,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
 
   // Insert an invalid card
   card.insertCard(JSON.stringify({ t: 'something' }))
-  await advanceTimersAndPromises(1)
+  await advanceTimersAndPromises(2)
   await screen.findByText('Invalid Card, please remove.')
 
   // Remove card

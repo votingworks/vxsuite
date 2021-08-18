@@ -98,12 +98,12 @@ test('app can load and configure from a usb stick', async () => {
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   render(<App storage={storage} card={card} hardware={hardware} />)
   await screen.findByText('Loading Configuration…')
-  jest.advanceTimersByTime(1001)
+  await advanceTimersAndPromises(1)
   await screen.findByText('Precinct Scanner is Not Configured')
   await screen.findByText('Insert USB Drive with configuration.')
 
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
-  jest.advanceTimersByTime(2001)
+  await advanceTimersAndPromises(2)
 
   await screen.findByText(
     'Error in configuration: No ballot package found on the inserted USB drive.'
@@ -259,7 +259,7 @@ test('admin and pollworker configuration', async () => {
 
   // Insert admin card to set precinct
   const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
   fireEvent.click(await screen.findByText('Live Election Mode'))
@@ -285,7 +285,7 @@ test('admin and pollworker configuration', async () => {
   // Switch back to admin screen
   card.removeCard()
   await advanceTimersAndPromises(1)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
   // Change precinct
@@ -310,7 +310,7 @@ test('admin and pollworker configuration', async () => {
   // Switch back to admin screen
   card.removeCard()
   await advanceTimersAndPromises(1)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
 
   // Calibrate scanner
@@ -337,7 +337,7 @@ test('admin and pollworker configuration', async () => {
   })
   card.removeCard()
   await advanceTimersAndPromises(1)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
   await screen.findByText(
@@ -533,7 +533,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   // Insert Admin Card
   const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await screen.findByText('Administrator Settings')
   fireEvent.click(await screen.findByText('Export Results to USB'))
   await screen.findByText('No USB Drive Detected')
@@ -1111,7 +1111,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   // No more ballots have scanned even though the scanner is ready for paper
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
   const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
-  card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
+  card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')

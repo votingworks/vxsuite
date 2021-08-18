@@ -3,26 +3,25 @@ import React, { useCallback, useEffect, useReducer } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import useInterval from '@rooks/use-interval'
 import 'normalize.css'
-import { map } from 'rxjs/operators'
 import makeDebug from 'debug'
 
 import {
-  AdminCardData,
   AdjudicationReasonInfo,
-  CardData,
   OptionalElectionDefinition,
-  PollworkerCardData,
   Provider,
 } from '@votingworks/types'
-import { useCancelablePromise, useUsbDrive } from '@votingworks/ui'
+import {
+  Smartcard,
+  useCancelablePromise,
+  useSmartcard,
+  useUsbDrive,
+} from '@votingworks/ui'
 import {
   sleep,
   throwIllegalValue,
   PrecinctScannerCardTally,
   Card,
-  CardPresentAPI,
   Hardware,
-  isCardReader,
   Storage,
   usbstick,
 } from '@votingworks/utils'
@@ -37,7 +36,6 @@ import {
   MachineConfig,
 } from './config/types'
 import {
-  CARD_POLLING_INTERVAL,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
   STATUS_POLLING_EXTRA_CHECKS,
@@ -74,13 +72,11 @@ export interface Props extends RouteComponentProps {
 }
 
 interface HardwareState {
-  hasCardReaderAttached: boolean
   hasPrinterAttached: boolean
   adminCardElectionHash: string
   isAdminCardPresent: boolean
   isPollWorkerCardPresent: boolean
   invalidCardPresent: boolean
-  lastCardDataString: string
   machineConfig: Readonly<MachineConfig>
 }
 
@@ -107,13 +103,11 @@ export interface State
     ScanInformationState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
-  hasCardReaderAttached: true,
   hasPrinterAttached: true,
   adminCardElectionHash: '',
   isAdminCardPresent: false,
   isPollWorkerCardPresent: false,
   invalidCardPresent: false,
-  lastCardDataString: '',
   machineConfig: { machineId: '0000', codeVersion: 'dev' },
 }
 
@@ -186,7 +180,6 @@ type AppAction =
     }
   | { type: 'disableStatusPolling' }
   | { type: 'enableStatusPolling' }
-  | { type: 'updateHardwareState'; hasCardReaderAttached: boolean }
   | {
       type: 'invalidCard'
     }
@@ -198,7 +191,6 @@ type AppAction =
       type: 'processPollWorkerCard'
       isPollWorkerCardValid: boolean
     }
-  | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | { type: 'cardRemoved' }
   | { type: 'updatePrecinctId'; precinctId?: string }
   | { type: 'togglePollsOpen' }
@@ -317,11 +309,6 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         isStatusPollingEnabled: true,
       }
-    case 'updateHardwareState':
-      return {
-        ...state,
-        hasCardReaderAttached: action.hasCardReaderAttached,
-      }
     case 'invalidCard':
       return {
         ...state,
@@ -331,6 +318,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         isAdminCardPresent: true,
+        invalidCardPresent: false,
         adminCardElectionHash: action.electionHash,
       }
     case 'processPollWorkerCard':
@@ -339,12 +327,6 @@ const appReducer = (state: State, action: AppAction): State => {
         isPollWorkerCardPresent: true,
         invalidCardPresent: !action.isPollWorkerCardValid,
       }
-    case 'updateLastCardDataString': {
-      return {
-        ...state,
-        lastCardDataString: action.currentCardDataString,
-      }
-    }
     case 'cardRemoved':
       return {
         ...state,
@@ -389,9 +371,7 @@ const AppRoot: React.FC<Props> = ({
     adjudicationReasonInfo,
     rejectionReason,
     isTestMode,
-    hasCardReaderAttached,
     isAdminCardPresent,
-    lastCardDataString,
     invalidCardPresent,
     currentPrecinctId,
     isPollsOpen,
@@ -670,22 +650,13 @@ const AppRoot: React.FC<Props> = ({
   }, [dispatchAppState, refreshConfig])
 
   const processCard = useCallback(
-    async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
-      const cardData: CardData = JSON.parse(cardShortValue!)
-      if (!electionDefinition && cardData.t !== 'admin') {
+    async ({ longValueExists, data: cardData }: Smartcard) => {
+      if (!electionDefinition && cardData?.t !== 'admin') {
         return
       }
-      switch (cardData.t) {
-        case 'voter': {
-          dispatchAppState({
-            type: 'invalidCard',
-          })
-          break
-        }
+      switch (cardData?.t) {
         case 'pollworker': {
-          const isValid =
-            (cardData as PollworkerCardData).h ===
-            electionDefinition?.electionHash
+          const isValid = cardData.h === electionDefinition?.electionHash
 
           dispatchAppState({
             type: 'processPollWorkerCard',
@@ -698,7 +669,7 @@ const AppRoot: React.FC<Props> = ({
           if (longValueExists) {
             dispatchAppState({
               type: 'processAdminCard',
-              electionHash: (cardData as AdminCardData).h,
+              electionHash: cardData.h,
             })
           }
           break
@@ -714,48 +685,23 @@ const AppRoot: React.FC<Props> = ({
     [card, electionDefinition]
   )
 
-  const cardShortValueReadInterval = useInterval(async () => {
-    if (!hasCardReaderAttached) {
-      return
-    }
-    const insertedCard = await card.readStatus()
+  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
 
-    // we compare last card and current card without the longValuePresent flag
-    // otherwise when we first write the ballot to the card, it reprocesses it
-    // and may cause a race condition where an old ballot on the card
-    // overwrites a newer one in memory.
-    //
-    // TODO: embed a card dip UUID in the card data string so even an unlikely
-    // identical card swap within 200ms is always detected.
-    // https://github.com/votingworks/module-smartcards/issues/59
-    const cardCopy = {
-      ...insertedCard,
-      longValueExists: undefined, // override longValueExists (see above comment)
-    }
-    const currentCardDataString = JSON.stringify(cardCopy)
-    if (currentCardDataString === lastCardDataString) {
-      return
-    }
-
-    dispatchAppState({
-      type: 'updateLastCardDataString',
-      currentCardDataString,
-    })
-
-    if (insertedCard.present) {
-      await processCard(insertedCard)
-    } else if (hasCardInserted) {
-      dispatchAppState({ type: 'cardRemoved' })
-    }
-  }, CARD_POLLING_INTERVAL)
-  const startCardShortValueReadPolling = useCallback(
-    cardShortValueReadInterval[0],
-    [card]
-  )
-  const stopCardShortValueReadPolling = useCallback(
-    cardShortValueReadInterval[1],
-    [card]
-  )
+  useEffect(() => {
+    void (async () => {
+      if (smartcard) {
+        await processCard(smartcard)
+      } else if (hasCardInserted) {
+        dispatchAppState({ type: 'cardRemoved' })
+      }
+    })()
+  }, [
+    !smartcard,
+    smartcard?.data,
+    smartcard?.longValueExists,
+    hasCardInserted,
+    dispatchAppState,
+  ])
 
   const getCVRsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
     if (electionDefinition) {
@@ -770,21 +716,6 @@ const AppRoot: React.FC<Props> = ({
     },
     [card]
   )
-
-  useEffect(() => {
-    const hardwareStatusSubscription = hardware.devices
-      .pipe(map((devices) => Array.from(devices)))
-      .subscribe(async (devices) => {
-        const hasCardReaderAttached = devices.some(isCardReader)
-        dispatchAppState({
-          type: 'updateHardwareState',
-          hasCardReaderAttached,
-        })
-      })
-    return () => {
-      hardwareStatusSubscription.unsubscribe()
-    }
-  }, [hardware])
 
   // Initialize app state
   useEffect(() => {
@@ -814,11 +745,7 @@ const AppRoot: React.FC<Props> = ({
 
     void initializeScanner()
     void updateStateFromStorage()
-    startCardShortValueReadPolling()
-    return () => {
-      stopCardShortValueReadPolling()
-    }
-  }, [refreshConfig, startCardShortValueReadPolling, storage])
+  }, [refreshConfig, storage])
 
   const updatePrecinctId = useCallback(
     async (precinctId: string) => {

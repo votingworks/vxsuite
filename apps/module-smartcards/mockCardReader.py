@@ -155,7 +155,7 @@ def enable_voter(
                     "t": card_type,
                     "pr": precinct_id,
                     "bs": ballot_style_id,
-                    "c": str(round(time.time())),
+                    "c": round(time.time()),
                 }
             ),
             "longValue": None,
