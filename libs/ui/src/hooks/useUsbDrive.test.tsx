@@ -6,11 +6,12 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils'
 import { usbstick } from '@votingworks/utils'
-import { UsbDriveStatus } from '@votingworks/utils/src/usbstick'
 import React from 'react'
 import { Button } from '../Button'
 import { USBControllerButton } from '../USBControllerButton'
 import { useUsbDrive, POLLING_INTERVAL_FOR_USB } from './useUsbDrive'
+
+const { UsbDriveStatus } = usbstick
 
 const MOUNTED_DRIVE = fakeUsbDrive()
 const UNMOUNTED_DRIVE = fakeUsbDrive({ mountPoint: undefined })

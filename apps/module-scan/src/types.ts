@@ -7,7 +7,7 @@ import {
   MarkThresholds,
   PageInterpretation,
 } from '@votingworks/types'
-import { BallotStyleData } from '@votingworks/utils/src'
+import { BallotStyleData } from '@votingworks/utils'
 import { MarksByContestId, MarkStatus } from './types/ballot-review'
 
 export type SheetOf<T> = [T, T]

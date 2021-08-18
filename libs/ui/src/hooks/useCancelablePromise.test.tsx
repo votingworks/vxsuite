@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react'
 import { advanceTimersAndPromises } from '@votingworks/test-utils'
-import { sleep } from '@votingworks/utils/src'
+import { sleep } from '@votingworks/utils'
 import React, { useEffect } from 'react'
 import { useCancelablePromise } from './useCancelablePromise'
 
