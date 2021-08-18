@@ -12,6 +12,7 @@ import {
   computeFullElectionTally,
   getOvervotePairTallies,
   filterTalliesByParams,
+  filterTalliesByParamsAndBatchId,
 } from './votecounting'
 import {
   CastVoteRecord,
@@ -452,6 +453,79 @@ describe('filterTalliesByParams in a primary election', () => {
     expect(filteredResults2.contestTallies).toStrictEqual({})
   })
 
+  test('can filter results by batch', () => {
+    const expectedBatchInformation = [
+      {
+        batchId: '1234-1',
+        label: 'Batch 1',
+        scanner: 'scanner-1',
+        numberOfBallots: 752,
+      },
+      {
+        batchId: '1234-2',
+        label: 'Batch 2',
+        scanner: 'scanner-1',
+        numberOfBallots: 758,
+      },
+      {
+        batchId: '1234-3',
+        label: 'Batch 1',
+        scanner: 'scanner-2',
+        numberOfBallots: 1510,
+      },
+      {
+        batchId: '1234-4',
+        label: 'Batch 1',
+        scanner: 'scanner-3',
+        numberOfBallots: 1510,
+      },
+    ]
+    for (const testcase of expectedBatchInformation) {
+      const typedFilteredResults = filterTalliesByParamsAndBatchId(
+        electionTally,
+        multiPartyPrimaryElection,
+        testcase.batchId,
+        {}
+      )
+      const filteredResults = filterTalliesByParams(
+        electionTally,
+        multiPartyPrimaryElection,
+        { batchId: testcase.batchId }
+      )
+      expect(filteredResults.numberOfBallotsCounted).toBe(
+        testcase.numberOfBallots
+      )
+      expect(typedFilteredResults.numberOfBallotsCounted).toBe(
+        testcase.numberOfBallots
+      )
+      expect(filteredResults.contestTallies).toEqual(
+        typedFilteredResults.contestTallies
+      )
+      expect(typedFilteredResults.batchLabel).toBe(testcase.label)
+      expect(typedFilteredResults.scannerIds).toEqual([testcase.scanner])
+    }
+    // Since there is only one batch for scanner-2 the results for the scanner and batch should be identical.
+    const batch3Results = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { batchId: '1234-3' }
+    )
+    const scanner2Results = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { scannerId: 'scanner-2' }
+    )
+    expect(batch3Results.contestTallies).toEqual(scanner2Results.contestTallies)
+    const scanner2Batch3Results = filterTalliesByParams(
+      electionTally,
+      multiPartyPrimaryElection,
+      { batchId: '1234-3', scannerId: 'scanner-2' }
+    )
+    expect(scanner2Batch3Results.contestTallies).toEqual(
+      scanner2Results.contestTallies
+    )
+  })
+
   test('can filter results by party and precinct', () => {
     // Party 4 was only available for voting in precincts 1 and 5
     const expectedParty4Info = expectedPartyInformation.find(
@@ -681,6 +755,8 @@ test('undervotes counted in n of m contest properly', () => {
     _precinctId: '21',
     _testBallot: false,
     _scannerId: '1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     'county-commissioners': [],
   }
 
@@ -748,6 +824,8 @@ test('overvotes counted in n of m contest properly', () => {
     _precinctId: '21',
     _testBallot: false,
     _scannerId: '1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     'county-commissioners': [
       'argent',
       'witherspoonsmithson',
@@ -818,6 +896,8 @@ test('overvotes counted in single seat contest properly', () => {
     _precinctId: '21',
     _testBallot: false,
     _scannerId: '1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     'lieutenant-governor': ['norberg'],
   }
 
@@ -887,6 +967,8 @@ test('parsing CVRs flags when a precinct ID in a CVR is not present in the elect
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
@@ -906,6 +988,8 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
     _scannerId: 'scanner-1',
     _testBallot: false,
     _locales: { primary: 'en-US', secondary: 'es-US' },
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
@@ -924,6 +1008,8 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     'not a contest': [],
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -946,6 +1032,8 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     _scannerId: 'scanner-1',
     _testBallot: false,
     president: ['write-in-1', 'not-a-candidate'], // Candidate contest with no write ins allowed
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     'county-commissioners': ['write-in-1', 'not-a-candidate'], // Candidate contest with write ins allowed
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -968,6 +1056,8 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     '750000015': ['yes', 'not-a-choice'], // Either Neither Contest with illegal voting option
     '750000016': ['not-a-choice'], // Pick One from either neither contest
     '750000018': ['not-a-choice', 'no'], // Yes No Contest
@@ -994,6 +1084,8 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     // @ts-expect-error - string instead of a boolean
     _testBallot: 'false',
   }
@@ -1016,6 +1108,8 @@ test('parsing CVRs flags when page number is set but not a number', () => {
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     // @ts-expect-error - string instead of a number
     _pageNumber: '99',
   }
@@ -1038,6 +1132,8 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
     _testBallot: false,
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     // @ts-expect-error - number instead of an array
     _pageNumbers: 99,
   }
@@ -1062,6 +1158,8 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
     _testBallot: false,
     _pageNumber: 1,
     _pageNumbers: [1, 2],
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
@@ -1081,6 +1179,8 @@ test('parsing CVRs flags with _pageNumbers set properly works', () => {
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     _testBallot: false,
     _pageNumbers: [1, 2],
   }
@@ -1101,6 +1201,8 @@ test('parsing CVRs flags when ballot ID is not a string', () => {
     // @ts-expect-error - number instead of a string
     _ballotId: 44,
     _scannerId: 'scanner-1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     _testBallot: false,
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -1117,10 +1219,13 @@ test('parsing CVRs flags when ballot ID is not a string', () => {
 test('parsing CVRs flags when scanner ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     // @ts-expect-error - false instead of a string
     _scannerId: false,
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
     _testBallot: false,
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
@@ -1134,23 +1239,107 @@ test('parsing CVRs flags when scanner ID is not a string', () => {
   ])
 })
 
-test('parsing CVRs flags when locale is not well formed', () => {
+test('parsing CVRs flags when batch ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
+    _ballotType: 'standard',
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
+    // @ts-expect-error - false instead of a string
+    _batchId: false,
+    _batchLabel: 'Batch 1',
     _testBallot: false,
-    // @ts-expect-error - object missing properties
-    _locales: {},
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Locale in CVR must be a locale object with primary and optional secondary locales, got '{}'",
+        "Batch ID in CVR must be a string, got 'false' (boolean, not string)",
       ],
       lineNumber: 1,
+    },
+  ])
+})
+
+test('parsing CVRs flags when batch label is not a string', () => {
+  const cvr: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _ballotType: 'standard',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _batchId: '1',
+    // @ts-expect-error - false instead of a string
+    _batchLabel: false,
+    _testBallot: false,
+  }
+  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+    {
+      cvr,
+      errors: [
+        "Batch label in CVR must be a string, got 'false' (boolean, not string)",
+      ],
+      lineNumber: 1,
+    },
+  ])
+})
+
+test('parsing CVRs flags when locale is not well formed', () => {
+  // @ts-expect-error - object missing properties
+  const cvr: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _ballotType: 'standard',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+  }
+  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+    {
+      cvr,
+      errors: [],
+      lineNumber: 1,
+    },
+  ])
+})
+
+test('parsing CVRs with different batch labels in the same id does not error', () => {
+  const cvr1: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _ballotType: 'standard',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
+    _testBallot: false,
+  }
+  const cvr2: CastVoteRecord = {
+    _ballotStyleId: '12',
+    _ballotType: 'standard',
+    _precinctId: '23',
+    _ballotId: 'abc',
+    _scannerId: 'scanner-1',
+    _batchId: '1',
+    _batchLabel: 'Batch 1',
+    _testBallot: false,
+  }
+  expect([
+    ...parseCVRs(
+      `${JSON.stringify(cvr1)}\n${JSON.stringify(cvr2)}`,
+      electionSample
+    ),
+  ]).toEqual([
+    {
+      cvr: cvr1,
+      errors: [],
+      lineNumber: 1,
+    },
+    {
+      cvr: cvr2,
+      errors: [],
+      lineNumber: 2,
     },
   ])
 })

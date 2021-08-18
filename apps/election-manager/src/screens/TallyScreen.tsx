@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react'
 import moment from 'moment'
 
 import { generateFinalExportDefaultFilename, format } from '@votingworks/utils'
+import { SegmentedButton } from '@votingworks/ui'
 import {
   TallyCategory,
   InputEventFunction,
@@ -55,6 +56,8 @@ const TallyScreen: React.FC = () => {
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
     false
   )
+
+  const [isShowingBatchResults, setIsShowingBatchResults] = useState(false)
 
   const beginConfirmRemoveFiles = (fileType: ResultsFileType) => {
     setConfirmingRemoveFileType(fileType)
@@ -143,35 +146,56 @@ const TallyScreen: React.FC = () => {
       ? 'Currently tallying live ballots.'
       : ''
 
-  const tallyResultsTable = isTabulationRunning ? (
-    <Loading>Tabulating Results…</Loading>
-  ) : (
-    <React.Fragment>
-      <h2>Ballot Counts by Precinct</h2>
-      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-      <h2>Ballot Counts by Voting Method</h2>
-      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
-      {partiesForPrimaries.length > 0 && (
-        <React.Fragment>
-          <h2>Ballot Counts by Party</h2>
-          <BallotCountsTable breakdownCategory={TallyCategory.Party} />
-        </React.Fragment>
-      )}
-      <h2>Ballot Counts by Scanner</h2>
-      <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
-      <h2>{statusPrefix} Tally Reports</h2>
-      <p>
-        <LinkButton to={routerPaths.tallyFullReport}>
-          View {statusPrefix} Full Election Tally Report
-        </LinkButton>
-        {false && (
-          <LinkButton to={routerPaths.overvoteCombinationReport}>
-            {statusPrefix} Overvote Combination Report
-          </LinkButton>
+  let tallyResultsInfo = <Loading>Tabulating Results…</Loading>
+  if (!isTabulationRunning) {
+    const resultTables = isShowingBatchResults ? (
+      <React.Fragment>
+        <h2>Ballot Counts by Batch</h2>
+        <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
+      </React.Fragment>
+    ) : (
+      <React.Fragment>
+        <h2>Ballot Counts by Precinct</h2>
+        <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
+        <h2>Ballot Counts by Voting Method</h2>
+        <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
+        {partiesForPrimaries.length > 0 && (
+          <React.Fragment>
+            <h2>Ballot Counts by Party</h2>
+            <BallotCountsTable breakdownCategory={TallyCategory.Party} />
+          </React.Fragment>
         )}
-      </p>
-    </React.Fragment>
-  )
+        <h2>Ballot Counts by Scanner</h2>
+        <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+      </React.Fragment>
+    )
+
+    tallyResultsInfo = (
+      <React.Fragment>
+        <SegmentedButton>
+          <Button
+            disabled={!isShowingBatchResults}
+            onPress={() => setIsShowingBatchResults(false)}
+          >
+            Ballot Counts
+          </Button>
+          <Button
+            disabled={isShowingBatchResults}
+            onPress={() => setIsShowingBatchResults(true)}
+          >
+            Batch Counts
+          </Button>
+        </SegmentedButton>
+        {resultTables}
+        <h2>{statusPrefix} Tally Reports</h2>
+        <p>
+          <LinkButton to={routerPaths.tallyFullReport}>
+            View {statusPrefix} Full Election Tally Report
+          </LinkButton>
+        </p>
+      </React.Fragment>
+    )
+  }
 
   const externalTallyRows = fullElectionExternalTallies.map((t) => {
     const precinctsInExternalFile = getPrecinctIdsInExternalTally(t)
@@ -365,7 +389,7 @@ const TallyScreen: React.FC = () => {
             </Button>
           </p>
         )}
-        {tallyResultsTable}
+        {tallyResultsInfo}
         {hasConverter && hasCastVoteRecordFiles && (
           <React.Fragment>
             <h2>Export Options</h2>

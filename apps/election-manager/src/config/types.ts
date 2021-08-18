@@ -58,6 +58,9 @@ export interface PrecinctReportScreenProps {
 export interface ScannerReportScreenProps {
   scannerId: string
 }
+export interface BatchReportScreenProps {
+  batchId: string
+}
 export interface PartyReportScreenProps {
   partyId: string
 }
@@ -100,11 +103,17 @@ export interface Tally {
   readonly ballotCountsByVotingMethod: Dictionary<number>
 }
 
+export interface BatchTally extends Tally {
+  readonly batchLabel: string
+  readonly scannerIds: string[]
+}
+
 export enum TallyCategory {
   Precinct = 'precinct',
   Scanner = 'scanner',
   Party = 'party',
   VotingMethod = 'votingmethod',
+  Batch = 'batch',
 }
 
 export interface FullElectionTally {
@@ -176,6 +185,8 @@ export interface CastVoteRecord
   readonly _ballotId: string
   readonly _ballotStyleId: string
   readonly _ballotType: 'absentee' | 'provisional' | 'standard'
+  readonly _batchId: string
+  readonly _batchLabel: string
   readonly _testBallot: boolean
   readonly _scannerId: string
   readonly _pageNumber?: number

@@ -8,8 +8,10 @@ import {
 } from '@votingworks/fixtures'
 import { Dictionary } from '@votingworks/types'
 
+import { strict as assert } from 'assert'
 import renderInAppContext from '../../test/renderInAppContext'
 import {
+  BatchTally,
   ExternalTally,
   ExternalTallySourceType,
   Tally,
@@ -605,5 +607,180 @@ describe('Ballots Counts by VotingMethod', () => {
     expect(domGetByText(tableRow!, 131))
 
     expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
+  })
+})
+
+describe('Ballots Counts by Batch', () => {
+  const resultsByBatch: Dictionary<BatchTally> = {
+    '12341': {
+      ...fakeTally({
+        numberOfBallotsCounted: 25,
+      }),
+      batchLabel: 'Batch 1',
+      scannerIds: ['001'],
+    },
+    '12342': {
+      ...fakeTally({
+        numberOfBallotsCounted: 15,
+      }),
+      batchLabel: 'Batch 2',
+      scannerIds: ['001'],
+    },
+    '12343': {
+      ...fakeTally({
+        numberOfBallotsCounted: 32,
+      }),
+      batchLabel: 'Batch 1',
+      scannerIds: ['002'],
+    },
+    'missing-batch-id': {
+      ...fakeTally({
+        numberOfBallotsCounted: 50,
+      }),
+      scannerIds: ['003', '004'],
+      batchLabel: 'Missing Batch',
+    },
+  }
+  const resultsByCategory = new Map()
+  resultsByCategory.set(TallyCategory.Batch, resultsByBatch)
+
+  const fullElectionTally = {
+    overallTally: fakeTally({
+      numberOfBallotsCounted: 122,
+    }),
+    resultsByCategory,
+  }
+
+  const numExternalBallots = 54
+
+  const fullElectionExternalTally = {
+    overallTally: fakeExternalTally({
+      numberOfBallotsCounted: numExternalBallots,
+    }),
+    resultsByCategory: new Map(),
+    votingMethod: VotingMethod.Precinct,
+    source: ExternalTallySourceType.SEMS,
+    inputSourceName: 'imported-file-name.csv',
+    timestampCreated: new Date(),
+  }
+
+  it('renders as expected when there is no data', () => {
+    // No row for "Other" ballots renders when there are 0 CVRs for that category.
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
+    )
+
+    getByText('Total Ballot Count')
+    const tableRow = getByText('Total Ballot Count').closest('tr')
+    expect(tableRow).toBeDefined()
+    expect(domGetByText(tableRow!, 0))
+
+    expect(getAllByTestId('table-row').length).toBe(2)
+  })
+
+  it('renders as expected when there is tally data', () => {
+    const expectedLabels = [
+      {
+        batchId: '12341',
+        label: 'Batch 1',
+        scannerLabel: '001',
+      },
+      {
+        batchId: '12342',
+        label: 'Batch 2',
+        scannerLabel: '001',
+      },
+      {
+        batchId: '12343',
+        label: 'Batch 1',
+        scannerLabel: '002',
+      },
+      {
+        batchId: 'missing-batch-id',
+        label: 'Missing Batch',
+        scannerLabel: '003, 004',
+      },
+    ]
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
+      { fullElectionTally }
+    )
+
+    expectedLabels.forEach(({ batchId, label, scannerLabel }) => {
+      const expectedNumberOfBallots =
+        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0
+      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr')
+      assert(tableRow)
+      expect(domGetByText(tableRow, label))
+      expect(domGetByText(tableRow, expectedNumberOfBallots))
+      expect(domGetByText(tableRow, scannerLabel))
+      expect(domGetByText(tableRow, `View Unofficial ${label} Tally Report`))
+    })
+
+    getByText('Total Ballot Count')
+    const tableRow = getByText('Total Ballot Count').closest('tr')
+    expect(tableRow).toBeDefined()
+    expect(domGetByText(tableRow!, 122))
+
+    // There should be 2 extra table rows in addition to the batches, one for the headers, and one for the total row.
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
+  })
+
+  it('renders as expected where there is tally data and sems data', () => {
+    const expectedLabels = [
+      {
+        batchId: '12341',
+        label: 'Batch 1',
+        scannerLabel: '001',
+      },
+      {
+        batchId: '12342',
+        label: 'Batch 2',
+        scannerLabel: '001',
+      },
+      {
+        batchId: '12343',
+        label: 'Batch 1',
+        scannerLabel: '002',
+      },
+      {
+        batchId: 'missing-batch-id',
+        label: 'Missing Batch',
+        scannerLabel: '003, 004',
+      },
+    ]
+    const { getByText, getAllByTestId } = renderInAppContext(
+      <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
+      {
+        fullElectionTally,
+        fullElectionExternalTallies: [fullElectionExternalTally],
+      }
+    )
+
+    // The external tally is configured to be labelled as precinct data.
+
+    expectedLabels.forEach(({ batchId, label, scannerLabel }) => {
+      const expectedNumberOfBallots =
+        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0
+      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr')
+      expect(tableRow).toBeDefined()
+      domGetByText(tableRow!, label)
+      domGetByText(tableRow!, expectedNumberOfBallots)
+      domGetByText(tableRow!, scannerLabel)
+      domGetByText(tableRow!, `View Unofficial ${label} Tally Report`)
+    })
+
+    const externalTableRow = getAllByTestId('batch-external')[0].closest('tr')
+    assert(externalTableRow)
+    domGetByText(externalTableRow, 'External Results (imported-file-name.csv)')
+    domGetByText(externalTableRow!, numExternalBallots)
+
+    getByText('Total Ballot Count')
+    const tableRow = getByText('Total Ballot Count').closest('tr')
+    assert(tableRow)
+    domGetByText(tableRow!, 176)
+
+    // There should be 3 extra table rows in addition to the batches, one for the headers, one for the external data, and one for the total row.
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3)
   })
 })

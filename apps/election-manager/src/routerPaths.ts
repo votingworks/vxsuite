@@ -5,6 +5,7 @@ import {
   ScannerReportScreenProps,
   VotingMethodReportScreenProps,
   ManualDataPrecinctScreenProps,
+  BatchReportScreenProps,
 } from './config/types'
 
 const routerPaths = {
@@ -43,6 +44,8 @@ const routerPaths = {
     `/tally/votingmethod/${votingMethod}`,
   tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
     `/tally/scanner/${scannerId}`,
+  tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
+    `/tally/batch/${batchId}`,
   tallyFullReport: '/tally/full',
   testDecksTally: '/tally/test-ballot-deck',
   testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>

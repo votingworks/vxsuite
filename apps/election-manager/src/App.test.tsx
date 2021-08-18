@@ -276,6 +276,14 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Tally'))
 
+  fireEvent.click(getByText('Batch Counts'))
+  getByText('Ballot Counts by Batch')
+  fireEvent.click(getByText('View Official Batch 2 Tally Report'))
+  getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)')
+  expect(getByTestId('total')).toHaveTextContent('4')
+
+  fireEvent.click(getByText('Back to Tally Index'))
+
   await waitFor(() => {
     fireEvent.click(getByText('View Official Tally Reports for All Precincts'))
   })
