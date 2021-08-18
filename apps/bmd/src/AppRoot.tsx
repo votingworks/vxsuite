@@ -17,6 +17,7 @@ import {
   safeParseJSON,
   AnyCardDataSchema,
   VoterCardDataSchema,
+  VoterCardData,
 } from '@votingworks/types'
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
 import 'normalize.css'
@@ -48,7 +49,6 @@ import {
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
-  VoterCardData,
   VxMarkOnly,
   SerializableActivationData,
   MachineConfig,

@@ -6,9 +6,9 @@ import {
   vote,
   getContests,
   VotesDict,
+  VoterCardData,
 } from '@votingworks/types'
 import * as GLOBALS from '../../src/config/globals'
-import { VoterCardData } from '../../src/config/types'
 import utcTimestamp from '../../src/utils/utcTimestamp'
 
 const contest0 = election.contests[0] as CandidateContest
