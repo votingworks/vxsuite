@@ -314,11 +314,11 @@ test('admin and pollworker configuration', async () => {
 
   // Calibrate scanner
   fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } })
-  await fireEvent.click(await screen.findByText('Calibrate Scanner'))
+  fireEvent.click(await screen.findByText('Calibrate Scanner'))
   await screen.findByText('Cannot Calibrate')
-  await fireEvent.click(await screen.findByText('Cancel'))
-  expect(await screen.queryByText('Cannot Calibrate')).toBeNull()
-  await fireEvent.click(await screen.findByText('Calibrate Scanner'))
+  fireEvent.click(await screen.findByText('Cancel'))
+  expect(screen.queryByText('Cannot Calibrate')).toBeNull()
+  fireEvent.click(await screen.findByText('Calibrate Scanner'))
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
     overwriteRoutes: true,
   })
