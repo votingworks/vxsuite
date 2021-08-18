@@ -14,7 +14,7 @@ import {
   PollworkerCardData,
   Provider,
 } from '@votingworks/types'
-import { useUsbDrive } from '@votingworks/ui'
+import { useCancelablePromise, useUsbDrive } from '@votingworks/ui'
 import {
   sleep,
   throwIllegalValue,
@@ -56,7 +56,6 @@ import ScanErrorScreen from './screens/ScanErrorScreen'
 import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
-import useCancelablePromise from './hooks/useCancelablePromise'
 import AppContext from './contexts/AppContext'
 
 const debug = makeDebug('precinct-scanner:app-root')

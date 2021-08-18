@@ -3,7 +3,13 @@ import React, { useCallback, useState } from 'react'
 
 import { ElectionDefinition } from '@votingworks/types'
 import { formatFullDateTimeZone } from '@votingworks/utils'
-import { Button, Main, MainChild, SegmentedButton } from '@votingworks/ui'
+import {
+  Button,
+  Main,
+  MainChild,
+  SegmentedButton,
+  useNow,
+} from '@votingworks/ui'
 import {
   MachineConfig,
   PrecinctSelection,
@@ -21,7 +27,6 @@ import Screen from '../components/Screen'
 import Select from '../components/Select'
 import VersionsData from '../components/VersionsData'
 import PickDateTimeModal from '../components/PickDateTimeModal'
-import useNow from '../hooks/useNow'
 import { AllPrecinctsDisplayName } from '../utils/precinctSelection'
 
 interface Props {

@@ -3,9 +3,9 @@ import {
   GetScanStatusResponseSchema,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
+import { useCancelablePromise } from '@votingworks/ui'
 import { useState } from 'react'
 import useInterval from 'use-interval'
-import useCancelablePromise from './useCancelablePromise'
 
 export default function usePrecinctScannerStatus(
   interval: number | false = 100

@@ -16,9 +16,9 @@
     "lint": "eslint . --quiet && pnpm stylelint:run",
     "lint:fix": "eslint . --fix --quiet",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch",
+    "test": "TZ=UTC jest",
+    "test:coverage": "TZ=UTC jest --coverage",
+    "test:watch": "TZ=UTC jest --watch",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -36,6 +36,7 @@
   "dependencies": {
     "@types/react-router-dom": "^5.1.7",
     "debug": "^4.3.2",
+    "luxon": "1.26.0",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "styled-components": "^5.2.3",
@@ -48,6 +49,7 @@
     "@types/debug": "^4.1.7",
     "@types/jest": "^26.0.23",
     "@types/kiosk-browser": "workspace:*",
+    "@types/luxon": "^1.26.5",
     "@types/node": "^15.0.0",
     "@types/react": "^17.0.4",
     "@types/styled-components": "^5.1.9",
@@ -73,6 +75,7 @@
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^11.0.0",
+    "mockdate": "^3.0.5",
     "prettier": "^2.1.1",
     "react": "^17.0.1",
     "sort-package-json": "^1.50.0",

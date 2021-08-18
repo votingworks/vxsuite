@@ -1450,6 +1450,7 @@ importers:
     dependencies:
       '@types/react-router-dom': 5.1.7
       debug: 4.3.2
+      luxon: 1.26.0
       react-dom: 17.0.1_react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
@@ -1461,6 +1462,7 @@ importers:
       '@types/debug': 4.1.7
       '@types/jest': 26.0.23
       '@types/kiosk-browser': link:../@types/kiosk-browser
+      '@types/luxon': 1.27.1
       '@types/node': 15.0.1
       '@types/react': 17.0.4
       '@types/styled-components': 5.1.9
@@ -1486,6 +1488,7 @@ importers:
       jest: 26.6.3
       jest-watch-typeahead: 0.6.4_jest@26.6.3
       lint-staged: 11.0.0
+      mockdate: 3.0.5
       prettier: 2.2.1
       react: 17.0.1
       sort-package-json: 1.50.0
@@ -1503,6 +1506,7 @@ importers:
       '@types/debug': ^4.1.7
       '@types/jest': ^26.0.23
       '@types/kiosk-browser': workspace:*
+      '@types/luxon': ^1.26.5
       '@types/node': ^15.0.0
       '@types/react': ^17.0.4
       '@types/react-router-dom': ^5.1.7
@@ -1530,6 +1534,8 @@ importers:
       jest: ^26.6.3
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^11.0.0
+      luxon: 1.26.0
+      mockdate: ^3.0.5
       prettier: ^2.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
@@ -8016,6 +8022,10 @@ packages:
   /@types/luxon/1.26.5:
     resolution:
       integrity: sha512-XeQxxRMyJi1znfzHw4CGDLyup/raj84SnjjkI2fDootZPGlB0yqtvlvEIAmzHDa5wiEI5JJevZOWxpcofsaV+A==
+  /@types/luxon/1.27.1:
+    dev: true
+    resolution:
+      integrity: sha512-cPiXpOvPFDr2edMnOXlz3UBDApwUfR+cpizvxCy0n3vp9bz/qe8BWzHPIEFcy+ogUOyjKuCISgyq77ELZPmkkg==
   /@types/mdast/3.0.3:
     dependencies:
       '@types/unist': 2.0.3
@@ -19429,7 +19439,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.1
-      jest: 26.6.3_canvas@2.6.1
+      jest: 26.6.3
       jest-regex-util: 27.0.1
       jest-watcher: 27.0.2
       slash: 3.0.0
@@ -21084,7 +21094,6 @@ packages:
     resolution:
       integrity: sha512-ldfYSUW1ocqSHGTK6rrODUiqAFPGAg0xaHqYJ5tvj1hQyFsjuHpuWgWFTZWwDVlzougN/s2/mhDr8r5nY5xDpA==
   /mockdate/3.0.5:
-    dev: false
     resolution:
       integrity: sha512-iniQP4rj1FhBdBYS/+eQv7j1tadJ9lJtdzgOpvsOHng/GbcDh2Fhdeq+ZRldrPYdXvCyfFUmFeEwEGXZB5I/AQ==
   /moment/2.29.1:
@@ -26587,7 +26596,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3_ts-node@9.1.1
+      jest: 26.6.3
       jest-util: 26.6.2
       json5: 2.2.0
       lodash: 4.17.21

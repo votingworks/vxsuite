@@ -1,7 +1,20 @@
 import { useCallback } from 'react'
-import useMountedState from './useMountedState'
+import { useMountedState } from './useMountedState'
 
-export default function useCancelablePromise(): <Value>(
+/**
+ * React hook for wrapping promises that automatically cancel on unmount.
+ *
+ * @example
+ *
+ * const makeCancelable = useCancelablePromise()
+ *
+ * useEffect(() => {
+ *   makeCancelable(fetch('/api')).then((response) => {
+ *     setResponse(response)
+ *   })
+ * }, [makeCancelable])
+ */
+export function useCancelablePromise(): <Value>(
   promise: Promise<Value>,
   onCancel?: () => void
 ) => Promise<Value> {

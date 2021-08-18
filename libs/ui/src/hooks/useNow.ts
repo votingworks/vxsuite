@@ -3,9 +3,9 @@ import { useState } from 'react'
 import useInterval from 'use-interval'
 
 /**
- * Returns a current-to-the-second date.
+ * React hook to get a current-to-the-second date.
  */
-const useNow = (): DateTime => {
+export const useNow = (): DateTime => {
   const [now, setNow] = useState(DateTime.local())
 
   useInterval(() => {
@@ -14,5 +14,3 @@ const useNow = (): DateTime => {
 
   return now
 }
-
-export default useNow
