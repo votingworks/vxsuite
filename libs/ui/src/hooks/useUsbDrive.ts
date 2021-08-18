@@ -2,6 +2,7 @@ import useInterval from 'use-interval'
 import { usbstick } from '@votingworks/utils'
 import { useCallback, useState } from 'react'
 import makeDebug from 'debug'
+import { useCancelablePromise } from './useCancelablePromise'
 
 const debug = makeDebug('ui:useUsbDrive')
 const { UsbDriveStatus } = usbstick
@@ -30,18 +31,19 @@ export const useUsbDrive = (): UsbDrive => {
   const [isMountingOrUnmounting, setIsMountingOrUnmounting] = useState(false)
   const [status, setStatus] = useState<usbstick.UsbDriveStatus>()
   const [recentlyEjected, setRecentlyEjected] = useState(false)
+  const makeCancelable = useCancelablePromise()
 
   const eject = useCallback(async () => {
     debug('eject requested, updating state')
     setIsMountingOrUnmounting(true)
     setStatus(UsbDriveStatus.ejecting)
     try {
-      await usbstick.doUnmount()
+      await makeCancelable(usbstick.doUnmount())
       setRecentlyEjected(true)
     } finally {
       setIsMountingOrUnmounting(false)
     }
-  }, [])
+  }, [makeCancelable])
 
   useInterval(
     async () => {
@@ -49,7 +51,7 @@ export const useUsbDrive = (): UsbDrive => {
         return
       }
 
-      const newStatus = await usbstick.getStatus()
+      const newStatus = await makeCancelable(usbstick.getStatus())
       if (status === newStatus) {
         return
       }
@@ -69,7 +71,7 @@ export const useUsbDrive = (): UsbDrive => {
         try {
           debug('USB drive found, mounting')
           setIsMountingOrUnmounting(true)
-          await usbstick.doMount()
+          await makeCancelable(usbstick.doMount())
         } finally {
           setIsMountingOrUnmounting(false)
         }
