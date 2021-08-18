@@ -2,6 +2,12 @@ import React from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 import {
+  makeAdminCard,
+  makeInvalidPollWorkerCard,
+  makeVoterCard,
+  makePollWorkerCard,
+} from '@votingworks/test-utils'
+import {
   getZeroTally,
   TallySourceMachineType,
   MemoryStorage,
@@ -17,13 +23,9 @@ import App from './App'
 import withMarkup from '../test/helpers/withMarkup'
 
 import {
-  adminCardForElection,
   advanceTimersAndPromises,
-  getAlternateNewVoterCard,
-  getNewVoterCard,
-  getUsedVoterCard,
-  pollWorkerCardForElection,
-  getInvalidPollWorkerCard,
+  makeAlternateNewVoterCard,
+  makeUsedVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -67,11 +69,9 @@ it('VxMark+Print end-to-end flow', async () => {
     />
   )
   await advanceTimersAndPromises()
-  const adminCard = adminCardForElection(electionDefinition.electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(
-    electionDefinition.electionHash
-  )
-  const invalidPollWorkerCard = getInvalidPollWorkerCard()
+  const adminCard = makeAdminCard(electionDefinition.electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash)
+  const invalidPollWorkerCard = makeInvalidPollWorkerCard()
   const getByTextWithMarkup = withMarkup(screen.getByText)
 
   card.removeCard()
@@ -157,7 +157,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Voter partially votes, remove card, and is on insert card screen.
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(electionDefinition.election))
   await advanceTimersAndPromises()
   screen.getByText(/Center Springfield/)
   expect(screen.queryByText(expectedElectionHash)).toBeNull()
@@ -177,7 +177,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // ---------------
 
   // Alternate Precinct
-  card.insertCard(getAlternateNewVoterCard())
+  card.insertCard(makeAlternateNewVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Invalid Card Data')
   screen.getByText('Card is not configured for this precinct.')
@@ -192,7 +192,7 @@ it('VxMark+Print end-to-end flow', async () => {
   // Complete Voter Happy Path
 
   // Insert Voter card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(electionDefinition.election))
   await advanceTimersAndPromises()
   screen.getByText(/Center Springfield/)
   screen.getByText(/ballot style 12/)
@@ -336,7 +336,7 @@ it('VxMark+Print end-to-end flow', async () => {
   expect(window.document.documentElement.style.fontSize).toBe('28px')
 
   // Insert Voter card which has just printed, it should say "used card"
-  card.insertCard(getUsedVoterCard())
+  card.insertCard(makeUsedVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Used Card')
 

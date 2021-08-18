@@ -1,5 +1,10 @@
 import React from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import {
+  makeAdminCard,
+  makeVoterCard,
+  makePollWorkerCard,
+} from '@votingworks/test-utils'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import { electionSampleDefinition } from './data'
 
@@ -8,11 +13,8 @@ import App from './App'
 import withMarkup from '../test/helpers/withMarkup'
 
 import {
-  adminCardForElection,
   advanceTimersAndPromises,
-  getExpiredVoterCard,
-  getNewVoterCard,
-  pollWorkerCardForElection,
+  makeExpiredVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -33,10 +35,8 @@ it('VxMarkOnly flow', async () => {
 
   const electionDefinition = electionSampleDefinition
   const card = new MemoryCard()
-  const adminCard = adminCardForElection(electionDefinition.electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(
-    electionDefinition.electionHash
-  )
+  const adminCard = makeAdminCard(electionDefinition.electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash)
   const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
   const machineConfig = fakeMachineConfigProvider()
@@ -115,7 +115,7 @@ it('VxMarkOnly flow', async () => {
   // ---------------
 
   // Insert Expired Voter Card
-  card.insertCard(getExpiredVoterCard())
+  card.insertCard(makeExpiredVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Expired Card')
 
@@ -127,7 +127,7 @@ it('VxMarkOnly flow', async () => {
   // // ---------------
 
   // Insert Expired Voter Card With Votes
-  card.insertCard(getExpiredVoterCard())
+  card.insertCard(makeExpiredVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Expired Card')
 
@@ -141,7 +141,7 @@ it('VxMarkOnly flow', async () => {
   // Complete VxMark Voter Happy Path
 
   // Insert Voter card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(electionDefinition.election))
   await advanceTimersAndPromises()
   screen.getByText(/Center Springfield/)
   screen.getByText(/ballot style 12/)

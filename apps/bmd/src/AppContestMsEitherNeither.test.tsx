@@ -9,6 +9,7 @@ import {
   vote,
 } from '@votingworks/types'
 import { asElectionDefinition } from '@votingworks/fixtures'
+import { makeVoterCard } from '@votingworks/test-utils'
 import electionSample from './data/electionSample.json'
 
 import App from './App'
@@ -16,10 +17,7 @@ import PrintPage from './pages/PrintPage'
 
 import { render as renderWithBallotContext } from '../test/testUtils'
 import withMarkup from '../test/helpers/withMarkup'
-import {
-  advanceTimersAndPromises,
-  getNewVoterCard,
-} from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import {
   measure420Contest,
@@ -30,9 +28,10 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 jest.setTimeout(10_000)
 
+const election = parseElection(electionSample)
+const electionDefinition = asElectionDefinition(parseElection(electionSample))
+
 test('Renders Ballot with EitherNeither: blank', async () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
-  const { election } = electionDefinition
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
     precinctId: '23',
@@ -61,8 +60,6 @@ test('Renders Ballot with EitherNeither: blank', async () => {
 })
 
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
-  const { election } = electionDefinition
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
     precinctId: '23',
@@ -94,8 +91,6 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
 })
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
-  const { election } = electionDefinition
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
     precinctId: '23',
@@ -127,8 +122,6 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
 })
 
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
-  const electionDefinition = asElectionDefinition(parseElection(electionSample))
-  const { election } = electionDefinition
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
     precinctId: '23',
@@ -187,7 +180,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises()
 
   // Insert Voter Card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(election))
   await advanceTimersAndPromises()
 
   // Go to First Contest

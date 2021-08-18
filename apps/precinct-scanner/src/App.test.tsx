@@ -24,6 +24,8 @@ import {
   fakeUsbDrive,
   advanceTimers,
   advanceTimersAndPromises,
+  makePollWorkerCard,
+  makeAdminCard,
 } from '@votingworks/test-utils'
 import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
@@ -34,10 +36,6 @@ import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 import App from './App'
 import { interpretedHmpb } from '../test/fixtures'
 
-import {
-  adminCardForElection,
-  pollWorkerCardForElection,
-} from '../test/helpers/smartcards'
 import { stateStorageKey } from './AppRoot'
 
 beforeEach(() => {
@@ -215,7 +213,7 @@ test('admin and pollworker configuration', async () => {
 
   // Insert a pollworker card
   fetchMock.post('/scan/export', {})
-  const pollWorkerCard = pollWorkerCardForElection(
+  const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   )
   card.insertCard(pollWorkerCard)
@@ -260,7 +258,7 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1)
 
   // Insert admin card to set precinct
-  const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
@@ -466,7 +464,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     'county-registrar-of-wills': ['writein'],
     'judicial-robert-demergue': ['yes'],
   })
-  const pollWorkerCard = pollWorkerCardForElection(
+  const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   )
   card.insertCard(pollWorkerCard)
@@ -534,7 +532,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   expect(fetchMock.calls('/scan/export')).toHaveLength(1)
 
   // Insert Admin Card
-  const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await screen.findByText('Administrator Settings')
   fireEvent.click(await screen.findByText('Export Results to USB'))
@@ -1112,7 +1110,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   await screen.findByText('Blank Ballot')
   // No more ballots have scanned even though the scanner is ready for paper
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2)
-  const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
@@ -1151,7 +1149,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   await screen.findByText('Polls Closed')
   // Make sure the status endpoint was only called once
   expect(fetchMock.calls('/scan/status')).toHaveLength(1)
-  const pollWorkerCard = pollWorkerCardForElection(
+  const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   )
   card.insertCard(pollWorkerCard)

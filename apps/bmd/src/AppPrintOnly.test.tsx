@@ -2,26 +2,28 @@ import React from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import {
   asElectionDefinition,
+  electionSample,
   electionSampleDefinition,
 } from '@votingworks/fixtures'
 import { encodeBallot } from '@votingworks/ballot-encoder'
+import {
+  makeAdminCard,
+  makeVoterCard,
+  makePollWorkerCard,
+} from '@votingworks/test-utils'
 import { BallotType } from '@votingworks/types'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
 import {
-  adminCardForElection,
   advanceTimersAndPromises,
-  getExpiredVoterCard,
-  getNewVoterCard,
-  getUsedVoterCard,
-  pollWorkerCardForElection,
+  makeExpiredVoterCard,
+  makeUsedVoterCard,
   sampleVotes1,
   sampleVotes2,
   sampleVotes3,
-  createVoterCard,
-  getAlternateNewVoterCard,
+  makeAlternateNewVoterCard,
 } from '../test/helpers/smartcards'
 
 import withMarkup from '../test/helpers/withMarkup'
@@ -44,8 +46,8 @@ jest.setTimeout(12000)
 test('VxPrintOnly flow', async () => {
   const { election, electionData, electionHash } = electionSampleDefinition
   const card = new MemoryCard()
-  const adminCard = adminCardForElection(electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(electionHash)
+  const adminCard = makeAdminCard(electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionHash)
   const printer = fakePrinter()
   const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
@@ -172,7 +174,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Insert Expired Voter Card
-  card.insertCard(getExpiredVoterCard())
+  card.insertCard(makeExpiredVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Expired Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
@@ -186,7 +188,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Insert Used Voter Card
-  card.insertCard(getUsedVoterCard())
+  card.insertCard(makeUsedVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Used Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
@@ -200,7 +202,7 @@ test('VxPrintOnly flow', async () => {
   // ---------------
 
   // Insert Voter Card with No Votes
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(election))
   await advanceTimersAndPromises()
   screen.getByText('Empty Card')
   expect(window.document.documentElement.style.fontSize).toBe('48px')
@@ -212,7 +214,7 @@ test('VxPrintOnly flow', async () => {
   expect(window.document.documentElement.style.fontSize).toBe('48px')
 
   // Insert Voter for Alternate Precinct
-  card.insertCard(getAlternateNewVoterCard())
+  card.insertCard(makeAlternateNewVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Invalid Card Data')
   screen.getByText('Card is not configured for this precinct.')
@@ -228,7 +230,7 @@ test('VxPrintOnly flow', async () => {
 
   // Voter 1 Prints Ballot
   card.insertCard(
-    createVoterCard(),
+    makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
       ballotId: 'test-ballot-id',
@@ -264,7 +266,7 @@ test('VxPrintOnly flow', async () => {
 
   // Voter 2 Prints Ballot
   card.insertCard(
-    createVoterCard(),
+    makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
       ballotId: 'test-ballot-id',
@@ -297,7 +299,7 @@ test('VxPrintOnly flow', async () => {
 
   // Voter 3 Prints Ballot
   card.insertCard(
-    createVoterCard(),
+    makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
       ballotId: 'test-ballot-id',
@@ -328,7 +330,7 @@ test('VxPrintOnly flow', async () => {
 
   // Blank Ballot, i.e. a ballot that deliberately is left empty by the voter, should still print
   card.insertCard(
-    createVoterCard(),
+    makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
       ballotId: 'test-ballot-id',
@@ -434,8 +436,8 @@ test('VxPrintOnly flow', async () => {
 test('VxPrint retains app mode when unconfigured', async () => {
   const { electionData, electionHash } = electionSampleDefinition
   const card = new MemoryCard()
-  const adminCard = adminCardForElection(electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(electionHash)
+  const adminCard = makeAdminCard(electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionHash)
   const printer = fakePrinter()
   const hardware = await MemoryHardware.buildStandard()
   const storage = new MemoryStorage()
@@ -542,10 +544,8 @@ test('VxPrint prompts to change to live mode on election day', async () => {
     ...electionSampleDefinition.election,
     date: new Date().toISOString(),
   })
-  const adminCard = adminCardForElection(electionDefinition.electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(
-    electionDefinition.electionHash
-  )
+  const adminCard = makeAdminCard(electionDefinition.electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash)
   const card = new MemoryCard()
   const printer = fakePrinter()
   const hardware = await MemoryHardware.buildStandard()

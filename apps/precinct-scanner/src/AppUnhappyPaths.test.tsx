@@ -3,6 +3,9 @@ import { electionSampleDefinition } from '@votingworks/fixtures'
 import {
   advanceTimers,
   advanceTimersAndPromises,
+  makeAdminCard,
+  makePollWorkerCard,
+  makeVoterCard,
 } from '@votingworks/test-utils'
 import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 import {
@@ -21,11 +24,6 @@ import {
   typedAs,
 } from '@votingworks/utils'
 import { interpretedHmpb } from '../test/fixtures'
-import {
-  adminCardForElection,
-  pollWorkerCardForElection,
-  getVoterCard,
-} from '../test/helpers/smartcards'
 import App from './App'
 import { stateStorageKey } from './AppRoot'
 
@@ -84,7 +82,7 @@ test('module-scan fails to unconfigure', async () => {
   const card = new MemoryCard()
   const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
-  const adminCard = adminCardForElection(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
   card.insertCard(adminCard, JSON.stringify(electionSampleDefinition))
   await advanceTimersAndPromises(1)
   await screen.findByText('Administrator Settings')
@@ -110,7 +108,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
   await screen.findByText('Polls Closed')
-  const voterCard = getVoterCard()
+  const voterCard = makeVoterCard(electionSampleDefinition.election)
   card.insertCard(voterCard)
   await advanceTimersAndPromises(1)
   await screen.findByText('Invalid Card, please remove.')
@@ -130,7 +128,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   await advanceTimersAndPromises(1)
   await screen.findByText('Polls Closed')
 
-  const pollWorkerCardWrongElection = pollWorkerCardForElection(
+  const pollWorkerCardWrongElection = makePollWorkerCard(
     'this-is-not-the-right-hash'
   )
   card.insertCard(pollWorkerCardWrongElection)

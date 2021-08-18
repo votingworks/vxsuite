@@ -1,6 +1,13 @@
 import { waitFor } from '@testing-library/react'
-import { electionSample as election } from '@votingworks/fixtures'
+import {
+  electionSample as election,
+  electionWithMsEitherNeither,
+} from '@votingworks/fixtures'
 import * as testUtils from '@votingworks/test-utils'
+import {
+  makeUsedVoterCard as makeUsedVoterCardForElection,
+  makeVoterCard,
+} from '@votingworks/test-utils'
 import {
   CandidateContest,
   vote,
@@ -122,64 +129,23 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
   }
 )
 
-export const adminCardForElection = (electionHash: string): string =>
-  JSON.stringify({
-    t: 'admin',
-    h: electionHash,
-  })
-
-export const pollWorkerCardForElection = (electionHash: string): string =>
-  JSON.stringify({
-    t: 'pollworker',
-    h: electionHash,
-  })
-
-export const getInvalidPollWorkerCard = (): string =>
-  JSON.stringify({
-    t: 'pollworker',
-    h: 'd34db33f', // wrong election
-  })
-
-export const createVoterCard = (
-  cardData: Partial<VoterCardData> = {}
-): string => {
-  return JSON.stringify({
-    t: 'voter',
-    c: utcTimestamp(),
-    pr: election.precincts[0].id,
-    bs: election.ballotStyles[0].id,
-    ...cardData,
-  })
-}
-
-export const getNewVoterCard = (): string => createVoterCard()
-
-export const getAlternateNewVoterCard = (): string =>
-  createVoterCard({
+export const makeAlternateNewVoterCard = (): VoterCardData =>
+  makeVoterCard(election, {
     pr: altPrecinctId,
     bs: altBallotStyleId,
   })
 
-export const getOtherElectionVoterCard = (): string =>
-  createVoterCard({
-    pr: '999999999',
-    bs: '999999999',
-  })
+export const makeOtherElectionVoterCard = (
+  e = electionWithMsEitherNeither
+): VoterCardData => makeVoterCard(e)
 
-export const getVoidedVoterCard = (): string =>
-  createVoterCard({
-    uz: utcTimestamp(),
-  })
-
-export const getExpiredVoterCard = (): string =>
-  createVoterCard({
+export const makeExpiredVoterCard = (e = election): VoterCardData =>
+  makeVoterCard(e, {
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
   })
 
-export const getUsedVoterCard = (): string =>
-  createVoterCard({
-    bp: utcTimestamp(),
-  })
+export const makeUsedVoterCard = (e = election): VoterCardData =>
+  makeUsedVoterCardForElection(e)
 
 export const advanceTimers = (seconds = 0): void => {
   testUtils.advanceTimers(seconds || GLOBALS.CARD_POLLING_INTERVAL / 1000)
