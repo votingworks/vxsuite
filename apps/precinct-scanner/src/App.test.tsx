@@ -6,6 +6,8 @@ import {
   GetScanStatusResponse,
   GetTestModeConfigResponse,
   GetCurrentPrecinctConfigResponse,
+  PatchTestModeConfigResponse,
+  PatchElectionConfigResponse,
 } from '@votingworks/types/api/module-scan'
 import {
   TallySourceMachineType,
@@ -14,6 +16,7 @@ import {
   MemoryHardware,
   MemoryStorage,
   getZeroTally,
+  typedAs,
 } from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen } from '@testing-library/react'
 import {
@@ -156,11 +159,11 @@ test('app can load and configure from a usb stick', async () => {
 
   fetchMock
     .patchOnce('/config/testMode', {
-      body: '{"status": "ok"}',
+      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     })
     .patchOnce('/config/election', {
-      body: '{"status": "ok"}',
+      body: typedAs<PatchElectionConfigResponse>({ status: 'ok' }),
       status: 200,
     })
     .post('/scan/hmpb/addTemplates', {
@@ -203,7 +206,7 @@ test('admin and pollworker configuration', async () => {
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
     .patchOnce('/config/testMode', {
-      body: '{"status": "ok"}',
+      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     })
   render(<App card={card} hardware={hardware} storage={storage} />)
@@ -388,55 +391,58 @@ test('voter can cast a ballot that scans successfully ', async () => {
     overwriteRoutes: true,
     repeat: 3,
   })
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 1,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 1,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 2 }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
@@ -583,12 +589,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true, repeat: 3 }
   )
   fetchMock.post('/scan/scanBatch', {
@@ -596,56 +601,59 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   })
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 1 }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
-  fetchMock.get('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 1,
-        adjudicationReason: AdjudicationReason.Overvote,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+  fetchMock.get(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 1,
+          adjudicationReason: AdjudicationReason.Overvote,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   await advanceTimersAndPromises(1)
   await screen.findByText('Ballot Requires Review')
   expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
@@ -659,19 +667,19 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   fireEvent.click(await screen.findByText('Yes, count ballot with errors'))
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true }
   )
   await screen.findByText('Your ballot was counted!')
@@ -683,19 +691,19 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   // Simulate another ballot
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true, repeat: 3 }
   )
   fetchMock.post(
@@ -707,48 +715,50 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   )
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
         {
           id: 'test-batch2',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 1 }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
         {
           id: 'test-batch2',
+          label: 'Batch 2',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
@@ -758,25 +768,26 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   // Simulate voter pulling out the ballot
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
         {
           id: 'test-batch2',
+          label: 'Batch 2',
           count: 0,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
@@ -810,65 +821,67 @@ test('voter can cast a rejected ballot', async () => {
   })
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true, repeat: 3 }
   )
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    },
+    }),
     { overwriteRoutes: true }
   )
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: {
-        type: 'InvalidElectionHashPage',
-        expectedElectionHash: 'a',
-        actualElectionHash: 'b',
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: {
+          type: 'InvalidElectionHashPage',
+          expectedElectionHash: 'a',
+          actualElectionHash: 'b',
+        },
+        image: { url: '/not/real.jpg' },
       },
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   await advanceTimersAndPromises(1)
   await screen.findByText('Scanning Error')
   await screen.findByText(
@@ -882,19 +895,19 @@ test('voter can cast a rejected ballot', async () => {
   // When the voter removes the ballot return to the insert ballot screen
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 0,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    },
+    }),
     { overwriteRoutes: true }
   )
   await advanceTimersAndPromises(1)
@@ -928,63 +941,65 @@ test('voter can cast another ballot while the success screen is showing', async 
   })
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true, repeat: 3 }
   )
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 2 }
   )
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
-    id: 'test-sheet',
-    front: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 1,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-    back: {
-      interpretation: interpretedHmpb({
-        electionDefinition: electionSampleDefinition,
-        pageNumber: 2,
-      }),
-      image: { url: '/not/real.jpg' },
-    },
-  } as BallotSheetInfo)
+  fetchMock.getOnce(
+    '/scan/hmpb/review/next-sheet',
+    typedAs<BallotSheetInfo>({
+      id: 'test-sheet',
+      front: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 1,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+      back: {
+        interpretation: interpretedHmpb({
+          electionDefinition: electionSampleDefinition,
+          pageNumber: 2,
+        }),
+        image: { url: '/not/real.jpg' },
+      },
+    })
+  )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
   await advanceTimersAndPromises(1)
@@ -997,19 +1012,19 @@ test('voter can cast another ballot while the success screen is showing', async 
   await screen.findByText('Your ballot was counted!') // Still on the success screen
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: true, repeat: 3 }
   )
   fetchMock.post(
@@ -1021,29 +1036,30 @@ test('voter can cast another ballot while the success screen is showing', async 
   )
   fetchMock.getOnce(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
         {
           id: 'test-batch2',
+          label: 'Batch 2',
           count: 1,
           startedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false, repeat: 2 }
   )
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    {
+    typedAs<BallotSheetInfo>({
       id: 'test-sheet',
       front: {
         interpretation: interpretedHmpb({
@@ -1060,29 +1076,30 @@ test('voter can cast another ballot while the success screen is showing', async 
         }),
         image: { url: '/not/real.jpg' },
       },
-    } as BallotSheetInfo,
+    }),
     { overwriteRoutes: true }
   )
   fetchMock.get(
     '/scan/status',
-    {
-      status: 'ok',
+    typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
       batches: [
         {
           id: 'test-batch',
+          label: 'Batch 1',
           count: 1,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
         {
           id: 'test-batch2',
+          label: 'Batch 2',
           count: 1,
           startedAt: DateTime.now().toISO(),
         },
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
-    } as GetScanStatusResponse,
+    }),
     { overwriteRoutes: false }
   )
 
@@ -1112,19 +1129,22 @@ test('scanning is not triggered when polls closed or cards present', async () =>
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', {
-      status: 'ok',
-      scanner: ScannerStatus.WaitingForPaper,
-      batches: [
-        {
-          id: 'test-batch',
-          count: 15,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    } as GetScanStatusResponse) // Set up the status endpoint with 15 ballots scanned
+    .get(
+      '/scan/status',
+      typedAs<GetScanStatusResponse>({
+        scanner: ScannerStatus.WaitingForPaper,
+        batches: [
+          {
+            id: 'test-batch',
+            label: 'Batch 1',
+            count: 15,
+            startedAt: DateTime.now().toISO(),
+            endedAt: DateTime.now().toISO(),
+          },
+        ],
+        adjudication: { adjudicated: 0, remaining: 0 },
+      })
+    ) // Set up the status endpoint with 15 ballots scanned
   render(<App storage={storage} card={card} hardware={hardware} />)
   await advanceTimersAndPromises(1)
   await advanceTimersAndPromises(1)

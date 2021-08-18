@@ -2,15 +2,10 @@ import {
   electionMultiPartyPrimaryWithDataFiles,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures'
-import {
-  CandidateContest,
-  Dictionary,
-  Election,
-  YesNoContest,
-} from '@votingworks/types'
+import { CandidateContest, Election, YesNoContest } from '@votingworks/types'
 import {
   CastVoteRecord,
-  ContestOptionTally,
+  ContestTally,
   ExportableTallies,
   VotingMethod,
 } from '../config/types'
@@ -93,12 +88,12 @@ describe('getCombinedExportableContestTally', () => {
       tallies: {},
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     }
-    const emptyContestTally = {
+    const emptyContestTally: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 0 },
         no: { option: ['no'], tally: 0 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     }
     expect(
@@ -111,12 +106,12 @@ describe('getCombinedExportableContestTally', () => {
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     })
 
-    const populatedContestTally = {
+    const populatedContestTally: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 3 },
         no: { option: ['no'], tally: 4 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { ballots: 18, undervotes: 5, overvotes: 6 },
     }
     const results = getCombinedExportableContestTally(
@@ -146,7 +141,7 @@ describe('getCombinedExportableContestTally', () => {
       tallies: {},
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     }
-    const emptyContestTally = {
+    const emptyContestTally: ContestTally = {
       contest: presidentcontest,
       tallies: {
         775031988: {
@@ -161,7 +156,7 @@ describe('getCombinedExportableContestTally', () => {
           )!,
           tally: 0,
         },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     }
 
@@ -175,7 +170,7 @@ describe('getCombinedExportableContestTally', () => {
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     })
 
-    const partialContestTally = {
+    const partialContestTally: ContestTally = {
       contest: presidentcontest,
       tallies: {
         775031988: {
@@ -190,7 +185,7 @@ describe('getCombinedExportableContestTally', () => {
           )!,
           tally: 8,
         },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { ballots: 30, undervotes: 6, overvotes: 4 },
     }
     const partialResult = getCombinedExportableContestTally(
@@ -205,7 +200,7 @@ describe('getCombinedExportableContestTally', () => {
       metadata: { ballots: 30, undervotes: 6, overvotes: 4 },
     })
 
-    const tallyForEveryone = {
+    const tallyForEveryone: ContestTally = {
       contest: presidentcontest,
       tallies: {
         775031988: {
@@ -230,7 +225,7 @@ describe('getCombinedExportableContestTally', () => {
           option: writeInCandidate,
           tally: 10,
         },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { ballots: 40, undervotes: 4, overvotes: 6 },
     }
 

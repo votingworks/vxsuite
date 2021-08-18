@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 
 import fetchMock from 'fetch-mock'
 import { Provider } from '@votingworks/types'
-import { MemoryStorage } from '@votingworks/utils'
+import { MemoryStorage, typedAs } from '@votingworks/utils'
 import App from './App'
 
 import {
@@ -19,13 +19,14 @@ beforeEach(() => {
 })
 
 test('machineConfig is fetched from /machine-config by default', async () => {
-  const machineConfigResponse: MachineConfigResponse = {
-    appModeName: VxMarkOnly.name,
-    machineId: '99',
-    codeVersion: 'test',
-  }
-
-  fetchMock.get('/machine-config', () => JSON.stringify(machineConfigResponse))
+  fetchMock.get(
+    '/machine-config',
+    typedAs<MachineConfigResponse>({
+      appModeName: VxMarkOnly.name,
+      machineId: '99',
+      codeVersion: 'test',
+    })
+  )
 
   render(<App storage={new MemoryStorage()} />)
   await advanceTimersAndPromises()
@@ -34,7 +35,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
 })
 
 test('machineConfig fetch fails', async () => {
-  const machineConfig = {
+  const machineConfig: Provider<MachineConfig> = {
     get: () => Promise.reject(new Error('fetch failed!')),
   }
 
@@ -64,7 +65,7 @@ test('machineId is empty', async () => {
 })
 
 test('machineConfig is empty', async () => {
-  const machineConfig = {
+  const machineConfig: Provider<MachineConfig> = {
     async get() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return undefined as any

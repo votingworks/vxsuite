@@ -9,6 +9,10 @@ export interface MachineConfig {
   machineId: string
 }
 
+export interface MachineConfigResponse {
+  machineId: string
+}
+
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 export type InputEvent = React.FormEvent<EventTarget>

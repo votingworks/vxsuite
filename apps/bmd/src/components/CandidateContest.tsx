@@ -10,7 +10,6 @@ import styled from 'styled-components'
 
 import {
   Candidate,
-  OptionalCandidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Parties,
@@ -103,11 +102,11 @@ const CandidateContest: React.FC<Props> = ({
   const [
     attemptedOvervoteCandidate,
     setAttemptedOvervoteCandidate,
-  ] = useState<OptionalCandidate>()
+  ] = useState<Candidate>()
   const [
     candidatePendingRemoval,
     setCandidatePendingRemoval,
-  ] = useState<OptionalCandidate>()
+  ] = useState<Candidate>()
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
   const [isScrollAtTop, setIsScrollAtTop] = useState(true)
@@ -187,8 +186,8 @@ const CandidateContest: React.FC<Props> = ({
     }
   }
 
-  const handleChangeVoteAlert = (optionalCandidate: OptionalCandidate) => {
-    setAttemptedOvervoteCandidate(optionalCandidate)
+  const handleChangeVoteAlert = (candidate?: Candidate) => {
+    setAttemptedOvervoteCandidate(candidate)
   }
 
   const closeAttemptedVoteAlert = () => {
@@ -278,7 +277,7 @@ const CandidateContest: React.FC<Props> = ({
     handleChangeVoteAlert({
       id: 'write-in',
       name: 'a write-in candidate',
-    } as Candidate)
+    })
   }
 
   const hasReachedMaxSelections = contest.seats === vote.length

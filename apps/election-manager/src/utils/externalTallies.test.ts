@@ -10,6 +10,7 @@ import {
   YesNoContest,
   expandEitherNeitherContests,
 } from '@votingworks/types'
+import { typedAs } from '@votingworks/utils'
 import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
 
 import {
@@ -85,59 +86,61 @@ function buildExternalTally(
 
 describe('combineContestTallies', () => {
   it('combine yes no tallies with an empty tally', () => {
-    const tally1 = {
+    const tally1: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 12 },
         no: { option: ['no'], tally: 32 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { overvotes: 3, undervotes: 2, ballots: 49 },
     }
-    const tally2 = {
+    const tally2: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 0 },
         no: { option: ['no'], tally: 0 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { overvotes: 0, undervotes: 0, ballots: 0 },
     }
     expect(combineContestTallies(tally1, tally2)).toStrictEqual(tally1)
   })
 
   it('combine yes no tallies properly', () => {
-    const tally1 = {
+    const tally1: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 12 },
         no: { option: ['no'], tally: 32 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { overvotes: 3, undervotes: 2, ballots: 49 },
     }
-    const tally2 = {
+    const tally2: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 26 },
         no: { option: ['no'], tally: 32 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { overvotes: 1, undervotes: 4, ballots: 63 },
     }
-    expect(combineContestTallies(tally1, tally2)).toStrictEqual({
-      contest: yesnocontest,
-      tallies: {
-        yes: { option: ['yes'], tally: 38 },
-        no: { option: ['no'], tally: 64 },
-      } as Dictionary<ContestOptionTally>,
-      metadata: { overvotes: 4, undervotes: 6, ballots: 112 },
-    })
+    expect(combineContestTallies(tally1, tally2)).toStrictEqual(
+      typedAs<ContestTally>({
+        contest: yesnocontest,
+        tallies: {
+          yes: { option: ['yes'], tally: 38 },
+          no: { option: ['no'], tally: 64 },
+        },
+        metadata: { overvotes: 4, undervotes: 6, ballots: 112 },
+      })
+    )
   })
 
   it('combines candidate tally with empty tally properly', () => {
-    const tally1 = {
+    const tally1: ContestTally = {
       contest: presidentcontest,
       tallies: buildCandidateTallies(1, presidentcontest),
       metadata: { overvotes: 3, undervotes: 2, ballots: 20 },
     }
-    const tally2 = {
+    const tally2: ContestTally = {
       contest: presidentcontest,
       tallies: buildCandidateTallies(0, presidentcontest),
       metadata: { overvotes: 0, undervotes: 0, ballots: 0 },
@@ -146,33 +149,35 @@ describe('combineContestTallies', () => {
   })
 
   it('combines candidate tally with empty tally properly', () => {
-    const tally1 = {
+    const tally1: ContestTally = {
       contest: presidentcontest,
       tallies: buildCandidateTallies(1, presidentcontest),
       metadata: { overvotes: 3, undervotes: 2, ballots: 20 },
     }
-    const tally2 = {
+    const tally2: ContestTally = {
       contest: presidentcontest,
       tallies: buildCandidateTallies(2, presidentcontest),
       metadata: { overvotes: 1, undervotes: 1, ballots: 32 },
     }
-    expect(combineContestTallies(tally1, tally2)).toStrictEqual({
-      contest: presidentcontest,
-      tallies: buildCandidateTallies(3, presidentcontest),
-      metadata: { overvotes: 4, undervotes: 3, ballots: 52 },
-    })
+    expect(combineContestTallies(tally1, tally2)).toStrictEqual(
+      typedAs<ContestTally>({
+        contest: presidentcontest,
+        tallies: buildCandidateTallies(3, presidentcontest),
+        metadata: { overvotes: 4, undervotes: 3, ballots: 52 },
+      })
+    )
   })
 
   it('throws error with mismatched contests', () => {
-    const tally1 = {
+    const tally1: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 12 },
         no: { option: ['no'], tally: 32 },
-      } as Dictionary<ContestOptionTally>,
+      },
       metadata: { overvotes: 3, undervotes: 2, ballots: 49 },
     }
-    const tally2 = {
+    const tally2: ContestTally = {
       contest: presidentcontest,
       tallies: buildCandidateTallies(2, presidentcontest),
       metadata: { overvotes: 1, undervotes: 1, ballots: 32 },
@@ -183,17 +188,17 @@ describe('combineContestTallies', () => {
 
 describe('getTotalNumberOfBallots', () => {
   it('finds correct number of ballots for an election with 1 contest in all ballot styles', () => {
-    const tally1 = {
+    const tally1: ContestTally = {
       contest: presidentcontest,
       tallies: {},
       metadata: { overvotes: 0, undervotes: 0, ballots: 53 },
     }
-    const tally2 = {
+    const tally2: ContestTally = {
       contest: yesnocontest,
       tallies: {},
       metadata: { overvotes: 0, undervotes: 0, ballots: 37 },
     }
-    const contestTallies = {
+    const contestTallies: Dictionary<ContestTally> = {
       president: tally1,
       'question-a': tally2,
     }
@@ -377,7 +382,7 @@ describe('getPrecinctIdsInExternalTally', () => {
       inputSourceName: 'call-it-what-you-want',
       timestampCreated: new Date(1989, 11, 13),
     }
-    // Precincts with 0 votes explictly specified or just missing in the dictionary are not included
+    // Precincts with 0 votes explicitly specified or just missing in the dictionary are not included
     expect(getPrecinctIdsInExternalTally(fullExternalTally)).toStrictEqual([
       '6522',
       '6527',
