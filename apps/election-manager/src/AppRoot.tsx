@@ -1,6 +1,5 @@
 import { strict as assert } from 'assert'
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { useInterval } from 'use-interval'
 import { RouteComponentProps } from 'react-router-dom'
 import 'normalize.css'
 import { sha256 } from 'js-sha256'
@@ -12,6 +11,7 @@ import {
 } from '@votingworks/types'
 
 import { Storage, throwIllegalValue, usbstick } from '@votingworks/utils'
+import { useUsbDrive } from '@votingworks/ui'
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -107,9 +107,6 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
     await storage.set(isOfficialResultsKey, true)
   }
 
-  const [usbStatus, setUsbStatus] = useState(usbstick.UsbDriveStatus.absent)
-  const [recentlyEjected, setRecentlyEjected] = useState(false)
-
   const [fullElectionTally, setFullElectionTally] = useState(
     getEmptyFullElectionTally()
   )
@@ -119,37 +116,8 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
     setFullElectionExternalTallies,
   ] = useState<FullElectionExternalTally[]>([])
 
-  const doMountIfNotRecentlyEjected = useCallback(async () => {
-    if (!recentlyEjected) {
-      await usbstick.doMount()
-    }
-  }, [recentlyEjected])
-
-  const doEject = async () => {
-    setUsbStatus(usbstick.UsbDriveStatus.ejecting)
-    setRecentlyEjected(true)
-    await usbstick.doUnmount()
-  }
-
-  useInterval(
-    () => {
-      void (async () => {
-        const status = await usbstick.getStatus()
-        setUsbStatus(status)
-        if (status === usbstick.UsbDriveStatus.present) {
-          await doMountIfNotRecentlyEjected()
-        } else {
-          setRecentlyEjected(false)
-        }
-      })()
-    },
-    usbStatus === usbstick.UsbDriveStatus.notavailable ? false : 2000
-  )
-
-  const displayUsbStatus =
-    recentlyEjected && usbStatus === usbstick.UsbDriveStatus.present
-      ? usbstick.UsbDriveStatus.recentlyEjected
-      : usbStatus
+  const usbDrive = useUsbDrive()
+  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined
@@ -367,7 +335,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
         setCastVoteRecordFiles,
         resetFiles,
         usbDriveStatus: displayUsbStatus,
-        usbDriveEject: doEject,
+        usbDriveEject: usbDrive.eject,
         printedBallots: printedBallots || [],
         addPrintedBallot,
         fullElectionTally,

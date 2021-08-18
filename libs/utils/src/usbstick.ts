@@ -1,3 +1,7 @@
+import { sleep } from './sleep'
+
+export const FLUSH_IO_DELAY_MS = 10_000
+
 const isAvailable = () => {
   return !!window.kiosk
 }
@@ -52,5 +56,5 @@ export const doUnmount = async (): Promise<void> => {
     return
   }
   await window.kiosk!.unmountUsbDrive(device.deviceName)
-  return await new Promise((resolve) => setTimeout(resolve, 10000))
+  return await sleep(FLUSH_IO_DELAY_MS)
 }

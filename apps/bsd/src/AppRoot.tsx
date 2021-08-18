@@ -18,7 +18,7 @@ import {
   ZeroResponseSchema,
 } from '@votingworks/types/api/module-scan'
 import { usbstick } from '@votingworks/utils'
-import { USBControllerButton } from '@votingworks/ui'
+import { useUsbDrive, USBControllerButton } from '@votingworks/ui'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
 
@@ -69,8 +69,7 @@ const App: React.FC = () => {
     scanner: ScannerStatus.Unknown,
   })
 
-  const [usbStatus, setUsbStatus] = useState(usbstick.UsbDriveStatus.absent)
-  const [recentlyEjected, setRecentlyEjected] = useState(false)
+  const usbDrive = useUsbDrive()
 
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
@@ -256,37 +255,7 @@ const App: React.FC = () => {
     1000
   )
 
-  const doMountIfNotRecentlyEjected = useCallback(async () => {
-    if (!recentlyEjected) {
-      await usbstick.doMount()
-    }
-  }, [recentlyEjected])
-
-  const doEject = async () => {
-    setUsbStatus(usbstick.UsbDriveStatus.ejecting)
-    setRecentlyEjected(true)
-    await usbstick.doUnmount()
-  }
-
-  useInterval(
-    () => {
-      void (async () => {
-        const usbDriveStatus = await usbstick.getStatus()
-        setUsbStatus(usbDriveStatus)
-        if (usbDriveStatus === usbstick.UsbDriveStatus.present) {
-          await doMountIfNotRecentlyEjected()
-        } else {
-          setRecentlyEjected(false)
-        }
-      })()
-    },
-    usbStatus === usbstick.UsbDriveStatus.notavailable ? 0 : 2000
-  )
-
-  const displayUsbStatus =
-    recentlyEjected && usbStatus !== usbstick.UsbDriveStatus.ejecting
-      ? usbstick.UsbDriveStatus.recentlyEjected
-      : usbStatus
+  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
   useEffect(() => {
     void updateStatus()
@@ -307,7 +276,7 @@ const App: React.FC = () => {
         <AppContext.Provider
           value={{
             usbDriveStatus: displayUsbStatus,
-            usbDriveEject: doEject,
+            usbDriveEject: usbDrive.eject,
             machineConfig,
             electionDefinition,
           }}
@@ -330,7 +299,7 @@ const App: React.FC = () => {
                     small={false}
                     primary
                     usbDriveStatus={displayUsbStatus}
-                    usbDriveEject={doEject}
+                    usbDriveEject={usbDrive.eject}
                   />
                 </Buttons>
               </MainChild>
@@ -345,7 +314,7 @@ const App: React.FC = () => {
         <AppContext.Provider
           value={{
             usbDriveStatus: displayUsbStatus,
-            usbDriveEject: doEject,
+            usbDriveEject: usbDrive.eject,
             electionDefinition,
             machineConfig,
           }}
@@ -371,7 +340,7 @@ const App: React.FC = () => {
       <AppContext.Provider
         value={{
           usbDriveStatus: displayUsbStatus,
-          usbDriveEject: doEject,
+          usbDriveEject: usbDrive.eject,
           electionDefinition,
           machineConfig,
         }}
@@ -405,7 +374,7 @@ const App: React.FC = () => {
               <MainNav isTestMode={isTestMode}>
                 <USBControllerButton
                   usbDriveStatus={displayUsbStatus}
-                  usbDriveEject={doEject}
+                  usbDriveEject={usbDrive.eject}
                 />
                 <LinkButton small to="/advanced">
                   Advanced
@@ -446,7 +415,7 @@ const App: React.FC = () => {
       <AppContext.Provider
         value={{
           usbDriveStatus: displayUsbStatus,
-          usbDriveEject: doEject,
+          usbDriveEject: usbDrive.eject,
           machineConfig,
           electionDefinition,
         }}

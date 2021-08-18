@@ -35,8 +35,7 @@ test('renders date and time settings modal', async () => {
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
         calibrate={jest.fn()}
-        usbDriveEject={jest.fn()}
-        usbDriveStatus={usbstick.UsbDriveStatus.absent}
+        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )
@@ -180,8 +179,7 @@ test('setting and un-setting the precinct', async () => {
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
         calibrate={jest.fn()}
-        usbDriveEject={jest.fn()}
-        usbDriveStatus={usbstick.UsbDriveStatus.absent}
+        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )
@@ -217,8 +215,7 @@ test('export from admin screen', async () => {
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
         calibrate={jest.fn()}
-        usbDriveEject={jest.fn()}
-        usbDriveStatus={usbstick.UsbDriveStatus.absent}
+        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
   )

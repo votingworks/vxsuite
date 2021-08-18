@@ -3,19 +3,22 @@ import styled from 'styled-components'
 import fileDownload from 'js-file-download'
 import path from 'path'
 
-import { Button, Prose, Loading, USBControllerButton } from '@votingworks/ui'
+import {
+  Button,
+  Prose,
+  Loading,
+  USBControllerButton,
+  UsbDrive,
+} from '@votingworks/ui'
 import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
+  throwIllegalValue,
   usbstick,
 } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
-
-function throwBadStatus(s: never): never {
-  throw new Error(`Bad status: ${s}`)
-}
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -25,8 +28,7 @@ const USBImage = styled.img`
 
 export interface Props {
   onClose: () => void
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => void
+  usbDrive: UsbDrive
   scannedBallotCount: number
   isTestMode: boolean
 }
@@ -40,8 +42,7 @@ enum ModalState {
 
 const ExportResultsModal: React.FC<Props> = ({
   onClose,
-  usbDriveStatus,
-  usbDriveEject,
+  usbDrive,
   scannedBallotCount,
   isTestMode,
 }) => {
@@ -140,12 +141,14 @@ const ExportResultsModal: React.FC<Props> = ({
         <USBControllerButton
           small={false}
           primary
-          usbDriveStatus={usbDriveStatus}
-          usbDriveEject={usbDriveEject}
+          usbDriveStatus={
+            usbDrive.status ?? usbstick.UsbDriveStatus.notavailable
+          }
+          usbDriveEject={usbDrive.eject}
         />
       </React.Fragment>
     )
-    if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {
+    if (usbDrive.status === usbstick.UsbDriveStatus.recentlyEjected) {
       actions = <Button onPress={onClose}>Close</Button>
     }
     return (
@@ -170,10 +173,11 @@ const ExportResultsModal: React.FC<Props> = ({
   }
 
   if (currentState !== ModalState.INIT) {
-    throwBadStatus(currentState) // Creates a compile time check that all states are being handled.
+    throwIllegalValue(currentState)
   }
 
-  switch (usbDriveStatus) {
+  switch (usbDrive.status) {
+    case undefined:
     case usbstick.UsbDriveStatus.absent:
     case usbstick.UsbDriveStatus.notavailable:
     case usbstick.UsbDriveStatus.recentlyEjected:
@@ -253,8 +257,7 @@ const ExportResultsModal: React.FC<Props> = ({
         />
       )
     default:
-      // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-      throwBadStatus(usbDriveStatus)
+      throwIllegalValue(usbDrive.status)
   }
 }
 

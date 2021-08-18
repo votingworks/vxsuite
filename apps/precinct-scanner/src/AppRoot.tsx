@@ -14,6 +14,7 @@ import {
   PollworkerCardData,
   Provider,
 } from '@votingworks/types'
+import { useUsbDrive } from '@votingworks/ui'
 import {
   sleep,
   throwIllegalValue,
@@ -38,7 +39,6 @@ import {
 import {
   CARD_POLLING_INTERVAL,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  POLLING_INTERVAL_FOR_USB,
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
   STATUS_POLLING_EXTRA_CHECKS,
 } from './config/globals'
@@ -77,8 +77,6 @@ export interface Props extends RouteComponentProps {
 interface HardwareState {
   hasCardReaderAttached: boolean
   hasPrinterAttached: boolean
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbRecentlyEjected: boolean
   adminCardElectionHash: string
   isAdminCardPresent: boolean
   isPollWorkerCardPresent: boolean
@@ -112,8 +110,6 @@ export interface State
 const initialHardwareState: Readonly<HardwareState> = {
   hasCardReaderAttached: true,
   hasPrinterAttached: true,
-  usbDriveStatus: usbstick.UsbDriveStatus.absent,
-  usbRecentlyEjected: false,
   adminCardElectionHash: '',
   isAdminCardPresent: false,
   isPollWorkerCardPresent: false,
@@ -152,11 +148,6 @@ type AppAction =
   | {
       type: 'updateElectionDefinition'
       electionDefinition: OptionalElectionDefinition
-    }
-  | {
-      type: 'updateUsbDriveStatus'
-      usbDriveStatus: usbstick.UsbDriveStatus
-      usbRecentlyEjected?: boolean
     }
   | {
       type: 'refreshConfigFromScanner'
@@ -230,14 +221,6 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         isPollsOpen: action.isPollsOpen,
-      }
-    case 'updateUsbDriveStatus':
-      return {
-        ...state,
-        usbDriveStatus: action.usbDriveStatus,
-        usbRecentlyEjected: action.usbRecentlyEjected
-          ? action.usbRecentlyEjected
-          : state.usbRecentlyEjected,
       }
     case 'updateElectionDefinition':
       return {
@@ -398,7 +381,6 @@ const AppRoot: React.FC<Props> = ({
 }) => {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
-    usbDriveStatus,
     electionDefinition,
     isScannerConfigured,
     ballotState,
@@ -416,13 +398,11 @@ const AppRoot: React.FC<Props> = ({
     isPollsOpen,
     isPollWorkerCardPresent,
     machineConfig,
-    usbRecentlyEjected,
   } = appState
 
+  const usbDrive = useUsbDrive()
   const usbDriveDisplayStatus =
-    usbRecentlyEjected && usbDriveStatus !== usbstick.UsbDriveStatus.ejecting
-      ? usbstick.UsbDriveStatus.recentlyEjected
-      : usbDriveStatus
+    usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
   const hasCardInserted =
     isAdminCardPresent || invalidCardPresent || isPollWorkerCardPresent
@@ -548,36 +528,6 @@ const AppRoot: React.FC<Props> = ({
     }
   }, [dispatchAppState])
 
-  const usbStatusInterval = useInterval(
-    async () => {
-      const status = await usbstick.getStatus()
-      if (status !== usbDriveStatus) {
-        dispatchAppState({
-          type: 'updateUsbDriveStatus',
-          usbDriveStatus: status,
-        })
-      }
-      /* istanbul ignore next */
-      if (status === usbstick.UsbDriveStatus.present && !usbRecentlyEjected) {
-        await usbstick.doMount()
-      }
-    },
-    /* istanbul ignore next */
-    usbDriveStatus === usbstick.UsbDriveStatus.notavailable
-      ? null
-      : POLLING_INTERVAL_FOR_USB,
-    true
-  )
-
-  const usbDriveEject = async () => {
-    dispatchAppState({
-      type: 'updateUsbDriveStatus',
-      usbDriveStatus: usbstick.UsbDriveStatus.ejecting,
-      usbRecentlyEjected: true,
-    })
-    await usbstick.doUnmount()
-  }
-
   const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(
     async () => {
       if (!isStatusPollingEnabled) {
@@ -677,8 +627,6 @@ const AppRoot: React.FC<Props> = ({
     },
     POLLING_INTERVAL_FOR_SCANNER_STATUS_MS
   )
-  const startUsbStatusPolling = useCallback(usbStatusInterval[0], [])
-  const stopUsbStatusPolling = useCallback(usbStatusInterval[0], [])
 
   const togglePollsOpen = useCallback(() => {
     dispatchAppState({ type: 'togglePollsOpen' })
@@ -867,18 +815,11 @@ const AppRoot: React.FC<Props> = ({
 
     void initializeScanner()
     void updateStateFromStorage()
-    startUsbStatusPolling()
     startCardShortValueReadPolling()
     return () => {
       stopCardShortValueReadPolling()
-      stopUsbStatusPolling()
     }
-  }, [
-    refreshConfig,
-    startUsbStatusPolling,
-    startCardShortValueReadPolling,
-    storage,
-  ])
+  }, [refreshConfig, startCardShortValueReadPolling, storage])
 
   const updatePrecinctId = useCallback(
     async (precinctId: string) => {
@@ -943,8 +884,7 @@ const AppRoot: React.FC<Props> = ({
           toggleLiveMode={toggleTestMode}
           unconfigure={unconfigureServer}
           calibrate={scan.calibrate}
-          usbDriveStatus={usbDriveDisplayStatus}
-          usbDriveEject={usbDriveEject}
+          usbDrive={usbDrive}
         />
       </AppContext.Provider>
     )

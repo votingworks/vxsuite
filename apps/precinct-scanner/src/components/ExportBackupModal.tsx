@@ -1,8 +1,15 @@
 import { Result } from '@votingworks/types'
-import { Button, Loading, Prose, USBControllerButton } from '@votingworks/ui'
+import {
+  Button,
+  Loading,
+  Prose,
+  USBControllerButton,
+  UsbDrive,
+} from '@votingworks/ui'
 import {
   generateElectionBasedSubfolderName,
   SCANNER_BACKUPS_FOLDER,
+  throwIllegalValue,
   usbstick,
 } from '@votingworks/utils'
 import path from 'path'
@@ -12,10 +19,6 @@ import AppContext from '../contexts/AppContext'
 import { download, DownloadError, DownloadErrorKind } from '../utils/download'
 import Modal from './Modal'
 
-function throwBadStatus(s: never): never {
-  throw new Error(`Bad status: ${s}`)
-}
-
 const USBImage = styled.img`
   margin-right: auto;
   margin-left: auto;
@@ -24,8 +27,7 @@ const USBImage = styled.img`
 
 export interface Props {
   onClose: () => void
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => void
+  usbDrive: UsbDrive
 }
 
 enum ModalState {
@@ -35,11 +37,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportBackupModal: React.FC<Props> = ({
-  onClose,
-  usbDriveStatus,
-  usbDriveEject,
-}) => {
+const ExportBackupModal: React.FC<Props> = ({ onClose, usbDrive }) => {
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -115,13 +113,13 @@ const ExportBackupModal: React.FC<Props> = ({
         <USBControllerButton
           small={false}
           primary
-          usbDriveStatus={usbDriveStatus}
-          usbDriveEject={usbDriveEject}
+          usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
+          usbDriveEject={usbDrive.eject}
         />
       </React.Fragment>
     )
 
-    if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {
+    if (usbDrive.status === usbstick.UsbDriveStatus.recentlyEjected) {
       actions = <Button onPress={onClose}>Close</Button>
     }
 
@@ -147,10 +145,11 @@ const ExportBackupModal: React.FC<Props> = ({
 
   /* istanbul ignore next */
   if (currentState !== ModalState.INIT) {
-    throwBadStatus(currentState) // Creates a compile time check that all states are being handled.
+    throwIllegalValue(currentState)
   }
 
-  switch (usbDriveStatus) {
+  switch (usbDrive.status) {
+    case undefined:
     case usbstick.UsbDriveStatus.absent:
     case usbstick.UsbDriveStatus.notavailable:
     case usbstick.UsbDriveStatus.recentlyEjected:
@@ -231,8 +230,7 @@ const ExportBackupModal: React.FC<Props> = ({
         />
       )
     default:
-      // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-      throwBadStatus(usbDriveStatus)
+      throwIllegalValue(usbDrive.status)
   }
 }
 
