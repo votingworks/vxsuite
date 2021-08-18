@@ -6,6 +6,7 @@ import { getPartiesWithPrimaryElections } from '../utils/election'
 
 import AppContext from '../contexts/AppContext'
 import Loading from './Loading'
+import ExportBatchTallyResultsButton from './ExportBatchTallyResultsButton'
 import Table, { TD } from './Table'
 import LinkButton from './LinkButton'
 import routerPaths from '../routerPaths'
@@ -407,6 +408,9 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                 </strong>
               </TD>
               <TD />
+              <TD>
+                <ExportBatchTallyResultsButton />
+              </TD>
             </tr>
           </tbody>
         </Table>

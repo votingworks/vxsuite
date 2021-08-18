@@ -278,6 +278,29 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Batch Counts'))
   getByText('Ballot Counts by Batch')
+  fireEvent.click(getByText('Export Batch Results as CSV'))
+  jest.advanceTimersByTime(2001)
+  getByText('Save Batch Results')
+  getByText(/Save the election batch results as /)
+  getByText(
+    'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+  )
+
+  fireEvent.click(getByText('Save'))
+  await waitFor(() => getByText(/Saving/))
+  jest.advanceTimersByTime(2001)
+  await waitFor(() => getByText(/Batch Results Saved/))
+  await waitFor(() => {
+    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1)
+    expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
+      1,
+      'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      expect.stringContaining(
+        'Batch ID,Batch Name,Tabulator,Number of Ballots,President - Ballots Cast'
+      )
+    )
+  })
+
   fireEvent.click(getByText('View Official Batch 2 Tally Report'))
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)')
   expect(getByTestId('total')).toHaveTextContent('4')
@@ -324,9 +347,9 @@ test('tabulating CVRs', async () => {
   jest.advanceTimersByTime(2001)
   await waitFor(() => getByText(/Results Saved/))
   await waitFor(() => {
-    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1)
+    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(2)
     expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
-      1,
+      2,
       'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       'test-content'
     )
