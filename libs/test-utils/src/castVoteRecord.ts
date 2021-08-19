@@ -14,6 +14,8 @@ export interface CastVoteRecordOptions {
   readonly _ballotType?: 'absentee' | 'provisional' | 'standard'
   readonly _testBallot?: boolean
   readonly _scannerId?: string
+  readonly _batchId?: string
+  readonly _batchLabel?: string
 }
 
 export function generateCVR(
@@ -28,6 +30,8 @@ export function generateCVR(
   const _ballotType = options._ballotType ?? 'standard'
   const _testBallot = !!options._testBallot // default to false
   const _scannerId = options._scannerId ?? 'scanner-1'
+  const _batchId = options._batchId ?? 'batch-1'
+  const _batchLabel = options._batchLabel ?? 'Batch 1'
 
   // Add in blank votes for any contest in the ballot style not specified.
   const ballotStyle =
@@ -50,6 +54,8 @@ export function generateCVR(
     _ballotType,
     _testBallot,
     _scannerId,
+    _batchId,
+    _batchLabel,
   }
 }
 
