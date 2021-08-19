@@ -167,6 +167,7 @@ importers:
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/test-utils': link:../../libs/test-utils
       '@votingworks/types': link:../../libs/types
+      chalk: 4.1.2
       cypress: 4.12.1
       eslint: 7.17.0
       eslint-config-airbnb: 18.2.1_17164872ad1121ab7d92471b0f0a3e4e
@@ -227,6 +228,7 @@ importers:
       '@votingworks/utils': workspace:*
       abortcontroller-polyfill: ^1.4.0
       base64-js: ^1.3.1
+      chalk: ^4.1.2
       cypress: ^4.5.0
       debug: ^4.3.2
       dompurify: ^2.0.17
