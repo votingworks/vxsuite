@@ -25,7 +25,7 @@
 
 // @ts-check
 
-const { default: chalk } = require('chalk')
+const chalk = require('chalk')
 const cp = require('child_process')
 const { promisify } = require('util')
 const { z } = require('zod')
@@ -51,10 +51,10 @@ const StatsHeaderSchema = z.object({
   lines_per_second: z.number(),
 })
 const StatSummarySchema = z.object({
- blank: z.number(),
- comment: z.number(),
- code: z.number(),
- nFiles: z.number(),
+  blank: z.number(),
+  comment: z.number(),
+  code: z.number(),
+  nFiles: z.number(),
 })
 const StatsMetaSchema = z.object({
   header: StatsHeaderSchema,
@@ -66,7 +66,7 @@ const StatSchema = z.object({
   code: z.number(),
   language: z.string(),
 })
-const StatsSchema = z.intersection(z.record(StatSchema), StatsMetaSchema)
+const StatsSchema = z.record(StatSchema)
 
 async function main(out = process.stdout) {
   const { stdout, stderr } = await execFile('cloc', [
@@ -75,13 +75,17 @@ async function main(out = process.stdout) {
     '--json',
     '--by-file',
     '--include-lang=TypeScript',
+    '--exclude-ext=test.ts,test.tsx'
   ])
 
   if (stderr.length) {
     console.error('ERROR:', stderr)
   }
 
-  const stats = StatsSchema.parse(stdout)
+  const { header: headerUnparsed, SUM: sumUnparsed, ...fileStatsUnparsed } = JSON.parse(stdout)
+  const _header = StatsHeaderSchema.parse(headerUnparsed)
+  const summary = StatSummarySchema.parse(sumUnparsed)
+  const fileStats = StatsSchema.parse(fileStatsUnparsed)
   /** @type {Map<number, Set<[string, z.TypeOf<typeof StatSchema>]>>} */
   const filesByMinCLOC = new Map(
     [...minCLOCRequirements.keys()].map(minCLOC => [minCLOC, new Set()])
@@ -91,11 +95,7 @@ async function main(out = process.stdout) {
     [...minCLOCRequirements.keys()].map(minCLOC => [minCLOC, new Set()])
   )
 
-  for (const [file, stat] of Object.entries(stats)) {
-    if (file === 'header' || file === 'SUM') {
-      continue
-    }
-
+  for (const [file, stat] of Object.entries(fileStats)) {
     const count = stat.code
     for (const [minCLOC, files] of filesByMinCLOC) {
       if (minCLOC <= count) {
@@ -128,7 +128,7 @@ async function main(out = process.stdout) {
   out.write(`${chalk.bold('Summary:')}\n`)
 
   for (const [minCLOC, files] of filesByMinCLOC) {
-    const actual = files.size / stats.SUM.nFiles
+    const actual = files.size / summary.nFiles
     const expected = minCLOCRequirements.get(minCLOC)
 
     if (actual > expected) {
@@ -151,8 +151,8 @@ function formatCLOCStat(minCLOC, actual, expected) {
     `${minCLOC.toString().padStart(3, ' ')}+ CLOC: ${Math.round(actual * 100)
       .toString()
       .padStart(2, ' ')}% (<= ${Math.round(
-      expected * 100
-    ).toString()}% expected)`
+        expected * 100
+      ).toString()}% expected)`
   )
 }
 
