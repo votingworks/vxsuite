@@ -131,28 +131,6 @@ export interface MsEitherNeitherContestResultInterface {
   pickOneContestVote: OptionalYesNoVote
 }
 
-// Smart Card Content
-export type CardDataTypes = 'voter' | 'pollworker' | 'admin'
-export interface VoterCardData {
-  readonly t: 'voter'
-  readonly c: number // created date
-  readonly bs: string // ballot style id
-  readonly pr: string // precinct id
-  readonly uz?: number // used (voided)
-  readonly bp?: number // ballot printed date
-  readonly u?: number // updated date
-  readonly m?: string // mark machine id
-}
-export interface PollworkerCardData {
-  readonly t: 'pollworker'
-  readonly h: string
-}
-export interface AdminCardData {
-  readonly t: 'admin'
-  readonly h: string
-}
-export type CardData = VoterCardData | PollworkerCardData | AdminCardData
-
 // User Interface
 export type ScrollDirections = 'up' | 'down'
 export interface ScrollShadows {

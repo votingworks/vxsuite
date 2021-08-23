@@ -1,9 +1,15 @@
 import React from 'react'
 import { render, fireEvent, within, screen } from '@testing-library/react'
 import {
+  electionSample,
   electionSampleDefinition as election,
   electionSampleDefinition,
 } from '@votingworks/fixtures'
+import {
+  makeVoidedVoterCard,
+  makeVoterCard,
+  makePollWorkerCard,
+} from '@votingworks/test-utils'
 import {
   MemoryStorage,
   MemoryCard,
@@ -16,12 +22,8 @@ import App from './App'
 import { CARD_EXPIRATION_SECONDS } from './config/globals'
 import {
   advanceTimersAndPromises,
-  getExpiredVoterCard,
-  getOtherElectionVoterCard,
-  getVoidedVoterCard,
-  createVoterCard,
-  getNewVoterCard,
-  pollWorkerCardForElection,
+  makeExpiredVoterCard,
+  makeOtherElectionVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -64,7 +66,7 @@ test('Display App Card Unhappy Paths', async () => {
   // ====================== END CONTEST SETUP ====================== //
 
   // Insert used Voter card
-  card.insertCard(getOtherElectionVoterCard())
+  card.insertCard(makeOtherElectionVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Card is not configured for this election.')
 
@@ -76,7 +78,7 @@ test('Display App Card Unhappy Paths', async () => {
   // ---------------
 
   // Insert used Voter card
-  card.insertCard(getVoidedVoterCard())
+  card.insertCard(makeVoidedVoterCard(electionSample))
   await advanceTimersAndPromises()
   screen.getByText('Expired Card')
 
@@ -88,7 +90,7 @@ test('Display App Card Unhappy Paths', async () => {
   // ---------------
 
   // Insert expired Voter card
-  card.insertCard(getExpiredVoterCard())
+  card.insertCard(makeExpiredVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Expired Card')
 
@@ -100,7 +102,7 @@ test('Display App Card Unhappy Paths', async () => {
   // ---------------
 
   // Voter Card which eventually expires
-  const expiringCard = createVoterCard({
+  const expiringCard = makeVoterCard(electionSample, {
     c: utcTimestamp() - CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
   })
 
@@ -143,7 +145,7 @@ test('Display App Card Unhappy Paths', async () => {
   screen.getByText('Insert voter card to load ballot.')
 
   // Reinsert expired card
-  card.insertCard(getExpiredVoterCard())
+  card.insertCard(makeExpiredVoterCard())
   await advanceTimersAndPromises()
   screen.getByText('Expired Card')
 
@@ -180,7 +182,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   // Default Unconfigured
   screen.getByText('Device Not Configured')
 
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(electionSample))
   await advanceTimersAndPromises()
 
   screen.getByText('Device Not Configured')
@@ -216,7 +218,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
   screen.getByText('Insert Poll Worker card to open.')
 
-  const pollworkerCard = pollWorkerCardForElection(election.electionHash)
+  const pollworkerCard = makePollWorkerCard(election.electionHash)
   card.insertCard(pollworkerCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises()
 

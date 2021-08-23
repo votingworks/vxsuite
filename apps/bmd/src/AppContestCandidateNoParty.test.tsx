@@ -4,12 +4,10 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { Election } from '@votingworks/types'
 import { asElectionDefinition } from '@votingworks/fixtures'
+import { makeVoterCard } from '@votingworks/test-utils'
 import App from './App'
 
-import {
-  advanceTimersAndPromises,
-  getNewVoterCard,
-} from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import { setStateInStorage } from '../test/helpers/election'
 import electionSample from './data/electionSample.json'
@@ -66,7 +64,7 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises()
 
   // Insert Voter Card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(election))
   await advanceTimersAndPromises()
 
   // Go to First Contest

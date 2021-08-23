@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
+import { makeAdminCard, makePollWorkerCard } from '@votingworks/test-utils'
 import * as GLOBALS from './config/globals'
 
 import { electionSampleDefinition } from './data'
@@ -16,11 +17,7 @@ import {
 
 import withMarkup from '../test/helpers/withMarkup'
 
-import {
-  adminCardForElection,
-  advanceTimersAndPromises,
-  pollWorkerCardForElection,
-} from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import fakePrinter from '../test/helpers/fakePrinter'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
@@ -38,8 +35,8 @@ test('Cardless Voting Flow', async () => {
   const electionDefinition = electionSampleDefinition
   const { electionData, electionHash } = electionDefinition
   const card = new MemoryCard()
-  const adminCard = adminCardForElection(electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(electionHash)
+  const adminCard = makeAdminCard(electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionHash)
   const hardware = await MemoryHardware.buildStandard()
   const printer = fakePrinter()
   const storage = new MemoryStorage()
@@ -210,9 +207,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
   const electionDefinition = electionSampleDefinition
   const card = new MemoryCard()
-  const pollWorkerCard = pollWorkerCardForElection(
-    electionDefinition.electionHash
-  )
+  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash)
   const hardware = await MemoryHardware.buildStandard()
   const printer = fakePrinter()
   const storage = new MemoryStorage()
@@ -292,8 +287,8 @@ test('poll worker must select a precinct first', async () => {
   const electionDefinition = electionSampleDefinition
   const { electionData, electionHash } = electionDefinition
   const card = new MemoryCard()
-  const adminCard = adminCardForElection(electionHash)
-  const pollWorkerCard = pollWorkerCardForElection(electionHash)
+  const adminCard = makeAdminCard(electionHash)
+  const pollWorkerCard = makePollWorkerCard(electionHash)
   const hardware = await MemoryHardware.buildStandard()
   const printer = fakePrinter()
   const storage = new MemoryStorage()

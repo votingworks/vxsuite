@@ -1,13 +1,12 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { electionSample } from '@votingworks/fixtures'
+import { makeVoterCard } from '@votingworks/test-utils'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
-import {
-  advanceTimersAndPromises,
-  getNewVoterCard,
-} from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import {
   countyCommissionersContest,
@@ -44,7 +43,7 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises()
 
   // Insert Voter Card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(electionSample))
   await advanceTimersAndPromises()
 
   // Go to First Contest

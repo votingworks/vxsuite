@@ -1011,13 +1011,20 @@ export const CardDataSchema: z.ZodSchema<CardData> = CardDataInternalSchema
 
 export interface VoterCardData extends CardData {
   readonly t: 'voter'
-  readonly c: number // created date
-  readonly bs: string // ballot style id
-  readonly pr: string // precinct id
-  readonly uz?: number // used (voided)
-  readonly bp?: number // ballot printed date
-  readonly u?: number // updated date
-  readonly m?: string // mark machine id
+  /** Created date */
+  readonly c: number
+  /** Ballot style ID */
+  readonly bs: string
+  /** Precinct ID */
+  readonly pr: string
+  /** Used (voided) */
+  readonly uz?: number
+  /** Ballot printed date */
+  readonly bp?: number
+  /** Updated date */
+  readonly u?: number
+  /** Mark machine ID */
+  readonly m?: string
 }
 export const VoterCardDataSchema: z.ZodSchema<VoterCardData> = CardDataInternalSchema.extend(
   {
@@ -1034,6 +1041,7 @@ export const VoterCardDataSchema: z.ZodSchema<VoterCardData> = CardDataInternalS
 
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker'
+  /** Election hash */
   readonly h: string
 }
 export const PollworkerCardDataSchema: z.ZodSchema<PollworkerCardData> = CardDataInternalSchema.extend(
@@ -1045,6 +1053,7 @@ export const PollworkerCardDataSchema: z.ZodSchema<PollworkerCardData> = CardDat
 
 export interface AdminCardData extends CardData {
   readonly t: 'admin'
+  /** Election hash */
   readonly h: string
 }
 export const AdminCardDataSchema: z.ZodSchema<AdminCardData> = CardDataInternalSchema.extend(

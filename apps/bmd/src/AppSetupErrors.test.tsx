@@ -1,15 +1,13 @@
 import React from 'react'
 import { act, render, screen } from '@testing-library/react'
+import { makeAdminCard } from '@votingworks/test-utils'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import { electionSampleDefinition } from './data'
 
 import App from './App'
 
-import {
-  adminCardForElection,
-  advanceTimersAndPromises,
-} from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import {
   electionDefinition,
@@ -199,7 +197,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
     const card = new MemoryCard()
-    const adminCard = adminCardForElection(electionDefinition.electionHash)
+    const adminCard = makeAdminCard(electionDefinition.electionHash)
     const storage = new MemoryStorage()
     const machineConfig = fakeMachineConfigProvider({
       appMode: VxPrintOnly,

@@ -7,6 +7,8 @@ import {
   within,
 } from '@testing-library/react'
 
+import { electionSample } from '@votingworks/fixtures'
+import { makeVoterCard } from '@votingworks/test-utils'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 import App from './App'
 
@@ -14,7 +16,6 @@ import withMarkup from '../test/helpers/withMarkup'
 
 import {
   advanceTimers,
-  getNewVoterCard,
   advanceTimersAndPromises,
 } from '../test/helpers/smartcards'
 
@@ -63,7 +64,7 @@ it('Single Seat Contest with Write In', async () => {
     within(screen.getByTestId('virtual-keyboard')).getByText(text)
 
   // Insert Voter Card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(electionSample))
   await advanceTimersAndPromises()
 
   // Go to First Contest

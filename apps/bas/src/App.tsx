@@ -204,7 +204,7 @@ const App: React.FC<Props> = ({ card }) => {
       setIsEncodingCard(true)
 
       const createAtSeconds = Math.round(Date.now() / 1000)
-      const code = {
+      const code: VoterCardData = {
         c: createAtSeconds,
         t: 'voter',
         pr: precinctId,

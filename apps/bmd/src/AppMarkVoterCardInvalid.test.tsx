@@ -1,5 +1,7 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { electionSample } from '@votingworks/fixtures'
+import { makeVoterCard } from '@votingworks/test-utils'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
@@ -7,7 +9,6 @@ import App from './App'
 import {
   advanceTimers,
   advanceTimersAndPromises,
-  getNewVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
@@ -51,7 +52,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     await advanceTimersAndPromises()
 
     // Insert Voter card
-    card.insertCard(getNewVoterCard())
+    card.insertCard(makeVoterCard(electionSample))
     await advanceTimersAndPromises()
     screen.getByText(/Center Springfield/)
     screen.getByText('Start Voting')
@@ -119,7 +120,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     await advanceTimersAndPromises()
 
     // Insert Voter card
-    card.insertCard(getNewVoterCard())
+    card.insertCard(makeVoterCard(electionSample))
     await advanceTimersAndPromises()
     screen.getByText(/Center Springfield/)
 

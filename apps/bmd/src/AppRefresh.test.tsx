@@ -3,15 +3,16 @@ import { fireEvent, render, waitFor } from '@testing-library/react'
 import { advanceBy } from 'jest-date-mock'
 
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
+import { makeVoterCard } from '@votingworks/test-utils'
 import App from './App'
 
 import {
   advanceTimers,
   advanceTimersAndPromises,
-  getNewVoterCard,
 } from '../test/helpers/smartcards'
 
 import {
+  election,
   presidentContest,
   setElectionInStorage,
   setStateInStorage,
@@ -47,7 +48,7 @@ it('Refresh window and expect to be on same contest', async () => {
   await advanceTimersAndPromises()
 
   // Insert Voter Card
-  card.insertCard(getNewVoterCard())
+  card.insertCard(makeVoterCard(election))
   advanceTimers()
 
   // Go to First Contest

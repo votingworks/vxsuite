@@ -254,10 +254,11 @@ export class MemoryCard implements Card {
    * Inserts a simulated in-memory card with specified long and short values.
    */
   public insertCard(
-    shortValue?: string,
+    shortValue?: string | unknown,
     longValue?: string | Uint8Array
   ): this {
-    this.shortValue = shortValue
+    this.shortValue =
+      typeof shortValue === 'string' ? shortValue : JSON.stringify(shortValue)
     this.longValue =
       typeof longValue === 'undefined'
         ? undefined
