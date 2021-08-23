@@ -4,11 +4,11 @@ import { mocked } from 'ts-jest/utils'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { deferred } from '@votingworks/utils'
 import CalibrateScannerModal from './CalibrateScannerModal'
-import usePrecinctScannerStatus from '../hooks/usePrecinctScannerStatus'
+import usePrecinctScanner from '../hooks/usePrecinctScanner'
 
-jest.mock('../hooks/usePrecinctScannerStatus')
+jest.mock('../hooks/usePrecinctScanner')
 
-const usePrecinctScannerStatusMock = mocked(usePrecinctScannerStatus)
+const usePrecinctScannerMock = mocked(usePrecinctScanner)
 
 test('shows instructions', async () => {
   const onCalibrate = jest.fn()
@@ -21,9 +21,13 @@ test('shows instructions', async () => {
 })
 
 test('waiting for paper', async () => {
-  usePrecinctScannerStatusMock.mockReturnValueOnce(
-    ScannerStatus.WaitingForPaper
-  )
+  usePrecinctScannerMock.mockReturnValueOnce({
+    status: {
+      ballotCount: 0,
+      ballotNeedsReview: false,
+      scannerState: ScannerStatus.WaitingForPaper,
+    },
+  })
 
   const onCalibrate = jest.fn()
   const onCancel = jest.fn()
@@ -41,7 +45,13 @@ test('waiting for paper', async () => {
 })
 
 test('scanner not available', async () => {
-  usePrecinctScannerStatusMock.mockReturnValueOnce(ScannerStatus.Error)
+  usePrecinctScannerMock.mockReturnValueOnce({
+    status: {
+      ballotCount: 0,
+      ballotNeedsReview: false,
+      scannerState: ScannerStatus.Error,
+    },
+  })
 
   const onCalibrate = jest.fn()
   const onCancel = jest.fn()
@@ -60,7 +70,13 @@ test('scanner not available', async () => {
 
 test('calibrate success', async () => {
   const { promise, resolve } = deferred<boolean>()
-  usePrecinctScannerStatusMock.mockReturnValueOnce(ScannerStatus.ReadyToScan)
+  usePrecinctScannerMock.mockReturnValueOnce({
+    status: {
+      ballotCount: 0,
+      ballotNeedsReview: false,
+      scannerState: ScannerStatus.ReadyToScan,
+    },
+  })
 
   const onCalibrate = jest.fn().mockResolvedValueOnce(promise)
   const onCancel = jest.fn()
@@ -82,7 +98,13 @@ test('calibrate success', async () => {
 
 test('calibrate error', async () => {
   const { promise, resolve } = deferred<boolean>()
-  usePrecinctScannerStatusMock.mockReturnValueOnce(ScannerStatus.ReadyToScan)
+  usePrecinctScannerMock.mockReturnValueOnce({
+    status: {
+      ballotCount: 0,
+      ballotNeedsReview: false,
+      scannerState: ScannerStatus.ReadyToScan,
+    },
+  })
 
   const onCalibrate = jest.fn().mockResolvedValueOnce(promise)
   const onCancel = jest.fn()
@@ -105,7 +127,13 @@ test('calibrate error', async () => {
 test('calibrate error & try again', async () => {
   const calibrateDeferred1 = deferred<boolean>()
   const calibrateDeferred2 = deferred<boolean>()
-  usePrecinctScannerStatusMock.mockReturnValue(ScannerStatus.ReadyToScan)
+  usePrecinctScannerMock.mockReturnValue({
+    status: {
+      ballotCount: 0,
+      ballotNeedsReview: false,
+      scannerState: ScannerStatus.ReadyToScan,
+    },
+  })
 
   const onCalibrate = jest
     .fn()

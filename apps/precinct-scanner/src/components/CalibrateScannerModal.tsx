@@ -1,7 +1,7 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { Button, Prose, useCancelablePromise } from '@votingworks/ui'
 import React, { useCallback, useState } from 'react'
-import usePrecinctScannerStatus from '../hooks/usePrecinctScannerStatus'
+import usePrecinctScanner from '../hooks/usePrecinctScanner'
 import Modal from './Modal'
 
 export interface Props {
@@ -18,9 +18,8 @@ const CalibrateScannerModal: React.FC<Props> = ({ onCancel, onCalibrate }) => {
   const [calibrationSuccess, setCalibrationSuccess] = useState<boolean>()
   const [isCalibrating, setIsCalibrating] = useState(false)
 
-  const scannerStatus = usePrecinctScannerStatus(
-    isCalibrating ? false : undefined
-  )
+  const scanner = usePrecinctScanner(isCalibrating ? false : undefined)
+  const scannerStatus = scanner?.status.scannerState
 
   const beginCalibration = useCallback(async () => {
     setIsCalibrating(true)

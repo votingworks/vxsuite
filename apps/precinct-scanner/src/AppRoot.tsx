@@ -17,7 +17,6 @@ import {
   useUsbDrive,
 } from '@votingworks/ui'
 import {
-  sleep,
   throwIllegalValue,
   PrecinctScannerCardTally,
   Card,
@@ -38,12 +37,12 @@ import {
 import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
-  STATUS_POLLING_EXTRA_CHECKS,
 } from './config/globals'
 
 import * as config from './api/config'
 import * as scan from './api/scan'
 
+import usePrecinctScanner from './hooks/usePrecinctScanner'
 import AdminScreen from './screens/AdminScreen'
 import SetupCardReaderPage from './screens/SetupCardReaderPage'
 import InvalidCardScreen from './screens/InvalidCardScreen'
@@ -147,11 +146,9 @@ type AppAction =
       electionDefinition: OptionalElectionDefinition
       isTestMode: boolean
       currentPrecinctId?: string
-      ballotCount: number
     }
   | {
       type: 'ballotScanning'
-      ballotCount?: number
     }
   | {
       type: 'ballotCast'
@@ -168,15 +165,9 @@ type AppAction =
   | {
       type: 'scannerError'
       timeoutToInsertScreen: number
-      ballotCount?: number
     }
   | {
       type: 'readyToInsertBallot'
-      ballotCount?: number
-    }
-  | {
-      type: 'updateBallotCount'
-      ballotCount: number
     }
   | { type: 'disableStatusPolling' }
   | { type: 'enableStatusPolling' }
@@ -230,7 +221,6 @@ const appReducer = (state: State, action: AppAction): State => {
         electionDefinition: action.electionDefinition,
         currentPrecinctId: action.currentPrecinctId,
         isTestMode: action.isTestMode,
-        scannedBallotCount: action.ballotCount,
         isScannerConfigured: true,
       }
     }
@@ -246,10 +236,6 @@ const appReducer = (state: State, action: AppAction): State => {
         ...initialScanInformationState,
         ballotState: BallotState.SCANNING,
         timeoutToInsertScreen: undefined,
-        scannedBallotCount:
-          action.ballotCount === undefined
-            ? state.scannedBallotCount
-            : action.ballotCount,
       }
     case 'ballotCast':
       return {
@@ -264,10 +250,6 @@ const appReducer = (state: State, action: AppAction): State => {
         ...initialScanInformationState,
         ballotState: BallotState.SCANNER_ERROR,
         timeoutToInsertScreen: action.timeoutToInsertScreen,
-        scannedBallotCount:
-          action.ballotCount === undefined
-            ? state.scannedBallotCount
-            : action.ballotCount,
       }
     case 'ballotRejected':
       return {
@@ -288,16 +270,7 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         ...initialScanInformationState,
         ballotState: BallotState.IDLE,
-        scannedBallotCount:
-          action.ballotCount === undefined
-            ? state.scannedBallotCount
-            : action.ballotCount,
         timeoutToInsertScreen: undefined,
-      }
-    case 'updateBallotCount':
-      return {
-        ...state,
-        scannedBallotCount: action.ballotCount,
       }
     case 'disableStatusPolling':
       return {
@@ -365,7 +338,6 @@ const AppRoot: React.FC<Props> = ({
     electionDefinition,
     isScannerConfigured,
     ballotState,
-    scannedBallotCount,
     timeoutToInsertScreen,
     isStatusPollingEnabled,
     adjudicationReasonInfo,
@@ -395,14 +367,11 @@ const AppRoot: React.FC<Props> = ({
     const currentPrecinctId = await makeCancelable(
       config.getCurrentPrecinctId()
     )
-    // Get the ballot count off module-scan
-    const { ballotCount } = await makeCancelable(scan.getCurrentStatus())
     dispatchAppState({
       type: 'refreshConfigFromScanner',
       electionDefinition,
       isTestMode,
       currentPrecinctId,
-      ballotCount,
     })
   }, [dispatchAppState])
 
@@ -515,26 +484,7 @@ const AppRoot: React.FC<Props> = ({
       dispatchAppState({ type: 'disableStatusPolling' })
 
       try {
-        const { scannerState, ballotCount } = await scan.getCurrentStatus()
-
-        // The scanner can occasionally be very briefly in an unexpected state, we should make sure that the scanner stays in the current
-        // state for 200ms before making any changes.
-        for (let i = 0; i < STATUS_POLLING_EXTRA_CHECKS; i++) {
-          await sleep(100)
-          const { scannerState: scannerStateAgain } = await makeCancelable(
-            scan.getCurrentStatus()
-          )
-          // If the state has already changed, abort and start the polling again.
-          if (scannerStateAgain !== scannerState) {
-            debug('saw a momentary blip in scanner status, aborting: %O', {
-              firstStatus: scannerState,
-              nextStatus: scannerStateAgain,
-            })
-            dispatchAppState({ type: 'enableStatusPolling' })
-            return
-          }
-        }
-        dispatchAppState({ type: 'enableStatusPolling' })
+        const { scannerState } = await scan.getCurrentStatus()
 
         const isCapableOfBeginningNewScan =
           ballotState === BallotState.IDLE ||
@@ -547,7 +497,6 @@ const AppRoot: React.FC<Props> = ({
 
         debug({
           scannerState,
-          ballotCount,
           ballotState,
           isCapableOfBeginningNewScan,
           isHoldingPaperForVoterRemoval,
@@ -563,7 +512,6 @@ const AppRoot: React.FC<Props> = ({
             /* dispatchAppState({
             type: 'scannerError',
             timeoutToInsertScreen: dismissCurrentBallotMessage(),
-            ballotCount,
           }) */
             return
           }
@@ -576,7 +524,6 @@ const AppRoot: React.FC<Props> = ({
               // begin scanning
               dispatchAppState({
                 type: 'ballotScanning',
-                ballotCount,
               })
               await scanDetectedBallot()
             }
@@ -592,15 +539,13 @@ const AppRoot: React.FC<Props> = ({
               if (timeoutToInsertScreen) {
                 window.clearTimeout(timeoutToInsertScreen)
               }
-              dispatchAppState({ type: 'readyToInsertBallot', ballotCount })
+              dispatchAppState({ type: 'readyToInsertBallot' })
               return
             }
         }
-        if (ballotCount !== scannedBallotCount) {
-          dispatchAppState({ type: 'updateBallotCount', ballotCount })
-        }
       } catch (err) {
         debug('error in fetching module scan status')
+      } finally {
         dispatchAppState({ type: 'enableStatusPolling' })
       }
     },
@@ -702,6 +647,9 @@ const AppRoot: React.FC<Props> = ({
     hasCardInserted,
     dispatchAppState,
   ])
+
+  const scanner = usePrecinctScanner()
+  const scannedBallotCount = scanner?.status.ballotCount ?? 0
 
   const getCVRsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
     if (electionDefinition) {
