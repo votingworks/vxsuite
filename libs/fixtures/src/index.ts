@@ -49,11 +49,13 @@ export const electionWithMsEitherNeitherRawData = JSON.stringify(
 
 import multiPartiPrimaryElectionSEMSData from './data/electionMultiPartyPrimary/semsFiles/standard.csv'
 import multiPartiPrimaryElectionCVRData from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl'
+import multiPartiPrimaryElectionCSVData from './data/electionMultiPartyPrimary/csvFiles/batchResults.csv'
 
 export const electionMultiPartyPrimaryWithDataFiles = {
   electionDefinition: multiPartyPrimaryElectionDefinition,
   semsData: multiPartiPrimaryElectionSEMSData,
   cvrData: multiPartiPrimaryElectionCVRData,
+  csvData: multiPartiPrimaryElectionCSVData,
 }
 
 import simplePrimaryElectionCVRData from './data/electionPrimary/cvrFiles/standard.txt'

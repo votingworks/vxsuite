@@ -27,7 +27,7 @@ const electionSample2 = electionSample2WithDataFiles.electionDefinition.election
 const multiPartyPrimaryElection =
   electionMultiPartyPrimaryWithDataFiles.electionDefinition.election
 
-function parseCVRsAndAssertSuccess(
+export function parseCVRsAndAssertSuccess(
   cvrsFileContents: string,
   election: Election
 ): CastVoteRecord[] {

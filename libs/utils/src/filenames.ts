@@ -166,3 +166,14 @@ export function generateFinalExportDefaultFilename(
   const electionName = generateElectionName(election)
   return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`
 }
+
+export function generateBatchResultsDefaultFilename(
+  isTestModeResults: boolean,
+  election: Election,
+  time: Date = new Date()
+): string {
+  const filemode = isTestModeResults ? 'test' : 'live'
+  const timeInformation = moment(time).format(TIME_FORMAT_STRING)
+  const electionName = generateElectionName(election)
+  return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}batch-results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`
+}
