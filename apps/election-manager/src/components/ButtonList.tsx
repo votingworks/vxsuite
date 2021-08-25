@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 const ButtonList = styled.div`
   column-gap: 1rem;
@@ -12,6 +12,6 @@ const ButtonList = styled.div`
     margin-bottom: 0.5rem;
     overflow: hidden;
   }
-`
+`;
 
-export default ButtonList
+export default ButtonList;

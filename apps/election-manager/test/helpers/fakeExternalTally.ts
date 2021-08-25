@@ -1,4 +1,4 @@
-import { ExternalTally } from '../../src/config/types'
+import {ExternalTally} from '../../src/config/types';
 
 export default function fakeTally(
   props: Partial<ExternalTally> = {}
@@ -7,5 +7,5 @@ export default function fakeTally(
     numberOfBallotsCounted: 0,
     contestTallies: {},
     ...props,
-  }
+  };
 }

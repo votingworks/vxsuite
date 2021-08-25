@@ -6,17 +6,17 @@ import {
   VotingMethodReportScreenProps,
   ManualDataPrecinctScreenProps,
   BatchReportScreenProps,
-} from './config/types'
+} from './config/types';
 
 const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
   definitionEditor: '/definition/editor',
-  definitionContest: ({ contestId }: { contestId: string }): string =>
+  definitionContest: ({contestId}: {contestId: string}): string =>
     `/definition/contests/${contestId}`,
   smartcards: '/cards',
   ballotsList: '/ballots',
-  ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps): string =>
+  ballotsView: ({ballotStyleId, precinctId}: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
   ballotsViewLanguage: ({
     ballotStyleId,
@@ -32,25 +32,25 @@ const routerPaths = {
   printedBallotsReport: '/ballots/printed-report',
   tally: '/tally',
   printTestDecks: '/tally/print-test-deck',
-  printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps): string =>
+  printOneTestDeck: ({precinctId}: PrecinctReportScreenProps): string =>
     `/tally/print-test-deck/${precinctId}`,
-  tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>
+  tallyPrecinctReport: ({precinctId}: PrecinctReportScreenProps): string =>
     `/tally/precinct/${precinctId}`,
-  tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
+  tallyPartyReport: ({partyId}: PartyReportScreenProps): string =>
     `/tally/party/${partyId}`,
   tallyVotingMethodReport: ({
     votingMethod,
   }: VotingMethodReportScreenProps): string =>
     `/tally/votingmethod/${votingMethod}`,
-  tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
+  tallyScannerReport: ({scannerId}: ScannerReportScreenProps): string =>
     `/tally/scanner/${scannerId}`,
-  tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
+  tallyBatchReport: ({batchId}: BatchReportScreenProps): string =>
     `/tally/batch/${batchId}`,
   tallyFullReport: '/tally/full',
   testDecksTally: '/tally/test-ballot-deck',
-  testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
+  testDeckResultsReport: ({precinctId}: PrecinctReportScreenProps): string =>
     `/tally/test-ballot-deck/${precinctId}`,
   overvoteCombinationReport: '/tally/pairs',
-}
+};
 
-export default routerPaths
+export default routerPaths;

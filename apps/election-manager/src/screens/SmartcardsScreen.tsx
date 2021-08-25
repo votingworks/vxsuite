@@ -1,63 +1,63 @@
-import React, { useContext, useState } from 'react'
+import React, {useContext, useState} from 'react';
 
-import { EventTargetFunction } from '../config/types'
-import AppContext from '../contexts/AppContext'
+import {EventTargetFunction} from '../config/types';
+import AppContext from '../contexts/AppContext';
 
-import NavigationScreen from '../components/NavigationScreen'
-import Prose from '../components/Prose'
-import Button from '../components/Button'
-import Modal from '../components/Modal'
-import Loading from '../components/Loading'
+import NavigationScreen from '../components/NavigationScreen';
+import Prose from '../components/Prose';
+import Button from '../components/Button';
+import Modal from '../components/Modal';
+import Loading from '../components/Loading';
 
 const DefinitionScreen: React.FC = () => {
-  const { electionDefinition } = useContext(AppContext)
-  const { electionData, electionHash } = electionDefinition!
+  const {electionDefinition} = useContext(AppContext);
+  const {electionData, electionHash} = electionDefinition!;
 
-  const [isProgrammingCard, setIsProgrammingCard] = useState(false)
+  const [isProgrammingCard, setIsProgrammingCard] = useState(false);
 
-  const programCard: EventTargetFunction = async (event) => {
-    const target = event.currentTarget as HTMLButtonElement
-    const { id } = target.dataset
-    setIsProgrammingCard(true)
+  const programCard: EventTargetFunction = async event => {
+    const target = event.currentTarget as HTMLButtonElement;
+    const {id} = target.dataset;
+    setIsProgrammingCard(true);
 
     if (id === 'override') {
       await fetch('/card/write_protect_override', {
         method: 'post',
-      })
+      });
       window.setTimeout(() => {
-        setIsProgrammingCard(false)
-      }, 1000)
-      return
+        setIsProgrammingCard(false);
+      }, 1000);
+      return;
     }
 
     const shortValue = JSON.stringify({
       t: id,
       h: electionHash,
-    })
+    });
 
-    const formData = new FormData()
+    const formData = new FormData();
 
     switch (id) {
       case 'pollworker':
         await fetch('/card/write', {
           method: 'post',
           body: shortValue,
-        })
-        break
+        });
+        break;
       case 'admin':
-        formData.append('short_value', shortValue)
-        formData.append('long_value', electionData)
+        formData.append('short_value', shortValue);
+        formData.append('long_value', electionData);
         await fetch('/card/write_short_and_long', {
           method: 'post',
           body: formData,
-        })
-        break
+        });
+        break;
       default:
-        break
+        break;
     }
 
-    setIsProgrammingCard(false)
-  }
+    setIsProgrammingCard(false);
+  };
 
   return (
     <React.Fragment>
@@ -92,7 +92,7 @@ const DefinitionScreen: React.FC = () => {
         <Modal content={<Loading>Programming card</Loading>} />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default DefinitionScreen
+export default DefinitionScreen;

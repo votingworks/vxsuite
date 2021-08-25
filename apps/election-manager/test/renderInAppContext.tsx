@@ -1,14 +1,14 @@
-import { createMemoryHistory, MemoryHistory } from 'history'
-import React, { RefObject } from 'react'
-import { Router } from 'react-router-dom'
-import { sha256 } from 'js-sha256'
-import { render as testRender } from '@testing-library/react'
-import type { RenderResult } from '@testing-library/react'
-import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
-import { Election, ElectionDefinition } from '@votingworks/types'
-import { usbstick } from '@votingworks/utils'
+import {createMemoryHistory, MemoryHistory} from 'history';
+import React, {RefObject} from 'react';
+import {Router} from 'react-router-dom';
+import {sha256} from 'js-sha256';
+import {render as testRender} from '@testing-library/react';
+import type {RenderResult} from '@testing-library/react';
+import {electionWithMsEitherNeitherRawData} from '@votingworks/fixtures';
+import {Election, ElectionDefinition} from '@votingworks/types';
+import {usbstick} from '@votingworks/utils';
 
-import AppContext from '../src/contexts/AppContext'
+import AppContext from '../src/contexts/AppContext';
 import {
   SaveElection,
   PrintedBallot,
@@ -16,55 +16,57 @@ import {
   FullElectionTally,
   ExportableTallies,
   FullElectionExternalTally,
-} from '../src/config/types'
+} from '../src/config/types';
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
-} from '../src/utils/CastVoteRecordFiles'
-import { getEmptyFullElectionTally } from '../src/lib/votecounting'
-import { NullPrinter, Printer } from '../src/utils/printer'
+} from '../src/utils/CastVoteRecordFiles';
+import {getEmptyFullElectionTally} from '../src/lib/votecounting';
+import {NullPrinter, Printer} from '../src/utils/printer';
 
 export const eitherNeitherElectionDefinition = {
   election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
   electionData: electionWithMsEitherNeitherRawData,
   electionHash: sha256(electionWithMsEitherNeitherRawData),
-}
+};
 
 interface RenderInAppContextParams {
-  route?: string | undefined
-  history?: MemoryHistory<any> // eslint-disable-line @typescript-eslint/no-explicit-any
-  castVoteRecordFiles?: CastVoteRecordFiles
-  electionDefinition?: ElectionDefinition
-  configuredAt?: ISO8601Timestamp
-  isOfficialResults?: boolean
-  printer?: Printer
-  printBallotRef?: RefObject<HTMLElement>
-  saveCastVoteRecordFiles?: SaveCastVoteRecordFiles
-  saveElection?: SaveElection
+  route?: string | undefined;
+  history?: MemoryHistory<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  castVoteRecordFiles?: CastVoteRecordFiles;
+  electionDefinition?: ElectionDefinition;
+  configuredAt?: ISO8601Timestamp;
+  isOfficialResults?: boolean;
+  printer?: Printer;
+  printBallotRef?: RefObject<HTMLElement>;
+  saveCastVoteRecordFiles?: SaveCastVoteRecordFiles;
+  saveElection?: SaveElection;
   setCastVoteRecordFiles?: React.Dispatch<
     React.SetStateAction<CastVoteRecordFiles>
-  >
-  saveIsOfficialResults?: () => Promise<void>
-  resetFiles?: () => Promise<void>
-  usbDriveStatus?: usbstick.UsbDriveStatus
-  usbDriveEject?: () => Promise<void>
-  addPrintedBallot?: (printedBallot: PrintedBallot) => void
-  printedBallots?: PrintedBallot[]
-  fullElectionTally?: FullElectionTally
-  isTabulationRunning?: boolean
-  setFullElectionTally?: React.Dispatch<React.SetStateAction<FullElectionTally>>
-  setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>
+  >;
+  saveIsOfficialResults?: () => Promise<void>;
+  resetFiles?: () => Promise<void>;
+  usbDriveStatus?: usbstick.UsbDriveStatus;
+  usbDriveEject?: () => Promise<void>;
+  addPrintedBallot?: (printedBallot: PrintedBallot) => void;
+  printedBallots?: PrintedBallot[];
+  fullElectionTally?: FullElectionTally;
+  isTabulationRunning?: boolean;
+  setFullElectionTally?: React.Dispatch<
+    React.SetStateAction<FullElectionTally>
+  >;
+  setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
   saveExternalTallies?: (
     externalTallies: FullElectionExternalTally[]
-  ) => Promise<void>
-  fullElectionExternalTallies?: FullElectionExternalTally[]
-  generateExportableTallies?: () => ExportableTallies
+  ) => Promise<void>;
+  fullElectionExternalTallies?: FullElectionExternalTally[];
+  generateExportableTallies?: () => ExportableTallies;
 }
 
 export default function renderInAppContext(
   component: React.ReactNode,
   {
     route = '/',
-    history = createMemoryHistory({ initialEntries: [route] }),
+    history = createMemoryHistory({initialEntries: [route]}),
     castVoteRecordFiles = CastVoteRecordFiles.empty,
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = '',
@@ -118,5 +120,5 @@ export default function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>
-  )
+  );
 }

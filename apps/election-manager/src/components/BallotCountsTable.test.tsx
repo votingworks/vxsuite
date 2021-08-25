@@ -1,15 +1,15 @@
-import React from 'react'
+import React from 'react';
 
-import { getByText as domGetByText } from '@testing-library/react'
+import {getByText as domGetByText} from '@testing-library/react';
 
 import {
   electionWithMsEitherNeither,
   multiPartyPrimaryElectionDefinition,
-} from '@votingworks/fixtures'
-import { Dictionary } from '@votingworks/types'
+} from '@votingworks/fixtures';
+import {Dictionary} from '@votingworks/types';
 
-import { strict as assert } from 'assert'
-import renderInAppContext from '../../test/renderInAppContext'
+import {strict as assert} from 'assert';
+import renderInAppContext from '../../test/renderInAppContext';
 import {
   BatchTally,
   ExternalTally,
@@ -17,10 +17,10 @@ import {
   Tally,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
-import BallotCountsTable from './BallotCountsTable'
-import fakeTally from '../../test/helpers/fakeTally'
-import fakeExternalTally from '../../test/helpers/fakeExternalTally'
+} from '../config/types';
+import BallotCountsTable from './BallotCountsTable';
+import fakeTally from '../../test/helpers/fakeTally';
+import fakeExternalTally from '../../test/helpers/fakeExternalTally';
 
 describe('Ballot Counts by Precinct', () => {
   const resultsByPrecinct: Dictionary<Tally> = {
@@ -36,9 +36,9 @@ describe('Ballot Counts by Precinct', () => {
     '6522': fakeTally({
       numberOfBallotsCounted: 0,
     }),
-  }
-  const resultsByCategory = new Map()
-  resultsByCategory.set(TallyCategory.Precinct, resultsByPrecinct)
+  };
+  const resultsByCategory = new Map();
+  resultsByCategory.set(TallyCategory.Precinct, resultsByPrecinct);
 
   const externalResultsByPrecinct: Dictionary<ExternalTally> = {
     // French Camp
@@ -53,19 +53,19 @@ describe('Ballot Counts by Precinct', () => {
     '6528': fakeExternalTally({
       numberOfBallotsCounted: 22,
     }),
-  }
-  const externalResultsByCategory = new Map()
+  };
+  const externalResultsByCategory = new Map();
   externalResultsByCategory.set(
     TallyCategory.Precinct,
     externalResultsByPrecinct
-  )
+  );
 
   const fullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
-  }
+  };
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
@@ -75,103 +75,103 @@ describe('Ballot Counts by Precinct', () => {
     source: ExternalTallySourceType.SEMS,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
-  }
+  };
 
   it('renders as expected when there is no tally data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-    )
-    electionWithMsEitherNeither.precincts.forEach((precinct) => {
-      getByText(precinct.name)
-      const tableRow = getByText(precinct.name).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, 0))
+    );
+    electionWithMsEitherNeither.precincts.forEach(precinct => {
+      getByText(precinct.name);
+      const tableRow = getByText(precinct.name).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, 0));
       expect(
         domGetByText(tableRow!, `View Unofficial ${precinct.name} Tally Report`)
-      )
-    })
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 0))
+      );
+    });
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 0));
     expect(
       domGetByText(tableRow!, 'View Unofficial Tally Reports for All Precincts')
-    )
+    );
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
     expect(getAllByTestId('table-row').length).toBe(
       electionWithMsEitherNeither.precincts.length + 2
-    )
-  })
+    );
+  });
 
   it('renders as expected when there is tally data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
       }
-    )
-    electionWithMsEitherNeither.precincts.forEach((precinct) => {
+    );
+    electionWithMsEitherNeither.precincts.forEach(precinct => {
       // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
-        resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
-      getByText(precinct.name)
-      const tableRow = getByText(precinct.name).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0;
+      getByText(precinct.name);
+      const tableRow = getByText(precinct.name).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       expect(
         domGetByText(tableRow!, `View Unofficial ${precinct.name} Tally Report`)
-      )
-    })
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 77))
+      );
+    });
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 77));
     expect(
       domGetByText(tableRow!, 'View Unofficial Tally Reports for All Precincts')
-    )
+    );
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
     expect(getAllByTestId('table-row').length).toBe(
       electionWithMsEitherNeither.precincts.length + 2
-    )
-  })
+    );
+  });
 
   it('renders as expected when there is tally data and sems data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
         fullElectionExternalTallies: [fullElectionExternalTally],
       }
-    )
-    electionWithMsEitherNeither.precincts.forEach((precinct) => {
+    );
+    electionWithMsEitherNeither.precincts.forEach(precinct => {
       // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
         (resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0) +
-        (externalResultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0)
-      getByText(precinct.name)
-      const tableRow = getByText(precinct.name).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        (externalResultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0);
+      getByText(precinct.name);
+      const tableRow = getByText(precinct.name).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       expect(
         domGetByText(tableRow!, `View Unofficial ${precinct.name} Tally Report`)
-      )
-    })
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 131))
+      );
+    });
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 131));
     expect(
       domGetByText(tableRow!, 'View Unofficial Tally Reports for All Precincts')
-    )
+    );
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
     expect(getAllByTestId('table-row').length).toBe(
       electionWithMsEitherNeither.precincts.length + 2
-    )
-  })
-})
+    );
+  });
+});
 
 describe('Ballot Counts by Scanner', () => {
   const resultsByScanner: Dictionary<Tally> = {
@@ -184,16 +184,16 @@ describe('Ballot Counts by Scanner', () => {
     'scanner-3': fakeTally({
       numberOfBallotsCounted: 0,
     }),
-  }
-  const resultsByCategory = new Map()
-  resultsByCategory.set(TallyCategory.Scanner, resultsByScanner)
+  };
+  const resultsByCategory = new Map();
+  resultsByCategory.set(TallyCategory.Scanner, resultsByScanner);
 
   const fullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
-  }
+  };
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
@@ -203,101 +203,101 @@ describe('Ballot Counts by Scanner', () => {
     source: ExternalTallySourceType.SEMS,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
-  }
+  };
 
   it('renders as expected when there is no tally data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
-    )
+    );
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 0))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 0));
 
     // There should be 2 rows in the table, the header row and the totals row.
-    expect(getAllByTestId('table-row').length).toBe(2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(2);
+  });
 
   it('renders as expected when there is tally data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
       }
-    )
+    );
 
-    const scannerIds = ['scanner-1', 'scanner-2', 'scanner-3']
+    const scannerIds = ['scanner-1', 'scanner-2', 'scanner-3'];
 
-    scannerIds.forEach((scannerId) => {
+    scannerIds.forEach(scannerId => {
       // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
-        resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0
-      getByText(scannerId)
-      const tableRow = getByText(scannerId).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
+      getByText(scannerId);
+      const tableRow = getByText(scannerId).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       if (expectedNumberOfBallots > 0) {
         expect(
           domGetByText(
             tableRow!,
             `View Unofficial Scanner ${scannerId} Tally Report`
           )
-        )
+        );
       }
-    })
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 77))
+    });
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 77));
 
-    expect(getAllByTestId('table-row').length).toBe(scannerIds.length + 2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(scannerIds.length + 2);
+  });
 
   it('renders as expected when there is tally data and sems data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
         fullElectionExternalTallies: [fullElectionExternalTally],
       }
-    )
+    );
 
-    const scannerIds = ['scanner-1', 'scanner-2', 'scanner-3']
+    const scannerIds = ['scanner-1', 'scanner-2', 'scanner-3'];
 
-    scannerIds.forEach((scannerId) => {
+    scannerIds.forEach(scannerId => {
       // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
-        resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0
-      getByText(scannerId)
-      const tableRow = getByText(scannerId).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
+      getByText(scannerId);
+      const tableRow = getByText(scannerId).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       if (expectedNumberOfBallots > 0) {
         expect(
           domGetByText(
             tableRow!,
             `View Unofficial Scanner ${scannerId} Tally Report`
           )
-        )
+        );
       }
-    })
+    });
 
-    getByText('External Results (imported-file-name.csv)')
+    getByText('External Results (imported-file-name.csv)');
     let tableRow = getByText(
       'External Results (imported-file-name.csv)'
-    ).closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 54))
+    ).closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 54));
 
-    getByText('Total Ballot Count')
-    tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 131))
+    getByText('Total Ballot Count');
+    tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 131));
 
-    expect(getAllByTestId('table-row').length).toBe(scannerIds.length + 3)
-  })
-})
+    expect(getAllByTestId('table-row').length).toBe(scannerIds.length + 3);
+  });
+});
 
 // Test party ballot counts
 describe('Ballots Counts by Party', () => {
@@ -310,9 +310,9 @@ describe('Ballots Counts by Party', () => {
     '4': fakeTally({
       numberOfBallotsCounted: 52,
     }),
-  }
-  const resultsByCategory = new Map()
-  resultsByCategory.set(TallyCategory.Party, resultsByParty)
+  };
+  const resultsByCategory = new Map();
+  resultsByCategory.set(TallyCategory.Party, resultsByParty);
 
   const externalResultsByParty: Dictionary<ExternalTally> = {
     // Liberty
@@ -323,16 +323,16 @@ describe('Ballots Counts by Party', () => {
     '3': fakeExternalTally({
       numberOfBallotsCounted: 73,
     }),
-  }
-  const externalResultsByCategory = new Map()
-  externalResultsByCategory.set(TallyCategory.Party, externalResultsByParty)
+  };
+  const externalResultsByCategory = new Map();
+  externalResultsByCategory.set(TallyCategory.Party, externalResultsByParty);
 
   const fullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
-  }
+  };
 
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
@@ -343,23 +343,23 @@ describe('Ballots Counts by Party', () => {
     source: ExternalTallySourceType.SEMS,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
-  }
+  };
 
   it('does not render when the election has not ballot styles with parties', () => {
     // The default election is not a primary
-    const { container } = renderInAppContext(
+    const {container} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />
-    )
-    expect(container.firstChild).toBeNull()
-  })
+    );
+    expect(container.firstChild).toBeNull();
+  });
 
   it('renders as expected when there is no data', () => {
     const expectedParties = [
       'Constitution Party',
       'Federalist Party',
       'Liberty Party',
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
         electionDefinition: {
@@ -367,36 +367,36 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
       }
-    )
+    );
 
-    expectedParties.forEach((partyName) => {
-      getByText(partyName)
-      const tableRow = getByText(partyName).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, 0))
+    expectedParties.forEach(partyName => {
+      getByText(partyName);
+      const tableRow = getByText(partyName).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, 0));
       expect(
         domGetByText(tableRow!, `View Unofficial ${partyName} Tally Report`)
-      )
-    })
+      );
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 0))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 0));
     expect(
       domGetByText(tableRow!, 'View Unofficial Full Election Tally Report')
-    )
+    );
 
-    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
+  });
 
   it('renders as expected when there is tally data', () => {
     const expectedParties = [
-      { partyName: 'Constitution Party', partyId: '3' },
-      { partyName: 'Federalist Party', partyId: '4' },
-      { partyName: 'Liberty Party', partyId: '0' },
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+      {partyName: 'Constitution Party', partyId: '3'},
+      {partyName: 'Federalist Party', partyId: '4'},
+      {partyName: 'Liberty Party', partyId: '0'},
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
         electionDefinition: {
@@ -405,38 +405,38 @@ describe('Ballots Counts by Party', () => {
         },
         fullElectionTally,
       }
-    )
+    );
 
-    expectedParties.forEach(({ partyName, partyId }) => {
+    expectedParties.forEach(({partyName, partyId}) => {
       const expectedNumberOfBallots =
-        resultsByParty[partyId]?.numberOfBallotsCounted ?? 0
-      getByText(partyName)
-      const tableRow = getByText(partyName).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        resultsByParty[partyId]?.numberOfBallotsCounted ?? 0;
+      getByText(partyName);
+      const tableRow = getByText(partyName).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       expect(
         domGetByText(tableRow!, `View Unofficial ${partyName} Tally Report`)
-      )
-    })
+      );
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 77))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 77));
     expect(
       domGetByText(tableRow!, 'View Unofficial Full Election Tally Report')
-    )
+    );
 
-    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
+  });
 
   it('renders as expected where there is tally data and sems data', () => {
     const expectedParties = [
-      { partyName: 'Constitution Party', partyId: '3' },
-      { partyName: 'Federalist Party', partyId: '4' },
-      { partyName: 'Liberty Party', partyId: '0' },
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+      {partyName: 'Constitution Party', partyId: '3'},
+      {partyName: 'Federalist Party', partyId: '4'},
+      {partyName: 'Liberty Party', partyId: '0'},
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
         electionDefinition: {
@@ -446,32 +446,32 @@ describe('Ballots Counts by Party', () => {
         fullElectionTally,
         fullElectionExternalTallies: [fullElectionExternalTally],
       }
-    )
+    );
 
-    expectedParties.forEach(({ partyName, partyId }) => {
+    expectedParties.forEach(({partyName, partyId}) => {
       const expectedNumberOfBallots =
         (resultsByParty[partyId]?.numberOfBallotsCounted ?? 0) +
-        (externalResultsByParty[partyId]?.numberOfBallotsCounted ?? 0)
-      getByText(partyName)
-      const tableRow = getByText(partyName).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        (externalResultsByParty[partyId]?.numberOfBallotsCounted ?? 0);
+      getByText(partyName);
+      const tableRow = getByText(partyName).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       expect(
         domGetByText(tableRow!, `View Unofficial ${partyName} Tally Report`)
-      )
-    })
+      );
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 131))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 131));
     expect(
       domGetByText(tableRow!, 'View Unofficial Full Election Tally Report')
-    )
+    );
 
-    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2)
-  })
-})
+    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
+  });
+});
 
 describe('Ballots Counts by VotingMethod', () => {
   const resultsByVotingMethod: Dictionary<Tally> = {
@@ -484,18 +484,18 @@ describe('Ballots Counts by VotingMethod', () => {
     [VotingMethod.Unknown]: fakeTally({
       numberOfBallotsCounted: 10,
     }),
-  }
-  const resultsByCategory = new Map()
-  resultsByCategory.set(TallyCategory.VotingMethod, resultsByVotingMethod)
+  };
+  const resultsByCategory = new Map();
+  resultsByCategory.set(TallyCategory.VotingMethod, resultsByVotingMethod);
 
   const fullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
-  }
+  };
 
-  const numExternalBallots = 54
+  const numExternalBallots = 54;
 
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
@@ -506,32 +506,32 @@ describe('Ballots Counts by VotingMethod', () => {
     source: ExternalTallySourceType.SEMS,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
-  }
+  };
 
   it('renders as expected when there is no data', () => {
     // No row for "Other" ballots renders when there are 0 CVRs for that category.
-    const expectedLabels = ['Absentee', 'Precinct']
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const expectedLabels = ['Absentee', 'Precinct'];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
-    )
+    );
 
-    expectedLabels.forEach((label) => {
-      getByText(label)
-      const tableRow = getByText(label).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, 0))
+    expectedLabels.forEach(label => {
+      getByText(label);
+      const tableRow = getByText(label).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, 0));
       expect(
         domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
-      )
-    })
+      );
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 0))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 0));
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+  });
 
   it('renders as expected when there is tally data', () => {
     const expectedLabels = [
@@ -539,33 +539,33 @@ describe('Ballots Counts by VotingMethod', () => {
         method: VotingMethod.Absentee,
         label: 'Absentee',
       },
-      { method: VotingMethod.Precinct, label: 'Precinct' },
-      { method: VotingMethod.Unknown, label: 'Other' },
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+      {method: VotingMethod.Precinct, label: 'Precinct'},
+      {method: VotingMethod.Unknown, label: 'Other'},
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
-      { fullElectionTally }
-    )
+      {fullElectionTally}
+    );
 
-    expectedLabels.forEach(({ method, label }) => {
+    expectedLabels.forEach(({method, label}) => {
       const expectedNumberOfBallots =
-        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0
-      getByText(label)
-      const tableRow = getByText(label).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0;
+      getByText(label);
+      const tableRow = getByText(label).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       expect(
         domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
-      )
-    })
+      );
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 77))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 77));
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+  });
 
   it('renders as expected where there is tally data and sems data', () => {
     const expectedLabels = [
@@ -573,42 +573,42 @@ describe('Ballots Counts by VotingMethod', () => {
         method: VotingMethod.Absentee,
         label: 'Absentee',
       },
-      { method: VotingMethod.Precinct, label: 'Precinct' },
-      { method: VotingMethod.Unknown, label: 'Other' },
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+      {method: VotingMethod.Precinct, label: 'Precinct'},
+      {method: VotingMethod.Unknown, label: 'Other'},
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       {
         fullElectionTally,
         fullElectionExternalTallies: [fullElectionExternalTally],
       }
-    )
+    );
 
     // The external tally is configured to be labelled as precinct data.
 
-    expectedLabels.forEach(({ method, label }) => {
+    expectedLabels.forEach(({method, label}) => {
       let expectedNumberOfBallots =
-        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0
+        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0;
       if (method === VotingMethod.Precinct) {
-        expectedNumberOfBallots += numExternalBallots
+        expectedNumberOfBallots += numExternalBallots;
       }
-      getByText(label)
-      const tableRow = getByText(label).closest('tr')
-      expect(tableRow).toBeDefined()
-      expect(domGetByText(tableRow!, expectedNumberOfBallots))
+      getByText(label);
+      const tableRow = getByText(label).closest('tr');
+      expect(tableRow).toBeDefined();
+      expect(domGetByText(tableRow!, expectedNumberOfBallots));
       expect(
         domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
-      )
-    })
+      );
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 131))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 131));
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
-  })
-})
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+  });
+});
 
 describe('Ballots Counts by Batch', () => {
   const resultsByBatch: Dictionary<BatchTally> = {
@@ -640,18 +640,18 @@ describe('Ballots Counts by Batch', () => {
       scannerIds: ['003', '004'],
       batchLabel: 'Missing Batch',
     },
-  }
-  const resultsByCategory = new Map()
-  resultsByCategory.set(TallyCategory.Batch, resultsByBatch)
+  };
+  const resultsByCategory = new Map();
+  resultsByCategory.set(TallyCategory.Batch, resultsByBatch);
 
   const fullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 122,
     }),
     resultsByCategory,
-  }
+  };
 
-  const numExternalBallots = 54
+  const numExternalBallots = 54;
 
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
@@ -662,21 +662,21 @@ describe('Ballots Counts by Batch', () => {
     source: ExternalTallySourceType.SEMS,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
-  }
+  };
 
   it('renders as expected when there is no data', () => {
     // No row for "Other" ballots renders when there are 0 CVRs for that category.
-    const { getByText, getAllByTestId } = renderInAppContext(
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
-    )
+    );
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 0))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 0));
 
-    expect(getAllByTestId('table-row').length).toBe(2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(2);
+  });
 
   it('renders as expected when there is tally data', () => {
     const expectedLabels = [
@@ -700,31 +700,31 @@ describe('Ballots Counts by Batch', () => {
         label: 'Missing Batch',
         scannerLabel: '003, 004',
       },
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
-      { fullElectionTally }
-    )
+      {fullElectionTally}
+    );
 
-    expectedLabels.forEach(({ batchId, label, scannerLabel }) => {
+    expectedLabels.forEach(({batchId, label, scannerLabel}) => {
       const expectedNumberOfBallots =
-        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0
-      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr')
-      assert(tableRow)
-      expect(domGetByText(tableRow, label))
-      expect(domGetByText(tableRow, expectedNumberOfBallots))
-      expect(domGetByText(tableRow, scannerLabel))
-      expect(domGetByText(tableRow, `View Unofficial ${label} Tally Report`))
-    })
+        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0;
+      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr');
+      assert(tableRow);
+      expect(domGetByText(tableRow, label));
+      expect(domGetByText(tableRow, expectedNumberOfBallots));
+      expect(domGetByText(tableRow, scannerLabel));
+      expect(domGetByText(tableRow, `View Unofficial ${label} Tally Report`));
+    });
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    expect(tableRow).toBeDefined()
-    expect(domGetByText(tableRow!, 122))
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    expect(tableRow).toBeDefined();
+    expect(domGetByText(tableRow!, 122));
 
     // There should be 2 extra table rows in addition to the batches, one for the headers, and one for the total row.
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2)
-  })
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+  });
 
   it('renders as expected where there is tally data and sems data', () => {
     const expectedLabels = [
@@ -748,39 +748,39 @@ describe('Ballots Counts by Batch', () => {
         label: 'Missing Batch',
         scannerLabel: '003, 004',
       },
-    ]
-    const { getByText, getAllByTestId } = renderInAppContext(
+    ];
+    const {getByText, getAllByTestId} = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       {
         fullElectionTally,
         fullElectionExternalTallies: [fullElectionExternalTally],
       }
-    )
+    );
 
     // The external tally is configured to be labelled as precinct data.
 
-    expectedLabels.forEach(({ batchId, label, scannerLabel }) => {
+    expectedLabels.forEach(({batchId, label, scannerLabel}) => {
       const expectedNumberOfBallots =
-        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0
-      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr')
-      expect(tableRow).toBeDefined()
-      domGetByText(tableRow!, label)
-      domGetByText(tableRow!, expectedNumberOfBallots)
-      domGetByText(tableRow!, scannerLabel)
-      domGetByText(tableRow!, `View Unofficial ${label} Tally Report`)
-    })
+        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0;
+      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr');
+      expect(tableRow).toBeDefined();
+      domGetByText(tableRow!, label);
+      domGetByText(tableRow!, expectedNumberOfBallots);
+      domGetByText(tableRow!, scannerLabel);
+      domGetByText(tableRow!, `View Unofficial ${label} Tally Report`);
+    });
 
-    const externalTableRow = getAllByTestId('batch-external')[0].closest('tr')
-    assert(externalTableRow)
-    domGetByText(externalTableRow, 'External Results (imported-file-name.csv)')
-    domGetByText(externalTableRow!, numExternalBallots)
+    const externalTableRow = getAllByTestId('batch-external')[0].closest('tr');
+    assert(externalTableRow);
+    domGetByText(externalTableRow, 'External Results (imported-file-name.csv)');
+    domGetByText(externalTableRow!, numExternalBallots);
 
-    getByText('Total Ballot Count')
-    const tableRow = getByText('Total Ballot Count').closest('tr')
-    assert(tableRow)
-    domGetByText(tableRow!, 176)
+    getByText('Total Ballot Count');
+    const tableRow = getByText('Total Ballot Count').closest('tr');
+    assert(tableRow);
+    domGetByText(tableRow!, 176);
 
     // There should be 3 extra table rows in addition to the batches, one for the headers, one for the external data, and one for the total row.
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3)
-  })
-})
+    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3);
+  });
+});

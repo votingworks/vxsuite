@@ -1,7 +1,7 @@
-import { Election } from '@votingworks/types'
+import {Election} from '@votingworks/types';
 
 export async function generateFileContentToSaveAsPDF(): Promise<Uint8Array> {
-  return await window.kiosk!.printToPDF()
+  return await window.kiosk!.printToPDF();
 }
 
 export function generateDefaultReportFilename(
@@ -12,5 +12,5 @@ export function generateDefaultReportFilename(
   return `${`${fileNamePrefix}-${election.county.name}-${election.title}-${fileSuffix}`
     .replace(/[^a-z0-9]+/gi, '-')
     .replace(/(^-|-$)+/g, '')
-    .toLocaleLowerCase()}.pdf`
+    .toLocaleLowerCase()}.pdf`;
 }

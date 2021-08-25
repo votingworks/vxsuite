@@ -1,22 +1,19 @@
-import React from 'react'
+import React from 'react';
 
-import { Election } from '@votingworks/types'
+import {Election} from '@votingworks/types';
 
-import { format } from '@votingworks/utils'
+import {format} from '@votingworks/utils';
 
-import Text from './Text'
+import Text from './Text';
 
 interface Props {
-  election: Election
-  generatedAtTime: Date
+  election: Election;
+  generatedAtTime: Date;
 }
 
-const TallyReportMetadata: React.FC<Props> = ({
-  election,
-  generatedAtTime,
-}) => {
-  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
-  const generatedAt = format.localeLongDateAndTime(generatedAtTime)
+const TallyReportMetadata: React.FC<Props> = ({election, generatedAtTime}) => {
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date));
+  const generatedAt = format.localeLongDateAndTime(generatedAtTime);
 
   return (
     <p>
@@ -26,7 +23,7 @@ const TallyReportMetadata: React.FC<Props> = ({
         This report was created on {generatedAt}
       </Text>
     </p>
-  )
-}
+  );
+};
 
-export default TallyReportMetadata
+export default TallyReportMetadata;

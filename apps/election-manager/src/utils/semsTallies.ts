@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash';
 
 import {
   Candidate,
@@ -8,7 +8,7 @@ import {
   Election,
   YesNoContest,
   expandEitherNeitherContests,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
 import {
   ContestOptionTally,
@@ -18,34 +18,34 @@ import {
   FullElectionExternalTally,
   VotingMethod,
   YesNoOption,
-} from '../config/types'
+} from '../config/types';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getTotalNumberOfBallots,
-} from './externalTallies'
+} from './externalTallies';
 
-const WriteInCandidateId = '0'
-const OvervoteCandidateId = '1'
-const UndervoteCandidateId = '2'
+const WriteInCandidateId = '0';
+const OvervoteCandidateId = '1';
+const UndervoteCandidateId = '2';
 
 const writeInCandidate: Candidate = {
   id: '__write-in',
   name: 'Write-In',
   isWriteIn: true,
-}
+};
 
 export interface SEMSFileRow {
-  countyId: string
-  precinctId: string
-  contestId: string
-  contestTitle: string
-  partyId: string
-  partyName: string
-  candidateId: string
-  candidateName: string
-  candidatePartyId: string
-  candidatePartyName: string
-  numberOfVotes: number
+  countyId: string;
+  precinctId: string;
+  contestId: string;
+  contestTitle: string;
+  partyId: string;
+  partyName: string;
+  candidateId: string;
+  candidateName: string;
+  candidatePartyId: string;
+  candidatePartyName: string;
+  numberOfVotes: number;
 }
 
 // TODO(caro) revisit how to count the total number of ballots for multi seat contests
@@ -56,40 +56,40 @@ export function getContestTallyForCandidateContest(
   contest: CandidateContest,
   rows: SEMSFileRow[]
 ): ContestTally {
-  const tallies: Dictionary<ContestOptionTally> = {}
-  let undervotes = 0
-  let overvotes = 0
-  let numCandidateVotes = 0
-  let writeInVotes = 0
-  const validCandidates = _.keyBy(contest.candidates, 'id')
+  const tallies: Dictionary<ContestOptionTally> = {};
+  let undervotes = 0;
+  let overvotes = 0;
+  let numCandidateVotes = 0;
+  let writeInVotes = 0;
+  const validCandidates = _.keyBy(contest.candidates, 'id');
   for (const row of rows) {
     if (row.candidateId === UndervoteCandidateId) {
-      undervotes = row.numberOfVotes
+      undervotes = row.numberOfVotes;
     } else if (row.candidateId === OvervoteCandidateId) {
-      overvotes = row.numberOfVotes
+      overvotes = row.numberOfVotes;
     } else if (
       contest.allowWriteIns &&
       row.candidateId === WriteInCandidateId
     ) {
-      writeInVotes += row.numberOfVotes
-      numCandidateVotes += row.numberOfVotes
+      writeInVotes += row.numberOfVotes;
+      numCandidateVotes += row.numberOfVotes;
     } else if (row.candidateId === WriteInCandidateId) {
       // Ignore Row
     } else if (row.candidateId in validCandidates) {
-      const candidate = validCandidates[row.candidateId]
-      let previousVoteCounts = 0
+      const candidate = validCandidates[row.candidateId];
+      let previousVoteCounts = 0;
       if (candidate.id in tallies) {
-        previousVoteCounts = tallies[candidate.id]!.tally
+        previousVoteCounts = tallies[candidate.id]!.tally;
       }
       tallies[candidate.id] = {
         option: candidate,
         tally: row.numberOfVotes + previousVoteCounts,
-      }
-      numCandidateVotes += row.numberOfVotes
+      };
+      numCandidateVotes += row.numberOfVotes;
     } else {
       throw new Error(
         `Imported file has unexpected candidate id ${row.candidateId} for contest ${contest.id}`
-      )
+      );
     }
   }
 
@@ -97,7 +97,7 @@ export function getContestTallyForCandidateContest(
     tallies[writeInCandidate.id] = {
       option: writeInCandidate,
       tally: writeInVotes,
-    }
+    };
   }
 
   return {
@@ -110,44 +110,44 @@ export function getContestTallyForCandidateContest(
         (numCandidateVotes + overvotes + undervotes) / contest.seats
       ),
     },
-  }
+  };
 }
 
 export function getContestTallyForYesNoContest(
   contest: YesNoContest,
   rows: SEMSFileRow[]
 ): ContestTally {
-  const tallies: Dictionary<ContestOptionTally> = {}
-  let undervotes = 0
-  let overvotes = 0
-  let numVotes = 0
+  const tallies: Dictionary<ContestOptionTally> = {};
+  let undervotes = 0;
+  let overvotes = 0;
+  let numVotes = 0;
   for (const row of rows) {
     if (row.candidateId === UndervoteCandidateId) {
-      undervotes = row.numberOfVotes
-      numVotes += row.numberOfVotes
+      undervotes = row.numberOfVotes;
+      numVotes += row.numberOfVotes;
     } else if (row.candidateId === OvervoteCandidateId) {
-      overvotes = row.numberOfVotes
-      numVotes += row.numberOfVotes
+      overvotes = row.numberOfVotes;
+      numVotes += row.numberOfVotes;
     } else if (contest.yesOption && row.candidateId === contest.yesOption.id) {
-      const previousVoteCounts = 'yes' in tallies ? tallies.yes!.tally : 0
+      const previousVoteCounts = 'yes' in tallies ? tallies.yes!.tally : 0;
       tallies.yes = {
         option: ['yes'] as YesNoOption,
         tally: row.numberOfVotes + previousVoteCounts,
-      }
-      numVotes += row.numberOfVotes
+      };
+      numVotes += row.numberOfVotes;
     } else if (contest.noOption && row.candidateId === contest.noOption.id) {
-      const previousVoteCounts = 'no' in tallies ? tallies.no!.tally : 0
+      const previousVoteCounts = 'no' in tallies ? tallies.no!.tally : 0;
       tallies.no = {
         option: ['no'] as YesNoOption,
         tally: row.numberOfVotes + previousVoteCounts,
-      }
-      numVotes += row.numberOfVotes
+      };
+      numVotes += row.numberOfVotes;
     } else if (row.candidateId === WriteInCandidateId) {
       // Ignore row
     } else {
       throw new Error(
         `Imported file has unexpected option id ${row.candidateId} for contest ${contest.id}`
-      )
+      );
     }
   }
 
@@ -159,19 +159,19 @@ export function getContestTallyForYesNoContest(
       undervotes,
       ballots: numVotes,
     },
-  }
+  };
 }
 
 function sanitizeItem(item: string): string {
-  return item.replace(/['"`]/g, '').trim()
+  return item.replace(/['"`]/g, '').trim();
 }
 
 function parseFileContentRows(fileContent: string): SEMSFileRow[] {
-  const parsedRows: SEMSFileRow[] = []
-  fileContent.split('\n').forEach((row) => {
+  const parsedRows: SEMSFileRow[] = [];
+  fileContent.split('\n').forEach(row => {
     const entries = row
       .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-      .map((e) => sanitizeItem(e))
+      .map(e => sanitizeItem(e));
     if (entries.length >= 11) {
       parsedRows.push({
         countyId: entries[0],
@@ -185,65 +185,65 @@ function parseFileContentRows(fileContent: string): SEMSFileRow[] {
         candidatePartyId: entries[8],
         candidatePartyName: entries[9],
         numberOfVotes: parseInt(entries[10], 10),
-      })
+      });
     }
-  })
-  return parsedRows
+  });
+  return parsedRows;
 }
 
 export function parseSEMSFileAndValidateForElection(
   fileContent: string,
   election: Election
 ): string[] {
-  const errors: string[] = []
+  const errors: string[] = [];
 
-  const parsedRows = parseFileContentRows(fileContent)
+  const parsedRows = parseFileContentRows(fileContent);
 
   if (parsedRows.length === 0) {
     return [
       'No valid CSV data found in imported file. Please check file contents.',
-    ]
+    ];
   }
 
   for (const row of parsedRows) {
-    if (election.precincts.every(({ id }) => id !== row.precinctId)) {
+    if (election.precincts.every(({id}) => id !== row.precinctId)) {
       errors.push(
         `Precinct ID ${row.precinctId} is not found in the election definition.`
-      )
+      );
     }
 
     const contest = expandEitherNeitherContests(election.contests).find(
-      (c) => c.id === row.contestId
-    )
+      c => c.id === row.contestId
+    );
     if (contest === undefined) {
       errors.push(
         `Contest ID ${row.contestId} is not found in the election definition.`
-      )
+      );
     } else {
       switch (contest.type) {
         case 'candidate': {
           const validCandidates = [
             UndervoteCandidateId,
             OvervoteCandidateId,
-            ...contest.candidates.map((c) => c.id),
-          ]
+            ...contest.candidates.map(c => c.id),
+          ];
           if (contest.allowWriteIns) {
-            validCandidates.push(WriteInCandidateId)
+            validCandidates.push(WriteInCandidateId);
           }
           // Allow an illegal write in candidate row if the number of votes is 0
           const isWriteInSkippable =
             !contest.allowWriteIns &&
             row.candidateId === WriteInCandidateId &&
-            row.numberOfVotes === 0
+            row.numberOfVotes === 0;
           if (
             !validCandidates.includes(row.candidateId) &&
             !isWriteInSkippable
           ) {
             errors.push(
               `Candidate ID ${row.candidateId} is not a valid candidate ID for the contest: ${row.contestId}.`
-            )
+            );
           }
-          break
+          break;
         }
         case 'yesno': {
           const validCandidates = [
@@ -251,32 +251,32 @@ export function parseSEMSFileAndValidateForElection(
             OvervoteCandidateId,
             contest.yesOption?.id,
             contest.noOption?.id,
-          ]
+          ];
           if (
             contest.yesOption === undefined ||
             contest.noOption === undefined
           ) {
             errors.push(
               `Election definition not configured to handle SEMs data formats, IDs must be specified on the yes no contest: ${row.contestId}.`
-            )
+            );
           }
           const isWriteInSkippable =
-            row.candidateId === WriteInCandidateId && row.numberOfVotes === 0
+            row.candidateId === WriteInCandidateId && row.numberOfVotes === 0;
           if (
             !validCandidates.includes(row.candidateId) &&
             !isWriteInSkippable
           ) {
             errors.push(
               `Contest Choice ID ${row.candidateId} is not a valid contest choice ID for the contest: ${row.contestId}.`
-            )
+            );
           }
-          break
+          break;
         }
       }
     }
   }
 
-  return errors
+  return errors;
 }
 
 export function convertSEMSFileToExternalTally(
@@ -286,52 +286,54 @@ export function convertSEMSFileToExternalTally(
   fileName: string,
   fileModified: Date
 ): FullElectionExternalTally {
-  const parsedRows = parseFileContentRows(fileContent)
+  const parsedRows = parseFileContentRows(fileContent);
 
-  const contestsById: Dictionary<Contest> = {}
+  const contestsById: Dictionary<Contest> = {};
   for (const contest of expandEitherNeitherContests(election.contests)) {
-    contestsById[contest.id] = contest
+    contestsById[contest.id] = contest;
   }
 
-  const contestTalliesByPrecinct: Dictionary<ExternalTally> = {}
-  const parsedRowsByPrecinct = _.groupBy(parsedRows, 'precinctId')
+  const contestTalliesByPrecinct: Dictionary<ExternalTally> = {};
+  const parsedRowsByPrecinct = _.groupBy(parsedRows, 'precinctId');
 
   for (const precinctId in parsedRowsByPrecinct) {
-    if (!election.precincts.find((p) => p.id === precinctId)) {
-      throw new Error(`Imported file has unexpected PrecinctId: ${precinctId}`)
+    if (!election.precincts.find(p => p.id === precinctId)) {
+      throw new Error(`Imported file has unexpected PrecinctId: ${precinctId}`);
     }
-    const rowsForPrecinct = parsedRowsByPrecinct[precinctId]
+    const rowsForPrecinct = parsedRowsByPrecinct[precinctId];
 
-    const contestTallies: Dictionary<ContestTally> = {}
-    const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId')
+    const contestTallies: Dictionary<ContestTally> = {};
+    const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId');
     for (const contestId in rowsForPrecinctAndContest) {
       if (!(contestId in contestsById)) {
-        throw new Error(`Imported file has unexpected PrecinctId: ${contestId}`)
+        throw new Error(
+          `Imported file has unexpected PrecinctId: ${contestId}`
+        );
       }
-      const electionContest = contestsById[contestId]!
+      const electionContest = contestsById[contestId]!;
 
       if (electionContest.type === 'candidate') {
         const contestTally = getContestTallyForCandidateContest(
           electionContest as CandidateContest,
           rowsForPrecinctAndContest[contestId]
-        )
-        contestTallies[contestId] = contestTally
+        );
+        contestTallies[contestId] = contestTally;
       } else if (electionContest.type === 'yesno') {
         const contestTally = getContestTallyForYesNoContest(
           electionContest as YesNoContest,
           rowsForPrecinctAndContest[contestId]
-        )
-        contestTallies[contestId] = contestTally
+        );
+        contestTallies[contestId] = contestTally;
       }
     }
     const numBallotsInPrecinct = getTotalNumberOfBallots(
       contestTallies,
       election
-    )
+    );
     contestTalliesByPrecinct[precinctId] = {
       contestTallies,
       numberOfBallotsCounted: numBallotsInPrecinct,
-    }
+    };
   }
 
   return convertTalliesByPrecinctToFullExternalTally(
@@ -341,5 +343,5 @@ export function convertSEMSFileToExternalTally(
     ExternalTallySourceType.SEMS,
     fileName,
     fileModified
-  )
+  );
 }

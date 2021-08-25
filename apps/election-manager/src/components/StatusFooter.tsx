@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'
-import styled from 'styled-components'
-import { format } from '@votingworks/utils'
-import Text from './Text'
-import AppContext from '../contexts/AppContext'
+import React, {useContext} from 'react';
+import styled from 'styled-components';
+import {format} from '@votingworks/utils';
+import Text from './Text';
+import AppContext from '../contexts/AppContext';
 
 const StatusBar = styled.div`
   display: flex;
@@ -11,16 +11,16 @@ const StatusBar = styled.div`
   background: #455a64;
   padding: 0.375rem 1rem;
   color: #ffffff;
-`
+`;
 
 const StatusFooter: React.FC = () => {
-  const { electionDefinition } = useContext(AppContext)
+  const {electionDefinition} = useContext(AppContext);
   if (electionDefinition === undefined) {
-    return null
+    return null;
   }
 
-  const { election, electionHash } = electionDefinition
-  const electionDate = format.localeWeekdayAndDate(new Date(election?.date))
+  const {election, electionHash} = electionDefinition;
+  const electionDate = format.localeWeekdayAndDate(new Date(election?.date));
 
   return (
     <StatusBar>
@@ -34,7 +34,7 @@ const StatusFooter: React.FC = () => {
         </React.Fragment>
       </Text>
     </StatusBar>
-  )
-}
+  );
+};
 
-export default StatusFooter
+export default StatusFooter;

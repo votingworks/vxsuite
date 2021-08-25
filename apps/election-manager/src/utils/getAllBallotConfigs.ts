@@ -1,19 +1,19 @@
-import { Election } from '@votingworks/types'
-import { DEFAULT_LOCALE } from '../config/globals'
-import { BallotConfig } from '../config/types'
-import { getBallotPath, getBallotStylesDataByStyle } from './election'
+import {Election} from '@votingworks/types';
+import {DEFAULT_LOCALE} from '../config/globals';
+import {BallotConfig} from '../config/types';
+import {getBallotPath, getBallotStylesDataByStyle} from './election';
 
 export default function getAllBallotConfigs(
   election: Election,
   electionHash: string,
   localeCodes: readonly string[]
 ): readonly BallotConfig[] {
-  const ballotStyles = getBallotStylesDataByStyle(election)
+  const ballotStyles = getBallotStylesDataByStyle(election);
 
-  return ballotStyles.flatMap((ballotStyle) =>
-    localeCodes.flatMap((localeCode) =>
-      [true, false].flatMap<BallotConfig>((isAbsentee) =>
-        [true, false].flatMap<BallotConfig>((isLiveMode) => ({
+  return ballotStyles.flatMap(ballotStyle =>
+    localeCodes.flatMap(localeCode =>
+      [true, false].flatMap<BallotConfig>(isAbsentee =>
+        [true, false].flatMap<BallotConfig>(isLiveMode => ({
           ballotStyleId: ballotStyle.ballotStyleId,
           precinctId: ballotStyle.precinctId,
           contestIds: ballotStyle.contestIds,
@@ -37,5 +37,5 @@ export default function getAllBallotConfigs(
         }))
       )
     )
-  )
+  );
 }

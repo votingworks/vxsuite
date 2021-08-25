@@ -1,21 +1,21 @@
-import React from 'react'
-import { act, fireEvent, waitFor } from '@testing-library/react'
-import { fakeKiosk } from '@votingworks/test-utils'
+import React from 'react';
+import {act, fireEvent, waitFor} from '@testing-library/react';
+import {fakeKiosk} from '@votingworks/test-utils';
 
-import PrintButton from './PrintButton'
-import fakePrinter from '../../test/helpers/fakePrinter'
-import renderInAppContext from '../../test/renderInAppContext'
+import PrintButton from './PrintButton';
+import fakePrinter from '../../test/helpers/fakePrinter';
+import renderInAppContext from '../../test/renderInAppContext';
 
 beforeAll(() => {
-  window.kiosk = fakeKiosk()
-})
+  window.kiosk = fakeKiosk();
+});
 
 afterAll(() => {
-  delete window.kiosk
-})
+  delete window.kiosk;
+});
 
 test('if only disconnected printers, show error modal', async () => {
-  const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
+  const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
   mockKiosk.getPrinterInfo.mockResolvedValue([
     {
       description: 'banana',
@@ -31,33 +31,33 @@ test('if only disconnected printers, show error modal', async () => {
       status: 0,
       connected: false,
     },
-  ])
+  ]);
 
-  const printer = fakePrinter()
-  const afterPrint = jest.fn()
-  const { getByText } = renderInAppContext(
+  const printer = fakePrinter();
+  const afterPrint = jest.fn();
+  const {getByText} = renderInAppContext(
     <PrintButton sides="two-sided-long-edge" afterPrint={afterPrint}>
       Print Now
     </PrintButton>,
-    { printer }
-  )
+    {printer}
+  );
 
   await act(async () => {
-    fireEvent.click(getByText('Print Now'))
+    fireEvent.click(getByText('Print Now'));
 
     await waitFor(() =>
-      getByText('The printer is not connected', { exact: false })
-    )
-  })
+      getByText('The printer is not connected', {exact: false})
+    );
+  });
 
-  expect(mockKiosk.getPrinterInfo).toBeCalled()
+  expect(mockKiosk.getPrinterInfo).toBeCalled();
 
-  expect(printer.print).not.toBeCalled()
-  expect(afterPrint).not.toBeCalled()
-})
+  expect(printer.print).not.toBeCalled();
+  expect(afterPrint).not.toBeCalled();
+});
 
 test('if connected printers, show printing modal', async () => {
-  const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
+  const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
   mockKiosk.getPrinterInfo.mockResolvedValue([
     {
       description: 'banana',
@@ -73,25 +73,25 @@ test('if connected printers, show printing modal', async () => {
       status: 0,
       connected: true,
     },
-  ])
+  ]);
 
-  const printer = fakePrinter()
-  const afterPrint = jest.fn()
-  const { getByText } = renderInAppContext(
+  const printer = fakePrinter();
+  const afterPrint = jest.fn();
+  const {getByText} = renderInAppContext(
     <PrintButton afterPrint={afterPrint} sides="two-sided-long-edge">
       Print Now
     </PrintButton>,
-    { printer }
-  )
+    {printer}
+  );
 
   await act(async () => {
-    fireEvent.click(getByText('Print Now'))
+    fireEvent.click(getByText('Print Now'));
 
-    await waitFor(() => getByText('Printing', { exact: false }))
-  })
+    await waitFor(() => getByText('Printing', {exact: false}));
+  });
 
-  expect(mockKiosk.getPrinterInfo).toBeCalled()
+  expect(mockKiosk.getPrinterInfo).toBeCalled();
 
-  expect(printer.print).toBeCalled()
-  expect(afterPrint).toBeCalled()
-})
+  expect(printer.print).toBeCalled();
+  expect(afterPrint).toBeCalled();
+});

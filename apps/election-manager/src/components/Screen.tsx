@@ -1,25 +1,25 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse'
-  voterMode?: boolean
-  white?: boolean
+  flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+  voterMode?: boolean;
+  white?: boolean;
 }
 
 const Screen = styled.div<Props>`
   display: flex;
-  flex-direction: ${({ flexDirection = 'column' }) => flexDirection};
-  background-color: ${({ white }) => (white ? 'white' : undefined)};
+  flex-direction: ${({flexDirection = 'column'}) => flexDirection};
+  background-color: ${({white}) => (white ? 'white' : undefined)};
   height: 100%;
   & > nav {
-    flex: ${({ voterMode = true }) => (voterMode ? '1' : '2')};
+    flex: ${({voterMode = true}) => (voterMode ? '1' : '2')};
   }
   & > main {
-    flex: ${({ voterMode = true }) => (voterMode ? '2' : '3')};
+    flex: ${({voterMode = true}) => (voterMode ? '2' : '3')};
   }
   @media print {
     display: none;
   }
-`
+`;
 
-export default Screen
+export default Screen;

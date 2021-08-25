@@ -1,42 +1,36 @@
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-import { useParams, useHistory } from 'react-router-dom'
-import styled from 'styled-components'
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import {useParams, useHistory} from 'react-router-dom';
+import styled from 'styled-components';
 import {
   BallotLocale,
   getBallotStyle,
   getContests,
   getPrecinctById,
   getElectionLocales,
-} from '@votingworks/types'
-import pluralize from 'pluralize'
+} from '@votingworks/types';
+import pluralize from 'pluralize';
 
 import {
   BallotScreenProps,
   InputEventFunction,
   PrintableBallotType,
-} from '../config/types'
-import AppContext from '../contexts/AppContext'
+} from '../config/types';
+import AppContext from '../contexts/AppContext';
 
-import Button, { SegmentedButton } from '../components/Button'
-import PrintButton from '../components/PrintButton'
-import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
-import { Monospace } from '../components/Text'
-import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
-import NavigationScreen from '../components/NavigationScreen'
-import { DEFAULT_LOCALE } from '../config/globals'
-import routerPaths from '../routerPaths'
-import TextInput from '../components/TextInput'
-import LinkButton from '../components/LinkButton'
-import Prose from '../components/Prose'
-import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
-import { generateFileContentToSaveAsPDF } from '../utils/saveAsPDF'
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+import Button, {SegmentedButton} from '../components/Button';
+import PrintButton from '../components/PrintButton';
+import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot';
+import {Monospace} from '../components/Text';
+import {getBallotPath, getHumanBallotLanguageFormat} from '../utils/election';
+import NavigationScreen from '../components/NavigationScreen';
+import {DEFAULT_LOCALE} from '../config/globals';
+import routerPaths from '../routerPaths';
+import TextInput from '../components/TextInput';
+import LinkButton from '../components/LinkButton';
+import Prose from '../components/Prose';
+import {getBallotLayoutPageSize} from '../utils/getBallotLayoutPageSize';
+import {generateFileContentToSaveAsPDF} from '../utils/saveAsPDF';
+import SaveFileToUSB, {FileType} from '../components/SaveFileToUSB';
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -44,7 +38,7 @@ const BallotCopiesInput = styled(TextInput)`
   &::-webkit-outer-spin-button {
     opacity: 1;
   }
-`
+`;
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -57,7 +51,7 @@ const BallotPreviewHeader = styled.div`
       margin-right: 1rem;
     }
   }
-`
+`;
 
 const BallotPreview = styled.div`
   border-width: 1px 0;
@@ -71,55 +65,55 @@ const BallotPreview = styled.div`
       clear: left;
     }
   }
-`
+`;
 
 const BallotScreen: React.FC = () => {
-  const history = useHistory()
-  const ballotPreviewRef = useRef<HTMLDivElement>(null)
+  const history = useHistory();
+  const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
     precinctId,
     ballotStyleId,
     localeCode: currentLocaleCode,
-  } = useParams<BallotScreenProps>()
-  const { addPrintedBallot, electionDefinition, printBallotRef } = useContext(
+  } = useParams<BallotScreenProps>();
+  const {addPrintedBallot, electionDefinition, printBallotRef} = useContext(
     AppContext
-  )
-  const { election, electionHash } = electionDefinition!
-  const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
+  );
+  const {election, electionHash} = electionDefinition!;
+  const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
   const locales = useMemo<BallotLocale>(
     () => ({
       primary: DEFAULT_LOCALE,
       secondary: currentLocaleCode,
     }),
     [currentLocaleCode]
-  )
+  );
 
-  const precinctName = getPrecinctById({ election, precinctId })?.name
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const ballotContests = getContests({ ballotStyle, election })
+  const precinctName = getPrecinctById({election, precinctId})?.name;
+  const ballotStyle = getBallotStyle({ballotStyleId, election})!;
+  const ballotContests = getContests({ballotStyle, election});
 
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
-  const [ballotPages, setBallotPages] = useState(0)
-  const [isLiveMode, setIsLiveMode] = useState(true)
-  const toggleLiveMode = () => setIsLiveMode((m) => !m)
-  const [isAbsentee, setIsAbsentee] = useState(true)
-  const toggleIsAbsentee = () => setIsAbsentee((m) => !m)
-  const [ballotCopies, setBallotCopies] = useState(1)
-  const updateBallotCopies: InputEventFunction = (event) => {
-    const { value } = event.currentTarget
-    const copies = value ? parseInt(value, 10) : 1
-    setBallotCopies(copies < 1 ? 1 : copies)
-  }
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [ballotPages, setBallotPages] = useState(0);
+  const [isLiveMode, setIsLiveMode] = useState(true);
+  const toggleLiveMode = () => setIsLiveMode(m => !m);
+  const [isAbsentee, setIsAbsentee] = useState(true);
+  const toggleIsAbsentee = () => setIsAbsentee(m => !m);
+  const [ballotCopies, setBallotCopies] = useState(1);
+  const updateBallotCopies: InputEventFunction = event => {
+    const {value} = event.currentTarget;
+    const copies = value ? parseInt(value, 10) : 1;
+    setBallotCopies(copies < 1 ? 1 : copies);
+  };
   const changeLocale = (localeCode: string) =>
     history.replace(
       localeCode === DEFAULT_LOCALE
-        ? routerPaths.ballotsView({ precinctId, ballotStyleId })
+        ? routerPaths.ballotsView({precinctId, ballotStyleId})
         : routerPaths.ballotsViewLanguage({
             precinctId,
             ballotStyleId,
             localeCode,
           })
-    )
+    );
 
   const filename = getBallotPath({
     ballotStyleId,
@@ -129,7 +123,7 @@ const BallotScreen: React.FC = () => {
     locales,
     isLiveMode,
     isAbsentee,
-  })
+  });
 
   const afterPrint = (numCopies: number) => {
     if (isLiveMode) {
@@ -142,21 +136,21 @@ const BallotScreen: React.FC = () => {
         type: isAbsentee
           ? PrintableBallotType.Absentee
           : PrintableBallotType.Precinct,
-      })
+      });
     }
-  }
+  };
 
   const onRendered = useCallback(() => {
     if (ballotPreviewRef?.current && printBallotRef?.current) {
-      ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML
+      ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML;
     }
     const pagedJsPageCount = Number(
       (ballotPreviewRef.current?.getElementsByClassName(
         'pagedjs_pages'
       )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
-    )
-    setBallotPages(pagedJsPageCount)
-  }, [ballotPreviewRef])
+    );
+    setBallotPages(pagedJsPageCount);
+  }, [ballotPreviewRef]);
 
   return (
     <React.Fragment>
@@ -197,7 +191,7 @@ const BallotScreen: React.FC = () => {
               <React.Fragment>
                 {' '}
                 <SegmentedButton>
-                  {availableLocaleCodes.map((localeCode) => (
+                  {availableLocaleCodes.map(localeCode => (
                     <Button
                       disabled={
                         currentLocaleCode
@@ -307,7 +301,7 @@ const BallotScreen: React.FC = () => {
         onRendered={onRendered}
       />
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default BallotScreen
+export default BallotScreen;

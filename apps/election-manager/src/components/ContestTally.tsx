@@ -1,30 +1,30 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 import {
   Election,
   Candidate,
   YesNoContest,
   AnyContest,
   expandEitherNeitherContests,
-} from '@votingworks/types'
-import pluralize from 'pluralize'
+} from '@votingworks/types';
+import pluralize from 'pluralize';
 
-import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
+import {ExternalTally, Tally, YesNoContestOptionTally} from '../config/types';
 
-import Prose from './Prose'
-import Text, { NoWrap } from './Text'
-import Table, { TD } from './Table'
-import { getContestOptionsForContest } from '../utils/election'
-import { getTallyForContestOption } from '../lib/votecounting'
-import { combineContestTallies } from '../utils/externalTallies'
+import Prose from './Prose';
+import Text, {NoWrap} from './Text';
+import Table, {TD} from './Table';
+import {getContestOptionsForContest} from '../utils/election';
+import {getTallyForContestOption} from '../lib/votecounting';
+import {combineContestTallies} from '../utils/externalTallies';
 
 interface ContestProps {
-  dim?: boolean
+  dim?: boolean;
 }
 
 const Contest = styled.div<ContestProps>`
   margin: 1rem 0;
-  color: ${({ dim }) => (dim ? '#cccccc' : undefined)};
+  color: ${({dim}) => (dim ? '#cccccc' : undefined)};
   page-break-inside: avoid;
   p:first-child {
     margin-bottom: 0;
@@ -40,13 +40,13 @@ const Contest = styled.div<ContestProps>`
       margin-top: -0.5em;
     }
   }
-`
+`;
 
 interface Props {
-  election: Election
-  electionTally: Tally
-  externalTallies: ExternalTally[]
-  precinctId?: string
+  election: Election;
+  electionTally: Tally;
+  externalTallies: ExternalTally[];
+  precinctId?: string;
 }
 
 const ContestTally: React.FC<Props> = ({
@@ -58,41 +58,41 @@ const ContestTally: React.FC<Props> = ({
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
-    ? election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
-    : []
-  const districts = ballotStyles.flatMap((bs) => bs.districts)
+    ? election.ballotStyles.filter(bs => bs.precincts.includes(precinctId))
+    : [];
+  const districts = ballotStyles.flatMap(bs => bs.districts);
 
   return (
     <React.Fragment>
-      {expandEitherNeitherContests(election.contests).map((electionContest) => {
+      {expandEitherNeitherContests(election.contests).map(electionContest => {
         if (!(electionContest.id in electionTally.contestTallies)) {
-          return null
+          return null;
         }
         const externalTalliesContest = externalTallies.map(
-          (t) => t.contestTallies[electionContest.id]
-        )
+          t => t.contestTallies[electionContest.id]
+        );
         const primaryContestTally = electionTally.contestTallies[
           electionContest.id
-        ]!
+        ]!;
 
-        let finalContestTally = primaryContestTally
-        externalTalliesContest.forEach((externalTally) => {
+        let finalContestTally = primaryContestTally;
+        externalTalliesContest.forEach(externalTally => {
           if (externalTally !== undefined) {
             finalContestTally = combineContestTallies(
               finalContestTally,
               externalTally
-            )
+            );
           }
-        })
+        });
 
-        const { contest, tallies, metadata } = finalContestTally
+        const {contest, tallies, metadata} = finalContestTally;
 
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
-          : true
+          : true;
 
-        const { ballots, overvotes, undervotes } = metadata
-        const options = getContestOptionsForContest(contest as AnyContest)
+        const {ballots, overvotes, undervotes} = metadata;
+        const options = getContestOptionsForContest(contest as AnyContest);
 
         return (
           <Contest key={`div-${contest.id}`} dim={!talliesRelevant}>
@@ -106,25 +106,25 @@ const ContestTally: React.FC<Props> = ({
               </Text>
               <Table borderTop condensed>
                 <tbody>
-                  {options.map((option) => {
+                  {options.map(option => {
                     const tally = getTallyForContestOption(
                       option,
                       tallies,
                       contest
-                    )
+                    );
 
                     const key = `${contest.id}-${
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).id
                         : tally.option
-                    }`
+                    }`;
 
                     const choice =
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).name
                         : (tally as YesNoContestOptionTally).option[0] === 'yes'
                         ? (contest as YesNoContest).yesOption?.label || 'Yes'
-                        : (contest as YesNoContest).noOption?.label || 'No'
+                        : (contest as YesNoContest).noOption?.label || 'No';
                     return (
                       <tr key={key} data-testid={key}>
                         <td>{choice}</td>
@@ -132,15 +132,15 @@ const ContestTally: React.FC<Props> = ({
                           {talliesRelevant ? tally.tally : 'X'}
                         </TD>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </Table>
             </Prose>
           </Contest>
-        )
+        );
       })}
     </React.Fragment>
-  )
-}
-export default ContestTally
+  );
+};
+export default ContestTally;

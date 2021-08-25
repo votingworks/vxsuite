@@ -1,22 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, {useContext, useEffect, useState} from 'react';
 
-import { format } from '@votingworks/utils'
-import { VotingMethod } from '../config/types'
-import AppContext from '../contexts/AppContext'
-import readFileAsync from '../lib/readFileAsync'
+import {format} from '@votingworks/utils';
+import {VotingMethod} from '../config/types';
+import AppContext from '../contexts/AppContext';
+import readFileAsync from '../lib/readFileAsync';
 import {
   convertSEMSFileToExternalTally,
   parseSEMSFileAndValidateForElection,
-} from '../utils/semsTallies'
-import LinkButton from './LinkButton'
-import Loading from './Loading'
-import Modal from './Modal'
-import Prose from './Prose'
-import Button, { SegmentedButton } from './Button'
+} from '../utils/semsTallies';
+import LinkButton from './LinkButton';
+import Loading from './Loading';
+import Modal from './Modal';
+import Prose from './Prose';
+import Button, {SegmentedButton} from './Button';
 
 export interface Props {
-  onClose: () => void
-  selectedFile?: File
+  onClose: () => void;
+  selectedFile?: File;
 }
 
 const ImportExternalResultsModal: React.FC<Props> = ({
@@ -28,32 +28,32 @@ const ImportExternalResultsModal: React.FC<Props> = ({
     setIsTabulationRunning,
     electionDefinition,
     fullElectionExternalTallies,
-  } = useContext(AppContext)
+  } = useContext(AppContext);
 
-  const [errorMessage, setErrorMessage] = useState('')
-  const [isImportingFile, setIsImportingFile] = useState(true)
-  const [numberBallotsToImport, setNumberBallotsToImport] = useState(0)
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isImportingFile, setIsImportingFile] = useState(true);
+  const [numberBallotsToImport, setNumberBallotsToImport] = useState(0);
   const [ballotType, setBallotType] = useState<VotingMethod>(
     VotingMethod.Precinct
-  )
+  );
 
-  const { election } = electionDefinition!
+  const {election} = electionDefinition!;
 
   const loadFile = async (file: File) => {
-    const fileContent = await readFileAsync(file)
+    const fileContent = await readFileAsync(file);
     // Compute the tallies to see if there are any errors, if so display
     // an error modal.
     try {
       const fileErrors = parseSEMSFileAndValidateForElection(
         fileContent,
         election
-      )
+      );
       if (fileErrors.length > 0) {
         setErrorMessage(
           `Failed to import external file. ${fileErrors.join(' ')}`
-        )
-        setIsImportingFile(false)
-        return
+        );
+        setIsImportingFile(false);
+        return;
       }
       const tally = convertSEMSFileToExternalTally(
         fileContent,
@@ -61,37 +61,37 @@ const ImportExternalResultsModal: React.FC<Props> = ({
         ballotType, // We are not storing this tally, the ballot type here is not accurate yet but is thrown away
         file.name,
         new Date(file.lastModified)
-      )
-      setNumberBallotsToImport(tally.overallTally.numberOfBallotsCounted)
+      );
+      setNumberBallotsToImport(tally.overallTally.numberOfBallotsCounted);
     } catch (error) {
-      setErrorMessage(`Failed to import external file. ${error.message}`)
+      setErrorMessage(`Failed to import external file. ${error.message}`);
     } finally {
-      setIsImportingFile(false)
+      setIsImportingFile(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (selectedFile !== undefined) {
-      void loadFile(selectedFile)
+      void loadFile(selectedFile);
     }
-  }, [selectedFile])
+  }, [selectedFile]);
 
   const saveImportedFile = async () => {
     if (selectedFile !== undefined) {
-      setIsTabulationRunning(true)
-      const fileContent = await readFileAsync(selectedFile)
+      setIsTabulationRunning(true);
+      const fileContent = await readFileAsync(selectedFile);
       const tally = convertSEMSFileToExternalTally(
         fileContent,
         election,
         ballotType,
         selectedFile.name,
         new Date(selectedFile.lastModified)
-      )
-      await saveExternalTallies([...fullElectionExternalTallies, tally])
-      setIsTabulationRunning(false)
-      onClose()
+      );
+      await saveExternalTallies([...fullElectionExternalTallies, tally]);
+      setIsTabulationRunning(false);
+      onClose();
     }
-  }
+  };
 
   if (isImportingFile) {
     return (
@@ -104,7 +104,7 @@ const ImportExternalResultsModal: React.FC<Props> = ({
         }
         content={<Loading>Importing File</Loading>}
       />
-    )
+    );
   }
 
   if (errorMessage !== '') {
@@ -119,7 +119,7 @@ const ImportExternalResultsModal: React.FC<Props> = ({
           </Prose>
         }
       />
-    )
+    );
   }
 
   return (
@@ -158,7 +158,7 @@ const ImportExternalResultsModal: React.FC<Props> = ({
         </Prose>
       }
     />
-  )
-}
+  );
+};
 
-export default ImportExternalResultsModal
+export default ImportExternalResultsModal;

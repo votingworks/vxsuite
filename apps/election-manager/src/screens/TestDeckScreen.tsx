@@ -1,60 +1,58 @@
-import React, { useContext, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getPrecinctById, Precinct, VotesDict } from '@votingworks/types'
-import routerPaths from '../routerPaths'
+import React, {useContext, useState} from 'react';
+import {useParams} from 'react-router-dom';
+import {getPrecinctById, Precinct, VotesDict} from '@votingworks/types';
+import routerPaths from '../routerPaths';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton'
-import ButtonList from '../components/ButtonList'
-import Prose from '../components/Prose'
-import ContestTally from '../components/ContestTally'
-import Button from '../components/Button'
+import PrintButton from '../components/PrintButton';
+import ButtonList from '../components/ButtonList';
+import Prose from '../components/Prose';
+import ContestTally from '../components/ContestTally';
+import Button from '../components/Button';
 
-import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
-import NavigationScreen from '../components/NavigationScreen'
-import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps, Tally, VotingMethod } from '../config/types'
+import {filterTalliesByParty, tallyVotesByContest} from '../lib/votecounting';
+import NavigationScreen from '../components/NavigationScreen';
+import LinkButton from '../components/LinkButton';
+import {PrecinctReportScreenProps, Tally, VotingMethod} from '../config/types';
 
-import { generateTestDeckBallots } from '../utils/election'
+import {generateTestDeckBallots} from '../utils/election';
 import {
   ReportSection,
   TallyReportColumns,
   TallyReportTitle,
-} from './TallyReportScreen'
-import LogoMark from '../components/LogoMark'
-import TallyReportMetadata from '../components/TallyReportMetadata'
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+} from './TallyReportScreen';
+import LogoMark from '../components/LogoMark';
+import TallyReportMetadata from '../components/TallyReportMetadata';
+import SaveFileToUSB, {FileType} from '../components/SaveFileToUSB';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
-} from '../utils/saveAsPDF'
+} from '../utils/saveAsPDF';
 
 const allPrecincts: Precinct = {
   id: '',
   name: 'All Precincts',
-}
+};
 
 const TestDeckScreen: React.FC = () => {
-  const { electionDefinition } = useContext(AppContext)
-  const { election } = electionDefinition!
-  const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
-  const precinctId = p.trim()
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
+  const {electionDefinition} = useContext(AppContext);
+  const {election} = electionDefinition!;
+  const {precinctId: p = ''} = useParams<PrecinctReportScreenProps>();
+  const precinctId = p.trim();
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const precinct =
     precinctId === 'all'
       ? allPrecincts
-      : getPrecinctById({ election, precinctId })
+      : getPrecinctById({election, precinctId});
 
   const ballots = generateTestDeckBallots({
     election,
     precinctId: precinct?.id,
-  })
+  });
 
-  const votes: VotesDict[] = ballots.map(
-    (ballots) => ballots.votes as VotesDict
-  )
+  const votes: VotesDict[] = ballots.map(ballots => ballots.votes as VotesDict);
 
   const electionTally: Tally = {
     numberOfBallotsCounted: ballots.length,
@@ -63,22 +61,22 @@ const TestDeckScreen: React.FC = () => {
       election,
       votes,
     }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
-  }
+    ballotCountsByVotingMethod: {[VotingMethod.Unknown]: ballots.length},
+  };
 
   const ballotStylePartyIds = Array.from(
-    new Set(election.ballotStyles.map((bs) => bs.partyId))
-  )
+    new Set(election.ballotStyles.map(bs => bs.partyId))
+  );
 
   const defaultReportFilename = generateDefaultReportFilename(
     'test-desk-tally-report',
     election,
     precinct?.name
-  )
+  );
 
-  const pageTitle = 'Test Ballot Deck Tally'
+  const pageTitle = 'Test Ballot Deck Tally';
 
-  const generatedAtTime = new Date()
+  const generatedAtTime = new Date();
 
   if (precinct?.name) {
     return (
@@ -89,7 +87,7 @@ const TestDeckScreen: React.FC = () => {
           </div>
           <Prose>
             <TallyReportTitle
-              style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
+              style={{marginBottom: '0.75em', marginTop: '0.25em'}}
             >
               {precinctId === 'all' ? '' : 'Precinct'} Tally Report for{' '}
               <strong>{precinct.name}</strong>
@@ -126,16 +124,16 @@ const TestDeckScreen: React.FC = () => {
           />
         )}
         <div className="print-only">
-          {ballotStylePartyIds.map((partyId) => {
-            const party = election.parties.find((p) => p.id === partyId)
+          {ballotStylePartyIds.map(partyId => {
+            const party = election.parties.find(p => p.id === partyId);
             const electionTallyForParty = filterTalliesByParty({
               election,
               electionTally,
               party,
-            })
+            });
             const electionTitle = `${party ? party.fullName : ''} ${
               election.title
-            }`
+            }`;
             return (
               <ReportSection key={partyId || 'no-party'}>
                 <LogoMark />
@@ -144,7 +142,7 @@ const TestDeckScreen: React.FC = () => {
                 </div>
                 <Prose maxWidth={false}>
                   <TallyReportTitle
-                    style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
+                    style={{marginBottom: '0.75em', marginTop: '0.25em'}}
                   >
                     {precinctId === 'all' ? '' : 'Precinct'} Tally Report for{' '}
                     <strong>{precinct.name}</strong>
@@ -162,11 +160,11 @@ const TestDeckScreen: React.FC = () => {
                   />
                 </TallyReportColumns>
               </ReportSection>
-            )
+            );
           })}
         </div>
       </React.Fragment>
-    )
+    );
   }
 
   return (
@@ -179,7 +177,7 @@ const TestDeckScreen: React.FC = () => {
       </Prose>
       <p>
         <LinkButton
-          to={routerPaths.testDeckResultsReport({ precinctId: 'all' })}
+          to={routerPaths.testDeckResultsReport({precinctId: 'all'})}
           fullWidth
         >
           <strong>All Precincts</strong>
@@ -192,10 +190,10 @@ const TestDeckScreen: React.FC = () => {
               ignorePunctuation: true,
             })
           )
-          .map((p) => (
+          .map(p => (
             <LinkButton
               key={p.id}
-              to={routerPaths.testDeckResultsReport({ precinctId: p.id })}
+              to={routerPaths.testDeckResultsReport({precinctId: p.id})}
               fullWidth
             >
               {p.name}
@@ -203,7 +201,7 @@ const TestDeckScreen: React.FC = () => {
           ))}
       </ButtonList>
     </NavigationScreen>
-  )
-}
+  );
+};
 
-export default TestDeckScreen
+export default TestDeckScreen;

@@ -1,6 +1,6 @@
-import { BallotPaperSize, Election } from '@votingworks/types'
+import {BallotPaperSize, Election} from '@votingworks/types';
 
 export const getBallotLayoutPageSize = (election: Election): string =>
-  (election.ballotLayout?.paperSize || BallotPaperSize.Letter).toLowerCase()
+  (election.ballotLayout?.paperSize || BallotPaperSize.Letter).toLowerCase();
 
-export default getBallotLayoutPageSize
+export default getBallotLayoutPageSize;

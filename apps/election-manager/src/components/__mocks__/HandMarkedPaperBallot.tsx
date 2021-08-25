@@ -1,5 +1,5 @@
-import React from 'react'
-import { HandMarkedPaperBallotProps } from '../HandMarkedPaperBallot'
+import React from 'react';
+import {HandMarkedPaperBallotProps} from '../HandMarkedPaperBallot';
 
 const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   ballotStyleId,
@@ -8,7 +8,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   onRendered,
 }) => {
   if (onRendered) {
-    setImmediate(onRendered)
+    setImmediate(onRendered);
   }
 
   return (
@@ -18,7 +18,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       <br />
       Ballot Style {ballotStyleId}, precinct {precinctId}.
     </div>
-  )
-}
+  );
+};
 
-export default HandMarkedPaperBallot
+export default HandMarkedPaperBallot;

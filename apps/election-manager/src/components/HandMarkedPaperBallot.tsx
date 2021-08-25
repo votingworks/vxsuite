@@ -1,14 +1,14 @@
-import { strict as assert } from 'assert'
-import React, { useLayoutEffect, useRef, useContext } from 'react'
-import ReactDOM from 'react-dom'
-import styled from 'styled-components'
-import DOMPurify from 'dompurify'
-import moment from 'moment'
-import 'moment/min/locales'
-import { fromByteArray } from 'base64-js'
-import { Handler, Previewer, registerHandlers } from 'pagedjs'
-import { TFunction, StringMap } from 'i18next'
-import { useTranslation, Trans } from 'react-i18next'
+import {strict as assert} from 'assert';
+import React, {useLayoutEffect, useRef, useContext} from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import DOMPurify from 'dompurify';
+import moment from 'moment';
+import 'moment/min/locales';
+import {fromByteArray} from 'base64-js';
+import {Handler, Previewer, registerHandlers} from 'pagedjs';
+import {TFunction, StringMap} from 'i18next';
+import {useTranslation, Trans} from 'react-i18next';
 import {
   AnyContest,
   BallotLocale,
@@ -30,28 +30,28 @@ import {
   getPrecinctById,
   withLocale,
   safeParseElection,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
-import AppContext from '../contexts/AppContext'
+import {encodeHMPBBallotPageMetadata} from '@votingworks/ballot-encoder';
+import AppContext from '../contexts/AppContext';
 
-import findPartyById from '../utils/findPartyById'
+import findPartyById from '../utils/findPartyById';
 
-import BubbleMark from './BubbleMark'
-import WriteInLine from './WriteInLine'
-import QRCode from './QRCode'
-import Prose from './Prose'
-import Text from './Text'
-import HorizontalRule from './HorizontalRule'
-import { ABSENTEE_TINT_COLOR } from '../config/globals'
-import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
+import BubbleMark from './BubbleMark';
+import WriteInLine from './WriteInLine';
+import QRCode from './QRCode';
+import Prose from './Prose';
+import Text from './Text';
+import HorizontalRule from './HorizontalRule';
+import {ABSENTEE_TINT_COLOR} from '../config/globals';
+import {getBallotLayoutPageSize} from '../utils/getBallotLayoutPageSize';
 
 const localeDateLong = (dateString: string, locale: string) =>
-  moment(new Date(dateString)).locale(locale).format('LL')
+  moment(new Date(dateString)).locale(locale).format('LL');
 
 const dualPhraseWithBreak = (t1: string, t2?: string) => {
   if (!t2 || t1 === t2) {
-    return t1
+    return t1;
   }
   return (
     <React.Fragment>
@@ -59,8 +59,8 @@ const dualPhraseWithBreak = (t1: string, t2?: string) => {
       <br />
       {t2}
     </React.Fragment>
-  )
-}
+  );
+};
 
 const dualPhraseWithSlash = (
   t1: string,
@@ -68,10 +68,10 @@ const dualPhraseWithSlash = (
   {
     separator = ' / ',
     normal = false,
-  }: { separator?: string; normal?: boolean } = {}
+  }: {separator?: string; normal?: boolean} = {}
 ) => {
   if (!t2 || t1 === t2) {
-    return t1
+    return t1;
   }
   if (normal) {
     return (
@@ -82,10 +82,10 @@ const dualPhraseWithSlash = (
           {t2}
         </Text>
       </React.Fragment>
-    )
+    );
   }
-  return `${t1}${separator}${t2}`
-}
+  return `${t1}${separator}${t2}`;
+};
 
 const dualLanguageComposer = (
   t: TFunction,
@@ -95,64 +95,64 @@ const dualLanguageComposer = (
   const enTranslation = t(key, {
     ...options,
     lng: locales.primary,
-  })
+  });
   if (!locales.secondary) {
-    return enTranslation
+    return enTranslation;
   }
   const dualTranslation = t(key, {
     ...options,
     lng: locales.secondary,
-  })
+  });
   if (separator === 'break') {
-    return dualPhraseWithBreak(enTranslation, dualTranslation)
+    return dualPhraseWithBreak(enTranslation, dualTranslation);
   }
   return dualPhraseWithSlash(enTranslation, dualTranslation, {
     separator,
     normal: true,
-  })
-}
+  });
+};
 
-const qrCodeTargetClassName = 'qr-code-target'
+const qrCodeTargetClassName = 'qr-code-target';
 
 const BlankPageContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-`
+`;
 
-type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>
+type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>;
 
 interface PagedJSPage {
-  element: HTMLElement
-  id: string
-  pagesArea: HTMLElement
+  element: HTMLElement;
+  id: string;
+  pagesArea: HTMLElement;
 }
 class PostRenderBallotProcessor extends Handler {
   afterRendered(pages: PagedJSPage[]) {
     // Insert blank page if ballot page count is odd.
     if (pages.length % 2) {
-      const pagedjsPages = pages[0].pagesArea
+      const pagedjsPages = pages[0].pagesArea;
       if (pagedjsPages.lastChild) {
         const newLastPageElement = pagedjsPages.lastChild.cloneNode(
           true
-        ) as HTMLElement
-        pagedjsPages.appendChild(newLastPageElement)
+        ) as HTMLElement;
+        pagedjsPages.appendChild(newLastPageElement);
         pagedjsPages.setAttribute(
           'style',
           `--pagedjs-page-count:${pages.length + 1};`
-        )
-        newLastPageElement.id = `page-${pages.length + 1}`
+        );
+        newLastPageElement.id = `page-${pages.length + 1}`;
         newLastPageElement.classList.remove(
           'pagedjs_first_page',
           'pagedjs_right_page'
-        )
-        newLastPageElement.classList.add('pagedjs_left_page')
+        );
+        newLastPageElement.classList.add('pagedjs_left_page');
         newLastPageElement.setAttribute(
           'data-page-number',
           `${pages.length + 1}`
-        )
-        newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`)
+        );
+        newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`);
         ReactDOM.render(
           <BlankPageContent>
             <Prose>
@@ -160,27 +160,27 @@ class PostRenderBallotProcessor extends Handler {
             </Prose>
           </BlankPageContent>,
           newLastPageElement.getElementsByClassName('pagedjs_page_content')[0]
-        )
+        );
 
         const newPage = {
           ...pages[pages.length - 1],
           element: newLastPageElement,
-        }
+        };
 
-        pages.push(newPage)
+        pages.push(newPage);
       }
     }
 
     // Post-process QR codes in footer.
-    pages.forEach((page) => {
-      const { pageNumber } = page.element.dataset
+    pages.forEach(page => {
+      const {pageNumber} = page.element.dataset;
       const qrCodeTarget = page.element.getElementsByClassName(
         qrCodeTargetClassName
-      )[0]
+      )[0];
       if (qrCodeTarget && qrCodeTarget instanceof HTMLElement) {
         const election = safeParseElection(
           qrCodeTarget.dataset.election ?? ''
-        ).unsafeUnwrap()
+        ).unsafeUnwrap();
         const {
           electionHash,
           precinctId,
@@ -189,7 +189,7 @@ class PostRenderBallotProcessor extends Handler {
           locales,
           ballotType,
           ballotId,
-        }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
+        }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '');
 
         const encoded = encodeHMPBBallotPageMetadata(election, {
           electionHash: electionHash.substring(0, 20),
@@ -200,27 +200,27 @@ class PostRenderBallotProcessor extends Handler {
           pageNumber: parseInt(pageNumber!, 10),
           ballotType,
           ballotId,
-        })
+        });
 
         ReactDOM.render(
           <QRCode level="L" value={fromByteArray(encoded)} />,
           qrCodeTarget
-        )
+        );
       }
-    })
+    });
   }
 }
-registerHandlers(PostRenderBallotProcessor)
+registerHandlers(PostRenderBallotProcessor);
 
 const Ballot = styled.div`
   display: none;
-`
+`;
 const SealImage = styled.img`
   max-width: 1in;
-`
+`;
 const Content = styled.div`
   flex: 1;
-`
+`;
 const AbsenteeHeader = styled.div`
   display: flex;
   align-items: center;
@@ -231,7 +231,7 @@ const AbsenteeHeader = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.025in;
   color: #ffffff;
-`
+`;
 const AbsenteeFooter = styled.div`
   display: flex;
   align-items: center;
@@ -240,11 +240,11 @@ const AbsenteeFooter = styled.div`
   background: ${ABSENTEE_TINT_COLOR};
   width: 1in;
   color: #ffffff;
-`
+`;
 const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
-`
+`;
 const OfficialInitials = styled.div`
   display: none;
   align-items: flex-start;
@@ -256,7 +256,7 @@ const OfficialInitials = styled.div`
   .pagedjs_left_page & {
     display: flex;
   }
-`
+`;
 const PageFooterMain = styled.div`
   display: flex;
   flex: 1;
@@ -272,7 +272,7 @@ const PageFooterMain = styled.div`
   h2 {
     margin: 0;
   }
-`
+`;
 const PageFooterRow = styled.div`
   display: flex;
   flex-direction: row;
@@ -299,24 +299,24 @@ const PageFooterRow = styled.div`
   h2 + div {
     margin-left: 0.05in;
   }
-`
+`;
 const PageFooterQRCode = styled.div`
   margin-left: 0.15in;
   width: 0.55in;
-`
+`;
 const CandidateContestsLayout = styled.div`
   columns: 3;
   column-gap: 1em;
-`
+`;
 const OtherContestsLayout = styled(CandidateContestsLayout)`
   columns: 2;
   break-before: column;
-`
+`;
 const IntroColumn = styled.div`
   break-after: column;
   break-inside: avoid;
   page-break-inside: avoid;
-`
+`;
 const BallotHeader = styled.div`
   margin-bottom: 2em;
   & h2 {
@@ -330,7 +330,7 @@ const BallotHeader = styled.div`
     margin: 0 0 0.25em 0.25em;
     width: 1in;
   }
-`
+`;
 const Instructions = styled.div`
   margin-bottom: 1em;
   img {
@@ -345,7 +345,7 @@ const Instructions = styled.div`
   h4:nth-child(2) {
     margin-top: 0;
   }
-`
+`;
 export const StyledContest = styled.div`
   margin-bottom: 1em;
   border: 0.2em solid #000000;
@@ -356,17 +356,13 @@ export const StyledContest = styled.div`
   p + h3 {
     margin-top: -0.6em;
   }
-`
+`;
 interface ContestProps {
-  section: React.ReactNode
-  title: React.ReactNode
-  children: React.ReactNode
+  section: React.ReactNode;
+  title: React.ReactNode;
+  children: React.ReactNode;
 }
-export const Contest: React.FC<ContestProps> = ({
-  section,
-  title,
-  children,
-}) => (
+export const Contest: React.FC<ContestProps> = ({section, title, children}) => (
   <StyledContest>
     <Prose>
       <Text small bold>
@@ -376,27 +372,27 @@ export const Contest: React.FC<ContestProps> = ({
       {children}
     </Prose>
   </StyledContest>
-)
+);
 const StyledColumnFooter = styled.div`
   page-break-inside: avoid;
-`
+`;
 const WriteInItem = styled.p`
   margin: 0.5em 0 !important; /* stylelint-disable-line declaration-no-important */
   page-break-inside: avoid;
   &:last-child {
     margin-bottom: 0 !important; /* stylelint-disable-line declaration-no-important */
   }
-`
+`;
 
-const CandidateDescription = styled.span<{ isSmall?: boolean }>`
-  font-size: ${({ isSmall }) => (isSmall ? '0.9em' : undefined)};
-`
+const CandidateDescription = styled.span<{isSmall?: boolean}>`
+  font-size: ${({isSmall}) => (isSmall ? '0.9em' : undefined)};
+`;
 
 export interface CandidateContestChoicesProps {
-  contest: CandidateContest
-  locales: BallotLocale
-  parties: Parties
-  vote?: CandidateVote
+  contest: CandidateContest;
+  locales: BallotLocale;
+  parties: Parties;
+  vote?: CandidateVote;
 }
 
 export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = ({
@@ -405,10 +401,10 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
   parties,
   vote,
 }) => {
-  const { t } = useTranslation()
-  const writeInCandidates = vote?.filter((c) => c.isWriteIn)
-  const remainingChoices = [...Array(contest.seats).keys()]
-  const dualLanguageWithSlash = dualLanguageComposer(t, locales)
+  const {t} = useTranslation();
+  const writeInCandidates = vote?.filter(c => c.isWriteIn);
+  const remainingChoices = [...Array(contest.seats).keys()];
+  const dualLanguageWithSlash = dualLanguageComposer(t, locales);
   return (
     <React.Fragment>
       {contest.candidates.map((candidate, _, array) => (
@@ -428,7 +424,7 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
           </BubbleMark>
         </Text>
       ))}
-      {writeInCandidates?.map((candidate) => (
+      {writeInCandidates?.map(candidate => (
         <Text key={candidate.name} bold noWrap>
           <BubbleMark checked>
             <span>
@@ -439,7 +435,7 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
         </Text>
       ))}
       {contest.allowWriteIns &&
-        remainingChoices.map((k) => (
+        remainingChoices.map(k => (
           <WriteInItem key={k} data-write-in>
             <BubbleMark>
               <WriteInLine />
@@ -450,28 +446,28 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
           </WriteInItem>
         ))}
     </React.Fragment>
-  )
-}
+  );
+};
 
 function hasVote(vote: Vote | undefined, optionId: string): boolean {
   return (
     vote?.some((choice: Candidate | string) =>
       typeof choice === 'string' ? choice === optionId : choice.id === optionId
     ) ?? false
-  )
+  );
 }
 
 export interface HandMarkedPaperBallotProps {
-  ballotStyleId: string
-  election: Election
-  electionHash: string
-  isLiveMode?: boolean
-  isAbsentee?: boolean
-  precinctId: string
-  locales: BallotLocale
-  ballotId?: string
-  votes?: VotesDict
-  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void
+  ballotStyleId: string;
+  election: Election;
+  electionHash: string;
+  isLiveMode?: boolean;
+  isAbsentee?: boolean;
+  precinctId: string;
+  locales: BallotLocale;
+  ballotId?: string;
+  votes?: VotesDict;
+  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
 }
 
 const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
@@ -490,40 +486,40 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     locales.primary,
     locales.secondary,
     'rendering a dual-language ballot with both languages the same is not allowed'
-  )
+  );
 
-  const { t, i18n } = useTranslation()
-  const { printBallotRef } = useContext(AppContext)
-  const { county, date, seal, sealURL, state, parties, title } = election
+  const {t, i18n} = useTranslation();
+  const {printBallotRef} = useContext(AppContext);
+  const {county, date, seal, sealURL, state, parties, title} = election;
   const localeElection: OptionalElection = locales.secondary
     ? withLocale(election, locales.secondary)
-    : undefined
-  i18n.addResources(locales.primary, 'translation', election.ballotStrings)
+    : undefined;
+  i18n.addResources(locales.primary, 'translation', election.ballotStrings);
   if (localeElection && locales.secondary) {
     i18n.addResources(
       locales.secondary,
       'translation',
       localeElection.ballotStrings
-    )
+    );
   }
   const primaryPartyName = getPartyFullNameFromBallotStyle({
     ballotStyleId,
     election,
-  })
+  });
   const localePrimaryPartyName =
     localeElection &&
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
       election: localeElection,
-    })
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  assert(ballotStyle)
-  const contests = getContests({ ballotStyle, election })
-  const candidateContests = contests.filter((c) => c.type === 'candidate')
-  const otherContests = contests.filter((c) => c.type !== 'candidate')
+    });
+  const ballotStyle = getBallotStyle({ballotStyleId, election});
+  assert(ballotStyle);
+  const contests = getContests({ballotStyle, election});
+  const candidateContests = contests.filter(c => c.type === 'candidate');
+  const otherContests = contests.filter(c => c.type !== 'candidate');
   const localeContestsById =
     localeElection &&
-    getContests({ ballotStyle, election: localeElection }).reduce<
+    getContests({ballotStyle, election: localeElection}).reduce<
       Dictionary<AnyContest>
     >(
       (prev, curr) => ({
@@ -531,14 +527,14 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         [curr.id]: curr,
       }),
       {}
-    )
-  const precinct = getPrecinctById({ election, precinctId })!
+    );
+  const precinct = getPrecinctById({election, precinctId})!;
 
-  const ballotRef = useRef<HTMLDivElement>(null)
+  const ballotRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (!printBallotRef?.current) {
-      return
+      return;
     }
 
     const ballotStylesheets = [
@@ -546,14 +542,14 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         election
       )}.css`,
       '/ballot/ballot.css',
-    ]
+    ];
 
     void (async () => {
       await new Previewer().preview(
         ballotRef.current!.innerHTML,
         ballotStylesheets,
         printBallotRef?.current
-      )
+      );
       onRendered?.({
         ballotStyleId,
         election,
@@ -562,17 +558,17 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         precinctId,
         votes,
         locales,
-      })
-    })()
+      });
+    })();
 
     return () => {
       if (printBallotRef.current) {
-        printBallotRef.current.innerHTML = ''
+        printBallotRef.current.innerHTML = '';
       }
       document.head
         .querySelectorAll('[data-pagedjs-inserted-styles]')
-        .forEach((e) => e.parentNode?.removeChild(e))
-    }
+        .forEach(e => e.parentNode?.removeChild(e));
+    };
   }, [
     ballotStyleId,
     election,
@@ -583,10 +579,10 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     printBallotRef,
     locales,
     votes,
-  ])
+  ]);
 
-  const dualLanguageWithSlash = dualLanguageComposer(t, locales)
-  const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break')
+  const dualLanguageWithSlash = dualLanguageComposer(t, locales);
+  const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break');
 
   const columnFooter = (
     <StyledColumnFooter>
@@ -603,7 +599,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         </p>
       </Prose>
     </StyledColumnFooter>
-  )
+  );
 
   return (
     <Ballot aria-hidden data-ballot ref={ballotRef}>
@@ -620,7 +616,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
             <Text as="span" small>
               <Trans
                 i18nKey="officialInitials"
-                tOptions={{ lng: locales.primary }}
+                tOptions={{lng: locales.primary}}
               >
                 Official’s Initials
               </Trans>
@@ -749,8 +745,8 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
               <Prose>
                 <h2>
                   {isLiveMode
-                    ? t('Official Ballot', { lng: locales.primary })
-                    : t('TEST BALLOT', { lng: locales.primary })}
+                    ? t('Official Ballot', {lng: locales.primary})
+                    : t('TEST BALLOT', {lng: locales.primary})}
                 </h2>
                 <h3>
                   {ballotStyle.partyId && primaryPartyName} {title}
@@ -766,7 +762,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                   <p>
                     <strong>
                       {isLiveMode
-                        ? t('Official Ballot', { lng: locales.secondary })
+                        ? t('Official Ballot', {lng: locales.secondary})
                         : t('TEST BALLOT', {
                             lng: locales.secondary,
                           })}
@@ -798,26 +794,26 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                   alt=""
                   className="ignore-prose"
                 />
-                <h4>{t('Instructions', { lng: locales.primary })}</h4>
+                <h4>{t('Instructions', {lng: locales.primary})}</h4>
                 <Text small>
                   {t(
                     'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                    { lng: locales.primary }
+                    {lng: locales.primary}
                   )}
                 </Text>
-                <h4>{t('To Vote for a Write-In', { lng: locales.primary })}</h4>
+                <h4>{t('To Vote for a Write-In', {lng: locales.primary})}</h4>
                 <Text small>
                   <img src="/ballot/instructions-write-in.svg" alt="" />
                   {t(
                     'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                    { lng: locales.primary }
+                    {lng: locales.primary}
                   )}
                 </Text>
-                <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
+                <h4>{t('To correct a mistake', {lng: locales.primary})}</h4>
                 <Text small>
                   {t(
                     'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                    { lng: locales.primary }
+                    {lng: locales.primary}
                   )}
                 </Text>
                 {locales.secondary && (
@@ -828,11 +824,11 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                       alt=""
                       className="ignore-prose"
                     />
-                    <h4>{t('Instructions', { lng: locales.secondary })}</h4>
+                    <h4>{t('Instructions', {lng: locales.secondary})}</h4>
                     <Text small>
                       {t(
                         'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                        { lng: locales.secondary }
+                        {lng: locales.secondary}
                       )}
                     </Text>
                     <h4>
@@ -844,7 +840,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                       <img src="/ballot/instructions-write-in.svg" alt="" />
                       {t(
                         'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                        { lng: locales.secondary }
+                        {lng: locales.secondary}
                       )}
                     </Text>
                     <h4>
@@ -855,7 +851,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     <Text small>
                       {t(
                         'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                        { lng: locales.secondary }
+                        {lng: locales.secondary}
                       )}
                     </Text>
                   </React.Fragment>
@@ -863,18 +859,18 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
               </Prose>
             </Instructions>
           </IntroColumn>
-          {candidateContests.map((contest) => (
+          {candidateContests.map(contest => (
             <Contest
               key={contest.id}
               section={dualPhraseWithSlash(
                 contest.section,
                 localeContestsById?.[contest.id]?.section,
-                { normal: true }
+                {normal: true}
               )}
               title={dualPhraseWithSlash(
                 contest.title,
                 localeContestsById?.[contest.id]?.title,
-                { normal: true }
+                {normal: true}
               )}
             >
               {contest.type === 'candidate' && (
@@ -886,7 +882,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                         })
                       : dualLanguageWithSlash(
                           'Vote for not more than {{ seats }}',
-                          { seats: contest.seats, normal: true }
+                          {seats: contest.seats, normal: true}
                         )}
                   </p>
                   <CandidateContestChoices
@@ -903,7 +899,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         </CandidateContestsLayout>
         {otherContests.length !== 0 && (
           <OtherContestsLayout>
-            {otherContests.map((contest) => (
+            {otherContests.map(contest => (
               <Contest
                 key={contest.id}
                 data-contest
@@ -911,12 +907,12 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 section={dualPhraseWithSlash(
                   contest.section,
                   localeContestsById?.[contest.id]?.section,
-                  { normal: true }
+                  {normal: true}
                 )}
                 title={dualPhraseWithSlash(
                   contest.title,
                   localeContestsById?.[contest.id]?.title,
-                  { normal: true }
+                  {normal: true}
                 )}
               >
                 {contest.type === 'yesno' && (
@@ -924,7 +920,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     <p>
                       <Trans
                         i18nKey="voteYesOrNo"
-                        tOptions={{ lng: locales.primary }}
+                        tOptions={{lng: locales.primary}}
                       >
                         Vote{' '}
                         <strong>{contest.yesOption?.label || 'Yes'}</strong> or{' '}
@@ -935,7 +931,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                           {' / '}
                           <Trans
                             i18nKey="voteYesOrNo"
-                            tOptions={{ lng: locales.secondary }}
+                            tOptions={{lng: locales.secondary}}
                           >
                             Vote{' '}
                             <strong>{contest.yesOption?.label || 'Yes'}</strong>{' '}
@@ -1064,7 +1060,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         )}
       </Content>
     </Ballot>
-  )
-}
+  );
+};
 
-export default HandMarkedPaperBallot
+export default HandMarkedPaperBallot;

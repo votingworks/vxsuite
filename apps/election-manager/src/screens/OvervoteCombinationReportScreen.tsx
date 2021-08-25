@@ -1,35 +1,32 @@
-import React, { useContext } from 'react'
-import styled from 'styled-components'
-import pluralize from 'pluralize'
+import React, {useContext} from 'react';
+import styled from 'styled-components';
+import pluralize from 'pluralize';
 
-import { format } from '@votingworks/utils'
-import NavigationScreen from '../components/NavigationScreen'
-import PrintButton from '../components/PrintButton'
-import LinkButton from '../components/LinkButton'
-import AppContext from '../contexts/AppContext'
-import routerPaths from '../routerPaths'
-import { ContestTallyMeta } from '../config/types'
-import {
-  getOvervotePairTallies,
-  getContestTallyMeta,
-} from '../lib/votecounting'
-import Table, { TD } from '../components/Table'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
-import HorizontalRule from '../components/HorizontalRule'
-import LogoMark from '../components/LogoMark'
+import {format} from '@votingworks/utils';
+import NavigationScreen from '../components/NavigationScreen';
+import PrintButton from '../components/PrintButton';
+import LinkButton from '../components/LinkButton';
+import AppContext from '../contexts/AppContext';
+import routerPaths from '../routerPaths';
+import {ContestTallyMeta} from '../config/types';
+import {getOvervotePairTallies, getContestTallyMeta} from '../lib/votecounting';
+import Table, {TD} from '../components/Table';
+import Prose from '../components/Prose';
+import Text from '../components/Text';
+import HorizontalRule from '../components/HorizontalRule';
+import LogoMark from '../components/LogoMark';
 
 const ContestMeta = styled.div`
   float: right;
   margin-top: 0.5em;
-`
+`;
 
 const TallyHeader = styled.div`
   page-break-before: always;
   h1 + p {
     margin-top: -1.5em;
   }
-`
+`;
 
 const Contest = styled.div`
   margin: 1rem 0 2rem;
@@ -38,29 +35,29 @@ const Contest = styled.div`
   h3 {
     margin-bottom: 0.25em;
   }
-`
+`;
 
 const PairsReportScreen: React.FC = () => {
   const {
     castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
-  } = useContext(AppContext)
-  const { election } = electionDefinition!
-  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
-  const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
+  } = useContext(AppContext);
+  const {election} = electionDefinition!;
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+  const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1);
   const overvotePairTallies = getOvervotePairTallies({
     election,
     castVoteRecords,
-  })
+  });
 
-  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
-  const generatedAt = format.localeLongDateAndTime(new Date())
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date));
+  const generatedAt = format.localeLongDateAndTime(new Date());
 
   const contestTallyMeta = getContestTallyMeta({
     election,
     castVoteRecords,
-  })
+  });
 
   const reportHeader = (
     <React.Fragment>
@@ -78,7 +75,7 @@ const PairsReportScreen: React.FC = () => {
         overvote count.
       </p>
     </React.Fragment>
-  )
+  );
 
   return (
     <React.Fragment>
@@ -103,13 +100,13 @@ const PairsReportScreen: React.FC = () => {
           <Prose maxWidth={false}>{reportHeader}</Prose>
         </TallyHeader>
         <HorizontalRule />
-        {election.contests.map((contest) => {
-          const tallies = overvotePairTallies[contest.id]?.tallies
+        {election.contests.map(contest => {
+          const tallies = overvotePairTallies[contest.id]?.tallies;
           const {
             ballots,
             overvotes,
             undervotes,
-          }: ContestTallyMeta = contestTallyMeta[contest.id]!
+          }: ContestTallyMeta = contestTallyMeta[contest.id]!;
           return (
             <Contest key={contest.id}>
               <Prose maxWidth={false}>
@@ -126,7 +123,7 @@ const PairsReportScreen: React.FC = () => {
                 <Table>
                   <tbody>
                     {tallies?.length ? (
-                      tallies.map((tally) => (
+                      tallies.map(tally => (
                         <tr key={JSON.stringify(tally.candidates)}>
                           <td>
                             {tally.candidates.first.name} +{' '}
@@ -146,11 +143,11 @@ const PairsReportScreen: React.FC = () => {
                 </Table>
               </Prose>
             </Contest>
-          )
+          );
         })}
       </div>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default PairsReportScreen
+export default PairsReportScreen;

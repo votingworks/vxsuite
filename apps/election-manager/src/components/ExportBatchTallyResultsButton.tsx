@@ -1,24 +1,24 @@
-import React, { useContext, useState } from 'react'
-import { Button } from '@votingworks/ui'
-import { generateBatchResultsDefaultFilename } from '@votingworks/utils'
-import SaveFileToUSB, { FileType } from './SaveFileToUSB'
-import AppContext from '../contexts/AppContext'
-import generateBatchTallyResultsCSV from '../utils/generateBatchTallyResultsCSV'
+import React, {useContext, useState} from 'react';
+import {Button} from '@votingworks/ui';
+import {generateBatchResultsDefaultFilename} from '@votingworks/utils';
+import SaveFileToUSB, {FileType} from './SaveFileToUSB';
+import AppContext from '../contexts/AppContext';
+import generateBatchTallyResultsCSV from '../utils/generateBatchTallyResultsCSV';
 
 const ExportBatchTallyResultsButton: React.FC = () => {
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const {
     fullElectionTally,
     castVoteRecordFiles,
     electionDefinition,
-  } = useContext(AppContext)
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
-  const { election } = electionDefinition!
+  } = useContext(AppContext);
+  const isTestMode = castVoteRecordFiles?.fileMode === 'test';
+  const {election} = electionDefinition!;
 
   const defaultFilename = generateBatchResultsDefaultFilename(
     isTestMode,
     election
-  )
+  );
   return (
     <React.Fragment>
       <Button small onPress={() => setIsSaveModalOpen(true)}>
@@ -35,7 +35,7 @@ const ExportBatchTallyResultsButton: React.FC = () => {
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default ExportBatchTallyResultsButton
+export default ExportBatchTallyResultsButton;

@@ -1,9 +1,9 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 const HorizontalRule = styled.p`
   display: flex;
   align-items: center;
-  margin: ${({ children }) => (children ? '-0.5rem 0' : undefined)};
+  margin: ${({children}) => (children ? '-0.5rem 0' : undefined)};
   &::after,
   &::before {
     flex: 1;
@@ -11,11 +11,11 @@ const HorizontalRule = styled.p`
     content: '';
   }
   &::before {
-    margin-right: ${({ children }) => (children ? '0.5rem' : undefined)};
+    margin-right: ${({children}) => (children ? '0.5rem' : undefined)};
   }
   &::after {
-    margin-left: ${({ children }) => (children ? '0.5rem' : undefined)};
+    margin-left: ${({children}) => (children ? '0.5rem' : undefined)};
   }
-`
+`;
 
-export default HorizontalRule
+export default HorizontalRule;

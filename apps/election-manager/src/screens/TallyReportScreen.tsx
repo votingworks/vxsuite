@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import styled from 'styled-components';
 
-import { useParams } from 'react-router-dom'
-import { find } from '@votingworks/utils'
+import {useParams} from 'react-router-dom';
+import {find} from '@votingworks/utils';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
-} from '../utils/saveAsPDF'
+} from '../utils/saveAsPDF';
 
 import {
   PrecinctReportScreenProps,
@@ -16,32 +16,32 @@ import {
   VotingMethodReportScreenProps,
   VotingMethod,
   ExternalTally,
-} from '../config/types'
-import AppContext from '../contexts/AppContext'
+} from '../config/types';
+import AppContext from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton'
-import Button from '../components/Button'
-import ContestTally from '../components/ContestTally'
-import NavigationScreen from '../components/NavigationScreen'
-import Prose from '../components/Prose'
-import LinkButton from '../components/LinkButton'
-import TallyReportMetadata from '../components/TallyReportMetadata'
-import TallyReportSummary from '../components/TallyReportSummary'
+import PrintButton from '../components/PrintButton';
+import Button from '../components/Button';
+import ContestTally from '../components/ContestTally';
+import NavigationScreen from '../components/NavigationScreen';
+import Prose from '../components/Prose';
+import LinkButton from '../components/LinkButton';
+import TallyReportMetadata from '../components/TallyReportMetadata';
+import TallyReportSummary from '../components/TallyReportSummary';
 
-import routerPaths from '../routerPaths'
+import routerPaths from '../routerPaths';
 import {
   filterTalliesByParams,
   filterTalliesByParamsAndBatchId,
-} from '../lib/votecounting'
-import LogoMark from '../components/LogoMark'
-import { filterExternalTalliesByParams } from '../utils/externalTallies'
-import { getLabelForVotingMethod } from '../utils/votingMethod'
-import Text from '../components/Text'
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+} from '../lib/votecounting';
+import LogoMark from '../components/LogoMark';
+import {filterExternalTalliesByParams} from '../utils/externalTallies';
+import {getLabelForVotingMethod} from '../utils/votingMethod';
+import Text from '../components/Text';
+import SaveFileToUSB, {FileType} from '../components/SaveFileToUSB';
 
 export const TallyReportTitle = styled.h1`
   font-weight: 400;
-`
+`;
 export const TallyReportColumns = styled.div`
   columns: 3;
   column-gap: 0.3in;
@@ -49,13 +49,13 @@ export const TallyReportColumns = styled.div`
   & > div {
     margin-top: 0;
   }
-`
+`;
 const TallyReport = styled.div`
   font-size: 12px;
   @media print {
     font-size: 12px;
   }
-`
+`;
 const TallyReportPreview = styled(TallyReport)`
   section {
     margin: 1rem 0 2rem;
@@ -64,33 +64,33 @@ const TallyReportPreview = styled(TallyReport)`
     min-height: 11in;
     padding: 0.5in;
   }
-`
+`;
 export const ReportSection = styled.section`
   page-break-before: always;
-`
+`;
 
 const TallyReportScreen: React.FC = () => {
-  const printReportRef = useRef<HTMLDivElement>(null)
-  const previewReportRef = useRef<HTMLDivElement>(null)
-  const [showPreview, setShowPreview] = useState(false)
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
+  const printReportRef = useRef<HTMLDivElement>(null);
+  const previewReportRef = useRef<HTMLDivElement>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const {
     precinctId: precinctIdFromProps,
-  } = useParams<PrecinctReportScreenProps>()
-  const { scannerId } = useParams<ScannerReportScreenProps>()
-  const { batchId } = useParams<BatchReportScreenProps>()
-  const { partyId: partyIdFromProps } = useParams<PartyReportScreenProps>()
+  } = useParams<PrecinctReportScreenProps>();
+  const {scannerId} = useParams<ScannerReportScreenProps>();
+  const {batchId} = useParams<BatchReportScreenProps>();
+  const {partyId: partyIdFromProps} = useParams<PartyReportScreenProps>();
   const {
     votingMethod: votingMethodFromProps,
-  } = useParams<VotingMethodReportScreenProps>()
-  const votingMethod = votingMethodFromProps as VotingMethod
+  } = useParams<VotingMethodReportScreenProps>();
+  const votingMethod = votingMethodFromProps as VotingMethod;
   const {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
     fullElectionExternalTallies,
     isTabulationRunning,
-  } = useContext(AppContext)
+  } = useContext(AppContext);
 
   if (isTabulationRunning) {
     return (
@@ -100,37 +100,37 @@ const TallyReportScreen: React.FC = () => {
           <p>This may take a few seconds.</p>
         </Prose>
       </NavigationScreen>
-    )
+    );
   }
 
-  const { election } = electionDefinition!
-  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
+  const {election} = electionDefinition!;
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
   const ballotStylePartyIds =
     partyIdFromProps !== undefined
       ? [partyIdFromProps]
-      : Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)))
+      : Array.from(new Set(election.ballotStyles.map(bs => bs.partyId)));
 
   const precinctIds =
     precinctIdFromProps === 'all'
-      ? election.precincts.map((p) => p.id)
-      : [precinctIdFromProps]
+      ? election.precincts.map(p => p.id)
+      : [precinctIdFromProps];
 
   const precinctName =
     (precinctIdFromProps &&
       precinctIdFromProps !== 'all' &&
-      find(election.precincts, (p) => p.id === precinctIdFromProps).name) ||
-    undefined
+      find(election.precincts, p => p.id === precinctIdFromProps).name) ||
+    undefined;
 
-  let fileSuffix = precinctName
-  let batchLabel = ''
+  let fileSuffix = precinctName;
+  let batchLabel = '';
   const reportDisplayTitle = () => {
     if (precinctName) {
-      return `${statusPrefix} Precinct Tally Report for ${precinctName}`
+      return `${statusPrefix} Precinct Tally Report for ${precinctName}`;
     }
     if (scannerId) {
-      fileSuffix = `scanner-${scannerId}`
-      return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`
+      fileSuffix = `scanner-${scannerId}`;
+      return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`;
     }
     if (batchId) {
       const batchTally = filterTalliesByParamsAndBatchId(
@@ -138,47 +138,47 @@ const TallyReportScreen: React.FC = () => {
         election,
         batchId,
         {}
-      )
-      fileSuffix = `batch-${batchId}`
+      );
+      fileSuffix = `batch-${batchId}`;
       batchLabel = `${
         batchTally.batchLabel
-      } (Scanner: ${batchTally.scannerIds.join(', ')})`
-      return `${statusPrefix} Batch Tally Report for ${batchLabel}`
+      } (Scanner: ${batchTally.scannerIds.join(', ')})`;
+      return `${statusPrefix} Batch Tally Report for ${batchLabel}`;
     }
     if (precinctIdFromProps === 'all') {
-      fileSuffix = 'all-precincts'
-      return `${statusPrefix} ${election.title} Tally Reports for All Precincts`
+      fileSuffix = 'all-precincts';
+      return `${statusPrefix} ${election.title} Tally Reports for All Precincts`;
     }
     if (partyIdFromProps) {
-      const party = election.parties.find((p) => p.id === partyIdFromProps)!
-      fileSuffix = party.fullName
-      return `${statusPrefix} Tally Report for ${party.fullName}`
+      const party = election.parties.find(p => p.id === partyIdFromProps)!;
+      fileSuffix = party.fullName;
+      return `${statusPrefix} Tally Report for ${party.fullName}`;
     }
     if (votingMethod) {
-      const label = getLabelForVotingMethod(votingMethod)
-      fileSuffix = `${label}-ballots`
-      return `${statusPrefix} ${label} Ballot Tally Report`
+      const label = getLabelForVotingMethod(votingMethod);
+      fileSuffix = `${label}-ballots`;
+      return `${statusPrefix} ${label} Ballot Tally Report`;
     }
-    return `${statusPrefix} ${election.title} Tally Report`
-  }
+    return `${statusPrefix} ${election.title} Tally Report`;
+  };
 
   const defaultReportFilename = generateDefaultReportFilename(
     'tabulation-report',
     election,
     fileSuffix
-  )
+  );
 
   const toggleReportPreview = () => {
-    setShowPreview((s) => !s)
-  }
+    setShowPreview(s => !s);
+  };
 
-  const generatedAtTime = new Date()
+  const generatedAtTime = new Date();
 
   useEffect(() => {
     if (previewReportRef?.current && printReportRef?.current) {
-      previewReportRef.current.innerHTML = printReportRef.current.innerHTML
+      previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
     }
-  }, [previewReportRef, printReportRef, showPreview])
+  }, [previewReportRef, printReportRef, showPreview]);
 
   return (
     <React.Fragment>
@@ -228,45 +228,45 @@ const TallyReportScreen: React.FC = () => {
         />
       )}
       <TallyReport ref={printReportRef} className="print-only">
-        {ballotStylePartyIds.map((partyId) =>
-          precinctIds.map((precinctId) => {
-            const party = election.parties.find((p) => p.id === partyId)
+        {ballotStylePartyIds.map(partyId =>
+          precinctIds.map(precinctId => {
+            const party = election.parties.find(p => p.id === partyId);
             const electionTitle = party
               ? `${party.fullName} ${election.title}`
-              : election.title
+              : election.title;
 
             const tallyForReport = filterTalliesByParams(
               fullElectionTally!,
               election,
-              { precinctId, scannerId, partyId, votingMethod, batchId }
-            )
+              {precinctId, scannerId, partyId, votingMethod, batchId}
+            );
             const ballotCountsByVotingMethod = {
               ...tallyForReport.ballotCountsByVotingMethod,
-            }
-            let reportBallotCount = tallyForReport.numberOfBallotsCounted
-            const externalTalliesForReport: ExternalTally[] = []
-            fullElectionExternalTallies.forEach((t) => {
+            };
+            let reportBallotCount = tallyForReport.numberOfBallotsCounted;
+            const externalTalliesForReport: ExternalTally[] = [];
+            fullElectionExternalTallies.forEach(t => {
               const filteredTally = filterExternalTalliesByParams(t, election, {
                 precinctId,
                 partyId,
                 scannerId,
                 batchId,
                 votingMethod,
-              })
+              });
               if (filteredTally !== undefined) {
-                externalTalliesForReport.push(filteredTally)
+                externalTalliesForReport.push(filteredTally);
                 ballotCountsByVotingMethod[t.votingMethod] =
                   filteredTally.numberOfBallotsCounted +
-                  (ballotCountsByVotingMethod[t.votingMethod] ?? 0)
-                reportBallotCount += filteredTally.numberOfBallotsCounted
+                  (ballotCountsByVotingMethod[t.votingMethod] ?? 0);
+                reportBallotCount += filteredTally.numberOfBallotsCounted;
               }
-            })
+            });
 
             if (precinctId) {
               const precinctName = find(
                 election.precincts,
-                (p) => p.id === precinctId
-              ).name
+                p => p.id === precinctId
+              ).name;
               return (
                 <ReportSection key={`${partyId}-${precinctId}`}>
                   <LogoMark />
@@ -294,7 +294,7 @@ const TallyReportScreen: React.FC = () => {
                     />
                   </TallyReportColumns>
                 </ReportSection>
-              )
+              );
             }
 
             if (scannerId) {
@@ -325,7 +325,7 @@ const TallyReportScreen: React.FC = () => {
                     />
                   </TallyReportColumns>
                 </ReportSection>
-              )
+              );
             }
 
             if (batchId) {
@@ -355,11 +355,11 @@ const TallyReportScreen: React.FC = () => {
                     />
                   </TallyReportColumns>
                 </ReportSection>
-              )
+              );
             }
 
             if (votingMethod) {
-              const label = getLabelForVotingMethod(votingMethod)
+              const label = getLabelForVotingMethod(votingMethod);
               return (
                 <ReportSection key={`${partyId}-${votingMethod}`}>
                   <LogoMark />
@@ -381,7 +381,7 @@ const TallyReportScreen: React.FC = () => {
                     />
                   </TallyReportColumns>
                 </ReportSection>
-              )
+              );
             }
 
             return (
@@ -412,12 +412,12 @@ const TallyReportScreen: React.FC = () => {
                   />
                 </TallyReportColumns>
               </ReportSection>
-            )
+            );
           })
         )}
       </TallyReport>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default TallyReportScreen
+export default TallyReportScreen;

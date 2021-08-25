@@ -1,19 +1,19 @@
-import React from 'react'
-import { BrowserRouter, Route } from 'react-router-dom'
+import React from 'react';
+import {BrowserRouter, Route} from 'react-router-dom';
 
-import './App.css'
+import './App.css';
 
-import { LocalStorage, KioskStorage } from '@votingworks/utils'
+import {LocalStorage, KioskStorage} from '@votingworks/utils';
 
-import AppRoot, { Props as AppRootProps } from './AppRoot'
-import getPrinter from './utils/printer'
+import AppRoot, {Props as AppRootProps} from './AppRoot';
+import getPrinter from './utils/printer';
 
 export interface Props {
-  storage?: AppRootProps['storage']
-  printer?: AppRootProps['printer']
+  storage?: AppRootProps['storage'];
+  printer?: AppRootProps['printer'];
 }
 
-const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage()
+const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage();
 
 const App: React.FC<Props> = ({
   storage = defaultStorage,
@@ -22,11 +22,11 @@ const App: React.FC<Props> = ({
   <BrowserRouter>
     <Route
       path="/"
-      render={(props) => (
+      render={props => (
         <AppRoot storage={storage} printer={printer} {...props} />
       )}
     />
   </BrowserRouter>
-)
+);
 
-export default App
+export default App;

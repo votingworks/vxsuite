@@ -1,35 +1,35 @@
-import React, { ReactNode } from 'react'
-import ReactModal from 'react-modal'
-import styled from 'styled-components'
+import React, {ReactNode} from 'react';
+import ReactModal from 'react-modal';
+import styled from 'styled-components';
 
-import './Modal.css'
+import './Modal.css';
 
-import ButtonBar from './ButtonBar'
+import ButtonBar from './ButtonBar';
 
 interface ModalContentInterface {
-  centerContent?: boolean
+  centerContent?: boolean;
 }
 
 const ModalContent = styled('div')<ModalContentInterface>`
   display: flex;
   flex: 1;
   flex-direction: column;
-  align-items: ${({ centerContent = false }) =>
+  align-items: ${({centerContent = false}) =>
     centerContent ? 'center' : undefined};
-  justify-content: ${({ centerContent = false }) =>
+  justify-content: ${({centerContent = false}) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
   padding: 2rem;
-`
+`;
 
 interface Props {
-  ariaLabel?: string
-  className?: string
-  content?: ReactNode
-  centerContent?: boolean
-  actions?: ReactNode
-  onAfterOpen?: () => void
-  onOverlayClick?: () => void
+  ariaLabel?: string;
+  className?: string;
+  content?: ReactNode;
+  centerContent?: boolean;
+  actions?: ReactNode;
+  onAfterOpen?: () => void;
+  onOverlayClick?: () => void;
 }
 
 const Modal: React.FC<Props> = ({
@@ -40,12 +40,12 @@ const Modal: React.FC<Props> = ({
   content,
   onAfterOpen = () => {
     window.setTimeout(() => {
-      const element = document.getElementById('modalaudiofocus')
+      const element = document.getElementById('modalaudiofocus');
       if (element) {
-        element.focus()
-        element.click()
+        element.focus();
+        element.click();
       }
-    }, 10)
+    }, 10);
   },
   onOverlayClick,
 }: Props) => (
@@ -68,6 +68,6 @@ const Modal: React.FC<Props> = ({
     <ModalContent centerContent={centerContent}>{content}</ModalContent>
     {actions && <ButtonBar as="div">{actions}</ButtonBar>}
   </ReactModal>
-)
+);
 
-export default Modal
+export default Modal;

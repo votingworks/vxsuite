@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.shared.json",
+  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -18,11 +18,11 @@
   "include": ["src", "test", "types"],
   "exclude": ["src/setupProxy.js"],
   "references": [
-    { "path": "../../libs/ballot-encoder" },
-    { "path": "../../libs/fixtures" },
-    { "path": "../../libs/test-utils" },
-    { "path": "../../libs/types" },
-    { "path": "../../libs/utils" },
-    { "path": "../../libs/ui" }
+    {"path": "../../libs/ballot-encoder"},
+    {"path": "../../libs/fixtures"},
+    {"path": "../../libs/test-utils"},
+    {"path": "../../libs/types"},
+    {"path": "../../libs/utils"},
+    {"path": "../../libs/ui"}
   ]
 }

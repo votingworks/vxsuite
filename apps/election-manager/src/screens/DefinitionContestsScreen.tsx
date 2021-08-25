@@ -1,39 +1,39 @@
-import React, { useContext } from 'react'
-import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import DOMPurify from 'dompurify'
+import React, {useContext} from 'react';
+import {useParams} from 'react-router-dom';
+import styled from 'styled-components';
+import DOMPurify from 'dompurify';
 import {
   Election,
   CandidateContest,
   YesNoContest,
   AnyContest,
   MsEitherNeitherContest,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import readFileAsync from '../lib/readFileAsync'
+import readFileAsync from '../lib/readFileAsync';
 import {
   EventTargetFunction,
   InputEventFunction,
   TextareaEventFunction,
-} from '../config/types'
+} from '../config/types';
 
-import NavigationScreen from '../components/NavigationScreen'
-import AppContext from '../contexts/AppContext'
-import Button, { SegmentedButton } from '../components/Button'
+import NavigationScreen from '../components/NavigationScreen';
+import AppContext from '../contexts/AppContext';
+import Button, {SegmentedButton} from '../components/Button';
 import {
   CandidateContestChoices,
   Contest,
-} from '../components/HandMarkedPaperBallot'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
-import TextInput from '../components/TextInput'
-import { TextareaAutosize } from '../components/Textarea'
-import BubbleMark from '../components/BubbleMark'
-import FileInputButton from '../components/FileInputButton'
+} from '../components/HandMarkedPaperBallot';
+import Prose from '../components/Prose';
+import Text from '../components/Text';
+import TextInput from '../components/TextInput';
+import {TextareaAutosize} from '../components/Textarea';
+import BubbleMark from '../components/BubbleMark';
+import FileInputButton from '../components/FileInputButton';
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
-`
+`;
 
 const Columns = styled.div`
   display: flex;
@@ -45,20 +45,20 @@ const Columns = styled.div`
   > div:last-child {
     flex: 1;
   }
-`
+`;
 
 const RenderedContest = styled.div`
   position: sticky;
   top: 0;
-`
-const Paper = styled.div<{ isNarrow?: boolean }>`
+`;
+const Paper = styled.div<{isNarrow?: boolean}>`
   background: #ffffff;
-  width: ${({ isNarrow }) => (isNarrow ? '312px' : '477px')};
+  width: ${({isNarrow}) => (isNarrow ? '312px' : '477px')};
   font-size: 18px;
   > div {
     margin-bottom: 0;
   }
-`
+`;
 
 const StyledField = styled.div`
   margin-bottom: 0.75rem;
@@ -66,7 +66,7 @@ const StyledField = styled.div`
     display: block;
     font-size: 0.85rem;
   }
-`
+`;
 const TextField = ({
   disabled = false,
   name,
@@ -79,16 +79,16 @@ const TextField = ({
   type = 'text',
   value,
 }: {
-  disabled?: boolean
-  name: string
-  label?: string
-  min?: number
-  onChange: InputEventFunction | TextareaEventFunction
-  optional?: boolean
-  pattern?: string
-  step?: number
-  type?: 'text' | 'textarea' | 'number'
-  value: string | number | undefined
+  disabled?: boolean;
+  name: string;
+  label?: string;
+  min?: number;
+  onChange: InputEventFunction | TextareaEventFunction;
+  optional?: boolean;
+  pattern?: string;
+  step?: number;
+  type?: 'text' | 'textarea' | 'number';
+  value: string | number | undefined;
 }) => (
   <StyledField>
     <label htmlFor={name}>
@@ -124,7 +124,7 @@ const TextField = ({
       />
     )}
   </StyledField>
-)
+);
 
 const ToggleField = ({
   name,
@@ -136,14 +136,14 @@ const ToggleField = ({
   onChange,
   disabled,
 }: {
-  name: string
-  label?: string
-  trueLabel?: string
-  falseLabel?: string
-  value: boolean
-  optional?: boolean
-  onChange: EventTargetFunction
-  disabled?: boolean
+  name: string;
+  label?: string;
+  trueLabel?: string;
+  falseLabel?: string;
+  value: boolean;
+  optional?: boolean;
+  onChange: EventTargetFunction;
+  disabled?: boolean;
 }) => (
   <StyledField>
     <label htmlFor={name}>
@@ -179,16 +179,16 @@ const ToggleField = ({
       </SegmentedButton>
     )}
   </StyledField>
-)
+);
 
-const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
+const DefinitionContestsScreen: React.FC<{allowEditing: boolean}> = ({
   allowEditing,
 }) => {
-  const { electionDefinition, saveElection } = useContext(AppContext)
-  const { election } = electionDefinition!
-  const { contestId } = useParams<{ contestId: string }>()
-  const contestIndex = election.contests.findIndex((c) => c.id === contestId)
-  const contest = election.contests[contestIndex]
+  const {electionDefinition, saveElection} = useContext(AppContext);
+  const {election} = electionDefinition!;
+  const {contestId} = useParams<{contestId: string}>();
+  const contestIndex = election.contests.findIndex(c => c.id === contestId);
+  const contest = election.contests[contestIndex];
 
   const saveContest = async (newContest: AnyContest) => {
     if (allowEditing) {
@@ -199,94 +199,94 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
           newContest,
           ...election.contests.slice(contestIndex + 1),
         ],
-      }
-      await saveElection(JSON.stringify(newElection))
+      };
+      await saveElection(JSON.stringify(newElection));
     }
-  }
+  };
 
-  const saveTextField: InputEventFunction = async (event) => {
-    const { name, value: targetValue, type } = event.currentTarget
-    let value: string | number = targetValue
+  const saveTextField: InputEventFunction = async event => {
+    const {name, value: targetValue, type} = event.currentTarget;
+    let value: string | number = targetValue;
     if (type === 'number') {
-      value = parseInt(value, 10)
+      value = parseInt(value, 10);
     }
     if (name === 'seats' && value < 1) {
-      value = 1
+      value = 1;
     }
     await saveContest({
       ...contest,
       [name]: value,
-    })
-  }
+    });
+  };
 
-  const saveToggleField: EventTargetFunction = async (event) => {
-    const { name, value } = event.currentTarget as HTMLButtonElement
+  const saveToggleField: EventTargetFunction = async event => {
+    const {name, value} = event.currentTarget as HTMLButtonElement;
     await saveContest({
       ...contest,
       [name]: value === 'true',
-    })
-  }
+    });
+  };
 
-  const saveCandidateTextField: InputEventFunction = async (event) => {
-    const { name, value: targetValue, type } = event.currentTarget
-    let value: string | number = targetValue
+  const saveCandidateTextField: InputEventFunction = async event => {
+    const {name, value: targetValue, type} = event.currentTarget;
+    let value: string | number = targetValue;
     if (type === 'number') {
-      value = parseInt(value, 10)
+      value = parseInt(value, 10);
     }
-    const nameParts = name.split('.')
-    const candidateIndex = parseInt(nameParts[0], 10)
-    const candidateKey = nameParts[1]
-    const candidateContest = contest as CandidateContest
-    const { candidates } = candidateContest
-    const newCandidtes = [...candidates]
+    const nameParts = name.split('.');
+    const candidateIndex = parseInt(nameParts[0], 10);
+    const candidateKey = nameParts[1];
+    const candidateContest = contest as CandidateContest;
+    const {candidates} = candidateContest;
+    const newCandidtes = [...candidates];
     newCandidtes[candidateIndex] = {
       ...candidates[candidateIndex],
       [candidateKey]: value,
-    }
+    };
     await saveContest({
       ...candidateContest,
       candidates: newCandidtes,
-    })
-  }
+    });
+  };
 
-  const saveMsEitherNeitherOptionLabel: InputEventFunction = async (event) => {
-    const { name, value } = event.currentTarget
+  const saveMsEitherNeitherOptionLabel: InputEventFunction = async event => {
+    const {name, value} = event.currentTarget;
     const optionName = name as
       | 'eitherOption'
       | 'neitherOption'
       | 'firstOption'
-      | 'secondOption'
-    const msEitherNeitherContest = contest as MsEitherNeitherContest
+      | 'secondOption';
+    const msEitherNeitherContest = contest as MsEitherNeitherContest;
     await saveContest({
       ...msEitherNeitherContest,
       [optionName]: {
         ...msEitherNeitherContest[optionName],
         label: value,
       },
-    })
-  }
+    });
+  };
 
-  const appendSvgToDescription: InputEventFunction = async (event) => {
-    const { files } = event.currentTarget
-    const file = files?.[0]
+  const appendSvgToDescription: InputEventFunction = async event => {
+    const {files} = event.currentTarget;
+    const file = files?.[0];
     if (file?.type === 'image/svg+xml') {
-      const yesNoContest = contest as YesNoContest
+      const yesNoContest = contest as YesNoContest;
       try {
-        const fileContent = await readFileAsync(file)
+        const fileContent = await readFileAsync(file);
         const description = `${yesNoContest.description}
 
-${fileContent}`
+${fileContent}`;
         await saveContest({
           ...yesNoContest,
           description,
-        })
+        });
       } catch (error) {
-        console.error('appendSvgToDescription failed', error) // eslint-disable-line no-console
+        console.error('appendSvgToDescription failed', error); // eslint-disable-line no-console
       }
     } else {
-      console.error('Only SVG images are supported.') // eslint-disable-line no-console
+      console.error('Only SVG images are supported.'); // eslint-disable-line no-console
     }
-  }
+  };
 
   if (contestId && contest) {
     return (
@@ -319,7 +319,7 @@ ${fileContent}`
                       contest={contest}
                       parties={election.parties}
                       vote={[]}
-                      locales={{ primary: 'en-US' }}
+                      locales={{primary: 'en-US'}}
                     />
                   </React.Fragment>
                 )}
@@ -335,7 +335,7 @@ ${fileContent}`
                         __html: DOMPurify.sanitize(contest.description),
                       }}
                     />
-                    {['Yes', 'No'].map((answer) => (
+                    {['Yes', 'No'].map(answer => (
                       <Text key={answer} bold noWrap>
                         <BubbleMark checked={false}>
                           <span>{answer}</span>
@@ -566,7 +566,7 @@ ${fileContent}`
           </div>
         </Columns>
       </NavigationScreen>
-    )
+    );
   }
 
   return (
@@ -577,7 +577,7 @@ ${fileContent}`
         allowWriteIns - candidates.length
       </p>
     </NavigationScreen>
-  )
-}
+  );
+};
 
-export default DefinitionContestsScreen
+export default DefinitionContestsScreen;

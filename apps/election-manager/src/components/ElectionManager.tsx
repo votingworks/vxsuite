@@ -1,31 +1,31 @@
-import React, { useContext } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import React, {useContext} from 'react';
+import {Switch, Route, Redirect} from 'react-router-dom';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths'
-import DefinitionScreen from '../screens/DefinitionScreen'
-import BallotListScreen from '../screens/BallotListScreen'
-import BallotScreen from '../screens/BallotScreen'
-import PrintTestDeckScreen from '../screens/PrintTestDeckScreen'
-import UnconfiguredScreen from '../screens/UnconfiguredScreen'
-import TestDeckScreen from '../screens/TestDeckScreen'
-import TallyScreen from '../screens/TallyScreen'
-import TallyReportScreen from '../screens/TallyReportScreen'
-import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen'
-import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
-import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
-import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
-import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen'
-import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen'
-import SmartcardsScreen from '../screens/SmartcardsScreen'
+import routerPaths from '../routerPaths';
+import DefinitionScreen from '../screens/DefinitionScreen';
+import BallotListScreen from '../screens/BallotListScreen';
+import BallotScreen from '../screens/BallotScreen';
+import PrintTestDeckScreen from '../screens/PrintTestDeckScreen';
+import UnconfiguredScreen from '../screens/UnconfiguredScreen';
+import TestDeckScreen from '../screens/TestDeckScreen';
+import TallyScreen from '../screens/TallyScreen';
+import TallyReportScreen from '../screens/TallyReportScreen';
+import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen';
+import DefinitionEditorScreen from '../screens/DefinitionEditorScreen';
+import DefinitionContestsScreen from '../screens/DefinitionContestsScreen';
+import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen';
+import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen';
+import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen';
+import SmartcardsScreen from '../screens/SmartcardsScreen';
 
 const ElectionManager: React.FC = () => {
-  const { electionDefinition } = useContext(AppContext)
-  const election = electionDefinition?.election
+  const {electionDefinition} = useContext(AppContext);
+  const election = electionDefinition?.election;
 
   if (!election) {
-    return <UnconfiguredScreen />
+    return <UnconfiguredScreen />;
   }
 
   return (
@@ -36,7 +36,7 @@ const ElectionManager: React.FC = () => {
       <Route path={routerPaths.definitionEditor}>
         <DefinitionEditorScreen allowEditing={false} />
       </Route>
-      <Route path={routerPaths.definitionContest({ contestId: ':contestId' })}>
+      <Route path={routerPaths.definitionContest({contestId: ':contestId'})}>
         <DefinitionContestsScreen allowEditing={false} />
       </Route>
       <Route path={routerPaths.smartcards}>
@@ -60,7 +60,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
-          routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
+          routerPaths.printOneTestDeck({precinctId: ':precinctId'}),
           routerPaths.printTestDecks,
         ]}
       >
@@ -68,7 +68,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
-          routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
+          routerPaths.testDeckResultsReport({precinctId: ':precinctId'}),
           routerPaths.testDecksTally,
         ]}
       >
@@ -94,7 +94,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
-          routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' }),
+          routerPaths.tallyPrecinctReport({precinctId: ':precinctId'}),
           routerPaths.tallyFullReport,
         ]}
       >
@@ -102,7 +102,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
-          routerPaths.tallyScannerReport({ scannerId: ':scannerId' }),
+          routerPaths.tallyScannerReport({scannerId: ':scannerId'}),
           routerPaths.tallyFullReport,
         ]}
       >
@@ -110,7 +110,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
-          routerPaths.tallyPartyReport({ partyId: ':partyId' }),
+          routerPaths.tallyPartyReport({partyId: ':partyId'}),
           routerPaths.tallyFullReport,
         ]}
       >
@@ -118,7 +118,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={[
-          routerPaths.tallyBatchReport({ batchId: ':batchId' }),
+          routerPaths.tallyBatchReport({batchId: ':batchId'}),
           routerPaths.tallyFullReport,
         ]}
       >
@@ -139,7 +139,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>
-  )
-}
+  );
+};
 
-export default ElectionManager
+export default ElectionManager;

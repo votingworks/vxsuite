@@ -1,89 +1,89 @@
-import React, { useContext } from 'react'
-import pluralize from 'pluralize'
-import _ from 'lodash'
+import React, {useContext} from 'react';
+import pluralize from 'pluralize';
+import _ from 'lodash';
 
-import { Dictionary } from '@votingworks/types'
-import { format, find } from '@votingworks/utils'
-import { PrintableBallotType } from '../config/types'
-import routerPaths from '../routerPaths'
+import {Dictionary} from '@votingworks/types';
+import {format, find} from '@votingworks/utils';
+import {PrintableBallotType} from '../config/types';
+import routerPaths from '../routerPaths';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
-import Table, { TD } from '../components/Table'
+import PrintButton from '../components/PrintButton';
+import Prose from '../components/Prose';
+import Text from '../components/Text';
+import Table, {TD} from '../components/Table';
 
-import NavigationScreen from '../components/NavigationScreen'
+import NavigationScreen from '../components/NavigationScreen';
 
-import LogoMark from '../components/LogoMark'
-import LinkButton from '../components/LinkButton'
+import LogoMark from '../components/LogoMark';
+import LinkButton from '../components/LinkButton';
 
-type PrintCounts = Dictionary<Dictionary<number>>
-type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>
+type PrintCounts = Dictionary<Dictionary<number>>;
+type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 
 const PrintedBallotsReportScreen: React.FC = () => {
-  const { electionDefinition, printedBallots, configuredAt } = useContext(
+  const {electionDefinition, printedBallots, configuredAt} = useContext(
     AppContext
-  )
-  const { election } = electionDefinition!
+  );
+  const {election} = electionDefinition!;
 
   const totalBallotsPrinted = printedBallots.reduce(
     (count, ballot) => count + ballot.numCopies,
     0
-  )
+  );
 
   const totalAbsenteeBallotsPrinted = printedBallots
-    .filter((ballot) => ballot.type === PrintableBallotType.Absentee)
-    .reduce((count, ballot) => count + ballot.numCopies, 0)
+    .filter(ballot => ballot.type === PrintableBallotType.Absentee)
+    .reduce((count, ballot) => count + ballot.numCopies, 0);
 
   const totalPrecinctBallotsPrinted = printedBallots
-    .filter((ballot) => ballot.type === PrintableBallotType.Precinct)
-    .reduce((count, ballot) => count + ballot.numCopies, 0)
+    .filter(ballot => ballot.type === PrintableBallotType.Precinct)
+    .reduce((count, ballot) => count + ballot.numCopies, 0);
 
   const zeroCounts = election.precincts.reduce<PrintCounts>(
-    (counts, { id: precinctId }) => {
-      const newCounts = { ...counts }
+    (counts, {id: precinctId}) => {
+      const newCounts = {...counts};
       newCounts[precinctId] = election.ballotStyles
-        .filter((bs) => bs.precincts.includes(precinctId))
-        .reduce<Dictionary<number>>((bsCounts, { id: ballotStyleId }) => {
-          const newBsCounts = { ...bsCounts }
-          newBsCounts[ballotStyleId] = 0
-          return newBsCounts
-        }, {})
-      return newCounts
+        .filter(bs => bs.precincts.includes(precinctId))
+        .reduce<Dictionary<number>>((bsCounts, {id: ballotStyleId}) => {
+          const newBsCounts = {...bsCounts};
+          newBsCounts[ballotStyleId] = 0;
+          return newBsCounts;
+        }, {});
+      return newCounts;
     },
     {}
-  )
+  );
 
   const zeroCountsByType = Object.values(
     PrintableBallotType
   ).reduce<PrintCountsByType>((counts, ballotType) => {
-    const newCounts = { ...counts }
-    newCounts[ballotType] = _.cloneDeep(zeroCounts)
-    return newCounts
-  }, {})
+    const newCounts = {...counts};
+    newCounts[ballotType] = _.cloneDeep(zeroCounts);
+    return newCounts;
+  }, {});
 
   const counts: PrintCounts = printedBallots.reduce(
-    (accumulatedCounts, { precinctId, ballotStyleId, numCopies }) => {
-      const newCounts = { ...accumulatedCounts }
-      newCounts[precinctId]![ballotStyleId]! += numCopies
-      return newCounts
+    (accumulatedCounts, {precinctId, ballotStyleId, numCopies}) => {
+      const newCounts = {...accumulatedCounts};
+      newCounts[precinctId]![ballotStyleId]! += numCopies;
+      return newCounts;
     },
     zeroCounts
-  )
+  );
 
   const countsByType: PrintCountsByType = printedBallots.reduce(
-    (accumulatedCounts, { precinctId, ballotStyleId, numCopies, type }) => {
-      const newCounts = { ...accumulatedCounts }
-      newCounts[type]![precinctId]![ballotStyleId]! += numCopies
-      return newCounts
+    (accumulatedCounts, {precinctId, ballotStyleId, numCopies, type}) => {
+      const newCounts = {...accumulatedCounts};
+      newCounts[type]![precinctId]![ballotStyleId]! += numCopies;
+      return newCounts;
     },
     zeroCountsByType
-  )
+  );
 
-  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
-  const generatedAt = format.localeLongDateAndTime(new Date())
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date));
+  const generatedAt = format.localeLongDateAndTime(new Date());
 
   const reportContent = (
     <Prose maxWidth={false}>
@@ -140,15 +140,12 @@ const PrintedBallotsReportScreen: React.FC = () => {
             </TD>
             <TD as="th">Total Official Ballots Printed</TD>
           </tr>
-          {Object.keys(counts).flatMap((precinctId) => {
-            const precinct = find(
-              election.precincts,
-              (p) => p.id === precinctId
-            )
+          {Object.keys(counts).flatMap(precinctId => {
+            const precinct = find(election.precincts, p => p.id === precinctId);
             if (!precinct) {
-              return null
+              return null;
             }
-            return Object.keys(counts[precinctId]!).map((ballotStyleId) => {
+            return Object.keys(counts[precinctId]!).map(ballotStyleId => {
               return (
                 <tr
                   key={`${precinctId}-${ballotStyleId}`}
@@ -172,13 +169,13 @@ const PrintedBallotsReportScreen: React.FC = () => {
                   </TD>
                   <TD>{counts[precinctId]![ballotStyleId]!}</TD>
                 </tr>
-              )
-            })
+              );
+            });
           })}
         </tbody>
       </Table>
     </Prose>
-  )
+  );
   return (
     <React.Fragment>
       <NavigationScreen>{reportContent}</NavigationScreen>
@@ -187,7 +184,7 @@ const PrintedBallotsReportScreen: React.FC = () => {
         {reportContent}
       </div>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default PrintedBallotsReportScreen
+export default PrintedBallotsReportScreen;

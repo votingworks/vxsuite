@@ -1,5 +1,5 @@
-import ZipStream from 'zip-stream'
-import path from 'path'
+import ZipStream from 'zip-stream';
+import path from 'path';
 
 /**
  * Provides support for downloading a Zip archive of files. Requires
@@ -7,9 +7,9 @@ import path from 'path'
  * that the executing host is allowed to use the `saveAs` API.
  */
 export default class DownloadableArchive {
-  private zip?: ZipStream
+  private zip?: ZipStream;
 
-  private endPromise?: Promise<void>
+  private endPromise?: Promise<void>;
 
   public constructor(private kiosk = window.kiosk!) {}
 
@@ -21,17 +21,17 @@ export default class DownloadableArchive {
   public async beginWithDialog(
     options?: KioskBrowser.SaveAsOptions
   ): Promise<void> {
-    const fileWriter = await this.kiosk.saveAs(options)
+    const fileWriter = await this.kiosk.saveAs(options);
 
     if (!fileWriter) {
-      throw new Error('could not begin download; no file was chosen')
+      throw new Error('could not begin download; no file was chosen');
     }
 
-    let endResolve: () => void
-    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    let endResolve: () => void;
+    this.endPromise = new Promise(resolve => (endResolve = resolve));
     this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
-      .on('end', () => fileWriter.end().then(endResolve))
+      .on('data', chunk => fileWriter.write(chunk))
+      .on('end', () => fileWriter.end().then(endResolve));
   }
 
   /**
@@ -44,19 +44,19 @@ export default class DownloadableArchive {
   ): Promise<void> {
     await this.kiosk.makeDirectory(pathToFolder, {
       recursive: true,
-    })
-    const filePath = path.join(pathToFolder, filename)
-    const fileWriter = await this.kiosk.writeFile(filePath)
+    });
+    const filePath = path.join(pathToFolder, filename);
+    const fileWriter = await this.kiosk.writeFile(filePath);
 
     if (!fileWriter) {
-      throw new Error('could not begin download; an error occurred')
+      throw new Error('could not begin download; an error occurred');
     }
 
-    let endResolve: () => void
-    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    let endResolve: () => void;
+    this.endPromise = new Promise(resolve => (endResolve = resolve));
     this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
-      .on('end', () => fileWriter.end().then(endResolve))
+      .on('data', chunk => fileWriter.write(chunk))
+      .on('end', () => fileWriter.end().then(endResolve));
   }
 
   /**
@@ -66,15 +66,15 @@ export default class DownloadableArchive {
     name: string,
     data: Parameters<ZipStream['entry']>[0]
   ): Promise<void> {
-    const { zip } = this
+    const {zip} = this;
 
     if (!zip) {
-      throw new Error('cannot call file() before begin()')
+      throw new Error('cannot call file() before begin()');
     }
 
     return new Promise((resolve, reject) => {
-      zip.entry(data, { name }, (err) => (err ? reject(err) : resolve()))
-    })
+      zip.entry(data, {name}, err => (err ? reject(err) : resolve()));
+    });
   }
 
   /**
@@ -82,12 +82,12 @@ export default class DownloadableArchive {
    */
   public async end(): Promise<void> {
     if (!this.zip) {
-      throw new Error('cannot call end() before begin()')
+      throw new Error('cannot call end() before begin()');
     }
 
-    this.zip.finalize()
-    await this.endPromise
-    this.zip = undefined
-    this.endPromise = undefined
+    this.zip.finalize();
+    await this.endPromise;
+    this.zip = undefined;
+    this.endPromise = undefined;
   }
 }

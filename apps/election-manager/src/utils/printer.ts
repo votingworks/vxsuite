@@ -1,19 +1,19 @@
-import makeDebug from 'debug'
+import makeDebug from 'debug';
 
-const debug = makeDebug('election-manager:printer')
+const debug = makeDebug('election-manager:printer');
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {
-  sides: Exclude<KioskBrowser.PrintOptions['sides'], undefined>
+  sides: Exclude<KioskBrowser.PrintOptions['sides'], undefined>;
 }
 
 export interface Printer {
-  print(options: PrintOptions): Promise<void>
+  print(options: PrintOptions): Promise<void>;
 }
 
 export class LocalPrinter implements Printer {
   public async print(options: PrintOptions): Promise<void> {
-    debug('ignoring options given to print: %o', options)
-    window.print()
+    debug('ignoring options given to print: %o', options);
+    window.print();
   }
 }
 
@@ -24,5 +24,5 @@ export class NullPrinter implements Printer {
 }
 
 export default function getPrinter(): Printer {
-  return window.kiosk ?? new LocalPrinter()
+  return window.kiosk ?? new LocalPrinter();
 }

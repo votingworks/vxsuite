@@ -1,0 +1,15 @@
+{
+  "extends": ["./node_modules/gts/", "plugin:react/recommended"],
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "react/destructuring-assignment": "off",
+    "react/jsx-boolean-value": [2, "never"],
+    "react/require-default-props": "off",
+    "react/prop-types": "off"
+  }
+}

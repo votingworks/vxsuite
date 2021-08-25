@@ -1,13 +1,13 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { Dictionary, Election } from '@votingworks/types'
+import {Dictionary, Election} from '@votingworks/types';
 
-import { format } from '@votingworks/utils'
-import { getLabelForVotingMethod } from '../utils/votingMethod'
-import { VotingMethod } from '../config/types'
+import {format} from '@votingworks/utils';
+import {getLabelForVotingMethod} from '../utils/votingMethod';
+import {VotingMethod} from '../config/types';
 
-import Table, { TD } from './Table'
+import Table, {TD} from './Table';
 
 const BallotSummary = styled.div`
   margin-bottom: 1em;
@@ -18,12 +18,12 @@ const BallotSummary = styled.div`
     background: rgb(194, 200, 203);
     padding: 0.25rem 0.5rem;
   }
-`
+`;
 
 interface Props {
-  election: Election
-  totalBallotCount: number
-  ballotCountsByVotingMethod: Dictionary<number>
+  election: Election;
+  totalBallotCount: number;
+  ballotCountsByVotingMethod: Dictionary<number>;
 }
 
 const TallyReportSummary: React.FC<Props> = ({
@@ -35,13 +35,13 @@ const TallyReportSummary: React.FC<Props> = ({
       <h3>Ballots by Voting Method</h3>
       <Table data-testid="voting-method-table">
         <tbody>
-          {Object.keys(ballotCountsByVotingMethod).map((votingMethod) => {
+          {Object.keys(ballotCountsByVotingMethod).map(votingMethod => {
             // Hide the "Other" row when it does not apply to any CVRs
             if (
               votingMethod === VotingMethod.Unknown &&
               ballotCountsByVotingMethod[votingMethod] === 0
             ) {
-              return null
+              return null;
             }
             return (
               <tr key={votingMethod} data-testid={votingMethod}>
@@ -50,7 +50,7 @@ const TallyReportSummary: React.FC<Props> = ({
                   {format.count(ballotCountsByVotingMethod[votingMethod] ?? 0)}
                 </TD>
               </tr>
-            )
+            );
           })}
           <tr data-testid="total">
             <TD>
@@ -63,7 +63,7 @@ const TallyReportSummary: React.FC<Props> = ({
         </tbody>
       </Table>
     </BallotSummary>
-  )
-}
+  );
+};
 
-export default TallyReportSummary
+export default TallyReportSummary;

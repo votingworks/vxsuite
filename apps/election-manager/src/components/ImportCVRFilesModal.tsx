@@ -1,55 +1,55 @@
-import React, { useContext, useEffect, useState } from 'react'
-import styled from 'styled-components'
-import path from 'path'
-import moment from 'moment'
+import React, {useContext, useEffect, useState} from 'react';
+import styled from 'styled-components';
+import path from 'path';
+import moment from 'moment';
 
 import {
   generateElectionBasedSubfolderName,
   parseCVRFileInfoFromFilename,
   SCANNER_RESULTS_FOLDER,
   usbstick,
-} from '@votingworks/utils'
-import AppContext from '../contexts/AppContext'
-import Modal from './Modal'
-import Prose from './Prose'
-import LinkButton from './LinkButton'
-import Loading from './Loading'
-import { InputEventFunction } from '../config/types'
-import FileInputButton from './FileInputButton'
-import Table, { TD } from './Table'
-import { MainChild } from './Main'
-import { CHECK_ICON, TIME_FORMAT } from '../config/globals'
+} from '@votingworks/utils';
+import AppContext from '../contexts/AppContext';
+import Modal from './Modal';
+import Prose from './Prose';
+import LinkButton from './LinkButton';
+import Loading from './Loading';
+import {InputEventFunction} from '../config/types';
+import FileInputButton from './FileInputButton';
+import Table, {TD} from './Table';
+import {MainChild} from './Main';
+import {CHECK_ICON, TIME_FORMAT} from '../config/globals';
 
-const { UsbDriveStatus } = usbstick
+const {UsbDriveStatus} = usbstick;
 
 const CVRFileTable = styled(Table)`
   margin-top: 20px;
-`
+`;
 
 const CheckTD = styled(TD)`
   line-height: 1rem;
   color: rgb(71, 167, 75);
   font-size: 1.5rem;
   font-weight: 700;
-`
+`;
 
 const USBImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
-`
+`;
 
 const Header = styled.h1`
   display: flex;
   justify-content: space-between;
-`
+`;
 
 const LabelText = styled.span`
   vertical-align: middle;
   text-transform: uppercase;
   font-size: 0.7rem;
   font-weight: 500;
-`
+`;
 
 enum ModalState {
   ERROR = 'error',
@@ -59,76 +59,74 @@ enum ModalState {
 }
 
 export interface Props {
-  onClose: () => void
+  onClose: () => void;
 }
 
 function throwBadStatus(s: never): never {
-  throw new Error(`Bad status: ${s}`)
+  throw new Error(`Bad status: ${s}`);
 }
 
-const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
+const ImportCVRFilesModal: React.FC<Props> = ({onClose}) => {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,
     castVoteRecordFiles,
     electionDefinition,
-  } = useContext(AppContext)
-  const [currentState, setCurrentState] = useState(ModalState.INIT)
+  } = useContext(AppContext);
+  const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
     []
-  )
-  const { election, electionHash } = electionDefinition!
+  );
+  const {election, electionHash} = electionDefinition!;
 
   const importSelectedFile = async (
     fileEntry: KioskBrowser.FileSystemEntry
   ) => {
-    setCurrentState(ModalState.LOADING)
+    setCurrentState(ModalState.LOADING);
     const newCastVoteRecordFiles = await castVoteRecordFiles.addAllFromFileSystemEntries(
       [fileEntry],
       election
-    )
-    await saveCastVoteRecordFiles(newCastVoteRecordFiles)
+    );
+    await saveCastVoteRecordFiles(newCastVoteRecordFiles);
 
     if (newCastVoteRecordFiles.duplicateFiles.includes(fileEntry.name)) {
-      setCurrentState(ModalState.DUPLICATE)
+      setCurrentState(ModalState.DUPLICATE);
     } else if (newCastVoteRecordFiles.lastError?.filename === fileEntry.name) {
-      setCurrentState(ModalState.ERROR)
+      setCurrentState(ModalState.ERROR);
     } else {
-      onClose()
+      onClose();
     }
-  }
+  };
 
-  const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
-    event
-  ) => {
-    const input = event.currentTarget
-    const files = Array.from(input.files || [])
-    setCurrentState(ModalState.LOADING)
+  const processCastVoteRecordFileFromFilePicker: InputEventFunction = async event => {
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []);
+    setCurrentState(ModalState.LOADING);
 
     if (files.length === 1) {
       const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(
         files,
         election
-      )
-      await saveCastVoteRecordFiles(newCastVoteRecordFiles)
+      );
+      await saveCastVoteRecordFiles(newCastVoteRecordFiles);
 
-      input.value = ''
+      input.value = '';
 
       if (newCastVoteRecordFiles.duplicateFiles.includes(files[0].name)) {
-        setCurrentState(ModalState.DUPLICATE)
+        setCurrentState(ModalState.DUPLICATE);
       } else if (newCastVoteRecordFiles.lastError?.filename === files[0].name) {
-        setCurrentState(ModalState.ERROR)
+        setCurrentState(ModalState.ERROR);
       } else {
-        onClose()
+        onClose();
       }
     } else {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   const fetchFilenames = async () => {
-    setCurrentState(ModalState.LOADING)
-    const usbPath = await usbstick.getDevicePath()
+    setCurrentState(ModalState.LOADING);
+    const usbPath = await usbstick.getDevicePath();
     try {
       const files = await window.kiosk!.getFileSystemEntries(
         path.join(
@@ -136,27 +134,27 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
           SCANNER_RESULTS_FOLDER,
           generateElectionBasedSubfolderName(election, electionHash)
         )
-      )
+      );
       setFoundFiles(
-        files.filter((f) => f.type === 1 && f.name.endsWith('.jsonl'))
-      )
-      setCurrentState(ModalState.INIT)
+        files.filter(f => f.type === 1 && f.name.endsWith('.jsonl'))
+      );
+      setCurrentState(ModalState.INIT);
     } catch (err) {
       if (err.message.includes('ENOENT')) {
         // No files found
-        setFoundFiles([])
-        setCurrentState(ModalState.INIT)
+        setFoundFiles([]);
+        setCurrentState(ModalState.INIT);
       } else {
-        throw err
+        throw err;
       }
     }
-  }
+  };
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
-      void fetchFilenames()
+      void fetchFilenames();
     }
-  }, [usbDriveStatus])
+  }, [usbDriveStatus]);
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -179,7 +177,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
           </React.Fragment>
         }
       />
-    )
+    );
   }
 
   if (currentState === ModalState.DUPLICATE) {
@@ -197,7 +195,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         onOverlayClick={onClose}
         actions={<LinkButton onPress={onClose}>Close</LinkButton>}
       />
-    )
+    );
   }
 
   if (
@@ -217,7 +215,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
           </React.Fragment>
         }
       />
-    )
+    );
   }
 
   if (
@@ -252,17 +250,17 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
           </React.Fragment>
         }
       />
-    )
+    );
   }
 
   if (usbDriveStatus === UsbDriveStatus.mounted) {
     // Parse information from the filenames and sort by exported timestamp
     const parsedFileInformation = foundFiles
-      .flatMap((fileEntry) => {
-        const parsedInfo = parseCVRFileInfoFromFilename(fileEntry.name)
+      .flatMap(fileEntry => {
+        const parsedInfo = parseCVRFileInfoFromFilename(fileEntry.name);
 
         if (!parsedInfo) {
-          return []
+          return [];
         }
 
         return [
@@ -270,35 +268,35 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
             parsedInfo,
             fileEntry,
           },
-        ]
+        ];
       })
       .sort(
         (a, b) =>
           b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
-      )
+      );
 
     // Determine if we are already locked to a filemode based on previously imported CVRs
-    const fileMode = castVoteRecordFiles?.fileMode
-    const fileModeLocked = !!fileMode
+    const fileMode = castVoteRecordFiles?.fileMode;
+    const fileModeLocked = !!fileMode;
 
     // Parse the file options on the USB drive and build table rows for each valid file.
-    const fileTableRows = []
-    let numberOfNewFiles = 0
-    for (const { parsedInfo, fileEntry } of parsedFileInformation) {
+    const fileTableRows = [];
+    let numberOfNewFiles = 0;
+    for (const {parsedInfo, fileEntry} of parsedFileInformation) {
       const {
         isTestModeResults,
         machineId,
         numberOfBallots,
         timestamp,
-      } = parsedInfo
+      } = parsedInfo;
       const isImported = castVoteRecordFiles.filenameAlreadyImported(
         fileEntry.name
-      )
+      );
       const inProperFileMode =
         !fileModeLocked ||
         (isTestModeResults && fileMode === 'test') ||
-        (!isTestModeResults && fileMode === 'live')
-      const canImport = !isImported && inProperFileMode
+        (!isTestModeResults && fileMode === 'live');
+      const canImport = !isImported && inProperFileMode;
       const row = (
         <tr key={fileEntry.name} data-testid="table-row">
           <td>{moment(timestamp).format(TIME_FORMAT)}</td>
@@ -321,27 +319,31 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
             </LinkButton>
           </TD>
         </tr>
-      )
+      );
       if (inProperFileMode) {
-        fileTableRows.push(row)
+        fileTableRows.push(row);
         if (canImport) {
-          numberOfNewFiles += 1
+          numberOfNewFiles += 1;
         }
       }
     }
     // Set the header and instructional text for the modal
     const headerModeText =
-      fileMode === 'test' ? 'Test Mode' : fileMode === 'live' ? 'Live Mode' : ''
+      fileMode === 'test'
+        ? 'Test Mode'
+        : fileMode === 'live'
+        ? 'Live Mode'
+        : '';
 
-    let instructionalText: string
+    let instructionalText: string;
     if (numberOfNewFiles === 0) {
       instructionalText =
-        'There were no new CVR files automatically found on this USB drive. Export CVR files to this USB drive from the scanner. Optionally, you may manually select files to import.'
+        'There were no new CVR files automatically found on this USB drive. Export CVR files to this USB drive from the scanner. Optionally, you may manually select files to import.';
     } else if (fileModeLocked) {
-      instructionalText = `The following ${fileMode} mode CVR files were automatically found on this USB drive. Select which file to import or if you do not see the file you are looking for, you may manually select a file to import.`
+      instructionalText = `The following ${fileMode} mode CVR files were automatically found on this USB drive. Select which file to import or if you do not see the file you are looking for, you may manually select a file to import.`;
     } else {
       instructionalText =
-        'The following CVR files were automatically found on this USB drive. Select which file to import or if you do not see the file you are looking for, you may manually select a file to import.'
+        'The following CVR files were automatically found on this USB drive. Select which file to import or if you do not see the file you are looking for, you may manually select a file to import.';
     }
 
     return (
@@ -383,10 +385,10 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
           </React.Fragment>
         }
       />
-    )
+    );
   }
   // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-  throwBadStatus(usbDriveStatus)
-}
+  throwBadStatus(usbDriveStatus);
+};
 
-export default ImportCVRFilesModal
+export default ImportCVRFilesModal;

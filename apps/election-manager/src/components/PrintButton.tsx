@@ -1,23 +1,23 @@
-import React, { useContext, useState } from 'react'
+import React, {useContext, useState} from 'react';
 
-import Button, { StyledButtonProps } from './Button'
-import Modal from './Modal'
-import Loading from './Loading'
-import Prose from './Prose'
-import { PrintOptions } from '../utils/printer'
-import AppContext from '../contexts/AppContext'
+import Button, {StyledButtonProps} from './Button';
+import Modal from './Modal';
+import Loading from './Loading';
+import Prose from './Prose';
+import {PrintOptions} from '../utils/printer';
+import AppContext from '../contexts/AppContext';
 
 interface ConfirmModal {
-  content: React.ReactNode
-  confirmButtonLabel?: string
+  content: React.ReactNode;
+  confirmButtonLabel?: string;
 }
 
 interface PrintButtonProps extends StyledButtonProps {
-  title?: string
-  afterPrint?: () => void
-  copies?: number
-  sides: PrintOptions['sides']
-  confirmModal?: ConfirmModal
+  title?: string;
+  afterPrint?: () => void;
+  copies?: number;
+  sides: PrintOptions['sides'];
+  confirmModal?: ConfirmModal;
 }
 
 const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
@@ -29,52 +29,52 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   confirmModal,
   ...rest
 }) => {
-  const { printer } = useContext(AppContext)
-  const [isConfirming, setIsConfirming] = useState(false)
-  const [isPrinting, setIsPrinting] = useState(false)
-  const [showPrintingError, setShowPrintingError] = useState(false)
+  const {printer} = useContext(AppContext);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [showPrintingError, setShowPrintingError] = useState(false);
 
   const print = async () => {
     if (window.kiosk) {
-      const printers = await window.kiosk.getPrinterInfo()
-      if (!printers.some((p) => p.connected)) {
-        setShowPrintingError(true)
-        return
+      const printers = await window.kiosk.getPrinterInfo();
+      if (!printers.some(p => p.connected)) {
+        setShowPrintingError(true);
+        return;
       }
     }
 
-    setIsPrinting(true)
+    setIsPrinting(true);
     setTimeout(() => {
-      setIsPrinting(false)
-    }, 3000)
-    const documentTitle = document.title
+      setIsPrinting(false);
+    }, 3000);
+    const documentTitle = document.title;
     if (title) {
-      document.title = title
+      document.title = title;
     }
-    await printer.print({ sides, copies })
+    await printer.print({sides, copies});
     if (title) {
-      document.title = documentTitle
+      document.title = documentTitle;
     }
 
-    afterPrint?.()
-  }
+    afterPrint?.();
+  };
 
   const donePrintingError = () => {
-    setShowPrintingError(false)
-  }
+    setShowPrintingError(false);
+  };
 
   const initConfirmModal = () => {
-    setIsConfirming(true)
-  }
+    setIsConfirming(true);
+  };
 
   const cancelPrint = () => {
-    setIsConfirming(false)
-  }
+    setIsConfirming(false);
+  };
 
   const confirmPrint = async () => {
-    setIsConfirming(false)
-    await print()
-  }
+    setIsConfirming(false);
+    await print();
+  };
 
   return (
     <React.Fragment>
@@ -114,7 +114,7 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default PrintButton
+export default PrintButton;

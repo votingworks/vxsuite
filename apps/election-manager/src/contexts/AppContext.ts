@@ -1,6 +1,6 @@
-import { createContext, RefObject } from 'react'
-import { ElectionDefinition } from '@votingworks/types'
-import { usbstick } from '@votingworks/utils'
+import {createContext, RefObject} from 'react';
+import {ElectionDefinition} from '@votingworks/types';
+import {usbstick} from '@votingworks/utils';
 import {
   SaveElection,
   PrintedBallot,
@@ -9,41 +9,41 @@ import {
   ExportableTallies,
   FullElectionExternalTally,
   ResultsFileType,
-} from '../config/types'
+} from '../config/types';
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
-} from '../utils/CastVoteRecordFiles'
-import { getEmptyFullElectionTally } from '../lib/votecounting'
-import { getEmptyExportableTallies } from '../utils/exportableTallies'
-import { NullPrinter, Printer } from '../utils/printer'
+} from '../utils/CastVoteRecordFiles';
+import {getEmptyFullElectionTally} from '../lib/votecounting';
+import {getEmptyExportableTallies} from '../utils/exportableTallies';
+import {NullPrinter, Printer} from '../utils/printer';
 
 export interface AppContextInterface {
-  castVoteRecordFiles: CastVoteRecordFiles
-  electionDefinition?: ElectionDefinition
-  configuredAt: ISO8601Timestamp
-  isOfficialResults: boolean
-  printer: Printer
-  printBallotRef?: RefObject<HTMLElement>
-  saveCastVoteRecordFiles: SaveCastVoteRecordFiles
-  saveElection: SaveElection
+  castVoteRecordFiles: CastVoteRecordFiles;
+  electionDefinition?: ElectionDefinition;
+  configuredAt: ISO8601Timestamp;
+  isOfficialResults: boolean;
+  printer: Printer;
+  printBallotRef?: RefObject<HTMLElement>;
+  saveCastVoteRecordFiles: SaveCastVoteRecordFiles;
+  saveElection: SaveElection;
   setCastVoteRecordFiles: React.Dispatch<
     React.SetStateAction<CastVoteRecordFiles>
-  >
-  saveIsOfficialResults: () => Promise<void>
-  resetFiles: (fileType: ResultsFileType) => Promise<void>
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => Promise<void>
-  addPrintedBallot: (printedBallot: PrintedBallot) => void
-  printedBallots: PrintedBallot[]
-  fullElectionTally: FullElectionTally
-  fullElectionExternalTallies: FullElectionExternalTally[]
-  isTabulationRunning: boolean
-  setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>
+  >;
+  saveIsOfficialResults: () => Promise<void>;
+  resetFiles: (fileType: ResultsFileType) => Promise<void>;
+  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveEject: () => Promise<void>;
+  addPrintedBallot: (printedBallot: PrintedBallot) => void;
+  printedBallots: PrintedBallot[];
+  fullElectionTally: FullElectionTally;
+  fullElectionExternalTallies: FullElectionExternalTally[];
+  isTabulationRunning: boolean;
+  setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>;
   saveExternalTallies: (
     externalTallies: FullElectionExternalTally[]
-  ) => Promise<void>
-  setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
-  generateExportableTallies: () => ExportableTallies
+  ) => Promise<void>;
+  setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
+  generateExportableTallies: () => ExportableTallies;
 }
 
 const appContext: AppContextInterface = {
@@ -69,8 +69,8 @@ const appContext: AppContextInterface = {
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
-}
+};
 
-const AppContext = createContext(appContext)
+const AppContext = createContext(appContext);
 
-export default AppContext
+export default AppContext;

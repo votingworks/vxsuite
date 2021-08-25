@@ -1,4 +1,4 @@
-import { Tally } from '../../src/config/types'
+import {Tally} from '../../src/config/types';
 
 export default function fakeTally(props: Partial<Tally> = {}): Tally {
   return {
@@ -7,5 +7,5 @@ export default function fakeTally(props: Partial<Tally> = {}): Tally {
     contestTallies: {},
     ballotCountsByVotingMethod: {},
     ...props,
-  }
+  };
 }

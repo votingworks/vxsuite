@@ -1,20 +1,20 @@
-import React, { useContext } from 'react'
-import { useLocation } from 'react-router-dom'
+import React, {useContext} from 'react';
+import {useLocation} from 'react-router-dom';
 
-import { USBControllerButton } from '@votingworks/ui'
-import AppContext from '../contexts/AppContext'
+import {USBControllerButton} from '@votingworks/ui';
+import AppContext from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths'
-import Screen from './Screen'
-import Main, { MainChild } from './Main'
-import Navigation from './Navigation'
-import LinkButton from './LinkButton'
-import StatusFooter from './StatusFooter'
+import routerPaths from '../routerPaths';
+import Screen from './Screen';
+import Main, {MainChild} from './Main';
+import Navigation from './Navigation';
+import LinkButton from './LinkButton';
+import StatusFooter from './StatusFooter';
 
 interface Props {
-  children: React.ReactNode
-  mainChildCenter?: boolean
-  mainChildFlex?: boolean
+  children: React.ReactNode;
+  mainChildCenter?: boolean;
+  mainChildFlex?: boolean;
 }
 
 const NavigationScreen: React.FC<Props> = ({
@@ -22,14 +22,14 @@ const NavigationScreen: React.FC<Props> = ({
   mainChildCenter = false,
   mainChildFlex = false,
 }) => {
-  const location = useLocation()
+  const location = useLocation();
   const isActiveSection = (path: string) =>
-    new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''
+    new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : '';
 
-  const { electionDefinition, usbDriveEject, usbDriveStatus } = useContext(
+  const {electionDefinition, usbDriveEject, usbDriveStatus} = useContext(
     AppContext
-  )
-  const election = electionDefinition?.election
+  );
+  const election = electionDefinition?.election;
 
   return (
     <Screen>
@@ -79,7 +79,7 @@ const NavigationScreen: React.FC<Props> = ({
       </Main>
       <StatusFooter />
     </Screen>
-  )
-}
+  );
+};
 
-export default NavigationScreen
+export default NavigationScreen;

@@ -12,7 +12,7 @@
     "build:watch": "tsc --build --watch",
     "eject": "script/react-scripts eject",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "eslint . --quiet && pnpm stylelint:run",
+    "lint": "gts lint",
     "lint:fix": "eslint . --fix --quiet && pnpm stylelint:run:fix",
     "start": "script/react-scripts start",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
@@ -20,7 +20,13 @@
     "test": "is-ci test:coverage test:watch",
     "test:watch": "TZ=PST script/react-scripts test --env=jest-environment-jsdom-sixteen",
     "test:coverage": "TZ=PST script/react-scripts test --coverage --watchAll=false",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -129,6 +135,7 @@
     "@types/history": "^4.7.8",
     "@types/kiosk-browser": "workspace:*",
     "@types/lodash": "^4.14.168",
+    "@types/node": "^14.11.2",
     "@types/readable-stream": "^2.3.5",
     "@types/zip-stream": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
@@ -144,10 +151,12 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jest": "^23.6.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^4.0.5",
     "eslint-plugin-vx": "workspace:*",
+    "gts": "^3.1.0",
     "is-ci-cli": "^2.1.2",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.0.7",
@@ -159,7 +168,11 @@
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
-    "stylelint-processor-styled-components": "^1.10.0"
+    "stylelint-processor-styled-components": "^1.10.0",
+    "typescript": "^4.0.3"
+  },
+  "engines": {
+    "node": "^12.19.0"
   },
   "vx": {
     "isBundled": true,
