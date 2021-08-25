@@ -484,15 +484,6 @@ test('printing precinct scanner report option is shown when precinct scanner tal
     isPollsOpen: false,
   }
 
-  const currentTally = getZeroTally(election)
-  currentTally[0] = {
-    candidates: [1, 0, 1, 0, 1, 0],
-    undervotes: 3,
-    overvotes: 0,
-    writeIns: 0,
-    ballotsCast: 6,
-  }
-
   render(
     <PollWorkerScreen
       activateCardlessVoterSession={jest.fn()}
@@ -515,7 +506,7 @@ test('printing precinct scanner report option is shown when precinct scanner tal
         ...fakePrinter(),
         print: printFn,
       }}
-      tally={currentTally}
+      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}
