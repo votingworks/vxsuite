@@ -368,43 +368,6 @@ test('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
   screen.getByText('Close Polls for Center Springfield')
 
-  // Check for Report Details
-  expect(getAllByTextWithMarkup('Ballots printed count: 4').length).toBe(2)
-  expect(getAllByTextWithMarkup('Edward Shiplett').length).toBe(2)
-
-  expect(
-    screen.getAllByText('Edward Shiplett')[0].nextSibling!.textContent
-  ).toBe('3')
-  expect(
-    screen.getAllByText('Rhadka Ramachandrani')[0].nextSibling!.textContent
-  ).toBe('1')
-  expect(screen.getAllByText('Laila Shamsi')[0].nextSibling!.textContent).toBe(
-    '2'
-  )
-  expect(
-    screen.getAllByText('Marty Talarico')[0].nextSibling!.textContent
-  ).toBe('1')
-
-  expect(
-    screen.getAllByText(
-      'State of Hamilton, Question B: Separation of Powers'
-    )[0].nextSibling!.textContent
-  ).toBe('Yes2No1')
-  expect(
-    screen.getAllByText(
-      'Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?'
-    )[0].nextSibling!.textContent
-  ).toBe('Yes2No1')
-  expect(
-    screen.getAllByText(
-      'Franklin County, Measure 666: The Question No One Gets To'
-    )[0].nextSibling!.textContent
-  ).toBe('YesXNoX')
-  expect(
-    screen.getAllByText('Franklin County, Head of Constitution Party')[0]
-      .nextSibling!.textContent
-  ).toBe('Alice JonesXBob SmithX')
-
   // Close Polls
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'))
   screen.getByText('Close Polls and print Polls Closed report?')

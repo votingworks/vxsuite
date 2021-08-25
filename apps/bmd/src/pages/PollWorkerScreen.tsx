@@ -730,17 +730,6 @@ const PollWorkerScreen: React.FC<Props> = ({
                   precinctSelection={appPrecinct}
                   reportPurpose={reportPurpose}
                 />
-                <PrecinctTallyReport
-                  key={`tally-report-${reportPurpose}`}
-                  sourceMachineType={TallySourceMachineType.BMD}
-                  ballotCount={combinedBallotsPrinted}
-                  currentDateTime={currentDateTime}
-                  election={election}
-                  isPollsOpen={false}
-                  tally={combinedTally}
-                  precinctSelection={appPrecinct}
-                  reportPurpose={reportPurpose}
-                />
               </React.Fragment>
             )
           }
@@ -758,17 +747,6 @@ const PollWorkerScreen: React.FC<Props> = ({
                 isPollsOpen={!isPollsOpen} // This report is printed just before the value of isPollsOpen is updated when opening/closing polls, so we want to print the report with the toggled value.
                 machineMetadata={undefined}
                 machineConfig={machineConfig}
-                precinctSelection={appPrecinct}
-                reportPurpose={reportPurpose}
-              />
-              <PrecinctTallyReport
-                key={`tally-report-${reportPurpose}`}
-                sourceMachineType={TallySourceMachineType.BMD}
-                ballotCount={ballotsPrintedCount}
-                currentDateTime={currentDateTime}
-                election={election}
-                isPollsOpen={!isPollsOpen}
-                tally={tally}
                 precinctSelection={appPrecinct}
                 reportPurpose={reportPurpose}
               />
