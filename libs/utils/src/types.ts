@@ -91,7 +91,6 @@ export const CardTallyMetadataEntrySchema: z.ZodSchema<CardTallyMetadataEntry> =
 
 export interface BMDCardTally {
   readonly tallyMachineType: TallySourceMachineType.BMD
-  readonly tally: Tally
   readonly metadata: readonly CardTallyMetadataEntry[]
   readonly totalBallotsPrinted: number
 }

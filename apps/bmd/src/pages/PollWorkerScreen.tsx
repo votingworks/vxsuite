@@ -18,7 +18,6 @@ import {
   Tally,
   CardTally,
   TallySourceMachineType,
-  combineTallies,
   find,
 } from '@votingworks/utils'
 
@@ -82,7 +81,6 @@ const PollWorkerScreen: React.FC<Props> = ({
   isPollsOpen,
   machineConfig,
   printer,
-  tally,
   togglePollsOpen,
   hasVotes,
   saveTallyToCard,
@@ -316,13 +314,6 @@ const PollWorkerScreen: React.FC<Props> = ({
       (metadata) => metadata.machineId === machineConfig.machineId
     )
 
-  const combinedTally =
-    bmdTalliesOnCard === undefined
-      ? tally
-      : isMachineTallySaved
-      ? bmdTalliesOnCard.tally
-      : combineTallies(election, bmdTalliesOnCard.tally, tally)
-
   const combinedBallotsPrinted =
     bmdTalliesOnCard === undefined
       ? ballotsPrintedCount
@@ -340,7 +331,6 @@ const PollWorkerScreen: React.FC<Props> = ({
     })
     await saveTallyToCard({
       tallyMachineType: TallySourceMachineType.BMD,
-      tally: combinedTally,
       metadata,
       totalBallotsPrinted: combinedBallotsPrinted,
     })

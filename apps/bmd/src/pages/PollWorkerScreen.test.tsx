@@ -10,7 +10,6 @@ import {
 } from '@testing-library/react'
 import {
   getZeroTally,
-  combineTallies,
   TallySourceMachineType,
   CardTally,
 } from '@votingworks/utils'
@@ -237,7 +236,6 @@ test('results combination option is shown for a print machine', async () => {
   fireEvent.click(screen.getByText('Save to Card'))
   expect(saveTally).toHaveBeenCalledWith(
     expect.objectContaining({
-      tally: getZeroTally(election),
       totalBallotsPrinted: 0,
       metadata: [expect.objectContaining({ machineId: '314' })],
     })
@@ -272,7 +270,6 @@ test('results combination option is shown with prior tally results when provided
     ballotsCast: 28,
   }
   const talliesOnCard: CardTally = {
-    tally: existingTally,
     tallyMachineType: TallySourceMachineType.BMD,
     totalBallotsPrinted: 28,
     metadata: [
@@ -337,7 +334,6 @@ test('results combination option is shown with prior tally results when provided
   fireEvent.click(screen.getByText('Save to Card'))
   expect(saveTally).toHaveBeenCalledWith(
     expect.objectContaining({
-      tally: combineTallies(election, existingTally, currentTally),
       totalBallotsPrinted: 31,
       metadata: expect.arrayContaining([
         ...talliesOnCard.metadata,
@@ -375,7 +371,6 @@ test('results combination option is shown with prior tally results when results 
     ballotsCast: 34,
   }
   const talliesOnCard: CardTally = {
-    tally: existingTally,
     tallyMachineType: TallySourceMachineType.BMD,
     totalBallotsPrinted: 31,
     metadata: [
