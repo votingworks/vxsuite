@@ -3,7 +3,6 @@ import {
   expandEitherNeitherContests,
   writeInCandidate,
 } from '@votingworks/types'
-import { format } from '@votingworks/utils'
 import { FullElectionTally, TallyCategory } from '../config/types'
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting'
 
@@ -24,30 +23,28 @@ export function* generateRowsForBatchTallyResultsCSV(
     const contestVoteTotals: string[] = []
     expandEitherNeitherContests(election.contests).forEach((contest) => {
       const contestTally = batchTally.contestTallies[contest.id]
-      contestVoteTotals.push(format.count(contestTally?.metadata.ballots ?? 0))
+      contestVoteTotals.push(contestTally?.metadata.ballots.toString() ?? '0')
       contestVoteTotals.push(
-        format.count(contestTally?.metadata.undervotes ?? 0)
+        contestTally?.metadata.undervotes.toString() ?? '0'
       )
-      contestVoteTotals.push(
-        format.count(contestTally?.metadata.overvotes ?? 0)
-      )
+      contestVoteTotals.push(contestTally?.metadata.overvotes.toString() ?? '0')
       if (contest.type === 'candidate') {
         contest.candidates.forEach((candidate) => {
           contestVoteTotals.push(
-            format.count(contestTally?.tallies[candidate.id]?.tally ?? 0)
+            contestTally?.tallies[candidate.id]?.tally.toString() ?? '0'
           )
         })
         if (contest.allowWriteIns) {
           contestVoteTotals.push(
-            format.count(contestTally?.tallies[writeInCandidate.id]?.tally ?? 0)
+            contestTally?.tallies[writeInCandidate.id]?.tally.toString() ?? '0'
           )
         }
       } else if (contest.type === 'yesno') {
         contestVoteTotals.push(
-          format.count(contestTally?.tallies.yes?.tally ?? 0)
+          contestTally?.tallies.yes?.tally.toString() ?? '0'
         )
         contestVoteTotals.push(
-          format.count(contestTally?.tallies.no?.tally ?? 0)
+          contestTally?.tallies.no?.tally.toString() ?? '0'
         )
       }
     })
