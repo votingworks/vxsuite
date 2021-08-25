@@ -21,6 +21,8 @@ import {
   VxMarkPlusVxPrint,
 } from '../config/types'
 
+import withMarkup from '../../test/helpers/withMarkup'
+
 import { render } from '../../test/testUtils'
 
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json'
@@ -90,9 +92,10 @@ test('switching out of test mode on election day', async () => {
       clearTalliesOnCard={jest.fn()}
     />
   )
+  const getByTextWithMarkup = withMarkup(screen.getByText)
 
-  screen.getByText('Switch to Live Election Mode?')
-  fireEvent.click(screen.getByText('Switch to Live Mode'))
+  getByTextWithMarkup('Switch to Live Election Mode?')
+  fireEvent.click(getByTextWithMarkup('Switch to Live Mode'))
   expect(enableLiveMode).toHaveBeenCalled()
 })
 
@@ -125,8 +128,9 @@ test('keeping test mode on election day', async () => {
       clearTalliesOnCard={jest.fn()}
     />
   )
+  const getByTextWithMarkup = withMarkup(screen.getByText)
 
-  screen.getByText('Switch to Live Election Mode?')
+  getByTextWithMarkup('Switch to Live Election Mode?')
   fireEvent.click(screen.getByText('Cancel'))
   expect(enableLiveMode).not.toHaveBeenCalled()
 })

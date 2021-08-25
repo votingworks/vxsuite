@@ -10,6 +10,7 @@ import {
   Loading,
   Main,
   MainChild,
+  NoWrap,
 } from '@votingworks/ui'
 
 import {
@@ -457,11 +458,11 @@ const PollWorkerScreen: React.FC<Props> = ({
                   : 'Polls are currently closed.'}{' '}
                 {isLiveMode ? (
                   <React.Fragment>
-                    Machine is in Live&nbsp;Election&nbsp;Mode.
+                    Machine is in <NoWrap>Live Election Mode</NoWrap>.
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    Machine is in Testing&nbsp;Mode.
+                    Machine is in <NoWrap>Testing Mode</NoWrap>.
                   </React.Fragment>
                 )}
               </Text>
@@ -572,20 +573,23 @@ const PollWorkerScreen: React.FC<Props> = ({
               <Prose textCenter id="modalaudiofocus">
                 {isPrintMode ? (
                   <h1>
-                    Switch to Live&nbsp;Election&nbsp;Mode and reset the tally
-                    of printed ballots?
+                    Switch to <NoWrap>Live Election Mode</NoWrap> and reset the
+                    tally of printed ballots?
                   </h1>
                 ) : (
-                  <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
+                  <h1>
+                    Switch to <NoWrap>Live Election Mode?</NoWrap>
+                  </h1>
                 )}
                 <p>
                   Today is Election Day and this machine is in{' '}
-                  <strong>Testing&nbsp;Mode.</strong>
+                  <NoWrap as="strong">Testing Mode.</NoWrap>
                 </p>
                 <p>
                   <em>
-                    Note: Switching back to Testing&nbsp;Mode requires an
-                    Admin&nbsp;Card.
+                    Note: Switching back to <NoWrap>Testing Mode</NoWrap>{' '}
+                    requires an
+                    <NoWrap>Admin Card</NoWrap>.
                   </em>
                 </p>
               </Prose>
@@ -597,7 +601,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   danger={isPrintMode}
                   onPress={confirmEnableLiveMode}
                 >
-                  Switch to Live&nbsp;Mode
+                  Switch to <NoWrap>Live Mode</NoWrap>
                 </Button>
                 <Button onPress={cancelEnableLiveMode}>Cancel</Button>
               </React.Fragment>
