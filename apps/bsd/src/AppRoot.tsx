@@ -53,7 +53,7 @@ const Buttons = styled.div`
   }
 `
 
-const App: React.FC = () => {
+const App = (): JSX.Element => {
   const history = useHistory()
   const [isConfigLoaded, setIsConfigLoaded] = useState(false)
   const [

@@ -10,10 +10,10 @@ interface Props {
   ballotStyleId: string
 }
 
-const WritingCardScreen: React.FC<Props> = ({
+const WritingCardScreen = ({
   ballotStyleId,
   precinctName,
-}) => {
+}: Props): JSX.Element => {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {

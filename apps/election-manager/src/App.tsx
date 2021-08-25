@@ -15,10 +15,10 @@ export interface Props {
 
 const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage()
 
-const App: React.FC<Props> = ({
+const App = ({
   storage = defaultStorage,
   printer = getPrinter(),
-}) => (
+}: Props): JSX.Element => (
   <BrowserRouter>
     <Route
       path="/"

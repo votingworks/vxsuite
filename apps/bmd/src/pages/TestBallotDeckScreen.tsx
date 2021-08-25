@@ -119,13 +119,13 @@ interface Props {
 
 const initialPrecinct: Precinct = { id: '', name: '' }
 
-const TestBallotDeckScreen: React.FC<Props> = ({
+const TestBallotDeckScreen = ({
   appPrecinct,
   electionDefinition,
   hideTestDeck,
   isLiveMode,
   machineConfig,
-}) => {
+}: Props): JSX.Element => {
   const { printer } = useContext(BallotContext)
   const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])

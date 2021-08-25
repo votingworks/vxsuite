@@ -59,10 +59,10 @@ const doNothing = () => {
   console.log('disabled') // eslint-disable-line no-console
 }
 
-const BallotEjectScreen: React.FC<Props> = ({
+const BallotEjectScreen = ({
   continueScanning,
   isTestMode,
-}) => {
+}: Props): JSX.Element => {
   const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo>()
 
   const [ballotState, setBallotState] = useState<EjectState>(undefined)
@@ -74,7 +74,7 @@ const BallotEjectScreen: React.FC<Props> = ({
   }, [setSheetInfo])
 
   if (!sheetInfo) {
-    return null
+    return <React.Fragment />
   }
 
   let isOvervotedSheet = false

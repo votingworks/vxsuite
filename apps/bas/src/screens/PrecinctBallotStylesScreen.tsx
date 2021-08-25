@@ -27,7 +27,7 @@ interface Props {
   showPrecincts: () => void
 }
 
-const PrecinctBallotStylesScreen: React.FC<Props> = ({
+const PrecinctBallotStylesScreen = ({
   isSinglePrecinctMode,
   lockScreen,
   partyId,
@@ -35,7 +35,7 @@ const PrecinctBallotStylesScreen: React.FC<Props> = ({
   precinctName,
   programCard,
   showPrecincts,
-}) => {
+}: Props): JSX.Element => {
   const ballotStyles = partyId
     ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
     : precinctBallotStyles

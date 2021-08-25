@@ -2,7 +2,7 @@ import React from 'react'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { IndeterminateProgressBar } from '../components/Graphics'
 
-const LoadingConfigurationScreen: React.FC = () => (
+const LoadingConfigurationScreen = (): JSX.Element => (
   <CenteredScreen infoBar={false}>
     <IndeterminateProgressBar />
     <CenteredLargeProse>
@@ -14,6 +14,6 @@ const LoadingConfigurationScreen: React.FC = () => (
 export default LoadingConfigurationScreen
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
+export const DefaultPreview = (): JSX.Element => {
   return <LoadingConfigurationScreen />
 }

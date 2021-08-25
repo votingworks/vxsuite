@@ -10,7 +10,7 @@ interface Props {
   lockScreen: () => void
 }
 
-const PollWorkerScreen: React.FC<Props> = ({ lockScreen }) => {
+const PollWorkerScreen = ({ lockScreen }: Props): JSX.Element => {
   return (
     <Screen>
       <Main>

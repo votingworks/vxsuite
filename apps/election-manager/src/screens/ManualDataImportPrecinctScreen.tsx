@@ -132,7 +132,7 @@ export const getExpectedNumberOfBallotsForContestTally = (
   )
 }
 
-const ManualDataImportPrecinctScreen: React.FC = () => {
+const ManualDataImportPrecinctScreen = (): JSX.Element => {
   const {
     electionDefinition,
     fullElectionExternalTallies,

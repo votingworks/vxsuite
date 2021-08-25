@@ -11,12 +11,12 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin'
 interface Props {
   mode?: InfoBarMode
 }
-const ElectionInfoBar: React.FC<Props> = ({ mode = 'voter' }) => {
+const ElectionInfoBar = ({ mode = 'voter' }: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
   )
   if (!electionDefinition) {
-    return null
+    return <React.Fragment />
   }
   const electionDate = format.localeWeekdayAndDate(
     new Date(electionDefinition.election.date)

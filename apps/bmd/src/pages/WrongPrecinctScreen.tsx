@@ -10,9 +10,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void
 }
 
-const WrongPrecinctScreen: React.FC<Props> = ({
+const WrongPrecinctScreen = ({
   useEffectToggleLargeDisplay,
-}: Props) => {
+}: Props): JSX.Element => {
   useEffect(useEffectToggleLargeDisplay, [])
   useEffect(triggerAudioFocus, [])
 

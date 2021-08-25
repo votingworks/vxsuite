@@ -14,7 +14,7 @@ export const Graphic = styled.img`
   width: 250px;
 `
 
-export const QuestionCircle: React.FC = () => (
+export const QuestionCircle = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/question-circle.svg`}
     alt="question-circle"
@@ -22,7 +22,7 @@ export const QuestionCircle: React.FC = () => (
   />
 )
 
-export const DoNotEnter: React.FC = () => (
+export const DoNotEnter = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/do-not-enter.svg`}
     alt="do-not-enter"
@@ -30,7 +30,7 @@ export const DoNotEnter: React.FC = () => (
   />
 )
 
-export const CircleCheck: React.FC = () => (
+export const CircleCheck = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/check-circle.svg`}
     alt="check-circle"
@@ -38,7 +38,7 @@ export const CircleCheck: React.FC = () => (
   />
 )
 
-export const TimesCircle: React.FC = () => (
+export const TimesCircle = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/times-circle.svg`}
     alt="times-circle"
@@ -47,7 +47,7 @@ export const TimesCircle: React.FC = () => (
   />
 )
 
-export const ExclamationTriangle: React.FC = () => (
+export const ExclamationTriangle = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/exclamation-triangle.svg`}
     alt="exclamation-triangle"
@@ -55,7 +55,7 @@ export const ExclamationTriangle: React.FC = () => (
   />
 )
 
-export const InsertBallot: React.FC = () => (
+export const InsertBallot = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/insert-ballot.svg`}
     alt="insert-ballot"
@@ -64,7 +64,7 @@ export const InsertBallot: React.FC = () => (
   />
 )
 
-export const IndeterminateProgressBar: React.FC = () => (
+export const IndeterminateProgressBar = (): JSX.Element => (
   <Graphic
     src={`${process.env.PUBLIC_URL}/assets/indeterminate-progress-bar.svg`}
     alt="indeterminate-progress-bar"

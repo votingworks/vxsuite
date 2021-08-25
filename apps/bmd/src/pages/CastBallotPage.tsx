@@ -40,10 +40,10 @@ interface Props {
   showPostVotingInstructions: PostVotingInstructions
 }
 
-const CastBallotPage: React.FC<Props> = ({
+const CastBallotPage = ({
   hidePostVotingInstructions,
   showPostVotingInstructions,
-}) => (
+}: Props): JSX.Element => (
   <Screen white>
     <Main>
       <MainChild centerVertical maxWidth={false}>

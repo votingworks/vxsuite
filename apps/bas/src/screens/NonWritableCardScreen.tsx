@@ -10,7 +10,7 @@ interface Props {
   lockScreen: () => void
 }
 
-const NonWritableCardScreen: React.FC<Props> = ({ lockScreen }) => {
+const NonWritableCardScreen = ({ lockScreen }: Props): JSX.Element => {
   return (
     <Screen>
       <Main>

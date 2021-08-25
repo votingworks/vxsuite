@@ -21,10 +21,10 @@ interface Props {
   electionHash?: string
 }
 
-const VersionsData: React.FC<Props> = ({
+const VersionsData = ({
   machineConfig: { machineId, codeVersion },
   electionHash,
-}) => {
+}: Props): JSX.Element => {
   const electionId = electionHash?.substring(0, 10)
   const content = (
     <React.Fragment>

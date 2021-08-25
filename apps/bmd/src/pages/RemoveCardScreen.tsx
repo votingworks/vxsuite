@@ -11,7 +11,7 @@ const Graphic = styled.img`
   height: 30vw;
 `
 
-const RemoveCardScreen: React.FC = () => (
+const RemoveCardScreen = (): JSX.Element => (
   <Screen white>
     <Main>
       <MainChild centerVertical maxWidth={false}>

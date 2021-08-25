@@ -1,8 +1,6 @@
 import React from 'react'
 import { render, getByText as domGetByText } from '@testing-library/react'
 
-import { electionWithMsEitherNeither } from '@votingworks/fixtures'
-
 import TallyReportSummary from './TallyReportSummary'
 import { VotingMethod } from '../config/types'
 
@@ -14,7 +12,6 @@ test('Renders with data source table and voting method table when all data provi
   }
   const { getByText, getByTestId } = render(
     <TallyReportSummary
-      election={electionWithMsEitherNeither}
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
     />
@@ -42,7 +39,6 @@ test('Hides the other row in the voting method table when empty', () => {
   }
   const { queryAllByText, unmount } = render(
     <TallyReportSummary
-      election={electionWithMsEitherNeither}
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
     />
@@ -57,7 +53,6 @@ test('Hides the other row in the voting method table when empty', () => {
   }
   const { queryAllByText: queryAllByText2 } = render(
     <TallyReportSummary
-      election={electionWithMsEitherNeither}
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts2}
     />

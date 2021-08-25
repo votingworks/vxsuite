@@ -470,7 +470,7 @@ const appReducer = (state: State, action: AppAction): State => {
   }
 }
 
-const AppRoot: React.FC<Props> = ({
+const AppRoot = ({
   card,
   hardware,
   history,
@@ -478,7 +478,7 @@ const AppRoot: React.FC<Props> = ({
   printer,
   screenReader,
   storage,
-}) => {
+}: Props): JSX.Element => {
   const PostVotingInstructionsTimeout = useRef(0)
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {

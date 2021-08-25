@@ -30,11 +30,11 @@ interface OvervoteWarningScreenProps {
   acceptBallot: () => Promise<void>
 }
 
-const OvervoteWarningScreen: React.FC<OvervoteWarningScreenProps> = ({
+const OvervoteWarningScreen = ({
   electionDefinition,
   overvotes,
   acceptBallot,
-}) => {
+}: OvervoteWarningScreenProps): JSX.Element => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -110,11 +110,11 @@ interface UndervoteWarningScreenProps {
   acceptBallot: () => Promise<void>
 }
 
-const UndervoteWarningScreen: React.FC<UndervoteWarningScreenProps> = ({
+const UndervoteWarningScreen = ({
   electionDefinition,
   undervotes,
   acceptBallot,
-}) => {
+}: UndervoteWarningScreenProps): JSX.Element => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -205,9 +205,9 @@ interface BlankBallotWarningScreenProps {
   acceptBallot: () => Promise<void>
 }
 
-const BlankBallotWarningScreen: React.FC<BlankBallotWarningScreenProps> = ({
+const BlankBallotWarningScreen = ({
   acceptBallot,
-}) => {
+}: BlankBallotWarningScreenProps): JSX.Element => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -268,9 +268,9 @@ interface OtherReasonWarningScreenProps {
   acceptBallot: () => Promise<void>
 }
 
-const OtherReasonWarningScreen: React.FC<OtherReasonWarningScreenProps> = ({
+const OtherReasonWarningScreen = ({
   acceptBallot,
-}) => {
+}: OtherReasonWarningScreenProps): JSX.Element => {
   const [confirmTabulate, setConfirmTabulate] = useState(false)
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -327,10 +327,10 @@ const OtherReasonWarningScreen: React.FC<OtherReasonWarningScreenProps> = ({
   )
 }
 
-const ScanWarningScreen: React.FC<Props> = ({
+const ScanWarningScreen = ({
   acceptBallot,
   adjudicationReasonInfo,
-}) => {
+}: Props): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   assert(electionDefinition)
 
@@ -378,7 +378,7 @@ const ScanWarningScreen: React.FC<Props> = ({
 export default ScanWarningScreen
 
 /* istanbul ignore next */
-export const OvervotePreview: React.FC = () => {
+export const OvervotePreview = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   assert(electionDefinition)
 
@@ -410,7 +410,7 @@ export const OvervotePreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const UndervoteNoVotesPreview: React.FC = () => {
+export const UndervoteNoVotesPreview = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   assert(electionDefinition)
 
@@ -435,7 +435,7 @@ export const UndervoteNoVotesPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const UndervoteBy1Preview: React.FC = () => {
+export const UndervoteBy1Preview = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   assert(electionDefinition)
 
@@ -462,7 +462,7 @@ export const UndervoteBy1Preview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const UndervoteByNPreview: React.FC = () => {
+export const UndervoteByNPreview = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   assert(electionDefinition)
 
@@ -487,7 +487,7 @@ export const UndervoteByNPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const MultipleUndervotesPreview: React.FC = () => {
+export const MultipleUndervotesPreview = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   assert(electionDefinition)
 
@@ -510,7 +510,7 @@ export const MultipleUndervotesPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const BlankBallotPreview: React.FC = () => {
+export const BlankBallotPreview = (): JSX.Element => {
   return (
     <ScanWarningScreen
       acceptBallot={() => Promise.resolve()}
@@ -520,7 +520,7 @@ export const BlankBallotPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const UninterpretableBallotPreview: React.FC = () => {
+export const UninterpretableBallotPreview = (): JSX.Element => {
   return (
     <ScanWarningScreen
       acceptBallot={() => Promise.resolve()}

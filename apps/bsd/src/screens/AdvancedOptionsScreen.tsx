@@ -29,7 +29,7 @@ interface Props {
   electionDefinition: ElectionDefinition
 }
 
-const AdvancedOptionsScreen: React.FC<Props> = ({
+const AdvancedOptionsScreen = ({
   unconfigureServer,
   zeroData,
   backup,
@@ -40,7 +40,7 @@ const AdvancedOptionsScreen: React.FC<Props> = ({
   setMarkThresholdOverrides,
   markThresholds,
   electionDefinition,
-}) => {
+}: Props): JSX.Element => {
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
   )

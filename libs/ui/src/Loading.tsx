@@ -16,11 +16,11 @@ interface LoadingProps {
   as?: keyof JSX.IntrinsicElements
 }
 
-export const Loading: React.FC<LoadingProps> = ({
+export const Loading = ({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
-}: LoadingProps) => {
+}: LoadingProps): JSX.Element => {
   const content = (
     <Prose>
       {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}

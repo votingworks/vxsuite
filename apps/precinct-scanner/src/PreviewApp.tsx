@@ -20,7 +20,7 @@ import * as ScanWarningScreen from './screens/ScanWarningScreen'
 import * as SetupCardReaderPage from './screens/SetupCardReaderPage'
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 
-const PreviewApp: React.FC = () => {
+const PreviewApp = (): JSX.Element => {
   return (
     <PreviewDashboard
       electionDefinitions={[

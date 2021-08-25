@@ -46,7 +46,7 @@ const someFilesExist = (files: VxFile[]) => files.some((f) => f.path)
 
 const newElection = JSON.stringify(defaultElection)
 
-const UnconfiguredScreen: React.FC = () => {
+const UnconfiguredScreen = (): JSX.Element => {
   const history = useHistory()
   const location = useLocation()
 

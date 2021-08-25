@@ -1,16 +1,8 @@
-import { strict as assert } from 'assert'
-import React, { useContext } from 'react'
-
-import { ElectionDefinition } from '@votingworks/types'
+import React from 'react'
 import { DoNotEnter } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
-import AppContext from '../contexts/AppContext'
 
-interface Props {
-  electionDefinition: ElectionDefinition
-}
-
-const PollsClosedScreen: React.FC<Props> = () => {
+const PollsClosedScreen = (): JSX.Element => {
   return (
     <CenteredScreen>
       <DoNotEnter />
@@ -25,8 +17,6 @@ const PollsClosedScreen: React.FC<Props> = () => {
 export default PollsClosedScreen
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
-  return <PollsClosedScreen electionDefinition={electionDefinition} />
+export const DefaultPreview = (): JSX.Element => {
+  return <PollsClosedScreen />
 }

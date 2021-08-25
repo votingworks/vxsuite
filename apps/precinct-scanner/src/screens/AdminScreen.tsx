@@ -31,7 +31,7 @@ interface Props {
   usbDrive: UsbDrive
 }
 
-const AdminScreen: React.FC<Props> = ({
+const AdminScreen = ({
   scannedBallotCount,
   isTestMode,
   updateAppPrecinctId,
@@ -39,7 +39,7 @@ const AdminScreen: React.FC<Props> = ({
   unconfigure,
   calibrate,
   usbDrive,
-}) => {
+}: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId } = useContext(AppContext)
   const { election } = electionDefinition!
 

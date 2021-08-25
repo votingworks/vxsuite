@@ -13,7 +13,7 @@ const StatusBar = styled.div`
   padding: 0.375rem 1rem;
 `
 
-const StatusFooter: React.FC = () => {
+const StatusFooter = (): JSX.Element => {
   const { electionDefinition, machineConfig } = useContext(AppContext)
   const electionDate =
     electionDefinition &&

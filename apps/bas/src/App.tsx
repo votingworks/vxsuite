@@ -5,7 +5,7 @@ import AppRoot, { Props as AppRootProps } from './AppRoot'
 
 export type Props = Partial<AppRootProps>
 
-const App: React.FC<Props> = ({ hardware, card = new WebServiceCard() }) => {
+const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
   const [internalHardware, setInternalHardware] = useState(hardware)
   useEffect(() => {
     const updateHardware = async () => {

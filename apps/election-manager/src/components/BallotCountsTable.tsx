@@ -16,7 +16,7 @@ export interface Props {
   breakdownCategory: TallyCategory
 }
 
-const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
+const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
   const {
     electionDefinition,
     isTabulationRunning,
@@ -205,7 +205,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
       )
       const partiesForPrimaries = getPartiesWithPrimaryElections(election)
       if (partiesForPrimaries.length === 0) {
-        return null
+        return <React.Fragment />
       }
 
       return (

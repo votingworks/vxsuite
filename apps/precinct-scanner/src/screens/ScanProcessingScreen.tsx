@@ -2,7 +2,7 @@ import React from 'react'
 import { IndeterminateProgressBar } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 
-const ScanProcessingScreen: React.FC = () => (
+const ScanProcessingScreen = (): JSX.Element => (
   <CenteredScreen>
     <IndeterminateProgressBar />
     <CenteredLargeProse>
@@ -14,6 +14,6 @@ const ScanProcessingScreen: React.FC = () => (
 export default ScanProcessingScreen
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
+export const DefaultPreview = (): JSX.Element => {
   return <ScanProcessingScreen />
 }

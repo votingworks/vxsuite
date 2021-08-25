@@ -20,7 +20,7 @@ import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen'
 import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen'
 import SmartcardsScreen from '../screens/SmartcardsScreen'
 
-const ElectionManager: React.FC = () => {
+const ElectionManager = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   const election = electionDefinition?.election
 

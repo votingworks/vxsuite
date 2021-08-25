@@ -16,14 +16,14 @@ interface Props {
   small?: boolean
 }
 
-export const USBControllerButton: React.FC<Props> = ({
+export const USBControllerButton = ({
   usbDriveStatus,
   usbDriveEject,
   primary = false,
   small = true,
-}) => {
+}: Props): JSX.Element => {
   if (usbDriveStatus === UsbDriveStatus.notavailable) {
-    return null
+    return <React.Fragment />
   }
 
   if (usbDriveStatus === UsbDriveStatus.absent) {

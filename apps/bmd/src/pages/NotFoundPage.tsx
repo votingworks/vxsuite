@@ -7,7 +7,7 @@ import BallotContext from '../contexts/ballotContext'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 
-const NotFoundPage: React.FC<RouteComponentProps> = (props) => {
+const NotFoundPage = (props: RouteComponentProps): JSX.Element => {
   const { resetBallot } = useContext(BallotContext)
   const { pathname } = props.location
   const requestResetBallot = () => {

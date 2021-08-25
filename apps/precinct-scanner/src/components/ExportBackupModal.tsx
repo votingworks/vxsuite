@@ -37,7 +37,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportBackupModal: React.FC<Props> = ({ onClose, usbDrive }) => {
+const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 

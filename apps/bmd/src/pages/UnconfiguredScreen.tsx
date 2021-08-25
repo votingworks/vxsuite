@@ -5,7 +5,7 @@ import { Main, MainChild } from '@votingworks/ui'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 
-const UnconfiguredScreen: React.FC = () => (
+const UnconfiguredScreen = (): JSX.Element => (
   <Screen>
     <Main>
       <MainChild center>

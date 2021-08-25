@@ -181,9 +181,11 @@ const ToggleField = ({
   </StyledField>
 )
 
-const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
+const DefinitionContestsScreen = ({
   allowEditing,
-}) => {
+}: {
+  allowEditing: boolean
+}): JSX.Element => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election } = electionDefinition!
   const { contestId } = useParams<{ contestId: string }>()

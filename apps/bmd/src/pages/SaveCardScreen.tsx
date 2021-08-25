@@ -6,7 +6,7 @@ import { Loading, Main, MainChild, ProgressBar } from '@votingworks/ui'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 
-const SaveCardScreen: React.FC = () => {
+const SaveCardScreen = (): JSX.Element => {
   const saveDelay = 2500
   const [progress, setProgress] = useState(0)
   const [done, setDone] = useState(false)

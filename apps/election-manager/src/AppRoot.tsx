@@ -62,7 +62,7 @@ export const printedBallotsStorageKey = 'printedBallots'
 export const configuredAtStorageKey = 'configuredAt'
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies'
 
-const AppRoot: React.FC<Props> = ({ storage, printer }) => {
+const AppRoot = ({ storage, printer }: Props): JSX.Element => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElectionDefinition = useCallback(async (): Promise<

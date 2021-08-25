@@ -24,7 +24,9 @@ interface ContestParams {
   contestNumber: string
 }
 
-const ContestPage: React.FC<RouteComponentProps<ContestParams>> = (props) => {
+const ContestPage = (
+  props: RouteComponentProps<ContestParams>
+): JSX.Element => {
   const isReviewMode = window.location.hash === '#review'
   const { contestNumber } = props.match.params
   const {

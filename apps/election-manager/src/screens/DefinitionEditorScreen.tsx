@@ -29,9 +29,11 @@ const FlexTextareaWrapper = styled.div`
     font-family: monospace;
   }
 `
-const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
+const DefinitionEditorScreen = ({
   allowEditing,
-}) => {
+}: {
+  allowEditing: boolean
+}): JSX.Element => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election, electionData } = electionDefinition!
   const stringifiedElection = JSON.stringify(election, undefined, 2)

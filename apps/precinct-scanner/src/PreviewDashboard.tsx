@@ -69,10 +69,10 @@ const ConfigBox = styled.div`
   width: auto;
 `
 
-const PreviewDashboard: React.FC<Props> = ({
+const PreviewDashboard = ({
   modules,
   electionDefinitions: initialElectionDefinitions,
-}) => {
+}: Props): JSX.Element => {
   const previewables = modules.map(getPreviews)
   const [electionDefinition, setElectionDefinition] = useState(
     initialElectionDefinitions[0]

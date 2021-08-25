@@ -9,7 +9,7 @@ import Button from '../components/Button'
 import Modal from '../components/Modal'
 import Loading from '../components/Loading'
 
-const DefinitionScreen: React.FC = () => {
+const DefinitionScreen = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   const { electionData, electionHash } = electionDefinition!
 

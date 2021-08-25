@@ -11,10 +11,10 @@ interface Props {
   generatedAtTime: Date
 }
 
-const TallyReportMetadata: React.FC<Props> = ({
+const TallyReportMetadata = ({
   election,
   generatedAtTime,
-}) => {
+}: Props): JSX.Element => {
   const electionDate = format.localeWeekdayAndDate(new Date(election.date))
   const generatedAt = format.localeLongDateAndTime(generatedAtTime)
 

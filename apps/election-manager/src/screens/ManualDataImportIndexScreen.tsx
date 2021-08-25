@@ -41,7 +41,7 @@ const PrecinctRowText = styled(Text)`
   }
 `
 
-const ManualDataImportIndexScreen: React.FC = () => {
+const ManualDataImportIndexScreen = (): JSX.Element => {
   const {
     electionDefinition,
     fullElectionExternalTallies,

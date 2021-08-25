@@ -187,7 +187,7 @@ const ContestActions = styled.div`
     display: block;
   }
 `
-const NoSelection: React.FC = () => (
+const NoSelection = (): JSX.Element => (
   <Text
     aria-label="You may still vote in this contest."
     bold
@@ -199,11 +199,11 @@ const NoSelection: React.FC = () => (
   </Text>
 )
 
-const CandidateContestResult: React.FC<CandidateContestResultInterface> = ({
+const CandidateContestResult = ({
   contest,
   parties,
   vote = [],
-}) => {
+}: CandidateContestResultInterface): JSX.Element => {
   const remainingChoices = contest.seats - vote.length
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -236,10 +236,10 @@ const CandidateContestResult: React.FC<CandidateContestResultInterface> = ({
   )
 }
 
-const YesNoContestResult: React.FC<YesNoContestResultInterface> = ({
+const YesNoContestResult = ({
   contest,
   vote,
-}) => {
+}: YesNoContestResultInterface): JSX.Element => {
   const yesNo = getSingleYesNoVote(vote)
   return yesNo ? (
     <Text bold wordBreak voteIcon>
@@ -250,11 +250,11 @@ const YesNoContestResult: React.FC<YesNoContestResultInterface> = ({
   )
 }
 
-const MsEitherNeitherContestResult: React.FC<MsEitherNeitherContestResultInterface> = ({
+const MsEitherNeitherContestResult = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}) => {
+}: MsEitherNeitherContestResultInterface): JSX.Element => {
   const eitherNeitherVote = eitherNeitherContestVote?.[0]
   const pickOneVote = pickOneContestVote?.[0]
   return eitherNeitherVote || pickOneVote ? (
@@ -287,7 +287,7 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `
 
-const ReviewPage: React.FC = () => {
+const ReviewPage = (): JSX.Element => {
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 

@@ -40,12 +40,12 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   definite: 0.25,
 }
 
-const SetMarkThresholdsModal: React.FC<Props> = ({
+const SetMarkThresholdsModal = ({
   onClose,
   markThresholds,
   markThresholdOverrides,
   setMarkThresholdOverrides,
-}) => {
+}: Props): JSX.Element => {
   const [currentState, setCurrentState] = useState<ModalState>(
     markThresholdOverrides === undefined
       ? ModalState.CONFIRM_INTENT

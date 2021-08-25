@@ -40,7 +40,7 @@ const Contest = styled.div`
   }
 `
 
-const PairsReportScreen: React.FC = () => {
+const PairsReportScreen = (): JSX.Element => {
   const {
     castVoteRecordFiles,
     electionDefinition,

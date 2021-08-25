@@ -2,17 +2,17 @@ import React from 'react'
 import { Screen, Main, MainChild, Prose, fontSizeTheme } from '@votingworks/ui'
 import ElectionInfoBar, { InfoBarMode } from './ElectionInfoBar'
 
-interface Props {
-  children?: React.ReactNode
+interface CenteredScreenProps {
+  children: React.ReactNode
   infoBar?: boolean
   infoBarMode?: InfoBarMode
 }
 
-export const CenteredScreen: React.FC<Props> = ({
+export const CenteredScreen = ({
   children,
   infoBar = true,
   infoBarMode,
-}) => (
+}: CenteredScreenProps): JSX.Element => (
   <Screen flexDirection="column">
     <Main padded>
       <MainChild center maxWidth={false}>
@@ -23,7 +23,13 @@ export const CenteredScreen: React.FC<Props> = ({
   </Screen>
 )
 
-export const CenteredLargeProse: React.FC<Props> = ({ children }) => (
+interface CenteredLargeProseProps {
+  children: React.ReactNode
+}
+
+export const CenteredLargeProse = ({
+  children,
+}: CenteredLargeProseProps): JSX.Element => (
   <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
     {children}
   </Prose>

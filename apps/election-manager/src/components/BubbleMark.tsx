@@ -34,7 +34,7 @@ const Content = styled.span`
   flex-direction: column;
 `
 
-const BubbleMark: React.FC<Props> = ({ checked = false, children }) => (
+const BubbleMark = ({ checked = false, children }: Props): JSX.Element => (
   <Container>
     <Bubble checked={checked} data-mark />
     <Content>{children}</Content>

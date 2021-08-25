@@ -13,10 +13,10 @@ const StatusBar = styled.div`
   color: #ffffff;
 `
 
-const StatusFooter: React.FC = () => {
+const StatusFooter = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   if (electionDefinition === undefined) {
-    return null
+    return <React.Fragment />
   }
 
   const { election, electionHash } = electionDefinition

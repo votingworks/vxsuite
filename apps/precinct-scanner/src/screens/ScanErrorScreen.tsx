@@ -11,11 +11,11 @@ interface Props {
   isTestMode: boolean
 }
 
-const ScanErrorScreen: React.FC<Props> = ({
+const ScanErrorScreen = ({
   dismissError,
   rejectionReason,
   isTestMode,
-}) => {
+}: Props): JSX.Element => {
   let errorInformation = ''
   if (rejectionReason && rejectionReason !== RejectedScanningReason.Unknown) {
     switch (rejectionReason) {
@@ -61,7 +61,7 @@ const ScanErrorScreen: React.FC<Props> = ({
 export default ScanErrorScreen
 
 /* istanbul ignore next */
-export const UnreadablePreview: React.FC = () => {
+export const UnreadablePreview = (): JSX.Element => {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -71,7 +71,7 @@ export const UnreadablePreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const InvalidElectionHashPreview: React.FC = () => {
+export const InvalidElectionHashPreview = (): JSX.Element => {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -81,7 +81,7 @@ export const InvalidElectionHashPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const InvalidTestModeBallotPreview: React.FC = () => {
+export const InvalidTestModeBallotPreview = (): JSX.Element => {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -91,7 +91,7 @@ export const InvalidTestModeBallotPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const InvalidLiveModeBallotPreview: React.FC = () => {
+export const InvalidLiveModeBallotPreview = (): JSX.Element => {
   return (
     <ScanErrorScreen
       isTestMode
@@ -101,7 +101,7 @@ export const InvalidLiveModeBallotPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const InvalidPrecinctPreview: React.FC = () => {
+export const InvalidPrecinctPreview = (): JSX.Element => {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -111,7 +111,7 @@ export const InvalidPrecinctPreview: React.FC = () => {
 }
 
 /* istanbul ignore next */
-export const UnknownErrorPreview: React.FC = () => {
+export const UnknownErrorPreview = (): JSX.Element => {
   return (
     <ScanErrorScreen
       isTestMode={false}

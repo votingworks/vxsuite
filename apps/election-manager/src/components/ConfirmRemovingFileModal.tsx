@@ -15,11 +15,11 @@ export interface Props {
   fileType: ResultsFileType
 }
 
-export const ConfirmRemovingFileModal: React.FC<Props> = ({
+export const ConfirmRemovingFileModal = ({
   onConfirm,
   onCancel,
   fileType,
-}) => {
+}: Props): JSX.Element => {
   const { castVoteRecordFiles, fullElectionExternalTallies } = useContext(
     AppContext
   )

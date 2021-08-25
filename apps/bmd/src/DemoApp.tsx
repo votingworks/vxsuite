@@ -73,13 +73,13 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
 }
 
 /* istanbul ignore next */
-const DemoApp: React.FC<Props> = ({
+const DemoApp = ({
   card = getSampleCard(),
   storage = getDemoStorage(),
   machineConfig = getSampleMachineConfigProvider(),
   hardware,
   ...rest
-}) => {
+}: Props): JSX.Element => {
   const [internalHardware, setInternalHardware] = React.useState(hardware)
   React.useEffect(() => {
     const updateHardware = async () => {

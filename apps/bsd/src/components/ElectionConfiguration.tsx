@@ -42,10 +42,10 @@ export interface Props {
   ): Promise<void>
 }
 
-const ElectionConfiguration: React.FC<Props> = ({
+const ElectionConfiguration = ({
   acceptAutomaticallyChosenFile: acceptAutomaticallyChosenFileFromProps,
   acceptManuallyChosenFile: acceptManuallyChosenFileFromProps,
-}) => {
+}: Props): JSX.Element => {
   const [foundFilenames, setFoundFilenames] = useState<
     KioskBrowser.FileSystemEntry[]
   >([])
