@@ -11,10 +11,11 @@
     "build"
   ],
   "scripts": {
+    "type-check": "tsc --build",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
-    "lint": "eslint . --quiet && pnpm stylelint:run",
-    "lint:fix": "eslint . --fix --quiet",
+    "lint": "pnpm type-check && eslint . --quiet && pnpm stylelint:run",
+    "lint:fix": "pnpm type-check && eslint . --fix --quiet",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "TZ=UTC jest",
     "test:coverage": "TZ=UTC jest --coverage",

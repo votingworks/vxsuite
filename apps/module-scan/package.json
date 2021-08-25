@@ -9,12 +9,13 @@
     "schema.sql"
   ],
   "scripts": {
+    "type-check": "tsc --build",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
     "dev": "ts-node --transpile-only --files ./src/index.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "eslint . --quiet",
-    "lint:fix": "eslint . --quiet --fix",
+    "lint": "pnpm type-check && eslint . --quiet",
+    "lint:fix": "pnpm type-check && eslint . --quiet --fix",
     "start": "node ./build/index.js",
     "test": "is-ci test:coverage test:watch",
     "test:coverage": "jest --coverage",

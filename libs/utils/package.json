@@ -11,10 +11,11 @@
     "build"
   ],
   "scripts": {
+    "type-check": "tsc --build",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "TZ=UTC jest",
     "test:watch": "TZ=UTC jest --watch",
     "test:coverage": "TZ=UTC jest --coverage",

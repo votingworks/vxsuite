@@ -17,10 +17,11 @@
     "!build/test"
   ],
   "scripts": {
+    "type-check": "tsc --build",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
     "prepack": "tsc --build",
     "test": "jest",
     "test:all": "REGRESSION_TESTS=1 jest",
