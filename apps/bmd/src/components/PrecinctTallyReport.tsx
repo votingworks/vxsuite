@@ -82,8 +82,8 @@ const PrecinctTallyReport: React.FC<Props> = ({
         This report should be <strong>{reportPurpose}</strong>.
       </p>
       <p>
-        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report{' '}
-        {ballotAction} at: <strong>{currentDateTime}</strong>
+        {isPollsOpen ? 'Polls Closed' : 'Polls Opened'} and report printed at:{' '}
+        <strong>{currentDateTime}</strong>
       </p>
       <p>
         Ballots {ballotAction} count: <strong>{ballotCount}</strong>
