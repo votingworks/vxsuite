@@ -167,6 +167,13 @@ export function generateFinalExportDefaultFilename(
   return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`
 }
 
+/**
+ * Generates a filename for the tally results CSV broken down by batch.
+ * @param isTestModeResults Boolean representing if the results are testmode or livemode
+ * @param election Election object we are generating the filename for
+ * @param time Optional for the time we are generating the filename, defaults to the current time.
+ * @returns string filename i.e. "votingworks-live-batch-results_election-name_timestamp.csv"
+ */
 export function generateBatchResultsDefaultFilename(
   isTestModeResults: boolean,
   election: Election,
