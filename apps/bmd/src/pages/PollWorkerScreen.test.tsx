@@ -14,7 +14,12 @@ import {
   TallySourceMachineType,
   CardTally,
 } from '@votingworks/utils'
-import { PrecinctSelectionKind, VxMarkOnly, VxPrintOnly } from '../config/types'
+import {
+  PrecinctSelectionKind,
+  VxMarkOnly,
+  VxPrintOnly,
+  VxMarkPlusVxPrint,
+} from '../config/types'
 
 import { render } from '../../test/testUtils'
 
@@ -206,7 +211,7 @@ test('results combination option is shown for a print machine', async () => {
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: VxMarkPlusVxPrint,
         machineId: '314',
       })}
       printer={{
