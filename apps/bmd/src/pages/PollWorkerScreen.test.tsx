@@ -517,6 +517,31 @@ test('printing precinct scanner report option is shown when precinct scanner tal
   screen.getByText('Tally Report on Card')
   fireEvent.click(screen.getByText('Print Tally Report'))
 
+  expect(
+    screen.getAllByText('Joseph Barchi and Joseph Hallaren')[0].nextSibling!
+      .textContent
+  ).toBe('6')
+  expect(
+    screen.getAllByText('Adam Cramer and Greg Vuocolo')[0].nextSibling!
+      .textContent
+  ).toBe('5')
+  expect(
+    screen.getAllByText('Daniel Court and Amy Blumhardt')[0].nextSibling!
+      .textContent
+  ).toBe('6')
+  expect(
+    screen.getAllByText('Alvin Boone and James Lian')[0].nextSibling!
+      .textContent
+  ).toBe('5')
+  expect(
+    screen.getAllByText('Ashley Hildebrand-McDougall and James Garritty')[0]
+      .nextSibling!.textContent
+  ).toBe('6')
+  expect(
+    screen.getAllByText('Martin Patterson and Clay Lariviere')[0].nextSibling!
+      .textContent
+  ).toBe('0')
+
   await waitFor(() => {
     expect(clearTallies).toHaveBeenCalledTimes(1)
     expect(printFn).toHaveBeenCalledTimes(1)
