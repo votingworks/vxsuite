@@ -12,13 +12,14 @@
     "build"
   ],
   "scripts": {
+    "type-check": "tsc --build tsconfig.test.json",
     "build": "tsc --build tsconfig.test.json",
     "build:watch": "tsc --build --watch tsconfig.test.json",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {

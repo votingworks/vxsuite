@@ -7,10 +7,11 @@
     "build"
   ],
   "scripts": {
+    "type-check": "tsc --build",
     "build": "tsc --build",
     "build:watch": "tsc --build --watch",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "jest",
     "test:ci": "jest --ci --coverage",
     "test:coverage": "jest --coverage",
