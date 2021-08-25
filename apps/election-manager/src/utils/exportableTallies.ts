@@ -2,7 +2,7 @@ import {
   Dictionary,
   Election,
   getContests,
-  expandEitherNeitherContests,
+  expandEitherNeitherContests
 } from '@votingworks/types'
 import {
   ContestTally,
@@ -12,17 +12,17 @@ import {
   ExternalTally,
   FullElectionExternalTally,
   FullElectionTally,
-  TallyCategory,
+  TallyCategory
 } from '../config/types'
 
-export function getEmptyExportableTallies(): ExportableTallies {
+export function getEmptyExportableTallies (): ExportableTallies {
   return {
-    talliesByPrecinct: {},
+    talliesByPrecinct: {}
   }
 }
 
 // only exported for testing
-export function getCombinedExportableContestTally(
+export function getCombinedExportableContestTally (
   exportableTally: ExportableContestTally,
   newTally: ContestTally
 ): ExportableContestTally {
@@ -49,12 +49,12 @@ export function getCombinedExportableContestTally(
         exportableTally.metadata.overvotes + newTally.metadata.overvotes,
       undervotes:
         exportableTally.metadata.undervotes + newTally.metadata.undervotes,
-      ballots: exportableTally.metadata.ballots + newTally.metadata.ballots,
-    },
+      ballots: exportableTally.metadata.ballots + newTally.metadata.ballots
+    }
   }
 }
 
-export function getExportableTallies(
+export function getExportableTallies (
   internalElectionTally: FullElectionTally,
   externalElectionTallies: FullElectionExternalTally[],
   election: Election
@@ -64,7 +64,7 @@ export function getExportableTallies(
   )
   const externalTalliesByPrecinct = externalElectionTallies
     .map((t) => t.resultsByCategory.get(TallyCategory.Precinct))
-    .filter((t): t is Dictionary<ExternalTally> => !!t)
+    .filter((t): t is Dictionary<ExternalTally> => !(t == null))
 
   if (talliesByPrecinct === undefined) {
     return getEmptyExportableTallies()
@@ -82,17 +82,17 @@ export function getExportableTallies(
     const tallyForPrecinct = talliesByPrecinct[precinct.id]
     const externalTalliesForPrecinct = externalTalliesByPrecinct
       .map((t) => t[precinct.id])
-      .filter((t): t is ExternalTally => !!t)
+      .filter((t): t is ExternalTally => !(t == null))
     const exportableTallyForPrecinct: ExportableTally = {}
     for (const contest of ballotStyleContests) {
       let exportableContestTally: ExportableContestTally = {
         tallies: {},
-        metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+        metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
       }
       const contestTalliesToCombine = [
         tallyForPrecinct?.contestTallies[contest.id],
-        ...externalTalliesForPrecinct.map((t) => t.contestTallies[contest.id]),
-      ].filter((t): t is ContestTally => !!t)
+        ...externalTalliesForPrecinct.map((t) => t.contestTallies[contest.id])
+      ].filter((t): t is ContestTally => !(t == null))
       for (const contestTallyToCombine of contestTalliesToCombine) {
         exportableContestTally = getCombinedExportableContestTally(
           exportableContestTally,
@@ -104,6 +104,6 @@ export function getExportableTallies(
     exportableTalliesByPrecinct[precinct.id] = exportableTallyForPrecinct
   }
   return {
-    talliesByPrecinct: exportableTalliesByPrecinct,
+    talliesByPrecinct: exportableTalliesByPrecinct
   }
 }

@@ -7,7 +7,7 @@ import {
   generateElectionBasedSubfolderName,
   parseCVRFileInfoFromFilename,
   SCANNER_RESULTS_FOLDER,
-  usbstick,
+  usbstick
 } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
@@ -62,7 +62,7 @@ export interface Props {
   onClose: () => void
 }
 
-function throwBadStatus(s: never): never {
+function throwBadStatus (s: never): never {
   throw new Error(`Bad status: ${s}`)
 }
 
@@ -71,7 +71,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
     usbDriveStatus,
     saveCastVoteRecordFiles,
     castVoteRecordFiles,
-    electionDefinition,
+    electionDefinition
   } = useContext(AppContext)
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
@@ -102,7 +102,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
     event
   ) => {
     const input = event.currentTarget
-    const files = Array.from(input.files || [])
+    const files = Array.from((input.files != null) || [])
     setCurrentState(ModalState.LOADING)
 
     if (files.length === 1) {
@@ -174,9 +174,9 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         }
         onOverlayClick={onClose}
         actions={
-          <React.Fragment>
+          <>
             <LinkButton onPress={onClose}>Close</LinkButton>
-          </React.Fragment>
+          </>
         }
       />
     )
@@ -210,11 +210,11 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         content={<Loading />}
         onOverlayClick={onClose}
         actions={
-          <React.Fragment>
+          <>
             <LinkButton onPress={onClose} disabled>
               Cancel
             </LinkButton>
-          </React.Fragment>
+          </>
         }
       />
     )
@@ -231,7 +231,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
           <Prose>
             <h1>No USB Drive Detected</h1>
             <p>
-              <USBImage src="usb-drive.svg" alt="Insert USB Image" />
+              <USBImage src='usb-drive.svg' alt='Insert USB Image' />
               Please insert a USB drive in order to import CVR files from the
               scanner.
             </p>
@@ -239,17 +239,17 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         }
         onOverlayClick={onClose}
         actions={
-          <React.Fragment>
+          <>
             <LinkButton onPress={onClose}>Cancel</LinkButton>
-            {(!window.kiosk || process.env.NODE_ENV === 'development') && (
+            {((window.kiosk == null) || process.env.NODE_ENV === 'development') && (
               <FileInputButton
                 onChange={processCastVoteRecordFileFromFilePicker}
-                data-testid="manual-input"
+                data-testid='manual-input'
               >
                 Select Files…
               </FileInputButton>
             )}{' '}
-          </React.Fragment>
+          </>
         }
       />
     )
@@ -261,20 +261,20 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
       .flatMap((fileEntry) => {
         const parsedInfo = parseCVRFileInfoFromFilename(fileEntry.name)
 
-        if (!parsedInfo) {
+        if (parsedInfo == null) {
           return []
         }
 
         return [
           {
             parsedInfo,
-            fileEntry,
-          },
+            fileEntry
+          }
         ]
       })
       .sort(
         (a, b) =>
-          b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
+          b.parsedInfo.timestamp.getTime() - a.parsedInfo.timestamp.getTime()
       )
 
     // Determine if we are already locked to a filemode based on previously imported CVRs
@@ -289,7 +289,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         isTestModeResults,
         machineId,
         numberOfBallots,
-        timestamp,
+        timestamp
       } = parsedInfo
       const isImported = castVoteRecordFiles.filenameAlreadyImported(
         fileEntry.name
@@ -300,19 +300,19 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         (!isTestModeResults && fileMode === 'live')
       const canImport = !isImported && inProperFileMode
       const row = (
-        <tr key={fileEntry.name} data-testid="table-row">
+        <tr key={fileEntry.name} data-testid='table-row'>
           <td>{moment(timestamp).format(TIME_FORMAT)}</td>
           <td>{machineId}</td>
           <td>{numberOfBallots}</td>
           <td>
             <LabelText>{isTestModeResults ? 'Test' : 'Live'}</LabelText>
           </td>
-          <CheckTD narrow textAlign="center">
+          <CheckTD narrow textAlign='center'>
             {isImported ? CHECK_ICON : ''}
           </CheckTD>
-          <TD textAlign="right">
+          <TD textAlign='right'>
             <LinkButton
-              onPress={() => importSelectedFile(fileEntry)}
+              onPress={async () => await importSelectedFile(fileEntry)}
               disabled={!canImport}
               small
               primary
@@ -346,7 +346,7 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
 
     return (
       <Modal
-        className="import-cvr-modal"
+        className='import-cvr-modal'
         content={
           <MainChild>
             <Prose maxWidth={false}>
@@ -372,15 +372,15 @@ const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
         }
         onOverlayClick={onClose}
         actions={
-          <React.Fragment>
+          <>
             <LinkButton onPress={onClose}>Cancel</LinkButton>
             <FileInputButton
               onChange={processCastVoteRecordFileFromFilePicker}
-              data-testid="manual-input"
+              data-testid='manual-input'
             >
               Select File Manually…
             </FileInputButton>
-          </React.Fragment>
+          </>
         }
       />
     )

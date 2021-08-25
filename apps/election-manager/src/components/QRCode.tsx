@@ -13,7 +13,7 @@ const ResponsiveSvgWrapper = styled.div`
 const QRCode: React.FC<QRCodeProps> = ({
   level = 'H',
   renderAs = 'svg',
-  value,
+  value
 }) => (
   <ResponsiveSvgWrapper>
     <QRCodeReact renderAs={renderAs} value={value} level={level} />

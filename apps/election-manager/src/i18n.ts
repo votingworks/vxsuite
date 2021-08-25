@@ -6,9 +6,9 @@ void i18n.use(initReactI18next).init({
   keySeparator: false,
   lng: 'en-US',
   react: {
-    transKeepBasicHtmlNodesFor: ['br', 'strong', 'em', 'span'],
+    transKeepBasicHtmlNodesFor: ['br', 'strong', 'em', 'span']
   },
-  resources: {},
+  resources: {}
 })
 
 export default i18n

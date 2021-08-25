@@ -41,13 +41,13 @@ const Modal: React.FC<Props> = ({
   onAfterOpen = () => {
     window.setTimeout(() => {
       const element = document.getElementById('modalaudiofocus')
-      if (element) {
+      if (element != null) {
         element.focus()
         element.click()
       }
     }, 10)
   },
-  onOverlayClick,
+  onOverlayClick
 }: Props) => (
   <ReactModal
     appElement={
@@ -55,18 +55,18 @@ const Modal: React.FC<Props> = ({
     }
     ariaHideApp
     aria-modal
-    role="alertdialog"
+    role='alertdialog'
     isOpen
     contentLabel={ariaLabel}
-    portalClassName="modal-portal"
+    portalClassName='modal-portal'
     className={`modal-content ${className}`}
-    overlayClassName="modal-overlay"
+    overlayClassName='modal-overlay'
     onAfterOpen={onAfterOpen}
-    testId="modal"
+    testId='modal'
     onRequestClose={onOverlayClick}
   >
     <ModalContent centerContent={centerContent}>{content}</ModalContent>
-    {actions && <ButtonBar as="div">{actions}</ButtonBar>}
+    {actions && <ButtonBar as='div'>{actions}</ButtonBar>}
   </ReactModal>
 )
 

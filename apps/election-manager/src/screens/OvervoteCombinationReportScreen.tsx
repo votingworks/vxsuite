@@ -11,7 +11,7 @@ import routerPaths from '../routerPaths'
 import { ContestTallyMeta } from '../config/types'
 import {
   getOvervotePairTallies,
-  getContestTallyMeta,
+  getContestTallyMeta
 } from '../lib/votecounting'
 import Table, { TD } from '../components/Table'
 import Prose from '../components/Prose'
@@ -44,14 +44,14 @@ const PairsReportScreen: React.FC = () => {
   const {
     castVoteRecordFiles,
     electionDefinition,
-    isOfficialResults,
+    isOfficialResults
   } = useContext(AppContext)
   const { election } = electionDefinition!
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
   const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
   const overvotePairTallies = getOvervotePairTallies({
     election,
-    castVoteRecords,
+    castVoteRecords
   })
 
   const electionDate = format.localeWeekdayAndDate(new Date(election.date))
@@ -59,16 +59,16 @@ const PairsReportScreen: React.FC = () => {
 
   const contestTallyMeta = getContestTallyMeta({
     election,
-    castVoteRecords,
+    castVoteRecords
   })
 
   const reportHeader = (
-    <React.Fragment>
+    <>
       <h1>{statusPrefix} Overvote Combination Report</h1>
       <p>
         {electionDate}, {election.county.name}, {election.state}
         <br />
-        <Text small as="span">
+        <Text small as='span'>
           This report was created on {generatedAt}
         </Text>
       </p>
@@ -77,16 +77,16 @@ const PairsReportScreen: React.FC = () => {
         two selections, the pair tallies will sum up to more than the contest
         overvote count.
       </p>
-    </React.Fragment>
+    </>
   )
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>
         <Prose maxWidth={false}>
           {reportHeader}
           <p>
-            <PrintButton primary sides="one-sided">
+            <PrintButton primary sides='one-sided'>
               Print {statusPrefix} Tally Report
             </PrintButton>
           </p>
@@ -97,7 +97,7 @@ const PairsReportScreen: React.FC = () => {
           </p>
         </Prose>
       </NavigationScreen>
-      <div className="print-only">
+      <div className='print-only'>
         <LogoMark />
         <TallyHeader>
           <Prose maxWidth={false}>{reportHeader}</Prose>
@@ -108,14 +108,14 @@ const PairsReportScreen: React.FC = () => {
           const {
             ballots,
             overvotes,
-            undervotes,
+            undervotes
           }: ContestTallyMeta = contestTallyMeta[contest.id]!
           return (
             <Contest key={contest.id}>
               <Prose maxWidth={false}>
                 {ballots > 0 && (
-                  <ContestMeta className="ignore-prose">
-                    <Text as="span" small>
+                  <ContestMeta className='ignore-prose'>
+                    <Text as='span' small>
                       {pluralize('ballots', ballots, true)} cast /{' '}
                       {pluralize('overvotes', overvotes, true)} /{' '}
                       {pluralize('undervotes', undervotes, true)}
@@ -132,7 +132,7 @@ const PairsReportScreen: React.FC = () => {
                             {tally.candidates.first.name} +{' '}
                             {tally.candidates.second.name}
                           </td>
-                          <TD narrow textAlign="right">
+                          <TD narrow textAlign='right'>
                             {tally.tally}
                           </TD>
                         </tr>
@@ -149,7 +149,7 @@ const PairsReportScreen: React.FC = () => {
           )
         })}
       </div>
-    </React.Fragment>
+    </>
   )
 }
 

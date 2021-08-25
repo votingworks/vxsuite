@@ -24,7 +24,7 @@ const ElectionManager: React.FC = () => {
   const { electionDefinition } = useContext(AppContext)
   const election = electionDefinition?.election
 
-  if (!election) {
+  if (election == null) {
     return <UnconfiguredScreen />
   }
 
@@ -53,7 +53,7 @@ const ElectionManager: React.FC = () => {
       </Route>
       <Route
         path={routerPaths.manualDataImportForPrecinct({
-          precinctId: ':precinctId',
+          precinctId: ':precinctId'
         })}
       >
         <ManualDataImportPrecinctScreen />
@@ -61,7 +61,7 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
-          routerPaths.printTestDecks,
+          routerPaths.printTestDecks
         ]}
       >
         <PrintTestDeckScreen />
@@ -69,7 +69,7 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
-          routerPaths.testDecksTally,
+          routerPaths.testDecksTally
         ]}
       >
         <TestDeckScreen />
@@ -79,12 +79,12 @@ const ElectionManager: React.FC = () => {
           routerPaths.ballotsViewLanguage({
             ballotStyleId: ':ballotStyleId',
             precinctId: ':precinctId',
-            localeCode: ':localeCode',
+            localeCode: ':localeCode'
           }),
           routerPaths.ballotsView({
             ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
-          }),
+            precinctId: ':precinctId'
+          })
         ]}
       >
         <BallotScreen />
@@ -95,7 +95,7 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' }),
-          routerPaths.tallyFullReport,
+          routerPaths.tallyFullReport
         ]}
       >
         <TallyReportScreen />
@@ -103,7 +103,7 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.tallyScannerReport({ scannerId: ':scannerId' }),
-          routerPaths.tallyFullReport,
+          routerPaths.tallyFullReport
         ]}
       >
         <TallyReportScreen />
@@ -111,7 +111,7 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.tallyPartyReport({ partyId: ':partyId' }),
-          routerPaths.tallyFullReport,
+          routerPaths.tallyFullReport
         ]}
       >
         <TallyReportScreen />
@@ -119,7 +119,7 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.tallyBatchReport({ batchId: ':batchId' }),
-          routerPaths.tallyFullReport,
+          routerPaths.tallyFullReport
         ]}
       >
         <TallyReportScreen />
@@ -127,9 +127,9 @@ const ElectionManager: React.FC = () => {
       <Route
         path={[
           routerPaths.tallyVotingMethodReport({
-            votingMethod: ':votingMethod',
+            votingMethod: ':votingMethod'
           }),
-          routerPaths.tallyFullReport,
+          routerPaths.tallyFullReport
         ]}
       >
         <TallyReportScreen />

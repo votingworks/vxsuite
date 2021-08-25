@@ -7,7 +7,7 @@ import {
   TallyCategory,
   InputEventFunction,
   ResultsFileType,
-  ExternalTallySourceType,
+  ExternalTallySourceType
 } from '../config/types'
 
 import AppContext from '../contexts/AppContext'
@@ -42,7 +42,7 @@ const TallyScreen: React.FC = () => {
     isTabulationRunning,
     fullElectionExternalTallies,
     generateExportableTallies,
-    resetFiles,
+    resetFiles
   } = useContext(AppContext)
   const { election } = electionDefinition!
   const isTestMode = castVoteRecordFiles?.fileMode === 'test'
@@ -50,7 +50,7 @@ const TallyScreen: React.FC = () => {
 
   const [
     confirmingRemoveFileType,
-    setConfirmingRemoveFileType,
+    setConfirmingRemoveFileType
   ] = useState<ResultsFileType>()
   const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
@@ -91,7 +91,7 @@ const TallyScreen: React.FC = () => {
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList
   const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError
+    castVoteRecordFileList.length > 0 || castVoteRecordFiles.lastError != null
   const hasAnyFiles =
     hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0
   const hasExternalSEMSFile = fullElectionExternalTallies.some(
@@ -106,12 +106,12 @@ const TallyScreen: React.FC = () => {
   )
   const [
     externalResultsSelectedFile,
-    setExternalResultsSelectedFile,
+    setExternalResultsSelectedFile
   ] = useState<File>()
 
   const importExternalSEMSFile: InputEventFunction = async (event) => {
     const input = event.currentTarget
-    const files = Array.from(input.files || [])
+    const files = Array.from(input.files ?? [])
     if (files.length === 1) {
       setIsImportExternalModalOpen(true)
       setExternalResultsSelectedFile(files[0])
@@ -121,7 +121,7 @@ const TallyScreen: React.FC = () => {
   const closeExternalFileImport = () => {
     setIsImportExternalModalOpen(false)
     setExternalResultsSelectedFile(undefined)
-    if (externalFileInput?.current) {
+    if ((externalFileInput?.current) != null) {
       externalFileInput.current.value = ''
     }
   }
@@ -143,35 +143,35 @@ const TallyScreen: React.FC = () => {
     fileMode === 'test'
       ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before importing live ballot results.'
       : fileMode === 'live'
-      ? 'Currently tallying live ballots.'
-      : ''
+        ? 'Currently tallying live ballots.'
+        : ''
 
   let tallyResultsInfo = <Loading>Tabulating Results…</Loading>
   if (!isTabulationRunning) {
     const resultTables = isShowingBatchResults ? (
-      <React.Fragment>
+      <>
         <h2>Ballot Counts by Batch</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
-      </React.Fragment>
+      </>
     ) : (
-      <React.Fragment>
+      <>
         <h2>Ballot Counts by Precinct</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
         <h2>Ballot Counts by Voting Method</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
         {partiesForPrimaries.length > 0 && (
-          <React.Fragment>
+          <>
             <h2>Ballot Counts by Party</h2>
             <BallotCountsTable breakdownCategory={TallyCategory.Party} />
-          </React.Fragment>
+          </>
         )}
         <h2>Ballot Counts by Scanner</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
-      </React.Fragment>
+      </>
     )
 
     tallyResultsInfo = (
-      <React.Fragment>
+      <>
         <SegmentedButton>
           <Button
             disabled={!isShowingBatchResults}
@@ -193,7 +193,7 @@ const TallyScreen: React.FC = () => {
             View {statusPrefix} Full Election Tally Report
           </LinkButton>
         </p>
-      </React.Fragment>
+      </>
     )
   }
 
@@ -231,7 +231,7 @@ const TallyScreen: React.FC = () => {
         [electionDefinition!.electionData],
         electionDefinitionFile.name,
         {
-          type: 'application/json',
+          type: 'application/json'
         }
       )
     )
@@ -250,26 +250,26 @@ const TallyScreen: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>
         <h1>Election Tally Reports</h1>
         <h2>Cast Vote Record (CVR) files</h2>
         <Text>{fileModeText}</Text>
-        <Table data-testid="loaded-file-table">
+        <Table data-testid='loaded-file-table'>
           <tbody>
             {hasAnyFiles ? (
-              <React.Fragment>
+              <>
                 <tr>
-                  <TD as="th" narrow nowrap>
+                  <TD as='th' narrow nowrap>
                     File Exported At
                   </TD>
-                  <TD as="th" narrow nowrap>
+                  <TD as='th' narrow nowrap>
                     Scanner ID
                   </TD>
-                  <TD as="th" nowrap narrow>
+                  <TD as='th' nowrap narrow>
                     CVR Count
                   </TD>
-                  <TD as="th" nowrap>
+                  <TD as='th' nowrap>
                     Precinct(s)
                   </TD>
                 </tr>
@@ -279,7 +279,7 @@ const TallyScreen: React.FC = () => {
                     exportTimestamp,
                     count,
                     scannerIds,
-                    precinctIds,
+                    precinctIds
                   }) => (
                     <tr key={name}>
                       <TD narrow nowrap>
@@ -297,11 +297,11 @@ const TallyScreen: React.FC = () => {
                 )}
                 {externalTallyRows}
                 <tr>
-                  <TD as="th" narrow nowrap>
+                  <TD as='th' narrow nowrap>
                     Total CVRs Count
                   </TD>
-                  <TD as="th" />
-                  <TD as="th" narrow>
+                  <TD as='th' />
+                  <TD as='th' narrow>
                     {format.count(
                       castVoteRecordFileList.reduce(
                         (prev, curr) => prev + curr.count,
@@ -309,9 +309,9 @@ const TallyScreen: React.FC = () => {
                       ) + externalFileBallotCount
                     )}
                   </TD>
-                  <TD as="th" />
+                  <TD as='th' />
                 </tr>
-              </React.Fragment>
+              </>
             ) : (
               <tr>
                 <TD colSpan={2}>
@@ -331,8 +331,8 @@ const TallyScreen: React.FC = () => {
           <FileInputButton
             innerRef={externalFileInput}
             onChange={importExternalSEMSFile}
-            accept="*"
-            data-testid="import-sems-button"
+            accept='*'
+            data-testid='import-sems-button'
             disabled={hasExternalSEMSFile || isOfficialResults}
           >
             Import External Results File
@@ -368,8 +368,7 @@ const TallyScreen: React.FC = () => {
               danger
               disabled={!hasCastVoteRecordFiles}
               onPress={() =>
-                beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
-              }
+                beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)}
             >
               Remove CVR Files…
             </Button>{' '}
@@ -391,17 +390,17 @@ const TallyScreen: React.FC = () => {
         )}
         {tallyResultsInfo}
         {hasConverter && hasCastVoteRecordFiles && (
-          <React.Fragment>
+          <>
             <h2>Export Options</h2>
             <p>
               <Button onPress={() => setIsExportResultsModalOpen(true)}>
                 Save Results File
               </Button>
             </p>
-          </React.Fragment>
+          </>
         )}
         {!hasCastVoteRecordFiles && (
-          <React.Fragment>
+          <>
             <HorizontalRule />
             <h2>Pre-Election Features</h2>
             <p>
@@ -412,7 +411,7 @@ const TallyScreen: React.FC = () => {
                 View Test Ballot Deck Tally
               </LinkButton>
             </p>
-          </React.Fragment>
+          </>
         )}
       </NavigationScreen>
       {confirmingRemoveFileType && (
@@ -437,12 +436,12 @@ const TallyScreen: React.FC = () => {
             </Prose>
           }
           actions={
-            <React.Fragment>
+            <>
               <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
               <Button primary onPress={setOfficial}>
                 Mark Tally Results as Official
               </Button>
-            </React.Fragment>
+            </>
           }
           onOverlayClick={cancelConfirmingOfficial}
         />
@@ -469,7 +468,7 @@ const TallyScreen: React.FC = () => {
           promptToEjectUSB
         />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

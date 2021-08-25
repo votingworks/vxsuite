@@ -35,7 +35,7 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   const [showPrintingError, setShowPrintingError] = useState(false)
 
   const print = async () => {
-    if (window.kiosk) {
+    if (window.kiosk != null) {
       const printers = await window.kiosk.getPrinterInfo()
       if (!printers.some((p) => p.connected)) {
         setShowPrintingError(true)
@@ -77,8 +77,8 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   }
 
   return (
-    <React.Fragment>
-      <Button onPress={confirmModal ? initConfirmModal : print} {...rest}>
+    <>
+      <Button onPress={(confirmModal != null) ? initConfirmModal : print} {...rest}>
         {children}
       </Button>
       {isPrinting && (
@@ -89,12 +89,12 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
           centerContent
           content={confirmModal?.content}
           actions={
-            <React.Fragment>
+            <>
               <Button onPress={cancelPrint}>Cancel</Button>
               <Button onPress={confirmPrint} primary>
                 {confirmModal?.confirmButtonLabel ?? 'Print'}
               </Button>
-            </React.Fragment>
+            </>
           }
         />
       )}
@@ -107,13 +107,13 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
             </Prose>
           }
           actions={
-            <React.Fragment>
+            <>
               <Button onPress={donePrintingError}>OK</Button>
-            </React.Fragment>
+            </>
           }
         />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

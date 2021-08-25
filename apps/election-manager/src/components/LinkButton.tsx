@@ -6,9 +6,9 @@ import Button, { ButtonInterface } from './Button'
 
 interface Props
   extends ButtonInterface,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    RouteComponentProps<{}>,
-    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  RouteComponentProps<{}>,
+  React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
   goBack?: boolean
   onPress?: EventTargetFunction
   primary?: boolean
@@ -29,7 +29,7 @@ const LinkButton = (props: Props) => {
   } = props
   const handleOnPress: EventTargetFunction = (event) => {
     /* istanbul ignore else */
-    if (onPress) {
+    if (onPress != null) {
       onPress(event)
     } else if (goBack && !to) {
       history.goBack()
@@ -40,7 +40,7 @@ const LinkButton = (props: Props) => {
   return (
     <Button
       {...rest} // `children` is just another prop!
-      role="option"
+      role='option'
       onPress={handleOnPress}
     />
   )

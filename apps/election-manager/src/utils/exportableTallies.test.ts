@@ -1,19 +1,19 @@
 import {
   electionMultiPartyPrimaryWithDataFiles,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionWithMsEitherNeitherWithDataFiles
 } from '@votingworks/fixtures'
 import { CandidateContest, Election, YesNoContest } from '@votingworks/types'
 import {
   CastVoteRecord,
   ContestTally,
   ExportableTallies,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 import { computeFullElectionTally, parseCVRs } from '../lib/votecounting'
 import { writeInCandidate } from './election'
 import {
   getCombinedExportableContestTally,
-  getExportableTallies,
+  getExportableTallies
 } from './exportableTallies'
 import { convertSEMSFileToExternalTally } from './semsTallies'
 
@@ -29,7 +29,7 @@ const presidentcontest = electionWithMsEitherNeither.contests.find(
   (c) => c.id === '775020876'
 ) as CandidateContest
 
-function parseCVRsAndAssertSuccess(
+function parseCVRsAndAssertSuccess (
   cvrsFileContents: string,
   election: Election
 ): CastVoteRecord[] {
@@ -39,7 +39,7 @@ function parseCVRsAndAssertSuccess(
   })
 }
 
-function assertTalliesAreIdenticalMultiples(
+function assertTalliesAreIdenticalMultiples (
   baseTally: ExportableTallies,
   multipleTally: ExportableTallies,
   multiplier: number
@@ -64,7 +64,7 @@ function assertTalliesAreIdenticalMultiples(
       expect(multipleContestTally.metadata).toEqual({
         ballots: baseContestTally.metadata.ballots * multiplier,
         overvotes: baseContestTally.metadata.overvotes * multiplier,
-        undervotes: baseContestTally.metadata.undervotes * multiplier,
+        undervotes: baseContestTally.metadata.undervotes * multiplier
       })
 
       // Both tallies should have the same candidates defined
@@ -86,33 +86,33 @@ describe('getCombinedExportableContestTally', () => {
   it('combines yes no contests as expected', () => {
     const emptyExportable = {
       tallies: {},
-      metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+      metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
     }
     const emptyContestTally: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 0 },
-        no: { option: ['no'], tally: 0 },
+        no: { option: ['no'], tally: 0 }
       },
-      metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+      metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
     }
     expect(
       getCombinedExportableContestTally(emptyExportable, emptyContestTally)
     ).toEqual({
       tallies: {
         yes: 0,
-        no: 0,
+        no: 0
       },
-      metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+      metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
     })
 
     const populatedContestTally: ContestTally = {
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 3 },
-        no: { option: ['no'], tally: 4 },
+        no: { option: ['no'], tally: 4 }
       },
-      metadata: { ballots: 18, undervotes: 5, overvotes: 6 },
+      metadata: { ballots: 18, undervotes: 5, overvotes: 6 }
     }
     const results = getCombinedExportableContestTally(
       emptyExportable,
@@ -121,25 +121,25 @@ describe('getCombinedExportableContestTally', () => {
     expect(results).toEqual({
       tallies: {
         yes: 3,
-        no: 4,
+        no: 4
       },
-      metadata: { ballots: 18, undervotes: 5, overvotes: 6 },
+      metadata: { ballots: 18, undervotes: 5, overvotes: 6 }
     })
     expect(
       getCombinedExportableContestTally(results, populatedContestTally)
     ).toEqual({
       tallies: {
         yes: 6,
-        no: 8,
+        no: 8
       },
-      metadata: { ballots: 36, undervotes: 10, overvotes: 12 },
+      metadata: { ballots: 36, undervotes: 10, overvotes: 12 }
     })
   })
 
   it('combines candidate contests as expected', () => {
     const emptyExportable = {
       tallies: {},
-      metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+      metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
     }
     const emptyContestTally: ContestTally = {
       contest: presidentcontest,
@@ -148,26 +148,26 @@ describe('getCombinedExportableContestTally', () => {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031988'
           )!,
-          tally: 0,
+          tally: 0
         },
         775031989: {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031989'
           )!,
-          tally: 0,
-        },
+          tally: 0
+        }
       },
-      metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+      metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
     }
 
     expect(
       getCombinedExportableContestTally(emptyExportable, emptyContestTally)
     ).toEqual({
       tallies: {
-        '775031988': 0,
-        '775031989': 0,
+        775031988: 0,
+        775031989: 0
       },
-      metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
+      metadata: { ballots: 0, undervotes: 0, overvotes: 0 }
     })
 
     const partialContestTally: ContestTally = {
@@ -177,16 +177,16 @@ describe('getCombinedExportableContestTally', () => {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031988'
           )!,
-          tally: 12,
+          tally: 12
         },
         775031989: {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031989'
           )!,
-          tally: 8,
-        },
+          tally: 8
+        }
       },
-      metadata: { ballots: 30, undervotes: 6, overvotes: 4 },
+      metadata: { ballots: 30, undervotes: 6, overvotes: 4 }
     }
     const partialResult = getCombinedExportableContestTally(
       emptyExportable,
@@ -195,9 +195,9 @@ describe('getCombinedExportableContestTally', () => {
     expect(partialResult).toEqual({
       tallies: {
         775031988: 12,
-        775031989: 8,
+        775031989: 8
       },
-      metadata: { ballots: 30, undervotes: 6, overvotes: 4 },
+      metadata: { ballots: 30, undervotes: 6, overvotes: 4 }
     })
 
     const tallyForEveryone: ContestTally = {
@@ -207,26 +207,26 @@ describe('getCombinedExportableContestTally', () => {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031988'
           )!,
-          tally: 8,
+          tally: 8
         },
         775031989: {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031989'
           )!,
-          tally: 12,
+          tally: 12
         },
         775031987: {
           option: presidentcontest.candidates.find(
             (c) => c.id === '775031987'
           )!,
-          tally: 10,
+          tally: 10
         },
         '__write-in': {
           option: writeInCandidate,
-          tally: 10,
-        },
+          tally: 10
+        }
       },
-      metadata: { ballots: 40, undervotes: 4, overvotes: 6 },
+      metadata: { ballots: 40, undervotes: 4, overvotes: 6 }
     }
 
     expect(
@@ -236,9 +236,9 @@ describe('getCombinedExportableContestTally', () => {
         775031988: 20,
         775031989: 20,
         775031987: 10,
-        '__write-in': 10,
+        '__write-in': 10
       },
-      metadata: { ballots: 70, undervotes: 10, overvotes: 10 },
+      metadata: { ballots: 70, undervotes: 10, overvotes: 10 }
     })
   })
 })

@@ -1,6 +1,6 @@
 import { Printer } from '../../src/utils/printer'
 
-export default function fakePrinter({
+export default function fakePrinter ({
   print = async () => {
     // do nothing
   },
@@ -8,6 +8,6 @@ export default function fakePrinter({
 }: Partial<Printer> = {}): jest.Mocked<Printer> {
   return {
     print: jest.fn(print),
-    ...rest,
+    ...rest
   }
 }

@@ -15,7 +15,7 @@ export interface ButtonInterface {
 
 export interface StyledButtonProps
   extends ButtonInterface,
-    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
+  React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 export const buttonFocusStyle = css`
   outline: none;
@@ -61,7 +61,7 @@ export const DecoyButton = styled.div`
 `
 
 const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
-  type,
+  type
 }))`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `

@@ -22,7 +22,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
     isTabulationRunning,
     fullElectionTally,
     fullElectionExternalTallies,
-    isOfficialResults,
+    isOfficialResults
   } = useContext(AppContext)
   const { election } = electionDefinition!
 
@@ -42,24 +42,24 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
   switch (breakdownCategory) {
     case TallyCategory.Precinct: {
       const resultsByPrecinct =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {}
+        ((fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct)) != null) || {}
       const externalResultsByPrecinct = fullElectionExternalTallies.map(
-        (t) => t.resultsByCategory.get(TallyCategory.Precinct) || {}
+        (t) => (t.resultsByCategory.get(TallyCategory.Precinct) != null) || {}
       )
       return (
         <Table>
           <tbody>
-            <tr data-testid="table-row">
-              <TD as="th" narrow>
+            <tr data-testid='table-row'>
+              <TD as='th' narrow>
                 Precinct
               </TD>
-              <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as='th'>Ballot Count</TD>
+              <TD as='th'>View Tally</TD>
             </tr>
             {[...election.precincts]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {
-                  ignorePunctuation: true,
+                  ignorePunctuation: true
                 })
               )
               .map((precinct) => {
@@ -76,7 +76,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   0
                 )
                 return (
-                  <tr key={precinct.id} data-testid="table-row">
+                  <tr key={precinct.id} data-testid='table-row'>
                     <TD narrow nowrap>
                       {precinct.name}
                     </TD>
@@ -89,7 +89,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                       <LinkButton
                         small
                         to={routerPaths.tallyPrecinctReport({
-                          precinctId: precinct.id,
+                          precinctId: precinct.id
                         })}
                       >
                         View {statusPrefix} {precinct.name} Tally Report
@@ -98,12 +98,12 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   </tr>
                 )
               })}
-            <tr data-testid="table-row">
+            <tr data-testid='table-row'>
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
               </TD>
               <TD>
-                <strong data-testid="total-ballot-count">
+                <strong data-testid='total-ballot-count'>
                   {format.count(
                     totalBallotCountInternal + totalBallotCountExternal
                   )}
@@ -113,7 +113,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                 <LinkButton
                   small
                   to={routerPaths.tallyPrecinctReport({
-                    precinctId: 'all',
+                    precinctId: 'all'
                   })}
                 >
                   View {statusPrefix} Tally Reports for All Precincts
@@ -126,31 +126,31 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
     }
     case TallyCategory.Scanner: {
       const resultsByScanner =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {}
+        ((fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner)) != null) || {}
 
       return (
-        <React.Fragment>
+        <>
           <Table>
             <tbody>
-              <tr data-testid="table-row">
-                <TD as="th" narrow>
+              <tr data-testid='table-row'>
+                <TD as='th' narrow>
                   Scanner ID
                 </TD>
-                <TD as="th">Ballot Count</TD>
-                <TD as="th">View Tally</TD>
+                <TD as='th'>Ballot Count</TD>
+                <TD as='th'>View Tally</TD>
               </tr>
               {Object.keys(resultsByScanner)
                 .sort((a, b) =>
                   a.localeCompare(b, 'en', {
                     numeric: true,
-                    ignorePunctuation: true,
+                    ignorePunctuation: true
                   })
                 )
                 .map((scannerId) => {
                   const scannerBallotsCount =
                     resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0
                   return (
-                    <tr key={scannerId} data-testid="table-row">
+                    <tr key={scannerId} data-testid='table-row'>
                       <TD narrow nowrap>
                         {scannerId}
                       </TD>
@@ -160,7 +160,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                           <LinkButton
                             small
                             to={routerPaths.tallyScannerReport({
-                              scannerId,
+                              scannerId
                             })}
                           >
                             View {statusPrefix} Scanner {scannerId} Tally Report
@@ -171,7 +171,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   )
                 })}
               {fullElectionExternalTallies.map((t) => (
-                <tr data-testid="table-row" key={t.inputSourceName}>
+                <tr data-testid='table-row' key={t.inputSourceName}>
                   <TD narrow nowrap>
                     External Results ({t.inputSourceName})
                   </TD>
@@ -179,7 +179,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   <TD />
                 </tr>
               ))}
-              <tr data-testid="table-row">
+              <tr data-testid='table-row'>
                 <TD narrow nowrap>
                   <strong>Total Ballot Count</strong>
                 </TD>
@@ -194,14 +194,14 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               </tr>
             </tbody>
           </Table>
-        </React.Fragment>
+        </>
       )
     }
     case TallyCategory.Party: {
       const resultsByParty =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Party) || {}
+        ((fullElectionTally?.resultsByCategory.get(TallyCategory.Party)) != null) || {}
       const externalResultsByParty = fullElectionExternalTallies.map(
-        (t) => t.resultsByCategory.get(TallyCategory.Party) || {}
+        (t) => (t.resultsByCategory.get(TallyCategory.Party) != null) || {}
       )
       const partiesForPrimaries = getPartiesWithPrimaryElections(election)
       if (partiesForPrimaries.length === 0) {
@@ -211,17 +211,17 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
       return (
         <Table>
           <tbody>
-            <tr data-testid="table-row">
-              <TD as="th" narrow>
+            <tr data-testid='table-row'>
+              <TD as='th' narrow>
                 Party
               </TD>
-              <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as='th'>Ballot Count</TD>
+              <TD as='th'>View Tally</TD>
             </tr>
             {[...partiesForPrimaries]
               .sort((a, b) =>
                 a.fullName.localeCompare(b.fullName, undefined, {
-                  ignorePunctuation: true,
+                  ignorePunctuation: true
                 })
               )
               .map((party) => {
@@ -234,7 +234,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   0
                 )
                 return (
-                  <tr data-testid="table-row" key={party.id}>
+                  <tr data-testid='table-row' key={party.id}>
                     <TD narrow nowrap>
                       {party.fullName}
                     </TD>
@@ -247,7 +247,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                       <LinkButton
                         small
                         to={routerPaths.tallyPartyReport({
-                          partyId: party.id,
+                          partyId: party.id
                         })}
                       >
                         View {statusPrefix} {party.fullName} Tally Report
@@ -256,12 +256,12 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                   </tr>
                 )
               })}
-            <tr data-testid="table-row">
+            <tr data-testid='table-row'>
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
               </TD>
               <TD>
-                <strong data-testid="total-ballot-count">
+                <strong data-testid='total-ballot-count'>
                   {format.count(
                     totalBallotCountInternal + totalBallotCountExternal
                   )}
@@ -279,17 +279,17 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
     }
     case TallyCategory.VotingMethod: {
       const resultsByVotingMethod =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.VotingMethod) ||
+        ((fullElectionTally?.resultsByCategory.get(TallyCategory.VotingMethod)) != null) ||
         {}
       return (
         <Table>
           <tbody>
-            <tr data-testid="table-row">
-              <TD as="th" narrow>
+            <tr data-testid='table-row'>
+              <TD as='th' narrow>
                 Voting Method
               </TD>
-              <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as='th'>Ballot Count</TD>
+              <TD as='th'>View Tally</TD>
             </tr>
             {Object.values(VotingMethod).map((votingMethod) => {
               let votingMethodBallotsCount =
@@ -311,7 +311,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               }
               const label = getLabelForVotingMethod(votingMethod)
               return (
-                <tr key={votingMethod} data-testid="table-row">
+                <tr key={votingMethod} data-testid='table-row'>
                   <TD narrow nowrap>
                     {label}
                   </TD>
@@ -320,7 +320,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                     <LinkButton
                       small
                       to={routerPaths.tallyVotingMethodReport({
-                        votingMethod,
+                        votingMethod
                       })}
                     >
                       View {statusPrefix} {label} Ballot Tally Report
@@ -329,7 +329,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                 </tr>
               )
             })}
-            <tr data-testid="table-row">
+            <tr data-testid='table-row'>
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
               </TD>
@@ -348,25 +348,25 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
     }
     case TallyCategory.Batch: {
       const resultsByBatch =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Batch) || {}
+        ((fullElectionTally?.resultsByCategory.get(TallyCategory.Batch)) != null) || {}
 
       return (
         <Table>
           <tbody>
-            <tr data-testid="table-row">
-              <TD as="th" narrow>
+            <tr data-testid='table-row'>
+              <TD as='th' narrow>
                 Batch Name
               </TD>
-              <TD as="th">Scanner</TD>
-              <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as='th'>Scanner</TD>
+              <TD as='th'>Ballot Count</TD>
+              <TD as='th'>View Tally</TD>
             </tr>
             {Object.keys(resultsByBatch).map((batchId) => {
               const batchTally = resultsByBatch[batchId]! as BatchTally
               const batchBallotsCount = batchTally.numberOfBallotsCounted
               // This should only be multiple scanners if there are ballots missing batch ids
               return (
-                <tr key={batchId} data-testid="table-row">
+                <tr key={batchId} data-testid='table-row'>
                   <TD narrow nowrap data-testid={`batch-${batchId}`}>
                     {batchTally.batchLabel}
                   </TD>
@@ -377,7 +377,7 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
                       <LinkButton
                         small
                         to={routerPaths.tallyBatchReport({
-                          batchId,
+                          batchId
                         })}
                       >
                         View {statusPrefix} {batchTally.batchLabel} Tally Report
@@ -388,15 +388,15 @@ const BallotCountsTable: React.FC<Props> = ({ breakdownCategory }) => {
               )
             })}
             {fullElectionExternalTallies.map((t) => (
-              <tr data-testid="table-row" key={t.inputSourceName}>
-                <TD narrow nowrap data-testid="batch-external">
+              <tr data-testid='table-row' key={t.inputSourceName}>
+                <TD narrow nowrap data-testid='batch-external'>
                   External Results ({t.inputSourceName})
                 </TD>
                 <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
                 <TD />
               </tr>
             ))}
-            <tr data-testid="table-row">
+            <tr data-testid='table-row'>
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
               </TD>

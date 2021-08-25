@@ -27,8 +27,8 @@ test('can add a CVR file by creating a new instance', async () => {
       count: 0,
       precinctIds: [],
       scannerIds: [],
-      exportTimestamp: TEST_DATE,
-    },
+      exportTimestamp: TEST_DATE
+    }
   ])
   expect(added.lastError).toBeUndefined()
 })
@@ -41,14 +41,14 @@ test('can add multiple CVR files by creating a new instance', async () => {
     _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
-    _scannerId: 'abc',
+    _scannerId: 'abc'
   }
   const added = await empty.addAll(
     [
       new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() }),
       new File([JSON.stringify(cvr)], 'cvrs2.txt', {
-        lastModified: TEST_DATE.getTime(),
-      }),
+        lastModified: TEST_DATE.getTime()
+      })
     ],
     electionSample
   )
@@ -61,15 +61,15 @@ test('can add multiple CVR files by creating a new instance', async () => {
       count: 0,
       precinctIds: [],
       scannerIds: [],
-      exportTimestamp: TEST_DATE,
+      exportTimestamp: TEST_DATE
     },
     {
       name: 'cvrs2.txt',
       count: 1,
       precinctIds: ['23'],
       scannerIds: ['abc'],
-      exportTimestamp: TEST_DATE,
-    },
+      exportTimestamp: TEST_DATE
+    }
   ])
   expect(added.lastError).toBeUndefined()
   expect(added.fileMode).toBe('live')
@@ -83,14 +83,14 @@ test('test ballot cvrs change the file mode appropriately', async () => {
     _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: true,
-    _scannerId: 'abc',
+    _scannerId: 'abc'
   }
   const added = await empty.addAll(
     [
       new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() }),
       new File([JSON.stringify(cvr)], 'cvrs2.txt', {
-        lastModified: TEST_DATE.getTime(),
-      }),
+        lastModified: TEST_DATE.getTime()
+      })
     ],
     electionSample
   )
@@ -103,15 +103,15 @@ test('test ballot cvrs change the file mode appropriately', async () => {
       count: 0,
       precinctIds: [],
       scannerIds: [],
-      exportTimestamp: TEST_DATE,
+      exportTimestamp: TEST_DATE
     },
     {
       name: 'cvrs2.txt',
       count: 1,
       precinctIds: ['23'],
       scannerIds: ['abc'],
-      exportTimestamp: TEST_DATE,
-    },
+      exportTimestamp: TEST_DATE
+    }
   ])
   expect(added.lastError).toBeUndefined()
   expect(added.fileMode).toBe('test')
@@ -125,11 +125,11 @@ test('does not mutate the original when adding a new instance', async () => {
     _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
-    _scannerId: 'abc',
+    _scannerId: 'abc'
   }
   const added = await empty.add(
     new File([JSON.stringify(cvr)], 'cvrs.txt', {
-      lastModified: TEST_DATE.getTime(),
+      lastModified: TEST_DATE.getTime()
     }),
     electionSample
   )
@@ -147,8 +147,8 @@ test('does not mutate the original when adding a new instance', async () => {
       count: 1,
       precinctIds: ['23'],
       scannerIds: ['abc'],
-      exportTimestamp: TEST_DATE,
-    },
+      exportTimestamp: TEST_DATE
+    }
   ])
   expect(added.lastError).toBeUndefined()
 })
@@ -164,7 +164,7 @@ test('records JSON errors', async () => {
   expect(added.fileList).toEqual([])
   expect(added.lastError).toEqual({
     filename: 'cvrs.txt',
-    message: 'Unexpected token b in JSON at position 1',
+    message: 'Unexpected token b in JSON at position 1'
   })
 })
 
@@ -175,7 +175,7 @@ test('records CVR data errors', async () => {
     _ballotType: 'standard',
     _precinctId: '9999',
     _testBallot: false,
-    _scannerId: 'abc',
+    _scannerId: 'abc'
   }
   const added = await CastVoteRecordFiles.empty.add(
     new File([JSON.stringify(cvr)], 'cvrs.txt'),
@@ -187,7 +187,7 @@ test('records CVR data errors', async () => {
   expect(added.fileList).toEqual([])
   expect(added.lastError).toEqual({
     filename: 'cvrs.txt',
-    message: "Line 1: Precinct '9999' in CVR is not in the election definition",
+    message: "Line 1: Precinct '9999' in CVR is not in the election definition"
   })
 })
 
@@ -198,16 +198,16 @@ test('records identical uploaded files', async () => {
     _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
-    _scannerId: 'abc',
+    _scannerId: 'abc'
   }
   const added = await CastVoteRecordFiles.empty.addAll(
     [
       new File([JSON.stringify(cvr)], 'cvrs.txt', {
-        lastModified: TEST_DATE.getTime(),
+        lastModified: TEST_DATE.getTime()
       }),
       new File([JSON.stringify(cvr)], 'cvrs2.txt', {
-        lastModified: TEST_DATE.getTime(),
-      }),
+        lastModified: TEST_DATE.getTime()
+      })
     ],
     electionSample
   )
@@ -220,8 +220,8 @@ test('records identical uploaded files', async () => {
       count: 1,
       precinctIds: ['23'],
       scannerIds: ['abc'],
-      exportTimestamp: TEST_DATE,
-    },
+      exportTimestamp: TEST_DATE
+    }
   ])
   expect(added.lastError).toBeUndefined()
 })
@@ -233,22 +233,22 @@ test('refuses to tabulate both live and test CVRs', async () => {
     _ballotType: 'standard',
     _precinctId: '23',
     _testBallot: false,
-    _scannerId: 'abc',
+    _scannerId: 'abc'
   }
 
   const otherCvr = {
     ...cvr,
-    _testBallot: true,
+    _testBallot: true
   }
 
   const added = await CastVoteRecordFiles.empty.addAll(
     [
       new File([JSON.stringify(cvr)], 'cvrs.txt', {
-        lastModified: TEST_DATE.getTime(),
+        lastModified: TEST_DATE.getTime()
       }),
       new File([JSON.stringify(otherCvr)], 'cvrs2.txt', {
-        lastModified: TEST_DATE.getTime(),
-      }),
+        lastModified: TEST_DATE.getTime()
+      })
     ],
     electionSample
   )
@@ -260,12 +260,12 @@ test('refuses to tabulate both live and test CVRs', async () => {
       count: 1,
       precinctIds: ['23'],
       scannerIds: ['abc'],
-      exportTimestamp: TEST_DATE,
-    },
+      exportTimestamp: TEST_DATE
+    }
   ])
   expect(added.lastError).toEqual({
     filename: 'cvrs2.txt',
     message:
-      'These CVRs cannot be tabulated together because they mix live and test ballots',
+      'These CVRs cannot be tabulated together because they mix live and test ballots'
   })
 })

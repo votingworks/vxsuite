@@ -1,7 +1,7 @@
 import { CandidateContest, Dictionary } from '@votingworks/types'
 import { ContestOptionTally } from '../../src/config/types'
 
-export function buildCandidateTallies(
+export function buildCandidateTallies (
   multiplier: number,
   contest: CandidateContest
 ): Dictionary<ContestOptionTally> {
@@ -10,7 +10,7 @@ export function buildCandidateTallies(
   contest.candidates.forEach((c) => {
     results[c.id] = {
       option: c,
-      tally: index * multiplier,
+      tally: index * multiplier
     }
     index += 1
   })

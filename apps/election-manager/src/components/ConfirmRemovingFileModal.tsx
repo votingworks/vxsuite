@@ -18,7 +18,7 @@ export interface Props {
 export const ConfirmRemovingFileModal: React.FC<Props> = ({
   onConfirm,
   onCancel,
-  fileType,
+  fileType
 }) => {
   const { castVoteRecordFiles, fullElectionExternalTallies } = useContext(
     AppContext
@@ -40,8 +40,8 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       singleFileRemoval = fileList.length <= 1
       fileTypeName = 'CVR Files'
       mainContent = (
-        <React.Fragment>
-          {fileList.length ? (
+        <>
+          {(fileList.length > 0) ? (
             <p>
               Do you want to remove the {fileList.length} uploaded CVR{' '}
               {pluralize('files', fileList.length)}?
@@ -53,7 +53,7 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
             </p>
           )}
           <p>All reports will be unavailable without CVR data.</p>
-        </React.Fragment>
+        </>
       )
       break
     }
@@ -86,14 +86,14 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
         externalDetails = ' and the manually entered data'
       }
       mainContent = (
-        <React.Fragment>
+        <>
           <p>
             Do you want to remove the {fileList.length} uploaded CVR{' '}
             {pluralize('files', fileList.length)}
             {externalDetails}?
           </p>
           <p>All reports will be unavailable without CVR data.</p>
-        </React.Fragment>
+        </>
       )
       break
     }
@@ -106,12 +106,12 @@ export const ConfirmRemovingFileModal: React.FC<Props> = ({
       centerContent
       content={<Prose textCenter>{mainContent}</Prose>}
       actions={
-        <React.Fragment>
+        <>
           <Button onPress={onCancel}>Cancel</Button>
           <Button danger onPress={() => onConfirm(fileType)}>
             Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
-        </React.Fragment>
+        </>
       }
       onOverlayClick={onCancel}
     />

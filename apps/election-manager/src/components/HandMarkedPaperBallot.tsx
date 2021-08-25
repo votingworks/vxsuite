@@ -29,7 +29,7 @@ import {
   getPartyFullNameFromBallotStyle,
   getPrecinctById,
   withLocale,
-  safeParseElection,
+  safeParseElection
 } from '@votingworks/types'
 
 import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
@@ -54,11 +54,11 @@ const dualPhraseWithBreak = (t1: string, t2?: string) => {
     return t1
   }
   return (
-    <React.Fragment>
+    <>
       <strong>{t1}</strong>
       <br />
       {t2}
-    </React.Fragment>
+    </>
   )
 }
 
@@ -67,21 +67,21 @@ const dualPhraseWithSlash = (
   t2?: string,
   {
     separator = ' / ',
-    normal = false,
-  }: { separator?: string; normal?: boolean } = {}
+    normal = false
+  }: { separator?: string, normal?: boolean } = {}
 ) => {
   if (!t2 || t1 === t2) {
     return t1
   }
   if (normal) {
     return (
-      <React.Fragment>
+      <>
         {t1}
         {separator}
-        <Text normal as="span">
+        <Text normal as='span'>
           {t2}
         </Text>
-      </React.Fragment>
+      </>
     )
   }
   return `${t1}${separator}${t2}`
@@ -94,21 +94,21 @@ const dualLanguageComposer = (
 ) => (key: string, options?: StringMap) => {
   const enTranslation = t(key, {
     ...options,
-    lng: locales.primary,
+    lng: locales.primary
   })
   if (!locales.secondary) {
     return enTranslation
   }
   const dualTranslation = t(key, {
     ...options,
-    lng: locales.secondary,
+    lng: locales.secondary
   })
   if (separator === 'break') {
     return dualPhraseWithBreak(enTranslation, dualTranslation)
   }
   return dualPhraseWithSlash(enTranslation, dualTranslation, {
     separator,
-    normal: true,
+    normal: true
   })
 }
 
@@ -129,11 +129,11 @@ interface PagedJSPage {
   pagesArea: HTMLElement
 }
 class PostRenderBallotProcessor extends Handler {
-  afterRendered(pages: PagedJSPage[]) {
+  afterRendered (pages: PagedJSPage[]) {
     // Insert blank page if ballot page count is odd.
     if (pages.length % 2) {
       const pagedjsPages = pages[0].pagesArea
-      if (pagedjsPages.lastChild) {
+      if (pagedjsPages.lastChild != null) {
         const newLastPageElement = pagedjsPages.lastChild.cloneNode(
           true
         ) as HTMLElement
@@ -164,7 +164,7 @@ class PostRenderBallotProcessor extends Handler {
 
         const newPage = {
           ...pages[pages.length - 1],
-          element: newLastPageElement,
+          element: newLastPageElement
         }
 
         pages.push(newPage)
@@ -188,7 +188,7 @@ class PostRenderBallotProcessor extends Handler {
           isTestMode,
           locales,
           ballotType,
-          ballotId,
+          ballotId
         }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
 
         const encoded = encodeHMPBBallotPageMetadata(election, {
@@ -199,11 +199,11 @@ class PostRenderBallotProcessor extends Handler {
           isTestMode,
           pageNumber: parseInt(pageNumber!, 10),
           ballotType,
-          ballotId,
+          ballotId
         })
 
         ReactDOM.render(
-          <QRCode level="L" value={fromByteArray(encoded)} />,
+          <QRCode level='L' value={fromByteArray(encoded)} />,
           qrCodeTarget
         )
       }
@@ -365,7 +365,7 @@ interface ContestProps {
 export const Contest: React.FC<ContestProps> = ({
   section,
   title,
-  children,
+  children
 }) => (
   <StyledContest>
     <Prose>
@@ -403,14 +403,14 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
   contest,
   locales,
   parties,
-  vote,
+  vote
 }) => {
   const { t } = useTranslation()
   const writeInCandidates = vote?.filter((c) => c.isWriteIn)
   const remainingChoices = [...Array(contest.seats).keys()]
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
-    <React.Fragment>
+    <>
       {contest.candidates.map((candidate, _, array) => (
         <Text key={candidate.id} data-candidate>
           <BubbleMark checked={hasVote(vote, candidate.id)}>
@@ -419,10 +419,10 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
                 {candidate.name}
               </strong>
               {candidate.partyId && (
-                <React.Fragment>
+                <>
                   <br />
                   {findPartyById(parties, candidate.partyId)!.name}
-                </React.Fragment>
+                </>
               )}
             </CandidateDescription>
           </BubbleMark>
@@ -443,17 +443,17 @@ export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = (
           <WriteInItem key={k} data-write-in>
             <BubbleMark>
               <WriteInLine />
-              <Text small noWrap as="span">
+              <Text small noWrap as='span'>
                 {dualLanguageWithSlash('write-in')}
               </Text>
             </BubbleMark>
           </WriteInItem>
         ))}
-    </React.Fragment>
+    </>
   )
 }
 
-function hasVote(vote: Vote | undefined, optionId: string): boolean {
+function hasVote (vote: Vote | undefined, optionId: string): boolean {
   return (
     vote?.some((choice: Candidate | string) =>
       typeof choice === 'string' ? choice === optionId : choice.id === optionId
@@ -471,7 +471,7 @@ export interface HandMarkedPaperBallotProps {
   locales: BallotLocale
   ballotId?: string
   votes?: VotesDict
-  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void
+  onRendered?: (props: Omit<HandMarkedPaperBallotProps, 'onRendered'>) => void
 }
 
 const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
@@ -484,7 +484,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   locales,
   ballotId,
   votes,
-  onRendered,
+  onRendered
 }) => {
   assert.notEqual(
     locales.primary,
@@ -499,7 +499,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     ? withLocale(election, locales.secondary)
     : undefined
   i18n.addResources(locales.primary, 'translation', election.ballotStrings)
-  if (localeElection && locales.secondary) {
+  if ((localeElection != null) && locales.secondary) {
     i18n.addResources(
       locales.secondary,
       'translation',
@@ -508,13 +508,13 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   }
   const primaryPartyName = getPartyFullNameFromBallotStyle({
     ballotStyleId,
-    election,
+    election
   })
   const localePrimaryPartyName =
-    localeElection &&
+    (localeElection != null) &&
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
-      election: localeElection,
+      election: localeElection
     })
   const ballotStyle = getBallotStyle({ ballotStyleId, election })
   assert(ballotStyle)
@@ -522,13 +522,13 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   const candidateContests = contests.filter((c) => c.type === 'candidate')
   const otherContests = contests.filter((c) => c.type !== 'candidate')
   const localeContestsById =
-    localeElection &&
+    (localeElection != null) &&
     getContests({ ballotStyle, election: localeElection }).reduce<
-      Dictionary<AnyContest>
+    Dictionary<AnyContest>
     >(
       (prev, curr) => ({
         ...prev,
-        [curr.id]: curr,
+        [curr.id]: curr
       }),
       {}
     )
@@ -537,7 +537,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   const ballotRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (!printBallotRef?.current) {
+    if ((printBallotRef?.current) == null) {
       return
     }
 
@@ -545,7 +545,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       `/ballot/ballot-layout-paper-size-${getBallotLayoutPageSize(
         election
       )}.css`,
-      '/ballot/ballot.css',
+      '/ballot/ballot.css'
     ]
 
     void (async () => {
@@ -561,12 +561,12 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
         isLiveMode,
         precinctId,
         votes,
-        locales,
+        locales
       })
     })()
 
     return () => {
-      if (printBallotRef.current) {
+      if (printBallotRef.current != null) {
         printBallotRef.current.innerHTML = ''
       }
       document.head
@@ -582,7 +582,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
     precinctId,
     printBallotRef,
     locales,
-    votes,
+    votes
   ])
 
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
@@ -593,7 +593,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
       <Prose>
         <h3>
           {dualLanguageWithBreak('Thank you for voting.', {
-            normal: true,
+            normal: true
           })}
         </h3>
         <p>
@@ -607,19 +607,19 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
 
   return (
     <Ballot aria-hidden data-ballot ref={ballotRef}>
-      <div className="ballot-footer">
+      <div className='ballot-footer'>
         <PageFooter>
           {isAbsentee && (
             <AbsenteeFooter>
-              <Text bold as="span">
+              <Text bold as='span'>
                 Absentee Ballot
               </Text>
             </AbsenteeFooter>
           )}
           <OfficialInitials>
-            <Text as="span" small>
+            <Text as='span' small>
               <Trans
-                i18nKey="officialInitials"
+                i18nKey='officialInitials'
                 tOptions={{ lng: locales.primary }}
               >
                 Official’s Initials
@@ -629,74 +629,74 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
           <PageFooterMain>
             <PageFooterRow>
               <div>
-                <Text small right as="div">
+                <Text small right as='div'>
                   {dualLanguageWithBreak('Precinct')}
                 </Text>
-                <Text as="h2">{precinct.name}</Text>
+                <Text as='h2'>{precinct.name}</Text>
               </div>
               <div>
-                <Text small right as="div">
+                <Text small right as='div'>
                   {dualLanguageWithBreak('Style')}
                 </Text>
-                <Text as="h2">{ballotStyle.id}</Text>
+                <Text as='h2'>{ballotStyle.id}</Text>
               </div>
               <div />
               <div>
-                <Text small right as="div">
+                <Text small right as='div'>
                   {dualLanguageWithBreak('Page')}
                 </Text>
-                <Text as="h2">
-                  <span className="page-number" />
+                <Text as='h2'>
+                  <span className='page-number' />
                   <span>/</span>
-                  <span className="total-pages" />
+                  <span className='total-pages' />
                 </Text>
-                <Text small left as="div">
+                <Text small left as='div'>
                   {dualLanguageWithBreak('Pages')}
                 </Text>
               </div>
             </PageFooterRow>
             <PageFooterRow>
               <div>
-                <Text small left as="div">
+                <Text small left as='div'>
                   {ballotStyle.partyId &&
                   primaryPartyName &&
                   localePrimaryPartyName
                     ? dualPhraseWithBreak(
                         `${ballotStyle.partyId && primaryPartyName} ${title}`,
-                        localeElection &&
+                        (localeElection != null) &&
                           t('{{primaryPartyName}} {{electionTitle}}', {
                             lng: locales.secondary,
                             primaryPartyName: localePrimaryPartyName,
-                            electionTitle: localeElection.title,
+                            electionTitle: localeElection.title
                           })
-                      )
+                    )
                     : dualPhraseWithBreak(
-                        election.title,
-                        localeElection?.title
-                      )}
+                      election.title,
+                      localeElection?.title
+                    )}
                 </Text>
               </div>
               <div>
-                <Text small center as="div">
+                <Text small center as='div'>
                   {dualPhraseWithBreak(
                     `${county.name}, ${state}`,
-                    localeElection &&
+                    (localeElection != null) &&
                       `${localeElection.county.name}, ${localeElection.state}`
                   )}
                 </Text>
               </div>
               <div>
-                <Text small right as="div">
+                <Text small right as='div'>
                   {locales.secondary ? (
-                    <React.Fragment>
+                    <>
                       <strong>{localeDateLong(date, locales.primary)}</strong>
                       <br />
                       {localeDateLong(date, locales.secondary)}
-                    </React.Fragment>
+                    </>
                   ) : (
-                    <React.Fragment>
+                    <>
                       {localeDateLong(date, locales.primary)}
-                    </React.Fragment>
+                    </>
                   )}
                 </Text>
               </div>
@@ -715,7 +715,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 ballotType: isAbsentee
                   ? BallotType.Absentee
                   : BallotType.Standard,
-                ballotId,
+                ballotId
               }))()
             )}
           />
@@ -733,18 +733,18 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
             <BallotHeader>
               {seal ? (
                 <div
-                  className="seal"
+                  className='seal'
                   // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(seal),
+                    __html: DOMPurify.sanitize(seal)
                   }}
                 />
               ) : sealURL ? (
-                <div className="seal">
-                  <SealImage src={sealURL} alt="" />
+                <div className='seal'>
+                  <SealImage src={sealURL} alt='' />
                 </div>
               ) : (
-                <React.Fragment />
+                <></>
               )}
               <Prose>
                 <h2>
@@ -762,23 +762,23 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                   <br />
                   {localeDateLong(date, locales.primary)}
                 </p>
-                {localeElection && locales.secondary && (
+                {(localeElection != null) && locales.secondary && (
                   <p>
                     <strong>
                       {isLiveMode
                         ? t('Official Ballot', { lng: locales.secondary })
                         : t('TEST BALLOT', {
-                            lng: locales.secondary,
-                          })}
+                          lng: locales.secondary
+                        })}
                     </strong>
                     <br />
                     <strong>
                       {ballotStyle.partyId && primaryPartyName
                         ? t('{{primaryPartyName}} {{electionTitle}}', {
-                            lng: locales.secondary,
-                            primaryPartyName: localePrimaryPartyName,
-                            electionTitle: localeElection.title,
-                          })
+                          lng: locales.secondary,
+                          primaryPartyName: localePrimaryPartyName,
+                          electionTitle: localeElection.title
+                        })
                         : localeElection.title}
                     </strong>
                     <br />
@@ -794,9 +794,9 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
             <Instructions>
               <Prose>
                 <img
-                  src="/ballot/instructions-fill-oval.svg"
-                  alt=""
-                  className="ignore-prose"
+                  src='/ballot/instructions-fill-oval.svg'
+                  alt=''
+                  className='ignore-prose'
                 />
                 <h4>{t('Instructions', { lng: locales.primary })}</h4>
                 <Text small>
@@ -807,7 +807,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 </Text>
                 <h4>{t('To Vote for a Write-In', { lng: locales.primary })}</h4>
                 <Text small>
-                  <img src="/ballot/instructions-write-in.svg" alt="" />
+                  <img src='/ballot/instructions-write-in.svg' alt='' />
                   {t(
                     'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
                     { lng: locales.primary }
@@ -821,12 +821,12 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                   )}
                 </Text>
                 {locales.secondary && (
-                  <React.Fragment>
+                  <>
                     <HorizontalRule />
                     <img
-                      src="/ballot/instructions-fill-oval.svg"
-                      alt=""
-                      className="ignore-prose"
+                      src='/ballot/instructions-fill-oval.svg'
+                      alt=''
+                      className='ignore-prose'
                     />
                     <h4>{t('Instructions', { lng: locales.secondary })}</h4>
                     <Text small>
@@ -837,11 +837,11 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     </Text>
                     <h4>
                       {t('To Vote for a Write-In', {
-                        lng: locales.secondary,
+                        lng: locales.secondary
                       })}
                     </h4>
                     <Text small>
-                      <img src="/ballot/instructions-write-in.svg" alt="" />
+                      <img src='/ballot/instructions-write-in.svg' alt='' />
                       {t(
                         'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
                         { lng: locales.secondary }
@@ -849,7 +849,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     </Text>
                     <h4>
                       {t('To correct a mistake', {
-                        lng: locales.secondary,
+                        lng: locales.secondary
                       })}
                     </h4>
                     <Text small>
@@ -858,7 +858,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                         { lng: locales.secondary }
                       )}
                     </Text>
-                  </React.Fragment>
+                  </>
                 )}
               </Prose>
             </Instructions>
@@ -878,16 +878,16 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
               )}
             >
               {contest.type === 'candidate' && (
-                <React.Fragment>
+                <>
                   <p>
                     {contest.seats === 1
                       ? dualLanguageWithSlash('Vote for 1', {
-                          normal: true,
-                        })
+                        normal: true
+                      })
                       : dualLanguageWithSlash(
-                          'Vote for not more than {{ seats }}',
-                          { seats: contest.seats, normal: true }
-                        )}
+                        'Vote for not more than {{ seats }}',
+                        { seats: contest.seats, normal: true }
+                      )}
                   </p>
                   <CandidateContestChoices
                     contest={contest}
@@ -895,7 +895,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                     vote={votes?.[contest.id] as CandidateVote | undefined}
                     locales={locales}
                   />
-                </React.Fragment>
+                </>
               )}
             </Contest>
           ))}
@@ -920,10 +920,10 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                 )}
               >
                 {contest.type === 'yesno' && (
-                  <React.Fragment>
+                  <>
                     <p>
                       <Trans
-                        i18nKey="voteYesOrNo"
+                        i18nKey='voteYesOrNo'
                         tOptions={{ lng: locales.primary }}
                       >
                         Vote{' '}
@@ -931,10 +931,10 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                         <strong>{contest.noOption?.label || 'No'}</strong>
                       </Trans>
                       {locales.secondary && (
-                        <React.Fragment>
+                        <>
                           {' / '}
                           <Trans
-                            i18nKey="voteYesOrNo"
+                            i18nKey='voteYesOrNo'
                             tOptions={{ lng: locales.secondary }}
                           >
                             Vote{' '}
@@ -942,14 +942,14 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                             or{' '}
                             <strong>{contest.noOption?.label || 'No'}</strong>
                           </Trans>
-                        </React.Fragment>
+                        </>
                       )}
                     </p>
                     <Text
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DOMPurify.sanitize(contest.description)
                       }}
                     />
                     {localeContestsById && (
@@ -960,7 +960,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                           __html: DOMPurify.sanitize(
                             (localeContestsById[contest.id] as YesNoContest)
                               .description
-                          ),
+                          )
                         }}
                       />
                     )}
@@ -982,15 +982,15 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                         </span>
                       </BubbleMark>
                     </Text>
-                  </React.Fragment>
+                  </>
                 )}
                 {contest.type === 'ms-either-neither' && (
-                  <React.Fragment>
+                  <>
                     <Text
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DOMPurify.sanitize(contest.description)
                       }}
                     />
                     {localeContestsById && (
@@ -1001,7 +1001,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                           __html: DOMPurify.sanitize(
                             (localeContestsById[contest.id] as YesNoContest)
                               .description
-                          ),
+                          )
                         }}
                       />
                     )}
@@ -1055,7 +1055,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
                         </span>
                       </BubbleMark>
                     </Text>
-                  </React.Fragment>
+                  </>
                 )}
               </Contest>
             ))}

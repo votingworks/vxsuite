@@ -1,12 +1,12 @@
 import {
   Election,
   expandEitherNeitherContests,
-  writeInCandidate,
+  writeInCandidate
 } from '@votingworks/types'
 import { FullElectionTally, TallyCategory } from '../config/types'
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting'
 
-export function* generateRowsForBatchTallyResultsCSV(
+export function * generateRowsForBatchTallyResultsCSV (
   fullElectionTally: FullElectionTally,
   election: Election
 ): Generator<string> {
@@ -53,13 +53,13 @@ export function* generateRowsForBatchTallyResultsCSV(
       batchTally.batchLabel,
       batchTally.scannerIds.join(', '),
       batchTally.numberOfBallotsCounted,
-      ...contestVoteTotals,
+      ...contestVoteTotals
     ]
     yield row.join(',')
   }
 }
 
-export function generateHeaderRowForBatchResultsCSV(
+export function generateHeaderRowForBatchResultsCSV (
   election: Election
 ): string {
   const contestSelectionHeaders: string[] = []
@@ -67,7 +67,7 @@ export function generateHeaderRowForBatchResultsCSV(
     let contestTitle = contest.title
     if (contest.partyId) {
       const party = election.parties.find((p) => p.id === contest.partyId)
-      if (party) {
+      if (party != null) {
         contestTitle = `${party.fullName} ${contestTitle}`
       }
     }
@@ -92,7 +92,7 @@ export function generateHeaderRowForBatchResultsCSV(
     'Batch Name',
     'Tabulator',
     'Number of Ballots',
-    ...contestSelectionHeaders,
+    ...contestSelectionHeaders
   ]
   return headers.join(',')
 }
@@ -109,7 +109,7 @@ export function generateHeaderRowForBatchResultsCSV(
  * Columns for every possible contest selection in every contest.
  * | Batch ID | Batch Name | Tabulator | Number Of Ballots | Contest 1 - Ballots Cast | Contest 1 - Undervotes | Contest 1 - Overvotes | Contest 1 - Selection Option 1 | ... | Contest N - Selection Option M |
  */
-export default function generateBatchTallyResultsCSV(
+export default function generateBatchTallyResultsCSV (
   fullElectionTally: FullElectionTally,
   election: Election
 ): string {

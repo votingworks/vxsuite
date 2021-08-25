@@ -2,14 +2,14 @@ import React from 'react'
 import {
   waitFor,
   fireEvent,
-  getByText as domGetByText,
+  getByText as domGetByText
 } from '@testing-library/react'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
 
 import { usbstick } from '@votingworks/utils'
 import ImportCVRFilesModal from './ImportCVRFilesModal'
 import renderInAppContext, {
-  eitherNeitherElectionDefinition,
+  eitherNeitherElectionDefinition
 } from '../../test/renderInAppContext'
 import CastVoteRecordFiles from '../utils/CastVoteRecordFiles'
 import { CastVoteRecord } from '../config/types'
@@ -25,7 +25,7 @@ test('No USB screen shows when there is no USB drive', async () => {
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.recentlyEjected,
-    UsbDriveStatus.notavailable,
+    UsbDriveStatus.notavailable
   ]
 
   for (const usbStatus of usbStatuses) {
@@ -74,7 +74,7 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCVR
       }
     )
     await waitFor(() =>
@@ -88,7 +88,7 @@ describe('Screens display properly when USB is mounted', () => {
 
     // You can still manually import files
     fireEvent.change(getByTestId('manual-input'), {
-      target: { files: [new File([''], 'file.jsonl')] },
+      target: { files: [new File([''], 'file.jsonl')] }
     })
     await waitFor(() => expect(closeFn).toHaveBeenCalledTimes(2))
     expect(saveCVR).toHaveBeenCalledTimes(1)
@@ -101,18 +101,18 @@ describe('Screens display properly when USB is mounted', () => {
       {
         name: LIVE_FILE1,
         type: 1,
-        path: 'live1',
+        path: 'live1'
       },
       {
         name: TEST_FILE1,
         type: 1,
-        path: 'test1',
+        path: 'test1'
       },
       {
         name: TEST_FILE2,
         type: 1,
-        path: 'test2',
-      },
+        path: 'test2'
+      }
     ]
     window.kiosk!.getFileSystemEntries = jest
       .fn()
@@ -121,7 +121,7 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCVR
       }
     )
     await waitFor(() => getByText('Import CVR Files'))
@@ -172,18 +172,18 @@ describe('Screens display properly when USB is mounted', () => {
       {
         name: LIVE_FILE1,
         type: 1,
-        path: 'live1',
+        path: 'live1'
       },
       {
         name: TEST_FILE1,
         type: 1,
-        path: 'test1',
+        path: 'test1'
       },
       {
         name: TEST_FILE2,
         type: 1,
-        path: 'test2',
-      },
+        path: 'test2'
+      }
     ]
     window.kiosk!.getFileSystemEntries = jest
       .fn()
@@ -192,7 +192,7 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCVRFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCVR
       }
     )
     await waitFor(() => getByText('Import CVR Files'))
@@ -229,18 +229,18 @@ describe('Screens display properly when USB is mounted', () => {
       {
         name: LIVE_FILE1,
         type: 1,
-        path: 'live1',
+        path: 'live1'
       },
       {
         name: TEST_FILE1,
         type: 1,
-        path: 'test1',
+        path: 'test1'
       },
       {
         name: TEST_FILE2,
         type: 1,
-        path: 'test2',
-      },
+        path: 'test2'
+      }
     ]
     window.kiosk!.getFileSystemEntries = jest
       .fn()
@@ -251,7 +251,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotType: 'standard',
       _precinctId: '6522',
       _testBallot: true,
-      _scannerId: 'abc',
+      _scannerId: 'abc'
     }
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
@@ -263,7 +263,7 @@ describe('Screens display properly when USB is mounted', () => {
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCVR
       }
     )
     await waitFor(() => getByText('Import Test Mode CVR Files'))
@@ -314,18 +314,18 @@ describe('Screens display properly when USB is mounted', () => {
       {
         name: LIVE_FILE1,
         type: 1,
-        path: 'live1',
+        path: 'live1'
       },
       {
         name: TEST_FILE1,
         type: 1,
-        path: 'test1',
+        path: 'test1'
       },
       {
         name: TEST_FILE2,
         type: 1,
-        path: 'test2',
-      },
+        path: 'test2'
+      }
     ]
     window.kiosk!.getFileSystemEntries = jest
       .fn()
@@ -336,7 +336,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotType: 'standard',
       _precinctId: '6522',
       _testBallot: false,
-      _scannerId: 'abc',
+      _scannerId: 'abc'
     }
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
@@ -348,7 +348,7 @@ describe('Screens display properly when USB is mounted', () => {
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCVR
       }
     )
     await waitFor(() => getByText('Import Live Mode CVR Files'))
@@ -385,8 +385,8 @@ describe('Screens display properly when USB is mounted', () => {
       {
         name: LIVE_FILE1,
         type: 1,
-        path: 'live1',
-      },
+        path: 'live1'
+      }
     ]
     window.kiosk!.getFileSystemEntries = jest
       .fn()
@@ -397,7 +397,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotType: 'standard',
       _precinctId: '6522',
       _testBallot: false,
-      _scannerId: 'abc',
+      _scannerId: 'abc'
     }
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
@@ -409,7 +409,7 @@ describe('Screens display properly when USB is mounted', () => {
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCVR
       }
     )
     await waitFor(() => getByText('Import Live Mode CVR Files'))

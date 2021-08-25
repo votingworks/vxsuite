@@ -29,7 +29,7 @@ export const MainChild = styled('div')<ChildProps>`
   margin: ${({
     center = false,
     centerVertical = center,
-    centerHorizontal = center,
+    centerHorizontal = center
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
 `
 

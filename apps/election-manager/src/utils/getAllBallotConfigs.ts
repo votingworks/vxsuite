@@ -3,7 +3,7 @@ import { DEFAULT_LOCALE } from '../config/globals'
 import { BallotConfig } from '../config/types'
 import { getBallotPath, getBallotStylesDataByStyle } from './election'
 
-export default function getAllBallotConfigs(
+export default function getAllBallotConfigs (
   election: Election,
   electionHash: string,
   localeCodes: readonly string[]
@@ -21,7 +21,7 @@ export default function getAllBallotConfigs(
           isAbsentee,
           locales: {
             primary: DEFAULT_LOCALE,
-            secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
+            secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined
           },
           filename: getBallotPath({
             ...ballotStyle,
@@ -29,11 +29,11 @@ export default function getAllBallotConfigs(
             electionHash,
             locales: {
               primary: DEFAULT_LOCALE,
-              secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
+              secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined
             },
             isLiveMode,
-            isAbsentee,
-          }),
+            isAbsentee
+          })
         }))
       )
     )

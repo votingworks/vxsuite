@@ -8,7 +8,7 @@ import {
   getContests,
   getPrecinctById,
   Party,
-  VotesDict,
+  VotesDict
 } from '@votingworks/types'
 import { BallotStyleData, find } from '@votingworks/utils'
 import dashify from 'dashify'
@@ -20,10 +20,10 @@ import sortBy from './sortBy'
 export const writeInCandidate: Candidate = {
   id: '__write-in',
   name: 'Write-In',
-  isWriteIn: true,
+  isWriteIn: true
 }
 
-export function getDistrictIdsForPartyId(
+export function getDistrictIdsForPartyId (
   election: Election,
   partyId: string
 ): string[] {
@@ -32,14 +32,14 @@ export function getDistrictIdsForPartyId(
     .flatMap((bs) => bs.districts)
 }
 
-export function getPartiesWithPrimaryElections(election: Election): Party[] {
+export function getPartiesWithPrimaryElections (election: Election): Party[] {
   const partyIds = election.ballotStyles
     .map((bs) => bs.partyId)
     .filter((id): id is string => id !== undefined)
   return election.parties.filter((party) => partyIds.includes(party.id))
 }
 
-export function getContestOptionsForContest(
+export function getContestOptionsForContest (
   contest: AnyContest
 ): readonly ContestOption[] {
   if (contest.type === 'candidate') {
@@ -57,7 +57,7 @@ export function getContestOptionsForContest(
 
 const sortOptions = {
   ignorePunctuation: true,
-  numeric: true,
+  numeric: true
 }
 
 export const getBallotStylesData = (election: Election): BallotStyleData[] =>
@@ -65,7 +65,7 @@ export const getBallotStylesData = (election: Election): BallotStyleData[] =>
     ballotStyle.precincts.map<BallotStyleData>((precinctId) => ({
       ballotStyleId: ballotStyle.id,
       precinctId,
-      contestIds: getContests({ ballotStyle, election }).map((c) => c.id),
+      contestIds: getContests({ ballotStyle, election }).map((c) => c.id)
     }))
   )
 
@@ -118,7 +118,7 @@ export const getBallotPath = ({
   precinctId,
   locales,
   isLiveMode,
-  isAbsentee,
+  isAbsentee
 }: {
   ballotStyleId: string
   election: Election
@@ -130,7 +130,7 @@ export const getBallotPath = ({
 }): string => {
   const precinctName = getPrecinctById({
     election,
-    precinctId,
+    precinctId
   })!.name
 
   return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
@@ -178,13 +178,13 @@ interface GenerateTestDeckParams {
 
 export const generateTestDeckBallots = ({
   election,
-  precinctId,
-}: GenerateTestDeckParams): Dictionary<string | VotesDict>[] => {
-  const precincts: string[] = precinctId
+  precinctId
+}: GenerateTestDeckParams): Array<Dictionary<string | VotesDict>> => {
+  const precincts: string[] = precinctId != null
     ? [precinctId]
     : election.precincts.map((p) => p.id)
 
-  const ballots: Dictionary<string | VotesDict>[] = []
+  const ballots: Array<Dictionary<string | VotesDict>> = []
 
   precincts.forEach((precinctId) => {
     const precinct = find(election.precincts, (p) => p.id === precinctId)
@@ -220,14 +220,14 @@ export const generateTestDeckBallots = ({
             contest.candidates.length > 0 // safety check
           ) {
             votes[contest.id] = [
-              contest.candidates[ballotNum % contest.candidates.length],
+              contest.candidates[ballotNum % contest.candidates.length]
             ]
           }
         })
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId,
-          votes,
+          votes
         })
       }
     })

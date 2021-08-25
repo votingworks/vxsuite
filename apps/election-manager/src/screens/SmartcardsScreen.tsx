@@ -22,7 +22,7 @@ const DefinitionScreen: React.FC = () => {
 
     if (id === 'override') {
       await fetch('/card/write_protect_override', {
-        method: 'post',
+        method: 'post'
       })
       window.setTimeout(() => {
         setIsProgrammingCard(false)
@@ -32,7 +32,7 @@ const DefinitionScreen: React.FC = () => {
 
     const shortValue = JSON.stringify({
       t: id,
-      h: electionHash,
+      h: electionHash
     })
 
     const formData = new FormData()
@@ -41,7 +41,7 @@ const DefinitionScreen: React.FC = () => {
       case 'pollworker':
         await fetch('/card/write', {
           method: 'post',
-          body: shortValue,
+          body: shortValue
         })
         break
       case 'admin':
@@ -49,7 +49,7 @@ const DefinitionScreen: React.FC = () => {
         formData.append('long_value', electionData)
         await fetch('/card/write_short_and_long', {
           method: 'post',
-          body: formData,
+          body: formData
         })
         break
       default:
@@ -60,7 +60,7 @@ const DefinitionScreen: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen mainChildFlex>
         <Prose maxWidth={false}>
           <h1>Smartcards</h1>
@@ -69,10 +69,10 @@ const DefinitionScreen: React.FC = () => {
             create.
           </p>
           <p>
-            <Button onPress={programCard} data-id="admin">
+            <Button onPress={programCard} data-id='admin'>
               Encode Admin Card
             </Button>{' '}
-            <Button onPress={programCard} data-id="pollworker">
+            <Button onPress={programCard} data-id='pollworker'>
               Encode Poll Worker Card
             </Button>
           </p>
@@ -81,7 +81,7 @@ const DefinitionScreen: React.FC = () => {
             re-programming an existing Admin card.
           </p>
           <p>
-            <Button small onPress={programCard} data-id="override">
+            <Button small onPress={programCard} data-id='override'>
               Override Write Protection
             </Button>
           </p>
@@ -91,7 +91,7 @@ const DefinitionScreen: React.FC = () => {
       {isProgrammingCard && (
         <Modal content={<Loading>Programming card</Loading>} />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

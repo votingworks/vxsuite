@@ -30,7 +30,7 @@ const FlexTextareaWrapper = styled.div`
   }
 `
 const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
-  allowEditing,
+  allowEditing
 }) => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election, electionData } = electionDefinition!
@@ -85,7 +85,7 @@ const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
   }, [validateElectionDefinition, electionString])
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen mainChildFlex>
         {error && (
           <Header>
@@ -94,7 +94,7 @@ const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
         )}
         <ButtonBar padded dark>
           {allowEditing && (
-            <React.Fragment>
+            <>
               <Button
                 small
                 primary={dirty && !error}
@@ -106,7 +106,7 @@ const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
               <Button small onPress={resetElectionConfig} disabled={!dirty}>
                 Reset
               </Button>
-            </React.Fragment>
+            </>
           )}
           <div />
           <div />
@@ -128,14 +128,14 @@ const DefinitionEditorScreen: React.FC<{ allowEditing: boolean }> = ({
             onChange={editElection}
             value={electionString}
             disabled={!allowEditing}
-            data-testid="json-input"
+            data-testid='json-input'
           />
         </FlexTextareaWrapper>
       </NavigationScreen>
       {isConfimingUnconfig && (
         <RemoveElectionModal onClose={cancelConfirmingUnconfig} />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

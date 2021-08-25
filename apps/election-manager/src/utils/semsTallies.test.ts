@@ -1,7 +1,7 @@
 import {
   electionSample,
   electionMultiPartyPrimaryWithDataFiles,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionWithMsEitherNeitherWithDataFiles
 } from '@votingworks/fixtures'
 import { CandidateContest, Dictionary, YesNoContest } from '@votingworks/types'
 import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
@@ -10,7 +10,7 @@ import {
   ContestOptionTally,
   ExternalTallySourceType,
   TallyCategory,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 import { writeInCandidate } from './election'
 import {
@@ -18,7 +18,7 @@ import {
   getContestTallyForYesNoContest,
   SEMSFileRow,
   convertSEMSFileToExternalTally,
-  parseSEMSFileAndValidateForElection,
+  parseSEMSFileAndValidateForElection
 } from './semsTallies'
 
 const mockSemsRow = {
@@ -32,7 +32,7 @@ const mockSemsRow = {
   candidateName: '',
   candidatePartyId: '',
   candidatePartyName: '',
-  numberOfVotes: 0,
+  numberOfVotes: 0
 }
 
 const multiPartyPrimaryElection =
@@ -55,57 +55,57 @@ describe('getContestTallyForCandidateContest', () => {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'barchi-hallaren',
-        numberOfVotes: 0,
+        numberOfVotes: 0
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'cramer-vuocolo',
-        numberOfVotes: 1,
+        numberOfVotes: 1
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'court-blumhardt',
-        numberOfVotes: 2,
+        numberOfVotes: 2
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'boone-lian',
-        numberOfVotes: 3,
+        numberOfVotes: 3
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'hildebrand-garritty',
-        numberOfVotes: 4,
+        numberOfVotes: 4
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'patterson-lariviere',
-        numberOfVotes: 5,
+        numberOfVotes: 5
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: '1', // overvotes
-        numberOfVotes: 11,
+        numberOfVotes: 11
       },
       {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: '2', // undervotes
-        numberOfVotes: 7,
-      },
+        numberOfVotes: 7
+      }
     ]
     expect(
       getContestTallyForCandidateContest(presidentcontest, rows)
     ).toStrictEqual({
       contest: presidentcontest,
       tallies: buildCandidateTallies(1, presidentcontest),
-      metadata: { undervotes: 7, overvotes: 11, ballots: 33 },
+      metadata: { undervotes: 7, overvotes: 11, ballots: 33 }
     })
   })
 
@@ -118,38 +118,38 @@ describe('getContestTallyForCandidateContest', () => {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: 'argent',
-        numberOfVotes: 3,
+        numberOfVotes: 3
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: 'argent',
-        numberOfVotes: 5,
+        numberOfVotes: 5
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: 'bainbridge',
-        numberOfVotes: 12,
+        numberOfVotes: 12
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: '1', // overvotes
-        numberOfVotes: 12,
+        numberOfVotes: 12
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: '2', // undervotes
-        numberOfVotes: 13,
+        numberOfVotes: 13
       },
       {
         ...mockSemsRow,
         contestId: contest.id,
         candidateId: '0', // write in
         candidateName: 'write-in-1',
-        numberOfVotes: 2,
+        numberOfVotes: 2
       },
 
       {
@@ -157,8 +157,8 @@ describe('getContestTallyForCandidateContest', () => {
         contestId: contest.id,
         candidateId: '0', // write in
         candidateName: 'write-in-2',
-        numberOfVotes: 5,
-      },
+        numberOfVotes: 5
+      }
     ]
     const expectedVotes: Dictionary<number> = { argent: 8, bainbridge: 12 }
     const expectedTallies: Dictionary<ContestOptionTally> = {}
@@ -166,19 +166,19 @@ describe('getContestTallyForCandidateContest', () => {
       if (candidate.id in expectedVotes) {
         expectedTallies[candidate.id] = {
           option: candidate,
-          tally: expectedVotes[candidate.id]!,
+          tally: expectedVotes[candidate.id]!
         }
       }
     })
     expectedTallies['__write-in'] = {
       option: writeInCandidate,
-      tally: 7,
+      tally: 7
     }
 
     expect(getContestTallyForCandidateContest(contest, rows)).toStrictEqual({
       contest,
       tallies: expectedTallies,
-      metadata: { undervotes: 13, overvotes: 12, ballots: 13 },
+      metadata: { undervotes: 13, overvotes: 12, ballots: 13 }
     })
   })
 
@@ -188,8 +188,8 @@ describe('getContestTallyForCandidateContest', () => {
         ...mockSemsRow,
         contestId: 'president',
         candidateId: 'eevee',
-        numberOfVotes: 314,
-      },
+        numberOfVotes: 314
+      }
     ]
     expect(() => {
       getContestTallyForCandidateContest(presidentcontest, rows)
@@ -209,34 +209,34 @@ describe('getContestTallyForYesNoContest', () => {
         ...mockSemsRow,
         contestId: yesnocontest.id,
         candidateId: '750000092',
-        numberOfVotes: 17,
+        numberOfVotes: 17
       },
       {
         ...mockSemsRow,
         contestId: yesnocontest.id,
         candidateId: '750000093',
-        numberOfVotes: 12,
+        numberOfVotes: 12
       },
       {
         ...mockSemsRow,
         contestId: yesnocontest.id,
         candidateId: '1', // overvotes
-        numberOfVotes: 2,
+        numberOfVotes: 2
       },
       {
         ...mockSemsRow,
         contestId: yesnocontest.id,
         candidateId: '2', // undervotes
-        numberOfVotes: 4,
-      },
+        numberOfVotes: 4
+      }
     ]
     expect(getContestTallyForYesNoContest(yesnocontest, rows)).toStrictEqual({
       contest: yesnocontest,
       tallies: {
         yes: { option: ['yes'], tally: 17 },
-        no: { option: ['no'], tally: 12 },
+        no: { option: ['no'], tally: 12 }
       },
-      metadata: { undervotes: 4, overvotes: 2, ballots: 35 },
+      metadata: { undervotes: 4, overvotes: 2, ballots: 35 }
     })
   })
 
@@ -246,8 +246,8 @@ describe('getContestTallyForYesNoContest', () => {
         ...mockSemsRow,
         contestId: yesnocontest.id,
         candidateId: 'purple',
-        numberOfVotes: 314,
-      },
+        numberOfVotes: 314
+      }
     ]
     expect(() => {
       getContestTallyForYesNoContest(yesnocontest, rows)
@@ -280,7 +280,7 @@ describe('convertSEMSFileToExternalTally', () => {
       6534: 5,
       6536: 3,
       6537: 5,
-      6539: 3,
+      6539: 3
     }
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
@@ -306,7 +306,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(presidentTally.metadata).toStrictEqual({
       undervotes: 7,
       overvotes: 1,
-      ballots: 100,
+      ballots: 100
     })
     expect(presidentTally.tallies['775031988']!.tally).toBe(27)
     expect(presidentTally.tallies['775031987']!.tally).toBe(36)
@@ -319,7 +319,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(eitherNeitherTally.metadata).toStrictEqual({
       undervotes: 3,
       overvotes: 3,
-      ballots: 98,
+      ballots: 98
     })
     expect(eitherNeitherTally.tallies.yes?.tally).toBe(39)
     expect(eitherNeitherTally.tallies.no?.tally).toBe(53)
@@ -330,7 +330,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(pickOneTally.metadata).toStrictEqual({
       undervotes: 5,
       overvotes: 4,
-      ballots: 98,
+      ballots: 98
     })
     expect(pickOneTally.tallies.yes?.tally).toBe(40)
     expect(pickOneTally.tallies.no?.tally).toBe(49)
@@ -343,7 +343,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(senateTally.metadata).toStrictEqual({
       undervotes: 1,
       overvotes: 0,
-      ballots: 5,
+      ballots: 5
     })
     expect(senateTally.tallies['775031985']?.tally).toBe(1)
     expect(senateTally.tallies['775031986']?.tally).toBe(0)
@@ -354,7 +354,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(ballotmeasure2.metadata).toStrictEqual({
       undervotes: 0,
       overvotes: 0,
-      ballots: 5,
+      ballots: 5
     })
     expect(ballotmeasure2.tallies.yes?.tally).toBe(2)
     expect(ballotmeasure2.tallies.no?.tally).toBe(3)
@@ -383,7 +383,7 @@ describe('convertSEMSFileToExternalTally', () => {
       'precinct-2': 840,
       'precinct-3': 570,
       'precinct-4': 840,
-      'precinct-5': 1410,
+      'precinct-5': 1410
     }
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
@@ -407,7 +407,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(assistantMayorLibertyTally?.metadata).toStrictEqual({
       undervotes: 90,
       overvotes: 90,
-      ballots: 450,
+      ballots: 450
     })
     expect(assistantMayorLibertyTally?.tallies['jenna-morasca']?.tally).toBe(90)
     expect(
@@ -420,7 +420,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(pokemonFederalist?.metadata).toStrictEqual({
       undervotes: 30,
       overvotes: 30,
-      ballots: 420,
+      ballots: 420
     })
     expect(pokemonFederalist?.tallies.pikachu?.tally).toBe(30)
     expect(pokemonFederalist?.tallies.eevee?.tally).toBe(300)
@@ -432,7 +432,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(schoolboardConstitution?.metadata).toStrictEqual({
       undervotes: 450,
       overvotes: 600,
-      ballots: 2100,
+      ballots: 2100
     })
     expect(schoolboardConstitution?.tallies['aras-baskauskas']?.tally).toBe(750)
     expect(schoolboardConstitution?.tallies['yul-kwon']?.tally).toBe(600)
@@ -450,7 +450,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(governorConstitution.metadata).toStrictEqual({
       undervotes: 30,
       overvotes: 30,
-      ballots: 420,
+      ballots: 420
     })
     expect(governorConstitution.tallies['kristen-bell']?.tally).toBe(30)
     expect(governorConstitution.tallies['dax-shepherd']?.tally).toBe(300)
@@ -462,7 +462,7 @@ describe('convertSEMSFileToExternalTally', () => {
     expect(schoolboardLiberty.metadata).toStrictEqual({
       undervotes: 0,
       overvotes: 0,
-      ballots: 0,
+      ballots: 0
     })
     expect(schoolboardLiberty.tallies['amber-brkich']?.tally).toBe(0)
     expect(schoolboardLiberty.tallies['chris-daugherty']?.tally).toBe(0)
@@ -491,7 +491,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
         electionWithMsEitherNeither
       )
     ).toEqual([
-      'Precinct ID not-a-precinct-id is not found in the election definition.',
+      'Precinct ID not-a-precinct-id is not found in the election definition.'
     ])
   })
 
@@ -504,7 +504,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
         electionWithMsEitherNeither
       )
     ).toEqual([
-      'Contest ID not-a-contest-id is not found in the election definition.',
+      'Contest ID not-a-contest-id is not found in the election definition.'
     ])
   })
 
@@ -517,7 +517,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
         electionWithMsEitherNeither
       )
     ).toEqual([
-      'Contest Choice ID not-a-choice is not a valid contest choice ID for the contest: 750000015.',
+      'Contest Choice ID not-a-choice is not a valid contest choice ID for the contest: 750000015.'
     ])
   })
 
@@ -530,7 +530,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
         electionWithMsEitherNeither
       )
     ).toEqual([
-      'Candidate ID not-a-choice is not a valid candidate ID for the contest: 775020876.',
+      'Candidate ID not-a-choice is not a valid candidate ID for the contest: 775020876.'
     ])
   })
 
@@ -541,7 +541,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     expect(
       parseSEMSFileAndValidateForElection(csvRowRaw, electionSample)
     ).toEqual([
-      'Candidate ID 0 is not a valid candidate ID for the contest: president.',
+      'Candidate ID 0 is not a valid candidate ID for the contest: president.'
     ])
 
     // Allow a write in with 0 votes
@@ -569,7 +569,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
         electionWithMsEitherNeither
       )
     ).toEqual([
-      'Contest Choice ID 0 is not a valid contest choice ID for the contest: 750000017.',
+      'Contest Choice ID 0 is not a valid contest choice ID for the contest: 750000017.'
     ])
 
     // Allow and ignores a write in with 0 votes
@@ -590,7 +590,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     expect(
       parseSEMSFileAndValidateForElection(csvRowRaw2, electionSample)
     ).toEqual([
-      'Election definition not configured to handle SEMs data formats, IDs must be specified on the yes no contest: judicial-robert-demergue.',
+      'Election definition not configured to handle SEMs data formats, IDs must be specified on the yes no contest: judicial-robert-demergue.'
     ])
   })
 
@@ -623,7 +623,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     expect(
       parseSEMSFileAndValidateForElection('', multiPartyPrimaryElection)
     ).toEqual([
-      'No valid CSV data found in imported file. Please check file contents.',
+      'No valid CSV data found in imported file. Please check file contents.'
     ])
 
     expect(
@@ -632,7 +632,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
         multiPartyPrimaryElection
       )
     ).toEqual([
-      'No valid CSV data found in imported file. Please check file contents.',
+      'No valid CSV data found in imported file. Please check file contents.'
     ])
   })
 

@@ -3,7 +3,7 @@ import React, {
   useContext,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -12,14 +12,14 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  getElectionLocales,
+  getElectionLocales
 } from '@votingworks/types'
 import pluralize from 'pluralize'
 
 import {
   BallotScreenProps,
   InputEventFunction,
-  PrintableBallotType,
+  PrintableBallotType
 } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
@@ -79,7 +79,7 @@ const BallotScreen: React.FC = () => {
   const {
     precinctId,
     ballotStyleId,
-    localeCode: currentLocaleCode,
+    localeCode: currentLocaleCode
   } = useParams<BallotScreenProps>()
   const { addPrintedBallot, electionDefinition, printBallotRef } = useContext(
     AppContext
@@ -89,7 +89,7 @@ const BallotScreen: React.FC = () => {
   const locales = useMemo<BallotLocale>(
     () => ({
       primary: DEFAULT_LOCALE,
-      secondary: currentLocaleCode,
+      secondary: currentLocaleCode
     }),
     [currentLocaleCode]
   )
@@ -115,10 +115,10 @@ const BallotScreen: React.FC = () => {
       localeCode === DEFAULT_LOCALE
         ? routerPaths.ballotsView({ precinctId, ballotStyleId })
         : routerPaths.ballotsViewLanguage({
-            precinctId,
-            ballotStyleId,
-            localeCode,
-          })
+          precinctId,
+          ballotStyleId,
+          localeCode
+        })
     )
 
   const filename = getBallotPath({
@@ -128,7 +128,7 @@ const BallotScreen: React.FC = () => {
     precinctId,
     locales,
     isLiveMode,
-    isAbsentee,
+    isAbsentee
   })
 
   const afterPrint = (numCopies: number) => {
@@ -141,13 +141,13 @@ const BallotScreen: React.FC = () => {
         printedAt: new Date().toISOString(),
         type: isAbsentee
           ? PrintableBallotType.Absentee
-          : PrintableBallotType.Precinct,
+          : PrintableBallotType.Precinct
       })
     }
   }
 
   const onRendered = useCallback(() => {
-    if (ballotPreviewRef?.current && printBallotRef?.current) {
+    if (((ballotPreviewRef?.current) != null) && ((printBallotRef?.current) != null)) {
       ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML
     }
     const pagedJsPageCount = Number(
@@ -159,7 +159,7 @@ const BallotScreen: React.FC = () => {
   }, [ballotPreviewRef])
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>
@@ -185,16 +185,16 @@ const BallotScreen: React.FC = () => {
             </SegmentedButton>{' '}
             Copies{' '}
             <BallotCopiesInput
-              name="copies"
+              name='copies'
               defaultValue={ballotCopies}
-              type="number"
+              type='number'
               min={1}
               step={1}
-              pattern="\d*"
+              pattern='\d*'
               onChange={updateBallotCopies}
             />
             {availableLocaleCodes.length > 1 && (
-              <React.Fragment>
+              <>
                 {' '}
                 <SegmentedButton>
                   {availableLocaleCodes.map((localeCode) => (
@@ -213,12 +213,12 @@ const BallotScreen: React.FC = () => {
                         secondary:
                           localeCode === DEFAULT_LOCALE
                             ? undefined
-                            : localeCode,
+                            : localeCode
                       })}
                     </Button>
                   ))}
                 </SegmentedButton>
-              </React.Fragment>
+              </>
             )}
           </p>
           <p>
@@ -236,10 +236,10 @@ const BallotScreen: React.FC = () => {
                     paper?
                   </div>
                 ),
-                confirmButtonLabel: 'Yes, Print',
+                confirmButtonLabel: 'Yes, Print'
               }}
               copies={ballotCopies}
-              sides="two-sided-long-edge"
+              sides='two-sided-long-edge'
               warning={!isLiveMode}
             >
               Print {ballotCopies}{' '}
@@ -250,8 +250,8 @@ const BallotScreen: React.FC = () => {
                 currentLocaleCode &&
                 ` in ${getHumanBallotLanguageFormat(locales)}`}
             </PrintButton>
-            {window.kiosk && (
-              <React.Fragment>
+            {(window.kiosk != null) && (
+              <>
                 {' '}
                 <Button
                   onPress={() => setIsSaveModalOpen(true)}
@@ -259,7 +259,7 @@ const BallotScreen: React.FC = () => {
                 >
                   Save Ballot as PDF
                 </Button>
-              </React.Fragment>
+              </>
             )}
           </p>
           <p>
@@ -306,7 +306,7 @@ const BallotScreen: React.FC = () => {
         locales={locales}
         onRendered={onRendered}
       />
-    </React.Fragment>
+    </>
   )
 }
 

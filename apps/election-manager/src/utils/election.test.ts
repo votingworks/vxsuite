@@ -10,7 +10,7 @@ test('getBallotPath allows digits in file names', () => {
       precinctId: '21',
       locales: { primary: 'en-US' },
       isLiveMode: true,
-      isAbsentee: true,
+      isAbsentee: true
     })
   ).toEqual(
     'election-d34db33f-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf'

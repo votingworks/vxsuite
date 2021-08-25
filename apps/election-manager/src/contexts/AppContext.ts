@@ -8,10 +8,10 @@ import {
   FullElectionTally,
   ExportableTallies,
   FullElectionExternalTally,
-  ResultsFileType,
+  ResultsFileType
 } from '../config/types'
 import CastVoteRecordFiles, {
-  SaveCastVoteRecordFiles,
+  SaveCastVoteRecordFiles
 } from '../utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../lib/votecounting'
 import { getEmptyExportableTallies } from '../utils/exportableTallies'
@@ -27,7 +27,7 @@ export interface AppContextInterface {
   saveCastVoteRecordFiles: SaveCastVoteRecordFiles
   saveElection: SaveElection
   setCastVoteRecordFiles: React.Dispatch<
-    React.SetStateAction<CastVoteRecordFiles>
+  React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults: () => Promise<void>
   resetFiles: (fileType: ResultsFileType) => Promise<void>
@@ -68,7 +68,7 @@ const appContext: AppContextInterface = {
   saveExternalTallies: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
-  generateExportableTallies: getEmptyExportableTallies,
+  generateExportableTallies: getEmptyExportableTallies
 }
 
 const AppContext = createContext(appContext)

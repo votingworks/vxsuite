@@ -80,7 +80,7 @@ const Text = styled('p')<Props>`
 `
 
 export const TextWithLineBreaks: React.FC<{ text: string }> = ({ text }) => (
-  <React.Fragment>
+  <>
     {text.split(/[\n\r]{2}/g).map((x) => (
       <p key={x}>
         {x.split(/[\n\r]/g).map((y, i, arr) => (
@@ -91,7 +91,7 @@ export const TextWithLineBreaks: React.FC<{ text: string }> = ({ text }) => (
         ))}
       </p>
     ))}
-  </React.Fragment>
+  </>
 )
 
 export const NoWrap = styled.span`

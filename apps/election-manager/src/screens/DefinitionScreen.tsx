@@ -38,7 +38,7 @@ const DefinitionScreen: React.FC = () => {
       } else {
         prev.push({
           name: curr.section,
-          contests: [curr],
+          contests: [curr]
         })
       }
       return prev
@@ -47,7 +47,7 @@ const DefinitionScreen: React.FC = () => {
   )
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen mainChildFlex>
         <Prose maxWidth={false}>
           <h1>Election Definition</h1>
@@ -80,7 +80,7 @@ const DefinitionScreen: React.FC = () => {
                     <LinkButton
                       small
                       to={routerPaths.definitionContest({
-                        contestId: contest.id,
+                        contestId: contest.id
                       })}
                     >
                       {contest.title}
@@ -112,7 +112,7 @@ const DefinitionScreen: React.FC = () => {
       {isRemovingElection && (
         <RemoveElectionModal onClose={() => setIsRemovingElection(false)} />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

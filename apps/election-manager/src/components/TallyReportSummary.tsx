@@ -28,12 +28,12 @@ interface Props {
 
 const TallyReportSummary: React.FC<Props> = ({
   totalBallotCount,
-  ballotCountsByVotingMethod,
+  ballotCountsByVotingMethod
 }) => {
   return (
     <BallotSummary>
       <h3>Ballots by Voting Method</h3>
-      <Table data-testid="voting-method-table">
+      <Table data-testid='voting-method-table'>
         <tbody>
           {Object.keys(ballotCountsByVotingMethod).map((votingMethod) => {
             // Hide the "Other" row when it does not apply to any CVRs
@@ -46,17 +46,17 @@ const TallyReportSummary: React.FC<Props> = ({
             return (
               <tr key={votingMethod} data-testid={votingMethod}>
                 <TD>{getLabelForVotingMethod(votingMethod as VotingMethod)}</TD>
-                <TD textAlign="right">
+                <TD textAlign='right'>
                   {format.count(ballotCountsByVotingMethod[votingMethod] ?? 0)}
                 </TD>
               </tr>
             )
           })}
-          <tr data-testid="total">
+          <tr data-testid='total'>
             <TD>
               <strong>Total Ballots Cast</strong>
             </TD>
-            <TD textAlign="right">
+            <TD textAlign='right'>
               <strong>{format.count(totalBallotCount)}</strong>
             </TD>
           </tr>

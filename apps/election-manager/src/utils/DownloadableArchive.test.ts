@@ -58,7 +58,7 @@ test('empty zip file when file is saved directly and passes path to kiosk proper
   await archive.end()
   expect(fileWriter.chunks).not.toHaveLength(0)
   expect(kiosk.makeDirectory).toHaveBeenCalledWith('/path/to/folder', {
-    recursive: true,
+    recursive: true
   })
   expect(kiosk.writeFile).toHaveBeenCalledWith('/path/to/folder/file.zip')
 

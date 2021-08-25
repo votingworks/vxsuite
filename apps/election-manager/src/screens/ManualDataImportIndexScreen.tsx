@@ -6,7 +6,7 @@ import {
   ExternalTallySourceType,
   ResultsFileType,
   TallyCategory,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 import routerPaths from '../routerPaths'
 
@@ -21,7 +21,7 @@ import Text from '../components/Text'
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
+  getEmptyExternalTally
 } from '../utils/externalTallies'
 import LinkButton from '../components/LinkButton'
 import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
@@ -46,7 +46,7 @@ const ManualDataImportIndexScreen: React.FC = () => {
     electionDefinition,
     fullElectionExternalTallies,
     saveExternalTallies,
-    resetFiles,
+    resetFiles
   } = useContext(AppContext)
   const { election } = electionDefinition!
   const history = useHistory()
@@ -116,14 +116,14 @@ const ManualDataImportIndexScreen: React.FC = () => {
         <TD>
           <PrecinctRowText noWrap>{precinct.name}</PrecinctRowText>
         </TD>
-        <TD nowrap textAlign="center" data-testid="numBallots">
+        <TD nowrap textAlign='center' data-testid='numBallots'>
           <PrecinctRowText>{tally.numberOfBallotsCounted}</PrecinctRowText>
         </TD>
         <TD nowrap>
           <LinkButton
             small
             to={routerPaths.manualDataImportForPrecinct({
-              precinctId: precinct.id,
+              precinctId: precinct.id
             })}
           >
             Edit {votingMethodName} Results for {precinct.name}
@@ -135,7 +135,7 @@ const ManualDataImportIndexScreen: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>
         <SummaryInfo>
           <Prose maxWidth={false}>
@@ -148,32 +148,32 @@ const ManualDataImportIndexScreen: React.FC = () => {
             <p>
               <SegmentedButton>
                 <Button
-                  data-testid="ballottype-precinct"
+                  data-testid='ballottype-precinct'
                   disabled={ballotType === VotingMethod.Precinct}
-                  onPress={() => handleSettingBallotType(VotingMethod.Precinct)}
+                  onPress={async () => await handleSettingBallotType(VotingMethod.Precinct)}
                 >
                   Precinct Results
                 </Button>
                 <Button
-                  data-testid="ballottype-absentee"
+                  data-testid='ballottype-absentee'
                   disabled={ballotType === VotingMethod.Absentee}
-                  onPress={() => handleSettingBallotType(VotingMethod.Absentee)}
+                  onPress={async () => await handleSettingBallotType(VotingMethod.Absentee)}
                 >
                   Absentee Results
                 </Button>
               </SegmentedButton>
             </p>
             <h1>Manually Entered {votingMethodName} Results</h1>
-            <Table condensed data-testid="summary-data">
+            <Table condensed data-testid='summary-data'>
               <thead>
                 <tr>
-                  <TD as="th" narrow>
+                  <TD as='th' narrow>
                     Precinct
                   </TD>
-                  <TD as="th" nowrap narrow textAlign="center">
+                  <TD as='th' nowrap narrow textAlign='center'>
                     Manual Ballot Count
                   </TD>
-                  <TD as="th" />
+                  <TD as='th' />
                 </tr>
               </thead>
               <tbody>
@@ -182,7 +182,7 @@ const ManualDataImportIndexScreen: React.FC = () => {
                   <TD>
                     <strong>Total</strong>
                   </TD>
-                  <TD textAlign="center" data-testid="total-ballots-entered">
+                  <TD textAlign='center' data-testid='total-ballots-entered'>
                     <strong>{totalNumberBallotsEntered}</strong>
                   </TD>
                   <TD />
@@ -208,7 +208,7 @@ const ManualDataImportIndexScreen: React.FC = () => {
           onCancel={() => setIsClearing(false)}
         />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

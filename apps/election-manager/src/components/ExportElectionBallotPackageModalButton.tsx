@@ -7,7 +7,7 @@ import { getElectionLocales, getPrecinctById } from '@votingworks/types'
 import {
   generateFilenameForBallotExportPackage,
   BALLOT_PACKAGE_FOLDER,
-  usbstick,
+  usbstick
 } from '@votingworks/utils'
 import { USBControllerButton } from '@votingworks/ui'
 import { DEFAULT_LOCALE } from '../config/globals'
@@ -81,7 +81,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       precinctId,
       locales,
       isLiveMode,
-      isAbsentee,
+      isAbsentee
     } = state.currentBallotConfig
     const path = getBallotPath({
       ballotStyleId,
@@ -90,7 +90,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       precinctId,
       locales,
       isLiveMode,
-      isAbsentee,
+      isAbsentee
     })
     const data = await window.kiosk!.printToPDF()
     await state.archive.file(path, Buffer.from(data))
@@ -122,7 +122,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
       if (openDialog || !pathToFolder) {
         await state.archive.beginWithDialog({
           defaultPath: pathToFile,
-          filters: [{ name: 'Archive Files', extensions: ['zip'] }],
+          filters: [{ name: 'Archive Files', extensions: ['zip'] }]
         })
       } else {
         await state.archive.beginWithDirectSave(pathToFolder, defaultFileName)
@@ -163,10 +163,10 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
               <h1>No USB Drive Detected</h1>
               <p>
                 <USBImage
-                  src="usb-drive.svg"
-                  alt="Insert USB Image"
+                  src='usb-drive.svg'
+                  alt='Insert USB Image'
                   // hidden feature to export with file dialog by double-clicking
-                  onDoubleClick={() => saveFileCallback(true)}
+                  onDoubleClick={async () => await saveFileCallback(true)}
                 />
                 Please insert a USB drive in order to export the ballot
                 configuration.
@@ -185,19 +185,19 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
           break
         case UsbDriveStatus.mounted: {
           actions = (
-            <React.Fragment>
+            <>
               <LinkButton onPress={closeModal}>Cancel</LinkButton>
-              <Button onPress={() => saveFileCallback(true)}>Custom</Button>
-              <Button onPress={() => saveFileCallback(false)} primary>
+              <Button onPress={async () => await saveFileCallback(true)}>Custom</Button>
+              <Button onPress={async () => await saveFileCallback(false)} primary>
                 Export
               </Button>
-            </React.Fragment>
+            </>
           )
           mainContent = (
             <Prose>
               <h1>Export Ballot Package</h1>
               <p>
-                <USBImage src="usb-drive.svg" alt="Insert USB Image" />A zip
+                <USBImage src='usb-drive.svg' alt='Insert USB Image' />A zip
                 archive will automatically be saved to the default location on
                 the mounted USB drive. Optionally, you may pick a custom export
                 location.
@@ -221,7 +221,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
         contestIds,
         isLiveMode,
         locales,
-        isAbsentee,
+        isAbsentee
       } = state.currentBallotConfig
       const precinctName = getPrecinctById({ election, precinctId })!.name
 
@@ -287,7 +287,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
     case 'Done': {
       if (usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
         actions = (
-          <React.Fragment>
+          <>
             <LinkButton onPress={closeModal}>Close</LinkButton>
             <USBControllerButton
               primary
@@ -295,7 +295,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
               usbDriveEject={usbDriveEject}
               usbDriveStatus={usbDriveStatus}
             />
-          </React.Fragment>
+          </>
         )
       } else {
         actions = <LinkButton onPress={closeModal}>Close</LinkButton>
@@ -325,7 +325,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <LinkButton small onPress={() => setIsModalOpen(true)}>
         Export Ballot Package
       </LinkButton>
@@ -336,7 +336,7 @@ const ExportElectionBallotPackageModalButton: React.FC = () => {
           actions={actions}
         />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

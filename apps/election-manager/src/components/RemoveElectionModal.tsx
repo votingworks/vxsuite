@@ -31,12 +31,12 @@ const RemoveElectionModal: React.FC<Props> = ({ onClose }) => {
       }
       onOverlayClick={onClose}
       actions={
-        <React.Fragment>
+        <>
           <Button onPress={onClose}>Cancel</Button>
           <Button danger onPress={unconfigureElection}>
             Remove Election Definition
           </Button>
-        </React.Fragment>
+        </>
       }
     />
   )

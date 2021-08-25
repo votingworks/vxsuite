@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   multiPartyPrimaryElectionDefinition,
-  electionSampleDefinition,
+  electionSampleDefinition
 } from '@votingworks/fixtures'
 import { advanceTimersAndPromises } from '@votingworks/test-utils'
 import { createMemoryHistory } from 'history'
@@ -17,11 +17,11 @@ import {
   FullElectionExternalTally,
   ResultsFileType,
   TallyCategory,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 import {
   getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
+  getEmptyExternalTally
 } from '../utils/externalTallies'
 
 jest.useFakeTimers()
@@ -29,13 +29,13 @@ jest.useFakeTimers()
 test('can toggle ballot types for data', async () => {
   const saveExternalTallies = jest.fn()
   const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
+    <Route path='/tally/manual-data-import'>
       <ManualDataImportIndexScreen />
     </Route>,
     {
       route: '/tally/manual-data-import',
       electionDefinition: multiPartyPrimaryElectionDefinition,
-      saveExternalTallies,
+      saveExternalTallies
     }
   )
   getByText('Manually Entered Precinct Results')
@@ -58,8 +58,8 @@ test('can toggle ballot types for data', async () => {
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
       source: ExternalTallySourceType.Manual,
-      votingMethod: VotingMethod.Absentee,
-    }),
+      votingMethod: VotingMethod.Absentee
+    })
   ])
 
   fireEvent.click(getByTestId('ballottype-precinct'))
@@ -67,8 +67,8 @@ test('can toggle ballot types for data', async () => {
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
       source: ExternalTallySourceType.Manual,
-      votingMethod: VotingMethod.Precinct,
-    }),
+      votingMethod: VotingMethod.Precinct
+    })
   ])
   getByText('Edit Precinct Results for Precinct 5')
 })
@@ -83,7 +83,7 @@ test('precinct table renders properly when there is no data', async () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      saveExternalTallies,
+      saveExternalTallies
     }
   )
   getByText('Manually Entered Precinct Results')
@@ -131,19 +131,19 @@ test('loads prexisting manual data to edit', async () => {
         tallies: {
           argent: { tally: 80 } as ContestOptionTally,
           '__write-in': { tally: 60 } as ContestOptionTally,
-          witherspoonsmithson: { tally: 40 } as ContestOptionTally,
+          witherspoonsmithson: { tally: 40 } as ContestOptionTally
         },
-        metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
+        metadata: { undervotes: 220, overvotes: 0, ballots: 100 }
       } as unknown) as ContestTally,
       'judicial-robert-demergue': ({
         ...talliesByPrecinct['23']?.contestTallies['judicial-robert-demergue'],
         tallies: {
           yes: { option: ['yes'], tally: 40 },
-          no: { option: ['no'], tally: 30 },
+          no: { option: ['no'], tally: 30 }
         },
-        metadata: { ballots: 100, undervotes: 12, overvotes: 8 },
-      } as unknown) as ContestTally,
-    },
+        metadata: { ballots: 100, undervotes: 12, overvotes: 8 }
+      } as unknown) as ContestTally
+    }
   }
   talliesByPrecinct['20'] = {
     numberOfBallotsCounted: 50,
@@ -155,11 +155,11 @@ test('loads prexisting manual data to edit', async () => {
         ],
         tallies: {
           alice: { tally: 25 } as ContestOptionTally,
-          bob: { tally: 5 } as ContestOptionTally,
+          bob: { tally: 5 } as ContestOptionTally
         },
-        metadata: { undervotes: 4, overvotes: 6, ballots: 40 },
-      } as unknown) as ContestTally,
-    },
+        metadata: { undervotes: 4, overvotes: 6, ballots: 40 }
+      } as unknown) as ContestTally
+    }
   }
   talliesByPrecinct['21'] = {
     numberOfBallotsCounted: 7,
@@ -169,15 +169,15 @@ test('loads prexisting manual data to edit', async () => {
         ...talliesByPrecinct['21']?.contestTallies['judicial-robert-demergue'],
         tallies: {
           yes: { option: ['yes'], tally: 4 },
-          no: { option: ['no'], tally: 3 },
+          no: { option: ['no'], tally: 3 }
         },
-        metadata: { ballots: 7, undervotes: 0, overvotes: 0 },
-      } as unknown) as ContestTally,
-    },
+        metadata: { ballots: 7, undervotes: 0, overvotes: 0 }
+      } as unknown) as ContestTally
+    }
   }
   const overallTally = {
     ...getEmptyExternalTally(),
-    numberOfBallotsCounted: 100,
+    numberOfBallotsCounted: 100
   }
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct)
@@ -187,18 +187,18 @@ test('loads prexisting manual data to edit', async () => {
     votingMethod: VotingMethod.Absentee,
     inputSourceName: 'Doesnt matter',
     source: ExternalTallySourceType.Manual,
-    timestampCreated: new Date(),
+    timestampCreated: new Date()
   }
   const resetFiles = jest.fn()
   const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
+    <Route path='/tally/manual-data-import'>
       <ManualDataImportIndexScreen />
     </Route>,
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
       resetFiles,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: [externalTally]
     }
   )
   getByText('Manually Entered Absentee Results')

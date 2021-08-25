@@ -7,14 +7,14 @@ import {
   CandidateContest,
   YesNoContest,
   AnyContest,
-  MsEitherNeitherContest,
+  MsEitherNeitherContest
 } from '@votingworks/types'
 
 import readFileAsync from '../lib/readFileAsync'
 import {
   EventTargetFunction,
   InputEventFunction,
-  TextareaEventFunction,
+  TextareaEventFunction
 } from '../config/types'
 
 import NavigationScreen from '../components/NavigationScreen'
@@ -22,7 +22,7 @@ import AppContext from '../contexts/AppContext'
 import Button, { SegmentedButton } from '../components/Button'
 import {
   CandidateContestChoices,
-  Contest,
+  Contest
 } from '../components/HandMarkedPaperBallot'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
@@ -77,7 +77,7 @@ const TextField = ({
   pattern,
   step,
   type = 'text',
-  value,
+  value
 }: {
   disabled?: boolean
   name: string
@@ -92,11 +92,11 @@ const TextField = ({
 }) => (
   <StyledField>
     <label htmlFor={name}>
-      <Text as="span" small>
+      <Text as='span' small>
         {label}
       </Text>
       {optional && (
-        <Text as="span" small muted>
+        <Text as='span' small muted>
           {' '}
           (optional)
         </Text>
@@ -134,7 +134,7 @@ const ToggleField = ({
   value,
   optional,
   onChange,
-  disabled,
+  disabled
 }: {
   name: string
   label?: string
@@ -162,7 +162,7 @@ const ToggleField = ({
           small
           disabled={value}
           name={name}
-          value="true"
+          value='true'
           onPress={onChange}
         >
           {trueLabel}
@@ -171,7 +171,7 @@ const ToggleField = ({
           small
           disabled={!value}
           name={name}
-          value="false"
+          value='false'
           onPress={onChange}
         >
           {falseLabel}
@@ -182,7 +182,7 @@ const ToggleField = ({
 )
 
 const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
-  allowEditing,
+  allowEditing
 }) => {
   const { electionDefinition, saveElection } = useContext(AppContext)
   const { election } = electionDefinition!
@@ -197,8 +197,8 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
         contests: [
           ...election.contests.slice(0, contestIndex),
           newContest,
-          ...election.contests.slice(contestIndex + 1),
-        ],
+          ...election.contests.slice(contestIndex + 1)
+        ]
       }
       await saveElection(JSON.stringify(newElection))
     }
@@ -215,7 +215,7 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
     }
     await saveContest({
       ...contest,
-      [name]: value,
+      [name]: value
     })
   }
 
@@ -223,7 +223,7 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
     const { name, value } = event.currentTarget as HTMLButtonElement
     await saveContest({
       ...contest,
-      [name]: value === 'true',
+      [name]: value === 'true'
     })
   }
 
@@ -241,11 +241,11 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
     const newCandidtes = [...candidates]
     newCandidtes[candidateIndex] = {
       ...candidates[candidateIndex],
-      [candidateKey]: value,
+      [candidateKey]: value
     }
     await saveContest({
       ...candidateContest,
-      candidates: newCandidtes,
+      candidates: newCandidtes
     })
   }
 
@@ -261,8 +261,8 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
       ...msEitherNeitherContest,
       [optionName]: {
         ...msEitherNeitherContest[optionName],
-        label: value,
-      },
+        label: value
+      }
     })
   }
 
@@ -278,7 +278,7 @@ const DefinitionContestsScreen: React.FC<{ allowEditing: boolean }> = ({
 ${fileContent}`
         await saveContest({
           ...yesNoContest,
-          description,
+          description
         })
       } catch (error) {
         console.error('appendSvgToDescription failed', error) // eslint-disable-line no-console
@@ -309,7 +309,7 @@ ${fileContent}`
             <Paper isNarrow={contest.type === 'candidate'}>
               <Contest section={contest.section} title={contest.title}>
                 {contest.type === 'candidate' && (
-                  <React.Fragment>
+                  <>
                     <p>
                       {contest.seats === 1
                         ? 'Vote for 1'
@@ -321,10 +321,10 @@ ${fileContent}`
                       vote={[]}
                       locales={{ primary: 'en-US' }}
                     />
-                  </React.Fragment>
+                  </>
                 )}
                 {contest.type === 'yesno' && (
-                  <React.Fragment>
+                  <>
                     <p>
                       Vote <strong>Yes</strong> or <strong>No</strong>
                     </p>
@@ -332,7 +332,7 @@ ${fileContent}`
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DOMPurify.sanitize(contest.description)
                       }}
                     />
                     {['Yes', 'No'].map((answer) => (
@@ -342,15 +342,15 @@ ${fileContent}`
                         </BubbleMark>
                       </Text>
                     ))}
-                  </React.Fragment>
+                  </>
                 )}
                 {contest.type === 'ms-either-neither' && (
-                  <React.Fragment>
+                  <>
                     <Text
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DOMPurify.sanitize(contest.description)
                       }}
                     />
                     <p>{contest.eitherNeitherLabel}</p>
@@ -375,7 +375,7 @@ ${fileContent}`
                         <span>{contest.secondOption.label}</span>
                       </BubbleMark>
                     </Text>
-                  </React.Fragment>
+                  </>
                 )}
               </Contest>
             </Paper>
@@ -385,73 +385,73 @@ ${fileContent}`
               <h3>Contest Data</h3>
             </Prose>
             <TextField
-              name="type"
-              label="Type"
+              name='type'
+              label='Type'
               value={contest.type}
               onChange={saveTextField}
               disabled
             />
             <TextField
-              name="id"
-              label="Contest ID"
+              name='id'
+              label='Contest ID'
               value={contest.id}
               onChange={saveTextField}
               disabled
             />
             <TextField
-              name="districtId"
-              label="District ID"
+              name='districtId'
+              label='District ID'
               value={contest.districtId}
               onChange={saveTextField}
               disabled
             />
             <TextField
-              name="partyId"
-              label="Party ID"
+              name='partyId'
+              label='Party ID'
               value={contest.partyId || ''}
               optional
               onChange={saveTextField}
               disabled
             />
             <TextField
-              name="section"
-              label="Section Name"
+              name='section'
+              label='Section Name'
               value={contest.section}
               onChange={saveTextField}
               disabled={!allowEditing}
             />
             <TextField
-              label="Title"
-              name="title"
+              label='Title'
+              name='title'
               value={contest.title}
               onChange={saveTextField}
               disabled={!allowEditing}
             />
             {contest.type === 'yesno' && (
               <TextField
-                label="Short Title"
-                name="shortTitle"
+                label='Short Title'
+                name='shortTitle'
                 value={contest.shortTitle}
                 onChange={saveTextField}
                 disabled={!allowEditing}
               />
             )}
             {contest.type === 'candidate' && (
-              <React.Fragment>
+              <>
                 <TextField
-                  name="seats"
-                  label="Seats"
+                  name='seats'
+                  label='Seats'
                   value={contest.seats}
-                  type="number"
+                  type='number'
                   min={0}
                   step={1}
-                  pattern="\d*"
+                  pattern='\d*'
                   onChange={saveTextField}
                   disabled={!allowEditing}
                 />
                 <ToggleField
-                  name="allowWriteIns"
-                  label="Allow Write-Ins"
+                  name='allowWriteIns'
+                  label='Allow Write-Ins'
                   value={contest.allowWriteIns}
                   onChange={saveToggleField}
                   disabled={!allowEditing}
@@ -462,21 +462,21 @@ ${fileContent}`
                     <li key={candidate.id}>
                       <TextField
                         name={`${index}.name`}
-                        label="Candidate Name"
+                        label='Candidate Name'
                         value={candidate.name}
                         onChange={saveCandidateTextField}
                         disabled={!allowEditing}
                       />
                       <TextField
                         name={`${index}.id`}
-                        label="Candidate ID"
+                        label='Candidate ID'
                         value={candidate.id}
                         onChange={saveCandidateTextField}
                         disabled
                       />
                       <TextField
                         name={`${index}.partyId`}
-                        label="Party ID"
+                        label='Party ID'
                         value={candidate.partyId || ''}
                         optional
                         onChange={saveCandidateTextField}
@@ -485,83 +485,83 @@ ${fileContent}`
                     </li>
                   ))}
                 </ol>
-              </React.Fragment>
+              </>
             )}
             {contest.type === 'yesno' && (
-              <React.Fragment>
+              <>
                 <TextField
-                  label="Description"
-                  name="description"
-                  type="textarea"
+                  label='Description'
+                  name='description'
+                  type='textarea'
                   value={contest.description}
                   onChange={saveTextField}
                   disabled={!allowEditing}
                 />
                 <FileInputButton
                   buttonProps={{
-                    small: true,
+                    small: true
                   }}
-                  accept="image/svg+xml"
+                  accept='image/svg+xml'
                   onChange={appendSvgToDescription}
                   disabled={!allowEditing}
                 >
                   Append SVG Image to Description
                 </FileInputButton>
-              </React.Fragment>
+              </>
             )}
             {contest.type === 'ms-either-neither' && (
-              <React.Fragment>
+              <>
                 <TextField
-                  label="Description (Add bold formatting: <b>bold</b>)"
-                  name="description"
-                  type="textarea"
+                  label='Description (Add bold formatting: <b>bold</b>)'
+                  name='description'
+                  type='textarea'
                   value={contest.description}
                   onChange={saveTextField}
                   disabled={!allowEditing}
                 />
                 <TextField
-                  label="Either Neither Instruction Label"
-                  name="eitherNeitherLabel"
+                  label='Either Neither Instruction Label'
+                  name='eitherNeitherLabel'
                   value={contest.eitherNeitherLabel}
                   onChange={saveTextField}
                   disabled={!allowEditing}
                 />
                 <TextField
-                  label="Either Option Label"
-                  name="eitherOption"
+                  label='Either Option Label'
+                  name='eitherOption'
                   value={contest.eitherOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
                   disabled={!allowEditing}
                 />
                 <TextField
-                  label="Neither Option Label"
-                  name="neitherOption"
+                  label='Neither Option Label'
+                  name='neitherOption'
                   value={contest.neitherOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
                   disabled={!allowEditing}
                 />
                 <TextField
-                  label="Pick One Instruction Label"
-                  name="pickOneLabel"
+                  label='Pick One Instruction Label'
+                  name='pickOneLabel'
                   value={contest.pickOneLabel}
                   onChange={saveTextField}
                   disabled={!allowEditing}
                 />
                 <TextField
-                  label="First Option Label"
-                  name="firstOption"
+                  label='First Option Label'
+                  name='firstOption'
                   value={contest.firstOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
                   disabled={!allowEditing}
                 />
                 <TextField
-                  label="First Option Label"
-                  name="secondOption"
+                  label='First Option Label'
+                  name='secondOption'
                   value={contest.secondOption.label}
                   onChange={saveMsEitherNeitherOptionLabel}
                   disabled={!allowEditing}
                 />
-              </React.Fragment>
+              </>
             )}
           </div>
         </Columns>

@@ -49,7 +49,7 @@ const SaveFileToUSB: React.FC<Props> = ({
   generateFileContent,
   defaultFilename,
   fileType,
-  promptToEjectUSB = false,
+  promptToEjectUSB = false
 }) => {
   const { usbDriveStatus, usbDriveEject, isOfficialResults } = useContext(
     AppContext
@@ -68,7 +68,7 @@ const SaveFileToUSB: React.FC<Props> = ({
 
     try {
       const results = await generateFileContent()
-      if (!window.kiosk) {
+      if (window.kiosk == null) {
         fileDownload(results, defaultFilename, 'text/csv')
       } else {
         const usbPath = await usbstick.getDevicePath()
@@ -78,10 +78,10 @@ const SaveFileToUSB: React.FC<Props> = ({
             : path.join(usbPath!, defaultFilename)
         if (openFileDialog) {
           const fileWriter = await window.kiosk.saveAs({
-            defaultPath: pathToFile,
+            defaultPath: pathToFile
           })
 
-          if (!fileWriter) {
+          if (fileWriter == null) {
             throw new Error('could not begin download; no file was chosen')
           }
 
@@ -89,7 +89,7 @@ const SaveFileToUSB: React.FC<Props> = ({
           setSavedFilename(fileWriter.filename)
           await fileWriter.end()
         } else {
-          await window.kiosk!.writeFile(pathToFile, results)
+          await window.kiosk.writeFile(pathToFile, results)
           setSavedFilename(defaultFilename)
         }
       }
@@ -150,7 +150,7 @@ const SaveFileToUSB: React.FC<Props> = ({
     let actions = <LinkButton onPress={onClose}>Close</LinkButton>
     if (promptToEjectUSB && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
       actions = (
-        <React.Fragment>
+        <>
           <LinkButton onPress={onClose}>Close</LinkButton>
           <USBControllerButton
             small={false}
@@ -158,7 +158,7 @@ const SaveFileToUSB: React.FC<Props> = ({
             usbDriveStatus={usbDriveStatus}
             usbDriveEject={usbDriveEject}
           />
-        </React.Fragment>
+        </>
       )
     }
     return (
@@ -205,7 +205,7 @@ const SaveFileToUSB: React.FC<Props> = ({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage src="/usb-drive.svg" alt="Insert USB Image" />
+                <USBImage src='/usb-drive.svg' alt='Insert USB Image' />
                 Please insert a USB drive where you would like the save the{' '}
                 {fileName}.
               </p>
@@ -213,17 +213,17 @@ const SaveFileToUSB: React.FC<Props> = ({
           }
           onOverlayClick={onClose}
           actions={
-            <React.Fragment>
+            <>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
-              {(!window.kiosk || process.env.NODE_ENV === 'development') && (
+              {((window.kiosk == null) || process.env.NODE_ENV === 'development') && (
                 <Button
-                  data-testid="manual-export"
-                  onPress={() => exportResults(true, defaultFilename)}
+                  data-testid='manual-export'
+                  onPress={async () => await exportResults(true, defaultFilename)}
                 >
                   Save
                 </Button>
               )}{' '}
-            </React.Fragment>
+            </>
           }
         />
       )
@@ -234,9 +234,9 @@ const SaveFileToUSB: React.FC<Props> = ({
           content={<Loading />}
           onOverlayClick={onClose}
           actions={
-            <React.Fragment>
+            <>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
-            </React.Fragment>
+            </>
           }
         />
       )
@@ -256,18 +256,18 @@ const SaveFileToUSB: React.FC<Props> = ({
           }
           onOverlayClick={onClose}
           actions={
-            <React.Fragment>
+            <>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
-              <Button onPress={() => exportResults(true, defaultFilename)}>
+              <Button onPress={async () => await exportResults(true, defaultFilename)}>
                 Save As…
               </Button>
               <Button
                 primary
-                onPress={() => exportResults(false, defaultFilename)}
+                onPress={async () => await exportResults(false, defaultFilename)}
               >
                 Save
               </Button>
-            </React.Fragment>
+            </>
           }
         />
       )

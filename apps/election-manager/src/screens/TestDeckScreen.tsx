@@ -20,19 +20,19 @@ import { generateTestDeckBallots } from '../utils/election'
 import {
   ReportSection,
   TallyReportColumns,
-  TallyReportTitle,
+  TallyReportTitle
 } from './TallyReportScreen'
 import LogoMark from '../components/LogoMark'
 import TallyReportMetadata from '../components/TallyReportMetadata'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 import {
   generateDefaultReportFilename,
-  generateFileContentToSaveAsPDF,
+  generateFileContentToSaveAsPDF
 } from '../utils/saveAsPDF'
 
 const allPrecincts: Precinct = {
   id: '',
-  name: 'All Precincts',
+  name: 'All Precincts'
 }
 
 const TestDeckScreen: React.FC = () => {
@@ -49,7 +49,7 @@ const TestDeckScreen: React.FC = () => {
 
   const ballots = generateTestDeckBallots({
     election,
-    precinctId: precinct?.id,
+    precinctId: precinct?.id
   })
 
   const votes: VotesDict[] = ballots.map(
@@ -61,9 +61,9 @@ const TestDeckScreen: React.FC = () => {
     castVoteRecords: new Set(),
     contestTallies: tallyVotesByContest({
       election,
-      votes,
+      votes
     }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
+    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length }
   }
 
   const ballotStylePartyIds = Array.from(
@@ -82,7 +82,7 @@ const TestDeckScreen: React.FC = () => {
 
   if (precinct?.name) {
     return (
-      <React.Fragment>
+      <>
         <NavigationScreen>
           <div>
             <strong>{pageTitle}</strong> for {election.title}
@@ -99,11 +99,11 @@ const TestDeckScreen: React.FC = () => {
               election={election}
             />
             <p>
-              <PrintButton primary sides="one-sided">
+              <PrintButton primary sides='one-sided'>
                 Print Results Report
               </PrintButton>
             </p>
-            {window.kiosk && (
+            {(window.kiosk != null) && (
               <p>
                 <Button onPress={() => setIsSaveModalOpen(true)}>
                   Save Results Report as PDF
@@ -125,19 +125,19 @@ const TestDeckScreen: React.FC = () => {
             fileType={FileType.TestDeckTallyReport}
           />
         )}
-        <div className="print-only">
+        <div className='print-only'>
           {ballotStylePartyIds.map((partyId) => {
             const party = election.parties.find((p) => p.id === partyId)
             const electionTallyForParty = filterTalliesByParty({
               election,
               electionTally,
-              party,
+              party
             })
-            const electionTitle = `${party ? party.fullName : ''} ${
+            const electionTitle = `${party?.fullName ?? ''} ${
               election.title
             }`
             return (
-              <ReportSection key={partyId || 'no-party'}>
+              <ReportSection key={partyId ?? 'no-party'}>
                 <LogoMark />
                 <div>
                   <strong>{pageTitle}</strong> for {electionTitle}
@@ -165,7 +165,7 @@ const TestDeckScreen: React.FC = () => {
             )
           })}
         </div>
-      </React.Fragment>
+      </>
     )
   }
 
@@ -189,7 +189,7 @@ const TestDeckScreen: React.FC = () => {
         {[...election.precincts]
           .sort((a, b) =>
             a.name.localeCompare(b.name, undefined, {
-              ignorePunctuation: true,
+              ignorePunctuation: true
             })
           )
           .map((p) => (

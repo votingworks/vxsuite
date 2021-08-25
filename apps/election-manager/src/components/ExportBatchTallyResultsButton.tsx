@@ -10,7 +10,7 @@ const ExportBatchTallyResultsButton: React.FC = () => {
   const {
     fullElectionTally,
     castVoteRecordFiles,
-    electionDefinition,
+    electionDefinition
   } = useContext(AppContext)
   const isTestMode = castVoteRecordFiles?.fileMode === 'test'
   const { election } = electionDefinition!
@@ -20,7 +20,7 @@ const ExportBatchTallyResultsButton: React.FC = () => {
     election
   )
   return (
-    <React.Fragment>
+    <>
       <Button small onPress={() => setIsSaveModalOpen(true)}>
         Export Batch Results as CSV
       </Button>
@@ -28,13 +28,12 @@ const ExportBatchTallyResultsButton: React.FC = () => {
         <SaveFileToUSB
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={async () =>
-            generateBatchTallyResultsCSV(fullElectionTally, election)
-          }
+            generateBatchTallyResultsCSV(fullElectionTally, election)}
           defaultFilename={defaultFilename}
           fileType={FileType.BatchResultsCSV}
         />
       )}
-    </React.Fragment>
+    </>
   )
 }
 

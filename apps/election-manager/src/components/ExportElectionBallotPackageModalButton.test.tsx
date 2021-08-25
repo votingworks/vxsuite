@@ -36,7 +36,7 @@ test('Modal renders insert usb screen appropriately', async () => {
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.recentlyEjected,
-    UsbDriveStatus.notavailable,
+    UsbDriveStatus.notavailable
   ]
 
   for (const usbStatus of usbStatuses) {
@@ -45,9 +45,9 @@ test('Modal renders insert usb screen appropriately', async () => {
       getByText,
       queryAllByText,
       queryAllByAltText,
-      queryAllByTestId,
+      queryAllByTestId
     } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
-      usbDriveStatus: usbStatus,
+      usbDriveStatus: usbStatus
     })
     fireEvent.click(getByText('Export Ballot Package'))
     await waitFor(() => getByText('No USB Drive Detected'))
@@ -71,9 +71,9 @@ test('Modal renders export confirmation screen when usb detected and manual link
     getByText,
     queryAllByText,
     queryAllByAltText,
-    queryAllByTestId,
+    queryAllByTestId
   } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
-    usbDriveStatus: UsbDriveStatus.mounted,
+    usbDriveStatus: UsbDriveStatus.mounted
   })
   fireEvent.click(getByText('Export Ballot Package'))
   await waitFor(() =>
@@ -107,7 +107,7 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
     const { unmount, queryAllByTestId, getByText } = renderInAppContext(
       <ExportElectionBallotPackageModalButton />,
       {
-        usbDriveStatus: usbStatus,
+        usbDriveStatus: usbStatus
       }
     )
     fireEvent.click(getByText('Export Ballot Package'))
@@ -125,7 +125,7 @@ test('Modal renders error message appropriately', async () => {
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: UsbDriveStatus.mounted
     }
   )
   fireEvent.click(getByText('Export Ballot Package'))
@@ -150,7 +150,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
     <ExportElectionBallotPackageModalButton />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
-      usbDriveEject: ejectFunction,
+      usbDriveEject: ejectFunction
     }
   )
   fireEvent.click(getByText('Export Ballot Package'))

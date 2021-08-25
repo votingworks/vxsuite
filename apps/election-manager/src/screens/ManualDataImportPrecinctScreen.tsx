@@ -5,7 +5,7 @@ import {
   CandidateContest,
   Contest,
   Dictionary,
-  expandEitherNeitherContests,
+  expandEitherNeitherContests
 } from '@votingworks/types'
 
 import {
@@ -16,7 +16,7 @@ import {
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
-  ManualDataPrecinctScreenProps,
+  ManualDataPrecinctScreenProps
 } from '../config/types'
 import routerPaths from '../routerPaths'
 
@@ -29,7 +29,7 @@ import LinkButton from '../components/LinkButton'
 import NavigationScreen from '../components/NavigationScreen'
 import {
   getContestsForPrecinct,
-  getAllPossibleCandidatesForCandidateContest,
+  getAllPossibleCandidatesForCandidateContest
 } from '../utils/election'
 import TextInput from '../components/TextInput'
 import Text from '../components/Text'
@@ -37,7 +37,7 @@ import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
-  getTotalNumberOfBallots,
+  getTotalNumberOfBallots
 } from '../utils/externalTallies'
 import Table, { TD } from '../components/Table'
 
@@ -68,7 +68,7 @@ export const ContestData = styled.div`
 
 const ContestDataRow = ({
   label,
-  children,
+  children
 }: {
   label: string | React.ReactNode
   children: React.ReactNode
@@ -121,7 +121,7 @@ export const getExpectedNumberOfBallotsForContestTally = (
   const sumOfCandidateVotes = Object.values(contestTally.tallies).reduce(
     (prevValue, optionTally) =>
       prevValue +
-      (optionTally ? getNumericalValueForTally(optionTally.tally) : 0),
+      ((optionTally != null) ? getNumericalValueForTally(optionTally.tally) : 0),
     0
   )
   return Math.ceil(
@@ -136,12 +136,12 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
   const {
     electionDefinition,
     fullElectionExternalTallies,
-    saveExternalTallies,
+    saveExternalTallies
   } = useContext(AppContext)
   const { election } = electionDefinition!
   // TODO export the type for this somewhere
   const {
-    precinctId: currentPrecinctId,
+    precinctId: currentPrecinctId
   } = useParams<ManualDataPrecinctScreenProps>()
   const history = useHistory()
 
@@ -190,7 +190,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
         const optionTally = contestTally.tallies[optionId]!
         convertedOptionTallies[optionId] = {
           ...optionTally,
-          tally: optionTally.tally === '' ? 0 : optionTally.tally,
+          tally: optionTally.tally === '' ? 0 : optionTally.tally
         }
       }
       convertedContestTallies[contestId] = {
@@ -208,8 +208,8 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
           overvotes:
             contestTally.metadata.overvotes === ''
               ? 0
-              : contestTally.metadata.overvotes,
-        },
+              : contestTally.metadata.overvotes
+        }
       }
     }
     return convertedContestTallies
@@ -229,7 +229,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
           : talliesByPrecinct[precinctId]!
       convertedTalliesByPrecinct[precinctId] = {
         ...precinctTally,
-        contestTallies: convertContestTallies(precinctTally.contestTallies),
+        contestTallies: convertContestTallies(precinctTally.contestTallies)
       }
     }
 
@@ -292,8 +292,8 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
           ...contestTally,
           metadata: {
             ...contestTally.metadata,
-            overvotes: valueToSave,
-          },
+            overvotes: valueToSave
+          }
         }
         break
       case 'undervotes':
@@ -301,8 +301,8 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
           ...contestTally,
           metadata: {
             ...contestTally.metadata,
-            undervotes: valueToSave,
-          },
+            undervotes: valueToSave
+          }
         }
         break
       default:
@@ -312,9 +312,9 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
             ...contestTally.tallies,
             [dataKey]: {
               option: contestTally.tallies[dataKey]!.option,
-              tally: valueToSave,
-            },
-          },
+              tally: valueToSave
+            }
+          }
         }
     }
     // Update the total number of ballots for this contest.
@@ -325,12 +325,12 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
       ...newContestTally,
       metadata: {
         ...newContestTally.metadata,
-        ballots: expectedNumberOfBallots,
-      },
+        ballots: expectedNumberOfBallots
+      }
     }
     const newContestTallies = {
       ...currentPrecinctTally.contestTallies,
-      [contestId]: newContestTally,
+      [contestId]: newContestTally
     }
     const numberBallotsInPrecinct = getTotalNumberOfBallots(
       convertContestTallies(newContestTallies),
@@ -338,7 +338,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
     )
     setCurrentPrecinctTally({
       numberOfBallotsCounted: numberBallotsInPrecinct,
-      contestTallies: newContestTallies,
+      contestTallies: newContestTallies
     })
   }
 
@@ -350,7 +350,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
     ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct'
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>
         <Prose>
           <h1>
@@ -365,7 +365,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
               const party = election.parties.find(
                 (p) => p.id === contest.partyId
               )
-              if (party) {
+              if (party != null) {
                 contestTitle = `${contestTitle} - ${party.fullName}`
               }
             }
@@ -387,39 +387,36 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
                               data-testid={`${contest.id}-${candidate.id}`}
                               value={getValueForInput(contest.id, candidate.id)}
                               onChange={(e) =>
-                                updateContestData(contest.id, candidate.id, e)
-                              }
+                                updateContestData(contest.id, candidate.id, e)}
                             />
                           </ContestDataRow>
                         )
                       )}
                     {contest.type === 'yesno' && (
-                      <React.Fragment>
-                        <ContestDataRow label="Yes">
+                      <>
+                        <ContestDataRow label='Yes'>
                           <TallyInput
                             name={`${contest.id}-yes`}
                             data-testid={`${contest.id}-yes`}
                             value={getValueForInput(contest.id, 'yes')}
                             onChange={(e) =>
-                              updateContestData(contest.id, 'yes', e)
-                            }
+                              updateContestData(contest.id, 'yes', e)}
                           />
                         </ContestDataRow>
-                        <ContestDataRow label="No">
+                        <ContestDataRow label='No'>
                           <TallyInput
                             name={`${contest.id}-no`}
                             data-testid={`${contest.id}-no`}
                             value={getValueForInput(contest.id, 'no')}
                             onChange={(e) =>
-                              updateContestData(contest.id, 'no', e)
-                            }
+                              updateContestData(contest.id, 'no', e)}
                           />
                         </ContestDataRow>
-                      </React.Fragment>
+                      </>
                     )}
                     <ContestDataRow
                       label={
-                        <Text as="span" small bold>
+                        <Text as='span' small bold>
                           undervotes
                         </Text>
                       }
@@ -429,13 +426,12 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
                         data-testid={`${contest.id}-undervotes`}
                         value={getValueForInput(contest.id, 'undervotes')}
                         onChange={(e) =>
-                          updateContestData(contest.id, 'undervotes', e)
-                        }
+                          updateContestData(contest.id, 'undervotes', e)}
                       />
                     </ContestDataRow>
                     <ContestDataRow
                       label={
-                        <Text as="span" small bold>
+                        <Text as='span' small bold>
                           overvotes
                         </Text>
                       }
@@ -445,14 +441,13 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
                         data-testid={`${contest.id}-overvotes`}
                         value={getValueForInput(contest.id, 'overvotes')}
                         onChange={(e) =>
-                          updateContestData(contest.id, 'overvotes', e)
-                        }
+                          updateContestData(contest.id, 'overvotes', e)}
                       />
                     </ContestDataRow>
                   </tbody>
                   <tfoot>
                     <tr>
-                      <TD textAlign="center">
+                      <TD textAlign='center'>
                         <strong data-testid={`${contest.id}-numBallots`}>
                           {getValueForInput(contest.id, 'numBallots')}
                         </strong>
@@ -474,7 +469,7 @@ const ManualDataImportPrecinctScreen: React.FC = () => {
           </p>
         </Prose>
       </NavigationScreen>
-    </React.Fragment>
+    </>
   )
 }
 

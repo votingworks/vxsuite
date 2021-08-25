@@ -6,7 +6,7 @@ import { InputEventFunction } from '../config/types'
 import {
   LabelButton,
   buttonFocusStyle,
-  ButtonInterface as ButtonProps,
+  ButtonInterface as ButtonProps
 } from './Button'
 
 const HiddenFileInput = styled.input`
@@ -47,10 +47,10 @@ const FileInputButton: React.FC<Props> = ({
 }) => {
   const onBlur: InputEventFunction = (event) => {
     const input = event.currentTarget
-    input!.blur()
+    input.blur()
   }
   return (
-    <React.Fragment>
+    <>
       <LabelButton {...buttonProps} disabled={disabled}>
         <HiddenFileInput
           {...rest}
@@ -59,11 +59,11 @@ const FileInputButton: React.FC<Props> = ({
           onBlur={onBlur}
           onChange={onChange}
           ref={innerRef}
-          type="file"
+          type='file'
         />
         {children}
       </LabelButton>
-    </React.Fragment>
+    </>
   )
 }
 

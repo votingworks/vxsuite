@@ -25,16 +25,16 @@ test('Printing the full test deck sorts precincts', async () => {
       isDefault: true,
       name: 'VxPrinter',
       status: 0,
-      connected: true,
-    },
+      connected: true
+    }
   ])
 
   const { getByText, getByLabelText } = renderInAppContext(
-    <Route path="/tally/print-test-deck/:precinctId">
+    <Route path='/tally/print-test-deck/:precinctId'>
       <PrintTestDeckScreen />
     </Route>,
     {
-      route: '/tally/print-test-deck/all',
+      route: '/tally/print-test-deck/all'
     }
   )
 

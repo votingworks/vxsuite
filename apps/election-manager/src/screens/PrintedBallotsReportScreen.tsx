@@ -47,10 +47,10 @@ const PrintedBallotsReportScreen: React.FC = () => {
       newCounts[precinctId] = election.ballotStyles
         .filter((bs) => bs.precincts.includes(precinctId))
         .reduce<Dictionary<number>>((bsCounts, { id: ballotStyleId }) => {
-          const newBsCounts = { ...bsCounts }
-          newBsCounts[ballotStyleId] = 0
-          return newBsCounts
-        }, {})
+        const newBsCounts = { ...bsCounts }
+        newBsCounts[ballotStyleId] = 0
+        return newBsCounts
+      }, {})
       return newCounts
     },
     {}
@@ -91,11 +91,11 @@ const PrintedBallotsReportScreen: React.FC = () => {
       <p>
         {electionDate}, {election.county.name}, {election.state}
         <br />
-        <Text small as="span">
+        <Text small as='span'>
           This report was created on {generatedAt}.
         </Text>
         <br />
-        <Text small as="span">
+        <Text small as='span'>
           Configured with the current election at{' '}
           {format.localeLongDateAndTime(new Date(configuredAt))}.
         </Text>
@@ -112,12 +112,12 @@ const PrintedBallotsReportScreen: React.FC = () => {
         {pluralize('have', totalBallotsPrinted)} been printed.
       </p>
 
-      <p className="no-print">
-        <PrintButton primary sides="one-sided">
+      <p className='no-print'>
+        <PrintButton primary sides='one-sided'>
           Print Report
         </PrintButton>
       </p>
-      <p className="no-print">
+      <p className='no-print'>
         <LinkButton small to={routerPaths.ballotsList}>
           Back to List Ballots
         </LinkButton>
@@ -126,19 +126,19 @@ const PrintedBallotsReportScreen: React.FC = () => {
       <Table>
         <tbody>
           <tr>
-            <TD as="th" narrow nowrap>
+            <TD as='th' narrow nowrap>
               Precinct
             </TD>
-            <TD as="th" narrow nowrap>
+            <TD as='th' narrow nowrap>
               Ballot Style
             </TD>
-            <TD as="th" narrow nowrap>
+            <TD as='th' narrow nowrap>
               Official Absentee Ballots Printed
             </TD>
-            <TD as="th" narrow nowrap>
+            <TD as='th' narrow nowrap>
               Official Precinct Ballots Printed
             </TD>
-            <TD as="th">Total Official Ballots Printed</TD>
+            <TD as='th'>Total Official Ballots Printed</TD>
           </tr>
           {Object.keys(counts).flatMap((precinctId) => {
             const precinct = find(
@@ -180,13 +180,13 @@ const PrintedBallotsReportScreen: React.FC = () => {
     </Prose>
   )
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>{reportContent}</NavigationScreen>
-      <div className="print-only">
+      <div className='print-only'>
         <LogoMark />
         {reportContent}
       </div>
-    </React.Fragment>
+    </>
   )
 }
 

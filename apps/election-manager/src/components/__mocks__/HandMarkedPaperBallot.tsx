@@ -5,9 +5,9 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   ballotStyleId,
   election,
   precinctId,
-  onRendered,
+  onRendered
 }) => {
-  if (onRendered) {
+  if (onRendered != null) {
     setImmediate(onRendered)
   }
 

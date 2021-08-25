@@ -11,77 +11,73 @@ export default class DownloadableArchive {
 
   private endPromise?: Promise<void>
 
-  public constructor(private kiosk = window.kiosk!) {}
+  public constructor (private readonly kiosk = window.kiosk!) {}
 
   /**
    * Begins downloading an archive by prompting the user where to put it and
    * making this instance ready to receive files. Resolves when ready to receive
    * files.
    */
-  public async beginWithDialog(
+  public async beginWithDialog (
     options?: KioskBrowser.SaveAsOptions
   ): Promise<void> {
     const fileWriter = await this.kiosk.saveAs(options)
 
-    if (!fileWriter) {
+    if (fileWriter == null) {
       throw new Error('could not begin download; no file was chosen')
     }
 
     let endResolve: () => void
     this.endPromise = new Promise((resolve) => (endResolve = resolve))
     this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
-      .on('end', () => fileWriter.end().then(endResolve))
+      .on('data', async (chunk) => await fileWriter.write(chunk))
+      .on('end', async () => await fileWriter.end().then(endResolve))
   }
 
   /**
    * Begins downloading an archive to the filePath specified. Resolves when
    * ready to receive files.
    */
-  public async beginWithDirectSave(
+  public async beginWithDirectSave (
     pathToFolder: string,
     filename: string
   ): Promise<void> {
     await this.kiosk.makeDirectory(pathToFolder, {
-      recursive: true,
+      recursive: true
     })
     const filePath = path.join(pathToFolder, filename)
     const fileWriter = await this.kiosk.writeFile(filePath)
 
-    if (!fileWriter) {
-      throw new Error('could not begin download; an error occurred')
-    }
-
     let endResolve: () => void
     this.endPromise = new Promise((resolve) => (endResolve = resolve))
     this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
-      .on('end', () => fileWriter.end().then(endResolve))
+      .on('data', async (chunk) => await fileWriter.write(chunk))
+      .on('end', async () => await fileWriter.end().then(endResolve))
   }
 
   /**
    * Writes a file to the archive, resolves when complete.
    */
-  public async file(
+  public async file (
     name: string,
     data: Parameters<ZipStream['entry']>[0]
   ): Promise<void> {
     const { zip } = this
 
-    if (!zip) {
+    if (zip == null) {
       throw new Error('cannot call file() before begin()')
     }
 
-    return new Promise((resolve, reject) => {
-      zip.entry(data, { name }, (err) => (err ? reject(err) : resolve()))
+    return await new Promise((resolve, reject) => {
+      zip.entry(data, { name }, (err) => ((err != null) ? reject(err) : resolve()))
     })
   }
 
   /**
    * Finishes the zip archive and ends the download.
    */
-  public async end(): Promise<void> {
-    if (!this.zip) {
+  public async end (): Promise<void> {
+    if (this.zip == null) {
       throw new Error('cannot call end() before begin()')
     }
 

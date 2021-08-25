@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 import { find } from '@votingworks/utils'
 import {
   generateDefaultReportFilename,
-  generateFileContentToSaveAsPDF,
+  generateFileContentToSaveAsPDF
 } from '../utils/saveAsPDF'
 
 import {
@@ -15,7 +15,7 @@ import {
   BatchReportScreenProps,
   VotingMethodReportScreenProps,
   VotingMethod,
-  ExternalTally,
+  ExternalTally
 } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
@@ -31,7 +31,7 @@ import TallyReportSummary from '../components/TallyReportSummary'
 import routerPaths from '../routerPaths'
 import {
   filterTalliesByParams,
-  filterTalliesByParamsAndBatchId,
+  filterTalliesByParamsAndBatchId
 } from '../lib/votecounting'
 import LogoMark from '../components/LogoMark'
 import { filterExternalTalliesByParams } from '../utils/externalTallies'
@@ -75,13 +75,13 @@ const TallyReportScreen: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false)
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
   const {
-    precinctId: precinctIdFromProps,
+    precinctId: precinctIdFromProps
   } = useParams<PrecinctReportScreenProps>()
   const { scannerId } = useParams<ScannerReportScreenProps>()
   const { batchId } = useParams<BatchReportScreenProps>()
   const { partyId: partyIdFromProps } = useParams<PartyReportScreenProps>()
   const {
-    votingMethod: votingMethodFromProps,
+    votingMethod: votingMethodFromProps
   } = useParams<VotingMethodReportScreenProps>()
   const votingMethod = votingMethodFromProps as VotingMethod
   const {
@@ -89,7 +89,7 @@ const TallyReportScreen: React.FC = () => {
     isOfficialResults,
     fullElectionTally,
     fullElectionExternalTallies,
-    isTabulationRunning,
+    isTabulationRunning
   } = useContext(AppContext)
 
   if (isTabulationRunning) {
@@ -134,7 +134,7 @@ const TallyReportScreen: React.FC = () => {
     }
     if (batchId) {
       const batchTally = filterTalliesByParamsAndBatchId(
-        fullElectionTally!,
+        fullElectionTally,
         election,
         batchId,
         {}
@@ -175,13 +175,13 @@ const TallyReportScreen: React.FC = () => {
   const generatedAtTime = new Date()
 
   useEffect(() => {
-    if (previewReportRef?.current && printReportRef?.current) {
+    if (((previewReportRef?.current) != null) && ((printReportRef?.current) != null)) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML
     }
   }, [previewReportRef, printReportRef, showPreview])
 
   return (
-    <React.Fragment>
+    <>
       <NavigationScreen>
         <Prose>
           <h1>{reportDisplayTitle()}</h1>
@@ -190,13 +190,13 @@ const TallyReportScreen: React.FC = () => {
             election={election}
           />
           <p>
-            <PrintButton primary sides="one-sided">
+            <PrintButton primary sides='one-sided'>
               Print Report
             </PrintButton>{' '}
             <Button onPress={toggleReportPreview}>
               {showPreview ? 'Hide Preview' : 'Preview Report'}
             </Button>{' '}
-            {window.kiosk && (
+            {(window.kiosk != null) && (
               <Button onPress={() => setIsSaveModalOpen(true)}>
                 Save Report as PDF
               </Button>
@@ -208,13 +208,13 @@ const TallyReportScreen: React.FC = () => {
             </LinkButton>
           </p>
           {showPreview && (
-            <React.Fragment>
+            <>
               <h2>Report Preview</h2>
               <Text italic small>
                 <strong>Note:</strong> Printed reports may be paginated to more
                 than one piece of paper.
               </Text>
-            </React.Fragment>
+            </>
           )}
         </Prose>
         {showPreview && <TallyReportPreview ref={previewReportRef} />}
@@ -227,21 +227,21 @@ const TallyReportScreen: React.FC = () => {
           fileType={FileType.TallyReport}
         />
       )}
-      <TallyReport ref={printReportRef} className="print-only">
-        {ballotStylePartyIds.map((partyId) =>
+      <TallyReport ref={printReportRef} className='print-only'>
+        {ballotStylePartyIds.map((partyId = '') =>
           precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId)
-            const electionTitle = party
+            const electionTitle = (party != null)
               ? `${party.fullName} ${election.title}`
               : election.title
 
             const tallyForReport = filterTalliesByParams(
-              fullElectionTally!,
+              fullElectionTally,
               election,
               { precinctId, scannerId, partyId, votingMethod, batchId }
             )
             const ballotCountsByVotingMethod = {
-              ...tallyForReport.ballotCountsByVotingMethod,
+              ...tallyForReport.ballotCountsByVotingMethod
             }
             let reportBallotCount = tallyForReport.numberOfBallotsCounted
             const externalTalliesForReport: ExternalTally[] = []
@@ -251,7 +251,7 @@ const TallyReportScreen: React.FC = () => {
                 partyId,
                 scannerId,
                 batchId,
-                votingMethod,
+                votingMethod
               })
               if (filteredTally !== undefined) {
                 externalTalliesForReport.push(filteredTally)
@@ -387,7 +387,7 @@ const TallyReportScreen: React.FC = () => {
             return (
               <ReportSection
                 key={partyId || 'none'}
-                data-testid="election-full-tally-report"
+                data-testid='election-full-tally-report'
               >
                 <LogoMark />
                 <Prose maxWidth={false}>
@@ -416,7 +416,7 @@ const TallyReportScreen: React.FC = () => {
           })
         )}
       </TallyReport>
-    </React.Fragment>
+    </>
   )
 }
 

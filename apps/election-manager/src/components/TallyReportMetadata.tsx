@@ -13,7 +13,7 @@ interface Props {
 
 const TallyReportMetadata: React.FC<Props> = ({
   election,
-  generatedAtTime,
+  generatedAtTime
 }) => {
   const electionDate = format.localeWeekdayAndDate(new Date(election.date))
   const generatedAt = format.localeLongDateAndTime(generatedAtTime)
@@ -22,7 +22,7 @@ const TallyReportMetadata: React.FC<Props> = ({
     <p>
       {electionDate}, {election.county.name}, {election.state}
       <br />
-      <Text small as="span">
+      <Text small as='span'>
         This report was created on {generatedAt}
       </Text>
     </p>

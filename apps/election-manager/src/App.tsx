@@ -13,15 +13,15 @@ export interface Props {
   printer?: AppRootProps['printer']
 }
 
-const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage()
+const defaultStorage = (window.kiosk != null) ? new KioskStorage() : new LocalStorage()
 
 const App: React.FC<Props> = ({
   storage = defaultStorage,
-  printer = getPrinter(),
+  printer = getPrinter()
 }) => (
   <BrowserRouter>
     <Route
-      path="/"
+      path='/'
       render={(props) => (
         <AppRoot storage={storage} printer={printer} {...props} />
       )}

@@ -20,7 +20,7 @@ interface Props {
 const Loading: React.FC<Props> = ({
   as = 'h1',
   children = 'Loading',
-  isFullscreen = false,
+  isFullscreen = false
 }: Props) => {
   const content = (
     <Prose>

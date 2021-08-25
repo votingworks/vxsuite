@@ -6,7 +6,7 @@ import AppContext from '../contexts/AppContext'
 import readFileAsync from '../lib/readFileAsync'
 import {
   convertSEMSFileToExternalTally,
-  parseSEMSFileAndValidateForElection,
+  parseSEMSFileAndValidateForElection
 } from '../utils/semsTallies'
 import LinkButton from './LinkButton'
 import Loading from './Loading'
@@ -21,13 +21,13 @@ export interface Props {
 
 const ImportExternalResultsModal: React.FC<Props> = ({
   onClose,
-  selectedFile,
+  selectedFile
 }) => {
   const {
     saveExternalTallies,
     setIsTabulationRunning,
     electionDefinition,
-    fullElectionExternalTallies,
+    fullElectionExternalTallies
   } = useContext(AppContext)
 
   const [errorMessage, setErrorMessage] = useState('')
@@ -126,12 +126,12 @@ const ImportExternalResultsModal: React.FC<Props> = ({
     <Modal
       onOverlayClick={onClose}
       actions={
-        <React.Fragment>
+        <>
           <LinkButton onPress={onClose}>Cancel</LinkButton>
           <LinkButton onPress={saveImportedFile} primary>
             Import Results
           </LinkButton>
-        </React.Fragment>
+        </>
       }
       content={
         <Prose>

@@ -31,7 +31,7 @@ const TestDeckBallots = ({
   election,
   electionHash,
   precinctId,
-  onAllRendered,
+  onAllRendered
 }: TestDeckBallotsParams) => {
   const ballots = generateTestDeckBallots({ election, precinctId })
 
@@ -44,7 +44,7 @@ const TestDeckBallots = ({
   }
 
   return (
-    <div className="print-only">
+    <div className='print-only'>
       {ballots.map((ballot, i) => (
         <HandMarkedPaperBallot
           key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
@@ -56,7 +56,7 @@ const TestDeckBallots = ({
           precinctId={ballot.precinctId as string}
           locales={{ primary: 'en-US' }}
           votes={ballot.votes as VotesDict}
-          onRendered={() => onRendered()}
+          onRendered={async () => await onRendered()}
         />
       ))}
     </div>
@@ -84,7 +84,7 @@ const PrintTestDeckScreen: React.FC = () => {
     if (precinctId) {
       const sortedPrecincts = [...election.precincts].sort((a, b) =>
         a.name.localeCompare(b.name, undefined, {
-          ignorePunctuation: true,
+          ignorePunctuation: true
         })
       )
       const precinctIds =
@@ -97,7 +97,7 @@ const PrintTestDeckScreen: React.FC = () => {
   }, [precinctId, election.precincts])
 
   const startPrint = async () => {
-    if (window.kiosk) {
+    if (window.kiosk != null) {
       const printers = await window.kiosk.getPrinterInfo()
       if (printers.some((p) => p.connected)) {
         setPrecinctIndex(0)
@@ -134,12 +134,12 @@ const PrintTestDeckScreen: React.FC = () => {
 
   if (precinctIds.length > 0) {
     return (
-      <React.Fragment>
+      <>
         {precinctIndex !== undefined && currentPrecinct && (
           <Modal
             centerContent
             content={
-              <Loading as="p">
+              <Loading as='p'>
                 Printing Test Deck
                 {precinctIds.length > 1
                   ? ` (${precinctIndex + 1} of ${precinctIds.length})`
@@ -174,12 +174,11 @@ const PrintTestDeckScreen: React.FC = () => {
             election={election}
             electionHash={electionHash}
             precinctId={precinctIds[precinctIndex]}
-            onAllRendered={(numBallots) =>
-              onAllRendered(precinctIndex, numBallots)
-            }
+            onAllRendered={async (numBallots) =>
+              await onAllRendered(precinctIndex, numBallots)}
           />
         )}
-      </React.Fragment>
+      </>
     )
   }
 
@@ -203,7 +202,7 @@ const PrintTestDeckScreen: React.FC = () => {
         {[...election.precincts]
           .sort((a, b) =>
             a.name.localeCompare(b.name, undefined, {
-              ignorePunctuation: true,
+              ignorePunctuation: true
             })
           )
           .map((p) => (

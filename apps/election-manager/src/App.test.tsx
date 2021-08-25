@@ -8,7 +8,7 @@ import {
   waitFor,
   getByTestId as domGetByTestId,
   getByText as domGetByText,
-  getAllByRole as domGetAllByRole,
+  getAllByRole as domGetAllByRole
 } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
@@ -20,7 +20,7 @@ import {
   configuredAtStorageKey,
   cvrsStorageKey,
   electionDefinitionStorageKey,
-  externalVoteTalliesFileStorageKey,
+  externalVoteTalliesFileStorageKey
 } from './AppRoot'
 
 import CastVoteRecordFiles from './utils/CastVoteRecordFiles'
@@ -35,7 +35,7 @@ import { ExternalTallySourceType, VotingMethod } from './config/types'
 import { convertSEMSFileToExternalTally } from './utils/semsTallies'
 import {
   convertExternalTalliesToStorageString,
-  convertTalliesByPrecinctToFullExternalTally,
+  convertTalliesByPrecinctToFullExternalTally
 } from './utils/externalTallies'
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherWithDataFiles.cvrData
@@ -59,19 +59,19 @@ beforeEach(() => {
       isDefault: false,
       name: 'VxPrinter',
       status: 0,
-      connected: true,
-    },
+      connected: true
+    }
   ])
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   MockDate.set(new Date('2020-11-03T22:22:00'))
   fetchMock.reset()
   fetchMock.get('/convert/election/files', {
     inputFiles: [{ name: 'name' }, { name: 'name' }],
-    outputFiles: [{ name: 'name' }],
+    outputFiles: [{ name: 'name' }]
   })
   fetchMock.get('/convert/tallies/files', {
     inputFiles: [{ name: 'name' }, { name: 'name' }],
-    outputFiles: [{ name: 'name' }],
+    outputFiles: [{ name: 'name' }]
   })
 })
 
@@ -82,7 +82,7 @@ afterEach(() => {
 })
 
 const createMemoryStorageWith = async ({
-  electionDefinition,
+  electionDefinition
 }: {
   electionDefinition: ElectionDefinition
 }) => {
@@ -123,7 +123,7 @@ test('create election works', async () => {
 test('printing ballots, print report, and test decks', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: eitherNeitherElectionDefinition
   })
   jest.useFakeTimers()
 
@@ -133,7 +133,7 @@ test('printing ballots, print report, and test decks', async () => {
     getByText,
     getAllByText,
     queryAllByText,
-    getAllByTestId,
+    getAllByTestId
   } = render(<App storage={storage} printer={printer} />)
   jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
 
@@ -218,7 +218,7 @@ test('printing ballots, print report, and test decks', async () => {
   await screen.findByText('Print Test Deck')
   fireEvent.click(getByText('Print Test Deck'))
   await screen.findByText('Printing Test Deck: District 5', {
-    exact: false,
+    exact: false
   })
   expect(container).toMatchSnapshot()
 
@@ -238,7 +238,7 @@ test('printing ballots, print report, and test decks', async () => {
 test('tabulating CVRs', async () => {
   jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: eitherNeitherElectionDefinition
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
@@ -328,7 +328,7 @@ test('tabulating CVRs', async () => {
   fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } })
 
   fetchMock.getOnce('/convert/tallies/output?name=name', {
-    body: 'test-content',
+    body: 'test-content'
   })
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } })
@@ -378,7 +378,7 @@ test('tabulating CVRs', async () => {
 test('tabulating CVRs with SEMS file', async () => {
   jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: eitherNeitherElectionDefinition
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
@@ -437,7 +437,7 @@ test('tabulating CVRs with SEMS file', async () => {
   fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } })
 
   fetchMock.getOnce('/convert/tallies/output?name=name', {
-    body: 'test-content',
+    body: 'test-content'
   })
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } })
@@ -483,7 +483,7 @@ test('tabulating CVRs with SEMS file', async () => {
 
 test('tabulating CVRs with SEMS file and manual data', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: eitherNeitherElectionDefinition
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
@@ -509,7 +509,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     getByTestId,
     getAllByText,
     getAllByTestId,
-    queryAllByText,
+    queryAllByText
   } = render(<App storage={storage} />)
 
   await screen.findByText('0 official ballots')
@@ -525,22 +525,22 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   fireEvent.click(getByText('Edit Precinct Results for District 5'))
   getByText('Save Precinct Results for District 5')
   fireEvent.change(getByTestId('775020876-undervotes'), {
-    target: { value: '12' },
+    target: { value: '12' }
   })
   fireEvent.change(getByTestId('775020876-overvotes'), {
-    target: { value: '8' },
+    target: { value: '8' }
   })
   fireEvent.change(getByTestId('775020876-775031988'), {
-    target: { value: '32' },
+    target: { value: '32' }
   })
   fireEvent.change(getByTestId('775020876-775031987'), {
-    target: { value: '28' },
+    target: { value: '28' }
   })
   fireEvent.change(getByTestId('775020876-775031989'), {
-    target: { value: '10' },
+    target: { value: '10' }
   })
   fireEvent.change(getByTestId('775020876-__write-in'), {
-    target: { value: '10' },
+    target: { value: '10' }
   })
 
   fireEvent.click(getByText('Save Precinct Results for District 5'))
@@ -592,16 +592,16 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   fireEvent.click(getByText('Edit Absentee Results for Panhandle'))
   getByText('Save Absentee Results for Panhandle')
   fireEvent.change(getByTestId('750000017-undervotes'), {
-    target: { value: '17' },
+    target: { value: '17' }
   })
   fireEvent.change(getByTestId('750000017-overvotes'), {
-    target: { value: '3' },
+    target: { value: '3' }
   })
   fireEvent.change(getByTestId('750000017-yes'), {
-    target: { value: '54' },
+    target: { value: '54' }
   })
   fireEvent.change(getByTestId('750000017-no'), {
-    target: { value: '26' },
+    target: { value: '26' }
   })
 
   fireEvent.click(getByText('Save Absentee Results for Panhandle'))
@@ -654,7 +654,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
 test('changing election resets sems, cvr, and manual data files', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: eitherNeitherElectionDefinition
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
@@ -671,7 +671,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     new Date()
   )
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
-    { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
+    { 6522: { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     ExternalTallySourceType.Manual,
@@ -709,7 +709,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
 
 test('clearing all files after marking as official clears SEMS, CVR, and manual file', async () => {
   const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition: eitherNeitherElectionDefinition
   })
 
   const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
@@ -726,7 +726,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     new Date()
   )
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
-    { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
+    { 6522: { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     ExternalTallySourceType.Manual,

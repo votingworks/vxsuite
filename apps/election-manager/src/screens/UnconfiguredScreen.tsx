@@ -81,9 +81,9 @@ const UnconfiguredScreen: React.FC = () => {
   const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true)
     const input = event.currentTarget
-    const file = input.files && input.files[0]
+    const file = input.files?.[0]
 
-    if (file) {
+    if (file != null) {
       setVxElectionFileIsInvalid(false)
       try {
         const fileContent = await readFileAsync(file)
@@ -170,9 +170,9 @@ const UnconfiguredScreen: React.FC = () => {
 
   const handleFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget
-    const file = input.files && input.files[0]
+    const file = input.files?.[0]
     const { name } = input
-    if (file && name) {
+    if ((file != null) && name) {
       await submitFile({ file, name })
     }
   }
@@ -214,7 +214,7 @@ const UnconfiguredScreen: React.FC = () => {
           centerContent
           content={
             <Prose textCenter>
-              <Loading as="h1">Election loading</Loading>
+              <Loading as='h1'>Election loading</Loading>
             </Prose>
           }
         />
@@ -229,14 +229,14 @@ const UnconfiguredScreen: React.FC = () => {
           <h1>Convert from SEMS files</h1>
           <p> Select the following files from a USB drive, etc.</p>
           {inputConversionFiles.map((file: VxFile) =>
-            file.path ? (
+            file.path !== '' ? (
               <Loaded key={file.name}>{`Loaded ${file.name}`}</Loaded>
             ) : (
               <p key={file.name}>
                 <FileInputButton
-                  accept=".txt"
+                  accept='.txt'
                   buttonProps={{
-                    fullWidth: true,
+                    fullWidth: true
                   }}
                   name={file.name}
                   onChange={handleFileInput}
@@ -286,7 +286,7 @@ const UnconfiguredScreen: React.FC = () => {
         )}
         <p>
           <FileInputButton
-            accept=".json,application/json"
+            accept='.json,application/json'
             onChange={handleVxElectionFile}
           >
             Select Existing Election Definition File
@@ -294,14 +294,14 @@ const UnconfiguredScreen: React.FC = () => {
         </p>
 
         {inputConversionFiles.length > 0 && (
-          <React.Fragment>
+          <>
             <HorizontalRule>or</HorizontalRule>
             {!isConvertSEMS && (
               <Button onPress={() => setIsConvertSEMS(true)}>
                 Convert from SEMS files
               </Button>
             )}
-          </React.Fragment>
+          </>
         )}
       </Prose>
     </NavigationScreen>

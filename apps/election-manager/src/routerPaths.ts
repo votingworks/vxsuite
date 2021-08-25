@@ -5,7 +5,7 @@ import {
   ScannerReportScreenProps,
   VotingMethodReportScreenProps,
   ManualDataPrecinctScreenProps,
-  BatchReportScreenProps,
+  BatchReportScreenProps
 } from './config/types'
 
 const routerPaths = {
@@ -21,12 +21,12 @@ const routerPaths = {
   ballotsViewLanguage: ({
     ballotStyleId,
     precinctId,
-    localeCode,
+    localeCode
   }: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   manualDataImport: '/tally/manual-data-import',
   manualDataImportForPrecinct: ({
-    precinctId,
+    precinctId
   }: ManualDataPrecinctScreenProps): string =>
     `/tally/manual-data-import/precinct/${precinctId}`,
   printedBallotsReport: '/ballots/printed-report',
@@ -39,7 +39,7 @@ const routerPaths = {
   tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
     `/tally/party/${partyId}`,
   tallyVotingMethodReport: ({
-    votingMethod,
+    votingMethod
   }: VotingMethodReportScreenProps): string =>
     `/tally/votingmethod/${votingMethod}`,
   tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
@@ -50,7 +50,7 @@ const routerPaths = {
   testDecksTally: '/tally/test-ballot-deck',
   testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/tally/test-ballot-deck/${precinctId}`,
-  overvoteCombinationReport: '/tally/pairs',
+  overvoteCombinationReport: '/tally/pairs'
 }
 
 export default routerPaths

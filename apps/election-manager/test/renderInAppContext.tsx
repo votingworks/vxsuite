@@ -15,10 +15,10 @@ import {
   ISO8601Timestamp,
   FullElectionTally,
   ExportableTallies,
-  FullElectionExternalTally,
+  FullElectionExternalTally
 } from '../src/config/types'
 import CastVoteRecordFiles, {
-  SaveCastVoteRecordFiles,
+  SaveCastVoteRecordFiles
 } from '../src/utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
 import { NullPrinter, Printer } from '../src/utils/printer'
@@ -26,7 +26,7 @@ import { NullPrinter, Printer } from '../src/utils/printer'
 export const eitherNeitherElectionDefinition = {
   election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
   electionData: electionWithMsEitherNeitherRawData,
-  electionHash: sha256(electionWithMsEitherNeitherRawData),
+  electionHash: sha256(electionWithMsEitherNeitherRawData)
 }
 
 interface RenderInAppContextParams {
@@ -41,7 +41,7 @@ interface RenderInAppContextParams {
   saveCastVoteRecordFiles?: SaveCastVoteRecordFiles
   saveElection?: SaveElection
   setCastVoteRecordFiles?: React.Dispatch<
-    React.SetStateAction<CastVoteRecordFiles>
+  React.SetStateAction<CastVoteRecordFiles>
   >
   saveIsOfficialResults?: () => Promise<void>
   resetFiles?: () => Promise<void>
@@ -60,7 +60,7 @@ interface RenderInAppContextParams {
   generateExportableTallies?: () => ExportableTallies
 }
 
-export default function renderInAppContext(
+export default function renderInAppContext (
   component: React.ReactNode,
   {
     route = '/',
@@ -86,7 +86,7 @@ export default function renderInAppContext(
     setIsTabulationRunning = jest.fn(),
     saveExternalTallies = jest.fn(),
     fullElectionExternalTallies = [],
-    generateExportableTallies = jest.fn(),
+    generateExportableTallies = jest.fn()
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -113,7 +113,7 @@ export default function renderInAppContext(
         setIsTabulationRunning,
         saveExternalTallies,
         fullElectionExternalTallies,
-        generateExportableTallies,
+        generateExportableTallies
       }}
     >
       <Router history={history}>{component}</Router>

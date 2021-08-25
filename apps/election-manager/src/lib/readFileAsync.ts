@@ -1,5 +1,5 @@
-export default function readFileAsync(file: File): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+export default async function readFileAsync (file: File): Promise<string> {
+  return await new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
       const { result } = reader

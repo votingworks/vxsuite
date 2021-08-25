@@ -7,20 +7,20 @@ import { sha256 } from 'js-sha256'
 import {
   ElectionDefinition,
   parseElection,
-  safeParseElection,
+  safeParseElection
 } from '@votingworks/types'
 
 import { Storage, throwIllegalValue, usbstick } from '@votingworks/utils'
 import { useUsbDrive } from '@votingworks/ui'
 import {
   computeFullElectionTally,
-  getEmptyFullElectionTally,
+  getEmptyFullElectionTally
 } from './lib/votecounting'
 
 import AppContext from './contexts/AppContext'
 
 import CastVoteRecordFiles, {
-  SaveCastVoteRecordFiles,
+  SaveCastVoteRecordFiles
 } from './utils/CastVoteRecordFiles'
 
 import ElectionManager from './components/ElectionManager'
@@ -32,12 +32,12 @@ import {
   CastVoteRecordLists,
   ExportableTallies,
   ResultsFileType,
-  ExternalTallySourceType,
+  ExternalTallySourceType
 } from './config/types'
 import { getExportableTallies } from './utils/exportableTallies'
 import {
   convertExternalTalliesToStorageString,
-  convertStorageStringToExternalTallies,
+  convertStorageStringToExternalTallies
 } from './utils/externalTallies'
 import { Printer } from './utils/printer'
 
@@ -66,14 +66,14 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElectionDefinition = useCallback(async (): Promise<
-    ElectionDefinition | undefined
+  ElectionDefinition | undefined
   > => {
     // TODO: validate this with zod schema
     const electionDefinition = (await storage.get(
       electionDefinitionStorageKey
     )) as ElectionDefinition | undefined
 
-    if (electionDefinition) {
+    if (electionDefinition != null) {
       const { electionData, electionHash } = electionDefinition
       assert.equal(sha256(electionData), electionHash)
       return electionDefinition
@@ -92,7 +92,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
 
   const [
     electionDefinition,
-    setElectionDefinition,
+    setElectionDefinition
   ] = useState<ElectionDefinition>()
   const [configuredAt, setConfiguredAt] = useState<ISO8601Timestamp>('')
 
@@ -113,22 +113,22 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
 
   const [
     fullElectionExternalTallies,
-    setFullElectionExternalTallies,
+    setFullElectionExternalTallies
   ] = useState<FullElectionExternalTally[]>([])
 
   const usbDrive = useUsbDrive()
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
   const [printedBallots, setPrintedBallots] = useState<
-    PrintedBallot[] | undefined
+  PrintedBallot[] | undefined
   >(undefined)
 
   const getPrintedBallots = async (): Promise<PrintedBallot[]> => {
     // TODO: validate this with zod schema
     return (
-      ((await storage.get(printedBallotsStorageKey)) as
+      (((await storage.get(printedBallotsStorageKey)) as
         | PrintedBallot[]
-        | undefined) || []
+        | undefined) != null) || []
     )
   }
 
@@ -145,7 +145,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
 
   useEffect(() => {
     void (async () => {
-      if (!printedBallots) {
+      if (printedBallots == null) {
         setPrintedBallots(await getPrintedBallots())
       }
     })()
@@ -153,9 +153,9 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
 
   useEffect(() => {
     void (async () => {
-      if (!electionDefinition) {
+      if (electionDefinition == null) {
         const storageElectionDefinition = await getElectionDefinition()
-        if (storageElectionDefinition) {
+        if (storageElectionDefinition != null) {
           setElectionDefinition(storageElectionDefinition)
           setConfiguredAt(
             // TODO: validate this with zod schema
@@ -175,7 +175,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
 
         if (
           fullElectionExternalTallies.length === 0 &&
-          storageElectionDefinition
+          (storageElectionDefinition != null)
         ) {
           const storageExternalTalliesJSON = await getExternalElectionTallies()
           if (storageExternalTalliesJSON) {
@@ -203,7 +203,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
   )
 
   useEffect(() => {
-    if (electionDefinition) {
+    if (electionDefinition != null) {
       computeVoteCounts(castVoteRecordFiles.castVoteRecords)
     }
   }, [computeVoteCounts, castVoteRecordFiles])
@@ -257,7 +257,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
         setElectionDefinition({
           electionData,
           electionHash,
-          election,
+          election
         })
 
         const newConfiguredAt = new Date().toISOString()
@@ -267,7 +267,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
         await storage.set(electionDefinitionStorageKey, {
           election,
           electionData,
-          electionHash,
+          electionHash
         })
       }
     },
@@ -279,7 +279,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
       setElectionDefinition,
       parseElection,
       setElectionDefinition,
-      setConfiguredAt,
+      setConfiguredAt
     ]
   )
 
@@ -336,7 +336,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
         resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: usbDrive.eject,
-        printedBallots: printedBallots || [],
+        printedBallots: (printedBallots != null) || [],
         addPrintedBallot,
         fullElectionTally,
         setFullElectionTally,
@@ -344,7 +344,7 @@ const AppRoot: React.FC<Props> = ({ storage, printer }) => {
         saveExternalTallies,
         isTabulationRunning,
         setIsTabulationRunning,
-        generateExportableTallies,
+        generateExportableTallies
       }}
     >
       <ElectionManager />

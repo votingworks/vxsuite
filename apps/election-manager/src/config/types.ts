@@ -5,7 +5,7 @@ import {
   Contest,
   Dictionary,
   Optional,
-  Precinct,
+  Precinct
 } from '@votingworks/types'
 import { BallotStyleData } from '@votingworks/utils'
 
@@ -33,7 +33,7 @@ export interface BallotConfig extends BallotStyleData {
 
 export const PrintableBallotType = {
   Absentee: 'absentee',
-  Precinct: 'standard',
+  Precinct: 'standard'
 } as const
 export type PrintableBallotType = typeof PrintableBallotType[keyof typeof PrintableBallotType]
 
@@ -134,8 +134,8 @@ export enum ExternalTallySourceType {
 export interface FullElectionExternalTally {
   readonly overallTally: ExternalTally
   readonly resultsByCategory: ReadonlyMap<
-    TallyCategory,
-    Dictionary<ExternalTally>
+  TallyCategory,
+  Dictionary<ExternalTally>
   >
   readonly votingMethod: VotingMethod
   readonly source: ExternalTallySourceType
@@ -172,14 +172,14 @@ export type OptionalFile = Optional<File>
 // provisional ballot types are not yet supported.
 export const VotingMethod = {
   ...PrintableBallotType,
-  Unknown: 'unknown',
+  Unknown: 'unknown'
 } as const
 export type VotingMethod = typeof VotingMethod[keyof typeof VotingMethod]
 
 // Cast Vote Records
 export interface CastVoteRecord
   extends Dictionary<
-    string | string[] | boolean | number | number[] | BallotLocale
+  string | string[] | boolean | number | number[] | BallotLocale
   > {
   readonly _precinctId: string
   readonly _ballotId: string
@@ -196,7 +196,7 @@ export interface CastVoteRecord
 
 export type CastVoteRecordFileMode = 'test' | 'live'
 
-export type CastVoteRecordLists = ReadonlyArray<ReadonlyArray<CastVoteRecord>>
+export type CastVoteRecordLists = ReadonlyArray<readonly CastVoteRecord[]>
 
 export interface CastVoteRecordFile {
   readonly name: string

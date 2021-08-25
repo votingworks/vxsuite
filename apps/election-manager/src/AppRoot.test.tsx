@@ -20,7 +20,7 @@ test('renders without crashing', async () => {
     render(
       <BrowserRouter>
         <Route
-          path="/"
+          path='/'
           render={(props) => (
             <AppRoot storage={storage} printer={new NullPrinter()} {...props} />
           )}

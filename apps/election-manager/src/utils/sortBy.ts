@@ -5,9 +5,9 @@ export type Comparator<T> = Exclude<Parameters<T[]['sort']>[0], undefined>
  *
  * @returns a sorted copy of the original array
  */
-export default function sortBy<T>(
+export default function sortBy<T> (
   array: readonly T[],
-  ...comparators: Comparator<T>[]
+  ...comparators: Array<Comparator<T>>
 ): T[] {
   if (comparators.length === 0) {
     return [...array]

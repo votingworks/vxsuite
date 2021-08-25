@@ -70,7 +70,7 @@ export interface Failed {
   message: string
 }
 
-export function init(
+export function init (
   election: Election,
   electionHash: string,
   localeCodes: readonly string[]
@@ -83,11 +83,11 @@ export function init(
       election,
       electionHash,
       localeCodes
-    ).filter(({ isAbsentee }) => !isAbsentee),
+    ).filter(({ isAbsentee }) => !isAbsentee)
   }
 }
 
-export function next(state: State): State {
+export function next (state: State): State {
   switch (state.type) {
     case 'Init':
       return {
@@ -95,7 +95,7 @@ export function next(state: State): State {
         election: state.election,
         electionHash: state.electionHash,
         ballotConfigs: state.ballotConfigs,
-        archive: new DownloadableArchive(),
+        archive: new DownloadableArchive()
       }
 
     case 'ArchiveBegin': {
@@ -111,7 +111,7 @@ export function next(state: State): State {
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigs.length,
         currentBallotConfig,
-        remainingBallotConfigs,
+        remainingBallotConfigs
       }
     }
 
@@ -125,7 +125,7 @@ export function next(state: State): State {
         return {
           type: 'ArchiveEnd',
           archive: state.archive,
-          ballotConfigsCount: state.ballotConfigsCount,
+          ballotConfigsCount: state.ballotConfigsCount
         }
       }
 
@@ -136,14 +136,14 @@ export function next(state: State): State {
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigsCount,
         currentBallotConfig,
-        remainingBallotConfigs,
+        remainingBallotConfigs
       }
     }
 
     case 'ArchiveEnd':
       return {
         type: 'Done',
-        ballotConfigsCount: state.ballotConfigsCount,
+        ballotConfigsCount: state.ballotConfigsCount
       }
 
     default:
@@ -151,9 +151,9 @@ export function next(state: State): State {
   }
 }
 
-export function error(state: State, error: Error): State {
+export function error (state: State, error: Error): State {
   return {
     type: 'Failed',
-    message: error.message,
+    message: error.message
   }
 }

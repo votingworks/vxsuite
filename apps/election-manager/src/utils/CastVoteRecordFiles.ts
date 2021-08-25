@@ -6,7 +6,7 @@ import {
   CastVoteRecord,
   CastVoteRecordFile,
   CastVoteRecordLists,
-  CastVoteRecordFileMode,
+  CastVoteRecordFileMode
 } from '../config/types'
 import readFileAsync from '../lib/readFileAsync'
 import { parseCVRs } from '../lib/votecounting'
@@ -22,7 +22,7 @@ import { parseCVRs } from '../lib/votecounting'
  * setAdd(set, 6, 7) // Set { 1, 2, 3, 6, 7 }
  * set               // Set { 1, 2, 3 }
  */
-function setAdd<T>(set: Set<T>, ...values: T[]): Set<T> {
+function setAdd<T> (set: Set<T>, ...values: T[]): Set<T> {
   return new Set([...set, ...values])
 }
 
@@ -38,7 +38,7 @@ function setAdd<T>(set: Set<T>, ...values: T[]): Set<T> {
  * mapAdd(map, value => value.id, { id: 3 }) // Map { 1 => { id: 1 }, 3 => { id: 3 } }
  * map                                       // Map { 1 => { id: 1 } }
  */
-function mapAdd<K, V>(
+function mapAdd<K, V> (
   map: Map<K, V>,
   keyfn: (value: V) => K,
   ...values: V[]
@@ -52,7 +52,7 @@ function mapAdd<K, V>(
   return result
 }
 
-function mixedTestModeCVRs(castVoteRecords: CastVoteRecord[][]) {
+function mixedTestModeCVRs (castVoteRecords: CastVoteRecord[][]) {
   let liveSeen = false
   let testSeen = false
   for (const cvrs of castVoteRecords) {
@@ -116,7 +116,7 @@ export default class CastVoteRecordFiles {
    * This is private. Use `CastVoteRecordFiles.empty` then call `add(file)` or
    * `addAll(files)`.
    */
-  private constructor(
+  private constructor (
     signatures: Set<string>,
     files: Set<CastVoteRecordFile>,
     duplicateFilenames: Set<string>,
@@ -133,13 +133,13 @@ export default class CastVoteRecordFiles {
   /**
    * Import from exported localStorage string
    */
-  public static import(stringifiedCVRFiles: string): CastVoteRecordFiles {
+  public static import (stringifiedCVRFiles: string): CastVoteRecordFiles {
     const {
       signatures,
       files,
       duplicateFilenames,
       parseFailedErrors,
-      allCastVoteRecords,
+      allCastVoteRecords
     } = JSON.parse(stringifiedCVRFiles)
     return new CastVoteRecordFiles(
       new Set(signatures),
@@ -153,13 +153,13 @@ export default class CastVoteRecordFiles {
   /**
    * Export to localStorage string
    */
-  public export(): string {
+  public export (): string {
     return JSON.stringify({
       signatures: [...this.signatures],
       files: [...this.files],
       duplicateFilenames: [...this.duplicateFilenames],
       parseFailedErrors: [...this.parseFailedErrors],
-      allCastVoteRecords: this.allCastVoteRecords,
+      allCastVoteRecords: this.allCastVoteRecords
     })
   }
 
@@ -167,7 +167,7 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addAll(
+  public async addAll (
     files: File[],
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -184,7 +184,7 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addAllFromFileSystemEntries(
+  public async addAllFromFileSystemEntries (
     files: KioskBrowser.FileSystemEntry[],
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -201,7 +201,7 @@ export default class CastVoteRecordFiles {
    *  Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `file` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addFromFileSystemEntry(
+  public async addFromFileSystemEntry (
     file: KioskBrowser.FileSystemEntry,
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -211,7 +211,7 @@ export default class CastVoteRecordFiles {
       return await this.addFromFileContent(
         fileContent,
         file.name,
-        parsedFileInfo?.timestamp || new Date(file.mtime),
+        ((parsedFileInfo?.timestamp) != null) || new Date(file.mtime),
         election
       )
     } catch (error) {
@@ -229,7 +229,7 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `file` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async add(
+  public async add (
     file: File,
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -239,7 +239,7 @@ export default class CastVoteRecordFiles {
       return await this.addFromFileContent(
         fileContent,
         file.name,
-        parsedFileInfo?.timestamp || new Date(file.lastModified),
+        ((parsedFileInfo?.timestamp) != null) || new Date(file.lastModified),
         election
       )
     } catch (error) {
@@ -253,7 +253,7 @@ export default class CastVoteRecordFiles {
     }
   }
 
-  private async addFromFileContent(
+  private async addFromFileContent (
     fileContent: string,
     fileName: string,
     exportTimestamp: Date,
@@ -278,7 +278,7 @@ export default class CastVoteRecordFiles {
         fileContent,
         election
       )) {
-        if (errors.length) {
+        if (errors.length > 0) {
           throw new Error(`Line ${lineNumber}: ${errors.join('\n')}`)
         }
 
@@ -295,7 +295,7 @@ export default class CastVoteRecordFiles {
 
       const newCastVoteRecords = [
         ...this.allCastVoteRecords,
-        fileCastVoteRecords,
+        fileCastVoteRecords
       ]
 
       if (mixedTestModeCVRs(newCastVoteRecords)) {
@@ -311,7 +311,7 @@ export default class CastVoteRecordFiles {
           count: fileCastVoteRecords.length,
           precinctIds,
           scannerIds,
-          exportTimestamp,
+          exportTimestamp
         }),
         this.duplicateFilenames,
         this.parseFailedErrors,
@@ -331,36 +331,36 @@ export default class CastVoteRecordFiles {
   /**
    * The error for the last file that failed.
    */
-  public get lastError(): { filename: string; message: string } | undefined {
+  public get lastError (): { filename: string, message: string } | undefined {
     const last = [...this.parseFailedErrors].pop()
-    return last ? { filename: last[0], message: last[1] } : undefined
+    return (last != null) ? { filename: last[0], message: last[1] } : undefined
   }
 
   /**
    * All the added CVR files.
    */
-  public get fileList(): CastVoteRecordFile[] {
+  public get fileList (): CastVoteRecordFile[] {
     return [...this.files]
   }
 
   /**
    * Names of the files that have been added more than once.
    */
-  public get duplicateFiles(): string[] {
+  public get duplicateFiles (): string[] {
     return [...this.duplicateFilenames]
   }
 
   /**
    * All parsed CVRs from the added files.
    */
-  public get castVoteRecords(): CastVoteRecordLists {
+  public get castVoteRecords (): CastVoteRecordLists {
     return this.allCastVoteRecords
   }
 
   /**
    * Gets the file mode for the set of CVR files.
    */
-  public get fileMode(): CastVoteRecordFileMode | undefined {
+  public get fileMode (): CastVoteRecordFileMode | undefined {
     let liveSeen = false
     for (const cvrs of this.allCastVoteRecords) {
       for (const cvr of cvrs) {
@@ -373,7 +373,7 @@ export default class CastVoteRecordFiles {
     return liveSeen ? 'live' : undefined
   }
 
-  public filenameAlreadyImported(filename: string): boolean {
+  public filenameAlreadyImported (filename: string): boolean {
     for (const file of this.files) {
       if (file.name === filename) {
         return true

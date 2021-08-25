@@ -19,11 +19,11 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
         <SaveFileToUSB
           onClose={closeFn}
           generateFileContent={jest.fn()}
-          defaultFilename="file"
+          defaultFilename='file'
           fileType={fileType}
         />,
         {
-          usbDriveStatus: status,
+          usbDriveStatus: status
         }
       )
       getByText('Loading')
@@ -36,7 +36,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.notavailable,
-    UsbDriveStatus.recentlyEjected,
+    UsbDriveStatus.recentlyEjected
   ]
 
   for (const status of usbStatuses) {
@@ -45,11 +45,11 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
       <SaveFileToUSB
         onClose={closeFn}
         generateFileContent={jest.fn()}
-        defaultFilename="file"
+        defaultFilename='file'
         fileType={FileType.TestDeckTallyReport}
       />,
       {
-        usbDriveStatus: status,
+        usbDriveStatus: status
       }
     )
     getByText('No USB Drive Detected')
@@ -79,11 +79,11 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     <SaveFileToUSB
       onClose={closeFn}
       generateFileContent={fileContentFn}
-      defaultFilename="this-is-a-file-name.pdf"
+      defaultFilename='this-is-a-file-name.pdf'
       fileType={FileType.Ballot}
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: UsbDriveStatus.mounted
     }
   )
   getByText('Save Ballot')
@@ -125,12 +125,12 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     <SaveFileToUSB
       onClose={closeFn}
       generateFileContent={fileContentFn}
-      defaultFilename="this-is-a-file-name.pdf"
+      defaultFilename='this-is-a-file-name.pdf'
       fileType={FileType.Results}
       promptToEjectUSB
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: UsbDriveStatus.mounted
     }
   )
   getByText('Save Results')
@@ -170,11 +170,11 @@ test('render export modal with errors when appropriate', async () => {
     <SaveFileToUSB
       onClose={closeFn}
       generateFileContent={fileContentFn}
-      defaultFilename="this-is-a-file-name.pdf"
+      defaultFilename='this-is-a-file-name.pdf'
       fileType={FileType.TallyReport}
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: UsbDriveStatus.mounted
     }
   )
   getByText('Save Unofficial Tally Report')

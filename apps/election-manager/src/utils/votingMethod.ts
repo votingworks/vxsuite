@@ -1,7 +1,7 @@
 import { throwIllegalValue } from '@votingworks/utils'
 import { VotingMethod } from '../config/types'
 
-export function getLabelForVotingMethod(votingMethod: VotingMethod): string {
+export function getLabelForVotingMethod (votingMethod: VotingMethod): string {
   switch (votingMethod) {
     case VotingMethod.Precinct:
       return 'Precinct'

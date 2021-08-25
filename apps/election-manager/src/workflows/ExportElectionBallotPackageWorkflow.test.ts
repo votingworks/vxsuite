@@ -25,10 +25,10 @@ test('makes the first ballot config the current one moving from ArchiveBegin to 
           filename: 'live/ballot.pdf',
           isLiveMode: true,
           isAbsentee: false,
-          locales: { primary: 'en-US' },
-        },
+          locales: { primary: 'en-US' }
+        }
       ],
-      archive: new DownloadableArchive(),
+      archive: new DownloadableArchive()
     })
   ).toEqual(
     expect.objectContaining({
@@ -41,8 +41,8 @@ test('makes the first ballot config the current one moving from ArchiveBegin to 
         filename: 'live/ballot.pdf',
         isLiveMode: true,
         isAbsentee: false,
-        locales: { primary: 'en-US' },
-      },
+        locales: { primary: 'en-US' }
+      }
     })
   )
 })
@@ -61,7 +61,7 @@ test('advances to the next ballot config if there is one', () => {
         filename: 'test/ballot.pdf',
         isLiveMode: false,
         isAbsentee: false,
-        locales: { primary: 'en-US' },
+        locales: { primary: 'en-US' }
       },
       remainingBallotConfigs: [
         {
@@ -71,10 +71,10 @@ test('advances to the next ballot config if there is one', () => {
           filename: 'live/ballot.pdf',
           isLiveMode: true,
           isAbsentee: false,
-          locales: { primary: 'en-US' },
-        },
+          locales: { primary: 'en-US' }
+        }
       ],
-      ballotConfigsCount: 2,
+      ballotConfigsCount: 2
     })
   ).toEqual(
     expect.objectContaining({
@@ -87,9 +87,9 @@ test('advances to the next ballot config if there is one', () => {
         filename: 'live/ballot.pdf',
         isLiveMode: true,
         isAbsentee: false,
-        locales: { primary: 'en-US' },
+        locales: { primary: 'en-US' }
       },
-      ballotConfigsCount: 2,
+      ballotConfigsCount: 2
     })
   )
 })
@@ -108,15 +108,15 @@ test('advances to ArchiveEnd if there are no more ballot configs', () => {
         filename: 'test/ballot.pdf',
         isLiveMode: false,
         isAbsentee: false,
-        locales: { primary: 'en-US' },
+        locales: { primary: 'en-US' }
       },
       remainingBallotConfigs: [],
-      ballotConfigsCount: 2,
+      ballotConfigsCount: 2
     })
   ).toEqual(
     expect.objectContaining({
       type: 'ArchiveEnd',
-      ballotConfigsCount: 2,
+      ballotConfigsCount: 2
     })
   )
 })
@@ -126,12 +126,12 @@ test('advances from ArchiveEnd to Done', () => {
     workflow.next({
       type: 'ArchiveEnd',
       archive: new DownloadableArchive(),
-      ballotConfigsCount: 2,
+      ballotConfigsCount: 2
     })
   ).toEqual(
     expect.objectContaining({
       type: 'Done',
-      ballotConfigsCount: 2,
+      ballotConfigsCount: 2
     })
   )
 })
@@ -151,15 +151,15 @@ test('advances to Failed on render error', () => {
           filename: 'test/ballot.pdf',
           isLiveMode: false,
           isAbsentee: false,
-          locales: { primary: 'en-US' },
+          locales: { primary: 'en-US' }
         },
         remainingBallotConfigs: [],
-        ballotConfigsCount: 3,
+        ballotConfigsCount: 3
       },
       new Error('something happened!')
     )
   ).toEqual({
     type: 'Failed',
-    message: 'something happened!',
+    message: 'something happened!'
   })
 })

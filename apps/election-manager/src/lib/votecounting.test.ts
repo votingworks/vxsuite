@@ -4,7 +4,7 @@ import {
   electionSample2WithDataFiles,
   primaryElectionSample,
   electionMultiPartyPrimaryWithDataFiles,
-  electionWithMsEitherNeither,
+  electionWithMsEitherNeither
 } from '@votingworks/fixtures'
 
 import {
@@ -12,14 +12,14 @@ import {
   computeFullElectionTally,
   getOvervotePairTallies,
   filterTalliesByParams,
-  filterTalliesByParamsAndBatchId,
+  filterTalliesByParamsAndBatchId
 } from './votecounting'
 import {
   CastVoteRecord,
   FullElectionTally,
   Tally,
   TallyCategory,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 
 const electionSample2 = electionSample2WithDataFiles.electionDefinition.election
@@ -27,7 +27,7 @@ const electionSample2 = electionSample2WithDataFiles.electionDefinition.election
 const multiPartyPrimaryElection =
   electionMultiPartyPrimaryWithDataFiles.electionDefinition.election
 
-export function parseCVRsAndAssertSuccess(
+export function parseCVRsAndAssertSuccess (
   cvrsFileContents: string,
   election: Election
 ): CastVoteRecord[] {
@@ -37,7 +37,7 @@ export function parseCVRsAndAssertSuccess(
   })
 }
 
-function expectAllEmptyTallies(tally: Tally) {
+function expectAllEmptyTallies (tally: Tally) {
   expect(tally.numberOfBallotsCounted).toBe(0)
   for (const contestId in tally.contestTallies) {
     const contestTally = tally.contestTallies[contestId]!
@@ -47,7 +47,7 @@ function expectAllEmptyTallies(tally: Tally) {
     expect(contestTally.metadata).toStrictEqual({
       undervotes: 0,
       overvotes: 0,
-      ballots: 0,
+      ballots: 0
     })
   }
 }
@@ -67,7 +67,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
   expect(fullTally.overallTally.ballotCountsByVotingMethod).toMatchObject({
     absentee: 672,
     standard: 474,
-    unknown: 8855,
+    unknown: 8855
   })
 
   // some specific tallies checked by hand
@@ -140,37 +140,37 @@ describe('filterTalliesByParams in a typical election', () => {
 
   it('can filter by precinct', () => {
     const expectedPrecinctResults = {
-      '23': {
+      23: {
         totalBallots: 2475,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 176,
           [VotingMethod.Precinct]: 119,
-          [VotingMethod.Unknown]: 2180,
-        },
+          [VotingMethod.Unknown]: 2180
+        }
       },
-      '20': {
+      20: {
         totalBallots: 2478,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 174,
           [VotingMethod.Precinct]: 124,
-          [VotingMethod.Unknown]: 2180,
-        },
+          [VotingMethod.Unknown]: 2180
+        }
       },
-      '21': {
+      21: {
         totalBallots: 5048,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 322,
           [VotingMethod.Precinct]: 231,
-          [VotingMethod.Unknown]: 4495,
-        },
-      },
+          [VotingMethod.Unknown]: 4495
+        }
+      }
     }
     for (const [
       precinctId,
-      { totalBallots, ballotCountsByVotingMethod },
+      { totalBallots, ballotCountsByVotingMethod }
     ] of Object.entries(expectedPrecinctResults)) {
       const filteredResults = filterTalliesByParams(electionTally, election, {
-        precinctId,
+        precinctId
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(totalBallots)
       expect(filteredResults.ballotCountsByVotingMethod).toMatchObject(
@@ -187,88 +187,88 @@ describe('filterTalliesByParams in a typical election', () => {
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 64,
           [VotingMethod.Precinct]: 65,
-          [VotingMethod.Unknown]: 879,
-        },
+          [VotingMethod.Unknown]: 879
+        }
       },
       'scanner-10': {
         totalBallots: 1022,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 68,
           [VotingMethod.Precinct]: 53,
-          [VotingMethod.Unknown]: 901,
-        },
+          [VotingMethod.Unknown]: 901
+        }
       },
       'scanner-2': {
         totalBallots: 1015,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 73,
           [VotingMethod.Precinct]: 44,
-          [VotingMethod.Unknown]: 898,
-        },
+          [VotingMethod.Unknown]: 898
+        }
       },
       'scanner-3': {
         totalBallots: 1029,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 67,
           [VotingMethod.Precinct]: 46,
-          [VotingMethod.Unknown]: 916,
-        },
+          [VotingMethod.Unknown]: 916
+        }
       },
       'scanner-4': {
         totalBallots: 1039,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 63,
           [VotingMethod.Precinct]: 53,
-          [VotingMethod.Unknown]: 923,
-        },
+          [VotingMethod.Unknown]: 923
+        }
       },
       'scanner-5': {
         totalBallots: 962,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 58,
           [VotingMethod.Precinct]: 46,
-          [VotingMethod.Unknown]: 858,
-        },
+          [VotingMethod.Unknown]: 858
+        }
       },
       'scanner-6': {
         totalBallots: 973,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 74,
           [VotingMethod.Precinct]: 37,
-          [VotingMethod.Unknown]: 862,
-        },
+          [VotingMethod.Unknown]: 862
+        }
       },
       'scanner-7': {
         totalBallots: 938,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 54,
           [VotingMethod.Precinct]: 44,
-          [VotingMethod.Unknown]: 840,
-        },
+          [VotingMethod.Unknown]: 840
+        }
       },
       'scanner-8': {
         totalBallots: 977,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 80,
           [VotingMethod.Precinct]: 45,
-          [VotingMethod.Unknown]: 852,
-        },
+          [VotingMethod.Unknown]: 852
+        }
       },
       'scanner-9': {
         totalBallots: 1038,
         ballotCountsByVotingMethod: {
           [VotingMethod.Absentee]: 71,
           [VotingMethod.Precinct]: 41,
-          [VotingMethod.Unknown]: 926,
-        },
-      },
+          [VotingMethod.Unknown]: 926
+        }
+      }
     }
     for (const [
       scannerId,
-      { totalBallots, ballotCountsByVotingMethod },
+      { totalBallots, ballotCountsByVotingMethod }
     ] of Object.entries(expectedScannerResults)) {
       const filteredResults = filterTalliesByParams(electionTally, election, {
-        scannerId,
+        scannerId
       })
       expect(filteredResults.numberOfBallotsCounted).toBe(totalBallots)
       expect(filteredResults.contestTallies).toMatchSnapshot()
@@ -281,46 +281,46 @@ describe('filterTalliesByParams in a typical election', () => {
   test('can filtere by precinct and scanner', () => {
     const filteredResults = filterTalliesByParams(electionTally, election, {
       precinctId: '23',
-      scannerId: 'scanner-5',
+      scannerId: 'scanner-5'
     })
     expect(filteredResults.numberOfBallotsCounted).toBe(227)
     expect(filteredResults.contestTallies).toMatchSnapshot()
     expect(filteredResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 18,
       [VotingMethod.Precinct]: 6,
-      [VotingMethod.Unknown]: 203,
+      [VotingMethod.Unknown]: 203
     })
   })
 
   test('can filter by voting method', () => {
     const absenteeResults = filterTalliesByParams(electionTally, election, {
-      votingMethod: VotingMethod.Absentee,
+      votingMethod: VotingMethod.Absentee
     })
     expect(absenteeResults.numberOfBallotsCounted).toBe(672)
     expect(absenteeResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 672,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
 
     const precinctResults = filterTalliesByParams(electionTally, election, {
-      votingMethod: VotingMethod.Precinct,
+      votingMethod: VotingMethod.Precinct
     })
     expect(precinctResults.numberOfBallotsCounted).toBe(474)
     expect(precinctResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 474,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
 
     const unknownResults = filterTalliesByParams(electionTally, election, {
-      votingMethod: VotingMethod.Unknown,
+      votingMethod: VotingMethod.Unknown
     })
     expect(unknownResults.numberOfBallotsCounted).toBe(8855)
     expect(unknownResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 8855,
+      [VotingMethod.Unknown]: 8855
     })
   })
 
@@ -328,13 +328,13 @@ describe('filterTalliesByParams in a typical election', () => {
     const filteredResults = filterTalliesByParams(electionTally, election, {
       precinctId: '23',
       scannerId: 'scanner-5',
-      votingMethod: VotingMethod.Absentee,
+      votingMethod: VotingMethod.Absentee
     })
     expect(filteredResults.numberOfBallotsCounted).toBe(18)
     expect(filteredResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 18,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
   })
 })
@@ -350,14 +350,14 @@ describe('filterTalliesByParams in a primary election', () => {
         'mayor-contest-liberty',
         'assistant-mayor-contest-liberty',
         'chief-pokemon-liberty',
-        'schoolboard-liberty',
+        'schoolboard-liberty'
       ],
       numBallots: 1710,
       ballotCountsByVotingMethod: {
         [VotingMethod.Absentee]: 342,
         [VotingMethod.Precinct]: 0,
-        [VotingMethod.Unknown]: 1368,
-      },
+        [VotingMethod.Unknown]: 1368
+      }
     },
     {
       partyId: '3',
@@ -365,14 +365,14 @@ describe('filterTalliesByParams in a primary election', () => {
         'governor-contest-constitution',
         'mayor-contest-constitution',
         'chief-pokemon-constitution',
-        'schoolboard-constitution',
+        'schoolboard-constitution'
       ],
       numBallots: 2100,
       ballotCountsByVotingMethod: {
         [VotingMethod.Absentee]: 93,
         [VotingMethod.Precinct]: 292,
-        [VotingMethod.Unknown]: 1715,
-      },
+        [VotingMethod.Unknown]: 1715
+      }
     },
     {
       partyId: '4',
@@ -380,15 +380,15 @@ describe('filterTalliesByParams in a primary election', () => {
         'governor-contest-federalist',
         'mayor-contest-federalist',
         'chief-pokemon-federalist',
-        'schoolboard-federalist',
+        'schoolboard-federalist'
       ],
       numBallots: 720,
       ballotCountsByVotingMethod: {
         [VotingMethod.Absentee]: 33,
         [VotingMethod.Precinct]: 18,
-        [VotingMethod.Unknown]: 669,
-      },
-    },
+        [VotingMethod.Unknown]: 669
+      }
+    }
   ]
 
   beforeEach(async () => {
@@ -401,7 +401,7 @@ describe('filterTalliesByParams in a primary election', () => {
 
     // tabulate it
     electionTally = computeFullElectionTally(multiPartyPrimaryElection, [
-      castVoteRecords,
+      castVoteRecords
     ])
   })
 
@@ -414,7 +414,7 @@ describe('filterTalliesByParams in a primary election', () => {
       {
         [VotingMethod.Absentee]: 468,
         [VotingMethod.Precinct]: 310,
-        [VotingMethod.Unknown]: 3752,
+        [VotingMethod.Unknown]: 3752
       }
     )
 
@@ -437,7 +437,7 @@ describe('filterTalliesByParams in a primary election', () => {
           return {
             contestId: c!.contest.id,
             tallies: c!.tallies,
-            metadata: c!.metadata,
+            metadata: c!.metadata
           }
         })
       ).toMatchSnapshot()
@@ -459,26 +459,26 @@ describe('filterTalliesByParams in a primary election', () => {
         batchId: '1234-1',
         label: 'Batch 1',
         scanner: 'scanner-1',
-        numberOfBallots: 752,
+        numberOfBallots: 752
       },
       {
         batchId: '1234-2',
         label: 'Batch 2',
         scanner: 'scanner-1',
-        numberOfBallots: 758,
+        numberOfBallots: 758
       },
       {
         batchId: '1234-3',
         label: 'Batch 1',
         scanner: 'scanner-2',
-        numberOfBallots: 1510,
+        numberOfBallots: 1510
       },
       {
         batchId: '1234-4',
         label: 'Batch 1',
         scanner: 'scanner-3',
-        numberOfBallots: 1510,
-      },
+        numberOfBallots: 1510
+      }
     ]
     for (const testcase of expectedBatchInformation) {
       const typedFilteredResults = filterTalliesByParamsAndBatchId(
@@ -557,14 +557,14 @@ describe('filterTalliesByParams in a primary election', () => {
     expect(filterParty5Precinct1.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 18,
-      [VotingMethod.Unknown]: 282,
+      [VotingMethod.Unknown]: 282
     })
     expect(
       Object.values(filterParty5Precinct1.contestTallies).map((c) => {
         return {
           contestId: c!.contest.id,
           tallies: c!.tallies,
-          metadata: c!.metadata,
+          metadata: c!.metadata
         }
       })
     ).toMatchSnapshot()
@@ -581,14 +581,14 @@ describe('filterTalliesByParams in a primary election', () => {
     expect(filterParty5Precinct5.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 33,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 387,
+      [VotingMethod.Unknown]: 387
     })
     expect(
       Object.values(filterParty5Precinct5.contestTallies).map((c) => {
         return {
           contestId: c!.contest.id,
           tallies: c!.tallies,
-          metadata: c!.metadata,
+          metadata: c!.metadata
         }
       })
     ).toMatchSnapshot()
@@ -627,15 +627,15 @@ describe('filterTalliesByParams in a primary election', () => {
     // All three scanners have identical copies of results, but the CVRs are different due to the scanner and ballot ids
     const scanner1ResultsWithoutCVRs = {
       numberOfBallotsCounted: filteredResultsScanner1.numberOfBallotsCounted,
-      contestTallies: filteredResultsScanner1.contestTallies,
+      contestTallies: filteredResultsScanner1.contestTallies
     }
     const scanner2ResultsWithoutCVRs = {
       numberOfBallotsCounted: filteredResultsScanner2.numberOfBallotsCounted,
-      contestTallies: filteredResultsScanner2.contestTallies,
+      contestTallies: filteredResultsScanner2.contestTallies
     }
     const scanner3ResultsWithoutCVRs = {
       numberOfBallotsCounted: filteredResultsScanner3.numberOfBallotsCounted,
-      contestTallies: filteredResultsScanner3.contestTallies,
+      contestTallies: filteredResultsScanner3.contestTallies
     }
     expect(scanner1ResultsWithoutCVRs).toStrictEqual(scanner2ResultsWithoutCVRs)
     expect(scanner1ResultsWithoutCVRs).toStrictEqual(scanner3ResultsWithoutCVRs)
@@ -649,7 +649,7 @@ describe('filterTalliesByParams in a primary election', () => {
         return {
           contestId: c!.contest.id,
           tallies: c!.tallies,
-          metadata: c!.metadata,
+          metadata: c!.metadata
         }
       })
     ).toMatchSnapshot()
@@ -658,7 +658,7 @@ describe('filterTalliesByParams in a primary election', () => {
     expect(filteredResultsScanner1.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 114,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 456,
+      [VotingMethod.Unknown]: 456
     })
 
     // Filter for a scanner not in the results
@@ -685,7 +685,7 @@ describe('filterTalliesByParams in a primary election', () => {
     ).toMatchObject({
       [VotingMethod.Absentee]: 342,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
 
     const filteredResultsLibertyPrecinct = filterTalliesByParams(
@@ -699,7 +699,7 @@ describe('filterTalliesByParams in a primary election', () => {
     ).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
 
     const filteredResultsConstitutionPrecinct = filterTalliesByParams(
@@ -713,7 +713,7 @@ describe('filterTalliesByParams in a primary election', () => {
     ).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 292,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
 
     const filteredResultsConstitutionAbsentee = filterTalliesByParams(
@@ -727,7 +727,7 @@ describe('filterTalliesByParams in a primary election', () => {
     ).toMatchObject({
       [VotingMethod.Absentee]: 93,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 0,
+      [VotingMethod.Unknown]: 0
     })
 
     const filteredResultsUnknownAbsentee = filterTalliesByParams(
@@ -741,7 +741,7 @@ describe('filterTalliesByParams in a primary election', () => {
     ).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 0,
-      [VotingMethod.Unknown]: 1368,
+      [VotingMethod.Unknown]: 1368
     })
   })
 })
@@ -757,12 +757,12 @@ test('undervotes counted in n of m contest properly', () => {
     _scannerId: '1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    'county-commissioners': [],
+    'county-commissioners': []
   }
 
   // tabulate it
   let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCVR],
+    [mockCVR]
   ])!
 
   // The county commissioners race has 4 seats. Each vote less than 4 should be counted
@@ -773,7 +773,7 @@ test('undervotes counted in n of m contest properly', () => {
   ).toBe(4)
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
-    [{ ...mockCVR, 'county-commissioners': ['argent'] }],
+    [{ ...mockCVR, 'county-commissioners': ['argent'] }]
   ])!
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -781,7 +781,7 @@ test('undervotes counted in n of m contest properly', () => {
   ).toBe(3)
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
-    [{ ...mockCVR, 'county-commissioners': ['argent', 'bainbridge'] }],
+    [{ ...mockCVR, 'county-commissioners': ['argent', 'bainbridge'] }]
   ])!
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -792,9 +792,9 @@ test('undervotes counted in n of m contest properly', () => {
     [
       {
         ...mockCVR,
-        'county-commissioners': ['argent', 'bainbridge', 'hennessey'],
-      },
-    ],
+        'county-commissioners': ['argent', 'bainbridge', 'hennessey']
+      }
+    ]
   ])!
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -805,9 +805,9 @@ test('undervotes counted in n of m contest properly', () => {
     [
       {
         ...mockCVR,
-        'county-commissioners': ['argent', 'bainbridge', 'hennessey', 'savoy'],
-      },
-    ],
+        'county-commissioners': ['argent', 'bainbridge', 'hennessey', 'savoy']
+      }
+    ]
   ])!
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -830,13 +830,13 @@ test('overvotes counted in n of m contest properly', () => {
       'argent',
       'witherspoonsmithson',
       'bainbridge',
-      'hennessey',
-    ],
+      'hennessey'
+    ]
   }
 
   // tabulate it
   let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCVR],
+    [mockCVR]
   ])!
 
   expect(
@@ -853,10 +853,10 @@ test('overvotes counted in n of m contest properly', () => {
           'witherspoonsmithson',
           'bainbridge',
           'hennessey',
-          'savoy',
-        ],
-      },
-    ],
+          'savoy'
+        ]
+      }
+    ]
   ])!
   // The county commissioners race has 4 seats. A ballot with more than 4 votes should have
   // 4 overvotes.
@@ -876,10 +876,10 @@ test('overvotes counted in n of m contest properly', () => {
           'hennessey',
           'savoy',
           'tawa',
-          'rangel',
-        ],
-      },
-    ],
+          'rangel'
+        ]
+      }
+    ]
   ])!
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -898,12 +898,12 @@ test('overvotes counted in single seat contest properly', () => {
     _scannerId: '1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    'lieutenant-governor': ['norberg'],
+    'lieutenant-governor': ['norberg']
   }
 
   // tabulate it
   let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCVR],
+    [mockCVR]
   ])!
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
@@ -914,9 +914,9 @@ test('overvotes counted in single seat contest properly', () => {
     [
       {
         ...mockCVR,
-        'lieutenant-governor': ['norberg', 'parks'],
-      },
-    ],
+        'lieutenant-governor': ['norberg', 'parks']
+      }
+    ]
   ])!
 
   // The lieutenant governor race has 1 seat. A ballot with more than 1 votes should count
@@ -935,10 +935,10 @@ test('overvotes counted in single seat contest properly', () => {
           'parks',
           'garcia',
           'qualey',
-          'hovis',
-        ],
-      },
-    ],
+          'hovis'
+        ]
+      }
+    ]
   ])!
   // There should still only be 1 overvote despite voting for 5 candidates.
   expect(
@@ -968,14 +968,14 @@ test('parsing CVRs flags when a precinct ID in a CVR is not present in the elect
     _scannerId: 'scanner-1',
     _testBallot: false,
     _batchId: '1',
-    _batchLabel: 'Batch 1',
+    _batchLabel: 'Batch 1'
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: ["Precinct 'not real' in CVR is not in the election definition"],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -989,14 +989,14 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
     _testBallot: false,
     _locales: { primary: 'en-US', secondary: 'es-US' },
     _batchId: '1',
-    _batchLabel: 'Batch 1',
+    _batchLabel: 'Batch 1'
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: ["Ballot style '123' in CVR is not in the election definition"],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1010,16 +1010,16 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
     _testBallot: false,
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    'not a contest': [],
+    'not a contest': []
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Contest 'not a contest' in CVR is not in the election definition or is not a valid contest for ballot style '12'",
+        "Contest 'not a contest' in CVR is not in the election definition or is not a valid contest for ballot style '12'"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1034,7 +1034,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     president: ['write-in-1', 'not-a-candidate'], // Candidate contest with no write ins allowed
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    'county-commissioners': ['write-in-1', 'not-a-candidate'], // Candidate contest with write ins allowed
+    'county-commissioners': ['write-in-1', 'not-a-candidate'] // Candidate contest with write ins allowed
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
@@ -1042,11 +1042,11 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
       errors: [
         "Candidate ID 'write-in-1' in CVR is not a valid candidate choice for contest: 'president'",
         "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'president'",
-        "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'county-commissioners'",
+        "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'county-commissioners'"
         // No error for write in on comissioners race
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 
   const cvr2: CastVoteRecord = {
@@ -1058,22 +1058,22 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     _testBallot: false,
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    '750000015': ['yes', 'not-a-choice'], // Either Neither Contest with illegal voting option
-    '750000016': ['not-a-choice'], // Pick One from either neither contest
-    '750000018': ['not-a-choice', 'no'], // Yes No Contest
+    750000015: ['yes', 'not-a-choice'], // Either Neither Contest with illegal voting option
+    750000016: ['not-a-choice'], // Pick One from either neither contest
+    750000018: ['not-a-choice', 'no'] // Yes No Contest
   }
   expect([
-    ...parseCVRs(JSON.stringify(cvr2), electionWithMsEitherNeither),
+    ...parseCVRs(JSON.stringify(cvr2), electionWithMsEitherNeither)
   ]).toEqual([
     {
       cvr: cvr2,
       errors: [
         "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000015",
         "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000016",
-        "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000018",
+        "Choice 'not-a-choice' in CVR is not a valid contest choice for yes no contest: 750000018"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1087,16 +1087,16 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
     _batchId: '1',
     _batchLabel: 'Batch 1',
     // @ts-expect-error - string instead of a boolean
-    _testBallot: 'false',
+    _testBallot: 'false'
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "CVR test ballot flag must be true or false, got 'false' (string, not boolean)",
+        "CVR test ballot flag must be true or false, got 'false' (string, not boolean)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1111,16 +1111,16 @@ test('parsing CVRs flags when page number is set but not a number', () => {
     _batchId: '1',
     _batchLabel: 'Batch 1',
     // @ts-expect-error - string instead of a number
-    _pageNumber: '99',
+    _pageNumber: '99'
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Page number in CVR must be a number if it is set, got '99' (string, not number)",
+        "Page number in CVR must be a number if it is set, got '99' (string, not number)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1135,16 +1135,16 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
     _batchId: '1',
     _batchLabel: 'Batch 1',
     // @ts-expect-error - number instead of an array
-    _pageNumbers: 99,
+    _pageNumbers: 99
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Page numbers in CVR must be an array of number if it is set, got '99' (number, not an array of numbers)",
+        "Page numbers in CVR must be an array of number if it is set, got '99' (number, not an array of numbers)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1159,16 +1159,16 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
     _pageNumber: 1,
     _pageNumbers: [1, 2],
     _batchId: '1',
-    _batchLabel: 'Batch 1',
+    _batchLabel: 'Batch 1'
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        'Page number in CVR must be either _pageNumber, or _pageNumbers, but cannot be both.',
+        'Page number in CVR must be either _pageNumber, or _pageNumbers, but cannot be both.'
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1182,14 +1182,14 @@ test('parsing CVRs flags with _pageNumbers set properly works', () => {
     _batchId: '1',
     _batchLabel: 'Batch 1',
     _testBallot: false,
-    _pageNumbers: [1, 2],
+    _pageNumbers: [1, 2]
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1203,16 +1203,16 @@ test('parsing CVRs flags when ballot ID is not a string', () => {
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    _testBallot: false,
+    _testBallot: false
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Ballot ID in CVR must be a string, got '44' (number, not string)",
+        "Ballot ID in CVR must be a string, got '44' (number, not string)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1226,16 +1226,16 @@ test('parsing CVRs flags when scanner ID is not a string', () => {
     _scannerId: false,
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    _testBallot: false,
+    _testBallot: false
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Scanner ID in CVR must be a string, got 'false' (boolean, not string)",
+        "Scanner ID in CVR must be a string, got 'false' (boolean, not string)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1249,16 +1249,16 @@ test('parsing CVRs flags when batch ID is not a string', () => {
     // @ts-expect-error - false instead of a string
     _batchId: false,
     _batchLabel: 'Batch 1',
-    _testBallot: false,
+    _testBallot: false
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Batch ID in CVR must be a string, got 'false' (boolean, not string)",
+        "Batch ID in CVR must be a string, got 'false' (boolean, not string)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1272,16 +1272,16 @@ test('parsing CVRs flags when batch label is not a string', () => {
     _batchId: '1',
     // @ts-expect-error - false instead of a string
     _batchLabel: false,
-    _testBallot: false,
+    _testBallot: false
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
-        "Batch label in CVR must be a string, got 'false' (boolean, not string)",
+        "Batch label in CVR must be a string, got 'false' (boolean, not string)"
       ],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1293,14 +1293,14 @@ test('parsing CVRs flags when locale is not well formed', () => {
     _precinctId: '23',
     _ballotId: 'abc',
     _scannerId: 'scanner-1',
-    _testBallot: false,
+    _testBallot: false
   }
   expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [],
-      lineNumber: 1,
-    },
+      lineNumber: 1
+    }
   ])
 })
 
@@ -1313,7 +1313,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    _testBallot: false,
+    _testBallot: false
   }
   const cvr2: CastVoteRecord = {
     _ballotStyleId: '12',
@@ -1323,23 +1323,23 @@ test('parsing CVRs with different batch labels in the same id does not error', (
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
-    _testBallot: false,
+    _testBallot: false
   }
   expect([
     ...parseCVRs(
       `${JSON.stringify(cvr1)}\n${JSON.stringify(cvr2)}`,
       electionSample
-    ),
+    )
   ]).toEqual([
     {
       cvr: cvr1,
       errors: [],
-      lineNumber: 1,
+      lineNumber: 1
     },
     {
       cvr: cvr2,
       errors: [],
-      lineNumber: 2,
-    },
+      lineNumber: 2
+    }
   ])
 })

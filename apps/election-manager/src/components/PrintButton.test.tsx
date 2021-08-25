@@ -22,21 +22,21 @@ test('if only disconnected printers, show error modal', async () => {
       isDefault: true,
       name: 'banana',
       status: 1,
-      connected: false,
+      connected: false
     },
     {
       description: 'VxPrinter',
       isDefault: false,
       name: 'VxPrinter',
       status: 0,
-      connected: false,
-    },
+      connected: false
+    }
   ])
 
   const printer = fakePrinter()
   const afterPrint = jest.fn()
   const { getByText } = renderInAppContext(
-    <PrintButton sides="two-sided-long-edge" afterPrint={afterPrint}>
+    <PrintButton sides='two-sided-long-edge' afterPrint={afterPrint}>
       Print Now
     </PrintButton>,
     { printer }
@@ -64,21 +64,21 @@ test('if connected printers, show printing modal', async () => {
       isDefault: true,
       name: 'banana',
       status: 1,
-      connected: false,
+      connected: false
     },
     {
       description: 'VxPrinter',
       isDefault: false,
       name: 'VxPrinter',
       status: 0,
-      connected: true,
-    },
+      connected: true
+    }
   ])
 
   const printer = fakePrinter()
   const afterPrint = jest.fn()
   const { getByText } = renderInAppContext(
-    <PrintButton afterPrint={afterPrint} sides="two-sided-long-edge">
+    <PrintButton afterPrint={afterPrint} sides='two-sided-long-edge'>
       Print Now
     </PrintButton>,
     { printer }

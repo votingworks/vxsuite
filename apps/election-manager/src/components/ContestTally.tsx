@@ -5,7 +5,7 @@ import {
   Candidate,
   YesNoContest,
   AnyContest,
-  expandEitherNeitherContests,
+  expandEitherNeitherContests
 } from '@votingworks/types'
 import pluralize from 'pluralize'
 
@@ -53,7 +53,7 @@ const ContestTally: React.FC<Props> = ({
   election,
   electionTally,
   externalTallies,
-  precinctId,
+  precinctId
 }) => {
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
@@ -63,7 +63,7 @@ const ContestTally: React.FC<Props> = ({
   const districts = ballotStyles.flatMap((bs) => bs.districts)
 
   return (
-    <React.Fragment>
+    <>
       {expandEitherNeitherContests(election.contests).map((electionContest) => {
         if (!(electionContest.id in electionTally.contestTallies)) {
           return null
@@ -123,12 +123,12 @@ const ContestTally: React.FC<Props> = ({
                       contest.type === 'candidate'
                         ? (tally.option as Candidate).name
                         : (tally as YesNoContestOptionTally).option[0] === 'yes'
-                        ? (contest as YesNoContest).yesOption?.label || 'Yes'
-                        : (contest as YesNoContest).noOption?.label || 'No'
+                          ? (contest as YesNoContest).yesOption?.label || 'Yes'
+                          : (contest as YesNoContest).noOption?.label || 'No'
                     return (
                       <tr key={key} data-testid={key}>
                         <td>{choice}</td>
-                        <TD narrow textAlign="right">
+                        <TD narrow textAlign='right'>
                           {talliesRelevant ? tally.tally : 'X'}
                         </TD>
                       </tr>
@@ -140,7 +140,7 @@ const ContestTally: React.FC<Props> = ({
           </Contest>
         )
       })}
-    </React.Fragment>
+    </>
   )
 }
 export default ContestTally

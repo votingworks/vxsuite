@@ -10,7 +10,7 @@ test('Renders with data source table and voting method table when all data provi
   const ballotCounts = {
     [VotingMethod.Absentee]: 1200,
     [VotingMethod.Precinct]: 1045,
-    [VotingMethod.Unknown]: 12,
+    [VotingMethod.Unknown]: 12
   }
   const { getByText, getByTestId } = render(
     <TallyReportSummary
@@ -38,7 +38,7 @@ test('Hides the other row in the voting method table when empty', () => {
   const ballotCounts = {
     [VotingMethod.Absentee]: 1200,
     [VotingMethod.Precinct]: 1045,
-    [VotingMethod.Unknown]: 0,
+    [VotingMethod.Unknown]: 0
   }
   const { queryAllByText, unmount } = render(
     <TallyReportSummary
@@ -53,7 +53,7 @@ test('Hides the other row in the voting method table when empty', () => {
 
   const ballotCounts2 = {
     [VotingMethod.Absentee]: 1200,
-    [VotingMethod.Precinct]: 1045,
+    [VotingMethod.Precinct]: 1045
   }
   const { queryAllByText: queryAllByText2 } = render(
     <TallyReportSummary

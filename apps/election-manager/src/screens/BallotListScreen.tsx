@@ -14,7 +14,7 @@ import Prose from '../components/Prose'
 import {
   getBallotStylesData,
   sortBallotStyleDataByPrecinct,
-  sortBallotStyleDataByStyle,
+  sortBallotStyleDataByStyle
 } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
 import ExportElectionBallotPackageModalButton from '../components/ExportElectionBallotPackageModalButton'
@@ -35,7 +35,7 @@ const BallotListScreen: React.FC = () => {
   const allBallotStyles = getBallotStylesData(election)
   const ballotLists = [
     sortBallotStyleDataByStyle(election, allBallotStyles),
-    sortBallotStyleDataByPrecinct(election, allBallotStyles),
+    sortBallotStyleDataByPrecinct(election, allBallotStyles)
   ]
   const [ballotView, setBallotView] = useState(1)
   const sortByStyle = () => setBallotView(0)
@@ -85,10 +85,10 @@ const BallotListScreen: React.FC = () => {
       <Table>
         <thead>
           <tr>
-            <TD as="th" />
-            <TD as="th">Precinct</TD>
-            <TD as="th">Ballot Style</TD>
-            <TD as="th">Contests</TD>
+            <TD as='th' />
+            <TD as='th'>Precinct</TD>
+            <TD as='th'>Ballot Style</TD>
+            <TD as='th'>Contests</TD>
           </tr>
         </thead>
         <tbody>
@@ -98,7 +98,7 @@ const BallotListScreen: React.FC = () => {
             )!.name
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>
-                <TD textAlign="right" nowrap>
+                <TD textAlign='right' nowrap>
                   <LinkButton
                     fullWidth
                     small

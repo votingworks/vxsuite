@@ -7,7 +7,7 @@ import {
   Dictionary,
   Election,
   YesNoContest,
-  expandEitherNeitherContests,
+  expandEitherNeitherContests
 } from '@votingworks/types'
 
 import {
@@ -17,11 +17,11 @@ import {
   ExternalTallySourceType,
   FullElectionExternalTally,
   VotingMethod,
-  YesNoOption,
+  YesNoOption
 } from '../config/types'
 import {
   convertTalliesByPrecinctToFullExternalTally,
-  getTotalNumberOfBallots,
+  getTotalNumberOfBallots
 } from './externalTallies'
 
 const WriteInCandidateId = '0'
@@ -31,7 +31,7 @@ const UndervoteCandidateId = '2'
 const writeInCandidate: Candidate = {
   id: '__write-in',
   name: 'Write-In',
-  isWriteIn: true,
+  isWriteIn: true
 }
 
 export interface SEMSFileRow {
@@ -52,7 +52,7 @@ export interface SEMSFileRow {
 // The number of total ballots is undervotes + overvotes + (othervotes / numseats)
 // That formula assumes all votes voted for the maxiumum number of seats allowed which is
 // probably not true in practice. This is irreleveant with the number of seats is 1.
-export function getContestTallyForCandidateContest(
+export function getContestTallyForCandidateContest (
   contest: CandidateContest,
   rows: SEMSFileRow[]
 ): ContestTally {
@@ -83,7 +83,7 @@ export function getContestTallyForCandidateContest(
       }
       tallies[candidate.id] = {
         option: candidate,
-        tally: row.numberOfVotes + previousVoteCounts,
+        tally: row.numberOfVotes + previousVoteCounts
       }
       numCandidateVotes += row.numberOfVotes
     } else {
@@ -96,7 +96,7 @@ export function getContestTallyForCandidateContest(
   if (contest.allowWriteIns) {
     tallies[writeInCandidate.id] = {
       option: writeInCandidate,
-      tally: writeInVotes,
+      tally: writeInVotes
     }
   }
 
@@ -108,12 +108,12 @@ export function getContestTallyForCandidateContest(
       undervotes,
       ballots: Math.ceil(
         (numCandidateVotes + overvotes + undervotes) / contest.seats
-      ),
-    },
+      )
+    }
   }
 }
 
-export function getContestTallyForYesNoContest(
+export function getContestTallyForYesNoContest (
   contest: YesNoContest,
   rows: SEMSFileRow[]
 ): ContestTally {
@@ -128,18 +128,18 @@ export function getContestTallyForYesNoContest(
     } else if (row.candidateId === OvervoteCandidateId) {
       overvotes = row.numberOfVotes
       numVotes += row.numberOfVotes
-    } else if (contest.yesOption && row.candidateId === contest.yesOption.id) {
+    } else if ((contest.yesOption != null) && row.candidateId === contest.yesOption.id) {
       const previousVoteCounts = 'yes' in tallies ? tallies.yes!.tally : 0
       tallies.yes = {
         option: ['yes'] as YesNoOption,
-        tally: row.numberOfVotes + previousVoteCounts,
+        tally: row.numberOfVotes + previousVoteCounts
       }
       numVotes += row.numberOfVotes
-    } else if (contest.noOption && row.candidateId === contest.noOption.id) {
+    } else if ((contest.noOption != null) && row.candidateId === contest.noOption.id) {
       const previousVoteCounts = 'no' in tallies ? tallies.no!.tally : 0
       tallies.no = {
         option: ['no'] as YesNoOption,
-        tally: row.numberOfVotes + previousVoteCounts,
+        tally: row.numberOfVotes + previousVoteCounts
       }
       numVotes += row.numberOfVotes
     } else if (row.candidateId === WriteInCandidateId) {
@@ -157,16 +157,16 @@ export function getContestTallyForYesNoContest(
     metadata: {
       overvotes,
       undervotes,
-      ballots: numVotes,
-    },
+      ballots: numVotes
+    }
   }
 }
 
-function sanitizeItem(item: string): string {
+function sanitizeItem (item: string): string {
   return item.replace(/['"`]/g, '').trim()
 }
 
-function parseFileContentRows(fileContent: string): SEMSFileRow[] {
+function parseFileContentRows (fileContent: string): SEMSFileRow[] {
   const parsedRows: SEMSFileRow[] = []
   fileContent.split('\n').forEach((row) => {
     const entries = row
@@ -184,14 +184,14 @@ function parseFileContentRows(fileContent: string): SEMSFileRow[] {
         candidateName: entries[7],
         candidatePartyId: entries[8],
         candidatePartyName: entries[9],
-        numberOfVotes: parseInt(entries[10], 10),
+        numberOfVotes: parseInt(entries[10], 10)
       })
     }
   })
   return parsedRows
 }
 
-export function parseSEMSFileAndValidateForElection(
+export function parseSEMSFileAndValidateForElection (
   fileContent: string,
   election: Election
 ): string[] {
@@ -201,7 +201,7 @@ export function parseSEMSFileAndValidateForElection(
 
   if (parsedRows.length === 0) {
     return [
-      'No valid CSV data found in imported file. Please check file contents.',
+      'No valid CSV data found in imported file. Please check file contents.'
     ]
   }
 
@@ -225,7 +225,7 @@ export function parseSEMSFileAndValidateForElection(
           const validCandidates = [
             UndervoteCandidateId,
             OvervoteCandidateId,
-            ...contest.candidates.map((c) => c.id),
+            ...contest.candidates.map((c) => c.id)
           ]
           if (contest.allowWriteIns) {
             validCandidates.push(WriteInCandidateId)
@@ -250,7 +250,7 @@ export function parseSEMSFileAndValidateForElection(
             UndervoteCandidateId,
             OvervoteCandidateId,
             contest.yesOption?.id,
-            contest.noOption?.id,
+            contest.noOption?.id
           ]
           if (
             contest.yesOption === undefined ||
@@ -279,7 +279,7 @@ export function parseSEMSFileAndValidateForElection(
   return errors
 }
 
-export function convertSEMSFileToExternalTally(
+export function convertSEMSFileToExternalTally (
   fileContent: string,
   election: Election,
   votingMethodForFile: VotingMethod,
@@ -297,7 +297,7 @@ export function convertSEMSFileToExternalTally(
   const parsedRowsByPrecinct = _.groupBy(parsedRows, 'precinctId')
 
   for (const precinctId in parsedRowsByPrecinct) {
-    if (!election.precincts.find((p) => p.id === precinctId)) {
+    if (election.precincts.find((p) => p.id === precinctId) == null) {
       throw new Error(`Imported file has unexpected PrecinctId: ${precinctId}`)
     }
     const rowsForPrecinct = parsedRowsByPrecinct[precinctId]
@@ -330,7 +330,7 @@ export function convertSEMSFileToExternalTally(
     )
     contestTalliesByPrecinct[precinctId] = {
       contestTallies,
-      numberOfBallotsCounted: numBallotsInPrecinct,
+      numberOfBallotsCounted: numBallotsInPrecinct
     }
   }
 

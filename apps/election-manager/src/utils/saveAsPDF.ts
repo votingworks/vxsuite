@@ -1,10 +1,10 @@
 import { Election } from '@votingworks/types'
 
-export async function generateFileContentToSaveAsPDF(): Promise<Uint8Array> {
+export async function generateFileContentToSaveAsPDF (): Promise<Uint8Array> {
   return await window.kiosk!.printToPDF()
 }
 
-export function generateDefaultReportFilename(
+export function generateDefaultReportFilename (
   fileNamePrefix: string,
   election: Election,
   fileSuffix = 'all-precincts'

@@ -2,7 +2,7 @@ import {
   Dictionary,
   Election,
   getContests,
-  expandEitherNeitherContests,
+  expandEitherNeitherContests
 } from '@votingworks/types'
 
 import { strict as assert } from 'assert'
@@ -15,15 +15,15 @@ import {
   OptionalExternalTally,
   OptionalFullElectionExternalTally,
   TallyCategory,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
-  writeInCandidate,
+  writeInCandidate
 } from './election'
 
-export function convertExternalTalliesToStorageString(
+export function convertExternalTalliesToStorageString (
   tallies: FullElectionExternalTally[]
 ): string {
   return JSON.stringify(
@@ -31,16 +31,16 @@ export function convertExternalTalliesToStorageString(
       return {
         ...tally,
         resultsByCategory: Array.from(tally.resultsByCategory.entries()),
-        timestampCreated: tally.timestampCreated.getTime(),
+        timestampCreated: tally.timestampCreated.getTime()
       }
     })
   )
 }
 
-export function convertStorageStringToExternalTallies(
+export function convertStorageStringToExternalTallies (
   inputString: string
 ): FullElectionExternalTally[] {
-  const parsedJSON = JSON.parse(inputString) as Record<string, unknown>[]
+  const parsedJSON = JSON.parse(inputString) as Array<Record<string, unknown>>
   return parsedJSON.map((data) => {
     const {
       overallTally,
@@ -48,7 +48,7 @@ export function convertStorageStringToExternalTallies(
       votingMethod,
       source,
       inputSourceName,
-      timestampCreated,
+      timestampCreated
     } = data
     return {
       overallTally,
@@ -56,14 +56,14 @@ export function convertStorageStringToExternalTallies(
       source,
       inputSourceName,
       resultsByCategory: new Map(
-        resultsByCategory as readonly (readonly [unknown, unknown])[]
+        resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
       ),
-      timestampCreated: new Date(timestampCreated as number),
+      timestampCreated: new Date(timestampCreated as number)
     } as FullElectionExternalTally
   })
 }
 
-export function combineContestTallies(
+export function combineContestTallies (
   firstTally: ContestTally,
   secondTally: ContestTally
 ): ContestTally {
@@ -75,7 +75,7 @@ export function combineContestTallies(
     const secondTallyOption = secondTally.tallies[optionId]
     combinedTallies[optionId] = {
       option: firstTallyOption.option,
-      tally: firstTallyOption.tally + (secondTallyOption?.tally || 0),
+      tally: firstTallyOption.tally + (secondTallyOption?.tally ?? 0)
     }
   }
 
@@ -86,12 +86,12 @@ export function combineContestTallies(
       overvotes: firstTally.metadata.overvotes + secondTally.metadata.overvotes,
       undervotes:
         firstTally.metadata.undervotes + secondTally.metadata.undervotes,
-      ballots: firstTally.metadata.ballots + secondTally.metadata.ballots,
-    },
+      ballots: firstTally.metadata.ballots + secondTally.metadata.ballots
+    }
   }
 }
 
-export function getTotalNumberOfBallots(
+export function getTotalNumberOfBallots (
   contestTallies: Dictionary<ContestTally>,
   election: Election
 ): number {
@@ -101,7 +101,7 @@ export function getTotalNumberOfBallots(
     return new Set(
       getContests({
         ballotStyle: bs,
-        election,
+        election
       }).map((c) => c.id)
     )
   })
@@ -109,7 +109,7 @@ export function getTotalNumberOfBallots(
   // Break the sets of contest IDs into disjoint sets, so contests that are never seen on the same ballot style.
   for (const contest of election.contests) {
     const combinedSetForContest = new Set<string>()
-    const newListOfContestIdSets: Set<string>[] = []
+    const newListOfContestIdSets: Array<Set<string>> = []
     for (const contestIdSet of contestIdSets) {
       if (contestIdSet.has(contest.id)) {
         contestIdSet.forEach((id) => combinedSetForContest.add(id))
@@ -125,7 +125,7 @@ export function getTotalNumberOfBallots(
   const ballotsCastPerSet = contestIdSets.map((set) =>
     [...set].reduce(
       (prevValue, contestId) =>
-        Math.max(prevValue, contestTallies[contestId]?.metadata.ballots || 0),
+        Math.max(prevValue, contestTallies[contestId]?.metadata.ballots ?? 0),
       0
     )
   )
@@ -137,18 +137,18 @@ export function getTotalNumberOfBallots(
   )
 }
 
-export function getEmptyExternalTally(): ExternalTally {
+export function getEmptyExternalTally (): ExternalTally {
   return {
     contestTallies: {},
-    numberOfBallotsCounted: 0,
+    numberOfBallotsCounted: 0
   }
 }
 
-export function getPrecinctIdsInExternalTally(
+export function getPrecinctIdsInExternalTally (
   tally: FullElectionExternalTally
 ): string[] {
   const resultsByPrecinct = tally.resultsByCategory.get(TallyCategory.Precinct)
-  if (resultsByPrecinct) {
+  if (resultsByPrecinct != null) {
     const precinctsWithBallots: string[] = []
     for (const precinctId of Object.keys(resultsByPrecinct)) {
       if ((resultsByPrecinct[precinctId]?.numberOfBallotsCounted ?? 0) > 0) {
@@ -160,7 +160,7 @@ export function getPrecinctIdsInExternalTally(
   return []
 }
 
-export function filterExternalTalliesByParams(
+export function filterExternalTalliesByParams (
   fullTally: OptionalFullElectionExternalTally,
   election: Election,
   {
@@ -168,7 +168,7 @@ export function filterExternalTalliesByParams(
     partyId,
     scannerId,
     votingMethod,
-    batchId,
+    batchId
   }: {
     precinctId?: string
     partyId?: string
@@ -177,11 +177,11 @@ export function filterExternalTalliesByParams(
     batchId?: string
   }
 ): OptionalExternalTally {
-  if (!fullTally || scannerId || batchId) {
+  if (fullTally == null || scannerId == null || batchId == null) {
     return undefined
   }
 
-  if (votingMethod && fullTally.votingMethod !== votingMethod) {
+  if (votingMethod != null && fullTally.votingMethod !== votingMethod) {
     return getEmptyExternalTally()
   }
 
@@ -191,7 +191,7 @@ export function filterExternalTalliesByParams(
 
   if (precinctId) {
     filteredTally =
-      resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
+      ((resultsByCategory.get(TallyCategory.Precinct)?.[precinctId]) != null) ||
       getEmptyExternalTally()
   }
 
@@ -202,7 +202,7 @@ export function filterExternalTalliesByParams(
   return filterTallyForPartyId(filteredTally, partyId, election)
 }
 
-function filterTallyForPartyId(
+function filterTallyForPartyId (
   tally: ExternalTally,
   partyId: string,
   election: Election
@@ -213,7 +213,7 @@ function filterTallyForPartyId(
   Object.keys(tally.contestTallies).forEach((contestId) => {
     const contestTally = tally.contestTallies[contestId]
     if (
-      contestTally &&
+      (contestTally != null) &&
       districtsForParty.includes(contestTally.contest.districtId) &&
       contestTally.contest.partyId === partyId
     ) {
@@ -226,11 +226,11 @@ function filterTallyForPartyId(
   )
   return {
     contestTallies: filteredContestTallies,
-    numberOfBallotsCounted,
+    numberOfBallotsCounted
   }
 }
 
-export function convertTalliesByPrecinctToFullExternalTally(
+export function convertTalliesByPrecinctToFullExternalTally (
   talliesByPrecinct: Dictionary<ExternalTally>,
   election: Election,
   votingMethod: VotingMethod,
@@ -259,7 +259,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
 
   const overallTally: ExternalTally = {
     contestTallies: overallContestTallies,
-    numberOfBallotsCounted: totalNumberOfBallots,
+    numberOfBallotsCounted: totalNumberOfBallots
   }
 
   const resultsByCategory = new Map()
@@ -283,7 +283,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
     votingMethod,
     inputSourceName,
     source,
-    timestampCreated,
+    timestampCreated
   }
 }
 
@@ -298,13 +298,13 @@ export const getEmptyContestTallies = (
         for (const candidate of contest.candidates) {
           optionTallies[candidate.id] = {
             option: candidate,
-            tally: 0,
+            tally: 0
           }
         }
         if (contest.allowWriteIns) {
           optionTallies[writeInCandidate.id] = {
             option: writeInCandidate,
-            tally: 0,
+            tally: 0
           }
         }
         break
@@ -312,11 +312,11 @@ export const getEmptyContestTallies = (
       case 'yesno': {
         optionTallies.yes = {
           option: ['yes'],
-          tally: 0,
+          tally: 0
         }
         optionTallies.no = {
           option: ['no'],
-          tally: 0,
+          tally: 0
         }
         break
       }
@@ -324,7 +324,7 @@ export const getEmptyContestTallies = (
     contestTallies[contest.id] = {
       contest,
       tallies: optionTallies,
-      metadata: { overvotes: 0, undervotes: 0, ballots: 0 },
+      metadata: { overvotes: 0, undervotes: 0, ballots: 0 }
     }
   }
   return contestTallies
@@ -337,7 +337,7 @@ export const getEmptyExternalTalliesByPrecinct = (
   for (const precinct of election.precincts) {
     tallies[precinct.id] = {
       contestTallies: getEmptyContestTallies(election),
-      numberOfBallotsCounted: 0,
+      numberOfBallotsCounted: 0
     }
   }
   return tallies

@@ -20,7 +20,7 @@ interface Props {
 const NavigationScreen: React.FC<Props> = ({
   children,
   mainChildCenter = false,
-  mainChildFlex = false,
+  mainChildFlex = false
 }) => {
   const location = useLocation()
   const isActiveSection = (path: string) =>
@@ -35,8 +35,8 @@ const NavigationScreen: React.FC<Props> = ({
     <Screen>
       <Navigation
         primaryNav={
-          election && (
-            <React.Fragment>
+          (election != null) && (
+            <>
               <LinkButton
                 to={routerPaths.electionDefinition}
                 className={isActiveSection(routerPaths.electionDefinition)}
@@ -62,7 +62,7 @@ const NavigationScreen: React.FC<Props> = ({
               >
                 Tally
               </LinkButton>
-            </React.Fragment>
+            </>
           )
         }
         secondaryNav={

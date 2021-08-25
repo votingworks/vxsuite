@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   electionWithMsEitherNeitherDefinition,
-  electionSampleDefinition,
+  electionSampleDefinition
 } from '@votingworks/fixtures'
 import { Route } from 'react-router-dom'
 import { fireEvent } from '@testing-library/react'
@@ -13,22 +13,22 @@ import {
   ExternalTallySourceType,
   FullElectionExternalTally,
   TallyCategory,
-  VotingMethod,
+  VotingMethod
 } from '../config/types'
 import {
   getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
+  getEmptyExternalTally
 } from '../utils/externalTallies'
 import ManualDataImportPrecinctScreen from './ManualDataImportPrecinctScreen'
 
 test('displays error screen for invalid precinct', async () => {
   const { getByText } = renderInAppContext(
-    <Route path="/tally/manual-data-import/precinct/:precinctId">
+    <Route path='/tally/manual-data-import/precinct/:precinctId'>
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/12345',
-      electionDefinition: electionWithMsEitherNeitherDefinition,
+      electionDefinition: electionWithMsEitherNeitherDefinition
     }
   )
   getByText('Error: Could not find precinct 12345.')
@@ -42,49 +42,49 @@ test('displays correct contests for each precinct', async () => {
     'Election Commissioner 02',
     'Election Commissioner 03',
     'Election Commissioner 04',
-    'Election Commissioner 05',
+    'Election Commissioner 05'
   ]
   const testcases = [
     {
       precinctId: '6538',
       precinctName: 'Bywy',
-      expectedCommissionerRace: commissionerRaces[0],
+      expectedCommissionerRace: commissionerRaces[0]
     },
     {
       precinctId: '6528',
       precinctName: 'Hebron',
-      expectedCommissionerRace: commissionerRaces[1],
+      expectedCommissionerRace: commissionerRaces[1]
     },
     {
       precinctId: '6539',
       precinctName: 'West Weir',
-      expectedCommissionerRace: commissionerRaces[2],
+      expectedCommissionerRace: commissionerRaces[2]
     },
     {
       precinctId: '6532',
       precinctName: 'Panhandle',
-      expectedCommissionerRace: commissionerRaces[3],
+      expectedCommissionerRace: commissionerRaces[3]
     },
     {
       precinctId: '6522',
       precinctName: 'District 5',
-      expectedCommissionerRace: commissionerRaces[4],
-    },
+      expectedCommissionerRace: commissionerRaces[4]
+    }
   ]
 
   for (const {
     precinctId,
     precinctName,
-    expectedCommissionerRace,
+    expectedCommissionerRace
   } of testcases) {
     const { getByText, queryAllByText, unmount } = renderInAppContext(
-      <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <Route path='/tally/manual-data-import/precinct/:precinctId'>
         <ManualDataImportPrecinctScreen />
       </Route>,
       {
         route: `/tally/manual-data-import/precinct/${precinctId}`,
         electionDefinition: electionWithMsEitherNeitherDefinition,
-        saveExternalTallies,
+        saveExternalTallies
       }
     )
     getByText('Manually Entered Precinct Results:')
@@ -106,13 +106,13 @@ test('displays correct contests for each precinct', async () => {
 test('can enter data for candidate contests as expected', async () => {
   const saveExternalTallies = jest.fn()
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import/precinct/:precinctId">
+    <Route path='/tally/manual-data-import/precinct/:precinctId'>
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionSampleDefinition
     }
   )
   getByText('Manually Entered Precinct Results:')
@@ -122,34 +122,34 @@ test('can enter data for candidate contests as expected', async () => {
   expect(getByTestId('president-undervotes').closest('input')!.value).toBe('0')
   // We can not change the input to a non number
   fireEvent.change(getByTestId('president-undervotes').closest('input')!, {
-    target: { value: 'daylight' },
+    target: { value: 'daylight' }
   })
   expect(getByTestId('president-undervotes').closest('input')!.value).toBe('0')
   // We can change the input to an empty string
   fireEvent.change(getByTestId('president-undervotes').closest('input')!, {
-    target: { value: '' },
+    target: { value: '' }
   })
   expect(getByTestId('president-undervotes').closest('input')!.value).toBe('')
 
   // We can change the input to a number
   fireEvent.change(getByTestId('president-undervotes').closest('input')!, {
-    target: { value: '4' },
+    target: { value: '4' }
   })
   expect(getByTestId('president-undervotes').closest('input')!.value).toBe('4')
   fireEvent.change(getByTestId('president-overvotes').closest('input')!, {
-    target: { value: '6' },
+    target: { value: '6' }
   })
   fireEvent.change(getByTestId('president-barchi-hallaren').closest('input')!, {
-    target: { value: '10' },
+    target: { value: '10' }
   })
   fireEvent.change(getByTestId('president-cramer-vuocolo').closest('input')!, {
-    target: { value: '20' },
+    target: { value: '20' }
   })
   fireEvent.change(getByTestId('president-court-blumhardt').closest('input')!, {
-    target: { value: '35' },
+    target: { value: '35' }
   })
   fireEvent.change(getByTestId('president-boone-lian').closest('input')!, {
-    target: { value: '25' },
+    target: { value: '25' }
   })
 
   // A contest that does not allow write ins has no write in row.
@@ -169,12 +169,12 @@ test('can enter data for candidate contests as expected', async () => {
               'court-blumhardt': expect.objectContaining({ tally: 35 }),
               'boone-lian': expect.objectContaining({ tally: 25 }),
               'hildebrand-garritty': expect.objectContaining({ tally: 0 }),
-              'patterson-lariviere': expect.objectContaining({ tally: 0 }),
-            },
-          }),
-        }),
-      },
-    }),
+              'patterson-lariviere': expect.objectContaining({ tally: 0 })
+            }
+          })
+        })
+      }
+    })
   ])
 
   // A contest that allows write ins has a write in row.
@@ -182,13 +182,13 @@ test('can enter data for candidate contests as expected', async () => {
   fireEvent.change(
     getByTestId('county-commissioners-__write-in').closest('input')!,
     {
-      target: { value: '10' },
+      target: { value: '10' }
     }
   )
   fireEvent.change(
     getByTestId('county-commissioners-undervotes').closest('input')!,
     {
-      target: { value: '30' },
+      target: { value: '30' }
     }
   )
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'))
@@ -199,30 +199,30 @@ test('can enter data for candidate contests as expected', async () => {
         numberOfBallotsCounted: 100,
         contestTallies: expect.objectContaining({
           president: expect.objectContaining({
-            metadata: { ballots: 100, undervotes: 4, overvotes: 6 },
+            metadata: { ballots: 100, undervotes: 4, overvotes: 6 }
           }),
           'county-commissioners': expect.objectContaining({
             metadata: { ballots: 10, undervotes: 30, overvotes: 0 },
             tallies: expect.objectContaining({
-              '__write-in': expect.objectContaining({ tally: 10 }),
-            }),
-          }),
-        }),
-      },
-    }),
+              '__write-in': expect.objectContaining({ tally: 10 })
+            })
+          })
+        })
+      }
+    })
   ])
 })
 
 test('can enter data for yes no contests as expected', async () => {
   const saveExternalTallies = jest.fn()
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import/precinct/:precinctId">
+    <Route path='/tally/manual-data-import/precinct/:precinctId'>
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionSampleDefinition
     }
   )
   getByText('Manually Entered Precinct Results:')
@@ -236,7 +236,7 @@ test('can enter data for yes no contests as expected', async () => {
   fireEvent.change(
     getByTestId('judicial-robert-demergue-yes').closest('input')!,
     {
-      target: { value: 'daylight' },
+      target: { value: 'daylight' }
     }
   )
   expect(
@@ -247,7 +247,7 @@ test('can enter data for yes no contests as expected', async () => {
   fireEvent.change(
     getByTestId('judicial-robert-demergue-yes').closest('input')!,
     {
-      target: { value: '50' },
+      target: { value: '50' }
     }
   )
   expect(
@@ -256,19 +256,19 @@ test('can enter data for yes no contests as expected', async () => {
   fireEvent.change(
     getByTestId('judicial-robert-demergue-undervotes').closest('input')!,
     {
-      target: { value: '4' },
+      target: { value: '4' }
     }
   )
   fireEvent.change(
     getByTestId('judicial-robert-demergue-overvotes').closest('input')!,
     {
-      target: { value: '6' },
+      target: { value: '6' }
     }
   )
   fireEvent.change(
     getByTestId('judicial-robert-demergue-no').closest('input')!,
     {
-      target: { value: '40' },
+      target: { value: '40' }
     }
   )
 
@@ -285,12 +285,12 @@ test('can enter data for yes no contests as expected', async () => {
             metadata: { ballots: 100, undervotes: 4, overvotes: 6 },
             tallies: {
               yes: { option: ['yes'], tally: 50 },
-              no: { option: ['no'], tally: 40 },
-            },
-          }),
-        }),
-      },
-    }),
+              no: { option: ['no'], tally: 40 }
+            }
+          })
+        })
+      }
+    })
   ])
 })
 
@@ -307,19 +307,19 @@ test('loads prexisting manual data to edit', async () => {
         tallies: {
           argent: { tally: 80 } as ContestOptionTally,
           '__write-in': { tally: 60 } as ContestOptionTally,
-          witherspoonsmithson: { tally: 40 } as ContestOptionTally,
+          witherspoonsmithson: { tally: 40 } as ContestOptionTally
         },
-        metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
+        metadata: { undervotes: 220, overvotes: 0, ballots: 100 }
       } as unknown) as ContestTally,
       'judicial-robert-demergue': ({
         ...talliesByPrecinct['23']?.contestTallies['judicial-robert-demergue'],
         tallies: {
           yes: { option: ['yes'], tally: 40 },
-          no: { option: ['no'], tally: 30 },
+          no: { option: ['no'], tally: 30 }
         },
-        metadata: { ballots: 90, undervotes: 12, overvotes: 8 },
-      } as unknown) as ContestTally,
-    },
+        metadata: { ballots: 90, undervotes: 12, overvotes: 8 }
+      } as unknown) as ContestTally
+    }
   }
   talliesByPrecinct['20'] = {
     numberOfBallotsCounted: 50,
@@ -331,11 +331,11 @@ test('loads prexisting manual data to edit', async () => {
         ],
         tallies: {
           alice: { tally: 25 } as ContestOptionTally,
-          bob: { tally: 5 } as ContestOptionTally,
+          bob: { tally: 5 } as ContestOptionTally
         },
-        metadata: { undervotes: 4, overvotes: 6, ballots: 50 },
-      } as unknown) as ContestTally,
-    },
+        metadata: { undervotes: 4, overvotes: 6, ballots: 50 }
+      } as unknown) as ContestTally
+    }
   }
   talliesByPrecinct['21'] = {
     numberOfBallotsCounted: 7,
@@ -345,11 +345,11 @@ test('loads prexisting manual data to edit', async () => {
         ...talliesByPrecinct['21']?.contestTallies['judicial-robert-demergue'],
         tallies: {
           yes: { option: ['yes'], tally: 4 },
-          no: { option: ['no'], tally: 3 },
+          no: { option: ['no'], tally: 3 }
         },
-        metadata: { ballots: 7, undervotes: 0, overvotes: 0 },
-      } as unknown) as ContestTally,
-    },
+        metadata: { ballots: 7, undervotes: 0, overvotes: 0 }
+      } as unknown) as ContestTally
+    }
   }
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct)
@@ -359,19 +359,19 @@ test('loads prexisting manual data to edit', async () => {
     votingMethod: VotingMethod.Absentee,
     inputSourceName: 'Doesnt matter',
     source: ExternalTallySourceType.Manual,
-    timestampCreated: new Date(),
+    timestampCreated: new Date()
   }
 
   const saveExternalTallies = jest.fn()
   const centerSpringfield = renderInAppContext(
-    <Route path="/tally/manual-data-import/precinct/:precinctId">
+    <Route path='/tally/manual-data-import/precinct/:precinctId'>
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: [externalTally]
     }
   )
   centerSpringfield.getByText('Manually Entered Absentee Results:')
@@ -438,14 +438,14 @@ test('loads prexisting manual data to edit', async () => {
   // Check South Springfield
   centerSpringfield.unmount()
   const southSpringfieldComponent = renderInAppContext(
-    <Route path="/tally/manual-data-import/precinct/:precinctId">
+    <Route path='/tally/manual-data-import/precinct/:precinctId'>
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/20',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: [externalTally]
     }
   )
   southSpringfieldComponent.getByText('Manually Entered Absentee Results:')
@@ -479,14 +479,14 @@ test('loads prexisting manual data to edit', async () => {
   // Check North Springfield
   southSpringfieldComponent.unmount()
   const northSpringfieldComponent = renderInAppContext(
-    <Route path="/tally/manual-data-import/precinct/:precinctId">
+    <Route path='/tally/manual-data-import/precinct/:precinctId'>
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/21',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: [externalTally]
     }
   )
   northSpringfieldComponent.getByText('Manually Entered Absentee Results:')
