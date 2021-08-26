@@ -102,6 +102,9 @@ const PollWorkerScreen: React.FC<Props> = ({
       )
     : []
 
+  const isTallyOnCardFromPrecinctScanner =
+    talliesOnCard?.tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
+
   /*
    * Various state parameters to handle controlling when certain modals on the page are open or not.
    * If you are adding a new modal make sure to add the new parameter to the triggerAudiofocus useEffect
@@ -123,7 +126,7 @@ const PollWorkerScreen: React.FC<Props> = ({
   const [
     isConfirmingPrecinctScannerPrint,
     setIsConfirmingPrecinctScannerPrint,
-  ] = useState(false)
+  ] = useState(isTallyOnCardFromPrecinctScanner)
   const [isPrintingCombinedReport, setIsPrintingCombinedReport] = useState(
     false
   )
@@ -301,9 +304,6 @@ const PollWorkerScreen: React.FC<Props> = ({
     )
   }
 
-  const isTallyOnCardFromPrecinctScanner =
-    talliesOnCard?.tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
-
   const bmdTalliesOnCard =
     talliesOnCard?.tallyMachineType === TallySourceMachineType.BMD
       ? talliesOnCard
@@ -479,44 +479,30 @@ const PollWorkerScreen: React.FC<Props> = ({
                     : `Open Polls for ${precinctName}`}
                 </Button>
               </p>
-              {isPrintMode && isTallyOnCardFromPrecinctScanner && (
+              {!isPollsOpen && isPrintMode && (
                 <Prose>
-                  <h1> Results Reports </h1>
-                  <Button
-                    onPress={() => setIsConfirmingPrecinctScannerPrint(true)}
-                  >
-                    Print Precinct Scanner Tally Report
-                  </Button>
+                  <h1>Combine Results Reports</h1>
+                  <p>
+                    Combine results from multiple machines in order to print a
+                    single consolidated results report.
+                  </p>
+                  <Table>
+                    <tbody>
+                      <tr>
+                        <th>Machine ID</th>
+                        <th>Saved on Card At</th>
+                      </tr>
+                      {metadataRows}
+                    </tbody>
+                  </Table>
+                  <p>
+                    <Button onPress={() => setIsConfirmingCombinedPrint(true)}>
+                      Print Combined Report for{' '}
+                      {pluralize('Machine', metadataRows.length, true)}
+                    </Button>
+                  </p>
                 </Prose>
               )}
-              {!isPollsOpen &&
-                isPrintMode &&
-                !isTallyOnCardFromPrecinctScanner && (
-                  <Prose>
-                    <h1>Combine Results Reports</h1>
-                    <p>
-                      Combine results from multiple machines in order to print a
-                      single consolidated results report.
-                    </p>
-                    <Table>
-                      <tbody>
-                        <tr>
-                          <th>Machine ID</th>
-                          <th>Saved on Card At</th>
-                        </tr>
-                        {metadataRows}
-                      </tbody>
-                    </Table>
-                    <p>
-                      <Button
-                        onPress={() => setIsConfirmingCombinedPrint(true)}
-                      >
-                        Print Combined Report for{' '}
-                        {pluralize('Machine', metadataRows.length, true)}
-                      </Button>
-                    </p>
-                  </Prose>
-                )}
             </Prose>
           </MainChild>
         </Main>
@@ -640,7 +626,7 @@ const PollWorkerScreen: React.FC<Props> = ({
           <Modal
             content={
               <Prose textCenter id="modalaudiofocus">
-                <Loading>Printing precinct scanner report</Loading>
+                <Loading>Printing tally report</Loading>
               </Prose>
             }
           />
@@ -672,22 +658,18 @@ const PollWorkerScreen: React.FC<Props> = ({
         {isConfirmingPrecinctScannerPrint && (
           <Modal
             content={
-              <Prose>
-                <p id="modalaudiofocus">
-                  Do you want to print the precinct scanner results report and
-                  clear tally data from the card?
+              <Prose id="modalaudiofocus">
+                <h1>Tally Report on Card</h1>
+                <p>
+                  This poll worker card contains a tally report. The report will
+                  be cleared from the card after being printed.
                 </p>
               </Prose>
             }
             actions={
               <React.Fragment>
                 <Button primary onPress={requestPrintPrecinctScannerReport}>
-                  Print Report
-                </Button>
-                <Button
-                  onPress={() => setIsConfirmingPrecinctScannerPrint(false)}
-                >
-                  Close
+                  Print Tally Report
                 </Button>
               </React.Fragment>
             }

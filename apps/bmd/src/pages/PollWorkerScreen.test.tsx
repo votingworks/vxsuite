@@ -518,23 +518,8 @@ test('printing precinct scanner report option is shown when precinct scanner tal
     />
   )
 
-  screen.getByText('Results Reports')
-  fireEvent.click(screen.getByText('Print Precinct Scanner Tally Report'))
-  await waitFor(() => {
-    screen.getByText(/Do you want to print the precinct scanner results report/)
-  })
-  fireEvent.click(screen.getByText('Close'))
-
-  await waitFor(() => {
-    expect(
-      screen.queryByText(
-        /Do you want to print the precinct scanner results report/
-      )
-    ).toBeNull()
-  })
-
-  fireEvent.click(screen.getByText('Print Precinct Scanner Tally Report'))
-  fireEvent.click(screen.getByText('Print Report'))
+  screen.getByText('Tally Report on Card')
+  fireEvent.click(screen.getByText('Print Tally Report'))
 
   await waitFor(() => {
     expect(clearTallies).toHaveBeenCalledTimes(1)
