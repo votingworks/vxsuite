@@ -51,7 +51,6 @@ test('renders PollWorkerScreen', async () => {
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
@@ -84,7 +83,6 @@ test('switching out of test mode on election day', async () => {
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
@@ -120,7 +118,6 @@ test('keeping test mode on election day', async () => {
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
@@ -153,7 +150,6 @@ test('live mode on election day', async () => {
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
@@ -183,7 +179,6 @@ test('results combination option is not shown for a non print machine', async ()
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={jest.fn()}
       talliesOnCard={undefined}
@@ -221,7 +216,6 @@ test('results combination option is shown for a print machine', async () => {
         ...fakePrinter(),
         print: printFn,
       }}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={saveTally}
       talliesOnCard={undefined}
@@ -317,7 +311,6 @@ test('results combination option is shown with prior tally results when provided
         ...fakePrinter(),
         print: printFn,
       }}
-      tally={currentTally}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}
@@ -423,7 +416,6 @@ test('results combination option is shown with prior tally results when results 
         ...fakePrinter(),
         print: printFn,
       }}
-      tally={currentTally}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}
@@ -505,7 +497,6 @@ test('printing precinct scanner report option is shown when precinct scanner tal
         ...fakePrinter(),
         print: printFn,
       }}
-      tally={getZeroTally(election)}
       togglePollsOpen={jest.fn()}
       saveTallyToCard={saveTally}
       talliesOnCard={talliesOnCard}

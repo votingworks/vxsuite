@@ -34,9 +34,6 @@ import {
   Hardware,
   isAccessibleController,
   isCardReader,
-  getZeroTally,
-  calculateTally,
-  Tally,
   CardTally,
   CardAPI,
   CardPresentAPI,
@@ -120,7 +117,6 @@ interface SharedState {
   electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
   isPollsOpen: boolean
-  tally: Tally
 }
 
 interface OtherState {
@@ -196,7 +192,6 @@ const initialSharedState: Readonly<SharedState> = {
   electionDefinition: undefined,
   isLiveMode: false,
   isPollsOpen: false,
-  tally: [],
 }
 
 const initialOtherState: Readonly<OtherState> = {
@@ -264,9 +259,6 @@ type AppAction =
 const appReducer = (state: State, action: AppAction): State => {
   const resetTally = {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
-    tally: state.electionDefinition?.election
-      ? getZeroTally(state.electionDefinition.election)
-      : [],
   }
   switch (action.type) {
     case 'processAdminCard':
@@ -387,18 +379,12 @@ const appReducer = (state: State, action: AppAction): State => {
         isPollsOpen: !state.isPollsOpen,
       }
     case 'updateTally': {
-      const { electionDefinition, tally, votes, ballotStyleId } = state
+      const { electionDefinition, ballotStyleId } = state
       ok(electionDefinition, 'electionDefinition is required to updateTally')
       ok(ballotStyleId, 'ballotStyleId is required to updateTally')
       return {
         ...state,
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
-        tally: calculateTally({
-          election: electionDefinition.election,
-          tally,
-          votes: votes ?? {},
-          ballotStyleId,
-        }),
       }
     }
     case 'updateElectionDefinition':
@@ -509,7 +495,6 @@ const AppRoot: React.FC<Props> = ({
     precinctId,
     shortValue,
     showPostVotingInstructions,
-    tally,
     talliesOnCard,
     userSettings,
     votes,
@@ -1117,9 +1102,6 @@ const AppRoot: React.FC<Props> = ({
         ballotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode = initialAppState.isLiveMode,
         isPollsOpen = initialAppState.isPollsOpen,
-        tally = storedElectionDefinition?.election
-          ? getZeroTally(storedElectionDefinition.election)
-          : initialAppState.tally,
       } = storedAppState
       dispatchAppState({
         type: 'initializeAppState',
@@ -1132,7 +1114,6 @@ const AppRoot: React.FC<Props> = ({
           isLiveMode,
           isPollsOpen,
           precinctId: retrievedPrecinctId,
-          tally,
           votes: await retrieveVotes(),
         },
       })
@@ -1179,7 +1160,6 @@ const AppRoot: React.FC<Props> = ({
           ballotsPrintedCount,
           isLiveMode,
           isPollsOpen,
-          tally,
         })
       }
     }
@@ -1191,7 +1171,6 @@ const AppRoot: React.FC<Props> = ({
     isLiveMode,
     isPollsOpen,
     storage,
-    tally,
     initializedFromStorage,
   ])
 
@@ -1255,7 +1234,6 @@ const AppRoot: React.FC<Props> = ({
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}
           printer={printer}
-          tally={tally}
           togglePollsOpen={togglePollsOpen}
           saveTallyToCard={saveTallyToCard}
           talliesOnCard={talliesOnCard}

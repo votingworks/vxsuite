@@ -8,7 +8,6 @@ import {
   makePollWorkerCard,
 } from '@votingworks/test-utils'
 import {
-  getZeroTally,
   TallySourceMachineType,
   MemoryStorage,
   MemoryCard,
@@ -34,7 +33,6 @@ import {
   measure102Contest,
   measure420Contest,
   voterContests,
-  election,
 } from '../test/helpers/election'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
@@ -383,7 +381,6 @@ it('VxMark+Print end-to-end flow', async () => {
   card.insertCard(
     pollWorkerCard,
     JSON.stringify({
-      tally: getZeroTally(election),
       tallyMachineType: TallySourceMachineType.BMD,
       metadata: [
         {

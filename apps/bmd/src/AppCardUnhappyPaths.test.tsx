@@ -10,12 +10,7 @@ import {
   makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils'
-import {
-  MemoryStorage,
-  MemoryCard,
-  MemoryHardware,
-  getZeroTally,
-} from '@votingworks/utils'
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
 
 import App from './App'
 
@@ -201,7 +196,6 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   await setElectionInStorage(storage, electionSampleDefinition)
   await setStateInStorage(storage, {
     isPollsOpen: false,
-    tally: getZeroTally(electionSampleDefinition.election),
   })
 
   render(
