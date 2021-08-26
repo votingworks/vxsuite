@@ -1135,6 +1135,7 @@ importers:
       eslint: 7.27.0
       eslint-config-prettier: 8.3.0_eslint@7.27.0
       eslint-plugin-prettier: 3.4.0_beb8ddd1fba5378f74976112c7860a07
+      eslint-plugin-vx: 'link:'
       jest: 27.0.3
       jest-environment-node: 27.0.3
       jest-watch-typeahead: 0.6.4_jest@27.0.3
@@ -1150,6 +1151,7 @@ importers:
       eslint: ^7.27.0
       eslint-config-prettier: ^8.3.0
       eslint-plugin-prettier: ^3.4.0
+      eslint-plugin-vx: workspace:*
       jest: ^27.0.3
       jest-environment-node: ^27.0.3
       jest-watch-typeahead: ^0.6.4
