@@ -17,7 +17,7 @@ import { EventTargetFunction } from '../config/types'
 
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS
 
-const IdlePage: React.FC = () => {
+const IdlePage = (): JSX.Element => {
   const { markVoterCardVoided, resetBallot } = useContext(BallotContext)
   const [countdown, setCountdown] = useState(timeoutSeconds)
   const [isLoading, setIsLoading] = useState(false)

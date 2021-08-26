@@ -41,7 +41,7 @@ interface Props {
   reportPurpose: string
 }
 
-const PrecinctTallyReport: React.FC<Props> = ({
+const PrecinctTallyReport = ({
   ballotCount,
   sourceMachineType,
   currentDateTime,
@@ -50,7 +50,7 @@ const PrecinctTallyReport: React.FC<Props> = ({
   tally,
   precinctSelection,
   reportPurpose,
-}) => {
+}: Props): JSX.Element => {
   const { ballotStyles, contests, precincts } = election
   const precinctName =
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts

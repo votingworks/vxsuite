@@ -15,12 +15,12 @@ export interface Props {
   storage?: AppRootProps['storage']
 }
 
-const App: React.FC<Props> = ({
+const App = ({
   hardware,
   card = new WebServiceCard(),
   storage = new LocalStorage(),
   machineConfig = machineConfigProvider,
-}) => {
+}: Props): JSX.Element => {
   const [internalHardware, setInternalHardware] = useState(hardware)
   useEffect(() => {
     const updateHardware = async () => {

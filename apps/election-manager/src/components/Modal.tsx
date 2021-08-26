@@ -32,7 +32,7 @@ interface Props {
   onOverlayClick?: () => void
 }
 
-const Modal: React.FC<Props> = ({
+const Modal = ({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
@@ -48,7 +48,7 @@ const Modal: React.FC<Props> = ({
     }, 10)
   },
   onOverlayClick,
-}: Props) => (
+}: Props): JSX.Element => (
   <ReactModal
     appElement={
       (document.getElementById('root') ?? document.body.firstElementChild)!

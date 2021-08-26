@@ -27,14 +27,14 @@ interface Props {
   saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>
 }
 
-const PollWorkerScreen: React.FC<Props> = ({
+const PollWorkerScreen = ({
   scannedBallotCount,
   isPollsOpen,
   togglePollsOpen,
   getCVRsFromExport,
   saveTallyToCard,
   isLiveMode,
-}) => {
+}: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
   )
@@ -174,7 +174,7 @@ const PollWorkerScreen: React.FC<Props> = ({
 export default PollWorkerScreen
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
+export const DefaultPreview = (): JSX.Element => {
   const [isPollsOpen, setIsPollsOpen] = useState(false)
 
   const getCVRsFromExport = useCallback(async () => [], [])

@@ -17,11 +17,11 @@ interface Props {
   as?: keyof JSX.IntrinsicElements
 }
 
-const Loading: React.FC<Props> = ({
+const Loading = ({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
-}: Props) => {
+}: Props): JSX.Element => {
   const content = (
     <Prose>
       {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}

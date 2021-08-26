@@ -26,7 +26,7 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `
 
-const BallotListScreen: React.FC = () => {
+const BallotListScreen = (): JSX.Element => {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   )

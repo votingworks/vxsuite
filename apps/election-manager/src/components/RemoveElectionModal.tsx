@@ -11,7 +11,7 @@ export interface Props {
   onClose: () => void
 }
 
-const RemoveElectionModal: React.FC<Props> = ({ onClose }) => {
+const RemoveElectionModal = ({ onClose }: Props): JSX.Element => {
   const history = useHistory()
   const { saveElection } = useContext(AppContext)
 

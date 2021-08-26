@@ -10,9 +10,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void
 }
 
-const SetupPowerPage: React.FC<Props> = ({
+const SetupPowerPage = ({
   useEffectToggleLargeDisplay,
-}: Props) => {
+}: Props): JSX.Element => {
   useEffect(useEffectToggleLargeDisplay, [])
 
   return (

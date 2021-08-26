@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 interface Props {
-  brand?: React.ReactNode
   primaryNav?: React.ReactNode
   secondaryNav?: React.ReactNode
 }
@@ -71,7 +70,7 @@ const SecondaryNav = styled.div`
   }
 `
 
-const Navigation: React.FC<Props> = ({ primaryNav, secondaryNav }) => {
+const Navigation = ({ primaryNav, secondaryNav }: Props): JSX.Element => {
   return (
     <NavBar>
       <Brand>

@@ -11,10 +11,10 @@ interface Props {
   isVoterCard: boolean
 }
 
-const WrongElectionScreen: React.FC<Props> = ({
+const WrongElectionScreen = ({
   useEffectToggleLargeDisplay,
   isVoterCard,
-}: Props) => {
+}: Props): JSX.Element => {
   useEffect(useEffectToggleLargeDisplay, [])
   useEffect(triggerAudioFocus, [])
 

@@ -13,7 +13,10 @@ const noop = () => {
   // noop
 }
 
-const CalibrateScannerModal: React.FC<Props> = ({ onCancel, onCalibrate }) => {
+const CalibrateScannerModal = ({
+  onCancel,
+  onCalibrate,
+}: Props): JSX.Element => {
   const makeCancelable = useCancelablePromise()
   const [calibrationSuccess, setCalibrationSuccess] = useState<boolean>()
   const [isCalibrating, setIsCalibrating] = useState(false)

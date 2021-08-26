@@ -10,7 +10,7 @@ interface Props {
   scannedBallotCount: number
 }
 
-const ScanSuccessScreen: React.FC<Props> = ({ scannedBallotCount }) => {
+const ScanSuccessScreen = ({ scannedBallotCount }: Props): JSX.Element => {
   return (
     <CenteredScreen>
       <CircleCheck />
@@ -37,6 +37,6 @@ const ScanSuccessScreen: React.FC<Props> = ({ scannedBallotCount }) => {
 export default ScanSuccessScreen
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
+export const DefaultPreview = (): JSX.Element => {
   return <ScanSuccessScreen scannedBallotCount={1} />
 }

@@ -10,9 +10,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void
 }
 
-const UsedCardScreen: React.FC<Props> = ({
+const UsedCardScreen = ({
   useEffectToggleLargeDisplay,
-}: Props) => {
+}: Props): JSX.Element => {
   useEffect(useEffectToggleLargeDisplay, [])
   useEffect(triggerAudioFocus, [])
 

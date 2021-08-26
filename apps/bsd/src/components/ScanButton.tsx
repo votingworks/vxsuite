@@ -8,7 +8,7 @@ export interface Props {
 
 export const FUJITSU_VENDOR_ID = 0x4c5
 
-const ScanButton: React.FC<Props> = ({ onPress, disabled }) => {
+const ScanButton = ({ onPress, disabled }: Props): JSX.Element => {
   const [isScannerConnected, setIsScannerConnected] = useState(!window.kiosk)
 
   useEffect(() => {

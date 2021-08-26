@@ -52,7 +52,7 @@ const StyledChoiceButton = styled('button').attrs((props) => ({
   }
 `
 
-const ChoiceButton: React.FC<Props> = ({ choice, ...rest }) => {
+const ChoiceButton = ({ choice, ...rest }: Props): JSX.Element => {
   return (
     <Button
       {...rest}

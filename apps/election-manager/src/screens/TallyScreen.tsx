@@ -33,7 +33,7 @@ import { getPartiesWithPrimaryElections } from '../utils/election'
 import ImportExternalResultsModal from '../components/ImportExternalResultsModal'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 
-const TallyScreen: React.FC = () => {
+const TallyScreen = (): JSX.Element => {
   const {
     castVoteRecordFiles,
     electionDefinition,

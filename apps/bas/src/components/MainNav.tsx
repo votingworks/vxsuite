@@ -19,7 +19,7 @@ interface Props {
   title?: string
 }
 
-const MainNav: React.FC<Props> = ({ children, title }) => (
+const MainNav = ({ children, title }: Props): JSX.Element => (
   <ButtonBar secondary naturalOrder separatePrimaryButton>
     <Brand>VxEncode{title && <span> / {title}</span>}</Brand>
     {children || <div />}

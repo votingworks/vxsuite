@@ -23,13 +23,13 @@ export interface Props {
   value: DateTime
 }
 
-const PickDateTimeModal: React.FC<Props> = ({
+const PickDateTimeModal = ({
   disabled = false,
   onCancel,
   onSave,
   saveLabel,
   value: currentValue,
-}) => {
+}: Props): JSX.Element => {
   const [newValue, setNewValue] = useState(currentValue)
   const systemMeridian = newValue.hour < 12 ? 'AM' : 'PM'
 

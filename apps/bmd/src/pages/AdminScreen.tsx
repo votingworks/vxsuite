@@ -43,7 +43,7 @@ interface Props {
 
 const ALL_PRECINCTS_OPTION_VALUE = '_ALL'
 
-const AdminScreen: React.FC<Props> = ({
+const AdminScreen = ({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -53,7 +53,7 @@ const AdminScreen: React.FC<Props> = ({
   toggleLiveMode,
   unconfigure,
   machineConfig,
-}) => {
+}: Props): JSX.Element => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     const precinctId = event.currentTarget.value

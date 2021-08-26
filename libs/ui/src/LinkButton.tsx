@@ -13,7 +13,7 @@ export interface LinkButtonProps
   to?: string
 }
 
-const LinkButton: React.FC<LinkButtonProps> = (props) => {
+const LinkButton = (props: LinkButtonProps): JSX.Element => {
   const {
     goBack,
     history,

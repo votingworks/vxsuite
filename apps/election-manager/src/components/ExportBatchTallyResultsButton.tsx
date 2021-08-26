@@ -5,7 +5,7 @@ import SaveFileToUSB, { FileType } from './SaveFileToUSB'
 import AppContext from '../contexts/AppContext'
 import generateBatchTallyResultsCSV from '../utils/generateBatchTallyResultsCSV'
 
-const ExportBatchTallyResultsButton: React.FC = () => {
+const ExportBatchTallyResultsButton = (): JSX.Element => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
   const {
     fullElectionTally,

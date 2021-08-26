@@ -45,7 +45,7 @@ interface Props {
   updateVote: UpdateVoteFunction
 }
 
-const YesNoContest: React.FC<Props> = ({ contest, vote, updateVote }) => {
+const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 

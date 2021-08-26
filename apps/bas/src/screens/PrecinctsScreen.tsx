@@ -20,12 +20,12 @@ interface Props {
   voterCardData: Optional<VoterCardData>
 }
 
-const PrecinctsScreen: React.FC<Props> = ({
+const PrecinctsScreen = ({
   countyName,
   lockScreen,
   precincts,
   updatePrecinct,
-}) => {
+}: Props): JSX.Element => {
   return (
     <Screen>
       <Main>

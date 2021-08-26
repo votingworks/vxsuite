@@ -5,7 +5,7 @@ import './App.css'
 
 import AppRoot from './AppRoot'
 
-const App: React.FC = () => (
+const App = (): JSX.Element => (
   <BrowserRouter>
     <Route path="/">
       <AppRoot />

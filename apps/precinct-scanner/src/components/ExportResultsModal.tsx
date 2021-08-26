@@ -40,12 +40,12 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportResultsModal: React.FC<Props> = ({
+const ExportResultsModal = ({
   onClose,
   usbDrive,
   scannedBallotCount,
   isTestMode,
-}) => {
+}: Props): JSX.Element => {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT)
   const [errorMessage, setErrorMessage] = useState('')
 

@@ -8,9 +8,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void
 }
 
-const SetupCardReaderPage: React.FC<Props> = ({
+const SetupCardReaderPage = ({
   useEffectToggleLargeDisplay,
-}: Props) => {
+}: Props): JSX.Element => {
   useEffect(useEffectToggleLargeDisplay, [])
 
   return (

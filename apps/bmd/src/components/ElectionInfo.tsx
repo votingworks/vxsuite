@@ -45,12 +45,12 @@ interface Props {
   horizontal?: boolean
 }
 
-const ElectionInfo: React.FC<Props> = ({
+const ElectionInfo = ({
   precinctSelection,
   ballotStyleId,
   electionDefinition,
   horizontal = false,
-}) => {
+}: Props): JSX.Element => {
   const { election } = electionDefinition
   const { title: t, state, county, date, seal, sealURL } = election
   const precinctName =

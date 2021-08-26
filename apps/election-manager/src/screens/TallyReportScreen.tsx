@@ -69,7 +69,7 @@ export const ReportSection = styled.section`
   page-break-before: always;
 `
 
-const TallyReportScreen: React.FC = () => {
+const TallyReportScreen = (): JSX.Element => {
   const printReportRef = useRef<HTMLDivElement>(null)
   const previewReportRef = useRef<HTMLDivElement>(null)
   const [showPreview, setShowPreview] = useState(false)
@@ -282,7 +282,6 @@ const TallyReportScreen: React.FC = () => {
                   </Prose>
                   <TallyReportColumns>
                     <TallyReportSummary
-                      election={election}
                       totalBallotCount={reportBallotCount}
                       ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                     />
@@ -314,7 +313,6 @@ const TallyReportScreen: React.FC = () => {
                   </Prose>
                   <TallyReportColumns>
                     <TallyReportSummary
-                      election={election}
                       totalBallotCount={reportBallotCount}
                       ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                     />
@@ -344,7 +342,6 @@ const TallyReportScreen: React.FC = () => {
                   </Prose>
                   <TallyReportColumns>
                     <TallyReportSummary
-                      election={election}
                       totalBallotCount={reportBallotCount}
                       ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                     />
@@ -401,7 +398,6 @@ const TallyReportScreen: React.FC = () => {
                 </Prose>
                 <TallyReportColumns>
                   <TallyReportSummary
-                    election={election}
                     totalBallotCount={reportBallotCount}
                     ballotCountsByVotingMethod={ballotCountsByVotingMethod}
                   />

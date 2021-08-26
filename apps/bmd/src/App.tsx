@@ -36,7 +36,7 @@ export interface Props {
   screenReader?: ScreenReader
 }
 
-const App: React.FC<Props> = ({
+const App = ({
   screenReader = new AriaScreenReader(
     new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice))
   ),
@@ -46,7 +46,7 @@ const App: React.FC<Props> = ({
   printer = getPrinter(),
   hardware,
   machineConfig = machineConfigProvider,
-}) => {
+}: Props): JSX.Element => {
   screenReader.mute()
   const [internalHardware, setInternalHardware] = useState(hardware)
 

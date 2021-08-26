@@ -94,7 +94,7 @@ interface Props {
   reportPurpose: string
 }
 
-const PollsReport: React.FC<Props> = ({
+const PollsReport = ({
   appName,
   ballotCount,
   currentDateTime,
@@ -106,7 +106,7 @@ const PollsReport: React.FC<Props> = ({
   sourceMachineType,
   precinctSelection,
   reportPurpose,
-}) => {
+}: Props): JSX.Element => {
   const { title, date, county, precincts, state, seal, sealURL } = election
   const precinctName =
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts

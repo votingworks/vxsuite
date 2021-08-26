@@ -31,12 +31,13 @@ interface Props {
   onAfterOpen?: () => void
 }
 
-const Modal: React.FC<Props> = ({
+const Modal = ({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
   className = '',
   content,
+
   onAfterOpen = () => {
     /* istanbul ignore next - unclear why this isn't covered */
     window.setTimeout(() => {
@@ -47,7 +48,7 @@ const Modal: React.FC<Props> = ({
       }
     }, 10)
   },
-}) => (
+}: Props): JSX.Element => (
   <ReactModal
     appElement={
       (document.getElementById('root') ?? document.body.firstElementChild)!

@@ -1,7 +1,7 @@
 import React from 'react'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 
-const SetupCardReaderPage: React.FC = () => (
+const SetupCardReaderPage = (): JSX.Element => (
   <CenteredScreen infoBar={false}>
     <CenteredLargeProse>
       <h1>No Card Reader Detected</h1>
@@ -13,6 +13,6 @@ const SetupCardReaderPage: React.FC = () => (
 export default SetupCardReaderPage
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
+export const DefaultPreview = (): JSX.Element => {
   return <SetupCardReaderPage />
 }

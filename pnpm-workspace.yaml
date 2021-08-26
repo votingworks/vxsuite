@@ -10,5 +10,6 @@ packages:
   # include all integration tests
   - 'integration-testing/*'
 
-  # include top-level script project
+  # include top-level development project
+  - 'codemods'
   - 'script'

@@ -9,9 +9,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void
 }
 
-const SetupPrinterPage: React.FC<Props> = ({
+const SetupPrinterPage = ({
   useEffectToggleLargeDisplay,
-}: Props) => {
+}: Props): JSX.Element => {
   useEffect(useEffectToggleLargeDisplay, [])
 
   return (

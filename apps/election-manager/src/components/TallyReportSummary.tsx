@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Dictionary, Election } from '@votingworks/types'
+import { Dictionary } from '@votingworks/types'
 
 import { format } from '@votingworks/utils'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
@@ -21,15 +21,14 @@ const BallotSummary = styled.div`
 `
 
 interface Props {
-  election: Election
   totalBallotCount: number
   ballotCountsByVotingMethod: Dictionary<number>
 }
 
-const TallyReportSummary: React.FC<Props> = ({
+const TallyReportSummary = ({
   totalBallotCount,
   ballotCountsByVotingMethod,
-}) => {
+}: Props): JSX.Element => {
   return (
     <BallotSummary>
       <h3>Ballots by Voting Method</h3>

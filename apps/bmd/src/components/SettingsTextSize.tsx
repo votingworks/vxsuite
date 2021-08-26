@@ -49,10 +49,10 @@ interface Props {
   setUserSettings: SetUserSettings
 }
 
-const SettingsTextSize: React.FC<Props> = ({
+const SettingsTextSize = ({
   userSettings,
   setUserSettings,
-}) => {
+}: Props): JSX.Element => {
   const adjustFontSize: EventTargetFunction = (event) => {
     const target = event.currentTarget as HTMLButtonElement
     const textSize = +target.value as TextSizeSetting

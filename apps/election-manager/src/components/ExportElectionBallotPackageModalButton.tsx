@@ -31,7 +31,7 @@ const USBImage = styled.img`
   height: 200px;
 `
 
-const ExportElectionBallotPackageModalButton: React.FC = () => {
+const ExportElectionBallotPackageModalButton = (): JSX.Element => {
   const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
     AppContext
   )

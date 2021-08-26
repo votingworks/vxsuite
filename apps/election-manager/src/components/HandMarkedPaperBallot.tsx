@@ -362,11 +362,11 @@ interface ContestProps {
   title: React.ReactNode
   children: React.ReactNode
 }
-export const Contest: React.FC<ContestProps> = ({
+export const Contest = ({
   section,
   title,
   children,
-}) => (
+}: ContestProps): JSX.Element => (
   <StyledContest>
     <Prose>
       <Text small bold>
@@ -399,12 +399,12 @@ export interface CandidateContestChoicesProps {
   vote?: CandidateVote
 }
 
-export const CandidateContestChoices: React.FC<CandidateContestChoicesProps> = ({
+export const CandidateContestChoices = ({
   contest,
   locales,
   parties,
   vote,
-}) => {
+}: CandidateContestChoicesProps): JSX.Element => {
   const { t } = useTranslation()
   const writeInCandidates = vote?.filter((c) => c.isWriteIn)
   const remainingChoices = [...Array(contest.seats).keys()]
@@ -474,7 +474,7 @@ export interface HandMarkedPaperBallotProps {
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void
 }
 
-const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
+const HandMarkedPaperBallot = ({
   ballotStyleId,
   election,
   electionHash,
@@ -485,7 +485,7 @@ const HandMarkedPaperBallot: React.FC<HandMarkedPaperBallotProps> = ({
   ballotId,
   votes,
   onRendered,
-}) => {
+}: HandMarkedPaperBallotProps): JSX.Element => {
   assert.notEqual(
     locales.primary,
     locales.secondary,

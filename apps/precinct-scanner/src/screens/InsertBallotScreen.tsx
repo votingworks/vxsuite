@@ -9,7 +9,7 @@ interface Props {
   scannedBallotCount: number
 }
 
-const InsertBallotScreen: React.FC<Props> = ({ scannedBallotCount }) => {
+const InsertBallotScreen = ({ scannedBallotCount }: Props): JSX.Element => {
   return (
     <CenteredScreen>
       <InsertBallot />
@@ -33,11 +33,11 @@ const InsertBallotScreen: React.FC<Props> = ({ scannedBallotCount }) => {
 export default InsertBallotScreen
 
 /* istanbul ignore next */
-export const ZeroBallotsScannedPreview: React.FC = () => {
+export const ZeroBallotsScannedPreview = (): JSX.Element => {
   return <InsertBallotScreen scannedBallotCount={0} />
 }
 
 /* istanbul ignore next */
-export const ManyBallotsScannedPreview: React.FC = () => {
+export const ManyBallotsScannedPreview = (): JSX.Element => {
   return <InsertBallotScreen scannedBallotCount={1234} />
 }

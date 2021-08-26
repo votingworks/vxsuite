@@ -20,7 +20,7 @@ interface PrintButtonProps extends StyledButtonProps {
   confirmModal?: ConfirmModal
 }
 
-const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
+const PrintButton = ({
   title,
   afterPrint,
   children,
@@ -28,7 +28,7 @@ const PrintButton: React.FC<React.PropsWithChildren<PrintButtonProps>> = ({
   sides,
   confirmModal,
   ...rest
-}) => {
+}: React.PropsWithChildren<PrintButtonProps>): JSX.Element => {
   const { printer } = useContext(AppContext)
   const [isConfirming, setIsConfirming] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)

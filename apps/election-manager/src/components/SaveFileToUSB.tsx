@@ -44,13 +44,13 @@ enum ModalState {
   INIT = 'init',
 }
 
-const SaveFileToUSB: React.FC<Props> = ({
+const SaveFileToUSB = ({
   onClose,
   generateFileContent,
   defaultFilename,
   fileType,
   promptToEjectUSB = false,
-}) => {
+}: Props): JSX.Element => {
   const { usbDriveStatus, usbDriveEject, isOfficialResults } = useContext(
     AppContext
   )

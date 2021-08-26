@@ -31,7 +31,7 @@ interface Props {
   precinctBallotStyles: BallotStyle[]
 }
 
-const AdminScreen: React.FC<Props> = ({
+const AdminScreen = ({
   election,
   fetchElection,
   getBallotStylesByPrecinctId,
@@ -46,7 +46,7 @@ const AdminScreen: React.FC<Props> = ({
   setPrecinct,
   setIsSinglePrecinctMode,
   unconfigure,
-}) => {
+}: Props): JSX.Element => {
   const precincts = election ? [...election.precincts].sort(compareName) : []
   const parties = election ? [...election.parties].sort(compareName) : []
   const onChangeParty = (event: React.FormEvent<HTMLSelectElement>) => {

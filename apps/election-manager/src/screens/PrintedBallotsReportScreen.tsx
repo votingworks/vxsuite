@@ -22,7 +22,7 @@ import LinkButton from '../components/LinkButton'
 type PrintCounts = Dictionary<Dictionary<number>>
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>
 
-const PrintedBallotsReportScreen: React.FC = () => {
+const PrintedBallotsReportScreen = (): JSX.Element => {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   )

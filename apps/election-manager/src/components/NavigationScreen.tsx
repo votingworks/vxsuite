@@ -17,11 +17,11 @@ interface Props {
   mainChildFlex?: boolean
 }
 
-const NavigationScreen: React.FC<Props> = ({
+const NavigationScreen = ({
   children,
   mainChildCenter = false,
   mainChildFlex = false,
-}) => {
+}: Props): JSX.Element => {
   const location = useLocation()
   const isActiveSection = (path: string) =>
     new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''

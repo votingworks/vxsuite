@@ -65,15 +65,17 @@ interface Props {
   clearTalliesOnCard: () => Promise<void>
 }
 
-const PollWorkerScreen: React.FC<Props> = ({
+const PollWorkerScreen = ({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
   ballotsPrintedCount,
+
   cardlessVoterSessionPrecinctId = appPrecinct.kind ===
   PrecinctSelectionKind.SinglePrecinct
     ? appPrecinct.precinctId
     : undefined,
+
   cardlessVoterSessionBallotStyleId,
   electionDefinition,
   enableLiveMode,
@@ -87,7 +89,7 @@ const PollWorkerScreen: React.FC<Props> = ({
   saveTallyToCard,
   talliesOnCard,
   clearTalliesOnCard,
-}) => {
+}: Props): JSX.Element => {
   const { election } = electionDefinition
   const electionDate = DateTime.fromISO(electionDefinition.election.date)
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day')

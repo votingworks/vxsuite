@@ -69,12 +69,12 @@ interface Props {
   updateVote: UpdateVoteFunction
 }
 
-const MsEitherNeitherContest: React.FC<Props> = ({
+const MsEitherNeitherContest = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
   updateVote,
-}) => {
+}: Props): JSX.Element => {
   const { userSettings } = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
   const [isScrollable, setIsScrollable] = useState(true)

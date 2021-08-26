@@ -32,7 +32,7 @@ export interface Props {
   hardware: Hardware
 }
 
-const AppRoot: React.FC<Props> = ({ card, hardware }) => {
+const AppRoot = ({ card, hardware }: Props): JSX.Element => {
   const [isEncodingCard, setIsEncodingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isCardPresent, setIsCardPresent] = useState(false)

@@ -20,10 +20,10 @@ interface Props {
   ) => Promise<void>
 }
 
-const UnconfiguredElectionScreen: React.FC<Props> = ({
+const UnconfiguredElectionScreen = ({
   usbDriveStatus,
   setElectionDefinition,
-}) => {
+}: Props): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false)
 
@@ -189,7 +189,7 @@ const UnconfiguredElectionScreen: React.FC<Props> = ({
 export default UnconfiguredElectionScreen
 
 /* istanbul ignore next */
-export const DefaultPreview: React.FC = () => {
+export const DefaultPreview = (): JSX.Element => {
   return (
     <UnconfiguredElectionScreen
       usbDriveStatus={usbstick.UsbDriveStatus.notavailable}

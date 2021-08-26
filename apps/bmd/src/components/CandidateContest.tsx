@@ -90,12 +90,12 @@ const findCandidateById = (candidates: readonly Candidate[], id: string) =>
 const normalizeCandidateName = (name: string) =>
   name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ')
 
-const CandidateContest: React.FC<Props> = ({
+const CandidateContest = ({
   contest,
   parties,
   vote,
   updateVote,
-}) => {
+}: Props): JSX.Element => {
   const context = useContext(BallotContext)
   const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
 

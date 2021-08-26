@@ -66,7 +66,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`)
 }
 
-const ImportCVRFilesModal: React.FC<Props> = ({ onClose }) => {
+const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,

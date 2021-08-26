@@ -35,7 +35,7 @@ const allPrecincts: Precinct = {
   name: 'All Precincts',
 }
 
-const TestDeckScreen: React.FC = () => {
+const TestDeckScreen = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
   const { election } = electionDefinition!
   const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()

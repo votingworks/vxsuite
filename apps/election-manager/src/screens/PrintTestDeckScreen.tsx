@@ -65,7 +65,7 @@ const TestDeckBallots = ({
 
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
 
-const PrintTestDeckScreen: React.FC = () => {
+const PrintTestDeckScreen = (): JSX.Element => {
   const { electionDefinition, printer } = useContext(AppContext)
   const { election, electionHash } = electionDefinition!
   const [precinctIds, setPrecinctIds] = useState<string[]>([])

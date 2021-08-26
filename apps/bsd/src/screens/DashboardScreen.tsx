@@ -32,11 +32,11 @@ interface Props {
   deleteBatch(batchId: string): Promise<void>
 }
 
-const DashboardScreen: React.FC<Props> = ({
+const DashboardScreen = ({
   isScanning,
   status,
   deleteBatch,
-}) => {
+}: Props): JSX.Element => {
   const { batches } = status
   const batchCount = batches.length
   const ballotCount = batches.reduce((result, b) => result + b.count, 0)

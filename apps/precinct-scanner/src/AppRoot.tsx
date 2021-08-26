@@ -327,12 +327,12 @@ const appReducer = (state: State, action: AppAction): State => {
   }
 }
 
-const AppRoot: React.FC<Props> = ({
+const AppRoot = ({
   hardware,
   card,
   storage,
   machineConfig: machineConfigProvider,
-}) => {
+}: Props): JSX.Element => {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
     electionDefinition,
@@ -785,9 +785,7 @@ const AppRoot: React.FC<Props> = ({
     )
   }
 
-  let voterScreen = (
-    <PollsClosedScreen electionDefinition={electionDefinition} />
-  )
+  let voterScreen = <PollsClosedScreen />
 
   // The polls are open for voters to utilize.
   if (isPollsOpen) {

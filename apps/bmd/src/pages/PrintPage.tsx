@@ -17,7 +17,7 @@ const Graphic = styled.img`
   height: 40vw;
 `
 
-const PrintPage: React.FC = () => {
+const PrintPage = (): JSX.Element => {
   const {
     ballotStyleId,
     electionDefinition,

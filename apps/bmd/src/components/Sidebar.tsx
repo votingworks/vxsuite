@@ -39,14 +39,14 @@ const Footer = styled.div`
   margin: 1rem;
 `
 
-const Sidebar: React.FC<Props> = ({
+const Sidebar = ({
   appName,
   centerContent,
   footer,
   children,
   title,
   screenReaderInstructions,
-}) => {
+}: Props): JSX.Element => {
   return (
     <StyledSidebar>
       {title && (

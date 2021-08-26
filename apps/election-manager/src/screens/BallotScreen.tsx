@@ -73,7 +73,7 @@ const BallotPreview = styled.div`
   }
 `
 
-const BallotScreen: React.FC = () => {
+const BallotScreen = (): JSX.Element => {
   const history = useHistory()
   const ballotPreviewRef = useRef<HTMLDivElement>(null)
   const {

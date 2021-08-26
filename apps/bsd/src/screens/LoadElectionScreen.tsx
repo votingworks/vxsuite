@@ -16,7 +16,7 @@ interface Props {
   setElectionDefinition: SetElectionDefinition
 }
 
-const LoadElectionScreen: React.FC<Props> = ({ setElectionDefinition }) => {
+const LoadElectionScreen = ({ setElectionDefinition }: Props): JSX.Element => {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,

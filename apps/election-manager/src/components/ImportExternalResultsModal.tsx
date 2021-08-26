@@ -19,10 +19,10 @@ export interface Props {
   selectedFile?: File
 }
 
-const ImportExternalResultsModal: React.FC<Props> = ({
+const ImportExternalResultsModal = ({
   onClose,
   selectedFile,
-}) => {
+}: Props): JSX.Element => {
   const {
     saveExternalTallies,
     setIsTabulationRunning,

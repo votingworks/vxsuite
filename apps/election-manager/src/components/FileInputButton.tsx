@@ -36,7 +36,7 @@ interface Props {
   innerRef?: RefObject<HTMLInputElement>
 }
 
-const FileInputButton: React.FC<Props> = ({
+const FileInputButton = ({
   accept = '*/*',
   buttonProps,
   children,
@@ -44,7 +44,7 @@ const FileInputButton: React.FC<Props> = ({
   onChange,
   innerRef,
   ...rest
-}) => {
+}: Props): JSX.Element => {
   const onBlur: InputEventFunction = (event) => {
     const input = event.currentTarget
     input!.blur()
