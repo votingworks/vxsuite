@@ -524,6 +524,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
     />
   )
   await advanceTimersAndPromises()
+  const getAllByTextWithMarkup = withMarkup(screen.getAllByText)
 
   // Default Unconfigured
   screen.getByText('Device Not Configured')
@@ -559,7 +560,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   // Switch to Live Election Mode with the Poll Worker Card.
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
-  screen.getByText(
+  getAllByTextWithMarkup(
     'Switch to Live Election Mode and reset the tally of printed ballots?'
   )
   fireEvent.click(screen.getByText('Switch to Live Mode'))

@@ -591,7 +591,7 @@ const PollWorkerScreen: React.FC<Props> = ({
                   danger={isPrintMode}
                   onPress={confirmEnableLiveMode}
                 >
-                  Switch to <NoWrap>Live Mode</NoWrap>
+                  Switch to Live Mode
                 </Button>
                 <Button onPress={cancelEnableLiveMode}>Cancel</Button>
               </React.Fragment>
