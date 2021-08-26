@@ -252,6 +252,8 @@ describe('Screens display properly when USB is mounted', () => {
       _precinctId: '6522',
       _testBallot: true,
       _scannerId: 'abc',
+      _batchId: 'batch-1',
+      _batchLabel: 'Batch 1',
     }
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
@@ -337,6 +339,8 @@ describe('Screens display properly when USB is mounted', () => {
       _precinctId: '6522',
       _testBallot: false,
       _scannerId: 'abc',
+      _batchId: 'batch-1',
+      _batchLabel: 'Batch 1',
     }
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(
@@ -398,6 +402,8 @@ describe('Screens display properly when USB is mounted', () => {
       _precinctId: '6522',
       _testBallot: false,
       _scannerId: 'abc',
+      _batchId: 'batch-1',
+      _batchLabel: 'Batch 1',
     }
     const mockFiles = CastVoteRecordFiles.empty
     const added = await mockFiles.addAll(

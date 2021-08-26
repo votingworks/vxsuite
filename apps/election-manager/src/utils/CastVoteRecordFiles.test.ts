@@ -42,6 +42,8 @@ test('can add multiple CVR files by creating a new instance', async () => {
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
+    _batchId: 'batch-1',
+    _batchLabel: 'Batch 1',
   }
   const added = await empty.addAll(
     [
@@ -84,6 +86,8 @@ test('test ballot cvrs change the file mode appropriately', async () => {
     _precinctId: '23',
     _testBallot: true,
     _scannerId: 'abc',
+    _batchId: 'batch-1',
+    _batchLabel: 'Batch 1',
   }
   const added = await empty.addAll(
     [
@@ -126,6 +130,8 @@ test('does not mutate the original when adding a new instance', async () => {
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
+    _batchId: 'batch-1',
+    _batchLabel: 'Batch 1',
   }
   const added = await empty.add(
     new File([JSON.stringify(cvr)], 'cvrs.txt', {
@@ -176,6 +182,8 @@ test('records CVR data errors', async () => {
     _precinctId: '9999',
     _testBallot: false,
     _scannerId: 'abc',
+    _batchId: 'batch-1',
+    _batchLabel: 'Batch 1',
   }
   const added = await CastVoteRecordFiles.empty.add(
     new File([JSON.stringify(cvr)], 'cvrs.txt'),
@@ -199,6 +207,8 @@ test('records identical uploaded files', async () => {
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
+    _batchId: 'batch-1',
+    _batchLabel: 'Batch 1',
   }
   const added = await CastVoteRecordFiles.empty.addAll(
     [
@@ -234,6 +244,8 @@ test('refuses to tabulate both live and test CVRs', async () => {
     _precinctId: '23',
     _testBallot: false,
     _scannerId: 'abc',
+    _batchId: 'batch-1',
+    _batchLabel: 'Batch 1',
   }
 
   const otherCvr = {
