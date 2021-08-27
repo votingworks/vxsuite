@@ -1,7 +1,9 @@
+import { strict as assert } from 'assert'
 import { Election } from '@votingworks/types'
 
 export async function generateFileContentToSaveAsPDF(): Promise<Uint8Array> {
-  return await window.kiosk!.printToPDF()
+  assert(window.kiosk)
+  return await window.kiosk.printToPDF()
 }
 
 export function generateDefaultReportFilename(

@@ -94,10 +94,7 @@ export async function createClient(
     promise: connectedPromise,
     resolve: connectedResolve,
   } = deferred<void>()
-  const {
-    promise: exitPromise,
-    resolve: exitResolve,
-  } = deferred<void>()
+  const { promise: exitPromise, resolve: exitResolve } = deferred<void>()
   let setupError: Error | undefined
   let connected = false
   let interpreting = false

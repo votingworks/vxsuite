@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import chalk from 'chalk'
 import deepEqual from 'deep-eql'
 import diff from 'jest-diff'
@@ -87,11 +88,11 @@ export default async function main(
   let interpretSpinner: Spinner | undefined
 
   await retryScan(options, {
-    configured: (options) => {
+    configured: (opts) => {
       stdout.write(
-        `${chalk.bold('Input:')} ${options.inputWorkspace}\n${chalk.bold(
+        `${chalk.bold('Input:')} ${opts.inputWorkspace}\n${chalk.bold(
           'Output:'
-        )} ${options.outputWorkspace}\n`
+        )} ${opts.outputWorkspace}\n`
       )
     },
 
@@ -103,10 +104,11 @@ export default async function main(
     },
 
     sheetsLoaded: (count, election) => {
-      fetchSpinner!.text = `Found ${count} sheet(s) / ${count * 2} pages from ${
+      assert(fetchSpinner)
+      fetchSpinner.text = `Found ${count} sheet(s) / ${count * 2} pages from ${
         election?.title
       } in ${election?.county.name} (${election?.date})`
-      fetchSpinner!.succeed()
+      fetchSpinner.succeed()
       fetchSpinner = undefined
 
       pageCount = count * 2
@@ -125,10 +127,11 @@ export default async function main(
       configureSpinner?.succeed()
       configureSpinner = undefined
 
+      assert(interpretCounter)
       interpretSpinner = new Spinner(
         ora({ stream: stderr }).start(),
         'Interpreted ',
-        interpretCounter!,
+        interpretCounter,
         `/${pageCount}`,
         durationProvider({ prefix: ' (', suffix: ')' })
       )
@@ -196,7 +199,7 @@ export default async function main(
 if (require.main === module) {
   void main(process.argv.slice(2))
     .catch((error) => {
-      console.error(error)
+      process.stderr.write(`CRASH: ${error}\n`)
       return 1
     })
     .then((code) => {

@@ -32,64 +32,14 @@ function lineSegmentPredicate(
     return (segment) =>
       distance(segment.x1, segment.y1, segment.x2, segment.y2) >=
       lengthThreshold
-  } else {
-    const value =
-      'width' in lengthThreshold
-        ? (lengthThreshold.width / 100) * imageSize.width
-        : (lengthThreshold.height / 100) * imageSize.height
-    return (segment) =>
-      distance(segment.x1, segment.y1, segment.x2, segment.y2) >= value
   }
-}
 
-export async function processFile(
-  imagePath: string,
-  options: Options
-): Promise<string> {
-  const { minLength, scale, size, format, background } = options
-
-  const {
-    originalImageData: original,
-    imageData,
-    scale: actualScale,
-  } = await readGrayscaleImage(imagePath, { scale, size })
-  const unfilteredSegments = lsd(imageData)
-  const segments = minLength
-    ? unfilteredSegments.filter(
-        lineSegmentPredicate(
-          { width: original.width, height: original.height },
-          minLength
-        )
-      )
-    : unfilteredSegments
-
-  if (format === 'svg') {
-    const outPath = adjacentFile(imagePath, '-lsd', '.svg')
-    const out = createWriteStream(outPath, 'utf8')
-
-    await writeLineSegmentsAsSvg({
-      original,
-      segments,
-      scale: actualScale,
-      out,
-      background,
-    })
-
-    return outPath
-  } else {
-    const outPath = adjacentFile(imagePath, '-lsd', '.png')
-    const out = createWriteStream(outPath)
-
-    await writeLineSegmentsAsPng({
-      original,
-      segments,
-      scale: actualScale,
-      out,
-      background,
-    })
-
-    return outPath
-  }
+  const value =
+    'width' in lengthThreshold
+      ? (lengthThreshold.width / 100) * imageSize.width
+      : (lengthThreshold.height / 100) * imageSize.height
+  return (segment) =>
+    distance(segment.x1, segment.y1, segment.x2, segment.y2) >= value
 }
 
 async function writeLineSegmentsAsSvg({
@@ -243,6 +193,55 @@ function printHelp(out: NodeJS.WritableStream): void {
   out.write('\n')
   out.write(chalk.dim('# Draw line segments on top of the original image.\n'))
   out.write('$ lsd -b original image.png\n')
+}
+
+export async function processFile(
+  imagePath: string,
+  options: Options
+): Promise<string> {
+  const { minLength, scale, size, format, background } = options
+
+  const {
+    originalImageData: original,
+    imageData,
+    scale: actualScale,
+  } = await readGrayscaleImage(imagePath, { scale, size })
+  const unfilteredSegments = lsd(imageData)
+  const segments = minLength
+    ? unfilteredSegments.filter(
+        lineSegmentPredicate(
+          { width: original.width, height: original.height },
+          minLength
+        )
+      )
+    : unfilteredSegments
+
+  if (format === 'svg') {
+    const outPath = adjacentFile(imagePath, '-lsd', '.svg')
+    const out = createWriteStream(outPath, 'utf8')
+
+    await writeLineSegmentsAsSvg({
+      original,
+      segments,
+      scale: actualScale,
+      out,
+      background,
+    })
+
+    return outPath
+  }
+  const outPath = adjacentFile(imagePath, '-lsd', '.png')
+  const out = createWriteStream(outPath)
+
+  await writeLineSegmentsAsPng({
+    original,
+    segments,
+    scale: actualScale,
+    out,
+    background,
+  })
+
+  return outPath
 }
 
 export async function main(

@@ -5,6 +5,7 @@ import {
   ContestOption,
   Contests,
 } from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils'
 import { MarkStatus } from '../types'
 import allContestOptions from './allContestOptions'
 
@@ -30,7 +31,6 @@ export default function* ballotAdjudicationReasons(
     }
   } else if (contests.length === 0) {
     // This page is intentionally blank.
-    return
   } else {
     let isBlankBallot = true
 
@@ -45,7 +45,8 @@ export default function* ballotAdjudicationReasons(
           selectedOptionIdsByContestId.get(option.contestId) ?? []
         selectedOptionIdsByContestId.set(option.contestId, selectedOptionIds)
 
-        switch (optionMarkStatus(option.contestId, option.id)) {
+        const status = optionMarkStatus(option.contestId, option.id)
+        switch (status) {
           case MarkStatus.Marginal:
             yield {
               type: AdjudicationReason.MarginalMark,
@@ -65,6 +66,11 @@ export default function* ballotAdjudicationReasons(
                 optionId: option.id,
               }
             }
+            break
+
+          default:
+            // nothing to do
+            break
         }
       }
 
@@ -94,14 +100,14 @@ export default function* ballotAdjudicationReasons(
         if (selectedOptionIds.length < expectedSelectionCount) {
           yield {
             type: AdjudicationReason.Undervote,
-            contestId: contestId,
+            contestId,
             optionIds: selectedOptionIds,
             expected: expectedSelectionCount,
           }
         } else if (selectedOptionIds.length > expectedSelectionCount) {
           yield {
             type: AdjudicationReason.Overvote,
-            contestId: contestId,
+            contestId,
             optionIds: selectedOptionIds,
             expected: expectedSelectionCount,
           }
@@ -154,5 +160,8 @@ export function adjudicationReasonDescription(
 
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`
+
+    default:
+      throwIllegalValue(reason)
   }
 }

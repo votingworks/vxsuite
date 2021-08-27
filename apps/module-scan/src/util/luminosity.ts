@@ -25,9 +25,9 @@ export function stats(
   const start = Date.now()
 
   let foreground = 0
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i += 1) {
     if (data[i] < threshold) {
-      foreground++
+      foreground += 1
     }
   }
   const background = data.length - foreground

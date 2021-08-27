@@ -1,19 +1,19 @@
 import numberWithCommas from './numberWithCommas'
 
 test('leaves single-digit values alone', () => {
-  for (let i = 0; i <= 9; i++) {
+  for (let i = 0; i <= 9; i += 1) {
     expect(numberWithCommas(i)).toEqual(`${i}`)
   }
 })
 
 test('leaves double-digit values alone', () => {
-  for (let i = 10; i <= 99; i++) {
+  for (let i = 10; i <= 99; i += 1) {
     expect(numberWithCommas(i)).toEqual(`${i}`)
   }
 })
 
 test('leaves triple-digit values alone', () => {
-  for (let i = 100; i <= 999; i++) {
+  for (let i = 100; i <= 999; i += 1) {
     expect(numberWithCommas(i)).toEqual(`${i}`)
   }
 })

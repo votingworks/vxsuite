@@ -119,8 +119,10 @@ const DashboardScreen = ({
                     <TD nowrap>
                       {isScanning && !batch.endedAt ? (
                         <Scanning>Scanning…</Scanning>
+                      ) : batch.endedAt ? (
+                        <small>{shortDateTime(batch.endedAt)}</small>
                       ) : (
-                        <small>{shortDateTime(batch.endedAt!)}</small>
+                        <React.Fragment />
                       )}
                     </TD>
                     <TD narrow>

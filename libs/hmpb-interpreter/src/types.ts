@@ -7,17 +7,17 @@ import {
   TargetShape,
 } from '@votingworks/types'
 
+export type BallotPageMetadata = HMPBBallotPageMetadata
+
 export interface BallotImage {
   imageData: ImageData
   metadata: BallotPageMetadata
 }
 
-export interface BallotPageLayout {
-  ballotImage: BallotImage
-  contests: readonly BallotPageContestLayout[]
+export interface BallotPageContestOptionLayout {
+  bounds: Rect
+  target: TargetShape
 }
-
-export type BallotPageMetadata = HMPBBallotPageMetadata
 
 export interface BallotPageContestLayout {
   bounds: Rect
@@ -25,9 +25,9 @@ export interface BallotPageContestLayout {
   options: readonly BallotPageContestOptionLayout[]
 }
 
-export interface BallotPageContestOptionLayout {
-  bounds: Rect
-  target: TargetShape
+export interface BallotPageLayout {
+  ballotImage: BallotImage
+  contests: readonly BallotPageContestLayout[]
 }
 
 export interface GetBallotOptions {
@@ -60,11 +60,11 @@ export interface Input {
   metadata?: () => Promise<BallotPageMetadata | undefined>
 }
 
-export interface DetectQRCode {
-  (imageData: ImageData): Promise<DetectQRCodeResult | undefined>
-}
-
 export interface DetectQRCodeResult {
   data: Buffer
   rightSideUp?: boolean
+}
+
+export interface DetectQRCode {
+  (imageData: ImageData): Promise<DetectQRCodeResult | undefined>
 }

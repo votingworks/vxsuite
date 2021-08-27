@@ -59,17 +59,17 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
   binarize(imageData, binarized)
 
   const transforms = [
-    (imageData: ImageData): { imageData: ImageData; rotated: boolean } => ({
-      imageData,
+    (toTransform: ImageData): { imageData: ImageData; rotated: boolean } => ({
+      imageData: toTransform,
       rotated: false,
     }),
-    (imageData: ImageData): { imageData: ImageData; rotated: boolean } => {
+    (toTransform: ImageData): { imageData: ImageData; rotated: boolean } => {
       const rotatedImageData = createImageData(
-        new Uint8ClampedArray(imageData.data.length),
-        imageData.width,
-        imageData.height
+        new Uint8ClampedArray(toTransform.data.length),
+        toTransform.width,
+        toTransform.height
       )
-      vh(imageData, rotatedImageData)
+      vh(toTransform, rotatedImageData)
       return { imageData: rotatedImageData, rotated: true }
     },
   ]
@@ -91,6 +91,76 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
   }
 
   return { contests: [], rotated: false }
+}
+
+/**
+ * Computes the color of a pixel by blending `src` on top of `dst`.
+ *
+ * @see https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending
+ */
+function alphaBlend(dst: ArrayLike<number>, src: ArrayLike<number>): RGBA {
+  const dstR = dst[0]
+  const dstG = dst[1]
+  const dstB = dst[2]
+  const dstA = dst[3]
+  const srcR = src[0]
+  const srcG = src[1]
+  const srcB = src[2]
+  const srcA = src[3]
+  return [
+    (srcR * srcA) / 0xff + ((dstR * dstA) / 0xff) * (1 - srcA / 0xff),
+    (srcG * srcA) / 0xff + ((dstG * dstA) / 0xff) * (1 - srcA / 0xff),
+    (srcB * srcA) / 0xff + ((dstB * dstA) / 0xff) * (1 - srcA / 0xff),
+    (srcA / 0xff + (1 - srcA / 0xff)) * 0xff,
+  ]
+}
+
+/**
+ * Draws a target composed of concentric squares around a given point. If the
+ * color has transparency, the fill blends with the existing image.
+ */
+function drawTarget(
+  { data, width, height }: ImageData,
+  { x, y }: Point,
+  color: RGBA,
+  size: number
+): void {
+  assert.equal(getImageChannelCount({ data, width, height }), RGBA_CHANNELS)
+
+  const halfSize = Math.ceil(size / 2)
+
+  for (let xd = -halfSize; xd <= halfSize; xd += 1) {
+    for (let yd = -halfSize; yd <= halfSize; yd += 1) {
+      if (
+        (xd % 2 !== 0 && Math.abs(yd) <= Math.abs(xd)) ||
+        (yd % 2 !== 0 && Math.abs(xd) <= Math.abs(yd))
+      ) {
+        const offset = ((y + yd) * width + (x + xd)) * RGBA_CHANNELS
+        const dst = data.slice(offset, offset + RGBA_CHANNELS)
+        data.set(alphaBlend(dst, color), offset)
+      }
+    }
+  }
+}
+
+/**
+ * Fills a region of an image with a particular color. If the color has
+ * transparency, the fill blends with the existing image.
+ */
+function fill(
+  { data, width, height }: ImageData,
+  bounds: Rect,
+  color: RGBA
+): void {
+  assert.equal(getImageChannelCount({ data, width, height }), RGBA_CHANNELS)
+
+  for (let { y } = bounds; y < bounds.y + bounds.height; y += 1) {
+    for (let { x } = bounds; x < bounds.x + bounds.width; x += 1) {
+      const offset = (y * width + x) * RGBA_CHANNELS
+      const dst = data.slice(offset, offset + RGBA_CHANNELS)
+      data.set(alphaBlend(dst, color), offset)
+    }
+  }
 }
 
 /**
@@ -127,74 +197,4 @@ export async function run(
   }
 
   return 0
-}
-
-/**
- * Draws a target composed of concentric squares around a given point. If the
- * color has transparency, the fill blends with the existing image.
- */
-function drawTarget(
-  { data, width, height }: ImageData,
-  { x, y }: Point,
-  color: RGBA,
-  size: number
-): void {
-  assert.equal(getImageChannelCount({ data, width, height }), RGBA_CHANNELS)
-
-  const halfSize = Math.ceil(size / 2)
-
-  for (let xd = -halfSize; xd <= halfSize; xd++) {
-    for (let yd = -halfSize; yd <= halfSize; yd++) {
-      if (
-        (xd % 2 !== 0 && Math.abs(yd) <= Math.abs(xd)) ||
-        (yd % 2 !== 0 && Math.abs(xd) <= Math.abs(yd))
-      ) {
-        const offset = ((y + yd) * width + (x + xd)) * RGBA_CHANNELS
-        const dst = data.slice(offset, offset + RGBA_CHANNELS)
-        data.set(alphaBlend(dst, color), offset)
-      }
-    }
-  }
-}
-
-/**
- * Fills a region of an image with a particular color. If the color has
- * transparency, the fill blends with the existing image.
- */
-function fill(
-  { data, width, height }: ImageData,
-  bounds: Rect,
-  color: RGBA
-): void {
-  assert.equal(getImageChannelCount({ data, width, height }), RGBA_CHANNELS)
-
-  for (let y = bounds.y; y < bounds.y + bounds.height; y++) {
-    for (let x = bounds.x; x < bounds.x + bounds.width; x++) {
-      const offset = (y * width + x) * RGBA_CHANNELS
-      const dst = data.slice(offset, offset + RGBA_CHANNELS)
-      data.set(alphaBlend(dst, color), offset)
-    }
-  }
-}
-
-/**
- * Computes the color of a pixel by blending `src` on top of `dst`.
- *
- * @see https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending
- */
-function alphaBlend(dst: ArrayLike<number>, src: ArrayLike<number>): RGBA {
-  const dstR = dst[0]
-  const dstG = dst[1]
-  const dstB = dst[2]
-  const dstA = dst[3]
-  const srcR = src[0]
-  const srcG = src[1]
-  const srcB = src[2]
-  const srcA = src[3]
-  return [
-    (srcR * srcA) / 0xff + ((dstR * dstA) / 0xff) * (1 - srcA / 0xff),
-    (srcG * srcA) / 0xff + ((dstG * dstA) / 0xff) * (1 - srcA / 0xff),
-    (srcB * srcA) / 0xff + ((dstB * dstA) / 0xff) * (1 - srcA / 0xff),
-    (srcA / 0xff + (1 - srcA / 0xff)) * 0xff,
-  ]
 }

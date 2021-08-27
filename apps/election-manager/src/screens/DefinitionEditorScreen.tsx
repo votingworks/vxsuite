@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useCallback, useContext, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import fileDownload from 'js-file-download'
@@ -35,7 +36,8 @@ const DefinitionEditorScreen = ({
   allowEditing: boolean
 }): JSX.Element => {
   const { electionDefinition, saveElection } = useContext(AppContext)
-  const { election, electionData } = electionDefinition!
+  assert(electionDefinition)
+  const { election, electionData } = electionDefinition
   const stringifiedElection = JSON.stringify(election, undefined, 2)
   const [electionString, setElectionString] = useState(stringifiedElection)
   const [dirty, setDirty] = useState(false)

@@ -9,10 +9,27 @@ type Command =
 
 const BASE_URL = `http://localhost:${MOCK_SCANNER_PORT}`
 
+function help(out: NodeJS.WritableStream): void {
+  out.write('mock-scanner load FILE1 FILE2\n')
+  out.write('mock-scanner remove\n')
+}
+
+function handleResponse(response: Response<string>): number {
+  if (response.statusCode < 300) {
+    return 0
+  }
+
+  process.stderr.write(
+    `error: ${response.statusCode} ${response.statusMessage}\n`
+  )
+  process.stderr.write(response.body)
+  return -1
+}
+
 export async function main(args: readonly string[]): Promise<number> {
   let command: Command | undefined
 
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === 'load') {
       if (args[i + 1] && args[i + 2]) {
@@ -65,28 +82,11 @@ export async function main(args: readonly string[]): Promise<number> {
   return 0
 }
 
-function handleResponse(response: Response<string>): number {
-  if (response.statusCode < 300) {
-    return 0
-  }
-
-  process.stderr.write(
-    `error: ${response.statusCode} ${response.statusMessage}\n`
-  )
-  process.stderr.write(response.body)
-  return -1
-}
-
-function help(out: NodeJS.WritableStream): void {
-  out.write('mock-scanner load FILE1 FILE2\n')
-  out.write('mock-scanner remove\n')
-}
-
 /* istanbul ignore next */
 if (require.main === module) {
   void main(process.argv.slice(2))
     .catch((error) => {
-      console.error('CRASH:', error)
+      process.stderr.write(`CRASH: ${error}\n`)
       return 1
     })
     .then((code) => {

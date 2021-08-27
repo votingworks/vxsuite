@@ -9,6 +9,7 @@ import {
 } from '@votingworks/types'
 import pluralize from 'pluralize'
 
+import { strict as assert } from 'assert'
 import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
@@ -71,9 +72,9 @@ const ContestTally = ({
         const externalTalliesContest = externalTallies.map(
           (t) => t.contestTallies[electionContest.id]
         )
-        const primaryContestTally = electionTally.contestTallies[
-          electionContest.id
-        ]!
+        const primaryContestTally =
+          electionTally.contestTallies[electionContest.id]
+        assert(primaryContestTally)
 
         let finalContestTally = primaryContestTally
         externalTalliesContest.forEach((externalTally) => {

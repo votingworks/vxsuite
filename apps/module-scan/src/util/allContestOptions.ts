@@ -30,7 +30,7 @@ export default function* allContestOptions(
           }
         }
       } else {
-        for (let i = 0; i < contest.seats; i++) {
+        for (let i = 0; i < contest.seats; i += 1) {
           yield {
             type: 'candidate',
             id: `__write-in-${i}`,

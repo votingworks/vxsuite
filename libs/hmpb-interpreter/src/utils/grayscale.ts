@@ -6,8 +6,6 @@ import {
   makeInPlaceImageTransform,
 } from './imageFormatUtils'
 
-export default makeInPlaceImageTransform(fromGray, fromRGBA)
-
 /**
  * Copies a grayscale image to a destination.
  */
@@ -44,7 +42,7 @@ export function fromRGBA(
 
   if (isRGBA(dstImageData)) {
     const dst32 = new Int32Array(dstImageData.data.buffer)
-    for (let offset = 0, size = src32.length; offset < size; offset++) {
+    for (let offset = 0, size = src32.length; offset < size; offset += 1) {
       const px = src32[offset]
       const r = px & 0xff
       const g = (px >>> 8) & 0xff
@@ -58,7 +56,7 @@ export function fromRGBA(
     }
   } else {
     const dst8 = dstImageData.data
-    for (let offset = 0, size = src32.length; offset < size; offset++) {
+    for (let offset = 0, size = src32.length; offset < size; offset += 1) {
       const px = src32[offset]
       const r = px & 0xff
       const g = (px >>> 8) & 0xff
@@ -70,3 +68,5 @@ export function fromRGBA(
     }
   }
 }
+
+export default makeInPlaceImageTransform(fromGray, fromRGBA)

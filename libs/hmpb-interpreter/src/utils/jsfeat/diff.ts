@@ -105,15 +105,6 @@ export interface CountOptions {
 }
 
 /**
- * Determines the ratio of black (or custom color) pixels in an image to the
- * total number of pixels.
- */
-export function ratio(image: ImageData, options: CountOptions = {}): number {
-  const { width, height } = image
-  return countPixels(image, options) / (width * height)
-}
-
-/**
  * Determines number of black (or custom color) pixels in an image.
  */
 export function countPixels(
@@ -139,4 +130,13 @@ export function countPixels(
   }
 
   return count
+}
+
+/**
+ * Determines the ratio of black (or custom color) pixels in an image to the
+ * total number of pixels.
+ */
+export function ratio(image: ImageData, options: CountOptions = {}): number {
+  const { width, height } = image
+  return countPixels(image, options) / (width * height)
 }

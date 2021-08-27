@@ -1,8 +1,10 @@
+import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 import moment from 'moment'
 
+import { find } from '@votingworks/utils'
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
@@ -30,7 +32,8 @@ const BallotListScreen = (): JSX.Element => {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   )
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
 
   const allBallotStyles = getBallotStylesData(election)
   const ballotLists = [
@@ -93,9 +96,10 @@ const BallotListScreen = (): JSX.Element => {
         </thead>
         <tbody>
           {ballots.map((ballot) => {
-            const precinctName = election.precincts.find(
+            const precinctName = find(
+              election.precincts,
               (p) => p.id === ballot.precinctId
-            )!.name
+            ).name
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>
                 <TD textAlign="right" nowrap>

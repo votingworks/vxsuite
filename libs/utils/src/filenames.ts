@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import moment from 'moment'
 import { Election, ElectionDefinition } from '@votingworks/types'
 
@@ -45,19 +46,23 @@ export function parseBallotExportPackageInfoFromFilename(
   }
 
   const [electionString, timeString] = segments
+  assert(typeof electionString !== 'undefined')
 
-  let electionSegments = electionString!.split(SUBSECTION_SEPARATOR)
+  let electionSegments = electionString.split(SUBSECTION_SEPARATOR)
   if (electionSegments.length !== 3) {
     return
   }
   electionSegments = electionSegments.map((s) => s.replace(/-/g, ' '))
   const [electionCounty, electionName, electionHash] = electionSegments
+  assert(typeof electionCounty !== 'undefined')
+  assert(typeof electionName !== 'undefined')
+  assert(typeof electionHash !== 'undefined')
 
   const parsedTime = moment(timeString, TIME_FORMAT_STRING)
   return {
-    electionCounty: electionCounty!,
-    electionName: electionName!,
-    electionHash: electionHash!,
+    electionCounty,
+    electionName,
+    electionHash,
     timestamp: parsedTime.toDate(),
   }
 }
@@ -109,13 +114,16 @@ export function parseCVRFileInfoFromFilename(
     return
   }
 
-  const machineSegments = postTestPrefixSegments[0]!.split(SUBSECTION_SEPARATOR)
+  assert(typeof postTestPrefixSegments[0] !== 'undefined')
+  const machineSegments = postTestPrefixSegments[0].split(SUBSECTION_SEPARATOR)
   if (machineSegments.length !== 2 || machineSegments[0] !== 'machine') {
     return
   }
   const machineId = machineSegments[1]
+  assert(typeof machineId !== 'undefined')
 
-  const ballotSegments = postTestPrefixSegments[1]!.split(SUBSECTION_SEPARATOR)
+  assert(typeof postTestPrefixSegments[1] !== 'undefined')
+  const ballotSegments = postTestPrefixSegments[1].split(SUBSECTION_SEPARATOR)
   if (ballotSegments.length !== 2 || ballotSegments[1] !== 'ballots') {
     return
   }
@@ -123,7 +131,7 @@ export function parseCVRFileInfoFromFilename(
 
   const parsedTime = moment(postTestPrefixSegments[2], TIME_FORMAT_STRING)
   return {
-    machineId: machineId!,
+    machineId,
     numberOfBallots,
     isTestModeResults,
     timestamp: parsedTime.toDate(),

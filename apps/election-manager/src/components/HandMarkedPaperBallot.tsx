@@ -46,6 +46,14 @@ import HorizontalRule from './HorizontalRule'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
 
+function hasVote(vote: Vote | undefined, optionId: string): boolean {
+  return (
+    vote?.some((choice: Candidate | string) =>
+      typeof choice === 'string' ? choice === optionId : choice.id === optionId
+    ) ?? false
+  )
+}
+
 const localeDateLong = (dateString: string, locale: string) =>
   moment(new Date(dateString)).locale(locale).format('LL')
 
@@ -174,6 +182,7 @@ class PostRenderBallotProcessor extends Handler {
     // Post-process QR codes in footer.
     pages.forEach((page) => {
       const { pageNumber } = page.element.dataset
+      assert(typeof pageNumber !== 'undefined')
       const qrCodeTarget = page.element.getElementsByClassName(
         qrCodeTargetClassName
       )[0]
@@ -197,7 +206,7 @@ class PostRenderBallotProcessor extends Handler {
           precinctId,
           locales,
           isTestMode,
-          pageNumber: parseInt(pageNumber!, 10),
+          pageNumber: parseInt(pageNumber, 10),
           ballotType,
           ballotId,
         })
@@ -421,7 +430,7 @@ export const CandidateContestChoices = ({
               {candidate.partyId && (
                 <React.Fragment>
                   <br />
-                  {findPartyById(parties, candidate.partyId)!.name}
+                  {findPartyById(parties, candidate.partyId)?.name}
                 </React.Fragment>
               )}
             </CandidateDescription>
@@ -450,14 +459,6 @@ export const CandidateContestChoices = ({
           </WriteInItem>
         ))}
     </React.Fragment>
-  )
-}
-
-function hasVote(vote: Vote | undefined, optionId: string): boolean {
-  return (
-    vote?.some((choice: Candidate | string) =>
-      typeof choice === 'string' ? choice === optionId : choice.id === optionId
-    ) ?? false
   )
 }
 
@@ -532,7 +533,8 @@ const HandMarkedPaperBallot = ({
       }),
       {}
     )
-  const precinct = getPrecinctById({ election, precinctId })!
+  const precinct = getPrecinctById({ election, precinctId })
+  assert(precinct)
 
   const ballotRef = useRef<HTMLDivElement>(null)
 
@@ -549,8 +551,9 @@ const HandMarkedPaperBallot = ({
     ]
 
     void (async () => {
+      assert(ballotRef.current)
       await new Previewer().preview(
-        ballotRef.current!.innerHTML,
+        ballotRef.current.innerHTML,
         ballotStylesheets,
         printBallotRef?.current
       )

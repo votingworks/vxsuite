@@ -32,7 +32,7 @@ const FocusManager = ({
   screenReader,
   location,
 }: Props): JSX.Element => {
-  const screen = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  const screen = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const onPageLoad = () => {
       void screenReader.onPageLoad()
@@ -44,7 +44,7 @@ const FocusManager = ({
       // stays highlighted, which is a bummer. We need to figure out a better solution.
       window.setTimeout(() => {
         const elementToFocus =
-          document.getElementById('audiofocus') ?? screen.current!
+          document.getElementById('audiofocus') ?? screen.current
         elementToFocus?.focus()
         elementToFocus?.click()
       }, 150)

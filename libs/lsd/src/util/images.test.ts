@@ -15,8 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { readGrayscaleImage } from './images'
 import { join } from 'path'
+import { readGrayscaleImage } from './images'
 
 test('readGrayscaleImage', async () => {
   const result = await readGrayscaleImage(

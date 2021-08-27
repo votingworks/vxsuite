@@ -45,7 +45,14 @@ export function findShape(
   let yMax = startingPoint.y
   let remainingSkipCount = maximumAllowedSkipCount
 
-  for (let point: Point | undefined; (point = toVisit.shift()); point) {
+  let point: Point | undefined
+  for (;;) {
+    point = toVisit.shift()
+
+    if (!point) {
+      break
+    }
+
     const { x, y } = point
 
     if (!visitedPoints.add(x, y)) {
@@ -106,12 +113,12 @@ export function findShape(
         for (
           let xD = -maximumSkipDistance - 1;
           xD <= maximumSkipDistance + 1;
-          xD++
+          xD += 1
         ) {
           for (
             let yD = -maximumSkipDistance - 1;
             yD <= maximumSkipDistance + 1;
-            yD++
+            yD += 1
           ) {
             const nextX = x + xD
             const nextY = y + yD
@@ -131,7 +138,7 @@ export function findShape(
         }
 
         if (found) {
-          remainingSkipCount--
+          remainingSkipCount -= 1
         }
       }
     }

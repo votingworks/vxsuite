@@ -5,11 +5,6 @@ import {
   makeInPlaceImageTransform,
 } from './imageFormatUtils'
 
-/**
- * Flips an image vertically and horizontally, equivalent to a 180° rotation.
- */
-export const vh = makeInPlaceImageTransform(vhGray, vhRGBA)
-
 export function vhRGBA(
   srcImageData: ImageData,
   dstImageData = srcImageData
@@ -98,3 +93,8 @@ export function vhGray(
     }
   }
 }
+
+/**
+ * Flips an image vertically and horizontally, equivalent to a 180° rotation.
+ */
+export const vh = makeInPlaceImageTransform(vhGray, vhRGBA)

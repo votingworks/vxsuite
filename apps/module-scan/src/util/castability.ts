@@ -27,9 +27,9 @@ export function checkSheetCastability([
       back.adjudicationInfo.requiresAdjudication
     ) {
       return Castability.CastableWithReview
-    } else {
-      return Castability.CastableWithoutReview
     }
+
+    return Castability.CastableWithoutReview
   }
 
   return Castability.Uncastable

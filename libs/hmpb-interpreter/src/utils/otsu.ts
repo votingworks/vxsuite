@@ -32,14 +32,14 @@ export default function otsu(
 
   // Calculate histogram
   const histogram = new Int32Array(UINT8_MAX + 1)
-  for (let ptr = 0, length = numPixels; length; length--, ptr += step) {
-    histogram[data[ptr]]++
+  for (let ptr = 0, length = numPixels; length; length -= 1, ptr += step) {
+    histogram[data[ptr]] += 1
   }
 
   // Calculate weighted sum of histogram values
   let sum = 0
   let i = 0
-  for (i = 0; i <= UINT8_MAX; ++i) {
+  for (i = 0; i <= UINT8_MAX; i += 1) {
     sum += i * histogram[i]
   }
 
@@ -48,14 +48,14 @@ export default function otsu(
   let q1 = 0
   let max = 0
   let threshold = 0
-  for (i = 0; i <= UINT8_MAX; ++i) {
+  for (i = 0; i <= UINT8_MAX; i += 1) {
     // Weighted background
     q1 += histogram[i]
-    if (q1 == 0) continue
+    if (q1 === 0) continue
 
     // Weighted foreground
     const q2 = numPixels - q1
-    if (q2 == 0) break
+    if (q2 === 0) break
 
     sumB += i * histogram[i]
     const m1 = sumB / q1

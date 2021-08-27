@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import pluralize from 'pluralize'
 
 import { throwIllegalValue } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import AppContext from '../contexts/AppContext'
 import { ExternalTallySourceType, ResultsFileType } from '../config/types'
 
@@ -58,12 +59,13 @@ export const ConfirmRemovingFileModal = ({
       break
     }
     case ResultsFileType.SEMS: {
+      assert(semsFile)
       fileTypeName = 'External Files'
       mainContent = (
         <p>
           Do you want to remove the external results{' '}
           {pluralize('files', fullElectionExternalTallies.length)}{' '}
-          {semsFile!.inputSourceName}?
+          {semsFile.inputSourceName}?
         </p>
       )
       break

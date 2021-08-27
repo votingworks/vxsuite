@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { deferredQueue } from '@votingworks/utils'
 import makeDebug from 'debug'
@@ -12,7 +13,7 @@ import {
 } from '.'
 import { streamExecFile } from '../exec'
 import { SheetOf } from '../types'
-import { StreamLines } from '../util/Lines'
+import StreamLines from '../util/StreamLines'
 
 const debug = makeDebug('module-scan:scanner')
 
@@ -93,7 +94,8 @@ export class FujitsuScanner implements Scanner {
 
     debug('scanimage [pid=%d] started', scanimage.pid)
 
-    new StreamLines(scanimage.stdout!).on('line', (line: string) => {
+    assert(scanimage.stdout)
+    new StreamLines(scanimage.stdout).on('line', (line: string) => {
       const path = line.trim()
       debug(
         'scanimage [pid=%d] reported a scanned file: %s',
@@ -109,7 +111,8 @@ export class FujitsuScanner implements Scanner {
       }
     })
 
-    new StreamLines(scanimage.stderr!).on('line', (line: string) => {
+    assert(scanimage.stderr)
+    new StreamLines(scanimage.stderr).on('line', (line: string) => {
       debug('scanimage [pid=%d] stderr: %s', scanimage.pid, line.trim())
     })
 

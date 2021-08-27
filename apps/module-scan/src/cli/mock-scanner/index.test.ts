@@ -1,5 +1,5 @@
-import { main as mockScanner } from './'
 import nock from 'nock'
+import { main as mockScanner } from '.'
 
 beforeEach(() => {
   nock.disableNetConnect()

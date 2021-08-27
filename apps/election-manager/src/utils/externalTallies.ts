@@ -4,6 +4,7 @@ import {
   getContests,
   expandEitherNeitherContests,
 } from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils'
 
 import { strict as assert } from 'assert'
 import {
@@ -71,7 +72,8 @@ export function combineContestTallies(
   const combinedTallies: Dictionary<ContestOptionTally> = {}
 
   for (const optionId of Object.keys(firstTally.tallies)) {
-    const firstTallyOption = firstTally.tallies[optionId]!
+    const firstTallyOption = firstTally.tallies[optionId]
+    assert(firstTallyOption)
     const secondTallyOption = secondTally.tallies[optionId]
     combinedTallies[optionId] = {
       option: firstTallyOption.option,
@@ -160,6 +162,34 @@ export function getPrecinctIdsInExternalTally(
   return []
 }
 
+function filterTallyForPartyId(
+  tally: ExternalTally,
+  partyId: string,
+  election: Election
+) {
+  // Filter contests by party and recompute the number of ballots based on those contests.
+  const districtsForParty = getDistrictIdsForPartyId(election, partyId)
+  const filteredContestTallies: Dictionary<ContestTally> = {}
+  Object.keys(tally.contestTallies).forEach((contestId) => {
+    const contestTally = tally.contestTallies[contestId]
+    if (
+      contestTally &&
+      districtsForParty.includes(contestTally.contest.districtId) &&
+      contestTally.contest.partyId === partyId
+    ) {
+      filteredContestTallies[contestId] = contestTally
+    }
+  })
+  const numberOfBallotsCounted = getTotalNumberOfBallots(
+    filteredContestTallies,
+    election
+  )
+  return {
+    contestTallies: filteredContestTallies,
+    numberOfBallotsCounted,
+  }
+}
+
 export function filterExternalTalliesByParams(
   fullTally: OptionalFullElectionExternalTally,
   election: Election,
@@ -202,34 +232,6 @@ export function filterExternalTalliesByParams(
   return filterTallyForPartyId(filteredTally, partyId, election)
 }
 
-function filterTallyForPartyId(
-  tally: ExternalTally,
-  partyId: string,
-  election: Election
-) {
-  // Filter contests by party and recompute the number of ballots based on those contests.
-  const districtsForParty = getDistrictIdsForPartyId(election, partyId)
-  const filteredContestTallies: Dictionary<ContestTally> = {}
-  Object.keys(tally.contestTallies).forEach((contestId) => {
-    const contestTally = tally.contestTallies[contestId]
-    if (
-      contestTally &&
-      districtsForParty.includes(contestTally.contest.districtId) &&
-      contestTally.contest.partyId === partyId
-    ) {
-      filteredContestTallies[contestId] = contestTally
-    }
-  })
-  const numberOfBallotsCounted = getTotalNumberOfBallots(
-    filteredContestTallies,
-    election
-  )
-  return {
-    contestTallies: filteredContestTallies,
-    numberOfBallotsCounted,
-  }
-}
-
 export function convertTalliesByPrecinctToFullExternalTally(
   talliesByPrecinct: Dictionary<ExternalTally>,
   election: Election,
@@ -241,17 +243,20 @@ export function convertTalliesByPrecinctToFullExternalTally(
   let totalNumberOfBallots = 0
   const overallContestTallies: Dictionary<ContestTally> = {}
   for (const precinctTally of Object.values(talliesByPrecinct)) {
-    totalNumberOfBallots += precinctTally!.numberOfBallotsCounted
-    for (const contestId of Object.keys(precinctTally!.contestTallies)) {
+    assert(precinctTally)
+    totalNumberOfBallots += precinctTally.numberOfBallotsCounted
+    for (const contestId of Object.keys(precinctTally.contestTallies)) {
       if (!(contestId in overallContestTallies)) {
-        overallContestTallies[contestId] = precinctTally!.contestTallies[
-          contestId
-        ]
+        overallContestTallies[contestId] =
+          precinctTally.contestTallies[contestId]
       } else {
-        const existingContestTallies = overallContestTallies[contestId]!
+        const existingContestTallies = overallContestTallies[contestId]
+        const secondTally = precinctTally.contestTallies[contestId]
+        assert(existingContestTallies)
+        assert(secondTally)
         overallContestTallies[contestId] = combineContestTallies(
           existingContestTallies,
-          precinctTally!.contestTallies[contestId]!
+          secondTally
         )
       }
     }
@@ -320,6 +325,8 @@ export const getEmptyContestTallies = (
         }
         break
       }
+      default:
+        throwIllegalValue(contest)
     }
     contestTallies[contest.id] = {
       contest,

@@ -1,5 +1,5 @@
-import { safeParse } from '../'
-import { ErrorsResponseSchema, OkResponseSchema } from './'
+import { safeParse } from '..'
+import { ErrorsResponseSchema, OkResponseSchema } from '.'
 
 test('OkResponse', () => {
   safeParse(OkResponseSchema, { status: 'ok' }).unsafeUnwrap()

@@ -1,5 +1,4 @@
-/* eslint-disable no-shadow */
-import { ok } from 'assert'
+import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import {
   BallotType,
@@ -41,6 +40,7 @@ import {
   CardAPI,
   CardPresentAPI,
   CardTallySchema,
+  throwIllegalValue,
 } from '@votingworks/utils'
 
 import Ballot from './components/Ballot'
@@ -55,6 +55,7 @@ import {
   PostVotingInstructions,
   PrecinctSelection,
   PrecinctSelectionKind,
+  Printer,
 } from './config/types'
 import BallotContext from './contexts/ballotContext'
 import {
@@ -74,7 +75,6 @@ import UnconfiguredScreen from './pages/UnconfiguredScreen'
 import UsedCardScreen from './pages/UsedCardScreen'
 import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
-import { Printer } from './utils/printer'
 import utcTimestamp from './utils/utcTimestamp'
 import { ScreenReader } from './utils/ScreenReader'
 
@@ -286,6 +286,7 @@ const appReducer = (state: State, action: AppAction): State => {
         talliesOnCard: action.talliesOnCard,
       }
     case 'processVoterCard':
+      assert(typeof action.voterState.voterCardCreatedAt !== 'undefined')
       return {
         ...state,
         ...initialCardState,
@@ -293,7 +294,7 @@ const appReducer = (state: State, action: AppAction): State => {
         isVoterCardExpired:
           state.voterCardCreatedAt === 0 &&
           utcTimestamp() >=
-            action.voterState.voterCardCreatedAt! +
+            action.voterState.voterCardCreatedAt +
               GLOBALS.CARD_EXPIRATION_SECONDS,
       }
     case 'pauseCardProcessing':
@@ -388,8 +389,14 @@ const appReducer = (state: State, action: AppAction): State => {
       }
     case 'updateTally': {
       const { electionDefinition, tally, votes, ballotStyleId } = state
-      ok(electionDefinition, 'electionDefinition is required to updateTally')
-      ok(ballotStyleId, 'ballotStyleId is required to updateTally')
+      assert(
+        electionDefinition,
+        'electionDefinition is required to updateTally'
+      )
+      assert(
+        typeof ballotStyleId !== 'undefined',
+        'ballotStyleId is required to updateTally'
+      )
       return {
         ...state,
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
@@ -467,6 +474,9 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         talliesOnCard: action.talliesOnCard,
       }
+    /* istanbul ignore next - compile time check for completeness */
+    default:
+      throwIllegalValue(action)
   }
 }
 
@@ -569,13 +579,13 @@ const AppRoot = ({
 
   // Handle Vote Updated (and store votes locally in !production)
   useEffect(() => {
-    const storeVotes = async (votes: VotesDict) => {
+    const storeVotes = async (votesToStore: VotesDict) => {
       const storedVotes =
         (await storage.get(votesStorageKey)) || blankBallotVotes
-      if (JSON.stringify(storedVotes) !== JSON.stringify(votes)) {
+      if (JSON.stringify(storedVotes) !== JSON.stringify(votesToStore)) {
         /* istanbul ignore else */
         if (process.env.NODE_ENV !== 'production') {
-          await storage.set(votesStorageKey, votes)
+          await storage.set(votesStorageKey, votesToStore)
         }
 
         dispatchAppState({ type: 'updateLastVoteUpdateAt', date: Date.now() })
@@ -587,10 +597,13 @@ const AppRoot = ({
   }, [votes, storage])
 
   const resetBallot = useCallback(
-    async (showPostVotingInstructions?: PostVotingInstructions) => {
+    async (newShowPostVotingInstructions?: PostVotingInstructions) => {
       await storage.remove(activationStorageKey)
       await storage.remove(votesStorageKey)
-      dispatchAppState({ type: 'resetBallot', showPostVotingInstructions })
+      dispatchAppState({
+        type: 'resetBallot',
+        showPostVotingInstructions: newShowPostVotingInstructions,
+      })
       history.push('/')
     },
     [storage, history]
@@ -628,9 +641,15 @@ const AppRoot = ({
     dispatchAppState({ type: 'forceSaveVote' })
   }, [])
 
-  const setUserSettings = useCallback((userSettings: PartialUserSettings) => {
-    dispatchAppState({ type: 'setUserSettings', userSettings })
-  }, [])
+  const setUserSettings = useCallback(
+    (newUserSettings: PartialUserSettings) => {
+      dispatchAppState({
+        type: 'setUserSettings',
+        userSettings: newUserSettings,
+      })
+    },
+    []
+  )
 
   const useEffectToggleLargeDisplay = useCallback(() => {
     setUserSettings({ textSize: GLOBALS.LARGE_DISPLAY_FONT_SIZE })
@@ -646,10 +665,10 @@ const AppRoot = ({
     window.dispatchEvent(new Event('resize'))
   }, [userSettingsTextSize])
 
-  const updateAppPrecinct = useCallback((appPrecinct: PrecinctSelection) => {
+  const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
     dispatchAppState({
       type: 'updateAppPrecinct',
-      appPrecinct,
+      appPrecinct: newAppPrecinct,
     })
   }, [])
 
@@ -698,11 +717,11 @@ const AppRoot = ({
   }, [card])
 
   const activateCardlessBallot = useCallback(
-    (precinctId: string, ballotStyleId?: string) => {
+    (sessionPrecinctId: string, sessionBallotStyleId?: string) => {
       dispatchAppState({
         type: 'activateCardlessBallot',
-        precinctId,
-        ballotStyleId,
+        precinctId: sessionPrecinctId,
+        ballotStyleId: sessionBallotStyleId,
       })
       history.push('/')
     },
@@ -717,7 +736,8 @@ const AppRoot = ({
   const processCard = useCallback(
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
       const parseShortValueResult = safeParseJSON(
-        cardShortValue!,
+        /* istanbul ignore next */
+        cardShortValue ?? '',
         AnyCardDataSchema
       )
       if (parseShortValueResult.isErr()) {
@@ -730,29 +750,32 @@ const AppRoot = ({
       }
       switch (cardData.t) {
         case 'voter': {
-          const isVoterCardVoided = Boolean(cardData.uz)
-          const ballotPrintedTime = cardData.bp ? Number(cardData.bp) : 0
-          const isVoterCardPrinted = Boolean(ballotPrintedTime)
-          const ballotStyle = getBallotStyle({
-            election: optionalElectionDefinition!.election,
+          assert(optionalElectionDefinition)
+          const cardIsVoterCardVoided = Boolean(cardData.uz)
+          const cardBallotPrintedTime = cardData.bp ? Number(cardData.bp) : 0
+          const cardIsVoterCardPrinted = Boolean(cardBallotPrintedTime)
+          const cardBallotStyle = getBallotStyle({
+            election: optionalElectionDefinition.election,
             ballotStyleId: cardData.bs,
           })
-          const precinct = getPrecinctById({
-            election: optionalElectionDefinition!.election,
+          const cardPrecinct = getPrecinctById({
+            election: optionalElectionDefinition.election,
             precinctId: cardData.pr,
           })
-          const isVoterCardValid = Boolean(ballotStyle) && Boolean(precinct)
+          const newIsVoterCardValid =
+            Boolean(cardBallotStyle) && Boolean(cardPrecinct)
 
           const fetchBallotData = async () => {
-            const longValue = (await card.readLongUint8Array())!
-            return decodeBallot(optionalElectionDefinition!.election, longValue)
+            const longValue = await card.readLongUint8Array()
+            assert(longValue)
+            return decodeBallot(optionalElectionDefinition.election, longValue)
           }
 
           const ballot: Partial<CompletedBallot> =
             (longValueExists &&
-              isVoterCardValid &&
-              !isVoterCardVoided &&
-              !isVoterCardPrinted &&
+              newIsVoterCardValid &&
+              !cardIsVoterCardVoided &&
+              !cardIsVoterCardPrinted &&
               (await fetchBallotData())) ||
             {}
 
@@ -760,13 +783,14 @@ const AppRoot = ({
             type: 'processVoterCard',
             voterState: {
               shortValue: cardShortValue,
-              isVoterCardVoided,
+              isVoterCardVoided: cardIsVoterCardVoided,
               isVoterCardPresent: true,
-              isVoterCardPrinted,
-              isVoterCardValid,
+              isVoterCardPrinted: cardIsVoterCardPrinted,
+              isVoterCardValid: newIsVoterCardValid,
               voterCardCreatedAt: cardData.c,
-              ballotStyleId: ballotStyle?.id ?? initialAppState.ballotStyleId,
-              precinctId: precinct?.id ?? initialAppState.precinctId,
+              ballotStyleId:
+                cardBallotStyle?.id ?? initialAppState.ballotStyleId,
+              precinctId: cardPrecinct?.id ?? initialAppState.precinctId,
               votes: ballot.votes,
             },
           })
@@ -798,6 +822,9 @@ const AppRoot = ({
           }
           break
         }
+        /* istanbul ignore next - compile time check for completeness */
+        default:
+          throwIllegalValue(cardData)
       }
     },
     [card, optionalElectionDefinition]
@@ -870,7 +897,8 @@ const AppRoot = ({
       !appState.writingVoteToCard
     ) {
       dispatchAppState({ type: 'startWritingLongValue' })
-      const { election, electionHash } = appState.electionDefinition!
+      assert(appState.electionDefinition)
+      const { election, electionHash } = appState.electionDefinition
       const ballot: CompletedBallot = {
         electionHash,
         ballotId: '',
@@ -906,7 +934,8 @@ const AppRoot = ({
     await clearLongValue()
 
     const currentVoterCardData = safeParseJSON(
-      shortValue!,
+      /* istanbul ignore next */
+      shortValue ?? '',
       VoterCardDataSchema
     ).unsafeUnwrap()
     const voidedVoterCardData: VoterCardData = {
@@ -918,7 +947,8 @@ const AppRoot = ({
     const updatedCard = await readCard()
     const updatedShortValue = updatedCard.present
       ? safeParseJSON(
-          updatedCard.shortValue!,
+          /* istanbul ignore next */
+          updatedCard.shortValue ?? '',
           VoterCardDataSchema
         ).unsafeUnwrap()
       : /* istanbul ignore next - this should never happen */
@@ -952,7 +982,8 @@ const AppRoot = ({
     await clearLongValue()
 
     const currentVoterCardData = safeParseJSON(
-      shortValue!,
+      /* istanbul ignore next */
+      shortValue ?? '',
       VoterCardDataSchema
     ).unsafeUnwrap()
     const usedVoterCardData: VoterCardData = {
@@ -967,7 +998,8 @@ const AppRoot = ({
 
     const updatedShortValue = updatedCard.present
       ? safeParseJSON(
-          updatedCard.shortValue!,
+          /* istanbul ignore next */
+          updatedCard.shortValue ?? '',
           VoterCardDataSchema
         ).unsafeUnwrap()
       : /* istanbul ignore next - this should never happen */
@@ -1021,23 +1053,25 @@ const AppRoot = ({
     const hardwareStatusSubscription = hardware.devices
       .pipe(map((devices) => Array.from(devices)))
       .subscribe(async (devices) => {
-        const hasAccessibleControllerAttached = devices.some(
+        const newHasAccessibleControllerAttached = devices.some(
           isAccessibleController
         )
-        const hasCardReaderAttached = devices.some(isCardReader)
+        const newHasCardReaderAttached = devices.some(isCardReader)
         dispatchAppState({
           type: 'updateHardwareState',
           hardwareState: {
-            hasAccessibleControllerAttached,
-            hasCardReaderAttached,
+            hasAccessibleControllerAttached: newHasAccessibleControllerAttached,
+            hasCardReaderAttached: newHasCardReaderAttached,
           },
         })
       })
     const printerStatusSubscription = hardware.printers
       .pipe(map((printers) => Array.from(printers)))
       .subscribe(async (printers) => {
-        const hasPrinterAttached = printers.some(({ connected }) => connected)
-        if (!hasPrinterAttached) {
+        const newHasPrinterAttached = printers.some(
+          ({ connected }) => connected
+        )
+        if (!newHasPrinterAttached) {
           await resetBallot()
           // stop+start forces a last-card-value cache flush
           stopCardShortValueReadPolling()
@@ -1046,7 +1080,7 @@ const AppRoot = ({
         dispatchAppState({
           type: 'updateHardwareState',
           hardwareState: {
-            hasPrinterAttached,
+            hasPrinterAttached: newHasPrinterAttached,
           },
         })
       })
@@ -1113,26 +1147,26 @@ const AppRoot = ({
         precinctId: retrievedPrecinctId,
       } = await retrieveBallotActivation()
       const {
-        appPrecinct = initialAppState.appPrecinct,
-        ballotsPrintedCount = initialAppState.ballotsPrintedCount,
-        isLiveMode = initialAppState.isLiveMode,
-        isPollsOpen = initialAppState.isPollsOpen,
-        tally = storedElectionDefinition?.election
+        appPrecinct: storedAppPrecinct = initialAppState.appPrecinct,
+        ballotsPrintedCount: storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
+        isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
+        isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
+        tally: storedTally = storedElectionDefinition?.election
           ? getZeroTally(storedElectionDefinition.election)
           : initialAppState.tally,
       } = storedAppState
       dispatchAppState({
         type: 'initializeAppState',
         appState: {
-          appPrecinct,
-          ballotsPrintedCount,
+          appPrecinct: storedAppPrecinct,
+          ballotsPrintedCount: storedBallotsPrintedCount,
           ballotStyleId: retrievedBallotStyleId,
           electionDefinition: storedElectionDefinition,
           isCardlessVoter: retrievedCardlessActivatedAt,
-          isLiveMode,
-          isPollsOpen,
+          isLiveMode: storedIsLiveMode,
+          isPollsOpen: storedIsPollsOpen,
           precinctId: retrievedPrecinctId,
-          tally,
+          tally: storedTally,
           votes: await retrieveVotes(),
         },
       })

@@ -16,7 +16,7 @@ import {
   Optional,
 } from '@votingworks/types'
 import { strict as assert } from 'assert'
-import { find, typedAs } from '@votingworks/utils'
+import { find, throwIllegalValue, typedAs } from '@votingworks/utils'
 import {
   ContestOptionTally,
   CastVoteRecord,
@@ -115,9 +115,10 @@ export function* parseCVRs(
               )
             } else {
               const selectedChoices = votes[contestId] as string[]
-              const contest = expandEitherNeitherContests(
-                election.contests
-              ).find((c) => c.id === contestId)!
+              const contest = find(
+                expandEitherNeitherContests(election.contests),
+                (c) => c.id === contestId
+              )
               for (const selectedChoice of selectedChoices) {
                 switch (contest.type) {
                   case 'candidate': {
@@ -140,7 +141,10 @@ export function* parseCVRs(
                         `Choice '${selectedChoice}' in CVR is not a valid contest choice for yes no contest: ${contestId}`
                       )
                     }
+                    break
                   }
+                  default:
+                    throwIllegalValue(contest)
                 }
               }
             }
@@ -236,33 +240,34 @@ const buildVoteFromCvr = ({
   election: Election
   cvr: CastVoteRecord
 }): VotesDict => {
+  const mutableCVR = { ...cvr }
   const vote: VotesDict = {}
 
   // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
   // is there -- we don't want to count this as a ballot in this contest.
   getEitherNeitherContests(election.contests).forEach((c) => {
-    const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
-    const hasPickOne = cvr[c.pickOneContestId] !== undefined
+    const hasEitherNeither = mutableCVR[c.eitherNeitherContestId] !== undefined
+    const hasPickOne = mutableCVR[c.pickOneContestId] !== undefined
 
     if (!(hasEitherNeither && hasPickOne)) {
-      cvr[c.eitherNeitherContestId] = undefined
-      cvr[c.pickOneContestId] = undefined
+      mutableCVR[c.eitherNeitherContestId] = undefined
+      mutableCVR[c.pickOneContestId] = undefined
     }
   })
 
   expandEitherNeitherContests(election.contests).forEach((contest) => {
-    if (!cvr[contest.id]) {
+    if (!mutableCVR[contest.id]) {
       return
     }
 
     if (contest.type === 'yesno') {
       // the CVR is encoded the same way
-      vote[contest.id] = (cvr[contest.id] as unknown) as YesNoVote
+      vote[contest.id] = (mutableCVR[contest.id] as unknown) as YesNoVote
       return
     }
 
     if (contest.type === 'candidate') {
-      vote[contest.id] = (cvr[contest.id] as string[])
+      vote[contest.id] = (mutableCVR[contest.id] as string[])
         .map((candidateId) => normalizeWriteInId(candidateId))
         .map((candidateId) =>
           find(
@@ -283,11 +288,11 @@ export function getTallyForContestOption(
 ): ContestOptionTally {
   switch (contest.type) {
     case 'candidate':
-      return tallies[(option as Candidate).id]!
+      return tallies[(option as Candidate).id] as ContestOptionTally
     case 'yesno': {
       const yesnooption = option as YesNoOption
       assert(yesnooption.length === 1)
-      return tallies[yesnooption[0]]!
+      return tallies[yesnooption[0]] as ContestOptionTally
     }
     default:
       throw new Error(`Unexpected contest type: ${contest.type}`)
@@ -349,8 +354,7 @@ export function tallyVotesByContest({
 
         numberOfVotes += 1
         // overvotes & undervotes
-        const maxSelectable =
-          contest.type === 'yesno' ? 1 : (contest as CandidateContest).seats
+        const maxSelectable = contest.type === 'yesno' ? 1 : contest.seats
         if (selected.length > maxSelectable) {
           numberOfOvervotes += maxSelectable
           return
@@ -364,14 +368,14 @@ export function tallyVotesByContest({
 
         if (contest.type === 'yesno') {
           const optionId = selected[0] as string
-          const optionTally = tallies[optionId]!
+          const optionTally = tallies[optionId] as ContestOptionTally
           tallies[optionId] = {
             option: optionTally.option,
             tally: optionTally.tally + 1,
           }
         } else {
           ;(selected as CandidateVote).forEach((selectedOption) => {
-            const optionTally = tallies[selectedOption.id]!
+            const optionTally = tallies[selectedOption.id] as ContestOptionTally
             tallies[selectedOption.id] = {
               option: optionTally.option,
               tally: optionTally.tally + 1,
@@ -478,12 +482,14 @@ export const getContestTallyMeta = ({
       }
       return vote.length === 0 ? undervotes + 1 : undervotes
     }, 0)
-    dictionary[contest.id] = {
-      ballots: contestCVRs.length,
-      overvotes: overvotes.length,
-      undervotes: numberOfUndervotes,
+    return {
+      ...dictionary,
+      [contest.id]: {
+        ballots: contestCVRs.length,
+        overvotes: overvotes.length,
+        undervotes: numberOfUndervotes,
+      },
     }
-    return dictionary
   }, {})
 }
 
@@ -500,13 +506,14 @@ function getTallyForCastVoteRecords(
 ): Tally {
   const allVotes: VotesDict[] = []
   const ballotCountsByVotingMethod: Dictionary<number> = {}
-  Object.values(VotingMethod).forEach(
-    (votingMethod) => (ballotCountsByVotingMethod[votingMethod] = 0)
-  )
+  Object.values(VotingMethod).forEach((votingMethod) => {
+    ballotCountsByVotingMethod[votingMethod] = 0
+  })
   for (const CVR of castVoteRecords) {
     const vote = buildVoteFromCvr({ election, cvr: CVR })
     const votingMethod = getVotingMethodForCastVoteRecord(CVR)
-    ballotCountsByVotingMethod[votingMethod]! += 1
+    const count = ballotCountsByVotingMethod[votingMethod] ?? 0
+    ballotCountsByVotingMethod[votingMethod] = count + 1
     allVotes.push(vote)
   }
 
@@ -566,22 +573,26 @@ export function computeFullElectionTally(
   })
 
   for (const CVR of castVoteRecords) {
-    const filesForPrecinct = cvrFilesByPrecinct[CVR._precinctId]!
+    const filesForPrecinct = cvrFilesByPrecinct[CVR._precinctId]
+    assert(filesForPrecinct)
     filesForPrecinct.add(CVR)
 
     let filesForScanner = cvrFilesByScanner[CVR._scannerId]
     if (!filesForScanner) {
-      cvrFilesByScanner[CVR._scannerId] = filesForScanner = new Set()
+      filesForScanner = new Set()
+      cvrFilesByScanner[CVR._scannerId] = filesForScanner
     }
     filesForScanner.add(CVR)
 
     const partyForBallot = getPartyIdForCVR(CVR, election)
     if (partyForBallot !== undefined) {
-      const filesForParty = cvrFilesByParty[partyForBallot]!
+      const filesForParty = cvrFilesByParty[partyForBallot]
+      assert(filesForParty)
       filesForParty.add(CVR)
     }
     const ballotTypeForBallot = getVotingMethodForCastVoteRecord(CVR)
-    const filesForVotingMethod = cvrFilesByVotingMethod[ballotTypeForBallot]!
+    const filesForVotingMethod = cvrFilesByVotingMethod[ballotTypeForBallot]
+    assert(filesForVotingMethod)
     filesForVotingMethod.add(CVR)
 
     const batchId = CVR._batchId || MISSING_BATCH_ID
@@ -609,11 +620,16 @@ export function computeFullElectionTally(
     if (category === TallyCategory.Precinct) {
       const precinctTallyResults: Dictionary<Tally> = {}
       for (const precinctId in cvrFilesByPrecinct) {
-        const CVRs = cvrFilesByPrecinct[precinctId]!
-        precinctTallyResults[precinctId] = getTallyForCastVoteRecords(
-          election,
-          CVRs
-        )
+        if (
+          Object.prototype.hasOwnProperty.call(cvrFilesByPrecinct, precinctId)
+        ) {
+          const CVRs = cvrFilesByPrecinct[precinctId]
+          assert(CVRs)
+          precinctTallyResults[precinctId] = getTallyForCastVoteRecords(
+            election,
+            CVRs
+          )
+        }
       }
       resultsByCategory.set(category, precinctTallyResults)
     }
@@ -621,11 +637,16 @@ export function computeFullElectionTally(
     if (category === TallyCategory.Scanner) {
       const scannerTallyResults: Dictionary<Tally> = {}
       for (const scannerId in cvrFilesByScanner) {
-        const CVRs = cvrFilesByScanner[scannerId]!
-        scannerTallyResults[scannerId] = getTallyForCastVoteRecords(
-          election,
-          CVRs
-        )
+        if (
+          Object.prototype.hasOwnProperty.call(cvrFilesByScanner, scannerId)
+        ) {
+          const CVRs = cvrFilesByScanner[scannerId]
+          assert(CVRs)
+          scannerTallyResults[scannerId] = getTallyForCastVoteRecords(
+            election,
+            CVRs
+          )
+        }
       }
       resultsByCategory.set(category, scannerTallyResults)
     }
@@ -633,12 +654,15 @@ export function computeFullElectionTally(
     if (category === TallyCategory.Party) {
       const partyTallyResults: Dictionary<Tally> = {}
       for (const partyId in cvrFilesByParty) {
-        const CVRs = cvrFilesByParty[partyId]!
-        partyTallyResults[partyId] = getTallyForCastVoteRecords(
-          election,
-          CVRs,
-          partyId
-        )
+        if (Object.prototype.hasOwnProperty.call(cvrFilesByParty, partyId)) {
+          const CVRs = cvrFilesByParty[partyId]
+          assert(CVRs)
+          partyTallyResults[partyId] = getTallyForCastVoteRecords(
+            election,
+            CVRs,
+            partyId
+          )
+        }
       }
       resultsByCategory.set(category, partyTallyResults)
     }
@@ -646,7 +670,8 @@ export function computeFullElectionTally(
     if (category === TallyCategory.VotingMethod) {
       const votingMethodTallyResults: Dictionary<Tally> = {}
       for (const votingMethod of Object.values(VotingMethod)) {
-        const CVRs = cvrFilesByVotingMethod[votingMethod]!
+        const CVRs = cvrFilesByVotingMethod[votingMethod]
+        assert(CVRs)
         votingMethodTallyResults[votingMethod] = getTallyForCastVoteRecords(
           election,
           CVRs
@@ -658,15 +683,18 @@ export function computeFullElectionTally(
     if (category === TallyCategory.Batch) {
       const batchTallyResults: Dictionary<Tally> = {}
       for (const batchId in cvrFilesByBatch) {
-        const batchInfo = cvrFilesByBatch[batchId]!
-        const batchLabels = [...batchInfo.batchLabels]
-        const batchLabel =
-          batchLabels.length > 0 ? batchLabels[0] : 'Missing Batch'
-        batchTallyResults[batchId] = typedAs<BatchTally>({
-          ...getTallyForCastVoteRecords(election, batchInfo.castVoteRecords),
-          batchLabel,
-          scannerIds: [...batchInfo.scannerIds],
-        })
+        if (Object.prototype.hasOwnProperty.call(cvrFilesByBatch, batchId)) {
+          const batchInfo = cvrFilesByBatch[batchId]
+          assert(batchInfo)
+          const batchLabels = [...batchInfo.batchLabels]
+          const batchLabel =
+            batchLabels.length > 0 ? batchLabels[0] : 'Missing Batch'
+          batchTallyResults[batchId] = typedAs<BatchTally>({
+            ...getTallyForCastVoteRecords(election, batchInfo.castVoteRecords),
+            batchLabel,
+            scannerIds: [...batchInfo.scannerIds],
+          })
+        }
       }
       resultsByCategory.set(category, batchTallyResults)
     }
@@ -678,13 +706,6 @@ export function computeFullElectionTally(
   }
 }
 
-export function getEmptyFullElectionTally(): FullElectionTally {
-  return {
-    overallTally: getEmptyTally(),
-    resultsByCategory: new Map(),
-  }
-}
-
 export function getEmptyTally(): Tally {
   return {
     numberOfBallotsCounted: 0,
@@ -693,38 +714,12 @@ export function getEmptyTally(): Tally {
     ballotCountsByVotingMethod: {},
   }
 }
-export function filterTalliesByParamsAndBatchId(
-  fullElectionTally: FullElectionTally,
-  election: Election,
-  batchId: string,
-  {
-    precinctId,
-    scannerId,
-    partyId,
-    votingMethod,
-  }: {
-    precinctId?: string
-    scannerId?: string
-    partyId?: string
-    votingMethod?: VotingMethod
+
+export function getEmptyFullElectionTally(): FullElectionTally {
+  return {
+    overallTally: getEmptyTally(),
+    resultsByCategory: new Map(),
   }
-): BatchTally {
-  const { resultsByCategory } = fullElectionTally
-  const batchTally = resultsByCategory.get(TallyCategory.Batch)?.[
-    batchId
-  ] as Optional<BatchTally>
-  const filteredTally = filterTalliesByParams(fullElectionTally, election, {
-    precinctId,
-    scannerId,
-    partyId,
-    votingMethod,
-    batchId,
-  })
-  return typedAs<BatchTally>({
-    ...filteredTally,
-    batchLabel: batchTally?.batchLabel || '',
-    scannerIds: batchTally?.scannerIds || [],
-  })
 }
 
 export function filterTalliesByParams(
@@ -804,9 +799,9 @@ export function filterTalliesByParams(
     : undefined
 
   const ballotCountsByVotingMethod: Dictionary<number> = {}
-  Object.values(VotingMethod).forEach(
-    (votingMethod) => (ballotCountsByVotingMethod[votingMethod] = 0)
-  )
+  Object.values(VotingMethod).forEach((method) => {
+    ballotCountsByVotingMethod[method] = 0
+  })
   for (const CVR of overallTally.castVoteRecords) {
     if (!precinctTally || precinctTally.castVoteRecords.has(CVR)) {
       if (!scannerTally || scannerTally.castVoteRecords.has(CVR)) {
@@ -817,8 +812,9 @@ export function filterTalliesByParams(
               votingMethodTally.castVoteRecords.has(CVR)
             ) {
               const vote = buildVoteFromCvr({ election, cvr: CVR })
-              const votingMethod = getVotingMethodForCastVoteRecord(CVR)
-              ballotCountsByVotingMethod[votingMethod]! += 1
+              const votingMethodForCVR = getVotingMethodForCastVoteRecord(CVR)
+              const count = ballotCountsByVotingMethod[votingMethodForCVR] ?? 0
+              ballotCountsByVotingMethod[votingMethodForCVR] = count + 1
               cvrFiles.add(CVR)
               allVotes.push(vote)
             }
@@ -841,6 +837,40 @@ export function filterTalliesByParams(
   }
 }
 
+export function filterTalliesByParamsAndBatchId(
+  fullElectionTally: FullElectionTally,
+  election: Election,
+  batchId: string,
+  {
+    precinctId,
+    scannerId,
+    partyId,
+    votingMethod,
+  }: {
+    precinctId?: string
+    scannerId?: string
+    partyId?: string
+    votingMethod?: VotingMethod
+  }
+): BatchTally {
+  const { resultsByCategory } = fullElectionTally
+  const batchTally = resultsByCategory.get(TallyCategory.Batch)?.[
+    batchId
+  ] as Optional<BatchTally>
+  const filteredTally = filterTalliesByParams(fullElectionTally, election, {
+    precinctId,
+    scannerId,
+    partyId,
+    votingMethod,
+    batchId,
+  })
+  return typedAs<BatchTally>({
+    ...filteredTally,
+    batchLabel: batchTally?.batchLabel || '',
+    scannerIds: batchTally?.scannerIds || [],
+  })
+}
+
 //
 // some different ideas on tabulation, starting with the overvote report
 //
@@ -852,8 +882,8 @@ export interface Pair<T> {
 
 const makePairs = <T>(inputArray: T[]): Pair<T>[] => {
   const pairs = []
-  for (let i = 0; i < inputArray.length; i++) {
-    for (let j = i + 1; j < inputArray.length; j++) {
+  for (let i = 0; i < inputArray.length; i += 1) {
+    for (let j = i + 1; j < inputArray.length; j += 1) {
       pairs.push({ first: inputArray[i], second: inputArray[j] })
     }
   }
@@ -946,33 +976,35 @@ export const getOvervotePairTallies = ({
 
   for (const cvr of castVoteRecords) {
     const safeCVR = processCastVoteRecord({ election, castVoteRecord: cvr })
-    if (!safeCVR) continue // eslint-disable-line no-continue
+    if (!safeCVR) continue
 
     for (const contestId in safeCVR) {
-      const contestOvervotePairTallies = overvotePairTallies[contestId]
-      if (!contestOvervotePairTallies) continue // eslint-disable-line no-continue
+      if (Object.prototype.hasOwnProperty.call(safeCVR, contestId)) {
+        const contestOvervotePairTallies = overvotePairTallies[contestId]
+        if (!contestOvervotePairTallies) continue
 
-      const candidateContest = contestOvervotePairTallies.contest as CandidateContest
-      const selected = safeCVR[contestId] as string[]
+        const candidateContest = contestOvervotePairTallies.contest as CandidateContest
+        const selected = safeCVR[contestId] as string[]
 
-      if (!selected || selected.length <= candidateContest.seats) continue // eslint-disable-line no-continue
+        if (!selected || selected.length <= candidateContest.seats) continue
 
-      const candidates = candidateContest.candidates.filter((c) =>
-        selected.includes(c.id)
-      )
-      const overvotePairs = makePairs(candidates)
-
-      for (const pair of overvotePairs) {
-        let pairTally = findOvervotePairTally(
-          contestOvervotePairTallies.tallies,
-          pair
+        const candidates = candidateContest.candidates.filter((c) =>
+          selected.includes(c.id)
         )
-        if (!pairTally) {
-          pairTally = { candidates: pair, tally: 0 }
-          contestOvervotePairTallies.tallies.push(pairTally)
-        }
+        const overvotePairs = makePairs(candidates)
 
-        pairTally.tally += 1
+        for (const pair of overvotePairs) {
+          let pairTally = findOvervotePairTally(
+            contestOvervotePairTallies.tallies,
+            pair
+          )
+          if (!pairTally) {
+            pairTally = { candidates: pair, tally: 0 }
+            contestOvervotePairTallies.tallies.push(pairTally)
+          }
+
+          pairTally.tally += 1
+        }
       }
     }
   }

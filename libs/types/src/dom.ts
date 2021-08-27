@@ -1,4 +1,5 @@
-import React from 'react'
+// eslint-disable-next-line import/no-unresolved
+import type React from 'react'
 
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void
 export type InputChangeEventFunction = React.ChangeEventHandler<HTMLInputElement>

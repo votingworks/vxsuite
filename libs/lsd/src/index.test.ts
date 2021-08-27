@@ -26,8 +26,8 @@ function exampleImage({
 }: { width?: number; height?: number } = {}): ImageData {
   const data = new Uint8ClampedArray(width * height)
 
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
+  for (let x = 0; x < width; x += 1) {
+    for (let y = 0; y < height; y += 1) {
       data[x + y * width] = x < width / 2 ? 0.0 : 64.0
     }
   }
@@ -61,7 +61,7 @@ gctest('garbage collection reclaims buffer', () => {
   const externalMemory = []
   let count = 0
 
-  for (let i = 0; i < iterations; i++) {
+  for (let i = 0; i < iterations; i += 1) {
     global.gc()
     externalMemory.push(process.memoryUsage().external)
     count += lsd(image).length

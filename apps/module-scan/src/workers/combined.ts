@@ -1,3 +1,4 @@
+import { throwIllegalValue } from '@votingworks/utils'
 import * as interpretWorker from './interpret'
 import * as qrcodeWorker from './qrcode'
 
@@ -14,5 +15,8 @@ export async function call(input: Input): Promise<Output> {
 
     case 'detect-qrcode':
       return qrcodeWorker.call(input)
+
+    default:
+      throwIllegalValue(input)
   }
 }

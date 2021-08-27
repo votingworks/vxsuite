@@ -18,6 +18,7 @@
   },
   "include": ["**/*.ts"],
   "references": [
+    { "path": "../../../libs/eslint-plugin-vx" },
     { "path": "../../../libs/fixtures" },
     { "path": "../../../libs/test-utils" },
     { "path": "../../../libs/types" }

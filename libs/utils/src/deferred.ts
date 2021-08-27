@@ -58,17 +58,15 @@ class DeferredQueue<T> {
     if (nextSettlement) {
       if (nextSettlement.status === 'fulfilled') {
         return Promise.resolve(nextSettlement.value)
-      } else {
-        return Promise.reject(nextSettlement.reason)
       }
+      return Promise.reject(nextSettlement.reason)
     }
 
     if (typeof this.#settleAllWith !== 'undefined') {
       if (this.#settleAllWith.status === 'fulfilled') {
         return Promise.resolve(this.#settleAllWith.value)
-      } else {
-        return Promise.reject(this.#settleAllWith.reason)
       }
+      return Promise.reject(this.#settleAllWith.reason)
     }
 
     const deferredGet = deferred<T>()

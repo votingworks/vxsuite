@@ -324,6 +324,8 @@ const appReducer = (state: State, action: AppAction): State => {
         machineConfig:
           action.machineConfig ?? initialHardwareState.machineConfig,
       }
+    default:
+      throwIllegalValue(action)
   }
 }
 
@@ -360,18 +362,18 @@ const AppRoot = ({
   const makeCancelable = useCancelablePromise()
 
   const refreshConfig = useCallback(async () => {
-    const electionDefinition = await makeCancelable(
+    const newElectionDefinition = await makeCancelable(
       config.getElectionDefinition()
     )
-    const isTestMode = await makeCancelable(config.getTestMode())
-    const currentPrecinctId = await makeCancelable(
+    const newIsTestMode = await makeCancelable(config.getTestMode())
+    const newCurrentPrecinctId = await makeCancelable(
       config.getCurrentPrecinctId()
     )
     dispatchAppState({
       type: 'refreshConfigFromScanner',
-      electionDefinition,
-      isTestMode,
-      currentPrecinctId,
+      electionDefinition: newElectionDefinition,
+      isTestMode: newIsTestMode,
+      currentPrecinctId: newCurrentPrecinctId,
     })
   }, [dispatchAppState])
 
@@ -423,7 +425,7 @@ const AppRoot = ({
           })
           break
         }
-        /* istanbul ignore next */
+        /* istanbul ignore next - compile time check for completeness */
         default:
           throwIllegalValue(scanningResult)
       }
@@ -542,6 +544,11 @@ const AppRoot = ({
               dispatchAppState({ type: 'readyToInsertBallot' })
               return
             }
+            break
+
+          default:
+            // nothing to do
+            break
         }
       } catch (err) {
         debug('error in fetching module scan status')
@@ -570,8 +577,11 @@ const AppRoot = ({
   }, [isScannerConfigured, electionDefinition, isPollsOpen, hasCardInserted])
 
   const setElectionDefinition = useCallback(
-    async (electionDefinition: OptionalElectionDefinition) => {
-      dispatchAppState({ type: 'updateElectionDefinition', electionDefinition })
+    async (newElectionDefinition: OptionalElectionDefinition) => {
+      dispatchAppState({
+        type: 'updateElectionDefinition',
+        electionDefinition: newElectionDefinition,
+      })
       await refreshConfig()
     },
     [dispatchAppState, refreshConfig]
@@ -684,10 +694,12 @@ const AppRoot = ({
       const storedAppState: Partial<State> =
         ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
         {}
-      const { isPollsOpen = initialAppState.isPollsOpen } = storedAppState
+      const {
+        isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
+      } = storedAppState
       dispatchAppState({
         type: 'initializeAppState',
-        isPollsOpen,
+        isPollsOpen: storedIsPollsOpen,
       })
     }
 
@@ -833,7 +845,7 @@ const AppRoot = ({
         )
         break
       }
-      /* istanbul ignore next */
+      /* istanbul ignore next - compile time check for completeness */
       default:
         throwIllegalValue(ballotState)
     }

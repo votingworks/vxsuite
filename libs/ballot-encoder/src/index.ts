@@ -242,7 +242,9 @@ export function decodeBallotConfigFromReader(
   assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`)
   assert(precinct, `precinct index ${precinctIndex} is invalid`)
   assert(
-    !readLocales || (typeof primaryLocaleIndex === 'number' && primaryLocale),
+    !readLocales ||
+      (typeof primaryLocaleIndex === 'number' &&
+        typeof primaryLocale !== 'undefined'),
     `primary locale index ${primaryLocaleIndex} is invalid`
   )
 
@@ -257,61 +259,6 @@ export function decodeBallotConfigFromReader(
       : undefined,
     pageNumber,
   }
-}
-
-export function encodeBallot(
-  election: Election,
-  ballot: CompletedBallot
-): Uint8Array {
-  const bits = new BitWriter()
-  encodeBallotInto(election, ballot, bits)
-  return bits.toUint8Array()
-}
-
-export function encodeBallotInto(
-  election: Election,
-  {
-    electionHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    ballotId,
-    isTestMode,
-    ballotType,
-  }: CompletedBallot,
-  bits: BitWriter
-): BitWriter {
-  const ballotStyle = getBallotStyle({ election, ballotStyleId })
-
-  if (!ballotStyle) {
-    throw new Error(`unknown ballot style id: ${ballotStyleId}`)
-  }
-
-  validateVotes({ election, ballotStyle, votes })
-
-  const contests = getContests({ ballotStyle, election })
-
-  return bits
-    .writeUint8(...Prelude)
-    .writeString(electionHash.slice(0, ELECTION_HASH_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: ELECTION_HASH_LENGTH,
-    })
-    .with(() =>
-      encodeBallotConfigInto(
-        election,
-        {
-          ballotId,
-          ballotStyleId,
-          precinctId,
-          ballotType,
-          isTestMode,
-        },
-        bits
-      )
-    )
-    .with(() => encodeBallotVotesInto(contests, votes, bits))
 }
 
 function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
@@ -413,59 +360,59 @@ function encodeBallotVotesInto(
   return bits
 }
 
-export function decodeBallot(
+export function encodeBallotInto(
   election: Election,
-  data: Uint8Array
-): CompletedBallot {
-  return decodeBallotFromReader(election, new BitReader(data))
-}
-
-export function decodeBallotFromReader(
-  election: Election,
-  bits: BitReader
-): CompletedBallot {
-  if (!bits.skipUint8(...Prelude)) {
-    throw new Error(
-      "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-    )
-  }
-
-  const electionHash = bits.readString({
-    encoding: HexEncoding,
-    length: ELECTION_HASH_LENGTH,
-  })
-
-  const {
-    ballotId = '',
-    ballotStyleId,
-    ballotType,
-    isTestMode,
-    precinctId,
-  } = decodeBallotConfigFromReader(
-    election,
-    { readLocales: false, readPageNumber: false },
-    bits
-  )
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  const precinct = getPrecinctById({ precinctId, election })
-
-  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`)
-  assert(precinct, `invalid precinct id: ${precinctId}`)
-
-  const contests = getContests({ ballotStyle, election })
-  const votes = decodeBallotVotes(contests, bits)
-
-  readPaddingToEnd(bits)
-
-  return {
+  {
     electionHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
+    ballotId,
     isTestMode,
     ballotType,
+  }: CompletedBallot,
+  bits: BitWriter
+): BitWriter {
+  const ballotStyle = getBallotStyle({ election, ballotStyleId })
+
+  if (!ballotStyle) {
+    throw new Error(`unknown ballot style id: ${ballotStyleId}`)
   }
+
+  validateVotes({ election, ballotStyle, votes })
+
+  const contests = getContests({ ballotStyle, election })
+
+  return bits
+    .writeUint8(...Prelude)
+    .writeString(electionHash.slice(0, ELECTION_HASH_LENGTH), {
+      encoding: HexEncoding,
+      includeLength: false,
+      length: ELECTION_HASH_LENGTH,
+    })
+    .with(() =>
+      encodeBallotConfigInto(
+        election,
+        {
+          ballotId,
+          ballotStyleId,
+          precinctId,
+          ballotType,
+          isTestMode,
+        },
+        bits
+      )
+    )
+    .with(() => encodeBallotVotesInto(contests, votes, bits))
+}
+
+export function encodeBallot(
+  election: Election,
+  ballot: CompletedBallot
+): Uint8Array {
+  const bits = new BitWriter()
+  encodeBallotInto(election, ballot, bits)
+  return bits.toUint8Array()
 }
 
 function readPaddingToEnd(bits: BitReader): void {
@@ -562,22 +509,66 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   return votes
 }
 
+export function decodeBallotFromReader(
+  election: Election,
+  bits: BitReader
+): CompletedBallot {
+  if (!bits.skipUint8(...Prelude)) {
+    throw new Error(
+      "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
+    )
+  }
+
+  const electionHash = bits.readString({
+    encoding: HexEncoding,
+    length: ELECTION_HASH_LENGTH,
+  })
+
+  const {
+    ballotId = '',
+    ballotStyleId,
+    ballotType,
+    isTestMode,
+    precinctId,
+  } = decodeBallotConfigFromReader(
+    election,
+    { readLocales: false, readPageNumber: false },
+    bits
+  )
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  const precinct = getPrecinctById({ precinctId, election })
+
+  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`)
+  assert(precinct, `invalid precinct id: ${precinctId}`)
+
+  const contests = getContests({ ballotStyle, election })
+  const votes = decodeBallotVotes(contests, bits)
+
+  readPaddingToEnd(bits)
+
+  return {
+    electionHash,
+    ballotId,
+    ballotStyleId,
+    precinctId,
+    votes,
+    isTestMode,
+    ballotType,
+  }
+}
+
+export function decodeBallot(
+  election: Election,
+  data: Uint8Array
+): CompletedBallot {
+  return decodeBallotFromReader(election, new BitReader(data))
+}
+
 export interface HMPBBallotPageMetadataCheckData {
   electionHash: string
   precinctCount: number
   ballotStyleCount: number
   contestCount: number
-}
-
-export function encodeHMPBBallotPageMetadata(
-  election: Election,
-  metadata: HMPBBallotPageMetadata
-): Uint8Array {
-  return encodeHMPBBallotPageMetadataInto(
-    election,
-    metadata,
-    new BitWriter()
-  ).toUint8Array()
 }
 
 export function encodeHMPBBallotPageMetadataInto(
@@ -618,18 +609,32 @@ export function encodeHMPBBallotPageMetadataInto(
   )
 }
 
+export function encodeHMPBBallotPageMetadata(
+  election: Election,
+  metadata: HMPBBallotPageMetadata
+): Uint8Array {
+  return encodeHMPBBallotPageMetadataInto(
+    election,
+    metadata,
+    new BitWriter()
+  ).toUint8Array()
+}
+
+/**
+ * Reads the HMPB prelude bytes from `bits`. When detected, the cursor of `bits`
+ * will be updated to skip the prelude bytes.
+ */
+export function detectHMPBBallotPageMetadataFromReader(
+  bits: BitReader
+): boolean {
+  return bits.skipUint8(...HMPBPrelude)
+}
+
 /**
  * Reads the HMPB prelude bytes from `data`, returning true when they are found.
  */
 export function detectHMPBBallotPageMetadata(data: Uint8Array): boolean {
   return detectHMPBBallotPageMetadataFromReader(new BitReader(data))
-}
-
-/**
- * Reads the election hash from an encoded ballot or encoded HMPB metadata.
- */
-export function decodeElectionHash(data: Uint8Array): string | undefined {
-  return decodeElectionHashFromReader(new BitReader(data))
 }
 
 /**
@@ -651,20 +656,10 @@ export function decodeElectionHashFromReader(
 }
 
 /**
- * Reads the HMPB prelude bytes from `bits`. When detected, the cursor of `bits`
- * will be updated to skip the prelude bytes.
+ * Reads the election hash from an encoded ballot or encoded HMPB metadata.
  */
-export function detectHMPBBallotPageMetadataFromReader(
-  bits: BitReader
-): boolean {
-  return bits.skipUint8(...HMPBPrelude)
-}
-
-export function decodeHMPBBallotPageMetadata(
-  election: Election,
-  data: Uint8Array
-): HMPBBallotPageMetadata {
-  return decodeHMPBBallotPageMetadataFromReader(election, new BitReader(data))
+export function decodeElectionHash(data: Uint8Array): string | undefined {
+  return decodeElectionHashFromReader(new BitReader(data))
 }
 
 export function decodeHMPBBallotPageMetadataFromReader(
@@ -702,4 +697,11 @@ export function decodeHMPBBallotPageMetadataFromReader(
     ballotType,
     ballotId,
   }
+}
+
+export function decodeHMPBBallotPageMetadata(
+  election: Election,
+  data: Uint8Array
+): HMPBBallotPageMetadata {
+  return decodeHMPBBallotPageMetadataFromReader(election, new BitReader(data))
 }

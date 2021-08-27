@@ -1,15 +1,17 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import pluralize from 'pluralize'
 import styled from 'styled-components'
-import path from 'path'
+import { join } from 'path'
 import { getElectionLocales, getPrecinctById } from '@votingworks/types'
 
 import {
   generateFilenameForBallotExportPackage,
   BALLOT_PACKAGE_FOLDER,
   usbstick,
+  throwIllegalValue,
 } from '@votingworks/utils'
 import { USBControllerButton } from '@votingworks/ui'
+import { strict as assert } from 'assert'
 import { DEFAULT_LOCALE } from '../config/globals'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 
@@ -35,7 +37,8 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
   const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
     AppContext
   )
-  const { election, electionData, electionHash } = electionDefinition!
+  assert(electionDefinition)
+  const { election, electionData, electionHash } = electionDefinition
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
 
   const [state, setState] = useState<workflow.State>(
@@ -59,7 +62,12 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
         case 'ArchiveEnd': {
           await state.archive.end()
           setState(workflow.next)
+          break
         }
+
+        default:
+          // nothing to do
+          break
       }
     })()
   }, [state, election, electionData, electionHash])
@@ -92,7 +100,8 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
       isLiveMode,
       isAbsentee,
     })
-    const data = await window.kiosk!.printToPDF()
+    assert(window.kiosk)
+    const data = await window.kiosk.printToPDF()
     await state.archive.file(path, Buffer.from(data))
     setState(workflow.next)
   }, [election, electionHash, state])
@@ -104,7 +113,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
 
   const now = new Date()
   const defaultFileName = generateFilenameForBallotExportPackage(
-    electionDefinition!,
+    electionDefinition,
     now
   )
 
@@ -117,8 +126,8 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
     }
     try {
       const usbPath = await usbstick.getDevicePath()
-      const pathToFolder = usbPath && path.join(usbPath, BALLOT_PACKAGE_FOLDER)
-      const pathToFile = path.join(pathToFolder ?? '.', defaultFileName)
+      const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER)
+      const pathToFile = join(pathToFolder ?? '.', defaultFileName)
       if (openDialog || !pathToFolder) {
         await state.archive.beginWithDialog({
           defaultPath: pathToFile,
@@ -206,6 +215,9 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
           )
           break
         }
+
+        default:
+          throwIllegalValue(usbDriveStatus)
       }
       break
 
@@ -223,7 +235,9 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
         locales,
         isAbsentee,
       } = state.currentBallotConfig
-      const precinctName = getPrecinctById({ election, precinctId })!.name
+      const precinct = getPrecinctById({ election, precinctId })
+      assert(precinct)
+      const precinctName = precinct.name
 
       mainContent = (
         <Prose>
@@ -322,6 +336,10 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
       )
       break
     }
+
+    default:
+      // nothing to do
+      break
   }
 
   return (

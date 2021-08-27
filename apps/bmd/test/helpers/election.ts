@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import fs from 'fs'
 import * as path from 'path'
 
@@ -61,11 +62,13 @@ export const singleSeatContestWithWriteIn = election.contests.find(
   (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1
 ) as CandidateContest
 
+const ballotStyle = getBallotStyle({
+  ballotStyleId: election.ballotStyles[0].id,
+  election,
+})
+assert(ballotStyle)
 export const voterContests = getContests({
-  ballotStyle: getBallotStyle({
-    ballotStyleId: election.ballotStyles[0].id,
-    election,
-  })!,
+  ballotStyle,
   election,
 })
 

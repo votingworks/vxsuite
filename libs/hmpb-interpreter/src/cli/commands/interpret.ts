@@ -1,4 +1,5 @@
 import { Candidate, Election, parseElection } from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
 import { table } from 'table'
@@ -114,7 +115,7 @@ export async function parseOptions({
         markScoreVoteThreshold =
           parseFloat(thresholdString) *
           (thresholdString.endsWith('%') ? 0.01 : 1)
-        if (isNaN(markScoreVoteThreshold)) {
+        if (Number.isNaN(markScoreVoteThreshold)) {
           throw new OptionParseError(`Invalid minimum mark score: ${args[i]}`)
         }
         break
@@ -304,30 +305,34 @@ export async function run(
                 const candidates = vote as Candidate[] | undefined
                 return (
                   candidates
-                    ?.map(({ name, isWriteIn }) =>
-                      isWriteIn ? chalk.italic(name) : name
-                    )
-                    .join(', ') ?? ''
-                )
-              } else {
-                const yesnos = vote as ('yes' | 'no')[] | undefined
-                return (
-                  yesnos
-                    ?.map((v) =>
-                      v === 'yes'
-                        ? chalk.green(v)
-                        : v === 'no'
-                        ? chalk.red(v)
-                        : ''
+                    ?.map((candidate) =>
+                      candidate.isWriteIn
+                        ? chalk.italic(candidate.name)
+                        : candidate.name
                     )
                     .join(', ') ?? ''
                 )
               }
+              const yesnos = vote as ('yes' | 'no')[] | undefined
+              return (
+                yesnos
+                  ?.map((v) =>
+                    v === 'yes'
+                      ? chalk.green(v)
+                      : v === 'no'
+                      ? chalk.red(v)
+                      : ''
+                  )
+                  .join(', ') ?? ''
+              )
             }),
           ]),
         ])
       )
       break
+
+    default:
+      throwIllegalValue(options.format)
   }
 
   return 0

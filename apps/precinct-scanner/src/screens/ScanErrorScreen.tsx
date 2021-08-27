@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button, Text } from '@votingworks/ui'
+import { throwIllegalValue } from '@votingworks/utils'
 import { Absolute } from '../components/Absolute'
 import { TimesCircle } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
@@ -38,7 +39,10 @@ const ScanErrorScreen = ({
       case RejectedScanningReason.Unreadable: {
         errorInformation =
           'There was a problem reading this ballot. Please try again.'
+        break
       }
+      default:
+        throwIllegalValue(rejectionReason)
     }
   }
   return (

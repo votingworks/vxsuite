@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { ReactNode } from 'react'
 import ReactModal from 'react-modal'
 import styled from 'styled-components'
@@ -48,25 +49,28 @@ const Modal = ({
       }
     }, 10)
   },
-}: Props): JSX.Element => (
-  <ReactModal
-    appElement={
-      (document.getElementById('root') ?? document.body.firstElementChild)!
-    }
-    ariaHideApp
-    aria-modal
-    role="alertdialog"
-    isOpen
-    contentLabel={ariaLabel}
-    portalClassName="modal-portal"
-    className={`modal-content ${className}`}
-    overlayClassName="modal-overlay"
-    onAfterOpen={onAfterOpen}
-    testId="modal"
-  >
-    <ModalContent centerContent={centerContent}>{content}</ModalContent>
-    {actions && <ButtonBar as="div">{actions}</ButtonBar>}
-  </ReactModal>
-)
+}: Props): JSX.Element => {
+  const appElement =
+    document.getElementById('root') ?? document.body.firstElementChild
+  assert(appElement)
+  return (
+    <ReactModal
+      appElement={appElement}
+      ariaHideApp
+      aria-modal
+      role="alertdialog"
+      isOpen
+      contentLabel={ariaLabel}
+      portalClassName="modal-portal"
+      className={`modal-content ${className}`}
+      overlayClassName="modal-overlay"
+      onAfterOpen={onAfterOpen}
+      testId="modal"
+    >
+      <ModalContent centerContent={centerContent}>{content}</ModalContent>
+      {actions && <ButtonBar as="div">{actions}</ButtonBar>}
+    </ReactModal>
+  )
+}
 
 export default Modal

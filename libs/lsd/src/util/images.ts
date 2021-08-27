@@ -27,6 +27,8 @@ export async function readGrayscaleImage(
   scale: number
 }> {
   const image = await loadImage(path)
+  let effectiveSize: Size
+  let effectiveScale: number
 
   if (size) {
     const xScale = size.width / image.width
@@ -38,12 +40,14 @@ export async function readGrayscaleImage(
       )
     }
 
-    scale = xScale
+    effectiveSize = size
+    effectiveScale = xScale
   } else {
-    size = {
+    effectiveSize = {
       width: Math.round(image.width * scale),
       height: Math.round(image.height * scale),
     }
+    effectiveScale = scale
   }
 
   const canvas = createCanvas(image.width, image.height)
@@ -55,12 +59,17 @@ export async function readGrayscaleImage(
     image.width,
     image.height
   )
-  context.drawImage(image, 0, 0, size.width, size.height)
-  const imageData = context.getImageData(0, 0, size.width, size.height)
+  context.drawImage(image, 0, 0, effectiveSize.width, effectiveSize.height)
+  const imageData = context.getImageData(
+    0,
+    0,
+    effectiveSize.width,
+    effectiveSize.height
+  )
   const src32 = new Int32Array(imageData.data.buffer)
-  const dst = new Uint8ClampedArray(size.width * size.height)
+  const dst = new Uint8ClampedArray(effectiveSize.width * effectiveSize.height)
 
-  for (let offset = 0, size = src32.length; offset < size; offset++) {
+  for (let offset = 0, { length } = src32; offset < length; offset += 1) {
     const px = src32[offset]
     const r = px & 0xff
     const g = (px >>> 8) & 0xff
@@ -78,6 +87,6 @@ export async function readGrayscaleImage(
       width: imageData.width,
       height: imageData.height,
     },
-    scale,
+    scale: effectiveScale,
   }
 }

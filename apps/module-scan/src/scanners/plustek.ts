@@ -348,13 +348,13 @@ export function withReconnect(
   let client: ScannerClient | undefined
 
   const getClient = async (): Promise<ScannerClient> => {
-    let client: ScannerClient | undefined
-    while (!client) {
+    let result: ScannerClient | undefined
+    while (!result) {
       debug('withReconnect: establishing new connection')
-      client = (await provider.get()).ok()
-      debug('withReconnect: client=%o', client)
+      result = (await provider.get()).ok()
+      debug('withReconnect: client=%o', result)
     }
-    return client
+    return result
   }
 
   const ensureClient = async (): Promise<ScannerClient> => {

@@ -6,6 +6,17 @@ import {
 import { Election } from '@votingworks/types'
 import { BallotPageQrcode, SheetOf } from '../types'
 
+function tryMetadataFromBytes(
+  election: Election,
+  bytes: Buffer
+): BallotPageMetadata | undefined {
+  try {
+    return metadataFromBytes(election, bytes)
+  } catch {
+    return undefined
+  }
+}
+
 /**
  * Normalize sheet metadata as encoded using QR codes. Infers a single missing
  * HMPB QR code when possible.
@@ -45,15 +56,4 @@ export function normalizeSheetMetadata(
   }
 
   return [frontQrcode, backQrcode]
-}
-
-function tryMetadataFromBytes(
-  election: Election,
-  bytes: Buffer
-): BallotPageMetadata | undefined {
-  try {
-    return metadataFromBytes(election, bytes)
-  } catch {
-    return undefined
-  }
 }

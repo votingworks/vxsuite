@@ -1,7 +1,8 @@
 // @ts-check
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, global-require, import/no-dynamic-require, no-underscore-dangle */
 
 if (process.env.NODE_ENV !== 'production') {
+  // eslint-disable-next-line import/no-extraneous-dependencies
   require('ts-node').register({ transpileOnly: true })
 }
 
@@ -16,7 +17,7 @@ if (typeof workerData.__workerPath !== 'string') {
 const { call } = require(resolve(__dirname, workerData.__workerPath))
 
 const pp = parentPort
-pp &&
+if (pp) {
   pp.on('message', async (input) => {
     let output
 
@@ -28,3 +29,4 @@ pp &&
 
     pp.postMessage({ output: json.serialize(output) })
   })
+}

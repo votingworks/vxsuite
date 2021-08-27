@@ -1,13 +1,9 @@
 import React, { useContext, useState } from 'react'
 import pluralize from 'pluralize'
 
-import {
-  VotesDict,
-  CandidateContest,
-  Election,
-  ElectionDefinition,
-} from '@votingworks/types'
+import { VotesDict, Election, ElectionDefinition } from '@votingworks/types'
 import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui'
+import { find, throwIllegalValue } from '@votingworks/utils'
 
 import {
   EventTargetFunction,
@@ -47,7 +43,7 @@ const generateTestDeckBallots = ({
   const ballots: Ballot[] = []
 
   precincts.forEach((pId) => {
-    const precinct = election.precincts.find((p) => p.id === pId)!
+    const precinct = find(election.precincts, (p) => p.id === pId)
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
@@ -64,15 +60,15 @@ const generateTestDeckBallots = ({
           return c.type === 'yesno'
             ? 2
             : c.type === 'candidate'
-            ? (c as CandidateContest).candidates.length
+            ? c.candidates.length
             : c.type === 'ms-either-neither'
             ? 2
-            : /* istanbul ignore next */
-              0
+            : /* istanbul ignore next - compile time check for completeness */
+              throwIllegalValue(c)
         })
       )
 
-      for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
+      for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {}
         contests.forEach((contest) => {
           /* istanbul ignore else */
@@ -264,11 +260,9 @@ const TestBallotDeckScreen = ({
             </Prose>
           }
           actions={
-            <React.Fragment>
-              <Button onPress={() => setShowPrinterNotConnected(false)}>
-                OK
-              </Button>
-            </React.Fragment>
+            <Button onPress={() => setShowPrinterNotConnected(false)}>
+              OK
+            </Button>
           }
         />
       )}

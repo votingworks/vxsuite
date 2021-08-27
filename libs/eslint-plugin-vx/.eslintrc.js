@@ -1,3 +1,3 @@
 module.exports = {
-  extends: [require.resolve('./build/configs/all')]
+  extends: [require.resolve('./build/configs/recommended')]
 }

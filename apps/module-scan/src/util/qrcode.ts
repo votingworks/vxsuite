@@ -95,8 +95,8 @@ export const detectQRCode = async (
     },
     {
       name: 'quirc',
-      detect: async (imageData: ImageData): Promise<Buffer[]> => {
-        const results = await quircDecode(imageData)
+      detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> => {
+        const results = await quircDecode({ data, width, height })
         return results
           .filter((result): result is QRCode => !('err' in result))
           .map((result) => result.data)
@@ -120,19 +120,20 @@ export const detectQRCode = async (
         debug('scanning with %s', detector.name)
         const results = await detector.detect(cropped)
 
-        if (results.length > 0) {
-          debug(
-            '%s found QR code in %s! data length=%d',
-            detector.name,
-            position,
-            results[0].length
-          )
-          const data = maybeDecodeBase64(results[0])
-
-          return { data, position, detector: detector.name }
-        } else {
+        if (results.length === 0) {
           debug('%s found no QR codes in %s', detector.name, position)
+          continue
         }
+
+        debug(
+          '%s found QR code in %s! data length=%d',
+          detector.name,
+          position,
+          results[0].length
+        )
+        const data = maybeDecodeBase64(results[0])
+
+        return { data, position, detector: detector.name }
       }
     }
   } finally {

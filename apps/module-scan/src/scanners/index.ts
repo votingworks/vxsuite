@@ -1,5 +1,6 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { SheetOf } from '../types'
+
 export * from './fujitsu'
 export * from './plustek'
 

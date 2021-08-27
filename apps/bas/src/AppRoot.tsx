@@ -8,6 +8,7 @@ import {
 import { useCancelablePromise, useSmartcard } from '@votingworks/ui'
 import { Card, Hardware, sleep } from '@votingworks/utils'
 
+import { z } from 'zod'
 import { EventTargetFunction } from './config/types'
 
 import useStateWithLocalStorage from './hooks/useStateWithLocalStorage'
@@ -25,7 +26,6 @@ import WritingCardScreen from './screens/WritingCardScreen'
 
 import 'normalize.css'
 import './App.css'
-import { z } from 'zod'
 
 export interface Props {
   card: Card
@@ -55,7 +55,6 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
   )
   const [ballotStyleId, setBallotStyleId] = useState<string>()
   const [partyId, setPartyId] = useStateWithLocalStorage('partyId', z.string())
-  const [voterCardData, setVoterCardData] = useState<VoterCardData>()
 
   const unconfigure = useCallback(() => {
     setElection(undefined)
@@ -83,19 +82,19 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
     setPrecinctId(id)
   }, [])
 
-  // eslint-disable-next-line no-shadow
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const getPartyNameById = (partyId: string) => {
     const party = election?.parties.find((p) => p.id === partyId)
     return party?.name ?? ''
   }
 
-  // eslint-disable-next-line no-shadow
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const getPartyAdjectiveById = (partyId: string) => {
     const partyName = getPartyNameById(partyId)
     return (partyName === 'Democrat' && 'Democratic') || partyName
   }
 
-  // eslint-disable-next-line no-shadow
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const getPrecinctNameByPrecinctId = (precinctId: string): string => {
     const precinct = election?.precincts.find((p) => p.id === precinctId)
     return precinct?.name ?? ''
@@ -131,9 +130,6 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
           ? false
           : prev
       )
-      setVoterCardData(
-        smartcard?.data?.t === 'voter' ? smartcard.data : undefined
-      )
       if (!smartcard?.data) {
         setIsReadyToRemove(false)
       }
@@ -162,6 +158,7 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
         if (!writeResult?.isOk()) {
           // TODO: UI Notification if unable to write to card
           // https://github.com/votingworks/bas/issues/10
+          // eslint-disable-next-line no-console
           console.error('failed to write voter card:', code)
           await makeCancelable(sleep(500))
           reset()
@@ -244,7 +241,6 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
         lockScreen={lockScreen}
         precincts={election.precincts}
         updatePrecinct={updatePrecinct}
-        voterCardData={voterCardData}
       />
     )
   }

@@ -1,8 +1,6 @@
-import { BitWriter, toUint8 } from './bits'
-import '../test/expect'
 import {
-  electionWithMsEitherNeitherDefinition,
   electionSampleLongContentDefinition as electionDefinition,
+  electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures'
 import {
   BallotType,
@@ -15,6 +13,8 @@ import {
   Vote,
   vote,
 } from '@votingworks/types'
+import '../test/expect'
+import { BitWriter, toUint8 } from './bits'
 import {
   decodeBallot,
   decodeElectionHash,
@@ -498,7 +498,7 @@ it('throws on trying to encode a ballot style', () => {
   const { election, electionHash } = electionDefinition
   const ballotStyle = election.ballotStyles[0]!
   const precinct = election.precincts[0]!
-  const ballotStyleId = ballotStyle.id + '-CORRUPTED'
+  const ballotStyleId = `${ballotStyle.id}-CORRUPTED`
   const precinctId = precinct.id
   const ballotId = 'abcde'
   const votes = {}

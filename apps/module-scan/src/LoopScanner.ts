@@ -12,7 +12,7 @@ export function parseBatches(
   const batches: SheetOf<string>[][] = []
   let currentBatch: SheetOf<string>[] = []
 
-  for (let i = 0; i < imagePathsAndBatchSeparators.length; i++) {
+  for (let i = 0; i < imagePathsAndBatchSeparators.length; i += 1) {
     const entry = imagePathsAndBatchSeparators[i].trim()
 
     if (entry.length === 0) {
@@ -24,8 +24,9 @@ export function parseBatches(
     } else if (entry.startsWith('#')) {
       // comment, skip
     } else {
+      i += 1
       const frontPath = entry
-      const backPath = imagePathsAndBatchSeparators[++i]?.trim() as
+      const backPath = imagePathsAndBatchSeparators[i]?.trim() as
         | string
         | undefined
 
@@ -101,9 +102,8 @@ export default class LoopScanner implements Scanner {
    * "Scans" the next sheet by returning the paths for the next two images.
    */
   public scanSheets(): BatchControl {
-    const currentBatch = this.batches[
-      this.nextBatchIndex++ % this.batches.length
-    ]
+    const currentBatch = this.batches[this.nextBatchIndex % this.batches.length]
+    this.nextBatchIndex += 1
     let sheetIndex = 0
 
     return {
@@ -120,7 +120,8 @@ export default class LoopScanner implements Scanner {
       },
 
       async scanSheet(): Promise<SheetOf<string> | undefined> {
-        return currentBatch?.[sheetIndex++]
+        sheetIndex += 1
+        return currentBatch?.[sheetIndex - 1]
       },
 
       async endBatch(): Promise<void> {

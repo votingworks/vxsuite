@@ -6,10 +6,10 @@ import { mocked } from 'ts-jest/utils'
 import { DEFAULT_CONFIG } from './config'
 import { ScannerError } from './errors'
 import { PaperStatus } from './paper-status'
-import * as plustekctl from './plustekctl'
+import * as plustekctlModule from './plustekctl'
 import { createClient } from './scanner'
 
-const findBinaryPath = mocked(plustekctl.findBinaryPath)
+const findBinaryPath = mocked(plustekctlModule.findBinaryPath)
 const spawn = mocked(cp.spawn)
 const nextTick = Promise.resolve()
 
@@ -23,7 +23,9 @@ beforeEach(() => {
 test('cannot find plustekctl', async () => {
   findBinaryPath.mockResolvedValueOnce(err(new Error('ENOENT')))
   const result = await createClient()
-  expect(result.unsafeUnwrapErr()).toEqual(new Error('unable to find plustekctl'))
+  expect(result.unsafeUnwrapErr()).toEqual(
+    new Error('unable to find plustekctl')
+  )
 })
 
 test('no savepath given', async () => {
@@ -31,7 +33,7 @@ test('no savepath given', async () => {
   spawn.mockReturnValueOnce(plustekctl)
   findBinaryPath.mockResolvedValueOnce(ok('plustekctl'))
   const onConfigResolved = jest.fn()
-  await createClient(
+  void (await createClient(
     { ...DEFAULT_CONFIG, savepath: undefined },
     {
       onConfigResolved,
@@ -40,7 +42,7 @@ test('no savepath given', async () => {
         plustekctl.emit('exit', 0)
       },
     }
-  )
+  ))
   expect(onConfigResolved.mock.calls[0][0].savepath).toContain('tmp')
 })
 
@@ -49,7 +51,7 @@ test('savepath given', async () => {
   spawn.mockReturnValueOnce(plustekctl)
   findBinaryPath.mockResolvedValueOnce(ok('plustekctl'))
   const onConfigResolved = jest.fn()
-  await createClient(
+  void (await createClient(
     { ...DEFAULT_CONFIG, savepath: '/some/path' },
     {
       onConfigResolved,
@@ -58,7 +60,7 @@ test('savepath given', async () => {
         plustekctl.emit('exit', 0)
       },
     }
-  )
+  ))
   expect(onConfigResolved.mock.calls[0][0].savepath).toEqual('/some/path')
 })
 
@@ -272,7 +274,9 @@ test('getPaperStatus succeeds', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrap()).toEqual(PaperStatus.VtmReadyToScan)
+  expect((await resultPromise).unsafeUnwrap()).toEqual(
+    PaperStatus.VtmReadyToScan
+  )
 })
 
 test('getPaperStatus returns error for invalid response', async () => {
@@ -324,7 +328,9 @@ test('getPaperStatus returns known error', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrapErr()).toEqual(ScannerError.NoDevices)
+  expect((await resultPromise).unsafeUnwrapErr()).toEqual(
+    ScannerError.NoDevices
+  )
 })
 
 test('getPaperStatus returns unknown error', async () => {
@@ -347,7 +353,9 @@ test('getPaperStatus returns unknown error', async () => {
   plustekctl.stdout.append(`<<<>>>\nget-paper-status: err=WHAT??\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect(((await resultPromise).unsafeUnwrapErr() as Error).message).toEqual('WHAT??')
+  expect(((await resultPromise).unsafeUnwrapErr() as Error).message).toEqual(
+    'WHAT??'
+  )
 })
 
 test('scan succeeds', async () => {
@@ -399,7 +407,9 @@ test('scan responds with error', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrapErr()).toEqual(ScannerError.InvalidParam)
+  expect((await resultPromise).unsafeUnwrapErr()).toEqual(
+    ScannerError.InvalidParam
+  )
 })
 
 test('scan returns error for invalid response', async () => {
@@ -471,7 +481,6 @@ test('calibrate succeeds', async () => {
   expect(plustekctl.stdin.toString()).toEqual('calibrate\n')
   plustekctl.stdout.append(`<<<>>>\ncalibrate: ok\n<<<>>>\n`)
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
-
   ;(await resultPromise).unsafeUnwrap()
 })
 
@@ -497,7 +506,9 @@ test('calibrate responds with error', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrapErr()).toEqual(ScannerError.InvalidParam)
+  expect((await resultPromise).unsafeUnwrapErr()).toEqual(
+    ScannerError.InvalidParam
+  )
 })
 
 test('calibrate returns error for invalid response', async () => {
@@ -594,7 +605,9 @@ test('accept returns known error', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrapErr()).toEqual(ScannerError.NoSupportEject)
+  expect((await resultPromise).unsafeUnwrapErr()).toEqual(
+    ScannerError.NoSupportEject
+  )
 })
 
 test('accept returns error for invalid response', async () => {
@@ -666,7 +679,9 @@ test('reject returns known error', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrapErr()).toEqual(ScannerError.NoSupportEject)
+  expect((await resultPromise).unsafeUnwrapErr()).toEqual(
+    ScannerError.NoSupportEject
+  )
 })
 
 test('reject returns error for invalid response', async () => {

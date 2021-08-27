@@ -68,9 +68,9 @@ export function durationProvider({
           parts.push(`${remaining}s`)
         }
         return `${prefix}${parts.join(' ')}${suffix}`
-      } else {
-        return ''
       }
+
+      return ''
     },
   }
 }
@@ -89,7 +89,7 @@ export function countProvider({ start = 0 } = {}): CountProvider {
     },
 
     increment: (): void => {
-      current++
+      current += 1
       doUpdate?.()
     },
 

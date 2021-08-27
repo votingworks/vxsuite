@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { err, ok, Result } from '@votingworks/types'
 import { sleep } from '@votingworks/utils'
 import makeDebug from 'debug'
@@ -10,7 +11,7 @@ import {
   GetPaperStatusResult,
   RejectResult,
   ScannerClient,
-  ScanResult
+  ScanResult,
 } from './scanner'
 
 const debug = makeDebug('plustek-sdk:mock-client')
@@ -215,7 +216,7 @@ export class MockScannerClient implements ScannerClient {
       await sleep(Math.min(interval, until - Date.now()))
     }
 
-      /* istanbul ignore next */
+    /* istanbul ignore next */
     debug('final paper status: %s', result?.ok() ?? result?.err())
     return result
   }
@@ -252,7 +253,8 @@ export class MockScannerClient implements ScannerClient {
     }
 
     await sleep(this.passthroughDuration)
-    this.backSheet = this.frontSheet!
+    assert(this.frontSheet)
+    this.backSheet = this.frontSheet
     delete this.frontSheet
     debug('scanned files=%o', this.backSheet)
     return ok({ files: this.backSheet.slice() })

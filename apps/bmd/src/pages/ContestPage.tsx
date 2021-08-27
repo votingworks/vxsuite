@@ -24,11 +24,12 @@ interface ContestParams {
   contestNumber: string
 }
 
-const ContestPage = (
-  props: RouteComponentProps<ContestParams>
-): JSX.Element => {
+const ContestPage = ({
+  match: {
+    params: { contestNumber },
+  },
+}: RouteComponentProps<ContestParams>): JSX.Element => {
   const isReviewMode = window.location.hash === '#review'
-  const { contestNumber } = props.match.params
   const {
     ballotStyleId,
     contests,

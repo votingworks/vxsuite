@@ -15,23 +15,47 @@ export function randomImage({
   if (!width) {
     assert(minWidth <= maxWidth)
 
-    width = Math.max(
-      1,
-      (minWidth + Math.random() * (maxWidth - minWidth + 1)) | 0
-    )
+    return randomImage({
+      width: Math.max(
+        1,
+        (minWidth + Math.random() * (maxWidth - minWidth + 1)) | 0
+      ),
+      height,
+      minWidth,
+      maxWidth,
+      minHeight,
+      maxHeight,
+      channels,
+    })
   }
   if (!height) {
     assert(minHeight <= maxHeight)
 
-    height = Math.max(
-      1,
-      (minHeight + Math.random() * (maxHeight - minHeight + 1)) | 0
-    )
+    return randomImage({
+      width,
+      height: Math.max(
+        1,
+        (minHeight + Math.random() * (maxHeight - minHeight + 1)) | 0
+      ),
+      minWidth,
+      maxWidth,
+      minHeight,
+      maxHeight,
+      channels,
+    })
   }
   assert(width >= 0)
   assert(height >= 0)
   const data = new Uint8ClampedArray(randomBytes(width * height * channels))
   return createImageData(data, width, height)
+}
+
+export function randomInt(
+  min = Number.MIN_SAFE_INTEGER,
+  max = Number.MAX_SAFE_INTEGER
+): number {
+  assert(min <= max)
+  return (min + Math.random() * (max - min + 1)) | 0
 }
 
 export function randomInset(
@@ -59,12 +83,4 @@ export function randomInset(
     width: rect.width - leftInset - rightInset,
     height: rect.height - topInset - bottomInset,
   }
-}
-
-export function randomInt(
-  min = Number.MIN_SAFE_INTEGER,
-  max = Number.MAX_SAFE_INTEGER
-): number {
-  assert(min <= max)
-  return (min + Math.random() * (max - min + 1)) | 0
 }

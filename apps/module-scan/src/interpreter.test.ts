@@ -212,13 +212,13 @@ test('interprets marks on a HMPB', async () => {
     stateOfHamiltonFixturesRoot,
     'filled-in-dual-language-p1.jpg'
   )
-  const votes = ((
+  const { votes } = (
     await interpreter.interpretFile({
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
       detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
     })
-  ).interpretation as InterpretedHmpbPage).votes
+  ).interpretation as InterpretedHmpbPage
 
   expect(votes).toMatchInlineSnapshot(`
     Object {
@@ -3108,9 +3108,8 @@ function withPageNumber(
     case 'InvalidTestModePage':
       if ('pageNumber' in page.metadata) {
         return { ...page, metadata: { ...page.metadata, pageNumber } }
-      } else {
-        return page
       }
+      return page
 
     default:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

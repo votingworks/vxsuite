@@ -215,12 +215,12 @@ export default class BitWriter {
 
     if (typeof pendingByte === 'undefined') {
       return Uint8Array.from(this.data)
-    } else {
-      const result = new Uint8Array(this.data.length + 1)
-      result.set(this.data)
-      result[this.data.length] = pendingByte
-      return result
     }
+
+    const result = new Uint8Array(this.data.length + 1)
+    result.set(this.data)
+    result[this.data.length] = pendingByte
+    return result
   }
 
   /**
@@ -235,8 +235,10 @@ export default class BitWriter {
 
   public debug(label?: string): this {
     if (label) {
+      // eslint-disable-next-line no-console
       console.log(label)
     }
+    // eslint-disable-next-line no-console
     console.log(
       inGroupsOf(
         8,

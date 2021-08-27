@@ -135,6 +135,13 @@ describe('supports multi-seat contests', () => {
 })
 
 describe('supports write-in candidates', () => {
+  function typeKeysInVirtualKeyboard(chars: string): void {
+    Array.from(chars).forEach((i) => {
+      const key = i === ' ' ? 'space' : i
+      fireEvent.click(screen.getByText(key).closest('button')!)
+    })
+  }
+
   it('updates votes when a write-in candidate is selected', () => {
     jest.useFakeTimers()
 
@@ -229,11 +236,4 @@ describe('supports write-in candidates', () => {
       jest.runOnlyPendingTimers()
     })
   })
-
-  function typeKeysInVirtualKeyboard(chars: string): void {
-    Array.from(chars).forEach((i) => {
-      const key = i === ' ' ? 'space' : i
-      fireEvent.click(screen.getByText(key).closest('button')!)
-    })
-  }
 })

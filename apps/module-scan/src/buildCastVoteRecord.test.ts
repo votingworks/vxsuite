@@ -34,7 +34,7 @@ test('getCVRBallotType', () => {
   expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee')
   expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional')
   expect(getCVRBallotType(BallotType.Standard)).toEqual('standard')
-  expect(() => getCVRBallotType(-1)).toThrowError('unknown ballot type: -1')
+  expect(() => getCVRBallotType(-1)).toThrowError('Illegal Value: -1')
 })
 
 test('getWriteInOptionIdsForContestVote', () => {

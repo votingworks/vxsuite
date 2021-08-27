@@ -25,6 +25,7 @@ import {
   MachineConfig,
   PrecinctSelection,
   PrecinctSelectionKind,
+  Printer,
 } from '../config/types'
 
 import Modal from '../components/Modal'
@@ -33,7 +34,6 @@ import Screen from '../components/Screen'
 import Text from '../components/Text'
 import Sidebar from '../components/Sidebar'
 import ElectionInfo from '../components/ElectionInfo'
-import { Printer } from '../utils/printer'
 import PollsReport from '../components/PollsReport'
 import PrecinctTallyReport from '../components/PrecinctTallyReport'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
@@ -708,7 +708,7 @@ const PollWorkerScreen = ({
                   currentDateTime={currentDateTime}
                   election={election}
                   isPollsOpen={talliesOnCard.isPollsOpen}
-                  tally={talliesOnCard!.tally}
+                  tally={talliesOnCard.tally}
                   precinctSelection={appPrecinct}
                   reportPurpose={reportPurpose}
                 />

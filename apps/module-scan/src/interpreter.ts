@@ -212,27 +212,27 @@ export default class Interpreter {
       layout = imageDataOrLayout
     }
 
-    ;({ metadata } = layout.ballotImage)
+    const resolvedMetadata = layout.ballotImage.metadata
 
     debug(
       'Adding HMPB template page %d: ballotStyleId=%s precinctId=%s isTestMode=%s',
-      metadata.pageNumber,
-      metadata.ballotStyleId,
-      metadata.precinctId,
-      metadata.isTestMode
+      resolvedMetadata.pageNumber,
+      resolvedMetadata.ballotStyleId,
+      resolvedMetadata.precinctId,
+      resolvedMetadata.isTestMode
     )
 
-    if (metadata.isTestMode === this.testMode) {
+    if (resolvedMetadata.isTestMode === this.testMode) {
       debug(
         'template test mode (%s) matches current test mode (%s), adding to underlying interpreter',
-        metadata.isTestMode,
+        resolvedMetadata.isTestMode,
         this.testMode
       )
       await interpreter.addTemplate(layout)
     } else {
       debug(
         'template test mode (%s) does not match current test mode (%s), skipping',
-        metadata.isTestMode,
+        resolvedMetadata.isTestMode,
         this.testMode
       )
     }
@@ -290,14 +290,14 @@ export default class Interpreter {
       if (bmdMetadata.isTestMode === this.testMode) {
         timer.end()
         return bmdResult
-      } else {
-        timer.end()
-        return {
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: bmdMetadata,
-          },
-        }
+      }
+
+      timer.end()
+      return {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: bmdMetadata,
+        },
       }
     }
 

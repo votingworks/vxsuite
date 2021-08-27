@@ -1,4 +1,5 @@
 import { AdjudicationReason, PageInterpretation } from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils'
 import makeDebug from 'debug'
 import { readFile } from 'fs-extra'
 import { basename, extname, join } from 'path'
@@ -31,6 +32,7 @@ export interface InterpretOutput {
 
 export type Output = InterpretOutput | void
 
+// eslint-disable-next-line import/no-mutable-exports
 export let interpreter: Interpreter | undefined
 
 /**
@@ -140,5 +142,8 @@ export async function call(input: Input): Promise<Output> {
         input.ballotImagesPath,
         input.detectQrcodeResult
       )
+
+    default:
+      throwIllegalValue(input)
   }
 }

@@ -1,5 +1,3 @@
-/* eslint-disable jest/expect-expect */
-
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import * as plusteksdk from '@votingworks/plustek-sdk'
 import { BallotType, ok } from '@votingworks/types'

@@ -2,13 +2,13 @@ import { CustomEncoding } from './encoding'
 
 test('cannot create a custom encoding with more characters than would allow an 8-bit index', () => {
   expect(() => {
-    new CustomEncoding('a'.repeat(257))
+    new CustomEncoding('a'.repeat(257)).encode('a')
   }).toThrowError('character set too large, has 257 but only 256 are allowed')
 })
 
 test('cannot create a custom encoding with duplicate characters', () => {
   expect(() => {
-    new CustomEncoding('aba')
+    new CustomEncoding('aba').encode('a')
   }).toThrowError(
     'duplicate character found in character set:\n- set: "aba"\n- duplicates: 0 & 2'
   )

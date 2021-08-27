@@ -26,8 +26,8 @@ test('time gets and logs duration in nanoseconds', () => {
   const t = time('counting')
 
   let c = 0
-  for (let i = 0; i < 10_000; i++) {
-    c++
+  for (let i = 0; i < 10_000; i += 1) {
+    c += 1
   }
 
   expect(c).toEqual(10_000)

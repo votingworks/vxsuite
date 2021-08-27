@@ -86,6 +86,7 @@ const testCaseFactories = {
       [
         {
           method: 'readString',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           args: [{ maxLength }] as any,
           returnValue: string,
         },
@@ -108,26 +109,44 @@ const testCaseFactories = {
 
   'dynamic size uints': (): ActionsPair => {
     const useMax = random.bool()
-    const useSize = !useMax
-    const max = useMax ? random.integer(0, 1 << 30) : undefined
-    const size = useSize ? random.integer(0, 30) : undefined
-    const number = random.integer(0, useMax ? max! : 1 << (size! - 1))
+
+    if (useMax) {
+      const max = random.integer(0, 1 << 30)
+      const number = random.integer(0, max)
+
+      return [
+        [
+          {
+            method: 'writeUint',
+            args: ([number, { max }] as unknown) as Parameters<
+              BitWriter['writeUint']
+            >,
+          },
+        ],
+        [
+          {
+            method: 'readUint',
+            args: ([{ max }] as unknown) as Parameters<BitReader['readUint']>,
+            returnValue: number,
+          },
+        ],
+      ]
+    }
+
+    const size = random.integer(0, 30)
+    const number = random.integer(0, 1 << (size - 1))
 
     return [
       [
         {
           method: 'writeUint',
-          args: [number, { max, size } as { size: number }] as Parameters<
-            BitWriter['writeUint']
-          >,
+          args: [number, { size }],
         },
       ],
       [
         {
           method: 'readUint',
-          args: [{ max, size } as { size: number }] as Parameters<
-            BitReader['readUint']
-          >,
+          args: [{ size }],
           returnValue: number,
         },
       ],
@@ -176,68 +195,6 @@ const testCaseFactories = {
     ]
   },
 }
-
-/**
- * Runs a sequence of write operations on `BitWriter`, loads the resulting
- * buffer into a `BitReader`, and then runs a series of read operations checking
- * the return values are as expected.
- *
- * @example
- *
- * doWritesAndReads([
- *   [{ method: 'writeBoolean', args: [true] }],
- *   [{ method: 'readBoolean', args: [], returnValue: true }]
- * ])
- */
-function doWritesAndReads([writes, reads]: ActionsPair): void {
-  const performedActions: PerformedAction[] = []
-  const writer = new BitWriter()
-
-  for (const write of writes) {
-    performAction(write, writer, performedActions)
-  }
-
-  const reader = new BitReader(writer.toUint8Array())
-
-  for (const read of reads) {
-    performAction(read, reader, performedActions)
-  }
-}
-
-const testCaseNames = Object.getOwnPropertyNames(
-  testCaseFactories
-) as (keyof typeof testCaseFactories)[]
-
-for (const testCase of testCaseNames) {
-  test(testCase, () => {
-    for (let i = 0; i < 1000; i += 1) {
-      doWritesAndReads(testCaseFactories[testCase]())
-    }
-  })
-}
-
-/**
- * Bring together a bunch of test cases to be run together on the same
- * `BitWriter` and `BitReader`, to test interactions between them.
- */
-test('all together', () => {
-  for (let i = 0; i < 100; i += 1) {
-    const factories = new Array(20)
-      .fill(undefined)
-      .map(() => testCaseFactories[random.pick(testCaseNames)])
-
-    const [writes, reads]: ActionsPair = [[], []]
-
-    for (const factory of factories) {
-      const [w, r] = factory()
-
-      writes.push(...w)
-      reads.push(...r)
-    }
-
-    doWritesAndReads([writes, reads])
-  }
-})
 
 const codeColor = '\x1b[38;5;202m'
 const dimColor = '\x1b[38;5;240m'
@@ -306,6 +263,7 @@ function performAction<C extends BitWriter | BitReader>(
   let actualValue: typeof action['returnValue']
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     actualValue = (receiver as any)[action.method](...action.args)
   } catch (error) {
     error.message = `After performing these actions:\n${formatActions(
@@ -334,3 +292,64 @@ function performAction<C extends BitWriter | BitReader>(
 
   log.push({ receiver, action })
 }
+/**
+ * Runs a sequence of write operations on `BitWriter`, loads the resulting
+ * buffer into a `BitReader`, and then runs a series of read operations checking
+ * the return values are as expected.
+ *
+ * @example
+ *
+ * doWritesAndReads([
+ *   [{ method: 'writeBoolean', args: [true] }],
+ *   [{ method: 'readBoolean', args: [], returnValue: true }]
+ * ])
+ */
+function doWritesAndReads([writes, reads]: ActionsPair): void {
+  const performedActions: PerformedAction[] = []
+  const writer = new BitWriter()
+
+  for (const write of writes) {
+    performAction(write, writer, performedActions)
+  }
+
+  const reader = new BitReader(writer.toUint8Array())
+
+  for (const read of reads) {
+    performAction(read, reader, performedActions)
+  }
+}
+
+const testCaseNames = Object.getOwnPropertyNames(
+  testCaseFactories
+) as (keyof typeof testCaseFactories)[]
+
+for (const testCase of testCaseNames) {
+  test(testCase, () => {
+    for (let i = 0; i < 1000; i += 1) {
+      doWritesAndReads(testCaseFactories[testCase]())
+    }
+  })
+}
+
+/**
+ * Bring together a bunch of test cases to be run together on the same
+ * `BitWriter` and `BitReader`, to test interactions between them.
+ */
+test('all together', () => {
+  for (let i = 0; i < 100; i += 1) {
+    const factories = new Array(20)
+      .fill(undefined)
+      .map(() => testCaseFactories[random.pick(testCaseNames)])
+
+    const [writes, reads]: ActionsPair = [[], []]
+
+    for (const factory of factories) {
+      const [w, r] = factory()
+
+      writes.push(...w)
+      reads.push(...r)
+    }
+
+    doWritesAndReads([writes, reads])
+  }
+})

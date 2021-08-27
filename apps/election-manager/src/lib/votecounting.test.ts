@@ -40,15 +40,17 @@ export function parseCVRsAndAssertSuccess(
 function expectAllEmptyTallies(tally: Tally) {
   expect(tally.numberOfBallotsCounted).toBe(0)
   for (const contestId in tally.contestTallies) {
-    const contestTally = tally.contestTallies[contestId]!
-    for (const tally of Object.values(contestTally.tallies)) {
-      expect(tally!.tally).toBe(0)
+    if (Object.prototype.hasOwnProperty.call(tally.contestTallies, contestId)) {
+      const contestTally = tally.contestTallies[contestId]!
+      for (const contestTallyTally of Object.values(contestTally.tallies)) {
+        expect(contestTallyTally!.tally).toBe(0)
+      }
+      expect(contestTally.metadata).toStrictEqual({
+        undervotes: 0,
+        overvotes: 0,
+        ballots: 0,
+      })
     }
-    expect(contestTally.metadata).toStrictEqual({
-      undervotes: 0,
-      overvotes: 0,
-      ballots: 0,
-    })
   }
 }
 

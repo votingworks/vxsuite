@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useCallback, useContext, useState } from 'react'
 import makeDebug from 'debug'
 
@@ -38,13 +39,14 @@ const PollWorkerScreen = ({
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
   )
+  assert(electionDefinition)
   const [isSavingTallyToCard, setIsSavingTallyToCard] = useState(false)
 
   const calculateAndSaveTally = async () => {
     const castVoteRecords = await getCVRsFromExport()
     const tally = calculateTallyFromCVRs(
       castVoteRecords,
-      electionDefinition!.election
+      electionDefinition.election
     )
     if (castVoteRecords.length !== scannedBallotCount) {
       debug(
@@ -67,7 +69,7 @@ const PollWorkerScreen = ({
     })
   }
 
-  const { election } = electionDefinition!
+  const { election } = electionDefinition
   const precinct = election.precincts.find((p) => p.id === currentPrecinctId)
 
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false)

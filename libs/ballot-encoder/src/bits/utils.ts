@@ -51,7 +51,9 @@ export function sizeof(number: number): number {
 
   let maxBits = 1
 
-  while ((number >>= 1)) {
+  let shifted = number
+  // eslint-disable-next-line no-cond-assign
+  while ((shifted >>= 1)) {
     maxBits += 1
   }
 

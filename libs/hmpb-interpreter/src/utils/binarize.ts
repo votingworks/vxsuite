@@ -26,25 +26,26 @@ export function binarize(
   grayscale(srcImageData, dstImageData)
 
   const { data: dst } = dstImageData
-  threshold ??= otsu(dstImageData.data, getImageChannelCount(dstImageData))
+  const effectiveThreshold =
+    threshold ?? otsu(dstImageData.data, getImageChannelCount(dstImageData))
 
   if (isRGBA(dstImageData)) {
     const dst32 = new Int32Array(dst.buffer)
-    const RGBA_WHITE =
+    const whiteU32 =
       PIXEL_WHITE | (PIXEL_WHITE << 8) | (PIXEL_WHITE << 16) | (0xff << 24)
-    const RGBA_BLACK =
+    const blackU32 =
       PIXEL_BLACK | (PIXEL_BLACK << 8) | (PIXEL_BLACK << 16) | (0xff << 24)
 
     for (
       let offset32 = 0, offset8 = 0, size = dst32.length;
       offset32 < size;
-      offset32++, offset8 += 4
+      offset32 += 1, offset8 += 4
     ) {
-      dst32[offset32] = dst[offset8] < threshold ? RGBA_BLACK : RGBA_WHITE
+      dst32[offset32] = dst[offset8] < effectiveThreshold ? blackU32 : whiteU32
     }
   } else {
-    for (let offset = 0, size = dst.length; offset < size; offset++) {
-      dst[offset] = dst[offset] < threshold ? PIXEL_BLACK : PIXEL_WHITE
+    for (let offset = 0, size = dst.length; offset < size; offset += 1) {
+      dst[offset] = dst[offset] < effectiveThreshold ? PIXEL_BLACK : PIXEL_WHITE
     }
   }
 }

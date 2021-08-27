@@ -12,7 +12,6 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types'
-import { Printer } from '../utils/printer'
 
 // App
 export const VxPrintOnly = {
@@ -81,8 +80,6 @@ export interface SerializableActivationData {
   precinctId: string
 }
 
-/* this is a bug in eslint */
-/* eslint-disable-next-line no-shadow */
 export enum PrecinctSelectionKind {
   SinglePrecinct = 'SinglePrecinct',
   AllPrecincts = 'AllPrecincts',
@@ -131,6 +128,13 @@ export interface MsEitherNeitherContestResultInterface {
   pickOneContestVote: OptionalYesNoVote
 }
 
+export interface PrintOptions extends KioskBrowser.PrintOptions {
+  sides: Exclude<KioskBrowser.PrintOptions['sides'], undefined>
+}
+export interface Printer {
+  print(options: PrintOptions): Promise<void>
+}
+
 // User Interface
 export type ScrollDirections = 'up' | 'down'
 export interface ScrollShadows {
@@ -148,3 +152,117 @@ export interface UserSettings {
 }
 export type SetUserSettings = (partial: PartialUserSettings) => void
 export type PartialUserSettings = Partial<UserSettings>
+
+// Screen Reader
+export interface SpeakOptions {
+  now?: boolean
+}
+
+export interface TextToSpeech {
+  /**
+   * Directly triggers speech of text. Resolves when speaking is done.
+   */
+  speak(text: string, options?: SpeakOptions): Promise<void>
+
+  /**
+   * Stops any speaking that is currently happening.
+   */
+  stop(): void
+
+  /**
+   * Prevents any sound from being made but otherwise functions normally.
+   */
+  mute(): void
+
+  /**
+   * Allows sounds to be made.
+   */
+  unmute(): void
+
+  /**
+   * Checks whether this TTS is muted.
+   */
+  isMuted(): boolean
+
+  /**
+   * Toggles muted state, or sets it according to the argument.
+   */
+  toggleMuted(muted?: boolean): void
+}
+
+/**
+ * Implement this to provide screen reading.
+ */
+export interface ScreenReader {
+  /**
+   * Call this with an event target when a focus event occurs. Resolves when speaking is done.
+   */
+  onFocus(target?: EventTarget): Promise<void>
+
+  /**
+   * Call this with an event target when a click event occurs. Resolves when speaking is done.
+   */
+  onClick(target?: EventTarget): Promise<void>
+
+  /**
+   * Call this when a page load occurs. Resolves when speaking is done.
+   */
+  onPageLoad(): Promise<void>
+
+  /**
+   * Enables the screen reader and announces the change. Resolves when speaking
+   * is done.
+   */
+  enable(): Promise<void>
+
+  /**
+   * Disables the screen reader and announces the change. Resolves when speaking
+   * is done.
+   */
+  disable(): Promise<void>
+
+  /**
+   * Toggles the screen reader being enabled and announces the change. Resolves
+   * when speaking is done.
+   */
+  toggle(enabled?: boolean): Promise<void>
+
+  /**
+   * Prevents any sound from being made but otherwise functions normally.
+   */
+  mute(): void
+
+  /**
+   * Allows sounds to be made.
+   */
+  unmute(): void
+
+  /**
+   * Checks whether this TTS is muted.
+   */
+  isMuted(): boolean
+
+  /**
+   * Toggles muted state, or sets it according to the argument.
+   */
+  toggleMuted(muted?: boolean): void
+
+  /**
+   * Directly triggers speech of text. Resolves when speaking is done.
+   */
+  speak(text: string, options?: SpeakOptions): Promise<void>
+
+  /**
+   * Directly triggers speech of an element. Resolves when speaking is done.
+   */
+  speakNode(element: Element, options?: SpeakOptions): Promise<void>
+
+  /**
+   * Directly triggers speech of an event target. Resolves when speaking is done.
+   */
+  speakEventTarget(target?: EventTarget, options?: SpeakOptions): Promise<void>
+}
+
+export interface VoiceSelector {
+  (): SpeechSynthesisVoice | undefined
+}

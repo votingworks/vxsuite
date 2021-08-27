@@ -71,8 +71,8 @@ test('adds vote to tally as expected', () => {
   const sampleContest = election.contests.find(
     (c) => c.id === contestId
   ) as CandidateContest
-  const alice = sampleContest!.candidates!.find((c) => c.id === 'alice')!
-  const bob = sampleContest!.candidates!.find((c) => c.id === 'bob')!
+  const alice = sampleContest.candidates.find((c) => c.id === 'alice')!
+  const bob = sampleContest.candidates.find((c) => c.id === 'bob')!
   const zeroTally = getZeroTally(election)
   const tally1 = calculateTally({
     election,
@@ -386,7 +386,7 @@ test('can combine contest tallies as expected', () => {
   })
 
   // Everything else should still be a zero tally
-  for (let i = 0; i < combinedTallies.length; i++) {
+  for (let i = 0; i < combinedTallies.length; i += 1) {
     // Don't check the contests we modified
     if (
       ![

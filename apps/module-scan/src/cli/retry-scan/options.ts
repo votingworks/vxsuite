@@ -25,17 +25,19 @@ export function parseOptions(args: readonly string[]): Options {
   let inputWorkspace: string | undefined
   let outputWorkspace: string | undefined
 
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === '-i' || arg === '--input-workspace') {
-      inputWorkspace = args[++i]
+      i += 1
+      inputWorkspace = args[i]
       if (!inputWorkspace || inputWorkspace.startsWith('-')) {
         throw new Error(
           `expected a path after ${arg} but got ${inputWorkspace || 'nothing'}`
         )
       }
     } else if (arg === '-o' || arg === '--output-workspace') {
-      outputWorkspace = args[++i]
+      i += 1
+      outputWorkspace = args[i]
       if (!outputWorkspace || outputWorkspace.startsWith('-')) {
         throw new Error(
           `expected a path after ${arg} but got ${outputWorkspace || 'nothing'}`
@@ -48,7 +50,8 @@ export function parseOptions(args: readonly string[]): Options {
     } else if (arg === '--all') {
       all = true
     } else if (arg === '-d' || arg === '--diff-when') {
-      diffWhen = args[++i] as DiffWhen
+      i += 1
+      diffWhen = args[i] as DiffWhen
       if (!Object.values(DiffWhen).includes(diffWhen)) {
         throw new Error(`invalid value for ${arg}: ${diffWhen || 'nothing'}`)
       }

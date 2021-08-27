@@ -1,6 +1,6 @@
 import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import rule from '../../src/rules/no-floating-results'
 import { join } from 'path'
+import rule from '../../src/rules/no-floating-results'
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -14,84 +14,58 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run('no-floating-results', rule, {
   valid: [
     `
-import { ok } from '@votingworks/types'
-ok().unsafeUnwrap()
-    `,
-    `
-import { ok } from '@votingworks/types'
-ok().unsafeUnwrapErr()
-    `,
-    `
-import { ok } from '@votingworks/types'
-ok().ok()
-    `,
-    `
-import { ok } from '@votingworks/types'
-ok().err()
-    `,
-    `
-import { ok, Result } from '@votingworks/types'
-let result: Result<void, void>
-if (true) {
-  result = ok()
-} else {
-  result = ok()
-}
+interface Result<T, E> {}
+declare function ok<T, E>(value: T): Result<T, E>
     `,
     {
       options: [{ ignoreVoid: true }],
       code: `
-import { ok } from '@votingworks/types'
+interface Result {}
+declare function ok<T, E>(value: T): Result<T, E>
 void ok()
-      `,
+            `,
     },
   ],
   invalid: [
     {
       code: `
-import { ok } from '@votingworks/types'
+interface Result<T, E> {}
+declare function ok<T, E>(value: T): Result<T, E>
 ok()
-    `,
-      errors: [{ line: 3, messageId: 'floatingVoid' }],
-    },
-    {
-      code: `
-import { err } from '@votingworks/types'
-err()
-    `,
-      errors: [{ line: 3, messageId: 'floatingVoid' }],
-    },
-    {
-      code: `
-import { Result } from '@votingworks/types'
-declare function rand(): Result<number, Error>
-rand()
-    `,
+            `,
       errors: [{ line: 4, messageId: 'floatingVoid' }],
     },
     {
       code: `
-import { Result } from '@votingworks/types'
+interface Result<T, E> {}
 declare function rand(): Result<number, Error>
 rand()
-    `,
+        `,
+      errors: [{ line: 4, messageId: 'floatingVoid' }],
+    },
+    {
+      code: `
+interface Result<T, E> {}
+declare function rand(): Result<number, Error>
+rand()
+            `,
       options: [{ ignoreVoid: false }],
       errors: [{ line: 4, messageId: 'floating' }],
     },
     {
       code: `
-import { Result } from '@votingworks/types'
+interface Result<T, E> {}
 declare function rand(): Result<number, Error>
 ;(rand(), 1 + 1)
-    `,
+        `,
       errors: [{ line: 4, messageId: 'floatingVoid' }],
     },
     {
       code: `
-import { Result } from '@votingworks/types'
+interface Result<T, E> {}
 declare function rand(): Result<number, Error>
 void rand()
-    `,
+        `,
       options: [{ ignoreVoid: false }],
       errors: [{ line: 4, messageId: 'floating' }],
     },

@@ -1,4 +1,4 @@
-import { TextToSpeech } from '../../src/utils/ScreenReader'
+import { TextToSpeech } from '../../src/config/types'
 
 /**
  * Builds a fake `TextToSpeech` instance with mock functions.

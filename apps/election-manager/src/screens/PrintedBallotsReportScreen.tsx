@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext } from 'react'
 import pluralize from 'pluralize'
 import _ from 'lodash'
@@ -26,7 +27,8 @@ const PrintedBallotsReportScreen = (): JSX.Element => {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   )
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
 
   const totalBallotsPrinted = printedBallots.reduce(
     (count, ballot) => count + ballot.numCopies,
@@ -65,20 +67,30 @@ const PrintedBallotsReportScreen = (): JSX.Element => {
   }, {})
 
   const counts: PrintCounts = printedBallots.reduce(
-    (accumulatedCounts, { precinctId, ballotStyleId, numCopies }) => {
-      const newCounts = { ...accumulatedCounts }
-      newCounts[precinctId]![ballotStyleId]! += numCopies
-      return newCounts
-    },
+    (accumulatedCounts, { precinctId, ballotStyleId, numCopies }) => ({
+      ...accumulatedCounts,
+      [precinctId]: {
+        ...accumulatedCounts[precinctId],
+        [ballotStyleId]:
+          (accumulatedCounts[precinctId]?.[ballotStyleId] ?? 0) + numCopies,
+      },
+    }),
     zeroCounts
   )
 
   const countsByType: PrintCountsByType = printedBallots.reduce(
-    (accumulatedCounts, { precinctId, ballotStyleId, numCopies, type }) => {
-      const newCounts = { ...accumulatedCounts }
-      newCounts[type]![precinctId]![ballotStyleId]! += numCopies
-      return newCounts
-    },
+    (accumulatedCounts, { precinctId, ballotStyleId, numCopies, type }) => ({
+      ...accumulatedCounts,
+      [type]: {
+        ...accumulatedCounts[type],
+        [precinctId]: {
+          ...accumulatedCounts[type]?.[precinctId],
+          [ballotStyleId]:
+            (accumulatedCounts[type]?.[precinctId]?.[ballotStyleId] ?? 0) +
+            numCopies,
+        },
+      },
+    }),
     zeroCountsByType
   )
 
@@ -148,8 +160,8 @@ const PrintedBallotsReportScreen = (): JSX.Element => {
             if (!precinct) {
               return null
             }
-            return Object.keys(counts[precinctId]!).map((ballotStyleId) => {
-              return (
+            return Object.keys(counts[precinctId] ?? {}).map(
+              (ballotStyleId) => (
                 <tr
                   key={`${precinctId}-${ballotStyleId}`}
                   data-testid={`row-${precinctId}-${ballotStyleId}`}
@@ -158,22 +170,22 @@ const PrintedBallotsReportScreen = (): JSX.Element => {
                   <TD>{ballotStyleId}</TD>
                   <TD>
                     {
-                      countsByType[PrintableBallotType.Absentee]![precinctId]![
-                        ballotStyleId
-                      ]!
+                      countsByType[PrintableBallotType.Absentee]?.[
+                        precinctId
+                      ]?.[ballotStyleId]
                     }
                   </TD>
                   <TD>
                     {
-                      countsByType[PrintableBallotType.Precinct]![precinctId]![
-                        ballotStyleId
-                      ]!
+                      countsByType[PrintableBallotType.Precinct]?.[
+                        precinctId
+                      ]?.[ballotStyleId]
                     }
                   </TD>
-                  <TD>{counts[precinctId]![ballotStyleId]!}</TD>
+                  <TD>{counts[precinctId]?.[ballotStyleId]}</TD>
                 </tr>
               )
-            })
+            )
           })}
         </tbody>
       </Table>

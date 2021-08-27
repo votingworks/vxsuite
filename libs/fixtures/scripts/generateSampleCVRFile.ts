@@ -1,4 +1,3 @@
-// import { parse } from 'ts-command-line-args'
 import yargs from 'yargs/yargs'
 import * as fs from 'fs'
 import {
@@ -55,13 +54,13 @@ function generateCombinations<T>(
     currentIndex: number,
     remainingCount: number
   ) => {
-    const oneAwayFromComboLength = remainingCount == 1
+    const oneAwayFromComboLength = remainingCount === 1
 
     // For each element that remaines to be added to the working combination.
     for (
       let sourceIndex = currentIndex;
       sourceIndex < sourceLength;
-      sourceIndex++
+      sourceIndex += 1
     ) {
       // Get next (possibly partial) combination.
       const next = [...workingCombo, sourceArray[sourceIndex]]
@@ -171,12 +170,12 @@ function* generateCVRs(
   scannerNames: readonly string[],
   testMode: boolean
 ): Generator<CastVoteRecord> {
-  const ballotStyles = election.ballotStyles
-  const contests = election.contests
+  const { ballotStyles } = election
+  const { contests } = election
   let ballotId = 0
   for (const ballotStyle of ballotStyles) {
-    const precincts = ballotStyle.precincts
-    const districts = ballotStyle.districts
+    const { precincts } = ballotStyle
+    const { districts } = ballotStyle
     for (const ballotType of ['absentee', 'provisional', 'standard']) {
       for (const precinct of precincts) {
         for (const scanner of scannerNames) {
@@ -217,6 +216,9 @@ function* generateCVRs(
                     YES_NO_OPTIONS
                   )
                   break
+                default:
+                  // @ts-expect-error - contest.type should have `never` here type
+                  throw new Error(`unexpected contest type: ${contest.type}`)
               }
             }
           }
@@ -253,7 +255,6 @@ interface GenerateCVRFileArguments {
   [x: string]: unknown
 }
 
-// eslint-disable-next-line
 const args: GenerateCVRFileArguments = yargs(process.argv.slice(2)).options({
   electionPath: {
     type: 'string',
@@ -282,27 +283,27 @@ const args: GenerateCVRFileArguments = yargs(process.argv.slice(2)).options({
   },
 }).argv as GenerateCVRFileArguments
 
-if (args['electionPath'] === undefined) {
-  console.error(
-    'Specify an election path in order to generate CVR files. Run with --help for more information.'
+if (args.electionPath === undefined) {
+  process.stderr.write(
+    'Specify an election path in order to generate CVR files. Run with --help for more information.\n'
   )
   process.exit(-1)
 }
 
-const outputPath = args['outputPath'] ?? 'output.jsonl'
-const numBallots = args['numBallots']
-const testMode = !(args['liveBallots'] ?? false)
-const scannerNames = (args['scannerNames'] ?? ['scanner']).map((s) => `${s}`)
+const outputPath = args.outputPath ?? 'output.jsonl'
+const { numBallots } = args
+const testMode = !(args.liveBallots ?? false)
+const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`)
 
-const electionRawData = fs.readFileSync(args['electionPath'], 'utf8')
+const electionRawData = fs.readFileSync(args.electionPath, 'utf8')
 const election = parseElection(JSON.parse(electionRawData))
 
 const castVoteRecords = [...generateCVRs(election, scannerNames, testMode)]
 
 // Modify results to match the desired number of ballots
 if (numBallots !== undefined && numBallots < castVoteRecords.length) {
-  console.warn(
-    `WARNING: At least ${castVoteRecords.length} are suggested to be generated for maximum coverage of ballot metadata options and possible contest votes.`
+  process.stderr.write(
+    `WARNING: At least ${castVoteRecords.length} are suggested to be generated for maximum coverage of ballot metadata options and possible contest votes.\n`
   )
   // Remove random entries from the CVR list until the desired number of ballots is reach
   while (numBallots < castVoteRecords.length) {
@@ -324,6 +325,6 @@ while (numBallots !== undefined && numBallots > castVoteRecords.length) {
 
 const stream = fs.createWriteStream(outputPath)
 for (const record of castVoteRecords) {
-  stream.write(JSON.stringify(record) + '\n')
+  stream.write(`${JSON.stringify(record)}\n`)
 }
 stream.end()

@@ -15,6 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { WritableStream } from 'memory-streams'
+import * as fs from 'fs'
+import { PassThrough } from 'stream'
+import { createHash } from 'crypto'
+import { createImageData } from 'canvas'
+import { main } from '.'
+import lsd from '..'
+import { readGrayscaleImage } from '../util/images'
+
 jest.mock('fs')
 
 jest.mock('../util/images', () => ({
@@ -29,15 +38,6 @@ jest.mock('..', () => ({
   __esModule: true,
   default: jest.fn().mockReturnValue([]),
 }))
-
-import { WritableStream } from 'memory-streams'
-import * as fs from 'fs'
-import { PassThrough } from 'stream'
-import { createHash } from 'crypto'
-import { main } from '.'
-import lsd from '..'
-import { readGrayscaleImage } from '../util/images'
-import { createImageData } from 'canvas'
 
 const lsdMock = lsd as jest.MockedFunction<typeof lsd>
 const createWriteStreamMock = fs.createWriteStream as jest.MockedFunction<

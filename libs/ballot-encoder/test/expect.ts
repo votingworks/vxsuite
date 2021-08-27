@@ -5,6 +5,19 @@ declare namespace jest {
   }
 }
 
+/**
+ * Groups `array` into arrays of size `count`.
+ */
+function inGroupsOf<T>(count: number, array: T[]): T[][] {
+  const result: T[][] = []
+
+  for (let i = 0; i < array.length; i += count) {
+    result.push(array.slice(i, i + count))
+  }
+
+  return result
+}
+
 function asBinaryString(buffer: Uint8Array): string {
   return inGroupsOf(
     8,
@@ -27,16 +40,3 @@ expect.extend({
     }
   },
 })
-
-/**
- * Groups `array` into arrays of size `count`.
- */
-function inGroupsOf<T>(count: number, array: T[]): T[][] {
-  const result: T[][] = []
-
-  for (let i = 0; i < array.length; i += count) {
-    result.push(array.slice(i, i + count))
-  }
-
-  return result
-}

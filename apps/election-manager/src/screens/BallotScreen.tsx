@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, {
   useCallback,
   useContext,
@@ -84,7 +85,8 @@ const BallotScreen = (): JSX.Element => {
   const { addPrintedBallot, electionDefinition, printBallotRef } = useContext(
     AppContext
   )
-  const { election, electionHash } = electionDefinition!
+  assert(electionDefinition)
+  const { election, electionHash } = electionDefinition
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
   const locales = useMemo<BallotLocale>(
     () => ({
@@ -95,7 +97,8 @@ const BallotScreen = (): JSX.Element => {
   )
 
   const precinctName = getPrecinctById({ election, precinctId })?.name
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  assert(ballotStyle)
   const ballotContests = getContests({ ballotStyle, election })
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)

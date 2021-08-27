@@ -1,16 +1,16 @@
-import main from './render-pages'
 import { WritableStream } from 'memory-streams'
-import {
-  election,
-  ballotPdf,
-} from '../../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { promises as fs } from 'fs'
 import { join } from 'path'
 import { pathExists } from 'fs-extra'
 import { tmpNameSync } from 'tmp'
+import { BallotMetadata, BallotType } from '@votingworks/types'
 import { loadImageData } from '../util/images'
 import Store from '../store'
-import { BallotMetadata, BallotType } from '@votingworks/types'
+import {
+  election,
+  ballotPdf,
+} from '../../test/fixtures/choctaw-2020-09-22-f30480cc99'
+import main from './render-pages'
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream

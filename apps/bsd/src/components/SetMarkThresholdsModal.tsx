@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
@@ -193,6 +194,7 @@ const SetMarkThresholdsModal = ({
         />
       )
     case ModalState.RESET_THRESHOLDS:
+      assert(markThresholdOverrides)
       return (
         <Modal
           content={
@@ -203,9 +205,9 @@ const SetMarkThresholdsModal = ({
                 <div>
                   Current Thresholds
                   <Text small>
-                    Definite: {markThresholdOverrides!.definite}
+                    Definite: {markThresholdOverrides.definite}
                     <br />
-                    Marginal: {markThresholdOverrides!.marginal}
+                    Marginal: {markThresholdOverrides.marginal}
                   </Text>
                 </div>
                 <div>

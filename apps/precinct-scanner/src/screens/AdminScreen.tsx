@@ -9,6 +9,7 @@ import {
   useNow,
 } from '@votingworks/ui'
 import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import { DateTime } from 'luxon'
 import React, { useCallback, useContext, useState } from 'react'
 import { Absolute } from '../components/Absolute'
@@ -41,7 +42,8 @@ const AdminScreen = ({
   usbDrive,
 }: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
 
   const systemDate = useNow()
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
@@ -265,8 +267,8 @@ export const DefaultPreview: React.FC =
               toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
               scannedBallotCount={1234}
               unconfigure={() => Promise.resolve()}
-              updateAppPrecinctId={async (precinctId) =>
-                setPrecinctId(precinctId)
+              updateAppPrecinctId={async (newPrecinctId) =>
+                setPrecinctId(newPrecinctId)
               }
               usbDrive={{
                 status: usbstick.UsbDriveStatus.notavailable,

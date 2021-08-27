@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
@@ -187,7 +188,8 @@ const DefinitionContestsScreen = ({
   allowEditing: boolean
 }): JSX.Element => {
   const { electionDefinition, saveElection } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
   const { contestId } = useParams<{ contestId: string }>()
   const contestIndex = election.contests.findIndex((c) => c.id === contestId)
   const contest = election.contests[contestIndex]

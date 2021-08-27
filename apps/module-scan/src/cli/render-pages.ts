@@ -1,4 +1,5 @@
 import { BallotType, getPrecinctById } from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils/src'
 import chalk from 'chalk'
 import { promises as fs } from 'fs'
 import { basename, dirname, extname, join } from 'path'
@@ -39,7 +40,7 @@ export default async function main(
   let format = ScannerImageFormat.JPEG
   const paths: string[] = []
 
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
 
     switch (arg) {
@@ -50,7 +51,8 @@ export default async function main(
 
       case '-f':
       case '--format': {
-        const value = args[++i]
+        i += 1
+        const value = args[i]
         if (/^png$/i.test(value)) {
           format = ScannerImageFormat.PNG
         } else if (/^jpe?g/i.test(value)) {
@@ -122,10 +124,8 @@ export default async function main(
               ? 'provisional'
               : ballotType === BallotType.Standard
               ? ''
-              : ((): never => {
-                  /* istanbul ignore next */
-                  throw new Error(`unknown ballot type: ${ballotType}`)
-                })(),
+              : /* istanbul ignore next - compile time check for completeness */
+                throwIllegalValue(ballotType),
           ]
             .join('-')
             .replace(/[^-\w\d]+/g, '-')
@@ -138,11 +138,11 @@ export default async function main(
       return 1
     }
 
-    for (const { pdf, base } of queue) {
+    for (const entry of queue) {
       for await (const imagePath of renderPages(
-        pdf,
+        entry.pdf,
         dir,
-        base,
+        entry.base,
         format === ScannerImageFormat.JPEG ? '.jpg' : '.png'
       )) {
         stdout.write(`📝 ${imagePath}\n`)
@@ -157,7 +157,7 @@ export default async function main(
 if (require.main === module) {
   void main(process.argv.slice(2))
     .catch((error) => {
-      console.error(error)
+      process.stderr.write(`CRASH: ${error}\n`)
       return 1
     })
     .then((code) => {

@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -91,6 +92,7 @@ const TallyReportScreen = (): JSX.Element => {
     fullElectionExternalTallies,
     isTabulationRunning,
   } = useContext(AppContext)
+  assert(electionDefinition)
 
   if (isTabulationRunning) {
     return (
@@ -103,7 +105,7 @@ const TallyReportScreen = (): JSX.Element => {
     )
   }
 
-  const { election } = electionDefinition!
+  const { election } = electionDefinition
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
 
   const ballotStylePartyIds =
@@ -133,8 +135,9 @@ const TallyReportScreen = (): JSX.Element => {
       return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`
     }
     if (batchId) {
+      assert(fullElectionTally)
       const batchTally = filterTalliesByParamsAndBatchId(
-        fullElectionTally!,
+        fullElectionTally,
         election,
         batchId,
         {}
@@ -150,7 +153,7 @@ const TallyReportScreen = (): JSX.Element => {
       return `${statusPrefix} ${election.title} Tally Reports for All Precincts`
     }
     if (partyIdFromProps) {
-      const party = election.parties.find((p) => p.id === partyIdFromProps)!
+      const party = find(election.parties, (p) => p.id === partyIdFromProps)
       fileSuffix = party.fullName
       return `${statusPrefix} Tally Report for ${party.fullName}`
     }
@@ -236,7 +239,7 @@ const TallyReportScreen = (): JSX.Element => {
               : election.title
 
             const tallyForReport = filterTalliesByParams(
-              fullElectionTally!,
+              fullElectionTally,
               election,
               { precinctId, scannerId, partyId, votingMethod, batchId }
             )
@@ -263,7 +266,7 @@ const TallyReportScreen = (): JSX.Element => {
             })
 
             if (precinctId) {
-              const precinctName = find(
+              const currentPrecinctName = find(
                 election.precincts,
                 (p) => p.id === precinctId
               ).name
@@ -272,7 +275,8 @@ const TallyReportScreen = (): JSX.Element => {
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} Precinct Tally Report for: {precinctName}
+                      {statusPrefix} Precinct Tally Report for:{' '}
+                      {currentPrecinctName}
                     </h1>
                     <h2>{electionTitle}</h2>
                     <TallyReportMetadata

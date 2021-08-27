@@ -165,7 +165,7 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(screen.getByText('Start Voting'))
 
   // Voter makes selection in first contest and then advances to review screen
-  for (let i = 0; i < voterContests.length; i++) {
+  for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i]
 
     await advanceTimersAndPromises()
@@ -251,7 +251,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   fireEvent.click(screen.getByText('Start Voting'))
 
   // Voter advances through contests without voting in any
-  for (let i = 0; i < voterContests.length; i++) {
+  for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i]
 
     await advanceTimersAndPromises()
@@ -426,7 +426,7 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.click(screen.getByText('Start Voting'))
 
   // Voter makes selection in first contest and then advances to review screen
-  for (let i = 0; i < voterContests.length; i++) {
+  for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i]
 
     await advanceTimersAndPromises()

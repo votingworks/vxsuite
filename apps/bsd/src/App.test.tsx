@@ -97,7 +97,7 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
     await waitFor(() => fetchMock.called)
   })
 
-  fireEvent.click(result.getByText!('Advanced'))
+  fireEvent.click(result.getByText('Advanced'))
 
   result.getByText('Toggle to Test Mode')
 })
@@ -125,7 +125,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
     await waitFor(() => fetchMock.called)
   })
 
-  fireEvent.click(result.getByText!('Advanced'))
+  fireEvent.click(result.getByText('Advanced'))
 
   result.getByText('Toggle to Live Mode')
 })

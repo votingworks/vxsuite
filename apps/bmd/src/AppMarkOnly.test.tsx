@@ -149,7 +149,7 @@ it('VxMarkOnly flow', async () => {
   fireEvent.click(screen.getByText('Start Voting'))
 
   // Advance through every contest
-  for (let i = 0; i < voterContests.length; i++) {
+  for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i]
 
     await advanceTimersAndPromises()

@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 
 import { EventTargetFunction } from '../config/types'
@@ -11,7 +12,8 @@ import Loading from '../components/Loading'
 
 const DefinitionScreen = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
-  const { electionData, electionHash } = electionDefinition!
+  assert(electionDefinition)
+  const { electionData, electionHash } = electionDefinition
 
   const [isProgrammingCard, setIsProgrammingCard] = useState(false)
 

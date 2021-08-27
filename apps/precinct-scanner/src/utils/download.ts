@@ -38,23 +38,6 @@ export type DownloadError =
   | { kind: DownloadErrorKind.OpenFailed; path: string; error: Error }
   | { kind: DownloadErrorKind.NoFileChosen }
 
-/**
- * Download data from `url`. By default, this will either use the browser's
- * native download functionality or show kiosk-browser's file picker. If inside
- * kiosk-browser, a target directory may be specified for a UI-less experience.
- */
-export async function download(
-  url: string,
-  { into: directory }: { into?: string } = {}
-): Promise<Result<void, DownloadError>> {
-  if (window.kiosk) {
-    return kioskDownload(window.kiosk, url, directory)
-  }
-
-  window.location.assign(url)
-  return ok()
-}
-
 async function kioskDownload(
   kiosk: KioskBrowser.Kiosk,
   url: string,
@@ -127,5 +110,21 @@ async function kioskDownload(
     await downloadTarget.end()
   }
 
+  return ok()
+}
+/**
+ * Download data from `url`. By default, this will either use the browser's
+ * native download functionality or show kiosk-browser's file picker. If inside
+ * kiosk-browser, a target directory may be specified for a UI-less experience.
+ */
+export async function download(
+  url: string,
+  { into: directory }: { into?: string } = {}
+): Promise<Result<void, DownloadError>> {
+  if (window.kiosk) {
+    return kioskDownload(window.kiosk, url, directory)
+  }
+
+  window.location.assign(url)
   return ok()
 }

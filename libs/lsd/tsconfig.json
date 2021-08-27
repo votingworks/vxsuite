@@ -58,5 +58,6 @@
     "forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
   },
   "include": ["src"],
-  "exclude": ["**/*.test.ts"]
+  "exclude": ["**/*.test.ts"],
+  "references": [{ "path": "../eslint-plugin-vx/tsconfig.build.json" }]
 }

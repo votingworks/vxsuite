@@ -26,7 +26,7 @@ export default function* findTargets(
   const x = bounds.x + Math.round(inset + expectedWidth / 2)
   let lastShape: Shape | undefined
 
-  for (let y = bounds.y + bounds.height - inset; y > bounds.y; y--) {
+  for (let y = bounds.y + bounds.height - inset; y > bounds.y; y -= 1) {
     const shape = findShape(ballotImage, { x, y }, { visitedPoints })
 
     if (shape.bounds.width === 0 || shape.bounds.height === 0) {

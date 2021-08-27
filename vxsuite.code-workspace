@@ -99,7 +99,8 @@
       "**/*.tsbuildinfo": true,
       "**/build": true,
       "**/coverage": true
-    }
+    },
+    "typescript.tsdk": "ballot-encoder/node_modules/typescript/lib"
   },
   "extensions": {
     "recommendations": [

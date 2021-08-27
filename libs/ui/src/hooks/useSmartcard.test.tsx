@@ -102,7 +102,7 @@ test('writing short value succeeds', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [smartcard, hasCardReader] = useSmartcard({ card, hardware })
     const [error, setError] = useState<Error>()
 
@@ -123,7 +123,7 @@ test('writing short value succeeds', async () => {
     )
   }
 
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
 
   // trigger & complete write
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
@@ -141,7 +141,7 @@ test('writing short value fails', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [smartcard] = useSmartcard({ card, hardware })
     const [error, setError] = useState<Error>()
 
@@ -158,7 +158,7 @@ test('writing short value fails', async () => {
   }
 
   jest.spyOn(card, 'writeShortValue').mockRejectedValue(new Error('oh no'))
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
 
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
 
@@ -175,7 +175,7 @@ test('reading long string value succeeds', async () => {
   card.insertCard()
   await card.writeLongObject({ some: 'object' })
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [longData, setLongData] = useState<string>()
     const [smartcard] = useSmartcard({ card, hardware })
 
@@ -188,7 +188,7 @@ test('reading long string value succeeds', async () => {
     return <div>{longData}</div>
   }
 
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
 
   // read short
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
@@ -207,7 +207,7 @@ test('reading long binary value succeeds', async () => {
   card.insertCard()
   await card.writeLongUint8Array(Uint8Array.of(1, 2, 3))
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [longData, setLongData] = useState<Uint8Array>()
     const [smartcard] = useSmartcard({ card, hardware })
 
@@ -220,7 +220,7 @@ test('reading long binary value succeeds', async () => {
     return <div>{longData?.join(',')}</div>
   }
 
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
 
   // read short
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
@@ -238,7 +238,7 @@ test('reading long string value fails', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [error, setError] = useState<string>()
     const [smartcard] = useSmartcard({ card, hardware })
 
@@ -252,7 +252,7 @@ test('reading long string value fails', async () => {
   }
 
   jest.spyOn(card, 'readLongString').mockRejectedValue(new Error('oh no'))
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
 
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   screen.getByText('oh no')
@@ -265,7 +265,7 @@ test('reading long binary value fails', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [error, setError] = useState<string>()
     const [smartcard] = useSmartcard({ card, hardware })
 
@@ -279,7 +279,7 @@ test('reading long binary value fails', async () => {
   }
 
   jest.spyOn(card, 'readLongUint8Array').mockRejectedValue(new Error('oh no'))
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
 
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   screen.getByText('oh no')
@@ -292,7 +292,7 @@ test('writing long object value succeeds', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [longData, setLongData] = useState<string>()
     const [smartcard] = useSmartcard({ card, hardware })
 
@@ -306,7 +306,7 @@ test('writing long object value succeeds', async () => {
     return <div>{longData}</div>
   }
 
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   screen.getByText('{"some":"object"}')
@@ -319,7 +319,7 @@ test('writing long binary value succeeds', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [longData, setLongData] = useState<Uint8Array>()
     const [smartcard] = useSmartcard({ card, hardware })
 
@@ -335,7 +335,7 @@ test('writing long binary value succeeds', async () => {
     return <div>{longData?.join(',')}</div>
   }
 
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   screen.getByText('1,2,3')
@@ -348,7 +348,7 @@ test('writing long object value fails', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [smartcard] = useSmartcard({ card, hardware })
     const [error, setError] = useState<Error>()
 
@@ -363,7 +363,7 @@ test('writing long object value fails', async () => {
   }
 
   jest.spyOn(card, 'writeLongObject').mockRejectedValue(new Error('oh no'))
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   screen.getByText('oh no')
 })
@@ -375,7 +375,7 @@ test('writing long binary value fails', async () => {
   await hardware.setCardReaderConnected(true)
   card.insertCard()
 
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const [smartcard] = useSmartcard({ card, hardware })
     const [error, setError] = useState<Error>()
 
@@ -392,7 +392,7 @@ test('writing long binary value fails', async () => {
   }
 
   jest.spyOn(card, 'writeLongUint8Array').mockRejectedValue(new Error('oh no'))
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000)
   screen.getByText('oh no')
 })

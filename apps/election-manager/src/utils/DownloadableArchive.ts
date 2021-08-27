@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import ZipStream from 'zip-stream'
 import path from 'path'
 
@@ -8,10 +9,14 @@ import path from 'path'
  */
 export default class DownloadableArchive {
   private zip?: ZipStream
-
   private endPromise?: Promise<void>
 
-  public constructor(private kiosk = window.kiosk!) {}
+  public constructor(private kiosk = window.kiosk) {}
+
+  private getKiosk(): KioskBrowser.Kiosk {
+    assert(this.kiosk)
+    return this.kiosk
+  }
 
   /**
    * Begins downloading an archive by prompting the user where to put it and
@@ -21,14 +26,16 @@ export default class DownloadableArchive {
   public async beginWithDialog(
     options?: KioskBrowser.SaveAsOptions
   ): Promise<void> {
-    const fileWriter = await this.kiosk.saveAs(options)
+    const fileWriter = await this.getKiosk().saveAs(options)
 
     if (!fileWriter) {
       throw new Error('could not begin download; no file was chosen')
     }
 
     let endResolve: () => void
-    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    this.endPromise = new Promise((resolve) => {
+      endResolve = resolve
+    })
     this.zip = new ZipStream()
       .on('data', (chunk) => fileWriter.write(chunk))
       .on('end', () => fileWriter.end().then(endResolve))
@@ -42,18 +49,20 @@ export default class DownloadableArchive {
     pathToFolder: string,
     filename: string
   ): Promise<void> {
-    await this.kiosk.makeDirectory(pathToFolder, {
+    await this.getKiosk().makeDirectory(pathToFolder, {
       recursive: true,
     })
     const filePath = path.join(pathToFolder, filename)
-    const fileWriter = await this.kiosk.writeFile(filePath)
+    const fileWriter = await this.getKiosk().writeFile(filePath)
 
     if (!fileWriter) {
       throw new Error('could not begin download; an error occurred')
     }
 
     let endResolve: () => void
-    this.endPromise = new Promise((resolve) => (endResolve = resolve))
+    this.endPromise = new Promise((resolve) => {
+      endResolve = resolve
+    })
     this.zip = new ZipStream()
       .on('data', (chunk) => fileWriter.write(chunk))
       .on('end', () => fileWriter.end().then(endResolve))

@@ -131,10 +131,10 @@ export default class BitReader {
     maxLength?: number
     length?: number
   } = {}): string {
-    length ??= this.readUint({ max: maxLength })
-    const codes = new Uint8Array(length)
+    const lengthToRead = length ?? this.readUint({ max: maxLength })
+    const codes = new Uint8Array(lengthToRead)
 
-    for (let i = 0; i < length; i += 1) {
+    for (let i = 0; i < lengthToRead; i += 1) {
       codes.set([this.readUint({ size: encoding.bitsPerElement })], i)
     }
 

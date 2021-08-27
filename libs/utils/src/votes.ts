@@ -44,33 +44,34 @@ export const buildVoteFromCvr = ({
   cvr: CastVoteRecord
 }): VotesDict => {
   const vote: VotesDict = {}
+  const mutableCVR = { ...cvr }
 
   // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
   // is there -- we don't want to count this as a ballot in this contest.
   getEitherNeitherContests(election.contests).forEach((c) => {
-    const hasEitherNeither = cvr[c.eitherNeitherContestId] !== undefined
-    const hasPickOne = cvr[c.pickOneContestId] !== undefined
+    const hasEitherNeither = mutableCVR[c.eitherNeitherContestId] !== undefined
+    const hasPickOne = mutableCVR[c.pickOneContestId] !== undefined
 
     if (!(hasEitherNeither && hasPickOne)) {
-      cvr[c.eitherNeitherContestId] = undefined
-      cvr[c.pickOneContestId] = undefined
+      mutableCVR[c.eitherNeitherContestId] = undefined
+      mutableCVR[c.pickOneContestId] = undefined
     }
   })
 
   expandEitherNeitherContests(election.contests).forEach((contest) => {
-    if (!cvr[contest.id]) {
+    if (!mutableCVR[contest.id]) {
       return
     }
 
     if (contest.type === 'yesno') {
       // the CVR is encoded the same way
-      vote[contest.id] = cvr[contest.id] as unknown as YesNoVote
+      vote[contest.id] = mutableCVR[contest.id] as unknown as YesNoVote
       return
     }
 
     /* istanbul ignore else */
     if (contest.type === 'candidate') {
-      vote[contest.id] = (cvr[contest.id] as string[])
+      vote[contest.id] = (mutableCVR[contest.id] as string[])
         .map((candidateId) => normalizeWriteInId(candidateId))
         .map((candidateId) =>
           find(
