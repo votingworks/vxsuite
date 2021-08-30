@@ -1,8 +1,13 @@
-import React, { useContext, useState, useEffect, useRef } from 'react'
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react'
 import moment from 'moment'
 
 import { generateFinalExportDefaultFilename, format } from '@votingworks/utils'
-import { SegmentedButton } from '@votingworks/ui'
 import {
   TallyCategory,
   InputEventFunction,
@@ -58,6 +63,9 @@ const TallyScreen = (): JSX.Element => {
   )
 
   const [isShowingBatchResults, setIsShowingBatchResults] = useState(false)
+  const toggleShowingBatchResults = useCallback(() => {
+    setIsShowingBatchResults(!isShowingBatchResults)
+  }, [isShowingBatchResults, setIsShowingBatchResults])
 
   const beginConfirmRemoveFiles = (fileType: ResultsFileType) => {
     setConfirmingRemoveFileType(fileType)
@@ -148,12 +156,7 @@ const TallyScreen = (): JSX.Element => {
 
   let tallyResultsInfo = <Loading>Tabulating Results…</Loading>
   if (!isTabulationRunning) {
-    const resultTables = isShowingBatchResults ? (
-      <React.Fragment>
-        <h2>Ballot Counts by Batch</h2>
-        <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
-      </React.Fragment>
-    ) : (
+    const resultTables = (
       <React.Fragment>
         <h2>Ballot Counts by Precinct</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
@@ -166,26 +169,23 @@ const TallyScreen = (): JSX.Element => {
           </React.Fragment>
         )}
         <h2>Ballot Counts by Scanner</h2>
-        <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+        <Button small onPress={toggleShowingBatchResults}>
+          {isShowingBatchResults
+            ? 'Show Results by Scanner'
+            : 'Show Results by Batch and Scanner'}
+        </Button>
+        <br />
+        <br />
+        {isShowingBatchResults ? (
+          <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
+        ) : (
+          <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+        )}
       </React.Fragment>
     )
 
     tallyResultsInfo = (
       <React.Fragment>
-        <SegmentedButton>
-          <Button
-            disabled={!isShowingBatchResults}
-            onPress={() => setIsShowingBatchResults(false)}
-          >
-            Ballot Counts
-          </Button>
-          <Button
-            disabled={isShowingBatchResults}
-            onPress={() => setIsShowingBatchResults(true)}
-          >
-            Batch Counts
-          </Button>
-        </SegmentedButton>
         {resultTables}
         <h2>{statusPrefix} Tally Reports</h2>
         <p>

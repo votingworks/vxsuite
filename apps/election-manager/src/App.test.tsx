@@ -276,8 +276,8 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Tally'))
 
-  fireEvent.click(getByText('Batch Counts'))
-  getByText('Ballot Counts by Batch')
+  fireEvent.click(getByText('Show Results by Batch and Scanner'))
+  getByText('Batch Name')
   fireEvent.click(getByText('Export Batch Results as CSV'))
   jest.advanceTimersByTime(2001)
   getByText('Save Batch Results')
