@@ -9,7 +9,7 @@ export default function outline(
   { data: src, width, height }: ImageData,
   { color = PIXEL_BLACK } = {}
 ): ImageData {
-  const channels = getImageChannelCount({ data: src, width, height })
+  const channels = getImageChannelCount({ width, height, data: src })
   const result = createImageData(width, height)
   const v1px = width * channels
   const h1px = channels

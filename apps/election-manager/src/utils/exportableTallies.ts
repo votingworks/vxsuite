@@ -75,8 +75,8 @@ export function getExportableTallies(
       bs.precincts.includes(precinct.id)
     )
     const ballotStyleContests = new Set(
-      ballotStylesForPrecinct.flatMap((bs) =>
-        expandEitherNeitherContests(getContests({ ballotStyle: bs, election }))
+      ballotStylesForPrecinct.flatMap((ballotStyle) =>
+        expandEitherNeitherContests(getContests({ ballotStyle, election }))
       )
     )
     const tallyForPrecinct = talliesByPrecinct[precinct.id]

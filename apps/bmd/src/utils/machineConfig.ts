@@ -15,9 +15,9 @@ const machineConfigProvider: Provider<MachineConfig> = {
     } = await fetchJSON<MachineConfigResponse>('/machine-config')
 
     return {
-      appMode: getAppMode(appModeName),
       machineId,
       codeVersion,
+      appMode: getAppMode(appModeName),
     }
   },
 }

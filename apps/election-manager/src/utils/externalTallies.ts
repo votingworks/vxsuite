@@ -102,8 +102,8 @@ export function getTotalNumberOfBallots(
   let contestIdSets = election.ballotStyles.map((bs) => {
     return new Set(
       getContests({
-        ballotStyle: bs,
         election,
+        ballotStyle: bs,
       }).map((c) => c.id)
     )
   })
@@ -185,8 +185,8 @@ function filterTallyForPartyId(
     election
   )
   return {
-    contestTallies: filteredContestTallies,
     numberOfBallotsCounted,
+    contestTallies: filteredContestTallies,
   }
 }
 

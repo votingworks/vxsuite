@@ -223,9 +223,9 @@ export async function processFile(
     await writeLineSegmentsAsSvg({
       original,
       segments,
-      scale: actualScale,
       out,
       background,
+      scale: actualScale,
     })
 
     return outPath
@@ -236,9 +236,9 @@ export async function processFile(
   await writeLineSegmentsAsPng({
     original,
     segments,
-    scale: actualScale,
     out,
     background,
+    scale: actualScale,
   })
 
   return outPath

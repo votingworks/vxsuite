@@ -95,8 +95,8 @@ const StartPage = ({ history }: Props): JSX.Element => {
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
                 precinctId,
+                kind: PrecinctSelectionKind.SinglePrecinct,
               }}
               horizontal
             />

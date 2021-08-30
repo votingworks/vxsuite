@@ -56,8 +56,8 @@ it('renders PrintPage without votes and inline seal', () => {
     parseElection(electionSampleWithSeal)
   )
   const { container } = render(<Route path="/print" component={PrintPage} />, {
-    ballotStyleId: '5',
     electionDefinition,
+    ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
   })
@@ -69,8 +69,8 @@ it('renders PrintPage without votes and no seal', () => {
     parseElection(electionSampleNoSeal)
   )
   const { container } = render(<Route path="/print" component={PrintPage} />, {
-    ballotStyleId: '5',
     electionDefinition,
+    ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
   })

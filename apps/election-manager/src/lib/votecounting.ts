@@ -518,16 +518,16 @@ function getTallyForCastVoteRecords(
   }
 
   const overallTally = tallyVotesByContest({
+    filterContestsByParty,
     election,
     votes: allVotes,
-    filterContestsByParty,
   })
 
   return {
-    contestTallies: overallTally,
     castVoteRecords,
-    numberOfBallotsCounted: allVotes.length,
     ballotCountsByVotingMethod,
+    contestTallies: overallTally,
+    numberOfBallotsCounted: allVotes.length,
   }
 }
 
@@ -603,8 +603,8 @@ export function computeFullElectionTally(
     const batchScannerIds = batchInfo?.scannerIds ?? new Set<string>()
     if (!batchInfo) {
       cvrFilesByBatch[batchId] = {
-        castVoteRecords: filesForBatch,
         batchLabels,
+        castVoteRecords: filesForBatch,
         scannerIds: batchScannerIds,
       }
     }
@@ -831,9 +831,9 @@ export function filterTalliesByParams(
   })
   return {
     contestTallies,
+    ballotCountsByVotingMethod,
     castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
-    ballotCountsByVotingMethod,
   }
 }
 
@@ -928,8 +928,8 @@ const processCastVoteRecord = ({
   castVoteRecord,
 }: ProcessCastVoteRecordParams): CastVoteRecord | undefined => {
   const ballotStyle = getBallotStyle({
-    ballotStyleId: castVoteRecord._ballotStyleId,
     election,
+    ballotStyleId: castVoteRecord._ballotStyleId,
   })
   assert(ballotStyle)
   if (!ballotStyle.precincts.includes(castVoteRecord._precinctId)) return

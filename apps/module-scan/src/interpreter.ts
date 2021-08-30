@@ -68,7 +68,7 @@ export async function getBallotImageData(
   detectQrcodeResult: qrcodeWorker.Output
 ): Promise<Result<BallotImageData, PageInterpretation>> {
   const { data, width, height } = await loadImageData(file)
-  const image = { data: Uint8ClampedArray.from(data), width, height }
+  const image = { width, height, data: Uint8ClampedArray.from(data) }
 
   if (!detectQrcodeResult.blank && detectQrcodeResult.qrcode) {
     return ok({ file, image, qrcode: detectQrcodeResult.qrcode })
@@ -274,9 +274,9 @@ export default class Interpreter {
       if (actualElectionHash !== expectedElectionHash) {
         return {
           interpretation: {
-            type: 'InvalidElectionHashPage',
             expectedElectionHash,
             actualElectionHash,
+            type: 'InvalidElectionHashPage',
           },
         }
       }
@@ -331,8 +331,8 @@ export default class Interpreter {
         timer.end()
         return {
           interpretation: {
-            type: 'InvalidTestModePage',
             metadata,
+            type: 'InvalidTestModePage',
           },
         }
       }
@@ -340,8 +340,8 @@ export default class Interpreter {
       timer.end()
       return {
         interpretation: {
-          type: 'UninterpretedHmpbPage',
           metadata,
+          type: 'UninterpretedHmpbPage',
         },
       }
     } catch (error) {
@@ -416,10 +416,10 @@ export default class Interpreter {
         {
           optionMarkStatus: (contestId, optionId) =>
             optionMarkStatus({
-              markThresholds: this.markThresholds,
               marks,
               contestId,
               optionId,
+              markThresholds: this.markThresholds,
             }),
         }
       ),
@@ -442,8 +442,9 @@ export default class Interpreter {
 
     return {
       interpretation: {
-        type: 'InterpretedHmpbPage',
         metadata,
+        votes,
+        type: 'InterpretedHmpbPage',
         markInfo: {
           marks,
           ballotSize: {
@@ -451,7 +452,6 @@ export default class Interpreter {
             height: mappedBallot.height,
           },
         },
-        votes,
         adjudicationInfo: {
           requiresAdjudication,
           enabledReasons,

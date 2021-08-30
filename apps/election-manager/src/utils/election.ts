@@ -64,8 +64,8 @@ const sortOptions = {
 export const getBallotStylesData = (election: Election): BallotStyleData[] =>
   election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map<BallotStyleData>((precinctId) => ({
-      ballotStyleId: ballotStyle.id,
       precinctId,
+      ballotStyleId: ballotStyle.id,
       contestIds: getContests({ ballotStyle, election }).map((c) => c.id),
     }))
   )
@@ -225,9 +225,9 @@ export const generateTestDeckBallots = ({
           }
         })
         ballots.push({
+          votes,
           ballotStyleId: ballotStyle.id,
           precinctId: currentPrecinctId,
-          votes,
         })
       }
     })

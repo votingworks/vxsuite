@@ -311,8 +311,8 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       '6524': singleVotes,
     })
     const fullTallySEMS: FullElectionExternalTally = {
-      overallTally: doubleVotes,
       resultsByCategory,
+      overallTally: doubleVotes,
       votingMethod: VotingMethod.Absentee,
       source: ExternalTallySourceType.SEMS,
       inputSourceName: 'the-heartbreak-prince',
@@ -375,8 +375,8 @@ describe('getPrecinctIdsInExternalTally', () => {
       '6532': emptyVotes,
     })
     const fullExternalTally: FullElectionExternalTally = {
-      overallTally: getEmptyExternalTally(),
       resultsByCategory,
+      overallTally: getEmptyExternalTally(),
       votingMethod: VotingMethod.Precinct,
       source: ExternalTallySourceType.Manual,
       inputSourceName: 'call-it-what-you-want',
@@ -618,8 +618,8 @@ describe('filterExternalTalliesByParams', () => {
       'precinct-2': singleVotesPrimary,
     })
     const fullTallyManual: FullElectionExternalTally = {
-      overallTally: doubleVotesPrimary,
       resultsByCategory,
+      overallTally: doubleVotesPrimary,
       votingMethod: VotingMethod.Precinct,
       source: ExternalTallySourceType.Manual,
       inputSourceName: 'the-heartbreak-prince',

@@ -92,11 +92,11 @@ export function parseOptions(args: readonly string[]): Options {
       all,
       inputWorkspace,
       outputWorkspace,
-      sheetIds: [],
       uninterpreted,
       unreadable,
       diffWhen,
       help,
+      sheetIds: [],
     }
   }
 

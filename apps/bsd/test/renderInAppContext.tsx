@@ -33,9 +33,9 @@ export default function renderInAppContext(
     <AppContext.Provider
       value={{
         electionDefinition,
-        machineConfig: { machineId },
         usbDriveStatus,
         usbDriveEject,
+        machineConfig: { machineId },
       }}
     >
       <Router history={history}>{component}</Router>

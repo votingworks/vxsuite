@@ -52,13 +52,13 @@ export function interpretedHmpb({
     },
     markInfo: { ballotSize: { width: 1, height: 1 }, marks: [] },
     metadata: {
+      pageNumber,
       ballotStyleId: electionDefinition.election.ballotStyles[0].id,
       precinctId: electionDefinition.election.precincts[0].id,
       electionHash: electionDefinition.electionHash,
       ballotType: BallotType.Standard,
       isTestMode: true,
       locales: { primary: 'en-US' },
-      pageNumber,
     },
     votes: {},
   }

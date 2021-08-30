@@ -229,8 +229,8 @@ export default class Interpreter {
     ])
 
     return {
-      ballotImage: normalized,
       contests,
+      ballotImage: normalized,
     }
   }
 
@@ -501,11 +501,11 @@ export default class Interpreter {
       )
       debug(`'${option.id}' mark score: %d`, score)
       const mark: BallotCandidateTargetMark = {
-        type: 'candidate',
-        bounds: layout.target.bounds,
         contest,
         option,
         score,
+        type: 'candidate',
+        bounds: layout.target.bounds,
         scoredOffset: offset,
         target: layout.target,
       }
@@ -524,11 +524,11 @@ export default class Interpreter {
       )
       debug(`'${option}' mark score: %d`, score)
       const mark: BallotYesNoTargetMark = {
-        type: 'yesno',
-        bounds: layout.target.bounds,
         contest,
         option,
         score,
+        type: 'yesno',
+        bounds: layout.target.bounds,
         scoredOffset: offset,
         target: layout.target,
       }
@@ -558,11 +558,11 @@ export default class Interpreter {
         score
       )
       const mark: BallotMsEitherNeitherTargetMark = {
-        type: 'ms-either-neither',
-        bounds: layout.target.bounds,
         contest,
         option,
         score,
+        type: 'ms-either-neither',
+        bounds: layout.target.bounds,
         scoredOffset: offset,
         target: layout.target,
       }

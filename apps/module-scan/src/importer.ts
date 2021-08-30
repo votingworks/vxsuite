@@ -246,16 +246,16 @@ export default class Importer {
       (await backDetectQrcodePromise) as qrcodeWorker.Output,
     ])
     const frontInterpretPromise = workerPool.call({
+      sheetId,
       action: 'interpret',
       imagePath: frontImagePath,
-      sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
       detectQrcodeResult: frontDetectQrcodeOutput,
     })
     const backInterpretPromise = workerPool.call({
+      sheetId,
       action: 'interpret',
       imagePath: backImagePath,
-      sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
       detectQrcodeResult: backDetectQrcodeOutput,
     })
@@ -383,7 +383,7 @@ export default class Importer {
 
   private async finishBatch(error?: string): Promise<void> {
     if (this.batchId) {
-      await this.workspace.store.finishBatch({ batchId: this.batchId, error })
+      await this.workspace.store.finishBatch({ error, batchId: this.batchId })
       this.batchId = undefined
     }
 
@@ -566,9 +566,9 @@ export default class Importer {
     const scanner = await this.scanner.getStatus()
 
     return {
-      electionHash: electionDefinition?.electionHash,
       batches,
       adjudication,
+      electionHash: electionDefinition?.electionHash,
       scanner:
         adjudication.remaining > 0 && scanner === ScannerStatus.ReadyToScan
           ? ScannerStatus.Rejected

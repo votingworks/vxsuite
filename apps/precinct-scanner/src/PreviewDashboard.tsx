@@ -47,14 +47,14 @@ export function getPreviews(mod: PreviewableModule): PreviewableComponent {
     .filter((key) => key.endsWith(PREVIEW_COMPONENT_SUFFIX))
     .map((previewId) => ({
       componentId,
-      componentName: asTitle(componentId),
       previewId,
+      componentName: asTitle(componentId),
       previewName: asTitle(
         previewId.slice(0, -PREVIEW_COMPONENT_SUFFIX.length)
       ),
       previewComponent: mod[previewId],
     }))
-  return { componentId, componentName: asTitle(componentId), previews }
+  return { componentId, previews, componentName: asTitle(componentId) }
 }
 
 export interface Props {
@@ -111,11 +111,11 @@ const PreviewDashboard = ({
   return (
     <AppContext.Provider
       value={{
+        electionDefinition,
         machineConfig: {
           codeVersion: 'preview',
           machineId: '000',
         },
-        electionDefinition,
       }}
     >
       <BrowserRouter>

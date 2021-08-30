@@ -184,9 +184,9 @@ async function readBallotPackageFromZip(
   }
 
   return {
+    ballots,
     electionDefinition:
       safeParseElectionDefinition(electionData).unsafeUnwrap(),
-    ballots,
   }
 }
 

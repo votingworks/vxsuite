@@ -250,14 +250,14 @@ export function decodeBallotConfigFromReader(
 
   return {
     ballotId,
-    ballotStyleId: ballotStyle.id,
     ballotType,
     isTestMode,
+    pageNumber,
+    ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
     locales: primaryLocale
       ? { primary: primaryLocale, secondary: secondaryLocale }
       : undefined,
-    pageNumber,
   }
 }
 
@@ -494,8 +494,8 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
             })
 
             contestVote.push({
-              id: `write-in__${name}`,
               name,
+              id: `write-in__${name}`,
               isWriteIn: true,
             })
           }

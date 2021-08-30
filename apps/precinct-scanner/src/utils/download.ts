@@ -47,7 +47,7 @@ async function kioskDownload(
   const response = await fetch(url, { signal: abortController.signal })
 
   if (response.status !== 200) {
-    return err({ kind: DownloadErrorKind.FetchFailed, response })
+    return err({ response, kind: DownloadErrorKind.FetchFailed })
   }
 
   const contentDisposition = response.headers.get('content-disposition')
@@ -55,14 +55,14 @@ async function kioskDownload(
     contentDisposition && readContentDispositionFilename(contentDisposition)
 
   if (!filename) {
-    return err({ kind: DownloadErrorKind.FileMissing, response })
+    return err({ response, kind: DownloadErrorKind.FileMissing })
   }
 
   const { body } = response
 
   if (!body) {
     abortController.abort()
-    return err({ kind: DownloadErrorKind.FileMissing, response })
+    return err({ response, kind: DownloadErrorKind.FileMissing })
   }
 
   let downloadTarget: KioskBrowser.FileWriter
@@ -72,7 +72,7 @@ async function kioskDownload(
     try {
       downloadTarget = await kiosk.writeFile(path)
     } catch (error) {
-      return err({ kind: DownloadErrorKind.OpenFailed, path, error })
+      return err({ path, error, kind: DownloadErrorKind.OpenFailed })
     }
   } else {
     try {
@@ -84,7 +84,7 @@ async function kioskDownload(
 
       downloadTarget = saveAsTarget
     } catch (error) {
-      return err({ kind: DownloadErrorKind.OpenFailed, path: filename, error })
+      return err({ error, kind: DownloadErrorKind.OpenFailed, path: filename })
     }
   }
 

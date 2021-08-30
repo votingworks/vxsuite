@@ -25,8 +25,8 @@ export async function detect(
     qrcode.location.bottomRightCorner.x > qrcode.location.topLeftCorner.x
 
   return {
-    data: qrdata,
     rightSideUp,
+    data: qrdata,
   }
 }
 

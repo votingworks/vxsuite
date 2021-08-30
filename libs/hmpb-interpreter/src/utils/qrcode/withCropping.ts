@@ -14,10 +14,10 @@ export function withCropping(
     const width = Math.floor(imageData.width * widthFraction)
     const height = Math.floor(imageData.height * heightFraction)
     const searchBounds = {
-      x: imageData.width - width,
-      y: imageData.height - height,
       width,
       height,
+      x: imageData.width - width,
+      y: imageData.height - height,
     }
 
     {

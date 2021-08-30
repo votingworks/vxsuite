@@ -207,12 +207,12 @@ export const useSmartcard = ({
   return [
     isCardPresent
       ? {
-          data: cardData,
           longValueExists,
           readLongUint8Array,
           readLongString,
           writeShortValue,
           writeLongValue,
+          data: cardData,
         }
       : undefined,
     hasCardReaderAttached,

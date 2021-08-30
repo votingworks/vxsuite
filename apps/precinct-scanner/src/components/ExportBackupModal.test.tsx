@@ -22,7 +22,7 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
     const closeFn = jest.fn()
     const { unmount } = render(
       <AppContext.Provider
-        value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+        value={{ machineConfig, electionDefinition: electionSampleDefinition }}
       >
         <ExportBackupModal
           onClose={closeFn}
@@ -46,7 +46,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
     const closeFn = jest.fn()
     const { unmount } = render(
       <AppContext.Provider
-        value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+        value={{ machineConfig, electionDefinition: electionSampleDefinition }}
       >
         <ExportBackupModal
           onClose={closeFn}
@@ -76,7 +76,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
   const closeFn = jest.fn()
   render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{ machineConfig, electionDefinition: electionSampleDefinition }}
     >
       <ExportBackupModal
         onClose={closeFn}
@@ -108,7 +108,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   const ejectFn = jest.fn()
   render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{ machineConfig, electionDefinition: electionSampleDefinition }}
     >
       <ExportBackupModal
         onClose={closeFn}
@@ -138,7 +138,7 @@ test('handles no USB drives', async () => {
   const closeFn = jest.fn()
   const { getByText } = render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{ machineConfig, electionDefinition: electionSampleDefinition }}
     >
       <ExportBackupModal
         onClose={closeFn}
@@ -164,7 +164,7 @@ test('shows a specific error for file writer failure', async () => {
   const closeFn = jest.fn()
   const { getByText } = render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{ machineConfig, electionDefinition: electionSampleDefinition }}
     >
       <ExportBackupModal
         onClose={closeFn}
@@ -197,7 +197,7 @@ test('shows a specific error for fetch failure', async () => {
   const closeFn = jest.fn()
   render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{ machineConfig, electionDefinition: electionSampleDefinition }}
     >
       <ExportBackupModal
         onClose={closeFn}

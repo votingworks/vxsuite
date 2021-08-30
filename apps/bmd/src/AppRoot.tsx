@@ -401,10 +401,10 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
         tally: calculateTally({
-          election: electionDefinition.election,
           tally,
-          votes: votes ?? {},
           ballotStyleId,
+          election: electionDefinition.election,
+          votes: votes ?? {},
         }),
       }
     }
@@ -539,8 +539,8 @@ const AppRoot = ({
   const contests =
     optionalElectionDefinition?.election && ballotStyle
       ? getContests({
-          election: optionalElectionDefinition.election,
           ballotStyle,
+          election: optionalElectionDefinition.election,
         })
       : []
 
@@ -634,7 +634,7 @@ const AppRoot = ({
   }, [storage, history])
 
   const updateVote = useCallback((contestId: string, vote: OptionalVote) => {
-    dispatchAppState({ type: 'updateVote', contestId, vote })
+    dispatchAppState({ contestId, vote, type: 'updateVote' })
   }, [])
 
   const forceSaveVote = useCallback(() => {
@@ -859,8 +859,8 @@ const AppRoot = ({
     }
 
     dispatchAppState({
-      type: 'updateLastCardDataString',
       currentCardDataString,
+      type: 'updateLastCardDataString',
     })
 
     if (!insertedCard.present || !insertedCard.shortValue) {
@@ -1377,7 +1377,6 @@ const AppRoot = ({
                 machineConfig,
                 ballotStyleId,
                 contests,
-                electionDefinition: optionalElectionDefinition,
                 updateTally,
                 isCardlessVoter,
                 isLiveMode,
@@ -1390,6 +1389,7 @@ const AppRoot = ({
                 updateVote,
                 forceSaveVote,
                 userSettings,
+                electionDefinition: optionalElectionDefinition,
                 votes: votes ?? blankBallotVotes,
               }}
             >

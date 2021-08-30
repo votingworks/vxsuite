@@ -33,9 +33,9 @@ test('can toggle ballot types for data', async () => {
       <ManualDataImportIndexScreen />
     </Route>,
     {
+      saveExternalTallies,
       route: '/tally/manual-data-import',
       electionDefinition: multiPartyPrimaryElectionDefinition,
-      saveExternalTallies,
     }
   )
   getByText('Manually Entered Precinct Results')
@@ -81,9 +81,9 @@ test('precinct table renders properly when there is no data', async () => {
       <ManualDataImportIndexScreen />
     </Router>,
     {
+      saveExternalTallies,
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      saveExternalTallies,
     }
   )
   getByText('Manually Entered Precinct Results')
@@ -195,9 +195,9 @@ test('loads prexisting manual data to edit', async () => {
       <ManualDataImportIndexScreen />
     </Route>,
     {
+      resetFiles,
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      resetFiles,
       fullElectionExternalTallies: [externalTally],
     }
   )

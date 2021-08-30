@@ -33,17 +33,17 @@ const electionDefinition = asElectionDefinition(parseElection(electionSample))
 
 test('Renders Ballot with EitherNeither: blank', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     route: '/print',
-    electionDefinition,
     votes: vote(
       getContests({
+        election,
         ballotStyle: getBallotStyle({
           election,
           ballotStyleId: '12',
         })!,
-        election,
       }),
       {
         '420A': [],
@@ -61,17 +61,17 @@ test('Renders Ballot with EitherNeither: blank', async () => {
 
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     route: '/print',
-    electionDefinition,
     votes: vote(
       getContests({
+        election,
         ballotStyle: getBallotStyle({
           election,
           ballotStyleId: '12',
         })!,
-        election,
       }),
       {
         '420A': ['yes'],
@@ -92,17 +92,17 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     route: '/print',
-    electionDefinition,
     votes: vote(
       getContests({
+        election,
         ballotStyle: getBallotStyle({
           election,
           ballotStyleId: '12',
         })!,
-        election,
       }),
       {
         '420A': ['no'],
@@ -123,17 +123,17 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
 
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     route: '/print',
-    electionDefinition,
     votes: vote(
       getContests({
+        election,
         ballotStyle: getBallotStyle({
           election,
           ballotStyleId: '12',
         })!,
-        election,
       }),
       {
         '420A': [],

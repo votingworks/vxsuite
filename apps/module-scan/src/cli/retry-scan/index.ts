@@ -196,9 +196,9 @@ export async function retryScan(
               ? scan.originalFilename
               : resolve(input.store.dbPath, '..', scan.originalFilename)
             const rescan = (await pool.call({
+              imagePath,
               action: 'interpret',
               sheetId: id,
-              imagePath,
               detectQrcodeResult: qrcode,
               ballotImagesPath: output.ballotImagesPath,
             })) as InterpretOutput

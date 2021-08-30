@@ -1085,10 +1085,10 @@ test('detect HMPB ballot page metadata', () => {
   expect(
     detectHMPBBallotPageMetadata(
       encodeBallot(election, {
-        electionHash,
-        ballotId: '',
         ballotStyleId,
         precinctId,
+        electionHash,
+        ballotId: '',
         ballotType: BallotType.Standard,
         isTestMode: false,
         votes: {},

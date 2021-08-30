@@ -7,7 +7,7 @@ import { strict as assert } from 'assert'
 export function rectCorners({ x, y, width, height }: Rect): Corners {
   return [
     { x, y },
-    { x: x + width - 1, y },
+    { y, x: x + width - 1 },
     { x, y: y + height - 1 },
     { x: x + width - 1, y: y + height - 1 },
   ]

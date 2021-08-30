@@ -97,8 +97,8 @@ export async function interpret(
   const result: InterpretFileResult = !detectQrcodeResult.blank
     ? await interpreter.interpretFile({
         ballotImagePath,
-        ballotImageFile: await readFile(ballotImagePath),
         detectQrcodeResult,
+        ballotImageFile: await readFile(ballotImagePath),
       })
     : { interpretation: { type: 'BlankPage' } }
   debug(

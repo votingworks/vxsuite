@@ -14,25 +14,25 @@ export default function getAllBallotConfigs(
     localeCodes.flatMap((localeCode) =>
       [true, false].flatMap<BallotConfig>((isAbsentee) =>
         [true, false].flatMap<BallotConfig>((isLiveMode) => ({
+          isLiveMode,
+          isAbsentee,
           ballotStyleId: ballotStyle.ballotStyleId,
           precinctId: ballotStyle.precinctId,
           contestIds: ballotStyle.contestIds,
-          isLiveMode,
-          isAbsentee,
           locales: {
             primary: DEFAULT_LOCALE,
             secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
           },
           filename: getBallotPath({
             ...ballotStyle,
+            isLiveMode,
+            isAbsentee,
             election,
             electionHash,
             locales: {
               primary: DEFAULT_LOCALE,
               secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
             },
-            isLiveMode,
-            isAbsentee,
           }),
         }))
       )

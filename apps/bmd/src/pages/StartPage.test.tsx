@@ -16,8 +16,8 @@ it('renders StartPage', async () => {
     parseElection(electionPrimarySample)
   )
   const { container } = render(<Route path="/" component={StartPage} />, {
-    ballotStyleId: '12D',
     electionDefinition,
+    ballotStyleId: '12D',
     precinctId: '23',
     route: '/',
   })

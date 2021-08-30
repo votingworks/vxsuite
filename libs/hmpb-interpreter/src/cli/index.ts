@@ -64,9 +64,9 @@ export function parseGlobalOptions(args: readonly string[]): GlobalOptions {
   }
 
   return {
+    help,
     nodePath: args[0],
     executablePath: args[1],
-    help,
     command: args[i],
     commandArgs: args.slice(i + 1),
   }

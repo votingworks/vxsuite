@@ -65,7 +65,7 @@ const testCaseFactories = {
       .map(() => random.bool())
 
     return [
-      [{ method: 'writeBoolean', args }],
+      [{ args, method: 'writeBoolean' }],
       args.map((arg) => ({
         method: 'readBoolean',
         args: [],

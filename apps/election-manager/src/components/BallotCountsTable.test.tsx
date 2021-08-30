@@ -61,10 +61,10 @@ describe('Ballot Counts by Precinct', () => {
   )
 
   const fullElectionTally = {
+    resultsByCategory,
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
-    resultsByCategory,
   }
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
@@ -189,10 +189,10 @@ describe('Ballot Counts by Scanner', () => {
   resultsByCategory.set(TallyCategory.Scanner, resultsByScanner)
 
   const fullElectionTally = {
+    resultsByCategory,
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
-    resultsByCategory,
   }
   const fullElectionExternalTally = {
     overallTally: fakeExternalTally({
@@ -328,10 +328,10 @@ describe('Ballots Counts by Party', () => {
   externalResultsByCategory.set(TallyCategory.Party, externalResultsByParty)
 
   const fullElectionTally = {
+    resultsByCategory,
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
-    resultsByCategory,
   }
 
   const fullElectionExternalTally = {
@@ -399,11 +399,11 @@ describe('Ballots Counts by Party', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
+        fullElectionTally,
         electionDefinition: {
           ...multiPartyPrimaryElectionDefinition,
           electionData: '',
         },
-        fullElectionTally,
       }
     )
 
@@ -439,11 +439,11 @@ describe('Ballots Counts by Party', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
+        fullElectionTally,
         electionDefinition: {
           ...multiPartyPrimaryElectionDefinition,
           electionData: '',
         },
-        fullElectionTally,
         fullElectionExternalTallies: [fullElectionExternalTally],
       }
     )
@@ -489,10 +489,10 @@ describe('Ballots Counts by VotingMethod', () => {
   resultsByCategory.set(TallyCategory.VotingMethod, resultsByVotingMethod)
 
   const fullElectionTally = {
+    resultsByCategory,
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
-    resultsByCategory,
   }
 
   const numExternalBallots = 54
@@ -645,10 +645,10 @@ describe('Ballots Counts by Batch', () => {
   resultsByCategory.set(TallyCategory.Batch, resultsByBatch)
 
   const fullElectionTally = {
+    resultsByCategory,
     overallTally: fakeTally({
       numberOfBallotsCounted: 122,
     }),
-    resultsByCategory,
   }
 
   const numExternalBallots = 54

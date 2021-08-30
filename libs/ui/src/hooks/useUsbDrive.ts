@@ -93,10 +93,10 @@ export const useUsbDrive = (): UsbDrive => {
   )
 
   return {
+    eject,
     status:
       recentlyEjected && status !== UsbDriveStatus.ejecting
         ? UsbDriveStatus.recentlyEjected
         : status,
-    eject,
   }
 }

@@ -90,7 +90,7 @@ export default async function main(
     const queue: { pdf: Buffer; base: string }[] = []
 
     if (ext === '.pdf') {
-      queue.push({ pdf: await fs.readFile(path), base })
+      queue.push({ base, pdf: await fs.readFile(path) })
     } else if (ext === '.db') {
       const store = await Store.fileStore(path)
       const electionDefinition = await store.getElectionDefinition()

@@ -48,16 +48,19 @@ const PickDateTimeModal = ({
         hour = newValue.hour + 12
       }
     }
-    const year = name === 'year' ? partValue : newValue.year
-    const month = name === 'month' ? partValue : newValue.month
-    const lastDayOfMonth = getDaysInMonth(year, month).slice(-1).pop()?.day
-    const day = name === 'day' ? partValue : newValue.day
+    const newYear = name === 'year' ? partValue : newValue.year
+    const newMonth = name === 'month' ? partValue : newValue.month
+    const lastDayOfMonth = getDaysInMonth(newYear, newMonth).slice(-1).pop()
+      ?.day
+    const newDay = name === 'day' ? partValue : newValue.day
+    const newHour = hour
     setNewValue(
       DateTime.fromObject({
-        year,
-        month,
-        day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
-        hour,
+        year: newYear,
+        month: newMonth,
+        day:
+          lastDayOfMonth && newDay > lastDayOfMonth ? lastDayOfMonth : newDay,
+        hour: newHour,
         minute: name === 'minute' ? partValue : newValue.minute,
         zone: newValue.zone,
       })

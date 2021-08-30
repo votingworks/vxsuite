@@ -275,10 +275,10 @@ const App = (): JSX.Element => {
       return (
         <AppContext.Provider
           value={{
-            usbDriveStatus: displayUsbStatus,
-            usbDriveEject: usbDrive.eject,
             machineConfig,
             electionDefinition,
+            usbDriveStatus: displayUsbStatus,
+            usbDriveEject: usbDrive.eject,
           }}
         >
           <Screen>
@@ -313,10 +313,10 @@ const App = (): JSX.Element => {
       return (
         <AppContext.Provider
           value={{
-            usbDriveStatus: displayUsbStatus,
-            usbDriveEject: usbDrive.eject,
             electionDefinition,
             machineConfig,
+            usbDriveStatus: displayUsbStatus,
+            usbDriveEject: usbDrive.eject,
           }}
         >
           <BallotEjectScreen
@@ -339,10 +339,10 @@ const App = (): JSX.Element => {
     return (
       <AppContext.Provider
         value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
           electionDefinition,
           machineConfig,
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: usbDrive.eject,
         }}
       >
         <Switch>
@@ -414,10 +414,10 @@ const App = (): JSX.Element => {
     return (
       <AppContext.Provider
         value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
           machineConfig,
           electionDefinition,
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: usbDrive.eject,
         }}
       >
         <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />

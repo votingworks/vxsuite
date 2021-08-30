@@ -82,9 +82,9 @@ test('displays correct contests for each precinct', async () => {
         <ManualDataImportPrecinctScreen />
       </Route>,
       {
+        saveExternalTallies,
         route: `/tally/manual-data-import/precinct/${precinctId}`,
         electionDefinition: electionWithMsEitherNeitherDefinition,
-        saveExternalTallies,
       }
     )
     getByText('Manually Entered Precinct Results:')
@@ -110,8 +110,8 @@ test('can enter data for candidate contests as expected', async () => {
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
+      route: '/tally/manual-data-import/precinct/23',
       electionDefinition: electionSampleDefinition,
     }
   )
@@ -220,8 +220,8 @@ test('can enter data for yes no contests as expected', async () => {
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
+      route: '/tally/manual-data-import/precinct/23',
       electionDefinition: electionSampleDefinition,
     }
   )
@@ -354,8 +354,8 @@ test('loads prexisting manual data to edit', async () => {
   const resultsByCategory = new Map()
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct)
   const externalTally: FullElectionExternalTally = {
-    overallTally: getEmptyExternalTally(),
     resultsByCategory,
+    overallTally: getEmptyExternalTally(),
     votingMethod: VotingMethod.Absentee,
     inputSourceName: 'Doesnt matter',
     source: ExternalTallySourceType.Manual,
@@ -368,8 +368,8 @@ test('loads prexisting manual data to edit', async () => {
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
+      route: '/tally/manual-data-import/precinct/23',
       electionDefinition: electionSampleDefinition,
       fullElectionExternalTallies: [externalTally],
     }
@@ -442,8 +442,8 @@ test('loads prexisting manual data to edit', async () => {
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import/precinct/20',
       saveExternalTallies,
+      route: '/tally/manual-data-import/precinct/20',
       electionDefinition: electionSampleDefinition,
       fullElectionExternalTallies: [externalTally],
     }
@@ -483,8 +483,8 @@ test('loads prexisting manual data to edit', async () => {
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
-      route: '/tally/manual-data-import/precinct/21',
       saveExternalTallies,
+      route: '/tally/manual-data-import/precinct/21',
       electionDefinition: electionSampleDefinition,
       fullElectionExternalTallies: [externalTally],
     }

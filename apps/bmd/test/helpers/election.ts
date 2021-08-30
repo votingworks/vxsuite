@@ -63,8 +63,8 @@ export const singleSeatContestWithWriteIn = election.contests.find(
 ) as CandidateContest
 
 const ballotStyle = getBallotStyle({
-  ballotStyleId: election.ballotStyles[0].id,
   election,
+  ballotStyleId: election.ballotStyles[0].id,
 })
 assert(ballotStyle)
 export const voterContests = getContests({

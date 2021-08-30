@@ -16,16 +16,16 @@ export function randomImage({
     assert(minWidth <= maxWidth)
 
     return randomImage({
-      width: Math.max(
-        1,
-        (minWidth + Math.random() * (maxWidth - minWidth + 1)) | 0
-      ),
       height,
       minWidth,
       maxWidth,
       minHeight,
       maxHeight,
       channels,
+      width: Math.max(
+        1,
+        (minWidth + Math.random() * (maxWidth - minWidth + 1)) | 0
+      ),
     })
   }
   if (!height) {
@@ -33,15 +33,15 @@ export function randomImage({
 
     return randomImage({
       width,
-      height: Math.max(
-        1,
-        (minHeight + Math.random() * (maxHeight - minHeight + 1)) | 0
-      ),
       minWidth,
       maxWidth,
       minHeight,
       maxHeight,
       channels,
+      height: Math.max(
+        1,
+        (minHeight + Math.random() * (maxHeight - minHeight + 1)) | 0
+      ),
     })
   }
   assert(width >= 0)

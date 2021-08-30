@@ -84,7 +84,7 @@ class DeferredQueue<T> {
     if (nextDeferredGet) {
       nextDeferredGet.resolve(value)
     } else {
-      this.#settlements.push({ status: 'fulfilled', value })
+      this.#settlements.push({ value, status: 'fulfilled' })
     }
   }
 
@@ -94,7 +94,7 @@ class DeferredQueue<T> {
    */
   public resolveAll(value: T): void {
     this.assertMutable()
-    this.#settleAllWith = { status: 'fulfilled', value }
+    this.#settleAllWith = { value, status: 'fulfilled' }
 
     for (const { resolve } of this.#deferredGets) {
       resolve(value)
@@ -113,7 +113,7 @@ class DeferredQueue<T> {
     if (nextDeferredGet) {
       nextDeferredGet.reject(reason)
     } else {
-      this.#settlements.push({ status: 'rejected', reason })
+      this.#settlements.push({ reason, status: 'rejected' })
     }
   }
 
@@ -123,7 +123,7 @@ class DeferredQueue<T> {
    */
   public rejectAll(reason?: unknown): void {
     this.assertMutable()
-    this.#settleAllWith = { status: 'rejected', reason }
+    this.#settleAllWith = { reason, status: 'rejected' }
 
     for (const { reject } of this.#deferredGets) {
       reject(reason)

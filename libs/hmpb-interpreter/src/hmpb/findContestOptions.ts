@@ -31,13 +31,13 @@ export default function findContestOptions(
             const topMargin = Math.round((height * topMarginPercent) / 100)
 
             return {
+              target,
               bounds: {
+                height,
                 x: bounds.x,
                 y: target.bounds.y - topMargin,
                 width: bounds.width,
-                height,
               },
-              target,
             }
           }),
         }

@@ -201,14 +201,14 @@ class PostRenderBallotProcessor extends Handler {
         }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
 
         const encoded = encodeHMPBBallotPageMetadata(election, {
-          electionHash: electionHash.substring(0, 20),
           ballotStyleId,
           precinctId,
           locales,
           isTestMode,
-          pageNumber: parseInt(pageNumber, 10),
           ballotType,
           ballotId,
+          electionHash: electionHash.substring(0, 20),
+          pageNumber: parseInt(pageNumber, 10),
         })
 
         ReactDOM.render(
@@ -710,6 +710,7 @@ const HandMarkedPaperBallot = ({
             data-election={JSON.stringify(election)}
             data-metadata={JSON.stringify(
               ((): HMPBBallotMetadata => ({
+                ballotId,
                 electionHash,
                 ballotStyleId,
                 precinctId,
@@ -718,7 +719,6 @@ const HandMarkedPaperBallot = ({
                 ballotType: isAbsentee
                   ? BallotType.Absentee
                   : BallotType.Standard,
-                ballotId,
               }))()
             )}
           />

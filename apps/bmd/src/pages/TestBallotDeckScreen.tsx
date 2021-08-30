@@ -89,9 +89,9 @@ const generateTestDeckBallots = ({
           }
         })
         ballots.push({
+          votes,
           ballotStyleId: ballotStyle.id,
           precinctId: pId,
-          votes,
         })
       }
     })

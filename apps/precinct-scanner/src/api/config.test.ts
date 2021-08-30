@@ -22,8 +22,8 @@ test('PATCH /config/election fails', async () => {
     errors: [{ type: 'invalid-value', message: 'bad election!' }],
   }
   fetchMock.patchOnce('/config/election', {
-    status: 400,
     body,
+    status: 400,
   })
   await expect(
     config.setElection(testElectionDefinition.electionData)

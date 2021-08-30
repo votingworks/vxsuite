@@ -60,8 +60,8 @@ const PickDateTimeModal = ({
       DateTime.fromObject({
         year,
         month,
-        day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
         hour,
+        day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
         minute: name === 'minute' ? partValue : newValue.minute,
         zone: newValue.zone,
       })

@@ -539,7 +539,7 @@ describe('filterTalliesByParams in a primary election', () => {
       const filteredResults = filterTalliesByParams(
         electionTally,
         multiPartyPrimaryElection,
-        { partyId: '4', precinctId }
+        { precinctId, partyId: '4' }
       )
       expect(Object.keys(filteredResults.contestTallies)).toStrictEqual(
         expectedParty4Info.contestIds

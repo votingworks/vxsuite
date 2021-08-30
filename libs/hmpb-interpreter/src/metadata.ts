@@ -43,13 +43,13 @@ export function decodeSearchParams(
   const pageNumber = parseInt(pageInfoNumber, 10)
 
   return {
-    electionHash: '',
-    ballotType: BallotType.Standard,
     locales,
     ballotStyleId,
     precinctId,
     isTestMode,
     pageNumber,
+    electionHash: '',
+    ballotType: BallotType.Standard,
   }
 }
 

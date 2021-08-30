@@ -237,9 +237,9 @@ const PrintBallot = ({
   const encodedBallot = encodeBallot(election, {
     electionHash,
     precinctId,
-    ballotId: '',
     ballotStyleId,
     votes,
+    ballotId: '',
     isTestMode: !isLiveMode,
     ballotType: BallotType.Standard,
   })

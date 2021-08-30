@@ -165,7 +165,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/config/testMode',
     async (_request, response) => {
       const testMode = await store.getTestMode()
-      response.json({ status: 'ok', testMode })
+      response.json({ testMode, status: 'ok' })
     }
   )
 
@@ -195,7 +195,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/config/precinct',
     async (_request, response) => {
       const precinctId = await store.getCurrentPrecinctId()
-      response.json({ status: 'ok', precinctId })
+      response.json({ precinctId, status: 'ok' })
     }
   )
 
@@ -234,7 +234,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/config/markThresholdOverrides',
     async (_request, response) => {
       const markThresholdOverrides = await store.getMarkThresholdOverrides()
-      response.json({ status: 'ok', markThresholdOverrides })
+      response.json({ markThresholdOverrides, status: 'ok' })
     }
   )
 
@@ -301,7 +301,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     async (_request, response) => {
       try {
         const batchId = await importer.startImport()
-        response.json({ status: 'ok', batchId })
+        response.json({ batchId, status: 'ok' })
       } catch (err) {
         response.json({
           status: 'error',
@@ -648,9 +648,9 @@ export async function start({
   const resolvedImporter =
     importer ??
     new Importer({
+      workerPoolProvider,
       workspace: resolvedWorkspace,
       scanner: resolvedScanner,
-      workerPoolProvider,
     })
   const resolvedApp =
     app ??

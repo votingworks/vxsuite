@@ -5,12 +5,12 @@ export default function fakeFileWriter(): jest.Mocked<
 > {
   const chunks: Chunk[] = []
   const fileWriter = {
+    chunks,
     write: jest.fn().mockImplementation((chunk) => {
       chunks.push(chunk)
     }),
     end: jest.fn().mockResolvedValue(undefined),
     filename: '',
-    chunks,
   }
 
   return fileWriter

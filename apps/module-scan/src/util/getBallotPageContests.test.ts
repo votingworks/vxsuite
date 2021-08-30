@@ -6,17 +6,17 @@ import getBallotPageContests from './getBallotPageContests'
 
 function metadataForPage(pageNumber: number): BallotPageMetadata {
   return {
+    pageNumber,
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,
-    pageNumber,
     locales: { primary: 'en-US', secondary: 'es-US' },
     ballotType: BallotType.Standard,
     electionHash: '',
   }
 }
 test('gets contests broken across pages according to the layout', () => {
-  const ballotStyle = getBallotStyle({ ballotStyleId: '12', election })!
+  const ballotStyle = getBallotStyle({ election, ballotStyleId: '12' })!
   const allContestsForBallot = getContests({ ballotStyle, election })
   const layouts = new Array(5)
     .fill(undefined)

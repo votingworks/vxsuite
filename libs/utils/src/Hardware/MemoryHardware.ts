@@ -146,9 +146,9 @@ export default class MemoryHardware implements Hardware {
     this.setDeviceConnected(this.printer, connected)
     this.printersSubject.next([
       {
+        connected,
         name: this.printer.deviceName,
         description: this.printer.manufacturer,
-        connected,
         isDefault: true,
         status: 0,
       },

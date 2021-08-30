@@ -73,7 +73,7 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
           })
         )
 
-        await fetch('/scan/hmpb/addTemplates', { method: 'POST', body })
+        await fetch('/scan/hmpb/addTemplates', { body, method: 'POST' })
       }
 
       result.emit('completed', pkg)

@@ -161,7 +161,7 @@ export default function* findContests(
 
       const shape = findShape(
         ballotImage,
-        { x: columnMidX, y },
+        { y, x: columnMidX },
         { visitedPoints, maximumSkipDistance: 2, maximumAllowedSkipCount: 15 }
       )
 
@@ -209,8 +209,8 @@ export default function* findContests(
       } else {
         debug('found contest shape: %O', shape.bounds)
         yield {
-          bounds: shape.bounds,
           corners,
+          bounds: shape.bounds,
         }
         lastShape = shape
       }
@@ -261,7 +261,7 @@ export function findBallotLayoutCorrespondence(
   }
 
   return {
-    corresponds: mismatchedContests.length === 0,
     mismatchedContests,
+    corresponds: mismatchedContests.length === 0,
   }
 }

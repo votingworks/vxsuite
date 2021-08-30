@@ -99,15 +99,15 @@ export default function* ballotAdjudicationReasons(
 
         if (selectedOptionIds.length < expectedSelectionCount) {
           yield {
-            type: AdjudicationReason.Undervote,
             contestId,
+            type: AdjudicationReason.Undervote,
             optionIds: selectedOptionIds,
             expected: expectedSelectionCount,
           }
         } else if (selectedOptionIds.length > expectedSelectionCount) {
           yield {
-            type: AdjudicationReason.Overvote,
             contestId,
+            type: AdjudicationReason.Overvote,
             optionIds: selectedOptionIds,
             expected: expectedSelectionCount,
           }

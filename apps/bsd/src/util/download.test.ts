@@ -35,7 +35,7 @@ test.skip('kiosk browser successful download', async () => {
 
   const write = jest.fn()
   const end = jest.fn()
-  kiosk.saveAs.mockResolvedValueOnce({ filename: '/fake/file', write, end })
+  kiosk.saveAs.mockResolvedValueOnce({ write, end, filename: '/fake/file' })
 
   fetchMock.getOnce('/a/url', 'abcdefg')
   await download('/a/url')

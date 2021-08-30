@@ -230,9 +230,9 @@ export async function createClient(
     })
 
   return ok({
-    isConnected: () => connected,
-
     getPaperStatus,
+
+    isConnected: () => connected,
 
     waitForStatus: async ({ status, interval = 50, timeout }) => {
       const until =

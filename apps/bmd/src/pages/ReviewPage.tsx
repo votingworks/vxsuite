@@ -365,7 +365,7 @@ const ReviewPage = (): JSX.Element => {
         ? currentScrollTop + idealScrollDistance
         : currentScrollTop - idealScrollDistance
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
-    sc.scrollTo({ behavior: 'smooth', left: 0, top })
+    sc.scrollTo({ top, behavior: 'smooth', left: 0 })
   }
 
   assert(
@@ -493,8 +493,8 @@ const ReviewPage = (): JSX.Element => {
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
                 precinctId,
+                kind: PrecinctSelectionKind.SinglePrecinct,
               }}
               horizontal
             />

@@ -12,10 +12,10 @@ const { election, electionHash } = electionDefinition
 
 test('normalizing sheet metadata', () => {
   const metadata: BallotMetadata = {
+    electionHash,
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: election.precincts[0].id,
     ballotType: BallotType.Standard,
-    electionHash,
     isTestMode: false,
     locales: { primary: 'en-US' },
   }

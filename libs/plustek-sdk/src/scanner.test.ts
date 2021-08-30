@@ -132,14 +132,14 @@ test('client connects and disconnects successfully', async () => {
   const onDisconnected = jest.fn()
   const client = (
     await createClient(DEFAULT_CONFIG, {
+      onConnected,
+      onDisconnected,
       onWaitingForHandshake: jest.fn(() => {
         // simulate plustekctl indicating it is ready
         plustekctl.stdout.append(
           'plustek something something firmware\n<<<>>>\nready\n<<<>>>\n'
         )
       }),
-      onConnected,
-      onDisconnected,
     })
   ).unsafeUnwrap()
 
@@ -168,11 +168,11 @@ test('unsuccessful disconnect returns error', async () => {
   const onDisconnected = jest.fn()
   const client = (
     await createClient(DEFAULT_CONFIG, {
+      onDisconnected,
       onWaitingForHandshake: jest.fn(() => {
         // simulate plustekctl indicating it is ready
         plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
       }),
-      onDisconnected,
     })
   ).unsafeUnwrap()
 

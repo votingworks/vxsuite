@@ -1132,8 +1132,8 @@ export default class Store {
         })
         assert(ballotStyle)
         const contests = getContests({
-          election: electionDefinition.election,
           ballotStyle,
+          election: electionDefinition.election,
         })
 
         return contests

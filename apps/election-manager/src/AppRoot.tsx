@@ -335,9 +335,6 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
         saveIsOfficialResults,
         setCastVoteRecordFiles,
         resetFiles,
-        usbDriveStatus: displayUsbStatus,
-        usbDriveEject: usbDrive.eject,
-        printedBallots: printedBallots || [],
         addPrintedBallot,
         fullElectionTally,
         setFullElectionTally,
@@ -346,6 +343,9 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
+        usbDriveStatus: displayUsbStatus,
+        usbDriveEject: usbDrive.eject,
+        printedBallots: printedBallots || [],
       }}
     >
       <ElectionManager />

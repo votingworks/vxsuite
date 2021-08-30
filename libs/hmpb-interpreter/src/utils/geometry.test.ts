@@ -29,7 +29,7 @@ test('rectCorners', () => {
   const corners = rectCorners({ x, y, width, height })
   expect(corners).toEqual([
     { x, y },
-    { x: x + width - 1, y },
+    { y, x: x + width - 1 },
     { x, y: y + height - 1 },
     { x: x + width - 1, y: y + height - 1 },
   ])
@@ -49,7 +49,7 @@ test('rectCenter', () => {
 test('rectCenter at origin', () => {
   const width = randomInt(1, 1000)
   const height = randomInt(1, 1000)
-  expect(rectCenter({ x: 0, y: 0, width, height })).toEqual({
+  expect(rectCenter({ width, height, x: 0, y: 0 })).toEqual({
     x: (width - 1) / 2,
     y: (height - 1) / 2,
   })

@@ -228,8 +228,8 @@ export const calculateTally = ({
   // first update the tally for either-neither contests
   const tally = computeTallyForEitherNeitherContests({
     election,
-    tally: prevTally,
     votes,
+    tally: prevTally,
     contests: contestsForBallotStyle,
   })
 

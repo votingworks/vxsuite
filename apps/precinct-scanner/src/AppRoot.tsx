@@ -709,7 +709,7 @@ const AppRoot = ({
 
   const updatePrecinctId = useCallback(
     async (precinctId: string) => {
-      dispatchAppState({ type: 'updatePrecinctId', precinctId })
+      dispatchAppState({ precinctId, type: 'updatePrecinctId' })
       await config.setCurrentPrecinctId(precinctId)
     },
     [dispatchAppState]

@@ -57,7 +57,7 @@ class ScannerSessionPlan {
     if (this.#ended) {
       throw new Error('cannot add a sheet scan step to an ended session')
     }
-    this.#steps.push({ type: 'sheet', sheet })
+    this.#steps.push({ sheet, type: 'sheet' })
     return this
   }
 
@@ -68,7 +68,7 @@ class ScannerSessionPlan {
     if (this.#ended) {
       throw new Error('cannot add an error step to an ended session')
     }
-    this.#steps.push({ type: 'error', error })
+    this.#steps.push({ error, type: 'error' })
     return this
   }
 

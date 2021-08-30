@@ -530,7 +530,7 @@ test('start reloads configuration from the store', async () => {
   })
 
   // start up the server
-  await start({ importer, app, log: jest.fn(), workspace })
+  await start({ workspace, importer, app, log: jest.fn() })
 
   // did we load everything from the store?
   expect(importer.restoreConfig).toHaveBeenCalled()
@@ -557,8 +557,8 @@ test('start as precinct-scanner rejects a held sheet at startup', async () => {
   await start({
     importer,
     app,
-    log: jest.fn(),
     workspace,
+    log: jest.fn(),
     machineType: 'precinct-scanner',
   })
 

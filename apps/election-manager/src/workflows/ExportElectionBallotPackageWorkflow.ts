@@ -76,9 +76,9 @@ export function init(
   localeCodes: readonly string[]
 ): Init {
   return {
-    type: 'Init',
     election,
     electionHash,
+    type: 'Init',
     ballotConfigs: getAllBallotConfigs(
       election,
       electionHash,
@@ -105,13 +105,13 @@ export function next(state: State): State {
       ] = state.ballotConfigs
 
       return {
+        currentBallotConfig,
+        remainingBallotConfigs,
         type: 'RenderBallot',
         election: state.election,
         electionHash: state.electionHash,
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigs.length,
-        currentBallotConfig,
-        remainingBallotConfigs,
       }
     }
 
@@ -130,13 +130,13 @@ export function next(state: State): State {
       }
 
       return {
+        currentBallotConfig,
+        remainingBallotConfigs,
         type: 'RenderBallot',
         election: state.election,
         electionHash: state.electionHash,
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigsCount,
-        currentBallotConfig,
-        remainingBallotConfigs,
       }
     }
 

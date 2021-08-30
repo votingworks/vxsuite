@@ -36,6 +36,8 @@ export function getSampleCard(): Card {
 
 export function getDemoStorage(): Storage {
   const state: Partial<State> = {
+    ballotStyleId,
+    precinctId,
     electionDefinition: electionSampleDefinition,
     appPrecinct: {
       kind: PrecinctSelectionKind.SinglePrecinct,
@@ -44,19 +46,17 @@ export function getDemoStorage(): Storage {
     ballotsPrintedCount: 0,
     isLiveMode: true,
     isPollsOpen: true,
-    ballotStyleId,
     isCardlessVoter: false,
-    precinctId,
   }
   const activation: SerializableActivationData = {
     ballotStyleId,
-    isCardlessVoter: false,
     precinctId,
+    isCardlessVoter: false,
   }
   return new MemoryStorage({
     state,
-    electionDefinition: electionSampleDefinition,
     activation,
+    electionDefinition: electionSampleDefinition,
   })
 }
 

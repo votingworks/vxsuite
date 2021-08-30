@@ -443,15 +443,15 @@ test('run interpret with JSON output', async () => {
         \\"input\\": \\"test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg\\",
         \\"interpreted\\": {
           \\"metadata\\": {
-            \\"electionHash\\": \\"\\",
-            \\"ballotType\\": 0,
             \\"locales\\": {
               \\"primary\\": \\"en-US\\"
             },
             \\"ballotStyleId\\": \\"77\\",
             \\"precinctId\\": \\"42\\",
             \\"isTestMode\\": false,
-            \\"pageNumber\\": 1
+            \\"pageNumber\\": 1,
+            \\"electionHash\\": \\"\\",
+            \\"ballotType\\": 0
           },
           \\"votes\\": {
             \\"us-senate\\": [

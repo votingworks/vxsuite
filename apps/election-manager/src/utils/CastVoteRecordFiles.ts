@@ -309,11 +309,11 @@ export default class CastVoteRecordFiles {
       return new CastVoteRecordFiles(
         setAdd(this.signatures, signature),
         setAdd(this.files, {
-          name: fileName,
-          count: fileCastVoteRecords.length,
           precinctIds,
           scannerIds,
           exportTimestamp,
+          name: fileName,
+          count: fileCastVoteRecords.length,
         }),
         this.duplicateFilenames,
         this.parseFailedErrors,

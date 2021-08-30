@@ -35,9 +35,9 @@ export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
       .filter((batch) => batch.endedAt)
       .reduce((prev, batch) => prev + batch.count, 0)
   return {
+    ballotCount,
     ballotNeedsReview: adjudication.remaining > 0,
     scannerState: scanner,
-    ballotCount,
   }
 }
 

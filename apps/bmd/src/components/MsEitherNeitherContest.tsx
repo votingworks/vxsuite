@@ -162,9 +162,9 @@ const MsEitherNeitherContest = ({
         : currentScrollTop - idealScrollDistance
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
     sc.scrollTo({
+      top,
       behavior: 'smooth',
       left: 0,
-      top,
     })
   }
 

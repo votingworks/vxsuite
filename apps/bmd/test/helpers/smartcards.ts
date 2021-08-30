@@ -27,8 +27,8 @@ const altPrecinctId = election.precincts[1].id
 
 export const sampleVotes0: Readonly<VotesDict> = vote(
   getContests({
-    ballotStyle: election.ballotStyles[0],
     election,
+    ballotStyle: election.ballotStyles[0],
   }),
   {
     president: [contest0candidate0],
@@ -40,8 +40,8 @@ export const sampleVotes0: Readonly<VotesDict> = vote(
 
 export const sampleVotes1: Readonly<VotesDict> = vote(
   getContests({
-    ballotStyle: election.ballotStyles[0],
     election,
+    ballotStyle: election.ballotStyles[0],
   }),
   {
     '102': ['yes'],
@@ -69,8 +69,8 @@ export const sampleVotes1: Readonly<VotesDict> = vote(
 
 export const sampleVotes2: Readonly<VotesDict> = vote(
   getContests({
-    ballotStyle: election.ballotStyles[0],
     election,
+    ballotStyle: election.ballotStyles[0],
   }),
   {
     '102': ['no'],
@@ -100,8 +100,8 @@ export const sampleVotes2: Readonly<VotesDict> = vote(
 
 export const sampleVotes3: Readonly<VotesDict> = vote(
   getContests({
-    ballotStyle: election.ballotStyles[0],
     election,
+    ballotStyle: election.ballotStyles[0],
   }),
   {
     '102': ['yes'],

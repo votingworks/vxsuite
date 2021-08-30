@@ -21,7 +21,7 @@ export default async function* pdfToImages(
     canvas.width = viewport.width
     canvas.height = viewport.height
 
-    await page.render({ canvasContext: context, viewport }).promise
+    await page.render({ viewport, canvasContext: context }).promise
 
     yield {
       pageCount: pdf.numPages,

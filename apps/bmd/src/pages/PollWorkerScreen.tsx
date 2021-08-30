@@ -340,9 +340,9 @@ const PollWorkerScreen = ({
       ballotCount: ballotsPrintedCount,
     })
     await saveTallyToCard({
+      metadata,
       tallyMachineType: TallySourceMachineType.BMD,
       tally: combinedTally,
-      metadata,
       totalBallotsPrinted: combinedBallotsPrinted,
     })
     setIsSavingTally(false)

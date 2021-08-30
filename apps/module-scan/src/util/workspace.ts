@@ -15,8 +15,8 @@ export async function createWorkspace(root: string): Promise<Workspace> {
   await ensureDir(ballotImagesPath)
 
   return {
-    path: resolvedRoot,
     ballotImagesPath,
+    path: resolvedRoot,
     store: await Store.fileStore(dbPath),
   }
 }

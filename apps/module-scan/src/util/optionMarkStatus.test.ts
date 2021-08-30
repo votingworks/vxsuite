@@ -26,9 +26,9 @@ test('a yesno mark', () => {
     markThresholds,
     marks: [
       {
+        contest,
         type: 'yesno',
         bounds: defaultShape.bounds,
-        contest,
         target: defaultShape,
         option: 'yes',
         score: 0.5,
@@ -59,9 +59,9 @@ test('a candidate mark', () => {
     markThresholds,
     marks: [
       {
+        contest,
         type: 'candidate',
         bounds: defaultShape.bounds,
-        contest,
         target: defaultShape,
         option: contest.candidates[2],
         score: 0.5,
@@ -92,9 +92,9 @@ test('a ms-either-neither mark', () => {
     markThresholds,
     marks: [
       {
+        contest,
         type: 'ms-either-neither',
         bounds: defaultShape.bounds,
-        contest,
         target: defaultShape,
         option: contest.neitherOption,
         score: 0.5,
@@ -111,9 +111,9 @@ test('a ms-either-neither mark', () => {
     markThresholds,
     marks: [
       {
+        contest,
         type: 'ms-either-neither',
         bounds: defaultShape.bounds,
-        contest,
         target: defaultShape,
         option: contest.firstOption,
         score: 0.5,

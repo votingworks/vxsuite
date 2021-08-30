@@ -119,8 +119,8 @@ const ContestPage = ({
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
                 precinctId,
+                kind: PrecinctSelectionKind.SinglePrecinct,
               }}
               horizontal
             />
