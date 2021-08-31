@@ -1,5 +1,5 @@
 export = {
-  extends: ['./configs/base'],
+  extends: [require.resolve('./base')],
   rules: {
     '@typescript-eslint/no-floating-promises': 'error',
     'no-void': 'off', // allow silencing `no-floating-promises` with `void`
