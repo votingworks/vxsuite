@@ -186,34 +186,35 @@ export async function retryScan(
         )
 
         const [front, back] = await Promise.all(
-          [
-            ...zip(originalScans, [
+          Array.from(
+            zip(originalScans, [
               frontDetectQrcodeOutput,
               backDetectQrcodeOutput,
             ]),
-          ].map(async ([scan, qrcode], i) => {
-            const imagePath = isAbsolute(scan.originalFilename)
-              ? scan.originalFilename
-              : resolve(input.store.dbPath, '..', scan.originalFilename)
-            const rescan = (await pool.call({
-              action: 'interpret',
-              sheetId: id,
-              imagePath,
-              detectQrcodeResult: qrcode,
-              ballotImagesPath: output.ballotImagesPath,
-            })) as InterpretOutput
+            async ([scan, qrcode], i) => {
+              const imagePath = isAbsolute(scan.originalFilename)
+                ? scan.originalFilename
+                : resolve(input.store.dbPath, '..', scan.originalFilename)
+              const rescan = (await pool.call({
+                action: 'interpret',
+                sheetId: id,
+                imagePath,
+                detectQrcodeResult: qrcode,
+                ballotImagesPath: output.ballotImagesPath,
+              })) as InterpretOutput
 
-            if (rescan) {
-              listeners?.pageInterpreted?.(
-                id,
-                i === 0 ? 'front' : 'back',
-                scan,
-                rescan
-              )
+              if (rescan) {
+                listeners?.pageInterpreted?.(
+                  id,
+                  i === 0 ? 'front' : 'back',
+                  scan,
+                  rescan
+                )
+              }
+
+              return rescan
             }
-
-            return rescan
-          })
+          )
         )
 
         if (front && back) {

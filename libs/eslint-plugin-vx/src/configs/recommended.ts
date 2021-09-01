@@ -38,6 +38,7 @@ export = {
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
+    'vx/use-array-from-with-map': 'error',
 
     '@typescript-eslint/no-extra-semi': 'off',
     '@typescript-eslint/no-floating-promises': 'error',

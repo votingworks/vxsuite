@@ -33,10 +33,13 @@ function parseCVRsAndAssertSuccess(
   cvrsFileContents: string,
   election: Election
 ): CastVoteRecord[] {
-  return [...parseCVRs(cvrsFileContents, election)].map(({ cvr, errors }) => {
-    expect({ cvr, errors }).toEqual({ cvr, errors: [] })
-    return cvr
-  })
+  return Array.from(
+    parseCVRs(cvrsFileContents, election),
+    ({ cvr, errors }) => {
+      expect({ cvr, errors }).toEqual({ cvr, errors: [] })
+      return cvr
+    }
+  )
 }
 
 function assertTalliesAreIdenticalMultiples(

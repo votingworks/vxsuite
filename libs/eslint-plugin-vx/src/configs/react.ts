@@ -28,6 +28,7 @@ export = {
         controlComponents: ['Select'],
       },
     ],
+    'react/jsx-curly-newline': 'off',
     'react/jsx-filename-extension': ['error', { extensions: allExtensions }],
     'react/jsx-fragments': ['error', 'element'],
     'react/jsx-one-expression-per-line': 'off',

@@ -75,24 +75,28 @@ async function main(out = process.stdout) {
     '--json',
     '--by-file',
     '--include-lang=TypeScript',
-    '--exclude-ext=test.ts,test.tsx'
+    '--exclude-ext=test.ts,test.tsx',
   ])
 
   if (stderr.length) {
     console.error('ERROR:', stderr)
   }
 
-  const { header: headerUnparsed, SUM: sumUnparsed, ...fileStatsUnparsed } = JSON.parse(stdout)
+  const {
+    header: headerUnparsed,
+    SUM: sumUnparsed,
+    ...fileStatsUnparsed
+  } = JSON.parse(stdout)
   const _header = StatsHeaderSchema.parse(headerUnparsed)
   const summary = StatSummarySchema.parse(sumUnparsed)
   const fileStats = StatsSchema.parse(fileStatsUnparsed)
   /** @type {Map<number, Set<[string, z.TypeOf<typeof StatSchema>]>>} */
   const filesByMinCLOC = new Map(
-    [...minCLOCRequirements.keys()].map(minCLOC => [minCLOC, new Set()])
+    Array.from(minCLOCRequirements.keys(), (minCLOC) => [minCLOC, new Set()])
   )
   /** @type {Map<number, Set<[string, z.TypeOf<typeof StatSchema>]>>} */
   const filesByCLOCRange = new Map(
-    [...minCLOCRequirements.keys()].map(minCLOC => [minCLOC, new Set()])
+    Array.from(minCLOCRequirements.keys(), (minCLOC) => [minCLOC, new Set()])
   )
 
   for (const [file, stat] of Object.entries(fileStats)) {
@@ -151,12 +155,12 @@ function formatCLOCStat(minCLOC, actual, expected) {
     `${minCLOC.toString().padStart(3, ' ')}+ CLOC: ${Math.round(actual * 100)
       .toString()
       .padStart(2, ' ')}% (<= ${Math.round(
-        expected * 100
-      ).toString()}% expected)`
+      expected * 100
+    ).toString()}% expected)`
   )
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error(error)
   process.exitCode = -1
 })
