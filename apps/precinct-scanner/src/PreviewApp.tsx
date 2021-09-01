@@ -20,30 +20,28 @@ import * as ScanWarningScreen from './screens/ScanWarningScreen'
 import * as SetupCardReaderPage from './screens/SetupCardReaderPage'
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 
-const PreviewApp = (): JSX.Element => {
-  return (
-    <PreviewDashboard
-      electionDefinitions={[
-        electionSampleDefinition,
-        primaryElectionSampleDefinition,
-        electionWithMsEitherNeitherDefinition,
-      ]}
-      modules={[
-        AdminScreen,
-        InsertBallotScreen,
-        InvalidCardScreen,
-        LoadingConfigurationScreen,
-        PollsClosedScreen,
-        PollWorkerScreen,
-        ScanErrorScreen,
-        ScanProcessingScreen,
-        ScanSuccessScreen,
-        ScanWarningScreen,
-        SetupCardReaderPage,
-        UnconfiguredElectionScreen,
-      ]}
-    />
-  )
-}
+const PreviewApp = (): JSX.Element => (
+  <PreviewDashboard
+    electionDefinitions={[
+      electionSampleDefinition,
+      primaryElectionSampleDefinition,
+      electionWithMsEitherNeitherDefinition,
+    ]}
+    modules={[
+      AdminScreen,
+      InsertBallotScreen,
+      InvalidCardScreen,
+      LoadingConfigurationScreen,
+      PollsClosedScreen,
+      PollWorkerScreen,
+      ScanErrorScreen,
+      ScanProcessingScreen,
+      ScanSuccessScreen,
+      ScanWarningScreen,
+      SetupCardReaderPage,
+      UnconfiguredElectionScreen,
+    ]}
+  />
+)
 
 export default PreviewApp

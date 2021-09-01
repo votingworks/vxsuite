@@ -14,6 +14,4 @@ const ScanProcessingScreen = (): JSX.Element => (
 export default ScanProcessingScreen
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
-  return <ScanProcessingScreen />
-}
+export const DefaultPreview = (): JSX.Element => <ScanProcessingScreen />

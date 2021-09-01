@@ -16,16 +16,14 @@ interface Props {
   sealURL?: string
 }
 
-const Seal = ({ seal, sealURL }: Props): JSX.Element => {
-  return (
-    <SealContainer
-      aria-hidden
-      dangerouslySetInnerHTML={seal ? { __html: seal } : undefined}
-    >
-      {(!seal && sealURL && <SealImage alt="state seal" src={sealURL} />) ||
-        undefined}
-    </SealContainer>
-  )
-}
+const Seal = ({ seal, sealURL }: Props): JSX.Element => (
+  <SealContainer
+    aria-hidden
+    dangerouslySetInnerHTML={seal ? { __html: seal } : undefined}
+  >
+    {(!seal && sealURL && <SealImage alt="state seal" src={sealURL} />) ||
+      undefined}
+  </SealContainer>
+)
 
 export default Seal

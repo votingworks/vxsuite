@@ -38,34 +38,30 @@ const combineCandidateTallies = (
 const combineYesNoTallies = (
   tally1: YesNoVoteTally,
   tally2: YesNoVoteTally
-): YesNoVoteTally => {
-  return {
-    yes: tally1.yes + tally2.yes,
-    no: tally1.no + tally2.no,
-    overvotes: tally1.overvotes + tally2.overvotes,
-    undervotes: tally1.undervotes + tally2.undervotes,
-    ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
-  }
-}
+): YesNoVoteTally => ({
+  yes: tally1.yes + tally2.yes,
+  no: tally1.no + tally2.no,
+  overvotes: tally1.overvotes + tally2.overvotes,
+  undervotes: tally1.undervotes + tally2.undervotes,
+  ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
+})
 
 const combineEitherNeitherTallies = (
   tally1: MsEitherNeitherTally,
   tally2: MsEitherNeitherTally
-): MsEitherNeitherTally => {
-  return {
-    eitherOption: tally1.eitherOption + tally2.eitherOption,
-    neitherOption: tally1.neitherOption + tally2.neitherOption,
-    eitherNeitherUndervotes:
-      tally1.eitherNeitherUndervotes + tally2.eitherNeitherUndervotes,
-    eitherNeitherOvervotes:
-      tally1.eitherNeitherOvervotes + tally2.eitherNeitherOvervotes,
-    firstOption: tally1.firstOption + tally2.firstOption,
-    secondOption: tally1.secondOption + tally2.secondOption,
-    pickOneUndervotes: tally1.pickOneUndervotes + tally2.pickOneUndervotes,
-    pickOneOvervotes: tally1.pickOneOvervotes + tally2.pickOneOvervotes,
-    ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
-  }
-}
+): MsEitherNeitherTally => ({
+  eitherOption: tally1.eitherOption + tally2.eitherOption,
+  neitherOption: tally1.neitherOption + tally2.neitherOption,
+  eitherNeitherUndervotes:
+    tally1.eitherNeitherUndervotes + tally2.eitherNeitherUndervotes,
+  eitherNeitherOvervotes:
+    tally1.eitherNeitherOvervotes + tally2.eitherNeitherOvervotes,
+  firstOption: tally1.firstOption + tally2.firstOption,
+  secondOption: tally1.secondOption + tally2.secondOption,
+  pickOneUndervotes: tally1.pickOneUndervotes + tally2.pickOneUndervotes,
+  pickOneOvervotes: tally1.pickOneOvervotes + tally2.pickOneOvervotes,
+  ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
+})
 
 export const combineTallies = (
   election: Election,

@@ -22,30 +22,28 @@ const RemoveCardScreen = ({
   ballotStyleId,
   lockScreen,
   precinctName,
-}: Props): JSX.Element => {
-  return (
-    <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <RemoveCardImage
-              src="/images/remove-card.svg"
-              alt="Remove Card Diagram"
-            />
-            <h1>Hand Card to Voter</h1>
-            <p>
-              {precinctName} / {ballotStyleId}
-            </p>
-          </Prose>
-        </MainChild>
-      </Main>
-      <MainNav>
-        <Button small onPress={lockScreen}>
-          Lock
-        </Button>
-      </MainNav>
-    </Screen>
-  )
-}
+}: Props): JSX.Element => (
+  <Screen>
+    <Main>
+      <MainChild center>
+        <Prose textCenter>
+          <RemoveCardImage
+            src="/images/remove-card.svg"
+            alt="Remove Card Diagram"
+          />
+          <h1>Hand Card to Voter</h1>
+          <p>
+            {precinctName} / {ballotStyleId}
+          </p>
+        </Prose>
+      </MainChild>
+    </Main>
+    <MainNav>
+      <Button small onPress={lockScreen}>
+        Lock
+      </Button>
+    </MainNav>
+  </Screen>
+)
 
 export default RemoveCardScreen

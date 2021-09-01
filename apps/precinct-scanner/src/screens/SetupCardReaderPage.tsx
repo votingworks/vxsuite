@@ -13,6 +13,4 @@ const SetupCardReaderPage = (): JSX.Element => (
 export default SetupCardReaderPage
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
-  return <SetupCardReaderPage />
-}
+export const DefaultPreview = (): JSX.Element => <SetupCardReaderPage />

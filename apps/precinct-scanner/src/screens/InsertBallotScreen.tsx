@@ -9,35 +9,33 @@ interface Props {
   scannedBallotCount: number
 }
 
-const InsertBallotScreen = ({ scannedBallotCount }: Props): JSX.Element => {
-  return (
-    <CenteredScreen>
-      <InsertBallot />
-      <CenteredLargeProse>
-        <h1>Insert Your Ballot Below</h1>
-        <p>Scan one ballot sheet at a time.</p>
-      </CenteredLargeProse>
-      <Absolute top left>
-        <Bar>
-          <div>
-            Ballots Scanned:{' '}
-            <strong data-testid="ballot-count">
-              {format.count(scannedBallotCount)}
-            </strong>
-          </div>
-        </Bar>
-      </Absolute>
-    </CenteredScreen>
-  )
-}
+const InsertBallotScreen = ({ scannedBallotCount }: Props): JSX.Element => (
+  <CenteredScreen>
+    <InsertBallot />
+    <CenteredLargeProse>
+      <h1>Insert Your Ballot Below</h1>
+      <p>Scan one ballot sheet at a time.</p>
+    </CenteredLargeProse>
+    <Absolute top left>
+      <Bar>
+        <div>
+          Ballots Scanned:{' '}
+          <strong data-testid="ballot-count">
+            {format.count(scannedBallotCount)}
+          </strong>
+        </div>
+      </Bar>
+    </Absolute>
+  </CenteredScreen>
+)
 export default InsertBallotScreen
 
 /* istanbul ignore next */
-export const ZeroBallotsScannedPreview = (): JSX.Element => {
-  return <InsertBallotScreen scannedBallotCount={0} />
-}
+export const ZeroBallotsScannedPreview = (): JSX.Element => (
+  <InsertBallotScreen scannedBallotCount={0} />
+)
 
 /* istanbul ignore next */
-export const ManyBallotsScannedPreview = (): JSX.Element => {
-  return <InsertBallotScreen scannedBallotCount={1234} />
-}
+export const ManyBallotsScannedPreview = (): JSX.Element => (
+  <InsertBallotScreen scannedBallotCount={1234} />
+)

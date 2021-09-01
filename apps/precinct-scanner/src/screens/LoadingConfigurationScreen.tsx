@@ -14,6 +14,4 @@ const LoadingConfigurationScreen = (): JSX.Element => (
 export default LoadingConfigurationScreen
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
-  return <LoadingConfigurationScreen />
-}
+export const DefaultPreview = (): JSX.Element => <LoadingConfigurationScreen />

@@ -377,12 +377,14 @@ const AppRoot = ({
     })
   }, [dispatchAppState])
 
-  const dismissCurrentBallotMessage = useCallback((): number => {
-    return window.setTimeout(
-      () => dispatchAppState({ type: 'readyToInsertBallot' }),
-      TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
-    )
-  }, [dispatchAppState])
+  const dismissCurrentBallotMessage = useCallback(
+    (): number =>
+      window.setTimeout(
+        () => dispatchAppState({ type: 'readyToInsertBallot' }),
+        TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
+      ),
+    [dispatchAppState]
+  )
 
   // Handle Machine Config
   useEffect(() => {

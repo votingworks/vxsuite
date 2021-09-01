@@ -28,41 +28,39 @@ interface Props {
 const TallyReportSummary = ({
   totalBallotCount,
   ballotCountsByVotingMethod,
-}: Props): JSX.Element => {
-  return (
-    <BallotSummary>
-      <h3>Ballots by Voting Method</h3>
-      <Table data-testid="voting-method-table">
-        <tbody>
-          {Object.keys(ballotCountsByVotingMethod).map((votingMethod) => {
-            // Hide the "Other" row when it does not apply to any CVRs
-            if (
-              votingMethod === VotingMethod.Unknown &&
-              ballotCountsByVotingMethod[votingMethod] === 0
-            ) {
-              return null
-            }
-            return (
-              <tr key={votingMethod} data-testid={votingMethod}>
-                <TD>{getLabelForVotingMethod(votingMethod as VotingMethod)}</TD>
-                <TD textAlign="right">
-                  {format.count(ballotCountsByVotingMethod[votingMethod] ?? 0)}
-                </TD>
-              </tr>
-            )
-          })}
-          <tr data-testid="total">
-            <TD>
-              <strong>Total Ballots Cast</strong>
-            </TD>
-            <TD textAlign="right">
-              <strong>{format.count(totalBallotCount)}</strong>
-            </TD>
-          </tr>
-        </tbody>
-      </Table>
-    </BallotSummary>
-  )
-}
+}: Props): JSX.Element => (
+  <BallotSummary>
+    <h3>Ballots by Voting Method</h3>
+    <Table data-testid="voting-method-table">
+      <tbody>
+        {Object.keys(ballotCountsByVotingMethod).map((votingMethod) => {
+          // Hide the "Other" row when it does not apply to any CVRs
+          if (
+            votingMethod === VotingMethod.Unknown &&
+            ballotCountsByVotingMethod[votingMethod] === 0
+          ) {
+            return null
+          }
+          return (
+            <tr key={votingMethod} data-testid={votingMethod}>
+              <TD>{getLabelForVotingMethod(votingMethod as VotingMethod)}</TD>
+              <TD textAlign="right">
+                {format.count(ballotCountsByVotingMethod[votingMethod] ?? 0)}
+              </TD>
+            </tr>
+          )
+        })}
+        <tr data-testid="total">
+          <TD>
+            <strong>Total Ballots Cast</strong>
+          </TD>
+          <TD textAlign="right">
+            <strong>{format.count(totalBallotCount)}</strong>
+          </TD>
+        </tr>
+      </tbody>
+    </Table>
+  </BallotSummary>
+)
 
 export default TallyReportSummary

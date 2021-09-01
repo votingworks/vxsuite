@@ -369,24 +369,22 @@ const CandidateContest = ({
                 {contest.allowWriteIns &&
                   vote
                     .filter((c) => c.isWriteIn)
-                    .map((candidate) => {
-                      return (
-                        <ChoiceButton
-                          key={candidate.id}
-                          isSelected
-                          choice={candidate.id}
-                          onPress={handleUpdateSelection}
-                        >
-                          <Prose>
-                            <p
-                              aria-label={`Selected, write-in: ${candidate.name}.`}
-                            >
-                              <strong>{candidate.name}</strong>
-                            </p>
-                          </Prose>
-                        </ChoiceButton>
-                      )
-                    })}
+                    .map((candidate) => (
+                      <ChoiceButton
+                        key={candidate.id}
+                        isSelected
+                        choice={candidate.id}
+                        onPress={handleUpdateSelection}
+                      >
+                        <Prose>
+                          <p
+                            aria-label={`Selected, write-in: ${candidate.name}.`}
+                          >
+                            <strong>{candidate.name}</strong>
+                          </p>
+                        </Prose>
+                      </ChoiceButton>
+                    ))}
                 {contest.allowWriteIns && (
                   <ChoiceButton
                     choice="write-in"

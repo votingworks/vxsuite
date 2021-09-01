@@ -68,13 +68,10 @@ const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
                 const precinctBallotsCount =
                   resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
                 const externalPrecinctBallotsCount = externalResultsByPrecinct.reduce(
-                  (prev, talliesByPrecinct) => {
-                    return (
-                      prev +
-                      (talliesByPrecinct[precinct.id]?.numberOfBallotsCounted ??
-                        0)
-                    )
-                  },
+                  (prev, talliesByPrecinct) =>
+                    prev +
+                    (talliesByPrecinct[precinct.id]?.numberOfBallotsCounted ??
+                      0),
                   0
                 )
                 return (

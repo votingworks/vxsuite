@@ -141,12 +141,10 @@ const ElectionConfiguration = ({
   if (usbDriveStatus === usbstick.UsbDriveStatus.mounted && !loadingFiles) {
     // Parse information from the file names and sort by export date.
     const parsedFileInformation = foundFilenames
-      .map((f) => {
-        return {
-          parsedInfo: parseBallotExportPackageInfoFromFilename(f.name),
-          fileEntry: f,
-        }
-      })
+      .map((f) => ({
+        parsedInfo: parseBallotExportPackageInfoFromFilename(f.name),
+        fileEntry: f,
+      }))
       .filter(
         (
           f

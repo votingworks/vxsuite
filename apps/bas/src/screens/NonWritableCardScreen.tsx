@@ -10,23 +10,21 @@ interface Props {
   lockScreen: () => void
 }
 
-const NonWritableCardScreen = ({ lockScreen }: Props): JSX.Element => {
-  return (
-    <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>Non-Writable Card</h1>
-          </Prose>
-        </MainChild>
-      </Main>
-      <MainNav>
-        <Button small onPress={lockScreen}>
-          Lock
-        </Button>
-      </MainNav>
-    </Screen>
-  )
-}
+const NonWritableCardScreen = ({ lockScreen }: Props): JSX.Element => (
+  <Screen>
+    <Main>
+      <MainChild center>
+        <Prose textCenter>
+          <h1>Non-Writable Card</h1>
+        </Prose>
+      </MainChild>
+    </Main>
+    <MainNav>
+      <Button small onPress={lockScreen}>
+        Lock
+      </Button>
+    </MainNav>
+  </Screen>
+)
 
 export default NonWritableCardScreen

@@ -192,11 +192,9 @@ const UnconfiguredElectionScreen = ({
 export default UnconfiguredElectionScreen
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
-  return (
-    <UnconfiguredElectionScreen
-      usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
-      setElectionDefinition={() => Promise.resolve()}
-    />
-  )
-}
+export const DefaultPreview = (): JSX.Element => (
+  <UnconfiguredElectionScreen
+    usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
+    setElectionDefinition={() => Promise.resolve()}
+  />
+)

@@ -15,6 +15,4 @@ const InvalidCardScreen = (): JSX.Element => (
 export default InvalidCardScreen
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
-  return <InvalidCardScreen />
-}
+export const DefaultPreview = (): JSX.Element => <InvalidCardScreen />

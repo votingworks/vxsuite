@@ -510,23 +510,19 @@ export const MultipleUndervotesPreview = (): JSX.Element => {
 }
 
 /* istanbul ignore next */
-export const BlankBallotPreview = (): JSX.Element => {
-  return (
-    <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
-      adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
-    />
-  )
-}
+export const BlankBallotPreview = (): JSX.Element => (
+  <ScanWarningScreen
+    acceptBallot={() => Promise.resolve()}
+    adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
+  />
+)
 
 /* istanbul ignore next */
-export const UninterpretableBallotPreview = (): JSX.Element => {
-  return (
-    <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
-      adjudicationReasonInfo={[
-        { type: AdjudicationReason.UninterpretableBallot },
-      ]}
-    />
-  )
-}
+export const UninterpretableBallotPreview = (): JSX.Element => (
+  <ScanWarningScreen
+    acceptBallot={() => Promise.resolve()}
+    adjudicationReasonInfo={[
+      { type: AdjudicationReason.UninterpretableBallot },
+    ]}
+  />
+)

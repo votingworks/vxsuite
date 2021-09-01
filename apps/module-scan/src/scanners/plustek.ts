@@ -396,9 +396,7 @@ export function withReconnect(
       }
     },
 
-    close: async () => {
-      return (await (await clientPromise)?.close()) ?? ok()
-    },
+    close: async () => (await (await clientPromise)?.close()) ?? ok(),
 
     getPaperStatus: async () => {
       debug('withReconnect: getPaperStatus')
@@ -418,9 +416,7 @@ export function withReconnect(
       }
     },
 
-    isConnected: () => {
-      return client?.isConnected() ?? false
-    },
+    isConnected: () => client?.isConnected() ?? false,
 
     reject: async ({ hold }) => {
       for (;;) {

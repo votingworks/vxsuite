@@ -438,13 +438,11 @@ describe('filterTalliesByParams in a primary election', () => {
       )
       // Filtering by party just filters down the contests in contestTallies
       expect(
-        Object.values(filteredResults.contestTallies).map((c) => {
-          return {
-            contestId: c!.contest.id,
-            tallies: c!.tallies,
-            metadata: c!.metadata,
-          }
-        })
+        Object.values(filteredResults.contestTallies).map((c) => ({
+          contestId: c!.contest.id,
+          tallies: c!.tallies,
+          metadata: c!.metadata,
+        }))
       ).toMatchSnapshot()
     }
 
@@ -565,13 +563,11 @@ describe('filterTalliesByParams in a primary election', () => {
       [VotingMethod.Unknown]: 282,
     })
     expect(
-      Object.values(filterParty5Precinct1.contestTallies).map((c) => {
-        return {
-          contestId: c!.contest.id,
-          tallies: c!.tallies,
-          metadata: c!.metadata,
-        }
-      })
+      Object.values(filterParty5Precinct1.contestTallies).map((c) => ({
+        contestId: c!.contest.id,
+        tallies: c!.tallies,
+        metadata: c!.metadata,
+      }))
     ).toMatchSnapshot()
 
     const filterParty5Precinct5 = filterTalliesByParams(
@@ -589,13 +585,11 @@ describe('filterTalliesByParams in a primary election', () => {
       [VotingMethod.Unknown]: 387,
     })
     expect(
-      Object.values(filterParty5Precinct5.contestTallies).map((c) => {
-        return {
-          contestId: c!.contest.id,
-          tallies: c!.tallies,
-          metadata: c!.metadata,
-        }
-      })
+      Object.values(filterParty5Precinct5.contestTallies).map((c) => ({
+        contestId: c!.contest.id,
+        tallies: c!.tallies,
+        metadata: c!.metadata,
+      }))
     ).toMatchSnapshot()
 
     const filterParty5InvalidPrecinct = filterTalliesByParams(
@@ -650,13 +644,11 @@ describe('filterTalliesByParams in a primary election', () => {
       expectedParty0Info.contestIds
     )
     expect(
-      Object.values(filteredResultsScanner1.contestTallies).map((c) => {
-        return {
-          contestId: c!.contest.id,
-          tallies: c!.tallies,
-          metadata: c!.metadata,
-        }
-      })
+      Object.values(filteredResultsScanner1.contestTallies).map((c) => ({
+        contestId: c!.contest.id,
+        tallies: c!.tallies,
+        metadata: c!.metadata,
+      }))
     ).toMatchSnapshot()
 
     expect(filteredResultsScanner1.numberOfBallotsCounted).toBe(570)

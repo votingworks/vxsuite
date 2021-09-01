@@ -123,18 +123,14 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
     PrintedBallot[] | undefined
   >(undefined)
 
-  const getPrintedBallots = async (): Promise<PrintedBallot[]> => {
+  const getPrintedBallots = async (): Promise<PrintedBallot[]> =>
     // TODO: validate this with zod schema
-    return (
-      ((await storage.get(printedBallotsStorageKey)) as
-        | PrintedBallot[]
-        | undefined) || []
-    )
-  }
+    ((await storage.get(printedBallotsStorageKey)) as
+      | PrintedBallot[]
+      | undefined) || []
 
-  const savePrintedBallots = async (printedBallotsToStore: PrintedBallot[]) => {
-    return await storage.set(printedBallotsStorageKey, printedBallotsToStore)
-  }
+  const savePrintedBallots = async (printedBallotsToStore: PrintedBallot[]) =>
+    await storage.set(printedBallotsStorageKey, printedBallotsToStore)
 
   const addPrintedBallot = async (printedBallot: PrintedBallot) => {
     const ballots = await getPrintedBallots()

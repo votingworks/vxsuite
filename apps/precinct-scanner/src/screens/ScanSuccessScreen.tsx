@@ -10,33 +10,31 @@ interface Props {
   scannedBallotCount: number
 }
 
-const ScanSuccessScreen = ({ scannedBallotCount }: Props): JSX.Element => {
-  return (
-    <CenteredScreen>
-      <CircleCheck />
-      <CenteredLargeProse>
-        <h1>Your ballot was counted!</h1>
-        <p>Thank you for voting.</p>
-      </CenteredLargeProse>
-      <Absolute top left>
-        <Bar>
-          <Prose>
-            <p>
-              Ballots Scanned:{' '}
-              <strong data-testid="ballot-count">
-                {format.count(scannedBallotCount)}
-              </strong>
-            </p>
-          </Prose>
-        </Bar>
-      </Absolute>
-    </CenteredScreen>
-  )
-}
+const ScanSuccessScreen = ({ scannedBallotCount }: Props): JSX.Element => (
+  <CenteredScreen>
+    <CircleCheck />
+    <CenteredLargeProse>
+      <h1>Your ballot was counted!</h1>
+      <p>Thank you for voting.</p>
+    </CenteredLargeProse>
+    <Absolute top left>
+      <Bar>
+        <Prose>
+          <p>
+            Ballots Scanned:{' '}
+            <strong data-testid="ballot-count">
+              {format.count(scannedBallotCount)}
+            </strong>
+          </p>
+        </Prose>
+      </Bar>
+    </Absolute>
+  </CenteredScreen>
+)
 
 export default ScanSuccessScreen
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
-  return <ScanSuccessScreen scannedBallotCount={1} />
-}
+export const DefaultPreview = (): JSX.Element => (
+  <ScanSuccessScreen scannedBallotCount={1} />
+)

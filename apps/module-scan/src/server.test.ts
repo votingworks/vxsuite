@@ -570,19 +570,17 @@ test('start as precinct-scanner rejects a held sheet at startup', async () => {
 test('get next sheet', async () => {
   jest
     .spyOn(workspace.store, 'getNextAdjudicationSheet')
-    .mockImplementationOnce(async () => {
-      return {
-        id: 'mock-review-sheet',
-        front: {
-          image: { url: '/url/front' },
-          interpretation: { type: 'BlankPage' },
-        },
-        back: {
-          image: { url: '/url/back' },
-          interpretation: { type: 'BlankPage' },
-        },
-      }
-    })
+    .mockImplementationOnce(async () => ({
+      id: 'mock-review-sheet',
+      front: {
+        image: { url: '/url/front' },
+        interpretation: { type: 'BlankPage' },
+      },
+      back: {
+        image: { url: '/url/back' },
+        interpretation: { type: 'BlankPage' },
+      },
+    }))
 
   await request(app)
     .get(`/scan/hmpb/review/next-sheet`)

@@ -28,13 +28,11 @@ export function convertExternalTalliesToStorageString(
   tallies: FullElectionExternalTally[]
 ): string {
   return JSON.stringify(
-    tallies.map((tally) => {
-      return {
-        ...tally,
-        resultsByCategory: Array.from(tally.resultsByCategory.entries()),
-        timestampCreated: tally.timestampCreated.getTime(),
-      }
-    })
+    tallies.map((tally) => ({
+      ...tally,
+      resultsByCategory: Array.from(tally.resultsByCategory.entries()),
+      timestampCreated: tally.timestampCreated.getTime(),
+    }))
   )
 }
 
@@ -99,14 +97,15 @@ export function getTotalNumberOfBallots(
 ): number {
   // Get Separate Ballot Style Sets
   // Get Contest IDs by Ballot Style
-  let contestIdSets = election.ballotStyles.map((bs) => {
-    return new Set(
-      getContests({
-        ballotStyle: bs,
-        election,
-      }).map((c) => c.id)
-    )
-  })
+  let contestIdSets = election.ballotStyles.map(
+    (bs) =>
+      new Set(
+        getContests({
+          ballotStyle: bs,
+          election,
+        }).map((c) => c.id)
+      )
+  )
 
   // Break the sets of contest IDs into disjoint sets, so contests that are never seen on the same ballot style.
   for (const contest of election.contests) {
