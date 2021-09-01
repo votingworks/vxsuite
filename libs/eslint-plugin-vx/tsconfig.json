@@ -6,7 +6,8 @@
     "esModuleInterop": true,
     "composite": true,
     "outDir": "build",
-    "rootDir": "src"
+    "rootDir": "src",
+    "skipLibCheck": true
   },
   "include": ["src", "tests"],
   "exclude": []

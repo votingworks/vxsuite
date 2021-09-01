@@ -43,21 +43,21 @@ type ScanSessionStep =
  * Represents a scanner session, but doesn't actually run anything.
  */
 class ScannerSessionPlan {
-  #steps: ScanSessionStep[] = []
-  #ended = false
+  private steps: ScanSessionStep[] = []
+  private ended = false
 
-  public get steps(): readonly ScanSessionStep[] {
-    return this.#steps
+  public getStep(index: number): ScanSessionStep {
+    return this.steps[index]
   }
 
   /**
    * Adds a scanning step to the session.
    */
   public sheet(sheet: SheetOf<string>): this {
-    if (this.#ended) {
+    if (this.ended) {
       throw new Error('cannot add a sheet scan step to an ended session')
     }
-    this.#steps.push({ type: 'sheet', sheet })
+    this.steps.push({ type: 'sheet', sheet })
     return this
   }
 
@@ -65,25 +65,25 @@ class ScannerSessionPlan {
    * Adds an error step to the session.
    */
   public error(error: Error): this {
-    if (this.#ended) {
+    if (this.ended) {
       throw new Error('cannot add an error step to an ended session')
     }
-    this.#steps.push({ type: 'error', error })
+    this.steps.push({ type: 'error', error })
     return this
   }
 
   public end(): void {
-    this.#ended = true
+    this.ended = true
   }
 
   *[Symbol.iterator](): IterableIterator<ScanSessionStep> {
-    if (!this.#ended) {
+    if (!this.ended) {
       throw new Error(
         'session has not been ended; please call `session.end()` before using it'
       )
     }
 
-    yield* this.#steps
+    yield* this.steps
   }
 }
 
@@ -128,7 +128,7 @@ export function makeMockScanner(): MockScanner {
         rejectSheet: jest.fn(),
 
         scanSheet: async (): Promise<SheetOf<string>> => {
-          const step = session.steps[stepIndex]
+          const step = session.getStep(stepIndex)
           stepIndex += 1
 
           switch (step.type) {

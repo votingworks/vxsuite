@@ -35,15 +35,15 @@ export function deferred<T>(): Deferred<T> {
  * An asynchronous FIFO queue.
  */
 class DeferredQueue<T> {
-  readonly #deferredGets: Deferred<T>[] = []
-  readonly #settlements: PromiseSettledResult<T>[] = []
-  #settleAllWith?: PromiseSettledResult<T>
+  private readonly deferredGets: Deferred<T>[] = []
+  private readonly settlements: PromiseSettledResult<T>[] = []
+  private settleAllWith?: PromiseSettledResult<T>
 
   /**
    * Determines whether any existing values are present.
    */
   public isEmpty(): boolean {
-    return this.#settlements.length === 0
+    return this.settlements.length === 0
   }
 
   /**
@@ -53,7 +53,7 @@ class DeferredQueue<T> {
    * `reject` or `rejectAll` has been called.
    */
   public get(): Promise<T> {
-    const nextSettlement = this.#settlements.shift()
+    const nextSettlement = this.settlements.shift()
 
     if (nextSettlement) {
       if (nextSettlement.status === 'fulfilled') {
@@ -62,15 +62,15 @@ class DeferredQueue<T> {
       return Promise.reject(nextSettlement.reason)
     }
 
-    if (typeof this.#settleAllWith !== 'undefined') {
-      if (this.#settleAllWith.status === 'fulfilled') {
-        return Promise.resolve(this.#settleAllWith.value)
+    if (typeof this.settleAllWith !== 'undefined') {
+      if (this.settleAllWith.status === 'fulfilled') {
+        return Promise.resolve(this.settleAllWith.value)
       }
-      return Promise.reject(this.#settleAllWith.reason)
+      return Promise.reject(this.settleAllWith.reason)
     }
 
     const deferredGet = deferred<T>()
-    this.#deferredGets.push(deferredGet)
+    this.deferredGets.push(deferredGet)
     return deferredGet.promise
   }
 
@@ -79,12 +79,12 @@ class DeferredQueue<T> {
    */
   public resolve(value: T): void {
     this.assertMutable()
-    const nextDeferredGet = this.#deferredGets.shift()
+    const nextDeferredGet = this.deferredGets.shift()
 
     if (nextDeferredGet) {
       nextDeferredGet.resolve(value)
     } else {
-      this.#settlements.push({ status: 'fulfilled', value })
+      this.settlements.push({ status: 'fulfilled', value })
     }
   }
 
@@ -94,13 +94,13 @@ class DeferredQueue<T> {
    */
   public resolveAll(value: T): void {
     this.assertMutable()
-    this.#settleAllWith = { status: 'fulfilled', value }
+    this.settleAllWith = { status: 'fulfilled', value }
 
-    for (const { resolve } of this.#deferredGets) {
+    for (const { resolve } of this.deferredGets) {
       resolve(value)
     }
 
-    this.#deferredGets.length = 0
+    this.deferredGets.length = 0
   }
 
   /**
@@ -108,12 +108,12 @@ class DeferredQueue<T> {
    */
   public reject(reason?: unknown): void {
     this.assertMutable()
-    const nextDeferredGet = this.#deferredGets.shift()
+    const nextDeferredGet = this.deferredGets.shift()
 
     if (nextDeferredGet) {
       nextDeferredGet.reject(reason)
     } else {
-      this.#settlements.push({ status: 'rejected', reason })
+      this.settlements.push({ status: 'rejected', reason })
     }
   }
 
@@ -123,20 +123,20 @@ class DeferredQueue<T> {
    */
   public rejectAll(reason?: unknown): void {
     this.assertMutable()
-    this.#settleAllWith = { status: 'rejected', reason }
+    this.settleAllWith = { status: 'rejected', reason }
 
-    for (const { reject } of this.#deferredGets) {
+    for (const { reject } of this.deferredGets) {
       reject(reason)
     }
 
-    this.#deferredGets.length = 0
+    this.deferredGets.length = 0
   }
 
   /**
    * Ensures settlements can still be added to the queue.
    */
   private assertMutable(): void {
-    if (typeof this.#settleAllWith !== 'undefined') {
+    if (typeof this.settleAllWith !== 'undefined') {
       throw new Error('resolveAll or rejectAll already called')
     }
   }
