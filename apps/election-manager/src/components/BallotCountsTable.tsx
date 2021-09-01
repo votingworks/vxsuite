@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { throwIllegalValue, format } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import { BatchTally, TallyCategory, VotingMethod } from '../config/types'
 
 import { getPartiesWithPrimaryElections } from '../utils/election'
@@ -24,7 +25,8 @@ const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
     fullElectionExternalTallies,
     isOfficialResults,
   } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
 
   if (isTabulationRunning) {
     return <Loading />
@@ -362,7 +364,7 @@ const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
               <TD as="th">View Tally</TD>
             </tr>
             {Object.keys(resultsByBatch).map((batchId) => {
-              const batchTally = resultsByBatch[batchId]! as BatchTally
+              const batchTally = resultsByBatch[batchId] as BatchTally
               const batchBallotsCount = batchTally.numberOfBallotsCounted
               // This should only be multiple scanners if there are ballots missing batch ids
               return (

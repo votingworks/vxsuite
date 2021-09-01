@@ -773,12 +773,12 @@ describe('Ballots Counts by Batch', () => {
     const externalTableRow = getAllByTestId('batch-external')[0].closest('tr')
     assert(externalTableRow)
     domGetByText(externalTableRow, 'External Results (imported-file-name.csv)')
-    domGetByText(externalTableRow!, numExternalBallots)
+    domGetByText(externalTableRow, numExternalBallots)
 
     getByText('Total Ballot Count')
     const tableRow = getByText('Total Ballot Count').closest('tr')
     assert(tableRow)
-    domGetByText(tableRow!, 176)
+    domGetByText(tableRow, 176)
 
     // There should be 3 extra table rows in addition to the batches, one for the headers, one for the external data, and one for the total row.
     expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3)

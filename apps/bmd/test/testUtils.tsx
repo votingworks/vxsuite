@@ -20,6 +20,7 @@ import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
 import {
   MachineConfig,
   MarkVoterCardFunction,
+  Printer,
   TextSizeSetting,
   VxMarkOnly,
 } from '../src/config/types'
@@ -27,7 +28,6 @@ import {
 import BallotContext from '../src/contexts/ballotContext'
 import fakePrinter from './helpers/fakePrinter'
 import fakeMachineConfig from './helpers/fakeMachineConfig'
-import { Printer } from '../src/utils/printer'
 
 export function render(
   component: React.ReactNode,

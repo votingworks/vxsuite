@@ -62,6 +62,7 @@ export function fromString(
   text: string
 ): BallotPageMetadata {
   if (isBase64(text)) {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return fromBytes(election, Buffer.from(text, 'base64'))
   }
   return decodeSearchParams(new URL(text).searchParams)

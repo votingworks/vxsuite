@@ -6,6 +6,7 @@ import {
   ElectionDefinition,
   InterpretedHmpbPage,
 } from '@votingworks/types'
+import { find } from '@votingworks/utils'
 
 export function interpretedHmpb({
   electionDefinition,
@@ -16,9 +17,10 @@ export function interpretedHmpb({
   pageNumber: number
   adjudicationReason?: AdjudicationReason
 }): InterpretedHmpbPage {
-  const contest = electionDefinition.election.contests.find(
+  const contest = find(
+    electionDefinition.election.contests,
     (c): c is CandidateContest => c.type === 'candidate'
-  )!
+  )
   const allReasonInfos: AdjudicationInfo['allReasonInfos'] =
     adjudicationReason === AdjudicationReason.Overvote
       ? [

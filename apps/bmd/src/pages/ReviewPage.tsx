@@ -1,4 +1,4 @@
-import { ok } from 'assert'
+import { strict as assert } from 'assert'
 import pluralize from 'pluralize'
 import React, {
   useCallback,
@@ -288,8 +288,17 @@ const SidebarSpacer = styled.div`
 `
 
 const ReviewPage = (): JSX.Element => {
-  const context = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  const {
+    userSettings,
+    contests,
+    ballotStyleId,
+    electionDefinition,
+    machineConfig,
+    precinctId,
+    votes,
+    setUserSettings,
+  } = useContext(BallotContext)
+  const scrollContainer = useRef<HTMLDivElement>(null)
 
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
@@ -301,7 +310,7 @@ const ReviewPage = (): JSX.Element => {
     if (!target) {
       return
     }
-    const targetMinHeight = FONT_SIZES[context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -317,7 +326,7 @@ const ReviewPage = (): JSX.Element => {
         target.scrollHeight
     )
     setIsScrollAtTop(target.scrollTop === 0)
-  }, [scrollContainer, context.userSettings.textSize])
+  }, [scrollContainer, userSettings.textSize])
 
   useEffect(() => {
     updateContestChoicesScrollStates()
@@ -339,7 +348,8 @@ const ReviewPage = (): JSX.Element => {
   ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
-    const sc = scrollContainer.current!
+    const sc = scrollContainer.current
+    assert(sc)
     const currentScrollTop = sc.scrollTop
     const { offsetHeight } = sc
     const { scrollHeight } = sc
@@ -358,18 +368,14 @@ const ReviewPage = (): JSX.Element => {
     sc.scrollTo({ behavior: 'smooth', left: 0, top })
   }
 
-  const {
-    contests,
-    ballotStyleId,
+  assert(
     electionDefinition,
-    machineConfig,
-    precinctId,
-    votes,
-    userSettings,
-    setUserSettings,
-  } = context
-  ok(electionDefinition, 'electionDefinition is required to render ReviewPage')
-  ok(precinctId, 'precinctId is required to render ReviewPage')
+    'electionDefinition is required to render ReviewPage'
+  )
+  assert(
+    typeof precinctId !== 'undefined',
+    'precinctId is required to render ReviewPage'
+  )
   const { election } = electionDefinition
   const { parties } = election
 

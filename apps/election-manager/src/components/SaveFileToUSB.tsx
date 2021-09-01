@@ -5,6 +5,7 @@ import fileDownload from 'js-file-download'
 import { usbstick, throwIllegalValue } from '@votingworks/utils'
 
 import { USBControllerButton } from '@votingworks/ui'
+import assert from 'assert'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Button from './Button'
@@ -60,10 +61,7 @@ const SaveFileToUSB = ({
 
   const [savedFilename, setSavedFilename] = useState('')
 
-  const exportResults = async (
-    openFileDialog: boolean,
-    defaultFilename: string
-  ) => {
+  const exportResults = async (openFileDialog: boolean) => {
     setCurrentState(ModalState.SAVING)
 
     try {
@@ -72,13 +70,9 @@ const SaveFileToUSB = ({
         fileDownload(results, defaultFilename, 'text/csv')
       } else {
         const usbPath = await usbstick.getDevicePath()
-        const pathToFile =
-          !usbPath && process.env.NODE_ENV === 'development'
-            ? defaultFilename
-            : path.join(usbPath!, defaultFilename)
         if (openFileDialog) {
           const fileWriter = await window.kiosk.saveAs({
-            defaultPath: pathToFile,
+            defaultPath: defaultFilename,
           })
 
           if (!fileWriter) {
@@ -89,7 +83,10 @@ const SaveFileToUSB = ({
           setSavedFilename(fileWriter.filename)
           await fileWriter.end()
         } else {
-          await window.kiosk!.writeFile(pathToFile, results)
+          assert(typeof usbPath !== 'undefined')
+          const pathToFile = path.join(usbPath, defaultFilename)
+          assert(window.kiosk)
+          await window.kiosk.writeFile(pathToFile, results)
           setSavedFilename(defaultFilename)
         }
       }
@@ -218,7 +215,7 @@ const SaveFileToUSB = ({
               {(!window.kiosk || process.env.NODE_ENV === 'development') && (
                 <Button
                   data-testid="manual-export"
-                  onPress={() => exportResults(true, defaultFilename)}
+                  onPress={() => exportResults(true)}
                 >
                   Save
                 </Button>
@@ -258,13 +255,8 @@ const SaveFileToUSB = ({
           actions={
             <React.Fragment>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
-              <Button onPress={() => exportResults(true, defaultFilename)}>
-                Save As…
-              </Button>
-              <Button
-                primary
-                onPress={() => exportResults(false, defaultFilename)}
-              >
+              <Button onPress={() => exportResults(true)}>Save As…</Button>
+              <Button primary onPress={() => exportResults(false)}>
                 Save
               </Button>
             </React.Fragment>

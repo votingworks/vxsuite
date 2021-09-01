@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, {
   useCallback,
   useContext,
@@ -46,8 +47,8 @@ interface Props {
 }
 
 const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
-  const context = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  const { userSettings } = useContext(BallotContext)
+  const scrollContainer = useRef<HTMLDivElement>(null)
 
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
@@ -66,11 +67,11 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
 
   const updateContestChoicesScrollStates = useCallback(() => {
     const target = scrollContainer.current
-    /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
+    /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
       return
     }
-    const targetMinHeight = FONT_SIZES[context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -86,7 +87,7 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
         target.scrollHeight
     )
     setIsScrollAtTop(target.scrollTop === 0)
-  }, [scrollContainer, context.userSettings.textSize])
+  }, [scrollContainer, userSettings.textSize])
 
   const voteLength = vote?.length
   useEffect(() => {
@@ -117,7 +118,8 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
   ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
-    const sc = scrollContainer.current!
+    const sc = scrollContainer.current
+    assert(sc)
     const currentScrollTop = sc.scrollTop
     const { offsetHeight } = sc
     const { scrollHeight } = sc

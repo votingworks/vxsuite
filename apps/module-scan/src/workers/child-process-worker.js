@@ -1,7 +1,8 @@
 // @ts-check
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, global-require, import/no-dynamic-require */
 
 if (process.env.NODE_ENV !== 'production') {
+  // eslint-disable-next-line import/no-extraneous-dependencies
   require('ts-node').register({ transpileOnly: true })
 }
 
@@ -23,5 +24,7 @@ process.on('message', async (input) => {
     output = { type: 'error', error: `${error.stack}` }
   }
 
-  process.send && process.send({ output: json.serialize(output) })
+  if (process.send) {
+    process.send({ output: json.serialize(output) })
+  }
 })

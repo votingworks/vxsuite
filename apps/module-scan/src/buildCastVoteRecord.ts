@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import {
   AnyContest,
   BallotMetadata,
@@ -13,6 +14,7 @@ import {
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types'
+import { find, throwIllegalValue } from '@votingworks/utils'
 import { VX_MACHINE_ID } from './globals'
 import {
   CastVoteRecord,
@@ -25,6 +27,24 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation'
+
+export function getCVRBallotType(
+  ballotType: BallotType
+): CastVoteRecord['_ballotType'] {
+  switch (ballotType) {
+    case BallotType.Absentee:
+      return 'absentee'
+
+    case BallotType.Provisional:
+      return 'provisional'
+
+    case BallotType.Standard:
+      return 'standard'
+
+    default:
+      throwIllegalValue(ballotType)
+  }
+}
 
 export function buildCastVoteRecordMetadataEntries(
   ballotId: string,
@@ -45,24 +65,6 @@ export function buildCastVoteRecordMetadataEntries(
   }
 }
 
-export function getCVRBallotType(
-  ballotType: BallotType
-): CastVoteRecord['_ballotType'] {
-  switch (ballotType) {
-    case BallotType.Absentee:
-      return 'absentee'
-
-    case BallotType.Provisional:
-      return 'provisional'
-
-    case BallotType.Standard:
-      return 'standard'
-
-    default:
-      throw new Error(`unknown ballot type: ${ballotType}`)
-  }
-}
-
 type ContestOptionPair = [string, string]
 
 export function getWriteInOptionIdsForContestVote(
@@ -79,14 +81,15 @@ export function getWriteInOptionIdsForContestVote(
           .filter(({ isWriteIn }) => isWriteIn)
           .map(({ id }) => id)
       : []
-  } else if (contest.type === 'yesno') {
-    return []
-  } else if (contest.type === 'ms-either-neither') {
-    return []
-  } else {
-    // @ts-expect-error -- `contest` has type `never` since all known branches are covered
-    throw new TypeError(`contest type not yet supported: ${contest.type}`)
   }
+  if (contest.type === 'yesno') {
+    return []
+  }
+  if (contest.type === 'ms-either-neither') {
+    return []
+  }
+  // @ts-expect-error -- `contest` has type `never` since all known branches are covered
+  throw new TypeError(`contest type not yet supported: ${contest.type}`)
 }
 
 export function getOptionIdsForContestVote(
@@ -96,10 +99,12 @@ export function getOptionIdsForContestVote(
   if (contest.type === 'candidate') {
     const vote = votes[contest.id]
     return vote ? (vote as CandidateVote).map(({ id }) => [contest.id, id]) : []
-  } else if (contest.type === 'yesno') {
+  }
+  if (contest.type === 'yesno') {
     const vote = votes[contest.id]
     return vote ? (vote as readonly string[]).map((id) => [contest.id, id]) : []
-  } else if (contest.type === 'ms-either-neither') {
+  }
+  if (contest.type === 'ms-either-neither') {
     return [
       ...((votes[contest.eitherNeitherContestId] ??
         []) as readonly string[]).map<[string, string]>((id) => [
@@ -110,10 +115,9 @@ export function getOptionIdsForContestVote(
         [string, string]
       >((id) => [contest.pickOneContestId, id]),
     ]
-  } else {
-    // @ts-expect-error -- `contest` has type `never` since all known branches are covered
-    throw new TypeError(`contest type not yet supported: ${contest.type}`)
   }
+  // @ts-expect-error -- `contest` has type `never` since all known branches are covered
+  throw new TypeError(`contest type not yet supported: ${contest.type}`)
 }
 
 export function buildCastVoteRecordVotesEntries(
@@ -158,14 +162,15 @@ export function getContestsFromIds(
   election: Election,
   contestIds: readonly string[]
 ): Contests {
-  return contestIds.map((id) => election.contests.find((c) => c.id === id)!)
+  return contestIds.map((id) => find(election.contests, (c) => c.id === id))
 }
 
 export function getContestsForBallotStyle(
   election: Election,
   ballotStyleId: string
 ): Contests {
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  assert(ballotStyle)
   return getContests({ ballotStyle, election })
 }
 
@@ -208,7 +213,14 @@ function buildCastVoteRecordFromHmpbPage(
     front.interpretation.metadata.pageNumber >
     back.interpretation.metadata.pageNumber
   ) {
-    ;[front, back] = [back, front]
+    return buildCastVoteRecordFromHmpbPage(
+      sheetId,
+      ballotId,
+      batchId,
+      batchLabel,
+      election,
+      [back, front]
+    )
   }
 
   if (!front.contestIds || !back.contestIds) {
@@ -262,8 +274,18 @@ export function buildCastVoteRecord(
 
   const blankPages = ['BlankPage', 'UnreadablePage']
 
-  if (blankPages.includes(front.interpretation.type)) {
-    ;[front, back] = [back, front]
+  if (
+    blankPages.includes(front.interpretation.type) &&
+    !blankPages.includes(back.interpretation.type)
+  ) {
+    return buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [back, front]
+    )
   }
 
   if (front.interpretation.type === 'InterpretedBmdPage') {

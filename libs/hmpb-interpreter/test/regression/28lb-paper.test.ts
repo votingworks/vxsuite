@@ -7,6 +7,10 @@ const skip = process.env.REGRESSION_TESTS !== '1'
 const test = skip ? it.skip : it
 let interpreter: Interpreter
 
+function readFixture(name: string): Fixture {
+  return new Fixture(join(__dirname, '../fixtures/28lb-paper', name))
+}
+
 beforeAll(async () => {
   if (skip) return
 
@@ -17,10 +21,6 @@ beforeAll(async () => {
   await interpreter.addTemplate(await p1.imageData(), await p1.metadata())
   await interpreter.addTemplate(await p2.imageData(), await p2.metadata())
 })
-
-function readFixture(name: string): Fixture {
-  return new Fixture(join(__dirname, '../fixtures/28lb-paper', name))
-}
 
 test('batch-1-20200504_210852-ballot-0001', async () => {
   const fixture = readFixture('batch-1-20200504_210852-ballot-0001.jpg')

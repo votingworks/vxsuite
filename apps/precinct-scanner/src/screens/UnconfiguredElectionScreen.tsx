@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useState, useEffect } from 'react'
 import path from 'path'
 import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
@@ -55,8 +56,10 @@ const UnconfiguredElectionScreen = ({
         const usbPath = await usbstick.getDevicePath()
         let files: KioskBrowser.FileSystemEntry[]
         try {
-          files = await window.kiosk!.getFileSystemEntries(
-            path.join(usbPath!, PRECINCT_SCANNER_FOLDER)
+          assert(typeof usbPath !== 'undefined')
+          assert(window.kiosk)
+          files = await window.kiosk.getFileSystemEntries(
+            path.join(usbPath, PRECINCT_SCANNER_FOLDER)
           )
         } catch (error) {
           throw new Error('No ballot package found on the inserted USB drive.')

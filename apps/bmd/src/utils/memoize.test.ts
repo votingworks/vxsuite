@@ -22,7 +22,11 @@ it('calls the underlying function as long as it returns undefined', () => {
 
 it('stops calling the underlying function once it returns a value', () => {
   let i = 0
-  const fn = jest.fn().mockImplementation(() => i++)
+  const fn = jest.fn().mockImplementation(() => {
+    const result = i
+    i += 1
+    return result
+  })
   const mfn = memoize(fn)
 
   // `fn` hasn't been called yet

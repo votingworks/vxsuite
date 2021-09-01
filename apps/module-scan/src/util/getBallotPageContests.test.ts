@@ -36,7 +36,7 @@ test('gets contests broken across pages according to the layout', () => {
       ],
     }))
 
-  for (let pageNumber = 1; pageNumber <= layouts.length; pageNumber++) {
+  for (let pageNumber = 1; pageNumber <= layouts.length; pageNumber += 1) {
     expect(
       getBallotPageContests(election, metadataForPage(pageNumber), layouts)
     ).toEqual(allContestsForBallot.slice(pageNumber - 1, pageNumber))

@@ -1,7 +1,7 @@
+import makeDebug from 'debug'
 import jsQR from 'jsqr'
 import { DetectQRCodeResult } from '../../types'
 import { withCropping } from './withCropping'
-import makeDebug from 'debug'
 
 const debug = makeDebug('hmpb-interpreter:jsqr')
 
@@ -17,7 +17,7 @@ export async function detect(
   const qrcode = jsQR(data, width, height)
 
   if (!qrcode) {
-    return
+    return undefined
   }
 
   const qrdata = Buffer.from(qrcode.binaryData)

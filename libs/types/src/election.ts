@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { createHash } from 'crypto'
 import * as z from 'zod'
 import {
@@ -321,6 +322,33 @@ export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   paperSize: BallotPaperSizeSchema,
 })
 
+// Hand-marked paper & adjudication
+export enum AdjudicationReason {
+  UninterpretableBallot = 'UninterpretableBallot',
+  MarginalMark = 'MarginalMark',
+  Overvote = 'Overvote',
+  Undervote = 'Undervote',
+  WriteIn = 'WriteIn',
+  BlankBallot = 'BlankBallot',
+}
+export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> = z.nativeEnum(
+  AdjudicationReason
+)
+
+export interface MarkThresholds {
+  readonly marginal: number
+  readonly definite: number
+}
+export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
+  .object({
+    marginal: z.number().min(0).max(1),
+    definite: z.number().min(0).max(1),
+  })
+  .refine(
+    ({ marginal, definite }) => marginal <= definite,
+    'marginal mark threshold must be less than or equal to definite mark threshold'
+  )
+
 export interface Election {
   readonly _lang?: Translations
   /** @deprecated Use `precinctScanAdjudicationReasons` or `centralScanAdjudicationReasons` */
@@ -395,7 +423,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       { id, districts, precincts },
     ] of election.ballotStyles.entries()) {
       for (const [districtIndex, districtId] of districts.entries()) {
-        if (!election.districts.some(({ id }) => id === districtId)) {
+        if (!election.districts.some((d) => d.id === districtId)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: [
@@ -405,14 +433,14 @@ export const ElectionSchema: z.ZodSchema<Election> = z
               districtIndex,
             ],
             message: `Ballot style '${id}' has district '${districtId}', but no such district is defined. Districts defined: [${election.districts
-              .map(({ id }) => id)
+              .map((d) => d.id)
               .join(', ')}].`,
           })
         }
       }
 
       for (const [precinctIndex, precinctId] of precincts.entries()) {
-        if (!election.precincts.some(({ id }) => id === precinctId)) {
+        if (!election.precincts.some((p) => p.id === precinctId)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: [
@@ -422,7 +450,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
               precinctIndex,
             ],
             message: `Ballot style '${id}' has precinct '${precinctId}', but no such precinct is defined. Precincts defined: [${election.precincts
-              .map(({ id }) => id)
+              .map((p) => p.id)
               .join(', ')}].`,
           })
         }
@@ -493,9 +521,9 @@ export const ElectionSchema: z.ZodSchema<Election> = z
         centralScanAdjudicationReasons: election.adjudicationReasons,
         precinctScanAdjudicationReasons: election.adjudicationReasons,
       }
-    } else {
-      return election
     }
+
+    return election
   })
 export type OptionalElection = Optional<Election>
 export const OptionalElectionSchema: z.ZodSchema<OptionalElection> = ElectionSchema.optional()
@@ -519,6 +547,12 @@ export type CandidateVote = readonly Candidate[]
 export const CandidateVoteSchema: z.ZodSchema<CandidateVote> = z.array(
   CandidateSchema
 )
+export type YesNoVote =
+  | readonly ['yes']
+  | readonly ['no']
+  | readonly ['yes', 'no']
+  | readonly ['no', 'yes']
+  | readonly []
 export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>
 export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
   z.tuple([z.literal('yes')]),
@@ -527,12 +561,6 @@ export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
   z.tuple([z.literal('no'), z.literal('yes')]),
   z.tuple([]),
 ])
-export type YesNoVote =
-  | readonly ['yes']
-  | readonly ['no']
-  | readonly ['yes', 'no']
-  | readonly ['no', 'yes']
-  | readonly []
 export type OptionalYesNoVote = Optional<YesNoVote>
 export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> = YesNoVoteSchema.optional()
 export type Vote = CandidateVote | YesNoVote
@@ -554,32 +582,8 @@ export const BallotTypeSchema: z.ZodSchema<BallotType> = z.nativeEnum(
   BallotType
 )
 
-// Hand-marked paper & adjudication
-export interface MarkThresholds {
-  readonly marginal: number
-  readonly definite: number
-}
-export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
-  .object({
-    marginal: z.number().min(0).max(1),
-    definite: z.number().min(0).max(1),
-  })
-  .refine(
-    ({ marginal, definite }) => marginal <= definite,
-    'marginal mark threshold must be less than or equal to definite mark threshold'
-  )
-
-export enum AdjudicationReason {
-  UninterpretableBallot = 'UninterpretableBallot',
-  MarginalMark = 'MarginalMark',
-  Overvote = 'Overvote',
-  Undervote = 'Undervote',
-  WriteIn = 'WriteIn',
-  BlankBallot = 'BlankBallot',
-}
-export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> = z.nativeEnum(
-  AdjudicationReason
-)
+// Updating this value is a breaking change.
+export const BallotTypeMaximumValue = 2 ** 4 - 1
 
 export interface CandidateContestOption {
   type: CandidateContest['type']
@@ -981,9 +985,6 @@ export interface BallotSheetInfo {
   adjudicationReason?: AdjudicationReason
 }
 
-// Updating this value is a breaking change.
-export const BallotTypeMaximumValue = (1 << 4) - 1
-
 export interface CompletedBallot {
   readonly electionHash: string
   readonly ballotStyleId: BallotStyle['id']
@@ -1280,33 +1281,32 @@ export function vote(
 
     if (contest.type !== 'candidate') {
       return { ...result, [contestId]: choice }
-    } else {
-      if (Array.isArray(choice) && typeof choice[0] === 'string') {
-        return {
-          ...result,
-          [contestId]: contest.candidates.filter((c) =>
-            (choice as readonly string[]).includes(c.id)
-          ),
-        }
-      }
-
-      if (typeof choice === 'string') {
-        return {
-          ...result,
-          [contestId]: [contest.candidates.find((c) => c.id === choice)],
-        }
-      }
-
+    }
+    if (Array.isArray(choice) && typeof choice[0] === 'string') {
       return {
         ...result,
-        [contestId]: Array.isArray(choice) ? choice : [choice],
+        [contestId]: contest.candidates.filter((c) =>
+          (choice as readonly string[]).includes(c.id)
+        ),
       }
+    }
+
+    if (typeof choice === 'string') {
+      return {
+        ...result,
+        [contestId]: [contest.candidates.find((c) => c.id === choice)],
+      }
+    }
+
+    return {
+      ...result,
+      [contestId]: Array.isArray(choice) ? choice : [choice],
     }
   }, {})
 }
 
-export function isVotePresent(vote?: Vote): boolean {
-  return !!vote && vote.length > 0
+export function isVotePresent(v?: Vote): boolean {
+  return !!v && v.length > 0
 }
 
 /**
@@ -1317,13 +1317,6 @@ export const getElectionLocales = (
   baseLocale = 'en-US'
 ): string[] =>
   election._lang ? [baseLocale, ...Object.keys(election._lang)] : [baseLocale]
-
-/**
- * Copies an election definition preferring strings from the matching locale.
- */
-export function withLocale(election: Election, locale: string): Election {
-  return copyWithLocale(election, locale)
-}
 
 function copyWithLocale<T>(value: T, locale: string): T
 function copyWithLocale<T>(value: readonly T[], locale: string): readonly T[]
@@ -1379,16 +1372,10 @@ function copyWithLocale<T>(
 }
 
 /**
- * @deprecated use `safeParseElection(…)` instead
+ * Copies an election definition preferring strings from the matching locale.
  */
-export function parseElection(value: unknown): Election {
-  const result = safeParseElection(value)
-
-  if (result.isErr()) {
-    throw result.err()
-  }
-
-  return result.ok()
+export function withLocale(election: Election, locale: string): Election {
+  return copyWithLocale(election, locale)
 }
 
 /**
@@ -1408,9 +1395,8 @@ export function safeParseElection(
 ): Result<Election, z.ZodError | SyntaxError> {
   if (typeof value === 'string') {
     return safeParseJSON(value, ElectionSchema)
-  } else {
-    return safeParse(ElectionSchema, value)
   }
+  return safeParse(ElectionSchema, value)
 }
 
 /**
@@ -1428,4 +1414,17 @@ export function safeParseElectionDefinition(
         electionData: value,
         electionHash: createHash('sha256').update(value).digest('hex'),
       })
+}
+
+/**
+ * @deprecated use `safeParseElection(…)` instead
+ */
+export function parseElection(value: unknown): Election {
+  const result = safeParseElection(value)
+
+  if (result.isErr()) {
+    throw result.err()
+  }
+
+  return result.ok()
 }

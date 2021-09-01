@@ -2,6 +2,7 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import { strict as assert } from 'assert'
 import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import {
   AnyContest,
@@ -486,7 +487,7 @@ export default class Store {
     const value = result.ok()
     let inspectedResult = inspect(value, false, 2, true)
     if (inspectedResult.length > 200) {
-      inspectedResult = inspectedResult.slice(0, 199) + '…'
+      inspectedResult = `${inspectedResult.slice(0, 199)}…`
     }
     debug('returning stored value for config %s: %s', key, inspectedResult)
     return value
@@ -582,7 +583,6 @@ export default class Store {
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
       )
     } catch (error) {
-      console.log(error)
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
         front.originalFilename,
@@ -693,9 +693,8 @@ export default class Store {
           interpretation: JSON.parse(row.backInterpretationJSON),
         },
       }
-    } else {
-      debug('no review sheets requiring adjudication')
     }
+    debug('no review sheets requiring adjudication')
   }
 
   public async *getSheets(): AsyncGenerator<{
@@ -1127,12 +1126,14 @@ export default class Store {
 
     for (const layout of layouts) {
       if (layout.ballotImage.metadata.pageNumber === metadata.pageNumber) {
+        const ballotStyle = getBallotStyle({
+          election: electionDefinition.election,
+          ballotStyleId: metadata.ballotStyleId,
+        })
+        assert(ballotStyle)
         const contests = getContests({
           election: electionDefinition.election,
-          ballotStyle: getBallotStyle({
-            election: electionDefinition.election,
-            ballotStyleId: metadata.ballotStyleId,
-          })!,
+          ballotStyle,
         })
 
         return contests

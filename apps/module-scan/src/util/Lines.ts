@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { Readable } from 'stream'
 
 interface LineEmitter {
   on(event: 'line', callback: (line: string) => void): this
@@ -21,7 +20,7 @@ interface LineEmitter {
  *   .end()
  * console.log(lines) // ['Hello World\n', '- anonymous']
  */
-export class Lines extends EventEmitter implements LineEmitter {
+export default class Lines extends EventEmitter implements LineEmitter {
   private buffer = ''
 
   public constructor(private readonly terminator = '\n') {
@@ -32,8 +31,12 @@ export class Lines extends EventEmitter implements LineEmitter {
     let cursor = 0
     let nextTerminator: number
 
-    while ((nextTerminator = data.indexOf(this.terminator, cursor)) > -1) {
-      const buffer = this.buffer
+    for (;;) {
+      nextTerminator = data.indexOf(this.terminator, cursor)
+      if (nextTerminator < 0) {
+        break
+      }
+      const { buffer } = this
       this.buffer = ''
       const line =
         buffer + data.slice(cursor, nextTerminator + this.terminator.length)
@@ -49,22 +52,5 @@ export class Lines extends EventEmitter implements LineEmitter {
       this.emit('line', this.buffer)
       this.buffer = ''
     }
-  }
-}
-
-export class StreamLines extends Lines {
-  public constructor(input: Readable, terminator?: string) {
-    super(terminator)
-
-    input
-      .on('readable', () => {
-        const chunk = input.read()
-        if (typeof chunk === 'string') {
-          this.add(chunk)
-        }
-      })
-      .once('close', () => {
-        this.end()
-      })
   }
 }

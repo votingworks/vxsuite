@@ -17,6 +17,7 @@ import {
   throwIllegalValue,
   usbstick,
 } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 
@@ -50,6 +51,7 @@ const ExportResultsModal = ({
   const [errorMessage, setErrorMessage] = useState('')
 
   const { electionDefinition, machineConfig } = useContext(AppContext)
+  assert(electionDefinition)
 
   const exportResults = async (openDialog: boolean) => {
     setCurrentState(ModalState.SAVING)
@@ -82,8 +84,8 @@ const ExportResultsModal = ({
           throw new Error('could not begin download; path to usb drive missing')
         }
         const electionFolderName = generateElectionBasedSubfolderName(
-          electionDefinition!.election,
-          electionDefinition!.electionHash
+          electionDefinition.election,
+          electionDefinition.electionHash
         )
         const pathToFolder = path.join(
           usbPath,

@@ -8,14 +8,14 @@ import {
 } from '@votingworks/types'
 
 export interface CastVoteRecordOptions {
-  readonly _precinctId?: string
-  readonly _ballotId?: string
-  readonly _ballotStyleId?: string
-  readonly _ballotType?: 'absentee' | 'provisional' | 'standard'
-  readonly _testBallot?: boolean
-  readonly _scannerId?: string
-  readonly _batchId?: string
-  readonly _batchLabel?: string
+  readonly precinctId?: string
+  readonly ballotId?: string
+  readonly ballotStyleId?: string
+  readonly ballotType?: 'absentee' | 'provisional' | 'standard'
+  readonly testBallot?: boolean
+  readonly scannerId?: string
+  readonly batchId?: string
+  readonly batchLabel?: string
 }
 
 export function generateCVR(
@@ -24,19 +24,19 @@ export function generateCVR(
   options: CastVoteRecordOptions
 ): CastVoteRecord {
   // If precinctId or ballotStyleId are not provided default to the first in the election
-  const _precinctId = options._precinctId ?? election.precincts[0].id
-  const _ballotStyleId = options._ballotStyleId ?? election.ballotStyles[0].id
-  const _ballotId = options._ballotId ?? ''
-  const _ballotType = options._ballotType ?? 'standard'
-  const _testBallot = !!options._testBallot // default to false
-  const _scannerId = options._scannerId ?? 'scanner-1'
-  const _batchId = options._batchId ?? 'batch-1'
-  const _batchLabel = options._batchLabel ?? 'Batch 1'
+  const precinctId = options.precinctId ?? election.precincts[0].id
+  const ballotStyleId = options.ballotStyleId ?? election.ballotStyles[0].id
+  const ballotId = options.ballotId ?? ''
+  const ballotType = options.ballotType ?? 'standard'
+  const testBallot = !!options.testBallot // default to false
+  const scannerId = options.scannerId ?? 'scanner-1'
+  const batchId = options.batchId ?? 'batch-1'
+  const batchLabel = options.batchLabel ?? 'Batch 1'
 
   // Add in blank votes for any contest in the ballot style not specified.
   const ballotStyle =
     getBallotStyle({
-      ballotStyleId: _ballotStyleId,
+      ballotStyleId,
       election,
     }) || election.ballotStyles[0]
   const contestsInBallot = expandEitherNeitherContests(
@@ -48,14 +48,14 @@ export function generateCVR(
   })
   return {
     ...allVotes,
-    _precinctId,
-    _ballotStyleId,
-    _ballotId,
-    _ballotType,
-    _testBallot,
-    _scannerId,
-    _batchId,
-    _batchLabel,
+    _precinctId: precinctId,
+    _ballotStyleId: ballotStyleId,
+    _ballotId: ballotId,
+    _ballotType: ballotType,
+    _testBallot: testBallot,
+    _scannerId: scannerId,
+    _batchId: batchId,
+    _batchLabel: batchLabel,
   }
 }
 

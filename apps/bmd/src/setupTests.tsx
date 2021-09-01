@@ -24,14 +24,6 @@ globalThis.print = jest.fn(() => {
 
 const printMock = mockOf(globalThis.print)
 
-function mockSpeechSynthesis() {
-  globalThis.speechSynthesis = makeSpeechSynthesisDouble()
-  globalThis.SpeechSynthesisUtterance = jest
-    .fn()
-    .mockImplementation((text) => ({ text }))
-  globalThis.SpeechSynthesisEvent = jest.fn()
-}
-
 function makeSpeechSynthesisDouble(): typeof speechSynthesis {
   return {
     addEventListener: jest.fn(),
@@ -49,6 +41,14 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
     ),
     speaking: false,
   }
+}
+
+function mockSpeechSynthesis() {
+  globalThis.speechSynthesis = makeSpeechSynthesisDouble()
+  globalThis.SpeechSynthesisUtterance = jest
+    .fn()
+    .mockImplementation((text) => ({ text }))
+  globalThis.SpeechSynthesisEvent = jest.fn()
 }
 
 beforeEach(() => {

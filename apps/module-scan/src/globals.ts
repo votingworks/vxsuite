@@ -26,7 +26,7 @@ export const MOCK_SCANNER_PORT = 9999
 /**
  * A list or pointer to a list of files to use for a mock scanner.
  */
-export const MOCK_SCANNER_FILES = process.env.MOCK_SCANNER_FILES
+export const { MOCK_SCANNER_FILES } = process.env
 
 /**
  * Default port for the module-scan API.

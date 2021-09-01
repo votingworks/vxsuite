@@ -1,6 +1,11 @@
 import { electionSample } from '@votingworks/fixtures'
+import { fakeKiosk } from '@votingworks/test-utils'
 import * as workflow from './ExportElectionBallotPackageWorkflow'
 import DownloadableArchive from '../utils/DownloadableArchive'
+
+beforeEach(() => {
+  window.kiosk = fakeKiosk()
+})
 
 test('initializes with an Election, hash, and locales', () => {
   expect(workflow.init(electionSample, 'abcde', ['en-US']).type).toEqual('Init')

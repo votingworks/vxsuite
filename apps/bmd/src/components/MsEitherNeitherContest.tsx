@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, {
   useCallback,
   useContext,
@@ -76,7 +77,7 @@ const MsEitherNeitherContest = ({
   updateVote,
 }: Props): JSX.Element => {
   const { userSettings } = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  const scrollContainer = useRef<HTMLDivElement>(null)
   const [isScrollable, setIsScrollable] = useState(true)
   const [isScrollAtTop, setIsScrollAtTop] = useState(true)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
@@ -144,7 +145,8 @@ const MsEitherNeitherContest = ({
   ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
-    const sc = scrollContainer.current!
+    const sc = scrollContainer.current
+    assert(sc)
     const currentScrollTop = sc.scrollTop
     const { offsetHeight, scrollHeight } = sc
     const idealScrollDistance = Math.round(offsetHeight * 0.75)

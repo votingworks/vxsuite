@@ -60,7 +60,7 @@ async function main(): Promise<number> {
 if (require.main === module) {
   void main()
     .catch((error) => {
-      console.error('CRASH:', error)
+      process.stderr.write(`CRASH: ${error}\n`)
       return 1
     })
     .then((code) => {

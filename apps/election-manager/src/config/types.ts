@@ -46,6 +46,13 @@ export interface PrintedBallot {
   type: PrintableBallotType
 }
 
+export interface PrintOptions extends KioskBrowser.PrintOptions {
+  sides: Exclude<KioskBrowser.PrintOptions['sides'], undefined>
+}
+export interface Printer {
+  print(options: PrintOptions): Promise<void>
+}
+
 // Router Props
 export interface BallotScreenProps {
   ballotStyleId: string
@@ -109,6 +116,7 @@ export interface BatchTally extends Tally {
 }
 
 export enum TallyCategory {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   Precinct = 'precinct',
   Scanner = 'scanner',
   Party = 'party',

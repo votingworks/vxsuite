@@ -10,6 +10,7 @@ import {
   Precinct,
   Result,
 } from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils'
 import { SheetOf } from './types'
 
 const BlankPageTypes: readonly PageInterpretation['type'][] = [
@@ -61,8 +62,11 @@ export function validateSheetInterpretation([
   front,
   back,
 ]: SheetOf<PageInterpretation>): Result<void, ValidationError> {
-  if (BlankPageTypes.includes(front.type)) {
-    ;[front, back] = [back, front]
+  if (
+    BlankPageTypes.includes(front.type) &&
+    !BlankPageTypes.includes(back.type)
+  ) {
+    return validateSheetInterpretation([back, front])
   }
 
   if (front.type === 'InterpretedBmdPage') {
@@ -89,7 +93,7 @@ export function validateSheetInterpretation([
     }
 
     if (front.metadata.pageNumber > back.metadata.pageNumber) {
-      ;[front, back] = [back, front]
+      return validateSheetInterpretation([back, front])
     }
 
     if (front.metadata.pageNumber + 1 !== back.metadata.pageNumber) {
@@ -197,5 +201,8 @@ export function describeValidationError(
       const [front, back] = validationError.pageNumbers
       return `expected a sheet to have consecutive page numbers, but got front=${front} back=${back}`
     }
+
+    default:
+      throwIllegalValue(validationError)
   }
 }

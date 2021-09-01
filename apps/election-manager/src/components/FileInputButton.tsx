@@ -47,7 +47,7 @@ const FileInputButton = ({
 }: Props): JSX.Element => {
   const onBlur: InputEventFunction = (event) => {
     const input = event.currentTarget
-    input!.blur()
+    input?.blur()
   }
   return (
     <React.Fragment>

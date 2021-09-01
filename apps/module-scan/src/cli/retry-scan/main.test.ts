@@ -1,16 +1,24 @@
 import { electionSample } from '@votingworks/fixtures'
 import { BallotType } from '@votingworks/types'
 import { WritableStream } from 'memory-streams'
+import { mocked } from 'ts-jest/utils'
+import { countProvider } from '../util/spinner'
 import { retryScan } from './index'
 import main, { printHelp } from './main'
 
 jest.mock('../util/spinner')
 jest.mock('./index')
 
-const retryScanMock = retryScan as jest.MockedFunction<typeof retryScan>
+const countProviderMock = mocked(countProvider)
+const retryScanMock = mocked(retryScan)
 
 beforeEach(() => {
   retryScanMock.mockClear()
+  countProviderMock.mockClear()
+  countProviderMock.mockReturnValue({
+    increment: jest.fn(),
+    toString: jest.fn(() => ''),
+  })
 })
 
 test('printHelp', () => {
@@ -71,7 +79,11 @@ test('successful rescan with one non-type change', async () => {
   const stderr = new WritableStream()
 
   let resolve: (() => void) | undefined
-  retryScanMock.mockResolvedValue(new Promise((res) => (resolve = res)))
+  retryScanMock.mockResolvedValue(
+    new Promise((res) => {
+      resolve = res
+    })
+  )
 
   const mainPromise = main(['--all'], { stdout, stderr })
   const [[, listeners]] = retryScanMock.mock.calls

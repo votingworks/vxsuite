@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { fromByteArray } from 'base64-js'
 import { DateTime } from 'luxon'
 import React from 'react'
@@ -7,7 +8,6 @@ import { encodeBallot } from '@votingworks/ballot-encoder'
 import {
   BallotType,
   CandidateVote,
-  Contests,
   ElectionDefinition,
   VotesDict,
   YesNoVote,
@@ -140,7 +140,7 @@ const CandidateContestResult = ({
             {candidate.name}
           </Text>{' '}
           {candidate.partyId &&
-            `/ ${findPartyById(parties, candidate.partyId)!.name}`}
+            `/ ${findPartyById(parties, candidate.partyId)?.name}`}
           {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}
@@ -229,9 +229,11 @@ const PrintBallot = ({
     ballotStyleId,
     election,
   })
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })
+  assert(ballotStyle)
   const contests = getContests({ ballotStyle, election })
-  const precinct = getPrecinctById({ election, precinctId })!
+  const precinct = getPrecinctById({ election, precinctId })
+  assert(precinct)
   const encodedBallot = encodeBallot(election, {
     electionHash,
     precinctId,
@@ -295,7 +297,7 @@ const PrintBallot = ({
       </Header>
       <Content>
         <BallotSelections>
-          {(contests as Contests).map((contest) => (
+          {contests.map((contest) => (
             <Contest key={contest.id}>
               <ContestProse compact>
                 <h3>{contest.title}</h3>

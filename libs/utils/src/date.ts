@@ -18,7 +18,7 @@ function* getShortMonthNames(): Generator<string> {
   for (
     let month = 0;
     new Date(year, month, 1).getFullYear() === year;
-    month++
+    month += 1
   ) {
     yield monthShortNameFormatter.format(new Date(year, month, 1))
   }

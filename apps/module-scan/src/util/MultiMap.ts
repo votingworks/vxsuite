@@ -1,3 +1,5 @@
+import { strict as assert } from 'assert'
+
 /**
  * Maps composite keys to multiple values.
  */
@@ -51,12 +53,12 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
     const valueMapKey = this.valueMapKey(key)
     if (typeof value === 'undefined') {
       return this.valueMap.delete(valueMapKey)
-    } else {
-      const set = this.valueMap.get(valueMapKey)
-      return set?.delete(value) && set.size === 0
-        ? this.valueMap.delete(valueMapKey)
-        : false
     }
+
+    const set = this.valueMap.get(valueMapKey)
+    return set?.delete(value) && set.size === 0
+      ? this.valueMap.delete(valueMapKey)
+      : false
   }
 
   /**
@@ -96,7 +98,9 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
   public *[Symbol.iterator](): Generator<[K, Set<V>]> {
     for (const [valueMapKey, values] of this.valueMap) {
       const key = this.keyMap.get(valueMapKey)
-      yield [key!, new Set([...values!])]
+      assert(key)
+      assert(values)
+      yield [key, new Set([...values])]
     }
   }
 }

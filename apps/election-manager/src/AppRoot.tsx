@@ -132,8 +132,8 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
     )
   }
 
-  const savePrintedBallots = async (printedBallots: PrintedBallot[]) => {
-    return await storage.set(printedBallotsStorageKey, printedBallots)
+  const savePrintedBallots = async (printedBallotsToStore: PrintedBallot[]) => {
+    return await storage.set(printedBallotsStorageKey, printedBallotsToStore)
   }
 
   const addPrintedBallot = async (printedBallot: PrintedBallot) => {
@@ -191,9 +191,10 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
 
   const computeVoteCounts = useCallback(
     (castVoteRecords: CastVoteRecordLists) => {
+      assert(electionDefinition)
       setIsTabulationRunning(true)
       const fullTally = computeFullElectionTally(
-        electionDefinition!.election,
+        electionDefinition.election,
         castVoteRecords
       )
       setFullElectionTally(fullTally)

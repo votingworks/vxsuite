@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React from 'react'
 
 /**
@@ -20,6 +21,7 @@ export function toSentence(
   }
 
   const head = elements
-  const tail = head.pop()!
+  const tail = head.pop()
+  assert(typeof tail !== 'undefined')
   return [...head.flatMap((element) => [element, comma]), and, tail]
 }

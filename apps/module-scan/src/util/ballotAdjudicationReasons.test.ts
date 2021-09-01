@@ -54,6 +54,7 @@ test('a ballot with marginal marks', () => {
     ...ballotAdjudicationReasons([president], {
       optionMarkStatus: (contestId, optionId) => {
         if (contestId === president.id) {
+          // eslint-disable-next-line default-case
           switch (optionId) {
             case presidentialCandidate1.id:
               return MarkStatus.Marked
@@ -125,6 +126,7 @@ test('a ballot with too many marks', () => {
     ...ballotAdjudicationReasons([president], {
       optionMarkStatus: (contestId, optionId) => {
         if (contestId === president.id) {
+          // eslint-disable-next-line default-case
           switch (optionId) {
             case presidentialCandidate1.id:
             case presidentialCandidate2.id:

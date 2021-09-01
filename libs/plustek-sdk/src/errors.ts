@@ -2,12 +2,12 @@ import { safeParse } from '@votingworks/types'
 import * as z from 'zod'
 
 export enum ScannerError {
-  /*VTM STATUS*/
+  /* VTM STATUS */
   VtmScanOvertime = 'PLKSS_ERRCODE_VTM_SCAN_OVERTIME',
   VtmGratingSensorNotMove = 'PLKSS_ERRCODE_VTM_GRATING_SENSOR_NOT_MOVE',
   VtmNoDevicesAfterEject = 'PLKSS_ERRCODE_VTM_NO_DEVICES_AFTER_EJECT',
   VtmBothSideHavePaper = 'PLKSS_ERRCODE_VTM_BOTH_SIDE_HAVE_PAPER',
-  /*CallBack STATUS*/
+  /* CallBack STATUS */
   CbStatusIlReadImageFail = 'PLKSS_ERRCODE_CB_STATUS_IL_READ_IMAGE_FAIL',
   CbStatusIlAutoDeskewExFail = 'PLKSS_ERRCODE_CB_STATUS_IL_AUTO_DESKEW_EX_FAIL',
   CbStatusIlAutoCropFail = 'PLKSS_ERRCODE_CB_STATUS_IL_AUTO_CROP_FAIL',
@@ -32,7 +32,7 @@ export enum ScannerError {
   CbStatusIlResizeByResolutionFail = 'PLKSS_ERRCODE_CB_STATUS_IL_RESIZE_BY_RESOLUTION_FAIL',
   CbStatusIlApplySharpenFail = 'PLKSS_ERRCODE_CB_STATUS_IL_APPLY_SHARPEN_FAIL',
   CbStatusIlAutoRotateInterfaceFail = 'PLKSS_ERRCODE_CB_STATUS_IL_AUTO_ROTATE_INTERFACE_FAIL',
-  /*PAPER STATUS*/
+  /* PAPER STATUS */
   PaperStatusNoPaper = 'PLKSS_ERRCODE_PAPER_STATUS_NO_PAPER',
   PaperStatusOnDocumentTray = 'PLKSS_ERRCODE_PAPER_STATUS_ON_DOCUMENT_TRAY',
   PaperStatusLoading = 'PLKSS_ERRCODE_PAPER_STATUS_LOADING',
@@ -43,25 +43,25 @@ export enum ScannerError {
   PaperStatusScanning = 'PLKSS_ERRCODE_PAPER_STATUS_SCANNING',
   PaperStatusMultifeed = 'PLKSS_ERRCODE_PAPER_STATUS_MULTIFEED',
   PaperStatusXferCondition = 'PLKSS_ERRCODE_PAPER_STATUS_XFER_CONDITION',
-  /*SDK Function Return Code*/
-  Fail = /**< The function is failed */ 'PLKSS_ERRCODE_FAIL',
-  NoInit = /**< Not do INIT */ 'PLKSS_ERRCODE_NO_INIT',
-  NotYetOpenDevice = /**< Not do OPEN_DEVICE */ 'PLKSS_ERRCODE_NOT_YET_OPEN_DEVICE',
-  DeviceAlreadyOpen = /**< The device has opened by OPEN_DEVICE */ 'PLKSS_ERRCODE_DEVICE_ALREADY_OPEN',
-  InvalidSource = /**< Input invalid source */ 'PLKSS_ERRCODE_INVALID_SOURCE',
-  OnlySupportColorMode = /**< Only support color mode */ 'PLKSS_ERRCODE_ONLY_SUPPORT_COLOR_MODE',
-  NoSupportEject = /**< No support eject direction control */ 'PLKSS_ERRCODE_NO_SUPPORT_EJECT',
-  PaperNotReady = /**< No paper */ 'PLKSS_ERRCODE_PAPER_NOT_READY',
-  InvalidSerialnum = /**< The Serial number is invailid */ 'PLKSS_ERRCODE_INVALID_SERIALNUM',
-  FormatNotSupport = /**< The format is not supported */ 'PLKSS_ERRCODE_FORMAT_NOT_SUPPORT',
-  NoCalibrationData = /**< Not yet calibration */ 'PLKSS_ERRCODE_NO_CALIBRATION_DATA',
+  /* SDK Function Return Code */
+  Fail = /** < The function is failed */ 'PLKSS_ERRCODE_FAIL',
+  NoInit = /** < Not do INIT */ 'PLKSS_ERRCODE_NO_INIT',
+  NotYetOpenDevice = /** < Not do OPEN_DEVICE */ 'PLKSS_ERRCODE_NOT_YET_OPEN_DEVICE',
+  DeviceAlreadyOpen = /** < The device has opened by OPEN_DEVICE */ 'PLKSS_ERRCODE_DEVICE_ALREADY_OPEN',
+  InvalidSource = /** < Input invalid source */ 'PLKSS_ERRCODE_INVALID_SOURCE',
+  OnlySupportColorMode = /** < Only support color mode */ 'PLKSS_ERRCODE_ONLY_SUPPORT_COLOR_MODE',
+  NoSupportEject = /** < No support eject direction control */ 'PLKSS_ERRCODE_NO_SUPPORT_EJECT',
+  PaperNotReady = /** < No paper */ 'PLKSS_ERRCODE_PAPER_NOT_READY',
+  InvalidSerialnum = /** < The Serial number is invailid */ 'PLKSS_ERRCODE_INVALID_SERIALNUM',
+  FormatNotSupport = /** < The format is not supported */ 'PLKSS_ERRCODE_FORMAT_NOT_SUPPORT',
+  NoCalibrationData = /** < Not yet calibration */ 'PLKSS_ERRCODE_NO_CALIBRATION_DATA',
   NoDevices = 'PLKSS_ERRCODE_NO_DEVICES',
   NoDeviceName = 'PLKSS_ERRCODE_NO_DEVICE_NAME',
   NoSource = 'PLKSS_ERRCODE_NO_SOURCE',
   FileNoExist = 'PLKSS_ERRCODE_FILE_NO_EXIST',
   FunctionNotSupport = 'PLKSS_ERRCODE_FUNCTION_NOT_SUPPORT',
   InvalidParam = 'PLKSS_ERRCODE_INVALID_PARAM',
-  NoScanParam = /**< Not do  */ 'PLKSS_ERRCODE_NO_SCAN_PARAM',
+  NoScanParam = /** < Not do  */ 'PLKSS_ERRCODE_NO_SCAN_PARAM',
   OpenFailInvalidHandle = /* open fail with invalid handle */ 'PLKSS_ERRCODE_OPEN_FAIL_INVALID_HANDLE',
   SaneStatusUnsupported = /* operation is not supported */ 'PLKSS_ERRCODE_SANE_STATUS_UNSUPPORTED',
   SaneStatusCancelled = /* operation was cancelled */ 'PLKSS_ERRCODE_SANE_STATUS_CANCELLED',

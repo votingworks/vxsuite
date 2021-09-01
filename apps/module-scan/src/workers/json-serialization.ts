@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 export type SerializedMessage =
   | string
   | boolean

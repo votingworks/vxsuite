@@ -14,6 +14,16 @@ export function rectCorners({ x, y, width, height }: Rect): Corners {
 }
 
 /**
+ * Rounds a point to the nearest integer axis values.
+ */
+export function roundPoint(
+  { x, y }: Point,
+  { round = Math.round } = {}
+): Point {
+  return { x: round(x), y: round(y) }
+}
+
+/**
  * Gets the center point of a rectangle, optionally rounded.
  */
 export function rectCenter(
@@ -23,16 +33,6 @@ export function rectCenter(
   const center = { x: x + (width - 1) / 2, y: y + (height - 1) / 2 }
   const result = round ? roundPoint(center) : center
   return result
-}
-
-/**
- * Rounds a point to the nearest integer axis values.
- */
-export function roundPoint(
-  { x, y }: Point,
-  { round = Math.round } = {}
-): Point {
-  return { x: round(x), y: round(y) }
 }
 
 /**

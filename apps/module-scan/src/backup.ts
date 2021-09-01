@@ -101,11 +101,11 @@ export class Backup {
    */
   private async rewriteFilePaths(dbPath: string): Promise<void> {
     const db = await new Promise<Database>((resolve, reject) => {
-      const db = new Database(dbPath, (error) => {
+      const result = new Database(dbPath, (error) => {
         if (error) {
           reject(error)
         } else {
-          resolve(db)
+          resolve(result)
         }
       })
     })
@@ -127,7 +127,7 @@ export class Backup {
             reject(error)
           } else {
             updates.push(
-              new Promise((resolve, reject) =>
+              new Promise((updateResolve, updateReject) =>
                 db.run(
                   `
             update sheets
@@ -144,11 +144,11 @@ export class Backup {
                     basename(row.back_normalized_filename),
                     row.id,
                   ],
-                  (error) => {
-                    if (error) {
-                      reject(error)
+                  (updateError) => {
+                    if (updateError) {
+                      updateReject(updateError)
                     } else {
-                      resolve()
+                      updateResolve()
                     }
                   }
                 )

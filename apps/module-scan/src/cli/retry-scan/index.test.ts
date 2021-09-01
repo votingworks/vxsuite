@@ -1,7 +1,7 @@
 import { dirSync } from 'tmp'
 import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import { createWorkspace } from '../../util/workspace'
-import { queryFromOptions, retryScan } from './'
+import { queryFromOptions, retryScan } from '.'
 import { parseOptions } from './options'
 
 jest.setTimeout(20000)
@@ -141,7 +141,7 @@ test('query with sheet ids', () => {
 
 test('full rescan', async () => {
   const inputWorkspace = await createWorkspace(dirSync().name)
-  const store = inputWorkspace.store
+  const { store } = inputWorkspace
 
   await store.setElection({
     election: fixtures.election,

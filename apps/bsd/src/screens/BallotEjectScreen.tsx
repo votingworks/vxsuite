@@ -85,7 +85,7 @@ const BallotEjectScreen = ({
   let isInvalidElectionHashSheet = false
   let isInvalidPrecinctSheet = false
 
-  let actualElectionHash: string
+  let actualElectionHash: string | undefined
 
   for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
     if (interpretation.type === 'InvalidTestModePage') {
@@ -223,7 +223,7 @@ const BallotEjectScreen = ({
                   configured for. Remove the invalid ballot before continuing.
                 </p>
                 <Text small>
-                  Ballot Election Hash: {actualElectionHash!.slice(0, 10)}
+                  Ballot Election Hash: {actualElectionHash?.slice(0, 10)}
                 </Text>
               </React.Fragment>
             ) : isInvalidPrecinctSheet ? (

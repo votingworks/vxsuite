@@ -1,11 +1,11 @@
 import { AnyContest, Contests, Corners, Rect } from '@votingworks/types'
+import { zip } from '@votingworks/utils'
 import makeDebug from 'debug'
 import { BallotPageContestLayout, BallotPageLayout } from '../types'
 import { PIXEL_BLACK } from '../utils/binarize'
 import { getCorners } from '../utils/corners'
 import { euclideanDistance, poly4Area } from '../utils/geometry'
 import { getImageChannelCount } from '../utils/imageFormatUtils'
-import { zip } from '../utils/iterators'
 import { VisitedPoints } from '../utils/VisitedPoints'
 import { findShape, parseRectangle, Shape } from './shapes'
 
@@ -24,6 +24,77 @@ export interface Options {
   minExpectedHeight?: number
   maxExpectedHeight?: number
   errorMargin?: number
+}
+
+function findTopBorderInset(
+  { data, width, height }: ImageData,
+  x: number,
+  {
+    yMax = height - 1,
+    minimumConsecutiveWhitePixels = Math.ceil(height * 0.005),
+  } = {}
+): number {
+  debug(
+    'looking for top inset at x=%d within %dpx of the top with a run of %d white pixels',
+    x,
+    yMax + 1,
+    minimumConsecutiveWhitePixels
+  )
+  const channels = getImageChannelCount({ data, width, height })
+
+  // Look for black border within [0, yMax].
+  let seen = false
+  let y = 0
+
+  while (y <= yMax) {
+    const color = data[(y * width + x) * channels]
+
+    if (color === PIXEL_BLACK) {
+      seen = true
+      break
+    }
+
+    y += 1
+  }
+
+  if (!seen) {
+    // Didn't find one.
+    debug('no border found by x=%d y=%d', x, y)
+    return 0
+  }
+
+  // Look for a run of white pixels that marks the end of the border.
+  let consecutiveWhitePixels = 0
+
+  while (consecutiveWhitePixels < minimumConsecutiveWhitePixels && y < height) {
+    const color = data[(y * width + x) * channels]
+
+    if (color === PIXEL_BLACK) {
+      consecutiveWhitePixels = 0
+    } else {
+      consecutiveWhitePixels += 1
+      debug(
+        'found a white pixel at x=%d y=%d, count=%d',
+        x,
+        y,
+        consecutiveWhitePixels
+      )
+    }
+
+    y += 1
+  }
+
+  if (consecutiveWhitePixels < minimumConsecutiveWhitePixels) {
+    debug('did not find the end of a border')
+    return 0
+  }
+
+  debug(
+    'end of the border found starting at x=%d y=%d',
+    x,
+    y - consecutiveWhitePixels
+  )
+  return y - consecutiveWhitePixels
 }
 
 export default function* findContests(
@@ -61,7 +132,7 @@ export default function* findContests(
     for (
       let y = expectedContestTop - errorMargin;
       y < ballotImage.height - inset - minExpectedHeight + errorMargin;
-      y++
+      y += 1
     ) {
       if (!lastShape && y > expectedContestTop + errorMargin) {
         debug(
@@ -147,77 +218,6 @@ export default function* findContests(
       y = shape.bounds.y + shape.bounds.height
     }
   }
-}
-
-function findTopBorderInset(
-  { data, width, height }: ImageData,
-  x: number,
-  {
-    yMax = height - 1,
-    minimumConsecutiveWhitePixels = Math.ceil(height * 0.005),
-  } = {}
-): number {
-  debug(
-    'looking for top inset at x=%d within %dpx of the top with a run of %d white pixels',
-    x,
-    yMax + 1,
-    minimumConsecutiveWhitePixels
-  )
-  const channels = getImageChannelCount({ data, width, height })
-
-  // Look for black border within [0, yMax].
-  let seen = false
-  let y = 0
-
-  while (y <= yMax) {
-    const color = data[(y * width + x) * channels]
-
-    if (color === PIXEL_BLACK) {
-      seen = true
-      break
-    }
-
-    y++
-  }
-
-  if (!seen) {
-    // Didn't find one.
-    debug('no border found by x=%d y=%d', x, y)
-    return 0
-  }
-
-  // Look for a run of white pixels that marks the end of the border.
-  let consecutiveWhitePixels = 0
-
-  while (consecutiveWhitePixels < minimumConsecutiveWhitePixels && y < height) {
-    const color = data[(y * width + x) * channels]
-
-    if (color === PIXEL_BLACK) {
-      consecutiveWhitePixels = 0
-    } else {
-      consecutiveWhitePixels++
-      debug(
-        'found a white pixel at x=%d y=%d, count=%d',
-        x,
-        y,
-        consecutiveWhitePixels
-      )
-    }
-
-    y++
-  }
-
-  if (consecutiveWhitePixels < minimumConsecutiveWhitePixels) {
-    debug('did not find the end of a border')
-    return 0
-  }
-
-  debug(
-    'end of the border found starting at x=%d y=%d',
-    x,
-    y - consecutiveWhitePixels
-  )
-  return y - consecutiveWhitePixels
 }
 
 export interface BallotLayoutCorrespondence {

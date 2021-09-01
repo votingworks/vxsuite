@@ -20,7 +20,7 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['yes'],
           '750000016': ['no'],
         },
-        { _precinctId: '6522', _ballotStyleId: '5', _ballotType: 'absentee' }
+        { precinctId: '6522', ballotStyleId: '5', ballotType: 'absentee' }
       ),
       generateCVR(
         electionWithMsEitherNeither,
@@ -31,10 +31,10 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000016': ['yes'],
         },
         {
-          _precinctId: '6522',
-          _ballotStyleId: '5',
-          _ballotType: 'absentee',
-          _scannerId: 'scanner-2',
+          precinctId: '6522',
+          ballotStyleId: '5',
+          ballotType: 'absentee',
+          scannerId: 'scanner-2',
         }
       ),
       generateCVR(
@@ -45,7 +45,7 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['no'],
           '750000016': ['no'],
         },
-        { _precinctId: '6522', _ballotStyleId: '5', _scannerId: 'scanner-2' }
+        { precinctId: '6522', ballotStyleId: '5', scannerId: 'scanner-2' }
       ),
       generateCVR(
         electionWithMsEitherNeither,
@@ -55,7 +55,7 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['no'],
           '750000016': ['yes'],
         },
-        { _precinctId: '6522', _ballotStyleId: '5' }
+        { precinctId: '6522', ballotStyleId: '5' }
       ),
       generateCVR(
         electionWithMsEitherNeither,
@@ -66,10 +66,10 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000016': ['yes'],
         },
         {
-          _precinctId: '6538',
-          _ballotStyleId: '4',
-          _ballotType: 'absentee',
-          _scannerId: 'scanner-2',
+          precinctId: '6538',
+          ballotStyleId: '4',
+          ballotType: 'absentee',
+          scannerId: 'scanner-2',
         }
       ),
       generateCVR(
@@ -81,10 +81,10 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000016': ['no'],
         },
         {
-          _precinctId: '6538',
-          _ballotStyleId: '4',
-          _ballotType: 'absentee',
-          _scannerId: 'scanner-2',
+          precinctId: '6538',
+          ballotStyleId: '4',
+          ballotType: 'absentee',
+          scannerId: 'scanner-2',
         }
       ),
       generateCVR(
@@ -95,7 +95,7 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['yes'],
           '750000016': [],
         },
-        { _precinctId: '6538', _ballotStyleId: '4' }
+        { precinctId: '6538', ballotStyleId: '4' }
       ),
       generateCVR(
         electionWithMsEitherNeither,
@@ -105,7 +105,7 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['no'],
           '750000016': ['yes', 'no'],
         },
-        { _precinctId: '6538', _ballotStyleId: '4' }
+        { precinctId: '6538', ballotStyleId: '4' }
       ),
     ])
     cy.visit('/')

@@ -201,7 +201,6 @@ test('plustek scanner calibrate', async () => {
   expect(await scanner.calibrate()).toEqual(false)
 })
 
-// eslint-disable-next-line jest/expect-expect
 test('mock server', async () => {
   const client = new MockScannerClient({
     passthroughDuration: 0,

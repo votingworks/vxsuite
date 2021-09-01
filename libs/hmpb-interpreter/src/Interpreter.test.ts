@@ -3,14 +3,7 @@ import { fail } from 'assert'
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
 import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election'
 import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
-import {
-  blankPage1,
-  blankPage2,
-  election,
-  filledInPage1,
-  filledInPage2,
-  partialBorderPage2,
-} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+import * as oaklawn from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
 import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
 import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
 import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
@@ -18,8 +11,10 @@ import Interpreter from './Interpreter'
 import { DetectQRCodeResult } from './types'
 
 test('interpret three-column template with instructions', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
-  const imageData = await blankPage1.imageData()
+  const imageData = await fixtures.blankPage1.imageData()
   const template = await interpreter.interpretTemplate(imageData)
 
   expect(template.ballotImage.metadata).toMatchInlineSnapshot(`
@@ -585,7 +580,8 @@ test('interpret three-column template with instructions', async () => {
 })
 
 test('interpret two-column template', async () => {
-  const interpreter = new Interpreter(choctawMock2020.election)
+  const { election } = choctawMock2020
+  const interpreter = new Interpreter(election)
 
   {
     const imageData = await choctawMock2020.blankPage1.imageData()
@@ -1485,22 +1481,26 @@ test('interpret two-column template', async () => {
 })
 
 test('interpret empty ballot', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
 
   await expect(
-    interpreter.interpretBallot(await blankPage1.imageData())
+    interpreter.interpretBallot(await fixtures.blankPage1.imageData())
   ).rejects.toThrow(
     'Cannot scan ballot because not all required templates have been added'
   )
-  const p1 = await interpreter.addTemplate(await blankPage1.imageData())
-  await interpreter.addTemplate(await blankPage2.imageData())
+  const p1 = await interpreter.addTemplate(
+    await fixtures.blankPage1.imageData()
+  )
+  await interpreter.addTemplate(await fixtures.blankPage2.imageData())
 
   const {
     matchedTemplate,
     mappedBallot,
     metadata,
     ballot,
-  } = await interpreter.interpretBallot(await blankPage1.imageData())
+  } = await interpreter.interpretBallot(await fixtures.blankPage1.imageData())
   expect(matchedTemplate === p1).toBe(true)
   expect(mappedBallot.width).toBe(matchedTemplate.ballotImage.imageData.width)
   expect(mappedBallot.height).toBe(matchedTemplate.ballotImage.imageData.height)
@@ -1509,12 +1509,14 @@ test('interpret empty ballot', async () => {
 })
 
 test('interpret votes', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
 
-  await interpreter.addTemplate(await blankPage1.imageData())
+  await interpreter.addTemplate(await fixtures.blankPage1.imageData())
 
   const { ballot, marks } = await interpreter.interpretBallot(
-    await filledInPage1.imageData()
+    await fixtures.filledInPage1.imageData()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
@@ -1663,20 +1665,22 @@ test('interpret votes', async () => {
 })
 
 test('invalid marks', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
-    await blankPage1.imageData(),
-    await blankPage1.metadata()
+    await fixtures.blankPage1.imageData(),
+    await fixtures.blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await blankPage2.imageData(),
-    await blankPage2.metadata()
+    await fixtures.blankPage2.imageData(),
+    await fixtures.blankPage2.metadata()
   )
 
   const { ballot, marks } = await interpreter.interpretBallot(
-    await filledInPage2.imageData(),
-    await filledInPage2.metadata()
+    await fixtures.filledInPage2.imageData(),
+    await fixtures.filledInPage2.metadata()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
@@ -2991,6 +2995,8 @@ test('invalid marks', async () => {
 })
 
 test('custom QR code reader', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter({
     election,
     detectQRCode: async (): Promise<DetectQRCodeResult> => ({
@@ -2998,7 +3004,7 @@ test('custom QR code reader', async () => {
     }),
   })
   const template = await interpreter.interpretTemplate(
-    await blankPage1.imageData()
+    await fixtures.blankPage1.imageData()
   )
 
   expect(template.ballotImage.metadata).toEqual({
@@ -3013,19 +3019,21 @@ test('custom QR code reader', async () => {
 })
 
 test('upside-down ballot', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
-    await blankPage1.imageData(),
-    await blankPage1.metadata()
+    await fixtures.blankPage1.imageData(),
+    await fixtures.blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await blankPage2.imageData(),
-    await blankPage2.metadata()
+    await fixtures.blankPage2.imageData(),
+    await fixtures.blankPage2.metadata()
   )
 
   const { ballot, metadata } = await interpreter.interpretBallot(
-    await filledInPage1.imageData()
+    await fixtures.filledInPage1.imageData()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
@@ -3077,7 +3085,7 @@ test('upside-down ballot', async () => {
   const {
     ballot: { votes: votesWithFlipped },
   } = await interpreter.interpretBallot(
-    await filledInPage1.imageData({ flipped: true }),
+    await fixtures.filledInPage1.imageData({ flipped: true }),
     metadata,
     { flipped: true }
   )
@@ -3086,30 +3094,32 @@ test('upside-down ballot', async () => {
 })
 
 test('enforcing test vs live mode', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
 
   await expect(
     interpreter.addTemplate(
-      await blankPage1.imageData(),
-      await blankPage1.metadata({ isTestMode: true })
+      await fixtures.blankPage1.imageData(),
+      await fixtures.blankPage1.metadata({ isTestMode: true })
     )
   ).rejects.toThrowError(
     'interpreter configured with testMode=false cannot add templates with isTestMode=true'
   )
 
   await interpreter.addTemplate(
-    await blankPage1.imageData(),
-    await blankPage1.metadata()
+    await fixtures.blankPage1.imageData(),
+    await fixtures.blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await blankPage2.imageData(),
-    await blankPage2.metadata()
+    await fixtures.blankPage2.imageData(),
+    await fixtures.blankPage2.metadata()
   )
 
   await expect(
     interpreter.interpretBallot(
-      await blankPage1.imageData(),
-      await blankPage1.metadata({ isTestMode: true })
+      await fixtures.blankPage1.imageData(),
+      await fixtures.blankPage1.metadata({ isTestMode: true })
     )
   ).rejects.toThrowError(
     'interpreter configured with testMode=false cannot interpret ballots with isTestMode=true'
@@ -3117,20 +3127,23 @@ test('enforcing test vs live mode', async () => {
 })
 
 test('can interpret a template that is not in the same mode as the interpreter', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter({ election, testMode: true })
 
   expect(
     (
       await interpreter.interpretTemplate(
-        await blankPage1.imageData(),
-        await blankPage1.metadata({ isTestMode: false })
+        await fixtures.blankPage1.imageData(),
+        await fixtures.blankPage1.metadata({ isTestMode: false })
       )
     ).ballotImage.metadata.isTestMode
   ).toBe(false)
 })
 
 test('dual language ballot', async () => {
-  const interpreter = new Interpreter({ election: hamilton.election })
+  const { election } = hamilton
+  const interpreter = new Interpreter({ election })
 
   await interpreter.addTemplate(
     await hamilton.blankPage1.imageData(),
@@ -3175,7 +3188,8 @@ test('dual language ballot', async () => {
  * someone draws lines connecting boxes then we can't distinguish them.
  */
 test.skip('handles lines connecting contest boxes', async () => {
-  const interpreter = new Interpreter({ election: hamilton.election })
+  const { election } = hamilton
+  const interpreter = new Interpreter({ election })
 
   await interpreter.addTemplate(
     await hamilton.blankPage1.imageData(),
@@ -3197,7 +3211,8 @@ test.skip('handles lines connecting contest boxes', async () => {
 })
 
 test('yesno overvotes', async () => {
-  const interpreter = new Interpreter({ election: hamilton.election })
+  const { election } = hamilton
+  const interpreter = new Interpreter({ election })
 
   await interpreter.addTemplate(
     await hamilton.blankPage1.imageData(),
@@ -3240,19 +3255,21 @@ test('yesno overvotes', async () => {
 })
 
 test('regression: page outline', async () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
-    await blankPage1.imageData(),
-    await blankPage1.metadata()
+    await fixtures.blankPage1.imageData(),
+    await fixtures.blankPage1.metadata()
   )
   await interpreter.addTemplate(
-    await blankPage2.imageData(),
-    await blankPage2.metadata()
+    await fixtures.blankPage2.imageData(),
+    await fixtures.blankPage2.metadata()
   )
 
   const { ballot } = await interpreter.interpretBallot(
-    await partialBorderPage2.imageData()
+    await fixtures.partialBorderPage2.imageData()
   )
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
@@ -3292,7 +3309,8 @@ test('regression: page outline', async () => {
 
 test('choctaw general 2019', async () => {
   jest.setTimeout(10000)
-  const interpreter = new Interpreter(choctaw2019.election)
+  const { election } = choctaw2019
+  const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage1.imageData(),
@@ -3406,7 +3424,8 @@ test('choctaw general 2019', async () => {
 })
 
 test('determining layout of a ballot with borders', async () => {
-  const interpreter = new Interpreter(choctaw2019.election)
+  const { election } = choctaw2019
+  const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage1.imageData(),
@@ -3443,6 +3462,8 @@ test('determining layout of a ballot with borders', async () => {
 })
 
 test('takes the mark score vote threshold from the election definition if present', () => {
+  const fixtures = oaklawn
+  const { election } = fixtures
   const interpreter = new Interpreter({
     ...election,
     markThresholds: {
@@ -3451,11 +3472,13 @@ test('takes the mark score vote threshold from the election definition if presen
     },
   })
 
+  // eslint-disable-next-line dot-notation
   expect(interpreter['markScoreVoteThreshold']).toEqual(0.99)
 })
 
 test('choctaw 2020 general', async () => {
-  const interpreter = new Interpreter(choctaw2020.election)
+  const { election } = choctaw2020
+  const interpreter = new Interpreter(election)
 
   await interpreter.addTemplate(
     await choctaw2020.blankPage1.imageData(),

@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import {
   Election,
   expandEitherNeitherContests,
@@ -12,7 +13,8 @@ export function* generateRowsForBatchTallyResultsCSV(
 ): Generator<string> {
   const batchResults = fullElectionTally.resultsByCategory.get(
     TallyCategory.Batch
-  )!
+  )
+  assert(batchResults)
   for (const batchId of Object.keys(batchResults)) {
     const batchTally = filterTalliesByParamsAndBatchId(
       fullElectionTally,

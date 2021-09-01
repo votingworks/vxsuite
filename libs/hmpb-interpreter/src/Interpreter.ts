@@ -21,6 +21,7 @@ import {
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types'
+import { map, reversed, zip, zipMin } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import makeDebug from 'debug'
 import * as jsfeat from 'jsfeat'
@@ -47,7 +48,6 @@ import crop from './utils/crop'
 import defined from './utils/defined'
 import { vh as flipVH } from './utils/flip'
 import { rectCorners } from './utils/geometry'
-import { map, reversed, zip, zipMin } from './utils/iterators'
 import diff, { countPixels } from './utils/jsfeat/diff'
 import matToImageData from './utils/jsfeat/matToImageData'
 import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
@@ -155,17 +155,15 @@ export default class Interpreter {
             flipped,
           })
         : imageDataOrTemplate
-    if (!metadata) {
-      metadata = template.ballotImage.metadata
-    }
+    const effectiveMetadata = metadata ?? template.ballotImage.metadata
 
-    if (metadata.isTestMode !== this.testMode) {
+    if (effectiveMetadata.isTestMode !== this.testMode) {
       throw new Error(
-        `interpreter configured with testMode=${this.testMode} cannot add templates with isTestMode=${metadata.isTestMode}`
+        `interpreter configured with testMode=${this.testMode} cannot add templates with isTestMode=${effectiveMetadata.isTestMode}`
       )
     }
 
-    this.setTemplate(metadata, template)
+    this.setTemplate(effectiveMetadata, template)
     return template
   }
 
@@ -209,26 +207,29 @@ export default class Interpreter {
       imageData.width,
       imageData.height
     )
-    ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
+    const normalized = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
       {
         flipped,
       }
-    ))
+    )
 
-    debug('using metadata for template: %O', metadata)
+    debug('using metadata for template: %O', normalized.metadata)
 
     const contests = findContestOptions([
-      ...map(this.findContests(imageData).contests, ({ bounds, corners }) => ({
-        bounds,
-        corners,
-        targets: [...reversed(findTargets(imageData, bounds))],
-      })),
+      ...map(
+        this.findContests(normalized.imageData).contests,
+        ({ bounds, corners }) => ({
+          bounds,
+          corners,
+          targets: [...reversed(findTargets(normalized.imageData, bounds))],
+        })
+      ),
     ])
 
     return {
-      ballotImage: { imageData, metadata },
+      ballotImage: normalized,
       contests,
     }
   }
@@ -311,22 +312,25 @@ export default class Interpreter {
       imageData.width,
       imageData.height
     )
-    ;({ imageData, metadata } = await this.normalizeImageDataAndMetadata(
+    const normalized = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
       {
         flipped,
       }
-    ))
+    )
 
-    if (metadata.isTestMode !== this.testMode) {
+    if (normalized.metadata.isTestMode !== this.testMode) {
       throw new Error(
-        `interpreter configured with testMode=${this.testMode} cannot interpret ballots with isTestMode=${metadata.isTestMode}`
+        `interpreter configured with testMode=${this.testMode} cannot interpret ballots with isTestMode=${normalized.metadata.isTestMode}`
       )
     }
 
-    debug('using metadata: %O', metadata)
-    const marked = await this.findMarks(imageData, metadata)
+    debug('using metadata: %O', normalized.metadata)
+    const marked = await this.findMarks(
+      normalized.imageData,
+      normalized.metadata
+    )
     const ballot = this.interpretMarks(marked, { markScoreVoteThreshold })
     return { ...marked, ballot }
   }
@@ -432,18 +436,20 @@ export default class Interpreter {
       if (flipped) {
         flipVH(imageData)
       }
-    } else {
-      const detectResult = await detect(this.election, imageData, {
-        detectQRCode: this.detectQRCode,
-      })
-      metadata = detectResult.metadata
-      if (detectResult.flipped) {
-        debug('detected image is flipped, correcting orientation')
-        flipVH(imageData)
-      }
+
+      return { imageData, metadata }
     }
 
-    return { imageData, metadata }
+    const detectResult = await detect(this.election, imageData, {
+      detectQRCode: this.detectQRCode,
+    })
+
+    if (detectResult.flipped) {
+      debug('detected image is flipped, correcting orientation')
+      flipVH(imageData)
+    }
+
+    return { imageData, metadata: detectResult.metadata }
   }
 
   private getMarksForBallot(

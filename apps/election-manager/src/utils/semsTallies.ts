@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import _ from 'lodash'
 
 import {
@@ -10,6 +11,7 @@ import {
   expandEitherNeitherContests,
 } from '@votingworks/types'
 
+import { throwIllegalValue } from '@votingworks/utils'
 import {
   ContestOptionTally,
   ContestTally,
@@ -79,7 +81,7 @@ export function getContestTallyForCandidateContest(
       const candidate = validCandidates[row.candidateId]
       let previousVoteCounts = 0
       if (candidate.id in tallies) {
-        previousVoteCounts = tallies[candidate.id]!.tally
+        previousVoteCounts = (tallies[candidate.id] as ContestOptionTally).tally
       }
       tallies[candidate.id] = {
         option: candidate,
@@ -129,14 +131,16 @@ export function getContestTallyForYesNoContest(
       overvotes = row.numberOfVotes
       numVotes += row.numberOfVotes
     } else if (contest.yesOption && row.candidateId === contest.yesOption.id) {
-      const previousVoteCounts = 'yes' in tallies ? tallies.yes!.tally : 0
+      const previousVoteCounts =
+        'yes' in tallies ? (tallies.yes as ContestOptionTally).tally : 0
       tallies.yes = {
         option: ['yes'] as YesNoOption,
         tally: row.numberOfVotes + previousVoteCounts,
       }
       numVotes += row.numberOfVotes
     } else if (contest.noOption && row.candidateId === contest.noOption.id) {
-      const previousVoteCounts = 'no' in tallies ? tallies.no!.tally : 0
+      const previousVoteCounts =
+        'no' in tallies ? (tallies.no as ContestOptionTally).tally : 0
       tallies.no = {
         option: ['no'] as YesNoOption,
         tally: row.numberOfVotes + previousVoteCounts,
@@ -272,6 +276,8 @@ export function parseSEMSFileAndValidateForElection(
           }
           break
         }
+        default:
+          throwIllegalValue(contest)
       }
     }
   }
@@ -297,40 +303,56 @@ export function convertSEMSFileToExternalTally(
   const parsedRowsByPrecinct = _.groupBy(parsedRows, 'precinctId')
 
   for (const precinctId in parsedRowsByPrecinct) {
-    if (!election.precincts.find((p) => p.id === precinctId)) {
-      throw new Error(`Imported file has unexpected PrecinctId: ${precinctId}`)
-    }
-    const rowsForPrecinct = parsedRowsByPrecinct[precinctId]
-
-    const contestTallies: Dictionary<ContestTally> = {}
-    const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId')
-    for (const contestId in rowsForPrecinctAndContest) {
-      if (!(contestId in contestsById)) {
-        throw new Error(`Imported file has unexpected PrecinctId: ${contestId}`)
-      }
-      const electionContest = contestsById[contestId]!
-
-      if (electionContest.type === 'candidate') {
-        const contestTally = getContestTallyForCandidateContest(
-          electionContest as CandidateContest,
-          rowsForPrecinctAndContest[contestId]
+    if (
+      Object.prototype.hasOwnProperty.call(parsedRowsByPrecinct, precinctId)
+    ) {
+      if (!election.precincts.find((p) => p.id === precinctId)) {
+        throw new Error(
+          `Imported file has unexpected PrecinctId: ${precinctId}`
         )
-        contestTallies[contestId] = contestTally
-      } else if (electionContest.type === 'yesno') {
-        const contestTally = getContestTallyForYesNoContest(
-          electionContest as YesNoContest,
-          rowsForPrecinctAndContest[contestId]
-        )
-        contestTallies[contestId] = contestTally
       }
-    }
-    const numBallotsInPrecinct = getTotalNumberOfBallots(
-      contestTallies,
-      election
-    )
-    contestTalliesByPrecinct[precinctId] = {
-      contestTallies,
-      numberOfBallotsCounted: numBallotsInPrecinct,
+      const rowsForPrecinct = parsedRowsByPrecinct[precinctId]
+
+      const contestTallies: Dictionary<ContestTally> = {}
+      const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId')
+      for (const contestId in rowsForPrecinctAndContest) {
+        if (
+          Object.prototype.hasOwnProperty.call(
+            rowsForPrecinctAndContest,
+            contestId
+          )
+        ) {
+          if (!(contestId in contestsById)) {
+            throw new Error(
+              `Imported file has unexpected PrecinctId: ${contestId}`
+            )
+          }
+          const electionContest = contestsById[contestId]
+          assert(electionContest)
+
+          if (electionContest.type === 'candidate') {
+            const contestTally = getContestTallyForCandidateContest(
+              electionContest as CandidateContest,
+              rowsForPrecinctAndContest[contestId]
+            )
+            contestTallies[contestId] = contestTally
+          } else if (electionContest.type === 'yesno') {
+            const contestTally = getContestTallyForYesNoContest(
+              electionContest as YesNoContest,
+              rowsForPrecinctAndContest[contestId]
+            )
+            contestTallies[contestId] = contestTally
+          }
+        }
+      }
+      const numBallotsInPrecinct = getTotalNumberOfBallots(
+        contestTallies,
+        election
+      )
+      contestTalliesByPrecinct[precinctId] = {
+        contestTallies,
+        numberOfBallotsCounted: numBallotsInPrecinct,
+      }
     }
   }
 

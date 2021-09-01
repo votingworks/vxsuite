@@ -84,7 +84,7 @@ test('can expand ms-either-neither contests into yes no contests', () => {
   expect(expandedContests).toHaveLength(
     1 + electionWithMsEitherNeither.contests.length
   )
-  for (let i = 0; i < electionWithMsEitherNeither.contests.length; i++) {
+  for (let i = 0; i < electionWithMsEitherNeither.contests.length; i += 1) {
     const originalContest = electionWithMsEitherNeither.contests[i]
     if (originalContest.type !== 'ms-either-neither') {
       expect(originalContest).toEqual(expandedContests[i])
@@ -175,7 +175,6 @@ test('isVotePresent', () => {
   expect(isVotePresent(['yes'])).toBe(true)
   expect(
     isVotePresent([
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       election.contests.find(
         (c): c is CandidateContest => c.type === 'candidate'
       )!.candidates[0],

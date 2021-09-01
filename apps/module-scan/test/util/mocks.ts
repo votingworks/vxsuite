@@ -1,5 +1,6 @@
 import { ScannerClient } from '@votingworks/plustek-sdk'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
+import { throwIllegalValue } from '@votingworks/utils/build'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import { Readable, Writable } from 'stream'
@@ -10,13 +11,13 @@ import { SheetOf } from '../../src/types'
 import { writeImageData } from '../../src/util/images'
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
 
-export function makeMock<T>(cls: new (...args: never[]) => T): MaybeMocked<T> {
-  if (!jest.isMockFunction(cls)) {
+export function makeMock<T>(Cls: new (...args: never[]) => T): MaybeMocked<T> {
+  if (!jest.isMockFunction(Cls)) {
     throw new Error(
-      `${cls} is not a mock function; are you missing a jest.mock(…) call?`
+      `${Cls} is not a mock function; are you missing a jest.mock(…) call?`
     )
   }
-  return mocked(new cls())
+  return mocked(new Cls())
 }
 
 export function mockWorkerPoolProvider<I, O>(
@@ -127,7 +128,8 @@ export function makeMockScanner(): MockScanner {
         rejectSheet: jest.fn(),
 
         scanSheet: async (): Promise<SheetOf<string>> => {
-          const step = session.steps[stepIndex++]
+          const step = session.steps[stepIndex]
+          stepIndex += 1
 
           switch (step.type) {
             case 'sheet':
@@ -135,6 +137,9 @@ export function makeMockScanner(): MockScanner {
 
             case 'error':
               throw step.error
+
+            default:
+              throwIllegalValue(step)
           }
         },
 
@@ -184,9 +189,8 @@ export function makeMockReadable(): MockReadable {
       const result = buffer.slice(0, readSize)
       buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize)
       return result
-    } else {
-      return undefined
     }
+    return undefined
   })
   return readable
 }

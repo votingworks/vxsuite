@@ -47,7 +47,7 @@ import {
   ZeroResponse,
 } from '@votingworks/types/api/module-scan'
 import bodyParser from 'body-parser'
-import express, { Application, RequestHandler } from 'express'
+import express, { Application } from 'express'
 import { readFile } from 'fs-extra'
 import multer from 'multer'
 import backup from './backup'
@@ -113,7 +113,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.patch<NoParams, PatchElectionConfigResponse, PatchElectionConfigRequest>(
     '/config/election',
     async (request, response) => {
-      const body = request.body
+      const { body } = request
 
       if (!Buffer.isBuffer(body)) {
         response.status(400).json({
@@ -338,10 +338,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.post<NoParams, AddTemplatesResponse, AddTemplatesRequest>(
     '/scan/hmpb/addTemplates',
-    upload.fields([
-      { name: 'ballots' },
-      { name: 'metadatas' },
-    ]) as RequestHandler,
+    upload.fields([{ name: 'ballots' }, { name: 'metadatas' }]),
     async (request, response) => {
       /* istanbul ignore next */
       if (Array.isArray(request.files)) {
@@ -360,7 +357,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
       try {
         const { ballots = [], metadatas = [] } = request.files
 
-        for (let i = 0; i < ballots.length; i++) {
+        for (let i = 0; i < ballots.length; i += 1) {
           const ballotFile = ballots[i]
           const metadataFile = metadatas[i]
 
@@ -406,7 +403,6 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
         response.json({ status: 'ok' })
       } catch (error) {
-        console.log(error)
         response.status(500).json({
           status: 'error',
           errors: [
@@ -500,7 +496,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
       const filenames = await store.getBallotFilenames(sheetId, side)
 
       if (filenames && version in filenames) {
-        response.sendFile(filenames[version as keyof typeof filenames])
+        response.sendFile(filenames[version])
       } else {
         response.status(404).end()
       }
@@ -589,7 +585,7 @@ export interface StartOptions {
   scanner: Scanner
   importer: Importer
   app: Application
-  log: typeof console.log
+  log(message: string): void
   workspace: Workspace
   machineType: 'bsd' | 'precinct-scanner'
 }
@@ -602,33 +598,42 @@ export async function start({
   scanner,
   importer,
   app,
-  log = console.log,
+  log = (message: string) =>
+    process.stdout.write(message.endsWith('\n') ? message : `${message}\n`),
   workspace,
   machineType = VX_MACHINE_TYPE,
 }: Partial<StartOptions> = {}): Promise<void> {
-  if (!workspace) {
+  let resolvedWorkspace: Workspace
+
+  if (workspace) {
+    resolvedWorkspace = workspace
+  } else {
     const workspacePath = MODULE_SCAN_WORKSPACE
     if (!workspacePath) {
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with MODULE_SCAN_WORKSPACE'
       )
     }
-    workspace = await createWorkspace(workspacePath)
+    resolvedWorkspace = await createWorkspace(workspacePath)
   }
 
   const usingPrecinctScanner = machineType === 'precinct-scanner'
   let plustekScannerClientProvider: ScannerClientProvider | undefined
 
-  if (!scanner) {
+  let resolvedScanner: Scanner
+
+  if (scanner) {
+    resolvedScanner = scanner
+  } else {
     plustekScannerClientProvider = withReconnect({
       get: () =>
         createClient({
           ...DEFAULT_CONFIG,
-          savepath: workspace!.ballotImagesPath,
+          savepath: resolvedWorkspace.ballotImagesPath,
         }),
     })
 
-    scanner = usingPrecinctScanner
+    resolvedScanner = usingPrecinctScanner
       ? new PlustekScanner(
           plustekScannerClientProvider,
           MODULE_SCAN_ALWAYS_HOLD_ON_REJECT
@@ -637,19 +642,21 @@ export async function start({
   }
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined
   const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
-    return (workerPool ??= childProcessPool(
-      workers.workerPath,
-      2 /* front and back */
-    ))
+    workerPool ??= childProcessPool(workers.workerPath, 2 /* front and back */)
+    return workerPool
   }
-  importer ??= new Importer({
-    workspace,
-    scanner,
-    workerPoolProvider,
-  })
-  app = app ?? buildApp({ importer, store: workspace.store })
+  const resolvedImporter =
+    importer ??
+    new Importer({
+      workspace: resolvedWorkspace,
+      scanner: resolvedScanner,
+      workerPoolProvider,
+    })
+  const resolvedApp =
+    app ??
+    buildApp({ importer: resolvedImporter, store: resolvedWorkspace.store })
 
-  app.listen(port, () => {
+  resolvedApp.listen(port, () => {
     log(`Listening at http://localhost:${port}/`)
 
     if (importer instanceof Importer) {
@@ -662,10 +669,10 @@ export async function start({
   // return a "status: notready" or something like it.
   //
   // but for now, this seems to be fine, the front-end just waits.
-  await importer.restoreConfig()
+  await resolvedImporter.restoreConfig()
 
   // cleanup incomplete batches from before
-  await workspace.store.cleanupIncompleteBatches()
+  await resolvedWorkspace.store.cleanupIncompleteBatches()
 
   if (usingPrecinctScanner && plustekScannerClientProvider) {
     if (

@@ -54,6 +54,18 @@ export function makeImageTransform<A extends unknown[], R>(
   }
 }
 
+export function getImageChannelCount(imageData: ImageData): number {
+  return imageData.data.length / (imageData.width * imageData.height)
+}
+
+export function isGrayscale(imageData: ImageData): boolean {
+  return getImageChannelCount(imageData) === 1
+}
+
+export function isRGBA(imageData: ImageData): boolean {
+  return getImageChannelCount(imageData) === 4
+}
+
 export function assertRGBAImage(imageData: ImageData): void {
   assert.equal(
     imageData.data.length,
@@ -93,16 +105,4 @@ export function assertSizesMatch(size1: Size, size2: Size): void {
     { width: size2.width, height: size2.height },
     'expected sizes to be equal'
   )
-}
-
-export function getImageChannelCount(imageData: ImageData): number {
-  return imageData.data.length / (imageData.width * imageData.height)
-}
-
-export function isGrayscale(imageData: ImageData): boolean {
-  return getImageChannelCount(imageData) === 1
-}
-
-export function isRGBA(imageData: ImageData): boolean {
-  return getImageChannelCount(imageData) === 4
 }

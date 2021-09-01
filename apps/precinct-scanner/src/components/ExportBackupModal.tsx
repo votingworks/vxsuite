@@ -12,6 +12,7 @@ import {
   throwIllegalValue,
   usbstick,
 } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import path from 'path'
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
@@ -42,6 +43,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState('')
 
   const { electionDefinition } = useContext(AppContext)
+  assert(electionDefinition)
 
   const exportBackup = async (openDialog: boolean) => {
     setCurrentState(ModalState.SAVING)
@@ -55,8 +57,8 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
         return
       }
       const electionFolderName = generateElectionBasedSubfolderName(
-        electionDefinition!.election,
-        electionDefinition!.electionHash
+        electionDefinition.election,
+        electionDefinition.electionHash
       )
       const pathToFolder = path.join(
         usbPath,
@@ -85,6 +87,10 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
           setErrorMessage(
             `Unable to write file to download location: ${error.path}`
           )
+          break
+
+        default:
+          // nothing to do
           break
       }
       setCurrentState(ModalState.ERROR)
@@ -143,7 +149,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
     return <Modal content={<Loading />} onOverlayClick={onClose} />
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - compile time check for completeness */
   if (currentState !== ModalState.INIT) {
     throwIllegalValue(currentState)
   }

@@ -16,6 +16,10 @@ information about VotingWorks.
 Building VxSuite for development requires git, [NodeJS](https://nodejs.org/)
 v12.19.0 and [pnpm](https://pnpm.js.org).
 
+Most of the code is written in TypeScript. We follow the
+[Airbnb JavaScript Style Guide](https://airbnb.io/javascript/), with most of it
+enforced by ESLint rules.
+
 ### Ubuntu Quickstart
 
 This expects Ubuntu 18.0.4, though it may work on other versions. This installs

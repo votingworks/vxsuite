@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import styled from 'styled-components'
@@ -138,7 +139,8 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
     fullElectionExternalTallies,
     saveExternalTallies,
   } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
   // TODO export the type for this somewhere
   const {
     precinctId: currentPrecinctId,
@@ -184,10 +186,12 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
   ): Dictionary<ContestTally> => {
     const convertedContestTallies: Dictionary<ContestTally> = {}
     for (const contestId of Object.keys(contestTallies)) {
-      const contestTally = contestTallies[contestId]!
+      const contestTally = contestTallies[contestId]
+      assert(contestTally)
       const convertedOptionTallies: Dictionary<ContestOptionTally> = {}
       for (const optionId of Object.keys(contestTally.tallies)) {
-        const optionTally = contestTally.tallies[optionId]!
+        const optionTally = contestTally.tallies[optionId]
+        assert(optionTally)
         convertedOptionTallies[optionId] = {
           ...optionTally,
           tally: optionTally.tally === '' ? 0 : optionTally.tally,
@@ -226,7 +230,8 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
       const precinctTally =
         precinctId === currentPrecinctId
           ? currentPrecinctTally
-          : talliesByPrecinct[precinctId]!
+          : talliesByPrecinct[precinctId]
+      assert(precinctTally)
       convertedTalliesByPrecinct[precinctId] = {
         ...precinctTally,
         contestTallies: convertContestTallies(precinctTally.contestTallies),
@@ -255,7 +260,8 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
     contestId: string,
     dataKey: string
   ): number | EmptyValue => {
-    const contestTally = currentPrecinctTally.contestTallies[contestId]!
+    const contestTally = currentPrecinctTally.contestTallies[contestId]
+    assert(contestTally)
     switch (dataKey) {
       case 'numBallots':
         return contestTally.metadata.ballots
@@ -264,9 +270,7 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
       case 'undervotes':
         return contestTally.metadata.undervotes
       default:
-        return contestTally.tallies[dataKey]?.tally !== undefined
-          ? contestTally.tallies[dataKey]!.tally
-          : 0
+        return contestTally.tallies[dataKey]?.tally ?? 0
     }
   }
 
@@ -275,7 +279,8 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
     dataKey: string,
     event: React.FormEvent<HTMLInputElement>
   ) => {
-    const contestTally = currentPrecinctTally.contestTallies[contestId]!
+    const contestTally = currentPrecinctTally.contestTallies[contestId]
+    assert(contestTally)
     const stringValue = event.currentTarget.value
     let numericalValue = parseInt(stringValue, 10)
     if (stringValue === '') {
@@ -305,17 +310,20 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
           },
         }
         break
-      default:
+      default: {
+        const tally = contestTally.tallies[dataKey]
+        assert(tally)
         newContestTally = {
           ...contestTally,
           tallies: {
             ...contestTally.tallies,
             [dataKey]: {
-              option: contestTally.tallies[dataKey]!.option,
+              option: tally.option,
               tally: valueToSave,
             },
           },
         }
+      }
     }
     // Update the total number of ballots for this contest.
     const expectedNumberOfBallots = getExpectedNumberOfBallotsForContestTally(

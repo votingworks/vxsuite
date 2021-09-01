@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 import { EventEmitter } from 'events'
 import { makeMockWorkerOps } from '../../test/util/mocks'
 import { workerPath } from './echo'

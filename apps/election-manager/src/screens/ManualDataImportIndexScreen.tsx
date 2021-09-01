@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { ReactChild, useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -48,7 +49,8 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
     saveExternalTallies,
     resetFiles,
   } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
   const history = useHistory()
 
   const existingManualDataTallies = fullElectionExternalTallies.filter(
@@ -75,14 +77,14 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
     await resetFiles(fileType)
   }
 
-  const handleSettingBallotType = async (ballotType: VotingMethod) => {
-    setBallotType(ballotType)
+  const handleSettingBallotType = async (newBallotType: VotingMethod) => {
+    setBallotType(newBallotType)
 
     // Note this WILL save an empty external tally if ballot type is toggled but there is not an external tally yet.
     const externalTally = convertTalliesByPrecinctToFullExternalTally(
       talliesByPrecinct,
       election,
-      ballotType,
+      newBallotType,
       ExternalTallySourceType.Manual,
       MANUAL_DATA_NAME,
       new Date()

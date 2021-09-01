@@ -15,7 +15,7 @@
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["src/setupProxy.js", ".eslintrc.js"],
+  "exclude": ["src/setupProxy.js"],
   "include": ["src", "prodserver", "test", "types"],
   "references": [
     { "path": "../../libs/ballot-encoder" },

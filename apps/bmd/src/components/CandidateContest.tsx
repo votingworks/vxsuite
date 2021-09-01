@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import camelCase from 'lodash.camelcase'
 import React, {
   useCallback,
@@ -96,8 +97,8 @@ const CandidateContest = ({
   vote,
   updateVote,
 }: Props): JSX.Element => {
-  const context = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  const { userSettings } = useContext(BallotContext)
+  const scrollContainer = useRef<HTMLDivElement>(null)
 
   const [
     attemptedOvervoteCandidate,
@@ -110,9 +111,10 @@ const CandidateContest = ({
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
   const [isScrollAtTop, setIsScrollAtTop] = useState(true)
-  const [writeInCandateModalIsOpen, setWriteInCandateModalIsOpen] = useState(
-    false
-  )
+  const [
+    writeInCandidateModalIsOpen,
+    setWriteInCandidateModalIsOpen,
+  ] = useState(false)
   const [writeInCandidateName, setWriteInCandidateName] = useState('')
   const [deselectedCandidate, setDeselectedCandidate] = useState('')
 
@@ -122,7 +124,7 @@ const CandidateContest = ({
     if (!target) {
       return
     }
-    const targetMinHeight = FONT_SIZES[context.userSettings.textSize] * 8 // magic number: room for buttons + spacing
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -138,7 +140,7 @@ const CandidateContest = ({
         target.scrollHeight
     )
     setIsScrollAtTop(target.scrollTop === 0)
-  }, [scrollContainer, context.userSettings.textSize])
+  }, [scrollContainer, userSettings.textSize])
 
   useEffect(() => {
     updateContestChoicesScrollStates()
@@ -159,7 +161,8 @@ const CandidateContest = ({
 
   const addCandidateToVote = (id: string) => {
     const { candidates } = contest
-    const candidate = findCandidateById(candidates, id)!
+    const candidate = findCandidateById(candidates, id)
+    assert(candidate)
     updateVote(contest.id, [...vote, candidate])
   }
 
@@ -199,12 +202,13 @@ const CandidateContest = ({
   }
 
   const confirmRemovePendingWriteInCandidate = () => {
-    removeCandidateFromVote(candidatePendingRemoval!.id)
+    assert(candidatePendingRemoval)
+    removeCandidateFromVote(candidatePendingRemoval.id)
     clearCandidateIdPendingRemoval()
   }
 
   const toggleWriteInCandidateModal = (newValue: boolean) => {
-    setWriteInCandateModalIsOpen(newValue)
+    setWriteInCandidateModalIsOpen(newValue)
   }
 
   const initWriteInCandidate = () => {
@@ -254,7 +258,8 @@ const CandidateContest = ({
   ) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections
-    const sc = scrollContainer.current!
+    const sc = scrollContainer.current
+    assert(sc)
     const currentScrollTop = sc.scrollTop
     const { offsetHeight } = sc
     const { scrollHeight } = sc
@@ -479,7 +484,7 @@ const CandidateContest = ({
           }
         />
       )}
-      {writeInCandateModalIsOpen && (
+      {writeInCandidateModalIsOpen && (
         <Modal
           ariaLabel=""
           className="writein-modal-content"

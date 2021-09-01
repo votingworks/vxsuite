@@ -4,7 +4,7 @@ import { createImageData } from '../canvas'
 import crop from '../crop'
 import diff, { countPixels, ratio } from './diff'
 
-const imageData: Readonly<ImageData> = createImageData(
+const imageData4x4: Readonly<ImageData> = createImageData(
   Uint8ClampedArray.of(
     // y=0
     PIXEL_BLACK,
@@ -32,8 +32,8 @@ const imageData: Readonly<ImageData> = createImageData(
 )
 
 test('images have no diff with themselves', () => {
-  expect([...diff(imageData, imageData).data]).toEqual(
-    new Array(imageData.data.length).fill(PIXEL_WHITE)
+  expect([...diff(imageData4x4, imageData4x4).data]).toEqual(
+    new Array(imageData4x4.data.length).fill(PIXEL_WHITE)
   )
 })
 
@@ -118,16 +118,16 @@ test('comparing part of an image to all of another', async () => {
 })
 
 test('counting pixels', () => {
-  expect(countPixels(imageData)).toEqual(
-    countPixels(imageData, { color: PIXEL_BLACK })
+  expect(countPixels(imageData4x4)).toEqual(
+    countPixels(imageData4x4, { color: PIXEL_BLACK })
   )
 
-  expect(countPixels(imageData, { color: PIXEL_WHITE })).toEqual(
-    imageData.data.length - countPixels(imageData, { color: PIXEL_BLACK })
+  expect(countPixels(imageData4x4, { color: PIXEL_WHITE })).toEqual(
+    imageData4x4.data.length - countPixels(imageData4x4, { color: PIXEL_BLACK })
   )
 
   expect(
-    countPixels(imageData, {
+    countPixels(imageData4x4, {
       color: PIXEL_BLACK,
       bounds: { x: 1, y: 1, width: 1, height: 1 },
     })

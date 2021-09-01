@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import arrayUnique from 'array-unique'
 import { sha256 } from 'js-sha256'
 import { Election } from '@votingworks/types'
@@ -206,7 +207,8 @@ export default class CastVoteRecordFiles {
     election: Election
   ): Promise<CastVoteRecordFiles> {
     try {
-      const fileContent = await window.kiosk!.readFile(file.path, 'utf-8')
+      assert(window.kiosk)
+      const fileContent = await window.kiosk.readFile(file.path, 'utf-8')
       const parsedFileInfo = parseCVRFileInfoFromFilename(file.name)
       return await this.addFromFileContent(
         fileContent,

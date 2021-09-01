@@ -31,6 +31,7 @@ export function addVote(
   contest: AnyContest,
   candidateOrYesNoOrEitherNeither: Candidate | 'yes' | 'no' | YesNoOption
 ): void {
+  /* eslint-disable no-param-reassign */
   if (
     contest.type === 'candidate' &&
     typeof candidateOrYesNoOrEitherNeither === 'object'
@@ -92,4 +93,5 @@ export function addVote(
       )}`
     )
   }
+  /* eslint-enable no-param-reassign */
 }

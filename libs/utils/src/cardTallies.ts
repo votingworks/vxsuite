@@ -1,8 +1,5 @@
-import { strict as assert } from 'assert'
-
 import {
   CandidateVote,
-  Contest,
   Contests,
   Election,
   getBallotStyle,
@@ -11,6 +8,9 @@ import {
   VotesDict,
   YesNoVote,
 } from '@votingworks/types'
+import { strict as assert } from 'assert'
+import { map, zip } from './iterators'
+import { throwIllegalValue } from './throwIllegalValue'
 import {
   CandidateVoteTally,
   MsEitherNeitherTally,
@@ -22,20 +22,18 @@ import { getSingleYesNoVote } from './votes'
 const combineCandidateTallies = (
   tally1: CandidateVoteTally,
   tally2: CandidateVoteTally
-): CandidateVoteTally => {
-  const candidates: number[] = []
-  assert.strictEqual(tally1.candidates.length, tally2.candidates.length)
-  for (let i = 0; i < tally1.candidates.length; i++) {
-    candidates.push(tally1.candidates[i]! + tally2.candidates[i]!)
-  }
-  return {
-    candidates,
-    undervotes: tally1.undervotes + tally2.undervotes,
-    overvotes: tally1.overvotes + tally2.overvotes,
-    writeIns: tally1.writeIns + tally2.writeIns,
-    ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
-  }
-}
+): CandidateVoteTally => ({
+  candidates: [
+    ...map(
+      zip(tally1.candidates, tally2.candidates),
+      ([candidateTally1, candidateTally2]) => candidateTally1 + candidateTally2
+    ),
+  ],
+  undervotes: tally1.undervotes + tally2.undervotes,
+  overvotes: tally1.overvotes + tally2.overvotes,
+  writeIns: tally1.writeIns + tally2.writeIns,
+  ballotsCast: tally1.ballotsCast + tally2.ballotsCast,
+})
 
 const combineYesNoTallies = (
   tally1: YesNoVoteTally,
@@ -79,7 +77,8 @@ export const combineTallies = (
   const combinedTally: Tally = []
 
   for (let i = 0; i < election.contests.length; i += 1) {
-    const contest = election.contests[i]!
+    const contest = election.contests[i]
+    assert(contest)
     const tally1Row = tally1[i]
     const tally2Row = tally2[i]
     switch (contest.type) {
@@ -107,6 +106,8 @@ export const combineTallies = (
           )
         )
         break
+      default:
+        throwIllegalValue(contest)
     }
   }
 
@@ -121,6 +122,9 @@ interface Params {
 }
 
 export const getZeroTally = (election: Election): Tally =>
+  // This rule is disabled because it's not type-aware and doesn't know that
+  // `throwIllegalValue` never returns.
+  // eslint-disable-next-line array-callback-return
   election.contests.map((contest) => {
     if (contest.type === 'yesno') {
       return { yes: 0, no: 0, undervotes: 0, overvotes: 0, ballotsCast: 0 }
@@ -151,11 +155,8 @@ export const getZeroTally = (election: Election): Tally =>
       }
     }
 
-    /* istanbul ignore next */
-    // `as Contest` is needed because TS knows 'yesno' and 'candidate' are the
-    // only valid values and so infers `contest` is type `never`, and we want
-    // to fail loudly in this situation.
-    throw new Error(`unexpected contest type: ${(contest as Contest).type}`)
+    /* istanbul ignore next - compile time check for completeness */
+    throwIllegalValue(contest)
   })
 
 export const computeTallyForEitherNeitherContests = ({
@@ -173,17 +174,17 @@ export const computeTallyForEitherNeitherContests = ({
       ...newTally[contestIndex],
     } as MsEitherNeitherTally
 
-    eitherNeitherTally.ballotsCast++
+    eitherNeitherTally.ballotsCast += 1
     // Tabulate EitherNeither section
     const eitherNeitherVote = votes[contest.eitherNeitherContestId] as YesNoVote
     const singleEitherNeitherVote = getSingleYesNoVote(eitherNeitherVote)
 
     if (singleEitherNeitherVote === undefined) {
-      eitherNeitherTally.eitherNeitherUndervotes++
+      eitherNeitherTally.eitherNeitherUndervotes += 1
     } else {
       eitherNeitherTally[
         singleEitherNeitherVote === 'yes' ? 'eitherOption' : 'neitherOption'
-      ]++
+      ] += 1
     }
 
     // Tabulate YesNo section
@@ -191,11 +192,11 @@ export const computeTallyForEitherNeitherContests = ({
     const singlePickOneVote = getSingleYesNoVote(pickOneVote)
 
     if (singlePickOneVote === undefined) {
-      eitherNeitherTally.pickOneUndervotes++
+      eitherNeitherTally.pickOneUndervotes += 1
     } else {
       eitherNeitherTally[
         singlePickOneVote === 'yes' ? 'firstOption' : 'secondOption'
-      ]++
+      ] += 1
     }
 
     newTally[contestIndex] = eitherNeitherTally
@@ -218,7 +219,8 @@ export const calculateTally = ({
   const ballotStyle = getBallotStyle({
     ballotStyleId,
     election,
-  })!
+  })
+  assert(ballotStyle)
   const contestsForBallotStyle = getContests({
     election,
     ballotStyle,
@@ -233,7 +235,6 @@ export const calculateTally = ({
 
   for (const contest of contestsForBallotStyle) {
     if (contest.type === 'ms-either-neither') {
-      // eslint-disable-next-line no-continue
       continue
     }
 
@@ -248,23 +249,23 @@ export const calculateTally = ({
       const yesnoContestTally = contestTally as YesNoVoteTally
       const vote = votes[contest.id] as YesNoVote
       if (vote && vote.length > 1) {
-        yesnoContestTally.overvotes++
+        yesnoContestTally.overvotes += 1
       } else {
-        const yesnoVote = getSingleYesNoVote(vote)!
+        const yesnoVote = getSingleYesNoVote(vote)
         if (yesnoVote === undefined) {
-          yesnoContestTally.undervotes++
+          yesnoContestTally.undervotes += 1
         } else {
-          yesnoContestTally[yesnoVote]++
+          yesnoContestTally[yesnoVote] += 1
         }
       }
-      yesnoContestTally.ballotsCast++
+      yesnoContestTally.ballotsCast += 1
     } else if (contest.type === 'candidate') {
       const candidateContestTally = contestTally as CandidateVoteTally
       const vote = (votes[contest.id] ?? []) as CandidateVote
       if (vote.length <= contest.seats) {
         vote.forEach((candidate) => {
           if (candidate.isWriteIn) {
-            candidateContestTally.writeIns++
+            candidateContestTally.writeIns += 1
           } else {
             const candidateIndex = contest.candidates.findIndex(
               (c) => c.id === candidate.id
@@ -277,7 +278,7 @@ export const calculateTally = ({
                 `unable to find a candidate with id: ${candidate.id}`
               )
             }
-            candidateContestTally.candidates[candidateIndex]++
+            candidateContestTally.candidates[candidateIndex] += 1
           }
         })
       }
@@ -286,7 +287,7 @@ export const calculateTally = ({
       } else if (vote.length > contest.seats) {
         candidateContestTally.overvotes += contest.seats
       }
-      candidateContestTally.ballotsCast++
+      candidateContestTally.ballotsCast += 1
     }
   }
   return tally

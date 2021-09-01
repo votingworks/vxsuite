@@ -406,15 +406,15 @@ describe('filterExternalTalliesByParams', () => {
     2,
     ['775020876', '750000017']
   )
-  const resultsByCategory = new Map()
-  resultsByCategory.set(TallyCategory.Precinct, {
+  const sharedResultsByCategory = new Map()
+  sharedResultsByCategory.set(TallyCategory.Precinct, {
     '6522': singleVotesEitherNeither,
     '6524': singleVotesEitherNeither,
     '6529': emptyVotesEitherNeither,
   })
-  const fullTallySEMS: FullElectionExternalTally = {
+  const sharedFullTallySEMS: FullElectionExternalTally = {
     overallTally: doubleVotesEitherNeither,
-    resultsByCategory,
+    resultsByCategory: sharedResultsByCategory,
     votingMethod: VotingMethod.Absentee,
     source: ExternalTallySourceType.SEMS,
     inputSourceName: 'the-heartbreak-prince',
@@ -428,7 +428,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns undefined when filtering by an unsupported parameter', () => {
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { scannerId: '1' }
       )
@@ -438,7 +438,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns an empty tally when filtering for a different voting method', () => {
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { votingMethod: VotingMethod.Precinct }
       )
@@ -448,7 +448,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns the current tally when filtering for a matching voting method', () => {
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { votingMethod: VotingMethod.Absentee }
       )
@@ -458,7 +458,7 @@ describe('filterExternalTalliesByParams', () => {
   it('filters by precinct as expected', () => {
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { precinctId: '6524' }
       )
@@ -466,7 +466,7 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { precinctId: '6524', votingMethod: VotingMethod.Absentee }
       )
@@ -474,7 +474,7 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { precinctId: '6524', votingMethod: VotingMethod.Precinct }
       )
@@ -482,21 +482,21 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { precinctId: '6529' }
       )
     ).toStrictEqual(emptyVotesEitherNeither)
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { precinctId: '6529', votingMethod: VotingMethod.Absentee }
       )
     ).toStrictEqual(emptyVotesEitherNeither)
     expect(
       filterExternalTalliesByParams(
-        fullTallySEMS,
+        sharedFullTallySEMS,
         electionWithMsEitherNeither,
         { precinctId: '6537' }
       )

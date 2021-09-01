@@ -9,6 +9,7 @@ import {
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Prose from './Prose'
@@ -73,11 +74,12 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
     castVoteRecordFiles,
     electionDefinition,
   } = useContext(AppContext)
+  assert(electionDefinition)
   const [currentState, setCurrentState] = useState(ModalState.INIT)
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
     []
   )
-  const { election, electionHash } = electionDefinition!
+  const { election, electionHash } = electionDefinition
 
   const importSelectedFile = async (
     fileEntry: KioskBrowser.FileSystemEntry
@@ -130,9 +132,11 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
     setCurrentState(ModalState.LOADING)
     const usbPath = await usbstick.getDevicePath()
     try {
-      const files = await window.kiosk!.getFileSystemEntries(
+      assert(typeof usbPath !== 'undefined')
+      assert(window.kiosk)
+      const files = await window.kiosk.getFileSystemEntries(
         path.join(
-          usbPath!,
+          usbPath,
           SCANNER_RESULTS_FOLDER,
           generateElectionBasedSubfolderName(election, electionHash)
         )
@@ -274,7 +278,7 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
       })
       .sort(
         (a, b) =>
-          b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
+          b.parsedInfo.timestamp.getTime() - a.parsedInfo.timestamp.getTime()
       )
 
     // Determine if we are already locked to a filemode based on previously imported CVRs

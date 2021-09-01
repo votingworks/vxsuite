@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import {
   Contests,
   Election,
@@ -18,7 +19,8 @@ export default function getBallotPageContests(
   const ballotStyle = getBallotStyle({
     election,
     ballotStyleId: metadata.ballotStyleId,
-  })!
+  })
+  assert(ballotStyle)
   const ballotPageContestOffset = layouts
     .slice(0, metadata.pageNumber - 1)
     .reduce((count, layout) => count + layout.contests.length, 0)

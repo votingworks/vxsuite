@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -7,8 +8,8 @@ import { Loading, Main, MainChild } from '@votingworks/ui'
 import PrintedBallot from '../components/PrintedBallot'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
-import { MarkVoterCardFunction } from '../config/types'
-import { Printer } from '../utils/printer'
+import { MarkVoterCardFunction, Printer } from '../config/types'
+
 import Text from '../components/Text'
 
 const Graphic = styled.img`
@@ -208,16 +209,22 @@ const PrintOnlyScreen = ({
           </MainChild>
         </Main>
       </Screen>
-      {isReadyToPrint && (
-        // TODO: remove `!` here once we upgrade to TS 4.4 (https://devblogs.microsoft.com/typescript/announcing-typescript-4-4-beta/#cfa-aliased-conditions)
-        <PrintedBallot
-          ballotStyleId={ballotStyleId!}
-          electionDefinition={electionDefinition}
-          isLiveMode={isLiveMode}
-          precinctId={precinctId!}
-          votes={votes!}
-        />
-      )}
+      {isReadyToPrint &&
+        // TODO: remove `assert` here once we upgrade to TS 4.4 (https://devblogs.microsoft.com/typescript/announcing-typescript-4-4-beta/#cfa-aliased-conditions)
+        (assert(
+          typeof ballotStyleId !== 'undefined' &&
+            typeof precinctId !== 'undefined' &&
+            typeof votes !== 'undefined'
+        ),
+        (
+          <PrintedBallot
+            ballotStyleId={ballotStyleId}
+            electionDefinition={electionDefinition}
+            isLiveMode={isLiveMode}
+            precinctId={precinctId}
+            votes={votes}
+          />
+        ))}
     </React.Fragment>
   )
 }

@@ -16,6 +16,7 @@ import { v4 as uuid } from 'uuid'
 import { BatchControl, Scanner } from './scanners'
 import { SheetOf, Side } from './types'
 import { Castability, checkSheetCastability } from './util/castability'
+import HmpbInterpretationError from './util/HmpbInterpretationError'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
@@ -31,8 +32,6 @@ export interface Options {
   scanner: Scanner
   workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>
 }
-
-export class HmpbInterpretationError extends Error {}
 
 export async function saveImages(
   imagePath: string,
@@ -353,18 +352,15 @@ export default class Importer {
           frontInterpretation.metadata.pageNumber >
           backInterpretation.metadata.pageNumber
         ) {
-          ;[frontInterpretation, backInterpretation] = [
-            backInterpretation,
-            frontInterpretation,
-          ]
-          ;[frontOriginalBallotImagePath, backOriginalBallotImagePath] = [
+          return this.addSheet(
+            batchId,
             backOriginalBallotImagePath,
-            frontOriginalBallotImagePath,
-          ]
-          ;[frontNormalizedBallotImagePath, backNormalizedBallotImagePath] = [
             backNormalizedBallotImagePath,
+            backInterpretation,
+            frontOriginalBallotImagePath,
             frontNormalizedBallotImagePath,
-          ]
+            frontInterpretation
+          )
         }
       }
     }

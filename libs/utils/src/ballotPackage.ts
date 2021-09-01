@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import {
   BallotStyle,
   Contest,
@@ -197,7 +198,8 @@ async function readBallotPackageFromFile(file: File): Promise<BallotPackage> {
 async function readBallotPackageFromFilePointer(
   file: KioskBrowser.FileSystemEntry
 ): Promise<BallotPackage> {
-  const zipFile = await openZip(await window.kiosk!.readFile(file.path))
+  assert(window.kiosk)
+  const zipFile = await openZip(await window.kiosk.readFile(file.path))
   return readBallotPackageFromZip(zipFile, file.name, file.size)
 }
 

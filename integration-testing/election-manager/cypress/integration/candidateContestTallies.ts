@@ -20,7 +20,7 @@ describe('Election Manager can create SEMS tallies', () => {
           'governor-contest-liberty': ['aaron-aligator'],
           'schoolboard-liberty': [],
         },
-        { _precinctId: 'precinct-2', _ballotStyleId: '2L' }
+        { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
       generateCVR(
         election,
@@ -28,7 +28,7 @@ describe('Election Manager can create SEMS tallies', () => {
           'governor-contest-liberty': ['peter-pigeon'],
           'schoolboard-liberty': ['amber-brkich', 'chris-daugherty'],
         },
-        { _precinctId: 'precinct-2', _ballotStyleId: '2L' }
+        { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
       generateCVR(
         election,
@@ -40,7 +40,7 @@ describe('Election Manager can create SEMS tallies', () => {
             'tom-westman',
           ],
         },
-        { _precinctId: 'precinct-2', _ballotStyleId: '2L' }
+        { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
       generateCVR(
         election,
@@ -53,7 +53,7 @@ describe('Election Manager can create SEMS tallies', () => {
             'danni-boatwright',
           ],
         },
-        { _precinctId: 'precinct-2', _ballotStyleId: '2L' }
+        { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
       generateCVR(
         election,
@@ -61,7 +61,7 @@ describe('Election Manager can create SEMS tallies', () => {
           'governor-contest-liberty': [],
           'schoolboard-liberty': ['amber-brkich'],
         },
-        { _precinctId: 'precinct-2', _ballotStyleId: '2L' }
+        { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
     ])
     cy.visit('/')

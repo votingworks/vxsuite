@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 
 import { format } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import { VotingMethod } from '../config/types'
 import AppContext from '../contexts/AppContext'
 import readFileAsync from '../lib/readFileAsync'
@@ -29,6 +30,7 @@ const ImportExternalResultsModal = ({
     electionDefinition,
     fullElectionExternalTallies,
   } = useContext(AppContext)
+  assert(electionDefinition)
 
   const [errorMessage, setErrorMessage] = useState('')
   const [isImportingFile, setIsImportingFile] = useState(true)
@@ -37,7 +39,7 @@ const ImportExternalResultsModal = ({
     VotingMethod.Precinct
   )
 
-  const { election } = electionDefinition!
+  const { election } = electionDefinition
 
   const loadFile = async (file: File) => {
     const fileContent = await readFileAsync(file)

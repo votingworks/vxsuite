@@ -1,6 +1,6 @@
 import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import rule from '../../src/rules/no-array-sort-mutation'
 import { join } from 'path'
+import rule from '../../src/rules/no-array-sort-mutation'
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {

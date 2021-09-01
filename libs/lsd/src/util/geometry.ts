@@ -26,7 +26,7 @@ export function distance(
   x2: number,
   y2: number
 ): number {
-  return Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5)
+  return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 }
 
 export function angle(x1: number, y1: number, x2: number, y2: number): number {

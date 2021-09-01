@@ -73,7 +73,6 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
           })
         )
 
-        // eslint-disable-next-line no-await-in-loop
         await fetch('/scan/hmpb/addTemplates', { method: 'POST', body })
       }
 

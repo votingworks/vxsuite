@@ -1,4 +1,4 @@
-import { Printer } from '../../src/utils/printer'
+import { Printer } from '../../src/config/types'
 
 export default function fakePrinter({
   print = async () => {

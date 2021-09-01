@@ -35,13 +35,13 @@ function printGlobalHelp(options: Options, out: NodeJS.WritableStream): void {
   out.write(`\n`)
 
   const commandNameSpace =
-    Math.max(...commands.map(({ name }) => name.length)) + 3
+    Math.max(...commands.map((command) => command.name.length)) + 3
 
-  for (const { name, description } of commands) {
+  for (const command of commands) {
     out.write(
-      `  ${chalk.bold(name)}${' '.repeat(
-        commandNameSpace - name.length
-      )}${description}\n`
+      `  ${chalk.bold(command.name)}${' '.repeat(
+        commandNameSpace - command.name.length
+      )}${command.description}\n`
     )
   }
   out.write(`\n`)

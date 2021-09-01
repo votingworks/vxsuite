@@ -73,17 +73,11 @@ it('Single Seat Contest', async () => {
 
   // ====================== END CONTEST SETUP ====================== //
 
-  // eslint-disable-next-line no-restricted-syntax
   expect(screen.queryByText('Federalist')).toEqual(null)
-  // eslint-disable-next-line no-restricted-syntax
   expect(screen.queryByText('Labor')).toEqual(null)
-  // eslint-disable-next-line no-restricted-syntax
   expect(screen.queryByText("People's")).toEqual(null)
-  // eslint-disable-next-line no-restricted-syntax
   expect(screen.queryByText('Liberty')).toEqual(null)
-  // eslint-disable-next-line no-restricted-syntax
   expect(screen.queryByText('Constitution')).toEqual(null)
-  // eslint-disable-next-line no-restricted-syntax
   expect(screen.queryByText('Whig')).toEqual(null)
 
   // Capture styles of Single Candidate Contest

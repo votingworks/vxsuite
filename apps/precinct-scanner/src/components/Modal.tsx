@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { ButtonBar } from '@votingworks/ui'
 
 import './Modal.css'
+import { strict as assert } from 'assert'
 
 interface ModalContentInterface {
   centerContent?: boolean
@@ -51,26 +52,29 @@ const Modal = ({
   },
 
   onOverlayClick,
-}: Props): JSX.Element => (
-  <ReactModal
-    appElement={
-      (document.getElementById('root') ?? document.body.firstElementChild)!
-    }
-    ariaHideApp
-    aria-modal
-    role="alertdialog"
-    isOpen
-    contentLabel={ariaLabel}
-    portalClassName="modal-portal"
-    className={`modal-content ${className}`}
-    overlayClassName="modal-overlay"
-    onAfterOpen={onAfterOpen}
-    testId="modal"
-    onRequestClose={onOverlayClick}
-  >
-    <ModalContent centerContent={centerContent}>{content}</ModalContent>
-    {actions && <ButtonBar as="div">{actions}</ButtonBar>}
-  </ReactModal>
-)
+}: Props): JSX.Element => {
+  const appElement =
+    document.getElementById('root') ?? document.body.firstElementChild
+  assert(appElement)
+  return (
+    <ReactModal
+      appElement={appElement}
+      ariaHideApp
+      aria-modal
+      role="alertdialog"
+      isOpen
+      contentLabel={ariaLabel}
+      portalClassName="modal-portal"
+      className={`modal-content ${className}`}
+      overlayClassName="modal-overlay"
+      onAfterOpen={onAfterOpen}
+      testId="modal"
+      onRequestClose={onOverlayClick}
+    >
+      <ModalContent centerContent={centerContent}>{content}</ModalContent>
+      {actions && <ButtonBar as="div">{actions}</ButtonBar>}
+    </ReactModal>
+  )
+}
 
 export default Modal

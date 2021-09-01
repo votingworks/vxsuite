@@ -54,9 +54,9 @@ export function fakeReadable(): FakeReadable {
       const result = buffer.slice(0, readSize)
       buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize)
       return result
-    } else {
-      return undefined
     }
+
+    return undefined
   })
   readable.end = jest.fn(() => {
     readable.emit('end')

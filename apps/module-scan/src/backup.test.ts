@@ -5,11 +5,11 @@ import { Database } from 'sqlite3'
 import { fileSync } from 'tmp'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
 import ZipStream from 'zip-stream'
+import { asElectionDefinition } from '@votingworks/fixtures'
+import { BallotType } from '@votingworks/types'
 import { election } from '../test/fixtures/2020-choctaw'
 import backup, { Backup } from './backup'
 import Store from './store'
-import { asElectionDefinition } from '@votingworks/fixtures'
-import { BallotType } from '@votingworks/types'
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
   return new Promise((resolve, reject) => {
@@ -111,7 +111,7 @@ test('configured', async () => {
 test('zip entry fails', async () => {
   const store = await Store.memoryStore()
   const zip = new ZipStream()
-  const backup = new Backup(zip, store)
+  const b = new Backup(zip, store)
 
   jest.spyOn(zip, 'entry').mockImplementationOnce(
     (_data, _opts, callback): ZipStream => {
@@ -120,9 +120,9 @@ test('zip entry fails', async () => {
     }
   )
 
-  await expect(
-    backup.addEntry('readme.txt', 'look it up')
-  ).rejects.toThrowError('oh no')
+  await expect(b.addEntry('readme.txt', 'look it up')).rejects.toThrowError(
+    'oh no'
+  )
 })
 
 test('has election.json', async () => {
@@ -146,13 +146,13 @@ test('has ballots.db', async () => {
   const store = await Store.memoryStore()
   const electionDefinition = asElectionDefinition(election)
   await store.setElection(electionDefinition)
-  const result = new WritableStream()
+  const output = new WritableStream()
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(result).on('finish', resolve)
+    backup(store).on('error', reject).pipe(output).on('finish', resolve)
   })
 
-  const zipfile = await openZip(result.toBuffer())
+  const zipfile = await openZip(output.toBuffer())
   const entries = await getEntries(zipfile)
   expect(entries.map((entry) => entry.fileName)).toContain('ballots.db')
 
@@ -160,11 +160,11 @@ test('has ballots.db', async () => {
   const dbFile = fileSync()
   await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!))
   const db = await new Promise<Database>((resolve, reject) => {
-    const db = new Database(dbFile.name, (error) => {
+    const result = new Database(dbFile.name, (error) => {
       if (error) {
         reject(error)
       } else {
-        resolve(db)
+        resolve(result)
       }
     })
   })
@@ -172,11 +172,11 @@ test('has ballots.db', async () => {
     db.get(
       'select value from configs where key = ?',
       ['election'],
-      (error, row) => {
+      (error, result) => {
         if (error) {
           reject(error)
         } else {
-          resolve(row)
+          resolve(result)
         }
       }
     )
@@ -213,13 +213,13 @@ test('has all files referenced in the database', async () => {
     },
   ])
 
-  const result = new WritableStream()
+  const output = new WritableStream()
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(result).on('finish', resolve)
+    backup(store).on('error', reject).pipe(output).on('finish', resolve)
   })
 
-  const zipfile = await openZip(result.toBuffer())
+  const zipfile = await openZip(output.toBuffer())
   const entries = await getEntries(zipfile)
 
   expect(
@@ -258,22 +258,22 @@ test('has all files referenced in the database', async () => {
   const dbFile = fileSync()
   await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!))
   const db = await new Promise<Database>((resolve, reject) => {
-    const db = new Database(dbFile.name, (error) => {
+    const result = new Database(dbFile.name, (error) => {
       if (error) {
         reject(error)
       } else {
-        resolve(db)
+        resolve(result)
       }
     })
   })
   const row = await new Promise<{ filename: string }>((resolve, reject) => {
     db.get(
       'select front_original_filename as filename from sheets',
-      (error, row) => {
+      (error, result) => {
         if (error) {
           reject(error)
         } else {
-          resolve(row)
+          resolve(result)
         }
       }
     )

@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Election, getPrecinctById, VotesDict } from '@votingworks/types'
@@ -67,12 +68,15 @@ const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
 
 const PrintTestDeckScreen = (): JSX.Element => {
   const { electionDefinition, printer } = useContext(AppContext)
-  const { election, electionHash } = electionDefinition!
+  assert(electionDefinition)
+  const { election, electionHash } = electionDefinition
   const [precinctIds, setPrecinctIds] = useState<string[]>([])
   const [precinctIndex, setPrecinctIndex] = useState<number>()
 
-  const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
-  const precinctId = p.trim()
+  const {
+    precinctId: precinctIdFromParams = '',
+  } = useParams<PrecinctReportScreenProps>()
+  const precinctId = precinctIdFromParams.trim()
 
   const pageTitle = 'Test Deck'
   const precinctName =
@@ -87,9 +91,9 @@ const PrintTestDeckScreen = (): JSX.Element => {
           ignorePunctuation: true,
         })
       )
-      const precinctIds =
+      const newPrecinctIds =
         precinctId === 'all' ? sortedPrecincts.map((p) => p.id) : [precinctId]
-      setPrecinctIds(precinctIds)
+      setPrecinctIds(newPrecinctIds)
     } else {
       setPrecinctIds([])
       setPrecinctIndex(undefined)

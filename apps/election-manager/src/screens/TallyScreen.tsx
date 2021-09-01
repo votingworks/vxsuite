@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, {
   useContext,
   useState,
@@ -7,7 +8,11 @@ import React, {
 } from 'react'
 import moment from 'moment'
 
-import { generateFinalExportDefaultFilename, format } from '@votingworks/utils'
+import {
+  generateFinalExportDefaultFilename,
+  format,
+  find,
+} from '@votingworks/utils'
 import {
   TallyCategory,
   InputEventFunction,
@@ -49,7 +54,8 @@ const TallyScreen = (): JSX.Element => {
     generateExportableTallies,
     resetFiles,
   } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
   const isTestMode = castVoteRecordFiles?.fileMode === 'test'
   const externalFileInput = useRef<HTMLInputElement>(null)
 
@@ -93,7 +99,7 @@ const TallyScreen = (): JSX.Element => {
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
     precinctIds
-      .map((id) => election.precincts.find((p) => p.id === id)!.name)
+      .map((id) => find(election.precincts, (p) => p.id === id).name)
       .join(', ')
   const partiesForPrimaries = getPartiesWithPrimaryElections(election)
 
@@ -227,13 +233,9 @@ const TallyScreen = (): JSX.Element => {
 
     await client.setInputFile(
       electionDefinitionFile.name,
-      new File(
-        [electionDefinition!.electionData],
-        electionDefinitionFile.name,
-        {
-          type: 'application/json',
-        }
-      )
+      new File([electionDefinition.electionData], electionDefinitionFile.name, {
+        type: 'application/json',
+      })
     )
     await client.setInputFile(
       talliesFile.name,
@@ -463,7 +465,7 @@ const TallyScreen = (): JSX.Element => {
           generateFileContent={generateSEMSResults}
           defaultFilename={generateFinalExportDefaultFilename(
             isTestMode,
-            electionDefinition!.election
+            electionDefinition.election
           )}
           fileType={FileType.Results}
           promptToEjectUSB

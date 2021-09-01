@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 import { Contest } from '@votingworks/types'
 import styled from 'styled-components'
@@ -26,7 +27,8 @@ interface ContestSection {
 
 const DefinitionScreen = (): JSX.Element => {
   const { electionDefinition, configuredAt } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
 
   const [isRemovingElection, setIsRemovingElection] = useState(false)
 

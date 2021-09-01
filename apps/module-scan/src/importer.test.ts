@@ -254,7 +254,9 @@ test('manually importing files', async () => {
               position: 'bottom',
             },
           }
-        } else if (input.imagePath === backImagePath) {
+        }
+
+        if (input.imagePath === backImagePath) {
           return {
             blank: false,
             qrcode: {
@@ -262,9 +264,9 @@ test('manually importing files', async () => {
               position: 'bottom',
             },
           }
-        } else {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
         }
+
+        throw new Error(`unexpected image path: ${input.imagePath}`)
 
       case 'interpret':
         if (input.imagePath === frontImagePath) {
@@ -276,7 +278,8 @@ test('manually importing files', async () => {
             originalFilename: '/tmp/front.png',
             normalizedFilename: '/tmp/front-normalized.png',
           }
-        } else if (input.imagePath === backImagePath) {
+        }
+        if (input.imagePath === backImagePath) {
           return {
             interpretation: {
               type: 'UninterpretedHmpbPage',
@@ -285,9 +288,8 @@ test('manually importing files', async () => {
             originalFilename: '/tmp/back.png',
             normalizedFilename: '/tmp/back-normalized.png',
           }
-        } else {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
         }
+        throw new Error(`unexpected image path: ${input.imagePath}`)
 
       default:
         throw new Error('unexpected action')

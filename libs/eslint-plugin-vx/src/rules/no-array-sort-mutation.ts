@@ -16,7 +16,10 @@ function isDirectAccess(node: TSESTree.Node): boolean {
   return false
 }
 
-export default ESLintUtils.RuleCreator(() => 'https://voting.works')({
+export default ESLintUtils.RuleCreator(
+  () =>
+    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/no-array-sort-mutation.md'
+)({
   name: 'no-array-sort-mutation',
   meta: {
     docs: {

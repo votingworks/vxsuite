@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useState, useCallback, useEffect, useContext } from 'react'
 import path from 'path'
 
@@ -6,6 +7,7 @@ import {
   parseBallotExportPackageInfoFromFilename,
   BALLOT_PACKAGE_FOLDER,
   usbstick,
+  ElectionData,
 } from '@votingworks/utils'
 import { USBControllerButton } from '@votingworks/ui'
 import Prose from './Prose'
@@ -75,8 +77,10 @@ const ElectionConfiguration = ({
     setLoadingFiles(true)
     const usbPath = await usbstick.getDevicePath()
     try {
-      const files = await window.kiosk!.getFileSystemEntries(
-        path.join(usbPath!, BALLOT_PACKAGE_FOLDER)
+      assert(typeof usbPath !== 'undefined')
+      assert(window.kiosk)
+      const files = await window.kiosk.getFileSystemEntries(
+        path.join(usbPath, BALLOT_PACKAGE_FOLDER)
       )
       setFoundFilenames(
         files.filter((f) => f.type === 1 && f.name.endsWith('.zip'))
@@ -143,10 +147,17 @@ const ElectionConfiguration = ({
           fileEntry: f,
         }
       })
-      .filter((f) => f.parsedInfo)
+      .filter(
+        (
+          f
+        ): f is {
+          parsedInfo: ElectionData
+          fileEntry: KioskBrowser.FileSystemEntry
+        } => !!f.parsedInfo
+      )
       .sort(
         (a, b) =>
-          b.parsedInfo!.timestamp.getTime() - a.parsedInfo!.timestamp.getTime()
+          b.parsedInfo.timestamp.getTime() - a.parsedInfo.timestamp.getTime()
       )
 
     // Create table rows for each found file
@@ -157,7 +168,7 @@ const ElectionConfiguration = ({
         electionName,
         electionHash,
         timestamp,
-      } = parsedInfo!
+      } = parsedInfo
       fileOptions.push(
         <tr key={fileEntry.name} data-testid="table-row">
           <td>{timestamp.toLocaleString()}</td>

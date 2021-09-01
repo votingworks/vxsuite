@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { sleep } from './sleep'
 
 export const FLUSH_IO_DELAY_MS = 10_000
@@ -47,7 +48,8 @@ export const doMount = async (): Promise<void> => {
     return
   }
 
-  await window.kiosk!.mountUsbDrive(device.deviceName)
+  assert(window.kiosk)
+  await window.kiosk.mountUsbDrive(device.deviceName)
 }
 
 export const doUnmount = async (): Promise<void> => {
@@ -55,6 +57,7 @@ export const doUnmount = async (): Promise<void> => {
   if (!device?.mountPoint) {
     return
   }
-  await window.kiosk!.unmountUsbDrive(device.deviceName)
+  assert(window.kiosk)
+  await window.kiosk.unmountUsbDrive(device.deviceName)
   return await sleep(FLUSH_IO_DELAY_MS)
 }

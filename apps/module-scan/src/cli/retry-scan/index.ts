@@ -1,5 +1,5 @@
-import { zip } from '@votingworks/hmpb-interpreter/src/utils/iterators'
 import { Election, PageInterpretation } from '@votingworks/types'
+import { zip } from '@votingworks/utils'
 import { cpus } from 'os'
 import { isAbsolute, join, resolve } from 'path'
 import { dirSync } from 'tmp'

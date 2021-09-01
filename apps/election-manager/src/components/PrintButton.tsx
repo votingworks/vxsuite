@@ -4,7 +4,7 @@ import Button, { StyledButtonProps } from './Button'
 import Modal from './Modal'
 import Loading from './Loading'
 import Prose from './Prose'
-import { PrintOptions } from '../utils/printer'
+import { PrintOptions } from '../config/types'
 import AppContext from '../contexts/AppContext'
 
 interface ConfirmModal {

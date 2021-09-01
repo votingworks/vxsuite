@@ -1,5 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src", "test"],
-  "exclude": []
+  "exclude": [],
+  "references": [{ "path": "../eslint-plugin-vx/tsconfig.build.json" }]
 }

@@ -4,9 +4,10 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "esModuleInterop": true,
-    "composite": true
+    "composite": true,
+    "outDir": "build",
+    "rootDir": "src"
   },
-  "references": [
-    { "path": "../types" }
-  ]
+  "include": ["src", "tests"],
+  "exclude": []
 }

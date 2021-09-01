@@ -55,14 +55,15 @@ export default function lsd(imageData: ImageData): LineSegment[] {
   for (
     let ri = 0, si = 0;
     ri < result.length;
-    ri += addon.LSD_RESULT_DIM, si++
+    ri += addon.LSD_RESULT_DIM, si += 1
   ) {
-    const x1 = result[ri]
-    const y1 = result[ri + 1]
-    const x2 = result[ri + 2]
-    const y2 = result[ri + 3]
-    const width = result[ri + 4]
-    segments[si] = { x1, y1, x2, y2, width }
+    segments[si] = {
+      x1: result[ri],
+      y1: result[ri + 1],
+      x2: result[ri + 2],
+      y2: result[ri + 3],
+      width: result[ri + 4],
+    }
   }
 
   return segments

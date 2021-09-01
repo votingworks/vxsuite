@@ -1,6 +1,6 @@
 import makeDebug from 'debug'
-import { Edge, Shape } from '../hmpb/shapes'
 import { Corners, Point } from '@votingworks/types'
+import { Edge, Shape } from '../hmpb/shapes'
 import { editDistance, median, rectCorners } from './geometry'
 
 const debug = makeDebug('hmpb-interpreter:corners')
@@ -22,13 +22,13 @@ function findTopLeftCorner(
   let bestPoints: Point[] = []
 
   for (
-    let x = topLeft.x,
+    let { x } = topLeft,
       xInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(leftMedian - topLeft.x),
         MIN_INSET_PIXELS
       );
     x <= topLeft.x + xInset;
-    x++
+    x += 1
   ) {
     const y = topEdge[x]
 
@@ -46,13 +46,13 @@ function findTopLeftCorner(
   }
 
   for (
-    let y = topLeft.y,
+    let { y } = topLeft,
       yInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(topMedian - topLeft.y),
         MIN_INSET_PIXELS
       );
     y <= topLeft.y + yInset;
-    y++
+    y += 1
   ) {
     const x = leftEdge[y]
 
@@ -98,13 +98,13 @@ function findTopRightCorner(
   let bestPoints: Point[] = []
 
   for (
-    let x = topRight.x,
+    let { x } = topRight,
       xInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(rightMedian - topRight.x),
         MIN_INSET_PIXELS
       );
     x >= topRight.x - xInset;
-    x--
+    x -= 1
   ) {
     const y = topEdge[x]
 
@@ -123,13 +123,13 @@ function findTopRightCorner(
   }
 
   for (
-    let y = topRight.y,
+    let { y } = topRight,
       yInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(topMedian - topRight.y),
         MIN_INSET_PIXELS
       );
     y <= topRight.y + yInset;
-    y++
+    y += 1
   ) {
     const x = rightEdge[y]
 
@@ -176,13 +176,13 @@ function findBottomLeftCorner(
   let bestPoints: Point[] = []
 
   for (
-    let x = bottomLeft.x,
+    let { x } = bottomLeft,
       xInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(leftMedian - bottomLeft.x),
         MIN_INSET_PIXELS
       );
     x <= bottomLeft.x + xInset;
-    x++
+    x += 1
   ) {
     const y = bottomEdge[x]
 
@@ -200,13 +200,13 @@ function findBottomLeftCorner(
   }
 
   for (
-    let y = bottomLeft.y,
+    let { y } = bottomLeft,
       yInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(bottomMedian - bottomLeft.y),
         MIN_INSET_PIXELS
       );
     y >= bottomLeft.y - yInset;
-    y--
+    y -= 1
   ) {
     const x = leftEdge[y]
 
@@ -251,13 +251,13 @@ function findBottomRightCorner(
   let bestPoints: Point[] = []
 
   for (
-    let x = bottomRight.x,
+    let { x } = bottomRight,
       xInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(rightMedian - bottomRight.x),
         MIN_INSET_PIXELS
       );
     x >= bottomRight.x - xInset;
-    x--
+    x -= 1
   ) {
     const y = bottomEdge[x]
 
@@ -275,13 +275,13 @@ function findBottomRightCorner(
   }
 
   for (
-    let y = bottomRight.y,
+    let { y } = bottomRight,
       yInset = Math.max(
         MEDIAN_INSET_MULTIPLIER * Math.abs(bottomMedian - bottomRight.y),
         MIN_INSET_PIXELS
       );
     y >= bottomRight.y - yInset;
-    y--
+    y -= 1
   ) {
     const x = rightEdge[y]
 

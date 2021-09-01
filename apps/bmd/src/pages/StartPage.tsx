@@ -1,4 +1,4 @@
-import { ok } from 'assert'
+import { strict as assert } from 'assert'
 import React, { useContext, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
@@ -31,10 +31,19 @@ const StartPage = ({ history }: Props): JSX.Element => {
     userSettings,
     forceSaveVote,
   } = useContext(BallotContext)
-  ok(electionDefinition, 'electionDefinition is required to render StartPage')
-  ok(precinctId, 'precinctId is required to render StartPage')
-  ok(ballotStyleId, 'ballotStyleId is required to render StartPage')
-  const audioFocus = useRef<HTMLDivElement>(null) // eslint-disable-line no-restricted-syntax
+  assert(
+    electionDefinition,
+    'electionDefinition is required to render StartPage'
+  )
+  assert(
+    typeof precinctId !== 'undefined',
+    'precinctId is required to render StartPage'
+  )
+  assert(
+    typeof ballotStyleId !== 'undefined',
+    'ballotStyleId is required to render StartPage'
+  )
+  const audioFocus = useRef<HTMLDivElement>(null)
   const { election } = electionDefinition
   const { title } = election
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({

@@ -63,7 +63,7 @@ test('returns the status after the first tick', async () => {
 })
 
 test('full lifecycle with USBControllerButton', async () => {
-  const TestComponent = () => {
+  const ThisTestComponent = () => {
     const usbDrive = useUsbDrive()
     return (
       <USBControllerButton
@@ -78,7 +78,7 @@ test('full lifecycle with USBControllerButton', async () => {
   window.kiosk = kiosk
 
   // wait for initial status
-  render(<TestComponent />)
+  render(<ThisTestComponent />)
   await waitForStatusUpdate()
   screen.getByText('No USB')
 

@@ -11,6 +11,7 @@ import {
   VotesDict,
 } from '@votingworks/types'
 import { BallotStyleData, find } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
 import { ContestOption, YesNoOption } from '../config/types'
@@ -76,13 +77,11 @@ const makePrecinctComparator = (election: Election) => (
   a: BallotStyleData,
   b: BallotStyleData
 ) =>
-  election.precincts
-    .find((p) => p.id === a.precinctId)!
-    .name.localeCompare(
-      election.precincts.find((p) => p.id === b.precinctId)!.name,
-      undefined,
-      sortOptions
-    )
+  find(election.precincts, (p) => p.id === a.precinctId).name.localeCompare(
+    find(election.precincts, (p) => p.id === b.precinctId).name,
+    undefined,
+    sortOptions
+  )
 
 export const sortBallotStyleDataByStyle = (
   election: Election,
@@ -131,7 +130,8 @@ export const getBallotPath = ({
   const precinctName = getPrecinctById({
     election,
     precinctId,
-  })!.name
+  })?.name
+  assert(typeof precinctName !== 'undefined')
 
   return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
     precinctName
@@ -186,8 +186,8 @@ export const generateTestDeckBallots = ({
 
   const ballots: Dictionary<string | VotesDict>[] = []
 
-  precincts.forEach((precinctId) => {
-    const precinct = find(election.precincts, (p) => p.id === precinctId)
+  precincts.forEach((currentPrecinctId) => {
+    const precinct = find(election.precincts, (p) => p.id === currentPrecinctId)
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
@@ -205,7 +205,7 @@ export const generateTestDeckBallots = ({
         )
       )
 
-      for (let ballotNum = 0; ballotNum < numBallots; ballotNum++) {
+      for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {}
         contests.forEach((contest) => {
           if (contest.type === 'yesno') {
@@ -226,7 +226,7 @@ export const generateTestDeckBallots = ({
         })
         ballots.push({
           ballotStyleId: ballotStyle.id,
-          precinctId,
+          precinctId: currentPrecinctId,
           votes,
         })
       }

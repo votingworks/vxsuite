@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
@@ -46,7 +47,8 @@ const PairsReportScreen = (): JSX.Element => {
     electionDefinition,
     isOfficialResults,
   } = useContext(AppContext)
-  const { election } = electionDefinition!
+  assert(electionDefinition)
+  const { election } = electionDefinition
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
   const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1)
   const overvotePairTallies = getOvervotePairTallies({
@@ -105,11 +107,9 @@ const PairsReportScreen = (): JSX.Element => {
         <HorizontalRule />
         {election.contests.map((contest) => {
           const tallies = overvotePairTallies[contest.id]?.tallies
-          const {
-            ballots,
-            overvotes,
-            undervotes,
-          }: ContestTallyMeta = contestTallyMeta[contest.id]!
+          const { ballots, overvotes, undervotes } = contestTallyMeta[
+            contest.id
+          ] as ContestTallyMeta
           return (
             <Contest key={contest.id}>
               <Prose maxWidth={false}>

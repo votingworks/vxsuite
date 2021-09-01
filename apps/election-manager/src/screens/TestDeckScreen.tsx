@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getPrecinctById, Precinct, VotesDict } from '@votingworks/types'
@@ -37,9 +38,12 @@ const allPrecincts: Precinct = {
 
 const TestDeckScreen = (): JSX.Element => {
   const { electionDefinition } = useContext(AppContext)
-  const { election } = electionDefinition!
-  const { precinctId: p = '' } = useParams<PrecinctReportScreenProps>()
-  const precinctId = p.trim()
+  assert(electionDefinition)
+  const { election } = electionDefinition
+  const {
+    precinctId: precinctIdFromParams = '',
+  } = useParams<PrecinctReportScreenProps>()
+  const precinctId = precinctIdFromParams.trim()
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
 
   const precinct =
@@ -52,9 +56,7 @@ const TestDeckScreen = (): JSX.Element => {
     precinctId: precinct?.id,
   })
 
-  const votes: VotesDict[] = ballots.map(
-    (ballots) => ballots.votes as VotesDict
-  )
+  const votes: VotesDict[] = ballots.map((b) => b.votes as VotesDict)
 
   const electionTally: Tally = {
     numberOfBallotsCounted: ballots.length,

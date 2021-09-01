@@ -177,18 +177,18 @@ test('batch cleanup works correctly', async () => {
   await store.finishBatch({ batchId: thirdBatchId })
   await store.cleanupIncompleteBatches()
   const updatedBatches = await store.batchStatus()
-  expect(updatedBatches.sort((a, b) => a.label.localeCompare(b.label))).toEqual(
-    [
-      expect.objectContaining({
-        id: firstBatchId,
-        label: 'Batch 1',
-      }),
-      expect.objectContaining({
-        id: thirdBatchId,
-        label: 'Batch 3',
-      }),
-    ]
-  )
+  expect(
+    [...updatedBatches].sort((a, b) => a.label.localeCompare(b.label))
+  ).toEqual([
+    expect.objectContaining({
+      id: firstBatchId,
+      label: 'Batch 1',
+    }),
+    expect.objectContaining({
+      id: thirdBatchId,
+      label: 'Batch 3',
+    }),
+  ])
 })
 
 test('adjudication', async () => {

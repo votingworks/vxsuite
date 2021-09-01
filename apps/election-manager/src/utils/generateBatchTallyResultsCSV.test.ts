@@ -25,7 +25,7 @@ describe('generateBatchTallyResultsCSV', () => {
           'governor-contest-liberty': ['aaron-aligator'],
           'schoolboard-liberty': [],
         },
-        { _batchId: 'batch-1', _batchLabel: 'Batch 1', _ballotStyleId: '2L' }
+        { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '2L' }
       ),
       generateCVR(
         election,
@@ -33,7 +33,7 @@ describe('generateBatchTallyResultsCSV', () => {
           'governor-contest-liberty': ['peter-pigeon'],
           'schoolboard-liberty': ['amber-brkich', 'chris-daugherty'],
         },
-        { _batchId: 'batch-1', _batchLabel: 'Batch 1', _ballotStyleId: '2L' }
+        { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '2L' }
       ),
       generateCVR(
         election,
@@ -41,7 +41,7 @@ describe('generateBatchTallyResultsCSV', () => {
           'governor-contest-liberty': [],
           'schoolboard-liberty': ['amber-brkich'],
         },
-        { _batchId: 'batch-2', _batchLabel: 'Batch 2', _ballotStyleId: '2L' }
+        { batchId: 'batch-2', batchLabel: 'Batch 2', ballotStyleId: '2L' }
       ),
     ])
     const castVoteRecords = parseCVRsAndAssertSuccess(cvrsFileContent, election)
@@ -80,7 +80,7 @@ describe('generateBatchTallyResultsCSV', () => {
           '750000015': ['yes'],
           '750000016': ['no'],
         },
-        { _batchId: 'batch-1', _batchLabel: 'Batch 1', _ballotStyleId: '5' }
+        { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '5' }
       ),
       generateCVR(
         election,
@@ -90,7 +90,7 @@ describe('generateBatchTallyResultsCSV', () => {
           '750000015': ['no'],
           '750000016': ['no'],
         },
-        { _batchId: 'batch-1', _batchLabel: 'Batch 1', _ballotStyleId: '5' }
+        { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '5' }
       ),
       generateCVR(
         election,
@@ -100,7 +100,7 @@ describe('generateBatchTallyResultsCSV', () => {
           '750000015': [],
           '750000016': ['yes'],
         },
-        { _batchId: 'batch-2', _batchLabel: 'Batch 2', _ballotStyleId: '4' }
+        { batchId: 'batch-2', batchLabel: 'Batch 2', ballotStyleId: '4' }
       ),
     ])
     const castVoteRecords = parseCVRsAndAssertSuccess(cvrsFileContent, election)
@@ -136,7 +136,7 @@ describe('generateBatchTallyResultsCSV', () => {
       cvrData,
       csvData,
     } = electionMultiPartyPrimaryWithDataFiles
-    const { election } = electionDefinition!
+    const { election } = electionDefinition
     const castVoteRecords = parseCVRsAndAssertSuccess(cvrData, election)
     const fullTally = computeFullElectionTally(election, [castVoteRecords])
     const generatedCSVFileContent = generateBatchTallyResultsCSV(

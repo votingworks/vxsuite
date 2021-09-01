@@ -1,3 +1,4 @@
+import { throwIllegalValue } from '@votingworks/utils'
 import * as helpCommand from './commands/help'
 import * as interpretCommand from './commands/interpret'
 import * as layoutCommand from './commands/layout'
@@ -124,6 +125,9 @@ export default async function main(
 
       case 'layout':
         return await layoutCommand.run(commandOptions.options, stdin, stdout)
+
+      default:
+        throwIllegalValue(commandOptions)
     }
   } catch (error) {
     if (error instanceof OptionParseError) {
@@ -137,8 +141,8 @@ export default async function main(
       })
       helpCommand.printHelp(options, stderr)
       return -1
-    } else {
-      throw error
     }
+
+    throw error
   }
 }

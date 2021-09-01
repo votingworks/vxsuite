@@ -2,7 +2,7 @@ import { Button } from 'react-gamepad'
 import mod from '../utils/mod'
 
 export const getActiveElement = (): HTMLElement =>
-  document.activeElement! as HTMLElement
+  document.activeElement as HTMLElement
 
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(

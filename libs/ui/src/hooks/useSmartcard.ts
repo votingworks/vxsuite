@@ -20,11 +20,6 @@ export interface UseSmartcardProps {
   hardware: Hardware
 }
 
-export type UseSmartcardResult = [
-  smartcard: Smartcard | undefined,
-  hasCardReader: boolean
-]
-
 export interface Smartcard {
   data?: AnyCardData
   longValueExists?: boolean
@@ -33,6 +28,11 @@ export interface Smartcard {
   writeShortValue(value: string): Promise<Result<void, Error>>
   writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>
 }
+
+export type UseSmartcardResult = [
+  smartcard: Smartcard | undefined,
+  hasCardReader: boolean
+]
 
 interface State {
   readonly isReading: boolean
