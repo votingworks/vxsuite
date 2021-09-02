@@ -8,15 +8,12 @@ import { UTF8Encoding, Encoding } from './encoding'
  * order.
  */
 export default class BitReader {
-  private data: Uint8Array
   private cursor = new BitCursor()
 
   /**
    * @param data a buffer to read data from
    */
-  public constructor(data: Uint8Array) {
-    this.data = data
-  }
+  public constructor(private data: Uint8Array) {}
 
   /**
    * Reads a Uint1 and moves the internal cursor forward one bit.

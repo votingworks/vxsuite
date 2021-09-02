@@ -9,11 +9,7 @@ export interface VxFiles {
 }
 
 export default class ConverterClient {
-  private readonly target: string
-
-  public constructor(target: string) {
-    this.target = target
-  }
+  public constructor(private readonly target: string) {}
 
   public async setInputFile(name: string, content: File): Promise<void> {
     const formData = new FormData()

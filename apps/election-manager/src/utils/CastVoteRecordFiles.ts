@@ -90,14 +90,6 @@ function mixedTestModeCVRs(castVoteRecords: CastVoteRecord[][]) {
  * cvrFiles.castVoteRecords                 // […]
  */
 export default class CastVoteRecordFiles {
-  private readonly signatures: Set<string>
-
-  private readonly files: Set<CastVoteRecordFile>
-
-  private readonly duplicateFilenames: Set<string>
-
-  private readonly parseFailedErrors: Map<string, string>
-
   // private readonly allCastVoteRecords: Map<string, CastVoteRecord>
   private readonly allCastVoteRecords: CastVoteRecord[][]
 
@@ -118,16 +110,12 @@ export default class CastVoteRecordFiles {
    * `addAll(files)`.
    */
   private constructor(
-    signatures: Set<string>,
-    files: Set<CastVoteRecordFile>,
-    duplicateFilenames: Set<string>,
-    parseFailedErrors: Map<string, string>,
+    private signatures: Set<string>,
+    private files: Set<CastVoteRecordFile>,
+    private duplicateFilenames: Set<string>,
+    private parseFailedErrors: Map<string, string>,
     castVoteRecords: CastVoteRecord[][]
   ) {
-    this.signatures = signatures
-    this.files = files
-    this.duplicateFilenames = duplicateFilenames
-    this.parseFailedErrors = parseFailedErrors
     this.allCastVoteRecords = castVoteRecords
   }
 

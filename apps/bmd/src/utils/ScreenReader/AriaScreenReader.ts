@@ -4,14 +4,10 @@ import { ScreenReader, SpeakOptions, TextToSpeech } from '../../config/types'
  * Implements `ScreenReader` using the ARIA DOM attributes.
  */
 export default class AriaScreenReader implements ScreenReader {
-  private readonly tts: TextToSpeech
-
   /**
    * @param tts A text-to-speech engine to use to speak aloud.
    */
-  public constructor(tts: TextToSpeech) {
-    this.tts = tts
-  }
+  public constructor(private tts: TextToSpeech) {}
 
   /**
    * Call this with an event target when a focus event occurs. Resolves when speaking is done.

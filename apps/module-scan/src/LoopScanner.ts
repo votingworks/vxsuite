@@ -85,14 +85,11 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
  */
 export default class LoopScanner implements Scanner {
   private nextBatchIndex = 0
-  private batches: readonly Batch[]
 
   /**
    * @param batches lists of front/back pairs of sheets to scan
    */
-  public constructor(batches: readonly Batch[]) {
-    this.batches = batches
-  }
+  public constructor(private batches: readonly Batch[]) {}
 
   public async getStatus(): Promise<ScannerStatus> {
     return ScannerStatus.Unknown
