@@ -45,8 +45,6 @@ export const UTF8Encoding: Encoding = {
  * encoding.encode('23')  // Uint8Array [2, 3]
  */
 export class CustomEncoding implements Encoding {
-  private readonly chars: string
-
   /**
    * The maximum character code representable by this class.
    */
@@ -56,9 +54,8 @@ export class CustomEncoding implements Encoding {
   /**
    * @param chars a string of representable characters without duplicates
    */
-  public constructor(chars: string) {
+  public constructor(private readonly chars: string) {
     CustomEncoding.validateChars(chars)
-    this.chars = chars
     this.bitsPerElement = sizeof(chars.length - 1)
   }
 

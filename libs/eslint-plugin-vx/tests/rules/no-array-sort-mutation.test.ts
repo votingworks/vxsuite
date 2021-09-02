@@ -11,7 +11,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   parser: '@typescript-eslint/parser',
 })
 
-ruleTester.run('no-floating-results', rule, {
+ruleTester.run('no-array-sort-mutation', rule, {
   valid: [`[].sort()`, `[...array].sort()`, `array.slice().sort()`],
   invalid: [
     {

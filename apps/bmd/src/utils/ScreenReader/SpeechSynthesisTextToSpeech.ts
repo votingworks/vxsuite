@@ -1,12 +1,9 @@
 import { SpeakOptions, TextToSpeech, VoiceSelector } from '../../config/types'
 
 export default class SpeechSynthesisTextToSpeech implements TextToSpeech {
-  private getVoice?: VoiceSelector
   private muted = false
 
-  public constructor(getVoice?: VoiceSelector) {
-    this.getVoice = getVoice
-
+  public constructor(private getVoice?: VoiceSelector) {
     // Prime the speech synthesis engine. This call will likely return an empty
     // array, but future ones should work properly.
     speechSynthesis.getVoices()

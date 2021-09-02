@@ -6,13 +6,11 @@ export interface TextProvider<P extends unknown[] = []> {
 }
 
 export default class Spinner {
-  private readonly spinner: Ora
   private readonly parts: readonly TextProvider[]
   private readonly deinits: readonly (() => void)[]
 
-  public constructor(spinner: Ora, ...parts: TextProvider[]) {
+  public constructor(private readonly spinner: Ora, ...parts: TextProvider[]) {
     this.parts = parts
-    this.spinner = spinner
     const update = (): void => this.update()
     this.deinits = parts
       .map((part) => part.init?.(update))
