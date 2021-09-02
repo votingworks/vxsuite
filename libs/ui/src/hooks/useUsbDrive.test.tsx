@@ -118,3 +118,20 @@ test('full lifecycle with USBControllerButton', async () => {
   await waitForStatusUpdate()
   screen.getByText('No USB')
 })
+
+test('usb drive gets mounted from undefined state', async () => {
+  render(<TestComponent />)
+  screen.getByText('undefined')
+  const kiosk = fakeKiosk()
+  kiosk.getUsbDrives.mockResolvedValue([])
+  window.kiosk = kiosk
+  kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE])
+  await waitForStatusUpdate()
+  expect(kiosk.mountUsbDrive).toHaveBeenCalled()
+  screen.getByText('present')
+
+  // wait for it to mount
+  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE])
+  await waitForStatusUpdate()
+  screen.getByText('mounted')
+})
