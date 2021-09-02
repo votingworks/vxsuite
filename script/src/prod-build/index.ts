@@ -8,7 +8,7 @@ import {
   PackageType,
 } from './deps'
 import { BUILD_ROOT, WORKSPACE_ROOT } from './globals'
-import { removeDependencies } from './pnpm'
+import { deleteScript, removeDependencies } from './pnpm'
 import { IO } from './types'
 import { execSync } from './utils/execSync'
 import { existsSync } from './utils/existsSync'
@@ -16,6 +16,9 @@ import { mkdirp } from './utils/mkdirp'
 import { rmrf } from './utils/rmrf'
 
 export function main({ stdout }: IO): void {
+  // Ensure pipenv places the virtualenv in the project.
+  process.env.PIPENV_VENV_IN_PROJECT = '1'
+
   const root = getDependencyGraph(process.cwd(), PackageType.App)
   stdout.write(`ℹ️ Building ${root.path} for production\n`)
   stdout.write(`ℹ️ Output: ${BUILD_ROOT}\n`)
@@ -48,6 +51,8 @@ export function main({ stdout }: IO): void {
     doCopy(path, outRoot)
   }
 
+  stdout.write(`🗑 Removing 'prepare' script because husky is not needed\n`)
+  deleteScript(outRoot, 'prepare')
   stdout.write(`📦 Installing dependencies in workspace\n`)
   execSync('pnpm', ['install', '--frozen-lockfile'], { cwd: outRoot })
   removeDependencies(outRoot, { dev: false })

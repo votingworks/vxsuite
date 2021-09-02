@@ -1,3 +1,4 @@
+import { writeFileSync } from 'fs'
 import { PNPM_LOGLEVEL } from './globals'
 import { execSync } from './utils/execSync'
 
@@ -18,4 +19,11 @@ export function removeDependencies(
   execSync('pnpm', ['install', '--offline', '--loglevel', PNPM_LOGLEVEL], {
     cwd: pkgRoot,
   })
+}
+
+export function deleteScript(pkgRoot: string, script: string): void {
+  const pkgPath = require.resolve(`${pkgRoot}/package`)
+  const pkg = require(pkgPath)
+  delete pkg.scripts[script]
+  writeFileSync(pkgPath, JSON.stringify(pkg))
 }
