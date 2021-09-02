@@ -16,27 +16,25 @@ interface Props {
   lockScreen: () => void
 }
 
-const InsertCardScreen = ({ lockScreen }: Props): JSX.Element => {
-  return (
-    <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <InsertCardImage
-              src="/images/insert-card.svg"
-              alt="Insert Card Diagram"
-            />
-            <h1>Insert a Voter Card</h1>
-          </Prose>
-        </MainChild>
-      </Main>
-      <MainNav>
-        <Button small onPress={lockScreen}>
-          Lock
-        </Button>
-      </MainNav>
-    </Screen>
-  )
-}
+const InsertCardScreen = ({ lockScreen }: Props): JSX.Element => (
+  <Screen>
+    <Main>
+      <MainChild center>
+        <Prose textCenter>
+          <InsertCardImage
+            src="/images/insert-card.svg"
+            alt="Insert Card Diagram"
+          />
+          <h1>Insert a Voter Card</h1>
+        </Prose>
+      </MainChild>
+    </Main>
+    <MainNav>
+      <Button small onPress={lockScreen}>
+        Lock
+      </Button>
+    </MainNav>
+  </Screen>
+)
 
 export default InsertCardScreen

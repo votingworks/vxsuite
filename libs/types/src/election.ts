@@ -1092,16 +1092,15 @@ export const getContests = ({
  */
 export const getEitherNeitherContests = (
   contests: Contests
-): MsEitherNeitherContest[] => {
-  return contests.filter(
+): MsEitherNeitherContest[] =>
+  contests.filter(
     (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
   )
-}
 
 export const expandEitherNeitherContests = (
   contests: Contests
-): Exclude<AnyContest, MsEitherNeitherContest>[] => {
-  return contests.flatMap((contest) =>
+): Exclude<AnyContest, MsEitherNeitherContest>[] =>
+  contests.flatMap((contest) =>
     contest.type !== 'ms-either-neither'
       ? [contest]
       : [
@@ -1127,7 +1126,6 @@ export const expandEitherNeitherContests = (
           },
         ]
   )
-}
 
 /**
  * Retrieves a precinct by id.
@@ -1162,14 +1160,13 @@ export const findContest = ({
 }: {
   contests: Contests
   contestId: string
-}): AnyContest | undefined => {
-  return contests.find((c) =>
+}): AnyContest | undefined =>
+  contests.find((c) =>
     c.type === 'ms-either-neither'
       ? c.eitherNeitherContestId === contestId ||
         c.pickOneContestId === contestId
       : c.id === contestId
   )
-}
 
 /**
  * Validates the votes for a given ballot style in a given election.

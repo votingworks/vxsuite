@@ -544,9 +544,10 @@ const AppRoot = ({
         })
       : []
 
-  const readCard = useCallback(async (): Promise<CardAPI> => {
-    return await card.readStatus()
-  }, [card])
+  const readCard = useCallback(
+    async (): Promise<CardAPI> => await card.readStatus(),
+    [card]
+  )
 
   const writeCard = useCallback(
     async (cardData: VoterCardData) => {

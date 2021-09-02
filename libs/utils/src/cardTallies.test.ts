@@ -11,9 +11,8 @@ import electionSample from './data/electionSample.json'
 
 const election = electionSample as Election
 
-const getIdxForContestId = (contestId: string) => {
-  return election.contests.findIndex((c) => c.id === contestId)
-}
+const getIdxForContestId = (contestId: string) =>
+  election.contests.findIndex((c) => c.id === contestId)
 
 test('counts missing votes counts as undervotes for appropriate ballot style', () => {
   const zeroTally = getZeroTally(election)

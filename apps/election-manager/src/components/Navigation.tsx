@@ -70,19 +70,17 @@ const SecondaryNav = styled.div`
   }
 `
 
-const Navigation = ({ primaryNav, secondaryNav }: Props): JSX.Element => {
-  return (
-    <NavBar>
-      <Brand>
-        <MakeName>
-          Voting<span>Works</span>
-        </MakeName>
-        <ModelName>Election Manager</ModelName>
-      </Brand>
-      <PrimaryNav>{primaryNav}</PrimaryNav>
-      {secondaryNav && <SecondaryNav>{secondaryNav}</SecondaryNav>}
-    </NavBar>
-  )
-}
+const Navigation = ({ primaryNav, secondaryNav }: Props): JSX.Element => (
+  <NavBar>
+    <Brand>
+      <MakeName>
+        Voting<span>Works</span>
+      </MakeName>
+      <ModelName>Election Manager</ModelName>
+    </Brand>
+    <PrimaryNav>{primaryNav}</PrimaryNav>
+    {secondaryNav && <SecondaryNav>{secondaryNav}</SecondaryNav>}
+  </NavBar>
+)
 
 export default Navigation

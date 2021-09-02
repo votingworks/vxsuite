@@ -24,42 +24,40 @@ const PrecinctsScreen = ({
   lockScreen,
   precincts,
   updatePrecinct,
-}: Props): JSX.Element => {
-  return (
-    <Screen>
-      <Main>
-        <MainChild maxWidth={false}>
-          <Heading>
-            <Prose>
-              <h1>
-                Precincts{' '}
-                <Text as="span" light>
-                  for {countyName}
-                </Text>
-              </h1>
-            </Prose>
-          </Heading>
-          <ButtonList columns={2}>
-            {precincts.map((p) => (
-              <Button
-                data-id={p.id}
-                fullWidth
-                key={p.id}
-                onPress={updatePrecinct}
-              >
-                {p.name}
-              </Button>
-            ))}
-          </ButtonList>
-        </MainChild>
-      </Main>
-      <MainNav>
-        <Button small onPress={lockScreen}>
-          Lock
-        </Button>
-      </MainNav>
-    </Screen>
-  )
-}
+}: Props): JSX.Element => (
+  <Screen>
+    <Main>
+      <MainChild maxWidth={false}>
+        <Heading>
+          <Prose>
+            <h1>
+              Precincts{' '}
+              <Text as="span" light>
+                for {countyName}
+              </Text>
+            </h1>
+          </Prose>
+        </Heading>
+        <ButtonList columns={2}>
+          {precincts.map((p) => (
+            <Button
+              data-id={p.id}
+              fullWidth
+              key={p.id}
+              onPress={updatePrecinct}
+            >
+              {p.name}
+            </Button>
+          ))}
+        </ButtonList>
+      </MainChild>
+    </Main>
+    <MainNav>
+      <Button small onPress={lockScreen}>
+        Lock
+      </Button>
+    </MainNav>
+  </Screen>
+)
 
 export default PrecinctsScreen

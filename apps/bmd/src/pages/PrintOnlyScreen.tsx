@@ -109,11 +109,12 @@ const PrintOnlyScreen = ({
     }
   }, [isVoterCardPresent, okToPrint, setOkToPrint])
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       clearTimeout(printerTimer.current)
-    }
-  }, [])
+    },
+    []
+  )
 
   const renderContent = () => {
     if (isVoterCardPresent && isCardVotesEmpty) {

@@ -122,22 +122,20 @@ const PreviewDashboard = ({
         <Route path="/preview" exact>
           <h1>Previews</h1>
           <div style={{ columns: '3' }}>
-            {previewables.map(({ componentName, previews }) => {
-              return (
-                <div key={componentName} style={{ breakInside: 'avoid' }}>
-                  <h4 style={{ marginBottom: '2px' }}>{componentName}</h4>
-                  <ul style={{ marginTop: '0' }}>
-                    {previews.map((preview) => (
-                      <li key={preview.previewName}>
-                        <Link to={getPreviewURL(preview)}>
-                          {preview.previewName}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })}
+            {previewables.map(({ componentName, previews }) => (
+              <div key={componentName} style={{ breakInside: 'avoid' }}>
+                <h4 style={{ marginBottom: '2px' }}>{componentName}</h4>
+                <ul style={{ marginTop: '0' }}>
+                  {previews.map((preview) => (
+                    <li key={preview.previewName}>
+                      <Link to={getPreviewURL(preview)}>
+                        {preview.previewName}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
           <ConfigBox>
             <Select

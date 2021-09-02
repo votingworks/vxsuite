@@ -3,9 +3,7 @@ import { sleep } from './sleep'
 
 export const FLUSH_IO_DELAY_MS = 10_000
 
-const isAvailable = () => {
-  return !!window.kiosk
-}
+const isAvailable = () => !!window.kiosk
 
 export enum UsbDriveStatus {
   notavailable = 'notavailable',
@@ -16,9 +14,8 @@ export enum UsbDriveStatus {
   ejecting = 'ejecting',
 }
 
-const getDevice = async (): Promise<KioskBrowser.UsbDrive | undefined> => {
-  return (await window.kiosk?.getUsbDrives())?.[0]
-}
+const getDevice = async (): Promise<KioskBrowser.UsbDrive | undefined> =>
+  (await window.kiosk?.getUsbDrives())?.[0]
 
 export const getDevicePath = async (): Promise<string | undefined> => {
   const device = await getDevice()

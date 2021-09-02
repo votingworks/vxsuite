@@ -139,17 +139,11 @@ export class FujitsuScanner implements Scanner {
         return results.get()
       },
 
-      acceptSheet: async (): Promise<boolean> => {
-        return true
-      },
+      acceptSheet: async (): Promise<boolean> => true,
 
-      reviewSheet: async (): Promise<boolean> => {
-        return false
-      },
+      reviewSheet: async (): Promise<boolean> => false,
 
-      rejectSheet: async (): Promise<boolean> => {
-        return false
-      },
+      rejectSheet: async (): Promise<boolean> => false,
 
       endBatch: async (): Promise<void> => {
         if (!done) {

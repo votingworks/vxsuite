@@ -44,6 +44,7 @@ export = {
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-non-null-assertion': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+    'arrow-body-style': 'error',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'import/extensions': 'off',

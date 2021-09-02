@@ -56,8 +56,8 @@ const generateTestDeckBallots = ({
       )
 
       const numBallots = Math.max(
-        ...contests.map((c) => {
-          return c.type === 'yesno'
+        ...contests.map((c) =>
+          c.type === 'yesno'
             ? 2
             : c.type === 'candidate'
             ? c.candidates.length
@@ -65,7 +65,7 @@ const generateTestDeckBallots = ({
             ? 2
             : /* istanbul ignore next - compile time check for completeness */
               throwIllegalValue(c)
-        })
+        )
       )
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {

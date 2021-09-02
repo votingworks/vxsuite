@@ -10,24 +10,22 @@ interface Props {
   lockScreen: () => void
 }
 
-const PollWorkerScreen = ({ lockScreen }: Props): JSX.Element => {
-  return (
-    <Screen>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>Screen Unlocked</h1>
-            <p>Remove Poll Worker card to continue.</p>
-          </Prose>
-        </MainChild>
-      </Main>
-      <MainNav>
-        <Button small onPress={lockScreen}>
-          Lock
-        </Button>
-      </MainNav>
-    </Screen>
-  )
-}
+const PollWorkerScreen = ({ lockScreen }: Props): JSX.Element => (
+  <Screen>
+    <Main>
+      <MainChild center>
+        <Prose textCenter>
+          <h1>Screen Unlocked</h1>
+          <p>Remove Poll Worker card to continue.</p>
+        </Prose>
+      </MainChild>
+    </Main>
+    <MainNav>
+      <Button small onPress={lockScreen}>
+        Lock
+      </Button>
+    </MainNav>
+  </Screen>
+)
 
 export default PollWorkerScreen

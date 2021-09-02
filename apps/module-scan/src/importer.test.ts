@@ -325,19 +325,17 @@ test('scanning pauses on adjudication then continues', async () => {
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
   }
-  const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => {
-    return {
-      id: 'mock-sheet-id',
-      front: {
-        image: { url: '/url/front' },
-        interpretation: { type: 'BlankPage' },
-      },
-      back: {
-        image: { url: '/url/back' },
-        interpretation: { type: 'BlankPage' },
-      },
-    }
-  }
+  const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => ({
+    id: 'mock-sheet-id',
+    front: {
+      image: { url: '/url/front' },
+      interpretation: { type: 'BlankPage' },
+    },
+    back: {
+      image: { url: '/url/back' },
+      interpretation: { type: 'BlankPage' },
+    },
+  })
 
   const importer = new Importer({
     workspace,
@@ -351,23 +349,17 @@ test('scanning pauses on adjudication then continues', async () => {
 
   jest
     .spyOn(workspace.store, 'addSheet')
-    .mockImplementationOnce(async () => {
-      return 'sheet-1'
-    })
+    .mockImplementationOnce(async () => 'sheet-1')
     .mockImplementationOnce(async () => {
       jest
         .spyOn(workspace.store, 'adjudicationStatus')
-        .mockImplementation(async () => {
-          return { adjudicated: 0, remaining: 1 }
-        })
+        .mockImplementation(async () => ({ adjudicated: 0, remaining: 1 }))
       return 'sheet-2'
     })
     .mockImplementationOnce(async () => {
       jest
         .spyOn(workspace.store, 'adjudicationStatus')
-        .mockImplementation(async () => {
-          return { adjudicated: 0, remaining: 1 }
-        })
+        .mockImplementation(async () => ({ adjudicated: 0, remaining: 1 }))
       return 'sheet-3'
     })
 
@@ -409,9 +401,7 @@ test('scanning pauses on adjudication then continues', async () => {
 
   jest
     .spyOn(workspace.store, 'adjudicationStatus')
-    .mockImplementation(async () => {
-      return { adjudicated: 0, remaining: 0 }
-    })
+    .mockImplementation(async () => ({ adjudicated: 0, remaining: 0 }))
 
   await importer.continueImport()
   await importer.waitForEndOfBatchOrScanningPause()
@@ -425,9 +415,7 @@ test('scanning pauses on adjudication then continues', async () => {
 
   jest
     .spyOn(workspace.store, 'adjudicationStatus')
-    .mockImplementation(async () => {
-      return { adjudicated: 0, remaining: 0 }
-    })
+    .mockImplementation(async () => ({ adjudicated: 0, remaining: 0 }))
 
   await importer.continueImport(true) // override
   await importer.waitForEndOfBatchOrScanningPause()

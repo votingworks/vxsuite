@@ -46,30 +46,28 @@ const Sidebar = ({
   children,
   title,
   screenReaderInstructions,
-}: Props): JSX.Element => {
-  return (
-    <StyledSidebar>
-      {title && (
-        <Header>
-          <Prose>
-            <Text as="h1" center id="audiofocus">
-              {appName} {appName && ' / '}
-              <Text as="span" light noWrap>
-                {title}
-              </Text>
-              {screenReaderInstructions && (
-                <span className="screen-reader-only">
-                  {screenReaderInstructions}
-                </span>
-              )}
+}: Props): JSX.Element => (
+  <StyledSidebar>
+    {title && (
+      <Header>
+        <Prose>
+          <Text as="h1" center id="audiofocus">
+            {appName} {appName && ' / '}
+            <Text as="span" light noWrap>
+              {title}
             </Text>
-          </Prose>
-        </Header>
-      )}
-      <Content centerContent={centerContent}>{children}</Content>
-      {footer && <Footer>{footer}</Footer>}
-    </StyledSidebar>
-  )
-}
+            {screenReaderInstructions && (
+              <span className="screen-reader-only">
+                {screenReaderInstructions}
+              </span>
+            )}
+          </Text>
+        </Prose>
+      </Header>
+    )}
+    <Content centerContent={centerContent}>{children}</Content>
+    {footer && <Footer>{footer}</Footer>}
+  </StyledSidebar>
+)
 
 export default Sidebar
