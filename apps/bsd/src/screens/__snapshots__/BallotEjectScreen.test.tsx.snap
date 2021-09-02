@@ -319,7 +319,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             Duplicate Ballot Scan
           </h4>
           <p>
-            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballow with issue which could not be determined.
+            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot with issue which could not be determined.
             <br />
             <button
               class="sc-eCssSg bFFZjC"
@@ -612,7 +612,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             Duplicate Ballot Scan
           </h4>
           <p>
-            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballow with issue which could not be determined.
+            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot with issue which could not be determined.
             <br />
             <button
               class="sc-eCssSg bFFZjC"

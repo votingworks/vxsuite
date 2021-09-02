@@ -197,7 +197,7 @@ const BallotEjectScreen = ({
                   ) : (
                     <React.Fragment>
                       Confirm ballot sheet was reviewed by the Resolution Board
-                      and tabulate as ballow with issue which could not be
+                      and tabulate as ballot with issue which could not be
                       determined.
                     </React.Fragment>
                   )}
