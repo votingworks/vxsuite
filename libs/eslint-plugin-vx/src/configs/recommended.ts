@@ -35,6 +35,7 @@ export = {
   },
   reportUnusedDisableDirectives: true,
   rules: {
+    'vx/gts-no-private-fields': 'error',
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
