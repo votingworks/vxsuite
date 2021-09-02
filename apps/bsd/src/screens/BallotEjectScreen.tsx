@@ -53,7 +53,7 @@ interface Props {
   isTestMode: boolean
 }
 
-type EjectState = undefined | 'removeBallot' | 'acceptBallot'
+type EjectState = 'removeBallot' | 'acceptBallot'
 
 const doNothing = () => {
   console.log('disabled') // eslint-disable-line no-console
@@ -65,7 +65,7 @@ const BallotEjectScreen = ({
 }: Props): JSX.Element => {
   const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo>()
 
-  const [ballotState, setBallotState] = useState<EjectState>(undefined)
+  const [ballotState, setBallotState] = useState<EjectState>()
 
   useEffect(() => {
     void (async () => {
