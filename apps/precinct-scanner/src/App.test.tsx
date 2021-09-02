@@ -189,6 +189,7 @@ test('app can load and configure from a usb stick', async () => {
   await advanceTimersAndPromises(2)
   await advanceTimersAndPromises(1)
   await screen.findByText('Polls Closed')
+  expect(kiosk.getFileSystemEntries).toHaveBeenCalledWith('fake mount point/ballot-packages')
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
   )
