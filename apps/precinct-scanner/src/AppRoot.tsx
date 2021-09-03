@@ -1,6 +1,7 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import React, { useCallback, useEffect, useReducer } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import { map } from 'rxjs/operators'
 import useInterval from '@rooks/use-interval'
 import 'normalize.css'
 import makeDebug from 'debug'
@@ -23,6 +24,7 @@ import {
   Hardware,
   Storage,
   usbstick,
+  Printer,
 } from '@votingworks/utils'
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
@@ -67,6 +69,7 @@ export interface Props extends RouteComponentProps {
   hardware: Hardware
   card: Card
   storage: Storage
+  printer: Printer
   machineConfig: Provider<MachineConfig>
 }
 
@@ -186,6 +189,7 @@ type AppAction =
   | { type: 'updatePrecinctId'; precinctId?: string }
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
+  | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
 
 const appReducer = (state: State, action: AppAction): State => {
   debug(
@@ -324,6 +328,11 @@ const appReducer = (state: State, action: AppAction): State => {
         machineConfig:
           action.machineConfig ?? initialHardwareState.machineConfig,
       }
+    case 'updateHardwareState':
+      return {
+        ...state,
+        ...action.hardwareState,
+      }
     default:
       throwIllegalValue(action)
   }
@@ -332,6 +341,7 @@ const appReducer = (state: State, action: AppAction): State => {
 const AppRoot = ({
   hardware,
   card,
+  printer,
   storage,
   machineConfig: machineConfigProvider,
 }: Props): JSX.Element => {
@@ -351,6 +361,7 @@ const AppRoot = ({
     isPollsOpen,
     isPollWorkerCardPresent,
     machineConfig,
+    hasPrinterAttached,
   } = appState
 
   const usbDrive = useUsbDrive()
@@ -383,6 +394,26 @@ const AppRoot = ({
       TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
     )
   }, [dispatchAppState])
+
+  // Handle hardware observer subscription
+  useEffect(() => {
+    const printerStatusSubscription = hardware.printers
+      .pipe(map((printers) => Array.from(printers)))
+      .subscribe(async (printers) => {
+        const newHasPrinterAttached = printers.some(
+          ({ connected }) => connected
+        )
+        dispatchAppState({
+          type: 'updateHardwareState',
+          hardwareState: {
+            hasPrinterAttached: newHasPrinterAttached,
+          },
+        })
+      })
+    return () => {
+      printerStatusSubscription.unsubscribe()
+    }
+  }, [])
 
   // Handle Machine Config
   useEffect(() => {
@@ -791,6 +822,8 @@ const AppRoot = ({
           togglePollsOpen={togglePollsOpen}
           saveTallyToCard={saveTallyToCard}
           getCVRsFromExport={getCVRsFromExport}
+          printer={printer}
+          hasPrinterAttached={hasPrinterAttached}
           isLiveMode={!isTestMode}
         />
       </AppContext.Provider>

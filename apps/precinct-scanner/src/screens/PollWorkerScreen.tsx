@@ -5,7 +5,9 @@ import makeDebug from 'debug'
 import { Button, Prose, Loading } from '@votingworks/ui'
 import {
   format,
+  NullPrinter,
   PrecinctScannerCardTally,
+  Printer,
   TallySourceMachineType,
 } from '@votingworks/utils'
 import { CenteredScreen } from '../components/Layout'
@@ -26,6 +28,12 @@ interface Props {
   togglePollsOpen: () => void
   getCVRsFromExport: () => Promise<CastVoteRecord[]>
   saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>
+  // TODO(caro) Implement printing tally reports
+  // eslint-disable-next-line react/no-unused-prop-types
+  printer: Printer
+  // TODO(caro) Implement printing tally reports
+  // eslint-disable-next-line react/no-unused-prop-types
+  hasPrinterAttached: boolean
 }
 
 const PollWorkerScreen = ({
@@ -195,6 +203,8 @@ export const DefaultPreview = (): JSX.Element => {
       isPollsOpen={isPollsOpen}
       saveTallyToCard={saveTallyToCard}
       togglePollsOpen={togglePollsOpen}
+      printer={new NullPrinter()}
+      hasPrinterAttached={false}
     />
   )
 }
