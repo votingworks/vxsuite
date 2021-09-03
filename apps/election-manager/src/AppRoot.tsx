@@ -10,7 +10,12 @@ import {
   safeParseElection,
 } from '@votingworks/types'
 
-import { Storage, throwIllegalValue, usbstick } from '@votingworks/utils'
+import {
+  Storage,
+  throwIllegalValue,
+  usbstick,
+  Printer,
+} from '@votingworks/utils'
 import { useUsbDrive } from '@votingworks/ui'
 import {
   computeFullElectionTally,
@@ -39,7 +44,6 @@ import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from './utils/externalTallies'
-import { Printer } from './utils/printer'
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition

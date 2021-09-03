@@ -6,9 +6,8 @@ import { act } from 'react-dom/test-utils'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 // import { electionSample } from '@votingworks/fixtures'
-import { MemoryStorage } from '@votingworks/utils'
+import { MemoryStorage, NullPrinter } from '@votingworks/utils'
 import AppRoot from './AppRoot'
-import { NullPrinter } from './utils/printer'
 
 beforeEach(() => {
   fetchMock.get(/^\/convert/, {})

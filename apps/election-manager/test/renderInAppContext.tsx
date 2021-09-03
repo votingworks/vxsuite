@@ -6,7 +6,7 @@ import { render as testRender } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
 import { Election, ElectionDefinition } from '@votingworks/types'
-import { usbstick } from '@votingworks/utils'
+import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 
 import AppContext from '../src/contexts/AppContext'
 import {
@@ -21,7 +21,6 @@ import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
 } from '../src/utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../src/lib/votecounting'
-import { NullPrinter, Printer } from '../src/utils/printer'
 
 export const eitherNeitherElectionDefinition = {
   election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
