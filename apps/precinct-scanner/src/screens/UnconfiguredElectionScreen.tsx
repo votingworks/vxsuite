@@ -4,10 +4,7 @@ import path from 'path'
 import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
 import { ballotPackageUtils, usbstick } from '@votingworks/utils'
 import { addTemplates, doneTemplates } from '../api/hmpb'
-import {
-  PRECINCT_SCANNER_FOLDER,
-  BALLOT_PACKAGE_FILENAME,
-} from '../config/globals'
+import { PRECINCT_SCANNER_FOLDER } from '../config/globals'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import {
   QuestionCircle,
@@ -65,12 +62,16 @@ const UnconfiguredElectionScreen = ({
           throw new Error('No ballot package found on the inserted USB drive.')
         }
         const ballotPackages = files.filter(
-          (f) => f.type === 1 && f.name === BALLOT_PACKAGE_FILENAME
+          (f) => f.type === 1 && f.name.endsWith('.zip')
         )
 
         // If there is more then one ballot package in the folder, fail.
         if (ballotPackages.length < 1) {
           throw new Error('No ballot package found on the inserted USB drive.')
+        } else if (ballotPackages.length > 1) {
+          throw new Error(
+            'More than one ballot package found on the inserted USB drive, make sure only one is present.'
+          )
         }
         const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
           ballotPackages[0]
@@ -107,7 +108,11 @@ const UnconfiguredElectionScreen = ({
             await setElectionDefinition(ballotPackage.electionDefinition)
           })
       } catch (error) {
-        setErrorMessage(error.message)
+        if (error instanceof Error) {
+          setErrorMessage(error.message)
+        } else {
+          setErrorMessage('Unknown Error')
+        }
         setIsLoadingBallotPackage(false)
       }
     }

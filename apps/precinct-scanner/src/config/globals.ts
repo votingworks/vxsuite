@@ -1,5 +1,4 @@
-export const PRECINCT_SCANNER_FOLDER = 'vx-precinct-scanner'
-export const BALLOT_PACKAGE_FILENAME = 'ballot-package.zip'
+export const PRECINCT_SCANNER_FOLDER = 'ballot-packages'
 
 export const FONT_SIZES = [22, 28, 36, 60]
 export const DEFAULT_FONT_SIZE = 1
