@@ -416,7 +416,7 @@ export const CandidateContestChoices = ({
 }: CandidateContestChoicesProps): JSX.Element => {
   const { t } = useTranslation()
   const writeInCandidates = vote?.filter((c) => c.isWriteIn)
-  const remainingChoices = [...Array(contest.seats).keys()]
+  const remainingChoices = [...Array.from({ length: contest.seats }).keys()]
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>

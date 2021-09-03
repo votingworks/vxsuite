@@ -225,7 +225,7 @@ test('tallies votes across many contests appropriately', () => {
     ballotsCast: 1,
   })
   expect(tally[getIdxForContestId('governor')]).toEqual({
-    candidates: Array(26).fill(0),
+    candidates: Array.from({ length: 26 }).fill(0),
     writeIns: 0,
     undervotes: 0,
     overvotes: 1,

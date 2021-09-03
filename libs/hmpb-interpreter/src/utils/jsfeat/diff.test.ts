@@ -33,7 +33,7 @@ const imageData4x4: Readonly<ImageData> = createImageData(
 
 test('images have no diff with themselves', () => {
   expect([...diff(imageData4x4, imageData4x4).data]).toEqual(
-    new Array(imageData4x4.data.length).fill(PIXEL_WHITE)
+    Array.from({ length: imageData4x4.data.length }).fill(PIXEL_WHITE)
   )
 })
 

@@ -35,12 +35,14 @@ export = {
   },
   reportUnusedDisableDirectives: true,
   rules: {
+    'vx/gts-no-array-constructor': 'error',
     'vx/gts-no-private-fields': 'error',
     'vx/gts-parameter-properties': 'error',
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
 
+    '@typescript-eslint/no-array-constructor': 'off',
     '@typescript-eslint/no-extra-semi': 'off',
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-non-null-assertion': 'error',
