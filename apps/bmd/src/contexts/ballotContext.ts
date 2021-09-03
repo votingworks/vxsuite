@@ -1,7 +1,7 @@
 import { createContext } from 'react'
+import { NullPrinter } from '@votingworks/utils'
 import * as GLOBALS from '../config/globals'
 
-import { NullPrinter } from '../utils/printer'
 import {
   BallotContextInterface,
   TextSizeSetting,
