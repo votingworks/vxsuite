@@ -65,7 +65,7 @@ export const useUsbDrive = (): UsbDrive => {
         debug('USB drive removed')
         setRecentlyEjected(false)
       } else if (
-        status === UsbDriveStatus.absent &&
+        (status === UsbDriveStatus.absent || status === undefined) &&
         newStatus === UsbDriveStatus.present
       ) {
         try {
