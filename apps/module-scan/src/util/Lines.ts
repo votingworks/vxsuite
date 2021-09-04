@@ -23,11 +23,11 @@ interface LineEmitter {
 export default class Lines extends EventEmitter implements LineEmitter {
   private buffer = ''
 
-  public constructor(private readonly terminator = '\n') {
+  constructor(private readonly terminator = '\n') {
     super()
   }
 
-  public add(data: string): void {
+  add(data: string): void {
     let cursor = 0
     let nextTerminator: number
 
@@ -47,7 +47,7 @@ export default class Lines extends EventEmitter implements LineEmitter {
     this.buffer += data.slice(cursor)
   }
 
-  public end(): void {
+  end(): void {
     if (this.buffer.length) {
       this.emit('line', this.buffer)
       this.buffer = ''

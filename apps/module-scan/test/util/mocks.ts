@@ -46,14 +46,14 @@ class ScannerSessionPlan {
   private steps: ScanSessionStep[] = []
   private ended = false
 
-  public getStep(index: number): ScanSessionStep {
+  getStep(index: number): ScanSessionStep {
     return this.steps[index]
   }
 
   /**
    * Adds a scanning step to the session.
    */
-  public sheet(sheet: SheetOf<string>): this {
+  sheet(sheet: SheetOf<string>): this {
     if (this.ended) {
       throw new Error('cannot add a sheet scan step to an ended session')
     }
@@ -64,7 +64,7 @@ class ScannerSessionPlan {
   /**
    * Adds an error step to the session.
    */
-  public error(error: Error): this {
+  error(error: Error): this {
     if (this.ended) {
       throw new Error('cannot add an error step to an ended session')
     }
@@ -72,7 +72,7 @@ class ScannerSessionPlan {
     return this
   }
 
-  public end(): void {
+  end(): void {
     this.ended = true
   }
 

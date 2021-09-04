@@ -9,7 +9,7 @@ export default class Spinner {
   private readonly parts: readonly TextProvider[]
   private readonly deinits: readonly (() => void)[]
 
-  public constructor(private readonly spinner: Ora, ...parts: TextProvider[]) {
+  constructor(private readonly spinner: Ora, ...parts: TextProvider[]) {
     this.parts = parts
     const update = (): void => this.update()
     this.deinits = parts
@@ -17,11 +17,11 @@ export default class Spinner {
       .filter((deinit): deinit is () => void => !!deinit)
   }
 
-  public update(): void {
+  update(): void {
     this.spinner.text = this.parts.map((part) => part.toString()).join('')
   }
 
-  public succeed(): void {
+  succeed(): void {
     this.spinner.succeed()
     for (const deinit of this.deinits) {
       deinit()

@@ -48,13 +48,13 @@ export class CustomEncoding implements Encoding {
   /**
    * The maximum character code representable by this class.
    */
-  public static MAX_CODE = (1 << (Uint8Array.BYTES_PER_ELEMENT * Uint8Size)) - 1
-  public readonly bitsPerElement: number
+  static MAX_CODE = (1 << (Uint8Array.BYTES_PER_ELEMENT * Uint8Size)) - 1
+  readonly bitsPerElement: number
 
   /**
    * @param chars a string of representable characters without duplicates
    */
-  public constructor(private readonly chars: string) {
+  constructor(private readonly chars: string) {
     CustomEncoding.validateChars(chars)
     this.bitsPerElement = sizeof(chars.length - 1)
   }
@@ -86,7 +86,7 @@ export class CustomEncoding implements Encoding {
    *
    * @param string a string containing only representable characters
    */
-  public encode(string: string): Uint8Array {
+  encode(string: string): Uint8Array {
     const codes = new Uint8Array(string.length)
 
     for (let i = 0; i < string.length; i += 1) {
@@ -113,7 +113,7 @@ export class CustomEncoding implements Encoding {
    *
    * @param data a series of character codes representing characters in this encoding
    */
-  public decode(data: Uint8Array): string {
+  decode(data: Uint8Array): string {
     return Array.from(data)
       .map((code, i) => {
         if (code >= this.chars.length) {

@@ -9,9 +9,9 @@ export interface VxFiles {
 }
 
 export default class ConverterClient {
-  public constructor(private readonly target: string) {}
+  constructor(private readonly target: string) {}
 
-  public async setInputFile(name: string, content: File): Promise<void> {
+  async setInputFile(name: string, content: File): Promise<void> {
     const formData = new FormData()
     formData.append('name', name)
     formData.append('file', content)
@@ -29,7 +29,7 @@ export default class ConverterClient {
     }
   }
 
-  public async process(): Promise<void> {
+  async process(): Promise<void> {
     const response = await fetch(`/convert/${this.target}/process`, {
       method: 'POST',
     })
@@ -40,7 +40,7 @@ export default class ConverterClient {
     }
   }
 
-  public async getOutputFile(name: string): Promise<Blob> {
+  async getOutputFile(name: string): Promise<Blob> {
     const response = await fetch(
       `/convert/${this.target}/output?name=${encodeURIComponent(name)}`,
       { cache: 'no-store' }
@@ -48,14 +48,14 @@ export default class ConverterClient {
     return await response.blob()
   }
 
-  public async getFiles(): Promise<VxFiles> {
+  async getFiles(): Promise<VxFiles> {
     const response = await fetch(`/convert/${this.target}/files`, {
       cache: 'no-store',
     })
     return await response.json()
   }
 
-  public async reset(): Promise<void> {
+  async reset(): Promise<void> {
     await fetch('/convert/reset', { method: 'POST' })
   }
 }

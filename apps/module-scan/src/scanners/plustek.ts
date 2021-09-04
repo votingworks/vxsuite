@@ -20,7 +20,7 @@ export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>
 export class PlustekScanner implements Scanner {
   private statusOverride?: ScannerStatus
 
-  public constructor(
+  constructor(
     private readonly clientProvider: Provider<Result<ScannerClient, Error>>,
     private readonly alwaysHoldOnReject = false
   ) {}
@@ -59,7 +59,7 @@ export class PlustekScanner implements Scanner {
       : ScannerStatus.Error
   }
 
-  public async getStatus(): Promise<ScannerStatus> {
+  async getStatus(): Promise<ScannerStatus> {
     if (this.statusOverride) {
       debug(
         'PlustekScanner#getStatus: using override status: %s',
@@ -72,7 +72,7 @@ export class PlustekScanner implements Scanner {
     return await this.getHardwareStatus()
   }
 
-  public scanSheets(directory?: string): BatchControl {
+  scanSheets(directory?: string): BatchControl {
     debug('scanSheets: ignoring directory: %s', directory)
 
     const waitForStatus = async (
@@ -263,7 +263,7 @@ export class PlustekScanner implements Scanner {
     }
   }
 
-  public async calibrate(): Promise<boolean> {
+  async calibrate(): Promise<boolean> {
     debug('PlustekScanner#calibrate BEGIN')
     const clientResult = await this.clientProvider.get()
 

@@ -89,16 +89,16 @@ export default class LoopScanner implements Scanner {
   /**
    * @param batches lists of front/back pairs of sheets to scan
    */
-  public constructor(private batches: readonly Batch[]) {}
+  constructor(private batches: readonly Batch[]) {}
 
-  public async getStatus(): Promise<ScannerStatus> {
+  async getStatus(): Promise<ScannerStatus> {
     return ScannerStatus.Unknown
   }
 
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */
-  public scanSheets(): BatchControl {
+  scanSheets(): BatchControl {
     const currentBatch = this.batches[this.nextBatchIndex % this.batches.length]
     this.nextBatchIndex += 1
     let sheetIndex = 0
@@ -127,7 +127,7 @@ export default class LoopScanner implements Scanner {
     }
   }
 
-  public async calibrate(): Promise<boolean> {
+  async calibrate(): Promise<boolean> {
     return false
   }
 }

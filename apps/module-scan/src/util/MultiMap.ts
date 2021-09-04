@@ -21,7 +21,7 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
   /**
    * Gets all values for `key`.
    */
-  public get(key: K): Set<V> | undefined {
+  get(key: K): Set<V> | undefined {
     const valueMapKey = this.valueMapKey(key)
     const values = this.valueMap.get(valueMapKey)
     return values && new Set([...values])
@@ -30,7 +30,7 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
   /**
    * Adds `value` to the list of values for `key`.
    */
-  public set(key: K, value: V): this {
+  set(key: K, value: V): this {
     const valueMapKey = this.valueMapKey(key)
     this.valueMap.set(
       valueMapKey,
@@ -42,14 +42,14 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
   /**
    * Delete all values for `key`.
    */
-  public delete(key: K): boolean
+  delete(key: K): boolean
 
   /**
    * Delete a single value for `key`.
    */
-  public delete(key: K, value: V): boolean
+  delete(key: K, value: V): boolean
 
-  public delete(key: K, value?: V): boolean {
+  delete(key: K, value?: V): boolean {
     const valueMapKey = this.valueMapKey(key)
     if (typeof value === 'undefined') {
       return this.valueMap.delete(valueMapKey)
@@ -64,28 +64,28 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
   /**
    * Clear all entries.
    */
-  public clear(): void {
+  clear(): void {
     this.valueMap.clear()
   }
 
   /**
    * The number of unique keys.
    */
-  public get size(): number {
+  get size(): number {
     return this.valueMap.size
   }
 
   /**
    * The number of unique keys.
    */
-  public get keySize(): number {
+  get keySize(): number {
     return this.size
   }
 
   /**
    * The number of values in all keys.
    */
-  public get valueSize(): number {
+  get valueSize(): number {
     return [...this.valueMap.values()].reduce(
       (size, values) => size + values.size,
       0
@@ -95,7 +95,7 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
   /**
    * Iterates through keys/values in the order in which keys were added.
    */
-  public *[Symbol.iterator](): Generator<[K, Set<V>]> {
+  *[Symbol.iterator](): Generator<[K, Set<V>]> {
     for (const [valueMapKey, values] of this.valueMap) {
       const key = this.keyMap.get(valueMapKey)
       assert(key)

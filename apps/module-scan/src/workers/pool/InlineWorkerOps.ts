@@ -6,20 +6,20 @@ import { WorkerOps } from './types'
 export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
   private workerInstance: EventEmitter
 
-  public constructor(private readonly call: (input: I) => Promise<O>) {
+  constructor(private readonly call: (input: I) => Promise<O>) {
     this.workerInstance = new EventEmitter()
   }
 
-  public start(): EventEmitter {
+  start(): EventEmitter {
     return this.workerInstance
   }
 
-  public stop(worker: EventEmitter): void {
+  stop(worker: EventEmitter): void {
     assert.strictEqual(worker, this.workerInstance)
     worker.removeAllListeners()
   }
 
-  public async send(worker: EventEmitter, message: I): Promise<void> {
+  async send(worker: EventEmitter, message: I): Promise<void> {
     assert.strictEqual(worker, this.workerInstance)
     try {
       const output = await this.call(
@@ -31,7 +31,7 @@ export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
     }
   }
 
-  public describe(): string {
+  describe(): string {
     return 'Worker { inline: true }'
   }
 }

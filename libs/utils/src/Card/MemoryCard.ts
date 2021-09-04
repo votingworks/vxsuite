@@ -16,7 +16,7 @@ export default class MemoryCard implements Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  public async readStatus(): Promise<CardAPI> {
+  async readStatus(): Promise<CardAPI> {
     const { present, shortValue } = this
 
     if (present) {
@@ -36,7 +36,7 @@ export default class MemoryCard implements Card {
    * Reads the long value as an object, or `undefined` if there is no long
    * value and validates it using `schema`.
    */
-  public async readLongObject<T>(
+  async readLongObject<T>(
     schema: z.ZodSchema<T>
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
     const { longValue } = this
@@ -54,7 +54,7 @@ export default class MemoryCard implements Card {
    * Reads the long value as a string, or `undefined` if there is no long
    * value.
    */
-  public async readLongString(): Promise<Optional<string>> {
+  async readLongString(): Promise<Optional<string>> {
     const { longValue } = this
 
     if (!longValue) {
@@ -68,14 +68,14 @@ export default class MemoryCard implements Card {
    * Reads the long value as binary data, or `undefined` if there is no long
    * value.
    */
-  public async readLongUint8Array(): Promise<Optional<Uint8Array>> {
+  async readLongUint8Array(): Promise<Optional<Uint8Array>> {
     return this.longValue
   }
 
   /**
    * Writes a new short value to the card.
    */
-  public async writeShortValue(value: string): Promise<void> {
+  async writeShortValue(value: string): Promise<void> {
     if (!this.present) {
       throw new Error('cannot write short value when no card is present')
     }
@@ -86,7 +86,7 @@ export default class MemoryCard implements Card {
   /**
    * Writes a new long value as a serialized object.
    */
-  public async writeLongObject(value: unknown): Promise<void> {
+  async writeLongObject(value: unknown): Promise<void> {
     await this.writeLongUint8Array(
       new TextEncoder().encode(JSON.stringify(value))
     )
@@ -95,7 +95,7 @@ export default class MemoryCard implements Card {
   /**
    * Writes binary data to the long value.
    */
-  public async writeLongUint8Array(value: Uint8Array): Promise<void> {
+  async writeLongUint8Array(value: Uint8Array): Promise<void> {
     if (!this.present) {
       throw new Error('cannot write long value when no card is present')
     }
@@ -106,7 +106,7 @@ export default class MemoryCard implements Card {
   /**
    * Removes the simulated in-memory card.
    */
-  public removeCard(): this {
+  removeCard(): this {
     this.present = false
     this.shortValue = undefined
     this.longValue = undefined
@@ -116,7 +116,7 @@ export default class MemoryCard implements Card {
   /**
    * Inserts a simulated in-memory card with specified long and short values.
    */
-  public insertCard(
+  insertCard(
     shortValue?: string | unknown,
     longValue?: string | Uint8Array
   ): this {

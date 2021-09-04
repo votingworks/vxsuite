@@ -25,7 +25,7 @@ export default class BitWriter {
   /**
    * Writes bits.
    */
-  public writeUint1(...uint1s: Uint1[]): this {
+  writeUint1(...uint1s: Uint1[]): this {
     for (const uint1 of uint1s) {
       const mask = this.cursor.mask(uint1)
       this.nextByte |= mask
@@ -43,7 +43,7 @@ export default class BitWriter {
   /**
    * Writes `1` if given `true`, `0` otherwise.
    */
-  public writeBoolean(...booleans: boolean[]): this {
+  writeBoolean(...booleans: boolean[]): this {
     for (const boolean of booleans) {
       this.writeUint1(boolean ? 1 : 0)
     }
@@ -54,7 +54,7 @@ export default class BitWriter {
   /**
    * Writes data from a `Uint8` by writing 8 bits.
    */
-  public writeUint8(...uint8s: Uint8[]): this {
+  writeUint8(...uint8s: Uint8[]): this {
     for (const uint8 of uint8s) {
       this.writeUint(uint8, { size: Uint8Size })
     }
@@ -73,9 +73,9 @@ export default class BitWriter {
    * bits.writeUint(23, { max: 30 })  // writes `10111`
    * bits.writeUint(99, { size: 8 })  // writes `01100011`
    */
-  public writeUint(number: number, { max }: { max: number }): this
-  public writeUint(number: number, { size }: { size: number }): this
-  public writeUint(
+  writeUint(number: number, { max }: { max: number }): this
+  writeUint(number: number, { size }: { size: number }): this
+  writeUint(
     number: number,
     { max, size }: { max?: number; size?: number }
   ): this {
@@ -137,14 +137,14 @@ export default class BitWriter {
    *                                                                          ↑ ↑↑
    *                                                                   length=2 'h''i'
    */
-  public writeString(string: string): this
-  public writeString(string: string, options: { encoding?: Encoding }): this
-  public writeString(
+  writeString(string: string): this
+  writeString(string: string, options: { encoding?: Encoding }): this
+  writeString(
     string: string,
     options: { encoding?: Encoding; includeLength: false; length: number }
   ): this
 
-  public writeString(
+  writeString(
     string: string,
     options: {
       encoding?: Encoding
@@ -153,7 +153,7 @@ export default class BitWriter {
     }
   ): this
 
-  public writeString(
+  writeString(
     string: string,
     {
       encoding = UTF8Encoding,
@@ -202,7 +202,7 @@ export default class BitWriter {
    *   .with(writer => encodeSomething(writer))
    *   .writeBoolean(false)
    */
-  public with(callback: (writer: this) => void): this {
+  with(callback: (writer: this) => void): this {
     callback(this)
     return this
   }
@@ -210,7 +210,7 @@ export default class BitWriter {
   /**
    * Converts the data written to this `BitWriter` to a `Uint8Array`.
    */
-  public toUint8Array(): Uint8Array {
+  toUint8Array(): Uint8Array {
     const pendingByte = this.getPendingByte()
 
     if (typeof pendingByte === 'undefined') {
@@ -233,7 +233,7 @@ export default class BitWriter {
     return this.nextByte
   }
 
-  public debug(label?: string): this {
+  debug(label?: string): this {
     if (label) {
       // eslint-disable-next-line no-console
       console.log(label)

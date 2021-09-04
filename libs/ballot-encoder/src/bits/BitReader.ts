@@ -13,12 +13,12 @@ export default class BitReader {
   /**
    * @param data a buffer to read data from
    */
-  public constructor(private data: Uint8Array) {}
+  constructor(private data: Uint8Array) {}
 
   /**
    * Reads a Uint1 and moves the internal cursor forward one bit.
    */
-  public readUint1(): Uint1 {
+  readUint1(): Uint1 {
     const byte = this.getCurrentByte()
     const mask = this.cursor.mask()
 
@@ -30,14 +30,14 @@ export default class BitReader {
   /**
    * Reads a number by reading 8 bits.
    */
-  public readUint8(): Uint8 {
+  readUint8(): Uint8 {
     return this.readUint({ size: Uint8Size }) as Uint8
   }
 
   /**
    * Reads a boolean by reading a bit and returning whether the bit was set.
    */
-  public readBoolean(): boolean {
+  readBoolean(): boolean {
     return this.readUint1() === 1
   }
 
@@ -57,9 +57,9 @@ export default class BitReader {
    * bits.readUint({ size: 8 })    // reads next 8 bits:  0xf0
    * bits.readUint({ size: 4 })    // reads last 4 bits:  0x0f
    */
-  public readUint({ max }: { max: number }): number
-  public readUint({ size }: { size: number }): number
-  public readUint({ max, size }: { max?: number; size?: number }): number {
+  readUint({ max }: { max: number }): number
+  readUint({ size }: { size: number }): number
+  readUint({ max, size }: { max?: number; size?: number }): number {
     const sizeofUint = this.sizeofUint({ max, size })
 
     // Optimize for the case of reading a byte straight from the underlying buffer.
@@ -111,15 +111,12 @@ export default class BitReader {
    * const bits = new BitReader(Uint8Array.of(104, 105))
    * bits.readString({ length: 2 }) // "hi"
    */
-  public readString(): string
-  public readString(options: { encoding?: Encoding }): string
-  public readString(options: {
-    encoding?: Encoding
-    maxLength?: number
-  }): string
+  readString(): string
+  readString(options: { encoding?: Encoding }): string
+  readString(options: { encoding?: Encoding; maxLength?: number }): string
 
-  public readString(options: { encoding?: Encoding; length?: number }): string
-  public readString({
+  readString(options: { encoding?: Encoding; length?: number }): string
+  readString({
     encoding = UTF8Encoding,
     maxLength = (1 << Uint8Size) - 1,
     length,
@@ -143,11 +140,11 @@ export default class BitReader {
    *
    * @returns true if the uints matched and were skipped, false otherwise
    */
-  public skipUint(expected: number, { max }: { max: number }): boolean
-  public skipUint(expected: number, { size }: { size: number }): boolean
-  public skipUint(expected: number[], { max }: { max: number }): boolean
-  public skipUint(expected: number[], { size }: { size: number }): boolean
-  public skipUint(
+  skipUint(expected: number, { max }: { max: number }): boolean
+  skipUint(expected: number, { size }: { size: number }): boolean
+  skipUint(expected: number[], { max }: { max: number }): boolean
+  skipUint(expected: number[], { size }: { size: number }): boolean
+  skipUint(
     expected: number | number[],
     { max, size }: { max?: number; size?: number }
   ): boolean {
@@ -190,7 +187,7 @@ export default class BitReader {
    *
    * @returns true if the bits matched and were skipped, false otherwise
    */
-  public skipUint1(...uint1s: number[]): boolean {
+  skipUint1(...uint1s: number[]): boolean {
     return this.skipUint(uint1s, { size: 1 })
   }
 
@@ -199,7 +196,7 @@ export default class BitReader {
    *
    * @returns true if the bytes matched and were skipped, false otherwise
    */
-  public skipUint8(...uint8s: number[]): boolean {
+  skipUint8(...uint8s: number[]): boolean {
     return this.skipUint(uint8s, { size: Uint8Size })
   }
 
@@ -207,7 +204,7 @@ export default class BitReader {
    * Determines whether there is any more data to read. If the result is
    * `false`, then any call to read data will throw an exception.
    */
-  public canRead(size = 1): boolean {
+  canRead(size = 1): boolean {
     const totalBits = this.data.length * Uint8Size
     const readBits = this.cursor.combinedBitOffset
     return readBits + size <= totalBits
