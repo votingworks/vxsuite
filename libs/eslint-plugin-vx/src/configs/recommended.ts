@@ -35,6 +35,7 @@ export = {
   },
   reportUnusedDisableDirectives: true,
   rules: {
+    'vx/gts-direct-module-export-access-only': 'error',
     'vx/gts-no-array-constructor': 'error',
     'vx/gts-no-private-fields': 'error',
     'vx/gts-no-public-modifier': 'error',
@@ -108,6 +109,7 @@ export = {
       rules: {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'no-loop-func': 'off',
+        'vx/gts-direct-module-export-access-only': 'off',
       },
     },
   ],

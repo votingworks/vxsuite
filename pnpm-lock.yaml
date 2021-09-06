@@ -1138,6 +1138,7 @@ importers:
       typescript: 4.2.3
     devDependencies:
       '@types/node': 15.6.2
+      '@types/react': 17.0.20
       '@typescript-eslint/parser': 4.26.0_eslint@7.27.0+typescript@4.2.3
       '@votingworks/types': link:../types
       eslint: 7.27.0
@@ -1152,6 +1153,7 @@ importers:
       ts-jest: 27.0.2_jest@27.0.3+typescript@4.2.3
     specifiers:
       '@types/node': ^15.6.2
+      '@types/react': ^17.0.20
       '@typescript-eslint/eslint-plugin': ^4.30.0
       '@typescript-eslint/experimental-utils': ^4.30.0
       '@typescript-eslint/parser': ^4.26.0
@@ -8464,6 +8466,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-sX1HisdB1/ZESixMTGnMxH9TDe8Sk709734fEQZzCV/4lSu9kJCPbo2PbTRoZM+53Pp0P10hYVyReUueGwUi4A==
+  /@types/react/17.0.20:
+    dependencies:
+      '@types/prop-types': 15.7.4
+      '@types/scheduler': 0.16.2
+      csstype: 3.0.8
+    dev: true
+    resolution:
+      integrity: sha512-wWZrPlihslrPpcKyCSlmIlruakxr57/buQN1RjlIeaaTWDLtJkTtRW429MoQJergvVKc4IWBpRhWw7YNh/7GVA==
   /@types/react/17.0.4:
     dependencies:
       '@types/prop-types': 15.7.3

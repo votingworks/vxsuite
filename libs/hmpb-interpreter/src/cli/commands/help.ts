@@ -1,14 +1,12 @@
 import chalk from 'chalk'
 import { basename } from 'path'
-import { GlobalOptions } from '..'
+import { getCommands, GlobalOptions } from '..'
 import * as helpCommand from './help'
 import * as interpretCommand from './interpret'
 import * as layoutCommand from './layout'
 
 export const name = 'help'
 export const description = 'Show help about a command'
-
-const commands = [helpCommand, interpretCommand, layoutCommand] as const
 
 export interface Options {
   readonly $0: string
@@ -34,6 +32,7 @@ function printGlobalHelp(options: Options, out: NodeJS.WritableStream): void {
   out.write(chalk.bold(`Commands:\n`))
   out.write(`\n`)
 
+  const commands = getCommands()
   const commandNameSpace =
     Math.max(...commands.map((command) => command.name.length)) + 3
 

@@ -5,7 +5,8 @@ import * as layoutCommand from './commands/layout'
 
 export interface Command<O> {
   name: string
-  parseOptions(args: readonly string[]): Promise<O>
+  description: string
+  parseOptions(globalOptions: GlobalOptions): Promise<O>
   run(
     options: O,
     stdin: typeof process.stdin,
@@ -23,7 +24,31 @@ export interface GlobalOptions {
   commandArgs: readonly string[]
 }
 
-export const commands = [helpCommand, interpretCommand, layoutCommand] as const
+export const getCommands = (): [
+  Command<helpCommand.Options>,
+  Command<interpretCommand.Options>,
+  Command<layoutCommand.Options>
+] => [
+  {
+    name: helpCommand.name,
+    description: helpCommand.description,
+    parseOptions: helpCommand.parseOptions,
+    run: helpCommand.run,
+  },
+  {
+    name: interpretCommand.name,
+    description: interpretCommand.description,
+    parseOptions: interpretCommand.parseOptions,
+    run: interpretCommand.run,
+  },
+  {
+    name: layoutCommand.name,
+    description: layoutCommand.description,
+    parseOptions: layoutCommand.parseOptions,
+    run: layoutCommand.run,
+  },
+]
+
 export type Options =
   | {
       command: typeof helpCommand.name

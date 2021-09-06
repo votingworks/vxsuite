@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/node": "^15.6.2",
+    "@types/react": "^17.0.20",
     "@typescript-eslint/parser": "^4.26.0",
     "@votingworks/types": "workspace:*",
     "eslint": "^7.27.0",
