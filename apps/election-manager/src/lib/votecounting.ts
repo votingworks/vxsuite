@@ -64,7 +64,7 @@ export function* parseCVRs(
   const ballotStyleContests = new Set(
     election.ballotStyles.flatMap((ballotStyle) =>
       expandEitherNeitherContests(getContests({ ballotStyle, election })).map(
-        ({ id }: { id: string }) => `${ballotStyle.id}/${id}`
+        ({ id }) => `${ballotStyle.id}/${id}`
       )
     )
   )
