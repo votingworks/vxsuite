@@ -23,7 +23,7 @@ import { parseCVRs } from '../lib/votecounting'
  * setAdd(set, 6, 7) // Set { 1, 2, 3, 6, 7 }
  * set               // Set { 1, 2, 3 }
  */
-function setAdd<T>(set: Set<T>, ...values: T[]): Set<T> {
+function setAdd<T>(set: ReadonlySet<T>, ...values: T[]): Set<T> {
   return new Set([...set, ...values])
 }
 
@@ -40,7 +40,7 @@ function setAdd<T>(set: Set<T>, ...values: T[]): Set<T> {
  * map                                       // Map { 1 => { id: 1 } }
  */
 function mapAdd<K, V>(
-  map: Map<K, V>,
+  map: ReadonlyMap<K, V>,
   keyfn: (value: V) => K,
   ...values: V[]
 ): Map<K, V> {
@@ -53,7 +53,9 @@ function mapAdd<K, V>(
   return result
 }
 
-function mixedTestModeCVRs(castVoteRecords: CastVoteRecord[][]) {
+function mixedTestModeCVRs(
+  castVoteRecords: ReadonlyArray<ReadonlyArray<CastVoteRecord>>
+) {
   let liveSeen = false
   let testSeen = false
   for (const cvrs of castVoteRecords) {
@@ -90,14 +92,11 @@ function mixedTestModeCVRs(castVoteRecords: CastVoteRecord[][]) {
  * cvrFiles.castVoteRecords                 // […]
  */
 export default class CastVoteRecordFiles {
-  // private readonly allCastVoteRecords: Map<string, CastVoteRecord>
-  private readonly allCastVoteRecords: CastVoteRecord[][]
-
   /**
    * This is your starting point for working with this class as the constructor
    * is private. Build new instances from this starting point.
    */
-  public static readonly empty = new CastVoteRecordFiles(
+  static readonly empty = new CastVoteRecordFiles(
     new Set(),
     new Set(),
     new Set(),
@@ -110,19 +109,19 @@ export default class CastVoteRecordFiles {
    * `addAll(files)`.
    */
   private constructor(
-    private signatures: Set<string>,
-    private files: Set<CastVoteRecordFile>,
-    private duplicateFilenames: Set<string>,
-    private parseFailedErrors: Map<string, string>,
-    castVoteRecords: CastVoteRecord[][]
-  ) {
-    this.allCastVoteRecords = castVoteRecords
-  }
+    private readonly signatures: ReadonlySet<string>,
+    private readonly files: ReadonlySet<CastVoteRecordFile>,
+    private readonly duplicateFilenames: ReadonlySet<string>,
+    private readonly parseFailedErrors: ReadonlyMap<string, string>,
+    private readonly allCastVoteRecords: ReadonlyArray<
+      ReadonlyArray<CastVoteRecord>
+    >
+  ) {}
 
   /**
    * Import from exported localStorage string
    */
-  public static import(stringifiedCVRFiles: string): CastVoteRecordFiles {
+  static import(stringifiedCVRFiles: string): CastVoteRecordFiles {
     const {
       signatures,
       files,
@@ -142,7 +141,7 @@ export default class CastVoteRecordFiles {
   /**
    * Export to localStorage string
    */
-  public export(): string {
+  export(): string {
     return JSON.stringify({
       signatures: [...this.signatures],
       files: [...this.files],
@@ -156,7 +155,7 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addAll(
+  async addAll(
     files: File[],
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -173,7 +172,7 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `files` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addAllFromFileSystemEntries(
+  async addAllFromFileSystemEntries(
     files: KioskBrowser.FileSystemEntry[],
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -190,7 +189,7 @@ export default class CastVoteRecordFiles {
    *  Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `file` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async addFromFileSystemEntry(
+  async addFromFileSystemEntry(
     file: KioskBrowser.FileSystemEntry,
     election: Election
   ): Promise<CastVoteRecordFiles> {
@@ -219,10 +218,7 @@ export default class CastVoteRecordFiles {
    * Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `file` to those contained by this `CastVoteRecordFiles` instance.
    */
-  public async add(
-    file: File,
-    election: Election
-  ): Promise<CastVoteRecordFiles> {
+  async add(file: File, election: Election): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsync(file)
       const parsedFileInfo = parseCVRFileInfoFromFilename(file.name)
@@ -321,7 +317,7 @@ export default class CastVoteRecordFiles {
   /**
    * The error for the last file that failed.
    */
-  public get lastError(): { filename: string; message: string } | undefined {
+  get lastError(): { filename: string; message: string } | undefined {
     const last = [...this.parseFailedErrors].pop()
     return last ? { filename: last[0], message: last[1] } : undefined
   }
@@ -329,28 +325,28 @@ export default class CastVoteRecordFiles {
   /**
    * All the added CVR files.
    */
-  public get fileList(): CastVoteRecordFile[] {
+  get fileList(): CastVoteRecordFile[] {
     return [...this.files]
   }
 
   /**
    * Names of the files that have been added more than once.
    */
-  public get duplicateFiles(): string[] {
+  get duplicateFiles(): string[] {
     return [...this.duplicateFilenames]
   }
 
   /**
    * All parsed CVRs from the added files.
    */
-  public get castVoteRecords(): CastVoteRecordLists {
+  get castVoteRecords(): CastVoteRecordLists {
     return this.allCastVoteRecords
   }
 
   /**
    * Gets the file mode for the set of CVR files.
    */
-  public get fileMode(): CastVoteRecordFileMode | undefined {
+  get fileMode(): CastVoteRecordFileMode | undefined {
     let liveSeen = false
     for (const cvrs of this.allCastVoteRecords) {
       for (const cvr of cvrs) {
@@ -363,7 +359,7 @@ export default class CastVoteRecordFiles {
     return liveSeen ? 'live' : undefined
   }
 
-  public filenameAlreadyImported(filename: string): boolean {
+  filenameAlreadyImported(filename: string): boolean {
     for (const file of this.files) {
       if (file.name === filename) {
         return true
