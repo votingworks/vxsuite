@@ -1,5 +1,6 @@
 import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only'
 import gtsNoArrayConstructor from './gts-no-array-constructor'
+import gtsNoImportExportType from './gts-no-import-export-type'
 import gtsNoPrivateFields from './gts-no-private-fields'
 import gtsNoPublicModifier from './gts-no-public-modifier'
 import gtsParameterProperties from './gts-parameter-properties'
@@ -10,6 +11,7 @@ import noFloatingVoids from './no-floating-results'
 export default {
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
   'gts-no-array-constructor': gtsNoArrayConstructor,
+  'gts-no-import-export-type': gtsNoImportExportType,
   'gts-no-private-fields': gtsNoPrivateFields,
   'gts-no-public-modifier': gtsNoPublicModifier,
   'gts-parameter-properties': gtsParameterProperties,

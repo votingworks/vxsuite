@@ -5,8 +5,8 @@ import {
   ElectionDefinition,
   Precinct,
   safeParseElectionDefinition,
+  BallotLocales,
 } from '@votingworks/types'
-import type { BallotLocales } from '@votingworks/types'
 import 'fast-text-encoding'
 import { Entry, fromBuffer, ZipFile } from 'yauzl'
 

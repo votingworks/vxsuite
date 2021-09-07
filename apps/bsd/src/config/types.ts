@@ -1,9 +1,5 @@
-import type { BallotPageLayout } from '@votingworks/hmpb-interpreter'
-import type {
-  Dictionary,
-  ElectionDefinition,
-  MarkInfo,
-} from '@votingworks/types'
+import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
+import { Dictionary, ElectionDefinition, MarkInfo } from '@votingworks/types'
 
 export interface MachineConfig {
   machineId: string

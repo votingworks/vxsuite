@@ -1,4 +1,4 @@
-import type { AdjudicationReasonInfo, Dictionary } from '@votingworks/types'
+import { AdjudicationReasonInfo, Dictionary } from '@votingworks/types'
 
 export enum BallotState {
   IDLE = 'idle',
