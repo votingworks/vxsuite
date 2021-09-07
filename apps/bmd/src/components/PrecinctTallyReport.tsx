@@ -92,9 +92,17 @@ const PrecinctTallyReport = ({
         const isContestInPrecinct = precinctContestIds.includes(contest.id)
         const candidateContest =
           contest.type === 'candidate' ? contest : undefined
+        const candidateTally =
+          candidateContest &&
+          (tally[contestIndex] as SerializedCandidateVoteTally)
         const yesnoContest = contest.type === 'yesno' ? contest : undefined
+        const yesnoTally =
+          yesnoContest && (tally[contestIndex] as SerializedYesNoVoteTally)
         const eitherNeitherContest =
           contest.type === 'ms-either-neither' ? contest : undefined
+        const eitherNeitherTally =
+          eitherNeitherContest &&
+          (tally[contestIndex] as SerializedMsEitherNeitherTally)
         return (
           <Contest key={contest.id}>
             <Prose>
@@ -103,19 +111,13 @@ const PrecinctTallyReport = ({
               </h2>
               <Table>
                 <tbody>
-                  {eitherNeitherContest && (
+                  {eitherNeitherContest && eitherNeitherTally && (
                     <React.Fragment>
                       <tr>
                         <td>{eitherNeitherContest.eitherOption.label}</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                (tally[
-                                  contestIndex
-                                ] as SerializedMsEitherNeitherTally)
-                                  .eitherOption
-                              )
+                            ? numberWithCommas(eitherNeitherTally.eitherOption)
                             : /* istanbul ignore next */
                               'X'}
                         </TD>
@@ -126,11 +128,7 @@ const PrecinctTallyReport = ({
                           {
                             /* istanbul ignore else */ isContestInPrecinct
                               ? numberWithCommas(
-                                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                  (tally[
-                                    contestIndex
-                                  ] as SerializedMsEitherNeitherTally)
-                                    .neitherOption
+                                  eitherNeitherTally.neitherOption
                                 )
                               : /* istanbul ignore next */
                                 'X'
@@ -141,12 +139,7 @@ const PrecinctTallyReport = ({
                         <td>{eitherNeitherContest.firstOption.label}</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                (tally[
-                                  contestIndex
-                                ] as SerializedMsEitherNeitherTally).firstOption
-                              )
+                            ? numberWithCommas(eitherNeitherTally.firstOption)
                             : /* istanbul ignore next */
                               'X'}
                         </TD>
@@ -155,50 +148,35 @@ const PrecinctTallyReport = ({
                         <td>{eitherNeitherContest.secondOption.label}</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                (tally[
-                                  contestIndex
-                                ] as SerializedMsEitherNeitherTally)
-                                  .secondOption
-                              )
+                            ? numberWithCommas(eitherNeitherTally.secondOption)
                             : /* istanbul ignore next */
                               'X'}
                         </TD>
                       </tr>
                     </React.Fragment>
                   )}
-                  {candidateContest?.candidates.map(
-                    (candidate, candidateIndex) => (
-                      <tr key={candidate.id}>
-                        <td>{candidate.name}</td>
-                        <TD narrow textAlign="right">
-                          {isContestInPrecinct
-                            ? numberWithCommas(
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                (tally[
-                                  contestIndex
-                                ] as SerializedCandidateVoteTally).candidates[
-                                  candidateIndex
-                                ]
-                              )
-                            : 'X'}
-                        </TD>
-                      </tr>
-                    )
-                  )}
-                  {yesnoContest && (
+                  {candidateTally &&
+                    candidateContest?.candidates.map(
+                      (candidate, candidateIndex) => (
+                        <tr key={candidate.id}>
+                          <td>{candidate.name}</td>
+                          <TD narrow textAlign="right">
+                            {isContestInPrecinct
+                              ? numberWithCommas(
+                                  candidateTally.candidates[candidateIndex]
+                                )
+                              : 'X'}
+                          </TD>
+                        </tr>
+                      )
+                    )}
+                  {yesnoContest && yesnoTally && (
                     <React.Fragment>
                       <tr>
                         <td>Yes</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                (tally[
-                                  contestIndex
-                                ] as SerializedYesNoVoteTally).yes
-                              )
+                            ? numberWithCommas(yesnoTally.yes)
                             : 'X'}
                         </TD>
                       </tr>
@@ -206,12 +184,7 @@ const PrecinctTallyReport = ({
                         <td>No</td>
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
-                            ? numberWithCommas(
-                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-                                (tally[
-                                  contestIndex
-                                ] as SerializedYesNoVoteTally).no
-                              )
+                            ? numberWithCommas(yesnoTally.no)
                             : 'X'}
                         </TD>
                       </tr>
