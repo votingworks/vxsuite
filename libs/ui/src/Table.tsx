@@ -1,13 +1,13 @@
 import styled from 'styled-components'
 
-interface Props {
+interface TableProps {
   borderTop?: boolean
   condensed?: boolean
 }
 
 const borderColor = 'rgb(194, 200, 203)'
 
-export const Table = styled.table<Props>`
+export const Table = styled.table<TableProps>`
   border-top: ${({ borderTop = false }) =>
     borderTop ? '1px solid' : undefined};
   border-color: ${borderColor};

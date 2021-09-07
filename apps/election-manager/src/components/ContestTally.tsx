@@ -10,11 +10,11 @@ import {
 import pluralize from 'pluralize'
 
 import { strict as assert } from 'assert'
+import { Table, TD } from '@votingworks/ui'
 import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'
-import Table, { TD } from './Table'
 import { getContestOptionsForContest } from '../utils/election'
 import { getTallyForContestOption } from '../lib/votecounting'
 import { combineContestTallies } from '../utils/externalTallies'

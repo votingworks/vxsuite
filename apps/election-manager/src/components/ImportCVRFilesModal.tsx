@@ -10,6 +10,7 @@ import {
   usbstick,
 } from '@votingworks/utils'
 import { strict as assert } from 'assert'
+import { Table, TD } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 import Modal from './Modal'
 import Prose from './Prose'
@@ -17,7 +18,6 @@ import LinkButton from './LinkButton'
 import Loading from './Loading'
 import { InputEventFunction } from '../config/types'
 import FileInputButton from './FileInputButton'
-import Table, { TD } from './Table'
 import { MainChild } from './Main'
 import { CHECK_ICON, TIME_FORMAT } from '../config/globals'
 
