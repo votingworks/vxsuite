@@ -1,5 +1,9 @@
-import { Corners, Rect, TargetShape } from '@votingworks/types'
-import { BallotPageContestLayout } from '../types'
+import {
+  BallotPageContestLayout,
+  Corners,
+  Rect,
+  TargetShape,
+} from '@votingworks/types'
 
 /**
  * Finds contest choice areas based on the contest box bounds and the contest

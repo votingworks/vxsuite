@@ -49,6 +49,7 @@ beforeEach(async () => {
     [
       {
         ballotImage: {
+          imageData: { width: 1, height: 1 },
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: '',
@@ -63,6 +64,7 @@ beforeEach(async () => {
       },
       {
         ballotImage: {
+          imageData: { width: 1, height: 1 },
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: '',
@@ -602,6 +604,8 @@ test('get next sheet', async () => {
             interpretation: { type: 'BlankPage' },
           },
         },
+        layouts: {},
+        definitions: {},
       })
     )
 })

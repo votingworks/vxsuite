@@ -2,12 +2,11 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import { strict as assert } from 'assert'
-import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
 import {
   AnyContest,
   BallotMark,
   BallotMetadata,
+  BallotPageMetadata,
   BallotSheetInfo,
   BallotTargetMark,
   ElectionDefinition,
@@ -20,11 +19,13 @@ import {
   PageInterpretation,
   Precinct,
   safeParseJSON,
+  SerializableBallotPageLayout,
 } from '@votingworks/types'
 import {
   AdjudicationStatus,
   BatchInfo,
 } from '@votingworks/types/api/module-scan'
+import { strict as assert } from 'assert'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { promises as fs } from 'fs'
@@ -40,7 +41,6 @@ import { sheetRequiresAdjudication } from './interpreter'
 import {
   isMarginalMark,
   PageInterpretationWithFiles,
-  SerializableBallotPageLayout,
   SheetOf,
   Side,
 } from './types'
@@ -1055,6 +1055,7 @@ export default class Store {
         layouts.map((layout, i) => ({
           ...layout,
           ballotImage: {
+            ...layout.ballotImage,
             metadata: {
               ...metadata,
               pageNumber: i + 1,

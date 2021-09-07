@@ -1,5 +1,9 @@
-import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
-import { Dictionary, ElectionDefinition, MarkInfo } from '@votingworks/types'
+import {
+  Dictionary,
+  ElectionDefinition,
+  MarkInfo,
+  SerializableBallotPageLayout,
+} from '@votingworks/types'
 
 export interface MachineConfig {
   machineId: string
@@ -48,11 +52,4 @@ export interface HmpbBallotInfo {
 export interface UnreadableBallotInfo {
   id: number
   filename: string
-}
-
-export type SerializableBallotPageLayout = Omit<
-  BallotPageLayout,
-  'ballotImage'
-> & {
-  ballotImage: Omit<BallotPageLayout['ballotImage'], 'imageData'>
 }

@@ -100,6 +100,8 @@ test('can fetch the next ballot sheet needing review', async () => {
         interpretation: { type: 'UnreadablePage' },
       },
     },
+    layouts: {},
+    definitions: {},
   }
   fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
     status: 200,

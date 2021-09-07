@@ -1,6 +1,3 @@
-/* eslint-disable */
-// import debug from 'debug'
-// debug.enable('precinct-scanner:*')
 import React from 'react'
 import fetchMock from 'fetch-mock'
 import { promises as fs } from 'fs'
@@ -632,6 +629,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   await advanceTimersAndPromises(1)
@@ -862,6 +861,8 @@ test('voter can cast a rejected ballot', async () => {
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   await advanceTimersAndPromises(1)
@@ -1001,6 +1002,8 @@ test('voter can cast another ballot while the success screen is showing', async 
               image: { url: '/not/real.jpg' },
             },
           },
+          layouts: {},
+          definitions: {},
         }),
         { overwriteRoutes: true }
       )

@@ -8,8 +8,13 @@ import {
   OkResponseSchema,
 } from '.'
 import {
+  SerializableBallotPageLayout,
+  SerializableBallotPageLayoutSchema,
+} from '../ballotPageLayout'
+import {
   BallotSheetInfo,
   BallotSheetInfoSchema,
+  Contest,
   ElectionDefinition,
   ElectionDefinitionSchema,
   MarkThresholds,
@@ -570,6 +575,18 @@ export const CalibrateResponseSchema: z.ZodSchema<CalibrateResponse> = z.union([
  */
 export interface GetNextReviewSheetResponse {
   interpreted: BallotSheetInfo
+  layouts: {
+    front?: SerializableBallotPageLayout
+    back?: SerializableBallotPageLayout
+  }
+  definitions: {
+    front?: {
+      contestIds: readonly Contest['id'][]
+    }
+    back?: {
+      contestIds: readonly Contest['id'][]
+    }
+  }
 }
 
 /**
@@ -579,5 +596,13 @@ export interface GetNextReviewSheetResponse {
 export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetResponse> = z.object(
   {
     interpreted: BallotSheetInfoSchema,
+    layouts: z.object({
+      front: SerializableBallotPageLayoutSchema.optional(),
+      back: SerializableBallotPageLayoutSchema.optional(),
+    }),
+    definitions: z.object({
+      front: z.object({ contestIds: z.array(Id) }),
+      back: z.object({ contestIds: z.array(Id) }),
+    }),
   }
 )

@@ -1,5 +1,4 @@
-import { BallotType } from '@votingworks/types'
-import { BallotPageLayout } from '../types'
+import { BallotType, BallotPageLayout } from '@votingworks/types'
 import { createImageData } from './canvas'
 import templateMap, { TemplateMapKey } from './templateMap'
 

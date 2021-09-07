@@ -262,6 +262,8 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   await advanceTimersAndPromises(1)
@@ -376,6 +378,8 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   await advanceTimersAndPromises(1)

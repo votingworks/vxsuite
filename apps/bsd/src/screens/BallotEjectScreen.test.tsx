@@ -23,6 +23,8 @@ test('says the sheet is unreadable if it is', async () => {
           interpretation: { type: 'BlankPage' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -106,6 +108,8 @@ test('says the ballot sheet is overvoted if it is', async () => {
           },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -196,6 +200,8 @@ test('says the ballot sheet is undervoted if it is', async () => {
           },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -279,6 +285,8 @@ test('says the ballot sheet is blank if it is', async () => {
           },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -342,6 +350,8 @@ test('calls out live ballot sheets in test mode', async () => {
           },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -398,6 +408,8 @@ test('calls out test ballot sheets in live mode', async () => {
           },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -436,6 +448,8 @@ test('shows invalid election screen when appropriate', async () => {
           interpretation: { type: 'BlankPage' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 
@@ -494,6 +508,8 @@ test('shows invalid election screen when appropriate', async () => {
           },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
 

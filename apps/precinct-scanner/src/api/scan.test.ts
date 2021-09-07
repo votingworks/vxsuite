@@ -132,6 +132,8 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   const result = await scan.scanDetectedSheet()
@@ -188,6 +190,8 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   const result = await scan.scanDetectedSheet()
@@ -237,6 +241,8 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   const result = await scan.scanDetectedSheet()
@@ -284,6 +290,8 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   const result = await scan.scanDetectedSheet()
@@ -333,6 +341,8 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
           image: { url: '/not/real.jpg' },
         },
       },
+      layouts: {},
+      definitions: {},
     })
   )
   const result = await scan.scanDetectedSheet()

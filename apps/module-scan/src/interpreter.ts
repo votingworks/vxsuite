@@ -10,14 +10,14 @@ import {
   ELECTION_HASH_LENGTH,
 } from '@votingworks/ballot-encoder'
 import {
-  BallotPageLayout,
-  BallotPageMetadata,
   DetectQRCodeResult,
   Interpreter as HMPBInterpreter,
   metadataFromBytes,
 } from '@votingworks/hmpb-interpreter'
 import {
   AdjudicationReason,
+  BallotPageLayout,
+  BallotPageMetadata,
   BallotType,
   Contests,
   Election,

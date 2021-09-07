@@ -1,8 +1,4 @@
-import {
-  AdjudicationReasonInfo,
-  BallotSheetInfo,
-  safeParseJSON,
-} from '@votingworks/types'
+import { AdjudicationReasonInfo, safeParseJSON } from '@votingworks/types'
 import {
   CalibrateResponseSchema,
   GetNextReviewSheetResponse,

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import { AdjudicationReason, Contest } from '@votingworks/types'
+import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan'
+import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-
-import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
 import { fetchNextBallotSheetToReview } from '../api/hmpb'
-
-import Main from '../components/Main'
-import Prose from '../components/Prose'
+import BallotSheetImage from '../components/BallotSheetImage'
 import Button from '../components/Button'
-import Text from '../components/Text'
+import Main from '../components/Main'
 import MainNav from '../components/MainNav'
+import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import StatusFooter from '../components/StatusFooter'
+import Text from '../components/Text'
 
 const EjectReason = styled.div`
   font-size: 3em;
@@ -48,6 +48,8 @@ const RectoVerso = styled.div`
   }
 `
 
+const HIGHLIGHTER_COLOR = '#fbff0066'
+
 interface Props {
   continueScanning: (override?: boolean) => void
   isTestMode: boolean
@@ -63,22 +65,32 @@ const BallotEjectScreen = ({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element => {
-  const [sheetInfo, setSheetInfo] = useState<BallotSheetInfo>()
-
+  const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>()
   const [ballotState, setBallotState] = useState<EjectState>()
 
   useEffect(() => {
     void (async () => {
-      setSheetInfo((await fetchNextBallotSheetToReview())?.interpreted)
+      setReviewInfo(await fetchNextBallotSheetToReview())
     })()
-  }, [setSheetInfo])
+  }, [])
 
-  if (!sheetInfo) {
+  const contestIdsWithIssues = new Set<Contest['id']>()
+
+  const styleForContest = useCallback(
+    (contestId: Contest['id']): React.CSSProperties =>
+      contestIdsWithIssues.has(contestId)
+        ? { backgroundColor: HIGHLIGHTER_COLOR }
+        : {},
+    [contestIdsWithIssues]
+  )
+
+  if (!reviewInfo) {
     return <React.Fragment />
   }
 
   let isOvervotedSheet = false
   let isUndervotedSheet = false
+  let isWriteInSheet = false
   let isBlankSheet = false
   let isUnreadableSheet = false
   let isInvalidTestModeSheet = false
@@ -87,7 +99,10 @@ const BallotEjectScreen = ({
 
   let actualElectionHash: string | undefined
 
-  for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
+  for (const { interpretation } of [
+    reviewInfo.interpreted.front,
+    reviewInfo.interpreted.back,
+  ]) {
     if (interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true
     } else if (interpretation.type === 'InvalidElectionHashPage') {
@@ -97,13 +112,27 @@ const BallotEjectScreen = ({
       isInvalidPrecinctSheet = true
     } else if (interpretation.type === 'InterpretedHmpbPage') {
       if (interpretation.adjudicationInfo.requiresAdjudication) {
-        for (const { type } of interpretation.adjudicationInfo.allReasonInfos) {
-          if (interpretation.adjudicationInfo.enabledReasons.includes(type)) {
-            if (type === AdjudicationReason.Overvote) {
+        for (const adjudicationReason of interpretation.adjudicationInfo
+          .allReasonInfos) {
+          if (
+            interpretation.adjudicationInfo.enabledReasons.includes(
+              adjudicationReason.type
+            )
+          ) {
+            if (adjudicationReason.type === AdjudicationReason.Overvote) {
               isOvervotedSheet = true
-            } else if (type === AdjudicationReason.Undervote) {
+              contestIdsWithIssues.add(adjudicationReason.contestId)
+            } else if (
+              adjudicationReason.type === AdjudicationReason.Undervote
+            ) {
               isUndervotedSheet = true
-            } else if (type === AdjudicationReason.BlankBallot) {
+              contestIdsWithIssues.add(adjudicationReason.contestId)
+            } else if (adjudicationReason.type === AdjudicationReason.WriteIn) {
+              isWriteInSheet = true
+              contestIdsWithIssues.add(adjudicationReason.contestId)
+            } else if (
+              adjudicationReason.type === AdjudicationReason.BlankBallot
+            ) {
               isBlankSheet = true
             }
           }
@@ -155,6 +184,8 @@ const BallotEjectScreen = ({
                 ? 'Wrong Precinct'
                 : isUnreadableSheet
                 ? 'Unreadable'
+                : isWriteInSheet
+                ? 'Write-In'
                 : isOvervotedSheet
                 ? 'Overvote'
                 : isUndervotedSheet
@@ -182,7 +213,13 @@ const BallotEjectScreen = ({
                 </p>
                 <h4>Duplicate Ballot Scan</h4>
                 <p>
-                  {isOvervotedSheet ? (
+                  {isWriteInSheet ? (
+                    <React.Fragment>
+                      Confirm ballot sheet was reviewed by the Resolution Board
+                      and tabulate as ballot sheet with a{' '}
+                      <strong>write-in</strong>.
+                    </React.Fragment>
+                  ) : isOvervotedSheet ? (
                     <React.Fragment>
                       Confirm ballot sheet was reviewed by the Resolution Board
                       and tabulate as ballot sheet with an{' '}
@@ -248,12 +285,18 @@ const BallotEjectScreen = ({
             )}
           </Prose>
           <RectoVerso>
-            <div>
-              <img src={sheetInfo.front.image.url} alt="front" />
-            </div>
-            <div>
-              <img src={sheetInfo.back.image.url} alt="back" />
-            </div>
+            <BallotSheetImage
+              imageURL={reviewInfo.interpreted.front.image.url}
+              layout={reviewInfo.layouts.front}
+              contestIds={reviewInfo.definitions.front?.contestIds}
+              styleForContest={styleForContest}
+            />
+            <BallotSheetImage
+              imageURL={reviewInfo.interpreted.back.image.url}
+              layout={reviewInfo.layouts.back}
+              contestIds={reviewInfo.definitions.back?.contestIds}
+              styleForContest={styleForContest}
+            />
           </RectoVerso>
         </MainChildColumns>
       </Main>

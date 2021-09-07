@@ -1,9 +1,6 @@
 import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
-import {
-  BallotPageMetadata,
-  metadataFromBytes,
-} from '@votingworks/hmpb-interpreter'
-import { Election } from '@votingworks/types'
+import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
+import { BallotPageMetadata, Election } from '@votingworks/types'
 import { BallotPageQrcode, SheetOf } from '../types'
 
 function tryMetadataFromBytes(
