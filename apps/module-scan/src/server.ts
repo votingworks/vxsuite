@@ -22,6 +22,7 @@ import {
   GetCurrentPrecinctConfigResponse,
   GetElectionConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
+  GetNextReviewSheetResponse,
   GetScanStatusResponse,
   GetTestModeConfigResponse,
   PatchElectionConfigRequest,
@@ -511,15 +512,20 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.get('/scan/hmpb/review/next-sheet', async (_request, response) => {
-    const sheet = await store.getNextAdjudicationSheet()
+  app.get<NoParams, GetNextReviewSheetResponse>(
+    '/scan/hmpb/review/next-sheet',
+    async (_request, response) => {
+      const sheet = await store.getNextAdjudicationSheet()
 
-    if (sheet) {
-      response.json(sheet)
-    } else {
-      response.status(404).end()
+      if (sheet) {
+        response.json({
+          interpreted: sheet,
+        })
+      } else {
+        response.status(404).end()
+      }
     }
-  })
+  )
 
   app.post<NoParams, ZeroResponse, ZeroRequest>(
     '/scan/zero',

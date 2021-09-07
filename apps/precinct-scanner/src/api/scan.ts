@@ -5,6 +5,7 @@ import {
 } from '@votingworks/types'
 import {
   CalibrateResponseSchema,
+  GetNextReviewSheetResponse,
   GetScanStatusResponse,
   ScanContinueRequest,
   ScannerStatus,
@@ -73,11 +74,14 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 
     const adjudicationReasons: AdjudicationReasonInfo[] = []
     if (status.adjudication.remaining > 0) {
-      const sheetInfo = await fetchJSON<BallotSheetInfo>(
+      const sheetInfo = await fetchJSON<GetNextReviewSheetResponse>(
         '/scan/hmpb/review/next-sheet'
       )
 
-      for (const { interpretation } of [sheetInfo.front, sheetInfo.back]) {
+      for (const { interpretation } of [
+        sheetInfo.interpreted.front,
+        sheetInfo.interpreted.back,
+      ]) {
         if (interpretation.type === 'InvalidTestModePage') {
           return {
             resultType: ScanningResultType.Rejected,

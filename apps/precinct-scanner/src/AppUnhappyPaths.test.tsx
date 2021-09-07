@@ -9,9 +9,10 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils'
-import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
+import { AdjudicationReason } from '@votingworks/types'
 import {
   GetCurrentPrecinctConfigResponse,
+  GetNextReviewSheetResponse,
   GetScanStatusResponse,
   GetTestModeConfigResponse,
   ScannerStatus,
@@ -242,22 +243,24 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   )
   fetchMock.get(
     '/scan/hmpb/review/next-sheet',
-    typedAs<BallotSheetInfo>({
-      id: 'test-sheet',
-      front: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 1,
-          adjudicationReason: AdjudicationReason.Overvote,
-        }),
-        image: { url: '/not/real.jpg' },
-      },
-      back: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 2,
-        }),
-        image: { url: '/not/real.jpg' },
+    typedAs<GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'test-sheet',
+        front: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 1,
+            adjudicationReason: AdjudicationReason.Overvote,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
+        back: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 2,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
       },
     })
   )
@@ -354,22 +357,24 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
   )
   fetchMock.get(
     '/scan/hmpb/review/next-sheet',
-    typedAs<BallotSheetInfo>({
-      id: 'test-sheet',
-      front: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 1,
-          adjudicationReason: AdjudicationReason.Overvote,
-        }),
-        image: { url: '/not/real.jpg' },
-      },
-      back: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 2,
-        }),
-        image: { url: '/not/real.jpg' },
+    typedAs<GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'test-sheet',
+        front: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 1,
+            adjudicationReason: AdjudicationReason.Overvote,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
+        back: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 2,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
       },
     })
   )

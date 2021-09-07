@@ -69,7 +69,7 @@ const BallotEjectScreen = ({
 
   useEffect(() => {
     void (async () => {
-      setSheetInfo(await fetchNextBallotSheetToReview())
+      setSheetInfo((await fetchNextBallotSheetToReview())?.interpreted)
     })()
   }, [setSheetInfo])
 

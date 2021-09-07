@@ -8,6 +8,8 @@ import {
   OkResponseSchema,
 } from '.'
 import {
+  BallotSheetInfo,
+  BallotSheetInfoSchema,
   ElectionDefinition,
   ElectionDefinitionSchema,
   MarkThresholds,
@@ -561,3 +563,21 @@ export const CalibrateResponseSchema: z.ZodSchema<CalibrateResponse> = z.union([
   OkResponseSchema,
   ErrorsResponseSchema,
 ])
+
+/**
+ * @url /scan/hmpb/review/next-sheet
+ * @method GET
+ */
+export interface GetNextReviewSheetResponse {
+  interpreted: BallotSheetInfo
+}
+
+/**
+ * @url /scan/hmpb/review/next-sheet
+ * @method GET
+ */
+export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetResponse> = z.object(
+  {
+    interpreted: BallotSheetInfoSchema,
+  }
+)
