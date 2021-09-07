@@ -2,13 +2,14 @@ import {
   electionMultiPartyPrimaryWithDataFiles,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures'
-import { CandidateContest, Election, YesNoContest } from '@votingworks/types'
 import {
-  CastVoteRecord,
+  CandidateContest,
+  Election,
+  YesNoContest,
   ContestTally,
-  ExportableTallies,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import { CastVoteRecord, ExportableTallies } from '../config/types'
 import { computeFullElectionTally, parseCVRs } from '../lib/votecounting'
 import { writeInCandidate } from './election'
 import {

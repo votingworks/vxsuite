@@ -14,7 +14,11 @@ import fetchMock from 'fetch-mock'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
 import { sleep, MemoryStorage } from '@votingworks/utils'
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
-import { ElectionDefinition } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  ExternalTallySourceType,
+  VotingMethod,
+} from '@votingworks/types'
 
 import {
   configuredAtStorageKey,
@@ -31,7 +35,7 @@ import fakeFileWriter from '../test/helpers/fakeFileWriter'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext'
 import hasTextAcrossElements from '../test/util/hasTextAcrossElements'
-import { ExternalTallySourceType, VotingMethod } from './config/types'
+
 import { convertSEMSFileToExternalTally } from './utils/semsTallies'
 import {
   convertExternalTalliesToStorageString,

@@ -3,16 +3,16 @@ import {
   Election,
   getContests,
   expandEitherNeitherContests,
-} from '@votingworks/types'
-import {
   ContestTally,
-  ExportableContestTally,
-  ExportableTallies,
-  ExportableTally,
   ExternalTally,
   FullElectionExternalTally,
   FullElectionTally,
   TallyCategory,
+} from '@votingworks/types'
+import {
+  ExportableContestTally,
+  ExportableTallies,
+  ExportableTally,
 } from '../config/types'
 
 export function getEmptyExportableTallies(): ExportableTallies {

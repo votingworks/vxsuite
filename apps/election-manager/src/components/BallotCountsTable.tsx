@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { throwIllegalValue, format } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import { Table, TD } from '@votingworks/ui'
-import { BatchTally, TallyCategory, VotingMethod } from '../config/types'
+import { BatchTally, TallyCategory, VotingMethod } from '@votingworks/types'
 
 import { getPartiesWithPrimaryElections } from '../utils/election'
 

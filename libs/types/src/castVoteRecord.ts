@@ -9,6 +9,8 @@ export interface CastVoteRecord
   readonly _ballotId: string
   readonly _ballotStyleId: string
   readonly _ballotType: 'absentee' | 'provisional' | 'standard'
+  readonly _batchId: string
+  readonly _batchLabel: string
   readonly _testBallot: boolean
   readonly _scannerId: string
   readonly _pageNumber?: number

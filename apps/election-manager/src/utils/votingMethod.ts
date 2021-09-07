@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/utils'
-import { VotingMethod } from '../config/types'
+import { VotingMethod } from '@votingworks/types'
 
 export function getLabelForVotingMethod(votingMethod: VotingMethod): string {
   switch (votingMethod) {

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
 import { find } from '@votingworks/utils'
+import { ExternalTally, VotingMethod } from '@votingworks/types'
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
@@ -15,8 +16,6 @@ import {
   PartyReportScreenProps,
   BatchReportScreenProps,
   VotingMethodReportScreenProps,
-  VotingMethod,
-  ExternalTally,
 } from '../config/types'
 import AppContext from '../contexts/AppContext'
 

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 
 import { format } from '@votingworks/utils'
 import { strict as assert } from 'assert'
-import { VotingMethod } from '../config/types'
+import { VotingMethod } from '@votingworks/types'
 import AppContext from '../contexts/AppContext'
 import readFileAsync from '../lib/readFileAsync'
 import {

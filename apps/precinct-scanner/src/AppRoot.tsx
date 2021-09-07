@@ -10,6 +10,7 @@ import {
   AdjudicationReasonInfo,
   OptionalElectionDefinition,
   Provider,
+  CastVoteRecord,
 } from '@votingworks/types'
 import {
   Smartcard,
@@ -33,7 +34,6 @@ import {
   BallotState,
   ScanningResultType,
   RejectedScanningReason,
-  CastVoteRecord,
   MachineConfig,
 } from './config/types'
 import {

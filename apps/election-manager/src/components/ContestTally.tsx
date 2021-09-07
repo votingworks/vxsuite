@@ -6,12 +6,14 @@ import {
   YesNoContest,
   AnyContest,
   expandEitherNeitherContests,
+  ExternalTally,
+  Tally,
+  YesNoContestOptionTally,
 } from '@votingworks/types'
+import { Table, TD } from '@votingworks/ui'
 import pluralize from 'pluralize'
 
 import { strict as assert } from 'assert'
-import { Table, TD } from '@votingworks/ui'
-import { ExternalTally, Tally, YesNoContestOptionTally } from '../config/types'
 
 import Prose from './Prose'
 import Text, { NoWrap } from './Text'

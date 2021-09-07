@@ -1,11 +1,10 @@
-import { Election } from '@votingworks/types'
+import { Election, CastVoteRecord } from '@votingworks/types'
 import {
   buildVoteFromCvr,
   SerializedTally,
   getZeroTally,
   calculateTally,
 } from '@votingworks/utils'
-import { CastVoteRecord } from '../config/types'
 
 // TODO build this incrementally vote by vote rather than calculating all at once.
 export function calculateTallyFromCVRs(

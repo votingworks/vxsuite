@@ -5,7 +5,12 @@ import { sha256 } from 'js-sha256'
 import { render as testRender, RenderResult } from '@testing-library/react'
 
 import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures'
-import { Election, ElectionDefinition } from '@votingworks/types'
+import {
+  Election,
+  ElectionDefinition,
+  FullElectionTally,
+  FullElectionExternalTally,
+} from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 
 import AppContext from '../src/contexts/AppContext'
@@ -13,9 +18,7 @@ import {
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,
-  FullElectionTally,
   ExportableTallies,
-  FullElectionExternalTally,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,

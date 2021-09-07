@@ -14,23 +14,21 @@ import {
   Dictionary,
   expandEitherNeitherContests,
   Optional,
-} from '@votingworks/types'
-import { strict as assert } from 'assert'
-import { find, throwIllegalValue, typedAs } from '@votingworks/utils'
-import {
-  ContestOptionTally,
-  CastVoteRecord,
-  CastVoteRecordLists,
   Tally,
   ContestTally,
   ContestTallyMetaDictionary,
   FullElectionTally,
   TallyCategory,
-  YesNoOption,
-  ContestOption,
+  YesNoVoteOption,
+  ContestVoteOption,
   VotingMethod,
   BatchTally,
-} from '../config/types'
+  ContestOptionTally,
+} from '@votingworks/types'
+import { strict as assert } from 'assert'
+import { find, throwIllegalValue, typedAs } from '@votingworks/utils'
+import { CastVoteRecord, CastVoteRecordLists } from '../config/types'
+
 import { writeInCandidate, getDistrictIdsForPartyId } from '../utils/election'
 
 const MISSING_BATCH_ID = 'missing-batch-id'
@@ -282,7 +280,7 @@ const buildVoteFromCvr = ({
 }
 
 export function getTallyForContestOption(
-  option: ContestOption,
+  option: ContestVoteOption,
   tallies: Dictionary<ContestOptionTally>,
   contest: Contest
 ): ContestOptionTally {
@@ -290,7 +288,7 @@ export function getTallyForContestOption(
     case 'candidate':
       return tallies[(option as Candidate).id] as ContestOptionTally
     case 'yesno': {
-      const yesnooption = option as YesNoOption
+      const yesnooption = option as YesNoVoteOption
       assert(yesnooption.length === 1)
       return tallies[yesnooption[0]] as ContestOptionTally
     }
@@ -325,8 +323,8 @@ export function tallyVotesByContest({
     ) {
       const tallies: Dictionary<ContestOptionTally> = {}
       if (contest.type === 'yesno') {
-        ;[['yes'] as YesNoOption, ['no'] as YesNoOption].forEach(
-          (option: YesNoOption) => {
+        ;[['yes'] as YesNoVoteOption, ['no'] as YesNoVoteOption].forEach(
+          (option: YesNoVoteOption) => {
             if (option.length === 1) {
               tallies[option[0]] = { option, tally: 0 }
             }

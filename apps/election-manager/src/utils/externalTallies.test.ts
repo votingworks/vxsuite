@@ -9,11 +9,6 @@ import {
   Election,
   YesNoContest,
   expandEitherNeitherContests,
-} from '@votingworks/types'
-import { typedAs } from '@votingworks/utils'
-import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
-
-import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
@@ -21,7 +16,10 @@ import {
   FullElectionExternalTally,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import { typedAs } from '@votingworks/utils'
+import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
+
 import {
   combineContestTallies,
   convertExternalTalliesToStorageString,

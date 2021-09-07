@@ -3,11 +3,6 @@ import {
   Election,
   getContests,
   expandEitherNeitherContests,
-} from '@votingworks/types'
-import { throwIllegalValue } from '@votingworks/utils'
-
-import { strict as assert } from 'assert'
-import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
@@ -17,7 +12,11 @@ import {
   OptionalFullElectionExternalTally,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import { throwIllegalValue } from '@votingworks/utils'
+
+import { strict as assert } from 'assert'
+
 import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,

@@ -6,10 +6,10 @@ import styled from 'styled-components'
 import { Table, TD } from '@votingworks/ui'
 import {
   ExternalTallySourceType,
-  ResultsFileType,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import { ResultsFileType } from '../config/types'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'

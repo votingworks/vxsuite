@@ -1,7 +1,13 @@
 import { strict as assert } from 'assert'
 import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getPrecinctById, Precinct, VotesDict } from '@votingworks/types'
+import {
+  getPrecinctById,
+  Precinct,
+  VotesDict,
+  Tally,
+  VotingMethod,
+} from '@votingworks/types'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
@@ -15,7 +21,7 @@ import Button from '../components/Button'
 import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps, Tally, VotingMethod } from '../config/types'
+import { PrecinctReportScreenProps } from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
 import {

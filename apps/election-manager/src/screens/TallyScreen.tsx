@@ -14,12 +14,8 @@ import {
   find,
 } from '@votingworks/utils'
 import { Table, TD } from '@votingworks/ui'
-import {
-  TallyCategory,
-  InputEventFunction,
-  ResultsFileType,
-  ExternalTallySourceType,
-} from '../config/types'
+import { TallyCategory, ExternalTallySourceType } from '@votingworks/types'
+import { InputEventFunction, ResultsFileType } from '../config/types'
 
 import AppContext from '../contexts/AppContext'
 import ConverterClient from '../lib/ConverterClient'

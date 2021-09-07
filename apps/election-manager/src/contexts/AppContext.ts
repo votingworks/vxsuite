@@ -1,13 +1,15 @@
 import { createContext, RefObject } from 'react'
-import { ElectionDefinition } from '@votingworks/types'
+import {
+  ElectionDefinition,
+  FullElectionTally,
+  FullElectionExternalTally,
+} from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 import {
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,
-  FullElectionTally,
   ExportableTallies,
-  FullElectionExternalTally,
   ResultsFileType,
 } from '../config/types'
 import CastVoteRecordFiles, {

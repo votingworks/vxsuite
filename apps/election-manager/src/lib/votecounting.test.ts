@@ -1,4 +1,10 @@
-import { Election } from '@votingworks/types'
+import {
+  Election,
+  FullElectionTally,
+  Tally,
+  TallyCategory,
+  VotingMethod,
+} from '@votingworks/types'
 import {
   electionSample,
   electionSample2WithDataFiles,
@@ -14,13 +20,7 @@ import {
   filterTalliesByParams,
   filterTalliesByParamsAndBatchId,
 } from './votecounting'
-import {
-  CastVoteRecord,
-  FullElectionTally,
-  Tally,
-  TallyCategory,
-  VotingMethod,
-} from '../config/types'
+import { CastVoteRecord } from '../config/types'
 
 const electionSample2 = electionSample2WithDataFiles.electionDefinition.election
 

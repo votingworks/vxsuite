@@ -1,12 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Dictionary } from '@votingworks/types'
+import { Dictionary, VotingMethod } from '@votingworks/types'
 
 import { format } from '@votingworks/utils'
 import { Table, TD } from '@votingworks/ui'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
-import { VotingMethod } from '../config/types'
 
 const BallotSummary = styled.div`
   margin-bottom: 1em;

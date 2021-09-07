@@ -1,11 +1,11 @@
 import {
   BallotLocale,
   BallotStyle,
-  Candidate,
-  Contest,
+  ContestTallyMeta,
   Dictionary,
   Optional,
   Precinct,
+  VotingMethod,
 } from '@votingworks/types'
 import { BallotStyleData } from '@votingworks/utils'
 
@@ -79,78 +79,6 @@ export interface ManualDataPrecinctScreenProps {
 }
 
 // Tallies
-export type YesNoOption = ['yes'] | ['no'] | []
-export type ContestOption = Candidate | YesNoOption
-export interface YesNoContestOptionTally {
-  readonly option: YesNoOption
-  readonly tally: number
-}
-export interface ContestOptionTally {
-  readonly option: ContestOption
-  readonly tally: number
-}
-
-export interface ContestTally {
-  readonly contest: Contest
-  readonly tallies: Dictionary<ContestOptionTally>
-  readonly metadata: ContestTallyMeta
-}
-
-export interface ContestTallyMeta {
-  readonly overvotes: number
-  readonly undervotes: number
-  readonly ballots: number
-}
-export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
-
-export interface Tally {
-  readonly numberOfBallotsCounted: number
-  readonly castVoteRecords: Set<CastVoteRecord>
-  readonly contestTallies: Dictionary<ContestTally>
-  readonly ballotCountsByVotingMethod: Dictionary<number>
-}
-
-export interface BatchTally extends Tally {
-  readonly batchLabel: string
-  readonly scannerIds: string[]
-}
-
-export enum TallyCategory {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  Precinct = 'precinct',
-  Scanner = 'scanner',
-  Party = 'party',
-  VotingMethod = 'votingmethod',
-  Batch = 'batch',
-}
-
-export interface FullElectionTally {
-  readonly overallTally: Tally
-  readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>
-}
-
-export interface ExternalTally {
-  readonly contestTallies: Dictionary<ContestTally>
-  readonly numberOfBallotsCounted: number
-}
-
-export enum ExternalTallySourceType {
-  SEMS = 'sems',
-  Manual = 'manual-data',
-}
-
-export interface FullElectionExternalTally {
-  readonly overallTally: ExternalTally
-  readonly resultsByCategory: ReadonlyMap<
-    TallyCategory,
-    Dictionary<ExternalTally>
-  >
-  readonly votingMethod: VotingMethod
-  readonly source: ExternalTallySourceType
-  readonly inputSourceName: string
-  readonly timestampCreated: Date
-}
-
 export interface ExportableContestTally {
   readonly tallies: Dictionary<number>
   readonly metadata: ContestTallyMeta
@@ -165,10 +93,6 @@ export interface ExternalFileConfiguration {
   readonly votingMethod: VotingMethod
 }
 
-export type OptionalExternalTally = Optional<ExternalTally>
-export type OptionalFullElectionTally = Optional<FullElectionTally>
-export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>
-
 export enum ResultsFileType {
   CastVoteRecord = 'cvr',
   SEMS = 'sems',
@@ -176,13 +100,6 @@ export enum ResultsFileType {
   Manual = 'manual',
 }
 export type OptionalFile = Optional<File>
-
-// provisional ballot types are not yet supported.
-export const VotingMethod = {
-  ...PrintableBallotType,
-  Unknown: 'unknown',
-} as const
-export type VotingMethod = typeof VotingMethod[keyof typeof VotingMethod]
 
 // Cast Vote Records
 export interface CastVoteRecord
