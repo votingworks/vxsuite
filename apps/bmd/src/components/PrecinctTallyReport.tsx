@@ -3,10 +3,10 @@ import styled from 'styled-components'
 import { Election } from '@votingworks/types'
 import {
   find,
-  Tally,
-  CandidateVoteTally,
-  YesNoVoteTally,
-  MsEitherNeitherTally,
+  SerializedTally,
+  SerializedCandidateVoteTally,
+  SerializedYesNoVoteTally,
+  SerializedMsEitherNeitherTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
 
@@ -36,7 +36,7 @@ interface Props {
   currentDateTime: string
   election: Election
   isPollsOpen: boolean
-  tally: Tally
+  tally: SerializedTally
   precinctSelection: PrecinctSelection
   reportPurpose: string
 }
@@ -110,7 +110,9 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
+                                (tally[
+                                  contestIndex
+                                ] as SerializedMsEitherNeitherTally)
                                   .eitherOption
                               )
                             : /* istanbul ignore next */
@@ -123,7 +125,9 @@ const PrecinctTallyReport = ({
                           {
                             /* istanbul ignore else */ isContestInPrecinct
                               ? numberWithCommas(
-                                  (tally[contestIndex] as MsEitherNeitherTally)
+                                  (tally[
+                                    contestIndex
+                                  ] as SerializedMsEitherNeitherTally)
                                     .neitherOption
                                 )
                               : /* istanbul ignore next */
@@ -136,8 +140,9 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
-                                  .firstOption
+                                (tally[
+                                  contestIndex
+                                ] as SerializedMsEitherNeitherTally).firstOption
                               )
                             : /* istanbul ignore next */
                               'X'}
@@ -148,7 +153,9 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
+                                (tally[
+                                  contestIndex
+                                ] as SerializedMsEitherNeitherTally)
                                   .secondOption
                               )
                             : /* istanbul ignore next */
@@ -164,8 +171,11 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as CandidateVoteTally)
-                                  .candidates[candidateIndex]
+                                (tally[
+                                  contestIndex
+                                ] as SerializedCandidateVoteTally).candidates[
+                                  candidateIndex
+                                ]
                               )
                             : 'X'}
                         </TD>
@@ -179,7 +189,9 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as YesNoVoteTally).yes
+                                (tally[
+                                  contestIndex
+                                ] as SerializedYesNoVoteTally).yes
                               )
                             : 'X'}
                         </TD>
@@ -189,7 +201,9 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as YesNoVoteTally).no
+                                (tally[
+                                  contestIndex
+                                ] as SerializedYesNoVoteTally).no
                               )
                             : 'X'}
                         </TD>

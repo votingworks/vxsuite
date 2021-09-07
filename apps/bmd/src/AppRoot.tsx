@@ -35,7 +35,7 @@ import {
   isCardReader,
   getZeroTally,
   calculateTally,
-  Tally,
+  SerializedTally,
   CardTally,
   CardAPI,
   CardPresentAPI,
@@ -120,7 +120,7 @@ interface SharedState {
   electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
   isPollsOpen: boolean
-  tally: Tally
+  tally: SerializedTally
 }
 
 interface OtherState {
