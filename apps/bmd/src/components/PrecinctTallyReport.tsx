@@ -3,10 +3,10 @@ import styled from 'styled-components'
 import { Election } from '@votingworks/types'
 import {
   find,
-  Tally,
-  CandidateVoteTally,
-  YesNoVoteTally,
-  MsEitherNeitherTally,
+  SerializedTally,
+  SerializedCandidateVoteTally,
+  SerializedYesNoVoteTally,
+  SerializedMsEitherNeitherTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
 
@@ -36,7 +36,7 @@ interface Props {
   currentDateTime: string
   election: Election
   isPollsOpen: boolean
-  tally: Tally
+  tally: SerializedTally
   precinctSelection: PrecinctSelection
   reportPurpose: string
 }
@@ -110,7 +110,10 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
+                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                (tally[
+                                  contestIndex
+                                ] as SerializedMsEitherNeitherTally)
                                   .eitherOption
                               )
                             : /* istanbul ignore next */
@@ -123,7 +126,10 @@ const PrecinctTallyReport = ({
                           {
                             /* istanbul ignore else */ isContestInPrecinct
                               ? numberWithCommas(
-                                  (tally[contestIndex] as MsEitherNeitherTally)
+                                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                  (tally[
+                                    contestIndex
+                                  ] as SerializedMsEitherNeitherTally)
                                     .neitherOption
                                 )
                               : /* istanbul ignore next */
@@ -136,8 +142,10 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
-                                  .firstOption
+                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                (tally[
+                                  contestIndex
+                                ] as SerializedMsEitherNeitherTally).firstOption
                               )
                             : /* istanbul ignore next */
                               'X'}
@@ -148,7 +156,10 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as MsEitherNeitherTally)
+                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                (tally[
+                                  contestIndex
+                                ] as SerializedMsEitherNeitherTally)
                                   .secondOption
                               )
                             : /* istanbul ignore next */
@@ -164,8 +175,12 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as CandidateVoteTally)
-                                  .candidates[candidateIndex]
+                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                (tally[
+                                  contestIndex
+                                ] as SerializedCandidateVoteTally).candidates[
+                                  candidateIndex
+                                ]
                               )
                             : 'X'}
                         </TD>
@@ -179,7 +194,10 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as YesNoVoteTally).yes
+                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                (tally[
+                                  contestIndex
+                                ] as SerializedYesNoVoteTally).yes
                               )
                             : 'X'}
                         </TD>
@@ -189,7 +207,10 @@ const PrecinctTallyReport = ({
                         <TD narrow textAlign="right">
                           {isContestInPrecinct
                             ? numberWithCommas(
-                                (tally[contestIndex] as YesNoVoteTally).no
+                                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                                (tally[
+                                  contestIndex
+                                ] as SerializedYesNoVoteTally).no
                               )
                             : 'X'}
                         </TD>

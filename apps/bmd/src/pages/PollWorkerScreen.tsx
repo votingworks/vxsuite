@@ -14,7 +14,7 @@ import {
 
 import {
   formatFullDateTimeZone,
-  Tally,
+  SerializedTally,
   CardTally,
   TallySourceMachineType,
   combineTallies,
@@ -58,7 +58,7 @@ interface Props {
   isPollsOpen: boolean
   machineConfig: MachineConfig
   printer: Printer
-  tally: Tally
+  tally: SerializedTally
   togglePollsOpen: () => void
   saveTallyToCard: (cardTally: CardTally) => Promise<void>
   talliesOnCard: Optional<CardTally>
