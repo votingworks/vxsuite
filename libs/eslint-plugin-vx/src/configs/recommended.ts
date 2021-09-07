@@ -52,6 +52,8 @@ export = {
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
+    // be stricter than eslint-config-airbnb which allows `== null`
+    eqeqeq: ['error', 'always'],
     'import/extensions': 'off',
     'import/no-cycle': 'off',
     'import/no-extraneous-dependencies': [
