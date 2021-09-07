@@ -267,3 +267,10 @@ export interface Hardware {
    */
   printers: Observable<Iterable<KioskBrowser.PrinterInfo>>
 }
+
+export interface PrintOptions extends KioskBrowser.PrintOptions {
+  sides: Exclude<KioskBrowser.PrintOptions['sides'], undefined>
+}
+export interface Printer {
+  print(options: PrintOptions): Promise<void>
+}

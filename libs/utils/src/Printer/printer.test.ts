@@ -1,5 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils'
-import getPrinter, { LocalPrinter, NullPrinter } from './printer'
+import { getPrinter, LocalPrinter, NullPrinter } from '.'
 
 test('`getPrinter` makes a kiosk printer if kiosk printing is available', async () => {
   try {

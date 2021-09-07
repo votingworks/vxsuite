@@ -1,6 +1,6 @@
 import { createContext, RefObject } from 'react'
 import { ElectionDefinition } from '@votingworks/types'
-import { usbstick } from '@votingworks/utils'
+import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 import {
   SaveElection,
   PrintedBallot,
@@ -15,7 +15,6 @@ import CastVoteRecordFiles, {
 } from '../utils/CastVoteRecordFiles'
 import { getEmptyFullElectionTally } from '../lib/votecounting'
 import { getEmptyExportableTallies } from '../utils/exportableTallies'
-import { NullPrinter, Printer } from '../utils/printer'
 
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles

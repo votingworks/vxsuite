@@ -1,7 +1,7 @@
 import makeDebug from 'debug'
-import { Printer, PrintOptions } from '../../config/types'
+import { Printer, PrintOptions } from '../types'
 
-const debug = makeDebug('election-manager:printer')
+const debug = makeDebug('utils:printer')
 
 export default class LocalPrinter implements Printer {
   public async print(options: PrintOptions): Promise<void> {

@@ -8,6 +8,7 @@ import {
   WebServiceCard,
   LocalStorage,
   getHardware,
+  getPrinter,
   isAccessibleController,
 } from '@votingworks/utils'
 import memoize from './utils/memoize'
@@ -17,7 +18,6 @@ import {
   SpeechSynthesisTextToSpeech,
 } from './utils/ScreenReader'
 import { getUSEnglishVoice } from './utils/voices'
-import getPrinter from './utils/printer'
 
 import AppRoot, { Props as AppRootProps } from './AppRoot'
 import FocusManager from './components/FocusManager'

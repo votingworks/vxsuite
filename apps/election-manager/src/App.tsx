@@ -3,10 +3,9 @@ import { BrowserRouter, Route } from 'react-router-dom'
 
 import './App.css'
 
-import { LocalStorage, KioskStorage } from '@votingworks/utils'
+import { LocalStorage, KioskStorage, getPrinter } from '@votingworks/utils'
 
 import AppRoot, { Props as AppRootProps } from './AppRoot'
-import getPrinter from './utils/printer'
 
 export interface Props {
   storage?: AppRootProps['storage']
