@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Table as table tag 1`] = `
+<table
+  class="sc-bdvvaa NPNLJ"
+/>
+`;
+
+exports[`renders Table can render TD inside Table 1`] = `
+<table
+  class="sc-bdvvaa jWShPI"
+>
+  <tbody>
+    <tr>
+      <td>
+        Willow
+      </td>
+      <td
+        class="sc-gsDJrp fbuCsp"
+      >
+        Daylight
+      </td>
+      <td
+        class="sc-gsDJrp chLbkq"
+      >
+        Renegade
+      </td>
+      <td
+        class="sc-gsDJrp UTrqs"
+      >
+        Cardigan
+      </td>
+      <td
+        class="sc-gsDJrp sHCCM"
+      >
+        Seven
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;
+
+exports[`renders Table can specify borderTop 1`] = `
+<table
+  class="sc-bdvvaa eYNfPV"
+>
+  <tbody>
+    <tr>
+      <td>
+        Willow
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;
+
+exports[`renders Table can specify condensed 1`] = `
+<table
+  class="sc-bdvvaa jWShPI"
+>
+  <tbody>
+    <tr>
+      <td>
+        Evermore
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;
