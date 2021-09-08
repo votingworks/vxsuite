@@ -1,7 +1,7 @@
 import { Election } from '@votingworks/types'
 import {
   buildVoteFromCvr,
-  Tally,
+  SerializedTally,
   getZeroTally,
   calculateTally,
 } from '@votingworks/utils'
@@ -11,7 +11,7 @@ import { CastVoteRecord } from '../config/types'
 export function calculateTallyFromCVRs(
   castVoteRecords: CastVoteRecord[],
   election: Election
-): Tally {
+): SerializedTally {
   let tally = getZeroTally(election)
   for (const cvr of castVoteRecords) {
     const nextVote = buildVoteFromCvr({ election, cvr })

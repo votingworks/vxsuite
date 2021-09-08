@@ -5,14 +5,14 @@ import { z } from 'zod'
 export type TallyCount = number
 export const TallyCountSchema = z.number()
 
-export interface CandidateVoteTally {
+export interface SerializedCandidateVoteTally {
   candidates: TallyCount[]
   writeIns: TallyCount
   undervotes: TallyCount
   overvotes: TallyCount
   ballotsCast: TallyCount
 }
-export const CandidateVoteTallySchema: z.ZodSchema<CandidateVoteTally> =
+export const SerializedCandidateVoteTallySchema: z.ZodSchema<SerializedCandidateVoteTally> =
   z.object({
     candidates: z.array(TallyCountSchema),
     writeIns: TallyCountSchema,
@@ -21,22 +21,23 @@ export const CandidateVoteTallySchema: z.ZodSchema<CandidateVoteTally> =
     ballotsCast: TallyCountSchema,
   })
 
-export interface YesNoVoteTally {
+export interface SerializedYesNoVoteTally {
   yes: TallyCount
   no: TallyCount
   undervotes: TallyCount
   overvotes: TallyCount
   ballotsCast: TallyCount
 }
-export const YesNoVoteTallySchema: z.ZodSchema<YesNoVoteTally> = z.object({
-  yes: TallyCountSchema,
-  no: TallyCountSchema,
-  undervotes: TallyCountSchema,
-  overvotes: TallyCountSchema,
-  ballotsCast: TallyCountSchema,
-})
+export const SerializedYesNoVoteTallySchema: z.ZodSchema<SerializedYesNoVoteTally> =
+  z.object({
+    yes: TallyCountSchema,
+    no: TallyCountSchema,
+    undervotes: TallyCountSchema,
+    overvotes: TallyCountSchema,
+    ballotsCast: TallyCountSchema,
+  })
 
-export interface MsEitherNeitherTally {
+export interface SerializedMsEitherNeitherTally {
   ballotsCast: TallyCount
   eitherOption: TallyCount
   neitherOption: TallyCount
@@ -47,7 +48,7 @@ export interface MsEitherNeitherTally {
   pickOneUndervotes: TallyCount
   pickOneOvervotes: TallyCount
 }
-export const MsEitherNeitherTallySchema: z.ZodSchema<MsEitherNeitherTally> =
+export const SerializedMsEitherNeitherTallySchema: z.ZodSchema<SerializedMsEitherNeitherTally> =
   z.object({
     ballotsCast: TallyCountSchema,
     eitherOption: TallyCountSchema,
@@ -60,16 +61,16 @@ export const MsEitherNeitherTallySchema: z.ZodSchema<MsEitherNeitherTally> =
     pickOneOvervotes: TallyCountSchema,
   })
 
-export type Tally = (
-  | CandidateVoteTally
-  | YesNoVoteTally
-  | MsEitherNeitherTally
+export type SerializedTally = (
+  | SerializedCandidateVoteTally
+  | SerializedYesNoVoteTally
+  | SerializedMsEitherNeitherTally
 )[]
-export const TallySchema: z.ZodSchema<Tally> = z.array(
+export const TallySchema: z.ZodSchema<SerializedTally> = z.array(
   z.union([
-    CandidateVoteTallySchema,
-    YesNoVoteTallySchema,
-    MsEitherNeitherTallySchema,
+    SerializedCandidateVoteTallySchema,
+    SerializedYesNoVoteTallySchema,
+    SerializedMsEitherNeitherTallySchema,
   ])
 )
 
@@ -93,7 +94,7 @@ export const CardTallyMetadataEntrySchema: z.ZodSchema<CardTallyMetadataEntry> =
 
 export interface BMDCardTally {
   readonly tallyMachineType: TallySourceMachineType.BMD
-  readonly tally: Tally
+  readonly tally: SerializedTally
   readonly metadata: readonly CardTallyMetadataEntry[]
   readonly totalBallotsPrinted: number
 }
@@ -108,7 +109,7 @@ export const BMDCardTallySchema: z.ZodSchema<BMDCardTally> = z.object({
 
 export interface PrecinctScannerCardTally {
   readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER
-  readonly tally: Tally
+  readonly tally: SerializedTally
   readonly metadata: readonly CardTallyMetadataEntry[]
   readonly totalBallotsScanned: number
   readonly isLiveMode: boolean

@@ -12,17 +12,17 @@ import { strict as assert } from 'assert'
 import { map, zip } from './iterators'
 import { throwIllegalValue } from './throwIllegalValue'
 import {
-  CandidateVoteTally,
-  MsEitherNeitherTally,
-  Tally,
-  YesNoVoteTally,
+  SerializedCandidateVoteTally,
+  SerializedMsEitherNeitherTally,
+  SerializedTally,
+  SerializedYesNoVoteTally,
 } from './types'
 import { getSingleYesNoVote } from './votes'
 
 const combineCandidateTallies = (
-  tally1: CandidateVoteTally,
-  tally2: CandidateVoteTally
-): CandidateVoteTally => ({
+  tally1: SerializedCandidateVoteTally,
+  tally2: SerializedCandidateVoteTally
+): SerializedCandidateVoteTally => ({
   candidates: [
     ...map(
       zip(tally1.candidates, tally2.candidates),
@@ -36,9 +36,9 @@ const combineCandidateTallies = (
 })
 
 const combineYesNoTallies = (
-  tally1: YesNoVoteTally,
-  tally2: YesNoVoteTally
-): YesNoVoteTally => {
+  tally1: SerializedYesNoVoteTally,
+  tally2: SerializedYesNoVoteTally
+): SerializedYesNoVoteTally => {
   return {
     yes: tally1.yes + tally2.yes,
     no: tally1.no + tally2.no,
@@ -49,9 +49,9 @@ const combineYesNoTallies = (
 }
 
 const combineEitherNeitherTallies = (
-  tally1: MsEitherNeitherTally,
-  tally2: MsEitherNeitherTally
-): MsEitherNeitherTally => {
+  tally1: SerializedMsEitherNeitherTally,
+  tally2: SerializedMsEitherNeitherTally
+): SerializedMsEitherNeitherTally => {
   return {
     eitherOption: tally1.eitherOption + tally2.eitherOption,
     neitherOption: tally1.neitherOption + tally2.neitherOption,
@@ -69,12 +69,12 @@ const combineEitherNeitherTallies = (
 
 export const combineTallies = (
   election: Election,
-  tally1: Tally,
-  tally2: Tally
-): Tally => {
+  tally1: SerializedTally,
+  tally2: SerializedTally
+): SerializedTally => {
   assert.strictEqual(election.contests.length, tally1.length)
   assert.strictEqual(tally1.length, tally2.length)
-  const combinedTally: Tally = []
+  const combinedTally: SerializedTally = []
 
   for (let i = 0; i < election.contests.length; i += 1) {
     const contest = election.contests[i]
@@ -85,24 +85,24 @@ export const combineTallies = (
       case 'candidate':
         combinedTally.push(
           combineCandidateTallies(
-            tally1Row as CandidateVoteTally,
-            tally2Row as CandidateVoteTally
+            tally1Row as SerializedCandidateVoteTally,
+            tally2Row as SerializedCandidateVoteTally
           )
         )
         break
       case 'yesno':
         combinedTally.push(
           combineYesNoTallies(
-            tally1Row as YesNoVoteTally,
-            tally2Row as YesNoVoteTally
+            tally1Row as SerializedYesNoVoteTally,
+            tally2Row as SerializedYesNoVoteTally
           )
         )
         break
       case 'ms-either-neither':
         combinedTally.push(
           combineEitherNeitherTallies(
-            tally1Row as MsEitherNeitherTally,
-            tally2Row as MsEitherNeitherTally
+            tally1Row as SerializedMsEitherNeitherTally,
+            tally2Row as SerializedMsEitherNeitherTally
           )
         )
         break
@@ -116,12 +116,12 @@ export const combineTallies = (
 
 interface Params {
   election: Election
-  tally: Tally
+  tally: SerializedTally
   votes: VotesDict
   contests: Contests
 }
 
-export const getZeroTally = (election: Election): Tally =>
+export const getZeroTally = (election: Election): SerializedTally =>
   // This rule is disabled because it's not type-aware and doesn't know that
   // `throwIllegalValue` never returns.
   // eslint-disable-next-line array-callback-return
@@ -164,7 +164,7 @@ export const computeTallyForEitherNeitherContests = ({
   tally,
   votes,
   contests,
-}: Params): Tally => {
+}: Params): SerializedTally => {
   const newTally = [...tally]
 
   for (const contest of getEitherNeitherContests(contests)) {
@@ -172,7 +172,7 @@ export const computeTallyForEitherNeitherContests = ({
 
     const eitherNeitherTally = {
       ...newTally[contestIndex],
-    } as MsEitherNeitherTally
+    } as SerializedMsEitherNeitherTally
 
     eitherNeitherTally.ballotsCast += 1
     // Tabulate EitherNeither section
@@ -212,10 +212,10 @@ export const calculateTally = ({
   ballotStyleId,
 }: {
   election: Election
-  tally: Tally
+  tally: SerializedTally
   votes: VotesDict
   ballotStyleId: string
-}): Tally => {
+}): SerializedTally => {
   const ballotStyle = getBallotStyle({
     ballotStyleId,
     election,
@@ -246,7 +246,7 @@ export const calculateTally = ({
     const contestTally = tally[contestIndex]
     /* istanbul ignore else */
     if (contest.type === 'yesno') {
-      const yesnoContestTally = contestTally as YesNoVoteTally
+      const yesnoContestTally = contestTally as SerializedYesNoVoteTally
       const vote = votes[contest.id] as YesNoVote
       if (vote && vote.length > 1) {
         yesnoContestTally.overvotes += 1
@@ -260,7 +260,7 @@ export const calculateTally = ({
       }
       yesnoContestTally.ballotsCast += 1
     } else if (contest.type === 'candidate') {
-      const candidateContestTally = contestTally as CandidateVoteTally
+      const candidateContestTally = contestTally as SerializedCandidateVoteTally
       const vote = (votes[contest.id] ?? []) as CandidateVote
       if (vote.length <= contest.seats) {
         vote.forEach((candidate) => {
