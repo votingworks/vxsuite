@@ -42,7 +42,7 @@ class DeferredQueue<T> {
   /**
    * Determines whether any existing values are present.
    */
-  public isEmpty(): boolean {
+  isEmpty(): boolean {
     return this.settlements.length === 0
   }
 
@@ -52,7 +52,7 @@ class DeferredQueue<T> {
    * deferred until a settlement is added. Note that this promise may reject if
    * `reject` or `rejectAll` has been called.
    */
-  public get(): Promise<T> {
+  get(): Promise<T> {
     const nextSettlement = this.settlements.shift()
 
     if (nextSettlement) {
@@ -77,7 +77,7 @@ class DeferredQueue<T> {
   /**
    * Adds a resolution with `value` to the end of the queue.
    */
-  public resolve(value: T): void {
+  resolve(value: T): void {
     this.assertMutable()
     const nextDeferredGet = this.deferredGets.shift()
 
@@ -92,7 +92,7 @@ class DeferredQueue<T> {
    * Once all existing settlements are consumed, all subsequent calls to `get`
    * will be resolved with `value`.
    */
-  public resolveAll(value: T): void {
+  resolveAll(value: T): void {
     this.assertMutable()
     this.settleAllWith = { status: 'fulfilled', value }
 
@@ -106,7 +106,7 @@ class DeferredQueue<T> {
   /**
    * Adds a rejection for `reason` to the end of the queue.
    */
-  public reject(reason?: unknown): void {
+  reject(reason?: unknown): void {
     this.assertMutable()
     const nextDeferredGet = this.deferredGets.shift()
 
@@ -121,7 +121,7 @@ class DeferredQueue<T> {
    * Once all existing settlements are consumed, all subsequent calls to `get`
    * will be rejected for `reason`.
    */
-  public rejectAll(reason?: unknown): void {
+  rejectAll(reason?: unknown): void {
     this.assertMutable()
     this.settleAllWith = { status: 'rejected', reason }
 

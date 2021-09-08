@@ -43,7 +43,7 @@ export class FujitsuScanner implements Scanner {
   private readonly pageSize: ScannerPageSize
   private readonly mode?: ScannerMode
 
-  public constructor({
+  constructor({
     format = ScannerImageFormat.JPEG,
     pageSize = ScannerPageSize.Letter,
     mode,
@@ -53,11 +53,11 @@ export class FujitsuScanner implements Scanner {
     this.mode = mode
   }
 
-  public async getStatus(): Promise<ScannerStatus> {
+  async getStatus(): Promise<ScannerStatus> {
     return ScannerStatus.Unknown
   }
 
-  public scanSheets(directory = dirSync().name): BatchControl {
+  scanSheets(directory = dirSync().name): BatchControl {
     const args: string[] = [
       '-d',
       'fujitsu',
@@ -168,7 +168,7 @@ export class FujitsuScanner implements Scanner {
     }
   }
 
-  public async calibrate(): Promise<boolean> {
+  async calibrate(): Promise<boolean> {
     return false
   }
 }

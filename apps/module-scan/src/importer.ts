@@ -69,7 +69,7 @@ export default class Importer {
   private workerPoolProvider: () => WorkerPool<workers.Input, workers.Output>
   private interpreterReady = true
 
-  public constructor({
+  constructor({
     workspace,
     scanner,
     workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> =>
@@ -101,7 +101,7 @@ export default class Importer {
     return this.workerPool
   }
 
-  public async addHmpbTemplates(
+  async addHmpbTemplates(
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]> {
@@ -152,27 +152,25 @@ export default class Importer {
   /**
    * Tell the importer that we have all the templates
    */
-  public async doneHmpbTemplates(): Promise<void> {
+  async doneHmpbTemplates(): Promise<void> {
     await this.getWorkerPool()
   }
 
   /**
    * Sets the election information used to encode and decode ballots.
    */
-  public async configure(
-    electionDefinition: ElectionDefinition
-  ): Promise<void> {
+  async configure(electionDefinition: ElectionDefinition): Promise<void> {
     await this.workspace.store.setElection(electionDefinition)
   }
 
-  public async setTestMode(testMode: boolean): Promise<void> {
+  async setTestMode(testMode: boolean): Promise<void> {
     debug('setting test mode to %s', testMode)
     await this.doZero()
     await this.workspace.store.setTestMode(testMode)
     await this.restoreConfig()
   }
 
-  public async setSkipElectionHashCheck(
+  async setSkipElectionHashCheck(
     skipElectionHashCheck: boolean
   ): Promise<void> {
     debug(
@@ -182,7 +180,7 @@ export default class Importer {
     await this.workspace.store.setSkipElectionHashCheck(skipElectionHashCheck)
   }
 
-  public async setMarkThresholdOverrides(
+  async setMarkThresholdOverrides(
     markThresholds: Optional<MarkThresholds>
   ): Promise<void> {
     debug('setting mark thresholds overrides to %s', markThresholds)
@@ -193,7 +191,7 @@ export default class Importer {
   /**
    * Restore configuration from the store.
    */
-  public async restoreConfig(): Promise<void> {
+  async restoreConfig(): Promise<void> {
     this.invalidateInterpreterConfig()
     await this.getWorkerPool()
   }
@@ -217,7 +215,7 @@ export default class Importer {
     }
   }
 
-  public async importFile(
+  async importFile(
     batchId: string,
     frontImagePath: string,
     backImagePath: string
@@ -430,9 +428,7 @@ export default class Importer {
     }
   }
 
-  public async getNextAdjudicationCastability(): Promise<
-    Castability | undefined
-  > {
+  async getNextAdjudicationCastability(): Promise<Castability | undefined> {
     const sheet = await this.workspace.store.getNextAdjudicationSheet()
     if (sheet) {
       return checkSheetCastability([
@@ -445,7 +441,7 @@ export default class Importer {
   /**
    * Create a new batch and begin the scanning process
    */
-  public async startImport(): Promise<string> {
+  async startImport(): Promise<string> {
     const election = await this.workspace.store.getElectionDefinition()
 
     if (!election) {
@@ -481,7 +477,7 @@ export default class Importer {
   /**
    * Continue the existing scanning process
    */
-  public async continueImport(override = false): Promise<void> {
+  async continueImport(override = false): Promise<void> {
     const sheet = await this.workspace.store.getNextAdjudicationSheet()
 
     if (sheet) {
@@ -509,7 +505,7 @@ export default class Importer {
   /**
    * this is really for testing
    */
-  public async waitForEndOfBatchOrScanningPause(): Promise<void> {
+  async waitForEndOfBatchOrScanningPause(): Promise<void> {
     if (!this.batchId) {
       return
     }
@@ -528,14 +524,14 @@ export default class Importer {
    *
    * @returns whether the calibration succeeded
    */
-  public async doCalibrate(): Promise<boolean> {
+  async doCalibrate(): Promise<boolean> {
     return await this.scanner.calibrate()
   }
 
   /**
    * Export the current CVRs to a string.
    */
-  public async doExport(): Promise<string> {
+  async doExport(): Promise<string> {
     const election = await this.workspace.store.getElectionDefinition()
 
     if (!election) {
@@ -550,7 +546,7 @@ export default class Importer {
   /**
    * Reset all the data, both in the store and the ballot images.
    */
-  public async doZero(): Promise<void> {
+  async doZero(): Promise<void> {
     await this.workspace.store.zero()
     await this.setMarkThresholdOverrides(undefined)
     fsExtra.emptyDirSync(this.workspace.ballotImagesPath)
@@ -559,7 +555,7 @@ export default class Importer {
   /**
    * Get the imported batches and current election info, if any.
    */
-  public async getStatus(): Promise<ScanStatus> {
+  async getStatus(): Promise<ScanStatus> {
     const electionDefinition = await this.workspace.store.getElectionDefinition()
     const batches = await this.workspace.store.batchStatus()
     const adjudication = await this.workspace.store.adjudicationStatus()
@@ -579,7 +575,7 @@ export default class Importer {
   /**
    * Resets all data like `doZero`, removes election info, and stops importing.
    */
-  public async unconfigure(): Promise<void> {
+  async unconfigure(): Promise<void> {
     this.invalidateInterpreterConfig()
     await this.doZero()
     await this.workspace.store.reset() // destroy all data

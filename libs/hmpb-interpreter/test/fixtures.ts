@@ -9,17 +9,17 @@ export const adjacentMetadataFile = (imagePath: string): string =>
   adjacentFile('-metadata', imagePath, '.json')
 
 export class Fixture implements Input {
-  public constructor(private basePath: string) {}
+  constructor(private basePath: string) {}
 
-  public id(): string {
+  id(): string {
     return this.filePath()
   }
 
-  public filePath(): string {
+  filePath(): string {
     return this.basePath
   }
 
-  public async imageData({ flipped = false } = {}): Promise<ImageData> {
+  async imageData({ flipped = false } = {}): Promise<ImageData> {
     const imageData = await loadImageData(this.filePath())
     if (flipped) {
       flipVH(imageData)
@@ -27,7 +27,7 @@ export class Fixture implements Input {
     return imageData
   }
 
-  public async metadata(
+  async metadata(
     overrides: Partial<BallotPageMetadata> = {}
   ): Promise<BallotPageMetadata> {
     return {

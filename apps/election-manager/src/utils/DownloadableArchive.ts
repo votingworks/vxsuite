@@ -11,7 +11,7 @@ export default class DownloadableArchive {
   private zip?: ZipStream
   private endPromise?: Promise<void>
 
-  public constructor(private kiosk = window.kiosk) {}
+  constructor(private kiosk = window.kiosk) {}
 
   private getKiosk(): KioskBrowser.Kiosk {
     assert(this.kiosk)
@@ -23,9 +23,7 @@ export default class DownloadableArchive {
    * making this instance ready to receive files. Resolves when ready to receive
    * files.
    */
-  public async beginWithDialog(
-    options?: KioskBrowser.SaveAsOptions
-  ): Promise<void> {
+  async beginWithDialog(options?: KioskBrowser.SaveAsOptions): Promise<void> {
     const fileWriter = await this.getKiosk().saveAs(options)
 
     if (!fileWriter) {
@@ -45,7 +43,7 @@ export default class DownloadableArchive {
    * Begins downloading an archive to the filePath specified. Resolves when
    * ready to receive files.
    */
-  public async beginWithDirectSave(
+  async beginWithDirectSave(
     pathToFolder: string,
     filename: string
   ): Promise<void> {
@@ -71,7 +69,7 @@ export default class DownloadableArchive {
   /**
    * Writes a file to the archive, resolves when complete.
    */
-  public async file(
+  async file(
     name: string,
     data: Parameters<ZipStream['entry']>[0]
   ): Promise<void> {
@@ -89,7 +87,7 @@ export default class DownloadableArchive {
   /**
    * Finishes the zip archive and ends the download.
    */
-  public async end(): Promise<void> {
+  async end(): Promise<void> {
     if (!this.zip) {
       throw new Error('cannot call end() before begin()')
     }

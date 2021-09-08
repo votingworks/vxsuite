@@ -173,7 +173,7 @@ export default class Interpreter {
   private markThresholds: MarkThresholds
   private adjudicationReasons: readonly AdjudicationReason[]
 
-  public constructor({
+  constructor({
     election,
     electionHash,
     testMode,
@@ -240,7 +240,7 @@ export default class Interpreter {
     return layout
   }
 
-  public async interpretFile({
+  async interpretFile({
     ballotImagePath,
     ballotImageFile,
     detectQrcodeResult,

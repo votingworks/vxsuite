@@ -15,17 +15,14 @@ const debug = makeDebug('module-scan:backup')
 export class Backup {
   private readonly entries = new Set<string>()
 
-  public constructor(
-    private readonly zip: ZipStream,
-    private readonly store: Store
-  ) {}
+  constructor(private readonly zip: ZipStream, private readonly store: Store) {}
 
   /**
    * Add an entry to the zip file from a static or stream data source.
    *
    * @param name the path of the file inside the zip file
    */
-  public async addEntry(
+  async addEntry(
     name: string,
     data: string | Buffer | NodeJS.ReadableStream
   ): Promise<void> {
@@ -52,7 +49,7 @@ export class Backup {
    * @param filepath the path to the file to add
    * @param name the path of the file inside the zip file
    */
-  public async addFileEntry(
+  async addFileEntry(
     filepath: string,
     name = basename(filepath)
   ): Promise<void> {
@@ -62,7 +59,7 @@ export class Backup {
   /**
    * Runs the backup.
    */
-  public async backup(): Promise<void> {
+  async backup(): Promise<void> {
     debug('starting a backup')
 
     const electionDefinition = await this.store.getElectionDefinition()

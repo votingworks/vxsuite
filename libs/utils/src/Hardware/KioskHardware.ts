@@ -5,21 +5,21 @@ import MemoryHardware from './MemoryHardware'
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
 export default class KioskHardware extends MemoryHardware {
-  public constructor(private kiosk: KioskBrowser.Kiosk) {
+  constructor(private kiosk: KioskBrowser.Kiosk) {
     super()
   }
 
   /**
    * Reads Battery status
    */
-  public async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
+  async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
     return this.kiosk.getBatteryInfo()
   }
 
   /**
    * Determines whether there is a configured & connected printer.
    */
-  public async readPrinterStatus(): Promise<PrinterStatus> {
+  async readPrinterStatus(): Promise<PrinterStatus> {
     const printers = await this.kiosk.getPrinterInfo()
     return { connected: printers.some((printer) => printer.connected) }
   }
@@ -33,11 +33,11 @@ export default class KioskHardware extends MemoryHardware {
    * first subscriber receives a new set (e.g. {mouse, keyboard, flash drive}).
    * New subscribers immediately receive the same current set.
    */
-  public devices = this.kiosk.devices
+  devices = this.kiosk.devices
 
   /**
    * Gets an observable that yields the current set of printers as printers are
    * configured or devices are added or removed.
    */
-  public printers = this.kiosk.printers
+  printers = this.kiosk.printers
 }

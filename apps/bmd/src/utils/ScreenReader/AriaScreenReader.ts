@@ -7,26 +7,26 @@ export default class AriaScreenReader implements ScreenReader {
   /**
    * @param tts A text-to-speech engine to use to speak aloud.
    */
-  public constructor(private tts: TextToSpeech) {}
+  constructor(private tts: TextToSpeech) {}
 
   /**
    * Call this with an event target when a focus event occurs. Resolves when speaking is done.
    */
-  public async onFocus(target?: EventTarget): Promise<void> {
+  async onFocus(target?: EventTarget): Promise<void> {
     await this.speakEventTarget(target)
   }
 
   /**
    * Call this with an event target when a click event occurs. Resolves when speaking is done.
    */
-  public async onClick(target?: EventTarget): Promise<void> {
+  async onClick(target?: EventTarget): Promise<void> {
     await this.speakEventTarget(target)
   }
 
   /**
    * Call this when a page load occurs. Resolves when speaking is done.
    */
-  public async onPageLoad(): Promise<void> {
+  async onPageLoad(): Promise<void> {
     this.tts.stop()
   }
 
@@ -34,7 +34,7 @@ export default class AriaScreenReader implements ScreenReader {
    * Enables the screen reader and announces the change. Resolves when speaking
    * is done.
    */
-  public async enable(): Promise<void> {
+  async enable(): Promise<void> {
     this.unmute()
     await this.speak('Screen reader enabled', { now: true })
   }
@@ -43,7 +43,7 @@ export default class AriaScreenReader implements ScreenReader {
    * Disables the screen reader and announces the change. Resolves when speaking
    * is done.
    */
-  public async disable(): Promise<void> {
+  async disable(): Promise<void> {
     await this.speak('Screen reader disabled', { now: true })
     this.mute()
   }
@@ -52,7 +52,7 @@ export default class AriaScreenReader implements ScreenReader {
    * Toggles the screen reader being enabled and announces the change. Resolves
    * when speaking is done.
    */
-  public async toggle(enabled = this.isMuted()): Promise<void> {
+  async toggle(enabled = this.isMuted()): Promise<void> {
     if (enabled) {
       await this.enable()
     } else {
@@ -63,35 +63,35 @@ export default class AriaScreenReader implements ScreenReader {
   /**
    * Prevents any sound from being made but otherwise functions normally.
    */
-  public mute(): void {
+  mute(): void {
     return this.tts.mute()
   }
 
   /**
    * Allows sounds to be made.
    */
-  public unmute(): void {
+  unmute(): void {
     return this.tts.unmute()
   }
 
   /**
    * Checks whether this TTS is muted.
    */
-  public isMuted(): boolean {
+  isMuted(): boolean {
     return this.tts.isMuted()
   }
 
   /**
    * Toggles muted state, or sets it according to the argument.
    */
-  public toggleMuted(muted?: boolean): void {
+  toggleMuted(muted?: boolean): void {
     this.tts.toggleMuted(muted)
   }
 
   /**
    * Directly triggers speech of text. Resolves when speaking is done.
    */
-  public async speak(text: string, options: SpeakOptions = {}): Promise<void> {
+  async speak(text: string, options: SpeakOptions = {}): Promise<void> {
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
@@ -107,7 +107,7 @@ export default class AriaScreenReader implements ScreenReader {
   /**
    * Directly triggers speech of an element. Resolves when speaking is done.
    */
-  public async speakNode(node: Node, options?: SpeakOptions): Promise<void> {
+  async speakNode(node: Node, options?: SpeakOptions): Promise<void> {
     const description = this.describe(node)
     if (description) {
       await this.speak(description, options)
@@ -117,7 +117,7 @@ export default class AriaScreenReader implements ScreenReader {
   /**
    * Directly triggers speech of an event target. Resolves when speaking is done.
    */
-  public async speakEventTarget(
+  async speakEventTarget(
     target?: EventTarget,
     { now = true }: SpeakOptions = {}
   ): Promise<void> {
@@ -129,7 +129,7 @@ export default class AriaScreenReader implements ScreenReader {
   /**
    * Generates a clean text string to be spoken for an element.
    */
-  public describe(node: Node): string | undefined {
+  describe(node: Node): string | undefined {
     return this.cleanDescription(this.describeNode(node))
   }
 

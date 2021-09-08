@@ -1,11 +1,11 @@
 export class VisitedPoints {
   private data: Uint8Array[]
 
-  public constructor(private width: number, height: number) {
+  constructor(private width: number, height: number) {
     this.data = Array.from({ length: height })
   }
 
-  public add(x: number, y: number, value = true): boolean {
+  add(x: number, y: number, value = true): boolean {
     let row = this.data[y]
 
     if (!row) {
@@ -22,7 +22,7 @@ export class VisitedPoints {
     return result
   }
 
-  public has(x: number, y: number): boolean {
+  has(x: number, y: number): boolean {
     return this.data[y]?.[x] === 1
   }
 }

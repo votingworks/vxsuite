@@ -8,7 +8,7 @@ export default class KioskStorage implements Storage {
   /**
    * Gets an object from storage by key.
    */
-  public async get(key: string): Promise<unknown> {
+  async get(key: string): Promise<unknown> {
     assert(typeof key === 'string')
     assert(window.kiosk)
     return window.kiosk.storage.get(key)
@@ -17,7 +17,7 @@ export default class KioskStorage implements Storage {
   /**
    * Sets an object in storage by key.
    */
-  public async set(key: string, value: unknown): Promise<void> {
+  async set(key: string, value: unknown): Promise<void> {
     assert(typeof key === 'string')
     assert(window.kiosk)
     await window.kiosk.storage.set(key, value)
@@ -26,7 +26,7 @@ export default class KioskStorage implements Storage {
   /**
    * Removes an object in storage by key.
    */
-  public async remove(key: string): Promise<void> {
+  async remove(key: string): Promise<void> {
     assert(typeof key === 'string')
     assert(window.kiosk)
     await window.kiosk.storage.remove(key)
@@ -35,7 +35,7 @@ export default class KioskStorage implements Storage {
   /**
    * Clears all objects out of storage.
    */
-  public async clear(): Promise<void> {
+  async clear(): Promise<void> {
     assert(window.kiosk)
     await window.kiosk.storage.clear()
   }

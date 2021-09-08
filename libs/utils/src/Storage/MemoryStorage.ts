@@ -10,7 +10,7 @@ export default class MemoryStorage implements Storage {
   /**
    * @param initial data to load into storage
    */
-  public constructor(initial?: Record<string, unknown>) {
+  constructor(initial?: Record<string, unknown>) {
     if (initial) {
       for (const key in initial) {
         /* istanbul ignore else */
@@ -24,7 +24,7 @@ export default class MemoryStorage implements Storage {
   /**
    * Gets an object from storage by key.
    */
-  public async get(key: string): Promise<unknown> {
+  async get(key: string): Promise<unknown> {
     const serialized = this.data.get(key)
 
     if (typeof serialized === 'undefined') {
@@ -37,21 +37,21 @@ export default class MemoryStorage implements Storage {
   /**
    * Sets an object in storage by key.
    */
-  public async set(key: string, value: unknown): Promise<void> {
+  async set(key: string, value: unknown): Promise<void> {
     this.data.set(key, JSON.stringify(value))
   }
 
   /**
    * Removes an object in storage by key.
    */
-  public async remove(key: string): Promise<void> {
+  async remove(key: string): Promise<void> {
     this.data.delete(key)
   }
 
   /**
    * Clears all objects out of storage.
    */
-  public async clear(): Promise<void> {
+  async clear(): Promise<void> {
     this.data.clear()
   }
 }

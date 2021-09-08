@@ -19,7 +19,7 @@ export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     private readonly size: number
   ) {}
 
-  public start(): void {
+  start(): void {
     if (this.workers) {
       throw new Error('cannot start when already started')
     }
@@ -37,7 +37,7 @@ export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     debug('started %d worker(s)', this.workers.size)
   }
 
-  public stop(): void {
+  stop(): void {
     const { workers } = this
 
     if (!workers) {
@@ -169,7 +169,7 @@ export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     claimedWorkers.delete(worker)
   }
 
-  public async call(input: I): Promise<O> {
+  async call(input: I): Promise<O> {
     const traceId = uuid()
     debug(
       '[%s] call start: input=%s',
@@ -181,7 +181,7 @@ export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     return await this.callWorker(worker, input, traceId)
   }
 
-  public async callAll(input: I): Promise<O[]> {
+  async callAll(input: I): Promise<O[]> {
     const { workers, claimedWorkers } = this
 
     if (!workers || !claimedWorkers) {

@@ -47,7 +47,7 @@ export class MockScannerClient implements ScannerClient {
   private toggleHoldDuration: number
   private passthroughDuration: number
 
-  public constructor({
+  constructor({
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
   }: Options = {}) {
@@ -58,7 +58,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * "Connects" to the mock scanner, must be called before other interactions.
    */
-  public async connect(): Promise<void> {
+  async connect(): Promise<void> {
     debug('connecting')
     this.connected = true
   }
@@ -66,7 +66,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * "Disconnects" from the mock scanner.
    */
-  public async disconnect(): Promise<void> {
+  async disconnect(): Promise<void> {
     debug('disconnecting')
     this.connected = false
   }
@@ -74,7 +74,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Loads a sheet with scan images from `files`.
    */
-  public async simulateLoadSheet(
+  async simulateLoadSheet(
     files: readonly string[]
   ): Promise<Result<void, Errors>> {
     debug('manualLoad files=%o', files)
@@ -103,7 +103,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Removes a loaded sheet if present.
    */
-  public async simulateRemoveSheet(): Promise<Result<void, Errors>> {
+  async simulateRemoveSheet(): Promise<Result<void, Errors>> {
     debug('manualRemove')
 
     if (this.unresponsive) {
@@ -131,21 +131,21 @@ export class MockScannerClient implements ScannerClient {
    * cable removed or power turned off. Once a scanner is unresponsive it cannot
    * become responsive again, and a new client/connection must be established.
    */
-  public async simulateUnresponsive(): Promise<void> {
+  async simulateUnresponsive(): Promise<void> {
     this.unresponsive = true
   }
 
   /**
    * Determines whether the client is connected.
    */
-  public isConnected(): boolean {
+  isConnected(): boolean {
     return this.connected
   }
 
   /**
    * Gets the current paper status.
    */
-  public async getPaperStatus(): Promise<GetPaperStatusResult> {
+  async getPaperStatus(): Promise<GetPaperStatusResult> {
     debug('getPaperStatus')
 
     if (this.unresponsive) {
@@ -181,7 +181,7 @@ export class MockScannerClient implements ScannerClient {
    * Waits for a given `status` up to `timeout` milliseconds, checking every
    * `interval` milliseconds.
    */
-  public async waitForStatus({
+  async waitForStatus({
     status,
     interval = 50,
     timeout,
@@ -224,7 +224,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Scans the currently-loaded sheet if any is present.
    */
-  public async scan(): Promise<ScanResult> {
+  async scan(): Promise<ScanResult> {
     debug('scan')
 
     if (this.unresponsive) {
@@ -263,7 +263,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Accepts the currently-loaded sheet if any.
    */
-  public async accept(): Promise<AcceptResult> {
+  async accept(): Promise<AcceptResult> {
     debug('accept')
 
     if (this.unresponsive) {
@@ -301,7 +301,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Rejects and optionally holds the currently-loaded sheet if any.
    */
-  public async reject({ hold }: { hold: boolean }): Promise<RejectResult> {
+  async reject({ hold }: { hold: boolean }): Promise<RejectResult> {
     debug('reject hold=%s', hold)
 
     if (this.unresponsive) {
@@ -342,7 +342,7 @@ export class MockScannerClient implements ScannerClient {
     return ok()
   }
 
-  public async calibrate(): Promise<CalibrateResult> {
+  async calibrate(): Promise<CalibrateResult> {
     debug('calibrate')
 
     if (this.unresponsive) {
@@ -380,7 +380,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Closes the connection to the mock scanner.
    */
-  public async close(): Promise<CloseResult> {
+  async close(): Promise<CloseResult> {
     debug('close')
     this.connected = false
     return ok()

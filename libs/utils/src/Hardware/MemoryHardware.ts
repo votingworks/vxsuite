@@ -53,7 +53,7 @@ export default class MemoryHardware implements Hardware {
     serialNumber: '',
   }
 
-  public static async build({
+  static async build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
@@ -71,7 +71,7 @@ export default class MemoryHardware implements Hardware {
     return newMemoryHardware
   }
 
-  public static async buildStandard(): Promise<MemoryHardware> {
+  static async buildStandard(): Promise<MemoryHardware> {
     return await MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: true,
@@ -79,7 +79,7 @@ export default class MemoryHardware implements Hardware {
     })
   }
 
-  public static async buildDemo(): Promise<MemoryHardware> {
+  static async buildDemo(): Promise<MemoryHardware> {
     return await MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: false,
@@ -90,23 +90,21 @@ export default class MemoryHardware implements Hardware {
   /**
    * Sets Accessible Controller connected
    */
-  public async setAccessibleControllerConnected(
-    connected: boolean
-  ): Promise<void> {
+  async setAccessibleControllerConnected(connected: boolean): Promise<void> {
     this.setDeviceConnected(this.accessibleController, connected)
   }
 
   /**
    * Reads Battery status
    */
-  public async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
+  async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
     return this.batteryStatus
   }
 
   /**
    * Sets Battery discharging
    */
-  public async setBatteryDischarging(discharging: boolean): Promise<void> {
+  async setBatteryDischarging(discharging: boolean): Promise<void> {
     this.batteryStatus = {
       ...this.batteryStatus,
       discharging,
@@ -116,7 +114,7 @@ export default class MemoryHardware implements Hardware {
   /**
    * Sets Battery level. Number between 0–1.
    */
-  public async setBatteryLevel(level: number): Promise<void> {
+  async setBatteryLevel(level: number): Promise<void> {
     this.batteryStatus = {
       ...this.batteryStatus,
       level,
@@ -126,14 +124,14 @@ export default class MemoryHardware implements Hardware {
   /**
    * Sets Card Reader connected
    */
-  public async setCardReaderConnected(connected: boolean): Promise<void> {
+  async setCardReaderConnected(connected: boolean): Promise<void> {
     this.setDeviceConnected(this.cardReader, connected)
   }
 
   /**
    * Reads Printer status
    */
-  public async readPrinterStatus(): Promise<PrinterStatus> {
+  async readPrinterStatus(): Promise<PrinterStatus> {
     return {
       connected: Array.from(this.connectedDevices).some(isPrinter),
     }
@@ -142,7 +140,7 @@ export default class MemoryHardware implements Hardware {
   /**
    * Sets Printer connected
    */
-  public async setPrinterConnected(connected: boolean): Promise<void> {
+  async setPrinterConnected(connected: boolean): Promise<void> {
     this.setDeviceConnected(this.printer, connected)
     this.printersSubject.next([
       {
@@ -160,8 +158,7 @@ export default class MemoryHardware implements Hardware {
   /**
    * Subscribe to USB device updates.
    */
-  public devices: Observable<Iterable<KioskBrowser.Device>> =
-    this.devicesSubject
+  devices: Observable<Iterable<KioskBrowser.Device>> = this.devicesSubject
 
   private printersSubject = new BehaviorSubject<
     Iterable<KioskBrowser.PrinterInfo>
@@ -170,23 +167,20 @@ export default class MemoryHardware implements Hardware {
   /**
    * Subscribe to printer updates.
    */
-  public printers: Observable<Iterable<KioskBrowser.PrinterInfo>> =
+  printers: Observable<Iterable<KioskBrowser.PrinterInfo>> =
     this.printersSubject
 
   /**
    * Determines whether a device is in the list of connected devices.
    */
-  public hasDevice(device: KioskBrowser.Device): boolean {
+  hasDevice(device: KioskBrowser.Device): boolean {
     return this.connectedDevices.has(device)
   }
 
   /**
    * Sets the connection status for a device by adding or removing it as needed.
    */
-  public setDeviceConnected(
-    device: KioskBrowser.Device,
-    connected: boolean
-  ): void {
+  setDeviceConnected(device: KioskBrowser.Device, connected: boolean): void {
     if (connected !== this.hasDevice(device)) {
       if (connected) {
         this.addDevice(device)
@@ -199,7 +193,7 @@ export default class MemoryHardware implements Hardware {
   /**
    * Adds a device to the set of connected devices.
    */
-  public addDevice(device: KioskBrowser.Device): void {
+  addDevice(device: KioskBrowser.Device): void {
     if (this.connectedDevices.has(device)) {
       throw new Error(
         `cannot add device that was already added: ${device.deviceName}`
@@ -213,7 +207,7 @@ export default class MemoryHardware implements Hardware {
   /**
    * Removes a previously-added device from the set of connected devices.
    */
-  public removeDevice(device: KioskBrowser.Device): void {
+  removeDevice(device: KioskBrowser.Device): void {
     const hadDevice = this.connectedDevices.delete(device)
 
     if (!hadDevice) {

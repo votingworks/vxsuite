@@ -37,6 +37,7 @@ export = {
   rules: {
     'vx/gts-no-array-constructor': 'error',
     'vx/gts-no-private-fields': 'error',
+    'vx/gts-no-public-modifier': 'error',
     'vx/gts-parameter-properties': 'error',
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',

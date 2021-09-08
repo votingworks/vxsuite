@@ -110,9 +110,9 @@ export default class Interpreter {
   private readonly detectQRCode?: DetectQRCode
   private readonly markScoreVoteThreshold: number
 
-  public constructor(election: Election)
-  public constructor(options: Options)
-  public constructor(optionsOrElection: Options | Election) {
+  constructor(election: Election)
+  constructor(options: Options)
+  constructor(optionsOrElection: Options | Election) {
     if ('election' in optionsOrElection) {
       this.election = optionsOrElection.election
       this.detectQRCode =
@@ -136,15 +136,13 @@ export default class Interpreter {
    * printed from it. The template image should be an image of a blank ballot,
    * either scanned or otherwise rendered as an image.
    */
-  public async addTemplate(
+  async addTemplate(
     imageData: ImageData,
     metadata?: BallotPageMetadata,
     { flipped }?: { flipped?: boolean }
   ): Promise<BallotPageLayout>
-  public async addTemplate(
-    template: BallotPageLayout
-  ): Promise<BallotPageLayout>
-  public async addTemplate(
+  async addTemplate(template: BallotPageLayout): Promise<BallotPageLayout>
+  async addTemplate(
     imageDataOrTemplate: ImageData | BallotPageLayout,
     metadata?: BallotPageMetadata,
     { flipped }: { flipped?: boolean } = {}
@@ -197,7 +195,7 @@ export default class Interpreter {
    * from the image. The template image should be an image of a blank ballot,
    * either scanned or otherwise rendered as an image.
    */
-  public async interpretTemplate(
+  async interpretTemplate(
     imageData: ImageData,
     metadata?: BallotPageMetadata,
     { flipped = false } = {}
@@ -263,7 +261,7 @@ export default class Interpreter {
    * Determines whether enough of the template images have been added to allow
    * scanning a ballot with the given metadata.
    */
-  public canScanBallot(metadata: BallotPageMetadata): boolean {
+  canScanBallot(metadata: BallotPageMetadata): boolean {
     debug('canScanBallot metadata=%O', metadata)
 
     for (
@@ -299,7 +297,7 @@ export default class Interpreter {
   /**
    * Interprets an image as a ballot, returning information about the votes cast.
    */
-  public async interpretBallot(
+  async interpretBallot(
     imageData: ImageData,
     metadata?: BallotPageMetadata,
     {

@@ -3,7 +3,7 @@ import { SpeakOptions, TextToSpeech, VoiceSelector } from '../../config/types'
 export default class SpeechSynthesisTextToSpeech implements TextToSpeech {
   private muted = false
 
-  public constructor(private getVoice?: VoiceSelector) {
+  constructor(private getVoice?: VoiceSelector) {
     // Prime the speech synthesis engine. This call will likely return an empty
     // array, but future ones should work properly.
     speechSynthesis.getVoices()
@@ -12,10 +12,7 @@ export default class SpeechSynthesisTextToSpeech implements TextToSpeech {
   /**
    * Directly triggers speech of text. Resolves when speaking is done.
    */
-  public async speak(
-    text: string,
-    { now = false }: SpeakOptions = {}
-  ): Promise<void> {
+  async speak(text: string, { now = false }: SpeakOptions = {}): Promise<void> {
     if (this.isMuted()) {
       return
     }
@@ -51,14 +48,14 @@ export default class SpeechSynthesisTextToSpeech implements TextToSpeech {
   /**
    * Stops any speaking that is currently happening.
    */
-  public stop(): void {
+  stop(): void {
     speechSynthesis.cancel()
   }
 
   /**
    * Prevents any sound from being made but otherwise functions normally.
    */
-  public mute(): void {
+  mute(): void {
     speechSynthesis.cancel()
     this.muted = true
   }
@@ -66,21 +63,21 @@ export default class SpeechSynthesisTextToSpeech implements TextToSpeech {
   /**
    * Allows sounds to be made.
    */
-  public unmute(): void {
+  unmute(): void {
     this.muted = false
   }
 
   /**
    * Checks whether this TTS is muted.
    */
-  public isMuted(): boolean {
+  isMuted(): boolean {
     return this.muted
   }
 
   /**
    * Toggles muted state, or sets it according to the argument.
    */
-  public toggleMuted(muted = !this.isMuted()): void {
+  toggleMuted(muted = !this.isMuted()): void {
     if (muted) {
       this.mute()
     } else {

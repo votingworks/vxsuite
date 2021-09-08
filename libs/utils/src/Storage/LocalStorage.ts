@@ -8,7 +8,7 @@ export default class LocalStorage implements Storage {
   /**
    * Gets an object from storage by key.
    */
-  public async get(key: string): Promise<unknown> {
+  async get(key: string): Promise<unknown> {
     assert(typeof key === 'string')
     const value = window.localStorage.getItem(key)
     return value ? JSON.parse(value) : undefined
@@ -17,7 +17,7 @@ export default class LocalStorage implements Storage {
   /**
    * Sets an object in storage by key.
    */
-  public async set(key: string, value: unknown): Promise<void> {
+  async set(key: string, value: unknown): Promise<void> {
     assert(typeof key === 'string')
     window.localStorage.setItem(key, JSON.stringify(value))
   }
@@ -25,7 +25,7 @@ export default class LocalStorage implements Storage {
   /**
    * Removes an object in storage by key.
    */
-  public async remove(key: string): Promise<void> {
+  async remove(key: string): Promise<void> {
     assert(typeof key === 'string')
     window.localStorage.removeItem(key)
   }
@@ -33,7 +33,7 @@ export default class LocalStorage implements Storage {
   /**
    * Clears all objects out of storage.
    */
-  public async clear(): Promise<void> {
+  async clear(): Promise<void> {
     window.localStorage.clear()
   }
 }

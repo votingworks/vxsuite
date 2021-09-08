@@ -12,7 +12,7 @@ export default class WebServiceCard implements Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  public async readStatus(): Promise<CardAPI> {
+  async readStatus(): Promise<CardAPI> {
     return await fetchJSON<CardAPI>('/card/read')
   }
 
@@ -20,7 +20,7 @@ export default class WebServiceCard implements Card {
    * Reads the long value as an object, or `undefined` if there is no long
    * value and validates it using `schema`.
    */
-  public async readLongObject<T>(
+  async readLongObject<T>(
     schema: z.ZodSchema<T>
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
     const response = await fetch('/card/read_long')
@@ -32,7 +32,7 @@ export default class WebServiceCard implements Card {
    * Reads the long value as a string, or `undefined` if there is no long
    * value.
    */
-  public async readLongString(): Promise<Optional<string>> {
+  async readLongString(): Promise<Optional<string>> {
     const response = await fetch('/card/read_long')
     const { longValue } = await response.json()
     return longValue || undefined
@@ -42,7 +42,7 @@ export default class WebServiceCard implements Card {
    * Reads the long value as binary data, or `undefined` if there is no long
    * value.
    */
-  public async readLongUint8Array(): Promise<Optional<Uint8Array>> {
+  async readLongUint8Array(): Promise<Optional<Uint8Array>> {
     const response = await fetch('/card/read_long_b64')
     const { longValue } = await response.json()
     return longValue ? toByteArray(longValue) : undefined
@@ -51,7 +51,7 @@ export default class WebServiceCard implements Card {
   /**
    * Writes a new short value to the card.
    */
-  public async writeShortValue(value: string): Promise<void> {
+  async writeShortValue(value: string): Promise<void> {
     await fetch('/card/write', {
       method: 'post',
       body: value,
@@ -62,7 +62,7 @@ export default class WebServiceCard implements Card {
   /**
    * Writes a new long value as a serialized object.
    */
-  public async writeLongObject(value: unknown): Promise<void> {
+  async writeLongObject(value: unknown): Promise<void> {
     await this.writeLongUint8Array(
       new TextEncoder().encode(JSON.stringify(value))
     )
@@ -71,7 +71,7 @@ export default class WebServiceCard implements Card {
   /**
    * Writes binary data to the long value.
    */
-  public async writeLongUint8Array(value: Uint8Array): Promise<void> {
+  async writeLongUint8Array(value: Uint8Array): Promise<void> {
     const longValueBase64 = fromByteArray(value)
     const formData = new FormData()
 

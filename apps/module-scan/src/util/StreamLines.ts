@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import Lines from './Lines'
 
 export default class StreamLines extends Lines {
-  public constructor(input: Readable, terminator?: string) {
+  constructor(input: Readable, terminator?: string) {
     super(terminator)
 
     input
