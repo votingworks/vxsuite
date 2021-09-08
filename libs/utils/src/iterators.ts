@@ -178,3 +178,55 @@ export function take<T>(count: number, iterable: Iterable<T>): T[] {
 
   return result
 }
+
+/**
+ * Ignore the first `count` values from the given iterable.
+ */
+export function* drop<T>(count: number, iterable: Iterable<T>): Generator<T> {
+  const iterator = iterable[Symbol.iterator]()
+
+  for (let i = 0; i < count; i += 1) {
+    iterator.next()
+  }
+
+  for (;;) {
+    const result = iterator.next()
+    if (result.done) {
+      break
+    }
+    yield result.value
+  }
+}
+
+/**
+ * Builds an infinite generator starting at 0 yielding successive integers.
+ */
+export function integers(): Generator<number>
+/**
+ * Builds an infinite generator starting at `from` yielding successive integers.
+ */
+export function integers(opts: { from: number }): Generator<number>
+/**
+ * Builds a generator starting at 0 up to and including `through`.
+ */
+export function integers(opts: { through: number }): Generator<number>
+/**
+ * Builds a generator starting at `from` up to and including `through`.
+ */
+export function integers(opts: {
+  from: number
+  through: number
+}): Generator<number>
+export function* integers({
+  from = 0,
+  through = Infinity,
+}: { from?: number; through?: number } = {}): Generator<number> {
+  for (let i = from; i <= through; i += 1) {
+    yield i
+  }
+}
+
+/**
+ * Builds an infinite generator starting at 1 yielding successive integers.
+ */
+export const naturals: () => Generator<number> = () => integers({ from: 1 })

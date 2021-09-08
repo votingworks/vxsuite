@@ -8,9 +8,11 @@ import {
   OkResponseSchema,
 } from '.'
 import {
+  MarksByContestId,
+  MarksByContestIdSchema,
   SerializableBallotPageLayout,
   SerializableBallotPageLayoutSchema,
-} from '../ballotPageLayout'
+} from '../hmpb'
 import {
   BallotSheetInfo,
   BallotSheetInfoSchema,
@@ -22,6 +24,9 @@ import {
   Precinct,
 } from '../election'
 import { HexString, Id } from '../generic'
+
+export type Side = 'front' | 'back'
+export const SideSchema = z.union([z.literal('front'), z.literal('back')])
 
 export interface AdjudicationStatus {
   adjudicated: number
@@ -605,4 +610,50 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: z.object({ contestIds: z.array(Id) }),
     }),
   }
+)
+
+/**
+ * @url /scan/hmpb/ballot/:sheetId/:side
+ * @method PATCH
+ */
+export interface PatchBallotPageAdjudicationParams {
+  sheetId: string
+  side: Side
+}
+
+/**
+ * @url /scan/hmpb/ballot/:sheetId/:side
+ * @method PATCH
+ */
+export const PatchBallotPageAdjudicationParamsSchema: z.ZodSchema<PatchBallotPageAdjudicationParams> = z.object(
+  {
+    sheetId: z.string(),
+    side: SideSchema,
+  }
+)
+
+/**
+ * @url /scan/hmpb/ballot/:sheetId/:side
+ * @method PATCH
+ */
+export type PatchBallotPageAdjudicationRequest = MarksByContestId
+
+/**
+ * @url /scan/hmpb/ballot/:sheetId/:side
+ * @method PATCH
+ */
+export const PatchBallotPageAdjudicationRequestSchema: z.ZodSchema<PatchBallotPageAdjudicationRequest> = MarksByContestIdSchema
+
+/**
+ * @url /scan/hmpb/ballot/:sheetId/:side
+ * @method PATCH
+ */
+export type PatchBallotPageAdjudicationResponse = OkResponse | ErrorsResponse
+
+/**
+ * @url /scan/hmpb/ballot/:sheetId/:side
+ * @method PATCH
+ */
+export const PatchBallotPageAdjudicationResponseSchema: z.ZodSchema<PatchBallotPageAdjudicationResponse> = z.union(
+  [OkResponseSchema, ErrorsResponseSchema]
 )

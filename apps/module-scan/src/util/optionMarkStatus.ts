@@ -2,9 +2,10 @@ import {
   BallotMark,
   Contest,
   ContestOption,
+  MarkStatus,
   MarkThresholds,
 } from '@votingworks/types'
-import { getMarkStatus, MarkStatus } from '../types'
+import { getMarkStatus } from '../types'
 
 /**
  * state of the mark for a given contest and option

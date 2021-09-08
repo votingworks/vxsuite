@@ -2,15 +2,15 @@ import {
   asElectionDefinition,
   electionSample as election,
 } from '@votingworks/fixtures'
+import { CastVoteRecord } from '@votingworks/types'
 import { Application } from 'express'
+import * as fsExtra from 'fs-extra'
 import * as path from 'path'
 import request from 'supertest'
-import * as fsExtra from 'fs-extra'
 import { dirSync } from 'tmp'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import Importer from './importer'
 import { buildApp } from './server'
-import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
 
 const sampleBallotImagesPath = path.join(

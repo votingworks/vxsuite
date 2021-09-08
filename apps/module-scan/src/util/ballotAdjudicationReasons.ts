@@ -4,9 +4,9 @@ import {
   Contest,
   ContestOption,
   Contests,
+  MarkStatus,
 } from '@votingworks/types'
 import { throwIllegalValue } from '@votingworks/utils'
-import { MarkStatus } from '../types'
 import allContestOptions from './allContestOptions'
 
 export interface Options {
@@ -35,15 +35,15 @@ export default function* ballotAdjudicationReasons(
     let isBlankBallot = true
 
     for (const contest of contests) {
-      const selectedOptionIdsByContestId = new Map<
+      const selectedOptionsByContestId = new Map<
         Contest['id'],
-        ContestOption['id'][]
+        { id: ContestOption['id']; index: number }[]
       >()
 
       for (const option of allContestOptions(contest)) {
-        const selectedOptionIds =
-          selectedOptionIdsByContestId.get(option.contestId) ?? []
-        selectedOptionIdsByContestId.set(option.contestId, selectedOptionIds)
+        const selectedOptions =
+          selectedOptionsByContestId.get(option.contestId) ?? []
+        selectedOptionsByContestId.set(option.contestId, selectedOptions)
 
         const status = optionMarkStatus(option.contestId, option.id)
         switch (status) {
@@ -52,11 +52,12 @@ export default function* ballotAdjudicationReasons(
               type: AdjudicationReason.MarginalMark,
               contestId: option.contestId,
               optionId: option.id,
+              optionIndex: option.optionIndex,
             }
             break
 
           case MarkStatus.Marked:
-            selectedOptionIds.push(option.id)
+            selectedOptions.push({ id: option.id, index: option.optionIndex })
             isBlankBallot = false
 
             if (option.type === 'candidate' && option.isWriteIn) {
@@ -64,6 +65,7 @@ export default function* ballotAdjudicationReasons(
                 type: AdjudicationReason.WriteIn,
                 contestId: option.contestId,
                 optionId: option.id,
+                optionIndex: option.optionIndex,
               }
             }
             break
@@ -74,10 +76,7 @@ export default function* ballotAdjudicationReasons(
         }
       }
 
-      for (const [
-        contestId,
-        selectedOptionIds,
-      ] of selectedOptionIdsByContestId) {
+      for (const [contestId, selectedOptions] of selectedOptionsByContestId) {
         let expectedSelectionCount: number
 
         switch (contest.type) {
@@ -97,18 +96,20 @@ export default function* ballotAdjudicationReasons(
             )
         }
 
-        if (selectedOptionIds.length < expectedSelectionCount) {
+        if (selectedOptions.length < expectedSelectionCount) {
           yield {
             type: AdjudicationReason.Undervote,
             contestId,
-            optionIds: selectedOptionIds,
+            optionIds: selectedOptions.map(({ id }) => id),
+            optionIndexes: selectedOptions.map(({ index }) => index),
             expected: expectedSelectionCount,
           }
-        } else if (selectedOptionIds.length > expectedSelectionCount) {
+        } else if (selectedOptions.length > expectedSelectionCount) {
           yield {
             type: AdjudicationReason.Overvote,
             contestId,
-            optionIds: selectedOptionIds,
+            optionIds: selectedOptions.map(({ id }) => id),
+            optionIndexes: selectedOptions.map(({ index }) => index),
             expected: expectedSelectionCount,
           }
         }

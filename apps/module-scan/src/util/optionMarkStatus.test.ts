@@ -1,11 +1,10 @@
 import {
-  MarkThresholds,
-  YesNoContest,
   CandidateContest,
+  MarkStatus,
+  MarkThresholds,
   MsEitherNeitherContest,
+  YesNoContest,
 } from '@votingworks/types'
-
-import { MarkStatus } from '../types/ballot-review'
 
 import optionMarkStatus from './optionMarkStatus'
 

@@ -1,5 +1,9 @@
 import { AdjudicationReason, Contest } from '@votingworks/types'
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan'
+import {
+  GetNextReviewSheetResponse,
+  Side,
+} from '@votingworks/types/api/module-scan'
+import { strict as assert } from 'assert'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { fetchNextBallotSheetToReview } from '../api/hmpb'
@@ -11,6 +15,9 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import StatusFooter from '../components/StatusFooter'
 import Text from '../components/Text'
+import WriteInAdjudicationScreen, {
+  WriteInsByContestAndOption,
+} from './WriteInAdjudicationScreen'
 
 const EjectReason = styled.div`
   font-size: 3em;
@@ -51,7 +58,7 @@ const RectoVerso = styled.div`
 const HIGHLIGHTER_COLOR = '#fbff0066'
 
 interface Props {
-  continueScanning: (override?: boolean) => void
+  continueScanning: (override?: boolean) => Promise<void>
   isTestMode: boolean
 }
 
@@ -85,13 +92,25 @@ const BallotEjectScreen = ({
     [contestIdsWithIssues]
   )
 
+  const onAdjudicationComplete = useCallback(
+    async (
+      sheetId: string,
+      side: Side,
+      writeInValues: WriteInsByContestAndOption
+    ): Promise<void> => {
+      // eslint-disable-next-line no-console
+      console.log('ignoring write-ins for now', writeInValues)
+      await continueScanning(true)
+    },
+    [continueScanning]
+  )
+
   if (!reviewInfo) {
     return <React.Fragment />
   }
 
   let isOvervotedSheet = false
   let isUndervotedSheet = false
-  let isWriteInSheet = false
   let isBlankSheet = false
   let isUnreadableSheet = false
   let isInvalidTestModeSheet = false
@@ -100,23 +119,45 @@ const BallotEjectScreen = ({
 
   let actualElectionHash: string | undefined
 
-  for (const { interpretation } of [
-    reviewInfo.interpreted.front,
-    reviewInfo.interpreted.back,
+  for (const reviewPageInfo of [
+    {
+      side: 'front' as Side,
+      imageURL: reviewInfo.interpreted.front.image.url,
+      interpretation: reviewInfo.interpreted.front.interpretation,
+      layout: reviewInfo.layouts.front,
+      contestIds: reviewInfo.definitions.front?.contestIds,
+      adjudicationFinishedAt:
+        reviewInfo.interpreted.front.adjudicationFinishedAt,
+    },
+    {
+      side: 'back' as Side,
+      imageURL: reviewInfo.interpreted.back.image.url,
+      interpretation: reviewInfo.interpreted.front.interpretation,
+      layout: reviewInfo.layouts.back,
+      contestIds: reviewInfo.definitions.back?.contestIds,
+      adjudicationFinishedAt:
+        reviewInfo.interpreted.back.adjudicationFinishedAt,
+    },
   ]) {
-    if (interpretation.type === 'InvalidTestModePage') {
+    if (reviewPageInfo.adjudicationFinishedAt) {
+      continue
+    }
+
+    if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true
-    } else if (interpretation.type === 'InvalidElectionHashPage') {
+    } else if (
+      reviewPageInfo.interpretation.type === 'InvalidElectionHashPage'
+    ) {
       isInvalidElectionHashSheet = true
-      actualElectionHash = interpretation.actualElectionHash
-    } else if (interpretation.type === 'InvalidPrecinctPage') {
+      actualElectionHash = reviewPageInfo.interpretation.actualElectionHash
+    } else if (reviewPageInfo.interpretation.type === 'InvalidPrecinctPage') {
       isInvalidPrecinctSheet = true
-    } else if (interpretation.type === 'InterpretedHmpbPage') {
-      if (interpretation.adjudicationInfo.requiresAdjudication) {
-        for (const adjudicationReason of interpretation.adjudicationInfo
-          .allReasonInfos) {
+    } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
+      if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
+        for (const adjudicationReason of reviewPageInfo.interpretation
+          .adjudicationInfo.allReasonInfos) {
           if (
-            interpretation.adjudicationInfo.enabledReasons.includes(
+            reviewPageInfo.interpretation.adjudicationInfo.enabledReasons.includes(
               adjudicationReason.type
             )
           ) {
@@ -129,8 +170,19 @@ const BallotEjectScreen = ({
               isUndervotedSheet = true
               contestIdsWithIssues.add(adjudicationReason.contestId)
             } else if (adjudicationReason.type === AdjudicationReason.WriteIn) {
-              isWriteInSheet = true
-              contestIdsWithIssues.add(adjudicationReason.contestId)
+              assert(reviewPageInfo.layout)
+              assert(reviewPageInfo.contestIds)
+              return (
+                <WriteInAdjudicationScreen
+                  sheetId={reviewInfo.interpreted.id}
+                  side={reviewPageInfo.side}
+                  imageURL={reviewPageInfo.imageURL}
+                  interpretation={reviewPageInfo.interpretation}
+                  layout={reviewPageInfo.layout}
+                  contestIds={reviewPageInfo.contestIds}
+                  onAdjudicationComplete={onAdjudicationComplete}
+                />
+              )
             } else if (
               adjudicationReason.type === AdjudicationReason.BlankBallot
             ) {
@@ -185,8 +237,6 @@ const BallotEjectScreen = ({
                 ? 'Wrong Precinct'
                 : isUnreadableSheet
                 ? 'Unreadable'
-                : isWriteInSheet
-                ? 'Write-In'
                 : isOvervotedSheet
                 ? 'Overvote'
                 : isUndervotedSheet
@@ -214,13 +264,7 @@ const BallotEjectScreen = ({
                 </p>
                 <h4>Duplicate Ballot Scan</h4>
                 <p>
-                  {isWriteInSheet ? (
-                    <React.Fragment>
-                      Confirm ballot sheet was reviewed by the Resolution Board
-                      and tabulate as ballot sheet with a{' '}
-                      <strong>write-in</strong>.
-                    </React.Fragment>
-                  ) : isOvervotedSheet ? (
+                  {isOvervotedSheet ? (
                     <React.Fragment>
                       Confirm ballot sheet was reviewed by the Resolution Board
                       and tabulate as ballot sheet with an{' '}

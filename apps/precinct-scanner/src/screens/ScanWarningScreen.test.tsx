@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import { AdjudicationReason, CandidateContest } from '@votingworks/types'
+import { integers, take } from '@votingworks/utils'
 import React from 'react'
 import AppContext from '../contexts/AppContext'
 import ScanWarningScreen from './ScanWarningScreen'
@@ -29,6 +30,7 @@ test('overvote', async () => {
             type: AdjudicationReason.Overvote,
             contestId: contest.id,
             optionIds: contest.candidates.map(({ id }) => id),
+            optionIndexes: contest.candidates.map((c, i) => i),
             expected: 1,
           },
         ]}
@@ -93,6 +95,7 @@ test('undervote no votes', async () => {
             contestId: contest.id,
             expected: 1,
             optionIds: [],
+            optionIndexes: [],
           },
         ]}
       />
@@ -133,6 +136,7 @@ test('undervote by 1', async () => {
             optionIds: contest.candidates
               .slice(0, contest.seats - 1)
               .map(({ id }) => id),
+            optionIndexes: take(contest.seats, integers()),
           },
         ]}
       />
@@ -153,6 +157,7 @@ test('undervote by N', async () => {
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
   )!
 
+  const undervotedOptionCount = 1
   render(
     <AppContext.Provider
       value={{
@@ -170,7 +175,10 @@ test('undervote by N', async () => {
             type: AdjudicationReason.Undervote,
             contestId: contest.id,
             expected: contest.seats,
-            optionIds: contest.candidates.slice(0, 1).map(({ id }) => id),
+            optionIds: contest.candidates
+              .slice(0, undervotedOptionCount)
+              .map(({ id }) => id),
+            optionIndexes: take(undervotedOptionCount, integers()),
           },
         ]}
       />
@@ -208,6 +216,7 @@ test('multiple undervotes', async () => {
           contestId: contest.id,
           expected: contest.seats,
           optionIds: contest.candidates.slice(0, 1).map(({ id }) => id),
+          optionIndexes: contest.candidates.slice(0, 1).map((c, i) => i),
         }))}
       />
     </AppContext.Provider>

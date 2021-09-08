@@ -6,7 +6,7 @@ import {
   ElectionDefinition,
   getPartyPrimaryAdjectiveFromBallotStyle,
 } from '@votingworks/types'
-import { formatLongDate } from '@votingworks/utils/build'
+import { formatLongDate } from '@votingworks/utils'
 
 import Seal from './Seal'
 import Prose from './Prose'

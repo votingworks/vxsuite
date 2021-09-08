@@ -7,7 +7,7 @@ import {
   SerializableBallotPageLayout,
   YesNoContest,
 } from '@votingworks/types'
-import { typedAs } from '@votingworks/utils/build'
+import { typedAs } from '@votingworks/utils'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
 import { v4 as uuid } from 'uuid'
@@ -329,12 +329,14 @@ test('adjudication', async () => {
               type: AdjudicationReason.MarginalMark,
               contestId: candidateContests[i].id,
               optionId: candidateContests[i].candidates[0].id,
+              optionIndex: 0,
             },
             {
               type: AdjudicationReason.Undervote,
               contestId: candidateContests[i].id,
               expected: 1,
               optionIds: [],
+              optionIndexes: [],
             },
           ],
         },

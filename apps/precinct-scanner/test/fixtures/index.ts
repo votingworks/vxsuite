@@ -28,15 +28,12 @@ export function interpretedHmpb({
             type: adjudicationReason,
             contestId: contest.id,
             optionIds: contest.candidates.map(({ id }) => id),
+            optionIndexes: contest.candidates.map((c, i) => i),
             expected: contest.seats,
           },
         ]
       : adjudicationReason === AdjudicationReason.BlankBallot
-      ? [
-          {
-            type: adjudicationReason,
-          },
-        ]
+      ? [{ type: adjudicationReason }]
       : []
   return {
     type: 'InterpretedHmpbPage',

@@ -1,6 +1,10 @@
-import { BallotMark, MarkThresholds } from '@votingworks/types'
+import {
+  BallotMark,
+  MarksByContestId,
+  MarksByOptionId,
+  MarkThresholds,
+} from '@votingworks/types'
 import { getMarkStatus } from '../types'
-import { MarksByContestId, MarksByOptionId } from '../types/ballot-review'
 
 /**
  * Merges a list of changes to an original set of marks into each other,

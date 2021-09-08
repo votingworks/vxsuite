@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 export * from './ballotLocales'
-export * from './ballotPageLayout'
+export * from './hmpb'
 export * from './castVoteRecord'
 export * from './dom'
 export * from './election'
