@@ -8,7 +8,12 @@ import {
   Tally,
   VotingMethod,
 } from '@votingworks/types'
-import { ContestTally } from '@votingworks/ui'
+import {
+  ContestTally,
+  ReportSection,
+  TallyReportColumns,
+  TallyReportTitle,
+} from '@votingworks/ui'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
@@ -24,11 +29,7 @@ import LinkButton from '../components/LinkButton'
 import { PrecinctReportScreenProps } from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
-import {
-  ReportSection,
-  TallyReportColumns,
-  TallyReportTitle,
-} from './TallyReportScreen'
+
 import LogoMark from '../components/LogoMark'
 import TallyReportMetadata from '../components/TallyReportMetadata'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'

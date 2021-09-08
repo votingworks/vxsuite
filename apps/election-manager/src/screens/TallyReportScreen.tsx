@@ -5,7 +5,12 @@ import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 import { find } from '@votingworks/utils'
 import { ExternalTally, VotingMethod } from '@votingworks/types'
-import { ContestTally } from '@votingworks/ui'
+import {
+  ContestTally,
+  TallyReport,
+  TallyReportColumns,
+  ReportSection,
+} from '@votingworks/ui'
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
@@ -39,23 +44,6 @@ import { getLabelForVotingMethod } from '../utils/votingMethod'
 import Text from '../components/Text'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 
-export const TallyReportTitle = styled.h1`
-  font-weight: 400;
-`
-export const TallyReportColumns = styled.div`
-  columns: 3;
-  column-gap: 0.3in;
-  margin-top: 1rem;
-  & > div {
-    margin-top: 0;
-  }
-`
-const TallyReport = styled.div`
-  font-size: 12px;
-  @media print {
-    font-size: 12px;
-  }
-`
 const TallyReportPreview = styled(TallyReport)`
   section {
     margin: 1rem 0 2rem;
@@ -64,9 +52,6 @@ const TallyReportPreview = styled(TallyReport)`
     min-height: 11in;
     padding: 0.5in;
   }
-`
-export const ReportSection = styled.section`
-  page-break-before: always;
 `
 
 const TallyReportScreen = (): JSX.Element => {
