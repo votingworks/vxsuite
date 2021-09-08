@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import { Dictionary } from '@votingworks/types'
 import { format, find } from '@votingworks/utils'
+import { Table, TD } from '@votingworks/ui'
 import { PrintableBallotType } from '../config/types'
 import routerPaths from '../routerPaths'
 
@@ -13,7 +14,6 @@ import AppContext from '../contexts/AppContext'
 import PrintButton from '../components/PrintButton'
 import Prose from '../components/Prose'
 import Text from '../components/Text'
-import Table, { TD } from '../components/Table'
 
 import NavigationScreen from '../components/NavigationScreen'
 

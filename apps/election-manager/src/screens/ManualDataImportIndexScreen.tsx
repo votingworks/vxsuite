@@ -3,6 +3,7 @@ import React, { ReactChild, useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { Table, TD } from '@votingworks/ui'
 import {
   ExternalTallySourceType,
   ResultsFileType,
@@ -14,7 +15,6 @@ import routerPaths from '../routerPaths'
 import AppContext from '../contexts/AppContext'
 
 import Prose from '../components/Prose'
-import Table, { TD } from '../components/Table'
 
 import NavigationScreen from '../components/NavigationScreen'
 import Button, { SegmentedButton } from '../components/Button'

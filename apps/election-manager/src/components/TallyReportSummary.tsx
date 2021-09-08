@@ -4,10 +4,9 @@ import styled from 'styled-components'
 import { Dictionary } from '@votingworks/types'
 
 import { format } from '@votingworks/utils'
+import { Table, TD } from '@votingworks/ui'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import { VotingMethod } from '../config/types'
-
-import Table, { TD } from './Table'
 
 const BallotSummary = styled.div`
   margin-bottom: 1em;

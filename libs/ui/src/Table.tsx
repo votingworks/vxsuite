@@ -1,13 +1,13 @@
 import styled from 'styled-components'
 
-interface Props {
+interface TableProps {
   borderTop?: boolean
   condensed?: boolean
 }
 
 const borderColor = 'rgb(194, 200, 203)'
 
-const Table = styled.table<Props>`
+export const Table = styled.table<TableProps>`
   border-top: ${({ borderTop = false }) =>
     borderTop ? '1px solid' : undefined};
   border-color: ${borderColor};
@@ -40,5 +40,3 @@ export const TD = styled.td<TableDataProps>`
   text-align: ${({ textAlign }) => textAlign};
   white-space: ${({ nowrap }) => (nowrap ? 'nowrap' : undefined)};
 `
-
-export default Table

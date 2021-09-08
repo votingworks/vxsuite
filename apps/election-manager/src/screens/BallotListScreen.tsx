@@ -5,12 +5,12 @@ import pluralize from 'pluralize'
 import moment from 'moment'
 
 import { find } from '@votingworks/utils'
+import { Table, TD } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
 import Button, { SegmentedButton } from '../components/Button'
 import LinkButton from '../components/LinkButton'
-import Table, { TD } from '../components/Table'
 import { NoWrap } from '../components/Text'
 import Prose from '../components/Prose'
 import {

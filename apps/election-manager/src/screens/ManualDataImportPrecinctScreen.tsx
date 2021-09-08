@@ -9,6 +9,7 @@ import {
   expandEitherNeitherContests,
 } from '@votingworks/types'
 
+import { Table, TD } from '@votingworks/ui'
 import {
   ContestOption,
   ContestOptionTally,
@@ -40,7 +41,6 @@ import {
   getEmptyExternalTally,
   getTotalNumberOfBallots,
 } from '../utils/externalTallies'
-import Table, { TD } from '../components/Table'
 
 const MANUAL_DATA_NAME = 'Manually Added Data'
 

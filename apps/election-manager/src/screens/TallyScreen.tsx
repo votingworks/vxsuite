@@ -13,6 +13,7 @@ import {
   format,
   find,
 } from '@votingworks/utils'
+import { Table, TD } from '@votingworks/ui'
 import {
   TallyCategory,
   InputEventFunction,
@@ -27,7 +28,6 @@ import { getPrecinctIdsInExternalTally } from '../utils/externalTallies'
 import Button from '../components/Button'
 import Text from '../components/Text'
 import Loading from '../components/Loading'
-import Table, { TD } from '../components/Table'
 import NavigationScreen from '../components/NavigationScreen'
 import routerPaths from '../routerPaths'
 import LinkButton from '../components/LinkButton'

@@ -3,7 +3,7 @@
 exports[`Renders ElectionInfoBar 1`] = `
 <div>
   <div
-    class="sc-fFehDp cNyMJH"
+    class="sc-ieebsP bqivWC"
   >
     <div
       class="sc-pVTma fVjNBH"
@@ -41,7 +41,7 @@ exports[`Renders ElectionInfoBar 1`] = `
       </div>
     </div>
     <div
-      class="sc-bkkfTU cWyUg"
+      class="sc-dJjZJu iShZLM"
     />
     <div
       class="sc-pVTma cSFpjP"
@@ -62,7 +62,7 @@ exports[`Renders ElectionInfoBar 1`] = `
 exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
 <div>
   <div
-    class="sc-fFehDp cNyMJH"
+    class="sc-ieebsP bqivWC"
   >
     <div
       class="sc-pVTma fVjNBH"
@@ -100,7 +100,7 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       </div>
     </div>
     <div
-      class="sc-bkkfTU cWyUg"
+      class="sc-dJjZJu iShZLM"
     />
     <div
       class="sc-pVTma cSFpjP"
