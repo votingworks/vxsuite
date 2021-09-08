@@ -1,3 +1,5 @@
+// This file is for development purposes only, so linting/coverage is relaxed.
+/* eslint-disable vx/gts-direct-module-export-access-only */
 /* istanbul ignore file */
 
 import {
