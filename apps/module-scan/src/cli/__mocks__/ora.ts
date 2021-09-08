@@ -1,4 +1,4 @@
-import type { Ora } from 'ora'
+import { Ora } from 'ora'
 
 export default function ora(): Ora {
   return {

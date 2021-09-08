@@ -1,6 +1,5 @@
 import { createMemoryHistory, MemoryHistory } from 'history'
-import { render as testRender } from '@testing-library/react'
-import type { RenderResult } from '@testing-library/react'
+import { render as testRender, RenderResult } from '@testing-library/react'
 import React from 'react'
 import { Router } from 'react-router-dom'
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'

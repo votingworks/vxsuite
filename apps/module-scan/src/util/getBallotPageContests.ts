@@ -5,8 +5,8 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/types'
-import type { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
-import type { SerializableBallotPageLayout } from '../types'
+import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import { SerializableBallotPageLayout } from '../types'
 
 /**
  * Gets the contests that appear on a given paper ballot page.

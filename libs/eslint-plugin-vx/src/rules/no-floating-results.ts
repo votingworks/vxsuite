@@ -5,7 +5,7 @@ import {
   TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils'
-import type * as ts from 'typescript'
+import * as ts from 'typescript'
 
 interface Options {
   ignoreVoid?: boolean
