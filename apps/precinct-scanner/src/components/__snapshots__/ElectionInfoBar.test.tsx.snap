@@ -3,35 +3,35 @@
 exports[`Renders ElectionInfoBar 1`] = `
 <div>
   <div
-    class="sc-ieebsP bqivWC"
+    class="sc-fKVsgm eWJSRk"
   >
     <div
-      class="sc-pVTma fVjNBH"
+      class="sc-furvIG kojTgI"
     >
       <strong
-        class="sc-hBURRC fZPBCA"
+        class="sc-jrQzUz jTxFnM"
       >
         General Election
       </strong>
        —
        
       <span
-        class="sc-hBURRC fZPBCA"
+        class="sc-jrQzUz jTxFnM"
       >
         Tuesday, November 3, 2020
       </span>
       <div
-        class="sc-ksdxAp ginpgn"
+        class="sc-pVTma fWDBLk"
       >
         <span
-          class="sc-hBURRC fZPBCA"
+          class="sc-jrQzUz jTxFnM"
         >
           All Precincts
         </span>
          —
          
         <span
-          class="sc-hBURRC fZPBCA"
+          class="sc-jrQzUz jTxFnM"
         >
           Franklin County
           ,
@@ -41,13 +41,13 @@ exports[`Renders ElectionInfoBar 1`] = `
       </div>
     </div>
     <div
-      class="sc-dJjZJu iShZLM"
+      class="sc-bBHwJV bByccW"
     />
     <div
-      class="sc-pVTma cSFpjP"
+      class="sc-furvIG egrWng"
     >
       <div
-        class="sc-ksdxAp ginpgn"
+        class="sc-pVTma fWDBLk"
       >
         Election ID
       </div>
@@ -62,35 +62,35 @@ exports[`Renders ElectionInfoBar 1`] = `
 exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
 <div>
   <div
-    class="sc-ieebsP bqivWC"
+    class="sc-fKVsgm eWJSRk"
   >
     <div
-      class="sc-pVTma fVjNBH"
+      class="sc-furvIG kojTgI"
     >
       <strong
-        class="sc-hBURRC fZPBCA"
+        class="sc-jrQzUz jTxFnM"
       >
         General Election
       </strong>
        —
        
       <span
-        class="sc-hBURRC fZPBCA"
+        class="sc-jrQzUz jTxFnM"
       >
         Tuesday, November 3, 2020
       </span>
       <div
-        class="sc-ksdxAp ginpgn"
+        class="sc-pVTma fWDBLk"
       >
         <span
-          class="sc-hBURRC fZPBCA"
+          class="sc-jrQzUz jTxFnM"
         >
           Center Springfield
         </span>
          —
          
         <span
-          class="sc-hBURRC fZPBCA"
+          class="sc-jrQzUz jTxFnM"
         >
           Franklin County
           ,
@@ -100,13 +100,13 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       </div>
     </div>
     <div
-      class="sc-dJjZJu iShZLM"
+      class="sc-bBHwJV bByccW"
     />
     <div
-      class="sc-pVTma cSFpjP"
+      class="sc-furvIG egrWng"
     >
       <div
-        class="sc-ksdxAp ginpgn"
+        class="sc-pVTma fWDBLk"
       >
         Software Version
       </div>
@@ -115,10 +115,10 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       </strong>
     </div>
     <div
-      class="sc-pVTma cSFpjP"
+      class="sc-furvIG egrWng"
     >
       <div
-        class="sc-ksdxAp ginpgn"
+        class="sc-pVTma fWDBLk"
       >
         Machine ID
       </div>
@@ -127,10 +127,10 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       </strong>
     </div>
     <div
-      class="sc-pVTma cSFpjP"
+      class="sc-furvIG egrWng"
     >
       <div
-        class="sc-ksdxAp ginpgn"
+        class="sc-pVTma fWDBLk"
       >
         Election ID
       </div>
