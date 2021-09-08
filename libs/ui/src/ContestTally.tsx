@@ -1,25 +1,24 @@
 import React from 'react'
 import styled from 'styled-components'
+import pluralize from 'pluralize'
+import { strict as assert } from 'assert'
+
 import {
   Election,
-  Candidate,
-  YesNoContest,
-  AnyContest,
   expandEitherNeitherContests,
   ExternalTally,
   Tally,
-  YesNoContestOptionTally,
 } from '@votingworks/types'
-import { Table, TD } from '@votingworks/ui'
-import pluralize from 'pluralize'
+import {
+  getContestVoteOptionsForCandidateContest,
+  getContestVoteOptionsForYesNoContest,
+  combineContestTallies,
+  throwIllegalValue,
+} from '@votingworks/utils'
 
-import { strict as assert } from 'assert'
-
-import Prose from './Prose'
-import Text, { NoWrap } from './Text'
-import { getContestOptionsForContest } from '../utils/election'
-import { getTallyForContestOption } from '../lib/votecounting'
-import { combineContestTallies } from '../utils/externalTallies'
+import { Table, TD } from './Table'
+import { Prose } from './Prose'
+import { Text, NoWrap } from './Text'
 
 interface ContestProps {
   dim?: boolean
@@ -52,7 +51,7 @@ interface Props {
   precinctId?: string
 }
 
-const ContestTally = ({
+export const ContestTally = ({
   election,
   electionTally,
   externalTallies,
@@ -67,15 +66,14 @@ const ContestTally = ({
 
   return (
     <React.Fragment>
-      {expandEitherNeitherContests(election.contests).map((electionContest) => {
-        if (!(electionContest.id in electionTally.contestTallies)) {
+      {expandEitherNeitherContests(election.contests).map((contest) => {
+        if (!(contest.id in electionTally.contestTallies)) {
           return null
         }
         const externalTalliesContest = externalTallies.map(
-          (t) => t.contestTallies[electionContest.id]
+          (t) => t.contestTallies[contest.id]
         )
-        const primaryContestTally =
-          electionTally.contestTallies[electionContest.id]
+        const primaryContestTally = electionTally.contestTallies[contest.id]
         assert(primaryContestTally)
 
         let finalContestTally = primaryContestTally
@@ -88,14 +86,52 @@ const ContestTally = ({
           }
         })
 
-        const { contest, tallies, metadata } = finalContestTally
+        const { tallies, metadata } = finalContestTally
 
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
           : true
 
         const { ballots, overvotes, undervotes } = metadata
-        const options = getContestOptionsForContest(contest as AnyContest)
+
+        const contestOptionTableRows = []
+        switch (contest.type) {
+          case 'candidate': {
+            const candidates = getContestVoteOptionsForCandidateContest(contest)
+            for (const candidate of candidates) {
+              const key = `${contest.id}-${candidate.id}`
+              const tally = tallies[candidate.id]
+              contestOptionTableRows.push(
+                <tr key={key} data-testid={key}>
+                  <td>{candidate.name}</td>
+                  <TD narrow textAlign="right">
+                    {talliesRelevant && tally ? tally.tally : 'X'}
+                  </TD>
+                </tr>
+              )
+            }
+            break
+          }
+          case 'yesno': {
+            const voteOptions = getContestVoteOptionsForYesNoContest(contest)
+            for (const option of voteOptions) {
+              const key = `${contest.id}-${option}`
+              const tally = tallies[option]
+              const choiceName = option === 'yes' ? 'Yes' : 'No'
+              contestOptionTableRows.push(
+                <tr key={key} data-testid={key}>
+                  <td>{choiceName}</td>
+                  <TD narrow textAlign="right">
+                    {talliesRelevant && tally ? tally.tally : 'X'}
+                  </TD>
+                </tr>
+              )
+            }
+            break
+          }
+          default:
+            throwIllegalValue(contest)
+        }
 
         return (
           <Contest key={`div-${contest.id}`} dim={!talliesRelevant}>
@@ -108,36 +144,7 @@ const ContestTally = ({
                 <NoWrap>{pluralize('undervotes', undervotes, true)}</NoWrap>
               </Text>
               <Table borderTop condensed>
-                <tbody>
-                  {options.map((option) => {
-                    const tally = getTallyForContestOption(
-                      option,
-                      tallies,
-                      contest
-                    )
-
-                    const key = `${contest.id}-${
-                      contest.type === 'candidate'
-                        ? (tally.option as Candidate).id
-                        : tally.option
-                    }`
-
-                    const choice =
-                      contest.type === 'candidate'
-                        ? (tally.option as Candidate).name
-                        : (tally as YesNoContestOptionTally).option[0] === 'yes'
-                        ? (contest as YesNoContest).yesOption?.label || 'Yes'
-                        : (contest as YesNoContest).noOption?.label || 'No'
-                    return (
-                      <tr key={key} data-testid={key}>
-                        <td>{choice}</td>
-                        <TD narrow textAlign="right">
-                          {talliesRelevant ? tally.tally : 'X'}
-                        </TD>
-                      </tr>
-                    )
-                  })}
-                </tbody>
+                <tbody>{contestOptionTableRows}</tbody>
               </Table>
             </Prose>
           </Contest>
@@ -146,4 +153,3 @@ const ContestTally = ({
     </React.Fragment>
   )
 }
-export default ContestTally

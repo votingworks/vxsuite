@@ -2,6 +2,7 @@
 export * from './Button'
 export * from './ButtonBar'
 export * from './ButtonList'
+export * from './ContestTally'
 export * from './hooks/useCancelablePromise'
 export * from './hooks/useSmartcard'
 export * from './hooks/useNow'

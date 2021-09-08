@@ -8,6 +8,7 @@ import {
   Tally,
   VotingMethod,
 } from '@votingworks/types'
+import { ContestTally } from '@votingworks/ui'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
@@ -15,7 +16,6 @@ import AppContext from '../contexts/AppContext'
 import PrintButton from '../components/PrintButton'
 import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
-import ContestTally from '../components/ContestTally'
 import Button from '../components/Button'
 
 import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'

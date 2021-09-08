@@ -2,6 +2,7 @@ import { CastVoteRecord } from './castVoteRecord'
 import { Contest, Candidate } from './election'
 import { Dictionary, Optional } from './generic'
 
+export type YesNoVoteID = 'yes' | 'no'
 export type YesNoVoteOption = ['yes'] | ['no'] | []
 export type ContestVoteOption = Candidate | YesNoVoteOption
 

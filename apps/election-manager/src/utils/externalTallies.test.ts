@@ -17,11 +17,10 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types'
-import { typedAs } from '@votingworks/utils'
+import { typedAs, combineContestTallies } from '@votingworks/utils'
 import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
 
 import {
-  combineContestTallies,
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
   convertTalliesByPrecinctToFullExternalTally,

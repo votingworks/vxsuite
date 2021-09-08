@@ -20,7 +20,6 @@ import {
   FullElectionTally,
   TallyCategory,
   YesNoVoteOption,
-  ContestVoteOption,
   VotingMethod,
   BatchTally,
   ContestOptionTally,
@@ -277,24 +276,6 @@ const buildVoteFromCvr = ({
   })
 
   return vote
-}
-
-export function getTallyForContestOption(
-  option: ContestVoteOption,
-  tallies: Dictionary<ContestOptionTally>,
-  contest: Contest
-): ContestOptionTally {
-  switch (contest.type) {
-    case 'candidate':
-      return tallies[(option as Candidate).id] as ContestOptionTally
-    case 'yesno': {
-      const yesnooption = option as YesNoVoteOption
-      assert(yesnooption.length === 1)
-      return tallies[yesnooption[0]] as ContestOptionTally
-    }
-    default:
-      throw new Error(`Unexpected contest type: ${contest.type}`)
-  }
 }
 
 interface TallyParams {

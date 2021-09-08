@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 import { find } from '@votingworks/utils'
 import { ExternalTally, VotingMethod } from '@votingworks/types'
+import { ContestTally } from '@votingworks/ui'
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
@@ -21,7 +22,6 @@ import AppContext from '../contexts/AppContext'
 
 import PrintButton from '../components/PrintButton'
 import Button from '../components/Button'
-import ContestTally from '../components/ContestTally'
 import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
 import LinkButton from '../components/LinkButton'
