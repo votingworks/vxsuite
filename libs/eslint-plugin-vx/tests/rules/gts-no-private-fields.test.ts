@@ -11,7 +11,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   parser: '@typescript-eslint/parser',
 })
 
-ruleTester.run('gts-no-private', rule, {
+ruleTester.run('gts-no-private-fields', rule, {
   valid: [
     {
       code: `class A {}`,

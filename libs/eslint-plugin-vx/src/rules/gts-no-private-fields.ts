@@ -7,9 +7,9 @@ function isPrivateIdentifier(node: TSESTree.Node): boolean {
 
 export default ESLintUtils.RuleCreator(
   () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/gts-no-private.md'
+    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/gts-no-private-fields.md'
 )({
-  name: 'gts-no-private',
+  name: 'gts-no-private-fields',
   meta: {
     docs: {
       description: 'Disallows use of private fields aka private identifiers',
