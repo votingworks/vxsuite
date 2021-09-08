@@ -18,9 +18,8 @@ function metadataForPage(pageNumber: number): BallotPageMetadata {
 test('gets contests broken across pages according to the layout', () => {
   const ballotStyle = getBallotStyle({ ballotStyleId: '12', election })!
   const allContestsForBallot = getContests({ ballotStyle, election })
-  const layouts = new Array(5)
-    .fill(undefined)
-    .map<SerializableBallotPageLayout>((_, i) => ({
+  const layouts = Array.from({ length: 5 }).map<SerializableBallotPageLayout>(
+    (_, i) => ({
       ballotImage: { metadata: metadataForPage(i) },
       contests: [
         {
@@ -34,7 +33,8 @@ test('gets contests broken across pages according to the layout', () => {
           options: [],
         },
       ],
-    }))
+    })
+  )
 
   for (let pageNumber = 1; pageNumber <= layouts.length; pageNumber += 1) {
     expect(

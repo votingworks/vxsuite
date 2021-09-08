@@ -2,7 +2,7 @@ export class VisitedPoints {
   private data: Uint8Array[]
 
   public constructor(private width: number, height: number) {
-    this.data = new Array(height)
+    this.data = Array.from({ length: height })
   }
 
   public add(x: number, y: number, value = true): boolean {

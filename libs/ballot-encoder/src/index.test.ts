@@ -32,7 +32,7 @@ import {
 } from './index'
 
 function falses(count: number): boolean[] {
-  return new Array(count).fill(false)
+  return Array.from({ length: count }, () => false)
 }
 
 test('can detect an encoded ballot', () => {

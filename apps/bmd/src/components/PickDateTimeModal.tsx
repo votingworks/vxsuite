@@ -107,7 +107,7 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Year
                   </option>
-                  {[...Array(11).keys()].map((i) => (
+                  {[...Array.from({ length: 11 }).keys()].map((i) => (
                     <option key={i} value={2020 + i}>
                       {2020 + i}
                     </option>
@@ -173,7 +173,7 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Hour
                   </option>
-                  {[...Array(12).keys()].map((hour) => (
+                  {[...Array.from({ length: 12 }).keys()].map((hour) => (
                     <option key={hour} value={hour + 1}>
                       {hour + 1}
                     </option>
@@ -193,7 +193,7 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Minute
                   </option>
-                  {[...Array(60).keys()].map((minute) => (
+                  {[...Array.from({ length: 60 }).keys()].map((minute) => (
                     <option key={minute} value={minute}>
                       {minute < 10 ? `0${minute}` : minute}
                     </option>

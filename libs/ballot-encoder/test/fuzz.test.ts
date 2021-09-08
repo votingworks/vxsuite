@@ -60,9 +60,9 @@ type ActionsPair = [BitWriterAction[], BitReaderAction[]]
 const testCaseFactories = {
   'vararg booleans': (): ActionsPair => {
     const argCount = random.integer(0, 10)
-    const args = new Array<boolean>(argCount)
-      .fill(false)
-      .map(() => random.bool())
+    const args = Array.from<boolean>({ length: argCount }).map(() =>
+      random.bool()
+    )
 
     return [
       [{ method: 'writeBoolean', args }],
@@ -155,7 +155,7 @@ const testCaseFactories = {
 
   'vararg uint1s': (): ActionsPair => {
     const argCount = random.integer(0, 10)
-    const args = new Array<0 | 1>(argCount)
+    const args = Array.from<0 | 1>({ length: argCount })
       .fill(0)
       .map(() => random.integer(0, 1))
 
@@ -176,7 +176,7 @@ const testCaseFactories = {
 
   'vararg uint8s': (): ActionsPair => {
     const argCount = random.integer(0, 10)
-    const args = new Array<Uint8Index>(argCount)
+    const args = Array.from<Uint8Index>({ length: argCount })
       .fill(0)
       .map(() => random.integer(0, Uint8Size - 1))
 
@@ -337,7 +337,7 @@ for (const testCase of testCaseNames) {
  */
 test('all together', () => {
   for (let i = 0; i < 100; i += 1) {
-    const factories = new Array(20)
+    const factories = Array.from({ length: 20 })
       .fill(undefined)
       .map(() => testCaseFactories[random.pick(testCaseNames)])
 

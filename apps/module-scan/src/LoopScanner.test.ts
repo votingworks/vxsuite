@@ -8,7 +8,7 @@ function readFiles(paths: readonly string[]): string[] {
 }
 
 test('copies files in pairs', async () => {
-  const [f1, f2, f3, f4] = new Array(4).fill(null).map((_, i) => {
+  const [f1, f2, f3, f4] = Array.from({ length: 4 }, (_, i) => {
     const path = fileSync().name
     writeFileSync(path, i + 1, 'utf8')
     return path

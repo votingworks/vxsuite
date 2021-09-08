@@ -34,7 +34,9 @@ export const ELECTION_HASH_LENGTH = 20
 
 // pad this locale array so the same code can later be upgraded
 // to support other languages without breaking previously printed ballots
-export const SUPPORTED_LOCALES = ['en-US', 'es-US'].concat(new Array(250))
+export const SUPPORTED_LOCALES = ['en-US', 'es-US'].concat(
+  Array.from({ length: 250 })
+)
 
 // TODO: include "magic number" and encoding version
 

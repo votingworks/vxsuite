@@ -50,7 +50,9 @@ export default function lsd(imageData: ImageData): LineSegment[] {
     'invalid dimension'
   )
 
-  const segments = new Array<LineSegment>(result.length / addon.LSD_RESULT_DIM)
+  const segments = Array.from<LineSegment>({
+    length: result.length / addon.LSD_RESULT_DIM,
+  })
 
   for (
     let ri = 0, si = 0;
