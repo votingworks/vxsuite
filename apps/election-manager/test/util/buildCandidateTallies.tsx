@@ -1,5 +1,8 @@
-import { CandidateContest, Dictionary } from '@votingworks/types'
-import { ContestOptionTally } from '../../src/config/types'
+import {
+  CandidateContest,
+  Dictionary,
+  ContestOptionTally,
+} from '@votingworks/types'
 
 export function buildCandidateTallies(
   multiplier: number,

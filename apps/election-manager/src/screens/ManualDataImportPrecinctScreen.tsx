@@ -7,19 +7,18 @@ import {
   Contest,
   Dictionary,
   expandEitherNeitherContests,
-} from '@votingworks/types'
-
-import { Table, TD } from '@votingworks/ui'
-import {
-  ContestOption,
+  ContestVoteOption,
   ContestOptionTally,
   ContestTally,
   ExternalTally,
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
-  ManualDataPrecinctScreenProps,
-} from '../config/types'
+} from '@votingworks/types'
+
+import { Table, TD } from '@votingworks/ui'
+
+import { ManualDataPrecinctScreenProps } from '../config/types'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
@@ -85,7 +84,7 @@ const ContestDataRow = ({
 // When the data is saved empty strings are convertted back to 0s.
 type EmptyValue = ''
 interface TempContestOptionTally {
-  readonly option: ContestOption
+  readonly option: ContestVoteOption
   readonly tally: number | EmptyValue
 }
 

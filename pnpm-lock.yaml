@@ -1529,6 +1529,7 @@ importers:
       '@votingworks/utils': link:../utils
       debug: 4.3.2
       luxon: 1.26.0
+      pluralize: 8.0.0
       react-dom: 17.0.1_react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       rxjs: 6.6.6
@@ -1543,6 +1544,7 @@ importers:
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/luxon': 1.27.1
       '@types/node': 15.0.1
+      '@types/pluralize': 0.0.29
       '@types/react': 17.0.4
       '@types/styled-components': 5.1.9
       '@typescript-eslint/eslint-plugin': 4.29.3_45bc00290c8c374316d6c2f3e2573c27
@@ -1586,6 +1588,7 @@ importers:
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
       '@types/node': ^15.0.0
+      '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.4
       '@types/react-router-dom': ^5.1.7
       '@types/styled-components': ^5.1.9
@@ -1615,6 +1618,7 @@ importers:
       lint-staged: ^11.0.0
       luxon: 1.26.0
       mockdate: ^3.0.5
+      pluralize: ^8.0.0
       prettier: ^2.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
@@ -27704,7 +27708,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3_ts-node@9.1.1
+      jest: 26.6.3
       jest-util: 26.6.2
       json5: 2.2.0
       lodash: 4.17.21

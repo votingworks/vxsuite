@@ -8,6 +8,8 @@ import {
   ElectionDefinition,
   parseElection,
   safeParseElection,
+  FullElectionExternalTally,
+  ExternalTallySourceType,
 } from '@votingworks/types'
 
 import {
@@ -33,11 +35,9 @@ import {
   SaveElection,
   PrintedBallot,
   ISO8601Timestamp,
-  FullElectionExternalTally,
   CastVoteRecordLists,
   ExportableTallies,
   ResultsFileType,
-  ExternalTallySourceType,
 } from './config/types'
 import { getExportableTallies } from './utils/exportableTallies'
 import {

@@ -6,18 +6,19 @@ import {
   electionWithMsEitherNeither,
   multiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures'
-import { Dictionary } from '@votingworks/types'
-
-import { strict as assert } from 'assert'
-import renderInAppContext from '../../test/renderInAppContext'
 import {
+  Dictionary,
   BatchTally,
   ExternalTally,
   ExternalTallySourceType,
   Tally,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+
+import { strict as assert } from 'assert'
+import renderInAppContext from '../../test/renderInAppContext'
+
 import BallotCountsTable from './BallotCountsTable'
 import fakeTally from '../../test/helpers/fakeTally'
 import fakeExternalTally from '../../test/helpers/fakeExternalTally'

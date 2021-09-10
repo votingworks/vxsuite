@@ -3,8 +3,9 @@ import pluralize from 'pluralize'
 
 import { throwIllegalValue } from '@votingworks/utils'
 import { strict as assert } from 'assert'
+import { ExternalTallySourceType } from '@votingworks/types'
 import AppContext from '../contexts/AppContext'
-import { ExternalTallySourceType, ResultsFileType } from '../config/types'
+import { ResultsFileType } from '../config/types'
 
 import Button from './Button'
 import Prose from './Prose'

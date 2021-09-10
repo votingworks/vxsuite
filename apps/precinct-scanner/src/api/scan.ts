@@ -1,4 +1,8 @@
-import { AdjudicationReasonInfo, safeParseJSON } from '@votingworks/types'
+import {
+  AdjudicationReasonInfo,
+  safeParseJSON,
+  CastVoteRecord,
+} from '@votingworks/types'
 import {
   CalibrateResponseSchema,
   GetNextReviewSheetResponse,
@@ -9,7 +13,6 @@ import {
 import { fetchJSON } from '@votingworks/utils'
 import makeDebug from 'debug'
 import {
-  CastVoteRecord,
   RejectedScanningReason,
   ScanningResult,
   ScanningResultType,

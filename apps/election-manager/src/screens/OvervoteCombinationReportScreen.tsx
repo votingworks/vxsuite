@@ -5,12 +5,12 @@ import pluralize from 'pluralize'
 
 import { format } from '@votingworks/utils'
 import { Table, TD } from '@votingworks/ui'
+import { ContestTallyMeta } from '@votingworks/types'
 import NavigationScreen from '../components/NavigationScreen'
 import PrintButton from '../components/PrintButton'
 import LinkButton from '../components/LinkButton'
 import AppContext from '../contexts/AppContext'
 import routerPaths from '../routerPaths'
-import { ContestTallyMeta } from '../config/types'
 import {
   getOvervotePairTallies,
   getContestTallyMeta,

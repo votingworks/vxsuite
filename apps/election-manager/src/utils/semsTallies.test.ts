@@ -3,15 +3,17 @@ import {
   electionMultiPartyPrimaryWithDataFiles,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures'
-import { CandidateContest, Dictionary, YesNoContest } from '@votingworks/types'
-import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
-
 import {
+  CandidateContest,
+  Dictionary,
+  YesNoContest,
   ContestOptionTally,
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import { buildCandidateTallies } from '../../test/util/buildCandidateTallies'
+
 import { writeInCandidate } from './election'
 import {
   getContestTallyForCandidateContest,

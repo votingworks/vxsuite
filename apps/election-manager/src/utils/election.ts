@@ -9,12 +9,14 @@ import {
   getPrecinctById,
   Party,
   VotesDict,
+  ContestVoteOption,
+  YesNoVoteOption,
 } from '@votingworks/types'
 import { BallotStyleData, find } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import dashify from 'dashify'
 import { LANGUAGES } from '../config/globals'
-import { ContestOption, YesNoOption } from '../config/types'
+
 import sortBy from './sortBy'
 
 // the generic write-in candidate to keep count
@@ -42,7 +44,7 @@ export function getPartiesWithPrimaryElections(election: Election): Party[] {
 
 export function getContestOptionsForContest(
   contest: AnyContest
-): readonly ContestOption[] {
+): readonly ContestVoteOption[] {
   if (contest.type === 'candidate') {
     const options = contest.candidates
     if (contest.allowWriteIns) {
@@ -51,7 +53,7 @@ export function getContestOptionsForContest(
     return options
   }
   if (contest.type === 'yesno') {
-    return [['yes'] as YesNoOption, ['no'] as YesNoOption]
+    return [['yes'] as YesNoVoteOption, ['no'] as YesNoVoteOption]
   }
   throw new Error(`Unexpected contest type: ${contest.type}`)
 }

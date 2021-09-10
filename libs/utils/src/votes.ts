@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import {
   Election,
   expandEitherNeitherContests,
@@ -7,6 +8,9 @@ import {
   YesOrNo,
   CastVoteRecord,
   Candidate,
+  CandidateContest,
+  YesNoContest,
+  YesNoVoteID,
 } from '@votingworks/types'
 import { find } from './find'
 
@@ -83,4 +87,28 @@ export const buildVoteFromCvr = ({
   })
 
   return vote
+}
+
+/**
+ * Gets all the vote options a voter can make for a given yes/no contest.
+ */
+export function getContestVoteOptionsForYesNoContest(
+  contest: YesNoContest
+): readonly YesNoVoteID[] {
+  assert.equal(contest.type, 'yesno')
+  return ['yes', 'no']
+}
+
+/**
+ * Gets all the vote options a voter can make for a given contest. If write-ins are allowed a single write-in candidate ID is included.
+ * @returns ContestVoteOption[] ex. ['yes', 'no'] or ['aaron', 'bob', '__write-in']
+ */
+export function getContestVoteOptionsForCandidateContest(
+  contest: CandidateContest
+): readonly Candidate[] {
+  const options = contest.candidates
+  if (contest.allowWriteIns) {
+    return options.concat(writeInCandidate)
+  }
+  return options
 }

@@ -9,18 +9,17 @@ import {
   Election,
   YesNoContest,
   expandEitherNeitherContests,
-} from '@votingworks/types'
-
-import { throwIllegalValue } from '@votingworks/utils'
-import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
   ExternalTallySourceType,
   FullElectionExternalTally,
   VotingMethod,
-  YesNoOption,
-} from '../config/types'
+  YesNoVoteOption,
+} from '@votingworks/types'
+
+import { throwIllegalValue } from '@votingworks/utils'
+
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getTotalNumberOfBallots,
@@ -134,7 +133,7 @@ export function getContestTallyForYesNoContest(
       const previousVoteCounts =
         'yes' in tallies ? (tallies.yes as ContestOptionTally).tally : 0
       tallies.yes = {
-        option: ['yes'] as YesNoOption,
+        option: ['yes'] as YesNoVoteOption,
         tally: row.numberOfVotes + previousVoteCounts,
       }
       numVotes += row.numberOfVotes
@@ -142,7 +141,7 @@ export function getContestTallyForYesNoContest(
       const previousVoteCounts =
         'no' in tallies ? (tallies.no as ContestOptionTally).tally : 0
       tallies.no = {
-        option: ['no'] as YesNoOption,
+        option: ['no'] as YesNoVoteOption,
         tally: row.numberOfVotes + previousVoteCounts,
       }
       numVotes += row.numberOfVotes

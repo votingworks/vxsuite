@@ -6,7 +6,6 @@ import {
 import { Route } from 'react-router-dom'
 import { fireEvent } from '@testing-library/react'
 
-import renderInAppContext from '../../test/renderInAppContext'
 import {
   ContestOptionTally,
   ContestTally,
@@ -14,7 +13,8 @@ import {
   FullElectionExternalTally,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import renderInAppContext from '../../test/renderInAppContext'
 import {
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,

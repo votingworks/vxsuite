@@ -14,23 +14,20 @@ import {
   Dictionary,
   expandEitherNeitherContests,
   Optional,
-} from '@votingworks/types'
-import { strict as assert } from 'assert'
-import { find, throwIllegalValue, typedAs } from '@votingworks/utils'
-import {
-  ContestOptionTally,
-  CastVoteRecord,
-  CastVoteRecordLists,
   Tally,
   ContestTally,
   ContestTallyMetaDictionary,
   FullElectionTally,
   TallyCategory,
-  YesNoOption,
-  ContestOption,
+  YesNoVoteOption,
   VotingMethod,
   BatchTally,
-} from '../config/types'
+  ContestOptionTally,
+} from '@votingworks/types'
+import { strict as assert } from 'assert'
+import { find, throwIllegalValue, typedAs } from '@votingworks/utils'
+import { CastVoteRecord, CastVoteRecordLists } from '../config/types'
+
 import { writeInCandidate, getDistrictIdsForPartyId } from '../utils/election'
 
 const MISSING_BATCH_ID = 'missing-batch-id'
@@ -281,24 +278,6 @@ const buildVoteFromCvr = ({
   return vote
 }
 
-export function getTallyForContestOption(
-  option: ContestOption,
-  tallies: Dictionary<ContestOptionTally>,
-  contest: Contest
-): ContestOptionTally {
-  switch (contest.type) {
-    case 'candidate':
-      return tallies[(option as Candidate).id] as ContestOptionTally
-    case 'yesno': {
-      const yesnooption = option as YesNoOption
-      assert(yesnooption.length === 1)
-      return tallies[yesnooption[0]] as ContestOptionTally
-    }
-    default:
-      throw new Error(`Unexpected contest type: ${contest.type}`)
-  }
-}
-
 interface TallyParams {
   election: Election
   votes: VotesDict[]
@@ -325,8 +304,8 @@ export function tallyVotesByContest({
     ) {
       const tallies: Dictionary<ContestOptionTally> = {}
       if (contest.type === 'yesno') {
-        ;[['yes'] as YesNoOption, ['no'] as YesNoOption].forEach(
-          (option: YesNoOption) => {
+        ;[['yes'] as YesNoVoteOption, ['no'] as YesNoVoteOption].forEach(
+          (option: YesNoVoteOption) => {
             if (option.length === 1) {
               tallies[option[0]] = { option, tally: 0 }
             }

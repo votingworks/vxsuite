@@ -3,8 +3,10 @@ import {
   Election,
   expandEitherNeitherContests,
   writeInCandidate,
+  FullElectionTally,
+  TallyCategory,
 } from '@votingworks/types'
-import { FullElectionTally, TallyCategory } from '../config/types'
+
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting'
 
 export function* generateRowsForBatchTallyResultsCSV(

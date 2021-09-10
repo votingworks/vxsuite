@@ -8,17 +8,17 @@ import { createMemoryHistory } from 'history'
 import { Router, Route } from 'react-router-dom'
 import { fireEvent, within } from '@testing-library/react'
 
-import ManualDataImportIndexScreen from './ManualDataImportIndexScreen'
-import renderInAppContext from '../../test/renderInAppContext'
 import {
   ContestOptionTally,
   ContestTally,
   ExternalTallySourceType,
   FullElectionExternalTally,
-  ResultsFileType,
   TallyCategory,
   VotingMethod,
-} from '../config/types'
+} from '@votingworks/types'
+import ManualDataImportIndexScreen from './ManualDataImportIndexScreen'
+import renderInAppContext from '../../test/renderInAppContext'
+import { ResultsFileType } from '../config/types'
 import {
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,

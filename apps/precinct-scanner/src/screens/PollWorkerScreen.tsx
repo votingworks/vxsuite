@@ -10,11 +10,11 @@ import {
   Printer,
   TallySourceMachineType,
 } from '@votingworks/utils'
+import { CastVoteRecord } from '@votingworks/types'
 import { CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
 import Modal from '../components/Modal'
-import { CastVoteRecord } from '../config/types'
 
 import { calculateTallyFromCVRs } from '../utils/tallies'
 import AppContext from '../contexts/AppContext'
