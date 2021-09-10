@@ -14,6 +14,7 @@ import {
   TallyReportColumns,
   TallyReportTitle,
 } from '@votingworks/ui'
+import { tallyVotesByContest } from '@votingworks/utils'
 import routerPaths from '../routerPaths'
 
 import AppContext from '../contexts/AppContext'
@@ -23,7 +24,7 @@ import ButtonList from '../components/ButtonList'
 import Prose from '../components/Prose'
 import Button from '../components/Button'
 
-import { filterTalliesByParty, tallyVotesByContest } from '../lib/votecounting'
+import { filterTalliesByParty } from '../lib/votecounting'
 import NavigationScreen from '../components/NavigationScreen'
 import LinkButton from '../components/LinkButton'
 import { PrecinctReportScreenProps } from '../config/types'
