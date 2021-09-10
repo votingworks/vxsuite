@@ -3,6 +3,9 @@ import {
   BallotLocales,
   BallotMark,
   BallotMsEitherNeitherTargetMark,
+  BallotPageContestOptionLayout,
+  BallotPageLayout,
+  BallotPageMetadata,
   BallotType,
   BallotYesNoTargetMark,
   Candidate,
@@ -35,14 +38,7 @@ import findContests, {
 } from './hmpb/findContests'
 import findTargets from './hmpb/findTargets'
 import { detect } from './metadata'
-import {
-  BallotPageContestOptionLayout,
-  BallotPageLayout,
-  BallotPageMetadata,
-  DetectQRCode,
-  FindMarksResult,
-  Interpreted,
-} from './types'
+import { DetectQRCode, FindMarksResult, Interpreted } from './types'
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize'
 import crop from './utils/crop'
 import defined from './utils/defined'

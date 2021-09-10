@@ -1,12 +1,12 @@
 import { strict as assert } from 'assert'
 import {
+  BallotPageMetadata,
   Contests,
   Election,
   getBallotStyle,
   getContests,
+  SerializableBallotPageLayout,
 } from '@votingworks/types'
-import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
-import { SerializableBallotPageLayout } from '../types'
 
 /**
  * Gets the contests that appear on a given paper ballot page.

@@ -932,36 +932,78 @@ export interface InterpretedHmpbPage {
   votes: VotesDict
   adjudicationInfo: AdjudicationInfo
 }
+export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> = z.object(
+  {
+    type: z.literal('InterpretedHmpbPage'),
+    ballotId: z.string().optional(),
+    metadata: HMPBBallotPageMetadataSchema,
+    markInfo: MarkInfoSchema,
+    votes: VotesDictSchema,
+    adjudicationInfo: AdjudicationInfoSchema,
+  }
+)
 
 export interface InvalidElectionHashPage {
   type: 'InvalidElectionHashPage'
   expectedElectionHash: string
   actualElectionHash: string
 }
+export const InvalidElectionHashPageSchema: z.ZodSchema<InvalidElectionHashPage> = z.object(
+  {
+    type: z.literal('InvalidElectionHashPage'),
+    expectedElectionHash: z.string(),
+    actualElectionHash: z.string(),
+  }
+)
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage'
   metadata: BallotMetadata | HMPBBallotPageMetadata
 }
+export const InvalidTestModePageSchema: z.ZodSchema<InvalidTestModePage> = z.object(
+  {
+    type: z.literal('InvalidTestModePage'),
+    metadata: z.union([BallotMetadataSchema, HMPBBallotPageMetadataSchema]),
+  }
+)
 
 export interface InvalidPrecinctPage {
   type: 'InvalidPrecinctPage'
   metadata: BallotMetadata | HMPBBallotPageMetadata
 }
+export const InvalidPrecinctPageSchema: z.ZodSchema<InvalidPrecinctPage> = z.object(
+  {
+    type: z.literal('InvalidPrecinctPage'),
+    metadata: z.union([BallotMetadataSchema, HMPBBallotPageMetadataSchema]),
+  }
+)
 
 export interface UninterpretedHmpbPage {
   type: 'UninterpretedHmpbPage'
   metadata: HMPBBallotPageMetadata
 }
+export const UninterpretedHmpbPageSchema: z.ZodSchema<UninterpretedHmpbPage> = z.object(
+  {
+    type: z.literal('UninterpretedHmpbPage'),
+    metadata: HMPBBallotPageMetadataSchema,
+  }
+)
 
 export interface UnreadablePage {
   type: 'UnreadablePage'
   reason?: string
 }
+export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
+  type: z.literal('UnreadablePage'),
+  reason: z.string().optional(),
+})
 
 export interface ImageInfo {
   url: string
 }
+export const ImageInfoSchema: z.ZodSchema<ImageInfo> = z.object({
+  url: z.string(),
+})
 
 export type PageInterpretation =
   | BlankPage
@@ -972,11 +1014,27 @@ export type PageInterpretation =
   | InvalidPrecinctPage
   | UninterpretedHmpbPage
   | UnreadablePage
+export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> = z.union(
+  [
+    BlankPageSchema,
+    InterpretedBmdPageSchema,
+    InterpretedHmpbPageSchema,
+    InvalidElectionHashPageSchema,
+    InvalidTestModePageSchema,
+    InvalidPrecinctPageSchema,
+    UninterpretedHmpbPageSchema,
+    UnreadablePageSchema,
+  ]
+)
 
 export interface BallotPageInfo {
   image: ImageInfo
   interpretation: PageInterpretation
 }
+export const BallotPageInfoSchema: z.ZodSchema<BallotPageInfo> = z.object({
+  image: ImageInfoSchema,
+  interpretation: PageInterpretationSchema,
+})
 
 export interface BallotSheetInfo {
   id: string
@@ -984,6 +1042,12 @@ export interface BallotSheetInfo {
   back: BallotPageInfo
   adjudicationReason?: AdjudicationReason
 }
+export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
+  id: Id,
+  front: BallotPageInfoSchema,
+  back: BallotPageInfoSchema,
+  adjudicationReason: AdjudicationReasonSchema.optional(),
+})
 
 export interface CompletedBallot {
   readonly electionHash: string

@@ -1,6 +1,7 @@
+import { BallotPageMetadata } from '@votingworks/types'
 import { promises as fs } from 'fs'
 import { join } from 'path'
-import { BallotPageMetadata, Input } from '../src'
+import { Input } from '../src'
 import { vh as flipVH } from '../src/utils/flip'
 import { loadImageData } from '../src/utils/images'
 import { adjacentFile } from '../src/utils/path'

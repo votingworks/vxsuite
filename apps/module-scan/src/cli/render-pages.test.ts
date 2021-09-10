@@ -88,8 +88,20 @@ test('generates one image per PDF page per DB', async () => {
     precinctId: '6538',
   }
   await store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
-    { ballotImage: { metadata: { ...metadata, pageNumber: 1 } }, contests: [] },
-    { ballotImage: { metadata: { ...metadata, pageNumber: 2 } }, contests: [] },
+    {
+      ballotImage: {
+        imageData: { width: 1, height: 1 },
+        metadata: { ...metadata, pageNumber: 1 },
+      },
+      contests: [],
+    },
+    {
+      ballotImage: {
+        imageData: { width: 1, height: 1 },
+        metadata: { ...metadata, pageNumber: 2 },
+      },
+      contests: [],
+    },
   ])
 
   const stdout = fakeOutput()

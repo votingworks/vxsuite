@@ -1,7 +1,11 @@
-import { BallotType, getBallotStyle, getContests } from '@votingworks/types'
-import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
+import {
+  BallotPageMetadata,
+  BallotType,
+  getBallotStyle,
+  getContests,
+  SerializableBallotPageLayout,
+} from '@votingworks/types'
 import { election } from '../../test/fixtures/state-of-hamilton'
-import { SerializableBallotPageLayout } from '../types'
 import getBallotPageContests from './getBallotPageContests'
 
 function metadataForPage(pageNumber: number): BallotPageMetadata {
@@ -20,7 +24,10 @@ test('gets contests broken across pages according to the layout', () => {
   const allContestsForBallot = getContests({ ballotStyle, election })
   const layouts = Array.from({ length: 5 }).map<SerializableBallotPageLayout>(
     (_, i) => ({
-      ballotImage: { metadata: metadataForPage(i) },
+      ballotImage: {
+        imageData: { width: 1, height: 1 },
+        metadata: metadataForPage(i),
+      },
       contests: [
         {
           bounds: { x: 0, y: 0, width: 0, height: 0 },

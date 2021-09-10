@@ -1,5 +1,8 @@
-import { BallotLocales } from '@votingworks/types'
-import { BallotPageLayout, BallotPageMetadata } from '../types'
+import {
+  BallotLocales,
+  BallotPageLayout,
+  BallotPageMetadata,
+} from '@votingworks/types'
 import KeyedMap from './KeyedMap'
 
 export type TemplateMapKey = [

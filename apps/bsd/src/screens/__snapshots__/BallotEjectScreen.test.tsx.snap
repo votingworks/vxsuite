@@ -3,19 +3,19 @@
 exports[`calls out live ballot sheets in test mode 1`] = `
 <div>
   <div
-    class="sc-bqyKva dgfgdQ"
+    class="sc-dQppl CqIxD"
   >
     <div
-      class="sc-fubCfw iyxBWV"
+      class="sc-gKsewC eUhhMQ"
     >
       <div
-        class="sc-pFZIQ hrSaSI"
+        class="sc-iBPRYJ hPAooK"
       >
         <div
-          class="sc-jrAGrp bYvxaX"
+          class="sc-fubCfw hAIFcM"
         >
           <div
-            class="sc-kEjbxe bgYkJF"
+            class="sc-pFZIQ Korzq"
           >
             Voting
             <span>
@@ -23,16 +23,16 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-iqHYGH"
+            class="sc-jrAGrp"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-crrsfI dGHIEc"
+          class="sc-kEjbxe eDKgHQ"
         >
           <button
-            class="sc-eCssSg czdiXU"
+            class="sc-gsTCUz bQMNvi"
             type="button"
           >
             Confirm Ballot Removed and Continue Scanning
@@ -41,13 +41,13 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ jA-DOsk"
+      class="sc-eCssSg jJQcwm"
     >
       <div
         class="sc-fodVxV czxgUa"
       >
         <div
-          class="sc-dlfnbm ddzYNI"
+          class="sc-crrsfI dvOODA"
         >
           <div
             class="sc-hBEYos ceYTYH"
@@ -68,15 +68,19 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         <div
           class="sc-fFubgz iIcvCZ"
         >
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
               alt="front"
               src="/front/url"
             />
           </div>
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
-              alt="back"
+              alt="front"
               src="/back/url"
             />
           </div>
@@ -87,7 +91,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       class="sc-kstrdz kvxcls"
     >
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         Scanner ID: 
         <strong>
@@ -95,7 +99,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         </strong>
       </div>
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         <strong>
           General Election
@@ -123,19 +127,19 @@ exports[`calls out live ballot sheets in test mode 1`] = `
 exports[`calls out test ballot sheets in live mode 1`] = `
 <div>
   <div
-    class="sc-bqyKva dgfgdQ"
+    class="sc-dQppl CqIxD"
   >
     <div
-      class="sc-fubCfw iyxBWV"
+      class="sc-gKsewC eUhhMQ"
     >
       <div
-        class="sc-pFZIQ hrSaSI"
+        class="sc-iBPRYJ hPAooK"
       >
         <div
-          class="sc-jrAGrp bYvxaX"
+          class="sc-fubCfw hAIFcM"
         >
           <div
-            class="sc-kEjbxe bgYkJF"
+            class="sc-pFZIQ Korzq"
           >
             Voting
             <span>
@@ -143,16 +147,16 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-iqHYGH"
+            class="sc-jrAGrp"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-crrsfI dGHIEc"
+          class="sc-kEjbxe eDKgHQ"
         >
           <button
-            class="sc-eCssSg czdiXU"
+            class="sc-gsTCUz bQMNvi"
             type="button"
           >
             Confirm Ballot Removed and Continue Scanning
@@ -161,13 +165,13 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ jA-DOsk"
+      class="sc-eCssSg jJQcwm"
     >
       <div
         class="sc-fodVxV czxgUa"
       >
         <div
-          class="sc-dlfnbm ddzYNI"
+          class="sc-crrsfI dvOODA"
         >
           <div
             class="sc-hBEYos ceYTYH"
@@ -188,15 +192,19 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         <div
           class="sc-fFubgz iIcvCZ"
         >
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
               alt="front"
               src="/front/url"
             />
           </div>
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
-              alt="back"
+              alt="front"
               src="/back/url"
             />
           </div>
@@ -207,7 +215,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       class="sc-kstrdz kvxcls"
     >
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         Scanner ID: 
         <strong>
@@ -215,7 +223,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         </strong>
       </div>
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         <strong>
           General Election
@@ -243,19 +251,19 @@ exports[`calls out test ballot sheets in live mode 1`] = `
 exports[`says the ballot sheet is blank if it is 1`] = `
 <div>
   <div
-    class="sc-bqyKva dgfgdQ"
+    class="sc-dQppl CqIxD"
   >
     <div
-      class="sc-fubCfw iyxBWV"
+      class="sc-gKsewC eUhhMQ"
     >
       <div
-        class="sc-pFZIQ hrSaSI"
+        class="sc-iBPRYJ hPAooK"
       >
         <div
-          class="sc-jrAGrp bYvxaX"
+          class="sc-fubCfw hAIFcM"
         >
           <div
-            class="sc-kEjbxe bgYkJF"
+            class="sc-pFZIQ Korzq"
           >
             Voting
             <span>
@@ -263,16 +271,16 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-iqHYGH"
+            class="sc-jrAGrp"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-crrsfI dGHIEc"
+          class="sc-kEjbxe eDKgHQ"
         >
           <button
-            class="sc-eCssSg fEkUoC"
+            class="sc-gsTCUz iulVCQ"
             disabled=""
             type="button"
           >
@@ -282,13 +290,13 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ jA-DOsk"
+      class="sc-eCssSg jJQcwm"
     >
       <div
         class="sc-fodVxV czxgUa"
       >
         <div
-          class="sc-dlfnbm ddzYNI"
+          class="sc-crrsfI dvOODA"
         >
           <div
             class="sc-hBEYos ceYTYH"
@@ -309,7 +317,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             Remove ballot and create a duplicate ballot for the Resolution Board to review.
             <br />
             <button
-              class="sc-eCssSg bFFZjC"
+              class="sc-gsTCUz ftrorQ"
               type="button"
             >
               Original Ballot Removed
@@ -322,7 +330,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot with issue which could not be determined.
             <br />
             <button
-              class="sc-eCssSg bFFZjC"
+              class="sc-gsTCUz ftrorQ"
               type="button"
             >
               Tabulate Duplicate Ballot
@@ -332,15 +340,19 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         <div
           class="sc-fFubgz iIcvCZ"
         >
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
               alt="front"
               src="/front/url"
             />
           </div>
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
-              alt="back"
+              alt="front"
               src="/back/url"
             />
           </div>
@@ -351,7 +363,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       class="sc-kstrdz kvxcls"
     >
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         Scanner ID: 
         <strong>
@@ -359,7 +371,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         <strong>
           General Election
@@ -387,19 +399,19 @@ exports[`says the ballot sheet is blank if it is 1`] = `
 exports[`says the ballot sheet is overvoted if it is 1`] = `
 <div>
   <div
-    class="sc-bqyKva dgfgdQ"
+    class="sc-dQppl CqIxD"
   >
     <div
-      class="sc-fubCfw iyxBWV"
+      class="sc-gKsewC eUhhMQ"
     >
       <div
-        class="sc-pFZIQ hrSaSI"
+        class="sc-iBPRYJ hPAooK"
       >
         <div
-          class="sc-jrAGrp bYvxaX"
+          class="sc-fubCfw hAIFcM"
         >
           <div
-            class="sc-kEjbxe bgYkJF"
+            class="sc-pFZIQ Korzq"
           >
             Voting
             <span>
@@ -407,16 +419,16 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-iqHYGH"
+            class="sc-jrAGrp"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-crrsfI dGHIEc"
+          class="sc-kEjbxe eDKgHQ"
         >
           <button
-            class="sc-eCssSg fEkUoC"
+            class="sc-gsTCUz iulVCQ"
             disabled=""
             type="button"
           >
@@ -426,13 +438,13 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ jA-DOsk"
+      class="sc-eCssSg jJQcwm"
     >
       <div
         class="sc-fodVxV czxgUa"
       >
         <div
-          class="sc-dlfnbm ddzYNI"
+          class="sc-crrsfI dvOODA"
         >
           <div
             class="sc-hBEYos ceYTYH"
@@ -453,7 +465,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             Remove ballot and create a duplicate ballot for the Resolution Board to review.
             <br />
             <button
-              class="sc-eCssSg bFFZjC"
+              class="sc-gsTCUz ftrorQ"
               type="button"
             >
               Original Ballot Removed
@@ -471,7 +483,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             .
             <br />
             <button
-              class="sc-eCssSg bFFZjC"
+              class="sc-gsTCUz ftrorQ"
               type="button"
             >
               Tabulate Duplicate Ballot
@@ -481,15 +493,19 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         <div
           class="sc-fFubgz iIcvCZ"
         >
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
               alt="front"
               src="/front/url"
             />
           </div>
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
-              alt="back"
+              alt="front"
               src="/back/url"
             />
           </div>
@@ -500,7 +516,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       class="sc-kstrdz kvxcls"
     >
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         Scanner ID: 
         <strong>
@@ -508,7 +524,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         <strong>
           General Election
@@ -536,19 +552,19 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
 exports[`says the ballot sheet is undervoted if it is 1`] = `
 <div>
   <div
-    class="sc-bqyKva dgfgdQ"
+    class="sc-dQppl CqIxD"
   >
     <div
-      class="sc-fubCfw iyxBWV"
+      class="sc-gKsewC eUhhMQ"
     >
       <div
-        class="sc-pFZIQ hrSaSI"
+        class="sc-iBPRYJ hPAooK"
       >
         <div
-          class="sc-jrAGrp bYvxaX"
+          class="sc-fubCfw hAIFcM"
         >
           <div
-            class="sc-kEjbxe bgYkJF"
+            class="sc-pFZIQ Korzq"
           >
             Voting
             <span>
@@ -556,16 +572,16 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-iqHYGH"
+            class="sc-jrAGrp"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-crrsfI dGHIEc"
+          class="sc-kEjbxe eDKgHQ"
         >
           <button
-            class="sc-eCssSg fEkUoC"
+            class="sc-gsTCUz iulVCQ"
             disabled=""
             type="button"
           >
@@ -575,13 +591,13 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ jA-DOsk"
+      class="sc-eCssSg jJQcwm"
     >
       <div
         class="sc-fodVxV czxgUa"
       >
         <div
-          class="sc-dlfnbm ddzYNI"
+          class="sc-crrsfI dvOODA"
         >
           <div
             class="sc-hBEYos ceYTYH"
@@ -602,7 +618,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             Remove ballot and create a duplicate ballot for the Resolution Board to review.
             <br />
             <button
-              class="sc-eCssSg bFFZjC"
+              class="sc-gsTCUz ftrorQ"
               type="button"
             >
               Original Ballot Removed
@@ -615,7 +631,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot with issue which could not be determined.
             <br />
             <button
-              class="sc-eCssSg bFFZjC"
+              class="sc-gsTCUz ftrorQ"
               type="button"
             >
               Tabulate Duplicate Ballot
@@ -625,15 +641,19 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
         <div
           class="sc-fFubgz iIcvCZ"
         >
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
               alt="front"
               src="/front/url"
             />
           </div>
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
-              alt="back"
+              alt="front"
               src="/back/url"
             />
           </div>
@@ -644,7 +664,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       class="sc-kstrdz kvxcls"
     >
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         Scanner ID: 
         <strong>
@@ -652,7 +672,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         <strong>
           General Election
@@ -680,19 +700,19 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
 exports[`says the sheet is unreadable if it is 1`] = `
 <div>
   <div
-    class="sc-bqyKva dgfgdQ"
+    class="sc-dQppl CqIxD"
   >
     <div
-      class="sc-fubCfw iyxBWV"
+      class="sc-gKsewC eUhhMQ"
     >
       <div
-        class="sc-pFZIQ hrSaSI"
+        class="sc-iBPRYJ hPAooK"
       >
         <div
-          class="sc-jrAGrp bYvxaX"
+          class="sc-fubCfw hAIFcM"
         >
           <div
-            class="sc-kEjbxe bgYkJF"
+            class="sc-pFZIQ Korzq"
           >
             Voting
             <span>
@@ -700,16 +720,16 @@ exports[`says the sheet is unreadable if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-iqHYGH"
+            class="sc-jrAGrp"
           >
             Ballot Scanner
           </div>
         </div>
         <div
-          class="sc-crrsfI dGHIEc"
+          class="sc-kEjbxe eDKgHQ"
         >
           <button
-            class="sc-eCssSg czdiXU"
+            class="sc-gsTCUz bQMNvi"
             type="button"
           >
             Confirm Ballot Removed and Continue Scanning
@@ -718,13 +738,13 @@ exports[`says the sheet is unreadable if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ jA-DOsk"
+      class="sc-eCssSg jJQcwm"
     >
       <div
         class="sc-fodVxV czxgUa"
       >
         <div
-          class="sc-dlfnbm ddzYNI"
+          class="sc-crrsfI dvOODA"
         >
           <div
             class="sc-hBEYos ceYTYH"
@@ -748,15 +768,19 @@ exports[`says the sheet is unreadable if it is 1`] = `
         <div
           class="sc-fFubgz iIcvCZ"
         >
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
               alt="front"
               src="/front/url"
             />
           </div>
-          <div>
+          <div
+            style="position: relative;"
+          >
             <img
-              alt="back"
+              alt="front"
               src="/back/url"
             />
           </div>
@@ -767,7 +791,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
       class="sc-kstrdz kvxcls"
     >
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         Scanner ID: 
         <strong>
@@ -775,7 +799,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-iBPRYJ dBXfiC"
+        class="sc-bqyKva kbFFdu"
       >
         <strong>
           General Election

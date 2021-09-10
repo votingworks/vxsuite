@@ -1,6 +1,3 @@
-/* eslint-disable */
-// import debug from 'debug'
-// debug.enable('precinct-scanner:*')
 import React from 'react'
 import fetchMock from 'fetch-mock'
 import { promises as fs } from 'fs'
@@ -12,6 +9,7 @@ import {
   PatchTestModeConfigResponse,
   PatchElectionConfigResponse,
   BatchInfo,
+  GetNextReviewSheetResponse,
 } from '@votingworks/types/api/module-scan'
 import {
   TallySourceMachineType,
@@ -35,7 +33,7 @@ import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 
 import { DateTime } from 'luxon'
-import { AdjudicationReason, BallotSheetInfo } from '@votingworks/types'
+import { AdjudicationReason } from '@votingworks/types'
 
 import App from './App'
 import { interpretedHmpb } from '../test/fixtures'
@@ -189,7 +187,9 @@ test('app can load and configure from a usb stick', async () => {
   await advanceTimersAndPromises(2)
   await advanceTimersAndPromises(1)
   await screen.findByText('Polls Closed')
-  expect(kiosk.getFileSystemEntries).toHaveBeenCalledWith('fake mount point/ballot-packages')
+  expect(kiosk.getFileSystemEntries).toHaveBeenCalledWith(
+    'fake mount point/ballot-packages'
+  )
   expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
     1
   )
@@ -610,23 +610,27 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   )
   fetchMock.get(
     '/scan/hmpb/review/next-sheet',
-    typedAs<BallotSheetInfo>({
-      id: 'test-sheet',
-      front: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 1,
-          adjudicationReason: AdjudicationReason.Overvote,
-        }),
-        image: { url: '/not/real.jpg' },
+    typedAs<GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'test-sheet',
+        front: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 1,
+            adjudicationReason: AdjudicationReason.Overvote,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
+        back: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 2,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
       },
-      back: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 2,
-        }),
-        image: { url: '/not/real.jpg' },
-      },
+      layouts: {},
+      definitions: {},
     })
   )
   await advanceTimersAndPromises(1)
@@ -838,23 +842,27 @@ test('voter can cast a rejected ballot', async () => {
   )
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<BallotSheetInfo>({
-      id: 'test-sheet',
-      front: {
-        interpretation: {
-          type: 'InvalidElectionHashPage',
-          expectedElectionHash: 'a',
-          actualElectionHash: 'b',
+    typedAs<GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'test-sheet',
+        front: {
+          interpretation: {
+            type: 'InvalidElectionHashPage',
+            expectedElectionHash: 'a',
+            actualElectionHash: 'b',
+          },
+          image: { url: '/not/real.jpg' },
         },
-        image: { url: '/not/real.jpg' },
+        back: {
+          interpretation: interpretedHmpb({
+            electionDefinition: electionSampleDefinition,
+            pageNumber: 2,
+          }),
+          image: { url: '/not/real.jpg' },
+        },
       },
-      back: {
-        interpretation: interpretedHmpb({
-          electionDefinition: electionSampleDefinition,
-          pageNumber: 2,
-        }),
-        image: { url: '/not/real.jpg' },
-      },
+      layouts: {},
+      definitions: {},
     })
   )
   await advanceTimersAndPromises(1)
@@ -975,23 +983,27 @@ test('voter can cast another ballot while the success screen is showing', async 
       )
       fetchMock.getOnce(
         '/scan/hmpb/review/next-sheet',
-        typedAs<BallotSheetInfo>({
-          id: 'test-sheet',
-          front: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 1,
-              adjudicationReason: AdjudicationReason.BlankBallot,
-            }),
-            image: { url: '/not/real.jpg' },
+        typedAs<GetNextReviewSheetResponse>({
+          interpreted: {
+            id: 'test-sheet',
+            front: {
+              interpretation: interpretedHmpb({
+                electionDefinition: electionSampleDefinition,
+                pageNumber: 1,
+                adjudicationReason: AdjudicationReason.BlankBallot,
+              }),
+              image: { url: '/not/real.jpg' },
+            },
+            back: {
+              interpretation: interpretedHmpb({
+                electionDefinition: electionSampleDefinition,
+                pageNumber: 2,
+              }),
+              image: { url: '/not/real.jpg' },
+            },
           },
-          back: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 2,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
+          layouts: {},
+          definitions: {},
         }),
         { overwriteRoutes: true }
       )
@@ -1020,7 +1032,9 @@ test('voter can cast another ballot while the success screen is showing', async 
     { overwriteRoutes: true }
   )
   // Even after the timeout to expire the success screen occurs we stay on the review screen.
-  await advanceTimersAndPromises(TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS / 1000)
+  await advanceTimersAndPromises(
+    TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS / 1000
+  )
   await screen.findByText('Blank Ballot')
   // No more ballots have scanned even though the scanner is ready to scan
   expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(2)

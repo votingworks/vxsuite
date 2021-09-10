@@ -2,9 +2,11 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import * as plusteksdk from '@votingworks/plustek-sdk'
 import { BallotType, ok } from '@votingworks/types'
 import {
+  GetNextReviewSheetResponse,
   GetScanStatusResponse,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
+import { typedAs } from '@votingworks/utils/build'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'
@@ -47,6 +49,7 @@ beforeEach(async () => {
     [
       {
         ballotImage: {
+          imageData: { width: 1, height: 1 },
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: '',
@@ -61,6 +64,7 @@ beforeEach(async () => {
       },
       {
         ballotImage: {
+          imageData: { width: 1, height: 1 },
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: '',
@@ -586,17 +590,24 @@ test('get next sheet', async () => {
 
   await request(app)
     .get(`/scan/hmpb/review/next-sheet`)
-    .expect(200, {
-      id: 'mock-review-sheet',
-      front: {
-        image: { url: '/url/front' },
-        interpretation: { type: 'BlankPage' },
-      },
-      back: {
-        image: { url: '/url/back' },
-        interpretation: { type: 'BlankPage' },
-      },
-    })
+    .expect(
+      200,
+      typedAs<GetNextReviewSheetResponse>({
+        interpreted: {
+          id: 'mock-review-sheet',
+          front: {
+            image: { url: '/url/front' },
+            interpretation: { type: 'BlankPage' },
+          },
+          back: {
+            image: { url: '/url/back' },
+            interpretation: { type: 'BlankPage' },
+          },
+        },
+        layouts: {},
+        definitions: {},
+      })
+    )
 })
 
 test('calibrate success', async () => {

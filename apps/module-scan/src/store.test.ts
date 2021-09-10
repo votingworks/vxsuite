@@ -4,8 +4,10 @@ import {
   BallotMetadata,
   BallotType,
   CandidateContest,
+  SerializableBallotPageLayout,
   YesNoContest,
 } from '@votingworks/types'
+import { typedAs } from '@votingworks/utils/build'
 import { promises as fs } from 'fs'
 import * as tmp from 'tmp'
 import { v4 as uuid } from 'uuid'
@@ -90,6 +92,7 @@ test('HMPB template handling', async () => {
   await store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
     {
       ballotImage: {
+        imageData: { width: 1, height: 1 },
         metadata: {
           ...metadata,
           pageNumber: 1,
@@ -99,6 +102,7 @@ test('HMPB template handling', async () => {
     },
     {
       ballotImage: {
+        imageData: { width: 1, height: 1 },
         metadata: {
           ...metadata,
           pageNumber: 2,
@@ -108,41 +112,45 @@ test('HMPB template handling', async () => {
     },
   ])
 
-  expect(await store.getHmpbTemplates()).toEqual([
-    [
-      Buffer.of(1, 2, 3),
+  expect(await store.getHmpbTemplates()).toEqual(
+    typedAs<[Buffer, SerializableBallotPageLayout[]][]>([
       [
-        {
-          ballotImage: {
-            metadata: {
-              electionHash: '',
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 1,
+        Buffer.of(1, 2, 3),
+        [
+          {
+            ballotImage: {
+              imageData: { width: 1, height: 1 },
+              metadata: {
+                electionHash: '',
+                ballotType: BallotType.Standard,
+                locales: { primary: 'en-US' },
+                ballotStyleId: '12',
+                precinctId: '23',
+                isTestMode: false,
+                pageNumber: 1,
+              },
             },
+            contests: [],
           },
-          contests: [],
-        },
-        {
-          ballotImage: {
-            metadata: {
-              electionHash: '',
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 2,
+          {
+            ballotImage: {
+              imageData: { width: 1, height: 1 },
+              metadata: {
+                electionHash: '',
+                ballotType: BallotType.Standard,
+                locales: { primary: 'en-US' },
+                ballotStyleId: '12',
+                precinctId: '23',
+                isTestMode: false,
+                pageNumber: 2,
+              },
             },
+            contests: [],
           },
-          contests: [],
-        },
+        ],
       ],
-    ],
-  ])
+    ])
+  )
 })
 
 test('destroy database', async () => {
@@ -215,6 +223,7 @@ test('adjudication', async () => {
     metadata,
     [1, 2].map((pageNumber) => ({
       ballotImage: {
+        imageData: { width: 1, height: 1 },
         metadata: {
           ...metadata,
           pageNumber,

@@ -8,6 +8,7 @@ import {
   BallotType,
   safeParse,
   safeParseElectionDefinition,
+  SerializableBallotPageLayout,
 } from '@votingworks/types'
 import {
   AddTemplatesRequest,
@@ -22,6 +23,7 @@ import {
   GetCurrentPrecinctConfigResponse,
   GetElectionConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
+  GetNextReviewSheetResponse,
   GetScanStatusResponse,
   GetTestModeConfigResponse,
   PatchElectionConfigRequest,
@@ -511,15 +513,63 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   })
 
-  app.get('/scan/hmpb/review/next-sheet', async (_request, response) => {
-    const sheet = await store.getNextAdjudicationSheet()
+  app.get<NoParams, GetNextReviewSheetResponse>(
+    '/scan/hmpb/review/next-sheet',
+    async (_request, response) => {
+      const sheet = await store.getNextAdjudicationSheet()
 
-    if (sheet) {
-      response.json(sheet)
-    } else {
-      response.status(404).end()
+      if (sheet) {
+        let frontLayout: SerializableBallotPageLayout | undefined
+        let backLayout: SerializableBallotPageLayout | undefined
+        let frontDefinition:
+          | GetNextReviewSheetResponse['definitions']['front']
+          | undefined
+        let backDefinition:
+          | GetNextReviewSheetResponse['definitions']['back']
+          | undefined
+
+        if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
+          const front = sheet.front.interpretation
+          const layouts = await store.getBallotLayoutsForMetadata(
+            front.metadata
+          )
+          frontLayout = layouts.find(
+            ({ ballotImage: { metadata } }) =>
+              metadata.pageNumber === front.metadata.pageNumber
+          )
+          frontDefinition = {
+            contestIds: await store.getContestIdsForMetadata(front.metadata),
+          }
+        }
+
+        if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
+          const back = sheet.back.interpretation
+          const layouts = await store.getBallotLayoutsForMetadata(back.metadata)
+          backLayout = layouts.find(
+            ({ ballotImage: { metadata } }) =>
+              metadata.pageNumber === back.metadata.pageNumber
+          )
+          backDefinition = {
+            contestIds: await store.getContestIdsForMetadata(back.metadata),
+          }
+        }
+
+        response.json({
+          interpreted: sheet,
+          layouts: {
+            front: frontLayout,
+            back: backLayout,
+          },
+          definitions: {
+            front: frontDefinition,
+            back: backDefinition,
+          },
+        })
+      } else {
+        response.status(404).end()
+      }
     }
-  })
+  )
 
   app.post<NoParams, ZeroResponse, ZeroRequest>(
     '/scan/zero',

@@ -1,6 +1,7 @@
-import { BallotPageLayout, Interpreter } from '@votingworks/hmpb-interpreter'
+import { Interpreter } from '@votingworks/hmpb-interpreter'
 import {
   BallotMetadata,
+  BallotPageLayout,
   ElectionDefinition,
   MarkThresholds,
   Optional,
@@ -139,6 +140,10 @@ export default class Importer {
       result.map((layout) => ({
         ...layout,
         ballotImage: {
+          imageData: {
+            width: layout.ballotImage.imageData.width,
+            height: layout.ballotImage.imageData.height,
+          },
           metadata: layout.ballotImage.metadata,
         },
       }))

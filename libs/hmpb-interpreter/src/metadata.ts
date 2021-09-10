@@ -1,6 +1,11 @@
 import { decodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
-import { BallotLocales, BallotType, Election } from '@votingworks/types'
-import { BallotPageMetadata, DetectQRCode } from './types'
+import {
+  BallotLocales,
+  BallotPageMetadata,
+  BallotType,
+  Election,
+} from '@votingworks/types'
+import { DetectQRCode } from './types'
 import defined from './utils/defined'
 import * as qrcode from './utils/qrcode'
 

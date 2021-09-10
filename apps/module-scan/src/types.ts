@@ -1,4 +1,3 @@
-import { BallotPageLayout } from '@votingworks/hmpb-interpreter'
 import {
   BallotLocales,
   BallotMark,
@@ -44,13 +43,6 @@ export interface CastVoteRecord
 export interface BallotPageQrcode {
   data: Uint8Array
   position: 'top' | 'bottom'
-}
-
-export type SerializableBallotPageLayout = Omit<
-  BallotPageLayout,
-  'ballotImage'
-> & {
-  ballotImage: Omit<BallotPageLayout['ballotImage'], 'imageData'>
 }
 
 export interface BallotConfig extends BallotStyleData {

@@ -3,8 +3,11 @@ import {
   asElectionDefinition,
   electionSample as election,
 } from '@votingworks/fixtures'
-import { BallotPageMetadata } from '@votingworks/hmpb-interpreter'
-import { BallotSheetInfo, BallotType } from '@votingworks/types'
+import {
+  BallotPageMetadata,
+  BallotSheetInfo,
+  BallotType,
+} from '@votingworks/types'
 import { sleep } from '@votingworks/utils'
 import * as fs from 'fs-extra'
 import { join } from 'path'
