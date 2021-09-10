@@ -76,6 +76,7 @@ const PrintOnlyScreen = ({
     !isPrinted
 
   // Handle Font Size when voter card is present.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, [isVoterCardPresent])
 
   const printBallot = useCallback(async () => {

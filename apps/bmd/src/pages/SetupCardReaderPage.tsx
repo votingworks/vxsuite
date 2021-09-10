@@ -11,6 +11,7 @@ interface Props {
 const SetupCardReaderPage = ({
   useEffectToggleLargeDisplay,
 }: Props): JSX.Element => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, [])
 
   return (

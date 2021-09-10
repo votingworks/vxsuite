@@ -119,6 +119,7 @@ const UnconfiguredElectionScreen = ({
 
     // function handles its own errors, so no `.catch` needed
     void attemptToLoadBallotPackageFromUSB()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDriveStatus])
 
   let content = (

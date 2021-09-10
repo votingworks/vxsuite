@@ -570,6 +570,7 @@ const HandMarkedPaperBallot = ({
 
     return () => {
       if (printBallotRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         printBallotRef.current.innerHTML = ''
       }
       document.head

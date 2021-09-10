@@ -13,6 +13,7 @@ interface Props {
 const ExpiredCardScreen = ({
   useEffectToggleLargeDisplay,
 }: Props): JSX.Element => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, [])
   useEffect(triggerAudioFocus, [])
 

@@ -10,6 +10,7 @@ export = {
     ...recommended.extends
       .map((name) => (name === 'airbnb-base' ? 'airbnb' : name))
       .filter((name) => name !== 'plugin:prettier/recommended'),
+    'airbnb/hooks',
     'plugin:react/recommended',
     'plugin:jsx-a11y/recommended',
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.

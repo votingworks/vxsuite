@@ -74,6 +74,7 @@ const BallotEjectScreen = ({
     })()
   }, [])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const contestIdsWithIssues = new Set<Contest['id']>()
 
   const styleForContest = useCallback(

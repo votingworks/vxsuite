@@ -159,6 +159,7 @@ const BallotScreen = (): JSX.Element => {
       )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
     )
     setBallotPages(pagedJsPageCount)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ballotPreviewRef])
 
   return (

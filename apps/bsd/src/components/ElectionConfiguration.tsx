@@ -96,12 +96,14 @@ const ElectionConfiguration = ({
         throw err
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setFoundFilenames, setLoadingFiles, usbDriveStatus])
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
       void fetchFilenames()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDriveStatus])
 
   const handleFileInput = async (event: React.FormEvent<HTMLInputElement>) => {

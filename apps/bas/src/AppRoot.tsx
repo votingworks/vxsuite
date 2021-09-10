@@ -63,6 +63,7 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
     setPartyId(undefined)
     setIsSinglePrecinctMode(false)
     window.localStorage.clear()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const reset = useCallback(() => {
@@ -70,16 +71,19 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
       setPrecinctId(undefined)
     }
     setBallotStyleId(undefined)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSinglePrecinctMode])
 
   const setPrecinct = useCallback((id: string) => {
     setPrecinctId(id)
     setPartyId(undefined)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const updatePrecinct: EventTargetFunction = useCallback((event) => {
     const { id } = (event.target as HTMLElement).dataset
     setPrecinctId(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -111,6 +115,7 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
     const longValue = (await smartcard?.readLongString())?.unsafeUnwrap()
     setElection(safeParseElection(longValue).unsafeUnwrap())
     setIsLoadingElection(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!smartcard])
 
   const lockScreen = useCallback(() => {
@@ -134,6 +139,7 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
         setIsReadyToRemove(false)
       }
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!smartcard])
 
   const programCard: EventTargetFunction = useCallback(
@@ -169,6 +175,7 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
         setIsReadyToRemove(true)
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [makeCancelable, reset, !smartcard, precinctId]
   )
 

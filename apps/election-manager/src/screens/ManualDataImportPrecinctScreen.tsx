@@ -172,6 +172,7 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
 
   const initialPrecinctTally =
     talliesByPrecinct[currentPrecinctId] ?? getEmptyExternalTally()
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [currentPrecinctTally, setCurrentPrecinctTally] = useState(
     initialPrecinctTally
   )

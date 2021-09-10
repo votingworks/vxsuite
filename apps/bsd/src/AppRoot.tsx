@@ -214,6 +214,7 @@ const App = (): JSX.Element => {
     } catch (error) {
       console.log('failed zeroData()', error) // eslint-disable-line no-console
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history])
 
   const backup = useCallback(async () => {

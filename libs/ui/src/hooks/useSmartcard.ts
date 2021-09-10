@@ -101,6 +101,7 @@ export const useSmartcard = ({
     } catch (error) {
       return err(error)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card, makeCancelable, isWriting])
 
   const readLongString = useCallback(async (): Promise<
@@ -111,6 +112,7 @@ export const useSmartcard = ({
     } catch (error) {
       return err(error)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card, makeCancelable, isWriting])
 
   const writeShortValue = useCallback(
@@ -125,6 +127,7 @@ export const useSmartcard = ({
         setState((prev) => ({ ...prev, isWriting: false }))
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [card, makeCancelable, isWriting]
   )
 
@@ -144,6 +147,7 @@ export const useSmartcard = ({
         set({ isWriting: false })
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [card, makeCancelable, isWriting]
   )
 
@@ -156,6 +160,7 @@ export const useSmartcard = ({
     return () => {
       hardwareStatusSubscription.unsubscribe()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardware])
 
   useInterval(

@@ -113,6 +113,7 @@ test('writing short value succeeds', async () => {
         )
         setError(result?.err())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return (
@@ -152,6 +153,7 @@ test('writing short value fails', async () => {
         )
         setError(result?.err())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{error?.message}</div>
@@ -183,6 +185,7 @@ test('reading long string value succeeds', async () => {
       void (async () => {
         setLongData((await smartcard?.readLongString())?.ok())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{longData}</div>
@@ -215,6 +218,7 @@ test('reading long binary value succeeds', async () => {
       void (async () => {
         setLongData((await smartcard?.readLongUint8Array())?.ok())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{longData?.join(',')}</div>
@@ -246,6 +250,7 @@ test('reading long string value fails', async () => {
       void (async () => {
         setError((await smartcard?.readLongString())?.err()?.message)
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{error}</div>
@@ -273,6 +278,7 @@ test('reading long binary value fails', async () => {
       void (async () => {
         setError((await smartcard?.readLongUint8Array())?.err()?.message)
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{error}</div>
@@ -301,6 +307,7 @@ test('writing long object value succeeds', async () => {
         ;(await smartcard?.writeLongValue({ some: 'object' }))?.unsafeUnwrap()
         setLongData((await smartcard?.readLongString())?.ok())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{longData}</div>
@@ -330,6 +337,7 @@ test('writing long binary value succeeds', async () => {
         )?.unsafeUnwrap()
         setLongData((await smartcard?.readLongUint8Array())?.ok())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{longData?.join(',')}</div>
@@ -357,6 +365,7 @@ test('writing long object value fails', async () => {
         const result = await smartcard?.writeLongValue({ some: 'object' })
         setError(result?.err())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{error?.message}</div>
@@ -386,6 +395,7 @@ test('writing long binary value fails', async () => {
         )
         setError(result?.err())
       })()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!smartcard])
 
     return <div>{error?.message}</div>

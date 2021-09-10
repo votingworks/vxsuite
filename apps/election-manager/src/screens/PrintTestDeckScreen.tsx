@@ -128,6 +128,7 @@ const PrintTestDeckScreen = (): JSX.Element => {
         setPrecinctIndex(undefined)
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setPrecinctIndex, precinctIds]
   )
 
