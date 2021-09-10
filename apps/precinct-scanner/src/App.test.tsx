@@ -20,7 +20,7 @@ import {
   getZeroTally,
   typedAs,
 } from '@votingworks/utils'
-import { render, waitFor, fireEvent, screen } from '@testing-library/react'
+import { render, waitFor, fireEvent, screen, act } from '@testing-library/react'
 import {
   fakeKiosk,
   fakeUsbDrive,
@@ -231,6 +231,12 @@ test('admin and pollworker configuration', async () => {
 
   // Open Polls
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
+  await screen.findByText('Print Report and Open Polls')
+  fireEvent.click(await screen.findByText('Cancel'))
+  await act(async () => {
+    await hardware.setPrinterConnected(false)
+  })
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
   fireEvent.click(await screen.findByText('Save Report and Open Polls'))
   await screen.findByText('Saving to Card')
   await screen.findByText('Close Polls for All Precincts')
@@ -369,6 +375,7 @@ test('admin and pollworker configuration', async () => {
 test('voter can cast a ballot that scans successfully ', async () => {
   const card = new MemoryCard()
   const hardware = await MemoryHardware.buildStandard()
+  await hardware.setPrinterConnected(false)
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: true })
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject')
@@ -1077,6 +1084,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   await screen.findByText('Polls Closed')
   // Make sure we haven't tried to scan
   expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0)
+  fetchMock.post('/scan/export', {})
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   )
@@ -1089,10 +1097,9 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   await advanceTimersAndPromises(1)
   expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0)
   // Open Polls
-  fetchMock.post('/scan/export', {})
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'))
-  await screen.findByText('Saving to Card')
+  fireEvent.click(await screen.findByText('Print Report and Open Polls'))
+  await screen.findByText('Printing Tally Report')
   await screen.findByText('Close Polls for All Precincts')
   // Make sure we haven't tried to scan
   await advanceTimersAndPromises(1)
