@@ -21,3 +21,11 @@ export const TallyReport = styled.div`
     font-size: 12px;
   }
 `
+
+export const PrintableContainer = styled.div`
+  margin: 0;
+  page-break-after: always;
+  @media screen {
+    display: none;
+  }
+`

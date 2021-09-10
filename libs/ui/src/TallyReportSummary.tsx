@@ -1,11 +1,14 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Dictionary, VotingMethod } from '@votingworks/types'
+import {
+  Dictionary,
+  VotingMethod,
+  getLabelForVotingMethod,
+} from '@votingworks/types'
 
 import { format } from '@votingworks/utils'
-import { Table, TD } from '@votingworks/ui'
-import { getLabelForVotingMethod } from '../utils/votingMethod'
+import { Table, TD } from './Table'
 
 const BallotSummary = styled.div`
   margin-bottom: 1em;
@@ -23,7 +26,7 @@ interface Props {
   ballotCountsByVotingMethod: Dictionary<number>
 }
 
-const TallyReportSummary = ({
+export const TallyReportSummary = ({
   totalBallotCount,
   ballotCountsByVotingMethod,
 }: Props): JSX.Element => {
@@ -62,5 +65,3 @@ const TallyReportSummary = ({
     </BallotSummary>
   )
 }
-
-export default TallyReportSummary

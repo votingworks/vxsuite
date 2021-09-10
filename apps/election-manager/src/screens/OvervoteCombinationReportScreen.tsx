@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import pluralize from 'pluralize'
 
 import { format } from '@votingworks/utils'
-import { Table, TD } from '@votingworks/ui'
+import { Table, TD, LogoMark } from '@votingworks/ui'
 import { ContestTallyMeta } from '@votingworks/types'
 import NavigationScreen from '../components/NavigationScreen'
 import PrintButton from '../components/PrintButton'
@@ -18,7 +18,6 @@ import {
 import Prose from '../components/Prose'
 import Text from '../components/Text'
 import HorizontalRule from '../components/HorizontalRule'
-import LogoMark from '../components/LogoMark'
 
 const ContestMeta = styled.div`
   float: right;

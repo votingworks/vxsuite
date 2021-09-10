@@ -10,6 +10,9 @@ import {
   TallyReport,
   TallyReportColumns,
   ReportSection,
+  TallyReportMetadata,
+  TallyReportSummary,
+  LogoMark,
 } from '@votingworks/ui'
 import {
   generateDefaultReportFilename,
@@ -30,15 +33,12 @@ import Button from '../components/Button'
 import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
 import LinkButton from '../components/LinkButton'
-import TallyReportMetadata from '../components/TallyReportMetadata'
-import TallyReportSummary from '../components/TallyReportSummary'
 
 import routerPaths from '../routerPaths'
 import {
   filterTalliesByParams,
   filterTalliesByParamsAndBatchId,
 } from '../lib/votecounting'
-import LogoMark from '../components/LogoMark'
 import { filterExternalTalliesByParams } from '../utils/externalTallies'
 import { getLabelForVotingMethod } from '../utils/votingMethod'
 import Text from '../components/Text'

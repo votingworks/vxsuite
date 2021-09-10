@@ -1,16 +1,13 @@
 import {
   Candidate,
   CandidateContest,
-  CandidateVote,
   Contest,
   Election,
   Party,
   Vote,
   VotesDict,
-  YesNoVote,
   getBallotStyle,
   getContests,
-  getEitherNeitherContests,
   Dictionary,
   expandEitherNeitherContests,
   Optional,
@@ -19,10 +16,8 @@ import {
   ContestTallyMetaDictionary,
   FullElectionTally,
   TallyCategory,
-  YesNoVoteOption,
   VotingMethod,
   BatchTally,
-  ContestOptionTally,
 } from '@votingworks/types'
 import {
   buildVoteFromCvr,
@@ -37,7 +32,7 @@ import { strict as assert } from 'assert'
 
 import { CastVoteRecord, CastVoteRecordLists } from '../config/types'
 
-import { writeInCandidate, getDistrictIdsForPartyId } from '../utils/election'
+import { writeInCandidate } from '../utils/election'
 
 const MISSING_BATCH_ID = 'missing-batch-id'
 

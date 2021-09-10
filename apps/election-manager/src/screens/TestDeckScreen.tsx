@@ -13,6 +13,8 @@ import {
   ReportSection,
   TallyReportColumns,
   TallyReportTitle,
+  TallyReportMetadata,
+  LogoMark,
 } from '@votingworks/ui'
 import { tallyVotesByContest } from '@votingworks/utils'
 import routerPaths from '../routerPaths'
@@ -31,8 +33,6 @@ import { PrecinctReportScreenProps } from '../config/types'
 
 import { generateTestDeckBallots } from '../utils/election'
 
-import LogoMark from '../components/LogoMark'
-import TallyReportMetadata from '../components/TallyReportMetadata'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 import {
   generateDefaultReportFilename,

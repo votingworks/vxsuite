@@ -6,11 +6,9 @@ const LogoMarkStyled = styled.img`
   margin: 0 0 1em 2em;
   height: 0.25in;
 `
-const LogoMark = (): JSX.Element => (
+export const LogoMark = (): JSX.Element => (
   <LogoMarkStyled
     src="/votingworks-wordmark-black.svg"
     alt="VotingWorks logo"
   />
 )
-
-export default LogoMark
