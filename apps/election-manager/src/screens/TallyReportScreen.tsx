@@ -4,7 +4,11 @@ import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
 import { find } from '@votingworks/utils'
-import { ExternalTally, VotingMethod } from '@votingworks/types'
+import {
+  ExternalTally,
+  VotingMethod,
+  getLabelForVotingMethod,
+} from '@votingworks/types'
 import {
   ContestTally,
   TallyReport,
@@ -40,7 +44,7 @@ import {
   filterTalliesByParamsAndBatchId,
 } from '../lib/votecounting'
 import { filterExternalTalliesByParams } from '../utils/externalTallies'
-import { getLabelForVotingMethod } from '../utils/votingMethod'
+
 import Text from '../components/Text'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 

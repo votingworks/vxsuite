@@ -2,7 +2,12 @@ import React, { useContext } from 'react'
 import { throwIllegalValue, format } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import { Table, TD } from '@votingworks/ui'
-import { BatchTally, TallyCategory, VotingMethod } from '@votingworks/types'
+import {
+  BatchTally,
+  TallyCategory,
+  VotingMethod,
+  getLabelForVotingMethod,
+} from '@votingworks/types'
 
 import { getPartiesWithPrimaryElections } from '../utils/election'
 
@@ -11,7 +16,6 @@ import Loading from './Loading'
 import ExportBatchTallyResultsButton from './ExportBatchTallyResultsButton'
 import LinkButton from './LinkButton'
 import routerPaths from '../routerPaths'
-import { getLabelForVotingMethod } from '../utils/votingMethod'
 
 export interface Props {
   breakdownCategory: TallyCategory
