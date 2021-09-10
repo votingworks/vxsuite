@@ -8,7 +8,7 @@ import {
   safeParseJSON,
 } from '@votingworks/types'
 import { Card, Hardware, isCardReader } from '@votingworks/utils'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { map } from 'rxjs/operators'
 import useInterval from 'use-interval'
 import { useCancelablePromise } from './useCancelablePromise'
@@ -35,7 +35,6 @@ export type UseSmartcardResult = [
 ]
 
 interface State {
-  readonly isReading: boolean
   readonly isWriting: boolean
   readonly lastCardDataString?: string
   readonly longValueExists?: boolean
@@ -45,7 +44,6 @@ interface State {
 }
 
 const initialState: State = {
-  isReading: false,
   isWriting: false,
   isCardPresent: false,
   hasCardReaderAttached: false,
@@ -81,13 +79,13 @@ export const useSmartcard = ({
       cardData,
       hasCardReaderAttached,
       isCardPresent,
-      isReading,
       isWriting,
       lastCardDataString,
       longValueExists,
     },
     setState,
   ] = useState(initialState)
+  const isReading = useRef(false)
   const makeCancelable = useCancelablePromise()
 
   const set = useCallback(
@@ -162,11 +160,11 @@ export const useSmartcard = ({
 
   useInterval(
     async () => {
-      if (isReading || isWriting || !hasCardReaderAttached) {
+      if (isReading.current || isWriting || !hasCardReaderAttached) {
         return
       }
 
-      set({ isReading: true })
+      isReading.current = true
       try {
         const insertedCard = await makeCancelable(card.readStatus())
 
@@ -197,7 +195,7 @@ export const useSmartcard = ({
           lastCardDataString: currentCardDataString,
         })
       } finally {
-        set({ isReading: false })
+        isReading.current = false
       }
     },
     CARD_POLLING_INTERVAL,
