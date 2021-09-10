@@ -421,7 +421,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   })
 
   // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS)
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000)
   expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1)
 
   await screen.findByText('Your ballot was counted!')
