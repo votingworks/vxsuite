@@ -1,70 +1,22 @@
-import { CandidateContest, Election } from '@votingworks/types'
+import { CandidateContest, CastVoteRecord, Election } from '@votingworks/types'
+import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
 
 import {
   calculateTally,
   combineTallies,
   getZeroTally,
   computeTallyForEitherNeitherContests,
+  serializeTally,
 } from './cardTallies'
 
 import electionSample from './data/electionSample.json'
+import { buildVoteFromCvr, calculateTallyForCastVoteRecords } from './votes'
 
 const election = electionSample as Election
 
 const getIdxForContestId = (contestId: string) => {
   return election.contests.findIndex((c) => c.id === contestId)
 }
-
-test('counts missing votes counts as undervotes for appropriate ballot style', () => {
-  const zeroTally = getZeroTally(election)
-  const tally = calculateTally({
-    election,
-    tally: getZeroTally(election),
-    votes: {},
-    ballotStyleId: '12',
-  })
-
-  const contestIdsNotOnBallots = [
-    'primary-constitution-head-of-party',
-    'measure-666',
-  ]
-  let contestIdx = 0
-  election.contests.forEach((contest) => {
-    if (contestIdsNotOnBallots.includes(contest.id)) {
-      expect(tally[contestIdx]).toEqual(zeroTally[contestIdx])
-    } else if (contest.type === 'candidate') {
-      const expectedResults = {
-        candidates: contest.candidates.map(() => 0),
-        writeIns: 0,
-        undervotes: contest.seats,
-        overvotes: 0,
-        ballotsCast: 1,
-      }
-      expect(tally[contestIdx]).toEqual(expectedResults)
-    } else if (contest.type === 'yesno') {
-      expect(tally[contestIdx]).toEqual({
-        yes: 0,
-        no: 0,
-        undervotes: 1,
-        overvotes: 0,
-        ballotsCast: 1,
-      })
-    } else if (contest.type === 'ms-either-neither') {
-      expect(tally[contestIdx]).toEqual({
-        eitherOption: 0,
-        neitherOption: 0,
-        eitherNeitherUndervotes: 1,
-        eitherNeitherOvervotes: 0,
-        firstOption: 0,
-        secondOption: 0,
-        pickOneUndervotes: 1,
-        pickOneOvervotes: 0,
-        ballotsCast: 1,
-      })
-    }
-    contestIdx += 1
-  })
-})
 
 test('adds vote to tally as expected', () => {
   const contestId = 'primary-constitution-head-of-party'
@@ -625,23 +577,30 @@ test('happily counts neither option with no selected preference', () => {
   })
 })
 
-test('counts missing contests from votes dict as undervotes', () => {
-  const tally = computeTallyForEitherNeitherContests({
-    election,
-    tally: zeroTally,
-    votes: {},
-    contests: election.contests,
-  })
+test('serializedTally creates same result as calculateTally', () => {
+  const castVoteRecordsContent =
+    electionWithMsEitherNeitherWithDataFiles.cvrData
+  const lines = castVoteRecordsContent.split('\n')
+  const castVoteRecords = lines.flatMap((line) =>
+    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
+  )
+  const electionEitherNeither =
+    electionWithMsEitherNeitherWithDataFiles.electionDefinition.election
+  let expectedSerializedTally = getZeroTally(electionEitherNeither)
+  for (const cvr of castVoteRecords) {
+    const nextVote = buildVoteFromCvr({ election: electionEitherNeither, cvr })
+    expectedSerializedTally = calculateTally({
+      election: electionEitherNeither,
+      tally: expectedSerializedTally,
+      votes: nextVote,
+      ballotStyleId: cvr._ballotStyleId,
+    })
+  }
 
-  expect(tally[measure420Index]).toEqual({
-    eitherOption: 0,
-    neitherOption: 0,
-    eitherNeitherUndervotes: 1,
-    eitherNeitherOvervotes: 0,
-    firstOption: 0,
-    secondOption: 0,
-    pickOneUndervotes: 1,
-    pickOneOvervotes: 0,
-    ballotsCast: 1,
-  })
+  const primaryTally = calculateTallyForCastVoteRecords(
+    electionEitherNeither,
+    new Set(castVoteRecords)
+  )
+  const serializedTally = serializeTally(electionEitherNeither, primaryTally)
+  expect(serializedTally).toStrictEqual(expectedSerializedTally)
 })

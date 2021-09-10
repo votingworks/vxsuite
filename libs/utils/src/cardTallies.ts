@@ -5,7 +5,9 @@ import {
   getBallotStyle,
   getContests,
   getEitherNeitherContests,
+  Tally,
   VotesDict,
+  writeInCandidate,
   YesNoVote,
 } from '@votingworks/types'
 import { strict as assert } from 'assert'
@@ -174,12 +176,21 @@ export const computeTallyForEitherNeitherContests = ({
       ...newTally[contestIndex],
     } as SerializedMsEitherNeitherTally
 
+    const eitherNeitherVote = votes[contest.eitherNeitherContestId]
+    const pickOneVote = votes[contest.pickOneContestId]
+
+    if (eitherNeitherVote === undefined || pickOneVote === undefined) {
+      continue
+    }
+
     eitherNeitherTally.ballotsCast += 1
     // Tabulate EitherNeither section
-    const eitherNeitherVote = votes[contest.eitherNeitherContestId] as YesNoVote
-    const singleEitherNeitherVote = getSingleYesNoVote(eitherNeitherVote)
-
-    if (singleEitherNeitherVote === undefined) {
+    const singleEitherNeitherVote = getSingleYesNoVote(
+      eitherNeitherVote as YesNoVote
+    )
+    if (eitherNeitherVote.length > 1) {
+      eitherNeitherTally.eitherNeitherOvervotes += 1
+    } else if (singleEitherNeitherVote === undefined) {
       eitherNeitherTally.eitherNeitherUndervotes += 1
     } else {
       eitherNeitherTally[
@@ -188,10 +199,11 @@ export const computeTallyForEitherNeitherContests = ({
     }
 
     // Tabulate YesNo section
-    const pickOneVote = votes[contest.pickOneContestId] as YesNoVote
-    const singlePickOneVote = getSingleYesNoVote(pickOneVote)
+    const singlePickOneVote = getSingleYesNoVote(pickOneVote as YesNoVote)
 
-    if (singlePickOneVote === undefined) {
+    if (pickOneVote.length > 1) {
+      eitherNeitherTally.pickOneOvervotes += 1
+    } else if (singlePickOneVote === undefined) {
       eitherNeitherTally.pickOneUndervotes += 1
     } else {
       eitherNeitherTally[
@@ -291,4 +303,60 @@ export const calculateTally = ({
     }
   }
   return tally
+}
+
+/**
+ * Convert a Tally object into a SerializedTally object for storage.
+ */
+export const serializeTally = (
+  election: Election,
+  tally: Tally
+): SerializedTally => {
+  // eslint-disable-next-line array-callback-return
+  return election.contests.map((contest) => {
+    if (contest.type === 'yesno') {
+      const contestTally = tally.contestTallies[contest.id]
+      return {
+        yes: contestTally?.tallies.yes?.tally ?? 0,
+        no: contestTally?.tallies.no?.tally ?? 0,
+        undervotes: contestTally?.metadata.undervotes ?? 0,
+        overvotes: contestTally?.metadata.overvotes ?? 0,
+        ballotsCast: contestTally?.metadata.ballots ?? 0,
+      }
+    }
+
+    if (contest.type === 'ms-either-neither') {
+      const eitherNeitherContestTally =
+        tally.contestTallies[contest.eitherNeitherContestId]
+      const pickOneContestTally = tally.contestTallies[contest.pickOneContestId]
+      return {
+        eitherOption: eitherNeitherContestTally?.tallies.yes?.tally ?? 0,
+        neitherOption: eitherNeitherContestTally?.tallies.no?.tally ?? 0,
+        eitherNeitherUndervotes:
+          eitherNeitherContestTally?.metadata.undervotes ?? 0,
+        eitherNeitherOvervotes:
+          eitherNeitherContestTally?.metadata.overvotes ?? 0,
+        firstOption: pickOneContestTally?.tallies.yes?.tally ?? 0,
+        secondOption: pickOneContestTally?.tallies.no?.tally ?? 0,
+        pickOneUndervotes: pickOneContestTally?.metadata.undervotes ?? 0,
+        pickOneOvervotes: pickOneContestTally?.metadata.overvotes ?? 0,
+        ballotsCast: pickOneContestTally?.metadata.ballots ?? 0,
+      }
+    }
+
+    if (contest.type === 'candidate') {
+      const contestTally = tally.contestTallies[contest.id]
+      return {
+        candidates: contest.candidates.map(
+          (candidate) => contestTally?.tallies[candidate.id]?.tally ?? 0
+        ),
+        writeIns: contestTally?.tallies[writeInCandidate.id]?.tally ?? 0,
+        undervotes: contestTally?.metadata.undervotes ?? 0,
+        overvotes: contestTally?.metadata.overvotes ?? 0,
+        ballotsCast: contestTally?.metadata.ballots ?? 0,
+      }
+    }
+    /* istanbul ignore next - compile time check for completeness */
+    throwIllegalValue(contest)
+  })
 }
