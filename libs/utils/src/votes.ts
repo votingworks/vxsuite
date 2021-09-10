@@ -91,17 +91,16 @@ export const buildVoteFromCvr = ({
 
 /**
  * Gets all the vote options a voter can make for a given yes/no contest.
- * @returns ContestVoteOption[] ex. ['yes', 'no']
  */
 export function getContestVoteOptionsForYesNoContest(
   contest: YesNoContest
 ): readonly YesNoVoteID[] {
-  assert(contest.type === 'yesno')
+  assert.equal(contest.type, 'yesno')
   return ['yes', 'no']
 }
 
 /**
- * Gets all the vote options a voter can make for a given contest. If write ins are allowed a single write in candidate ID is included.
+ * Gets all the vote options a voter can make for a given contest. If write-ins are allowed a single write-in candidate ID is included.
  * @returns ContestVoteOption[] ex. ['yes', 'no'] or ['aaron', 'bob', '__write-in']
  */
 export function getContestVoteOptionsForCandidateContest(

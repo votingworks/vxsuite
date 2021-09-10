@@ -1,6 +1,5 @@
 import {
   AdjudicationReasonInfo,
-  BallotSheetInfo,
   safeParseJSON,
   CastVoteRecord,
 } from '@votingworks/types'

@@ -18,7 +18,7 @@ export function combineContestTallies(
     const secondTallyOption = secondTally.tallies[optionId]
     combinedTallies[optionId] = {
       option: firstTallyOption.option,
-      tally: firstTallyOption.tally + (secondTallyOption?.tally || 0),
+      tally: firstTallyOption.tally + (secondTallyOption?.tally ?? 0),
     }
   }
 

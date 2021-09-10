@@ -41,7 +41,6 @@ export interface BatchTally extends Tally {
 }
 
 export enum TallyCategory {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
   Precinct = 'precinct',
   Scanner = 'scanner',
   Party = 'party',

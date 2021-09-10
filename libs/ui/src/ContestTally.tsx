@@ -94,7 +94,7 @@ export const ContestTally = ({
 
         const { ballots, overvotes, undervotes } = metadata
 
-        const contestOptionTableRows = []
+        const contestOptionTableRows: JSX.Element[] = []
         switch (contest.type) {
           case 'candidate': {
             const candidates = getContestVoteOptionsForCandidateContest(contest)
@@ -105,7 +105,7 @@ export const ContestTally = ({
                 <tr key={key} data-testid={key}>
                   <td>{candidate.name}</td>
                   <TD narrow textAlign="right">
-                    {talliesRelevant && tally ? tally.tally : 'X'}
+                    {talliesRelevant && (tally?.tally ?? 'X')}
                   </TD>
                 </tr>
               )
@@ -122,7 +122,7 @@ export const ContestTally = ({
                 <tr key={key} data-testid={key}>
                   <td>{choiceName}</td>
                   <TD narrow textAlign="right">
-                    {talliesRelevant && tally ? tally.tally : 'X'}
+                    {talliesRelevant && (tally?.tally ?? 'X')}
                   </TD>
                 </tr>
               )
