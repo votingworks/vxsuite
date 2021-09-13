@@ -4,14 +4,14 @@ import { Election } from '@votingworks/types'
 
 import { format } from '@votingworks/utils'
 
-import Text from './Text'
+import { Text } from './Text'
 
 interface Props {
   election: Election
   generatedAtTime: Date
 }
 
-const TallyReportMetadata = ({
+export const TallyReportMetadata = ({
   election,
   generatedAtTime,
 }: Props): JSX.Element => {
@@ -28,5 +28,3 @@ const TallyReportMetadata = ({
     </p>
   )
 }
-
-export default TallyReportMetadata

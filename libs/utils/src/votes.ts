@@ -11,6 +11,14 @@ import {
   CandidateContest,
   YesNoContest,
   YesNoVoteID,
+  VotingMethod,
+  CandidateVote,
+  ContestOptionTally,
+  ContestTally,
+  Dictionary,
+  getDistrictIdsForPartyId,
+  Tally,
+  YesNoVoteOption,
 } from '@votingworks/types'
 import { find } from './find'
 
@@ -111,4 +119,146 @@ export function getContestVoteOptionsForCandidateContest(
     return options.concat(writeInCandidate)
   }
   return options
+}
+
+export function getVotingMethodForCastVoteRecord(
+  CVR: CastVoteRecord
+): VotingMethod {
+  return Object.values(VotingMethod).includes(CVR._ballotType as VotingMethod)
+    ? (CVR._ballotType as VotingMethod)
+    : VotingMethod.Unknown
+}
+
+interface TallyParams {
+  election: Election
+  votes: VotesDict[]
+  filterContestsByParty?: string
+}
+export function tallyVotesByContest({
+  election,
+  votes,
+  filterContestsByParty,
+}: TallyParams): Dictionary<ContestTally> {
+  const contestTallies: Dictionary<ContestTally> = {}
+  const { contests } = election
+
+  const districtsForParty = filterContestsByParty
+    ? getDistrictIdsForPartyId(election, filterContestsByParty)
+    : []
+
+  expandEitherNeitherContests(contests).forEach((contest) => {
+    if (
+      filterContestsByParty === undefined ||
+      (districtsForParty.includes(contest.districtId) &&
+        contest.partyId === filterContestsByParty)
+    ) {
+      const tallies: Dictionary<ContestOptionTally> = {}
+      if (contest.type === 'yesno') {
+        ;[['yes'] as YesNoVoteOption, ['no'] as YesNoVoteOption].forEach(
+          (option: YesNoVoteOption) => {
+            if (option.length === 1) {
+              tallies[option[0]] = { option, tally: 0 }
+            }
+          }
+        )
+      }
+
+      if (contest.type === 'candidate') {
+        contest.candidates.forEach((candidate) => {
+          tallies[candidate.id] = { option: candidate, tally: 0 }
+        })
+        if (contest.allowWriteIns) {
+          tallies[writeInCandidate.id] = { option: writeInCandidate, tally: 0 }
+        }
+      }
+
+      let numberOfUndervotes = 0
+      let numberOfOvervotes = 0
+      let numberOfVotes = 0
+      votes.forEach((vote) => {
+        const selected = vote[contest.id]
+        if (!selected) {
+          return
+        }
+
+        numberOfVotes += 1
+        // overvotes & undervotes
+        const maxSelectable = contest.type === 'yesno' ? 1 : contest.seats
+        if (selected.length > maxSelectable) {
+          numberOfOvervotes += maxSelectable
+          return
+        }
+        if (selected.length < maxSelectable) {
+          numberOfUndervotes += maxSelectable - selected.length
+        }
+        if (selected.length === 0) {
+          return
+        }
+
+        if (contest.type === 'yesno') {
+          const optionId = selected[0] as string
+          const optionTally = tallies[optionId]
+          assert(optionTally)
+          tallies[optionId] = {
+            option: optionTally.option,
+            tally: optionTally.tally + 1,
+          }
+        } else {
+          ;(selected as CandidateVote).forEach((selectedOption) => {
+            const optionTally = tallies[selectedOption.id]
+            assert(optionTally)
+            tallies[selectedOption.id] = {
+              option: optionTally.option,
+              tally: optionTally.tally + 1,
+            }
+          })
+        }
+      })
+      const metadataForContest = {
+        undervotes: numberOfUndervotes,
+        overvotes: numberOfOvervotes,
+        ballots: numberOfVotes,
+      }
+
+      contestTallies[contest.id] = {
+        contest,
+        tallies,
+        metadata: metadataForContest,
+      }
+    }
+  })
+
+  return contestTallies
+}
+
+export function calculateTallyForCastVoteRecords(
+  election: Election,
+  castVoteRecords: Set<CastVoteRecord>,
+  filterContestsByParty?: string
+): Tally {
+  const allVotes: VotesDict[] = []
+  const ballotCountsByVotingMethod: Dictionary<number> = {}
+  Object.values(VotingMethod).forEach((votingMethod) => {
+    ballotCountsByVotingMethod[votingMethod] = 0
+  })
+  for (const CVR of castVoteRecords) {
+    const vote = buildVoteFromCvr({ election, cvr: CVR })
+    const votingMethod = getVotingMethodForCastVoteRecord(CVR)
+    const count = ballotCountsByVotingMethod[votingMethod] ?? 0
+    ballotCountsByVotingMethod[votingMethod] = count + 1
+    allVotes.push(vote)
+  }
+
+  const overallTally = tallyVotesByContest({
+    election,
+    votes: allVotes,
+    filterContestsByParty,
+  })
+
+  return {
+    contestTallies: overallTally,
+    castVoteRecords,
+    numberOfBallotsCounted: allVotes.length,
+    ballotCountsByVotingMethod,
+  }
 }

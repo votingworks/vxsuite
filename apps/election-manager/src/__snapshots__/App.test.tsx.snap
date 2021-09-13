@@ -293,7 +293,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             State of Mississippi
             <br />
             <span
-              class="sc-crrsfI XvqqD"
+              class="sc-pVTma fWDBLk"
             >
               This report was created on 
               Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -363,7 +363,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
     >
       <img
         alt="VotingWorks logo"
-        class="sc-bYEvPH goHQyd"
+        class="sc-bBHwJV kkXqpg"
         src="/votingworks-wordmark-black.svg"
       />
       <div>
@@ -395,7 +395,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           State of Mississippi
           <br />
           <span
-            class="sc-crrsfI XvqqD"
+            class="sc-pVTma fWDBLk"
           >
             This report was created on 
             Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -1509,7 +1509,7 @@ exports[`tabulating CVRs 1`] = `
 >
   <img
     alt="VotingWorks logo"
-    class="sc-bYEvPH goHQyd"
+    class="sc-bBHwJV kkXqpg"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -1529,7 +1529,7 @@ exports[`tabulating CVRs 1`] = `
       State of Mississippi
       <br />
       <span
-        class="sc-crrsfI XvqqD"
+        class="sc-pVTma fWDBLk"
       >
         This report was created on 
         Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -1540,7 +1540,7 @@ exports[`tabulating CVRs 1`] = `
     class="sc-dlVyqM bJYTEA"
   >
     <div
-      class="sc-cBNfnY dAVzvJ"
+      class="sc-iwjezw gIRvYF"
     >
       <h3>
         Ballots by Voting Method
@@ -2700,7 +2700,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
 >
   <img
     alt="VotingWorks logo"
-    class="sc-bYEvPH goHQyd"
+    class="sc-bBHwJV kkXqpg"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -2720,7 +2720,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       State of Mississippi
       <br />
       <span
-        class="sc-crrsfI XvqqD"
+        class="sc-pVTma fWDBLk"
       >
         This report was created on 
         Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -2731,7 +2731,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     class="sc-dlVyqM bJYTEA"
   >
     <div
-      class="sc-cBNfnY dAVzvJ"
+      class="sc-iwjezw gIRvYF"
     >
       <h3>
         Ballots by Voting Method

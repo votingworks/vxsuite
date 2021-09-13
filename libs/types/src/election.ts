@@ -1301,6 +1301,15 @@ export const getPartyFullNameFromBallotStyle = ({
   return party?.fullName ?? ''
 }
 
+export function getDistrictIdsForPartyId(
+  election: Election,
+  partyId: string
+): string[] {
+  return election.ballotStyles
+    .filter((bs) => bs.partyId === partyId)
+    .flatMap((bs) => bs.districts)
+}
+
 /**
  * Helper function to build a `VotesDict` more easily, primarily for testing.
  *

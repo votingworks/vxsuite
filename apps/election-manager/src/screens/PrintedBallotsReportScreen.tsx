@@ -5,7 +5,7 @@ import _ from 'lodash'
 
 import { Dictionary } from '@votingworks/types'
 import { format, find } from '@votingworks/utils'
-import { Table, TD } from '@votingworks/ui'
+import { Table, TD, LogoMark } from '@votingworks/ui'
 import { PrintableBallotType } from '../config/types'
 import routerPaths from '../routerPaths'
 
@@ -17,7 +17,6 @@ import Text from '../components/Text'
 
 import NavigationScreen from '../components/NavigationScreen'
 
-import LogoMark from '../components/LogoMark'
 import LinkButton from '../components/LinkButton'
 
 type PrintCounts = Dictionary<Dictionary<number>>

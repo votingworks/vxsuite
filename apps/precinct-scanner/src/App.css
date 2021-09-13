@@ -76,10 +76,9 @@ html {
 @media print {
   html {
     background: #ffffff;
-    color: #000000;
 
     /* Adjust printed ballot font-size */
-    font-size: 14px !important; /* stylelint-disable-line declaration-no-important */
+    font-size: 16px !important; /* stylelint-disable-line declaration-no-important */
   }
 }
 
@@ -119,8 +118,7 @@ html body .cvox_indicator_container {
   display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
-/* Default printed paper page settings for reports, etc. */
 @page {
-  margin: 0.5in;
+  margin: 0.375in;
   size: letter portrait;
 }

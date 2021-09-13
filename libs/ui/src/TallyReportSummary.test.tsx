@@ -2,7 +2,7 @@ import React from 'react'
 import { render, getByText as domGetByText } from '@testing-library/react'
 
 import { VotingMethod } from '@votingworks/types'
-import TallyReportSummary from './TallyReportSummary'
+import { TallyReportSummary } from './TallyReportSummary'
 
 test('Renders with data source table and voting method table when all data provided', () => {
   const ballotCounts = {

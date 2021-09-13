@@ -4,12 +4,19 @@ import styled from 'styled-components'
 
 import { useParams } from 'react-router-dom'
 import { find } from '@votingworks/utils'
-import { ExternalTally, VotingMethod } from '@votingworks/types'
+import {
+  ExternalTally,
+  VotingMethod,
+  getLabelForVotingMethod,
+} from '@votingworks/types'
 import {
   ContestTally,
   TallyReport,
   TallyReportColumns,
   ReportSection,
+  TallyReportMetadata,
+  TallyReportSummary,
+  LogoMark,
 } from '@votingworks/ui'
 import {
   generateDefaultReportFilename,
@@ -30,17 +37,14 @@ import Button from '../components/Button'
 import NavigationScreen from '../components/NavigationScreen'
 import Prose from '../components/Prose'
 import LinkButton from '../components/LinkButton'
-import TallyReportMetadata from '../components/TallyReportMetadata'
-import TallyReportSummary from '../components/TallyReportSummary'
 
 import routerPaths from '../routerPaths'
 import {
   filterTalliesByParams,
   filterTalliesByParamsAndBatchId,
 } from '../lib/votecounting'
-import LogoMark from '../components/LogoMark'
 import { filterExternalTalliesByParams } from '../utils/externalTallies'
-import { getLabelForVotingMethod } from '../utils/votingMethod'
+
 import Text from '../components/Text'
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
 
