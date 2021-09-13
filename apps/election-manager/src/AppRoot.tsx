@@ -211,6 +211,7 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
     if (electionDefinition) {
       computeVoteCounts(castVoteRecordFiles.castVoteRecords)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computeVoteCounts, castVoteRecordFiles])
 
   const saveExternalTallies = async (
@@ -276,6 +277,7 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
         })
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       storage,
       setIsOfficialResults,

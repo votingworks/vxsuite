@@ -14,6 +14,7 @@ const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
       }
     }
     void updateHardware()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardware])
 
   if (!internalHardware) {

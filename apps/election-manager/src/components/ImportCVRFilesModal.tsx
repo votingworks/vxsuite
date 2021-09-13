@@ -160,6 +160,7 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
       void fetchFilenames()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDriveStatus])
 
   if (currentState === ModalState.ERROR) {

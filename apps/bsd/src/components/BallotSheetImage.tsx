@@ -29,6 +29,7 @@ export default function BallotSheetImage({
     const height = imageRef.current.clientHeight
     setXScaleValue(width / layout.ballotImage.imageData.width)
     setYScaleValue(height / layout.ballotImage.imageData.height)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, imageRef.current])
 
   const scaleX = useCallback(

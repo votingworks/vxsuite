@@ -161,6 +161,7 @@ const TallyReportScreen = (): JSX.Element => {
 
   const generatedAtTime = new Date()
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (previewReportRef?.current && printReportRef?.current) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML

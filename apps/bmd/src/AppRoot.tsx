@@ -876,10 +876,12 @@ const AppRoot = ({
     }
     await processCard(insertedCard)
   }, GLOBALS.CARD_POLLING_INTERVAL)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const startCardShortValueReadPolling = useCallback(
     cardShortValueReadInterval[0],
     [card]
   )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const stopCardShortValueReadPolling = useCallback(
     cardShortValueReadInterval[1],
     [card]
@@ -913,6 +915,7 @@ const AppRoot = ({
       dispatchAppState({ type: 'finishWritingLongValue' })
     }
   }, GLOBALS.CARD_POLLING_INTERVAL)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const startLongValueWritePolling = useCallback(longValueWriteInterval[0], [
     card,
   ])
@@ -1041,9 +1044,11 @@ const AppRoot = ({
     GLOBALS.HARDWARE_POLLING_INTERVAL,
     true
   )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const startHardwareStatusPolling = useCallback(hardwareStatusInterval[0], [
     hardware,
   ])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const stopHardwareStatusPolling = useCallback(hardwareStatusInterval[1], [
     hardware,
   ])

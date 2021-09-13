@@ -386,6 +386,7 @@ const AppRoot = ({
       isTestMode: newIsTestMode,
       currentPrecinctId: newCurrentPrecinctId,
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchAppState])
 
   const dismissCurrentBallotMessage = useCallback((): number => {
@@ -413,6 +414,7 @@ const AppRoot = ({
     return () => {
       printerStatusSubscription.unsubscribe()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Handle Machine Config
@@ -605,6 +607,7 @@ const AppRoot = ({
     } else {
       endBallotStatusPolling()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isScannerConfigured, electionDefinition, isPollsOpen, hasCardInserted])
 
   const setElectionDefinition = useCallback(
@@ -633,6 +636,7 @@ const AppRoot = ({
     } catch (error) {
       debug('failed unconfigureServer()', error)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchAppState, refreshConfig])
 
   const processCard = useCallback(
@@ -668,6 +672,7 @@ const AppRoot = ({
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [card, electionDefinition]
   )
 
@@ -681,7 +686,9 @@ const AppRoot = ({
         dispatchAppState({ type: 'cardRemoved' })
       }
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     !smartcard,
     smartcard?.data,
     smartcard?.longValueExists,
@@ -697,6 +704,7 @@ const AppRoot = ({
       return await scan.getExport()
     }
     return []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [electionDefinition, scannedBallotCount])
 
   const saveTallyToCard = useCallback(
@@ -736,6 +744,7 @@ const AppRoot = ({
 
     void initializeScanner()
     void updateStateFromStorage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshConfig, storage])
 
   const updatePrecinctId = useCallback(
@@ -754,6 +763,7 @@ const AppRoot = ({
     }
 
     void storeAppState()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPollsOpen])
 
   const dismissError = () => {

@@ -36,6 +36,7 @@ const App = ({
       }
     }
     void updateHardware()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardware])
 
   if (!internalHardware) {

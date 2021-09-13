@@ -15,6 +15,7 @@ const WrongElectionScreen = ({
   useEffectToggleLargeDisplay,
   isVoterCard,
 }: Props): JSX.Element => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, [])
   useEffect(triggerAudioFocus, [])
 

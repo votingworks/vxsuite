@@ -76,6 +76,7 @@ const ImportExternalResultsModal = ({
     if (selectedFile !== undefined) {
       void loadFile(selectedFile)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
 
   const saveImportedFile = async () => {
