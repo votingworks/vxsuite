@@ -114,7 +114,7 @@ export default function* findContests(
         columns.length
     ),
     minExpectedHeight = Math.floor(0.1 * ballotImage.height),
-    maxExpectedHeight = Math.ceil(0.9 * ballotImage.height),
+    maxExpectedHeight = Math.ceil(0.96 * ballotImage.height),
     errorMargin = Math.ceil(0.025 * ballotImage.width),
   }: Options = {}
 ): Generator<ContestShape> {
