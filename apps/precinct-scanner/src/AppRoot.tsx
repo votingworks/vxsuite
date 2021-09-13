@@ -39,6 +39,8 @@ import {
 import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
+  HARDWARE_POLLING_INTERVAL,
+  LOW_BATTERY_THRESHOLD,
 } from './config/globals'
 
 import * as config from './api/config'
@@ -56,6 +58,7 @@ import ScanSuccessScreen from './screens/ScanSuccessScreen'
 import ScanWarningScreen from './screens/ScanWarningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
 import AppContext from './contexts/AppContext'
+import SetupPowerPage from './screens/SetupPowerPage'
 
 const debug = makeDebug('precinct-scanner:app-root')
 
@@ -75,6 +78,8 @@ export interface Props extends RouteComponentProps {
 
 interface HardwareState {
   hasPrinterAttached: boolean
+  hasChargerAttached: boolean
+  hasLowBattery: boolean
   adminCardElectionHash: string
   isAdminCardPresent: boolean
   isPollWorkerCardPresent: boolean
@@ -106,6 +111,8 @@ export interface State
 
 const initialHardwareState: Readonly<HardwareState> = {
   hasPrinterAttached: true,
+  hasChargerAttached: true,
+  hasLowBattery: false,
   adminCardElectionHash: '',
   isAdminCardPresent: false,
   isPollWorkerCardPresent: false,
@@ -362,6 +369,8 @@ const AppRoot = ({
     isPollWorkerCardPresent,
     machineConfig,
     hasPrinterAttached,
+    hasLowBattery,
+    hasChargerAttached,
   } = appState
 
   const usbDrive = useUsbDrive()
@@ -510,6 +519,36 @@ const AppRoot = ({
       })
     }
   }, [dispatchAppState])
+
+  // Hardware status polling to set hasCharger and hasLowBattery parameters
+  const hardwareStatusInterval = useInterval(
+    async () => {
+      const battery = await hardware.readBatteryStatus()
+      const newHasLowBattery = battery.level < LOW_BATTERY_THRESHOLD
+      const hasHardwareStateChanged =
+        hasChargerAttached !== !battery.discharging ||
+        hasLowBattery !== newHasLowBattery
+      if (hasHardwareStateChanged) {
+        dispatchAppState({
+          type: 'updateHardwareState',
+          hardwareState: {
+            hasChargerAttached: !battery.discharging,
+            hasLowBattery: newHasLowBattery,
+          },
+        })
+      }
+    },
+    HARDWARE_POLLING_INTERVAL,
+    true
+  )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const startHardwareStatusPolling = useCallback(hardwareStatusInterval[0], [
+    hardware,
+  ])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stopHardwareStatusPolling = useCallback(hardwareStatusInterval[1], [
+    hardware,
+  ])
 
   const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(
     async () => {
@@ -744,8 +783,17 @@ const AppRoot = ({
 
     void initializeScanner()
     void updateStateFromStorage()
+    startHardwareStatusPolling()
+    return () => {
+      stopHardwareStatusPolling()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshConfig, storage])
+  }, [
+    refreshConfig,
+    storage,
+    startHardwareStatusPolling,
+    stopHardwareStatusPolling,
+  ])
 
   const updatePrecinctId = useCallback(
     async (precinctId: string) => {
@@ -776,6 +824,10 @@ const AppRoot = ({
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />
+  }
+
+  if (hasLowBattery && !hasChargerAttached) {
+    return <SetupPowerPage />
   }
 
   if (!isScannerConfigured) {
@@ -840,14 +892,19 @@ const AppRoot = ({
     )
   }
 
-  let voterScreen = <PollsClosedScreen />
+  let voterScreen = (
+    <PollsClosedScreen showNoChargerWarning={!hasChargerAttached} />
+  )
 
   // The polls are open for voters to utilize.
   if (isPollsOpen) {
     switch (ballotState) {
       case BallotState.IDLE: {
         voterScreen = (
-          <InsertBallotScreen scannedBallotCount={scannedBallotCount} />
+          <InsertBallotScreen
+            scannedBallotCount={scannedBallotCount}
+            showNoChargerWarning={!hasChargerAttached}
+          />
         )
         break
       }

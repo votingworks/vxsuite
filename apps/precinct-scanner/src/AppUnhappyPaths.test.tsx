@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import {
   advanceTimers,
@@ -408,4 +408,82 @@ test('error from module-scan in ejecting a reviewable ballot', async () => {
   await advanceTimersAndPromises(1)
   await screen.findByText('Insert Your Ballot Below')
   expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1)
+})
+test('App shows message to connect to power when disconnected and battery is low', async () => {
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  await hardware.setBatteryDischarging(true)
+  await hardware.setBatteryLevel(0.1)
+  const storage = new MemoryStorage()
+  const kiosk = fakeKiosk()
+  window.kiosk = kiosk
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+  render(<App card={card} hardware={hardware} storage={storage} />)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('No Power Detected')
+  await screen.findByText('and Battery is Low')
+  await screen.findByText(
+    'Please ask a poll worker to plug-in the power cord for this machine.'
+  )
+})
+
+test('App shows warning message to connect to power when disconnected', async () => {
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  await hardware.setBatteryDischarging(true)
+  await hardware.setBatteryLevel(0.9)
+  await hardware.setPrinterConnected(false)
+  const storage = new MemoryStorage()
+  const kiosk = fakeKiosk()
+  window.kiosk = kiosk
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+  render(<App card={card} hardware={hardware} storage={storage} />)
+  fetchMock.post('/scan/export', {})
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Polls Closed')
+  await screen.findByText('No Power Detected.')
+  await screen.findByText(
+    'Please ask a poll worker to plug in the power cord for this machine.'
+  )
+  // Plug in power and see that warning goes away
+  await act(async () => {
+    await hardware.setBatteryDischarging(false)
+  })
+  await advanceTimersAndPromises(3)
+  await screen.findByText('Polls Closed')
+  expect(await screen.queryByText('No Power Detected.')).toBeNull()
+
+  // Open Polls
+  const pollWorkerCard = makePollWorkerCard(
+    electionSampleDefinition.electionHash
+  )
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'))
+  fireEvent.click(await screen.findByText('Save Report and Open Polls'))
+  await screen.findByText('Saving to Card')
+  await screen.findByText('Close Polls for All Precincts')
+
+  // Remove pollworker card
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Insert Your Ballot Below')
+  // There should be no warning about power
+  expect(await screen.queryByText('No Power Detected.')).toBeNull()
+  // Disconnect from power and check for warning
+  await act(async () => {
+    await hardware.setBatteryDischarging(true)
+  })
+  await advanceTimersAndPromises(3)
+  await screen.findByText('No Power Detected.')
 })
