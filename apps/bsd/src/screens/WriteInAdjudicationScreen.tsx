@@ -129,6 +129,12 @@ const MainChildColumns = styled.div`
   }
 `
 
+const Checkbox = styled.input`
+  &:focus {
+    box-shadow: 0 0 0 4px rgba(21, 156, 228, 0.4);
+  }
+`
+
 const HIGHLIGHTER_COLOR = '#fbff0016'
 const FOCUS_COLOR = '#fbff007d'
 const EXTRA_WRITE_IN_MARGIN_PERCENTAGE = 0.2
@@ -294,7 +300,7 @@ const ContestOptionAdjudication = ({
             <Spacer />
           </VStack>
           <label>
-            <input
+            <Checkbox
               type="checkbox"
               checked={!isWriteIn}
               data-option-id={writeIn.optionId}
