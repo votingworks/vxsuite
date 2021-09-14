@@ -1,10 +1,15 @@
 import { z } from 'zod'
 import {
+  AdjudicationReason,
+  Candidate,
+  Contest,
+  ContestOption,
   HMPBBallotPageMetadata,
   HMPBBallotPageMetadataSchema,
   TargetShape,
   TargetShapeSchema,
 } from './election'
+import { Id } from './generic'
 import {
   Corners,
   CornersSchema,
@@ -100,3 +105,99 @@ export interface MarksByContestId {
 export const MarksByContestIdSchema: z.ZodSchema<MarksByContestId> = z.record(
   MarksByOptionIdSchema.optional()
 )
+
+export interface OvervoteMarkAdjudication {
+  readonly type: AdjudicationReason.Overvote
+  readonly contestId: Contest['id']
+  readonly optionId: ContestOption['id']
+  readonly isMarked: boolean
+}
+export const OvervoteMarkAdjudicationSchema: z.ZodSchema<OvervoteMarkAdjudication> = z.object(
+  {
+    type: z.literal(AdjudicationReason.Overvote),
+    contestId: Id,
+    optionId: Id,
+    isMarked: z.boolean(),
+  }
+)
+
+export interface UndervoteMarkAdjudication {
+  readonly type: AdjudicationReason.Undervote
+  readonly contestId: Contest['id']
+  readonly optionId: ContestOption['id']
+  readonly isMarked: boolean
+}
+export const UndervoteMarkAdjudicationSchema: z.ZodSchema<UndervoteMarkAdjudication> = z.object(
+  {
+    type: z.literal(AdjudicationReason.Undervote),
+    contestId: Id,
+    optionId: Id,
+    isMarked: z.boolean(),
+  }
+)
+
+export interface MarginalMarkAdjudication {
+  readonly type: AdjudicationReason.MarginalMark
+  readonly contestId: Contest['id']
+  readonly optionId: ContestOption['id']
+  readonly isMarked: boolean
+}
+export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudication> = z.object(
+  {
+    type: z.literal(AdjudicationReason.MarginalMark),
+    contestId: Id,
+    optionId: Id,
+    isMarked: z.boolean(),
+  }
+)
+
+export interface WriteInMarkAdjudicationMarked {
+  readonly type: AdjudicationReason.WriteIn
+  readonly isWriteIn: true
+  readonly contestId: Contest['id']
+  readonly optionId: ContestOption['id']
+  readonly name: Candidate['name']
+}
+export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudicationMarked> = z.object(
+  {
+    type: z.literal(AdjudicationReason.WriteIn),
+    isWriteIn: z.literal(true),
+    contestId: Id,
+    optionId: Id,
+    name: z.string(),
+  }
+)
+
+export interface WriteInMarkAdjudicationUnmarked {
+  readonly type: AdjudicationReason.WriteIn
+  readonly isWriteIn: false
+  readonly contestId: Contest['id']
+  readonly optionId: ContestOption['id']
+}
+export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjudicationUnmarked> = z.object(
+  {
+    type: z.literal(AdjudicationReason.WriteIn),
+    isWriteIn: z.literal(false),
+    contestId: Id,
+    optionId: Id,
+  }
+)
+
+export type WriteInMarkAdjudication =
+  | WriteInMarkAdjudicationMarked
+  | WriteInMarkAdjudicationUnmarked
+export const WriteInMarkAdjudicationSchema: z.ZodSchema<WriteInMarkAdjudication> = z.union(
+  [WriteInMarkAdjudicationMarkedSchema, WriteInMarkAdjudicationUnmarkedSchema]
+)
+
+export type MarkAdjudication =
+  | OvervoteMarkAdjudication
+  | UndervoteMarkAdjudication
+  | MarginalMarkAdjudication
+  | WriteInMarkAdjudication
+export const MarkAdjudicationSchema: z.ZodSchema<MarkAdjudication> = z.union([
+  OvervoteMarkAdjudicationSchema,
+  UndervoteMarkAdjudicationSchema,
+  MarginalMarkAdjudicationSchema,
+  WriteInMarkAdjudicationSchema,
+])
