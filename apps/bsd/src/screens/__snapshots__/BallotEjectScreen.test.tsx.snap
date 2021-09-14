@@ -44,13 +44,13 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-dIUggk gvbXNc"
+        class="sc-hHftDr hXZiDL"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-idOhPF eXcWnR"
+            class="sc-dIUggk hZaEGa"
           >
             Live Ballot
           </div>
@@ -66,7 +66,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-hHftDr kAQrHz"
+          class="sc-dmlrTW esDPKT"
         >
           <div
             style="position: relative;"
@@ -170,13 +170,13 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-dIUggk gvbXNc"
+        class="sc-hHftDr hXZiDL"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-idOhPF eXcWnR"
+            class="sc-dIUggk hZaEGa"
           >
             Test Ballot
           </div>
@@ -192,7 +192,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-hHftDr kAQrHz"
+          class="sc-dmlrTW esDPKT"
         >
           <div
             style="position: relative;"
@@ -297,13 +297,13 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-dIUggk gvbXNc"
+        class="sc-hHftDr hXZiDL"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-idOhPF eXcWnR"
+            class="sc-dIUggk hZaEGa"
           >
             Unknown Reason
           </div>
@@ -342,7 +342,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-hHftDr kAQrHz"
+          class="sc-dmlrTW esDPKT"
         >
           <div
             style="position: relative;"
@@ -447,13 +447,13 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-dIUggk gvbXNc"
+        class="sc-hHftDr hXZiDL"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-idOhPF eXcWnR"
+            class="sc-dIUggk hZaEGa"
           >
             Overvote
           </div>
@@ -497,7 +497,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-hHftDr kAQrHz"
+          class="sc-dmlrTW esDPKT"
         >
           <div
             style="position: relative;"
@@ -602,13 +602,13 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-dIUggk gvbXNc"
+        class="sc-hHftDr hXZiDL"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-idOhPF eXcWnR"
+            class="sc-dIUggk hZaEGa"
           >
             Undervote
           </div>
@@ -647,7 +647,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-hHftDr kAQrHz"
+          class="sc-dmlrTW esDPKT"
         >
           <div
             style="position: relative;"
@@ -751,13 +751,13 @@ exports[`says the sheet is unreadable if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-dIUggk gvbXNc"
+        class="sc-hHftDr hXZiDL"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-idOhPF eXcWnR"
+            class="sc-dIUggk hZaEGa"
           >
             Unreadable
           </div>
@@ -776,7 +776,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-hHftDr kAQrHz"
+          class="sc-dmlrTW esDPKT"
         >
           <div
             style="position: relative;"

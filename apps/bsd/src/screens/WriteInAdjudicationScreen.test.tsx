@@ -5,15 +5,28 @@ import {
   AdjudicationReason,
   BallotType,
   CandidateContest,
+  Contest,
+  ContestOption,
   getContests,
   HMPBBallotPageMetadata,
 } from '@votingworks/types'
-import { find } from '@votingworks/utils'
+import { find, typedAs } from '@votingworks/utils'
 import React from 'react'
 import renderInAppContext from '../../test/renderInAppContext'
-import WriteInAdjudicationScreen from './WriteInAdjudicationScreen'
+import WriteInAdjudicationScreen, {
+  Props as WriteInAdjudicationScreenProps,
+} from './WriteInAdjudicationScreen'
 
-test('presents an adjudication workflow for write-ins', async () => {
+type onAdjudicationCompleteType = Exclude<
+  WriteInAdjudicationScreenProps['onAdjudicationComplete'],
+  undefined
+>
+
+function renderWriteInAdjudicationScreen(): {
+  contest: Contest
+  optionId: ContestOption['id']
+  onAdjudicationComplete: onAdjudicationCompleteType
+} {
   const { election } = electionSampleDefinition
   const ballotStyle = election.ballotStyles[0]
   const precinctId = ballotStyle.precincts[0]
@@ -22,6 +35,7 @@ test('presents an adjudication workflow for write-ins', async () => {
     contests,
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
   )
+  const optionId: ContestOption['id'] = '__write-in-0'
   const metadata: HMPBBallotPageMetadata = {
     ballotStyleId: ballotStyle.id,
     precinctId,
@@ -31,7 +45,13 @@ test('presents an adjudication workflow for write-ins', async () => {
     locales: { primary: 'en-US' },
     pageNumber: 1,
   }
-  const onAdjudicationComplete = jest.fn()
+
+  const onAdjudicationComplete = jest
+    .fn<
+      ReturnType<onAdjudicationCompleteType>,
+      Parameters<onAdjudicationCompleteType>
+    >()
+    .mockResolvedValue()
 
   renderInAppContext(
     <WriteInAdjudicationScreen
@@ -52,7 +72,7 @@ test('presents an adjudication workflow for write-ins', async () => {
             {
               type: AdjudicationReason.WriteIn,
               contestId: contest.id,
-              optionId: '__write-in-0',
+              optionId,
               optionIndex: 0,
             },
           ],
@@ -87,11 +107,21 @@ test('presents an adjudication workflow for write-ins', async () => {
     />
   )
 
+  return { contest, optionId, onAdjudicationComplete }
+}
+
+test('supports typing in a candidate name', async () => {
+  const {
+    contest,
+    optionId,
+    onAdjudicationComplete,
+  } = renderWriteInAdjudicationScreen()
+
   screen.getByText('Write-In Adjudication')
   screen.getByText(contest.title)
 
   userEvent.type(
-    screen.getByTestId('write-in-input-__write-in-0'),
+    screen.getByTestId(`write-in-input-${optionId}`),
     'Lizard People'
   )
 
@@ -99,8 +129,57 @@ test('presents an adjudication workflow for write-ins', async () => {
   userEvent.click(screen.getByText('Save & Continue Scanning'))
 
   await waitFor(() => {
-    expect(onAdjudicationComplete).toHaveBeenCalledWith('test-sheet', 'front', {
-      [contest.id]: { '__write-in-0': 'Lizard People' },
-    })
+    expect(onAdjudicationComplete).toHaveBeenCalledWith(
+      ...typedAs<Parameters<onAdjudicationCompleteType>>([
+        'test-sheet',
+        'front',
+        [
+          {
+            type: AdjudicationReason.WriteIn,
+            isWriteIn: true,
+            contestId: contest.id,
+            optionId,
+            name: 'Lizard People',
+          },
+        ],
+      ])
+    )
+  })
+})
+
+test('supports canceling a write-in', async () => {
+  const {
+    contest,
+    optionId,
+    onAdjudicationComplete,
+  } = renderWriteInAdjudicationScreen()
+
+  screen.getByText('Write-In Adjudication')
+  screen.getByText(contest.title)
+
+  const isNotWriteInCheckbox = screen.getByTestId(
+    `write-in-checkbox-${optionId}`
+  ) as HTMLInputElement
+  expect(isNotWriteInCheckbox.checked).toBe(false)
+  userEvent.click(isNotWriteInCheckbox)
+
+  expect(onAdjudicationComplete).not.toHaveBeenCalled()
+  userEvent.click(screen.getByText('Save & Continue Scanning'))
+
+  await waitFor(() => {
+    expect(onAdjudicationComplete).toHaveBeenCalledWith(
+      ...typedAs<Parameters<onAdjudicationCompleteType>>([
+        'test-sheet',
+        'front',
+        [
+          {
+            type: AdjudicationReason.WriteIn,
+            isWriteIn: false,
+            contestId: contest.id,
+            optionId,
+          },
+        ],
+      ])
+    )
   })
 })

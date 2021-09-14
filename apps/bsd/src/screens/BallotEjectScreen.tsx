@@ -1,4 +1,8 @@
-import { AdjudicationReason, Contest } from '@votingworks/types'
+import {
+  AdjudicationReason,
+  Contest,
+  WriteInMarkAdjudication,
+} from '@votingworks/types'
 import {
   GetNextReviewSheetResponse,
   Side,
@@ -15,9 +19,7 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import StatusFooter from '../components/StatusFooter'
 import Text from '../components/Text'
-import WriteInAdjudicationScreen, {
-  WriteInsByContestAndOption,
-} from './WriteInAdjudicationScreen'
+import WriteInAdjudicationScreen from './WriteInAdjudicationScreen'
 
 const EjectReason = styled.div`
   font-size: 3em;
@@ -96,10 +98,10 @@ const BallotEjectScreen = ({
     async (
       sheetId: string,
       side: Side,
-      writeInValues: WriteInsByContestAndOption
+      adjudications: readonly WriteInMarkAdjudication[]
     ): Promise<void> => {
       // eslint-disable-next-line no-console
-      console.log('ignoring write-ins for now', writeInValues)
+      console.log('ignoring adjudications for now', adjudications)
       await continueScanning(true)
     },
     [continueScanning]
