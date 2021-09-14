@@ -21,7 +21,6 @@ import { Side } from '@votingworks/types/api/module-scan'
 import { Text, useCancelablePromise } from '@votingworks/ui'
 import { find } from '@votingworks/utils'
 import { strict as assert } from 'assert'
-import pluralize from 'pluralize'
 import React, {
   useCallback,
   useContext,
@@ -297,7 +296,6 @@ const ContestOptionAdjudication = ({
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={autoFocus}
             />
-            <Spacer />
           </VStack>
           <label>
             <Checkbox
@@ -307,8 +305,9 @@ const ContestOptionAdjudication = ({
               data-testid={`write-in-checkbox-${writeIn.optionId}`}
               onChange={onCheckboxChange}
             />{' '}
-            this is <strong>not</strong> a write-in
+            This is <strong>not</strong> a write-in.
           </label>
+          <Spacer />
         </VStack>
       </HStack>
     </WriteInAdjudicationBox>
@@ -446,11 +445,8 @@ const WriteInAdjudicationByContest = ({
   return (
     <form onSubmit={goNext}>
       <p>
-        This ballot image has{' '}
-        <strong>{pluralize('contest', contestsWithWriteIns.size, true)}</strong>{' '}
-        with write-ins. Adjudicate each write-in by typing each write-in’s name
-        into the text box next to the image. Click “Next Contest” to move to the
-        next contest.
+        Adjudicate each write-in by typing the name you see, or by indicating it
+        is not a write-in.
       </p>
       <ContestAdjudication
         key={selectedContestId}
