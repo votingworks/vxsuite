@@ -1,11 +1,6 @@
-import {
-  act,
-  screen,
-  render,
-  waitForElementToBeRemoved,
-} from '@testing-library/react'
+import { act, screen, render } from '@testing-library/react'
 import { electionSampleDefinition } from '@votingworks/fixtures'
-import { fakeKiosk } from '@votingworks/test-utils'
+import { fakeKiosk, mockOf } from '@votingworks/test-utils'
 import { NullPrinter } from '@votingworks/utils'
 import MockDate from 'mockdate'
 import React from 'react'
@@ -24,11 +19,11 @@ afterEach(() => {
 
 test('shows security code', async () => {
   const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-  mockKiosk.totp.get.mockResolvedValue({
-    timestamp: '2020-10-31T01:01:01.001Z',
+  mockOf(mockKiosk.totp.get).mockResolvedValue({
+    isoDatetime: '2020-10-31T01:01:01.001Z',
     code: '123456',
   })
+  window.kiosk = mockKiosk
 
   await act(async () => {
     render(
@@ -57,8 +52,8 @@ test('shows security code', async () => {
 
 test('shows dashes when no totp', async () => {
   const mockKiosk = fakeKiosk()
+  mockOf(mockKiosk.totp.get).mockResolvedValue(undefined)
   window.kiosk = mockKiosk
-  mockKiosk.totp.get.mockResolvedValue(undefined)
 
   await act(async () => {
     render(

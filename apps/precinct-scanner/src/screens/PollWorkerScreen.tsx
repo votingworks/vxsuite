@@ -89,7 +89,7 @@ const PollWorkerScreen = ({
       const totpResult = await window.kiosk?.totp?.get()
       if (totpResult) {
         const codeChunks = totpResult.code.match(/.{1,3}/g)
-        setSecurityCode(codeChunks.join('·'))
+        if (codeChunks) setSecurityCode(codeChunks.join('·'))
       }
     })()
   }, [setSecurityCode])
