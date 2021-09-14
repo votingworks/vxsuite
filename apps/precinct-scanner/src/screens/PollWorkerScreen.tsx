@@ -58,7 +58,7 @@ const PollWorkerScreen = ({
   assert(electionDefinition)
   const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false)
   const [currentTally, setCurrentTally] = useState<Tally>()
-  const [securityCode, setSecurityCode] = useState('------')
+  const [securityCode, setSecurityCode] = useState('---·---')
   const hasPrinterAttached = printerFromProps || !window.kiosk
   const { election } = electionDefinition
 
@@ -86,11 +86,10 @@ const PollWorkerScreen = ({
 
   useEffect(() => {
     void (async () => {
-      if (window.kiosk && window.kiosk.totp) {
-        const totpResult = await window.kiosk.totp.get()
-        if (totpResult) {
-          setSecurityCode(totpResult.code)
-        }
+      const totpResult = await window.kiosk?.totp?.get()
+      if (totpResult) {
+        const codeChunks = totpResult.code.match(/.{1,3}/g)
+        setSecurityCode(codeChunks.join('·'))
       }
     })()
   }, [setSecurityCode])

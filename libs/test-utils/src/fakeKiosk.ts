@@ -74,5 +74,8 @@ export function fakeKiosk({
       clear: jest.fn(),
     },
     setClock: jest.fn(),
+    totp: {
+      get: jest.fn(),
+    },
   }
 }
