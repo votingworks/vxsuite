@@ -10,6 +10,7 @@ import {
   PrecinctSelectionKind,
   PrecinctSelection,
   PrecinctScannerTallyReport,
+  UsbDrive,
 } from '@votingworks/ui'
 import {
   calculateTallyForCastVoteRecords,
@@ -24,6 +25,7 @@ import pluralize from 'pluralize'
 import { CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
+import ExportResultsModal from '../components/ExportResultsModal'
 import Modal from '../components/Modal'
 
 import AppContext from '../contexts/AppContext'
@@ -40,6 +42,7 @@ interface Props {
   saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>
   printer: Printer
   hasPrinterAttached: boolean
+  usbDrive: UsbDrive
 }
 
 const PollWorkerScreen = ({
@@ -51,6 +54,7 @@ const PollWorkerScreen = ({
   isLiveMode,
   hasPrinterAttached: printerFromProps,
   printer,
+  usbDrive,
 }: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
@@ -59,6 +63,7 @@ const PollWorkerScreen = ({
   const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false)
   const [currentTally, setCurrentTally] = useState<Tally>()
   const [securityCode, setSecurityCode] = useState('---·---')
+  const [isExportingResults, setIsExportingResults] = useState(false)
   const hasPrinterAttached = printerFromProps || !window.kiosk
   const { election } = electionDefinition
 
@@ -175,6 +180,13 @@ const PollWorkerScreen = ({
               </Button>
             )}
           </p>
+          {isPollsOpen && scannedBallotCount > 0 && (
+            <p>
+              <Button onPress={() => setIsExportingResults(true)}>
+                Export Results to USB
+              </Button>
+            </p>
+          )}
           <p>Security Code: {securityCode}</p>
         </Prose>
         <Absolute top left>
@@ -267,6 +279,14 @@ const PollWorkerScreen = ({
                   : 'Saving to Card'}
               </Loading>
             }
+          />
+        )}
+        {isExportingResults && (
+          <ExportResultsModal
+            onClose={() => setIsExportingResults(false)}
+            usbDrive={usbDrive}
+            isTestMode={!isLiveMode}
+            scannedBallotCount={scannedBallotCount}
           />
         )}
       </CenteredScreen>

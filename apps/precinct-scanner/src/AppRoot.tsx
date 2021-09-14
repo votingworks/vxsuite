@@ -835,6 +835,7 @@ const AppRoot = ({
           printer={printer}
           hasPrinterAttached={hasPrinterAttached}
           isLiveMode={!isTestMode}
+          usbDrive={usbDrive}
         />
       </AppContext.Provider>
     )

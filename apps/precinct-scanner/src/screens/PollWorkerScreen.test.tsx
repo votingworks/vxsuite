@@ -1,7 +1,7 @@
 import { act, screen, render } from '@testing-library/react'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 import { fakeKiosk, mockOf } from '@votingworks/test-utils'
-import { NullPrinter } from '@votingworks/utils'
+import { NullPrinter, usbstick } from '@votingworks/utils'
 import MockDate from 'mockdate'
 import React from 'react'
 import AppContext from '../contexts/AppContext'
@@ -42,6 +42,10 @@ test('shows security code', async () => {
           isLiveMode
           hasPrinterAttached={false}
           printer={new NullPrinter()}
+          usbDrive={{
+            status: usbstick.UsbDriveStatus.absent,
+            eject: jest.fn(),
+          }}
         />
       </AppContext.Provider>
     )
@@ -72,6 +76,10 @@ test('shows dashes when no totp', async () => {
           isLiveMode
           hasPrinterAttached={false}
           printer={new NullPrinter()}
+          usbDrive={{
+            status: usbstick.UsbDriveStatus.absent,
+            eject: jest.fn(),
+          }}
         />
       </AppContext.Provider>
     )
