@@ -20,6 +20,7 @@ import * as ScanProcessingScreen from './screens/ScanProcessingScreen'
 import * as ScanSuccessScreen from './screens/ScanSuccessScreen'
 import * as ScanWarningScreen from './screens/ScanWarningScreen'
 import * as SetupCardReaderPage from './screens/SetupCardReaderPage'
+import * as SetupPowerPage from './screens/SetupPowerPage'
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 
 const PreviewApp = (): JSX.Element => {
@@ -42,6 +43,7 @@ const PreviewApp = (): JSX.Element => {
         ScanSuccessScreen,
         ScanWarningScreen,
         SetupCardReaderPage,
+        SetupPowerPage,
         UnconfiguredElectionScreen,
       ]}
     />

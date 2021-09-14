@@ -59,3 +59,8 @@ export const ManyBallotsScannedPreview = (): JSX.Element => {
     />
   )
 }
+
+/* istanbul ignore next */
+export const NoPowerConnectedPreview = (): JSX.Element => {
+  return <InsertBallotScreen scannedBallotCount={1234} showNoChargerWarning />
+}
