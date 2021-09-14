@@ -229,7 +229,7 @@ const ContestOptionAdjudication = ({
       const input = event.currentTarget
       const { optionId } = input.dataset
       if (optionId) {
-        if (input.checked) {
+        if (!input.checked) {
           onChange?.({
             type: AdjudicationReason.WriteIn,
             isWriteIn: true,
@@ -283,12 +283,12 @@ const ContestOptionAdjudication = ({
           <label>
             <input
               type="checkbox"
-              checked={isWriteIn}
+              checked={!isWriteIn}
               data-option-id={writeIn.optionId}
               data-testid={`write-in-checkbox-${writeIn.optionId}`}
               onChange={onCheckboxChange}
             />{' '}
-            This is a write-in
+            this is <strong>not</strong> a write-in
           </label>
         </VStack>
       </HStack>
@@ -459,7 +459,6 @@ const WriteInAdjudicationByContest = ({
           Previous Contest
         </Button>
       </HStack>
-      )
     </form>
   )
 }

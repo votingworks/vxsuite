@@ -157,11 +157,11 @@ test('supports canceling a write-in', async () => {
   screen.getByText('Write-In Adjudication')
   screen.getByText(contest.title)
 
-  const isWriteInCheckbox = screen.getByTestId(
+  const isNotWriteInCheckbox = screen.getByTestId(
     `write-in-checkbox-${optionId}`
   ) as HTMLInputElement
-  expect(isWriteInCheckbox.checked).toBe(true)
-  userEvent.click(isWriteInCheckbox)
+  expect(isNotWriteInCheckbox.checked).toBe(false)
+  userEvent.click(isNotWriteInCheckbox)
 
   expect(onAdjudicationComplete).not.toHaveBeenCalled()
   userEvent.click(screen.getByText('Save & Continue Scanning'))
