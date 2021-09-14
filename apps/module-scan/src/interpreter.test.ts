@@ -1819,6 +1819,7 @@ test('interprets marks in PNG ballots', async () => {
             Object {
               "contestId": "4",
               "optionId": "__write-in-0",
+              "optionIndex": 2,
               "type": "WriteIn",
             },
             Object {
@@ -1827,6 +1828,10 @@ test('interprets marks in PNG ballots', async () => {
               "optionIds": Array [
                 "yes",
                 "no",
+              ],
+              "optionIndexes": Array [
+                0,
+                1,
               ],
               "type": "Overvote",
             },
@@ -3128,6 +3133,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
           type: AdjudicationReason.Overvote,
           contestId: '42',
           optionIds: ['27', '28'],
+          optionIndexes: [0, 1],
           expected: 1,
         },
       ],

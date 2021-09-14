@@ -7,6 +7,7 @@ import {
   CandidateContest,
   YesNoContest,
   AnyContest,
+  MarkStatus,
   MsEitherNeitherContest,
 } from '@votingworks/types'
 import { electionWithMsEitherNeither } from '@votingworks/fixtures'
@@ -17,7 +18,6 @@ import {
   getOptionIdsForContestVote,
   getWriteInOptionIdsForContestVote,
 } from './buildCastVoteRecord'
-import { MarkStatus } from './types/ballot-review'
 
 const candidateContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is CandidateContest => contest.type === 'candidate'
@@ -582,6 +582,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
                 contestId: 'initiative-65',
                 expected: 1,
                 optionIds: ['yes', 'no'],
+                optionIndexes: [0, 1],
               },
             ],
           },

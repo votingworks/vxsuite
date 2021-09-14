@@ -26,6 +26,11 @@ import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
   GetTestModeConfigResponse,
+  PatchBallotPageAdjudicationParams,
+  PatchBallotPageAdjudicationParamsSchema,
+  PatchBallotPageAdjudicationRequest,
+  PatchBallotPageAdjudicationRequestSchema,
+  PatchBallotPageAdjudicationResponse,
   PatchElectionConfigRequest,
   PatchElectionConfigResponse,
   PatchMarkThresholdOverridesConfigRequest,
@@ -461,6 +466,54 @@ export function buildApp({ store, importer }: AppOptions): Application {
       )
     }
   )
+
+  app.patch<
+    PatchBallotPageAdjudicationParams,
+    PatchBallotPageAdjudicationResponse,
+    PatchBallotPageAdjudicationRequest
+  >('/scan/hmpb/ballot/:sheetId/:side', async (request, response) => {
+    const parseParamsResult = safeParse(
+      PatchBallotPageAdjudicationParamsSchema,
+      request.params
+    )
+
+    if (parseParamsResult.isErr()) {
+      const error = parseParamsResult.err()
+      response.status(404).json({
+        status: 'error',
+        errors: [
+          {
+            type: error.name,
+            message: error.message,
+          },
+        ],
+      })
+      return
+    }
+
+    const parseBodyResult = safeParse(
+      PatchBallotPageAdjudicationRequestSchema,
+      request.body
+    )
+
+    if (parseBodyResult.isErr()) {
+      const error = parseBodyResult.err()
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: error.name,
+            message: error.message,
+          },
+        ],
+      })
+      return
+    }
+
+    const { sheetId, side } = parseParamsResult.ok()
+    await store.saveBallotAdjudication(sheetId, side, parseBodyResult.ok())
+    response.json({ status: 'ok' })
+  })
 
   app.get(
     '/scan/hmpb/ballot/:sheetId/:side/image',

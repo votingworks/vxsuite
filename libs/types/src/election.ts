@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { createHash } from 'crypto'
 import * as z from 'zod'
+import { ISO8601Timestamp, ISO8601TimestampSchema } from './api'
 import {
   Dictionary,
   HexString,
@@ -591,6 +592,7 @@ export interface CandidateContestOption {
   contestId: CandidateContest['id']
   name: Candidate['name']
   isWriteIn: boolean
+  optionIndex: number
 }
 export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> = z.object(
   {
@@ -599,6 +601,7 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     contestId: Id,
     name: z.string(),
     isWriteIn: z.boolean(),
+    optionIndex: z.number().nonnegative(),
   }
 )
 
@@ -607,6 +610,7 @@ export interface YesNoContestOption {
   id: Exclude<YesNoVote[0] | YesNoVote[1], undefined>
   contestId: YesNoContest['id']
   name: string
+  optionIndex: number
 }
 export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> = z.object(
   {
@@ -614,6 +618,7 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> = z.objec
     id: z.union([z.literal('yes'), z.literal('no')]),
     contestId: Id,
     name: z.string(),
+    optionIndex: z.number().nonnegative(),
   }
 )
 
@@ -628,6 +633,7 @@ export interface MsEitherNeitherContestOption {
     | MsEitherNeitherContest['eitherNeitherContestId']
     | MsEitherNeitherContest['pickOneContestId']
   name: string
+  optionIndex: number
 }
 export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherContestOption> = z.object(
   {
@@ -635,6 +641,7 @@ export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherCont
     id: Id,
     contestId: Id,
     name: z.string(),
+    optionIndex: z.number().nonnegative(),
   }
 )
 
@@ -661,12 +668,14 @@ export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark
   contestId: Contest['id']
   optionId: ContestOption['id']
+  optionIndex: number
 }
 export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.MarginalMark),
     contestId: Id,
     optionId: Id,
+    optionIndex: z.number(),
   }
 )
 
@@ -674,6 +683,7 @@ export interface OvervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Overvote
   contestId: Contest['id']
   optionIds: readonly ContestOption['id'][]
+  optionIndexes: readonly number[]
   expected: number
 }
 export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicationReasonInfo> = z.object(
@@ -681,6 +691,7 @@ export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicat
     type: z.literal(AdjudicationReason.Overvote),
     contestId: Id,
     optionIds: z.array(Id),
+    optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
   }
 )
@@ -689,6 +700,7 @@ export interface UndervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Undervote
   contestId: Contest['id']
   optionIds: readonly ContestOption['id'][]
+  optionIndexes: readonly number[]
   expected: number
 }
 export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudicationReasonInfo> = z.object(
@@ -696,6 +708,7 @@ export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudic
     type: z.literal(AdjudicationReason.Undervote),
     contestId: Id,
     optionIds: z.array(Id),
+    optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
   }
 )
@@ -704,12 +717,14 @@ export interface WriteInAdjudicationReasonInfo {
   type: AdjudicationReason.WriteIn
   contestId: Contest['id']
   optionId: ContestOption['id']
+  optionIndex: number
 }
 export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.WriteIn),
     contestId: Id,
     optionId: Id,
+    optionIndex: z.number().nonnegative(),
   }
 )
 
@@ -1030,10 +1045,12 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> = z.union
 export interface BallotPageInfo {
   image: ImageInfo
   interpretation: PageInterpretation
+  adjudicationFinishedAt?: ISO8601Timestamp
 }
 export const BallotPageInfoSchema: z.ZodSchema<BallotPageInfo> = z.object({
   image: ImageInfoSchema,
   interpretation: PageInterpretationSchema,
+  adjudicationFinishedAt: ISO8601TimestampSchema.optional(),
 })
 
 export interface BallotSheetInfo {

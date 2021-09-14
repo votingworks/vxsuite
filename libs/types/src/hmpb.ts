@@ -77,3 +77,26 @@ export const SerializableBallotPageLayoutSchema: z.ZodSchema<SerializableBallotP
     contests: z.array(BallotPageContestLayoutSchema),
   }
 )
+
+export enum MarkStatus {
+  Marked = 'marked',
+  Unmarked = 'unmarked',
+  Marginal = 'marginal',
+}
+export const MarkStatusSchema: z.ZodSchema<MarkStatus> = z.nativeEnum(
+  MarkStatus
+)
+
+export interface MarksByOptionId {
+  [key: string]: MarkStatus | undefined
+}
+export const MarksByOptionIdSchema: z.ZodSchema<MarksByOptionId> = z.record(
+  MarkStatusSchema.optional()
+)
+
+export interface MarksByContestId {
+  [key: string]: MarksByOptionId | undefined
+}
+export const MarksByContestIdSchema: z.ZodSchema<MarksByContestId> = z.record(
+  MarksByOptionIdSchema.optional()
+)

@@ -1,5 +1,6 @@
 import { asElectionDefinition } from '@votingworks/fixtures'
-import { BallotPackageManifest } from '@votingworks/utils'
+import { CastVoteRecord, MarkStatus } from '@votingworks/types'
+import { BallotPackageManifest, typedAs } from '@votingworks/utils'
 import { EventEmitter } from 'events'
 import { Application } from 'express'
 import * as fs from 'fs-extra'
@@ -11,7 +12,6 @@ import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
 import { makeMockScanner, MockScanner } from '../test/util/mocks'
 import Importer from './importer'
 import { buildApp } from './server'
-import { CastVoteRecord } from './types'
 import { createWorkspace, Workspace } from './util/workspace'
 
 const electionFixturesRoot = join(
@@ -154,8 +154,9 @@ test('going through the whole process works', async () => {
 
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
-    cvr._ballotId = ''
-    expect(cvr).toMatchObject({
+    expect(
+      typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
+    ).toMatchObject({
       _ballotId: '',
       _ballotStyleId: '12',
       _ballotType: 'standard',
@@ -176,6 +177,157 @@ test('going through the whole process works', async () => {
       'state-assembly-district-54': ['keller'],
       'state-senator-district-31': [],
     })
+  }
+})
+
+test('failed scan with QR code can be adjudicated and exported', async () => {
+  jest.setTimeout(25000)
+
+  // Do this first so interpreter workers get initialized with the right value.
+  await request(app)
+    .patch('/config/skipElectionHashCheck')
+    .send({ skipElectionHashCheck: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
+  const { election } = stateOfHamilton
+  await importer.restoreConfig()
+
+  await request(app)
+    .patch('/config/election')
+    .send(asElectionDefinition(election).electionData)
+    .set('Content-Type', 'application/octet-stream')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' })
+
+  const manifest: BallotPackageManifest = JSON.parse(
+    await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
+  )
+
+  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
+
+  for (const config of manifest.ballots) {
+    void addTemplatesRequest
+      .attach('ballots', join(electionFixturesRoot, config.filename))
+      .attach(
+        'metadatas',
+        Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
+        { filename: 'config.json', contentType: 'application/json' }
+      )
+  }
+
+  await addTemplatesRequest.expect(200, { status: 'ok' })
+
+  await request(app).post('/scan/hmpb/doneTemplates')
+
+  {
+    const nextSession = scanner.withNextScannerSession()
+
+    nextSession
+      .sheet([
+        join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg'),
+        join(electionFixturesRoot, 'filled-in-dual-language-p4.jpg'),
+      ])
+      .end()
+
+    await request(app)
+      .post('/scan/scanBatch')
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toEqual({
+          status: 'ok',
+          batchId: expect.any(String),
+        })
+      })
+
+    await importer.waitForEndOfBatchOrScanningPause()
+
+    // check the latest batch has the expected ballots
+    const status = await request(app)
+      .get('/scan/status')
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(JSON.parse(status.text).batches.length).toBe(1)
+    expect(JSON.parse(status.text).batches[0].count).toBe(1)
+  }
+
+  const { id } = await workspace.store.dbGetAsync<{ id: string }>(`
+    select id
+    from sheets
+    where json_extract(front_interpretation_json, '$.metadata.pageNumber') = 3
+  `)
+
+  await request(app)
+    .patch(`/scan/hmpb/ballot/${id}/front`)
+    .send({ 'city-mayor': { seldon: MarkStatus.Marked } })
+    .expect(200)
+
+  await request(app)
+    .patch(`/scan/hmpb/ballot/${id}/back`)
+    .send({
+      'question-a': { no: MarkStatus.Marked },
+      'question-b': { yes: MarkStatus.Marked },
+    })
+    .expect(200)
+
+  {
+    const exportResponse = await request(app)
+      .post('/scan/export')
+      .set('Accept', 'application/json')
+      .expect(200)
+
+    // response is a few lines, each JSON.
+    // can't predict the order so can't compare
+    // to expected outcome as a string directly.
+    const cvrs: CastVoteRecord[] = exportResponse.text
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line))
+
+    expect(cvrs).toHaveLength(1)
+    const [cvr] = cvrs
+    expect(
+      typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
+    ).toMatchInlineSnapshot(`
+      Object {
+        "_ballotId": "",
+        "_ballotStyleId": "12",
+        "_ballotType": "standard",
+        "_batchId": "",
+        "_batchLabel": "Batch 1",
+        "_locales": Object {
+          "primary": "en-US",
+          "secondary": "es-US",
+        },
+        "_pageNumbers": Array [
+          3,
+          4,
+        ],
+        "_precinctId": "23",
+        "_scannerId": "000",
+        "_testBallot": false,
+        "city-council": Array [],
+        "city-mayor": Array [
+          "seldon",
+        ],
+        "county-commissioners": Array [],
+        "county-registrar-of-wills": Array [],
+        "judicial-elmer-hull": Array [
+          "yes",
+        ],
+        "judicial-robert-demergue": Array [],
+        "question-a": Array [
+          "no",
+        ],
+        "question-b": Array [
+          "yes",
+        ],
+        "question-c": Array [
+          "no",
+        ],
+      }
+    `)
   }
 })
 
@@ -264,8 +416,9 @@ test('ms-either-neither end-to-end', async () => {
 
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
-    cvr._ballotId = ''
-    expect(cvr).toMatchObject({
+    expect(
+      typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
+    ).toMatchObject({
       '750000015': ['yes'],
       '750000016': ['yes'],
       '750000017': ['no'],

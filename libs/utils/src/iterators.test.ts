@@ -1,10 +1,13 @@
-import { map, reversed, take, zip, zipMin } from './iterators'
-
-function* naturals(): Iterable<number> {
-  for (let value = 1; ; value += 1) {
-    yield value
-  }
-}
+import {
+  drop,
+  integers,
+  map,
+  naturals,
+  reversed,
+  take,
+  zip,
+  zipMin,
+} from './iterators'
 
 test('zip', () => {
   expect([...zip()]).toEqual([])
@@ -67,4 +70,28 @@ test('map', () => {
       map(naturals(), (n) => n * 2)
     )
   ).toEqual([2, 4, 6])
+})
+
+test('take', () => {
+  expect(take(0, [])).toEqual([])
+  expect(take(1, [])).toEqual([])
+  expect(take(1, ['a', 'b'])).toEqual(['a'])
+  expect(take(1, integers())).toEqual([0])
+  expect(take(5, integers())).toEqual([0, 1, 2, 3, 4])
+  expect(take(-1, [])).toEqual([])
+})
+
+test('drop', () => {
+  expect(take(1, drop(1, ['a', 'b']))).toEqual(['b'])
+  expect(take(2, drop(2, integers()))).toEqual([2, 3])
+  expect(take(2, drop(0, integers()))).toEqual([0, 1])
+  expect(take(2, drop(-2, integers()))).toEqual([0, 1])
+})
+
+test('integers', () => {
+  expect([...integers({ from: 0, through: 0 })]).toEqual([0])
+  expect([...integers({ from: 0, through: -1 })]).toEqual([])
+  expect([...integers({ from: 1, through: 1 })]).toEqual([1])
+  expect([...integers({ from: 0, through: 5 })]).toEqual([0, 1, 2, 3, 4, 5])
+  expect([...integers({ from: -2, through: 0 })]).toEqual([-2, -1, 0])
 })

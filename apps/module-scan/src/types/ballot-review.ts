@@ -1,15 +1,7 @@
 import * as t from '@votingworks/types'
-import { AdjudicationInfo, Rect } from '@votingworks/types'
+import { AdjudicationInfo, MarksByContestId, Rect } from '@votingworks/types'
 
 type ContestId = t.Contest['id']
-
-export interface MarksByContestId {
-  [key: string]: MarksByOptionId | undefined
-}
-
-export interface MarksByOptionId {
-  [key: string]: MarkStatus | undefined
-}
 
 export interface ContestLayout {
   bounds: Rect
@@ -18,12 +10,6 @@ export interface ContestLayout {
 
 export interface ContestOptionLayout {
   bounds: Rect
-}
-
-export enum MarkStatus {
-  Marked = 'marked',
-  Unmarked = 'unmarked',
-  Marginal = 'marginal',
 }
 
 export type ReviewBallot =

@@ -7,6 +7,7 @@ import {
   UndervoteAdjudicationReasonInfo,
 } from '@votingworks/types'
 import { Button, Prose, Text } from '@votingworks/ui'
+import { integers, take } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import pluralize from 'pluralize'
 import React, { useCallback, useContext, useState } from 'react'
@@ -396,12 +397,14 @@ export const OvervotePreview = (): JSX.Element => {
           type: AdjudicationReason.Overvote,
           contestId: contest.id,
           optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
+          optionIndexes: [0, 1],
           expected: contest.seats,
         },
         {
           type: AdjudicationReason.Overvote,
           contestId: contest.id,
           optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
+          optionIndexes: [0, 1],
           expected: contest.seats,
         },
       ]}
@@ -427,6 +430,7 @@ export const UndervoteNoVotesPreview = (): JSX.Element => {
           type: AdjudicationReason.Undervote,
           contestId: contest.id,
           optionIds: [],
+          optionIndexes: [],
           expected: contest.seats,
         },
       ]}
@@ -454,6 +458,7 @@ export const UndervoteBy1Preview = (): JSX.Element => {
           optionIds: contest.candidates
             .slice(0, contest.seats - 1)
             .map(({ id }) => id),
+          optionIndexes: take(contest.seats, integers()),
           expected: contest.seats,
         },
       ]}
@@ -471,6 +476,7 @@ export const UndervoteByNPreview = (): JSX.Element => {
   )
   assert(contest)
 
+  const undervotedOptionCount = 1
   return (
     <ScanWarningScreen
       acceptBallot={() => Promise.resolve()}
@@ -478,7 +484,10 @@ export const UndervoteByNPreview = (): JSX.Element => {
         {
           type: AdjudicationReason.Undervote,
           contestId: contest.id,
-          optionIds: contest.candidates.slice(0, 1).map(({ id }) => id),
+          optionIds: contest.candidates
+            .slice(0, undervotedOptionCount)
+            .map(({ id }) => id),
+          optionIndexes: take(undervotedOptionCount, integers()),
           expected: contest.seats,
         },
       ]}
@@ -503,6 +512,7 @@ export const MultipleUndervotesPreview = (): JSX.Element => {
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
         optionIds: contest.candidates.slice(0, 1).map(({ id }) => id),
+        optionIndexes: [0, 1],
         expected: contest.seats,
       }))}
     />

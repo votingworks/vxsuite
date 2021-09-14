@@ -1,11 +1,14 @@
 import {
   AdjudicationReason,
+  AdjudicationReasonInfo,
   CandidateContest,
+  MarkStatus,
   MsEitherNeitherContest,
+  WriteInAdjudicationReasonInfo,
   YesNoContest,
 } from '@votingworks/types'
+import { typedAs } from '@votingworks/utils'
 import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020'
-import { MarkStatus } from '../types/ballot-review'
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
 } from './ballotAdjudicationReasons'
@@ -34,7 +37,11 @@ test('an uninterpretable ballot', () => {
     ...ballotAdjudicationReasons(undefined, {
       optionMarkStatus: () => MarkStatus.Unmarked,
     }),
-  ]).toEqual([{ type: AdjudicationReason.UninterpretableBallot }])
+  ]).toEqual(
+    typedAs<AdjudicationReasonInfo[]>([
+      { type: AdjudicationReason.UninterpretableBallot },
+    ])
+  )
 })
 
 test('a ballot with no adjudication reasons', () => {
@@ -68,13 +75,16 @@ test('a ballot with marginal marks', () => {
     }),
   ]
 
-  expect(reasons).toEqual([
-    {
-      type: AdjudicationReason.MarginalMark,
-      contestId: president.id,
-      optionId: presidentialCandidate2.id,
-    },
-  ])
+  expect(reasons).toEqual(
+    typedAs<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: president.id,
+        optionId: presidentialCandidate2.id,
+        optionIndex: 1,
+      },
+    ])
+  )
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
@@ -90,17 +100,20 @@ test('a ballot with no marks', () => {
     }),
   ]
 
-  expect(reasons).toEqual([
-    {
-      type: AdjudicationReason.Undervote,
-      contestId: president.id,
-      optionIds: [],
-      expected: 1,
-    },
-    {
-      type: AdjudicationReason.BlankBallot,
-    },
-  ])
+  expect(reasons).toEqual(
+    typedAs<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.Undervote,
+        contestId: president.id,
+        optionIds: [],
+        optionIndexes: [],
+        expected: 1,
+      },
+      {
+        type: AdjudicationReason.BlankBallot,
+      },
+    ])
+  )
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
@@ -139,14 +152,17 @@ test('a ballot with too many marks', () => {
     }),
   ]
 
-  expect(reasons).toEqual([
-    {
-      type: AdjudicationReason.Overvote,
-      contestId: president.id,
-      optionIds: [presidentialCandidate1.id, presidentialCandidate2.id],
-      expected: 1,
-    },
-  ])
+  expect(reasons).toEqual(
+    typedAs<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.Overvote,
+        contestId: president.id,
+        optionIds: [presidentialCandidate1.id, presidentialCandidate2.id],
+        optionIndexes: [0, 1],
+        expected: 1,
+      },
+    ])
+  )
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
@@ -170,35 +186,41 @@ test('multiple contests with issues', () => {
     }),
   ]
 
-  expect(reasons).toEqual([
-    {
-      type: AdjudicationReason.MarginalMark,
-      contestId: president.id,
-      optionId: presidentialCandidate1.id,
-    },
-    {
-      type: AdjudicationReason.Undervote,
-      contestId: president.id,
-      optionIds: [],
-      expected: 1,
-    },
-    {
-      type: AdjudicationReason.WriteIn,
-      contestId: senator.id,
-      optionId: '__write-in-0',
-    },
-    {
-      type: AdjudicationReason.Overvote,
-      contestId: senator.id,
-      optionIds: [
-        senatorialCandidate1.id,
-        senatorialCandidate2.id,
-        senatorialCandidate3.id,
-        '__write-in-0',
-      ],
-      expected: 1,
-    },
-  ])
+  expect(reasons).toEqual(
+    typedAs<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: president.id,
+        optionId: presidentialCandidate1.id,
+        optionIndex: 0,
+      },
+      {
+        type: AdjudicationReason.Undervote,
+        contestId: president.id,
+        optionIds: [],
+        expected: 1,
+        optionIndexes: [],
+      },
+      {
+        type: AdjudicationReason.WriteIn,
+        contestId: senator.id,
+        optionId: '__write-in-0',
+        optionIndex: 3,
+      },
+      {
+        type: AdjudicationReason.Overvote,
+        contestId: senator.id,
+        optionIds: [
+          senatorialCandidate1.id,
+          senatorialCandidate2.id,
+          senatorialCandidate3.id,
+          '__write-in-0',
+        ],
+        optionIndexes: [0, 1, 2, 3],
+        expected: 1,
+      },
+    ])
+  )
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
@@ -217,14 +239,17 @@ test('yesno contest overvotes', () => {
     }),
   ]
 
-  expect(reasons).toEqual([
-    {
-      type: AdjudicationReason.Overvote,
-      contestId: flagInitiative.id,
-      optionIds: ['yes', 'no'],
-      expected: 1,
-    },
-  ])
+  expect(reasons).toEqual(
+    typedAs<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.Overvote,
+        contestId: flagInitiative.id,
+        optionIds: ['yes', 'no'],
+        optionIndexes: [0, 1],
+        expected: 1,
+      },
+    ])
+  )
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
@@ -243,13 +268,16 @@ test('a ballot with just a write-in', () => {
     }),
   ]
 
-  expect(reasons).toEqual([
-    {
-      type: AdjudicationReason.WriteIn,
-      contestId: president.id,
-      optionId: '__write-in-0',
-    },
-  ])
+  expect(reasons).toEqual(
+    typedAs<WriteInAdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.WriteIn,
+        contestId: president.id,
+        optionId: '__write-in-0',
+        optionIndex: 3,
+      },
+    ])
+  )
 })
 
 test('a ballot with an ms-either-neither happy path', () => {
@@ -291,12 +319,15 @@ test('a ballot with an ms-either-neither either-neither overvote', () => {
     }),
   ]
 
-  expect(reasons).toContainEqual({
-    type: AdjudicationReason.Overvote,
-    contestId: eitherNeitherQuestion.eitherNeitherContestId,
-    optionIds: ['yes', 'no'],
-    expected: 1,
-  })
+  expect(reasons).toContainEqual(
+    typedAs<AdjudicationReasonInfo>({
+      type: AdjudicationReason.Overvote,
+      contestId: eitherNeitherQuestion.eitherNeitherContestId,
+      optionIds: ['yes', 'no'],
+      optionIndexes: [0, 1],
+      expected: 1,
+    })
+  )
 })
 
 test('a ballot with an ms-either-neither pick-one overvote', () => {
@@ -310,10 +341,13 @@ test('a ballot with an ms-either-neither pick-one overvote', () => {
     }),
   ]
 
-  expect(reasons).toContainEqual({
-    type: AdjudicationReason.Overvote,
-    contestId: eitherNeitherQuestion.pickOneContestId,
-    optionIds: ['yes', 'no'],
-    expected: 1,
-  })
+  expect(reasons).toContainEqual(
+    typedAs<AdjudicationReasonInfo>({
+      type: AdjudicationReason.Overvote,
+      contestId: eitherNeitherQuestion.pickOneContestId,
+      optionIds: ['yes', 'no'],
+      optionIndexes: [0, 1],
+      expected: 1,
+    })
+  )
 })

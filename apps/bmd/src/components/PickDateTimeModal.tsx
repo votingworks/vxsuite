@@ -8,6 +8,7 @@ import {
   formatFullDateTimeZone,
   formatTimeZoneName,
   getDaysInMonth,
+  integers,
   MONTHS_SHORT,
 } from '@votingworks/utils'
 import { SelectChangeEventFunction } from '../config/types'
@@ -107,9 +108,9 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Year
                   </option>
-                  {[...Array.from({ length: 11 }).keys()].map((i) => (
-                    <option key={i} value={2020 + i}>
-                      {2020 + i}
+                  {[...integers({ from: 2020, through: 2030 })].map((year) => (
+                    <option key={year} value={year}>
+                      {year}
                     </option>
                   ))}
                 </Select>
@@ -173,7 +174,7 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Hour
                   </option>
-                  {[...Array.from({ length: 12 }).keys()].map((hour) => (
+                  {[...integers({ from: 1, through: 12 })].map((hour) => (
                     <option key={hour} value={hour + 1}>
                       {hour + 1}
                     </option>
@@ -193,7 +194,7 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Minute
                   </option>
-                  {[...Array.from({ length: 60 }).keys()].map((minute) => (
+                  {[...integers({ from: 0, through: 59 })].map((minute) => (
                     <option key={minute} value={minute}>
                       {minute < 10 ? `0${minute}` : minute}
                     </option>

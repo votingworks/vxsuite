@@ -6,7 +6,7 @@ import {
   GetScanStatusResponse,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
-import { typedAs } from '@votingworks/utils/build'
+import { typedAs } from '@votingworks/utils'
 import { Application } from 'express'
 import { promises as fs } from 'fs'
 import { Server } from 'http'

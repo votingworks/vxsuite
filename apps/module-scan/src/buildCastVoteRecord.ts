@@ -4,6 +4,7 @@ import {
   BallotMetadata,
   BallotType,
   CandidateVote,
+  CastVoteRecord,
   Contests,
   Dictionary,
   Election,
@@ -11,17 +12,17 @@ import {
   getContests,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  MarksByContestId,
+  MarkStatus,
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types'
 import { find, throwIllegalValue } from '@votingworks/utils'
 import { VX_MACHINE_ID } from './globals'
 import {
-  CastVoteRecord,
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
   SheetOf,
 } from './types'
-import { MarksByContestId, MarkStatus } from './types/ballot-review'
 import allContestOptions from './util/allContestOptions'
 import {
   describeValidationError,

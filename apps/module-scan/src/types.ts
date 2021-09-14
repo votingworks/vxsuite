@@ -2,15 +2,14 @@ import {
   BallotLocales,
   BallotMark,
   BallotTargetMark,
-  Dictionary,
+  MarksByContestId,
+  MarkStatus,
   MarkThresholds,
   PageInterpretation,
 } from '@votingworks/types'
 import { BallotStyleData } from '@votingworks/utils'
-import { MarksByContestId, MarkStatus } from './types/ballot-review'
 
 export type SheetOf<T> = [T, T]
-export type Side = 'front' | 'back'
 
 export interface PageInterpretationWithFiles {
   originalFilename: string
@@ -24,20 +23,6 @@ export interface PageInterpretationWithAdjudication<
   interpretation: T
   contestIds?: readonly string[]
   adjudication?: MarksByContestId
-}
-
-export interface CastVoteRecord
-  extends Dictionary<
-    string | string[] | boolean | [number, number] | BallotLocales
-  > {
-  _precinctId: string
-  _ballotStyleId: string
-  _ballotType: 'absentee' | 'provisional' | 'standard'
-  _ballotId: string
-  _testBallot: boolean
-  _scannerId: string
-  _pageNumbers?: [number, number]
-  _locales?: BallotLocales
 }
 
 export interface BallotPageQrcode {

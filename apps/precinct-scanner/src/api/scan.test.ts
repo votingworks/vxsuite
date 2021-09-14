@@ -361,6 +361,14 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
           "hildebrand-garritty",
           "patterson-lariviere",
         ],
+        "optionIndexes": Array [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+        ],
         "type": "Overvote",
       },
     ]

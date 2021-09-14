@@ -7,6 +7,8 @@ export interface Props {
   layout?: SerializableBallotPageLayout
   contestIds?: readonly Contest['id'][]
   styleForContest?(contestId: Contest['id']): React.CSSProperties
+  onMouseEnterContest?(contestId: Contest['id']): void
+  onMouseLeaveContest?(contestId: Contest['id']): void
 }
 
 export default function BallotSheetImage({
@@ -14,6 +16,8 @@ export default function BallotSheetImage({
   layout,
   contestIds,
   styleForContest,
+  onMouseEnterContest,
+  onMouseLeaveContest,
 }: Props): JSX.Element {
   const imageRef = useRef<HTMLImageElement>(null)
 
@@ -42,6 +46,30 @@ export default function BallotSheetImage({
     [yScaleValue]
   )
 
+  const onMouseEnter: React.MouseEventHandler = useCallback(
+    (event) => {
+      const target = event.currentTarget as HTMLElement
+      const { contestId } = target.dataset
+
+      if (contestId) {
+        onMouseEnterContest?.(contestId)
+      }
+    },
+    [onMouseEnterContest]
+  )
+
+  const onMouseLeave: React.MouseEventHandler = useCallback(
+    (event) => {
+      const target = event.currentTarget as HTMLElement
+      const { contestId } = target.dataset
+
+      if (contestId) {
+        onMouseLeaveContest?.(contestId)
+      }
+    },
+    [onMouseLeaveContest]
+  )
+
   return (
     <div style={{ position: 'relative' }}>
       <img
@@ -49,6 +77,7 @@ export default function BallotSheetImage({
         src={imageURL}
         alt="front"
         onLoad={recalculateScale}
+        style={{ maxWidth: '100%', maxHeight: '87vh' }}
       />
       {layout &&
         contestIds &&
@@ -56,6 +85,9 @@ export default function BallotSheetImage({
           ([contestLayout, contestId]) => (
             <div
               key={contestId}
+              data-contest-id={contestId}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
               style={{
                 position: 'absolute',
                 left: `${scaleX(contestLayout.bounds.x)}px`,

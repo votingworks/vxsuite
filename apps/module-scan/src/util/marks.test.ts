@@ -1,5 +1,4 @@
-import { BallotMark } from '@votingworks/types'
-import { MarkStatus } from '../types/ballot-review'
+import { BallotMark, MarkStatus } from '@votingworks/types'
 import { changesFromMarks, mergeChanges } from './marks'
 
 test('returns an empty object when no changes are given', () => {

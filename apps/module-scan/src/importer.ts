@@ -7,7 +7,11 @@ import {
   Optional,
   PageInterpretation,
 } from '@votingworks/types'
-import { ScannerStatus, ScanStatus } from '@votingworks/types/api/module-scan'
+import {
+  ScannerStatus,
+  ScanStatus,
+  Side,
+} from '@votingworks/types/api/module-scan'
 import { sleep } from '@votingworks/utils'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
@@ -15,7 +19,7 @@ import * as streams from 'memory-streams'
 import { join } from 'path'
 import { v4 as uuid } from 'uuid'
 import { BatchControl, Scanner } from './scanners'
-import { SheetOf, Side } from './types'
+import { SheetOf } from './types'
 import { Castability, checkSheetCastability } from './util/castability'
 import HmpbInterpretationError from './util/HmpbInterpretationError'
 import { writeImageData } from './util/images'

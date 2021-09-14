@@ -13,6 +13,7 @@ import {
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
+  MarksByContestId,
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
@@ -24,6 +25,7 @@ import {
 import {
   AdjudicationStatus,
   BatchInfo,
+  Side,
 } from '@votingworks/types/api/module-scan'
 import { strict as assert } from 'assert'
 import { createHash } from 'crypto'
@@ -38,13 +40,7 @@ import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { sheetRequiresAdjudication } from './interpreter'
-import {
-  isMarginalMark,
-  PageInterpretationWithFiles,
-  SheetOf,
-  Side,
-} from './types'
-import { MarksByContestId } from './types/ballot-review'
+import { isMarginalMark, PageInterpretationWithFiles, SheetOf } from './types'
 import { changesFromMarks, mergeChanges } from './util/marks'
 import { normalizeAndJoin } from './util/path'
 
@@ -554,6 +550,16 @@ export default class Store {
     [front, back]: SheetOf<PageInterpretationWithFiles>
   ): Promise<string> {
     try {
+      const frontFinishedAdjudicationAt =
+        front.interpretation.type === 'InterpretedHmpbPage' &&
+        !front.interpretation.adjudicationInfo.requiresAdjudication
+          ? DateTime.now().toISOTime()
+          : undefined
+      const backFinishedAdjudicationAt =
+        back.interpretation.type === 'InterpretedHmpbPage' &&
+        !back.interpretation.adjudicationInfo.requiresAdjudication
+          ? DateTime.now().toISOTime()
+          : undefined
       await this.dbRunAsync(
         `insert into sheets (
             id,
@@ -564,9 +570,11 @@ export default class Store {
             back_original_filename,
             back_normalized_filename,
             back_interpretation_json,
-            requires_adjudication
+            requires_adjudication,
+            front_finished_adjudication_at,
+            back_finished_adjudication_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
@@ -576,7 +584,9 @@ export default class Store {
         back.originalFilename,
         back.normalizedFilename,
         JSON.stringify(back.interpretation ?? {}),
-        sheetRequiresAdjudication([front.interpretation, back.interpretation])
+        sheetRequiresAdjudication([front.interpretation, back.interpretation]),
+        frontFinishedAdjudicationAt,
+        backFinishedAdjudicationAt
       )
     } catch (error) {
       debug(
@@ -650,6 +660,8 @@ export default class Store {
           id: string
           frontInterpretationJSON: string
           backInterpretationJSON: string
+          frontFinishedAdjudicationAt?: string
+          backFinishedAdjudicationAt?: string
         }
       | undefined
     >(
@@ -657,7 +669,9 @@ export default class Store {
       select
         id,
         front_interpretation_json as frontInterpretationJSON,
-        back_interpretation_json as backInterpretationJSON
+        back_interpretation_json as backInterpretationJSON,
+        front_finished_adjudication_at as frontFinishedAdjudicationAt,
+        back_finished_adjudication_at as backFinishedAdjudicationAt
       from sheets
       where
         requires_adjudication = 1 and
@@ -679,12 +693,14 @@ export default class Store {
             url: `/scan/hmpb/ballot/${row.id}/front/image/normalized`,
           },
           interpretation: JSON.parse(row.frontInterpretationJSON),
+          adjudicationFinishedAt: row.frontFinishedAdjudicationAt,
         },
         back: {
           image: {
             url: `/scan/hmpb/ballot/${row.id}/back/image/normalized`,
           },
           interpretation: JSON.parse(row.backInterpretationJSON),
+          adjudicationFinishedAt: row.backFinishedAdjudicationAt,
         },
       }
     }
@@ -916,7 +932,9 @@ export default class Store {
         batches.id as batchId,
         batches.label as batchLabel,
         front_interpretation_json as frontInterpretationJSON,
-        back_interpretation_json as backInterpretationJSON
+        back_interpretation_json as backInterpretationJSON,
+        front_adjudication_json as frontAdjudicationJSON,
+        back_adjudication_json as backAdjudicationJSON
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
@@ -930,12 +948,16 @@ export default class Store {
       batchLabel,
       frontInterpretationJSON,
       backInterpretationJSON,
+      frontAdjudicationJSON,
+      backAdjudicationJSON,
     } of await this.dbAllAsync<{
       id: string
       batchId: string
       batchLabel?: string
       frontInterpretationJSON: string
       backInterpretationJSON: string
+      frontAdjudicationJSON?: string
+      backAdjudicationJSON?: string
     }>(sql)) {
       const frontInterpretation: PageInterpretation = JSON.parse(
         frontInterpretationJSON
@@ -943,6 +965,12 @@ export default class Store {
       const backInterpretation: PageInterpretation = JSON.parse(
         backInterpretationJSON
       )
+      const frontAdjudication: MarksByContestId = frontAdjudicationJSON
+        ? JSON.parse(frontAdjudicationJSON)
+        : undefined
+      const backAdjudication: MarksByContestId = backAdjudicationJSON
+        ? JSON.parse(backAdjudicationJSON)
+        : undefined
       const cvr = buildCastVoteRecord(
         id,
         batchId,
@@ -963,6 +991,7 @@ export default class Store {
                     frontInterpretation.metadata
                   )
                 : undefined,
+            adjudication: frontAdjudication,
           },
           {
             interpretation: backInterpretation,
@@ -973,6 +1002,7 @@ export default class Store {
                     backInterpretation.metadata
                   )
                 : undefined,
+            adjudication: backAdjudication,
           },
         ]
       )
