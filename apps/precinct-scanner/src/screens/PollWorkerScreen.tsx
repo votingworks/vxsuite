@@ -62,7 +62,9 @@ const PollWorkerScreen = ({
   assert(electionDefinition)
   const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false)
   const [currentTally, setCurrentTally] = useState<Tally>()
-  const [securityCode, setSecurityCode] = useState('---·---')
+  const [systemAuthenticationCode, setSystemAuthenticationCode] = useState(
+    '---·---'
+  )
   const [isExportingResults, setIsExportingResults] = useState(false)
   const hasPrinterAttached = printerFromProps || !window.kiosk
   const { election } = electionDefinition
@@ -94,10 +96,10 @@ const PollWorkerScreen = ({
       const totpResult = await window.kiosk?.totp?.get()
       if (totpResult) {
         const codeChunks = totpResult.code.match(/.{1,3}/g)
-        if (codeChunks) setSecurityCode(codeChunks.join('·'))
+        if (codeChunks) setSystemAuthenticationCode(codeChunks.join('·'))
       }
     })()
-  }, [setSecurityCode])
+  }, [setSystemAuthenticationCode])
 
   const saveTally = async () => {
     assert(currentTally)
@@ -187,7 +189,7 @@ const PollWorkerScreen = ({
               </Button>
             </p>
           )}
-          <p>Security Code: {securityCode}</p>
+          <p>System Authentication Code: {systemAuthenticationCode}</p>
         </Prose>
         <Absolute top left>
           <Bar>

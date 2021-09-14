@@ -17,7 +17,7 @@ afterEach(() => {
   window.kiosk = undefined
 })
 
-test('shows security code', async () => {
+test('shows system authentication code', async () => {
   const mockKiosk = fakeKiosk()
   mockOf(mockKiosk.totp.get).mockResolvedValue({
     isoDatetime: '2020-10-31T01:01:01.001Z',
@@ -51,7 +51,7 @@ test('shows security code', async () => {
     )
   })
 
-  screen.getByText('Security Code: 123·456')
+  screen.getByText('System Authentication Code: 123·456')
 })
 
 test('shows dashes when no totp', async () => {
@@ -85,5 +85,5 @@ test('shows dashes when no totp', async () => {
     )
   })
 
-  screen.getByText('Security Code: ---·---')
+  screen.getByText('System Authentication Code: ---·---')
 })
