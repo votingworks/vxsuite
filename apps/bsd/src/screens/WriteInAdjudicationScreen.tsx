@@ -26,6 +26,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react'
@@ -205,6 +206,10 @@ const ContestOptionAdjudication = ({
   )
   const isWriteIn = adjudication?.isWriteIn ?? true
 
+  const [
+    shouldFocusNameOnNextRender,
+    setShouldFocusNameOnNextRender,
+  ] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const onInput = useCallback(
@@ -237,6 +242,7 @@ const ContestOptionAdjudication = ({
             optionId,
             name: '',
           })
+          setShouldFocusNameOnNextRender(true)
         } else {
           assert(inputRef.current)
           inputRef.current.value = ''
@@ -251,6 +257,13 @@ const ContestOptionAdjudication = ({
     },
     [contest.id, onChange]
   )
+
+  useLayoutEffect(() => {
+    if (shouldFocusNameOnNextRender) {
+      inputRef.current?.focus()
+      setShouldFocusNameOnNextRender(false)
+    }
+  }, [shouldFocusNameOnNextRender])
 
   return (
     <WriteInAdjudicationBox key={writeIn.optionId}>
