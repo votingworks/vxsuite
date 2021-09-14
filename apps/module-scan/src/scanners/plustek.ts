@@ -10,7 +10,7 @@ import bodyParser from 'body-parser'
 import makeDebug from 'debug'
 import express, { Application } from 'express'
 import * as z from 'zod'
-import { BatchControl, Scanner } from '.'
+import { BatchControl, Scanner, ScanOptions } from '.'
 import { SheetOf } from '../types'
 
 const debug = makeDebug('module-scan:scanner')
@@ -72,8 +72,9 @@ export class PlustekScanner implements Scanner {
     return await this.getHardwareStatus()
   }
 
-  scanSheets(directory?: string): BatchControl {
+  scanSheets({ directory, pageSize }: ScanOptions = {}): BatchControl {
     debug('scanSheets: ignoring directory: %s', directory)
+    debug('scanSheets: ignoring pageSize: %s', pageSize)
 
     const waitForStatus = async (
       client: ScannerClient,

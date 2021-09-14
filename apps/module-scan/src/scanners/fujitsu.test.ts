@@ -1,6 +1,7 @@
+import { BallotPaperSize } from '@votingworks/types'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import { ChildProcess } from 'child_process'
-import { FujitsuScanner, ScannerMode, ScannerPageSize } from '.'
+import { FujitsuScanner, ScannerMode } from '.'
 import { makeMockChildProcess } from '../../test/util/mocks'
 import { streamExecFile } from '../exec'
 
@@ -42,10 +43,10 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
 
 test('fujitsu scanner can scan with letter size', async () => {
   const scanimage = makeMockChildProcess()
-  const scanner = new FujitsuScanner({ pageSize: ScannerPageSize.Letter })
+  const scanner = new FujitsuScanner()
 
   exec.mockReturnValueOnce(scanimage)
-  scanner.scanSheets()
+  scanner.scanSheets({ pageSize: BallotPaperSize.Letter })
 
   scanimage.stderr.append(
     [
@@ -63,10 +64,10 @@ test('fujitsu scanner can scan with letter size', async () => {
 
 test('fujitsu scanner can scan with legal size', async () => {
   const scanimage = makeMockChildProcess()
-  const scanner = new FujitsuScanner({ pageSize: ScannerPageSize.Legal })
+  const scanner = new FujitsuScanner()
 
   exec.mockReturnValueOnce(scanimage)
-  scanner.scanSheets()
+  scanner.scanSheets({ pageSize: BallotPaperSize.Legal })
 
   scanimage.stderr.append(
     [

@@ -476,7 +476,11 @@ export default class Importer {
       this.batchId,
       batchScanDirectory
     )
-    this.sheetGenerator = this.scanner.scanSheets(batchScanDirectory)
+    const ballotPaperSize = await this.workspace.store.getBallotPaperSizeForElection()
+    this.sheetGenerator = this.scanner.scanSheets({
+      directory: batchScanDirectory,
+      pageSize: ballotPaperSize,
+    })
 
     await this.continueImport()
 
