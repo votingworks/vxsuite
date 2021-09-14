@@ -116,6 +116,11 @@ declare namespace KioskBrowser {
     IANAZone: string
   }
 
+  export interface TotpInfo {
+    isoDatetime: string
+    code: string
+  }
+
   export interface Kiosk {
     print(options?: PrintOptions): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
@@ -183,6 +188,11 @@ declare namespace KioskBrowser {
     }
 
     setClock(params: SetClockParams): Promise<void>
+
+    // totp
+    totp: {
+      get(): Promise<TotpInfo>
+    }
   }
 }
 
