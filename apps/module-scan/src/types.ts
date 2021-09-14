@@ -46,11 +46,20 @@ export function getMarkStatus(
     return MarkStatus.Marked
   }
 
-  if (mark.score < markThresholds.marginal) {
-    return MarkStatus.Unmarked
+  if (mark.score >= markThresholds.marginal) {
+    return MarkStatus.Marginal
   }
 
-  return MarkStatus.Marginal
+  if (
+    mark.type === 'candidate' &&
+    typeof mark.writeInTextScore === 'number' &&
+    typeof markThresholds.writeInText === 'number' &&
+    mark.writeInTextScore >= markThresholds.writeInText
+  ) {
+    return MarkStatus.UnmarkedWriteIn
+  }
+
+  return MarkStatus.Unmarked
 }
 
 export function isMarginalMark(

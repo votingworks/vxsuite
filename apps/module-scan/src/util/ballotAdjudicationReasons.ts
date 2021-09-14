@@ -7,6 +7,7 @@ import {
   MarkStatus,
 } from '@votingworks/types'
 import { throwIllegalValue } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import allContestOptions from './allContestOptions'
 
 export interface Options {
@@ -70,9 +71,23 @@ export default function* ballotAdjudicationReasons(
             }
             break
 
-          default:
-            // nothing to do
+          case MarkStatus.UnmarkedWriteIn:
+            assert.equal(option.type, 'candidate' as const)
+            assert(option.isWriteIn)
+
+            yield {
+              type: AdjudicationReason.UnmarkedWriteIn,
+              contestId: option.contestId,
+              optionId: option.id,
+              optionIndex: option.optionIndex,
+            }
             break
+
+          case MarkStatus.Unmarked:
+            break
+
+          default:
+            throwIllegalValue(status)
         }
       }
 
@@ -90,10 +105,7 @@ export default function* ballotAdjudicationReasons(
             break
 
           default:
-            throw new Error(
-              // @ts-expect-error - `contest` is of type `never` since we exhausted all branches, in theory
-              `contest type is not yet supported: ${contest.type}`
-            )
+            throwIllegalValue(contest)
         }
 
         if (selectedOptions.length < expectedSelectionCount) {
@@ -158,6 +170,9 @@ export function adjudicationReasonDescription(
 
     case AdjudicationReason.WriteIn:
       return `Contest '${reason.contestId}' has a write-in.`
+
+    case AdjudicationReason.UnmarkedWriteIn:
+      return `Contest '${reason.contestId}' has an unmarked write-in.`
 
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`

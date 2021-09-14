@@ -369,6 +369,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -449,6 +450,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -529,6 +531,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -609,6 +612,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -689,6 +693,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -769,6 +774,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -854,6 +860,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -939,6 +946,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1024,6 +1032,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1109,6 +1118,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1194,6 +1204,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1279,6 +1290,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1364,6 +1376,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1439,6 +1452,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1514,6 +1528,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1589,6 +1604,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1664,6 +1680,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1739,6 +1756,7 @@ test('interprets marks on an upside-down HMPB', async () => {
               },
             },
             "type": "candidate",
+            "writeInTextScore": undefined,
           },
         ],
       },
@@ -1898,6 +1916,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -1952,6 +1971,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2006,6 +2026,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": 0.0001403443113772455,
             },
             Object {
               "bounds": Object {
@@ -2065,6 +2086,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2124,6 +2146,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2183,6 +2206,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2242,6 +2266,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": 0.00023761999809904002,
             },
             Object {
               "bounds": Object {
@@ -2296,6 +2321,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2350,6 +2376,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2404,6 +2431,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": 0.0005794861889124976,
             },
             Object {
               "bounds": Object {
@@ -2458,6 +2486,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2512,6 +2541,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": undefined,
             },
             Object {
               "bounds": Object {
@@ -2566,6 +2596,7 @@ test('interprets marks in PNG ballots', async () => {
                 },
               },
               "type": "candidate",
+              "writeInTextScore": 0.0431383764717098,
             },
             Object {
               "bounds": Object {

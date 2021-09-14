@@ -64,6 +64,7 @@ export interface Options {
 }
 
 export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.12
+export const WRITE_IN_REGION_UPWARD_SHIFT_HEIGHT_RATIO = 0.15
 
 type TemplateKey = Pick<
   BallotPageMetadata,
@@ -488,6 +489,18 @@ export default class Interpreter {
       layout: BallotPageContestOptionLayout,
       option: Candidate
     ): void => {
+      let writeInTextScore: BallotCandidateTargetMark['writeInTextScore']
+
+      if (option.isWriteIn) {
+        writeInTextScore = this.writeInTextScore(
+          template.ballotImage.imageData,
+          mappedBallot,
+          layout,
+          contest,
+          option
+        )
+      }
+
       const { score, offset } = this.targetMarkScore(
         template.ballotImage.imageData,
         mappedBallot,
@@ -502,6 +515,7 @@ export default class Interpreter {
         score,
         scoredOffset: offset,
         target: layout.target,
+        writeInTextScore,
       }
       marks.push(mark)
     }
@@ -718,6 +732,59 @@ export default class Interpreter {
     )
 
     return { score: bestMatchScore, offset: bestMatchOffset }
+  }
+
+  private writeInTextScore(
+    template: ImageData,
+    ballot: ImageData,
+    layout: BallotPageContestOptionLayout,
+    contest: CandidateContest,
+    candidate: Candidate
+  ): number {
+    const writeInRegion: Rect = {
+      x: layout.target.bounds.x + layout.target.bounds.width,
+      y:
+        layout.bounds.y -
+        Math.round(
+          layout.bounds.height * WRITE_IN_REGION_UPWARD_SHIFT_HEIGHT_RATIO
+        ),
+      width: layout.bounds.width - layout.target.bounds.width,
+      height: layout.bounds.height,
+    }
+
+    debug(
+      'contest=%s/candidate=%s checking region for write-in text: %o',
+      contest.id,
+      candidate.id,
+      writeInRegion
+    )
+
+    const templateWriteInRegionImage = outline(
+      outline(crop(template, writeInRegion))
+    )
+    const scannedWriteInRegionImage = crop(ballot, writeInRegion)
+
+    binarize(templateWriteInRegionImage)
+    binarize(scannedWriteInRegionImage)
+
+    const newScannedPixels = diff(
+      templateWriteInRegionImage,
+      scannedWriteInRegionImage
+    )
+    const newScannedPixelsCount = countPixels(newScannedPixels)
+    const totalRegionPixelCount = writeInRegion.width * writeInRegion.height
+    const score = newScannedPixelsCount / totalRegionPixelCount
+
+    debug(
+      'contest=%s/candidate=%s computed write-in text score: %d (%d / %d pixels)',
+      contest.id,
+      candidate.id,
+      score,
+      newScannedPixelsCount,
+      totalRegionPixelCount
+    )
+
+    return score
   }
 
   private mapImageWithPoints(

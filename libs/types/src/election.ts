@@ -330,6 +330,7 @@ export enum AdjudicationReason {
   Overvote = 'Overvote',
   Undervote = 'Undervote',
   WriteIn = 'WriteIn',
+  UnmarkedWriteIn = 'UnmarkedWriteIn',
   BlankBallot = 'BlankBallot',
 }
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> = z.nativeEnum(
@@ -339,11 +340,13 @@ export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> = z.nativ
 export interface MarkThresholds {
   readonly marginal: number
   readonly definite: number
+  readonly writeInText?: number
 }
 export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
   .object({
     marginal: z.number().min(0).max(1),
     definite: z.number().min(0).max(1),
+    writeInText: z.number().min(0).max(1).optional(),
   })
   .refine(
     ({ marginal, definite }) => marginal <= definite,
@@ -728,6 +731,21 @@ export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicatio
   }
 )
 
+export interface UnmarkedWriteInAdjudicationReasonInfo {
+  type: AdjudicationReason.UnmarkedWriteIn
+  contestId: Contest['id']
+  optionId: ContestOption['id']
+  optionIndex: number
+}
+export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWriteInAdjudicationReasonInfo> = z.object(
+  {
+    type: z.literal(AdjudicationReason.UnmarkedWriteIn),
+    contestId: Id,
+    optionId: Id,
+    optionIndex: z.number().nonnegative(),
+  }
+)
+
 export interface BlankBallotAdjudicationReasonInfo {
   type: AdjudicationReason.BlankBallot
 }
@@ -743,6 +761,7 @@ export type AdjudicationReasonInfo =
   | OvervoteAdjudicationReasonInfo
   | UndervoteAdjudicationReasonInfo
   | WriteInAdjudicationReasonInfo
+  | UnmarkedWriteInAdjudicationReasonInfo
   | BlankBallotAdjudicationReasonInfo
 export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> = z.union(
   [
@@ -751,6 +770,7 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
     OvervoteAdjudicationReasonInfoSchema,
     UndervoteAdjudicationReasonInfoSchema,
     WriteInAdjudicationReasonInfoSchema,
+    UnmarkedWriteInAdjudicationReasonInfoSchema,
     BlankBallotAdjudicationReasonInfoSchema,
   ]
 )
@@ -826,6 +846,7 @@ export interface BallotCandidateTargetMark {
   option: Candidate
   score: number
   scoredOffset: Offset
+  writeInTextScore?: number
 }
 export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetMark> = z.object(
   {
@@ -834,8 +855,9 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
     contest: CandidateContestSchema,
     target: TargetShapeSchema,
     option: CandidateSchema,
-    score: z.number(),
+    score: z.number().min(0).max(1),
     scoredOffset: OffsetSchema,
+    writeInTextScore: z.number().min(0).max(1).optional(),
   }
 )
 

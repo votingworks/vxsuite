@@ -16,6 +16,7 @@ import {
   SerializableBallotPageLayout,
   WriteInMarkAdjudication,
   WriteInAdjudicationReasonInfo,
+  UnmarkedWriteInAdjudicationReasonInfo,
 } from '@votingworks/types'
 import { Side } from '@votingworks/types/api/module-scan'
 import { Text, useCancelablePromise } from '@votingworks/ui'
@@ -149,7 +150,7 @@ const WriteInLabel = ({
   writeIn,
 }: {
   contest: CandidateContest
-  writeIn: WriteInAdjudicationReasonInfo
+  writeIn: WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
 }) => (
   <HStack>
     <div>
@@ -187,7 +188,7 @@ const WriteInImage = ({
 interface ContestOptionAdjudicationProps {
   imageURL: string
   contest: CandidateContest
-  writeIn: WriteInAdjudicationReasonInfo
+  writeIn: WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
   layout: BallotPageContestLayout
   adjudications: readonly WriteInMarkAdjudication[]
   onChange?(adjudication: WriteInMarkAdjudication): void
@@ -223,7 +224,7 @@ const ContestOptionAdjudication = ({
       const { optionId } = input.dataset
       if (optionId) {
         onChange?.({
-          type: AdjudicationReason.WriteIn,
+          type: writeIn.type,
           isWriteIn: true,
           contestId: contest.id,
           optionId,
@@ -231,7 +232,7 @@ const ContestOptionAdjudication = ({
         })
       }
     },
-    [contest.id, onChange]
+    [contest.id, onChange, writeIn.type]
   )
 
   const onCheckboxChange = useCallback(
@@ -241,7 +242,7 @@ const ContestOptionAdjudication = ({
       if (optionId) {
         if (!input.checked) {
           onChange?.({
-            type: AdjudicationReason.WriteIn,
+            type: writeIn.type,
             isWriteIn: true,
             contestId: contest.id,
             optionId,
@@ -252,7 +253,7 @@ const ContestOptionAdjudication = ({
           assert(inputRef.current)
           inputRef.current.value = ''
           onChange?.({
-            type: AdjudicationReason.WriteIn,
+            type: writeIn.type,
             isWriteIn: false,
             contestId: contest.id,
             optionId,
@@ -260,7 +261,7 @@ const ContestOptionAdjudication = ({
         }
       }
     },
-    [contest.id, onChange]
+    [contest.id, onChange, writeIn.type]
   )
 
   useLayoutEffect(() => {
@@ -318,7 +319,10 @@ interface ContestAdjudicationProps {
   imageURL: string
   contest: CandidateContest
   layout: BallotPageContestLayout
-  writeInsForContest: readonly WriteInAdjudicationReasonInfo[]
+  writeInsForContest: readonly (
+    | WriteInAdjudicationReasonInfo
+    | UnmarkedWriteInAdjudicationReasonInfo
+  )[]
   onChange?(adjudication: WriteInMarkAdjudication): void
   adjudications: readonly WriteInMarkAdjudication[]
 }
@@ -378,8 +382,13 @@ const WriteInAdjudicationByContest = ({
   const [selectedContestIndex, setSelectedContestIndex] = useState(0)
 
   const writeIns = interpretation.adjudicationInfo.allReasonInfos.filter(
-    (reason): reason is WriteInAdjudicationReasonInfo =>
-      reason.type === AdjudicationReason.WriteIn
+    (
+      reason
+    ): reason is
+      | WriteInAdjudicationReasonInfo
+      | UnmarkedWriteInAdjudicationReasonInfo =>
+      reason.type === AdjudicationReason.WriteIn ||
+      reason.type === AdjudicationReason.UnmarkedWriteIn
   )
   const contestsWithWriteIns = new Set(
     [...writeIns].map(({ contestId }) => contestId)
@@ -510,8 +519,13 @@ export default function WriteInAdjudicationScreen({
   const [selectedContestId, setSelectedContestId] = useState<Contest['id']>()
 
   const writeIns = interpretation.adjudicationInfo.allReasonInfos.filter(
-    (reason): reason is WriteInAdjudicationReasonInfo =>
-      reason.type === AdjudicationReason.WriteIn
+    (
+      reason
+    ): reason is
+      | WriteInAdjudicationReasonInfo
+      | UnmarkedWriteInAdjudicationReasonInfo =>
+      reason.type === AdjudicationReason.WriteIn ||
+      reason.type === AdjudicationReason.UnmarkedWriteIn
   )
   const styleForContest = useCallback(
     (id: Contest['id']): React.CSSProperties => {

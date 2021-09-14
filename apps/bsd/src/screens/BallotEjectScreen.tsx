@@ -171,7 +171,10 @@ const BallotEjectScreen = ({
             ) {
               isUndervotedSheet = true
               contestIdsWithIssues.add(adjudicationReason.contestId)
-            } else if (adjudicationReason.type === AdjudicationReason.WriteIn) {
+            } else if (
+              adjudicationReason.type === AdjudicationReason.WriteIn ||
+              adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
+            ) {
               assert(reviewPageInfo.layout)
               assert(reviewPageInfo.contestIds)
               return (
