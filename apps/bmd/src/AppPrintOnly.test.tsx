@@ -10,6 +10,7 @@ import {
   makeAdminCard,
   makeVoterCard,
   makePollWorkerCard,
+  mockOf,
 } from '@votingworks/test-utils'
 import { BallotType } from '@votingworks/types'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
@@ -33,7 +34,6 @@ import fakePrinter from '../test/helpers/fakePrinter'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxPrintOnly } from './config/types'
-import { mockOf } from '../test/testUtils'
 
 beforeEach(() => {
   window.location.href = '/'

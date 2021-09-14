@@ -191,7 +191,7 @@ declare namespace KioskBrowser {
 
     // totp
     totp: {
-      get(): Promise<TotpInfo>
+      get(): Promise<TotpInfo|undefined>
     }
   }
 }

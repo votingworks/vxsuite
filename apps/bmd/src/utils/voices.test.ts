@@ -1,4 +1,4 @@
-import { mockOf } from '../../test/testUtils'
+import { mockOf } from '@votingworks/test-utils'
 import fakeVoice from '../../test/helpers/fakeVoice'
 import { getUSEnglishVoice } from './voices'
 

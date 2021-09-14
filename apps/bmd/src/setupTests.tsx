@@ -4,7 +4,7 @@ import 'jest-styled-components'
 import crypto from 'crypto'
 import fetchMock from 'fetch-mock'
 import { TextDecoder, TextEncoder } from 'util'
-import { mockOf } from '../test/testUtils'
+import { mockOf } from '@votingworks/test-utils'
 
 // globalThis.crypto is not defined in JSDOM
 Object.defineProperty(globalThis, 'crypto', {
