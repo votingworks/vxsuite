@@ -137,7 +137,7 @@ const Checkbox = styled.input`
 
 const HIGHLIGHTER_COLOR = '#fbff0016'
 const FOCUS_COLOR = '#fbff007d'
-const EXTRA_WRITE_IN_MARGIN_PERCENTAGE = 0.2
+const EXTRA_WRITE_IN_MARGIN_PERCENTAGE = 0.3
 
 const WriteInAdjudicationBox = styled.div`
   background-color: #ffffff;
