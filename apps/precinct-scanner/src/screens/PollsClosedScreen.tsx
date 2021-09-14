@@ -31,3 +31,8 @@ export default PollsClosedScreen
 export const DefaultPreview = (): JSX.Element => {
   return <PollsClosedScreen showNoChargerWarning={false} />
 }
+
+/* istanbul ignore next */
+export const NoPowerConnectedPreview = (): JSX.Element => {
+  return <PollsClosedScreen showNoChargerWarning />
+}

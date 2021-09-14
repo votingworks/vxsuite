@@ -25,3 +25,8 @@ const SetupPowerPage = (): JSX.Element => {
 }
 
 export default SetupPowerPage
+
+/* istanbul ignore next */
+export const DefaultPreview = (): JSX.Element => {
+  return <SetupPowerPage />
+}
