@@ -47,7 +47,10 @@ export const TallyReportSummary = ({
               <tr key={votingMethod} data-testid={votingMethod}>
                 <TD>{getLabelForVotingMethod(votingMethod as VotingMethod)}</TD>
                 <TD textAlign="right">
-                  {format.count(ballotCountsByVotingMethod[votingMethod] ?? 0)}
+                  {format.count(
+                    ballotCountsByVotingMethod[votingMethod] ??
+                      /* istanbul ignore next */ 0
+                  )}
                 </TD>
               </tr>
             )
