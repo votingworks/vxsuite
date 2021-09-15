@@ -1,15 +1,16 @@
 import { strict as assert } from 'assert'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
-import { deferredQueue } from '@votingworks/utils'
+import { deferredQueue, throwIllegalValue } from '@votingworks/utils'
 import makeDebug from 'debug'
 import { join } from 'path'
 import { dirSync } from 'tmp'
+import { BallotPaperSize } from '@votingworks/types'
 import {
   BatchControl,
   Scanner,
   ScannerImageFormat,
   ScannerMode,
-  ScannerPageSize,
+  ScanOptions,
 } from '.'
 import { streamExecFile } from '../exec'
 import { SheetOf } from '../types'
@@ -19,7 +20,6 @@ const debug = makeDebug('module-scan:scanner')
 
 export interface Options {
   format?: ScannerImageFormat
-  pageSize?: ScannerPageSize
   mode?: ScannerMode
 }
 
@@ -40,16 +40,10 @@ function dateStamp(date: Date = new Date()): string {
  */
 export class FujitsuScanner implements Scanner {
   private readonly format: ScannerImageFormat
-  private readonly pageSize: ScannerPageSize
   private readonly mode?: ScannerMode
 
-  constructor({
-    format = ScannerImageFormat.JPEG,
-    pageSize = ScannerPageSize.Letter,
-    mode,
-  }: Options = {}) {
+  constructor({ format = ScannerImageFormat.JPEG, mode }: Options = {}) {
     this.format = format
-    this.pageSize = pageSize
     this.mode = mode
   }
 
@@ -57,7 +51,10 @@ export class FujitsuScanner implements Scanner {
     return ScannerStatus.Unknown
   }
 
-  scanSheets(directory = dirSync().name): BatchControl {
+  scanSheets({
+    directory = dirSync().name,
+    pageSize = BallotPaperSize.Letter,
+  }: ScanOptions = {}): BatchControl {
     const args: string[] = [
       '-d',
       'fujitsu',
@@ -72,8 +69,12 @@ export class FujitsuScanner implements Scanner {
       `--batch-prompt`,
     ]
 
-    if (this.pageSize === ScannerPageSize.Legal) {
+    if (pageSize === BallotPaperSize.Legal) {
       args.push('--page-width', '215.872', '--page-height', '355.6')
+    } else if (pageSize === BallotPaperSize.Letter) {
+      // this is the default, no changes needed.
+    } else {
+      throwIllegalValue(pageSize)
     }
 
     if (this.mode) {

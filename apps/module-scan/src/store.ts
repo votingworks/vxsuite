@@ -7,6 +7,7 @@ import {
   BallotMark,
   BallotMetadata,
   BallotPageMetadata,
+  BallotPaperSize,
   BallotSheetInfo,
   BallotTargetMark,
   ElectionDefinition,
@@ -397,6 +398,14 @@ export default class Store {
     return (
       (await this.getMarkThresholdOverrides()) ??
       (await this.getElectionDefinition())?.election.markThresholds
+    )
+  }
+
+  async getBallotPaperSizeForElection(): Promise<BallotPaperSize> {
+    const electionDefinition = await this.getElectionDefinition()
+    return (
+      electionDefinition?.election.ballotLayout?.paperSize ??
+      BallotPaperSize.Letter
     )
   }
 
