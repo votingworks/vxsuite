@@ -11,7 +11,11 @@ import optionMarkStatus from './optionMarkStatus'
 import { election } from '../../test/fixtures/state-of-hamilton'
 import { election as eitherNeitherElection } from '../../test/fixtures/choctaw-mock-general-election-2020'
 
-const markThresholds: MarkThresholds = { definite: 0.17, marginal: 0.17 }
+const markThresholds: MarkThresholds = {
+  definite: 0.17,
+  marginal: 0.17,
+  writeInText: 0.01,
+}
 const defaultShape = {
   bounds: { x: 0, y: 0, width: 10, height: 10 },
   inner: { x: 0, y: 0, width: 10, height: 10 },
@@ -81,6 +85,36 @@ test('a candidate mark', () => {
   })
 
   expect(emptyResult).toBe(MarkStatus.Unmarked)
+})
+
+test('a candidate write-in mark', () => {
+  const contest = election.contests.find(
+    (c) => c.type === 'candidate' && c.allowWriteIns
+  ) as CandidateContest
+  const optionId = '__write-in-0'
+  const result = optionMarkStatus({
+    markThresholds,
+    marks: [
+      {
+        type: 'candidate',
+        bounds: defaultShape.bounds,
+        contest,
+        target: defaultShape,
+        option: {
+          id: optionId,
+          name: 'Write-In',
+          isWriteIn: true,
+        },
+        score: 0,
+        scoredOffset: { x: 0, y: 0 },
+        writeInTextScore: 0.05,
+      },
+    ],
+    contestId: contest.id,
+    optionId,
+  })
+
+  expect(result).toBe(MarkStatus.UnmarkedWriteIn)
 })
 
 test('a ms-either-neither mark', () => {

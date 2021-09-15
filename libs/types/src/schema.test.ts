@@ -418,13 +418,14 @@ test('disallows invalid adjudication reasons', () => {
           "Overvote",
           "Undervote",
           "WriteIn",
+          "UnmarkedWriteIn",
           "BlankBallot"
         ],
         "path": [
           "adjudicationReasons",
           0
         ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'WriteIn' | 'BlankBallot', received 'abcdefg'"
+        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'WriteIn' | 'UnmarkedWriteIn' | 'BlankBallot', received 'abcdefg'"
       }
     ]]
   `)

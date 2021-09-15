@@ -87,6 +87,7 @@ export enum MarkStatus {
   Marked = 'marked',
   Unmarked = 'unmarked',
   Marginal = 'marginal',
+  UnmarkedWriteIn = 'unmarkedWriteIn',
 }
 export const MarkStatusSchema: z.ZodSchema<MarkStatus> = z.nativeEnum(
   MarkStatus
@@ -152,7 +153,7 @@ export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudicatio
 )
 
 export interface WriteInMarkAdjudicationMarked {
-  readonly type: AdjudicationReason.WriteIn
+  readonly type: AdjudicationReason.WriteIn | AdjudicationReason.UnmarkedWriteIn
   readonly isWriteIn: true
   readonly contestId: Contest['id']
   readonly optionId: ContestOption['id']
@@ -160,7 +161,10 @@ export interface WriteInMarkAdjudicationMarked {
 }
 export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudicationMarked> = z.object(
   {
-    type: z.literal(AdjudicationReason.WriteIn),
+    type: z.union([
+      z.literal(AdjudicationReason.WriteIn),
+      z.literal(AdjudicationReason.UnmarkedWriteIn),
+    ]),
     isWriteIn: z.literal(true),
     contestId: Id,
     optionId: Id,
@@ -169,14 +173,17 @@ export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudic
 )
 
 export interface WriteInMarkAdjudicationUnmarked {
-  readonly type: AdjudicationReason.WriteIn
+  readonly type: AdjudicationReason.WriteIn | AdjudicationReason.UnmarkedWriteIn
   readonly isWriteIn: false
   readonly contestId: Contest['id']
   readonly optionId: ContestOption['id']
 }
 export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjudicationUnmarked> = z.object(
   {
-    type: z.literal(AdjudicationReason.WriteIn),
+    type: z.union([
+      z.literal(AdjudicationReason.WriteIn),
+      z.literal(AdjudicationReason.UnmarkedWriteIn),
+    ]),
     isWriteIn: z.literal(false),
     contestId: Id,
     optionId: Id,

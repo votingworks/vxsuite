@@ -4,6 +4,7 @@ import {
   CandidateContest,
   MarkStatus,
   MsEitherNeitherContest,
+  UnmarkedWriteInAdjudicationReasonInfo,
   WriteInAdjudicationReasonInfo,
   YesNoContest,
 } from '@votingworks/types'
@@ -277,6 +278,29 @@ test('a ballot with just a write-in', () => {
         optionIndex: 3,
       },
     ])
+  )
+})
+
+test('a ballot with just an unmarked write-in', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([president], {
+      optionMarkStatus: (contestId, optionId) =>
+        contestId === president.id && optionId === '__write-in-0'
+          ? MarkStatus.UnmarkedWriteIn
+          : MarkStatus.Unmarked,
+    }),
+  ]
+
+  const expectedReason: UnmarkedWriteInAdjudicationReasonInfo = {
+    type: AdjudicationReason.UnmarkedWriteIn,
+    contestId: president.id,
+    optionId: '__write-in-0',
+    optionIndex: 3,
+  }
+
+  expect(reasons).toContainEqual(expectedReason)
+  expect(adjudicationReasonDescription(expectedReason)).toMatchInlineSnapshot(
+    `"Contest '775020876' has an unmarked write-in."`
   )
 })
 

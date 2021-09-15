@@ -22,7 +22,9 @@ type onAdjudicationCompleteType = Exclude<
   undefined
 >
 
-function renderWriteInAdjudicationScreen(): {
+function renderWriteInAdjudicationScreen(
+  reason: AdjudicationReason.WriteIn | AdjudicationReason.UnmarkedWriteIn
+): {
   contest: Contest
   optionId: ContestOption['id']
   onAdjudicationComplete: onAdjudicationCompleteType
@@ -67,10 +69,10 @@ function renderWriteInAdjudicationScreen(): {
         metadata,
         adjudicationInfo: {
           requiresAdjudication: true,
-          enabledReasons: [AdjudicationReason.WriteIn],
+          enabledReasons: [reason],
           allReasonInfos: [
             {
-              type: AdjudicationReason.WriteIn,
+              type: reason,
               contestId: contest.id,
               optionId,
               optionIndex: 0,
@@ -115,7 +117,7 @@ test('supports typing in a candidate name', async () => {
     contest,
     optionId,
     onAdjudicationComplete,
-  } = renderWriteInAdjudicationScreen()
+  } = renderWriteInAdjudicationScreen(AdjudicationReason.WriteIn)
 
   screen.getByText('Write-In Adjudication')
   screen.getByText(contest.title)
@@ -152,7 +154,7 @@ test('supports canceling a write-in', async () => {
     contest,
     optionId,
     onAdjudicationComplete,
-  } = renderWriteInAdjudicationScreen()
+  } = renderWriteInAdjudicationScreen(AdjudicationReason.UnmarkedWriteIn)
 
   screen.getByText('Write-In Adjudication')
   screen.getByText(contest.title)
@@ -173,7 +175,7 @@ test('supports canceling a write-in', async () => {
         'front',
         [
           {
-            type: AdjudicationReason.WriteIn,
+            type: AdjudicationReason.UnmarkedWriteIn,
             isWriteIn: false,
             contestId: contest.id,
             optionId,
