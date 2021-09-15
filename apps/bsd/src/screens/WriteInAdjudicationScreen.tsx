@@ -221,47 +221,41 @@ const ContestOptionAdjudication = ({
   const onInput = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
       const input = event.currentTarget
-      const { optionId } = input.dataset
-      if (optionId) {
-        onChange?.({
-          type: writeIn.type,
-          isWriteIn: true,
-          contestId: contest.id,
-          optionId,
-          name: input.value,
-        })
-      }
+      onChange?.({
+        type: writeIn.type,
+        isWriteIn: true,
+        contestId: contest.id,
+        optionId: writeIn.optionId,
+        name: input.value,
+      })
     },
-    [contest.id, onChange, writeIn.type]
+    [contest.id, onChange, writeIn.optionId, writeIn.type]
   )
 
   const onCheckboxChange = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
       const input = event.currentTarget
-      const { optionId } = input.dataset
-      if (optionId) {
-        if (!input.checked) {
-          onChange?.({
-            type: writeIn.type,
-            isWriteIn: true,
-            contestId: contest.id,
-            optionId,
-            name: '',
-          })
-          setShouldFocusNameOnNextRender(true)
-        } else {
-          assert(inputRef.current)
-          inputRef.current.value = ''
-          onChange?.({
-            type: writeIn.type,
-            isWriteIn: false,
-            contestId: contest.id,
-            optionId,
-          })
-        }
+      if (!input.checked) {
+        onChange?.({
+          type: writeIn.type,
+          isWriteIn: true,
+          contestId: contest.id,
+          optionId: writeIn.optionId,
+          name: '',
+        })
+        setShouldFocusNameOnNextRender(true)
+      } else {
+        assert(inputRef.current)
+        inputRef.current.value = ''
+        onChange?.({
+          type: writeIn.type,
+          isWriteIn: false,
+          contestId: contest.id,
+          optionId: writeIn.optionId,
+        })
       }
     },
-    [contest.id, onChange, writeIn.type]
+    [contest.id, onChange, writeIn.optionId, writeIn.type]
   )
 
   useLayoutEffect(() => {
@@ -287,7 +281,6 @@ const ContestOptionAdjudication = ({
               }
               autoComplete="off"
               style={{ width: '450px', fontSize: '1.5em' }}
-              data-option-id={writeIn.optionId}
               data-testid={`write-in-input-${writeIn.optionId}`}
               onInput={onInput}
               disabled={!isWriteIn}
@@ -302,7 +295,6 @@ const ContestOptionAdjudication = ({
             <Checkbox
               type="checkbox"
               checked={!isWriteIn}
-              data-option-id={writeIn.optionId}
               data-testid={`write-in-checkbox-${writeIn.optionId}`}
               onChange={onCheckboxChange}
             />{' '}
