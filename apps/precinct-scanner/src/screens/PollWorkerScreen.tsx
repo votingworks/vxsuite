@@ -182,7 +182,7 @@ const PollWorkerScreen = ({
               </Button>
             )}
           </p>
-          {isPollsOpen && scannedBallotCount > 0 && (
+          {!isPollsOpen && scannedBallotCount > 0 && (
             <p>
               <Button onPress={() => setIsExportingResults(true)}>
                 Export Results to USB
