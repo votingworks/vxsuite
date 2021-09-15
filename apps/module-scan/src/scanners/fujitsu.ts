@@ -70,7 +70,9 @@ export class FujitsuScanner implements Scanner {
     ]
 
     if (pageSize === BallotPaperSize.Legal) {
-      args.push('--page-width', '215.872', '--page-height', '355.6')
+      args.push('--page-width', '215.872', '--page-height', '355.6') // values in millimeters
+    } else if (pageSize === BallotPaperSize.Custom8Point5X17) {
+      args.push('--page-width', '215.872', '--page-height', '431.8') // values in millimeters
     } else if (pageSize === BallotPaperSize.Letter) {
       // this is the default, no changes needed.
     } else {
