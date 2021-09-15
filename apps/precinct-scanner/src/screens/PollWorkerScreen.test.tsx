@@ -17,6 +17,38 @@ afterEach(() => {
   window.kiosk = undefined
 })
 
+const renderScreen = ({
+  scannedBallotCount = 0,
+  isPollsOpen = false,
+}: {
+  scannedBallotCount?: number
+  isPollsOpen?: boolean
+}): void => {
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+      }}
+    >
+      <PollWorkerScreen
+        scannedBallotCount={scannedBallotCount}
+        isPollsOpen={isPollsOpen}
+        togglePollsOpen={jest.fn()}
+        getCVRsFromExport={jest.fn().mockResolvedValue([])}
+        saveTallyToCard={jest.fn()}
+        isLiveMode
+        hasPrinterAttached={false}
+        printer={new NullPrinter()}
+        usbDrive={{
+          status: usbstick.UsbDriveStatus.absent,
+          eject: jest.fn(),
+        }}
+      />
+    </AppContext.Provider>
+  )
+}
+
 test('shows system authentication code', async () => {
   const mockKiosk = fakeKiosk()
   mockOf(mockKiosk.totp.get).mockResolvedValue({
@@ -26,29 +58,7 @@ test('shows system authentication code', async () => {
   window.kiosk = mockKiosk
 
   await act(async () => {
-    render(
-      <AppContext.Provider
-        value={{
-          electionDefinition: electionSampleDefinition,
-          machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        }}
-      >
-        <PollWorkerScreen
-          scannedBallotCount={0}
-          isPollsOpen={false}
-          togglePollsOpen={jest.fn()}
-          getCVRsFromExport={jest.fn().mockResolvedValue([])}
-          saveTallyToCard={jest.fn()}
-          isLiveMode
-          hasPrinterAttached={false}
-          printer={new NullPrinter()}
-          usbDrive={{
-            status: usbstick.UsbDriveStatus.absent,
-            eject: jest.fn(),
-          }}
-        />
-      </AppContext.Provider>
-    )
+    renderScreen({})
   })
 
   screen.getByText('System Authentication Code: 123·456')
@@ -60,30 +70,48 @@ test('shows dashes when no totp', async () => {
   window.kiosk = mockKiosk
 
   await act(async () => {
-    render(
-      <AppContext.Provider
-        value={{
-          electionDefinition: electionSampleDefinition,
-          machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        }}
-      >
-        <PollWorkerScreen
-          scannedBallotCount={0}
-          isPollsOpen={false}
-          togglePollsOpen={jest.fn()}
-          getCVRsFromExport={jest.fn().mockResolvedValue([])}
-          saveTallyToCard={jest.fn()}
-          isLiveMode
-          hasPrinterAttached={false}
-          printer={new NullPrinter()}
-          usbDrive={{
-            status: usbstick.UsbDriveStatus.absent,
-            eject: jest.fn(),
-          }}
-        />
-      </AppContext.Provider>
-    )
+    renderScreen({})
   })
 
   screen.getByText('System Authentication Code: ---·---')
+})
+
+test('shows Export Results button only when polls are closed and more than 0 ballots have been cast', async () => {
+  const exportButtonText = 'Export Results to USB'
+
+  await act(async () => {
+    renderScreen({
+      scannedBallotCount: 0,
+      isPollsOpen: false,
+    })
+  })
+
+  expect(screen.queryByText(exportButtonText)).toBeNull()
+
+  await act(async () => {
+    renderScreen({
+      scannedBallotCount: 0,
+      isPollsOpen: true,
+    })
+  })
+
+  expect(screen.queryByText(exportButtonText)).toBeNull()
+
+  await act(async () => {
+    renderScreen({
+      scannedBallotCount: 5,
+      isPollsOpen: true,
+    })
+  })
+
+  expect(screen.queryByText(exportButtonText)).toBeNull()
+
+  await act(async () => {
+    renderScreen({
+      scannedBallotCount: 5,
+      isPollsOpen: false,
+    })
+  })
+
+  expect(screen.queryByText(exportButtonText)).toBeTruthy()
 })
