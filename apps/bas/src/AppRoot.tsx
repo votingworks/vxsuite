@@ -5,13 +5,15 @@ import {
   safeParseElection,
   VoterCardData,
 } from '@votingworks/types'
-import { useCancelablePromise, useSmartcard } from '@votingworks/ui'
-import { Card, Hardware, sleep } from '@votingworks/utils'
+import {
+  useCancelablePromise,
+  useSmartcard,
+  useStoredState,
+} from '@votingworks/ui'
+import { Card, Hardware, sleep, Storage } from '@votingworks/utils'
 
 import { z } from 'zod'
 import { EventTargetFunction } from './config/types'
-
-import useStateWithLocalStorage from './hooks/useStateWithLocalStorage'
 
 import AdminScreen from './screens/AdminScreen'
 import InsertCardScreen from './screens/InsertCardScreen'
@@ -30,9 +32,10 @@ import './App.css'
 export interface Props {
   card: Card
   hardware: Hardware
+  storage: Storage
 }
 
-const AppRoot = ({ card, hardware }: Props): JSX.Element => {
+const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
   const [isEncodingCard, setIsEncodingCard] = useState(false)
   const [isWritableCard, setIsWritableCard] = useState(false)
   const [isCardPresent, setIsCardPresent] = useState(false)
@@ -40,21 +43,25 @@ const AppRoot = ({ card, hardware }: Props): JSX.Element => {
   const [isPollWorkerCardPresent, setIsPollWorkerCardPresent] = useState(false)
   const [isLocked, setIsLocked] = useState(true)
   const [isReadyToRemove, setIsReadyToRemove] = useState(false)
-  const [
-    isSinglePrecinctMode,
-    setIsSinglePrecinctMode,
-  ] = useStateWithLocalStorage('singlePrecinctMode', z.boolean(), false)
-  const [election, setElection] = useStateWithLocalStorage(
+  const [isSinglePrecinctMode, setIsSinglePrecinctMode] = useStoredState(
+    storage,
+    'singlePrecinctMode',
+    z.boolean(),
+    false
+  )
+  const [election, setElection] = useStoredState(
+    storage,
     'election',
     ElectionSchema
   )
   const [isLoadingElection, setIsLoadingElection] = useState(false)
-  const [precinctId, setPrecinctId] = useStateWithLocalStorage(
+  const [precinctId, setPrecinctId] = useStoredState(
+    storage,
     'precinctId',
     z.string()
   )
   const [ballotStyleId, setBallotStyleId] = useState<string>()
-  const [partyId, setPartyId] = useStateWithLocalStorage('partyId', z.string())
+  const [partyId, setPartyId] = useStoredState(storage, 'partyId', z.string())
 
   const unconfigure = useCallback(() => {
     setElection(undefined)

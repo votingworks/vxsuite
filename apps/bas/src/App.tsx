@@ -1,11 +1,20 @@
-import { getHardware, WebServiceCard } from '@votingworks/utils'
+import {
+  getHardware,
+  KioskStorage,
+  LocalStorage,
+  WebServiceCard,
+} from '@votingworks/utils'
 import React, { useEffect, useState } from 'react'
 import './App.css'
 import AppRoot, { Props as AppRootProps } from './AppRoot'
 
 export type Props = Partial<AppRootProps>
 
-const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
+const App = ({
+  hardware,
+  card = new WebServiceCard(),
+  storage = window.kiosk ? new KioskStorage() : new LocalStorage(),
+}: Props): JSX.Element => {
   const [internalHardware, setInternalHardware] = useState(hardware)
   useEffect(() => {
     const updateHardware = async () => {
@@ -21,7 +30,7 @@ const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
     return <React.Fragment />
   }
 
-  return <AppRoot card={card} hardware={internalHardware} />
+  return <AppRoot card={card} hardware={internalHardware} storage={storage} />
 }
 
 export default App
