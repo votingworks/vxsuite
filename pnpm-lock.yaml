@@ -37,6 +37,7 @@ importers:
       zod: 3.2.0
     devDependencies:
       '@types/history': 4.7.8
+      '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
       '@types/luxon': 1.26.5
       '@typescript-eslint/eslint-plugin': 4.28.4_852673d3af9c7ab8ae779b8d717157c6
       '@typescript-eslint/parser': 4.28.4_eslint@7.17.0+typescript@4.3.5
@@ -64,6 +65,7 @@ importers:
     specifiers:
       '@types/history': ^4.7.8
       '@types/jest': 24.0.11
+      '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
       '@types/node': 11.13.7
       '@types/pluralize': ^0.0.29
@@ -1541,6 +1543,7 @@ importers:
       rxjs: 6.6.6
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
       use-interval: 1.3.0_react@17.0.1
+      zod: 3.2.0
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
@@ -1640,6 +1643,7 @@ importers:
       ts-jest: ^26.5.5
       typescript: ^4.3.5
       use-interval: ^1.3.0
+      zod: 3.2.0
   libs/utils:
     dependencies:
       '@types/node': 12.20.11
@@ -20474,7 +20478,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.1
-      jest: 26.6.3
+      jest: 26.6.3_canvas@2.6.1
       jest-regex-util: 27.0.1
       jest-watcher: 27.0.2
       slash: 3.0.0
@@ -27698,7 +27702,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3
+      jest: 26.6.3_ts-node@9.1.1
       jest-util: 26.6.2
       json5: 2.2.0
       lodash: 4.17.21
