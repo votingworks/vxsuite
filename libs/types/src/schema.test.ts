@@ -468,13 +468,14 @@ test('supports ballot layout paper size', () => {
         "code": "invalid_enum_value",
         "options": [
           "letter",
-          "legal"
+          "legal",
+          "extralegal"
         ],
         "path": [
           "ballotLayout",
           "paperSize"
         ],
-        "message": "Invalid enum value. Expected 'letter' | 'legal', received 'A4'"
+        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'extralegal', received 'A4'"
       }
     ]]
   `)

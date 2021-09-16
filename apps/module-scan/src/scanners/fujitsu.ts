@@ -69,7 +69,9 @@ export class FujitsuScanner implements Scanner {
       `--batch-prompt`,
     ]
 
-    if (pageSize === BallotPaperSize.Legal) {
+    if (pageSize === BallotPaperSize.ExtraLegal) {
+      args.push('--page-width', '215.872', '--page-height', '431.8')
+    } else if (pageSize === BallotPaperSize.Legal) {
       args.push('--page-width', '215.872', '--page-height', '355.6')
     } else if (pageSize === BallotPaperSize.Letter) {
       // this is the default, no changes needed.
