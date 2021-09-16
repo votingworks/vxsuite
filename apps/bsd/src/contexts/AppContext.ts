@@ -1,5 +1,5 @@
 import { ElectionDefinition } from '@votingworks/types'
-import { usbstick } from '@votingworks/utils'
+import { MemoryStorage, Storage, usbstick } from '@votingworks/utils'
 import { createContext } from 'react'
 import { MachineConfig } from '../config/types'
 
@@ -9,6 +9,7 @@ interface AppContextInterface {
   machineConfig: MachineConfig
   electionDefinition?: ElectionDefinition
   electionHash?: string
+  storage: Storage
 }
 
 const appContext: AppContextInterface = {
@@ -17,6 +18,7 @@ const appContext: AppContextInterface = {
   machineConfig: { machineId: '0000' },
   electionDefinition: undefined,
   electionHash: undefined,
+  storage: new MemoryStorage(),
 }
 
 const AppContext = createContext(appContext)
