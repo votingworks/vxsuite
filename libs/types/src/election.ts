@@ -311,6 +311,7 @@ export const BallotStringsSchema: z.ZodSchema<BallotStrings> = z.record(
 export enum BallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
+  Custom8Point5X17 = 'custom8.5x17',
 }
 export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> = z.nativeEnum(
   BallotPaperSize
