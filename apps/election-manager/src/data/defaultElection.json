@@ -18,7 +18,8 @@
     }
   },
   "ballotLayout": {
-    "paperSize": "letter"
+    "paperSize": "letter",
+    "density": "0"
   },
   "districts": [
     {
