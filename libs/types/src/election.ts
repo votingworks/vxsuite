@@ -319,9 +319,11 @@ export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> = z.nativeEnum(
 
 export interface BallotLayout {
   paperSize: BallotPaperSize
+  layoutDensity?: number
 }
 export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   paperSize: BallotPaperSizeSchema,
+  layoutDensity: z.number().min(0).max(2).optional(),
 })
 
 // Hand-marked paper & adjudication

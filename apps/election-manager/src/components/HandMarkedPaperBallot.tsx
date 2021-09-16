@@ -45,6 +45,7 @@ import Text from './Text'
 import HorizontalRule from './HorizontalRule'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
+import { getBallotLayoutDensity } from '../utils/getBallotLayoutDensity'
 
 function hasVote(vote: Vote | undefined, optionId: string): boolean {
   return (
@@ -355,29 +356,34 @@ const Instructions = styled.div`
     margin-top: 0;
   }
 `
-export const StyledContest = styled.div`
+export const StyledContest = styled.div<{ density?: number }>`
   margin-bottom: 1em;
   border: 0.2em solid #000000;
   border-top-width: 0.3em;
-  padding: 0.5em 1em 1em;
+  padding: ${({ density }) =>
+    density === 2 ? '0.25em 0.5em' : density === 1 ? '0.5em' : '0.5em 1em 1em'};
   break-inside: avoid;
   page-break-inside: avoid;
   p + h3 {
-    margin-top: -0.6em;
+    margin-top: ${({ density }) =>
+      density === 1 || density === 2 ? '-0.3em' : '-0.6em'};
+    line-height: 1.05;
   }
 `
 interface ContestProps {
   section: React.ReactNode
   title: React.ReactNode
   children: React.ReactNode
+  density?: number
 }
 export const Contest = ({
   section,
   title,
   children,
+  density,
 }: ContestProps): JSX.Element => (
-  <StyledContest>
-    <Prose>
+  <StyledContest density={density}>
+    <Prose density={density}>
       <Text small bold>
         {section}
       </Text>
@@ -406,10 +412,12 @@ export interface CandidateContestChoicesProps {
   locales: BallotLocale
   parties: Parties
   vote?: CandidateVote
+  density?: number
 }
 
 export const CandidateContestChoices = ({
   contest,
+  density,
   locales,
   parties,
   vote,
@@ -420,17 +428,19 @@ export const CandidateContestChoices = ({
   const dualLanguageWithSlash = dualLanguageComposer(t, locales)
   return (
     <React.Fragment>
-      {contest.candidates.map((candidate, _, array) => (
+      {contest.candidates.map((candidate) => (
         <Text key={candidate.id} data-candidate>
           <BubbleMark checked={hasVote(vote, candidate.id)}>
-            <CandidateDescription isSmall={array.length > 5}>
+            <CandidateDescription isSmall>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
               </strong>
               {candidate.partyId && (
                 <React.Fragment>
-                  <br />
-                  {findPartyById(parties, candidate.partyId)?.name}
+                  {density !== 2 ? <br /> : ' '}
+                  <Text as="span" small={density !== 0}>
+                    {findPartyById(parties, candidate.partyId)?.name}
+                  </Text>
                 </React.Fragment>
               )}
             </CandidateDescription>
@@ -487,6 +497,7 @@ const HandMarkedPaperBallot = ({
   votes,
   onRendered,
 }: HandMarkedPaperBallotProps): JSX.Element => {
+  const layoutDensity = getBallotLayoutDensity(election)
   assert.notEqual(
     locales.primary,
     locales.secondary,
@@ -870,6 +881,7 @@ const HandMarkedPaperBallot = ({
           {candidateContests.map((contest) => (
             <Contest
               key={contest.id}
+              density={layoutDensity}
               section={dualPhraseWithSlash(
                 contest.section,
                 localeContestsById?.[contest.id]?.section,
@@ -883,7 +895,7 @@ const HandMarkedPaperBallot = ({
             >
               {contest.type === 'candidate' && (
                 <React.Fragment>
-                  <p>
+                  <Text small={layoutDensity !== 0}>
                     {contest.seats === 1
                       ? dualLanguageWithSlash('Vote for 1', {
                           normal: true,
@@ -892,12 +904,13 @@ const HandMarkedPaperBallot = ({
                           'Vote for not more than {{ seats }}',
                           { seats: contest.seats, normal: true }
                         )}
-                  </p>
+                  </Text>
                   <CandidateContestChoices
                     contest={contest}
                     parties={parties}
                     vote={votes?.[contest.id] as CandidateVote | undefined}
                     locales={locales}
+                    density={layoutDensity}
                   />
                 </React.Fragment>
               )}

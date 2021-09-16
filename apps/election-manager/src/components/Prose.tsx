@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 interface Props {
   compact?: boolean
+  density?: number
   maxWidth?: boolean
   textCenter?: boolean
 }
@@ -12,10 +13,7 @@ const Prose = styled('div')<Props>`
   /* width: 100%; */
   max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
-  line-height: 1.2;
-  @media (min-width: 480px) {
-    line-height: 1.3;
-  }
+  line-height: ${({ density }) => (density !== 0 ? '1.1' : '1.3')};
   & h1 {
     margin: 2em 0 1em;
     line-height: 1.1;
@@ -39,8 +37,22 @@ const Prose = styled('div')<Props>`
   & h5,
   & p,
   & hr {
-    margin-top: ${({ compact }) => (compact ? '0' : '1em')};
-    margin-bottom: ${({ compact }) => (compact ? '0' : '1em')};
+    margin-top: ${({ compact, density }) =>
+      compact
+        ? '0'
+        : density === 2
+        ? '0.25em'
+        : density === 1
+        ? '0.5em'
+        : '1em'};
+    margin-bottom: ${({ compact, density }) =>
+      compact
+        ? '0'
+        : density === 2
+        ? '0.25em'
+        : density === 1
+        ? '0.5em'
+        : '1em'};
   }
   & h1 + h2 {
     margin-top: -0.75em;
@@ -52,7 +64,14 @@ const Prose = styled('div')<Props>`
   & h3 + p,
   & h4 + p,
   & h5 + p {
-    margin-top: ${({ compact }) => (compact ? 0 : '-1em')};
+    margin-top: ${({ compact, density }) =>
+      compact
+        ? 0
+        : density === 2
+        ? '-0.5em'
+        : density === 1
+        ? '-0.75em'
+        : '-1em'};
   }
   & > :not(.ignore-prose):first-child {
     margin-top: 0;
