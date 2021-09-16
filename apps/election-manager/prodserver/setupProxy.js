@@ -16,6 +16,7 @@ module.exports = function (app) {
     res.json({
       machineId: process.env.VX_MACHINE_ID || '0000',
       codeVersion: process.env.VX_CODE_VERSION || 'dev',
+      bypassAuthentication: process.env.BYPASS_AUTHENTICATION || false,
     })
   })
 }

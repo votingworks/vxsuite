@@ -19,13 +19,28 @@ import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
 import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen'
 import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen'
 import SmartcardsScreen from '../screens/SmartcardsScreen'
+import { MachineLockedScreen } from '../screens/MachineLockedScreen'
+import { InvalidCardScreen } from '../screens/InvalidCardScreen'
+import { UnlockMachineScreen } from '../screens/UnlockMachineScreen'
 
 const ElectionManager = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
+  const { electionDefinition, currentUserSession } = useContext(AppContext)
   const election = electionDefinition?.election
 
   if (!election) {
     return <UnconfiguredScreen />
+  }
+
+  if (!currentUserSession) {
+    return <MachineLockedScreen />
+  }
+
+  if (currentUserSession.type !== 'admin') {
+    return <InvalidCardScreen />
+  }
+
+  if (!currentUserSession.authenticated) {
+    return <UnlockMachineScreen />
   }
 
   return (

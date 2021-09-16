@@ -3,6 +3,7 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
+  Optional,
 } from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 import {
@@ -11,6 +12,8 @@ import {
   ISO8601Timestamp,
   ExportableTallies,
   ResultsFileType,
+  UserSession,
+  MachineConfig,
 } from '../config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -45,6 +48,10 @@ export interface AppContextInterface {
   ) => Promise<void>
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
   generateExportableTallies: () => ExportableTallies
+  currentUserSession: Optional<UserSession>
+  attemptToAuthenticateUser: (passcode: string) => boolean
+  lockMachine: () => void
+  machineConfig: MachineConfig
 }
 
 const appContext: AppContextInterface = {
@@ -70,6 +77,14 @@ const appContext: AppContextInterface = {
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
+  currentUserSession: undefined,
+  attemptToAuthenticateUser: () => false,
+  lockMachine: () => undefined,
+  machineConfig: {
+    machineId: '0000',
+    codeVersion: '',
+    bypassAuthentication: false,
+  },
 }
 
 const AppContext = createContext(appContext)

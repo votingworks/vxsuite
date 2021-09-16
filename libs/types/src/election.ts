@@ -1162,11 +1162,14 @@ export interface AdminCardData extends CardData {
   readonly t: 'admin'
   /** Election hash */
   readonly h: string
+  /** Card Passcode */
+  readonly p?: string
 }
 export const AdminCardDataSchema: z.ZodSchema<AdminCardData> = CardDataInternalSchema.extend(
   {
     t: z.literal('admin'),
     h: HexString,
+    p: z.string().optional(),
   }
 )
 

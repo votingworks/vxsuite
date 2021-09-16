@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { USBControllerButton } from '@votingworks/ui'
+import { Button, USBControllerButton } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
@@ -26,9 +26,13 @@ const NavigationScreen = ({
   const isActiveSection = (path: string) =>
     new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''
 
-  const { electionDefinition, usbDriveEject, usbDriveStatus } = useContext(
-    AppContext
-  )
+  const {
+    electionDefinition,
+    usbDriveEject,
+    usbDriveStatus,
+    lockMachine,
+    machineConfig,
+  } = useContext(AppContext)
   const election = electionDefinition?.election
 
   return (
@@ -66,10 +70,17 @@ const NavigationScreen = ({
           )
         }
         secondaryNav={
-          <USBControllerButton
-            usbDriveEject={usbDriveEject}
-            usbDriveStatus={usbDriveStatus}
-          />
+          <React.Fragment>
+            {!machineConfig.bypassAuthentication && (
+              <Button small onPress={lockMachine}>
+                Lock Machine
+              </Button>
+            )}
+            <USBControllerButton
+              usbDriveEject={usbDriveEject}
+              usbDriveStatus={usbDriveStatus}
+            />
+          </React.Fragment>
         }
       />
       <Main padded>

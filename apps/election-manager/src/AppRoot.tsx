@@ -10,6 +10,8 @@ import {
   safeParseElection,
   FullElectionExternalTally,
   ExternalTallySourceType,
+  Optional,
+  Provider,
 } from '@votingworks/types'
 
 import {
@@ -17,8 +19,11 @@ import {
   throwIllegalValue,
   usbstick,
   Printer,
+  Card,
+  Hardware,
 } from '@votingworks/utils'
-import { useUsbDrive } from '@votingworks/ui'
+import { useSmartcard, useUsbDrive } from '@votingworks/ui'
+import { machineConfigProvider as machineConfigProviderFn } from './utils/machineConfig'
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -38,6 +43,8 @@ import {
   CastVoteRecordLists,
   ExportableTallies,
   ResultsFileType,
+  UserSession,
+  MachineConfig,
 } from './config/types'
 import { getExportableTallies } from './utils/exportableTallies'
 import {
@@ -57,6 +64,9 @@ export interface AppStorage {
 export interface Props extends RouteComponentProps {
   storage: Storage
   printer: Printer
+  hardware: Hardware
+  card: Card
+  machineConfigProvider?: Provider<MachineConfig>
 }
 
 export const electionDefinitionStorageKey = 'electionDefinition'
@@ -66,7 +76,13 @@ export const printedBallotsStorageKey = 'printedBallots'
 export const configuredAtStorageKey = 'configuredAt'
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies'
 
-const AppRoot = ({ storage, printer }: Props): JSX.Element => {
+const AppRoot = ({
+  storage,
+  printer,
+  card,
+  hardware,
+  machineConfigProvider = machineConfigProviderFn,
+}: Props): JSX.Element => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
   const getElectionDefinition = useCallback(async (): Promise<
@@ -120,8 +136,79 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
     setFullElectionExternalTallies,
   ] = useState<FullElectionExternalTally[]>([])
 
+  const [machineConfig, setMachineConfig] = useState<MachineConfig>({
+    machineId: '0000',
+    bypassAuthentication: false,
+    codeVersion: '',
+  })
+
+  // Handle Machine Config
+  useEffect(() => {
+    void (async () => {
+      try {
+        const newMachineConfig = await machineConfigProvider.get()
+        setMachineConfig(newMachineConfig)
+      } catch {
+        // Do nothing if machineConfig fails. Default values will be used.
+      }
+    })()
+  }, [machineConfigProvider])
+
+  const [currentUserSession, setCurrentUserSession] = useState<
+    Optional<UserSession>
+  >()
   const usbDrive = useUsbDrive()
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
+
+  const [smartcard] = useSmartcard({ card, hardware })
+  useEffect(() => {
+    void (async () => {
+      if (machineConfig.bypassAuthentication && !currentUserSession) {
+        setCurrentUserSession({
+          type: 'admin',
+          authenticated: true,
+        })
+      } else if (smartcard) {
+        if (!currentUserSession?.authenticated && smartcard.data?.t) {
+          setCurrentUserSession({
+            type: smartcard.data.t,
+            authenticated: false,
+          })
+        }
+      } else if (currentUserSession && !currentUserSession.authenticated) {
+        // If a card is removed when there is not an authenticated session, clear the session.
+        setCurrentUserSession(undefined)
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!smartcard, smartcard?.data, smartcard?.longValueExists, machineConfig])
+
+  const attemptToAuthenticateUser = useCallback(
+    (passcode: string): boolean => {
+      // The card must be an admin card to authenticate
+      if (smartcard?.data?.t !== 'admin') {
+        return false
+      }
+      // There must be an expected passcode on the card to authenticate.
+      if (!smartcard?.data.p) {
+        return false
+      }
+      if (passcode === smartcard.data.p) {
+        setCurrentUserSession((prev) => {
+          return prev ? { ...prev, authenticated: true } : undefined
+        })
+        return true
+      }
+      return false
+    },
+    [smartcard]
+  )
+
+  const lockMachine = useCallback(() => {
+    if (!machineConfig.bypassAuthentication) {
+      setCurrentUserSession(undefined)
+    }
+  }, [machineConfig])
 
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined
@@ -352,6 +439,10 @@ const AppRoot = ({ storage, printer }: Props): JSX.Element => {
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
+        currentUserSession,
+        attemptToAuthenticateUser,
+        lockMachine,
+        machineConfig,
       }}
     >
       <ElectionManager />

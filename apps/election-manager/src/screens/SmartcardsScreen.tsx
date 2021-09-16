@@ -21,10 +21,13 @@ export const Passcode = styled.div`
   font-weight: 600;
 `
 
-export const NumberPadWrapper = styled.div`
+const NumberPadWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 10px;
+  > div {
+    width: 300px;
+  }
 `
 
 const DefinitionScreen = (): JSX.Element => {
