@@ -14,6 +14,7 @@ import { strict as assert } from 'assert'
 import { map, zip } from './iterators'
 import { throwIllegalValue } from './throwIllegalValue'
 import {
+  CompressedTally,
   SerializedCandidateVoteTally,
   SerializedMsEitherNeitherTally,
   SerializedTally,
@@ -358,5 +359,60 @@ export const serializeTally = (
     }
     /* istanbul ignore next - compile time check for completeness */
     throwIllegalValue(contest, 'type')
+  })
+}
+
+/**
+ * A compressed tally
+ */
+export const compressTally = (
+  election: Election,
+  tally: Tally
+): CompressedTally => {
+  // eslint-disable-next-line array-callback-return
+  return election.contests.map((contest) => {
+    if (contest.type === 'yesno') {
+      const contestTally = tally.contestTallies[contest.id]
+      return [
+        contestTally?.metadata.undervotes ?? 0, // undervotes
+        contestTally?.metadata.overvotes ?? 0, // overvotes
+        contestTally?.metadata.ballots ?? 0, // ballots cast
+        contestTally?.tallies.yes?.tally ?? 0, // yes
+        contestTally?.tallies.no?.tally ?? 0, // no
+      ]
+    }
+
+    if (contest.type === 'ms-either-neither') {
+      const eitherNeitherContestTally =
+        tally.contestTallies[contest.eitherNeitherContestId]
+      const pickOneContestTally = tally.contestTallies[contest.pickOneContestId]
+      return [
+        eitherNeitherContestTally?.tallies.yes?.tally ?? 0, // eitherOption
+        eitherNeitherContestTally?.tallies.no?.tally ?? 0, // neitherOption
+        eitherNeitherContestTally?.metadata.undervotes ?? 0, // eitherNeitherUndervotes
+        eitherNeitherContestTally?.metadata.overvotes ?? 0, // eitherNeitherOvervotes
+        pickOneContestTally?.tallies.yes?.tally ?? 0, // firstOption
+        pickOneContestTally?.tallies.no?.tally ?? 0, // secondOption
+        pickOneContestTally?.metadata.undervotes ?? 0, // pickOneUndervotes
+        pickOneContestTally?.metadata.overvotes ?? 0, // pickOneOvervotes
+        pickOneContestTally?.metadata.ballots ?? 0, // ballotsCast
+      ]
+    }
+
+    if (contest.type === 'candidate') {
+      const contestTally = tally.contestTallies[contest.id]
+      return [
+        contestTally?.metadata.undervotes ?? 0, // undervotes
+        contestTally?.metadata.overvotes ?? 0, // overvotes
+        contestTally?.metadata.ballots ?? 0, // ballotsCast
+        ...contest.candidates.map(
+          (candidate) => contestTally?.tallies[candidate.id]?.tally ?? 0
+        ),
+        contestTally?.tallies[writeInCandidate.id]?.tally ?? 0, // writeIns
+      ]
+    }
+
+    /* istanbul ignore next - compile time check for completeness */
+    throwIllegalValue(contest)
   })
 }
