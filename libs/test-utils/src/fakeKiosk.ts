@@ -77,5 +77,6 @@ export function fakeKiosk({
     totp: {
       get: jest.fn(),
     },
+    sign: jest.fn(),
   }
 }

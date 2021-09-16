@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@types/react-router-dom": "^5.1.7",
+    "@votingworks/qrcode.react": "^1.0.2",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "^4.3.2",

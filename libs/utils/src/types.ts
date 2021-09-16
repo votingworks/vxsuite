@@ -74,6 +74,8 @@ export const TallySchema: z.ZodSchema<SerializedTally> = z.array(
   ])
 )
 
+export type CompressedTally = number[][]
+
 export enum TallySourceMachineType {
   BMD = 'bmd',
   PRECINCT_SCANNER = 'precinct_scanner',

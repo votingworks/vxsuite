@@ -121,6 +121,11 @@ declare namespace KioskBrowser {
     code: string
   }
 
+  export interface SignParams {
+    signatureType: string
+    payload: string
+  }
+  
   export interface Kiosk {
     print(options?: PrintOptions): Promise<void>
     getPrinterInfo(): Promise<PrinterInfo[]>
@@ -189,10 +194,11 @@ declare namespace KioskBrowser {
 
     setClock(params: SetClockParams): Promise<void>
 
-    // totp
     totp: {
       get(): Promise<TotpInfo|undefined>
     }
+
+    sign(params: SignParams): Promise<string>
   }
 }
 
