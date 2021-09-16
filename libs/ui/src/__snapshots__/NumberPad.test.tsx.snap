@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Click all pad buttons 1`] = `
+<div
+  class="sc-eCImvq ioEEXH"
+>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    1
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    2
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    3
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    4
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    5
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    6
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    7
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    8
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    9
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    0
+  </button>
+</div>
+`;
