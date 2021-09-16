@@ -275,7 +275,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           class="sc-hBEYos huCICJ"
         >
           <h1
-            class="sc-hGPAah ioRLWq"
+            class="sc-dJjZJu boqHgo"
             style="margin-bottom: 0.75em; margin-top: 0.25em;"
           >
             
@@ -359,11 +359,11 @@ exports[`printing ballots, print report, and test decks 2`] = `
     class="print-only"
   >
     <section
-      class="sc-dJjZJu jbovwW"
+      class="sc-ieebsP fHfLfD"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-bBHwJV kkXqpg"
+        class="sc-hBURRC fIVStr"
         src="/votingworks-wordmark-black.svg"
       />
       <div>
@@ -377,7 +377,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-hBEYos dSqeuO"
       >
         <h1
-          class="sc-hGPAah ioRLWq"
+          class="sc-dJjZJu boqHgo"
           style="margin-bottom: 0.75em; margin-top: 0.25em;"
         >
           
@@ -403,7 +403,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </p>
       </div>
       <div
-        class="sc-dlVyqM bJYTEA"
+        class="sc-hGPAah lclsWo"
       >
         <div
           class="sc-iqsfdx FMoYd"
@@ -1504,12 +1504,12 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-dJjZJu jbovwW"
+  class="sc-ieebsP fHfLfD"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-bBHwJV kkXqpg"
+    class="sc-hBURRC fIVStr"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -1537,10 +1537,10 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-dlVyqM bJYTEA"
+    class="sc-hGPAah lclsWo"
   >
     <div
-      class="sc-iwjezw gIRvYF"
+      class="sc-iJKOzS bgISMT"
     >
       <h3>
         Ballots by Voting Method
@@ -2695,12 +2695,12 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-dJjZJu jbovwW"
+  class="sc-ieebsP fHfLfD"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-bBHwJV kkXqpg"
+    class="sc-hBURRC fIVStr"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -2728,10 +2728,10 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-dlVyqM bJYTEA"
+    class="sc-hGPAah lclsWo"
   >
     <div
-      class="sc-iwjezw gIRvYF"
+      class="sc-iJKOzS bgISMT"
     >
       <h3>
         Ballots by Voting Method
