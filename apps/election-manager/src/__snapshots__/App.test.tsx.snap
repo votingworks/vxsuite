@@ -66,6 +66,12 @@ exports[`printing ballots, print report, and test decks 1`] = `
           class="sc-gsDJrp gwgkfw"
           type="button"
         >
+          Lock Machine
+        </button>
+        <button
+          class="sc-gsDJrp gwgkfw"
+          type="button"
+        >
           Eject USB
         </button>
       </div>
@@ -250,6 +256,12 @@ exports[`printing ballots, print report, and test decks 2`] = `
       <div
         class="sc-fubCfw kBiVZq"
       >
+        <button
+          class="sc-gsDJrp gwgkfw"
+          type="button"
+        >
+          Lock Machine
+        </button>
         <button
           class="sc-gsDJrp gwgkfw"
           type="button"

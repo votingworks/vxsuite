@@ -2,6 +2,7 @@ ELECTION_MANAGER := ../../apps/election-manager
 SMARTCARDS := ../../apps/module-smartcards
 SEMS := ../../apps/module-converter-ms-sems
 export PIPENV_VENV_IN_PROJECT=1
+export BYPASS_AUTHENTICATION=true
 
 clean-downloads:
 	rm cypress/downloads/*
@@ -22,6 +23,5 @@ build-smartcards:
 build: build-election-manager build-converter-ms-sems build-smartcards
 
 run:
-	export NODE_ENV=production
 	(trap 'kill 0' SIGINT SIGHUP; make -C $(SMARTCARDS) run & make -C $(SEMS) run & make -C $(ELECTION_MANAGER) run)
 

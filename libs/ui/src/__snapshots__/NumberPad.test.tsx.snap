@@ -2,7 +2,8 @@
 
 exports[`Click all pad buttons 1`] = `
 <div
-  class="sc-eCImvq ioEEXH"
+  class="sc-eCImvq htBhMB"
+  tabindex="0"
 >
   <button
     class="sc-gsDJrp dmKzwC"

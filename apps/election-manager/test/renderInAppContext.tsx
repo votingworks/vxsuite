@@ -10,6 +10,7 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
+  Optional,
 } from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 
@@ -19,6 +20,8 @@ import {
   PrintedBallot,
   ISO8601Timestamp,
   ExportableTallies,
+  UserSession,
+  MachineConfig,
 } from '../src/config/types'
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
@@ -60,6 +63,10 @@ interface RenderInAppContextParams {
   ) => Promise<void>
   fullElectionExternalTallies?: FullElectionExternalTally[]
   generateExportableTallies?: () => ExportableTallies
+  currentUserSession?: Optional<UserSession>
+  attemptToAuthenticateUser?: () => boolean
+  lockMachine?: () => undefined
+  machineConfig?: MachineConfig
 }
 
 export default function renderInAppContext(
@@ -89,6 +96,14 @@ export default function renderInAppContext(
     saveExternalTallies = jest.fn(),
     fullElectionExternalTallies = [],
     generateExportableTallies = jest.fn(),
+    currentUserSession = { type: 'admin', authenticated: true },
+    attemptToAuthenticateUser = jest.fn(),
+    lockMachine = jest.fn(),
+    machineConfig = {
+      machineId: '0000',
+      codeVersion: '',
+      bypassAuthentication: false,
+    },
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -116,6 +131,10 @@ export default function renderInAppContext(
         saveExternalTallies,
         fullElectionExternalTallies,
         generateExportableTallies,
+        currentUserSession,
+        attemptToAuthenticateUser,
+        lockMachine,
+        machineConfig,
       }}
     >
       <Router history={history}>{component}</Router>

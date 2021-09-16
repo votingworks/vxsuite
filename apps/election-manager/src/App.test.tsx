@@ -12,8 +12,17 @@ import {
 } from '@testing-library/react'
 import fetchMock from 'fetch-mock'
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures'
-import { sleep, MemoryStorage } from '@votingworks/utils'
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
+import {
+  sleep,
+  MemoryStorage,
+  MemoryCard,
+  MemoryHardware,
+} from '@votingworks/utils'
+import {
+  advanceTimersAndPromises,
+  fakeKiosk,
+  fakeUsbDrive,
+} from '@votingworks/test-utils'
 import {
   ElectionDefinition,
   ExternalTallySourceType,
@@ -96,13 +105,35 @@ const createMemoryStorageWith = async ({
   return storage
 }
 
+const authenticateWithAdminCard = async (card: MemoryCard) => {
+  // Machine should be locked
+  await screen.findByText('Machine Locked')
+  card.insertCard({
+    t: 'admin',
+    h: eitherNeitherElectionDefinition.electionHash,
+    p: '123456',
+  })
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('2'))
+  await fireEvent.click(screen.getByText('3'))
+  await fireEvent.click(screen.getByText('4'))
+  await fireEvent.click(screen.getByText('5'))
+  await fireEvent.click(screen.getByText('6'))
+}
 test('create election works', async () => {
+  jest.useFakeTimers()
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
   const { getByText, getAllByText, queryAllByText, getByTestId } = render(
-    <App />
+    <App card={card} hardware={hardware} />
   )
 
   await screen.findByText('Create New Election Definition')
   fireEvent.click(getByText('Create New Election Definition'))
+  await authenticateWithAdminCard(card)
+
   await screen.findByText('Ballots')
 
   fireEvent.click(getByText('Ballots'))
@@ -124,6 +155,85 @@ test('create election works', async () => {
   await screen.findByText('Configure Election Manager')
 })
 
+test('authentication works', async () => {
+  jest.useFakeTimers()
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  const { getByText } = render(<App card={card} hardware={hardware} />)
+
+  await screen.findByText('Create New Election Definition')
+  fireEvent.click(getByText('Create New Election Definition'))
+
+  await screen.findByText('Machine Locked')
+  const adminCard = {
+    t: 'admin',
+    h: eitherNeitherElectionDefinition.electionHash,
+    p: '123456',
+  }
+  const pollWorkerCard = {
+    t: 'pollworker',
+    h: eitherNeitherElectionDefinition.electionHash,
+  }
+
+  // Insert an admin card and enter the wrong code.
+  card.insertCard(adminCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await screen.findByText('Invalid code. Please try again.')
+
+  // Remove card and insert a pollworker card.
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Machine Locked')
+  card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Invalid Card')
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+
+  // Insert admin card and enter correct code.
+  card.insertCard(adminCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('2'))
+  await fireEvent.click(screen.getByText('3'))
+  await fireEvent.click(screen.getByText('4'))
+  await fireEvent.click(screen.getByText('5'))
+  await fireEvent.click(screen.getByText('6'))
+
+  // Machine should be unlocked
+  await screen.findByText('Definition')
+
+  // The card can be removed and the screen will stay unlocked
+  await card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Definition')
+
+  // The card and other cards can be inserted with no impact.
+  await card.insertCard(adminCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Definition')
+  await card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Definition')
+  await card.insertCard(pollWorkerCard)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Definition')
+  await card.removeCard()
+  await advanceTimersAndPromises(1)
+
+  // Lock the machine
+  await fireEvent.click(screen.getByText('Lock Machine'))
+  await screen.findByText('Machine Locked')
+})
+
 test('printing ballots, print report, and test decks', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>
   const storage = await createMemoryStorageWith({
@@ -132,14 +242,19 @@ test('printing ballots, print report, and test decks', async () => {
   jest.useFakeTimers()
 
   const printer = fakePrinter()
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
   const {
     container,
     getByText,
     getAllByText,
     queryAllByText,
     getAllByTestId,
-  } = render(<App storage={storage} printer={printer} />)
+  } = render(
+    <App storage={storage} printer={printer} card={card} hardware={hardware} />
+  )
   jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
+  await authenticateWithAdminCard(card)
 
   await screen.findByText('0 official ballots')
 
@@ -251,10 +366,13 @@ test('tabulating CVRs', async () => {
   )
 
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export())
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
   const { getByText, getAllByText, getByTestId } = render(
-    <App storage={storage} />
+    <App storage={storage} card={card} hardware={hardware} />
   )
   jest.advanceTimersByTime(2001) // Cause the usb drive to be detected
+  await authenticateWithAdminCard(card)
 
   await screen.findByText('0 official ballots')
 
@@ -403,10 +521,13 @@ test('tabulating CVRs with SEMS file', async () => {
     convertExternalTalliesToStorageString([semsFileStorageString])
   )
 
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
   const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
-    <App storage={storage} />
+    <App storage={storage} card={card} hardware={hardware} />
   )
   jest.advanceTimersByTime(2001)
+  await authenticateWithAdminCard(card)
 
   await screen.findByText('0 official ballots')
 
@@ -486,6 +607,7 @@ test('tabulating CVRs with SEMS file', async () => {
 })
 
 test('tabulating CVRs with SEMS file and manual data', async () => {
+  jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -508,13 +630,17 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     convertExternalTalliesToStorageString([semsFileStorageString])
   )
 
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+
   const {
     getByText,
     getByTestId,
     getAllByText,
     getAllByTestId,
     queryAllByText,
-  } = render(<App storage={storage} />)
+  } = render(<App storage={storage} card={card} hardware={hardware} />)
+  await authenticateWithAdminCard(card)
 
   await screen.findByText('0 official ballots')
 
@@ -657,6 +783,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 })
 
 test('changing election resets sems, cvr, and manual data files', async () => {
+  jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -687,8 +814,14 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     convertExternalTalliesToStorageString([semsFileTally, manualTally])
   )
 
-  const { getByText, getByTestId } = render(<App storage={storage} />)
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
 
+  const { getByText, getByTestId } = render(
+    <App storage={storage} card={card} hardware={hardware} />
+  )
+
+  await authenticateWithAdminCard(card)
   await screen.findByText('0 official ballots')
 
   fireEvent.click(getByText('Tally'))
@@ -712,6 +845,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
 })
 
 test('clearing all files after marking as official clears SEMS, CVR, and manual file', async () => {
+  jest.useFakeTimers()
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   })
@@ -742,8 +876,12 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     convertExternalTalliesToStorageString([semsFileTally, manualTally])
   )
 
-  const { getByText, getByTestId } = render(<App storage={storage} />)
-
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  const { getByText, getByTestId } = render(
+    <App storage={storage} card={card} hardware={hardware} />
+  )
+  await authenticateWithAdminCard(card)
   await screen.findByText('0 official ballots')
 
   fireEvent.click(getByText('Tally'))

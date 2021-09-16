@@ -123,7 +123,7 @@ def enable_admin(election_definition: ElectionDefinition):
         {
             "enabled": True,
             "shortValue": json.dumps(
-                {"t": "admin", "h": election_definition.election_hash}
+                {"t": "admin", "h": election_definition.election_hash, "p": "000000"}
             ),
             "longValue": election_definition.election_data,
         }
