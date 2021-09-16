@@ -17,7 +17,7 @@ import {
   ScanContinueResponseSchema,
   ZeroResponseSchema,
 } from '@votingworks/types/api/module-scan'
-import { usbstick } from '@votingworks/utils'
+import { usbstick, KioskStorage, LocalStorage } from '@votingworks/utils'
 import { useUsbDrive, USBControllerButton } from '@votingworks/ui'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
@@ -271,6 +271,8 @@ const App = (): JSX.Element => {
     }
   }, [electionJustLoaded, displayUsbStatus])
 
+  const storage = window.kiosk ? new KioskStorage() : new LocalStorage()
+
   if (electionDefinition) {
     if (electionJustLoaded) {
       return (
@@ -280,6 +282,7 @@ const App = (): JSX.Element => {
             usbDriveEject: usbDrive.eject,
             machineConfig,
             electionDefinition,
+            storage,
           }}
         >
           <Screen>
@@ -318,6 +321,7 @@ const App = (): JSX.Element => {
             usbDriveEject: usbDrive.eject,
             electionDefinition,
             machineConfig,
+            storage,
           }}
         >
           <BallotEjectScreen
@@ -344,6 +348,7 @@ const App = (): JSX.Element => {
           usbDriveEject: usbDrive.eject,
           electionDefinition,
           machineConfig,
+          storage,
         }}
       >
         <Switch>
@@ -419,6 +424,7 @@ const App = (): JSX.Element => {
           usbDriveEject: usbDrive.eject,
           machineConfig,
           electionDefinition,
+          storage,
         }}
       >
         <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />

@@ -1,11 +1,10 @@
-import { createMemoryHistory, MemoryHistory } from 'history'
 import { render as testRender, RenderResult } from '@testing-library/react'
-import React from 'react'
-import { Router } from 'react-router-dom'
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
 import { ElectionDefinition } from '@votingworks/types'
-
-import { usbstick } from '@votingworks/utils'
+import { MemoryStorage, Storage, usbstick } from '@votingworks/utils'
+import { createMemoryHistory, MemoryHistory } from 'history'
+import React from 'react'
+import { Router } from 'react-router-dom'
 import AppContext from '../src/contexts/AppContext'
 
 interface RenderInAppContextParams {
@@ -15,6 +14,7 @@ interface RenderInAppContextParams {
   machineId?: string
   usbDriveStatus?: usbstick.UsbDriveStatus
   usbDriveEject?: () => void
+  storage?: Storage
 }
 
 export default function renderInAppContext(
@@ -26,6 +26,7 @@ export default function renderInAppContext(
     machineId = '0000',
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
+    storage = new MemoryStorage(),
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -35,6 +36,7 @@ export default function renderInAppContext(
         machineConfig: { machineId },
         usbDriveStatus,
         usbDriveEject,
+        storage,
       }}
     >
       <Router history={history}>{component}</Router>

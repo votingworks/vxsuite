@@ -14,12 +14,17 @@ import {
   InterpretedHmpbPage,
   Rect,
   SerializableBallotPageLayout,
-  WriteInMarkAdjudication,
-  WriteInAdjudicationReasonInfo,
   UnmarkedWriteInAdjudicationReasonInfo,
+  WriteInAdjudicationReasonInfo,
+  WriteInMarkAdjudication,
 } from '@votingworks/types'
 import { Side } from '@votingworks/types/api/module-scan'
-import { Text, useCancelablePromise } from '@votingworks/ui'
+import {
+  Text,
+  useCancelablePromise,
+  useStoredState,
+  useAutocomplete,
+} from '@votingworks/ui'
 import { find } from '@votingworks/utils'
 import { strict as assert } from 'assert'
 import React, {
@@ -31,6 +36,7 @@ import React, {
   useState,
 } from 'react'
 import styled from 'styled-components'
+import { z } from 'zod'
 import BallotSheetImage from '../components/BallotSheetImage'
 import Button from '../components/Button'
 import CroppedImage from '../components/CroppedImage'
@@ -39,6 +45,26 @@ import MainNav from '../components/MainNav'
 import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import AppContext from '../contexts/AppContext'
+
+type CandidateNameList = readonly string[]
+const CandidateNameListSchema: z.ZodSchema<CandidateNameList> = z.array(
+  z.string()
+)
+
+type CandidateNamesByContestId = Record<Contest['id'], CandidateNameList>
+const CandidateNamesByContestIdSchema: z.ZodSchema<CandidateNamesByContestId> = z.record(
+  CandidateNameListSchema
+)
+
+function getUsedWriteInsStorageKey(
+  electionDefinition: ElectionDefinition
+): string {
+  return `used-write-ins-for-election-${electionDefinition.electionHash}`
+}
+
+function uniq<T>(array: readonly T[]): T[] {
+  return [...new Set(array)]
+}
 
 const Stack = ({
   as = 'div',
@@ -193,6 +219,7 @@ interface ContestOptionAdjudicationProps {
   adjudications: readonly WriteInMarkAdjudication[]
   onChange?(adjudication: WriteInMarkAdjudication): void
   autoFocus?: boolean
+  writeInPresets: CandidateNamesByContestId
 }
 
 const ContestOptionAdjudication = ({
@@ -203,6 +230,7 @@ const ContestOptionAdjudication = ({
   adjudications,
   onChange,
   autoFocus,
+  writeInPresets,
 }: ContestOptionAdjudicationProps): JSX.Element => {
   const writeInIndex = writeIn.optionIndex
   const { bounds } = layout.options[writeInIndex]
@@ -218,18 +246,25 @@ const ContestOptionAdjudication = ({
   ] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const onInput = useCallback(
-    (event: React.FormEvent<HTMLInputElement>) => {
-      const input = event.currentTarget
+  const onConfirmAutocomplete = useCallback(
+    (name: string): void => {
       onChange?.({
         type: writeIn.type,
         isWriteIn: true,
         contestId: contest.id,
         optionId: writeIn.optionId,
-        name: input.value,
+        name,
       })
     },
     [contest.id, onChange, writeIn.optionId, writeIn.type]
+  )
+
+  const onInput = useCallback(
+    (event: React.FormEvent<HTMLInputElement>) => {
+      const input = event.currentTarget
+      onConfirmAutocomplete(input.value)
+    },
+    [onConfirmAutocomplete]
   )
 
   const onCheckboxChange = useCallback(
@@ -265,6 +300,15 @@ const ContestOptionAdjudication = ({
     }
   }, [shouldFocusNameOnNextRender])
 
+  const getOptionLabel = useCallback((name: string): string => name, [])
+
+  const writeInsForContest = writeInPresets[writeIn.contestId] ?? []
+  const autocomplete = useAutocomplete({
+    options: writeInsForContest,
+    getOptionLabel,
+    onConfirm: onConfirmAutocomplete,
+  })
+
   return (
     <WriteInAdjudicationBox key={writeIn.optionId}>
       <HStack>
@@ -276,13 +320,12 @@ const ContestOptionAdjudication = ({
             <input
               type="text"
               ref={inputRef}
+              {...autocomplete.getInputProps({ onInput })}
               placeholder={
                 isWriteIn ? 'type voter write-in here' : 'not a write-in'
               }
-              autoComplete="off"
               style={{ width: '450px', fontSize: '1.5em' }}
               data-testid={`write-in-input-${writeIn.optionId}`}
-              onInput={onInput}
               disabled={!isWriteIn}
               defaultValue={
                 adjudication?.isWriteIn ? adjudication.name : undefined
@@ -317,6 +360,7 @@ interface ContestAdjudicationProps {
   )[]
   onChange?(adjudication: WriteInMarkAdjudication): void
   adjudications: readonly WriteInMarkAdjudication[]
+  writeInPresets: CandidateNamesByContestId
 }
 
 const ContestAdjudication = ({
@@ -326,6 +370,7 @@ const ContestAdjudication = ({
   writeInsForContest,
   onChange,
   adjudications,
+  writeInPresets,
 }: ContestAdjudicationProps): JSX.Element => {
   return (
     <div>
@@ -342,6 +387,7 @@ const ContestAdjudication = ({
           writeIn={writeIn}
           onChange={onChange}
           autoFocus={i === 0}
+          writeInPresets={writeInPresets}
         />
       ))}
     </div>
@@ -358,6 +404,7 @@ const WriteInAdjudicationByContest = ({
   onContestChange,
   onAdjudicationChanged,
   onAdjudicationComplete,
+  writeInPresets,
 }: {
   electionDefinition: ElectionDefinition
   imageURL: string
@@ -368,6 +415,7 @@ const WriteInAdjudicationByContest = ({
   onContestChange?(contestId?: Contest['id']): void
   onAdjudicationChanged?(adjudication: WriteInMarkAdjudication): void
   onAdjudicationComplete(): Promise<void>
+  writeInPresets: CandidateNamesByContestId
 }): JSX.Element => {
   const makeCancelable = useCancelablePromise()
   const [isSaving, setIsSaving] = useState(false)
@@ -457,6 +505,7 @@ const WriteInAdjudicationByContest = ({
         layout={contestLayout}
         onChange={onAdjudicationChange}
         adjudications={adjudications}
+        writeInPresets={writeInPresets}
       />
       <HStack reverse>
         <Button
@@ -502,7 +551,7 @@ export default function WriteInAdjudicationScreen({
   contestIds,
   onAdjudicationComplete,
 }: Props): JSX.Element {
-  const { electionDefinition } = useContext(AppContext)
+  const { electionDefinition, storage } = useContext(AppContext)
   assert(electionDefinition)
 
   const [adjudications, setAdjudications] = useState<
@@ -553,9 +602,31 @@ export default function WriteInAdjudicationScreen({
     []
   )
 
+  const [storedWriteIns, setStoredWriteIns] = useStoredState(
+    storage,
+    getUsedWriteInsStorageKey(electionDefinition),
+    CandidateNamesByContestIdSchema,
+    {}
+  )
+
   const onAdjudicationCompleteInternal = useCallback(async (): Promise<void> => {
+    setStoredWriteIns((prev) =>
+      adjudications.reduce(
+        (newStoredWriteIns, adjudication) =>
+          adjudication.isWriteIn
+            ? {
+                ...newStoredWriteIns,
+                [adjudication.contestId]: uniq([
+                  ...(newStoredWriteIns[adjudication.contestId] ?? []),
+                  adjudication.name,
+                ]),
+              }
+            : newStoredWriteIns,
+        prev
+      )
+    )
     await onAdjudicationComplete?.(sheetId, side, adjudications)
-  }, [onAdjudicationComplete, sheetId, side, adjudications])
+  }, [setStoredWriteIns, onAdjudicationComplete, sheetId, side, adjudications])
 
   return (
     <Screen>
@@ -574,6 +645,7 @@ export default function WriteInAdjudicationScreen({
               onContestChange={onContestChange}
               onAdjudicationChanged={onAdjudicationChanged}
               onAdjudicationComplete={onAdjudicationCompleteInternal}
+              writeInPresets={storedWriteIns}
             />
           </Prose>
           <BallotSheetImage
