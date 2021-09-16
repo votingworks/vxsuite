@@ -296,7 +296,7 @@ export const getEmptyContestTallies = (
         break
       }
       default:
-        throwIllegalValue(contest)
+        throwIllegalValue(contest, 'type')
     }
     contestTallies[contest.id] = {
       contest,

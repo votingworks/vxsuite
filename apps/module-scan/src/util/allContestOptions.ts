@@ -90,6 +90,6 @@ export default function* allContestOptions(
       optionIndex: 1,
     }
   } else {
-    throwIllegalValue(contest)
+    throwIllegalValue(contest, 'type')
   }
 }

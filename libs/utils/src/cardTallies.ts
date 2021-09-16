@@ -109,7 +109,7 @@ export const combineTallies = (
         )
         break
       default:
-        throwIllegalValue(contest)
+        throwIllegalValue(contest, 'type')
     }
   }
 
@@ -158,7 +158,7 @@ export const getZeroTally = (election: Election): SerializedTally =>
     }
 
     /* istanbul ignore next - compile time check for completeness */
-    throwIllegalValue(contest)
+    throwIllegalValue(contest, 'type')
   })
 
 export const computeTallyForEitherNeitherContests = ({
@@ -357,6 +357,6 @@ export const serializeTally = (
       }
     }
     /* istanbul ignore next - compile time check for completeness */
-    throwIllegalValue(contest)
+    throwIllegalValue(contest, 'type')
   })
 }

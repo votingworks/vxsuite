@@ -105,7 +105,7 @@ export default function* ballotAdjudicationReasons(
             break
 
           default:
-            throwIllegalValue(contest)
+            throwIllegalValue(contest, 'type')
         }
 
         if (selectedOptions.length < expectedSelectionCount) {

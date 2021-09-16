@@ -276,7 +276,7 @@ export function parseSEMSFileAndValidateForElection(
           break
         }
         default:
-          throwIllegalValue(contest)
+          throwIllegalValue(contest, 'type')
       }
     }
   }
