@@ -7,10 +7,12 @@ import {
 
 export interface MachineConfig {
   machineId: string
+  bypassAuthentication: boolean
 }
 
 export interface MachineConfigResponse {
   machineId: string
+  bypassAuthentication: boolean
 }
 
 // Events

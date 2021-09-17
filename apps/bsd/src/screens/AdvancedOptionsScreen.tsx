@@ -3,7 +3,7 @@ import {
   MarkThresholds,
   Optional,
 } from '@votingworks/types'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
 import Main, { MainChild } from '../components/Main'
@@ -13,6 +13,7 @@ import Prose from '../components/Prose'
 import Screen from '../components/Screen'
 import ToggleTestModeButton from '../components/ToggleTestModeButton'
 import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal'
+import AppContext from '../contexts/AppContext'
 
 interface Props {
   unconfigureServer: () => Promise<void>
@@ -41,6 +42,7 @@ const AdvancedOptionsScreen = ({
   markThresholds,
   electionDefinition,
 }: Props): JSX.Element => {
+  const { lockMachine } = useContext(AppContext)
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
   )
@@ -130,6 +132,9 @@ const AdvancedOptionsScreen = ({
           </MainChild>
         </Main>
         <MainNav isTestMode={isTestMode}>
+          <Button small onPress={lockMachine}>
+            Lock Machine
+          </Button>
           <LinkButton small to="/">
             Back to Dashboard
           </LinkButton>

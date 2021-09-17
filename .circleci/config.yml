@@ -338,7 +338,8 @@ jobs:
             pnpm --dir libs/utils test
 
   test-integration-testing-bsd:
-    executor: nodejs-browsers
+    docker:
+      - image: circleci/python:3.7.7-node-browsers
     resource_class: xlarge
     steps:
       - checkout-and-install

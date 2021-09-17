@@ -53,7 +53,7 @@ const ElectionConfiguration = ({
   >([])
   const [loadingFiles, setLoadingFiles] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const { usbDriveStatus, usbDriveEject } = useContext(AppContext)
+  const { usbDriveStatus, usbDriveEject, lockMachine } = useContext(AppContext)
 
   const acceptAutomaticallyChosenFile = async (
     file: KioskBrowser.FileSystemEntry
@@ -116,6 +116,9 @@ const ElectionConfiguration = ({
 
   const mainNav = (
     <MainNav isTestMode={false}>
+      <Button small onPress={lockMachine}>
+        Lock Machine
+      </Button>
       <USBControllerButton
         usbDriveEject={usbDriveEject}
         usbDriveStatus={usbDriveStatus}

@@ -1,18 +1,20 @@
 import { Provider } from '@votingworks/types'
 import { fetchJSON } from '@votingworks/utils'
+import { MachineConfigResponse } from '../config/types'
 
-interface MachineConfigResponse {
+const machineConfigProvider: Provider<{
   machineId: string
-}
-
-const machineConfigProvider: Provider<{ machineId: string }> = {
+  bypassAuthentication: boolean
+}> = {
   async get() {
-    const { machineId } = await fetchJSON<MachineConfigResponse>(
-      '/machine-config'
-    )
+    const {
+      machineId,
+      bypassAuthentication,
+    } = await fetchJSON<MachineConfigResponse>('/machine-config')
 
     return {
       machineId,
+      bypassAuthentication,
     }
   },
 }

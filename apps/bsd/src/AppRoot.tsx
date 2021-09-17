@@ -5,6 +5,7 @@ import {
   MarkThresholds,
   Optional,
   safeParseJSON,
+  UserSession,
 } from '@votingworks/types'
 import styled from 'styled-components'
 
@@ -17,8 +18,14 @@ import {
   ScanContinueResponseSchema,
   ZeroResponseSchema,
 } from '@votingworks/types/api/module-scan'
-import { usbstick, KioskStorage, LocalStorage } from '@votingworks/utils'
-import { useUsbDrive, USBControllerButton } from '@votingworks/ui'
+import {
+  usbstick,
+  KioskStorage,
+  LocalStorage,
+  Card,
+  Hardware,
+} from '@votingworks/utils'
+import { useUsbDrive, USBControllerButton, useSmartcard } from '@votingworks/ui'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
 
@@ -45,6 +52,9 @@ import StatusFooter from './components/StatusFooter'
 
 import ExportResultsModal from './components/ExportResultsModal'
 import machineConfigProvider from './util/machineConfig'
+import { MachineLockedScreen } from './screens/MachineLockedScreen'
+import { InvalidCardScreen } from './screens/InvalidCardScreen'
+import { UnlockMachineScreen } from './screens/UnlockMachineScreen'
 
 const Buttons = styled.div`
   padding: 10px 0;
@@ -53,7 +63,12 @@ const Buttons = styled.div`
   }
 `
 
-const App = (): JSX.Element => {
+export interface AppRootProps {
+  card: Card
+  hardware: Hardware
+}
+
+const App = ({ card, hardware }: AppRootProps): JSX.Element => {
   const history = useHistory()
   const [isConfigLoaded, setIsConfigLoaded] = useState(false)
   const [
@@ -69,13 +84,67 @@ const App = (): JSX.Element => {
     scanner: ScannerStatus.Unknown,
   })
 
-  const usbDrive = useUsbDrive()
-
-  const [isExportingCVRs, setIsExportingCVRs] = useState(false)
-
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
+    bypassAuthentication: false,
   })
+  const [currentUserSession, setCurrentUserSession] = useState<
+    Optional<UserSession>
+  >()
+
+  const usbDrive = useUsbDrive()
+
+  const [smartcard] = useSmartcard({ card, hardware })
+  useEffect(() => {
+    void (async () => {
+      if (machineConfig.bypassAuthentication && !currentUserSession) {
+        setCurrentUserSession({
+          type: 'admin',
+          authenticated: true,
+        })
+      } else if (smartcard) {
+        if (!currentUserSession?.authenticated && smartcard.data?.t) {
+          setCurrentUserSession({
+            type: smartcard.data.t,
+            authenticated: false,
+          })
+        }
+      } else if (currentUserSession && !currentUserSession.authenticated) {
+        // If a card is removed when there is not an authenticated session, clear the session.
+        setCurrentUserSession(undefined)
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!smartcard, smartcard?.data, smartcard?.longValueExists, machineConfig])
+
+  const attemptToAuthenticateUser = useCallback(
+    (passcode: string): boolean => {
+      // The card must be an admin card to authenticate
+      if (smartcard?.data?.t !== 'admin') {
+        return false
+      }
+      // There must be an expected passcode on the card to authenticate.
+      if (!smartcard?.data.p) {
+        return false
+      }
+      if (passcode === smartcard.data.p) {
+        setCurrentUserSession((prev) => {
+          return prev ? { ...prev, authenticated: true } : undefined
+        })
+        return true
+      }
+      return false
+    },
+    [smartcard]
+  )
+
+  const lockMachine = useCallback(() => {
+    if (!machineConfig.bypassAuthentication) {
+      setCurrentUserSession(undefined)
+    }
+  }, [machineConfig])
+
+  const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
   const [markThresholds, setMarkThresholds] = useState<
     Optional<MarkThresholds>
@@ -272,6 +341,59 @@ const App = (): JSX.Element => {
 
   const storage = window.kiosk ? new KioskStorage() : new LocalStorage()
 
+  if (!currentUserSession) {
+    return (
+      <AppContext.Provider
+        value={{
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: usbDrive.eject,
+          electionDefinition,
+          machineConfig,
+          storage,
+          lockMachine,
+        }}
+      >
+        <MachineLockedScreen />
+      </AppContext.Provider>
+    )
+  }
+
+  if (currentUserSession.type !== 'admin') {
+    return (
+      <AppContext.Provider
+        value={{
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: usbDrive.eject,
+          electionDefinition,
+          machineConfig,
+          storage,
+          lockMachine,
+        }}
+      >
+        <InvalidCardScreen />
+      </AppContext.Provider>
+    )
+  }
+
+  if (!currentUserSession.authenticated) {
+    return (
+      <AppContext.Provider
+        value={{
+          usbDriveStatus: displayUsbStatus,
+          usbDriveEject: usbDrive.eject,
+          electionDefinition,
+          machineConfig,
+          storage,
+          lockMachine,
+        }}
+      >
+        <UnlockMachineScreen
+          attemptToAuthenticateUser={attemptToAuthenticateUser}
+        />
+      </AppContext.Provider>
+    )
+  }
+
   if (electionDefinition) {
     if (electionJustLoaded) {
       return (
@@ -282,6 +404,7 @@ const App = (): JSX.Element => {
             machineConfig,
             electionDefinition,
             storage,
+            lockMachine,
           }}
         >
           <Screen>
@@ -307,7 +430,11 @@ const App = (): JSX.Element => {
                 </Buttons>
               </MainChild>
             </Main>
-            <MainNav isTestMode={false} />
+            <MainNav isTestMode={false}>
+              <Button small onPress={lockMachine}>
+                Lock Machine
+              </Button>
+            </MainNav>
           </Screen>
         </AppContext.Provider>
       )
@@ -321,6 +448,7 @@ const App = (): JSX.Element => {
             electionDefinition,
             machineConfig,
             storage,
+            lockMachine,
           }}
         >
           <BallotEjectScreen
@@ -348,6 +476,7 @@ const App = (): JSX.Element => {
           electionDefinition,
           machineConfig,
           storage,
+          lockMachine,
         }}
       >
         <Switch>
@@ -381,6 +510,9 @@ const App = (): JSX.Element => {
                   usbDriveStatus={displayUsbStatus}
                   usbDriveEject={usbDrive.eject}
                 />
+                <Button small onPress={lockMachine}>
+                  Lock Machine
+                </Button>
                 <LinkButton small to="/advanced">
                   Advanced
                 </LinkButton>
@@ -424,6 +556,7 @@ const App = (): JSX.Element => {
           machineConfig,
           electionDefinition,
           storage,
+          lockMachine,
         }}
       >
         <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />

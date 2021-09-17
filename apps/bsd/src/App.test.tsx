@@ -11,7 +11,7 @@ import { act } from 'react-dom/test-utils'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
 import fileDownload from 'js-file-download'
 import { fakeKiosk } from '@votingworks/test-utils'
-import { sleep, typedAs } from '@votingworks/utils'
+import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils'
 import {
   GetElectionConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
@@ -39,6 +39,7 @@ beforeEach(() => {
     '/machine-config',
     typedAs<MachineConfigResponse>({
       machineId: '0001',
+      bypassAuthentication: false,
     })
   )
 
@@ -51,6 +52,25 @@ beforeEach(() => {
     configurable: true,
   })
 })
+
+const authenticateWithAdminCard = async (card: MemoryCard) => {
+  // Machine should be locked
+  await screen.findByText('Machine Locked')
+  card.insertCard({
+    t: 'admin',
+    h: electionSampleDefinition.electionHash,
+    p: '123456',
+  })
+  await act(async () => await sleep(100))
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('2'))
+  await fireEvent.click(screen.getByText('3'))
+  await fireEvent.click(screen.getByText('4'))
+  await fireEvent.click(screen.getByText('5'))
+  await fireEvent.click(screen.getByText('6'))
+  await act(async () => await sleep(100))
+}
 
 test('renders without crashing', async () => {
   const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
@@ -68,8 +88,10 @@ test('renders without crashing', async () => {
       body: getMarkThresholdOverridesResponseBody,
     })
 
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
   await act(async () => {
-    render(<App />)
+    render(<App card={card} hardware={hardware} />)
     await waitFor(() => fetchMock.called)
   })
 })
@@ -91,11 +113,13 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
     })
 
   let result!: RenderResult
-
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
   await act(async () => {
-    result = render(<App />)
+    result = render(<App card={card} hardware={hardware} />)
     await waitFor(() => fetchMock.called)
   })
+  await authenticateWithAdminCard(card)
 
   fireEvent.click(result.getByText('Advanced'))
 
@@ -119,11 +143,14 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
     })
 
   let result!: RenderResult
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
 
   await act(async () => {
-    result = render(<App />)
+    result = render(<App card={card} hardware={hardware} />)
     await waitFor(() => fetchMock.called)
   })
+  await authenticateWithAdminCard(card)
 
   fireEvent.click(result.getByText('Advanced'))
 
@@ -153,11 +180,12 @@ test('clicking Scan Batch will scan a batch', async () => {
 
   const mockAlert = jest.fn()
   window.alert = mockAlert
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
 
   await act(async () => {
-    const { getByText } = render(<App />)
-    getByText('Loading Configuration...')
-    await sleep(500)
+    const { getByText } = render(<App card={card} hardware={hardware} />)
+    await authenticateWithAdminCard(card)
     fireEvent.click(getByText('Scan New Batch'))
   })
 
@@ -209,7 +237,13 @@ test('clicking export shows modal and makes a request to export', async () => {
       body: '',
     })
 
-  const { getByText, queryByText, getByTestId } = render(<App />)
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+
+  const { getByText, queryByText, getByTestId } = render(
+    <App card={card} hardware={hardware} />
+  )
+  await authenticateWithAdminCard(card)
   const exportingModalText = 'No USB Drive Detected'
 
   await act(async () => {
@@ -251,7 +285,12 @@ test('configuring election from usb ballot package works end to end', async () =
       status: 200,
     })
 
-  const { getByText, getByTestId } = render(<App />)
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  const { getByText, getByTestId } = render(
+    <App card={card} hardware={hardware} />
+  )
+  await authenticateWithAdminCard(card)
 
   const mockKiosk = fakeKiosk()
   window.kiosk = mockKiosk
@@ -285,4 +324,115 @@ test('configuring election from usb ballot package works end to end', async () =
   getByText('General Election')
   getByText(/Franklin County, State of Hamilton/)
   screen.getByText(hasTextAcrossElements('Scanner ID: 0001'))
+})
+
+test('authentication works', async () => {
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition
+  const getTestModeResponseBody: GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  }
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
+    status: 'ok',
+  }
+
+  fetchMock
+    .getOnce('/config/election', { body: getElectionResponseBody })
+    .getOnce('/config/testMode', { body: getTestModeResponseBody })
+    .getOnce('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    })
+
+  render(<App card={card} hardware={hardware} />)
+
+  await screen.findByText('Machine Locked')
+  const adminCard = {
+    t: 'admin',
+    h: electionSampleDefinition.electionHash,
+    p: '123456',
+  }
+  const pollWorkerCard = {
+    t: 'pollworker',
+    h: electionSampleDefinition.electionHash,
+  }
+
+  // Insert an admin card and enter the wrong code.
+  card.insertCard(adminCard)
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('1'))
+  await screen.findByText('Invalid code. Please try again.')
+
+  // Remove card and insert a pollworker card.
+  card.removeCard()
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('Machine Locked')
+  card.insertCard(pollWorkerCard)
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('Invalid Card')
+  card.removeCard()
+  await act(async () => {
+    await sleep(100)
+  })
+
+  // Insert admin card and enter correct code.
+  card.insertCard(adminCard)
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('2'))
+  await fireEvent.click(screen.getByText('3'))
+  await fireEvent.click(screen.getByText('4'))
+  await fireEvent.click(screen.getByText('5'))
+  await fireEvent.click(screen.getByText('6'))
+
+  // Machine should be unlocked
+  await screen.findByText('No Scanner')
+
+  // The card can be removed and the screen will stay unlocked
+  await card.removeCard()
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('No Scanner')
+
+  // The card and other cards can be inserted with no impact.
+  await card.insertCard(adminCard)
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('No Scanner')
+  await card.removeCard()
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('No Scanner')
+  await card.insertCard(pollWorkerCard)
+  await act(async () => {
+    await sleep(100)
+  })
+  await screen.findByText('No Scanner')
+  await card.removeCard()
+  await act(async () => {
+    await sleep(100)
+  })
+
+  // Lock the machine
+  await fireEvent.click(screen.getByText('Lock Machine'))
+  await screen.findByText('Machine Locked')
 })
