@@ -355,6 +355,9 @@ const AppRoot = ({
 
         const newConfiguredAt = new Date().toISOString()
         setConfiguredAt(newConfiguredAt)
+        // Temporarily bootstrap an authenticated user session. This will be removed
+        // once we have a full story for how to bootstrap the auth process.
+        setCurrentUserSession({ type: 'admin', authenticated: true })
 
         await storage.set(configuredAtStorageKey, newConfiguredAt)
         await storage.set(electionDefinitionStorageKey, {

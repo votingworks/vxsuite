@@ -86,6 +86,11 @@ beforeEach(() => {
     inputFiles: [{ name: 'name' }, { name: 'name' }],
     outputFiles: [{ name: 'name' }],
   })
+  fetchMock.get('/machine-config', {
+    machineId: '0000',
+    codeVersion: 'TEST',
+    bypassAuthentication: false,
+  })
 })
 
 afterEach(() => {
@@ -132,7 +137,6 @@ test('create election works', async () => {
 
   await screen.findByText('Create New Election Definition')
   fireEvent.click(getByText('Create New Election Definition'))
-  await authenticateWithAdminCard(card)
 
   await screen.findByText('Ballots')
 
@@ -159,10 +163,10 @@ test('authentication works', async () => {
   jest.useFakeTimers()
   const card = new MemoryCard()
   const hardware = await MemoryHardware.buildStandard()
-  const { getByText } = render(<App card={card} hardware={hardware} />)
-
-  await screen.findByText('Create New Election Definition')
-  fireEvent.click(getByText('Create New Election Definition'))
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  })
+  render(<App card={card} hardware={hardware} storage={storage} />)
 
   await screen.findByText('Machine Locked')
   const adminCard = {
