@@ -44,6 +44,9 @@ const DefinitionScreen = (): JSX.Element => {
   ] = useState(false)
   const [currentPasscode, setCurrentPasscode] = useState('')
 
+  const [isShowingError, setIsShowingError] = useState(false)
+  const closeErrorDialog = () => setIsShowingError(false)
+
   const overrideWriteProtection = async () => {
     setIsProgrammingCard(true)
     await fetch('/card/write_protect_override', {
@@ -60,10 +63,14 @@ const DefinitionScreen = (): JSX.Element => {
       t: 'pollworker',
       h: electionHash,
     })
-    await fetch('/card/write', {
+    const response = await fetch('/card/write', {
       method: 'post',
       body: shortValue,
     })
+    const body = await response.json()
+    if (!body.success) {
+      setIsShowingError(true)
+    }
     setIsProgrammingCard(false)
   }
   const programAdminCard = async (passcode: string) => {
@@ -77,10 +84,14 @@ const DefinitionScreen = (): JSX.Element => {
     })
     formData.append('short_value', shortValue)
     formData.append('long_value', electionData)
-    await fetch('/card/write_short_and_long', {
+    const response = await fetch('/card/write_short_and_long', {
       method: 'post',
       body: formData,
     })
+    const body = await response.json()
+    if (!body.success) {
+      setIsShowingError(true)
+    }
 
     setIsProgrammingCard(false)
   }
@@ -135,6 +146,22 @@ const DefinitionScreen = (): JSX.Element => {
       </NavigationScreen>
       {isProgrammingCard && (
         <Modal content={<Loading>Programming card</Loading>} />
+      )}
+      {isShowingError && (
+        <Modal
+          content={
+            <Prose textCenter>
+              <h1>Failed to Create Card</h1>
+              <p>
+                Please make sure a card is in the card reader and try again. If
+                you are trying to reprogram an existing admin card you first
+                need to overwrite write protection.
+              </p>
+            </Prose>
+          }
+          actions={<Button onPress={closeErrorDialog}>Close</Button>}
+          onOverlayClick={closeErrorDialog}
+        />
       )}
       {isPromptingForAdminPasscode && (
         <Modal
