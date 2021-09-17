@@ -1,22 +1,25 @@
 import React from 'react'
 import { format } from '@votingworks/utils'
-import { Text } from '@votingworks/ui'
+import { TestMode, Text } from '@votingworks/ui'
 import { Absolute } from '../components/Absolute'
 import { InsertBallot } from '../components/Graphics'
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
 import { Bar } from '../components/Bar'
 
 interface Props {
+  isLiveMode: boolean
   scannedBallotCount: number
   showNoChargerWarning: boolean
 }
 
 const InsertBallotScreen = ({
+  isLiveMode,
   scannedBallotCount,
   showNoChargerWarning,
 }: Props): JSX.Element => {
   return (
     <CenteredScreen>
+      <TestMode isLiveMode={isLiveMode} />
       {showNoChargerWarning && (
         <Text warning small center>
           <strong>No Power Detected.</strong> Please ask a poll worker to plug
@@ -44,23 +47,34 @@ const InsertBallotScreen = ({
 export default InsertBallotScreen
 
 /* istanbul ignore next */
-export const ZeroBallotsScannedPreview = (): JSX.Element => {
-  return (
-    <InsertBallotScreen scannedBallotCount={0} showNoChargerWarning={false} />
-  )
-}
-
-/* istanbul ignore next */
-export const ManyBallotsScannedPreview = (): JSX.Element => {
+export const ZeroBallotsScannedTestPreview = (): JSX.Element => {
   return (
     <InsertBallotScreen
-      scannedBallotCount={1234}
+      isLiveMode={false}
+      scannedBallotCount={0}
       showNoChargerWarning={false}
     />
   )
 }
 
 /* istanbul ignore next */
-export const NoPowerConnectedPreview = (): JSX.Element => {
-  return <InsertBallotScreen scannedBallotCount={1234} showNoChargerWarning />
+export const ManyBallotsScannedLivePreview = (): JSX.Element => {
+  return (
+    <InsertBallotScreen
+      scannedBallotCount={1234}
+      isLiveMode
+      showNoChargerWarning={false}
+    />
+  )
+}
+
+/* istanbul ignore next */
+export const NoPowerConnectedTestPreview = (): JSX.Element => {
+  return (
+    <InsertBallotScreen
+      isLiveMode={false}
+      scannedBallotCount={1234}
+      showNoChargerWarning
+    />
+  )
 }

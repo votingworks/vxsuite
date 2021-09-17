@@ -894,7 +894,10 @@ const AppRoot = ({
   }
 
   let voterScreen = (
-    <PollsClosedScreen showNoChargerWarning={!hasChargerAttached} />
+    <PollsClosedScreen
+      isLiveMode={!isTestMode}
+      showNoChargerWarning={!hasChargerAttached}
+    />
   )
 
   // The polls are open for voters to utilize.
@@ -903,6 +906,7 @@ const AppRoot = ({
       case BallotState.IDLE: {
         voterScreen = (
           <InsertBallotScreen
+            isLiveMode={!isTestMode}
             scannedBallotCount={scannedBallotCount}
             showNoChargerWarning={!hasChargerAttached}
           />
