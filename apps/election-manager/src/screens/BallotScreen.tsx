@@ -2,6 +2,7 @@ import { strict as assert } from 'assert'
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -30,7 +31,7 @@ import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
 import { Monospace } from '../components/Text'
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
 import NavigationScreen from '../components/NavigationScreen'
-import { DEFAULT_LOCALE } from '../config/globals'
+import { DEFAULT_LOCALE, BALLOT_LAYOUT_DENSITIES } from '../config/globals'
 import routerPaths from '../routerPaths'
 import TextInput from '../components/TextInput'
 import LinkButton from '../components/LinkButton'
@@ -82,9 +83,12 @@ const BallotScreen = (): JSX.Element => {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>()
-  const { addPrintedBallot, electionDefinition, printBallotRef } = useContext(
-    AppContext
-  )
+  const {
+    addPrintedBallot,
+    electionDefinition,
+    printBallotRef,
+    saveElection,
+  } = useContext(AppContext)
   assert(electionDefinition)
   const { election, electionHash } = electionDefinition
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
@@ -123,6 +127,26 @@ const BallotScreen = (): JSX.Element => {
             localeCode,
           })
     )
+  const [ballotLayoutDensity, setBallotLayoutDensity] = useState(
+    election.ballotLayout?.layoutDensity || BALLOT_LAYOUT_DENSITIES[0]
+  )
+
+  useEffect(() => {
+    const newElection = { ...election }
+    console.log({
+      layoutDensity: newElection.ballotLayout?.layoutDensity,
+      ballotLayoutDensity,
+    })
+    void (async () => {
+      if (
+        newElection.ballotLayout &&
+        newElection.ballotLayout?.layoutDensity !== ballotLayoutDensity
+      ) {
+        newElection.ballotLayout.layoutDensity = ballotLayoutDensity
+        await saveElection(JSON.stringify(newElection, undefined, 2))
+      }
+    })()
+  }, [election, saveElection, ballotLayoutDensity])
 
   const filename = getBallotPath({
     ballotStyleId,
@@ -219,6 +243,24 @@ const BallotScreen = (): JSX.Element => {
                             ? undefined
                             : localeCode,
                       })}
+                    </Button>
+                  ))}
+                </SegmentedButton>
+              </React.Fragment>
+            )}
+            {election.ballotLayout?.layoutDensity !== undefined && (
+              <React.Fragment>
+                {' '}
+                Density:{' '}
+                <SegmentedButton>
+                  {BALLOT_LAYOUT_DENSITIES.map((density, i) => (
+                    <Button
+                      key={density}
+                      disabled={ballotLayoutDensity === i}
+                      onPress={() => setBallotLayoutDensity(density)}
+                      small
+                    >
+                      {density}
                     </Button>
                   ))}
                 </SegmentedButton>

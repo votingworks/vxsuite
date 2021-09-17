@@ -14,3 +14,4 @@ export const ABSENTEE_TINT_COLOR = 'rgb(180, 100, 225)'
 
 export const TIME_FORMAT = 'MM/DD/YYYY hh:mm:ss A'
 export const SECURITY_PIN_LENGTH = 6
+export const BALLOT_LAYOUT_DENSITIES = [0, 1, 2]
