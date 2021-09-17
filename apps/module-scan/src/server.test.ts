@@ -4,6 +4,7 @@ import { BallotType, ok } from '@votingworks/types'
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
+  ScanContinueRequest,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan'
 import { typedAs } from '@votingworks/utils'
@@ -291,6 +292,9 @@ test('POST /scan/scanContinue', async () => {
   importer.continueImport.mockResolvedValue(undefined)
   await request(app)
     .post('/scan/scanContinue')
+    .send(
+      typedAs<ScanContinueRequest>({ forceAccept: false })
+    )
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' })
   expect(importer.continueImport).toBeCalled()

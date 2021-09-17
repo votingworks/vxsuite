@@ -1,10 +1,11 @@
-import { strict as assert } from 'assert'
 import {
+  AdjudicationReason,
   AnyContest,
   BallotMetadata,
   BallotType,
   CandidateVote,
   CastVoteRecord,
+  ContestOption,
   Contests,
   Dictionary,
   Election,
@@ -12,12 +13,12 @@ import {
   getContests,
   InterpretedBmdPage,
   InterpretedHmpbPage,
-  MarksByContestId,
-  MarkStatus,
+  MarkAdjudications,
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types'
 import { find, throwIllegalValue } from '@votingworks/utils'
+import { strict as assert } from 'assert'
 import { VX_MACHINE_ID } from './globals'
 import {
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
@@ -123,31 +124,55 @@ export function getOptionIdsForContestVote(
 export function buildCastVoteRecordVotesEntries(
   contests: Contests,
   votes: VotesDict,
-  adjudication?: MarksByContestId
-): Dictionary<string[]> {
-  const result: Dictionary<string[]> = {}
+  markAdjudications?: MarkAdjudications
+): Dictionary<ContestOption['id'][]> {
+  const result: Dictionary<ContestOption['id'][]> = {}
 
   for (const contest of contests) {
     const resolvedOptionIds: ContestOptionPair[] = []
     const interpretedOptionIds = getOptionIdsForContestVote(contest, votes)
     const writeInOptions = getWriteInOptionIdsForContestVote(contest, votes)
 
+    // HINT: Do not use `contest.id` in this loop, use `option.contestId`.
+    // `contest.id !== option.contestId` for `ms-either-neither` contests.
     for (const option of allContestOptions(contest, writeInOptions)) {
-      const optionAdjudication = adjudication?.[option.contestId]?.[option.id]
+      const markAdjudicationsForThisOption =
+        markAdjudications?.filter(
+          ({ contestId, optionId }) =>
+            contestId === option.contestId && optionId === option.id
+        ) ?? []
 
-      if (
-        optionAdjudication === MarkStatus.Marked ||
-        (interpretedOptionIds.some(
+      if (markAdjudicationsForThisOption.length === 0) {
+        // no adjudications, just record it as interpreted
+        const interpretedContestOptionPair = interpretedOptionIds.find(
           ([contestId, optionId]) =>
-            contestId === option.contestId && option.id === optionId
-        ) &&
-          optionAdjudication !== MarkStatus.Unmarked)
-      ) {
-        resolvedOptionIds.push([option.contestId, option.id])
+            contestId === option.contestId && optionId === option.id
+        )
+        if (interpretedContestOptionPair) {
+          resolvedOptionIds.push(interpretedContestOptionPair)
+        }
+      } else if (markAdjudicationsForThisOption.length === 1) {
+        // a single adjudication, use it
+        const [markAdjudication] = markAdjudicationsForThisOption
+        if (markAdjudication.isMarked) {
+          resolvedOptionIds.push([
+            option.contestId,
+            markAdjudication.type === AdjudicationReason.WriteIn ||
+            markAdjudication.type === AdjudicationReason.UnmarkedWriteIn
+              ? `${option.id}-${markAdjudication.name}`
+              : option.id,
+          ])
+        }
+      } else {
+        throw new Error(
+          `multiple adjudications for contest=${option.contestId}, option=${
+            option.id
+          }: ${JSON.stringify(markAdjudicationsForThisOption)}`
+        )
       }
 
       // Ensure all contests end up with an empty array if they have no votes.
-      result[option.contestId] = result[option.contestId] ?? []
+      result[option.contestId] ??= []
     }
 
     for (const [contestId, optionId] of resolvedOptionIds) {
@@ -193,8 +218,7 @@ export function buildCastVoteRecordFromBmdPage(
         election,
         interpretation.metadata.ballotStyleId
       ),
-      interpretation.votes,
-      {}
+      interpretation.votes
     ),
   }
 }
@@ -243,14 +267,14 @@ function buildCastVoteRecordFromHmpbPage(
       front.interpretation.type === 'InterpretedHmpbPage'
         ? front.interpretation.votes
         : {},
-      front.adjudication
+      front.markAdjudications
     ),
     ...buildCastVoteRecordVotesEntries(
       getContestsFromIds(election, back.contestIds),
       back.interpretation.type === 'InterpretedHmpbPage'
         ? back.interpretation.votes
         : {},
-      back.adjudication
+      back.markAdjudications
     ),
   }
 }

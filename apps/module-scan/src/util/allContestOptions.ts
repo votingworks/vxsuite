@@ -21,7 +21,7 @@ export default function* allContestOptions(
     }
 
     if (contest.allowWriteIns) {
-      if (writeInOptionIds !== undefined) {
+      if (writeInOptionIds?.length) {
         for (const [writeInIndex, writeInId] of writeInOptionIds.entries()) {
           yield {
             type: 'candidate',

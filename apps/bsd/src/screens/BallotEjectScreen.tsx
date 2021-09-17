@@ -1,10 +1,11 @@
 import {
   AdjudicationReason,
   Contest,
-  WriteInMarkAdjudication,
+  MarkAdjudications,
 } from '@votingworks/types'
 import {
   GetNextReviewSheetResponse,
+  ScanContinueRequest,
   Side,
 } from '@votingworks/types/api/module-scan'
 import { strict as assert } from 'assert'
@@ -60,7 +61,7 @@ const RectoVerso = styled.div`
 const HIGHLIGHTER_COLOR = '#fbff0066'
 
 interface Props {
-  continueScanning: (override?: boolean) => Promise<void>
+  continueScanning: (request: ScanContinueRequest) => Promise<void>
   isTestMode: boolean
 }
 
@@ -94,18 +95,53 @@ const BallotEjectScreen = ({
     [contestIdsWithIssues]
   )
 
+  const [
+    frontMarkAdjudications,
+    setFrontMarkAdjudications,
+  ] = useState<MarkAdjudications>()
+  const [
+    backMarkAdjudications,
+    setBackMarkAdjudications,
+  ] = useState<MarkAdjudications>()
+
   const onAdjudicationComplete = useCallback(
     async (
       sheetId: string,
       side: Side,
-      adjudications: readonly WriteInMarkAdjudication[]
+      adjudications: MarkAdjudications
     ): Promise<void> => {
-      // eslint-disable-next-line no-console
-      console.log('ignoring adjudications for now', adjudications)
-      await continueScanning(true)
+      if (side === 'front') {
+        setFrontMarkAdjudications(adjudications)
+      } else {
+        setBackMarkAdjudications(adjudications)
+      }
     },
-    [continueScanning]
+    []
   )
+
+  useEffect(() => {
+    void (async () => {
+      const frontAdjudicationComplete =
+        !!frontMarkAdjudications ||
+        !!reviewInfo?.interpreted.front.adjudicationFinishedAt
+      const backAdjudicationComplete =
+        !!backMarkAdjudications ||
+        !!reviewInfo?.interpreted.back.adjudicationFinishedAt
+      if (frontAdjudicationComplete && backAdjudicationComplete) {
+        await continueScanning({
+          forceAccept: true,
+          frontMarkAdjudications: frontMarkAdjudications ?? [],
+          backMarkAdjudications: backMarkAdjudications ?? [],
+        })
+      }
+    })()
+  }, [
+    backMarkAdjudications,
+    continueScanning,
+    frontMarkAdjudications,
+    reviewInfo?.interpreted.back.adjudicationFinishedAt,
+    reviewInfo?.interpreted.front.adjudicationFinishedAt,
+  ])
 
   if (!reviewInfo) {
     return <React.Fragment />
@@ -141,7 +177,11 @@ const BallotEjectScreen = ({
         reviewInfo.interpreted.back.adjudicationFinishedAt,
     },
   ]) {
-    if (reviewPageInfo.adjudicationFinishedAt) {
+    if (
+      reviewPageInfo.adjudicationFinishedAt ||
+      (reviewPageInfo.side === 'front' && frontMarkAdjudications) ||
+      (reviewPageInfo.side === 'back' && backMarkAdjudications)
+    ) {
       continue
     }
 
@@ -211,15 +251,30 @@ const BallotEjectScreen = ({
     <Screen>
       <MainNav>
         {!allowBallotDuplication ? (
-          <Button primary onPress={() => continueScanning()}>
+          <Button
+            primary
+            onPress={() => continueScanning({ forceAccept: false })}
+          >
             Confirm Ballot Removed and Continue Scanning
           </Button>
         ) : ballotState === 'removeBallot' ? (
-          <Button primary onPress={() => continueScanning()}>
+          <Button
+            primary
+            onPress={() => continueScanning({ forceAccept: false })}
+          >
             Confirm Ballot Removed and Continue Scanning
           </Button>
         ) : ballotState === 'acceptBallot' ? (
-          <Button primary onPress={() => continueScanning(true)}>
+          <Button
+            primary
+            onPress={() =>
+              continueScanning({
+                forceAccept: true,
+                frontMarkAdjudications: [],
+                backMarkAdjudications: [],
+              })
+            }
+          >
             Tabulate Ballot and Continue Scanning
           </Button>
         ) : (

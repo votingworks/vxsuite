@@ -4,17 +4,16 @@
 
 import {
   AnyContest,
-  BallotMark,
   BallotMetadata,
   BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
-  BallotTargetMark,
   ElectionDefinition,
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
-  MarksByContestId,
+  MarkAdjudication,
+  MarkAdjudicationsSchema,
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
@@ -41,8 +40,7 @@ import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { buildCastVoteRecord } from './buildCastVoteRecord'
 import { sheetRequiresAdjudication } from './interpreter'
-import { isMarginalMark, PageInterpretationWithFiles, SheetOf } from './types'
-import { changesFromMarks, mergeChanges } from './util/marks'
+import { PageInterpretationWithFiles, SheetOf } from './types'
 import { normalizeAndJoin } from './util/path'
 
 const debug = makeDebug('module-scan:store')
@@ -757,65 +755,16 @@ export default class Store {
     }
   }
 
-  async saveBallotAdjudication(
-    ballotId: string,
+  async adjudicateSheet(
+    sheetId: string,
     side: Side,
-    change: MarksByContestId
+    adjudications: readonly MarkAdjudication[]
   ): Promise<boolean> {
-    const markThresholds = await this.getCurrentMarkThresholds()
-    const row = await this.dbGetAsync<
-      | {
-          adjudicationJSON?: string
-          marksJSON?: string
-        }
-      | undefined,
-      [string]
-    >(
-      `
-      select
-        ${side}_adjudication_json as adjudicationJSON,
-        json_extract(${side}_interpretation_json, '$.markInfo') as marksJSON
-      from sheets
-      where id = ? and deleted_at is null
-    `,
-      ballotId
-    )
-
-    if (!row || !markThresholds) {
-      return false
-    }
-
-    const marks: readonly BallotMark[] | undefined = row.marksJSON
-      ? JSON.parse(row.marksJSON).marks
-      : undefined
-    const newAdjudication = mergeChanges(
-      marks ? changesFromMarks(marks, markThresholds) : {},
-      row.adjudicationJSON ? JSON.parse(row.adjudicationJSON) : {},
-      change
-    )
-    const unadjudicatedMarks =
-      marks
-        ?.filter((mark): mark is BallotTargetMark =>
-          isMarginalMark(mark, markThresholds)
-        )
-        .filter(
-          (mark) =>
-            !newAdjudication[mark.contest.id]?.[
-              typeof mark.option === 'string' ? mark.option : mark.option.id
-            ]
-        ) ?? []
-
     debug(
-      'saving adjudication changes for sheet %s %s: %O',
+      'saving mark adjudications for sheet %s %s: %O',
       side,
-      ballotId,
-      newAdjudication
-    )
-    debug(
-      'adjudication complete for sheet %s %s? %s',
-      side,
-      ballotId,
-      unadjudicatedMarks.length === 0
+      sheetId,
+      adjudications
     )
 
     await this.dbRunAsync(
@@ -827,9 +776,9 @@ export default class Store {
         ${side}_finished_adjudication_at = ?
       where id = ?
     `,
-      JSON.stringify(newAdjudication, undefined, 2),
-      unadjudicatedMarks.length > 0 ? null : new Date().toISOString(),
-      ballotId
+      JSON.stringify(adjudications, undefined, 2),
+      new Date().toISOString(),
+      sheetId
     )
 
     return true
@@ -974,11 +923,11 @@ export default class Store {
       const backInterpretation: PageInterpretation = JSON.parse(
         backInterpretationJSON
       )
-      const frontAdjudication: MarksByContestId = frontAdjudicationJSON
-        ? JSON.parse(frontAdjudicationJSON)
+      const frontAdjudications = frontAdjudicationJSON
+        ? safeParseJSON(frontAdjudicationJSON, MarkAdjudicationsSchema).ok()
         : undefined
-      const backAdjudication: MarksByContestId = backAdjudicationJSON
-        ? JSON.parse(backAdjudicationJSON)
+      const backAdjudications = backAdjudicationJSON
+        ? safeParseJSON(backAdjudicationJSON, MarkAdjudicationsSchema).ok()
         : undefined
       const cvr = buildCastVoteRecord(
         id,
@@ -1000,7 +949,7 @@ export default class Store {
                     frontInterpretation.metadata
                   )
                 : undefined,
-            adjudication: frontAdjudication,
+            markAdjudications: frontAdjudications,
           },
           {
             interpretation: backInterpretation,
@@ -1011,7 +960,7 @@ export default class Store {
                     backInterpretation.metadata
                   )
                 : undefined,
-            adjudication: backAdjudication,
+            markAdjudications: backAdjudications,
           },
         ]
       )

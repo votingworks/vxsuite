@@ -1,5 +1,6 @@
 import { asElectionDefinition } from '@votingworks/fixtures'
-import { CastVoteRecord, MarkStatus } from '@votingworks/types'
+import { AdjudicationReason, CastVoteRecord } from '@votingworks/types'
+import { ScanContinueRequest } from '@votingworks/types/api/module-scan'
 import { BallotPackageManifest, typedAs } from '@votingworks/utils'
 import { EventEmitter } from 'events'
 import { Application } from 'express'
@@ -252,23 +253,35 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     expect(JSON.parse(status.text).batches[0].count).toBe(1)
   }
 
-  const { id } = await workspace.store.dbGetAsync<{ id: string }>(`
-    select id
-    from sheets
-    where json_extract(front_interpretation_json, '$.metadata.pageNumber') = 3
-  `)
-
   await request(app)
-    .patch(`/scan/hmpb/ballot/${id}/front`)
-    .send({ 'city-mayor': { seldon: MarkStatus.Marked } })
-    .expect(200)
-
-  await request(app)
-    .patch(`/scan/hmpb/ballot/${id}/back`)
-    .send({
-      'question-a': { no: MarkStatus.Marked },
-      'question-b': { yes: MarkStatus.Marked },
-    })
+    .post(`/scan/scanContinue`)
+    .send(
+      typedAs<ScanContinueRequest>({
+        forceAccept: true,
+        frontMarkAdjudications: [
+          {
+            type: AdjudicationReason.UninterpretableBallot,
+            contestId: 'city-mayor',
+            optionId: 'seldon',
+            isMarked: true,
+          },
+        ],
+        backMarkAdjudications: [
+          {
+            type: AdjudicationReason.UninterpretableBallot,
+            contestId: 'question-a',
+            optionId: 'no',
+            isMarked: true,
+          },
+          {
+            type: AdjudicationReason.UninterpretableBallot,
+            contestId: 'question-b',
+            optionId: 'yes',
+            isMarked: true,
+          },
+        ],
+      })
+    )
     .expect(200)
 
   {
@@ -287,47 +300,30 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
-    expect(
-      typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
-    ).toMatchInlineSnapshot(`
-      Object {
-        "_ballotId": "",
-        "_ballotStyleId": "12",
-        "_ballotType": "standard",
-        "_batchId": "",
-        "_batchLabel": "Batch 1",
-        "_locales": Object {
-          "primary": "en-US",
-          "secondary": "es-US",
-        },
-        "_pageNumbers": Array [
-          3,
-          4,
-        ],
-        "_precinctId": "23",
-        "_scannerId": "000",
-        "_testBallot": false,
-        "city-council": Array [],
-        "city-mayor": Array [
-          "seldon",
-        ],
-        "county-commissioners": Array [],
-        "county-registrar-of-wills": Array [],
-        "judicial-elmer-hull": Array [
-          "yes",
-        ],
-        "judicial-robert-demergue": Array [],
-        "question-a": Array [
-          "no",
-        ],
-        "question-b": Array [
-          "yes",
-        ],
-        "question-c": Array [
-          "no",
-        ],
-      }
-    `)
+    expect(cvr).toMatchObject({
+      _ballotId: expect.any(String),
+      _ballotStyleId: '12',
+      _ballotType: 'standard',
+      _batchId: expect.any(String),
+      _batchLabel: 'Batch 1',
+      _locales: {
+        primary: 'en-US',
+        secondary: 'es-US',
+      },
+      _pageNumbers: [3, 4],
+      _precinctId: '23',
+      _scannerId: '000',
+      _testBallot: false,
+      'city-council': [],
+      'city-mayor': ['seldon'],
+      'county-commissioners': [],
+      'county-registrar-of-wills': [],
+      'judicial-elmer-hull': ['yes'],
+      'judicial-robert-demergue': [],
+      'question-a': ['no'],
+      'question-b': ['yes'],
+      'question-c': ['no'],
+    })
   }
 })
 
@@ -416,9 +412,7 @@ test('ms-either-neither end-to-end', async () => {
 
     expect(cvrs).toHaveLength(1)
     const [cvr] = cvrs
-    expect(
-      typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
-    ).toMatchObject({
+    expect(cvr).toMatchObject({
       '750000015': ['yes'],
       '750000016': ['yes'],
       '750000017': ['no'],
@@ -428,10 +422,10 @@ test('ms-either-neither end-to-end', async () => {
       '775020876': ['775031988'],
       '775020877': ['775031986'],
       '775020899': ['775032015'],
-      _ballotId: '',
+      _ballotId: expect.any(String),
       _ballotStyleId: '4',
       _ballotType: 'standard',
-      _batchId: expect.anything(),
+      _batchId: expect.any(String),
       _batchLabel: 'Batch 1',
       _locales: {
         primary: 'en-US',
