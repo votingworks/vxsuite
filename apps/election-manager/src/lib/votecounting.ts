@@ -145,7 +145,7 @@ export function* parseCVRs(
                     break
                   }
                   default:
-                    throwIllegalValue(contest)
+                    throwIllegalValue(contest, 'type')
                 }
               }
             }

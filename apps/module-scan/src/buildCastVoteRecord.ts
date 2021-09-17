@@ -117,8 +117,7 @@ export function getOptionIdsForContestVote(
       >((id) => [contest.pickOneContestId, id]),
     ]
   }
-  // @ts-expect-error -- `contest` has type `never` since all known branches are covered
-  throw new TypeError(`contest type not yet supported: ${contest.type}`)
+  throwIllegalValue(contest, 'type')
 }
 
 export function buildCastVoteRecordVotesEntries(

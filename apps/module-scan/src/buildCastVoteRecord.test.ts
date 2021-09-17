@@ -114,7 +114,7 @@ test('getOptionIdsForContestVote', () => {
       } as unknown) as AnyContest,
       {}
     )
-  ).toThrowError('contest type not yet supported: not-supported-type')
+  ).toThrowError('Illegal Value: not-supported-type')
 })
 
 test('generates a CVR from a completed BMD ballot', () => {

@@ -130,7 +130,7 @@ export const ContestTally = ({
             break
           }
           default:
-            throwIllegalValue(contest)
+            throwIllegalValue(contest, 'type')
         }
 
         return (
