@@ -15,6 +15,8 @@ interface RenderInAppContextParams {
   usbDriveStatus?: usbstick.UsbDriveStatus
   usbDriveEject?: () => void
   storage?: Storage
+  lockMachine?: () => void
+  bypassAuthentication?: boolean
 }
 
 export default function renderInAppContext(
@@ -24,19 +26,22 @@ export default function renderInAppContext(
     history = createMemoryHistory({ initialEntries: [route] }),
     electionDefinition = testElectionDefinition,
     machineId = '0000',
+    bypassAuthentication = true,
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
     storage = new MemoryStorage(),
+    lockMachine = jest.fn(),
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
     <AppContext.Provider
       value={{
         electionDefinition,
-        machineConfig: { machineId },
+        machineConfig: { machineId, bypassAuthentication },
         usbDriveStatus,
         usbDriveEject,
         storage,
+        lockMachine,
       }}
     >
       <Router history={history}>{component}</Router>

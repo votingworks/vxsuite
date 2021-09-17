@@ -10,15 +10,17 @@ interface AppContextInterface {
   electionDefinition?: ElectionDefinition
   electionHash?: string
   storage: Storage
+  lockMachine: () => void
 }
 
 const appContext: AppContextInterface = {
   usbDriveStatus: usbstick.UsbDriveStatus.absent,
   usbDriveEject: () => undefined,
-  machineConfig: { machineId: '0000' },
+  machineConfig: { machineId: '0000', bypassAuthentication: false },
   electionDefinition: undefined,
   electionHash: undefined,
   storage: new MemoryStorage(),
+  lockMachine: () => undefined,
 }
 
 const AppContext = createContext(appContext)

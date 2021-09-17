@@ -4,6 +4,7 @@ import {
   FullElectionTally,
   FullElectionExternalTally,
   Optional,
+  UserSession,
 } from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
 import {
@@ -12,7 +13,6 @@ import {
   ISO8601Timestamp,
   ExportableTallies,
   ResultsFileType,
-  UserSession,
   MachineConfig,
 } from '../config/types'
 import CastVoteRecordFiles, {

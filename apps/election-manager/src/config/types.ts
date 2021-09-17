@@ -1,7 +1,6 @@
 import {
   BallotLocale,
   BallotStyle,
-  CardDataTypes,
   ContestTallyMeta,
   Dictionary,
   Optional,
@@ -137,11 +136,6 @@ export type VoteCounts = Dictionary<Dictionary<number>>
 export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>
 
 export type ISO8601Timestamp = string
-
-export interface UserSession {
-  readonly type: CardDataTypes
-  readonly authenticated: boolean
-}
 
 export interface MachineConfig {
   machineId: string

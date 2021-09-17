@@ -12,6 +12,7 @@ import {
   ExternalTallySourceType,
   Optional,
   Provider,
+  UserSession,
 } from '@votingworks/types'
 
 import {
@@ -43,7 +44,6 @@ import {
   CastVoteRecordLists,
   ExportableTallies,
   ResultsFileType,
-  UserSession,
   MachineConfig,
 } from './config/types'
 import { getExportableTallies } from './utils/exportableTallies'
