@@ -178,15 +178,14 @@ const App = (): JSX.Element => {
     }
   }, [])
 
-  const continueScanning = useCallback(async (override = false) => {
+  const continueScanning = useCallback(async (request: ScanContinueRequest) => {
     setIsScanning(true)
     try {
-      const body: ScanContinueRequest = { override }
       safeParseJSON(
         await (
           await fetch('/scan/scanContinue', {
             method: 'post',
-            body: JSON.stringify(body),
+            body: JSON.stringify(request),
             headers: {
               'Content-Type': 'application/json',
             },

@@ -238,7 +238,7 @@ const ContestOptionAdjudication = ({
     ({ contestId, optionId }) =>
       contestId === writeIn.contestId && optionId === writeIn.optionId
   )
-  const isWriteIn = adjudication?.isWriteIn ?? true
+  const isWriteIn = adjudication?.isMarked ?? true
 
   const [
     shouldFocusNameOnNextRender,
@@ -250,7 +250,7 @@ const ContestOptionAdjudication = ({
     (name: string): void => {
       onChange?.({
         type: writeIn.type,
-        isWriteIn: true,
+        isMarked: true,
         contestId: contest.id,
         optionId: writeIn.optionId,
         name,
@@ -273,7 +273,7 @@ const ContestOptionAdjudication = ({
       if (!input.checked) {
         onChange?.({
           type: writeIn.type,
-          isWriteIn: true,
+          isMarked: true,
           contestId: contest.id,
           optionId: writeIn.optionId,
           name: '',
@@ -284,7 +284,7 @@ const ContestOptionAdjudication = ({
         inputRef.current.value = ''
         onChange?.({
           type: writeIn.type,
-          isWriteIn: false,
+          isMarked: false,
           contestId: contest.id,
           optionId: writeIn.optionId,
         })
@@ -328,7 +328,7 @@ const ContestOptionAdjudication = ({
               data-testid={`write-in-input-${writeIn.optionId}`}
               disabled={!isWriteIn}
               defaultValue={
-                adjudication?.isWriteIn ? adjudication.name : undefined
+                adjudication?.isMarked ? adjudication.name : undefined
               }
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={autoFocus}
@@ -467,7 +467,7 @@ const WriteInAdjudicationByContest = ({
       (adjudication) =>
         adjudication.contestId === writeIn.contestId &&
         adjudication.optionId === writeIn.optionId &&
-        (!adjudication.isWriteIn || adjudication.name)
+        (!adjudication.isMarked || adjudication.name)
     )
   )
 
@@ -613,7 +613,7 @@ export default function WriteInAdjudicationScreen({
     setStoredWriteIns((prev) =>
       adjudications.reduce(
         (newStoredWriteIns, adjudication) =>
-          adjudication.isWriteIn
+          adjudication.isMarked
             ? {
                 ...newStoredWriteIns,
                 [adjudication.contestId]: uniq([

@@ -8,8 +8,8 @@ import {
   OkResponseSchema,
 } from '.'
 import {
-  MarksByContestId,
-  MarksByContestIdSchema,
+  MarkAdjudications,
+  MarkAdjudicationsSchema,
   SerializableBallotPageLayout,
   SerializableBallotPageLayoutSchema,
 } from '../hmpb'
@@ -399,18 +399,27 @@ export const ScanBatchResponseSchema: z.ZodSchema<ScanBatchResponse> = z.union([
  * @url /scan/scanContinue
  * @method POST
  */
-export interface ScanContinueRequest {
-  override?: boolean
-}
+export type ScanContinueRequest =
+  | { forceAccept: false }
+  | {
+      forceAccept: true
+      frontMarkAdjudications: MarkAdjudications
+      backMarkAdjudications: MarkAdjudications
+    }
 
 /**
  * @url /scan/scanContinue
  * @method POST
  */
-export const ScanContinueRequestSchema: z.ZodSchema<ScanContinueRequest> = z.object(
-  {
-    override: z.optional(z.boolean()),
-  }
+export const ScanContinueRequestSchema: z.ZodSchema<ScanContinueRequest> = z.union(
+  [
+    z.object({ forceAccept: z.literal(false) }),
+    z.object({
+      forceAccept: z.literal(true),
+      frontMarkAdjudications: MarkAdjudicationsSchema,
+      backMarkAdjudications: MarkAdjudicationsSchema,
+    }),
+  ]
 )
 
 /**
@@ -610,50 +619,4 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: z.object({ contestIds: z.array(Id) }),
     }),
   }
-)
-
-/**
- * @url /scan/hmpb/ballot/:sheetId/:side
- * @method PATCH
- */
-export interface PatchBallotPageAdjudicationParams {
-  sheetId: string
-  side: Side
-}
-
-/**
- * @url /scan/hmpb/ballot/:sheetId/:side
- * @method PATCH
- */
-export const PatchBallotPageAdjudicationParamsSchema: z.ZodSchema<PatchBallotPageAdjudicationParams> = z.object(
-  {
-    sheetId: z.string(),
-    side: SideSchema,
-  }
-)
-
-/**
- * @url /scan/hmpb/ballot/:sheetId/:side
- * @method PATCH
- */
-export type PatchBallotPageAdjudicationRequest = MarksByContestId
-
-/**
- * @url /scan/hmpb/ballot/:sheetId/:side
- * @method PATCH
- */
-export const PatchBallotPageAdjudicationRequestSchema: z.ZodSchema<PatchBallotPageAdjudicationRequest> = MarksByContestIdSchema
-
-/**
- * @url /scan/hmpb/ballot/:sheetId/:side
- * @method PATCH
- */
-export type PatchBallotPageAdjudicationResponse = OkResponse | ErrorsResponse
-
-/**
- * @url /scan/hmpb/ballot/:sheetId/:side
- * @method PATCH
- */
-export const PatchBallotPageAdjudicationResponseSchema: z.ZodSchema<PatchBallotPageAdjudicationResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
 )

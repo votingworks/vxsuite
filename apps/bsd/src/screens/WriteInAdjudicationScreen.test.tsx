@@ -138,7 +138,7 @@ test('supports typing in a candidate name', async () => {
         [
           {
             type: AdjudicationReason.WriteIn,
-            isWriteIn: true,
+            isMarked: true,
             contestId: contest.id,
             optionId,
             name: 'Lizard People',
@@ -176,7 +176,7 @@ test('supports canceling a write-in', async () => {
         [
           {
             type: AdjudicationReason.UnmarkedWriteIn,
-            isWriteIn: false,
+            isMarked: false,
             contestId: contest.id,
             optionId,
           },

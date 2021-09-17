@@ -172,6 +172,13 @@ export const Id = z
     (id) => /^[-_a-z\d]+$/i.test(id),
     'IDs may only contain letters, numbers, dashes, and underscores'
   )
+export const WriteInId = z
+  .string()
+  .nonempty()
+  .refine(
+    (id) => id.startsWith('__write-in'),
+    'Write-In IDs must start with __write-in'
+  )
 export const HexString: z.ZodSchema<string> = z
   .string()
   .nonempty()

@@ -2,7 +2,7 @@ import {
   BallotLocales,
   BallotMark,
   BallotTargetMark,
-  MarksByContestId,
+  MarkAdjudications,
   MarkStatus,
   MarkThresholds,
   PageInterpretation,
@@ -22,7 +22,7 @@ export interface PageInterpretationWithAdjudication<
 > {
   interpretation: T
   contestIds?: readonly string[]
-  adjudication?: MarksByContestId
+  markAdjudications?: MarkAdjudications
 }
 
 export interface BallotPageQrcode {

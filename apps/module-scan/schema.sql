@@ -27,7 +27,7 @@ create table sheets (
 
   -- Changes made in adjudication, should be applied on top of the original CVR.
   -- Updated as the sheet is adjudicated.
-  -- @type {MarksByContestId}
+  -- @type {readonly MarkAdjudication[]}
   front_adjudication_json text,
   back_adjudication_json text,
 

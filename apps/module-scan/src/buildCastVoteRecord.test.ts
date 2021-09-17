@@ -1,16 +1,15 @@
+import { electionWithMsEitherNeither } from '@votingworks/fixtures'
 import {
   AdjudicationReason,
-  getBallotStyle,
-  getContests,
-  vote,
+  AnyContest,
   BallotType,
   CandidateContest,
-  YesNoContest,
-  AnyContest,
-  MarkStatus,
+  getBallotStyle,
+  getContests,
   MsEitherNeitherContest,
+  vote,
+  YesNoContest,
 } from '@votingworks/types'
-import { electionWithMsEitherNeither } from '@votingworks/fixtures'
 import { election } from '../test/fixtures/2020-choctaw'
 import {
   buildCastVoteRecord,
@@ -157,35 +156,35 @@ test('generates a CVR from a completed BMD ballot', () => {
         },
       ])
     ).toMatchInlineSnapshot(`
-    Object {
-      "1": Array [
-        "1",
-      ],
-      "2": Array [
-        "22",
-      ],
-      "3": Array [],
-      "4": Array [],
-      "_ballotId": "abcdefg",
-      "_ballotStyleId": "1",
-      "_ballotType": "standard",
-      "_batchId": "1234",
-      "_batchLabel": "Batch 1",
-      "_locales": Object {
-        "primary": "en-US",
-      },
-      "_precinctId": "6522",
-      "_scannerId": "000",
-      "_testBallot": false,
-      "flag-question": Array [],
-      "initiative-65": Array [
-        "yes",
-        "no",
-      ],
-      "initiative-65-a": Array [],
-      "runoffs-question": Array [],
-    }
-    `)
+          Object {
+            "1": Array [
+              "1",
+            ],
+            "2": Array [
+              "22",
+            ],
+            "3": Array [],
+            "4": Array [],
+            "_ballotId": "abcdefg",
+            "_ballotStyleId": "1",
+            "_ballotType": "standard",
+            "_batchId": "1234",
+            "_batchLabel": "Batch 1",
+            "_locales": Object {
+              "primary": "en-US",
+            },
+            "_precinctId": "6522",
+            "_scannerId": "000",
+            "_testBallot": false,
+            "flag-question": Array [],
+            "initiative-65": Array [
+              "yes",
+              "no",
+            ],
+            "initiative-65-a": Array [],
+            "runoffs-question": Array [],
+          }
+        `)
   })
 })
 test('generates a CVR from a completed BMD ballot with write in and overvotes', () => {
@@ -231,33 +230,33 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
         },
       ])
     ).toMatchInlineSnapshot(`
-    Object {
-      "1": Array [
-        "write-in__PIKACHU",
-      ],
-      "2": Array [
-        "21",
-        "22",
-      ],
-      "3": Array [],
-      "4": Array [],
-      "_ballotId": "abcdefg",
-      "_ballotStyleId": "1",
-      "_ballotType": "standard",
-      "_batchId": "1234",
-      "_batchLabel": "Batch 1",
-      "_locales": Object {
-        "primary": "en-US",
-      },
-      "_precinctId": "6522",
-      "_scannerId": "000",
-      "_testBallot": false,
-      "flag-question": Array [],
-      "initiative-65": Array [],
-      "initiative-65-a": Array [],
-      "runoffs-question": Array [],
-    }
-    `)
+          Object {
+            "1": Array [
+              "write-in__PIKACHU",
+            ],
+            "2": Array [
+              "21",
+              "22",
+            ],
+            "3": Array [],
+            "4": Array [],
+            "_ballotId": "abcdefg",
+            "_ballotStyleId": "1",
+            "_ballotType": "standard",
+            "_batchId": "1234",
+            "_batchLabel": "Batch 1",
+            "_locales": Object {
+              "primary": "en-US",
+            },
+            "_precinctId": "6522",
+            "_scannerId": "000",
+            "_testBallot": false,
+            "flag-question": Array [],
+            "initiative-65": Array [],
+            "initiative-65-a": Array [],
+            "runoffs-question": Array [],
+          }
+        `)
   })
 })
 
@@ -590,11 +589,14 @@ test('generates a CVR from an adjudicated HMPB page', () => {
             'initiative-65': ['yes', 'no'],
           }),
         },
-        adjudication: {
-          'initiative-65': {
-            no: MarkStatus.Unmarked,
+        markAdjudications: [
+          {
+            type: AdjudicationReason.Overvote,
+            contestId: 'initiative-65',
+            optionId: 'no',
+            isMarked: false,
           },
-        },
+        ],
         contestIds: ['initiative-65'],
       },
       {
@@ -910,9 +912,6 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           },
         },
         contestIds: ['1', '2'],
-        adjudication: {
-          '1': { '2': MarkStatus.Marked },
-        },
       },
       {
         interpretation: {
@@ -928,18 +927,19 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           },
         },
         contestIds: ['initiative-65'],
-        adjudication: {
-          'initiative-65': {
-            no: MarkStatus.Marked,
+        markAdjudications: [
+          {
+            type: AdjudicationReason.UninterpretableBallot,
+            contestId: 'initiative-65',
+            optionId: 'no',
+            isMarked: true,
           },
-        },
+        ],
       },
     ])
   ).toMatchInlineSnapshot(`
     Object {
-      "1": Array [
-        "2",
-      ],
+      "1": Array [],
       "2": Array [
         "23",
       ],
@@ -961,6 +961,216 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
       "initiative-65": Array [
         "no",
       ],
+    }
+  `)
+})
+
+test('generates a CVR from an adjudicated write-in', () => {
+  const sheetId = 'sheetid'
+  const ballotId = 'abcdefg'
+  const ballotStyleId = '1'
+  const precinctId = '6522'
+  const batchId = '1234'
+  const batchLabel = 'Batch 1'
+
+  expect(
+    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
+      {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasons: [AdjudicationReason.WriteIn],
+            allReasonInfos: [
+              {
+                type: AdjudicationReason.WriteIn,
+                contestId: '2',
+                optionId: '__write-in-0',
+                optionIndex: 3,
+              },
+            ],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: vote(election.contests, {
+            '2': {
+              id: '__write-in-0',
+              isWriteIn: true,
+              name: '',
+            },
+          }),
+        },
+        contestIds: ['1', '2'],
+        markAdjudications: [
+          {
+            type: AdjudicationReason.WriteIn,
+            contestId: '2',
+            optionId: '__write-in-0',
+            isMarked: true,
+            name: 'Pikachu',
+          },
+        ],
+      },
+      {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            allReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
+        },
+        contestIds: [],
+      },
+    ])
+  ).toMatchInlineSnapshot(`
+    Object {
+      "1": Array [],
+      "2": Array [
+        "__write-in-0-Pikachu",
+      ],
+      "_ballotId": "abcdefg",
+      "_ballotStyleId": "1",
+      "_ballotType": "standard",
+      "_batchId": "1234",
+      "_batchLabel": "Batch 1",
+      "_locales": Object {
+        "primary": "en-US",
+      },
+      "_pageNumbers": Array [
+        1,
+        2,
+      ],
+      "_precinctId": "6522",
+      "_scannerId": "000",
+      "_testBallot": false,
+    }
+  `)
+})
+
+test('generates a CVR from an adjudicated unmarked write-in', () => {
+  const sheetId = 'sheetid'
+  const ballotId = 'abcdefg'
+  const ballotStyleId = '1'
+  const precinctId = '6522'
+  const batchId = '1234'
+  const batchLabel = 'Batch 1'
+
+  expect(
+    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
+      {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasons: [AdjudicationReason.UnmarkedWriteIn],
+            allReasonInfos: [
+              {
+                type: AdjudicationReason.UnmarkedWriteIn,
+                contestId: '2',
+                optionId: '__write-in-0',
+                optionIndex: 3,
+              },
+            ],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
+        },
+        contestIds: ['1', '2'],
+        markAdjudications: [
+          {
+            type: AdjudicationReason.UnmarkedWriteIn,
+            contestId: '2',
+            optionId: '__write-in-0',
+            isMarked: true,
+            name: 'Pikachu',
+          },
+        ],
+      },
+      {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: '',
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            allReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
+        },
+        contestIds: [],
+      },
+    ])
+  ).toMatchInlineSnapshot(`
+    Object {
+      "1": Array [],
+      "2": Array [
+        "__write-in-0-Pikachu",
+      ],
+      "_ballotId": "abcdefg",
+      "_ballotStyleId": "1",
+      "_ballotType": "standard",
+      "_batchId": "1234",
+      "_batchLabel": "Batch 1",
+      "_locales": Object {
+        "primary": "en-US",
+      },
+      "_pageNumbers": Array [
+        1,
+        2,
+      ],
+      "_precinctId": "6522",
+      "_scannerId": "000",
+      "_testBallot": false,
     }
   `)
 })

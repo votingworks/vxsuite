@@ -130,7 +130,11 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 }
 
 export async function acceptBallotAfterReview(): Promise<boolean> {
-  const body: ScanContinueRequest = { override: true }
+  const body: ScanContinueRequest = {
+    forceAccept: true,
+    frontMarkAdjudications: [],
+    backMarkAdjudications: [],
+  }
   const result = await (
     await fetch('/scan/scanContinue', {
       method: 'post',
@@ -150,8 +154,17 @@ export async function acceptBallotAfterReview(): Promise<boolean> {
 export async function endBatch(): Promise<boolean> {
   // calling scanContinue will "naturally" end the batch because module-scan
   // will see there's no more paper
+  const body: ScanContinueRequest = {
+    forceAccept: false,
+  }
   const result = await (
-    await fetch('/scan/scanContinue', { method: 'post' })
+    await fetch('/scan/scanContinue', {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   ).json()
   if (result.status !== 'ok') {
     debug('failed to end batch: %o', result)

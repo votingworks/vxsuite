@@ -41,7 +41,7 @@ test('says the sheet is unreadable if it is', async () => {
   expect(container).toMatchSnapshot()
 
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 })
 
 test('says the ballot sheet is overvoted if it is', async () => {
@@ -128,13 +128,17 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
   fireEvent.click(getByText('Original Ballot Removed'))
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 
   continueScanning.mockClear()
 
   fireEvent.click(getByText('Tabulate Duplicate Ballot'))
   fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith(true)
+  expect(continueScanning).toHaveBeenCalledWith({
+    forceAccept: true,
+    frontMarkAdjudications: [],
+    backMarkAdjudications: [],
+  })
 })
 
 test('says the ballot sheet is undervoted if it is', async () => {
@@ -221,13 +225,17 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
   fireEvent.click(getByText('Original Ballot Removed'))
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 
   continueScanning.mockClear()
 
   fireEvent.click(getByText('Tabulate Duplicate Ballot'))
   fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith(true)
+  expect(continueScanning).toHaveBeenCalledWith({
+    forceAccept: true,
+    frontMarkAdjudications: [],
+    backMarkAdjudications: [],
+  })
 })
 
 test('says the ballot sheet is blank if it is', async () => {
@@ -306,13 +314,17 @@ test('says the ballot sheet is blank if it is', async () => {
 
   fireEvent.click(getByText('Original Ballot Removed'))
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 
   continueScanning.mockClear()
 
   fireEvent.click(getByText('Tabulate Duplicate Ballot'))
   fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith(true)
+  expect(continueScanning).toHaveBeenCalledWith({
+    forceAccept: true,
+    frontMarkAdjudications: [],
+    backMarkAdjudications: [],
+  })
 })
 
 test('calls out live ballot sheets in test mode', async () => {
@@ -370,7 +382,7 @@ test('calls out live ballot sheets in test mode', async () => {
   expect(container).toMatchSnapshot()
 
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 })
 
 test('calls out test ballot sheets in live mode', async () => {
@@ -428,7 +440,7 @@ test('calls out test ballot sheets in live mode', async () => {
   expect(container).toMatchSnapshot()
 
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 })
 
 test('shows invalid election screen when appropriate', async () => {
@@ -470,7 +482,7 @@ test('shows invalid election screen when appropriate', async () => {
   expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0)
 
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 })
 
 test('shows invalid election screen when appropriate', async () => {
@@ -529,5 +541,5 @@ test('shows invalid election screen when appropriate', async () => {
   expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0)
 
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith()
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
 })

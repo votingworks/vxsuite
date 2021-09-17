@@ -3,15 +3,12 @@ import {
   BallotMetadata,
   BallotPageLayout,
   ElectionDefinition,
+  MarkAdjudications,
   MarkThresholds,
   Optional,
   PageInterpretation,
 } from '@votingworks/types'
-import {
-  ScannerStatus,
-  ScanStatus,
-  Side,
-} from '@votingworks/types/api/module-scan'
+import { ScannerStatus, ScanStatus } from '@votingworks/types/api/module-scan'
 import { sleep } from '@votingworks/utils'
 import makeDebug from 'debug'
 import * as fsExtra from 'fs-extra'
@@ -423,7 +420,7 @@ export default class Importer {
         if (!(await this.sheetGenerator.acceptSheet())) {
           debug('failed to accept interpreted sheet: %s', sheetId)
         }
-        await this.continueImport()
+        await this.continueImport({ forceAccept: false })
       } else {
         const castability = await this.getNextAdjudicationCastability()
         if (castability) {
@@ -482,7 +479,7 @@ export default class Importer {
       pageSize: ballotPaperSize,
     })
 
-    await this.continueImport()
+    await this.continueImport({ forceAccept: false })
 
     return this.batchId
   }
@@ -490,15 +487,32 @@ export default class Importer {
   /**
    * Continue the existing scanning process
    */
-  async continueImport(override = false): Promise<void> {
+  async continueImport(options: { forceAccept: false }): Promise<void>
+  async continueImport(options: {
+    forceAccept: true
+    frontMarkAdjudications: MarkAdjudications
+    backMarkAdjudications: MarkAdjudications
+  }): Promise<void>
+  async continueImport(options: {
+    forceAccept: boolean
+    frontMarkAdjudications?: MarkAdjudications
+    backMarkAdjudications?: MarkAdjudications
+  }): Promise<void> {
     const sheet = await this.workspace.store.getNextAdjudicationSheet()
 
     if (sheet) {
-      if (override) {
+      if (options.forceAccept) {
         await this.sheetGenerator?.acceptSheet()
-        for (const side of ['front', 'back'] as Side[]) {
-          await this.workspace.store.saveBallotAdjudication(sheet.id, side, {})
-        }
+        await this.workspace.store.adjudicateSheet(
+          sheet.id,
+          'front',
+          options.frontMarkAdjudications ?? []
+        )
+        await this.workspace.store.adjudicateSheet(
+          sheet.id,
+          'back',
+          options.backMarkAdjudications ?? []
+        )
       } else {
         await this.sheetGenerator?.rejectSheet()
         await this.workspace.store.deleteSheet(sheet.id)

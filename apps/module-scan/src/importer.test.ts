@@ -350,7 +350,7 @@ test('scanning pauses on adjudication then continues', async () => {
   await importer.configure(asElectionDefinition(election))
 
   jest.spyOn(workspace.store, 'deleteSheet')
-  jest.spyOn(workspace.store, 'saveBallotAdjudication')
+  jest.spyOn(workspace.store, 'adjudicateSheet')
 
   jest
     .spyOn(workspace.store, 'addSheet')
@@ -416,7 +416,7 @@ test('scanning pauses on adjudication then continues', async () => {
       return { adjudicated: 0, remaining: 0 }
     })
 
-  await importer.continueImport()
+  await importer.continueImport({ forceAccept: false })
   await importer.waitForEndOfBatchOrScanningPause()
 
   expect(workspace.store.addSheet).toHaveBeenCalledTimes(3)
@@ -432,12 +432,16 @@ test('scanning pauses on adjudication then continues', async () => {
       return { adjudicated: 0, remaining: 0 }
     })
 
-  await importer.continueImport(true) // override
+  await importer.continueImport({
+    forceAccept: true,
+    frontMarkAdjudications: [],
+    backMarkAdjudications: [],
+  })
   await importer.waitForEndOfBatchOrScanningPause()
 
   expect(workspace.store.addSheet).toHaveBeenCalledTimes(3) // no more of these
   expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1) // no more deletes
-  expect(workspace.store.saveBallotAdjudication).toHaveBeenCalledTimes(2)
+  expect(workspace.store.adjudicateSheet).toHaveBeenCalledTimes(2)
 })
 
 test('importing a sheet normalizes and orders HMPB pages', async () => {
