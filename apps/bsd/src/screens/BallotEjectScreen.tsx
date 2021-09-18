@@ -125,12 +125,25 @@ const BallotEjectScreen = ({
     const frontAdjudication = frontInterpretation.adjudicationInfo
     const backAdjudication = backInterpretation.adjudicationInfo
 
+    // A ballot is blank if both sides are marked blank
+    // and neither side contains an unmarked write in,
+    // because an unmarked write-in is a sign the page isn't blank.
+    //
+    // One could argue that making this call is the server's job.
+    // We leave that consideration to:
+    // https://github.com/votingworks/vxsuite/issues/902
     const isBlank =
       frontAdjudication.allReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
       ) &&
+      !frontAdjudication.allReasonInfos.some(
+        (info) => info.type === AdjudicationReason.UnmarkedWriteIn
+      ) &&
       backAdjudication.allReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
+      ) &&
+      !backAdjudication.allReasonInfos.some(
+        (info) => info.type === AdjudicationReason.UnmarkedWriteIn
       )
 
     if (!isBlank) {
