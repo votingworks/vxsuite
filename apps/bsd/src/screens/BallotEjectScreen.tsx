@@ -170,7 +170,7 @@ const BallotEjectScreen = ({
     {
       side: 'back' as Side,
       imageURL: reviewInfo.interpreted.back.image.url,
-      interpretation: reviewInfo.interpreted.front.interpretation,
+      interpretation: reviewInfo.interpreted.back.interpretation,
       layout: reviewInfo.layouts.back,
       contestIds: reviewInfo.definitions.back?.contestIds,
       adjudicationFinishedAt:
