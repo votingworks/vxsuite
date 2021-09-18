@@ -10,11 +10,13 @@ import PollWorkerScreen from './PollWorkerScreen'
 MockDate.set('2020-10-31T00:00:00.000Z')
 
 beforeEach(() => {
+  jest.useFakeTimers()
   window.location.href = '/'
 })
 
 afterEach(() => {
   window.kiosk = undefined
+  jest.useRealTimers()
 })
 
 const renderScreen = ({
@@ -59,6 +61,7 @@ test('shows system authentication code', async () => {
 
   await act(async () => {
     renderScreen({})
+    jest.advanceTimersByTime(2000)
   })
 
   screen.getByText('System Authentication Code: 123·456')
@@ -84,6 +87,7 @@ test('shows Export Results button only when polls are closed and more than 0 bal
       scannedBallotCount: 0,
       isPollsOpen: false,
     })
+    jest.advanceTimersByTime(2000)
   })
 
   expect(screen.queryByText(exportButtonText)).toBeNull()
@@ -102,6 +106,7 @@ test('shows Export Results button only when polls are closed and more than 0 bal
       scannedBallotCount: 5,
       isPollsOpen: true,
     })
+    jest.advanceTimersByTime(2000)
   })
 
   expect(screen.queryByText(exportButtonText)).toBeNull()
@@ -111,6 +116,7 @@ test('shows Export Results button only when polls are closed and more than 0 bal
       scannedBallotCount: 5,
       isPollsOpen: false,
     })
+    jest.advanceTimersByTime(2000)
   })
 
   expect(screen.queryByText(exportButtonText)).toBeTruthy()

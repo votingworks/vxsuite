@@ -1,6 +1,7 @@
 import { strict as assert } from 'assert'
 import React, { useContext, useEffect, useState } from 'react'
 import makeDebug from 'debug'
+import useInterval from '@rooks/use-interval'
 
 import {
   Button,
@@ -22,6 +23,7 @@ import {
 } from '@votingworks/utils'
 import { CastVoteRecord, Tally } from '@votingworks/types'
 import pluralize from 'pluralize'
+import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals'
 import { CenteredScreen } from '../components/Layout'
 import { Absolute } from '../components/Absolute'
 import { Bar } from '../components/Bar'
@@ -91,15 +93,17 @@ const PollWorkerScreen = ({
     void calculateTally()
   }, [election, getCVRsFromExport, scannedBallotCount])
 
-  useEffect(() => {
-    void (async () => {
+  useInterval(
+    async () => {
       const totpResult = await window.kiosk?.totp?.get()
       if (totpResult) {
         const codeChunks = totpResult.code.match(/.{1,3}/g)
         if (codeChunks) setSystemAuthenticationCode(codeChunks.join('·'))
       }
-    })()
-  }, [setSystemAuthenticationCode])
+    },
+    POLLING_INTERVAL_FOR_TOTP,
+    true
+  )
 
   const saveTally = async () => {
     assert(currentTally)

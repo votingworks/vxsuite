@@ -44,6 +44,8 @@ import {
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
 } from './config/globals'
 
+jest.setTimeout(20000)
+
 beforeEach(() => {
   jest.useFakeTimers()
   fetchMock.reset()
