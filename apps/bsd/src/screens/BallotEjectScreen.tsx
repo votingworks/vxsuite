@@ -104,6 +104,59 @@ const BallotEjectScreen = ({
     setBackMarkAdjudications,
   ] = useState<MarkAdjudications>()
 
+  // with new reviewInfo, mark each side done if nothing to actually adjudicate
+  useEffect(() => {
+    if (!reviewInfo) {
+      return
+    }
+
+    const frontInterpretation = reviewInfo.interpreted.front.interpretation
+    const backInterpretation = reviewInfo.interpreted.back.interpretation
+
+    if (
+      !(
+        frontInterpretation.type === 'InterpretedHmpbPage' &&
+        backInterpretation.type === 'InterpretedHmpbPage'
+      )
+    ) {
+      return
+    }
+
+    const frontAdjudication = frontInterpretation.adjudicationInfo
+    const backAdjudication = backInterpretation.adjudicationInfo
+
+    const isBlank =
+      frontAdjudication.allReasonInfos.some(
+        (info) => info.type === AdjudicationReason.BlankBallot
+      ) &&
+      backAdjudication.allReasonInfos.some(
+        (info) => info.type === AdjudicationReason.BlankBallot
+      )
+
+    if (!isBlank) {
+      if (
+        !frontAdjudication.enabledReasons.some(
+          (reason) =>
+            reason !== AdjudicationReason.BlankBallot &&
+            frontAdjudication.allReasonInfos.some(
+              (info) => info.type === reason
+            )
+        )
+      ) {
+        setFrontMarkAdjudications([])
+      }
+      if (
+        !backAdjudication.enabledReasons.some(
+          (reason) =>
+            reason !== AdjudicationReason.BlankBallot &&
+            backAdjudication.allReasonInfos.some((info) => info.type === reason)
+        )
+      ) {
+        setBackMarkAdjudications([])
+      }
+    }
+  }, [reviewInfo])
+
   const onAdjudicationComplete = useCallback(
     async (
       sheetId: string,
