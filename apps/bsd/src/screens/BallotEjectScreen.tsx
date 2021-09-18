@@ -149,7 +149,8 @@ const BallotEjectScreen = ({
 
   let isOvervotedSheet = false
   let isUndervotedSheet = false
-  let isBlankSheet = false
+  let frontIsBlank = false
+  let backIsBlank = false
   let isUnreadableSheet = false
   let isInvalidTestModeSheet = false
   let isInvalidElectionHashSheet = false
@@ -231,7 +232,11 @@ const BallotEjectScreen = ({
             } else if (
               adjudicationReason.type === AdjudicationReason.BlankBallot
             ) {
-              isBlankSheet = true
+              if (reviewPageInfo.side === 'front') {
+                frontIsBlank = true
+              } else {
+                backIsBlank = true
+              }
             }
           }
         }
@@ -246,6 +251,8 @@ const BallotEjectScreen = ({
     !isInvalidElectionHashSheet &&
     !isInvalidPrecinctSheet &&
     !isUnreadableSheet
+
+  const isBlankSheet = frontIsBlank && backIsBlank
 
   return (
     <Screen>
