@@ -144,7 +144,8 @@
   "vx": {
     "isBundled": true,
     "modules": [
-      "../module-scan"
+      "../module-scan",
+      "../module-smartcards"
     ]
   }
 }
