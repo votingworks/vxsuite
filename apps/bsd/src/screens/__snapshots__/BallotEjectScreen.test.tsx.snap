@@ -305,7 +305,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           <div
             class="sc-dIUggk hZaEGa"
           >
-            Unknown Reason
+            Blank Ballot
           </div>
           <p>
             This last scanned sheet 
@@ -331,7 +331,11 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             Duplicate Ballot Scan
           </h4>
           <p>
-            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot with issue which could not be determined.
+            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as a 
+            <strong>
+              blank
+            </strong>
+             ballot sheet and has no votes.
             <br />
             <button
               class="sc-gsTCUz ftrorQ"
