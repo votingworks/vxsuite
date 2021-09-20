@@ -79,12 +79,12 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
 
 const authenticateAdminCard = async () => {
   await screen.findByText('Enter the card security code to unlock.')
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('2'))
-  await fireEvent.click(screen.getByText('3'))
-  await fireEvent.click(screen.getByText('4'))
-  await fireEvent.click(screen.getByText('5'))
-  await fireEvent.click(screen.getByText('6'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('2'))
+  fireEvent.click(screen.getByText('3'))
+  fireEvent.click(screen.getByText('4'))
+  fireEvent.click(screen.getByText('5'))
+  fireEvent.click(screen.getByText('6'))
 }
 
 test('shows setup card reader screen when there is no card reader', async () => {
@@ -396,7 +396,7 @@ test('admin and pollworker configuration', async () => {
   )
   fireEvent.click(await screen.findByText('Cancel'))
   expect(
-    await screen.queryByText(
+    screen.queryByText(
       'Do you want to remove all election information and data from this machine?'
     )
   ).toBeNull()
@@ -561,8 +561,8 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('Administrator Settings')
   fireEvent.click(await screen.findByText('Export Results to USB'))
   await screen.findByText('No USB Drive Detected')
-  await fireEvent.click(await screen.findByText('Cancel'))
-  expect(await screen.queryByText('No USB Drive Detected')).toBeNull()
+  fireEvent.click(await screen.findByText('Cancel'))
+  expect(screen.queryByText('No USB Drive Detected')).toBeNull()
   fireEvent.click(await screen.findByText('Export Results to USB'))
 
   // Insert usb drive

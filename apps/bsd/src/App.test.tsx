@@ -63,12 +63,12 @@ const authenticateWithAdminCard = async (card: MemoryCard) => {
   })
   await act(async () => await sleep(100))
   await screen.findByText('Enter the card security code to unlock.')
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('2'))
-  await fireEvent.click(screen.getByText('3'))
-  await fireEvent.click(screen.getByText('4'))
-  await fireEvent.click(screen.getByText('5'))
-  await fireEvent.click(screen.getByText('6'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('2'))
+  fireEvent.click(screen.getByText('3'))
+  fireEvent.click(screen.getByText('4'))
+  fireEvent.click(screen.getByText('5'))
+  fireEvent.click(screen.getByText('6'))
   await act(async () => await sleep(100))
 }
 
@@ -364,12 +364,12 @@ test('authentication works', async () => {
     await sleep(100)
   })
   await screen.findByText('Enter the card security code to unlock.')
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('1'))
   await screen.findByText('Invalid code. Please try again.')
 
   // Remove card and insert a pollworker card.
@@ -394,45 +394,45 @@ test('authentication works', async () => {
     await sleep(100)
   })
   await screen.findByText('Enter the card security code to unlock.')
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('2'))
-  await fireEvent.click(screen.getByText('3'))
-  await fireEvent.click(screen.getByText('4'))
-  await fireEvent.click(screen.getByText('5'))
-  await fireEvent.click(screen.getByText('6'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('2'))
+  fireEvent.click(screen.getByText('3'))
+  fireEvent.click(screen.getByText('4'))
+  fireEvent.click(screen.getByText('5'))
+  fireEvent.click(screen.getByText('6'))
 
   // Machine should be unlocked
   await screen.findByText('No Scanner')
 
   // The card can be removed and the screen will stay unlocked
-  await card.removeCard()
+  card.removeCard()
   await act(async () => {
     await sleep(100)
   })
   await screen.findByText('No Scanner')
 
   // The card and other cards can be inserted with no impact.
-  await card.insertCard(adminCard)
+  card.insertCard(adminCard)
   await act(async () => {
     await sleep(100)
   })
   await screen.findByText('No Scanner')
-  await card.removeCard()
+  card.removeCard()
   await act(async () => {
     await sleep(100)
   })
   await screen.findByText('No Scanner')
-  await card.insertCard(pollWorkerCard)
+  card.insertCard(pollWorkerCard)
   await act(async () => {
     await sleep(100)
   })
   await screen.findByText('No Scanner')
-  await card.removeCard()
+  card.removeCard()
   await act(async () => {
     await sleep(100)
   })
 
   // Lock the machine
-  await fireEvent.click(screen.getByText('Lock Machine'))
+  fireEvent.click(screen.getByText('Lock Machine'))
   await screen.findByText('Machine Locked')
 })
