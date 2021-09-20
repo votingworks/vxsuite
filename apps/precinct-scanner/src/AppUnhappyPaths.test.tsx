@@ -96,43 +96,6 @@ test('module-scan fails to unconfigure', async () => {
   await screen.findByText('Loading')
 })
 
-test('Show error if usb drive has multiple zip files', async () => {
-  const storage = new MemoryStorage()
-  const card = new MemoryCard()
-  const hardware = await MemoryHardware.buildStandard()
-  const kiosk = fakeKiosk()
-  kiosk.getUsbDrives.mockResolvedValue([])
-  window.kiosk = kiosk
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .getOnce('/config/election', new Response('null'))
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
-  render(<App storage={storage} card={card} hardware={hardware} />)
-  await screen.findByText('Loading Configuration…')
-  await advanceTimersAndPromises(1)
-  await screen.findByText('Precinct Scanner is Not Configured')
-  await screen.findByText('Insert USB Drive with configuration.')
-
-  const fakeZipFile = {
-    name: 'ballot-package.zip',
-    path: 'path',
-    type: 1,
-    size: 1,
-    atime: new Date(),
-    ctime: new Date(),
-    mtime: new Date(),
-  }
-
-  kiosk.getFileSystemEntries.mockResolvedValue([fakeZipFile, fakeZipFile])
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
-  await advanceTimersAndPromises(2)
-  await screen.findByText(
-    'Error in configuration: More than one ballot package found on the inserted USB drive, make sure only one is present.'
-  )
-})
-
 test('Show invalid card screen when unsupported cards are given', async () => {
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
