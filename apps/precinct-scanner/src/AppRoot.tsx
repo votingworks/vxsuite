@@ -317,7 +317,7 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         currentUserSession: { type: 'pollworker', authenticated: true },
-        invalidCardPresent: false, // !action.isPollWorkerCardValid,
+        invalidCardPresent: !action.isPollWorkerCardValid,
       }
     case 'cardRemoved':
       return {
