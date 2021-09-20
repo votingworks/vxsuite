@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import pluralize from 'pluralize'
 
-import { GetScanStatusResponse } from '@votingworks/types/api/module-scan'
+import {
+  BatchInfo,
+  GetScanStatusResponse,
+} from '@votingworks/types/api/module-scan'
 
 import Prose from '../components/Prose'
 import Table, { TD } from '../components/Table'
@@ -41,7 +44,7 @@ const DashboardScreen = ({
   const batchCount = batches.length
   const ballotCount = batches.reduce((result, b) => result + b.count, 0)
 
-  const [pendingDeleteBatchId, setPendingDeleteBatchId] = useState<string>()
+  const [pendingDeleteBatch, setPendingDeleteBatchId] = useState<BatchInfo>()
   const [isDeletingBatch, setIsDeletingBatch] = useState(false)
   const [deleteBatchError, setDeleteBatchError] = useState<string>()
 
@@ -65,11 +68,11 @@ const DashboardScreen = ({
   }, [])
 
   useEffect(() => {
-    if (pendingDeleteBatchId && isDeletingBatch) {
+    if (pendingDeleteBatch && isDeletingBatch) {
       let isMounted = true
       void (async () => {
         try {
-          await deleteBatch(pendingDeleteBatchId)
+          await deleteBatch(pendingDeleteBatch.id)
 
           if (isMounted) {
             onDeleteBatchSucceeded()
@@ -84,8 +87,13 @@ const DashboardScreen = ({
         isMounted = false
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingDeleteBatchId, isDeletingBatch, deleteBatch])
+  }, [
+    pendingDeleteBatch,
+    isDeletingBatch,
+    deleteBatch,
+    onDeleteBatchSucceeded,
+    onDeleteBatchFailed,
+  ])
 
   return (
     <React.Fragment>
@@ -129,7 +137,7 @@ const DashboardScreen = ({
                     <TD narrow>
                       <Button
                         small
-                        onPress={() => setPendingDeleteBatchId(batch.id)}
+                        onPress={() => setPendingDeleteBatchId(batch)}
                       >
                         Delete
                       </Button>
@@ -143,13 +151,13 @@ const DashboardScreen = ({
           <p>No ballots have been scanned.</p>
         )}
       </Prose>
-      {pendingDeleteBatchId && (
+      {pendingDeleteBatch && (
         <Modal
           centerContent
           onOverlayClick={isDeletingBatch ? undefined : cancelDeleteBatch}
           content={
             <Prose textCenter>
-              <h1>Delete batch {pendingDeleteBatchId}?</h1>
+              <h1>Delete ‘{pendingDeleteBatch.label}’?</h1>
               <p>This action cannot be undone.</p>
               {deleteBatchError && <Text error>{deleteBatchError}</Text>}
             </Prose>
