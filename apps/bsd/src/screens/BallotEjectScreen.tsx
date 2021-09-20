@@ -372,10 +372,10 @@ const BallotEjectScreen = ({
                 ? 'Unreadable'
                 : isOvervotedSheet
                 ? 'Overvote'
-                : isUndervotedSheet
-                ? 'Undervote'
                 : isBlankSheet
                 ? 'Blank Ballot'
+                : isUndervotedSheet
+                ? 'Undervote'
                 : 'Unknown Reason'}
             </EjectReason>
             <p>

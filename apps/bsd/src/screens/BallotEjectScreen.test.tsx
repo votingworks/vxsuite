@@ -269,8 +269,20 @@ test('says the ballot sheet is blank if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: true,
-              allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-              enabledReasons: [AdjudicationReason.Overvote],
+              allReasonInfos: [
+                {
+                  type: AdjudicationReason.Undervote,
+                  contestId: '1',
+                  expected: 1,
+                  optionIds: [],
+                  optionIndexes: [],
+                },
+                { type: AdjudicationReason.BlankBallot },
+              ],
+              enabledReasons: [
+                AdjudicationReason.BlankBallot,
+                AdjudicationReason.Undervote,
+              ],
             },
             votes: {},
           },
@@ -293,9 +305,12 @@ test('says the ballot sheet is blank if it is', async () => {
               pageNumber: 2,
             },
             adjudicationInfo: {
-              requiresAdjudication: false,
-              allReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
+              requiresAdjudication: true,
+              allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+              enabledReasons: [
+                AdjudicationReason.BlankBallot,
+                AdjudicationReason.Undervote,
+              ],
             },
             votes: {},
           },
