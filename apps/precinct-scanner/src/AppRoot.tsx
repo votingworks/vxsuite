@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
 import React, { useCallback, useEffect, useReducer } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
@@ -11,6 +12,8 @@ import {
   OptionalElectionDefinition,
   Provider,
   CastVoteRecord,
+  UserSession,
+  Optional,
 } from '@votingworks/types'
 import {
   Smartcard,
@@ -59,6 +62,7 @@ import ScanWarningScreen from './screens/ScanWarningScreen'
 import ScanProcessingScreen from './screens/ScanProcessingScreen'
 import AppContext from './contexts/AppContext'
 import SetupPowerPage from './screens/SetupPowerPage'
+import UnlockAdminScreen from './screens/UnlockAdminScreen'
 
 const debug = makeDebug('precinct-scanner:app-root')
 
@@ -81,8 +85,7 @@ interface HardwareState {
   hasChargerAttached: boolean
   hasLowBattery: boolean
   adminCardElectionHash: string
-  isAdminCardPresent: boolean
-  isPollWorkerCardPresent: boolean
+  currentUserSession: Optional<UserSession>
   invalidCardPresent: boolean
   machineConfig: Readonly<MachineConfig>
 }
@@ -114,10 +117,14 @@ const initialHardwareState: Readonly<HardwareState> = {
   hasChargerAttached: true,
   hasLowBattery: false,
   adminCardElectionHash: '',
-  isAdminCardPresent: false,
-  isPollWorkerCardPresent: false,
+  currentUserSession: undefined,
+  // TODO add concept for invalid card to current user session object
   invalidCardPresent: false,
-  machineConfig: { machineId: '0000', codeVersion: 'dev' },
+  machineConfig: {
+    machineId: '0000',
+    codeVersion: 'dev',
+    bypassAuthentication: false,
+  },
 }
 
 const initialSharedState: Readonly<SharedState> = {
@@ -197,6 +204,7 @@ type AppAction =
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
+  | { type: 'adminCardAuthenticated' }
 
 const appReducer = (state: State, action: AppAction): State => {
   debug(
@@ -301,22 +309,21 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'processAdminCard':
       return {
         ...state,
-        isAdminCardPresent: true,
+        currentUserSession: { type: 'admin', authenticated: false },
         invalidCardPresent: false,
         adminCardElectionHash: action.electionHash,
       }
     case 'processPollWorkerCard':
       return {
         ...state,
-        isPollWorkerCardPresent: true,
-        invalidCardPresent: !action.isPollWorkerCardValid,
+        currentUserSession: { type: 'pollworker', authenticated: true },
+        invalidCardPresent: false, // !action.isPollWorkerCardValid,
       }
     case 'cardRemoved':
       return {
         ...state,
-        isAdminCardPresent: false,
+        currentUserSession: undefined,
         invalidCardPresent: false,
-        isPollWorkerCardPresent: false,
       }
     case 'updatePrecinctId':
       return {
@@ -340,6 +347,15 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         ...action.hardwareState,
       }
+    case 'adminCardAuthenticated':
+      assert(state.currentUserSession?.type === 'admin')
+      return {
+        ...state,
+        currentUserSession: {
+          type: 'admin',
+          authenticated: true,
+        },
+      }
     default:
       throwIllegalValue(action)
   }
@@ -362,23 +378,21 @@ const AppRoot = ({
     adjudicationReasonInfo,
     rejectionReason,
     isTestMode,
-    isAdminCardPresent,
     invalidCardPresent,
     currentPrecinctId,
     isPollsOpen,
-    isPollWorkerCardPresent,
     machineConfig,
     hasPrinterAttached,
     hasLowBattery,
     hasChargerAttached,
+    currentUserSession,
   } = appState
 
   const usbDrive = useUsbDrive()
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
-  const hasCardInserted =
-    isAdminCardPresent || invalidCardPresent || isPollWorkerCardPresent
+  const hasCardInserted = currentUserSession?.type || invalidCardPresent
   const makeCancelable = useCancelablePromise()
 
   const refreshConfig = useCallback(async () => {
@@ -700,6 +714,9 @@ const AppRoot = ({
               type: 'processAdminCard',
               electionHash: cardData.h,
             })
+            if (machineConfig.bypassAuthentication) {
+              dispatchAppState({ type: 'adminCardAuthenticated' })
+            }
           }
           break
         }
@@ -734,6 +751,25 @@ const AppRoot = ({
     hasCardInserted,
     dispatchAppState,
   ])
+
+  const attemptToAuthenticateUser = useCallback(
+    (passcode: string): boolean => {
+      // The card must be an admin card to authenticate
+      if (smartcard?.data?.t !== 'admin') {
+        return false
+      }
+      // There must be an expected passcode on the card to authenticate.
+      if (!smartcard?.data.p) {
+        return false
+      }
+      if (passcode === smartcard.data.p) {
+        dispatchAppState({ type: 'adminCardAuthenticated' })
+        return true
+      }
+      return false
+    },
+    [smartcard, dispatchAppState]
+  )
 
   const scanner = usePrecinctScanner()
   const scannedBallotCount = scanner?.status.ballotCount ?? 0
@@ -847,7 +883,7 @@ const AppRoot = ({
     return <InvalidCardScreen />
   }
 
-  if (isAdminCardPresent) {
+  if (currentUserSession?.type === 'admin') {
     return (
       <AppContext.Provider
         value={{
@@ -856,20 +892,26 @@ const AppRoot = ({
           machineConfig,
         }}
       >
-        <AdminScreen
-          updateAppPrecinctId={updatePrecinctId}
-          scannedBallotCount={scannedBallotCount}
-          isTestMode={isTestMode}
-          toggleLiveMode={toggleTestMode}
-          unconfigure={unconfigureServer}
-          calibrate={scan.calibrate}
-          usbDrive={usbDrive}
-        />
+        {currentUserSession.authenticated ? (
+          <AdminScreen
+            updateAppPrecinctId={updatePrecinctId}
+            scannedBallotCount={scannedBallotCount}
+            isTestMode={isTestMode}
+            toggleLiveMode={toggleTestMode}
+            unconfigure={unconfigureServer}
+            calibrate={scan.calibrate}
+            usbDrive={usbDrive}
+          />
+        ) : (
+          <UnlockAdminScreen
+            attemptToAuthenticateUser={attemptToAuthenticateUser}
+          />
+        )}
       </AppContext.Provider>
     )
   }
 
-  if (isPollWorkerCardPresent) {
+  if (currentUserSession?.type === 'pollworker') {
     return (
       <AppContext.Provider
         value={{

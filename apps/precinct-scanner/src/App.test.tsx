@@ -77,6 +77,16 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
   status: 'ok',
 }
 
+const authenticateAdminCard = async () => {
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('2'))
+  await fireEvent.click(screen.getByText('3'))
+  await fireEvent.click(screen.getByText('4'))
+  await fireEvent.click(screen.getByText('5'))
+  await fireEvent.click(screen.getByText('6'))
+}
+
 test('shows setup card reader screen when there is no card reader', async () => {
   const storage = new MemoryStorage()
   const hardware = await MemoryHardware.buildStandard()
@@ -275,9 +285,13 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1)
 
   // Insert admin card to set precinct
-  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(
+    electionSampleDefinition.electionHash,
+    '123456'
+  )
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
+  await authenticateAdminCard()
   await screen.findByText('Administrator Settings')
   fireEvent.click(await screen.findByText('Live Election Mode'))
   await screen.findByText('Loading')
@@ -304,6 +318,7 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1)
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
+  await authenticateAdminCard()
   await screen.findByText('Administrator Settings')
   // Change precinct
   fireEvent.change(await screen.findByTestId('selectPrecinct'), {
@@ -329,6 +344,7 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1)
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
+  await authenticateAdminCard()
 
   // Calibrate scanner
   fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } })
@@ -356,6 +372,7 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1)
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
+  await authenticateAdminCard()
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
   await screen.findByText(
     'Do you want to remove all election information and data from this machine?'
@@ -518,8 +535,12 @@ test('voter can cast a ballot that scans successfully ', async () => {
   expect(fetchMock.calls('/scan/export')).toHaveLength(1)
 
   // Insert Admin Card
-  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(
+    electionSampleDefinition.electionHash,
+    '123456'
+  )
   card.insertCard(adminCard, electionSampleDefinition.electionData)
+  await authenticateAdminCard()
   await screen.findByText('Administrator Settings')
   fireEvent.click(await screen.findByText('Export Results to USB'))
   await screen.findByText('No USB Drive Detected')
@@ -1047,9 +1068,13 @@ test('voter can cast another ballot while the success screen is showing', async 
   await screen.findByText('Blank Ballot')
   // No more ballots have scanned even though the scanner is ready to scan
   expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(2)
-  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(
+    electionSampleDefinition.electionHash,
+    '123456'
+  )
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
+  await authenticateAdminCard()
   await screen.findByText('Administrator Settings')
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1')
 })

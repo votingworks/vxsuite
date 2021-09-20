@@ -11,7 +11,11 @@ export interface AppContextInterface {
 const appContext: AppContextInterface = {
   electionDefinition: undefined,
   currentPrecinctId: undefined,
-  machineConfig: { machineId: '0000', codeVersion: '' },
+  machineConfig: {
+    machineId: '0000',
+    codeVersion: '',
+    bypassAuthentication: false,
+  },
 }
 
 const AppContext = createContext(appContext)

@@ -11,9 +11,13 @@ import { strict as assert } from 'assert'
  */
 const utcTimestamp = (): number => Math.round(Date.now() / 1000)
 
-export const makeAdminCard = (electionHash: string): AdminCardData => ({
+export const makeAdminCard = (
+  electionHash: string,
+  pin?: string
+): AdminCardData => ({
   t: 'admin',
   h: electionHash,
+  p: pin || '000000',
 })
 
 export const makePollWorkerCard = (

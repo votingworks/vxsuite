@@ -22,6 +22,7 @@ import * as ScanWarningScreen from './screens/ScanWarningScreen'
 import * as SetupCardReaderPage from './screens/SetupCardReaderPage'
 import * as SetupPowerPage from './screens/SetupPowerPage'
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
+import * as UnlockAdminScreen from './screens/UnlockAdminScreen'
 
 const PreviewApp = (): JSX.Element => {
   return (
@@ -45,6 +46,7 @@ const PreviewApp = (): JSX.Element => {
         SetupCardReaderPage,
         SetupPowerPage,
         UnconfiguredElectionScreen,
+        UnlockAdminScreen,
       ]}
     />
   )
