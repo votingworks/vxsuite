@@ -1,4 +1,5 @@
-import { act, render, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import {
   ScannerStatus,
   GetScanStatusResponse,
@@ -117,7 +118,7 @@ test('allows deleting a batch', async () => {
     adjudication: noneLeftAdjudicationStatus,
     scanner: ScannerStatus.Unknown,
   }
-  const component = render(
+  render(
     <Router history={createMemoryHistory()}>
       <DashboardScreen
         deleteBatch={deleteBatch}
@@ -128,10 +129,10 @@ test('allows deleting a batch', async () => {
   )
 
   expect(deleteBatch).not.toHaveBeenCalled()
-  const [
-    deleteBatch1Button,
-    deleteBatch2Button,
-  ] = component.getAllByText('Delete', { selector: 'button' })
+  const [deleteBatch1Button, deleteBatch2Button] = screen.getAllByText(
+    'Delete',
+    { selector: 'button' }
+  )
 
   let deleteBatch1Resolve!: VoidFunction
   let deleteBatch2Reject!: (error: unknown) => void
@@ -154,28 +155,28 @@ test('allows deleting a batch', async () => {
     )
 
   // Click delete & confirm.
-  deleteBatch1Button.click()
-  ;(await waitFor(() => component.findByText('Yes, Delete Batch'))).click()
-  await component.findByText('Deleting…')
+  userEvent.click(deleteBatch1Button)
+  userEvent.click(screen.getByText('Yes, Delete Batch'))
+  await screen.findByText('Deleting…')
   expect(deleteBatch).toHaveBeenNthCalledWith(1, status.batches[0].id)
   act(() => deleteBatch1Resolve())
-  await waitFor(() => !component.findByText('Delete batch a?'))
+  await waitFor(() => !screen.getByText('Delete ‘Batch 1’?'))
 
   // Click delete but cancel.
-  deleteBatch2Button.click()
-  ;(await waitFor(() => component.getByText('Cancel'))).click()
+  userEvent.click(deleteBatch2Button)
+  userEvent.click(screen.getByText('Cancel'))
   expect(deleteBatch).not.toHaveBeenCalledWith(status.batches[1].id)
 
   // Click delete & confirm but fail.
-  deleteBatch2Button.click()
-  ;(await waitFor(() => component.getByText('Yes, Delete Batch'))).click()
-  await component.findByText('Deleting…')
+  userEvent.click(deleteBatch2Button)
+  userEvent.click(screen.getByText('Yes, Delete Batch'))
+  await screen.findByText('Deleting…')
   expect(deleteBatch).toHaveBeenNthCalledWith(2, status.batches[1].id)
   act(() => deleteBatch2Reject(new Error('batch is a teapot')))
-  ;(await waitFor(() => component.getByText('batch is a teapot'))).click()
+  await waitFor(() => screen.getByText('batch is a teapot'))
 
   // Try again.
-  ;(await waitFor(() => component.getByText('Yes, Delete Batch'))).click()
+  userEvent.click(screen.getByText('Yes, Delete Batch'))
   act(() => deleteBatch2Resolve())
-  await waitFor(() => !component.findByText('Delete batch b?'))
+  await waitFor(() => !screen.getByText('Delete ‘Batch 2’?'))
 })
