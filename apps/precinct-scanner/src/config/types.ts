@@ -45,9 +45,11 @@ export interface ScanningResultNeedsReview {
 export interface MachineConfig {
   machineId: string
   codeVersion: string
+  bypassAuthentication?: boolean
 }
 
 export interface MachineConfigResponse {
   machineId: string
   codeVersion: string
+  bypassAuthentication?: boolean
 }

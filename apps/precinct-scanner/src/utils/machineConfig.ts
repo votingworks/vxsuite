@@ -4,13 +4,16 @@ import { MachineConfig } from '../config/types'
 
 const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { machineId, codeVersion } = await fetchJSON<MachineConfig>(
-      '/machine-config'
-    )
+    const {
+      machineId,
+      codeVersion,
+      bypassAuthentication,
+    } = await fetchJSON<MachineConfig>('/machine-config')
 
     return {
       machineId,
       codeVersion,
+      bypassAuthentication,
     }
   },
 }

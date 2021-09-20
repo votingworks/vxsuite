@@ -85,9 +85,19 @@ test('module-scan fails to unconfigure', async () => {
   const card = new MemoryCard()
   const hardware = await MemoryHardware.buildStandard()
   render(<App card={card} hardware={hardware} />)
-  const adminCard = makeAdminCard(electionSampleDefinition.electionHash)
+  const adminCard = makeAdminCard(
+    electionSampleDefinition.electionHash,
+    '123456'
+  )
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
+  await screen.findByText('Enter the card security code to unlock.')
+  await fireEvent.click(screen.getByText('1'))
+  await fireEvent.click(screen.getByText('2'))
+  await fireEvent.click(screen.getByText('3'))
+  await fireEvent.click(screen.getByText('4'))
+  await fireEvent.click(screen.getByText('5'))
+  await fireEvent.click(screen.getByText('6'))
   await screen.findByText('Administrator Settings')
 
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
