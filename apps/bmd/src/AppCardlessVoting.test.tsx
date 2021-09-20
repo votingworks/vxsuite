@@ -21,7 +21,6 @@ import { advanceTimersAndPromises } from '../test/helpers/smartcards'
 
 import fakePrinter from '../test/helpers/fakePrinter'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxMarkPlusVxPrint } from './config/types'
 
 beforeEach(() => {
@@ -99,12 +98,6 @@ test('Cardless Voting Flow', async () => {
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
-  screen.getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Opened report for Center Springfield')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -351,12 +344,6 @@ test('poll worker must select a precinct first', async () => {
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
   fireEvent.click(screen.getByText('Open Polls for All Precincts'))
-  screen.getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Opened report for All Precincts')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()

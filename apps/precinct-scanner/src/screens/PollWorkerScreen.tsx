@@ -21,7 +21,7 @@ import {
   serializeTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
-import { CastVoteRecord, Tally } from '@votingworks/types'
+import { CastVoteRecord, Tally, VotingMethod } from '@votingworks/types'
 import pluralize from 'pluralize'
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals'
 import { CenteredScreen } from '../components/Layout'
@@ -114,6 +114,10 @@ const PollWorkerScreen = ({
       isLiveMode,
       isPollsOpen: !isPollsOpen, // When we are saving we are about to either open or close polls and want the state to reflect what it will be after that is complete.
       tally: serializedTally,
+      absenteeBallots:
+        currentTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
+      precinctBallots:
+        currentTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
       metadata: [
         {
           machineId: machineConfig.machineId,

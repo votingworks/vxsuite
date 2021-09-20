@@ -1,13 +1,20 @@
 import {
+  AnyContest,
+  CandidateContest,
   CandidateVote,
+  ContestOptionTally,
   Contests,
+  ContestTally,
+  Dictionary,
   Election,
+  expandEitherNeitherContests,
   getBallotStyle,
   getContests,
   getEitherNeitherContests,
   Tally,
   VotesDict,
   writeInCandidate,
+  YesNoContest,
   YesNoVote,
 } from '@votingworks/types'
 import { strict as assert } from 'assert'
@@ -415,4 +422,132 @@ export const compressTally = (
     /* istanbul ignore next - compile time check for completeness */
     throwIllegalValue(contest)
   })
+}
+
+const getContestTalliesForSerializedContest = (
+  contest: AnyContest,
+  serializedContest:
+    | SerializedCandidateVoteTally
+    | SerializedYesNoVoteTally
+    | SerializedMsEitherNeitherTally
+): ContestTally[] => {
+  switch (contest.type) {
+    case 'yesno': {
+      const yesNoTally = serializedContest as SerializedYesNoVoteTally
+      return [
+        {
+          contest,
+          tallies: {
+            yes: { option: ['yes'], tally: yesNoTally.yes },
+            no: { option: ['no'], tally: yesNoTally.no },
+          },
+          metadata: {
+            undervotes: yesNoTally.undervotes,
+            overvotes: yesNoTally.overvotes,
+            ballots: yesNoTally.ballotsCast,
+          },
+        },
+      ]
+    }
+    case 'candidate': {
+      const candidateTally = serializedContest as SerializedCandidateVoteTally
+      const candidateTallies: Dictionary<ContestOptionTally> = {}
+      contest.candidates.forEach((candidate, candidateIdx) => {
+        candidateTallies[candidate.id] = {
+          option: candidate,
+          tally: candidateTally.candidates[candidateIdx] ?? 0,
+        }
+      })
+      if (contest.allowWriteIns) {
+        candidateTallies[writeInCandidate.id] = {
+          option: writeInCandidate,
+          tally: candidateTally.writeIns,
+        }
+      }
+      return [
+        {
+          contest,
+          tallies: candidateTallies,
+          metadata: {
+            undervotes: candidateTally.undervotes,
+            overvotes: candidateTally.overvotes,
+            ballots: candidateTally.ballotsCast,
+          },
+        },
+      ]
+    }
+    case 'ms-either-neither': {
+      const eitherNeitherTally =
+        serializedContest as SerializedMsEitherNeitherTally
+      const newYesNoContests = expandEitherNeitherContests([contest])
+      return newYesNoContests.map((yesno: CandidateContest | YesNoContest) => {
+        assert(yesno.type === 'yesno')
+        return yesno.id === contest.eitherNeitherContestId
+          ? ({
+              contest: yesno,
+              tallies: {
+                yes: {
+                  option: ['yes'],
+                  tally: eitherNeitherTally.eitherOption,
+                },
+                no: {
+                  option: ['no'],
+                  tally: eitherNeitherTally.neitherOption,
+                },
+              },
+              metadata: {
+                undervotes: eitherNeitherTally.eitherNeitherUndervotes,
+                overvotes: eitherNeitherTally.eitherNeitherOvervotes,
+                ballots: eitherNeitherTally.ballotsCast,
+              },
+            } as ContestTally)
+          : ({
+              contest: yesno,
+              tallies: {
+                yes: {
+                  option: ['yes'],
+                  tally: eitherNeitherTally.firstOption,
+                },
+                no: {
+                  option: ['no'],
+                  tally: eitherNeitherTally.secondOption,
+                },
+              },
+              metadata: {
+                undervotes: eitherNeitherTally.pickOneUndervotes,
+                overvotes: eitherNeitherTally.pickOneOvervotes,
+                ballots: eitherNeitherTally.ballotsCast,
+              },
+            } as ContestTally)
+      })
+    }
+    default:
+      throwIllegalValue(contest, 'type')
+  }
+}
+
+export const readSerializedTally = (
+  election: Election,
+  serializedTally: SerializedTally,
+  totalBallotCount: number,
+  ballotCountsByVotingMethod: Dictionary<number>
+): Tally => {
+  const contestTallies: Dictionary<ContestTally> = {}
+  election.contests.forEach((contest, contestIdx) => {
+    const serializedContestTally = serializedTally[contestIdx]
+    assert(serializedContestTally)
+    const tallies = getContestTalliesForSerializedContest(
+      contest,
+      serializedContestTally
+    )
+    tallies.forEach((tally) => {
+      contestTallies[tally.contest.id] = tally
+    })
+  })
+  return {
+    numberOfBallotsCounted: totalBallotCount,
+    castVoteRecords: new Set(),
+    contestTallies,
+    ballotCountsByVotingMethod,
+  }
 }

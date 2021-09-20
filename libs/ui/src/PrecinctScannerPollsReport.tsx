@@ -81,7 +81,7 @@ interface Props {
   election: Election
   isLiveMode: boolean
   isPollsOpen: boolean
-  machineId: string
+  machineId?: string
   machineMetadata?: readonly CardTallyMetadataEntry[]
   precinctSelection: PrecinctSelection
   reportPurpose: string
