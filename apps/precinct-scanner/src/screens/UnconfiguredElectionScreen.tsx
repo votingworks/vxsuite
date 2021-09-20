@@ -65,16 +65,13 @@ const UnconfiguredElectionScreen = ({
           (f) => f.type === 1 && f.name.endsWith('.zip')
         )
 
-        // If there is more then one ballot package in the folder, fail.
-        if (ballotPackages.length < 1) {
+        if (ballotPackages.length === 0) {
           throw new Error('No ballot package found on the inserted USB drive.')
-        } else if (ballotPackages.length > 1) {
-          throw new Error(
-            'More than one ballot package found on the inserted USB drive, make sure only one is present.'
-          )
         }
+
+        // Get the most recently-created ballot package.
         const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
-          ballotPackages[0]
+          [...ballotPackages].sort((a, b) => +b.ctime - +a.ctime)[0]
         )
         addTemplates(ballotPackage)
           .on('configuring', () => {

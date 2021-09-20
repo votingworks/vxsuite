@@ -151,19 +151,28 @@ test('app can load and configure from a usb stick', async () => {
   )
   kiosk.getFileSystemEntries.mockResolvedValue([
     {
-      name: 'ballot-package.zip',
+      name: 'ballot-package-old.zip',
       path: pathToFile,
       type: 1,
       size: 1,
       atime: new Date(),
-      ctime: new Date(),
+      ctime: new Date(2021, 0, 1),
+      mtime: new Date(),
+    },
+    {
+      name: 'ballot-package-new.zip',
+      path: pathToFile,
+      type: 1,
+      size: 1,
+      atime: new Date(),
+      ctime: new Date(2021, 10, 9),
       mtime: new Date(),
     },
   ])
   const fileContent = await fs.readFile(pathToFile)
   kiosk.readFile.mockResolvedValue((fileContent as unknown) as string)
   const ballotPackage = await ballotPackageUtils.readBallotPackageFromFile(
-    new File([fileContent], 'ballot-package.zip')
+    new File([fileContent], 'ballot-package-new.zip')
   )
   /* This function can take too long when the test is running for the results to be seen in time for the
    * test to pass consistently. By running it above and mocking out the result we guarantee the test will
@@ -207,6 +216,14 @@ test('app can load and configure from a usb stick', async () => {
   )
   expect(fetchMock.calls('/scan/hmpb/addTemplates')).toHaveLength(16)
   expect(fetchMock.calls('/scan/hmpb/doneTemplates')).toHaveLength(1)
+
+  expect(
+    ballotPackageUtils.readBallotPackageFromFilePointer
+  ).toHaveBeenCalledWith(
+    expect.objectContaining({
+      name: 'ballot-package-new.zip',
+    })
+  )
 })
 
 test('admin and pollworker configuration', async () => {
