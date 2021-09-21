@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Click all pad buttons 1`] = `
+exports[`snapshot 1`] = `
 <div
   class="sc-eCImvq htBhMB"
   tabindex="0"
@@ -63,7 +63,29 @@ exports[`Click all pad buttons 1`] = `
     class="sc-gsDJrp dmKzwC"
     type="button"
   >
+    <span
+      aria-label="clear"
+      role="img"
+    >
+      ✖
+    </span>
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
     0
+  </button>
+  <button
+    class="sc-gsDJrp dmKzwC"
+    type="button"
+  >
+    <span
+      aria-label="backspace"
+      role="img"
+    >
+      ⌫
+    </span>
   </button>
 </div>
 `;

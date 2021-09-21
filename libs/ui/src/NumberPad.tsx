@@ -13,39 +13,88 @@ export const NumberPadContainer = styled.div`
 `
 
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-interface NumberPadProps {
-  onButtonPress: (buttonValue: string) => void
+export interface NumberPadProps {
+  onButtonPress: (buttonValue: number) => void
+  onBackspace: () => void
+  onClear: () => void
 }
 
-export const NumberPad = ({ onButtonPress }: NumberPadProps): JSX.Element => {
+export const NumberPad = ({
+  onButtonPress,
+  onBackspace,
+  onClear,
+}: NumberPadProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null)
-  const onKeyPress = useCallback(
-    (event: React.KeyboardEvent) => {
+  const onKeyPress: React.KeyboardEventHandler = useCallback(
+    (event) => {
       if (DIGITS.includes(event.key)) {
-        onButtonPress(event.key)
+        onButtonPress(Number(event.key))
+      } else if (event.key === 'x') {
+        onClear()
       }
     },
-    [onButtonPress]
+    [onButtonPress, onClear]
+  )
+  const onKeyDown: React.KeyboardEventHandler = useCallback(
+    (event) => {
+      if (event.key === 'Backspace') {
+        onBackspace()
+      }
+    },
+    [onBackspace]
   )
 
   useEffect(() => {
-    if (container.current) {
-      container.current.focus()
-    }
-  }, [container])
+    container.current?.focus()
+  }, [])
 
   return (
-    <NumberPadContainer tabIndex={0} ref={container} onKeyPress={onKeyPress}>
-      <Button onPress={() => onButtonPress('1')}>1</Button>
-      <Button onPress={() => onButtonPress('2')}>2</Button>
-      <Button onPress={() => onButtonPress('3')}>3</Button>
-      <Button onPress={() => onButtonPress('4')}>4</Button>
-      <Button onPress={() => onButtonPress('5')}>5</Button>
-      <Button onPress={() => onButtonPress('6')}>6</Button>
-      <Button onPress={() => onButtonPress('7')}>7</Button>
-      <Button onPress={() => onButtonPress('8')}>8</Button>
-      <Button onPress={() => onButtonPress('9')}>9</Button>
-      <Button onPress={() => onButtonPress('0')}>0</Button>
+    <NumberPadContainer
+      tabIndex={0}
+      ref={container}
+      onKeyPress={onKeyPress}
+      onKeyDown={onKeyDown}
+    >
+      <Button onPress={useCallback(() => onButtonPress(1), [onButtonPress])}>
+        1
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(2), [onButtonPress])}>
+        2
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(3), [onButtonPress])}>
+        3
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(4), [onButtonPress])}>
+        4
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(5), [onButtonPress])}>
+        5
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(6), [onButtonPress])}>
+        6
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(7), [onButtonPress])}>
+        7
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(8), [onButtonPress])}>
+        8
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(9), [onButtonPress])}>
+        9
+      </Button>
+      <Button onPress={onClear}>
+        <span role="img" aria-label="clear">
+          ✖
+        </span>
+      </Button>
+      <Button onPress={useCallback(() => onButtonPress(0), [onButtonPress])}>
+        0
+      </Button>
+      <Button onPress={onBackspace}>
+        <span role="img" aria-label="backspace">
+          ⌫
+        </span>
+      </Button>
     </NumberPadContainer>
   )
 }

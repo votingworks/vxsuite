@@ -1,5 +1,5 @@
 import { fontSizeTheme, Prose, Text, NumberPad } from '@votingworks/ui'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import Screen from '../components/Screen'
 import Main, { MainChild } from '../components/Main'
@@ -33,21 +33,23 @@ export const UnlockMachineScreen = ({
 }: Props): JSX.Element => {
   const [currentPasscode, setCurrentPasscode] = useState('')
   const [showError, setShowError] = useState(false)
-  const handleNumberEntry = (passcodeNumber: string) => {
-    if (currentPasscode.length >= GLOBALS.SECURITY_PIN_LENGTH) {
-      // do nothing
-      return
-    }
-    setCurrentPasscode((prev) => prev + passcodeNumber)
-  }
+  const handleNumberEntry = useCallback((digit: number) => {
+    setCurrentPasscode((prev) =>
+      `${prev}${digit}`.slice(0, GLOBALS.SECURITY_PIN_LENGTH)
+    )
+  }, [])
+  const handleBackspace = useCallback(() => {
+    setCurrentPasscode((prev) => prev.slice(0, -1))
+  }, [])
+  const handleClear = useCallback(() => {
+    setCurrentPasscode('')
+  }, [])
 
   useEffect(() => {
     if (currentPasscode.length === GLOBALS.SECURITY_PIN_LENGTH) {
       const success = attemptToAuthenticateUser(currentPasscode)
-      if (!success) {
-        setShowError(true)
-        setCurrentPasscode('')
-      }
+      setShowError(!success)
+      setCurrentPasscode('')
     }
   }, [currentPasscode, attemptToAuthenticateUser])
 
@@ -71,7 +73,11 @@ export const UnlockMachineScreen = ({
             {primarySentence}
             <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
             <NumberPadWrapper>
-              <NumberPad onButtonPress={handleNumberEntry} />
+              <NumberPad
+                onButtonPress={handleNumberEntry}
+                onBackspace={handleBackspace}
+                onClear={handleClear}
+              />
             </NumberPadWrapper>
           </Prose>
         </MainChild>
