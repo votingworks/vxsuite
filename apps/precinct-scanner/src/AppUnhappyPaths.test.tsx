@@ -4,7 +4,6 @@ import {
   advanceTimers,
   advanceTimersAndPromises,
   fakeKiosk,
-  fakeUsbDrive,
   makeAdminCard,
   makePollWorkerCard,
   makeVoterCard,
@@ -92,12 +91,12 @@ test('module-scan fails to unconfigure', async () => {
   card.insertCard(adminCard, electionSampleDefinition.electionData)
   await advanceTimersAndPromises(1)
   await screen.findByText('Enter the card security code to unlock.')
-  await fireEvent.click(screen.getByText('1'))
-  await fireEvent.click(screen.getByText('2'))
-  await fireEvent.click(screen.getByText('3'))
-  await fireEvent.click(screen.getByText('4'))
-  await fireEvent.click(screen.getByText('5'))
-  await fireEvent.click(screen.getByText('6'))
+  fireEvent.click(screen.getByText('1'))
+  fireEvent.click(screen.getByText('2'))
+  fireEvent.click(screen.getByText('3'))
+  fireEvent.click(screen.getByText('4'))
+  fireEvent.click(screen.getByText('5'))
+  fireEvent.click(screen.getByText('6'))
   await screen.findByText('Administrator Settings')
 
   fireEvent.click(await screen.findByText('Unconfigure Machine'))
@@ -434,7 +433,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   })
   await advanceTimersAndPromises(3)
   await screen.findByText('Polls Closed')
-  expect(await screen.queryByText('No Power Detected.')).toBeNull()
+  expect(screen.queryByText('No Power Detected.')).toBeNull()
 
   // Open Polls
   const pollWorkerCard = makePollWorkerCard(
@@ -452,7 +451,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   await advanceTimersAndPromises(1)
   await screen.findByText('Insert Your Ballot Below')
   // There should be no warning about power
-  expect(await screen.queryByText('No Power Detected.')).toBeNull()
+  expect(screen.queryByText('No Power Detected.')).toBeNull()
   // Disconnect from power and check for warning
   await act(async () => {
     await hardware.setBatteryDischarging(true)
