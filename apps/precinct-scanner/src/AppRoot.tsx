@@ -728,8 +728,7 @@ const AppRoot = ({
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [card, electionDefinition]
+    [electionDefinition, machineConfig.bypassAuthentication]
   )
 
   const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
@@ -742,15 +741,7 @@ const AppRoot = ({
         dispatchAppState({ type: 'cardRemoved' })
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    !smartcard,
-    smartcard?.data,
-    smartcard?.longValueExists,
-    hasCardInserted,
-    dispatchAppState,
-  ])
+  }, [smartcard, hasCardInserted, dispatchAppState, processCard])
 
   const attemptToAuthenticateUser = useCallback(
     (passcode: string): boolean => {

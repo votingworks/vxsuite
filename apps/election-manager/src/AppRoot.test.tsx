@@ -13,6 +13,7 @@ import {
   NullPrinter,
 } from '@votingworks/utils'
 import AppRoot from './AppRoot'
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
 
 beforeEach(() => {
   fetchMock.get(/^\/convert/, {})
@@ -31,6 +32,7 @@ test('renders without crashing', async () => {
               printer={new NullPrinter()}
               hardware={new MemoryHardware()}
               card={new MemoryCard()}
+              machineConfigProvider={fakeMachineConfigProvider()}
               {...props}
             />
           )}
