@@ -35,7 +35,10 @@ export const TallyReportSummary = ({
       <h3>Ballots by Voting Method</h3>
       <Table data-testid="voting-method-table">
         <tbody>
-          {Object.keys(ballotCountsByVotingMethod).map((votingMethod) => {
+          {Object.values(VotingMethod).map((votingMethod: VotingMethod) => {
+            if (!(votingMethod in ballotCountsByVotingMethod)) {
+              return null
+            }
             // Hide the "Other" row when it does not apply to any CVRs
             if (
               votingMethod === VotingMethod.Unknown &&
@@ -45,7 +48,7 @@ export const TallyReportSummary = ({
             }
             return (
               <tr key={votingMethod} data-testid={votingMethod}>
-                <TD>{getLabelForVotingMethod(votingMethod as VotingMethod)}</TD>
+                <TD>{getLabelForVotingMethod(votingMethod)}</TD>
                 <TD textAlign="right">
                   {format.count(
                     ballotCountsByVotingMethod[votingMethod] ??
