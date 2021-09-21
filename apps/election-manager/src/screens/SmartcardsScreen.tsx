@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert'
-import React, { useContext, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 
 import { NumberPad, useCancelablePromise } from '@votingworks/ui'
 import styled from 'styled-components'
@@ -101,13 +101,19 @@ const DefinitionScreen = (): JSX.Element => {
     setIsPromptingForAdminPasscode(true)
   }
 
-  const addNumberToPin = (passcode: string) => {
-    if (currentPasscode.length >= SECURITY_PIN_LENGTH) {
-      // do nothing
-      return
-    }
-    setCurrentPasscode((prev) => prev + passcode)
-  }
+  const addNumberToPin = useCallback((digit: number) => {
+    setCurrentPasscode((prev) =>
+      prev.length >= SECURITY_PIN_LENGTH ? prev : `${prev}${digit}`
+    )
+  }, [])
+
+  const deleteFromEndOfPin = useCallback(() => {
+    setCurrentPasscode((prev) => prev.slice(0, -1))
+  }, [])
+
+  const clearPin = useCallback(() => {
+    setCurrentPasscode('')
+  }, [])
 
   // Add hyphens for any missing digits in the pin and separate all characters with a space.
   const pinDisplayString = currentPasscode
@@ -170,7 +176,11 @@ const DefinitionScreen = (): JSX.Element => {
               <h1>Create Card Security Code</h1>
               <Passcode>{pinDisplayString}</Passcode>
               <NumberPadWrapper>
-                <NumberPad onButtonPress={addNumberToPin} />
+                <NumberPad
+                  onButtonPress={addNumberToPin}
+                  onBackspace={deleteFromEndOfPin}
+                  onClear={clearPin}
+                />
               </NumberPadWrapper>
               <p>This code will be required when using the new card.</p>
             </Prose>

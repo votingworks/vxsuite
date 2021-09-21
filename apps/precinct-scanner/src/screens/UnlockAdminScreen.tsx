@@ -6,7 +6,7 @@ import {
   Main,
   MainChild,
 } from '@votingworks/ui'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { SECURITY_PIN_LENGTH } from '../config/globals'
 import { CenteredScreen } from '../components/Layout'
@@ -38,25 +38,27 @@ const UnlockAdminScreen = ({
 }: Props): JSX.Element => {
   const [currentPasscode, setCurrentPasscode] = useState('')
   const [showError, setShowError] = useState(false)
-  const handleNumberEntry = (passcodeNumber: string) => {
-    if (currentPasscode.length >= SECURITY_PIN_LENGTH) {
-      // do nothing
-      return
-    }
-    setCurrentPasscode((prev) => prev + passcodeNumber)
-  }
+  const handleNumberEntry = useCallback((digit: number) => {
+    setCurrentPasscode((prev) =>
+      `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
+    )
+  }, [])
+  const handleBackspace = useCallback(() => {
+    setCurrentPasscode((prev) => prev.slice(0, -1))
+  }, [])
+  const handleClear = useCallback(() => {
+    setCurrentPasscode('')
+  }, [])
 
   useEffect(() => {
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
       const success = attemptToAuthenticateUser(currentPasscode)
-      if (!success) {
-        setShowError(true)
-        setCurrentPasscode('')
-      }
+      setShowError(!success)
+      setCurrentPasscode('')
     }
   }, [currentPasscode, attemptToAuthenticateUser])
 
-  const currentPasscodeDisplayString = '*'
+  const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
     .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
@@ -76,7 +78,11 @@ const UnlockAdminScreen = ({
             {primarySentence}
             <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
             <NumberPadWrapper>
-              <NumberPad onButtonPress={handleNumberEntry} />
+              <NumberPad
+                onButtonPress={handleNumberEntry}
+                onBackspace={handleBackspace}
+                onClear={handleClear}
+              />
             </NumberPadWrapper>
           </Prose>
         </MainChild>
@@ -91,9 +97,7 @@ export default UnlockAdminScreen
 export const DefaultPreview = (): JSX.Element => {
   return (
     <UnlockAdminScreen
-      attemptToAuthenticateUser={(passcode: string) => {
-        return passcode === '000000'
-      }}
+      attemptToAuthenticateUser={(passcode) => passcode === '000000'}
     />
   )
 }

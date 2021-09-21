@@ -7,7 +7,7 @@ import {
   Prose,
   Text,
 } from '@votingworks/ui'
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import Screen from '../components/Screen'
 import StatusFooter from '../components/StatusFooter'
@@ -39,35 +39,34 @@ export const UnlockMachineScreen = (): JSX.Element => {
   // This is temporary while we improve the bootstrapping process. If PI is entered
   // and that does not unlock the machine, show a button to allow for resetting the machine.
   const [showFactoryReset, setShowFactoryReset] = useState(false)
-  const handleNumberEntry = (passcodeNumber: string) => {
-    if (currentPasscode.length >= SECURITY_PIN_LENGTH) {
-      // do nothing
-      return
-    }
-    setCurrentPasscode((prev) => prev + passcodeNumber)
-  }
+  const handleNumberEntry = useCallback((digit: number) => {
+    setCurrentPasscode((prev) =>
+      `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
+    )
+  }, [])
+  const handleBackspace = useCallback(() => {
+    setCurrentPasscode((prev) => prev.slice(0, -1))
+  }, [])
+  const handleClear = useCallback(() => {
+    setCurrentPasscode('')
+  }, [])
 
   useEffect(() => {
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
       const success = attemptToAuthenticateUser(currentPasscode)
-      if (!success) {
-        setShowFactoryReset(false)
-        setShowError(true)
-        // This is temporary while we improve the bootstrapping process. If PI is entered
-        // and that does not unlock the machine, show a button to allow for resetting the machine.
-        if (currentPasscode === '314159') {
-          setShowFactoryReset(true)
-        }
-        setCurrentPasscode('')
-      }
+      // This is temporary while we improve the bootstrapping process. If PI is entered
+      // and that does not unlock the machine, show a button to allow for resetting the machine.
+      setShowFactoryReset(currentPasscode === '314159')
+      setShowError(!success)
+      setCurrentPasscode('')
     }
   }, [currentPasscode, attemptToAuthenticateUser])
 
-  const resetMachine = async () => {
+  const resetMachine = useCallback(async () => {
     await saveElection(undefined)
-  }
+  }, [saveElection])
 
-  const currentPasscodeDisplayString = '*'
+  const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
     .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
@@ -93,7 +92,11 @@ export const UnlockMachineScreen = (): JSX.Element => {
             {primarySentence}
             <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
             <NumberPadWrapper>
-              <NumberPad onButtonPress={handleNumberEntry} />
+              <NumberPad
+                onButtonPress={handleNumberEntry}
+                onBackspace={handleBackspace}
+                onClear={handleClear}
+              />
             </NumberPadWrapper>
           </Prose>
         </MainChild>
