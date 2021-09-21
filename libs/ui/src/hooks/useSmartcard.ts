@@ -8,7 +8,7 @@ import {
   safeParseJSON,
 } from '@votingworks/types'
 import { Card, Hardware, isCardReader } from '@votingworks/utils'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { map } from 'rxjs/operators'
 import useInterval from 'use-interval'
 import { useCancelablePromise } from './useCancelablePromise'
@@ -68,7 +68,7 @@ const initialState: State = {
  *    } else {
  *      console.log('No smartcard')
  *    }
- * }, [hasCardReader, smartcard.data, smartcard.longValueExists])
+ * }, [smartcard, hasCardReader])
  */
 export const useSmartcard = ({
   card,
@@ -101,8 +101,7 @@ export const useSmartcard = ({
     } catch (error) {
       return err(error)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card, makeCancelable, isWriting])
+  }, [card, makeCancelable])
 
   const readLongString = useCallback(async (): Promise<
     Result<Optional<string>, Error>
@@ -112,8 +111,7 @@ export const useSmartcard = ({
     } catch (error) {
       return err(error)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card, makeCancelable, isWriting])
+  }, [card, makeCancelable])
 
   const writeShortValue = useCallback(
     async (value: string): Promise<Result<void, Error>> => {
@@ -127,8 +125,7 @@ export const useSmartcard = ({
         setState((prev) => ({ ...prev, isWriting: false }))
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [card, makeCancelable, isWriting]
+    [set, makeCancelable, card]
   )
 
   const writeLongValue = useCallback(
@@ -147,8 +144,7 @@ export const useSmartcard = ({
         set({ isWriting: false })
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [card, makeCancelable, isWriting]
+    [set, makeCancelable, card]
   )
 
   useEffect(() => {
@@ -160,8 +156,7 @@ export const useSmartcard = ({
     return () => {
       hardwareStatusSubscription.unsubscribe()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hardware])
+  }, [hardware, set])
 
   useInterval(
     async () => {
@@ -207,17 +202,31 @@ export const useSmartcard = ({
     true
   )
 
-  return [
-    isCardPresent
-      ? {
-          data: cardData,
-          longValueExists,
-          readLongUint8Array,
-          readLongString,
-          writeShortValue,
-          writeLongValue,
-        }
-      : undefined,
-    hasCardReaderAttached,
-  ]
+  const result = useMemo<UseSmartcardResult>(
+    () => [
+      isCardPresent
+        ? {
+            data: cardData,
+            longValueExists,
+            readLongUint8Array,
+            readLongString,
+            writeShortValue,
+            writeLongValue,
+          }
+        : undefined,
+      hasCardReaderAttached,
+    ],
+    [
+      isCardPresent,
+      cardData,
+      longValueExists,
+      readLongUint8Array,
+      readLongString,
+      writeShortValue,
+      writeLongValue,
+      hasCardReaderAttached,
+    ]
+  )
+
+  return result
 }
