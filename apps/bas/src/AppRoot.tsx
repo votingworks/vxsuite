@@ -122,8 +122,7 @@ const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
     const longValue = (await smartcard?.readLongString())?.unsafeUnwrap()
     setElection(safeParseElection(longValue).unsafeUnwrap())
     setIsLoadingElection(false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!smartcard])
+  }, [setElection, smartcard])
 
   const lockScreen = useCallback(() => {
     setIsLocked(true)
@@ -146,8 +145,7 @@ const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
         setIsReadyToRemove(false)
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!smartcard])
+  }, [smartcard])
 
   const programCard: EventTargetFunction = useCallback(
     async (event) => {
@@ -182,8 +180,7 @@ const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
         setIsReadyToRemove(true)
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [makeCancelable, reset, !smartcard, precinctId]
+    [precinctId, smartcard, makeCancelable, reset]
   )
 
   if (isAdminCardPresent) {

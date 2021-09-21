@@ -24,7 +24,6 @@ import {
   Hardware,
 } from '@votingworks/utils'
 import { useSmartcard, useUsbDrive } from '@votingworks/ui'
-import { machineConfigProvider as machineConfigProviderFn } from './utils/machineConfig'
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -66,7 +65,7 @@ export interface Props extends RouteComponentProps {
   printer: Printer
   hardware: Hardware
   card: Card
-  machineConfigProvider?: Provider<MachineConfig>
+  machineConfigProvider: Provider<MachineConfig>
 }
 
 export const electionDefinitionStorageKey = 'electionDefinition'
@@ -81,7 +80,7 @@ const AppRoot = ({
   printer,
   card,
   hardware,
-  machineConfigProvider = machineConfigProviderFn,
+  machineConfigProvider,
 }: Props): JSX.Element => {
   const printBallotRef = useRef<HTMLDivElement>(null)
 
@@ -100,15 +99,26 @@ const AppRoot = ({
     }
   }, [storage])
 
-  const getCVRFiles = async (): Promise<string | undefined> =>
-    // TODO: validate this with zod schema
-    (await storage.get(cvrsStorageKey)) as string | undefined
-  const getExternalElectionTallies = async (): Promise<string | undefined> =>
-    // TODO: validate this with zod schema
-    (await storage.get(externalVoteTalliesFileStorageKey)) as string | undefined
-  const getIsOfficialResults = async (): Promise<boolean | undefined> =>
-    // TODO: validate this with zod schema
-    (await storage.get(isOfficialResultsKey)) as boolean | undefined
+  const getCVRFiles = useCallback(
+    async (): Promise<string | undefined> =>
+      // TODO: validate this with zod schema
+      (await storage.get(cvrsStorageKey)) as string | undefined,
+    [storage]
+  )
+  const getExternalElectionTallies = useCallback(
+    async (): Promise<string | undefined> =>
+      // TODO: validate this with zod schema
+      (await storage.get(externalVoteTalliesFileStorageKey)) as
+        | string
+        | undefined,
+    [storage]
+  )
+  const getIsOfficialResults = useCallback(
+    async (): Promise<boolean | undefined> =>
+      // TODO: validate this with zod schema
+      (await storage.get(isOfficialResultsKey)) as boolean | undefined,
+    [storage]
+  )
 
   const [
     electionDefinition,
@@ -163,43 +173,51 @@ const AppRoot = ({
   const [smartcard] = useSmartcard({ card, hardware })
   useEffect(() => {
     void (async () => {
-      if (machineConfig.bypassAuthentication && !currentUserSession) {
-        setCurrentUserSession({
-          type: 'admin',
-          authenticated: true,
-        })
-      } else if (smartcard) {
-        if (!currentUserSession?.authenticated && smartcard.data?.t) {
-          setCurrentUserSession({
-            type: smartcard.data.t,
-            authenticated: false,
-          })
+      setCurrentUserSession((prev) => {
+        if (machineConfig.bypassAuthentication && !prev) {
+          return {
+            type: 'admin',
+            authenticated: true,
+          }
         }
-      } else if (currentUserSession && !currentUserSession.authenticated) {
-        // If a card is removed when there is not an authenticated session, clear the session.
-        setCurrentUserSession(undefined)
-      }
+
+        if (smartcard) {
+          if (!prev?.authenticated && smartcard.data?.t) {
+            return {
+              type: smartcard.data.t,
+              authenticated: false,
+            }
+          }
+        } else if (prev && !prev.authenticated) {
+          // If a card is removed when there is not an authenticated session, clear the session.
+          return undefined
+        }
+
+        return prev
+      })
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!smartcard, smartcard?.data, smartcard?.longValueExists, machineConfig])
+  }, [machineConfig, smartcard])
 
   const attemptToAuthenticateUser = useCallback(
     (passcode: string): boolean => {
+      let isAdminCard = false
+      let passcodeMatches = false
+
       // The card must be an admin card to authenticate
-      if (smartcard?.data?.t !== 'admin') {
-        return false
+      if (smartcard?.data?.t === 'admin') {
+        isAdminCard = true
+        // There must be an expected passcode on the card to authenticate.
+        if (typeof smartcard.data.p === 'string') {
+          passcodeMatches = passcode === smartcard.data.p
+        }
       }
-      // There must be an expected passcode on the card to authenticate.
-      if (!smartcard?.data.p) {
-        return false
-      }
-      if (passcode === smartcard.data.p) {
-        setCurrentUserSession((prev) => {
-          return prev ? { ...prev, authenticated: true } : undefined
-        })
-        return true
-      }
-      return false
+
+      setCurrentUserSession(
+        isAdminCard
+          ? { type: 'admin', authenticated: passcodeMatches }
+          : undefined
+      )
+      return isAdminCard && passcodeMatches
     },
     [smartcard]
   )
@@ -208,20 +226,20 @@ const AppRoot = ({
     if (!machineConfig.bypassAuthentication) {
       setCurrentUserSession(undefined)
     }
-  }, [machineConfig])
+  }, [machineConfig.bypassAuthentication])
 
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined
   >(undefined)
 
-  const getPrintedBallots = async (): Promise<PrintedBallot[]> => {
+  const getPrintedBallots = useCallback(async (): Promise<PrintedBallot[]> => {
     // TODO: validate this with zod schema
     return (
       ((await storage.get(printedBallotsStorageKey)) as
         | PrintedBallot[]
         | undefined) || []
     )
-  }
+  }, [storage])
 
   const savePrintedBallots = async (printedBallotsToStore: PrintedBallot[]) => {
     return await storage.set(printedBallotsStorageKey, printedBallotsToStore)
@@ -240,7 +258,7 @@ const AppRoot = ({
         setPrintedBallots(await getPrintedBallots())
       }
     })()
-  })
+  }, [getPrintedBallots, printedBallots])
 
   useEffect(() => {
     void (async () => {
@@ -278,7 +296,16 @@ const AppRoot = ({
         }
       }
     })()
-  })
+  }, [
+    castVoteRecordFiles,
+    electionDefinition,
+    fullElectionExternalTallies.length,
+    getCVRFiles,
+    getElectionDefinition,
+    getExternalElectionTallies,
+    getIsOfficialResults,
+    storage,
+  ])
 
   const computeVoteCounts = useCallback(
     (castVoteRecords: CastVoteRecordLists) => {

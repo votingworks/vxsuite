@@ -88,52 +88,58 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     machineId: '0000',
     bypassAuthentication: false,
   })
-  const [currentUserSession, setCurrentUserSession] = useState<
-    Optional<UserSession>
-  >()
+  const [currentUserSession, setCurrentUserSession] = useState<UserSession>()
 
   const usbDrive = useUsbDrive()
 
   const [smartcard] = useSmartcard({ card, hardware })
   useEffect(() => {
     void (async () => {
-      if (machineConfig.bypassAuthentication && !currentUserSession) {
-        setCurrentUserSession({
-          type: 'admin',
-          authenticated: true,
-        })
-      } else if (smartcard) {
-        if (!currentUserSession?.authenticated && smartcard.data?.t) {
-          setCurrentUserSession({
-            type: smartcard.data.t,
-            authenticated: false,
-          })
+      setCurrentUserSession((prev) => {
+        if (machineConfig.bypassAuthentication && !prev) {
+          return {
+            type: 'admin',
+            authenticated: true,
+          }
         }
-      } else if (currentUserSession && !currentUserSession.authenticated) {
-        // If a card is removed when there is not an authenticated session, clear the session.
-        setCurrentUserSession(undefined)
-      }
+
+        if (smartcard) {
+          if (!prev?.authenticated && smartcard.data?.t) {
+            return {
+              type: smartcard.data.t,
+              authenticated: false,
+            }
+          }
+        } else if (prev && !prev.authenticated) {
+          // If a card is removed when there is not an authenticated session, clear the session.
+          return undefined
+        }
+
+        return prev
+      })
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!smartcard, smartcard?.data, smartcard?.longValueExists, machineConfig])
+  }, [machineConfig, smartcard])
 
   const attemptToAuthenticateUser = useCallback(
     (passcode: string): boolean => {
+      let isAdminCard = false
+      let passcodeMatches = false
+
       // The card must be an admin card to authenticate
-      if (smartcard?.data?.t !== 'admin') {
-        return false
+      if (smartcard?.data?.t === 'admin') {
+        isAdminCard = true
+        // There must be an expected passcode on the card to authenticate.
+        if (typeof smartcard.data.p === 'string') {
+          passcodeMatches = passcode === smartcard.data.p
+        }
       }
-      // There must be an expected passcode on the card to authenticate.
-      if (!smartcard?.data.p) {
-        return false
-      }
-      if (passcode === smartcard.data.p) {
-        setCurrentUserSession((prev) => {
-          return prev ? { ...prev, authenticated: true } : undefined
-        })
-        return true
-      }
-      return false
+
+      setCurrentUserSession(
+        isAdminCard
+          ? { type: 'admin', authenticated: passcodeMatches }
+          : undefined
+      )
+      return isAdminCard && passcodeMatches
     },
     [smartcard]
   )
@@ -142,7 +148,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     if (!machineConfig.bypassAuthentication) {
       setCurrentUserSession(undefined)
     }
-  }, [machineConfig])
+  }, [machineConfig.bypassAuthentication])
 
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
