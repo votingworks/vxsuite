@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { z } from 'zod'
+import { useCancelablePromise } from './useCancelablePromise'
 
 /**
  * Store a value in `storage` by `key`, validating it using `schema` without
@@ -34,30 +35,33 @@ export function useStoredState<S>(
   schema: z.ZodSchema<S>,
   initialValue?: S
 ): [Optional<S>, Dispatch<SetStateAction<Optional<S>>>] {
-  const [item, setInnerValue] = useState<Optional<S>>(initialValue)
+  const [innerValue, setInnerValue] = useState<Optional<S>>(initialValue)
+  const makeCancelable = useCancelablePromise()
 
   useEffect(() => {
     void (async () => {
-      const valueItem = await storage.get(key)
-      if (typeof valueItem !== 'undefined') {
-        setInnerValue(safeParse(schema, valueItem).unsafeUnwrap())
-      }
+      const valueItem = await makeCancelable(storage.get(key))
+      setInnerValue((prev) =>
+        typeof valueItem !== 'undefined'
+          ? safeParse(schema, valueItem).unsafeUnwrap()
+          : prev
+      )
     })()
-  }, [key, schema, storage])
+  }, [key, makeCancelable, schema, storage])
 
   const setValue = useCallback(
-    (value: SetStateAction<Optional<S>>): SetStateAction<Optional<S>> => {
-      const valueToStore = value instanceof Function ? value(item) : value
-      setInnerValue(valueToStore)
-      if (valueToStore) {
-        void storage.set(key, valueToStore)
-      } else {
-        void storage.remove(key)
-      }
-      return value
-    },
-    [item, key, storage]
+    (value: SetStateAction<Optional<S>>): void =>
+      setInnerValue((prev) => {
+        const valueToStore = value instanceof Function ? value(prev) : value
+        if (typeof valueToStore !== 'undefined') {
+          void storage.set(key, valueToStore)
+        } else {
+          void storage.remove(key)
+        }
+        return valueToStore
+      }),
+    [key, storage]
   )
 
-  return [item, setValue]
+  return [innerValue, setValue]
 }
