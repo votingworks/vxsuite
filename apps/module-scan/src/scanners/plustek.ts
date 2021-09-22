@@ -17,7 +17,7 @@ const debug = makeDebug('module-scan:scanner')
 
 export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>
 
-const SCANNER_RETRY_DURATION_SECONDS = 2
+const SCANNER_RETRY_DURATION_SECONDS = 5
 const NANOSECONDS_PER_SECOND = BigInt(1_000_000_000)
 
 function retryFor({ seconds }: { seconds: number }): () => boolean {
