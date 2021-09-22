@@ -35,7 +35,7 @@ export const TallyReportSummary = ({
       <h3>Ballots by Voting Method</h3>
       <Table data-testid="voting-method-table">
         <tbody>
-          {Object.values(VotingMethod).map((votingMethod: VotingMethod) => {
+          {Object.values(VotingMethod).map((votingMethod) => {
             if (!(votingMethod in ballotCountsByVotingMethod)) {
               return null
             }
