@@ -10,7 +10,6 @@ import {
   makeAdminCard,
   makeVoterCard,
   makePollWorkerCard,
-  mockOf,
 } from '@votingworks/test-utils'
 import { BallotType } from '@votingworks/types'
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
@@ -32,7 +31,6 @@ import withMarkup from '../test/helpers/withMarkup'
 import * as GLOBALS from './config/globals'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxPrintOnly } from './config/types'
 
 beforeEach(() => {
@@ -114,13 +112,7 @@ test('VxPrintOnly flow', async () => {
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
-  screen.getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Opened report for Center Springfield')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Close Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -154,13 +146,7 @@ test('VxPrintOnly flow', async () => {
 
   // Open Polls with Poll Worker Card
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
-  screen.getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Opened report for Center Springfield')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Close Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
@@ -249,7 +235,7 @@ test('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(3)
+  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -285,7 +271,7 @@ test('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(4)
+  expect(printer.print).toHaveBeenCalledTimes(2)
 
   // Remove card
   card.removeCard()
@@ -318,7 +304,7 @@ test('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(5)
+  expect(printer.print).toHaveBeenCalledTimes(3)
 
   // Remove card
   card.removeCard()
@@ -351,7 +337,7 @@ test('VxPrintOnly flow', async () => {
   // After timeout, show Verify and Cast Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Verify and Cast Your Printed Ballot')
-  expect(printer.print).toHaveBeenCalledTimes(6)
+  expect(printer.print).toHaveBeenCalledTimes(4)
 
   // Remove card
   card.removeCard()
@@ -368,52 +354,9 @@ test('VxPrintOnly flow', async () => {
   await advanceTimersAndPromises()
   screen.getByText('Close Polls for Center Springfield')
 
-  // Check for Report Details
-  expect(getAllByTextWithMarkup('Ballots printed count: 4').length).toBe(2)
-  expect(getAllByTextWithMarkup('Edward Shiplett').length).toBe(2)
-
-  expect(
-    screen.getAllByText('Edward Shiplett')[0].nextSibling!.textContent
-  ).toBe('3')
-  expect(
-    screen.getAllByText('Rhadka Ramachandrani')[0].nextSibling!.textContent
-  ).toBe('1')
-  expect(screen.getAllByText('Laila Shamsi')[0].nextSibling!.textContent).toBe(
-    '2'
-  )
-  expect(
-    screen.getAllByText('Marty Talarico')[0].nextSibling!.textContent
-  ).toBe('1')
-
-  expect(
-    screen.getAllByText(
-      'State of Hamilton, Question B: Separation of Powers'
-    )[0].nextSibling!.textContent
-  ).toBe('Yes2No1')
-  expect(
-    screen.getAllByText(
-      'Hamilton Court of Appeals, Retain Robert Demergue as Chief Justice?'
-    )[0].nextSibling!.textContent
-  ).toBe('Yes2No1')
-  expect(
-    screen.getAllByText(
-      'Franklin County, Measure 666: The Question No One Gets To'
-    )[0].nextSibling!.textContent
-  ).toBe('YesXNoX')
-  expect(
-    screen.getAllByText('Franklin County, Head of Constitution Party')[0]
-      .nextSibling!.textContent
-  ).toBe('Alice JonesXBob SmithX')
-
   // Close Polls
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'))
-  screen.getByText('Close Polls and print Polls Closed report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Closed report for Center Springfield')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Open Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(7)
 
   // Remove card
   card.removeCard()
@@ -481,19 +424,10 @@ test('VxPrint retains app mode when unconfigured', async () => {
 
   // Open Polls with Poll Worker Card
   async function openPolls(): Promise<void> {
-    const currentPrintCallCount = mockOf(printer.print).mock.calls.length
-
     card.insertCard(pollWorkerCard)
     await advanceTimersAndPromises()
     fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
-    await advanceTimersAndPromises()
-    screen.getByText('Open polls and print Polls Opened report?')
-    fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-    await advanceTimersAndPromises()
-    screen.getByText('Printing Polls Opened report for Center Springfield')
-    await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
     screen.getByText('Close Polls for Center Springfield')
-    expect(printer.print).toHaveBeenCalledTimes(currentPrintCallCount + 1)
 
     // Remove card
     card.removeCard()

@@ -8,11 +8,11 @@ import {
   makePollWorkerCard,
 } from '@votingworks/test-utils'
 import {
-  getZeroTally,
-  TallySourceMachineType,
   MemoryStorage,
   MemoryCard,
   MemoryHardware,
+  getZeroTally,
+  TallySourceMachineType,
 } from '@votingworks/utils'
 import * as GLOBALS from './config/globals'
 
@@ -34,12 +34,11 @@ import {
   measure102Contest,
   measure420Contest,
   voterContests,
-  election,
 } from '../test/helpers/election'
 import fakePrinter from '../test/helpers/fakePrinter'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 import { VxMarkPlusVxPrint } from './config/types'
+import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals'
 
 beforeEach(() => {
   window.location.href = '/'
@@ -139,15 +138,7 @@ it('VxMark+Print end-to-end flow', async () => {
   await advanceTimersAndPromises()
   screen.queryByText(`Election ID: ${expectedElectionHash}`)
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Cancel'))
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'))
-  screen.getByText('Open polls and print Polls Opened report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Opened report for Center Springfield')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Close Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -325,7 +316,7 @@ it('VxMark+Print end-to-end flow', async () => {
   screen.getByText('3. Return the card to a poll worker.')
 
   // Check that ballots printed count is correct
-  expect(printer.print).toHaveBeenCalledTimes(2)
+  expect(printer.print).toHaveBeenCalledTimes(1)
 
   // Remove card
   card.removeCard()
@@ -351,53 +342,44 @@ it('VxMark+Print end-to-end flow', async () => {
   card.insertCard(pollWorkerCard)
   await advanceTimersAndPromises()
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'))
-  screen.getByText('Close Polls and print Polls Closed report?')
-  fireEvent.click(within(screen.getByTestId('modal')).getByText('Yes'))
-  await advanceTimersAndPromises()
-  screen.getByText('Printing Polls Closed report for Center Springfield')
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
   screen.getByText('Open Polls for Center Springfield')
-  expect(printer.print).toHaveBeenCalledTimes(3)
-
-  // Save tally to card to accumulate results with other machines
-  fireEvent.click(screen.getByText('Save to Card'))
-  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4)
-  await advanceTimersAndPromises()
-  expect(screen.queryByText('Save to Card')).toBeNull()
-
-  fireEvent.click(screen.getByText('Print Combined Report for 1 Machine'))
-  fireEvent.click(screen.getByText('Print Report'))
-  expect(printer.print).toHaveBeenCalledTimes(4)
-  await advanceTimersAndPromises()
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
-
-  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(5)
-  screen.getByText('Save to Card')
 
   // Remove card
   card.removeCard()
   await advanceTimersAndPromises()
   screen.getByText('Insert Poll Worker card to open.')
 
-  // Insert a pollworker card with tally data on it.
+  // Insert pollworker card with precinct scanner tally
   card.insertCard(
     pollWorkerCard,
     JSON.stringify({
-      tally: getZeroTally(election),
-      tallyMachineType: TallySourceMachineType.BMD,
+      tally: getZeroTally(electionDefinition.election),
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       metadata: [
         {
-          machineId: '002',
+          machineId: '0002',
           timeSaved: new Date('2020-10-31').getTime(),
-          ballotCount: 3,
+          ballotCount: 10,
         },
       ],
-      totalBallotsPrinted: 10,
+      totalBallotsScanned: 10,
+      isLiveMode: true,
+      isPollsOpen: false,
+      absenteeBallots: 5,
+      precinctBallots: 5,
     })
   )
+  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3)
   await advanceTimersAndPromises()
-  screen.getByText('Open Polls for Center Springfield')
-  screen.getByText('Print Combined Report for 2 Machines')
+  await screen.findByText('Tally Report on Card')
+  await fireEvent.click(screen.getByText('Print Tally Report'))
+  await advanceTimersAndPromises()
+  screen.getByText('Printing tally report')
+  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS)
+  expect(printer.print).toHaveBeenCalledTimes(2)
+
+  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4)
+  expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(4, new Uint8Array())
 
   // ---------------
 

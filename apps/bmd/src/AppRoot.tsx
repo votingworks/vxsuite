@@ -696,14 +696,6 @@ const AppRoot = ({
     })
   }, [card])
 
-  const saveTallyToCard = useCallback(
-    async (cardTally: CardTally) => {
-      await card.writeLongObject(cardTally)
-      await resetPollWorkerCardTally()
-    },
-    [card, resetPollWorkerCardTally]
-  )
-
   const fetchElection = useCallback(async () => {
     const electionData = await card.readLongString()
     /* istanbul ignore else */
@@ -1285,7 +1277,6 @@ const AppRoot = ({
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
-          ballotsPrintedCount={ballotsPrintedCount}
           cardlessVoterSessionPrecinctId={precinctId}
           cardlessVoterSessionBallotStyleId={ballotStyleId}
           electionDefinition={optionalElectionDefinition}
@@ -1294,9 +1285,7 @@ const AppRoot = ({
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}
           printer={printer}
-          tally={tally}
           togglePollsOpen={togglePollsOpen}
-          saveTallyToCard={saveTallyToCard}
           talliesOnCard={talliesOnCard}
           clearTalliesOnCard={clearTalliesOnCard}
           hasVotes={!!votes}

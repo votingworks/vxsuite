@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, within, screen } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import {
   electionSample,
   electionSampleDefinition as election,
@@ -225,9 +225,6 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   // Land on pollworker screen
   screen.getByText('Open/Close Polls')
 
-  // Check that tally combination screen loads in the empty tally data state
-  const tableRows = screen.getAllByTestId('tally-machine-row')
-  expect(tableRows.length).toBe(1)
-  within(tableRows[0]).getByText('000 (current machine)')
-  within(tableRows[0]).getByText('Save to Card')
+  // No prompt to print precinct tally report
+  expect(await screen.queryAllByText('Tally Report on Card')).toHaveLength(0)
 })

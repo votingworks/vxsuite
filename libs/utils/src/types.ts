@@ -116,6 +116,8 @@ export interface PrecinctScannerCardTally {
   readonly totalBallotsScanned: number
   readonly isLiveMode: boolean
   readonly isPollsOpen: boolean
+  readonly absenteeBallots: number
+  readonly precinctBallots: number
 }
 export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTally> =
   z.object({
@@ -128,6 +130,8 @@ export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTall
     totalBallotsScanned: z.number(),
     isLiveMode: z.boolean(),
     isPollsOpen: z.boolean(),
+    absenteeBallots: z.number(),
+    precinctBallots: z.number(),
   })
 
 export type CardTally = BMDCardTally | PrecinctScannerCardTally
