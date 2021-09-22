@@ -37,7 +37,11 @@ export interface ScannerClient {
     timeout?: number
     interval?: number
   }): Promise<GetPaperStatusResult | undefined>
-  scan(): Promise<ScanResult>
+  scan(options?: {
+    onScanAttemptStart?(attempt: number): void
+    onScanAttemptEnd?(attempt: number, result: ScanResult): void
+    shouldRetry?(result: ScanResult): boolean
+  }): Promise<ScanResult>
   accept(): Promise<AcceptResult>
   reject(options: { hold: boolean }): Promise<RejectResult>
   calibrate(): Promise<CalibrateResult>
@@ -229,7 +233,7 @@ export async function createClient(
         resolve(err(new Error(`invalid response: ${line}`))),
     })
 
-  return ok({
+  const client: ScannerClient = {
     isConnected: () => connected,
 
     getPaperStatus,
@@ -251,23 +255,60 @@ export async function createClient(
       return result
     },
 
-    scan: () => {
-      const files: string[] = []
-      return doIPC('scan', {
-        data: (data, resolve) => {
-          const match = data.match(/^file=(.+)$/)
+    scan: async ({
+      onScanAttemptStart,
+      onScanAttemptEnd,
+      shouldRetry: shouldRetryPredicate,
+    } = {}) => {
+      debug(
+        'scan starting (with retry predicate? %s)',
+        shouldRetryPredicate ? 'yes' : 'no'
+      )
 
-          if (match) {
-            files.push(match[1])
-          } else {
-            resolve(err(new Error(`unexpected response data: ${data}`)))
-          }
-        },
-        ok: (resolve) => resolve(ok({ files })),
-        error: (error, resolve) => resolve(err(error)),
-        else: (line, resolve) =>
-          resolve(err(new Error(`invalid response: ${line}`))),
-      })
+      for (let attempt = 0; ; attempt += 1) {
+        debug('scan attempt #%d starting', attempt)
+        const files: string[] = []
+        const resultPromise = doIPC<ScanResult>('scan', {
+          data: (data, resolve) => {
+            const match = data.match(/^file=(.+)$/)
+
+            if (match) {
+              files.push(match[1])
+            } else {
+              resolve(err(new Error(`unexpected response data: ${data}`)))
+            }
+          },
+          ok: (resolve) => resolve(ok({ files })),
+          error: (error, resolve) => resolve(err(error)),
+          else: (line, resolve) =>
+            resolve(err(new Error(`invalid response: ${line}`))),
+        })
+
+        onScanAttemptStart?.(attempt)
+        const result = await resultPromise
+        onScanAttemptEnd?.(attempt, result)
+
+        if (result.isOk()) {
+          debug('scan attempt #%d succeeded, returning result', attempt)
+          return result
+        }
+
+        const shouldRetry = shouldRetryPredicate?.(result)
+        if (!shouldRetry) {
+          debug(
+            'scan attempt #%d failed (%s) and will not retry',
+            attempt,
+            result.err()
+          )
+          return result
+        }
+
+        debug(
+          'scan attempt #%d failed (%s) but will retry',
+          attempt,
+          result.err()
+        )
+      }
     },
 
     accept: () =>
@@ -303,5 +344,7 @@ export async function createClient(
           resolve(err(new Error(`invalid response: ${line}`))),
       })
     },
-  })
+  }
+
+  return ok(client)
 }

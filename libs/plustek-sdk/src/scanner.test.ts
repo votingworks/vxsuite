@@ -1,6 +1,6 @@
 import { fakeChildProcess } from '@votingworks/test-utils'
-import { sleep } from '@votingworks/utils'
 import { err, ok } from '@votingworks/types'
+import { sleep } from '@votingworks/utils'
 import * as cp from 'child_process'
 import { mocked } from 'ts-jest/utils'
 import { DEFAULT_CONFIG } from './config'
@@ -12,6 +12,14 @@ import { createClient } from './scanner'
 const findBinaryPath = mocked(plustekctlModule.findBinaryPath)
 const spawn = mocked(cp.spawn)
 const nextTick = Promise.resolve()
+
+function retryUntil({ times }: { times: number }): () => boolean {
+  let remainingRetries = times
+  return () => {
+    remainingRetries -= 1
+    return remainingRetries >= 0
+  }
+}
 
 jest.mock('./plustekctl')
 jest.mock('child_process')
@@ -460,6 +468,61 @@ test('scan returns error for unknown data', async () => {
   expect(((await resultPromise).unsafeUnwrapErr() as Error).message).toEqual(
     'unexpected response data: url=localhost'
   )
+})
+
+test('scan succeeds after retries', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unsafeUnwrap()
+
+  const retryCount = 5
+  const result = await client.scan({
+    onScanAttemptStart: async (attempt) => {
+      await nextTick
+
+      expect(plustekctl.stdin.toString()).toEqual('scan\n'.repeat(attempt + 1))
+      if (attempt < retryCount) {
+        // fail every attempt until…
+        plustekctl.stdout.append(
+          `<<<>>>\nscan: err=${ScannerError.SaneStatusIoError}\n<<<>>>\n`
+        )
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      } else if (attempt === retryCount) {
+        // …we succeed on the last attempt
+        plustekctl.stdout.append(`<<<>>>\nscan: file=file01.jpg\n<<<>>>\n`)
+        plustekctl.stdout.append(`<<<>>>\nscan: file=file02.jpg\n<<<>>>\n`)
+        plustekctl.stdout.append(`<<<>>>\nscan: ok\n<<<>>>\n`)
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      } else {
+        throw new Error(`unexpected attempt out of range: ${attempt}`)
+      }
+    },
+
+    onScanAttemptEnd: async (attempt, attemptResult) => {
+      if (attempt < retryCount) {
+        // assert failed
+        attemptResult.unsafeUnwrapErr()
+      } else {
+        // assert success
+        attemptResult.unsafeUnwrap()
+      }
+    },
+
+    shouldRetry: retryUntil({ times: retryCount }),
+  })
+
+  expect(result.unsafeUnwrap()).toEqual({
+    files: ['file01.jpg', 'file02.jpg'],
+  })
 })
 
 test('calibrate succeeds', async () => {
