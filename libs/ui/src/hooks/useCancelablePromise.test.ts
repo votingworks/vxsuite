@@ -1,7 +1,7 @@
-import { render } from '@testing-library/react'
+import { act } from '@testing-library/react'
+import { renderHook } from '@testing-library/react-hooks'
 import { advanceTimersAndPromises } from '@votingworks/test-utils'
 import { sleep } from '@votingworks/utils'
-import React, { useEffect } from 'react'
 import { useCancelablePromise } from './useCancelablePromise'
 
 beforeEach(() => {
@@ -11,17 +11,13 @@ beforeEach(() => {
 test('resolves when component is still mounted', async () => {
   const resolve = jest.fn()
 
-  const TestComponent = () => {
-    const makeCancelable = useCancelablePromise()
+  const { result } = renderHook(() => useCancelablePromise())
+  const makeCancelable = result.current
 
-    useEffect(() => {
-      void makeCancelable(sleep(10)).then(resolve)
-    }, [makeCancelable])
+  act(() => {
+    void makeCancelable(sleep(10)).then(resolve)
+  })
 
-    return <div />
-  }
-
-  render(<TestComponent />)
   expect(resolve).not.toHaveBeenCalled()
   await advanceTimersAndPromises(10)
   expect(resolve).toHaveBeenCalled()
@@ -30,17 +26,13 @@ test('resolves when component is still mounted', async () => {
 test('rejects when component is still mounted', async () => {
   const reject = jest.fn()
 
-  const TestComponent = () => {
-    const makeCancelable = useCancelablePromise()
+  const { result } = renderHook(() => useCancelablePromise())
+  const makeCancelable = result.current
 
-    useEffect(() => {
-      void makeCancelable(sleep(10).then(() => Promise.reject())).catch(reject)
-    }, [makeCancelable])
+  act(() => {
+    void makeCancelable(sleep(10).then(() => Promise.reject())).catch(reject)
+  })
 
-    return <div />
-  }
-
-  render(<TestComponent />)
   expect(reject).not.toHaveBeenCalled()
   await advanceTimersAndPromises(10)
   expect(reject).toHaveBeenCalled()
@@ -49,17 +41,13 @@ test('rejects when component is still mounted', async () => {
 test('does not resolve when component is unmounted', async () => {
   const resolve = jest.fn()
 
-  const TestComponent = () => {
-    const makeCancelable = useCancelablePromise()
+  const { result, unmount } = renderHook(() => useCancelablePromise())
+  const makeCancelable = result.current
 
-    useEffect(() => {
-      void makeCancelable(sleep(10)).then(resolve)
-    }, [makeCancelable])
+  act(() => {
+    void makeCancelable(sleep(10)).then(resolve)
+  })
 
-    return <div />
-  }
-
-  const { unmount } = render(<TestComponent />)
   expect(resolve).not.toHaveBeenCalled()
   unmount()
   await advanceTimersAndPromises(10)
@@ -69,17 +57,13 @@ test('does not resolve when component is unmounted', async () => {
 test('does not reject when component is unmounted', async () => {
   const reject = jest.fn()
 
-  const TestComponent = () => {
-    const makeCancelable = useCancelablePromise()
+  const { result, unmount } = renderHook(() => useCancelablePromise())
+  const makeCancelable = result.current
 
-    useEffect(() => {
-      void makeCancelable(sleep(10).then(() => Promise.reject())).then(reject)
-    }, [makeCancelable])
+  act(() => {
+    void makeCancelable(sleep(10).then(() => Promise.reject())).catch(reject)
+  })
 
-    return <div />
-  }
-
-  const { unmount } = render(<TestComponent />)
   expect(reject).not.toHaveBeenCalled()
   unmount()
   await advanceTimersAndPromises(10)
@@ -90,17 +74,13 @@ test('optionally calls a callback when canceling', async () => {
   const resolve = jest.fn()
   const cancel = jest.fn()
 
-  const TestComponent = () => {
-    const makeCancelable = useCancelablePromise()
+  const { result, unmount } = renderHook(() => useCancelablePromise())
+  const makeCancelable = result.current
 
-    useEffect(() => {
-      void makeCancelable(sleep(10), cancel).then(resolve)
-    }, [makeCancelable])
+  act(() => {
+    void makeCancelable(sleep(10), cancel).then(resolve)
+  })
 
-    return <div />
-  }
-
-  const { unmount } = render(<TestComponent />)
   expect(resolve).not.toHaveBeenCalled()
   expect(cancel).not.toHaveBeenCalled()
   unmount()
