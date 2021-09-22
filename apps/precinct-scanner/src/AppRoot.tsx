@@ -306,13 +306,20 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         invalidCardPresent: true,
       }
-    case 'processAdminCard':
+    case 'processAdminCard': {
+      const persistAuthenticatedState =
+        state.currentUserSession?.type === 'admin' &&
+        state.currentUserSession.authenticated
       return {
         ...state,
-        currentUserSession: { type: 'admin', authenticated: false },
+        currentUserSession: {
+          type: 'admin',
+          authenticated: persistAuthenticatedState,
+        },
         invalidCardPresent: false,
         adminCardElectionHash: action.electionHash,
       }
+    }
     case 'processPollWorkerCard':
       return {
         ...state,
