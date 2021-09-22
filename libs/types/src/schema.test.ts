@@ -81,6 +81,43 @@ test('parsing gives specific errors for nested objects', () => {
               },
               {
                 "code": "invalid_type",
+                "expected": "candidate-rank",
+                "received": "candidate",
+                "path": [
+                  "contests",
+                  1,
+                  "type"
+                ],
+                "message": "Expected candidate-rank, received candidate"
+              },
+              {
+                "code": "invalid_type",
+                "expected": "number",
+                "received": "undefined",
+                "path": [
+                  "contests",
+                  1,
+                  "choices"
+                ],
+                "message": "Required"
+              }
+            ]
+          },
+          {
+            "issues": [
+              {
+                "code": "invalid_type",
+                "expected": "string",
+                "received": "number",
+                "path": [
+                  "contests",
+                  1,
+                  "title"
+                ],
+                "message": "Expected string, received number"
+              },
+              {
+                "code": "invalid_type",
                 "expected": "yesno",
                 "received": "candidate",
                 "path": [

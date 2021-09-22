@@ -248,6 +248,30 @@ export function parseSEMSFileAndValidateForElection(
           }
           break
         }
+        case 'candidate-rank': {
+          const validCandidates = [
+            UndervoteCandidateId,
+            OvervoteCandidateId,
+            ...contest.candidates.map((c) => c.id),
+          ]
+          if (contest.allowWriteIns) {
+            validCandidates.push(WriteInCandidateId)
+          }
+          // Allow an illegal write in candidate row if the number of votes is 0
+          const isWriteInSkippable =
+            !contest.allowWriteIns &&
+            row.candidateId === WriteInCandidateId &&
+            row.numberOfVotes === 0
+          if (
+            !validCandidates.includes(row.candidateId) &&
+            !isWriteInSkippable
+          ) {
+            errors.push(
+              `Candidate ID ${row.candidateId} is not a valid candidate ID for the contest: ${row.contestId}.`
+            )
+          }
+          break
+        }
         case 'yesno': {
           const validCandidates = [
             UndervoteCandidateId,

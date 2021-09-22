@@ -284,6 +284,21 @@ export const getEmptyContestTallies = (
         }
         break
       }
+      case 'candidate-rank': {
+        for (const candidate of contest.candidates) {
+          optionTallies[candidate.id] = {
+            option: candidate,
+            tally: 0,
+          }
+        }
+        if (contest.allowWriteIns) {
+          optionTallies[writeInCandidate.id] = {
+            option: writeInCandidate,
+            tally: 0,
+          }
+        }
+        break
+      }
       case 'yesno': {
         optionTallies.yes = {
           option: ['yes'],

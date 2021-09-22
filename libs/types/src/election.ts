@@ -66,9 +66,14 @@ export type OptionalCandidate = Optional<Candidate>
 export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> = CandidateSchema.optional()
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-neither'
+export type ContestTypes =
+  | 'candidate'
+  | 'candidate-rank'
+  | 'yesno'
+  | 'ms-either-neither'
 export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('candidate'),
+  z.literal('candidate-rank'),
   z.literal('yesno'),
   z.literal('ms-either-neither'),
 ])
@@ -100,6 +105,31 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = ContestInte
   z.object({
     type: z.literal('candidate'),
     seats: z.number().int().positive(),
+    candidates: z.array(CandidateSchema),
+    allowWriteIns: z.boolean(),
+  })
+).superRefine((contest, ctx) => {
+  for (const [index, id] of findDuplicateIds(contest.candidates)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['candidates', index, 'id'],
+      message: `Duplicate candidate '${id}' found.`,
+    })
+  }
+})
+
+export interface CandidateRankContest extends Contest {
+  readonly type: 'candidate-rank'
+  readonly seats: number
+  readonly choices: number
+  readonly candidates: readonly Candidate[]
+  readonly allowWriteIns: boolean
+}
+export const CandidateRankContestSchema: z.ZodSchema<CandidateRankContest> = ContestInternalSchema.merge(
+  z.object({
+    type: z.literal('candidate-rank'),
+    seats: z.number().int().positive(),
+    choices: z.number().int().positive(),
     candidates: z.array(CandidateSchema),
     allowWriteIns: z.boolean(),
   })
@@ -168,10 +198,12 @@ export const MsEitherNeitherContestSchema: z.ZodSchema<MsEitherNeitherContest> =
 
 export type AnyContest =
   | CandidateContest
+  | CandidateRankContest
   | YesNoContest
   | MsEitherNeitherContest
 export const AnyContestSchema: z.ZodSchema<AnyContest> = z.union([
   CandidateContestSchema,
+  CandidateRankContestSchema,
   YesNoContestSchema,
   MsEitherNeitherContestSchema,
 ])

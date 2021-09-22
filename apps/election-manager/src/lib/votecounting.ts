@@ -136,6 +136,20 @@ export function* parseCVRs(
                     }
                     break
                   }
+                  case 'candidate-rank': {
+                    const isValidCandidate = contest.candidates
+                      .map((c) => c.id)
+                      .includes(selectedChoice)
+                    const isValidWriteInCandidate =
+                      contest.allowWriteIns &&
+                      normalizeWriteInId(selectedChoice) === writeInCandidate.id
+                    if (!(isValidCandidate || isValidWriteInCandidate)) {
+                      errors.push(
+                        `Candidate ID '${selectedChoice}' in CVR is not a valid candidate choice for contest: '${contestId}'`
+                      )
+                    }
+                    break
+                  }
                   case 'yesno': {
                     if (!['yes', 'no', ''].includes(selectedChoice)) {
                       errors.push(

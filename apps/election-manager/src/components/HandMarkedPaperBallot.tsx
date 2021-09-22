@@ -37,7 +37,7 @@ import AppContext from '../contexts/AppContext'
 
 import findPartyById from '../utils/findPartyById'
 
-import BubbleMark from './BubbleMark'
+import BubbleMark, { Bubble } from './BubbleMark'
 import WriteInLine from './WriteInLine'
 import QRCode from './QRCode'
 import Prose from './Prose'
@@ -46,6 +46,24 @@ import HorizontalRule from './HorizontalRule'
 import { ABSENTEE_TINT_COLOR } from '../config/globals'
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
 import { getBallotLayoutDensity } from '../utils/getBallotLayoutDensity'
+
+function range(length: number): number[] {
+  return Array.from(Array.from({ length }).keys())
+}
+
+function getOrdinal(d: number): string {
+  if (d > 3 && d < 21) return `${d}th`
+  switch (d % 10) {
+    case 1:
+      return `${d}st`
+    case 2:
+      return `${d}nd`
+    case 3:
+      return `${d}rd`
+    default:
+      return `${d}th`
+  }
+}
 
 function hasVote(vote: Vote | undefined, optionId: string): boolean {
   return (
@@ -318,6 +336,10 @@ const CandidateContestsLayout = styled.div`
   columns: 3;
   column-gap: 1em;
 `
+const CandidateRankChoiceContestsLayout = styled(CandidateContestsLayout)`
+  columns: 1;
+  break-before: column;
+`
 const OtherContestsLayout = styled(CandidateContestsLayout)`
   columns: 2;
   break-before: column;
@@ -356,12 +378,24 @@ const Instructions = styled.div`
     margin-top: 0;
   }
 `
-export const StyledContest = styled.div<{ density?: number }>`
+
+interface StyledContestProps {
+  density?: number
+  noPadding?: boolean
+}
+
+export const StyledContest = styled.div<StyledContestProps>`
   margin-bottom: 1em;
   border: 0.2em solid #000000;
   border-top-width: 0.3em;
-  padding: ${({ density }) =>
-    density === 2 ? '0.25em 0.5em' : density === 1 ? '0.5em' : '0.5em 1em 1em'};
+  padding: ${({ density, noPadding }) =>
+    noPadding
+      ? undefined
+      : density === 2
+      ? '0.25em 0.5em'
+      : density === 1
+      ? '0.5em'
+      : '0.5em 1em 1em'};
   break-inside: avoid;
   page-break-inside: avoid;
   p + h3 {
@@ -405,6 +439,40 @@ const WriteInItem = styled.p`
 
 const CandidateDescription = styled.span<{ isSmall?: boolean }>`
   font-size: ${({ isSmall }) => (isSmall ? '0.9em' : undefined)};
+`
+
+const CandidateRankChoiceTable = styled.table`
+  margin-bottom: 1em;
+  border: 0.2em solid #000000;
+  border-top-width: 0.3em;
+  width: 100%;
+  border-collapse: collapse;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  td,
+  th {
+    border-right: 0.1em solid #cccccc;
+    border-bottom: 0.1em solid #000000;
+    padding: 0.25em 0.5em;
+    text-align: center;
+    &:first-child {
+      width: 30%;
+      text-align: left;
+    }
+    &:last-child {
+      border-right: 0;
+    }
+  }
+  tr:last-child {
+    td,
+    th {
+      border-bottom: 0;
+    }
+  }
+  p + h3 {
+    margin-top: -0.6em;
+    line-height: 1.05;
+  }
 `
 
 export interface CandidateContestChoicesProps {
@@ -532,7 +600,12 @@ const HandMarkedPaperBallot = ({
   assert(ballotStyle)
   const contests = getContests({ ballotStyle, election })
   const candidateContests = contests.filter((c) => c.type === 'candidate')
-  const otherContests = contests.filter((c) => c.type !== 'candidate')
+  const candidateRankChoiceContests = contests.filter(
+    (c) => c.type === 'candidate-rank'
+  )
+  const otherContests = contests.filter(
+    (c) => c.type !== 'candidate' && c.type !== 'candidate-rank'
+  )
   const localeContestsById =
     localeElection &&
     getContests({ ballotStyle, election: localeElection }).reduce<
@@ -918,8 +991,64 @@ const HandMarkedPaperBallot = ({
               )}
             </Contest>
           ))}
-          {otherContests.length === 0 && columnFooter}
+          {candidateRankChoiceContests.length === 0 &&
+            otherContests.length === 0 &&
+            columnFooter}
         </CandidateContestsLayout>
+        {candidateRankChoiceContests.length !== 0 && (
+          <CandidateRankChoiceContestsLayout>
+            {candidateRankChoiceContests.map((contest) => (
+              <React.Fragment key={contest.id}>
+                {contest.type === 'candidate-rank' && (
+                  <CandidateRankChoiceTable>
+                    <tr>
+                      <td>
+                        <Prose>
+                          <Text small bold>
+                            {contest.section}
+                          </Text>
+                          <h3>{contest.title}</h3>
+                          <Text small>
+                            Rank up to {contest.choices} candidates. Mark no
+                            more than one oval in each choice column.
+                          </Text>
+                        </Prose>
+                      </td>
+                      {range(contest.choices).map((choice) => (
+                        <th key={choice}>
+                          {getOrdinal(choice + 1)}
+                          <Text as="div" small>
+                            choice
+                          </Text>
+                        </th>
+                      ))}
+                    </tr>
+                    {contest.candidates.map((candidate) => (
+                      <tr key={candidate.id}>
+                        <td>
+                          <div>
+                            <strong>{candidate.name}</strong>
+                          </div>
+                          {candidate.partyId && (
+                            <Text as="span" small>
+                              {findPartyById(parties, candidate.partyId)?.name}
+                            </Text>
+                          )}
+                        </td>
+                        {range(contest.choices).map((choice) => (
+                          <td key={choice}>
+                            <Bubble />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </CandidateRankChoiceTable>
+                )}
+              </React.Fragment>
+            ))}
+            {otherContests.length === 0 && columnFooter}
+          </CandidateRankChoiceContestsLayout>
+        )}
         {otherContests.length !== 0 && (
           <OtherContestsLayout>
             {otherContests.map((contest) => (
