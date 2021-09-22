@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { renderHook } from '@testing-library/react-hooks'
 import userEvent from '@testing-library/user-event'
 import {
   advanceTimersAndPromises,
@@ -7,9 +8,8 @@ import {
 } from '@votingworks/test-utils'
 import { usbstick } from '@votingworks/utils'
 import React from 'react'
-import { Button } from '../Button'
 import { USBControllerButton } from '../USBControllerButton'
-import { useUsbDrive, POLLING_INTERVAL_FOR_USB } from './useUsbDrive'
+import { POLLING_INTERVAL_FOR_USB, useUsbDrive } from './useUsbDrive'
 
 const { UsbDriveStatus } = usbstick
 
@@ -29,27 +29,17 @@ beforeEach(() => {
   jest.useFakeTimers()
 })
 
-const TestComponent = () => {
-  const usbDrive = useUsbDrive()
-  return (
-    <React.Fragment>
-      <div>{typeof usbDrive.status}</div> <div>{usbDrive.status}</div>
-      <Button onPress={usbDrive.eject}>Eject</Button>
-    </React.Fragment>
-  )
-}
-
 test('returns undefined status at first', async () => {
-  render(<TestComponent />)
-  screen.getByText('undefined')
+  const { result } = renderHook(() => useUsbDrive())
+  expect(result.current.status).toBeUndefined()
 
   await waitForStatusUpdate()
 })
 
 test('returns notavailable if no kiosk', async () => {
-  render(<TestComponent />)
+  const { result } = renderHook(() => useUsbDrive())
   await waitForStatusUpdate()
-  screen.getByText(usbstick.UsbDriveStatus.notavailable)
+  expect(result.current.status).toEqual(usbstick.UsbDriveStatus.notavailable)
 })
 
 test('returns the status after the first tick', async () => {
@@ -57,9 +47,9 @@ test('returns the status after the first tick', async () => {
   kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE])
   window.kiosk = kiosk
 
-  render(<TestComponent />)
+  const { result } = renderHook(() => useUsbDrive())
   await waitForStatusUpdate()
-  screen.getByText(usbstick.UsbDriveStatus.mounted)
+  expect(result.current.status).toEqual(usbstick.UsbDriveStatus.mounted)
 })
 
 test('full lifecycle with USBControllerButton', async () => {
@@ -120,18 +110,18 @@ test('full lifecycle with USBControllerButton', async () => {
 })
 
 test('usb drive gets mounted from undefined state', async () => {
-  render(<TestComponent />)
-  screen.getByText('undefined')
+  const { result } = renderHook(() => useUsbDrive())
+  expect(result.current.status).toBeUndefined()
   const kiosk = fakeKiosk()
   kiosk.getUsbDrives.mockResolvedValue([])
   window.kiosk = kiosk
   kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE])
   await waitForStatusUpdate()
   expect(kiosk.mountUsbDrive).toHaveBeenCalled()
-  screen.getByText('present')
+  expect(result.current.status).toEqual(usbstick.UsbDriveStatus.present)
 
   // wait for it to mount
   kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE])
   await waitForStatusUpdate()
-  screen.getByText('mounted')
+  expect(result.current.status).toEqual(usbstick.UsbDriveStatus.mounted)
 })
