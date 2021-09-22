@@ -70,28 +70,30 @@ const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
     setPartyId(undefined)
     setIsSinglePrecinctMode(false)
     window.localStorage.clear()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [setElection, setIsSinglePrecinctMode, setPartyId, setPrecinctId])
 
   const reset = useCallback(() => {
     if (!isSinglePrecinctMode) {
       setPrecinctId(undefined)
     }
     setBallotStyleId(undefined)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSinglePrecinctMode])
+  }, [isSinglePrecinctMode, setPrecinctId])
 
-  const setPrecinct = useCallback((id: string) => {
-    setPrecinctId(id)
-    setPartyId(undefined)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const setPrecinct = useCallback(
+    (id: string) => {
+      setPrecinctId(id)
+      setPartyId(undefined)
+    },
+    [setPartyId, setPrecinctId]
+  )
 
-  const updatePrecinct: EventTargetFunction = useCallback((event) => {
-    const { id } = (event.target as HTMLElement).dataset
-    setPrecinctId(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const updatePrecinct: EventTargetFunction = useCallback(
+    (event) => {
+      const { id } = (event.target as HTMLElement).dataset
+      setPrecinctId(id)
+    },
+    [setPrecinctId]
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const getPartyNameById = (partyId: string) => {

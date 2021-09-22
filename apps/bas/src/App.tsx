@@ -1,3 +1,4 @@
+import { useCancelablePromise } from '@votingworks/ui'
 import {
   getHardware,
   KioskStorage,
@@ -16,15 +17,14 @@ const App = ({
   storage = window.kiosk ? new KioskStorage() : new LocalStorage(),
 }: Props): JSX.Element => {
   const [internalHardware, setInternalHardware] = useState(hardware)
+  const makeCancelable = useCancelablePromise()
   useEffect(() => {
     const updateHardware = async () => {
-      if (internalHardware === undefined) {
-        setInternalHardware(await getHardware())
-      }
+      const newInternalHardware = await makeCancelable(getHardware())
+      setInternalHardware((prev) => prev ?? newInternalHardware)
     }
     void updateHardware()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hardware])
+  }, [makeCancelable])
 
   if (!internalHardware) {
     return <React.Fragment />
