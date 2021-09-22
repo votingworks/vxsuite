@@ -17,6 +17,18 @@ const debug = makeDebug('module-scan:scanner')
 
 export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>
 
+const SCANNER_RETRY_DURATION_SECONDS = 2
+const NANOSECONDS_PER_SECOND = BigInt(1_000_000_000)
+
+function retryFor({ seconds }: { seconds: number }): () => boolean {
+  const start = process.hrtime.bigint()
+  const end = start + BigInt(seconds) * NANOSECONDS_PER_SECOND
+  return () => {
+    const now = process.hrtime.bigint()
+    return now < end
+  }
+}
+
 export class PlustekScanner implements Scanner {
   private statusOverride?: ScannerStatus
 
@@ -108,7 +120,11 @@ export class PlustekScanner implements Scanner {
         if (status === ScannerStatus.ReadyToScan) {
           this.statusOverride = ScannerStatus.Scanning
           const client = clientResult.ok()
-          const scanResult = await client.scan()
+          const scanResult = await client.scan({
+            shouldRetry: retryFor({
+              seconds: SCANNER_RETRY_DURATION_SECONDS,
+            }),
+          })
 
           if (scanResult.isErr()) {
             debug(
@@ -436,9 +452,9 @@ export function withReconnect(
       }
     },
 
-    scan: async () => {
+    scan: async (options) => {
       for (;;) {
-        const result = await (await ensureClient()).scan()
+        const result = await (await ensureClient()).scan(options)
 
         if (
           result.isErr() &&
