@@ -149,7 +149,7 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
       : undefined};
 `
 
-const Contest = styled(LinkButton)`
+const Contest = styled.button`
   display: flex;
   align-items: center;
   margin-bottom: 0.75rem;
@@ -407,7 +407,8 @@ const ReviewPage = (): JSX.Element => {
           >
             <ScrollableContentWrapper isScrollable={isScrollable}>
               {contests.map((contest, i) => (
-                <Contest
+                <LinkButton
+                  component={Contest}
                   id={`contest-${contest.id}`}
                   key={contest.id}
                   to={`/contests/${i}#review`}
@@ -450,7 +451,7 @@ const ReviewPage = (): JSX.Element => {
                       Change
                     </DecoyButton>
                   </ContestActions>
-                </Contest>
+                </LinkButton>
               ))}
             </ScrollableContentWrapper>
           </ScrollContainer>

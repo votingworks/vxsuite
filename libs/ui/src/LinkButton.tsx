@@ -1,12 +1,11 @@
 import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { EventTargetFunction } from '@votingworks/types'
-import { Button, ButtonInterface } from './Button'
+import { Button, ButtonProps } from './Button'
 
 export interface LinkButtonProps
-  extends ButtonInterface,
-    RouteComponentProps<Record<string, string | undefined>>,
-    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
+  extends Omit<ButtonProps, 'onPress'>,
+    RouteComponentProps<Record<string, string | undefined>> {
   goBack?: boolean
   onPress?: EventTargetFunction
   primary?: boolean
