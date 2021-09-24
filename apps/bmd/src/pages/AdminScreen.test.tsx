@@ -7,6 +7,7 @@ import { fakeKiosk } from '@votingworks/test-utils'
 import { render } from '../../test/testUtils'
 import { election, defaultPrecinctId } from '../../test/helpers/election'
 
+import fakePrinter from '../../test/helpers/fakePrinter'
 import { advanceTimers } from '../../test/helpers/smartcards'
 
 import AdminScreen from './AdminScreen'
@@ -44,6 +45,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
         appMode: VxPrintOnly,
         codeVersion: '', // Override default
       })}
+      printer={fakePrinter()}
     />
   )
 
@@ -87,6 +89,7 @@ test('renders date and time settings modal', async () => {
         appMode: VxMarkOnly,
         codeVersion: 'test',
       })}
+      printer={fakePrinter()}
     />
   )
 
@@ -231,6 +234,7 @@ test('select All Precincts', async () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
+      printer={fakePrinter()}
     />
   )
 
@@ -259,6 +263,7 @@ test('render All Precincts', async () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
+      printer={fakePrinter()}
     />
   )
 

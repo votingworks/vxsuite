@@ -35,8 +35,8 @@ it('renders test decks appropriately', async () => {
         appMode: VxPrintOnly,
       })}
       isLiveMode={false}
-    />,
-    { printer }
+      printer={printer}
+    />
   )
 
   fireEvent.click(screen.getByText('All Precincts'))
@@ -86,6 +86,7 @@ it('shows printer not connected when appropriate', async () => {
       })}
       hideTestDeck={jest.fn()}
       isLiveMode={false}
+      printer={fakePrinter()}
     />
   )
 
