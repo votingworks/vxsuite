@@ -191,8 +191,7 @@ const AdminScreen = ({
                     </p>
                     <Text as="h1">Stats</Text>
                     <Text>
-                      Printed and Tallied Ballots:{' '}
-                      <strong>{ballotsPrintedCount}</strong>{' '}
+                      Printed Ballots: <strong>{ballotsPrintedCount}</strong>{' '}
                     </Text>
                   </React.Fragment>
                 )}
@@ -258,8 +257,7 @@ const AdminScreen = ({
           <Prose>
             <h2>Instructions</h2>
             <p>
-              Switching Precinct or Live Mode will reset tally and printed
-              ballots count.
+              Switching Precinct or Live Mode will reset printed ballots count.
             </p>
             <p>Remove card when finished.</p>
           </Prose>
