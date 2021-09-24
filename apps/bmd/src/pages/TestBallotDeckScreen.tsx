@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import pluralize from 'pluralize'
 
 import { VotesDict, Election, ElectionDefinition } from '@votingworks/types'
 import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui'
-import { find, throwIllegalValue } from '@votingworks/utils'
+import { find, throwIllegalValue, Printer } from '@votingworks/utils'
 
 import {
   EventTargetFunction,
@@ -18,7 +18,6 @@ import Sidebar from '../components/Sidebar'
 import Screen from '../components/Screen'
 import Modal from '../components/Modal'
 import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
-import BallotContext from '../contexts/ballotContext'
 
 interface Ballot {
   ballotId?: string
@@ -111,6 +110,7 @@ interface Props {
   hideTestDeck: () => void
   isLiveMode: boolean
   machineConfig: MachineConfig
+  printer: Printer
 }
 
 const initialPrecinct: Precinct = { id: '', name: '' }
@@ -121,8 +121,8 @@ const TestBallotDeckScreen = ({
   hideTestDeck,
   isLiveMode,
   machineConfig,
+  printer,
 }: Props): JSX.Element => {
-  const { printer } = useContext(BallotContext)
   const { election } = electionDefinition
   const [ballots, setBallots] = useState<Ballot[]>([])
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)

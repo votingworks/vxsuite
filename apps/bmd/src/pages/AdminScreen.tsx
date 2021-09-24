@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import React, { useCallback, useState } from 'react'
 
 import { ElectionDefinition } from '@votingworks/types'
-import { formatFullDateTimeZone } from '@votingworks/utils'
+import { formatFullDateTimeZone, Printer } from '@votingworks/utils'
 import {
   Button,
   Main,
@@ -39,6 +39,7 @@ interface Props {
   toggleLiveMode: VoidFunction
   unconfigure: () => Promise<void>
   machineConfig: MachineConfig
+  printer: Printer
 }
 
 const ALL_PRECINCTS_OPTION_VALUE = '_ALL'
@@ -53,6 +54,7 @@ const AdminScreen = ({
   toggleLiveMode,
   unconfigure,
   machineConfig,
+  printer,
 }: Props): JSX.Element => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
@@ -106,6 +108,7 @@ const AdminScreen = ({
         hideTestDeck={hideTestDeck}
         machineConfig={machineConfig}
         isLiveMode={false} // always false for Test Mode
+        printer={printer}
       />
     )
   }

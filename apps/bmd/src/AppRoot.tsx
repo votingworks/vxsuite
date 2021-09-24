@@ -1252,6 +1252,7 @@ const AppRoot = ({
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
+        printer={printer}
       />
     )
   }
