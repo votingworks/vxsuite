@@ -724,6 +724,10 @@ const AppRoot = ({
             if (machineConfig.bypassAuthentication) {
               dispatchAppState({ type: 'adminCardAuthenticated' })
             }
+            // no PIN, authenticate for now (stronger auth later will not allow this)
+            if (!cardData.p) {
+              dispatchAppState({ type: 'adminCardAuthenticated' })
+            }
           }
           break
         }

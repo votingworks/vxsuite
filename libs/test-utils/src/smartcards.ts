@@ -17,7 +17,7 @@ export const makeAdminCard = (
 ): AdminCardData => ({
   t: 'admin',
   h: electionHash,
-  p: pin || '000000',
+  p: pin,
 })
 
 export const makePollWorkerCard = (
