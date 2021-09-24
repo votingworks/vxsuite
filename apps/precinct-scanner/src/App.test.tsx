@@ -301,6 +301,15 @@ test('admin and pollworker configuration', async () => {
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
   await advanceTimersAndPromises(1)
 
+  // Admin card with no PIN does NOT require authentication screen.
+  const noPINAdminCard = makeAdminCard(electionSampleDefinition.electionHash)
+  card.insertCard(noPINAdminCard, electionSampleDefinition.electionData)
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Administrator Settings')
+  card.removeCard()
+
+  await advanceTimersAndPromises(1)
+
   // Insert admin card to set precinct
   const adminCard = makeAdminCard(
     electionSampleDefinition.electionHash,
