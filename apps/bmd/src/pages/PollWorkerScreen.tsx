@@ -479,6 +479,7 @@ const PollWorkerScreen = ({
                 electionDefinition={electionDefinition}
                 machineId={talliesOnCard.metadata[0].machineId}
                 isPollsOpen={talliesOnCard.isPollsOpen}
+                isLiveMode={talliesOnCard.isLiveMode}
                 tally={precinctScannerTally}
                 precinctSelection={appPrecinct}
                 reportPurpose={reportPurpose}

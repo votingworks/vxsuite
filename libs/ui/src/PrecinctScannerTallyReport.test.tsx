@@ -27,6 +27,7 @@ test('renders without results reporting when no CVRs', async () => {
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
         reportPurpose="Testing"
         isPollsOpen={false}
+        isLiveMode
         tally={tally}
       />
     )
@@ -63,6 +64,7 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
         reportPurpose="Testing"
         isPollsOpen
+        isLiveMode
         tally={tally}
       />
     )
@@ -87,10 +89,17 @@ test('renders with results reporting when there are CVRs and polls are closed', 
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
         reportPurpose="Testing"
         isPollsOpen={false}
+        isLiveMode
         tally={tally}
       />
     )
   })
+
+  const payloadComponents = mockKiosk.sign.mock.calls[0][0].payload.split('.')
+  expect(payloadComponents.length).toBe(5)
+  expect(payloadComponents[0]).toBe(electionSampleDefinition.electionHash)
+  expect(payloadComponents[1]).toBe('DEMO-0000')
+  expect(payloadComponents[2]).toBe('1') // live election
 
   expect(
     screen.queryByText('Automatic Election Results Reporting')
