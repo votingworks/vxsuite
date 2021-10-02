@@ -321,6 +321,7 @@ const PollWorkerScreen = ({
                 precinctSelection={precinctSelection}
                 reportPurpose={reportPurpose}
                 isPollsOpen={!isPollsOpen}
+                isLiveMode={isLiveMode}
                 currentDateTime={currentDateTime}
               />
             </React.Fragment>

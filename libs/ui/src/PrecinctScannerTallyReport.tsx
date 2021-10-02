@@ -25,6 +25,7 @@ interface Props {
   precinctSelection: PrecinctSelection
   reportPurpose: string
   isPollsOpen: boolean
+  isLiveMode: boolean
   tally: Tally
 }
 
@@ -35,6 +36,7 @@ export const PrecinctScannerTallyReport = ({
   precinctSelection,
   reportPurpose,
   isPollsOpen,
+  isLiveMode,
   tally,
 }: Props): JSX.Element => {
   const { election, electionHash } = electionDefinition
@@ -56,9 +58,10 @@ export const PrecinctScannerTallyReport = ({
     void (async () => {
       if (tally.numberOfBallotsCounted > 0 && !isPollsOpen) {
         const compressedTally = compressTally(election, tally)
-        const stringToSign = `${electionHash}.${machineId}.${window.btoa(
-          JSON.stringify(compressedTally)
-        )}`
+        const secondsSince1970 = Math.round(new Date().getTime() / 1000)
+        const stringToSign = `${electionHash}.${machineId}.${
+          isLiveMode ? '1' : '0'
+        }.${secondsSince1970}.${window.btoa(JSON.stringify(compressedTally))}`
         const signature = await window.kiosk?.sign({
           signatureType: 'vx-results-reporting',
           payload: stringToSign,
@@ -76,6 +79,7 @@ export const PrecinctScannerTallyReport = ({
     machineId,
     tally,
     isPollsOpen,
+    isLiveMode,
   ])
 
   return (
