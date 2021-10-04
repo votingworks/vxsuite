@@ -96,10 +96,13 @@ test('renders with results reporting when there are CVRs and polls are closed', 
   })
 
   const payloadComponents = mockKiosk.sign.mock.calls[0][0].payload.split('.')
-  expect(payloadComponents.length).toBe(5)
-  expect(payloadComponents[0]).toBe(electionSampleDefinition.electionHash)
-  expect(payloadComponents[1]).toBe('DEMO-0000')
-  expect(payloadComponents[2]).toBe('1') // live election
+  expect(payloadComponents).toEqual([
+    electionSampleDefinition.electionHash,
+    'DEMO-0000',
+    '1', // live election
+    expect.any(String),
+    expect.any(String),
+  ])
 
   expect(
     screen.queryByText('Automatic Election Results Reporting')
