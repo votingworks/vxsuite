@@ -113,20 +113,19 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
   }
 
   if (currentState === ModalState.DONE) {
-    let actions = (
-      <React.Fragment>
-        <Button onPress={onClose}>Cancel</Button>
-        <USBControllerButton
-          small={false}
-          primary
-          usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
-          usbDriveEject={usbDrive.eject}
-        />
-      </React.Fragment>
-    )
-
     if (usbDrive.status === usbstick.UsbDriveStatus.recentlyEjected) {
-      actions = <Button onPress={onClose}>Close</Button>
+      return (
+        <Modal
+          content={
+            <Prose>
+              <h1>Download Complete</h1>
+              <p>USB drive successfully ejected.</p>
+            </Prose>
+          }
+          onOverlayClick={onClose}
+          actions={<Button onPress={onClose}>Close</Button>}
+        />
+      )
     }
 
     return (
@@ -140,7 +139,17 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={actions}
+        actions={
+          <React.Fragment>
+            <Button onPress={onClose}>Cancel</Button>
+            <USBControllerButton
+              small={false}
+              primary
+              usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
+              usbDriveEject={usbDrive.eject}
+            />
+          </React.Fragment>
+        }
       />
     )
   }

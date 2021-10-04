@@ -7,10 +7,11 @@ import { createMemoryHistory } from 'history'
 import fetchMock from 'fetch-mock'
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
-import { usbstick } from '@votingworks/utils'
+import { MemoryStorage, usbstick } from '@votingworks/utils'
 import ExportResultsModal from './ExportResultsModal'
 import fakeFileWriter from '../../test/helpers/fakeFileWriter'
 import renderInAppContext from '../../test/renderInAppContext'
+import AppContext from '../contexts/AppContext'
 
 const { UsbDriveStatus } = usbstick
 
@@ -119,16 +120,15 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   })
 
   const closeFn = jest.fn()
-  const { getByText } = renderInAppContext(
-    <Router history={createMemoryHistory()}>
-      <ExportResultsModal
-        onClose={closeFn}
-        electionDefinition={electionDefinition}
-        numberOfBallots={5}
-        isTestMode
-      />
-    </Router>,
-    { usbDriveStatus: UsbDriveStatus.mounted }
+  const history = createMemoryHistory()
+  const { getByText, rerender } = renderInAppContext(
+    <ExportResultsModal
+      onClose={closeFn}
+      electionDefinition={electionDefinition}
+      numberOfBallots={5}
+      isTestMode
+    />,
+    { usbDriveStatus: UsbDriveStatus.mounted, history }
   )
   getByText('Export Results')
 
@@ -152,6 +152,28 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   getByText('Eject USB')
   fireEvent.click(getByText('Cancel'))
   expect(closeFn).toHaveBeenCalled()
+
+  rerender(
+    <AppContext.Provider
+      value={{
+        electionDefinition,
+        machineConfig: { machineId: '0001', bypassAuthentication: false },
+        usbDriveStatus: UsbDriveStatus.recentlyEjected,
+        usbDriveEject: jest.fn(),
+        storage: new MemoryStorage(),
+        lockMachine: jest.fn(),
+      }}
+    >
+      <Router history={history}>
+        <ExportResultsModal
+          onClose={closeFn}
+          electionDefinition={electionDefinition}
+          numberOfBallots={5}
+          isTestMode
+        />
+      </Router>
+    </AppContext.Provider>
+  )
 })
 
 test('render export modal with errors when appropriate', async () => {

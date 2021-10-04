@@ -74,7 +74,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
   mocked(download).mockResolvedValueOnce(ok())
 
   const closeFn = jest.fn()
-  render(
+  const { rerender } = render(
     <AppContext.Provider
       value={{ electionDefinition: electionSampleDefinition, machineConfig }}
     >
@@ -96,6 +96,17 @@ test('render export modal when a USB drive is mounted as expected and allows cus
 
   fireEvent.click(screen.getByText('Cancel'))
   expect(closeFn).toHaveBeenCalled()
+  rerender(
+    <AppContext.Provider
+      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+    >
+      <ExportBackupModal
+        onClose={closeFn}
+        usbDrive={{ status: UsbDriveStatus.recentlyEjected, eject: jest.fn() }}
+      />
+    </AppContext.Provider>
+  )
+  screen.getByText('USB drive successfully ejected.')
 })
 
 test('render export modal when a USB drive is mounted as expected and allows automatic export', async () => {

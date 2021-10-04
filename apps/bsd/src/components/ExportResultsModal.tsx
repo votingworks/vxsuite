@@ -139,19 +139,22 @@ const ExportResultsModal = ({
   }
 
   if (currentState === ModalState.DONE) {
-    let actions = (
-      <React.Fragment>
-        <LinkButton onPress={onClose}>Cancel</LinkButton>
-        <USBControllerButton
-          small={false}
-          primary
-          usbDriveStatus={usbDriveStatus}
-          usbDriveEject={usbDriveEject}
-        />
-      </React.Fragment>
-    )
     if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {
-      actions = <LinkButton onPress={onClose}>Close</LinkButton>
+      return (
+        <Modal
+          content={
+            <Prose>
+              <h1>Download Complete</h1>
+              <p>
+                USB drive successfully ejected, you may now take it to VxAdmin
+                for tabulation.
+              </p>
+            </Prose>
+          }
+          onOverlayClick={onClose}
+          actions={<Button onPress={onClose}>Close</Button>}
+        />
+      )
     }
     return (
       <Modal
@@ -160,12 +163,22 @@ const ExportResultsModal = ({
             <h1>Download Complete</h1>
             <p>
               CVR results file saved successfully! You may now eject the USB
-              drive and take it to Election Manager for tabulation.
+              drive and take it to VxAdmin for tabulation.
             </p>
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={actions}
+        actions={
+          <React.Fragment>
+            <LinkButton onPress={onClose}>Cancel</LinkButton>
+            <USBControllerButton
+              small={false}
+              primary
+              usbDriveStatus={usbDriveStatus}
+              usbDriveEject={usbDriveEject}
+            />
+          </React.Fragment>
+        }
       />
     )
   }
