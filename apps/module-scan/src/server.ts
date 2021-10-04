@@ -683,11 +683,14 @@ export async function start({
     resolvedScanner = scanner
   } else {
     plustekScannerClientProvider = withReconnect({
-      get: () =>
-        createClient({
-          ...DEFAULT_CONFIG,
-          savepath: resolvedWorkspace.ballotImagesPath,
-        }),
+      get: (callbacks) =>
+        createClient(
+          {
+            ...DEFAULT_CONFIG,
+            savepath: resolvedWorkspace.ballotImagesPath,
+          },
+          callbacks ?? undefined
+        ),
     })
 
     resolvedScanner = usingPrecinctScanner

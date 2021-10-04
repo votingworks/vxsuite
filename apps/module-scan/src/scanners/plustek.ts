@@ -2,6 +2,7 @@ import {
   MockScannerClient,
   PaperStatus,
   ScannerClient,
+  ScannerClientCallbacks,
   ScannerError,
 } from '@votingworks/plustek-sdk'
 import { ok, Provider, Result, safeParse } from '@votingworks/types'
@@ -15,7 +16,10 @@ import { SheetOf } from '../types'
 
 const debug = makeDebug('module-scan:scanner')
 
-export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>
+export type ScannerClientProvider = Provider<
+  Result<ScannerClient, Error>,
+  ScannerClientCallbacks | void
+>
 
 const SCANNER_RETRY_DURATION_SECONDS = 5
 const NANOSECONDS_PER_SECOND = BigInt(1_000_000_000)
@@ -31,14 +35,31 @@ function retryFor({ seconds }: { seconds: number }): () => boolean {
 
 export class PlustekScanner implements Scanner {
   private statusOverride?: ScannerStatus
+  private previousClient?: ScannerClient
 
   constructor(
-    private readonly clientProvider: Provider<Result<ScannerClient, Error>>,
+    private readonly clientProvider: ScannerClientProvider,
     private readonly alwaysHoldOnReject = false
   ) {}
 
-  private async getHardwareStatus(): Promise<ScannerStatus> {
+  private async getClient(): Promise<Result<ScannerClient, Error>> {
     const clientResult = await this.clientProvider.get()
+    const nextClient = clientResult.ok()
+
+    if (nextClient !== this.previousClient && this.statusOverride) {
+      debug(
+        'PlustekScanner#getClient: clearing status override: %s',
+        this.statusOverride
+      )
+      this.statusOverride = undefined
+    }
+    this.previousClient = nextClient
+
+    return clientResult
+  }
+
+  private async getHardwareStatus(): Promise<ScannerStatus> {
+    const clientResult = await this.getClient()
 
     if (clientResult.isErr()) {
       debug(
@@ -106,7 +127,7 @@ export class PlustekScanner implements Scanner {
     const scanSheet = async (): Promise<SheetOf<string> | undefined> => {
       try {
         debug('PlustekScanner#scanSheet BEGIN')
-        const clientResult = await this.clientProvider.get()
+        const clientResult = await this.getClient()
 
         if (clientResult.isErr()) {
           debug(
@@ -146,7 +167,7 @@ export class PlustekScanner implements Scanner {
 
     const acceptSheet = async (): Promise<boolean> => {
       debug('PlustekScanner#acceptSheet BEGIN')
-      const clientResult = await this.clientProvider.get()
+      const clientResult = await this.getClient()
 
       if (clientResult.isErr()) {
         debug(
@@ -177,7 +198,7 @@ export class PlustekScanner implements Scanner {
 
     const reviewSheet = async (): Promise<boolean> => {
       debug('PlustekScanner#reviewSheet BEGIN')
-      const clientResult = await this.clientProvider.get()
+      const clientResult = await this.getClient()
 
       if (clientResult.isErr()) {
         debug(
@@ -208,7 +229,7 @@ export class PlustekScanner implements Scanner {
 
     const rejectSheet = async (): Promise<boolean> => {
       debug('PlustekScanner#rejectSheet BEGIN')
-      const clientResult = await this.clientProvider.get()
+      const clientResult = await this.getClient()
 
       if (clientResult.isErr()) {
         debug(
@@ -246,7 +267,7 @@ export class PlustekScanner implements Scanner {
 
     const endBatch = async (): Promise<void> => {
       debug('PlustekScanner#endBatch BEGIN')
-      const clientResult = await this.clientProvider.get()
+      const clientResult = await this.getClient()
 
       if (clientResult.isErr()) {
         debug(
@@ -282,7 +303,7 @@ export class PlustekScanner implements Scanner {
 
   async calibrate(): Promise<boolean> {
     debug('PlustekScanner#calibrate BEGIN')
-    const clientResult = await this.clientProvider.get()
+    const clientResult = await this.getClient()
 
     if (clientResult.isErr()) {
       debug(
@@ -364,11 +385,21 @@ export function withReconnect(
   let clientPromise: Promise<ScannerClient> | undefined
   let client: ScannerClient | undefined
 
+  const discardClient = async (): Promise<void> => {
+    debug('withReconnect: closing client')
+    await (await clientPromise)?.close()
+    clientPromise = undefined
+  }
+
   const getClient = async (): Promise<ScannerClient> => {
     let result: ScannerClient | undefined
     while (!result) {
       debug('withReconnect: establishing new connection')
-      result = (await provider.get()).ok()
+      result = (
+        await provider.get({
+          onError: () => void discardClient(),
+        })
+      ).ok()
       debug('withReconnect: client=%o', result)
     }
     return result
@@ -378,12 +409,6 @@ export function withReconnect(
     clientPromise ??= getClient()
     client = await clientPromise
     return clientPromise
-  }
-
-  const discardClient = async (): Promise<void> => {
-    debug('withReconnect: closing client')
-    await (await clientPromise)?.close()
-    clientPromise = undefined
   }
 
   const wrapper: ScannerClient = {

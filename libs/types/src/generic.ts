@@ -5,8 +5,8 @@ export interface Dictionary<T> {
   [key: string]: Optional<T>
 }
 export type Optional<T> = T | undefined
-export interface Provider<T> {
-  get(): Promise<T>
+export interface Provider<T, Input = void> {
+  get(input: Input): Promise<T>
 }
 
 /**

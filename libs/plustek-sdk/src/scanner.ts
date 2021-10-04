@@ -1,6 +1,6 @@
 import { err, ok, Result, safeParse } from '@votingworks/types'
-import { deferred, sleep } from '@votingworks/utils'
-import { spawn } from 'child_process'
+import { deferred, sleep, throwIllegalValue } from '@votingworks/utils'
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import makeDebug from 'debug'
 import { createInterface } from 'readline'
 import { Config, DEFAULT_CONFIG } from './config'
@@ -59,6 +59,78 @@ const noop = () => {
   // do nothing
 }
 
+type PlustekctlEvent =
+  | { type: 'line'; line: string }
+  | { type: 'exit'; code?: number; signal?: string }
+
+async function spawnPlustekctl(
+  configFilePath: string,
+  callback: (event: PlustekctlEvent) => void
+): Promise<
+  Result<
+    {
+      write(data: string): boolean
+      end(data?: string): void
+      setShouldRespawn(respawning: boolean): void
+    },
+    Error
+  >
+> {
+  const plustekctlResult = await findBinaryPath()
+
+  if (plustekctlResult.isErr()) {
+    const error = new Error('unable to find plustekctl')
+    return err(error)
+  }
+
+  const plustekctlPath = plustekctlResult.ok()
+  const args = ['--config', configFilePath, '--delimiter', CLI_DELIMITER]
+  debug('spawning: %s %o', plustekctlPath, args)
+  let plustekctl!: ChildProcessWithoutNullStreams
+  let shouldRespawn = true
+
+  function doSpawn(): void {
+    plustekctl = spawn(plustekctlPath, args, { stdio: 'pipe' })
+      .on('error', (error) => {
+        debug('plustekctl error: %s', error)
+        callback({ type: 'exit' })
+      })
+      .on('exit', (code, signal) => {
+        callback({
+          type: 'exit',
+          code: code ?? undefined,
+          signal: signal ?? undefined,
+        })
+
+        if (shouldRespawn) {
+          doSpawn()
+        }
+      })
+    debug('spawned %s with pid=%d', plustekctlPath, plustekctl.pid)
+
+    /* istanbul ignore next */
+    createInterface(plustekctl.stderr).on('line', (line) => {
+      debug('stderr: %s', line)
+    })
+
+    const lines = createInterface(plustekctl.stdout)
+
+    lines.on('line', (line) => {
+      debug('← %s', line)
+      callback({ type: 'line', line })
+    })
+  }
+
+  doSpawn()
+  return ok({
+    write: (data) => plustekctl.stdin.write(data),
+    end: (data) => plustekctl.stdin.end(data),
+    setShouldRespawn: (newShouldRespawn) => {
+      shouldRespawn = newShouldRespawn
+    },
+  })
+}
+
 export async function createClient(
   config = DEFAULT_CONFIG,
   /* istanbul ignore next */
@@ -88,11 +160,6 @@ export async function createClient(
   const configFilePath = await createTempFile(
     JSON.stringify(resolvedConfig, undefined, 2)
   )
-  const args = ['--config', configFilePath, '--delimiter', CLI_DELIMITER]
-  const plustekctlPath = plustekctlResult.ok()
-  debug('spawning: %s %o', plustekctlPath, args)
-  const plustekctl = spawn(plustekctlPath, args, { stdio: 'pipe' })
-  debug('spawned %s with pid=%d', plustekctlPath, plustekctl.pid)
 
   const {
     promise: connectedPromise,
@@ -102,64 +169,47 @@ export async function createClient(
   let setupError: Error | undefined
   let connected = false
   let interpreting = false
-  let quitting = false
-  let currentLineHandler: ((line: string) => void) | undefined
+  let currentEventHandler: ((event: PlustekctlEvent) => void) | undefined
   let currentIPCPromise = Promise.resolve()
 
-  /* istanbul ignore next */
-  createInterface(plustekctl.stderr).on('line', (line) => {
-    debug('stderr: %s', line)
+  const spawnResult = await spawnPlustekctl(configFilePath, (event) => {
+    if (event.type === 'exit') {
+      debug('plustekctl exited')
+      currentEventHandler?.(event)
+    } else if (event.type === 'line') {
+      const { line } = event
+      if (line === CLI_DELIMITER) {
+        interpreting = !interpreting
+      } else if (interpreting) {
+        /* istanbul ignore else */
+        if (line === 'ready') {
+          if (!connected) {
+            connected = true
+            connectedResolve()
+            onConnected()
+          }
+        } else if (currentEventHandler) {
+          currentEventHandler(event)
+        } else {
+          debug('no registered IPC handling response line: %s', line)
+        }
+      }
+    } else {
+      throwIllegalValue(event, 'type')
+    }
   })
 
-  plustekctl
-    .on('error', (error) => {
-      debug('plustekctl error: %s', error)
-      setupError = new Error(`connection error: ${error}`)
-      onError(setupError)
-      exitResolve()
-    })
-    .on('exit', (code, signal) => {
-      debug('plustekctl exit: code=%d, signal=%s', code, signal)
-      if (quitting && code === 0) {
-        connected = false
-        onDisconnected()
-      } else {
-        setupError = new Error(
-          `connection error: ${plustekctlPath} exited unexpectedly (code=${code}, signal=${signal})`
-        )
-        onError(setupError)
-        connected = false
-      }
-      exitResolve()
-    })
+  if (spawnResult.isErr()) {
+    return spawnResult
+  }
+
+  const plustekctl = spawnResult.ok()
 
   onConnecting()
 
   if (setupError) {
     return err(setupError)
   }
-
-  const lines = createInterface(plustekctl.stdout)
-
-  lines.on('line', (line) => {
-    debug('← %s', line)
-    if (line === CLI_DELIMITER) {
-      interpreting = !interpreting
-    } else if (interpreting) {
-      /* istanbul ignore else */
-      if (line === 'ready') {
-        if (!connected) {
-          connected = true
-          connectedResolve()
-          onConnected()
-        }
-      } else if (currentLineHandler) {
-        currentLineHandler(line)
-      } else {
-        debug('no registered IPC handling response line: %s', line)
-      }
-    }
-  })
 
   async function doIPC<T>(
     method: string,
@@ -177,36 +227,44 @@ export async function createClient(
       handlers.error(new Error('client is disconnected'), resolve)
     }
 
-    currentLineHandler = (line) => {
-      const match = line.trim().match(/^([^\s:]+):\s*(err=)?(.*)$/)
+    currentEventHandler = (event) => {
+      if (event.type === 'line') {
+        const { line } = event
+        const match = line.trim().match(/^([^\s:]+):\s*(err=)?(.*)$/)
 
-      if (match) {
-        const [, responder, isError, data] = match
+        if (match) {
+          const [, responder, isError, data] = match
 
-        if (responder !== method) {
-          handlers.else(line, resolve)
-        } else if (isError) {
-          handlers.error(parseScannerError(data), resolve)
-        } else if (handlers.ok && data === 'ok') {
-          handlers.ok(resolve)
-        } else if (handlers.data) {
-          handlers.data(data, resolve)
+          if (responder !== method) {
+            handlers.else(line, resolve)
+          } else if (isError) {
+            handlers.error(parseScannerError(data), resolve)
+          } else if (handlers.ok && data === 'ok') {
+            handlers.ok(resolve)
+          } else if (handlers.data) {
+            handlers.data(data, resolve)
+          } else {
+            handlers.else(line, resolve)
+          }
         } else {
           handlers.else(line, resolve)
         }
-      } else {
-        handlers.else(line, resolve)
+      } else if (event.type === 'exit') {
+        handlers.error(
+          new Error(`plustekctl exited during '${method}' command`),
+          resolve
+        )
       }
     }
 
     debug('→ %s', method)
-    plustekctl.stdin.write(method)
-    plustekctl.stdin.write('\n')
+    plustekctl.write(method)
+    plustekctl.write('\n')
 
     try {
       return await promise
     } finally {
-      currentLineHandler = undefined
+      currentEventHandler = undefined
       debug('doIPC END (method=%s)', method)
     }
   }
@@ -336,7 +394,11 @@ export async function createClient(
       }),
 
     close: () => {
-      quitting = true
+      if (!connected) {
+        return Promise.resolve(err(new Error('client is disconnected')))
+      }
+
+      plustekctl.setShouldRespawn(false)
       return doIPC('quit', {
         ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
