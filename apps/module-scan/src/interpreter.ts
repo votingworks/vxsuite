@@ -37,10 +37,6 @@ import { loadImageData } from './util/images'
 import optionMarkStatus from './util/optionMarkStatus'
 import { time } from './util/perf'
 import { detectQRCode } from './util/qrcode'
-import {
-  describeValidationError,
-  validateSheetInterpretation,
-} from './validation'
 import * as qrcodeWorker from './workers/qrcode'
 
 const debug = makeDebug('module-scan:interpreter')
@@ -143,16 +139,7 @@ export function sheetRequiresAdjudication([
     return true
   }
 
-  const validationResult = validateSheetInterpretation([front, back])
-
-  if (validationResult.isErr()) {
-    debug(
-      'sheet failed validation: %s',
-      describeValidationError(validationResult.err())
-    )
-  }
-
-  return validationResult.isErr()
+  return false
 }
 
 export interface InterpreterOptions {

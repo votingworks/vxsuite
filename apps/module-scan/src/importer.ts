@@ -22,6 +22,10 @@ import HmpbInterpretationError from './util/HmpbInterpretationError'
 import { writeImageData } from './util/images'
 import pdfToImages from './util/pdfToImages'
 import { Workspace } from './util/workspace'
+import {
+  describeValidationError,
+  validateSheetInterpretation,
+} from './validation'
 import * as workers from './workers/combined'
 import { InterpretOutput } from './workers/interpret'
 import { inlinePool, WorkerPool } from './workers/pool'
@@ -319,6 +323,29 @@ export default class Importer {
             metadata: backWorkerOutput.interpretation.metadata,
           },
         }
+      }
+    }
+
+    const validationResult = validateSheetInterpretation([
+      frontWorkerOutput.interpretation,
+      backWorkerOutput.interpretation,
+    ])
+    if (validationResult.isErr()) {
+      const err = validationResult.err()
+      const errDescription = describeValidationError(err)
+      debug(
+        'rejecting sheet because it would not produce a valid CVR: error=%s: %o',
+        errDescription,
+        err
+      )
+      // replaces interpretation with something that cannot be accepted
+      frontWorkerOutput.interpretation = {
+        type: 'UnreadablePage',
+        reason: `invalid CVR: ${errDescription}`,
+      }
+      backWorkerOutput.interpretation = {
+        type: 'UnreadablePage',
+        reason: `invalid CVR: ${errDescription}`,
       }
     }
 
