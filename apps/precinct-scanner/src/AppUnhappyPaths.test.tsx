@@ -1,5 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
-import { electionSampleDefinition } from '@votingworks/fixtures'
+import {
+  electionSampleDefinition,
+  electionWithMsEitherNeitherDefinition,
+} from '@votingworks/fixtures'
 import {
   advanceTimers,
   advanceTimersAndPromises,
@@ -141,7 +144,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   await screen.findByText('Polls Closed')
 
   const pollWorkerCardWrongElection = makePollWorkerCard(
-    'this-is-not-the-right-hash'
+    electionWithMsEitherNeitherDefinition.electionHash
   )
   card.insertCard(pollWorkerCardWrongElection)
   await advanceTimersAndPromises(1)
