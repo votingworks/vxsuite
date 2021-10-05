@@ -13,6 +13,10 @@ import { advanceTimers } from '../../test/helpers/smartcards'
 import AdminScreen from './AdminScreen'
 import { VxPrintOnly, VxMarkOnly, PrecinctSelectionKind } from '../config/types'
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig'
+import {
+  AriaScreenReader,
+  SpeechSynthesisTextToSpeech,
+} from '../utils/ScreenReader'
 
 MockDate.set('2020-10-31T00:00:00.000Z')
 
@@ -46,6 +50,7 @@ test('renders ClerkScreen for VxPrintOnly', async () => {
         codeVersion: '', // Override default
       })}
       printer={fakePrinter()}
+      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   )
 
@@ -90,6 +95,7 @@ test('renders date and time settings modal', async () => {
         codeVersion: 'test',
       })}
       printer={fakePrinter()}
+      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   )
 
@@ -235,6 +241,7 @@ test('select All Precincts', async () => {
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
       printer={fakePrinter()}
+      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   )
 
@@ -264,6 +271,7 @@ test('render All Precincts', async () => {
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
       printer={fakePrinter()}
+      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   )
 

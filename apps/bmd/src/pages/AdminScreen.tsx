@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { ElectionDefinition } from '@votingworks/types'
 import { formatFullDateTimeZone, Printer } from '@votingworks/utils'
@@ -14,6 +14,7 @@ import {
   MachineConfig,
   PrecinctSelection,
   PrecinctSelectionKind,
+  ScreenReader,
   SelectChangeEventFunction,
 } from '../config/types'
 
@@ -40,6 +41,7 @@ interface Props {
   unconfigure: () => Promise<void>
   machineConfig: MachineConfig
   printer: Printer
+  screenReader: ScreenReader
 }
 
 const ALL_PRECINCTS_OPTION_VALUE = '_ALL'
@@ -55,6 +57,7 @@ const AdminScreen = ({
   unconfigure,
   machineConfig,
   printer,
+  screenReader,
 }: Props): JSX.Element => {
   const election = electionDefinition?.election
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
@@ -99,6 +102,13 @@ const AdminScreen = ({
     },
     [setIsSettingClock, setIsSystemDateModalActive]
   )
+
+  // Disable the audiotrack when in admin mode
+  useEffect(() => {
+    const initialMuted = screenReader.isMuted()
+    screenReader.mute()
+    return () => screenReader.toggleMuted(initialMuted)
+  }, [screenReader])
 
   if (isTestDeck && electionDefinition) {
     return (
