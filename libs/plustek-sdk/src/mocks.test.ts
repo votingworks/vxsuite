@@ -1,6 +1,7 @@
 import { ScannerError } from './errors'
 import { Errors, MockScannerClient } from './mocks'
 import { PaperStatus } from './paper-status'
+import { ClientDisconnectedError } from './scanner'
 
 const files: readonly string[] = ['/tmp/a.jpg', '/tmp/b.jpg']
 
@@ -59,7 +60,7 @@ test('unresponsive', async () => {
 
   await mock.connect()
   expect(mock.isConnected()).toEqual(true)
-  await mock.simulateUnresponsive()
+  mock.simulateUnresponsive()
 
   expect(mock.isConnected()).toEqual(true)
   expect((await mock.simulateLoadSheet(files)).err()).toEqual(
@@ -80,6 +81,34 @@ test('unresponsive', async () => {
   expect(
     (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
   ).toEqual(ScannerError.SaneStatusIoError)
+  ;(await mock.close()).unsafeUnwrap()
+})
+
+test('crashed', async () => {
+  const mock = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  })
+
+  await mock.connect()
+  expect(mock.isConnected()).toEqual(true)
+  mock.simulatePlustekctlCrash()
+
+  expect(mock.isConnected()).toEqual(false)
+  expect((await mock.simulateLoadSheet(files)).err()).toEqual(Errors.Crashed)
+  expect((await mock.simulateRemoveSheet()).err()).toEqual(Errors.Crashed)
+  expect((await mock.accept()).err()).toBeInstanceOf(ClientDisconnectedError)
+  expect((await mock.calibrate()).err()).toBeInstanceOf(ClientDisconnectedError)
+  expect((await mock.getPaperStatus()).err()).toBeInstanceOf(
+    ClientDisconnectedError
+  )
+  expect((await mock.reject({ hold: true })).err()).toBeInstanceOf(
+    ClientDisconnectedError
+  )
+  expect((await mock.scan()).err()).toBeInstanceOf(ClientDisconnectedError)
+  expect(
+    (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
+  ).toBeInstanceOf(ClientDisconnectedError)
   ;(await mock.close()).unsafeUnwrap()
 })
 

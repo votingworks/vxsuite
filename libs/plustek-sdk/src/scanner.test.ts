@@ -7,7 +7,12 @@ import { DEFAULT_CONFIG } from './config'
 import { ScannerError } from './errors'
 import { PaperStatus } from './paper-status'
 import * as plustekctlModule from './plustekctl'
-import { createClient } from './scanner'
+import {
+  ClientDisconnectedError,
+  createClient,
+  InvalidClientResponseError,
+  PlustekctlBinaryMissingError,
+} from './scanner'
 
 const findBinaryPath = mocked(plustekctlModule.findBinaryPath)
 const spawn = mocked(cp.spawn)
@@ -31,9 +36,7 @@ beforeEach(() => {
 test('cannot find plustekctl', async () => {
   findBinaryPath.mockResolvedValueOnce(err(new Error('ENOENT')))
   const result = await createClient()
-  expect(result.unsafeUnwrapErr()).toEqual(
-    new Error('unable to find plustekctl')
-  )
+  expect(result.unsafeUnwrapErr()).toEqual(new PlustekctlBinaryMissingError())
 })
 
 test('no savepath given', async () => {
@@ -104,8 +107,8 @@ test('plustekctl spawns but immediately exits', async () => {
     }),
   })
   expect(result.unsafeUnwrapErr()).toEqual(
-    new Error(
-      'connection error: plustekctl exited unexpectedly (code=0, signal=undefined)'
+    new ClientDisconnectedError(
+      `connection error: plustekctl exited unexpectedly (pid=${plustekctl.pid}, code=0, signal=undefined)`
     )
   )
 })
@@ -125,8 +128,8 @@ test('plustekctl spawns but fails the handshake', async () => {
     }),
   })
   expect(result.unsafeUnwrapErr()).toEqual(
-    new Error(
-      'connection error: plustekctl exited unexpectedly (code=1, signal=undefined)'
+    new ClientDisconnectedError(
+      `connection error: plustekctl exited unexpectedly (pid=${plustekctl.pid}, code=1, signal=undefined)`
     )
   )
 })
@@ -193,9 +196,13 @@ test('unsuccessful disconnect returns error', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await closeResultPromise).unsafeUnwrapErr()).toEqual(
-    new Error(`invalid response: uh uh uh! you didn't say the magic word!`)
+  const error = (await closeResultPromise).unsafeUnwrapErr()
+  expect(error).toEqual(
+    new InvalidClientResponseError(
+      `invalid response: uh uh uh! you didn't say the magic word!`
+    )
   )
+  expect(error).toBeInstanceOf(InvalidClientResponseError)
 })
 
 test('client cannot send commands after disconnect', async () => {
@@ -216,21 +223,21 @@ test('client cannot send commands after disconnect', async () => {
   plustekctl.emit('exit', 0)
 
   expect(client.isConnected()).toEqual(false)
-  expect((await client.getPaperStatus()).unsafeUnwrapErr()).toEqual(
-    new Error('client is disconnected')
+  expect((await client.getPaperStatus()).unsafeUnwrapErr()).toBeInstanceOf(
+    ClientDisconnectedError
   )
-  expect((await client.scan()).unsafeUnwrapErr()).toEqual(
-    new Error('client is disconnected')
+  expect((await client.scan()).unsafeUnwrapErr()).toBeInstanceOf(
+    ClientDisconnectedError
   )
-  expect((await client.close()).unsafeUnwrapErr()).toEqual(
-    new Error('client is disconnected')
+  expect((await client.close()).unsafeUnwrapErr()).toBeInstanceOf(
+    ClientDisconnectedError
   )
-  expect((await client.accept()).unsafeUnwrapErr()).toEqual(
-    new Error('client is disconnected')
+  expect((await client.accept()).unsafeUnwrapErr()).toBeInstanceOf(
+    ClientDisconnectedError
   )
-  expect((await client.reject({ hold: true })).unsafeUnwrapErr()).toEqual(
-    new Error('client is disconnected')
-  )
+  expect(
+    (await client.reject({ hold: true })).unsafeUnwrapErr()
+  ).toBeInstanceOf(ClientDisconnectedError)
 })
 
 test('client responds with wrong IPC command', async () => {
@@ -255,9 +262,13 @@ test('client responds with wrong IPC command', async () => {
   )
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
 
-  expect((await resultPromise).unsafeUnwrapErr()).toEqual(
-    new Error('invalid response: unknown-response-thing: hey there!')
+  const error = (await resultPromise).unsafeUnwrapErr()
+  expect(error).toEqual(
+    new InvalidClientResponseError(
+      'invalid response: unknown-response-thing: hey there!'
+    )
   )
+  expect(error).toBeInstanceOf(InvalidClientResponseError)
 })
 
 test('getPaperStatus succeeds', async () => {
@@ -523,6 +534,30 @@ test('scan succeeds after retries', async () => {
   expect(result.unsafeUnwrap()).toEqual({
     files: ['file01.jpg', 'file02.jpg'],
   })
+})
+
+test('plustekctl exits during scan', async () => {
+  const plustekctl = fakeChildProcess()
+  spawn.mockReturnValueOnce(plustekctl)
+  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'))
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n')
+      }),
+    })
+  ).unsafeUnwrap()
+
+  const result = await client.scan({
+    onScanAttemptStart: async () => {
+      await nextTick
+      plustekctl.emit('exit', 1, null)
+    },
+  })
+
+  expect(result.unsafeUnwrapErr()).toBeInstanceOf(ClientDisconnectedError)
 })
 
 test('calibrate succeeds', async () => {

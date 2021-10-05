@@ -1,8 +1,10 @@
 import {
+  ClientDisconnectedError,
   MockScannerClient,
   PaperStatus,
   ScannerClient,
   ScannerError,
+  ScanRetryPredicate,
 } from '@votingworks/plustek-sdk'
 import { ok, Provider, Result, safeParse } from '@votingworks/types'
 import { ScannerStatus } from '@votingworks/types/api/module-scan'
@@ -20,10 +22,13 @@ export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>
 const SCANNER_RETRY_DURATION_SECONDS = 5
 const NANOSECONDS_PER_SECOND = BigInt(1_000_000_000)
 
-function retryFor({ seconds }: { seconds: number }): () => boolean {
+const retryFor = ({ seconds }: { seconds: number }): ScanRetryPredicate => {
   const start = process.hrtime.bigint()
   const end = start + BigInt(seconds) * NANOSECONDS_PER_SECOND
-  return () => {
+  return (result) => {
+    if (result.err() instanceof ClientDisconnectedError) {
+      return false
+    }
     const now = process.hrtime.bigint()
     return now < end
   }
@@ -33,7 +38,7 @@ export class PlustekScanner implements Scanner {
   private statusOverride?: ScannerStatus
 
   constructor(
-    private readonly clientProvider: Provider<Result<ScannerClient, Error>>,
+    private readonly clientProvider: ScannerClientProvider,
     private readonly alwaysHoldOnReject = false
   ) {}
 
@@ -386,12 +391,16 @@ export function withReconnect(
     clientPromise = undefined
   }
 
+  const shouldDiscardAndRetry = (result: Result<unknown, unknown>) =>
+    result.err() === ScannerError.SaneStatusIoError ||
+    result.err() instanceof ClientDisconnectedError
+
   const wrapper: ScannerClient = {
     accept: async () => {
       for (;;) {
         const result = await (await ensureClient()).accept()
 
-        if (result.err() === ScannerError.SaneStatusIoError) {
+        if (shouldDiscardAndRetry(result)) {
           await discardClient()
           continue
         }
@@ -404,7 +413,7 @@ export function withReconnect(
       for (;;) {
         const result = await (await ensureClient()).calibrate()
 
-        if (result.err() === ScannerError.SaneStatusIoError) {
+        if (shouldDiscardAndRetry(result)) {
           await discardClient()
           continue
         }
@@ -422,7 +431,7 @@ export function withReconnect(
       for (;;) {
         const result = await (await ensureClient()).getPaperStatus()
 
-        if (result.err() === ScannerError.SaneStatusIoError) {
+        if (shouldDiscardAndRetry(result)) {
           debug(
             'withReconnect: getPaperStatus: got %s, reconnecting',
             result.err()
@@ -443,7 +452,7 @@ export function withReconnect(
       for (;;) {
         const result = await (await ensureClient()).reject({ hold })
 
-        if (result.err() === ScannerError.SaneStatusIoError) {
+        if (shouldDiscardAndRetry(result)) {
           await discardClient()
           continue
         }
@@ -456,10 +465,7 @@ export function withReconnect(
       for (;;) {
         const result = await (await ensureClient()).scan(options)
 
-        if (
-          result.isErr() &&
-          result.err() === ScannerError.PaperStatusErrorFeeding
-        ) {
+        if (result.err() === ScannerError.PaperStatusErrorFeeding) {
           await discardClient()
           continue
         }
