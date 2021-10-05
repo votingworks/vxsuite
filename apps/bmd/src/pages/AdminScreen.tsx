@@ -65,10 +65,10 @@ const AdminScreen = ({
 
     if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
       updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts })
-    } else {
+    } else if (precinctId) {
       updateAppPrecinct({
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: event.currentTarget.value,
+        precinctId,
       })
     }
   }
