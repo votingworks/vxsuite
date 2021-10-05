@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { render, fireEvent, waitFor } from '@testing-library/react'
+import fileDownload from 'js-file-download'
 import {
   electionSampleDefinition as electionDefinition,
   electionSampleDefinition,
@@ -126,7 +127,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 
   const closeFn = jest.fn()
   const ejectFn = jest.fn()
-  const { getByText } = render(
+  const { getByText, rerender } = render(
     <AppContext.Provider
       value={{ electionDefinition: electionSampleDefinition, machineConfig }}
     >
@@ -170,6 +171,23 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   expect(ejectFn).toHaveBeenCalled()
   fireEvent.click(getByText('Cancel'))
   expect(closeFn).toHaveBeenCalled()
+
+  rerender(
+    <AppContext.Provider
+      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+    >
+      <ExportResultsModal
+        onClose={closeFn}
+        usbDrive={{ status: UsbDriveStatus.recentlyEjected, eject: ejectFn }}
+        scannedBallotCount={5}
+        isTestMode
+      />
+    </AppContext.Provider>
+  )
+  getByText('Download Complete')
+  getByText(
+    'USB drive successfully ejected, you may now take it to VxAdmin for tabulation.'
+  )
 })
 
 test('render export modal with errors when appropriate', async () => {
