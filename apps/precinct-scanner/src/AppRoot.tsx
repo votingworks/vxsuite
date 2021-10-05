@@ -20,6 +20,7 @@ import {
   useCancelablePromise,
   useSmartcard,
   useUsbDrive,
+  SetupCardReaderPage,
 } from '@votingworks/ui'
 import {
   throwIllegalValue,
@@ -51,7 +52,6 @@ import * as scan from './api/scan'
 
 import usePrecinctScanner from './hooks/usePrecinctScanner'
 import AdminScreen from './screens/AdminScreen'
-import SetupCardReaderPage from './screens/SetupCardReaderPage'
 import InvalidCardScreen from './screens/InvalidCardScreen'
 import PollsClosedScreen from './screens/PollsClosedScreen'
 import PollWorkerScreen from './screens/PollWorkerScreen'

@@ -19,7 +19,6 @@ import * as ScanErrorScreen from './screens/ScanErrorScreen'
 import * as ScanProcessingScreen from './screens/ScanProcessingScreen'
 import * as ScanSuccessScreen from './screens/ScanSuccessScreen'
 import * as ScanWarningScreen from './screens/ScanWarningScreen'
-import * as SetupCardReaderPage from './screens/SetupCardReaderPage'
 import * as SetupPowerPage from './screens/SetupPowerPage'
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen'
 import * as UnlockAdminScreen from './screens/UnlockAdminScreen'
@@ -43,7 +42,6 @@ const PreviewApp = (): JSX.Element => {
         ScanProcessingScreen,
         ScanSuccessScreen,
         ScanWarningScreen,
-        SetupCardReaderPage,
         SetupPowerPage,
         UnconfiguredElectionScreen,
         UnlockAdminScreen,
