@@ -144,8 +144,8 @@ const ExportResultsModal = ({
             <Prose>
               <h1>Download Complete</h1>
               <p>
-                USB drive successfully ejected, you may now take it to VxAdmin
-                for tabulation.
+                USB drive successfully ejected, you may now take it to Election
+                Manager for tabulation.
               </p>
             </Prose>
           }
@@ -161,7 +161,7 @@ const ExportResultsModal = ({
             <h1>Download Complete</h1>
             <p>
               CVR results file saved successfully! You may now eject the USB
-              drive and take it to VxAdmin for tabulation.
+              drive and take it to Election Manager for tabulation.
             </p>
           </Prose>
         }

@@ -174,6 +174,9 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       </Router>
     </AppContext.Provider>
   )
+  getByText(
+    'USB drive successfully ejected, you may now take it to Election Manager for tabulation.'
+  )
 })
 
 test('render export modal with errors when appropriate', async () => {

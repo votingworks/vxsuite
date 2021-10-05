@@ -186,7 +186,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   )
   getByText('Download Complete')
   getByText(
-    'USB drive successfully ejected, you may now take it to VxAdmin for tabulation.'
+    'USB drive successfully ejected, you may now take it to Election Manager for tabulation.'
   )
 })
 
