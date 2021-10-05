@@ -912,6 +912,9 @@ const AppRoot = ({
   }, [clearLongValue, resetPollWorkerCardTally])
 
   const markVoterCardVoided: MarkVoterCardFunction = useCallback(async () => {
+    if (isCardlessVoter) {
+      return true
+    }
     stopCardShortValueReadPolling()
 
     await clearLongValue()
@@ -953,6 +956,7 @@ const AppRoot = ({
     startCardShortValueReadPolling,
     stopCardShortValueReadPolling,
     writeCard,
+    isCardlessVoter,
   ])
 
   const markVoterCardPrinted: MarkVoterCardFunction = useCallback(async () => {
