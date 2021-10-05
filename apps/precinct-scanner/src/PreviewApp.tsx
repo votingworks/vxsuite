@@ -16,6 +16,7 @@ import * as LoadingConfigurationScreen from './screens/LoadingConfigurationScree
 import * as PollsClosedScreen from './screens/PollsClosedScreen'
 import * as PollWorkerScreen from './screens/PollWorkerScreen'
 import * as ScanErrorScreen from './screens/ScanErrorScreen'
+import * as ScannerCrashedScreen from './screens/ScannerCrashedScreen'
 import * as ScanProcessingScreen from './screens/ScanProcessingScreen'
 import * as ScanSuccessScreen from './screens/ScanSuccessScreen'
 import * as ScanWarningScreen from './screens/ScanWarningScreen'
@@ -43,6 +44,7 @@ const PreviewApp = (): JSX.Element => {
         ScanProcessingScreen,
         ScanSuccessScreen,
         ScanWarningScreen,
+        ScannerCrashedScreen,
         SetupCardReaderPage,
         SetupPowerPage,
         UnconfiguredElectionScreen,

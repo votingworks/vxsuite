@@ -63,6 +63,7 @@ import ScanProcessingScreen from './screens/ScanProcessingScreen'
 import AppContext from './contexts/AppContext'
 import SetupPowerPage from './screens/SetupPowerPage'
 import UnlockAdminScreen from './screens/UnlockAdminScreen'
+import ScannerCrashedScreen from './screens/ScannerCrashedScreen'
 
 const debug = makeDebug('precinct-scanner:app-root')
 
@@ -205,6 +206,7 @@ type AppAction =
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
   | { type: 'adminCardAuthenticated' }
+  | { type: 'scanningCrashed' }
 
 const appReducer = (state: State, action: AppAction): State => {
   debug(
@@ -363,6 +365,12 @@ const appReducer = (state: State, action: AppAction): State => {
           authenticated: true,
         },
       }
+    case 'scanningCrashed':
+      return {
+        ...state,
+        ...initialScanInformationState,
+        ballotState: BallotState.SCANNER_CRASHED,
+      }
     default:
       throwIllegalValue(action)
   }
@@ -468,6 +476,10 @@ const AppRoot = ({
     try {
       const scanningResult = await scan.scanDetectedSheet()
       switch (scanningResult.resultType) {
+        case ScanningResultType.Crashed: {
+          dispatchAppState({ type: 'scanningCrashed' })
+          break
+        }
         case ScanningResultType.Rejected: {
           dispatchAppState({
             type: 'ballotRejected',
@@ -599,6 +611,9 @@ const AppRoot = ({
 
         // Figure out what ballot state we are in, defaulting to the current state.
         switch (scannerState) {
+          case ScannerStatus.Crashed:
+            dispatchAppState({ type: 'scanningCrashed' })
+            return
           case ScannerStatus.Error:
           case ScannerStatus.Unknown: {
             // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
@@ -983,6 +998,10 @@ const AppRoot = ({
             isTestMode={isTestMode}
           />
         )
+        break
+      }
+      case BallotState.SCANNER_CRASHED: {
+        voterScreen = <ScannerCrashedScreen />
         break
       }
       case BallotState.REJECTED: {

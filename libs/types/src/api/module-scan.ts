@@ -69,6 +69,7 @@ export enum ScannerStatus {
   Calibrating = 'Calibrating',
   Error = 'Error',
   Unknown = 'Unknown',
+  Crashed = 'Crashed',
 }
 
 export const ScannerStatusSchema = z.nativeEnum(ScannerStatus)

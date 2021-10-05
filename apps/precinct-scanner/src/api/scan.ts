@@ -71,6 +71,12 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
       return { resultType: ScanningResultType.Accepted }
     }
 
+    if (status.scanner === ScannerStatus.Crashed) {
+      return {
+        resultType: ScanningResultType.Crashed,
+      }
+    }
+
     const adjudicationReasons: AdjudicationReasonInfo[] = []
     if (status.adjudication.remaining > 0) {
       const sheetInfo = await fetchJSON<GetNextReviewSheetResponse>(

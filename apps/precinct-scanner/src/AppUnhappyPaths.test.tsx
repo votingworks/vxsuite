@@ -262,6 +262,69 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   await screen.findByText('Insert Your Ballot Below')
 })
 
+test('crash status from module-scan shows crashed screen', async () => {
+  const storage = new MemoryStorage()
+  await storage.set(stateStorageKey, { isPollsOpen: true })
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', electionSampleDefinition)
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+  const card = new MemoryCard()
+  const hardware = await MemoryHardware.buildStandard()
+  render(<App storage={storage} card={card} hardware={hardware} />)
+  advanceTimers(1)
+  await screen.findByText('Insert Your Ballot Below')
+
+  fetchMock.getOnce(
+    '/scan/status',
+    { body: scanStatusReadyToScanResponseBody },
+    { overwriteRoutes: true, repeat: 5 }
+  )
+  fetchMock.post('/scan/scanBatch', {
+    body: { status: 'ok', batchId: 'test-batch' },
+  })
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          count: 1,
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    }),
+    { overwriteRoutes: false }
+  )
+  await advanceTimersAndPromises(1)
+  await advanceTimersAndPromises(1)
+  expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1)
+  await screen.findByText(/Scanning Ballot/)
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.Crashed,
+      batches: [
+        {
+          id: 'test-batch',
+          label: 'Batch 1',
+          count: 1,
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 0 },
+    }),
+    { overwriteRoutes: true }
+  )
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Scanner Reboot Required')
+})
+
 test('error from module-scan in ejecting a reviewable ballot', async () => {
   const storage = new MemoryStorage()
   await storage.set(stateStorageKey, { isPollsOpen: true })

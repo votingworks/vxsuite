@@ -7,12 +7,14 @@ export enum BallotState {
   CAST = 'ballot_cast',
   REJECTED = 'ballot_rejected',
   SCANNER_ERROR = 'error',
+  SCANNER_CRASHED = 'scanner_crashed',
 }
 
 export enum ScanningResultType {
   Accepted = 'accepted',
   Rejected = 'rejected',
   NeedsReview = 'needs-review',
+  Crashed = 'crashed',
 }
 
 export enum RejectedScanningReason {
@@ -26,10 +28,15 @@ export enum RejectedScanningReason {
 export type ScanningResult =
   | AcceptedScanningResult
   | RejectedScanningResult
+  | CrashedScanningResult
   | ScanningResultNeedsReview
 
 export interface AcceptedScanningResult {
   resultType: ScanningResultType.Accepted
+}
+
+export interface CrashedScanningResult {
+  resultType: ScanningResultType.Crashed
 }
 
 export interface RejectedScanningResult {
