@@ -209,13 +209,15 @@ const PollWorkerScreen = ({
   const currentDateTime = new Date().toLocaleString()
   const reportPurposes = ['Publicly Posted', 'Officially Filed']
 
-  if (hasVotes) {
+  if (hasVotes && cardlessVoterSessionBallotStyleId) {
     return (
       <Screen>
         <Main>
           <MainChild center narrow>
             <Prose textCenter>
-              <h1 aria-label="Ballot style {ballotStyleId} has been  activated.">
+              <h1
+                aria-label={`Ballot style ${cardlessVoterSessionBallotStyleId} has been activated.`}
+              >
                 Ballot Contains Votes
               </h1>
               <p>
