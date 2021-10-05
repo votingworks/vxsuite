@@ -7,6 +7,7 @@ import { PaperStatus } from './paper-status'
 import {
   AcceptResult,
   CalibrateResult,
+  ClientDisconnectedError,
   CloseResult,
   GetPaperStatusResult,
   RejectResult,
@@ -19,6 +20,7 @@ const debug = makeDebug('plustek-sdk:mock-client')
 export enum Errors {
   DuplicateLoad = 'DuplicateLoad',
   Unresponsive = 'Unresponsive',
+  Crashed = 'Crashed',
   NotConnected = 'NotConnected',
   NoPaperToRemove = 'NoPaperToRemove',
 }
@@ -42,6 +44,7 @@ export interface Options {
 export class MockScannerClient implements ScannerClient {
   private connected = false
   private unresponsive = false
+  private crashed = false
   private frontSheet?: readonly string[]
   private backSheet?: readonly string[]
   private toggleHoldDuration: number
@@ -84,6 +87,11 @@ export class MockScannerClient implements ScannerClient {
       return err(Errors.Unresponsive)
     }
 
+    if (this.crashed) {
+      debug('cannot load, plustekctl crashed')
+      return err(Errors.Crashed)
+    }
+
     if (!this.connected) {
       debug('cannot load, not connected')
       return err(Errors.NotConnected)
@@ -111,6 +119,11 @@ export class MockScannerClient implements ScannerClient {
       return err(Errors.Unresponsive)
     }
 
+    if (this.crashed) {
+      debug('cannot remove, plustekctl crashed')
+      return err(Errors.Crashed)
+    }
+
     if (!this.connected) {
       debug('cannot remove, not connected')
       return err(Errors.NotConnected)
@@ -131,15 +144,23 @@ export class MockScannerClient implements ScannerClient {
    * cable removed or power turned off. Once a scanner is unresponsive it cannot
    * become responsive again, and a new client/connection must be established.
    */
-  async simulateUnresponsive(): Promise<void> {
+  simulateUnresponsive(): void {
     this.unresponsive = true
+  }
+
+  /**
+   * Simulates `plustekctl` crashing. Once this happens a new client/connection
+   * must be established.
+   */
+  simulatePlustekctlCrash(): void {
+    this.crashed = true
   }
 
   /**
    * Determines whether the client is connected.
    */
   isConnected(): boolean {
-    return this.connected
+    return this.connected && !this.crashed
   }
 
   /**
@@ -151,6 +172,13 @@ export class MockScannerClient implements ScannerClient {
     if (this.unresponsive) {
       debug('cannot get paper status, scanner unresponsive')
       return err(ScannerError.SaneStatusIoError)
+    }
+
+    if (this.crashed) {
+      debug('cannot get paper status, plustekctl crashed')
+      return err(
+        new ClientDisconnectedError('#simulateCrash was previously called')
+      )
     }
 
     if (!this.connected) {
@@ -197,6 +225,13 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.SaneStatusIoError)
     }
 
+    if (this.crashed) {
+      debug('cannot wait for status, plustekctl crashed')
+      return err(
+        new ClientDisconnectedError('#simulateCrash was previously called')
+      )
+    }
+
     if (!this.connected) {
       debug('cannot wait for status, not connected')
       return err(ScannerError.NoDevices)
@@ -230,6 +265,13 @@ export class MockScannerClient implements ScannerClient {
     if (this.unresponsive) {
       debug('cannot scan, scanner unresponsive')
       return err(ScannerError.PaperStatusErrorFeeding)
+    }
+
+    if (this.crashed) {
+      debug('cannot scan, plustekctl crashed')
+      return err(
+        new ClientDisconnectedError('#simulateCrash was previously called')
+      )
     }
 
     if (!this.connected) {
@@ -271,6 +313,13 @@ export class MockScannerClient implements ScannerClient {
       return err(ScannerError.SaneStatusIoError)
     }
 
+    if (this.crashed) {
+      debug('cannot accept, plustekctl crashed')
+      return err(
+        new ClientDisconnectedError('#simulateCrash was previously called')
+      )
+    }
+
     if (!this.connected) {
       debug('cannot accept, not connected')
       return err(ScannerError.NoDevices)
@@ -307,6 +356,13 @@ export class MockScannerClient implements ScannerClient {
     if (this.unresponsive) {
       debug('cannot reject, scanner unresponsive')
       return err(ScannerError.SaneStatusIoError)
+    }
+
+    if (this.crashed) {
+      debug('cannot reject, plustekctl crashed')
+      return err(
+        new ClientDisconnectedError('#simulateCrash was previously called')
+      )
     }
 
     if (!this.connected) {
@@ -348,6 +404,13 @@ export class MockScannerClient implements ScannerClient {
     if (this.unresponsive) {
       debug('cannot calibrate, scanner unresponsive')
       return err(ScannerError.SaneStatusIoError)
+    }
+
+    if (this.crashed) {
+      debug('cannot calibrate, plustekctl crashed')
+      return err(
+        new ClientDisconnectedError('#simulateCrash was previously called')
+      )
     }
 
     if (!this.connected) {
