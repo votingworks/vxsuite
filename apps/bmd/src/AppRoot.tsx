@@ -555,18 +555,6 @@ const AppRoot = ({
     [card]
   )
 
-  // Disable the audiotrack when in admin mode
-  useEffect(() => {
-    const updateScreenReader = async () => {
-      if (isAdminCardPresent) {
-        await screenReader.disable()
-      } else {
-        await screenReader.enable()
-      }
-    }
-    void updateScreenReader()
-  }, [isAdminCardPresent, screenReader])
-
   // Handle Storing Election Locally
   useEffect(() => {
     const storeElection = async (electionDefinition: ElectionDefinition) => {
@@ -1253,6 +1241,7 @@ const AppRoot = ({
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         printer={printer}
+        screenReader={screenReader}
       />
     )
   }
