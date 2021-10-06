@@ -6,6 +6,7 @@ import {
   TSESTree,
 } from '@typescript-eslint/experimental-utils'
 import * as ts from 'typescript'
+import { createRule } from '../util'
 
 interface Options {
   ignoreVoid?: boolean
@@ -54,10 +55,7 @@ function isUnhandledResult(
   return isResultType(checker, parserServices.esTreeNodeToTSNodeMap.get(node))
 }
 
-export default ESLintUtils.RuleCreator(
-  () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/no-floating-results.md'
-)({
+export default createRule({
   name: 'no-floating-results',
   meta: {
     docs: {
@@ -97,7 +95,7 @@ export default ESLintUtils.RuleCreator(
     const sourceCode = context.getSourceCode()
 
     return {
-      ExpressionStatement(node): void {
+      ExpressionStatement(node: TSESTree.ExpressionStatement): void {
         if (
           isUnhandledResult(checker, parserServices, options, node.expression)
         ) {

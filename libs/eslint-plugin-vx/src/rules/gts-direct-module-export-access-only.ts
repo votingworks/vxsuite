@@ -1,14 +1,8 @@
-import {
-  AST_NODE_TYPES,
-  ESLintUtils,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils'
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
 import { strict as assert } from 'assert'
+import { createRule } from '../util'
 
-export default ESLintUtils.RuleCreator(
-  () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/gts-direct-module-export-access-only.md'
-)({
+export default createRule({
   name: 'gts-direct-module-export-access-only',
   meta: {
     docs: {

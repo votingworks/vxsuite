@@ -1,8 +1,5 @@
-import {
-  AST_NODE_TYPES,
-  ESLintUtils,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils'
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
+import { createRule } from '../util'
 
 function getParamName(param: TSESTree.Parameter): string | undefined {
   switch (param.type) {
@@ -36,10 +33,7 @@ function isPropertyInitializerAssignment(
   )
 }
 
-export default ESLintUtils.RuleCreator(
-  () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/gts-parameter-properties.md'
-)({
+export default createRule({
   name: 'gts-parameter-properties',
   meta: {
     docs: {
@@ -62,7 +56,7 @@ export default ESLintUtils.RuleCreator(
 
   create(context) {
     return {
-      MethodDefinition(node): void {
+      MethodDefinition(node: TSESTree.MethodDefinition): void {
         if (
           node.key.type !== AST_NODE_TYPES.Identifier ||
           node.key.name !== 'constructor'

@@ -1,3 +1,4 @@
+import { TSESLint } from '@typescript-eslint/experimental-utils'
 import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only'
 import gtsNoArrayConstructor from './gts-no-array-constructor'
 import gtsNoImportExportType from './gts-no-import-export-type'
@@ -18,4 +19,7 @@ export default {
   'no-array-sort-mutation': noArraySortMutation,
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-floating-results': noFloatingVoids,
-}
+} as Record<
+  string,
+  TSESLint.RuleModule<string, readonly unknown[], TSESLint.RuleListener>
+>
