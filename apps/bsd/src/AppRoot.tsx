@@ -25,7 +25,12 @@ import {
   Card,
   Hardware,
 } from '@votingworks/utils'
-import { useUsbDrive, USBControllerButton, useSmartcard } from '@votingworks/ui'
+import {
+  useUsbDrive,
+  USBControllerButton,
+  useSmartcard,
+  SetupCardReaderPage,
+} from '@votingworks/ui'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
 
@@ -92,7 +97,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
 
   const usbDrive = useUsbDrive()
 
-  const [smartcard] = useSmartcard({ card, hardware })
+  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
   useEffect(() => {
     void (async () => {
       setCurrentUserSession((prev) => {
@@ -346,6 +351,10 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
   }, [electionJustLoaded, displayUsbStatus])
 
   const storage = window.kiosk ? new KioskStorage() : new LocalStorage()
+
+  if (!hasCardReaderAttached) {
+    return <SetupCardReaderPage />
+  }
 
   if (!currentUserSession) {
     return (
