@@ -77,6 +77,7 @@ import WrongElectionScreen from './pages/WrongElectionScreen'
 import WrongPrecinctScreen from './pages/WrongPrecinctScreen'
 import utcTimestamp from './utils/utcTimestamp'
 import { ScreenReader } from './utils/ScreenReader'
+import ReplaceElectionScreen from './pages/ReplaceElectionScreen'
 
 const debug = makeDebug('bmd:AppRoot')
 
@@ -411,6 +412,9 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'updateElectionDefinition':
       return {
         ...state,
+        ...initialUserState,
+        isAdminCardPresent: state.isAdminCardPresent,
+        adminCardElectionHash: state.adminCardElectionHash,
         electionDefinition: action.electionDefinition,
       }
     case 'startWritingLongValue':
@@ -492,6 +496,7 @@ const AppRoot = ({
   const PostVotingInstructionsTimeout = useRef(0)
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState)
   const {
+    adminCardElectionHash,
     appPrecinct,
     ballotsPrintedCount,
     ballotStyleId,
@@ -684,17 +689,34 @@ const AppRoot = ({
     })
   }, [card])
 
-  const fetchElection = useCallback(async () => {
+  const getElectionDefinitionFromCard = useCallback(async (): Promise<
+    Optional<ElectionDefinition>
+  > => {
     const electionData = await card.readLongString()
     /* istanbul ignore else */
     if (electionData) {
       const electionDefinitionResult = safeParseElectionDefinition(electionData)
-      dispatchAppState({
-        type: 'updateElectionDefinition',
-        electionDefinition: electionDefinitionResult.unsafeUnwrap(),
-      })
+      return electionDefinitionResult.unsafeUnwrap()
     }
   }, [card])
+
+  const updateElectionDefinition = useCallback(
+    (electionDefinition: ElectionDefinition) => {
+      dispatchAppState({
+        type: 'updateElectionDefinition',
+        electionDefinition,
+      })
+    },
+    []
+  )
+
+  const fetchElection = useCallback(async () => {
+    const newElectionDefinition = await getElectionDefinitionFromCard()
+    /* istanbul ignore else */
+    if (newElectionDefinition) {
+      updateElectionDefinition(newElectionDefinition)
+    }
+  }, [getElectionDefinitionFromCard, updateElectionDefinition])
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: string, sessionBallotStyleId?: string) => {
@@ -1233,6 +1255,23 @@ const AppRoot = ({
     )
   }
   if (isAdminCardPresent) {
+    if (
+      optionalElectionDefinition &&
+      adminCardElectionHash !== optionalElectionDefinition.electionHash
+    ) {
+      return (
+        <ReplaceElectionScreen
+          appPrecinct={appPrecinct}
+          ballotsPrintedCount={ballotsPrintedCount}
+          electionDefinition={optionalElectionDefinition}
+          getElectionDefinitionFromCard={getElectionDefinitionFromCard}
+          machineConfig={machineConfig}
+          screenReader={screenReader}
+          unconfigure={unconfigure}
+        />
+      )
+    }
+
     return (
       <AdminScreen
         appPrecinct={appPrecinct}

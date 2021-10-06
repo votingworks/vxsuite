@@ -31,7 +31,7 @@ afterEach(() => {
   window.kiosk = undefined
 })
 
-test('renders ClerkScreen for VxPrintOnly', async () => {
+test('renders AdminScreen for VxPrintOnly', async () => {
   render(
     <AdminScreen
       appPrecinct={{
