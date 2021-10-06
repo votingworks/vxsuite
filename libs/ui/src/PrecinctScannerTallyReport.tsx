@@ -68,7 +68,9 @@ export const PrecinctScannerTallyReport = ({
         })
 
         setResultsReportingUrl(
-          `https://results.voting.works/?p=${stringToSign}&s=${signature}`
+          `https://results.voting.works/?p=${encodeURIComponent(
+            stringToSign
+          )}&s=${encodeURIComponent(signature || '')}`
         )
       }
     })()
