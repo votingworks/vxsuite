@@ -21,7 +21,7 @@ import { TallyReportSummary } from './TallyReportSummary'
 interface Props {
   currentDateTime: string
   electionDefinition: ElectionDefinition
-  machineId: string
+  signingMachineId: string
   precinctSelection: PrecinctSelection
   reportPurpose: string
   isPollsOpen: boolean
@@ -32,7 +32,7 @@ interface Props {
 export const PrecinctScannerTallyReport = ({
   currentDateTime,
   electionDefinition,
-  machineId,
+  signingMachineId,
   precinctSelection,
   reportPurpose,
   isPollsOpen,
@@ -59,7 +59,7 @@ export const PrecinctScannerTallyReport = ({
       if (tally.numberOfBallotsCounted > 0 && !isPollsOpen) {
         const compressedTally = compressTally(election, tally)
         const secondsSince1970 = Math.round(new Date().getTime() / 1000)
-        const stringToSign = `${electionHash}.${machineId}.${
+        const stringToSign = `${electionHash}.${signingMachineId}.${
           isLiveMode ? '1' : '0'
         }.${secondsSince1970}.${window.btoa(JSON.stringify(compressedTally))}`
         const signature = await window.kiosk?.sign({
@@ -76,7 +76,7 @@ export const PrecinctScannerTallyReport = ({
     setResultsReportingUrl,
     election,
     electionHash,
-    machineId,
+    signingMachineId,
     tally,
     isPollsOpen,
     isLiveMode,

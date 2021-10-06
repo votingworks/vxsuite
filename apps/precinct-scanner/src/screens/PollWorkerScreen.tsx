@@ -316,7 +316,7 @@ const PollWorkerScreen = ({
               />
               <PrecinctScannerTallyReport
                 electionDefinition={electionDefinition}
-                machineId={machineConfig.machineId}
+                signingMachineId={machineConfig.machineId}
                 tally={currentTally}
                 precinctSelection={precinctSelection}
                 reportPurpose={reportPurpose}
