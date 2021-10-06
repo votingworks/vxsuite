@@ -1,9 +1,12 @@
-import { Election, Precinct } from '@votingworks/types'
+import {
+  Election,
+  PrecinctSelection,
+  PrecinctSelectionKind,
+} from '@votingworks/types'
 import {
   find,
   formatFullDateTimeZone,
   formatLongDate,
-  CardTallyMetadataEntry,
 } from '@votingworks/utils'
 import { DateTime } from 'luxon'
 import React from 'react'
@@ -11,7 +14,6 @@ import styled from 'styled-components'
 import { PrintableContainer } from './TallyReport'
 
 import { Prose } from './Prose'
-import { Table } from './Table'
 
 const SealImage = styled.img`
   max-width: 1in;
@@ -66,23 +68,14 @@ const SignatureLine = styled.div`
   }
 `
 
-export enum PrecinctSelectionKind {
-  SinglePrecinct = 'SinglePrecinct',
-  AllPrecincts = 'AllPrecincts',
-}
-
-export type PrecinctSelection =
-  | { kind: PrecinctSelectionKind.AllPrecincts }
-  | { kind: PrecinctSelectionKind.SinglePrecinct; precinctId: Precinct['id'] }
-
 interface Props {
   ballotCount: number
   currentDateTime: string
   election: Election
   isLiveMode: boolean
   isPollsOpen: boolean
-  machineId?: string
-  machineMetadata?: readonly CardTallyMetadataEntry[]
+  precinctScannerMachineId: string
+  timeTallySaved?: number
   precinctSelection: PrecinctSelection
   reportPurpose: string
 }
@@ -93,8 +86,8 @@ export const PrecinctScannerPollsReport = ({
   election,
   isLiveMode,
   isPollsOpen,
-  machineId,
-  machineMetadata,
+  precinctScannerMachineId,
+  timeTallySaved,
   precinctSelection,
   reportPurpose,
 }: Props): JSX.Element => {
@@ -103,41 +96,20 @@ export const PrecinctScannerPollsReport = ({
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
       ? 'All Precincts'
       : find(precincts, (p) => p.id === precinctSelection.precinctId).name
-  let machineSection = (
+  const machineSection = (
     <React.Fragment>
       <dt>Machine ID</dt>
       <dd>
-        <span>Precinct Scanner #{machineId}</span>
+        <span>Precinct Scanner #{precinctScannerMachineId}</span>
+        {timeTallySaved && (
+          <span>
+            Tally created at{' '}
+            {formatFullDateTimeZone(DateTime.fromMillis(timeTallySaved))}
+          </span>
+        )}
       </dd>
     </React.Fragment>
   )
-  if (machineMetadata !== undefined) {
-    machineSection = (
-      <React.Fragment>
-        <dt>Machines</dt>
-        <Table>
-          <tbody>
-            <tr>
-              <th>Machine ID</th>
-              <th>Number of Ballots Scanned</th>
-              <th>Time Tally Saved</th>
-            </tr>
-            {machineMetadata.map((metadata) => (
-              <tr key={metadata.machineId}>
-                <td>Precinct Scanner #{metadata.machineId}</td>
-                <td>{metadata.ballotCount}</td>
-                <td>
-                  {formatFullDateTimeZone(
-                    DateTime.fromMillis(metadata.timeSaved)
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </React.Fragment>
-    )
-  }
 
   return (
     <PrintableContainer>

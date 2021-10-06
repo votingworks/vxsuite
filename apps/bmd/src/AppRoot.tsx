@@ -33,10 +33,10 @@ import {
   Hardware,
   isAccessibleController,
   isCardReader,
-  CardTally,
+  PrecinctScannerCardTally,
   CardAPI,
   CardPresentAPI,
-  CardTallySchema,
+  PrecinctScannerCardTallySchema,
   throwIllegalValue,
 } from '@votingworks/utils'
 
@@ -92,7 +92,7 @@ interface CardState {
   pauseProcessingUntilNoCardPresent: boolean
   showPostVotingInstructions?: PostVotingInstructions
   voterCardCreatedAt: number
-  talliesOnCard?: Optional<CardTally>
+  tallyOnCard?: Optional<PrecinctScannerCardTally>
 }
 
 interface UserState {
@@ -222,7 +222,7 @@ type AppAction =
   | {
       type: 'processPollWorkerCard'
       isPollWorkerCardValid: boolean
-      talliesOnCard?: CardTally
+      tallyOnCard?: PrecinctScannerCardTally
     }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
   | { type: 'pauseCardProcessing' }
@@ -254,7 +254,7 @@ type AppAction =
   | { type: 'maintainCardlessBallot' }
   | {
       type: 'updatePollWorkerCardTally'
-      talliesOnCard?: CardTally
+      tallyOnCard?: PrecinctScannerCardTally
     }
 
 const appReducer = (state: State, action: AppAction): State => {
@@ -276,7 +276,7 @@ const appReducer = (state: State, action: AppAction): State => {
         isCardlessVoter: state.isCardlessVoter,
         isPollWorkerCardPresent: true,
         isPollWorkerCardValid: action.isPollWorkerCardValid,
-        talliesOnCard: action.talliesOnCard,
+        tallyOnCard: action.tallyOnCard,
       }
     case 'processVoterCard':
       assert(typeof action.voterState.voterCardCreatedAt !== 'undefined')
@@ -453,7 +453,7 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'updatePollWorkerCardTally':
       return {
         ...state,
-        talliesOnCard: action.talliesOnCard,
+        tallyOnCard: action.tallyOnCard,
       }
     /* istanbul ignore next - compile time check for completeness */
     default:
@@ -501,7 +501,7 @@ const AppRoot = ({
     precinctId,
     shortValue,
     showPostVotingInstructions,
-    talliesOnCard,
+    tallyOnCard,
     userSettings,
     votes,
     voterCardCreatedAt,
@@ -658,10 +658,12 @@ const AppRoot = ({
   }, [])
 
   const resetPollWorkerCardTally = useCallback(async () => {
-    const possibleCardTally = await card.readLongObject(CardTallySchema)
+    const possibleCardTally = await card.readLongObject(
+      PrecinctScannerCardTallySchema
+    )
     dispatchAppState({
       type: 'updatePollWorkerCardTally',
-      talliesOnCard: possibleCardTally.ok(),
+      tallyOnCard: possibleCardTally.ok(),
     })
   }, [card])
 
@@ -781,12 +783,12 @@ const AppRoot = ({
 
           const possibleCardTally =
             isValid && longValueExists
-              ? (await card.readLongObject(CardTallySchema)).ok()
+              ? (await card.readLongObject(PrecinctScannerCardTallySchema)).ok()
               : undefined
           dispatchAppState({
             type: 'processPollWorkerCard',
             isPollWorkerCardValid: isValid,
-            talliesOnCard: possibleCardTally,
+            tallyOnCard: possibleCardTally,
           })
           break
         }
@@ -1289,7 +1291,7 @@ const AppRoot = ({
           machineConfig={machineConfig}
           printer={printer}
           togglePollsOpen={togglePollsOpen}
-          talliesOnCard={talliesOnCard}
+          tallyOnCard={tallyOnCard}
           clearTalliesOnCard={clearTalliesOnCard}
           hasVotes={!!votes}
         />

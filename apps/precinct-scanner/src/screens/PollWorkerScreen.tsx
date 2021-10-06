@@ -8,8 +8,6 @@ import {
   Prose,
   Loading,
   PrecinctScannerPollsReport,
-  PrecinctSelectionKind,
-  PrecinctSelection,
   PrecinctScannerTallyReport,
   UsbDrive,
 } from '@votingworks/ui'
@@ -21,7 +19,13 @@ import {
   serializeTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
-import { CastVoteRecord, Tally, VotingMethod } from '@votingworks/types'
+import {
+  CastVoteRecord,
+  Tally,
+  VotingMethod,
+  PrecinctSelection,
+  PrecinctSelectionKind,
+} from '@votingworks/types'
 import pluralize from 'pluralize'
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals'
 import { CenteredScreen } from '../components/Layout'
@@ -104,6 +108,14 @@ const PollWorkerScreen = ({
     POLLING_INTERVAL_FOR_TOTP,
     true
   )
+  const precinct = election.precincts.find((p) => p.id === currentPrecinctId)
+  const precinctSelection: PrecinctSelection =
+    precinct === undefined
+      ? { kind: PrecinctSelectionKind.AllPrecincts }
+      : {
+          kind: PrecinctSelectionKind.SinglePrecinct,
+          precinctId: precinct.id,
+        }
 
   const saveTally = async () => {
     assert(currentTally)
@@ -118,21 +130,15 @@ const PollWorkerScreen = ({
         currentTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
       precinctBallots:
         currentTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
-      metadata: [
-        {
-          machineId: machineConfig.machineId,
-          timeSaved: Date.now(),
-          ballotCount: scannedBallotCount,
-        },
-      ],
+      machineId: machineConfig.machineId,
+      timeSaved: Date.now(),
+      precinctSelection,
     })
   }
 
   const printTallyReport = async () => {
     await printer.print({ sides: 'one-sided' })
   }
-
-  const precinct = election.precincts.find((p) => p.id === currentPrecinctId)
 
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false)
   const openConfirmOpenPollsModal = () => setConfirmOpenPolls(true)
@@ -165,13 +171,6 @@ const PollWorkerScreen = ({
   }
 
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name
-  const precinctSelection: PrecinctSelection =
-    precinct === undefined
-      ? { kind: PrecinctSelectionKind.AllPrecincts }
-      : {
-          kind: PrecinctSelectionKind.SinglePrecinct,
-          precinctId: precinct.id,
-        }
   const currentDateTime = new Date().toLocaleString()
 
   return (
@@ -310,7 +309,7 @@ const PollWorkerScreen = ({
                 election={election}
                 isLiveMode={isLiveMode}
                 isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
-                machineId={machineConfig.machineId}
+                precinctScannerMachineId={machineConfig.machineId}
                 precinctSelection={precinctSelection}
                 reportPurpose={reportPurpose}
               />

@@ -33,7 +33,7 @@ import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 
 import { DateTime } from 'luxon'
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types'
 
 import App from './App'
 import { interpretedHmpb } from '../test/fixtures'
@@ -275,13 +275,9 @@ test('admin and pollworker configuration', async () => {
       isLiveMode: false,
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
-      metadata: [
-        {
-          ballotCount: 0,
-          machineId: '0002',
-          timeSaved: expect.anything(),
-        },
-      ],
+      machineId: '0002',
+      timeSaved: expect.anything(),
+      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
       tally: getZeroTally(electionSampleDefinition.election),
     })
   )
@@ -511,13 +507,9 @@ test('voter can cast a ballot that scans successfully ', async () => {
       isLiveMode: false,
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 1,
-      metadata: [
-        {
-          ballotCount: 1,
-          machineId: '0002',
-          timeSaved: expect.anything(),
-        },
-      ],
+      machineId: '0002',
+      timeSaved: expect.anything(),
+      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
       // The export endpoint is mocked to return no CVR data so we still expect a zero tally
       tally: expect.arrayContaining([
         {

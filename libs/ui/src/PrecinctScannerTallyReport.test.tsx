@@ -1,11 +1,10 @@
 import React from 'react'
 import { render, act, screen } from '@testing-library/react'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
-import { CastVoteRecord } from '@votingworks/types'
+import { CastVoteRecord, PrecinctSelectionKind } from '@votingworks/types'
 import { calculateTallyForCastVoteRecords } from '@votingworks/utils'
 import { fakeKiosk, mockOf } from '@votingworks/test-utils'
 
-import { PrecinctSelectionKind } from './PrecinctScannerPollsReport'
 import { PrecinctScannerTallyReport } from './PrecinctScannerTallyReport'
 
 afterEach(() => {

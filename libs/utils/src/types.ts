@@ -1,4 +1,9 @@
-import { Optional, Result } from '@votingworks/types'
+import {
+  Optional,
+  PrecinctSelection,
+  PrecinctSelectionSchema,
+  Result,
+} from '@votingworks/types'
 import { Observable } from 'rxjs'
 import { z } from 'zod'
 
@@ -76,48 +81,23 @@ export const TallySchema: z.ZodSchema<SerializedTally> = z.array(
 
 export type CompressedTally = number[][]
 
+// Currently we only support precinct scanner tallies but this enum exists for future ability to specify different types
 export enum TallySourceMachineType {
-  BMD = 'bmd',
   PRECINCT_SCANNER = 'precinct_scanner',
 }
 export const TallySourceMachineTypeSchema = z.nativeEnum(TallySourceMachineType)
 
-export interface CardTallyMetadataEntry {
-  readonly machineId: string
-  readonly timeSaved: number
-  readonly ballotCount: number
-}
-export const CardTallyMetadataEntrySchema: z.ZodSchema<CardTallyMetadataEntry> =
-  z.object({
-    machineId: z.string(),
-    timeSaved: z.number(),
-    ballotCount: z.number(),
-  })
-
-export interface BMDCardTally {
-  readonly tallyMachineType: TallySourceMachineType.BMD
-  readonly tally: SerializedTally
-  readonly metadata: readonly CardTallyMetadataEntry[]
-  readonly totalBallotsPrinted: number
-}
-export const BMDCardTallySchema: z.ZodSchema<BMDCardTally> = z.object({
-  tallyMachineType: TallySourceMachineTypeSchema.refine(
-    (tallyMachineType) => tallyMachineType === TallySourceMachineType.BMD
-  ) as z.ZodSchema<TallySourceMachineType.BMD>,
-  tally: TallySchema,
-  metadata: z.array(CardTallyMetadataEntrySchema),
-  totalBallotsPrinted: z.number(),
-})
-
 export interface PrecinctScannerCardTally {
   readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER
   readonly tally: SerializedTally
-  readonly metadata: readonly CardTallyMetadataEntry[]
+  readonly machineId: string
+  readonly timeSaved: number
   readonly totalBallotsScanned: number
   readonly isLiveMode: boolean
   readonly isPollsOpen: boolean
   readonly absenteeBallots: number
   readonly precinctBallots: number
+  readonly precinctSelection: PrecinctSelection
 }
 export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTally> =
   z.object({
@@ -126,19 +106,15 @@ export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTall
         tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
     ) as z.ZodSchema<TallySourceMachineType.PRECINCT_SCANNER>,
     tally: TallySchema,
-    metadata: z.array(CardTallyMetadataEntrySchema),
+    machineId: z.string(),
+    timeSaved: z.number(),
     totalBallotsScanned: z.number(),
     isLiveMode: z.boolean(),
     isPollsOpen: z.boolean(),
     absenteeBallots: z.number(),
     precinctBallots: z.number(),
+    precinctSelection: PrecinctSelectionSchema,
   })
-
-export type CardTally = BMDCardTally | PrecinctScannerCardTally
-export const CardTallySchema = z.union([
-  BMDCardTallySchema,
-  PrecinctScannerCardTallySchema,
-])
 
 /**
  * Identity function useful for asserting the type of the argument/return value.

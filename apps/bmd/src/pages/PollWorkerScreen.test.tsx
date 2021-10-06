@@ -6,7 +6,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react'
 import {
   getZeroTally,
   TallySourceMachineType,
-  CardTally,
+  PrecinctScannerCardTally,
 } from '@votingworks/utils'
 import { PrecinctSelectionKind, VxMarkOnly, VxPrintOnly } from '../config/types'
 
@@ -39,7 +39,7 @@ test('renders PollWorkerScreen', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -69,7 +69,7 @@ test('switching out of test mode on election day', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -101,7 +101,7 @@ test('keeping test mode on election day', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -130,7 +130,7 @@ test('live mode on election day', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -151,17 +151,13 @@ test('printing precinct scanner report option is shown when precinct scanner tal
     writeIns: 0,
     ballotsCast: 34,
   }
-  const talliesOnCard: CardTally = {
+  const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: existingTally,
     totalBallotsScanned: 25,
-    metadata: [
-      {
-        machineId: '001',
-        timeSaved: new Date('2020-10-31').getTime(),
-        ballotCount: 25,
-      },
-    ],
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
     isLiveMode: false,
     isPollsOpen: false,
     absenteeBallots: 5,
@@ -199,7 +195,7 @@ test('printing precinct scanner report option is shown when precinct scanner tal
         print: printFn,
       }}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={talliesOnCard}
+      tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
     />
   )

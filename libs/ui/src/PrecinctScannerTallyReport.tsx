@@ -1,11 +1,12 @@
 import QRCodeReact from '@votingworks/qrcode.react'
-import { ElectionDefinition, Tally } from '@votingworks/types'
-import React, { useState, useEffect } from 'react'
-import { format, find, compressTally } from '@votingworks/utils'
 import {
+  ElectionDefinition,
+  Tally,
   PrecinctSelection,
   PrecinctSelectionKind,
-} from './PrecinctScannerPollsReport'
+} from '@votingworks/types'
+import React, { useState, useEffect } from 'react'
+import { format, find, compressTally } from '@votingworks/utils'
 import { ContestTally } from './ContestTally'
 import {
   PrintableContainer,

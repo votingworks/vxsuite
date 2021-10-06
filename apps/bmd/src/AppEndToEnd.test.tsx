@@ -14,6 +14,7 @@ import {
   getZeroTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
+import { PrecinctSelectionKind } from '@votingworks/types'
 import * as GLOBALS from './config/globals'
 
 import { electionSampleDefinition } from './data'
@@ -355,13 +356,12 @@ it('VxMark+Print end-to-end flow', async () => {
     JSON.stringify({
       tally: getZeroTally(electionDefinition.election),
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      metadata: [
-        {
-          machineId: '0002',
-          timeSaved: new Date('2020-10-31').getTime(),
-          ballotCount: 10,
-        },
-      ],
+      machineId: '0002',
+      timeSaved: new Date('2020-10-31').getTime(),
+      precinctSelection: {
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: '23',
+      },
       totalBallotsScanned: 10,
       isLiveMode: true,
       isPollsOpen: false,
