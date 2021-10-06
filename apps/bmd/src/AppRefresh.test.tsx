@@ -60,7 +60,7 @@ it('Refresh window and expect to be on same contest', async () => {
 
   getByText(presidentContest.title)
 
-  // Select first candiate
+  // Select first candidate
   fireEvent.click(getByText(candidate0))
   advanceTimers()
   expect(getByText(candidate0).closest('button')!.dataset.selected).toBe('true')

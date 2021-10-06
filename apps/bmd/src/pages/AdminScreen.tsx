@@ -229,7 +229,7 @@ const AdminScreen = ({
                 </Button>
               </p>
             ) : isFetchingElection ? (
-              <p>Loading Election Definition from Clerk Card…</p>
+              <p>Loading Election Definition from Admin Card…</p>
             ) : (
               <React.Fragment>
                 <Text warningIcon>Election definition is not Loaded.</Text>
