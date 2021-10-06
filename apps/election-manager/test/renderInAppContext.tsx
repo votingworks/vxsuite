@@ -67,6 +67,7 @@ interface RenderInAppContextParams {
   attemptToAuthenticateUser?: () => boolean
   lockMachine?: () => undefined
   machineConfig?: MachineConfig
+  hasCardReaderAttached?: boolean
 }
 
 export default function renderInAppContext(
@@ -104,6 +105,7 @@ export default function renderInAppContext(
       codeVersion: '',
       bypassAuthentication: false,
     },
+    hasCardReaderAttached = true,
   } = {} as RenderInAppContextParams
 ): RenderResult {
   return testRender(
@@ -135,6 +137,7 @@ export default function renderInAppContext(
         attemptToAuthenticateUser,
         lockMachine,
         machineConfig,
+        hasCardReaderAttached,
       }}
     >
       <Router history={history}>{component}</Router>

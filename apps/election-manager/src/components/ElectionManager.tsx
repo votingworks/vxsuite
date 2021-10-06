@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
+import { SetupCardReaderPage } from '@votingworks/ui'
 import AppContext from '../contexts/AppContext'
 
 import routerPaths from '../routerPaths'
@@ -24,8 +25,16 @@ import { InvalidCardScreen } from '../screens/InvalidCardScreen'
 import { UnlockMachineScreen } from '../screens/UnlockMachineScreen'
 
 const ElectionManager = (): JSX.Element => {
-  const { electionDefinition, currentUserSession } = useContext(AppContext)
+  const {
+    electionDefinition,
+    currentUserSession,
+    hasCardReaderAttached,
+  } = useContext(AppContext)
   const election = electionDefinition?.election
+
+  if (!hasCardReaderAttached) {
+    return <SetupCardReaderPage />
+  }
 
   if (!election) {
     return <UnconfiguredScreen />
