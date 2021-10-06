@@ -280,8 +280,9 @@ test('interprets marks on an upside-down HMPB', async () => {
   ).toMatchInlineSnapshot(`
     Object {
       "adjudicationInfo": Object {
-        "allReasonInfos": Array [],
+        "enabledReasonInfos": Array [],
         "enabledReasons": Array [],
+        "ignoredReasonInfos": Array [],
         "requiresAdjudication": false,
       },
       "markInfo": Object {
@@ -1833,7 +1834,9 @@ test('interprets marks in PNG ballots', async () => {
     ).toMatchInlineSnapshot(`
       Object {
         "adjudicationInfo": Object {
-          "allReasonInfos": Array [
+          "enabledReasonInfos": Array [],
+          "enabledReasons": Array [],
+          "ignoredReasonInfos": Array [
             Object {
               "contestId": "4",
               "optionId": "__write-in-0",
@@ -1854,7 +1857,6 @@ test('interprets marks in PNG ballots', async () => {
               "type": "Overvote",
             },
           ],
-          "enabledReasons": Array [],
           "requiresAdjudication": false,
         },
         "markInfo": Object {
@@ -2818,8 +2820,9 @@ test('interprets marks in PNG ballots', async () => {
     ).toMatchInlineSnapshot(`
       Object {
         "adjudicationInfo": Object {
-          "allReasonInfos": Array [],
+          "enabledReasonInfos": Array [],
           "enabledReasons": Array [],
+          "ignoredReasonInfos": Array [],
           "requiresAdjudication": false,
         },
         "markInfo": Object {
@@ -3119,7 +3122,8 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
   },
   votes: {},
   adjudicationInfo: {
-    allReasonInfos: [],
+    ignoredReasonInfos: [],
+    enabledReasonInfos: [],
     enabledReasons: [],
     requiresAdjudication: false,
   },
@@ -3159,7 +3163,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       ...pageInterpretationBoilerplate.adjudicationInfo,
-      allReasonInfos: [
+      enabledReasonInfos: [
         {
           type: AdjudicationReason.Overvote,
           contestId: '42',
@@ -3168,6 +3172,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
           expected: 1,
         },
       ],
+      ignoredReasonInfos: [],
       requiresAdjudication: true,
     },
   }
@@ -3215,7 +3220,8 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
         AdjudicationReason.BlankBallot,
         AdjudicationReason.UninterpretableBallot,
       ],
-      allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+      enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+      ignoredReasonInfos: [],
     },
   }
 
@@ -3228,7 +3234,8 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
     adjudicationInfo: {
       requiresAdjudication: false,
       enabledReasons: [],
-      allReasonInfos: [],
+      enabledReasonInfos: [],
+      ignoredReasonInfos: [],
     },
   }
 

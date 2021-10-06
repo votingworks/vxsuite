@@ -530,7 +530,8 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: false,
-              allReasonInfos: [],
+              ignoredReasonInfos: [],
+              enabledReasonInfos: [],
               enabledReasons: [],
             },
             votes: {},
@@ -655,7 +656,8 @@ test('rejects pages that do not match the current precinct', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: false,
-              allReasonInfos: [],
+              ignoredReasonInfos: [],
+              enabledReasonInfos: [],
               enabledReasons: [],
             },
             votes: {},
@@ -784,7 +786,8 @@ test('rejects sheets that would not produce a valid CVR', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: false,
-              allReasonInfos: [],
+              ignoredReasonInfos: [],
+              enabledReasonInfos: [],
               enabledReasons: [],
             },
             votes: {},

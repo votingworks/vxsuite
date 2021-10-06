@@ -934,12 +934,14 @@ export const MarkInfoSchema: z.ZodSchema<MarkInfo> = z.object({
 export interface AdjudicationInfo {
   requiresAdjudication: boolean
   enabledReasons: readonly AdjudicationReason[]
-  allReasonInfos: readonly AdjudicationReasonInfo[]
+  enabledReasonInfos: readonly AdjudicationReasonInfo[]
+  ignoredReasonInfos: readonly AdjudicationReasonInfo[]
 }
 export const AdjudicationInfoSchema: z.ZodSchema<AdjudicationInfo> = z.object({
   requiresAdjudication: z.boolean(),
   enabledReasons: z.array(AdjudicationReasonSchema),
-  allReasonInfos: z.array(AdjudicationReasonInfoSchema),
+  enabledReasonInfos: z.array(AdjudicationReasonInfoSchema),
+  ignoredReasonInfos: z.array(AdjudicationReasonInfoSchema),
 })
 
 export interface BlankPage {

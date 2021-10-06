@@ -102,14 +102,8 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
         if (interpretation.type === 'InterpretedHmpbPage') {
           if (interpretation.adjudicationInfo.requiresAdjudication) {
             for (const reasonInfo of interpretation.adjudicationInfo
-              .allReasonInfos) {
-              if (
-                interpretation.adjudicationInfo.enabledReasons.includes(
-                  reasonInfo.type
-                )
-              ) {
-                adjudicationReasons.push(reasonInfo)
-              }
+              .enabledReasonInfos) {
+              adjudicationReasons.push(reasonInfo)
             }
           }
         } else {

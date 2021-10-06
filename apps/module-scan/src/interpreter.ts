@@ -16,6 +16,7 @@ import {
 } from '@votingworks/hmpb-interpreter'
 import {
   AdjudicationReason,
+  AdjudicationReasonInfo,
   BallotPageLayout,
   BallotPageMetadata,
   BallotType,
@@ -103,7 +104,7 @@ export function sheetRequiresAdjudication([
       pi.type === 'InvalidPrecinctPage' ||
       (pi.type === 'InterpretedHmpbPage' &&
         pi.adjudicationInfo.requiresAdjudication &&
-        !pi.adjudicationInfo.allReasonInfos.some(
+        !pi.adjudicationInfo.enabledReasonInfos.some(
           (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
         ))
   )
@@ -129,7 +130,7 @@ export function sheetRequiresAdjudication([
       (pi.type === 'InterpretedHmpbPage' &&
         (pi.markInfo.marks.length === 0 || // no potential marks == automatic blank
           (pi.adjudicationInfo.requiresAdjudication &&
-            pi.adjudicationInfo.allReasonInfos.some(
+            pi.adjudicationInfo.enabledReasonInfos.some(
               (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
             ))))
   )
@@ -387,10 +388,9 @@ export default class Interpreter {
     )
     const { votes } = ballot
 
-    let requiresAdjudication = false
     const enabledReasons = this.adjudicationReasons
 
-    const allReasonInfos = [
+    const allReasonInfos: readonly AdjudicationReasonInfo[] = [
       ...ballotAdjudicationReasons(
         marks.reduce<Contests>(
           (contests, mark) =>
@@ -412,20 +412,26 @@ export default class Interpreter {
       ),
     ]
 
+    const enabledReasonInfos: AdjudicationReasonInfo[] = []
+    const ignoredReasonInfos: AdjudicationReasonInfo[] = []
+
     for (const reason of allReasonInfos) {
       if (enabledReasons.includes(reason.type)) {
-        requiresAdjudication = true
         debug(
           'Adjudication required for reason: %s',
           adjudicationReasonDescription(reason)
         )
+        enabledReasonInfos.push(reason)
       } else {
         debug(
           'Adjudication reason ignored by configuration: %s',
           adjudicationReasonDescription(reason)
         )
+        ignoredReasonInfos.push(reason)
       }
     }
+
+    const requiresAdjudication = enabledReasonInfos.length > 0
 
     return {
       interpretation: {
@@ -442,7 +448,8 @@ export default class Interpreter {
         adjudicationInfo: {
           requiresAdjudication,
           enabledReasons,
-          allReasonInfos,
+          enabledReasonInfos,
+          ignoredReasonInfos,
         },
       },
       normalizedImage: mappedBallot,

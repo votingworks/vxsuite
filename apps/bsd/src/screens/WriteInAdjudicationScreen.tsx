@@ -421,7 +421,7 @@ const WriteInAdjudicationByContest = ({
   const [isSaving, setIsSaving] = useState(false)
   const [selectedContestIndex, setSelectedContestIndex] = useState(0)
 
-  const writeIns = interpretation.adjudicationInfo.allReasonInfos.filter(
+  const writeIns = interpretation.adjudicationInfo.enabledReasonInfos.filter(
     (
       reason
     ): reason is
@@ -559,7 +559,7 @@ export default function WriteInAdjudicationScreen({
   >([])
   const [selectedContestId, setSelectedContestId] = useState<Contest['id']>()
 
-  const writeIns = interpretation.adjudicationInfo.allReasonInfos.filter(
+  const writeIns = interpretation.adjudicationInfo.enabledReasonInfos.filter(
     (
       reason
     ): reason is

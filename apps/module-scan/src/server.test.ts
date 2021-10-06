@@ -373,7 +373,8 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
         adjudicationInfo: {
           requiresAdjudication: false,
           enabledReasons: [],
-          allReasonInfos: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
         },
       },
     },
@@ -399,7 +400,8 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
         adjudicationInfo: {
           requiresAdjudication: false,
           enabledReasons: [],
-          allReasonInfos: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
         },
       },
     },
