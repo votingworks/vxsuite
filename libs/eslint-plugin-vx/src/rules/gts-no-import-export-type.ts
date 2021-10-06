@@ -1,14 +1,8 @@
-import {
-  AST_NODE_TYPES,
-  ESLintUtils,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils'
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
 import { strict as assert } from 'assert'
+import { createRule } from '../util'
 
-export default ESLintUtils.RuleCreator(
-  () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/gts-no-import-export-type.md'
-)({
+export default createRule({
   name: 'gts-no-import-export-type',
   meta: {
     docs: {
@@ -103,7 +97,7 @@ export default ESLintUtils.RuleCreator(
     }
 
     return {
-      ImportDeclaration(node) {
+      ImportDeclaration(node: TSESTree.ImportDeclaration) {
         if (node.importKind !== 'type') {
           return
         }
@@ -133,7 +127,7 @@ export default ESLintUtils.RuleCreator(
         })
       },
 
-      ExportNamedDeclaration(node) {
+      ExportNamedDeclaration(node: TSESTree.ExportNamedDeclaration) {
         // export const foo = 1
         // export type foo = string
         if (node.exportKind !== 'type' || node.declaration) {
@@ -159,7 +153,7 @@ export default ESLintUtils.RuleCreator(
         reportExport(node)
       },
 
-      ExportAllDeclaration(node) {
+      ExportAllDeclaration(node: TSESTree.ExportAllDeclaration) {
         if (node.exportKind !== 'type' || allowReexport) {
           return
         }

@@ -1,8 +1,10 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
+  TSESTree,
 } from '@typescript-eslint/experimental-utils'
 import * as ts from 'typescript'
+import { createRule } from '../util'
 
 export interface Options {
   objects: boolean
@@ -37,10 +39,7 @@ function typeIsBoolean(type: ts.Type): boolean {
   return flags === ts.TypeFlags.Boolean || flags === ts.TypeFlags.BooleanLiteral
 }
 
-export default ESLintUtils.RuleCreator(
-  () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/no-assert-truthiness.md'
-)({
+export default createRule({
   name: 'no-assert-truthiness',
   meta: {
     fixable: 'code',
@@ -81,7 +80,7 @@ export default ESLintUtils.RuleCreator(
     const checker = parserServices.program.getTypeChecker()
 
     return {
-      CallExpression(node): void {
+      CallExpression(node: TSESTree.CallExpression): void {
         if (node.callee.type !== AST_NODE_TYPES.Identifier) {
           return
         }

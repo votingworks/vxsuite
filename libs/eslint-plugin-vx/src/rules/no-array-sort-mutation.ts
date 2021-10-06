@@ -3,6 +3,7 @@ import {
   ESLintUtils,
   TSESTree,
 } from '@typescript-eslint/experimental-utils'
+import { createRule } from '../util'
 
 function isDirectAccess(node: TSESTree.Node): boolean {
   if (node.type === AST_NODE_TYPES.Identifier) {
@@ -16,10 +17,7 @@ function isDirectAccess(node: TSESTree.Node): boolean {
   return false
 }
 
-export default ESLintUtils.RuleCreator(
-  () =>
-    'https://github.com/votingworks/vxsuite/blob/main/libs/eslint-plugin-vx/docs/rules/no-array-sort-mutation.md'
-)({
+export default createRule({
   name: 'no-array-sort-mutation',
   meta: {
     docs: {
@@ -39,7 +37,7 @@ export default ESLintUtils.RuleCreator(
 
   create(context) {
     return {
-      CallExpression({ callee }) {
+      CallExpression({ callee }: TSESTree.CallExpression) {
         if (
           callee.type !== AST_NODE_TYPES.MemberExpression ||
           callee.property.type !== AST_NODE_TYPES.Identifier ||
