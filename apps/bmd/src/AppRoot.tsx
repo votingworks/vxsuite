@@ -33,9 +33,6 @@ import {
   Hardware,
   isAccessibleController,
   isCardReader,
-  getZeroTally,
-  calculateTally,
-  SerializedTally,
   CardTally,
   CardAPI,
   CardPresentAPI,
@@ -121,7 +118,6 @@ interface SharedState {
   electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
   isPollsOpen: boolean
-  tally: SerializedTally
 }
 
 interface OtherState {
@@ -197,7 +193,6 @@ const initialSharedState: Readonly<SharedState> = {
   electionDefinition: undefined,
   isLiveMode: false,
   isPollsOpen: false,
-  tally: [],
 }
 
 const initialOtherState: Readonly<OtherState> = {
@@ -265,9 +260,6 @@ type AppAction =
 const appReducer = (state: State, action: AppAction): State => {
   const resetTally = {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
-    tally: state.electionDefinition?.election
-      ? getZeroTally(state.electionDefinition.election)
-      : [],
   }
   switch (action.type) {
     case 'processAdminCard':
@@ -389,24 +381,9 @@ const appReducer = (state: State, action: AppAction): State => {
         isPollsOpen: !state.isPollsOpen,
       }
     case 'updateTally': {
-      const { electionDefinition, tally, votes, ballotStyleId } = state
-      assert(
-        electionDefinition,
-        'electionDefinition is required to updateTally'
-      )
-      assert(
-        typeof ballotStyleId !== 'undefined',
-        'ballotStyleId is required to updateTally'
-      )
       return {
         ...state,
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
-        tally: calculateTally({
-          election: electionDefinition.election,
-          tally,
-          votes: votes ?? {},
-          ballotStyleId,
-        }),
       }
     }
     case 'updateElectionDefinition':
@@ -524,7 +501,6 @@ const AppRoot = ({
     precinctId,
     shortValue,
     showPostVotingInstructions,
-    tally,
     talliesOnCard,
     userSettings,
     votes,
@@ -1162,9 +1138,6 @@ const AppRoot = ({
         ballotsPrintedCount: storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
         isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
-        tally: storedTally = storedElectionDefinition?.election
-          ? getZeroTally(storedElectionDefinition.election)
-          : initialAppState.tally,
       } = storedAppState
       dispatchAppState({
         type: 'initializeAppState',
@@ -1177,7 +1150,6 @@ const AppRoot = ({
           isLiveMode: storedIsLiveMode,
           isPollsOpen: storedIsPollsOpen,
           precinctId: retrievedPrecinctId,
-          tally: storedTally,
           votes: await retrieveVotes(),
         },
       })
@@ -1224,7 +1196,6 @@ const AppRoot = ({
           ballotsPrintedCount,
           isLiveMode,
           isPollsOpen,
-          tally,
         })
       }
     }
@@ -1236,7 +1207,6 @@ const AppRoot = ({
     isLiveMode,
     isPollsOpen,
     storage,
-    tally,
     initializedFromStorage,
   ])
 
