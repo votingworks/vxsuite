@@ -257,6 +257,28 @@ test('select All Precincts', async () => {
   })
 })
 
+test('blur precinct selector without a selection', async () => {
+  const updateAppPrecinct = jest.fn()
+  render(
+    <AdminScreen
+      ballotsPrintedCount={0}
+      electionDefinition={asElectionDefinition(election)}
+      fetchElection={jest.fn()}
+      isLiveMode
+      updateAppPrecinct={updateAppPrecinct}
+      toggleLiveMode={jest.fn()}
+      unconfigure={jest.fn()}
+      machineConfig={fakeMachineConfig()}
+      printer={fakePrinter()}
+      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+    />
+  )
+
+  const precinctSelect = screen.getByLabelText('Precinct')
+  fireEvent.blur(precinctSelect)
+  expect(updateAppPrecinct).not.toHaveBeenCalled()
+})
+
 test('render All Precincts', async () => {
   const updateAppPrecinct = jest.fn()
   render(
