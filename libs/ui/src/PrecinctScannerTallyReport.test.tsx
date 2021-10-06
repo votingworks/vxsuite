@@ -23,7 +23,7 @@ test('renders without results reporting when no CVRs', async () => {
       <PrecinctScannerTallyReport
         currentDateTime="September 19th, 2021 11:05am"
         electionDefinition={electionSampleDefinition}
-        machineId="DEMO-0000"
+        signingMachineId="DEMO-0000"
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
         reportPurpose="Testing"
         isPollsOpen={false}
@@ -60,7 +60,7 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
       <PrecinctScannerTallyReport
         currentDateTime="September 19th, 2021 11:05am"
         electionDefinition={electionSampleDefinition}
-        machineId="DEMO-0000"
+        signingMachineId="DEMO-0000"
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
         reportPurpose="Testing"
         isPollsOpen
@@ -85,7 +85,7 @@ test('renders with results reporting when there are CVRs and polls are closed', 
       <PrecinctScannerTallyReport
         currentDateTime="September 19th, 2021 11:05am"
         electionDefinition={electionSampleDefinition}
-        machineId="DEMO-0000"
+        signingMachineId="DEMO-0000"
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
         reportPurpose="Testing"
         isPollsOpen={false}
