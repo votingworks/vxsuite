@@ -98,7 +98,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
   render(<App storage={storage} hardware={hardware} />)
-  await screen.findByText('No Card Reader Detected')
+  await screen.findByText('Card Reader Not Detected')
 })
 
 test('app can load and configure from a usb stick', async () => {

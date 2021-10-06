@@ -358,6 +358,16 @@ test('authentication works', async () => {
     h: electionSampleDefinition.electionHash,
   }
 
+  // Disconnect card reader
+  await act(async () => {
+    await hardware.setCardReaderConnected(false)
+  })
+  await screen.findByText('Card Reader Not Detected')
+  await act(async () => {
+    await hardware.setCardReaderConnected(true)
+  })
+  await screen.findByText('Machine Locked')
+
   // Insert an admin card and enter the wrong code.
   card.insertCard(adminCard)
   await act(async () => {

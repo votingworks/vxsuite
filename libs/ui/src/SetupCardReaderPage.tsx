@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
-import { Main, MainChild } from '@votingworks/ui'
+import { fontSizeTheme, Main, MainChild, Prose, Screen } from '.'
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-
-interface Props {
-  useEffectToggleLargeDisplay: () => void
+const doNothing = () => {
+  // do nothing
 }
 
-const SetupCardReaderPage = ({
-  useEffectToggleLargeDisplay,
+interface Props {
+  useEffectToggleLargeDisplay?: () => void
+}
+
+export const SetupCardReaderPage = ({
+  useEffectToggleLargeDisplay = doNothing,
 }: Props): JSX.Element => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, [])
@@ -17,8 +18,8 @@ const SetupCardReaderPage = ({
   return (
     <Screen white>
       <Main>
-        <MainChild center>
-          <Prose textCenter>
+        <MainChild center maxWidth={false}>
+          <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
             <h1>Card Reader Not Detected</h1>
             <p>Please ask a poll worker to connect card reader.</p>
           </Prose>
@@ -27,5 +28,3 @@ const SetupCardReaderPage = ({
     </Screen>
   )
 }
-
-export default SetupCardReaderPage

@@ -43,6 +43,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/utils'
 
+import { SetupCardReaderPage } from '@votingworks/ui'
 import Ballot from './components/Ballot'
 import * as GLOBALS from './config/globals'
 import {
@@ -68,7 +69,6 @@ import ExpiredCardScreen from './pages/ExpiredCardScreen'
 import InsertCardScreen from './pages/InsertCardScreen'
 import PollWorkerScreen from './pages/PollWorkerScreen'
 import PrintOnlyScreen from './pages/PrintOnlyScreen'
-import SetupCardReaderPage from './pages/SetupCardReaderPage'
 import SetupPrinterPage from './pages/SetupPrinterPage'
 import SetupPowerPage from './pages/SetupPowerPage'
 import UnconfiguredScreen from './pages/UnconfiguredScreen'

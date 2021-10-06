@@ -170,7 +170,7 @@ const AppRoot = ({
   const usbDrive = useUsbDrive()
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
-  const [smartcard] = useSmartcard({ card, hardware })
+  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
   useEffect(() => {
     void (async () => {
       setCurrentUserSession((prev) => {
@@ -473,6 +473,7 @@ const AppRoot = ({
         attemptToAuthenticateUser,
         lockMachine,
         machineConfig,
+        hasCardReaderAttached,
       }}
     >
       <ElectionManager />

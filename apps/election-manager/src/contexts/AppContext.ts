@@ -52,6 +52,7 @@ export interface AppContextInterface {
   attemptToAuthenticateUser: (passcode: string) => boolean
   lockMachine: () => void
   machineConfig: MachineConfig
+  hasCardReaderAttached: boolean
 }
 
 const appContext: AppContextInterface = {
@@ -85,6 +86,7 @@ const appContext: AppContextInterface = {
     codeVersion: '',
     bypassAuthentication: false,
   },
+  hasCardReaderAttached: true,
 }
 
 const AppContext = createContext(appContext)
