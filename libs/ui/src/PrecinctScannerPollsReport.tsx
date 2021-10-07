@@ -70,7 +70,7 @@ const SignatureLine = styled.div`
 
 interface Props {
   ballotCount: number
-  currentDateTime: string
+  currentTime: number
   election: Election
   isLiveMode: boolean
   isPollsOpen: boolean
@@ -82,7 +82,7 @@ interface Props {
 
 export const PrecinctScannerPollsReport = ({
   ballotCount,
-  currentDateTime,
+  currentTime,
   election,
   isLiveMode,
   isPollsOpen,
@@ -101,12 +101,6 @@ export const PrecinctScannerPollsReport = ({
       <dt>Machine ID</dt>
       <dd>
         <span>Precinct Scanner #{precinctScannerMachineId}</span>
-        {timeTallySaved && (
-          <span>
-            Tally created at{' '}
-            {formatFullDateTimeZone(DateTime.fromMillis(timeTallySaved))}
-          </span>
-        )}
       </dd>
     </React.Fragment>
   )
@@ -165,9 +159,23 @@ export const PrecinctScannerPollsReport = ({
             <dd>
               <span>{isPollsOpen ? 'Opened' : 'Closed'}</span>
             </dd>
-            <dt>Report Time</dt>
+            {timeTallySaved && (
+              <React.Fragment>
+                <dt>Report Saved Time</dt>
+                <dd>
+                  <span>
+                    {formatFullDateTimeZone(
+                      DateTime.fromMillis(timeTallySaved)
+                    )}
+                  </span>
+                </dd>
+              </React.Fragment>
+            )}
+            <dt>Report Printed Time</dt>
             <dd>
-              <span>{currentDateTime}</span>
+              <span>
+                {formatFullDateTimeZone(DateTime.fromMillis(currentTime))}
+              </span>
             </dd>
             <dt>Ballots Scanned Count</dt>
             <dd>

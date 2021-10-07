@@ -21,7 +21,7 @@ import {
 import {
   TallySourceMachineType,
   find,
-  readSerializedTally,
+  readCompressedTally,
   PrecinctScannerCardTally,
 } from '@votingworks/utils'
 
@@ -113,7 +113,7 @@ const PollWorkerScreen = ({
   const [
     isConfirmingPrecinctScannerPrint,
     setIsConfirmingPrecinctScannerPrint,
-  ] = useState(tallyOnCard !== null)
+  ] = useState(tallyOnCard !== undefined)
   const [
     isPrintingPrecinctScannerReport,
     setIsPrintingPrecinctScannerReport,
@@ -128,10 +128,9 @@ const PollWorkerScreen = ({
           tallyOnCard.tallyMachineType ===
             TallySourceMachineType.PRECINCT_SCANNER
       )
-      const serializedTally = tallyOnCard.tally
-      const fullTally = readSerializedTally(
+      const fullTally = readCompressedTally(
         election,
-        serializedTally,
+        tallyOnCard.tally,
         tallyOnCard.totalBallotsScanned,
         {
           [VotingMethod.Precinct]: tallyOnCard.precinctBallots,
@@ -202,7 +201,7 @@ const PollWorkerScreen = ({
     resetCardTallyData,
   ])
 
-  const currentDateTime = new Date().toLocaleString()
+  const currentTime = Date.now()
   const reportPurposes = ['Publicly Posted', 'Officially Filed']
 
   if (hasVotes && cardlessVoterSessionBallotStyleId) {
@@ -462,22 +461,24 @@ const PollWorkerScreen = ({
               <PrecinctScannerPollsReport
                 key={`polls-report-${reportPurpose}`}
                 ballotCount={tallyOnCard.totalBallotsScanned}
-                currentDateTime={currentDateTime}
+                currentTime={currentTime}
                 election={election}
                 isLiveMode={tallyOnCard.isLiveMode}
                 isPollsOpen={tallyOnCard.isPollsOpen}
                 precinctScannerMachineId={tallyOnCard.machineId}
                 timeTallySaved={tallyOnCard.timeSaved}
-                precinctSelection={appPrecinct}
+                precinctSelection={tallyOnCard.precinctSelection}
                 reportPurpose={reportPurpose}
               />
               <PrecinctScannerTallyReport
                 key={`tally-report-${reportPurpose}`}
-                currentDateTime={currentDateTime}
+                reportSavedTime={tallyOnCard.timeSaved}
                 electionDefinition={electionDefinition}
                 signingMachineId={machineConfig.machineId}
+                isLiveMode={tallyOnCard.isLiveMode}
+                isPollsOpen={tallyOnCard.isPollsOpen}
                 tally={precinctScannerTally}
-                precinctSelection={appPrecinct}
+                precinctSelection={tallyOnCard.precinctSelection}
                 reportPurpose={reportPurpose}
               />
             </React.Fragment>

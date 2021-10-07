@@ -6,12 +6,12 @@ import {
   makeInvalidPollWorkerCard,
   makeVoterCard,
   makePollWorkerCard,
+  getZeroCompressedTally,
 } from '@votingworks/test-utils'
 import {
   MemoryStorage,
   MemoryCard,
   MemoryHardware,
-  getZeroTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
 import { PrecinctSelectionKind } from '@votingworks/types'
@@ -354,7 +354,7 @@ it('VxMark+Print end-to-end flow', async () => {
   card.insertCard(
     pollWorkerCard,
     JSON.stringify({
-      tally: getZeroTally(electionDefinition.election),
+      tally: getZeroCompressedTally(electionDefinition.election),
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       machineId: '0002',
       timeSaved: new Date('2020-10-31').getTime(),

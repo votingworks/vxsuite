@@ -1,6 +1,7 @@
 export * from './advanceTimers'
 export * from './castVoteRecord'
 export * from './child_process'
+export * from './compressedTallies'
 export * from './fakeKiosk'
 export * from './smartcards'
 export * from './zip'

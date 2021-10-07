@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { CastVoteRecord } from './castVoteRecord'
 import { Contest, Candidate } from './election'
 import { Dictionary, Optional } from './generic'
@@ -84,3 +85,8 @@ export interface FullElectionExternalTally {
 export type OptionalExternalTally = Optional<ExternalTally>
 export type OptionalFullElectionTally = Optional<FullElectionTally>
 export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>
+
+export type CompressedTally = number[][]
+export const CompressedTallySchema: z.ZodSchema<CompressedTally> = z.array(
+  z.array(z.number().nonnegative().int())
+)

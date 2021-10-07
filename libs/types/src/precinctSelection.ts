@@ -7,6 +7,8 @@ export enum PrecinctSelectionKind {
   AllPrecincts = 'AllPrecincts',
 }
 
+export const PrecinctSelectionKindSchema = z.nativeEnum(PrecinctSelectionKind)
+
 export type PrecinctSelection =
   | { kind: PrecinctSelectionKind.AllPrecincts }
   | { kind: PrecinctSelectionKind.SinglePrecinct; precinctId: Precinct['id'] }

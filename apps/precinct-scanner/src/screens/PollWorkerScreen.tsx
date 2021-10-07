@@ -13,10 +13,10 @@ import {
 } from '@votingworks/ui'
 import {
   calculateTallyForCastVoteRecords,
+  compressTally,
   format,
   PrecinctScannerCardTally,
   Printer,
-  serializeTally,
   TallySourceMachineType,
 } from '@votingworks/utils'
 import {
@@ -119,13 +119,13 @@ const PollWorkerScreen = ({
 
   const saveTally = async () => {
     assert(currentTally)
-    const serializedTally = serializeTally(election, currentTally)
+    const compressedTally = compressTally(election, currentTally)
     await saveTallyToCard({
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: scannedBallotCount,
       isLiveMode,
       isPollsOpen: !isPollsOpen, // When we are saving we are about to either open or close polls and want the state to reflect what it will be after that is complete.
-      tally: serializedTally,
+      tally: compressedTally,
       absenteeBallots:
         currentTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
       precinctBallots:
@@ -171,7 +171,7 @@ const PollWorkerScreen = ({
   }
 
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name
-  const currentDateTime = new Date().toLocaleString()
+  const currentTime = Date.now()
 
   return (
     <React.Fragment>
@@ -305,7 +305,7 @@ const PollWorkerScreen = ({
             <React.Fragment key={reportPurpose}>
               <PrecinctScannerPollsReport
                 ballotCount={scannedBallotCount}
-                currentDateTime={currentDateTime}
+                currentTime={currentTime}
                 election={election}
                 isLiveMode={isLiveMode}
                 isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
@@ -321,7 +321,7 @@ const PollWorkerScreen = ({
                 reportPurpose={reportPurpose}
                 isPollsOpen={!isPollsOpen}
                 isLiveMode={isLiveMode}
-                currentDateTime={currentDateTime}
+                reportSavedTime={currentTime}
               />
             </React.Fragment>
           )
