@@ -84,6 +84,10 @@ Use any fixture paths you like. This shows using the default fixtures:
 ./mockCardReader.py enable --no-card
 ```
 
+## Other Resources
+
+- [HID OMNIKEY SmartCard Reader Documentation](./plt-03099_a.5_-_omnikey_sw_dev_guide_0.pdf)
+
 ## License
 
 GPLv3
