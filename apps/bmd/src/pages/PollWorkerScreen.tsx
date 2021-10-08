@@ -273,6 +273,10 @@ const PollWorkerScreen = ({
     )
   }
 
+  const reload = () => {
+    window.location.reload()
+  }
+
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
@@ -352,6 +356,8 @@ const PollWorkerScreen = ({
                     : `Open Polls for ${precinctName}`}
                 </Button>
               </p>
+              <h1>Advanced</h1>
+              <Button onPress={reload}>Reset Accessible Controller</Button>
             </Prose>
           </MainChild>
         </Main>
