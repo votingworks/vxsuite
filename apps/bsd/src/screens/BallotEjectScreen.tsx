@@ -133,16 +133,16 @@ const BallotEjectScreen = ({
     // We leave that consideration to:
     // https://github.com/votingworks/vxsuite/issues/902
     const isBlank =
-      frontAdjudication.allReasonInfos.some(
+      frontAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
       ) &&
-      !frontAdjudication.allReasonInfos.some(
+      !frontAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.UnmarkedWriteIn
       ) &&
-      backAdjudication.allReasonInfos.some(
+      backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
       ) &&
-      !backAdjudication.allReasonInfos.some(
+      !backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.UnmarkedWriteIn
       )
 
@@ -151,7 +151,7 @@ const BallotEjectScreen = ({
         !frontAdjudication.enabledReasons.some(
           (reason) =>
             reason !== AdjudicationReason.BlankBallot &&
-            frontAdjudication.allReasonInfos.some(
+            frontAdjudication.enabledReasonInfos.some(
               (info) => info.type === reason
             )
         )
@@ -162,7 +162,9 @@ const BallotEjectScreen = ({
         !backAdjudication.enabledReasons.some(
           (reason) =>
             reason !== AdjudicationReason.BlankBallot &&
-            backAdjudication.allReasonInfos.some((info) => info.type === reason)
+            backAdjudication.enabledReasonInfos.some(
+              (info) => info.type === reason
+            )
         )
       ) {
         setBackMarkAdjudications([])
@@ -264,45 +266,37 @@ const BallotEjectScreen = ({
     } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
         for (const adjudicationReason of reviewPageInfo.interpretation
-          .adjudicationInfo.allReasonInfos) {
-          if (
-            reviewPageInfo.interpretation.adjudicationInfo.enabledReasons.includes(
-              adjudicationReason.type
-            )
+          .adjudicationInfo.enabledReasonInfos) {
+          if (adjudicationReason.type === AdjudicationReason.Overvote) {
+            isOvervotedSheet = true
+            contestIdsWithIssues.add(adjudicationReason.contestId)
+          } else if (adjudicationReason.type === AdjudicationReason.Undervote) {
+            isUndervotedSheet = true
+            contestIdsWithIssues.add(adjudicationReason.contestId)
+          } else if (
+            adjudicationReason.type === AdjudicationReason.WriteIn ||
+            adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
           ) {
-            if (adjudicationReason.type === AdjudicationReason.Overvote) {
-              isOvervotedSheet = true
-              contestIdsWithIssues.add(adjudicationReason.contestId)
-            } else if (
-              adjudicationReason.type === AdjudicationReason.Undervote
-            ) {
-              isUndervotedSheet = true
-              contestIdsWithIssues.add(adjudicationReason.contestId)
-            } else if (
-              adjudicationReason.type === AdjudicationReason.WriteIn ||
-              adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
-            ) {
-              assert(reviewPageInfo.layout)
-              assert(reviewPageInfo.contestIds)
-              return (
-                <WriteInAdjudicationScreen
-                  sheetId={reviewInfo.interpreted.id}
-                  side={reviewPageInfo.side}
-                  imageURL={reviewPageInfo.imageURL}
-                  interpretation={reviewPageInfo.interpretation}
-                  layout={reviewPageInfo.layout}
-                  contestIds={reviewPageInfo.contestIds}
-                  onAdjudicationComplete={onAdjudicationComplete}
-                />
-              )
-            } else if (
-              adjudicationReason.type === AdjudicationReason.BlankBallot
-            ) {
-              if (reviewPageInfo.side === 'front') {
-                isFrontBlank = true
-              } else {
-                isBackBlank = true
-              }
+            assert(reviewPageInfo.layout)
+            assert(reviewPageInfo.contestIds)
+            return (
+              <WriteInAdjudicationScreen
+                sheetId={reviewInfo.interpreted.id}
+                side={reviewPageInfo.side}
+                imageURL={reviewPageInfo.imageURL}
+                interpretation={reviewPageInfo.interpretation}
+                layout={reviewPageInfo.layout}
+                contestIds={reviewPageInfo.contestIds}
+                onAdjudicationComplete={onAdjudicationComplete}
+              />
+            )
+          } else if (
+            adjudicationReason.type === AdjudicationReason.BlankBallot
+          ) {
+            if (reviewPageInfo.side === 'front') {
+              isFrontBlank = true
+            } else {
+              isBackBlank = true
             }
           }
         }

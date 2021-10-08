@@ -39,7 +39,8 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
   adjudicationInfo: {
     requiresAdjudication: false,
     enabledReasons: [],
-    allReasonInfos: [],
+    enabledReasonInfos: [],
+    ignoredReasonInfos: [],
   },
   votes: {},
 }

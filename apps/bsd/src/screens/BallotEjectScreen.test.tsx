@@ -75,7 +75,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: true,
-              allReasonInfos: [
+              enabledReasonInfos: [
                 {
                   type: AdjudicationReason.Overvote,
                   contestId: '1',
@@ -84,6 +84,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
                   expected: 1,
                 },
               ],
+              ignoredReasonInfos: [],
               enabledReasons: [AdjudicationReason.Overvote],
             },
             votes: {},
@@ -108,7 +109,8 @@ test('says the ballot sheet is overvoted if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: false,
-              allReasonInfos: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
               enabledReasons: [AdjudicationReason.Overvote],
             },
             votes: {},
@@ -172,7 +174,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: true,
-              allReasonInfos: [
+              enabledReasonInfos: [
                 {
                   type: AdjudicationReason.Undervote,
                   contestId: '1',
@@ -181,6 +183,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
                   expected: 1,
                 },
               ],
+              ignoredReasonInfos: [],
               enabledReasons: [AdjudicationReason.Undervote],
             },
             votes: {},
@@ -205,7 +208,8 @@ test('says the ballot sheet is undervoted if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: false,
-              allReasonInfos: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
               enabledReasons: [AdjudicationReason.Overvote],
             },
             votes: {},
@@ -269,7 +273,7 @@ test('says the ballot sheet is blank if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: true,
-              allReasonInfos: [
+              enabledReasonInfos: [
                 {
                   type: AdjudicationReason.Undervote,
                   contestId: '1',
@@ -279,6 +283,7 @@ test('says the ballot sheet is blank if it is', async () => {
                 },
                 { type: AdjudicationReason.BlankBallot },
               ],
+              ignoredReasonInfos: [],
               enabledReasons: [
                 AdjudicationReason.BlankBallot,
                 AdjudicationReason.Undervote,
@@ -306,7 +311,8 @@ test('says the ballot sheet is blank if it is', async () => {
             },
             adjudicationInfo: {
               requiresAdjudication: true,
-              allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+              enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+              ignoredReasonInfos: [],
               enabledReasons: [
                 AdjudicationReason.BlankBallot,
                 AdjudicationReason.Undervote,
@@ -594,7 +600,8 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
               },
               adjudicationInfo: {
                 requiresAdjudication: true,
-                allReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+                enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+                ignoredReasonInfos: [],
                 enabledReasons: [AdjudicationReason.BlankBallot, writeInReason],
               },
               votes: {},
@@ -619,7 +626,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
               },
               adjudicationInfo: {
                 requiresAdjudication: true,
-                allReasonInfos: [
+                enabledReasonInfos: [
                   {
                     type: writeInReason,
                     contestId: 'county-commissioners',
@@ -629,6 +636,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
                     | WriteInAdjudicationReasonInfo
                     | UnmarkedWriteInAdjudicationReasonInfo,
                 ],
+                ignoredReasonInfos: [],
                 enabledReasons: [AdjudicationReason.BlankBallot, writeInReason],
               },
               votes: {},

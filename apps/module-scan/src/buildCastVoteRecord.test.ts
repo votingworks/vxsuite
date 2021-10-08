@@ -289,7 +289,8 @@ test('generates a CVR from a completed HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             '1': '1',
@@ -315,7 +316,8 @@ test('generates a CVR from a completed HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             'initiative-65': ['yes', 'no'],
@@ -384,7 +386,8 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             '1': { id: '__write-in-0', name: 'Pikachu', isWriteIn: true },
@@ -410,7 +413,8 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             'initiative-65': ['yes', 'no'],
@@ -480,7 +484,8 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             '1': '1',
@@ -506,7 +511,8 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             'initiative-65': ['yes', 'no'],
@@ -575,7 +581,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: true,
             enabledReasons: [AdjudicationReason.Overvote],
-            allReasonInfos: [
+            enabledReasonInfos: [
               {
                 type: AdjudicationReason.Overvote,
                 contestId: 'initiative-65',
@@ -584,6 +590,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
                 optionIndexes: [0, 1],
               },
             ],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             'initiative-65': ['yes', 'no'],
@@ -616,7 +623,8 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [AdjudicationReason.Overvote],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           votes: vote(contests, {
             '1': '1',
@@ -681,7 +689,8 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -735,7 +744,8 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -788,7 +798,8 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -841,7 +852,8 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -895,7 +907,8 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -990,7 +1003,7 @@ test('generates a CVR from an adjudicated write-in', () => {
           adjudicationInfo: {
             requiresAdjudication: true,
             enabledReasons: [AdjudicationReason.WriteIn],
-            allReasonInfos: [
+            enabledReasonInfos: [
               {
                 type: AdjudicationReason.WriteIn,
                 contestId: '2',
@@ -998,6 +1011,7 @@ test('generates a CVR from an adjudicated write-in', () => {
                 optionIndex: 3,
               },
             ],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -1037,7 +1051,8 @@ test('generates a CVR from an adjudicated write-in', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -1098,7 +1113,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
           adjudicationInfo: {
             requiresAdjudication: true,
             enabledReasons: [AdjudicationReason.UnmarkedWriteIn],
-            allReasonInfos: [
+            enabledReasonInfos: [
               {
                 type: AdjudicationReason.UnmarkedWriteIn,
                 contestId: '2',
@@ -1106,6 +1121,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
                 optionIndex: 3,
               },
             ],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],
@@ -1139,7 +1155,8 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
           adjudicationInfo: {
             requiresAdjudication: false,
             enabledReasons: [],
-            allReasonInfos: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
           },
           markInfo: {
             marks: [],

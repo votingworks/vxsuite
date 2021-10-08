@@ -21,7 +21,7 @@ export function interpretedHmpb({
     electionDefinition.election.contests,
     (c): c is CandidateContest => c.type === 'candidate'
   )
-  const allReasonInfos: AdjudicationInfo['allReasonInfos'] =
+  const enabledReasonInfos: AdjudicationInfo['enabledReasonInfos'] =
     adjudicationReason === AdjudicationReason.Overvote
       ? [
           {
@@ -38,11 +38,12 @@ export function interpretedHmpb({
   return {
     type: 'InterpretedHmpbPage',
     adjudicationInfo: {
-      allReasonInfos,
+      enabledReasonInfos,
       enabledReasons: [
         AdjudicationReason.Overvote,
         AdjudicationReason.BlankBallot,
       ],
+      ignoredReasonInfos: [],
       requiresAdjudication:
         adjudicationReason === AdjudicationReason.Overvote ||
         adjudicationReason === AdjudicationReason.BlankBallot,

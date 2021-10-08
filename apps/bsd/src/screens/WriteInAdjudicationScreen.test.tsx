@@ -70,7 +70,7 @@ function renderWriteInAdjudicationScreen(
         adjudicationInfo: {
           requiresAdjudication: true,
           enabledReasons: [reason],
-          allReasonInfos: [
+          enabledReasonInfos: [
             {
               type: reason,
               contestId: contest.id,
@@ -78,6 +78,7 @@ function renderWriteInAdjudicationScreen(
               optionIndex: 0,
             },
           ],
+          ignoredReasonInfos: [],
         },
         votes: {},
       }}

@@ -324,7 +324,7 @@ test('adjudication', async () => {
             AdjudicationReason.UninterpretableBallot,
             AdjudicationReason.MarginalMark,
           ],
-          allReasonInfos: [
+          enabledReasonInfos: [
             {
               type: AdjudicationReason.MarginalMark,
               contestId: candidateContests[i].id,
@@ -339,6 +339,7 @@ test('adjudication', async () => {
               optionIndexes: [],
             },
           ],
+          ignoredReasonInfos: [],
         },
       },
     })) as SheetOf<PageInterpretationWithFiles>
