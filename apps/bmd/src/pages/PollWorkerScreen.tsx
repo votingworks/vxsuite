@@ -434,6 +434,7 @@ const PollWorkerScreen = ({
         )}
         {isConfirmingPrecinctScannerPrint && !precinctScannerTally && (
           <Modal
+            ariaHideApp={false}
             content={
               <Prose textCenter id="modalaudiofocus">
                 <Loading />
