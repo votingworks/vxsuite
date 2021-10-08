@@ -30,6 +30,7 @@ interface Props {
   centerContent?: boolean
   actions?: ReactNode
   onAfterOpen?: () => void
+  ariaHideApp?: boolean
 }
 
 const Modal = ({
@@ -38,6 +39,7 @@ const Modal = ({
   centerContent,
   className = '',
   content,
+  ariaHideApp = true,
 
   onAfterOpen = () => {
     /* istanbul ignore next - unclear why this isn't covered */
@@ -56,7 +58,7 @@ const Modal = ({
   return (
     <ReactModal
       appElement={appElement}
-      ariaHideApp
+      ariaHideApp={ariaHideApp}
       aria-modal
       role="alertdialog"
       isOpen
