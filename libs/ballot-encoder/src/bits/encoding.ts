@@ -54,7 +54,7 @@ export class CustomEncoding implements Encoding {
   /**
    * @param chars a string of representable characters without duplicates
    */
-  constructor(private readonly chars: string) {
+  constructor(readonly chars: string) {
     CustomEncoding.validateChars(chars)
     this.bitsPerElement = sizeof(chars.length - 1)
   }

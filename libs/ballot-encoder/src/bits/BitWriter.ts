@@ -95,7 +95,7 @@ export default class BitWriter {
       throw new Error('size cannot be undefined')
     }
 
-    if (number >= 1 << size) {
+    if (number >= 2 ** size) {
       throw new Error(`overflow: ${number} cannot fit in ${size} bits`)
     }
 
@@ -157,7 +157,7 @@ export default class BitWriter {
     string: string,
     {
       encoding = UTF8Encoding,
-      maxLength = (1 << Uint8Size) - 1,
+      maxLength = 2 ** Uint8Size - 1,
       includeLength = true,
       length,
     }: {
