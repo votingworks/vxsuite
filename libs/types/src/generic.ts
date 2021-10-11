@@ -189,3 +189,10 @@ export const HexString: z.ZodSchema<string> = z
 export const ISO8601Date = z
   .string()
   .refine(check8601, 'dates must be in ISO8601 format')
+export const MachineId = z
+  .string()
+  .nonempty()
+  .refine(
+    (id) => /^[-A-Z\d]+$/.test(id),
+    'Machine IDs may only contain numbers, uppercase letters, and dashes'
+  )

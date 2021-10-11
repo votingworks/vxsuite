@@ -1,3 +1,4 @@
+import fc from 'fast-check'
 import {
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
@@ -9,6 +10,7 @@ import {
   generateFilenameForBallotExportPackage,
   parseCVRFileInfoFromFilename,
   generateFinalExportDefaultFilename,
+  CVRFileData,
 } from './filenames'
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
@@ -376,4 +378,44 @@ describe('parseCVRFileInfoFromFilename', () => {
       timestamp: time,
     })
   })
+})
+
+function arbitraryMachineID(): fc.Arbitrary<string> {
+  return fc.stringOf(
+    fc.constantFrom(...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'),
+    { minLength: 1 }
+  )
+}
+
+function arbitraryCVRFileData(): fc.Arbitrary<CVRFileData> {
+  return fc.record({
+    machineId: arbitraryMachineID(),
+    numberOfBallots: fc.nat(),
+    isTestModeResults: fc.boolean(),
+    timestamp: fc
+      // keep 4-digit year
+      .date({ min: new Date(0), max: new Date(9999, 0, 1) })
+      .map((date) => {
+        // stringified date only has 1s precision
+        date.setMilliseconds(0)
+        return date
+      }),
+  })
+}
+
+test('generate/parse CVR file fuzzing', () => {
+  fc.assert(
+    fc.property(arbitraryCVRFileData(), (cvrFileData) => {
+      expect(
+        parseCVRFileInfoFromFilename(
+          generateFilenameForScanningResults(
+            cvrFileData.machineId,
+            cvrFileData.numberOfBallots,
+            cvrFileData.isTestModeResults,
+            cvrFileData.timestamp
+          )
+        )
+      ).toEqual(cvrFileData)
+    })
+  )
 })

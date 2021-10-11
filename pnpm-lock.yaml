@@ -1685,6 +1685,7 @@ importers:
       eslint-plugin-import: 2.24.2_eslint@7.26.0+typescript@4.3.5
       eslint-plugin-prettier: 3.4.0_39fed7ca8f33f3403e39ca7e7aa90c0f
       eslint-plugin-vx: link:../eslint-plugin-vx
+      fast-check: 2.18.0
       jest: 26.6.3
       jest-watch-typeahead: 0.6.4_jest@26.6.3
       lint-staged: 11.0.0
@@ -1713,6 +1714,7 @@ importers:
       eslint-plugin-import: ^2.24.2
       eslint-plugin-prettier: ^3.4.0
       eslint-plugin-vx: workspace:*
+      fast-check: ^2.18.0
       fast-text-encoding: ^1.0.2
       fetch-mock: ^9.11.0
       jest: ^26.6.3
