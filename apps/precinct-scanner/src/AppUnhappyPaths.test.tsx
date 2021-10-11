@@ -143,6 +143,16 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   await advanceTimersAndPromises(1)
   await screen.findByText('Polls Closed')
 
+  // Insert a voter card which is invalid
+  card.insertCard(JSON.stringify({ t: 'voter' }))
+  await advanceTimersAndPromises(2)
+  await screen.findByText('Invalid Card, please remove.')
+
+  // Remove card
+  card.removeCard()
+  await advanceTimersAndPromises(1)
+  await screen.findByText('Polls Closed')
+
   const pollWorkerCardWrongElection = makePollWorkerCard(
     electionWithMsEitherNeitherDefinition.electionHash
   )

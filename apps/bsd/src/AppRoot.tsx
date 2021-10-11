@@ -5,7 +5,6 @@ import {
   MarkThresholds,
   Optional,
   safeParseJSON,
-  UserSession,
 } from '@votingworks/types'
 import styled from 'styled-components'
 
@@ -30,6 +29,7 @@ import {
   USBControllerButton,
   useSmartcard,
   SetupCardReaderPage,
+  useUserSession,
 } from '@votingworks/ui'
 import { MachineConfig } from './config/types'
 import AppContext from './contexts/AppContext'
@@ -93,68 +93,20 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     machineId: '0000',
     bypassAuthentication: false,
   })
-  const [currentUserSession, setCurrentUserSession] = useState<UserSession>()
 
   const usbDrive = useUsbDrive()
 
   const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
-  useEffect(() => {
-    void (async () => {
-      setCurrentUserSession((prev) => {
-        if (machineConfig.bypassAuthentication && !prev) {
-          return {
-            type: 'admin',
-            authenticated: true,
-          }
-        }
-
-        if (smartcard) {
-          if (!prev?.authenticated && smartcard.data?.t) {
-            return {
-              type: smartcard.data.t,
-              authenticated: false,
-            }
-          }
-        } else if (prev && !prev.authenticated) {
-          // If a card is removed when there is not an authenticated session, clear the session.
-          return undefined
-        }
-
-        return prev
-      })
-    })()
-  }, [machineConfig, smartcard])
-
-  const attemptToAuthenticateUser = useCallback(
-    (passcode: string): boolean => {
-      let isAdminCard = false
-      let passcodeMatches = false
-
-      // The card must be an admin card to authenticate
-      if (smartcard?.data?.t === 'admin') {
-        isAdminCard = true
-        // There must be an expected passcode on the card to authenticate.
-        if (typeof smartcard.data.p === 'string') {
-          passcodeMatches = passcode === smartcard.data.p
-        }
-      }
-
-      setCurrentUserSession(
-        isAdminCard
-          ? { type: 'admin', authenticated: passcodeMatches }
-          : undefined
-      )
-      return isAdminCard && passcodeMatches
-    },
-    [smartcard]
-  )
-
-  const lockMachine = useCallback(() => {
-    if (!machineConfig.bypassAuthentication) {
-      setCurrentUserSession(undefined)
-    }
-  }, [machineConfig.bypassAuthentication])
-
+  const {
+    currentUserSession,
+    attemptToAuthenticateAdminUser,
+    lockMachine,
+  } = useUserSession({
+    smartcard,
+    electionDefinition,
+    persistAuthentication: true,
+    bypassAuthentication: machineConfig.bypassAuthentication,
+  })
   const [isExportingCVRs, setIsExportingCVRs] = useState(false)
 
   const [markThresholds, setMarkThresholds] = useState<
@@ -403,7 +355,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
         }}
       >
         <UnlockMachineScreen
-          attemptToAuthenticateUser={attemptToAuthenticateUser}
+          attemptToAuthenticateAdminUser={attemptToAuthenticateAdminUser}
         />
       </AppContext.Provider>
     )

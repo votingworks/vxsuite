@@ -5,13 +5,15 @@ import renderInAppContext from '../../test/renderInAppContext'
 import { UnlockMachineScreen } from './UnlockMachineScreen'
 
 test('authentication', async () => {
-  const attemptToAuthenticateUser = jest.fn()
+  const attemptToAuthenticateAdminUser = jest.fn()
 
-  renderInAppContext(<UnlockMachineScreen />, { attemptToAuthenticateUser })
+  renderInAppContext(<UnlockMachineScreen />, {
+    attemptToAuthenticateAdminUser,
+  })
   screen.getByText('- - - - - -')
 
   // set up a failed attempt
-  attemptToAuthenticateUser.mockReturnValueOnce(false)
+  attemptToAuthenticateAdminUser.mockReturnValueOnce(false)
 
   userEvent.click(screen.getByText('0'))
   screen.getByText('• - - - - -')
@@ -44,35 +46,35 @@ test('authentication', async () => {
   screen.getByText('• • • • • •')
 
   await waitFor(() =>
-    expect(attemptToAuthenticateUser).toHaveBeenNthCalledWith(1, '012345')
+    expect(attemptToAuthenticateAdminUser).toHaveBeenNthCalledWith(1, '012345')
   )
 
   screen.getByText('Invalid code. Please try again.')
 
   // set up a successful attempt
-  attemptToAuthenticateUser.mockReturnValueOnce(true)
+  attemptToAuthenticateAdminUser.mockReturnValueOnce(true)
 
   for (let i = 0; i < 6; i += 1) {
     userEvent.click(screen.getByText('0'))
   }
 
   await waitFor(() =>
-    expect(attemptToAuthenticateUser).toHaveBeenNthCalledWith(2, '000000')
+    expect(attemptToAuthenticateAdminUser).toHaveBeenNthCalledWith(2, '000000')
   )
 
   expect(screen.queryByText('Invalid code. Please try again.')).toBeNull()
 })
 
 test('factory reset', async () => {
-  const attemptToAuthenticateUser = jest.fn()
+  const attemptToAuthenticateAdminUser = jest.fn()
   const saveElection = jest.fn()
 
   renderInAppContext(<UnlockMachineScreen />, {
-    attemptToAuthenticateUser,
+    attemptToAuthenticateAdminUser,
     saveElection,
   })
 
-  attemptToAuthenticateUser.mockReturnValueOnce(false)
+  attemptToAuthenticateAdminUser.mockReturnValueOnce(false)
 
   userEvent.click(screen.getByText('3'))
   userEvent.click(screen.getByText('1'))
@@ -82,7 +84,7 @@ test('factory reset', async () => {
   userEvent.click(screen.getByText('9'))
 
   await waitFor(() =>
-    expect(attemptToAuthenticateUser).toHaveBeenNthCalledWith(1, '314159')
+    expect(attemptToAuthenticateAdminUser).toHaveBeenNthCalledWith(1, '314159')
   )
 
   userEvent.click(screen.getByText('Factory Reset'))

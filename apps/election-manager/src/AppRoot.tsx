@@ -10,9 +10,7 @@ import {
   safeParseElection,
   FullElectionExternalTally,
   ExternalTallySourceType,
-  Optional,
   Provider,
-  UserSession,
 } from '@votingworks/types'
 
 import {
@@ -23,7 +21,7 @@ import {
   Card,
   Hardware,
 } from '@votingworks/utils'
-import { useSmartcard, useUsbDrive } from '@votingworks/ui'
+import { useSmartcard, useUsbDrive, useUserSession } from '@votingworks/ui'
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -164,70 +162,21 @@ const AppRoot = ({
     })()
   }, [machineConfigProvider])
 
-  const [currentUserSession, setCurrentUserSession] = useState<
-    Optional<UserSession>
-  >()
   const usbDrive = useUsbDrive()
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
   const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
-  useEffect(() => {
-    void (async () => {
-      setCurrentUserSession((prev) => {
-        if (machineConfig.bypassAuthentication && !prev) {
-          return {
-            type: 'admin',
-            authenticated: true,
-          }
-        }
-
-        if (smartcard) {
-          if (!prev?.authenticated && smartcard.data?.t) {
-            return {
-              type: smartcard.data.t,
-              authenticated: false,
-            }
-          }
-        } else if (prev && !prev.authenticated) {
-          // If a card is removed when there is not an authenticated session, clear the session.
-          return undefined
-        }
-
-        return prev
-      })
-    })()
-  }, [machineConfig, smartcard])
-
-  const attemptToAuthenticateUser = useCallback(
-    (passcode: string): boolean => {
-      let isAdminCard = false
-      let passcodeMatches = false
-
-      // The card must be an admin card to authenticate
-      if (smartcard?.data?.t === 'admin') {
-        isAdminCard = true
-        // There must be an expected passcode on the card to authenticate.
-        if (typeof smartcard.data.p === 'string') {
-          passcodeMatches = passcode === smartcard.data.p
-        }
-      }
-
-      setCurrentUserSession(
-        isAdminCard
-          ? { type: 'admin', authenticated: passcodeMatches }
-          : undefined
-      )
-      return isAdminCard && passcodeMatches
-    },
-    [smartcard]
-  )
-
-  const lockMachine = useCallback(() => {
-    if (!machineConfig.bypassAuthentication) {
-      setCurrentUserSession(undefined)
-    }
-  }, [machineConfig.bypassAuthentication])
-
+  const {
+    currentUserSession,
+    attemptToAuthenticateAdminUser,
+    lockMachine,
+    bootstrapAuthenticatedAdminSession,
+  } = useUserSession({
+    smartcard,
+    electionDefinition,
+    persistAuthentication: true,
+    bypassAuthentication: machineConfig.bypassAuthentication,
+  })
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined
   >(undefined)
@@ -384,7 +333,7 @@ const AppRoot = ({
         setConfiguredAt(newConfiguredAt)
         // Temporarily bootstrap an authenticated user session. This will be removed
         // once we have a full story for how to bootstrap the auth process.
-        setCurrentUserSession({ type: 'admin', authenticated: true })
+        bootstrapAuthenticatedAdminSession()
 
         await storage.set(configuredAtStorageKey, newConfiguredAt)
         await storage.set(electionDefinitionStorageKey, {
@@ -470,7 +419,7 @@ const AppRoot = ({
         setIsTabulationRunning,
         generateExportableTallies,
         currentUserSession,
-        attemptToAuthenticateUser,
+        attemptToAuthenticateAdminUser,
         lockMachine,
         machineConfig,
         hasCardReaderAttached,

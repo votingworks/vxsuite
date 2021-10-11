@@ -64,7 +64,7 @@ interface RenderInAppContextParams {
   fullElectionExternalTallies?: FullElectionExternalTally[]
   generateExportableTallies?: () => ExportableTallies
   currentUserSession?: Optional<UserSession>
-  attemptToAuthenticateUser?: () => boolean
+  attemptToAuthenticateAdminUser?: () => boolean
   lockMachine?: () => undefined
   machineConfig?: MachineConfig
   hasCardReaderAttached?: boolean
@@ -98,7 +98,7 @@ export default function renderInAppContext(
     fullElectionExternalTallies = [],
     generateExportableTallies = jest.fn(),
     currentUserSession = { type: 'admin', authenticated: true },
-    attemptToAuthenticateUser = jest.fn(),
+    attemptToAuthenticateAdminUser = jest.fn(),
     lockMachine = jest.fn(),
     machineConfig = {
       machineId: '0000',
@@ -134,7 +134,7 @@ export default function renderInAppContext(
         fullElectionExternalTallies,
         generateExportableTallies,
         currentUserSession,
-        attemptToAuthenticateUser,
+        attemptToAuthenticateAdminUser,
         lockMachine,
         machineConfig,
         hasCardReaderAttached,

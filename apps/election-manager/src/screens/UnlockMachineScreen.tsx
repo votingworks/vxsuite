@@ -33,7 +33,9 @@ export const EnteredCode = styled.div`
 `
 
 export const UnlockMachineScreen = (): JSX.Element => {
-  const { attemptToAuthenticateUser, saveElection } = useContext(AppContext)
+  const { attemptToAuthenticateAdminUser, saveElection } = useContext(
+    AppContext
+  )
   const [currentPasscode, setCurrentPasscode] = useState('')
   const [showError, setShowError] = useState(false)
   // This is temporary while we improve the bootstrapping process. If PI is entered
@@ -53,14 +55,14 @@ export const UnlockMachineScreen = (): JSX.Element => {
 
   useEffect(() => {
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
-      const success = attemptToAuthenticateUser(currentPasscode)
+      const success = attemptToAuthenticateAdminUser(currentPasscode)
       // This is temporary while we improve the bootstrapping process. If PI is entered
       // and that does not unlock the machine, show a button to allow for resetting the machine.
       setShowFactoryReset(currentPasscode === '314159')
       setShowError(!success)
       setCurrentPasscode('')
     }
-  }, [currentPasscode, attemptToAuthenticateUser])
+  }, [currentPasscode, attemptToAuthenticateAdminUser])
 
   const resetMachine = useCallback(async () => {
     await saveElection(undefined)
