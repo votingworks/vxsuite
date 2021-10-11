@@ -1685,6 +1685,7 @@ importers:
       eslint-plugin-import: 2.24.2_eslint@7.26.0+typescript@4.3.5
       eslint-plugin-prettier: 3.4.0_39fed7ca8f33f3403e39ca7e7aa90c0f
       eslint-plugin-vx: link:../eslint-plugin-vx
+      fast-check: 2.18.0
       jest: 26.6.3
       jest-watch-typeahead: 0.6.4_jest@26.6.3
       lint-staged: 11.0.0
@@ -1713,6 +1714,7 @@ importers:
       eslint-plugin-import: ^2.24.2
       eslint-plugin-prettier: ^3.4.0
       eslint-plugin-vx: workspace:*
+      fast-check: ^2.18.0
       fast-text-encoding: ^1.0.2
       fetch-mock: ^9.11.0
       jest: ^26.6.3
@@ -16832,6 +16834,14 @@ packages:
       '0': node >=0.6.0
     resolution:
       integrity: sha1-lpGEQOMEGnpBT4xS48V06zw+HgU=
+  /fast-check/2.18.0:
+    dependencies:
+      pure-rand: 5.0.0
+    dev: true
+    engines:
+      node: '>=8.0.0'
+    resolution:
+      integrity: sha512-7KKUw0wtAJOVrJ1DgmFILd9EmeqMLGtfe5HoEtkYZfYIxohm6Zy7zPq1Zl8t6tPL8A3e86YZrheyGg2m5j8cLA==
   /fast-deep-equal/3.1.3:
     resolution:
       integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
@@ -24973,6 +24983,10 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
+  /pure-rand/5.0.0:
+    dev: true
+    resolution:
+      integrity: sha512-lD2/y78q+7HqBx2SaT6OT4UcwtvXNRfEpzYEzl0EQ+9gZq2Qi3fa0HDnYPeqQwhlHJFBUhT7AO3mLU3+8bynHA==
   /q/1.5.1:
     dev: false
     engines:

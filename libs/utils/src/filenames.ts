@@ -1,6 +1,11 @@
 import { strict as assert } from 'assert'
 import moment from 'moment'
-import { Election, ElectionDefinition } from '@votingworks/types'
+import {
+  Election,
+  ElectionDefinition,
+  MachineId,
+  safeParse,
+} from '@votingworks/types'
 
 const SECTION_SEPARATOR = '__'
 const SUBSECTION_SEPARATOR = '_'
@@ -91,9 +96,9 @@ export function generateFilenameForScanningResults(
   isTestMode: boolean,
   time: Date = new Date()
 ): string {
-  const machineString = `machine${SUBSECTION_SEPARATOR}${sanitizeString(
-    machineId
-  )}`
+  const machineString = `machine${SUBSECTION_SEPARATOR}${
+    safeParse(MachineId, machineId).ok() ?? sanitizeString(machineId)
+  }`
   const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`
   const timeInformation = moment(time).format(TIME_FORMAT_STRING)
   const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}.jsonl`
