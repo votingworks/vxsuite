@@ -11,7 +11,10 @@ import {
   parseCVRFileInfoFromFilename,
   generateFinalExportDefaultFilename,
   CVRFileData,
+  ElectionData,
+  generateFilenameForBallotExportPackageFromElectionData,
 } from './filenames'
+import { typedAs } from './types'
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
   test('parses a basic name properly', () => {
@@ -49,6 +52,18 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
   test('fails to parse a name without all election segments', () => {
     const name = 'string__2020-12-02_09-42-50.zip'
     expect(parseBallotExportPackageInfoFromFilename(name)).toBeUndefined()
+  })
+
+  test('uses placeholders for parts that get sanitized away', () => {
+    const timestamp = new Date(2020, 3, 14)
+    expect(
+      generateFilenameForBallotExportPackageFromElectionData({
+        electionCounty: '!!!', // sanitized as empty string
+        electionHash: 'abcdefg',
+        electionName: '???', // sanitized as empty string
+        timestamp,
+      })
+    ).toEqual('county_election_abcdefg__2020-04-14_00-00-00.zip')
   })
 
   test('works end to end when generating ballot package name', () => {
@@ -387,19 +402,25 @@ function arbitraryMachineID(): fc.Arbitrary<string> {
   )
 }
 
-function arbitraryCVRFileData(): fc.Arbitrary<CVRFileData> {
-  return fc.record({
-    machineId: arbitraryMachineID(),
-    numberOfBallots: fc.nat(),
-    isTestModeResults: fc.boolean(),
-    timestamp: fc
+function arbitraryTimestampDate(): fc.Arbitrary<Date> {
+  return (
+    fc
       // keep 4-digit year
       .date({ min: new Date(0), max: new Date(9999, 0, 1) })
       .map((date) => {
         // stringified date only has 1s precision
         date.setMilliseconds(0)
         return date
-      }),
+      })
+  )
+}
+
+function arbitraryCVRFileData(): fc.Arbitrary<CVRFileData> {
+  return fc.record({
+    machineId: arbitraryMachineID(),
+    numberOfBallots: fc.nat(),
+    isTestModeResults: fc.boolean(),
+    timestamp: arbitraryTimestampDate(),
   })
 }
 
@@ -416,6 +437,48 @@ test('generate/parse CVR file fuzzing', () => {
           )
         )
       ).toEqual(cvrFileData)
+    })
+  )
+})
+
+function arbitrarySafeName(): fc.Arbitrary<string> {
+  return fc
+    .stringOf(
+      fc.constantFrom(
+        ...' abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+      ),
+      { minLength: 1 }
+    )
+    .map((s) => s.trim().replace(/\s+/g, ' '))
+    .filter((s) => s.length >= 1)
+}
+
+function arbitraryElectionData(): fc.Arbitrary<ElectionData> {
+  return fc.record({
+    electionCounty: arbitrarySafeName(),
+    electionName: arbitrarySafeName(),
+    electionHash: fc.hexaString({ minLength: 20, maxLength: 20 }),
+    timestamp: arbitraryTimestampDate(),
+  })
+}
+
+test('generate/parse ballot package filename fuzzing', () => {
+  fc.assert(
+    fc.property(arbitraryElectionData(), (electionData) => {
+      expect(
+        parseBallotExportPackageInfoFromFilename(
+          generateFilenameForBallotExportPackageFromElectionData(electionData)
+        )
+      ).toEqual(
+        typedAs<ElectionData>({
+          electionCounty: electionData.electionCounty.toLocaleLowerCase(),
+          electionHash: electionData.electionHash
+            .toLocaleLowerCase()
+            .slice(0, 10),
+          electionName: electionData.electionName.toLocaleLowerCase(),
+          timestamp: electionData.timestamp,
+        })
+      )
     })
   )
 })

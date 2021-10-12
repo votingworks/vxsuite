@@ -30,11 +30,15 @@ export type CVRFileData = {
   timestamp: Date
 }
 
-function sanitizeString(input: string, replacementString = ''): string {
-  return input
-    .replace(/[^a-z0-9]+/gi, replacementString)
+function sanitizeString(
+  input: string,
+  { replaceInvalidCharsWith = '', defaultValue = 'placeholder' } = {}
+): string {
+  const sanitized = input
+    .replace(/[^a-z0-9]+/gi, replaceInvalidCharsWith)
     .replace(/(^-|-$)+/g, '')
     .toLocaleLowerCase()
+  return sanitized.trim().length === 0 ? defaultValue : sanitized
 }
 
 /**
@@ -76,11 +80,14 @@ export function generateElectionBasedSubfolderName(
   election: Election,
   electionHash: string
 ): string {
-  const electionCountyName = sanitizeString(
-    election.county.name,
-    WORD_SEPARATOR
-  )
-  const electionTitle = sanitizeString(election.title, WORD_SEPARATOR)
+  const electionCountyName = sanitizeString(election.county.name, {
+    replaceInvalidCharsWith: WORD_SEPARATOR,
+    defaultValue: 'county',
+  })
+  const electionTitle = sanitizeString(election.title, {
+    replaceInvalidCharsWith: WORD_SEPARATOR,
+    defaultValue: 'election',
+  })
   return `${`${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`.toLocaleLowerCase()}${SUBSECTION_SEPARATOR}${electionHash.slice(
     0,
     10
@@ -145,12 +152,49 @@ export function parseCVRFileInfoFromFilename(
 
 /* Get the name of an election to use in a filename from the Election object */
 function generateElectionName(election: Election): string {
-  const electionCountyName = sanitizeString(
-    election.county.name,
-    WORD_SEPARATOR
-  )
-  const electionTitle = sanitizeString(election.title, WORD_SEPARATOR)
+  const electionCountyName = sanitizeString(election.county.name, {
+    replaceInvalidCharsWith: WORD_SEPARATOR,
+    defaultValue: 'county',
+  })
+  const electionTitle = sanitizeString(election.title, {
+    replaceInvalidCharsWith: WORD_SEPARATOR,
+    defaultValue: 'election',
+  })
   return `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`
+}
+
+export function getElectionDataFromElectionDefinition(
+  electionDefinition: ElectionDefinition,
+  timestamp: Date = new Date()
+): ElectionData {
+  return {
+    electionCounty: electionDefinition.election.county.name,
+    electionHash: electionDefinition.electionHash,
+    electionName: electionDefinition.election.title,
+    timestamp,
+  }
+}
+
+export function generateFilenameForBallotExportPackageFromElectionData({
+  electionName,
+  electionCounty,
+  electionHash,
+  timestamp,
+}: ElectionData): string {
+  const electionCountyName = sanitizeString(electionCounty, {
+    replaceInvalidCharsWith: WORD_SEPARATOR,
+    defaultValue: 'county',
+  })
+  const electionTitle = sanitizeString(electionName, {
+    replaceInvalidCharsWith: WORD_SEPARATOR,
+    defaultValue: 'election',
+  })
+  const electionInformation = `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}${SUBSECTION_SEPARATOR}${electionHash.slice(
+    0,
+    10
+  )}`
+  const timeInformation = moment(timestamp).format(TIME_FORMAT_STRING)
+  return `${electionInformation}${SECTION_SEPARATOR}${timeInformation}.zip`
 }
 
 /* Generate the name for a ballot export package */
@@ -158,14 +202,9 @@ export function generateFilenameForBallotExportPackage(
   electionDefinition: ElectionDefinition,
   time: Date = new Date()
 ): string {
-  const { election, electionHash } = electionDefinition
-  const electionName = generateElectionName(election)
-  const electionInformation = `${electionName}${SUBSECTION_SEPARATOR}${electionHash.slice(
-    0,
-    10
-  )}`
-  const timeInformation = moment(time).format(TIME_FORMAT_STRING)
-  return `${electionInformation}${SECTION_SEPARATOR}${timeInformation}.zip`
+  return generateFilenameForBallotExportPackageFromElectionData(
+    getElectionDataFromElectionDefinition(electionDefinition, time)
+  )
 }
 
 /* Generate the filename for final results export from election manager */
