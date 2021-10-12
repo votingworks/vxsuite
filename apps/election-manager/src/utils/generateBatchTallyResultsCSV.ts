@@ -25,7 +25,7 @@ export function* generateRowsForBatchTallyResultsCSV(
       {}
     )
     const contestVoteTotals: string[] = []
-    expandEitherNeitherContests(election.contests).forEach((contest) => {
+    for (const contest of expandEitherNeitherContests(election.contests)) {
       const contestTally = batchTally.contestTallies[contest.id]
       contestVoteTotals.push(contestTally?.metadata.ballots.toString() ?? '0')
       contestVoteTotals.push(
@@ -33,11 +33,11 @@ export function* generateRowsForBatchTallyResultsCSV(
       )
       contestVoteTotals.push(contestTally?.metadata.overvotes.toString() ?? '0')
       if (contest.type === 'candidate') {
-        contest.candidates.forEach((candidate) => {
+        for (const candidate of contest.candidates) {
           contestVoteTotals.push(
             contestTally?.tallies[candidate.id]?.tally.toString() ?? '0'
           )
-        })
+        }
         if (contest.allowWriteIns) {
           contestVoteTotals.push(
             contestTally?.tallies[writeInCandidate.id]?.tally.toString() ?? '0'
@@ -51,7 +51,7 @@ export function* generateRowsForBatchTallyResultsCSV(
           contestTally?.tallies.no?.tally.toString() ?? '0'
         )
       }
-    })
+    }
     const row = [
       batchId,
       batchTally.batchLabel,
@@ -67,7 +67,7 @@ export function generateHeaderRowForBatchResultsCSV(
   election: Election
 ): string {
   const contestSelectionHeaders: string[] = []
-  expandEitherNeitherContests(election.contests).forEach((contest) => {
+  for (const contest of expandEitherNeitherContests(election.contests)) {
     let contestTitle = contest.title
     if (contest.partyId) {
       const party = election.parties.find((p) => p.id === contest.partyId)
@@ -80,9 +80,9 @@ export function generateHeaderRowForBatchResultsCSV(
     contestSelectionHeaders.push(`${contestTitle} - Undervotes`)
     contestSelectionHeaders.push(`${contestTitle} - Overvotes`)
     if (contest.type === 'candidate') {
-      contest.candidates.forEach((candidate) => {
+      for (const candidate of contest.candidates) {
         contestSelectionHeaders.push(`${contestTitle} - ${candidate.name}`)
-      })
+      }
       if (contest.allowWriteIns) {
         contestSelectionHeaders.push(`${contestTitle} - Write In`)
       }
@@ -90,7 +90,7 @@ export function generateHeaderRowForBatchResultsCSV(
       contestSelectionHeaders.push(`${contestTitle} - Yes`)
       contestSelectionHeaders.push(`${contestTitle} - No`)
     }
-  })
+  }
   const headers = [
     'Batch ID',
     'Batch Name',

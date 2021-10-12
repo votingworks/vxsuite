@@ -136,10 +136,10 @@ describe('supports multi-seat contests', () => {
 
 describe('supports write-in candidates', () => {
   function typeKeysInVirtualKeyboard(chars: string): void {
-    Array.from(chars).forEach((i) => {
+    for (const i of Array.from(chars)) {
       const key = i === ' ' ? 'space' : i
       fireEvent.click(screen.getByText(key).closest('button')!)
-    })
+    }
   }
 
   it('updates votes when a write-in candidate is selected', () => {

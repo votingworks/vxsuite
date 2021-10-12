@@ -221,7 +221,7 @@ describe('getTotalNumberOfBallots', () => {
       'schoolboard-constitution': 32,
       'schoolboard-federalist': 21,
     }
-    multiPartyPrimaryElection.contests.forEach((c) => {
+    for (const c of multiPartyPrimaryElection.contests) {
       contestTallies[c.id] = {
         contest: c,
         tallies: {},
@@ -231,7 +231,7 @@ describe('getTotalNumberOfBallots', () => {
           ballots: talliesForContest[c.id]!,
         },
       }
-    })
+    }
 
     // The total number of ballots is 115, if you sum up the votes for each ballot style
     // 7 + 12 + 32 + 25 + 18 + 21 you get 115 ballots, or the max of the votes in each disjoint
@@ -259,9 +259,9 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
           undervotes: 0,
           overvotes: 0,
         })
-        Object.values(contestTally!.tallies).forEach((tally) => {
+        for (const tally of Object.values(contestTally!.tallies)) {
           expect(tally!.tally).toBe(0)
-        })
+        }
       }
     }
   })
@@ -284,9 +284,9 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
           undervotes: 0,
           overvotes: 0,
         })
-        Object.values(contestTally!.tallies).forEach((tally) => {
+        for (const tally of Object.values(contestTally!.tallies)) {
           expect(tally!.tally).toBe(0)
-        })
+        }
       }
     }
   })

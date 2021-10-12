@@ -84,7 +84,7 @@ export function getTotalNumberOfBallots(
     const newListOfContestIdSets: Set<string>[] = []
     for (const contestIdSet of contestIdSets) {
       if (contestIdSet.has(contest.id)) {
-        contestIdSet.forEach((id) => combinedSetForContest.add(id))
+        for (const id of contestIdSet) combinedSetForContest.add(id)
       } else {
         newListOfContestIdSets.push(contestIdSet)
       }
@@ -140,7 +140,7 @@ function filterTallyForPartyId(
   // Filter contests by party and recompute the number of ballots based on those contests.
   const districtsForParty = getDistrictIdsForPartyId(election, partyId)
   const filteredContestTallies: Dictionary<ContestTally> = {}
-  Object.keys(tally.contestTallies).forEach((contestId) => {
+  for (const contestId of Object.keys(tally.contestTallies)) {
     const contestTally = tally.contestTallies[contestId]
     if (
       contestTally &&
@@ -149,7 +149,7 @@ function filterTallyForPartyId(
     ) {
       filteredContestTallies[contestId] = contestTally
     }
-  })
+  }
   const numberOfBallotsCounted = getTotalNumberOfBallots(
     filteredContestTallies,
     election
@@ -243,13 +243,13 @@ export function convertTalliesByPrecinctToFullExternalTally(
   // Compute results filtered by party, this filters the sets of contests and requires recomputing the number of ballots counted.
   const contestTalliesByParty: Dictionary<ExternalTally> = {}
   const partiesInElection = getPartiesWithPrimaryElections(election)
-  partiesInElection.forEach((party) => {
+  for (const party of partiesInElection) {
     contestTalliesByParty[party.id] = filterTallyForPartyId(
       overallTally,
       party.id,
       election
     )
-  })
+  }
   resultsByCategory.set(TallyCategory.Party, contestTalliesByParty)
 
   return {

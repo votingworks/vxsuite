@@ -10,12 +10,12 @@ export function buildCandidateTallies(
 ): Dictionary<ContestOptionTally> {
   const results: Dictionary<ContestOptionTally> = {}
   let index = 0
-  contest.candidates.forEach((c) => {
+  for (const c of contest.candidates) {
     results[c.id] = {
       option: c,
       tally: index * multiplier,
     }
     index += 1
-  })
+  }
   return results
 }

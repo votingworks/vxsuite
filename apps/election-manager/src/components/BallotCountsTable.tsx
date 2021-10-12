@@ -302,12 +302,12 @@ const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
                 resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ?? 0
 
               // Include external results as appropriate
-              fullElectionExternalTallies
-                .filter((t) => t.votingMethod === votingMethod)
-                .forEach((t) => {
-                  votingMethodBallotsCount +=
-                    t.overallTally.numberOfBallotsCounted
-                })
+              for (const t of fullElectionExternalTallies.filter(
+                (t) => t.votingMethod === votingMethod
+              )) {
+                votingMethodBallotsCount +=
+                  t.overallTally.numberOfBallotsCounted
+              }
 
               if (
                 votingMethod === VotingMethod.Unknown &&

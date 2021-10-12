@@ -43,9 +43,9 @@ export function generateCVR(
     getContests({ ballotStyle, election })
   )
   const allVotes: Dictionary<string[]> = {}
-  contestsInBallot.forEach((contest) => {
+  for (const contest of contestsInBallot) {
     allVotes[contest.id] = contest.id in votes ? votes[contest.id] : []
-  })
+  }
   return {
     ...allVotes,
     _precinctId: precinctId,
@@ -61,8 +61,8 @@ export function generateCVR(
 
 export function generateFileContentFromCVRs(cvrs: CastVoteRecord[]): string {
   let fileContent = ''
-  cvrs.forEach((cvr) => {
+  for (const cvr of cvrs) {
     fileContent += `${JSON.stringify(cvr)}\n`
-  })
+  }
   return fileContent
 }

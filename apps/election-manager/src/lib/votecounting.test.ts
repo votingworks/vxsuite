@@ -113,14 +113,14 @@ test('computeFullTally with no results should produce empty tally objects with c
     TallyCategory.Precinct
   )
   expect(precinctTallies).toBeDefined()
-  election.precincts.forEach((precinct) => {
+  for (const precinct of election.precincts) {
     const precinctTally = precinctTallies![precinct.id]
     expect(precinctTally).toBeDefined()
     expect(precinctTally!.numberOfBallotsCounted).toBe(0)
     expect(Object.keys(precinctTally!.contestTallies).length).toBe(
       election.contests.length
     )
-  })
+  }
 })
 
 describe('filterTalliesByParams in a typical election', () => {

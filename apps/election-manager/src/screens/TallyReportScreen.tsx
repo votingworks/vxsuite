@@ -237,7 +237,7 @@ const TallyReportScreen = (): JSX.Element => {
             }
             let reportBallotCount = tallyForReport.numberOfBallotsCounted
             const externalTalliesForReport: ExternalTally[] = []
-            fullElectionExternalTallies.forEach((t) => {
+            for (const t of fullElectionExternalTallies) {
               const filteredTally = filterExternalTalliesByParams(t, election, {
                 precinctId,
                 partyId,
@@ -252,7 +252,7 @@ const TallyReportScreen = (): JSX.Element => {
                   (ballotCountsByVotingMethod[t.votingMethod] ?? 0)
                 reportBallotCount += filteredTally.numberOfBallotsCounted
               }
-            })
+            }
 
             if (precinctId) {
               const currentPrecinctName = find(

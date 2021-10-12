@@ -449,9 +449,9 @@ test('tabulating CVRs', async () => {
     'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
   )
   // Test that each precinct has a tally report generated
-  eitherNeitherElectionDefinition.election.precincts.forEach((p) => {
+  for (const p of eitherNeitherElectionDefinition.election.precincts) {
     getByText(`Official Precinct Tally Report for: ${p.name}`)
-  })
+  }
   // The election title is written one extra time in the footer of the page.
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
     eitherNeitherElectionDefinition.election.precincts.length + 1

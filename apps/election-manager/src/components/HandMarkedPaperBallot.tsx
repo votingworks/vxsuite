@@ -185,7 +185,7 @@ class PostRenderBallotProcessor extends Handler {
     }
 
     // Post-process QR codes in footer.
-    pages.forEach((page) => {
+    for (const page of pages) {
       const { pageNumber } = page.element.dataset
       assert(typeof pageNumber !== 'undefined')
       const qrCodeTarget = page.element.getElementsByClassName(
@@ -226,7 +226,7 @@ class PostRenderBallotProcessor extends Handler {
           )
         }
       }
-    })
+    }
   }
 }
 registerHandlers(PostRenderBallotProcessor)

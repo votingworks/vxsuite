@@ -127,7 +127,7 @@ test('generates a CVR from a completed BMD ballot', () => {
   const contests = getContests({ ballotStyle, election })
 
   const blankPageTypes = ['BlankPage', 'UnreadablePage']
-  blankPageTypes.forEach((blankPageType: string) => {
+  for (const blankPageType of blankPageTypes) {
     expect(
       buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
         {
@@ -185,7 +185,7 @@ test('generates a CVR from a completed BMD ballot', () => {
             "runoffs-question": Array [],
           }
         `)
-  })
+  }
 })
 test('generates a CVR from a completed BMD ballot with write in and overvotes', () => {
   const sheetId = 'sheetid'
@@ -198,7 +198,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
   const contests = getContests({ ballotStyle, election })
 
   const blankPageTypes = ['BlankPage', 'UnreadablePage']
-  blankPageTypes.forEach((blankPageType: string) => {
+  for (const blankPageType of blankPageTypes) {
     expect(
       buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
         {
@@ -257,7 +257,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             "runoffs-question": Array [],
           }
         `)
-  })
+  }
 })
 
 test('generates a CVR from a completed HMPB page', () => {
