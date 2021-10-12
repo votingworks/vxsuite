@@ -136,7 +136,7 @@ describe('supports multi-seat contests', () => {
 
 describe('supports write-in candidates', () => {
   function typeKeysInVirtualKeyboard(chars: string): void {
-    for (const i of Array.from(chars)) {
+    for (const i of chars) {
       const key = i === ' ' ? 'space' : i
       fireEvent.click(screen.getByText(key).closest('button')!)
     }
