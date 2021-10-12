@@ -21,6 +21,9 @@ import electionSampleLongContentUntyped from './data/electionSampleLongContent.j
 import msEitherNeitherElectionCVRData from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl'
 import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json'
 import msEitherNeitherElectionSEMSData from './data/electionWithMsEitherNeither/semsFiles/standard.csv'
+import electionMinimalExhaustiveSampleUntyped from './data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json'
+import electionMinimalExhaustiveCVRData from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl'
+import electionMinimalExhaustiveSEMSData from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv'
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election)
@@ -37,6 +40,7 @@ export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) a
 export const multiPartyPrimaryElection = (multiPartyPrimaryElectionUntyped as unknown) as Election
 export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election
 export const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election
+export const electionMinimalExhaustiveSample = (electionMinimalExhaustiveSampleUntyped as unknown) as Election
 
 export const electionSampleDefinition = asElectionDefinition(electionSample)
 export const electionSample2Definition = asElectionDefinition(electionSample2)
@@ -51,6 +55,9 @@ export const electionSampleLongContentDefinition = asElectionDefinition(
 )
 export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
   electionWithMsEitherNeither
+)
+export const electionMinimalExhaustiveSampleDefintion = asElectionDefinition(
+  electionMinimalExhaustiveSample
 )
 
 export const electionWithMsEitherNeitherRawData = JSON.stringify(
@@ -82,4 +89,10 @@ export const electionWithMsEitherNeitherWithDataFiles = {
   electionDefinition: electionWithMsEitherNeitherDefinition,
   semsData: msEitherNeitherElectionSEMSData,
   cvrData: msEitherNeitherElectionCVRData,
+}
+
+export const electionMinimalExhaustiveSampleWithDataFiles = {
+  electionDefinition: electionMinimalExhaustiveSampleDefintion,
+  semsData: electionMinimalExhaustiveSEMSData,
+  cvrData: electionMinimalExhaustiveCVRData,
 }
