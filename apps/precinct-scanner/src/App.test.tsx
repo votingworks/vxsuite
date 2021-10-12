@@ -17,7 +17,6 @@ import {
   ballotPackageUtils,
   MemoryHardware,
   MemoryStorage,
-  getZeroTally,
   typedAs,
 } from '@votingworks/utils'
 import { render, waitFor, fireEvent, screen, act } from '@testing-library/react'
@@ -28,12 +27,13 @@ import {
   advanceTimersAndPromises,
   makePollWorkerCard,
   makeAdminCard,
+  getZeroCompressedTally,
 } from '@votingworks/test-utils'
 import { join } from 'path'
 import { electionSampleDefinition } from '@votingworks/fixtures'
 
 import { DateTime } from 'luxon'
-import { AdjudicationReason } from '@votingworks/types'
+import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types'
 
 import App from './App'
 import { interpretedHmpb } from '../test/fixtures'
@@ -275,14 +275,10 @@ test('admin and pollworker configuration', async () => {
       isLiveMode: false,
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
-      metadata: [
-        {
-          ballotCount: 0,
-          machineId: '0002',
-          timeSaved: expect.anything(),
-        },
-      ],
-      tally: getZeroTally(electionSampleDefinition.election),
+      machineId: '0002',
+      timeSaved: expect.anything(),
+      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      tally: getZeroCompressedTally(electionSampleDefinition.election),
     })
   )
   expect(fetchMock.calls('/scan/export')).toHaveLength(1)
@@ -511,50 +507,16 @@ test('voter can cast a ballot that scans successfully ', async () => {
       isLiveMode: false,
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 1,
-      metadata: [
-        {
-          ballotCount: 1,
-          machineId: '0002',
-          timeSaved: expect.anything(),
-        },
-      ],
+      machineId: '0002',
+      timeSaved: expect.anything(),
+      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
       // The export endpoint is mocked to return no CVR data so we still expect a zero tally
       tally: expect.arrayContaining([
-        {
-          candidates: [0, 1, 0, 0, 0, 0],
-          writeIns: 0,
-          undervotes: 0,
-          overvotes: 0,
-          ballotsCast: 1,
-        }, // President expected tally
-        {
-          candidates: [0, 0, 0, 0, 0, 0, 0],
-          writeIns: 0,
-          undervotes: 1,
-          overvotes: 0,
-          ballotsCast: 1,
-        }, // Senator expected tally
-        {
-          candidates: [0, 0],
-          writeIns: 0,
-          undervotes: 0,
-          overvotes: 1,
-          ballotsCast: 1,
-        }, // Secretary of State expected tally
-        {
-          candidates: [0],
-          writeIns: 1,
-          undervotes: 0,
-          overvotes: 0,
-          ballotsCast: 1,
-        }, // County Registrar of Wills expected tally
-        {
-          yes: 1,
-          no: 0,
-          undervotes: 0,
-          overvotes: 0,
-          ballotsCast: 1,
-        }, // Judicial Robert Demergue expected tally
+        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0], // President expected tally
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], // Senator expected tally
+        [0, 1, 1, 0, 0, 0], // Secretary of State expected tally
+        [0, 0, 1, 0, 1], // County Registrar of Wills expected tally
+        [0, 0, 1, 1, 0], // Judicial Robert Demergue expected tally
       ]),
     })
   )

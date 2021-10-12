@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 export * from './ballotPackage'
 export * from './Card'
-export * from './cardTallies'
+export * from './compressedTallies'
 export * from './date'
 export * from './deferred'
 export * from './find'

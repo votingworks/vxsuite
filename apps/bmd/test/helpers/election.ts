@@ -11,7 +11,7 @@ import {
   getBallotStyle,
   safeParseElection,
 } from '@votingworks/types'
-import { getZeroTally, Storage } from '@votingworks/utils'
+import { Storage } from '@votingworks/utils'
 
 import { electionStorageKey, stateStorageKey, State } from '../../src/AppRoot'
 import { PrecinctSelectionKind } from '../../src/config/types'
@@ -91,7 +91,6 @@ export const setStateInStorage = async (
     ballotsPrintedCount: 0,
     isLiveMode: true,
     isPollsOpen: true,
-    tally: getZeroTally(election),
     ...state,
   }
   await storage.set(stateStorageKey, storedState)

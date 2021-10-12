@@ -1,13 +1,13 @@
 import React from 'react'
 import { asElectionDefinition } from '@votingworks/fixtures'
-import { Election } from '@votingworks/types'
+import { Election, VotingMethod } from '@votingworks/types'
 
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import {
-  getZeroTally,
   TallySourceMachineType,
-  CardTally,
+  PrecinctScannerCardTally,
 } from '@votingworks/utils'
+import { getZeroCompressedTally } from '@votingworks/test-utils'
 import { PrecinctSelectionKind, VxMarkOnly, VxPrintOnly } from '../config/types'
 
 import { render } from '../../test/testUtils'
@@ -39,7 +39,7 @@ test('renders PollWorkerScreen', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -69,7 +69,7 @@ test('switching out of test mode on election day', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -101,7 +101,7 @@ test('keeping test mode on election day', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -130,7 +130,7 @@ test('live mode on election day', async () => {
       machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={undefined}
+      tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
     />
   )
@@ -143,38 +143,19 @@ test('printing precinct scanner report option is shown when precinct scanner tal
   const clearTallies = jest.fn()
   const printFn = jest.fn()
 
-  const existingTally = getZeroTally(election)
-  existingTally[0] = {
-    candidates: [6, 5, 6, 5, 6, 0],
-    undervotes: 6,
-    overvotes: 0,
-    writeIns: 0,
-    ballotsCast: 34,
-  }
-  const talliesOnCard: CardTally = {
+  const existingTally = getZeroCompressedTally(election)
+  existingTally[0] = [6, 0, 34, 6, 5, 6, 5, 3, 0, 3] // add tallies to the president contest
+  const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: existingTally,
     totalBallotsScanned: 25,
-    metadata: [
-      {
-        machineId: '001',
-        timeSaved: new Date('2020-10-31').getTime(),
-        ballotCount: 25,
-      },
-    ],
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
     isLiveMode: false,
     isPollsOpen: false,
     absenteeBallots: 5,
     precinctBallots: 20,
-  }
-
-  const currentTally = getZeroTally(election)
-  currentTally[0] = {
-    candidates: [1, 0, 1, 0, 1, 0],
-    undervotes: 3,
-    overvotes: 0,
-    writeIns: 0,
-    ballotsCast: 6,
   }
 
   render(
@@ -199,7 +180,7 @@ test('printing precinct scanner report option is shown when precinct scanner tal
         print: printFn,
       }}
       togglePollsOpen={jest.fn()}
-      talliesOnCard={talliesOnCard}
+      tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
     />
   )
@@ -211,4 +192,38 @@ test('printing precinct scanner report option is shown when precinct scanner tal
     expect(clearTallies).toHaveBeenCalledTimes(1)
     expect(printFn).toHaveBeenCalledTimes(1)
   })
+  const table = screen.getAllByTestId('voting-method-table')[0]
+  within(within(table).getByTestId(VotingMethod.Precinct)).getByText('20')
+  within(within(table).getByTestId(VotingMethod.Absentee)).getByText('5')
+  within(within(table).getByTestId('total')).getByText('25')
+  const presidentContest = screen.getAllByTestId('results-table-president')[0]
+  within(presidentContest).getByText(/34 ballots/)
+  within(presidentContest).getByText(/6 undervotes/)
+  within(presidentContest).getByText(/0 overvotes/)
+  within(
+    within(presidentContest).getByTestId('president-barchi-hallaren')
+  ).getByText('6')
+  within(
+    within(presidentContest).getByTestId('president-cramer-vuocolo')
+  ).getByText('5')
+  within(
+    within(presidentContest).getByTestId('president-court-blumhardt')
+  ).getByText('6')
+  within(
+    within(presidentContest).getByTestId('president-boone-lian')
+  ).getByText('5')
+  within(
+    within(presidentContest).getByTestId('president-hildebrand-garritty')
+  ).getByText('3')
+  within(
+    within(presidentContest).getByTestId('president-patterson-lariviere')
+  ).getByText('0')
+  // There are no write ins allowed on this contest, the write ins in the tally will be ignored.
+  expect(within(presidentContest).queryAllByText('Write-In')).toHaveLength(0)
+
+  const senatorContest = screen.getAllByTestId('results-table-senator')[0]
+  within(senatorContest).getByText(/0 ballots/)
+  within(senatorContest).getByText(/0 undervotes/)
+  within(senatorContest).getByText(/0 overvotes/)
+  expect(within(senatorContest).getAllByText('0')).toHaveLength(7) // All 7 candidates should have 0 totals
 })

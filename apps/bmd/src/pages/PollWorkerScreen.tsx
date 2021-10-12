@@ -19,10 +19,10 @@ import {
 } from '@votingworks/ui'
 
 import {
-  CardTally,
   TallySourceMachineType,
   find,
-  readSerializedTally,
+  readCompressedTally,
+  PrecinctScannerCardTally,
 } from '@votingworks/utils'
 
 import { strict as assert } from 'assert'
@@ -60,7 +60,7 @@ interface Props {
   machineConfig: MachineConfig
   printer: Printer
   togglePollsOpen: () => void
-  talliesOnCard: Optional<CardTally>
+  tallyOnCard: Optional<PrecinctScannerCardTally>
   clearTalliesOnCard: () => Promise<void>
 }
 
@@ -83,7 +83,7 @@ const PollWorkerScreen = ({
   printer,
   togglePollsOpen,
   hasVotes,
-  talliesOnCard,
+  tallyOnCard,
   clearTalliesOnCard,
 }: Props): JSX.Element => {
   const { election } = electionDefinition
@@ -99,10 +99,6 @@ const PollWorkerScreen = ({
         bs.precincts.includes(cardlessVoterSessionPrecinctId)
       )
     : []
-
-  const isTallyOnCardFromPrecinctScanner =
-    talliesOnCard?.tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
-
   /*
    * Various state parameters to handle controlling when certain modals on the page are open or not.
    * If you are adding a new modal make sure to add the new parameter to the triggerAudiofocus useEffect
@@ -117,7 +113,7 @@ const PollWorkerScreen = ({
   const [
     isConfirmingPrecinctScannerPrint,
     setIsConfirmingPrecinctScannerPrint,
-  ] = useState(isTallyOnCardFromPrecinctScanner)
+  ] = useState(tallyOnCard !== undefined)
   const [
     isPrintingPrecinctScannerReport,
     setIsPrintingPrecinctScannerReport,
@@ -126,25 +122,24 @@ const PollWorkerScreen = ({
   const [precinctScannerTally, setPrecinctScannerTally] = useState<Tally>()
 
   useEffect(() => {
-    if (isTallyOnCardFromPrecinctScanner) {
+    if (tallyOnCard) {
       assert(
-        talliesOnCard &&
-          talliesOnCard.tallyMachineType ===
+        tallyOnCard &&
+          tallyOnCard.tallyMachineType ===
             TallySourceMachineType.PRECINCT_SCANNER
       )
-      const serializedTally = talliesOnCard.tally
-      const fullTally = readSerializedTally(
+      const fullTally = readCompressedTally(
         election,
-        serializedTally,
-        talliesOnCard.totalBallotsScanned,
+        tallyOnCard.tally,
+        tallyOnCard.totalBallotsScanned,
         {
-          [VotingMethod.Precinct]: talliesOnCard.precinctBallots,
-          [VotingMethod.Absentee]: talliesOnCard.absenteeBallots,
+          [VotingMethod.Precinct]: tallyOnCard.precinctBallots,
+          [VotingMethod.Absentee]: tallyOnCard.absenteeBallots,
         }
       )
       setPrecinctScannerTally(fullTally)
     }
-  }, [election, talliesOnCard, isTallyOnCardFromPrecinctScanner])
+  }, [election, tallyOnCard])
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -206,7 +201,7 @@ const PollWorkerScreen = ({
     resetCardTallyData,
   ])
 
-  const currentDateTime = new Date().toLocaleString()
+  const currentTime = Date.now()
   const reportPurposes = ['Publicly Posted', 'Officially Filed']
 
   if (hasVotes && cardlessVoterSessionBallotStyleId) {
@@ -458,32 +453,32 @@ const PollWorkerScreen = ({
           />
         )}
       </Screen>
-      {talliesOnCard?.tallyMachineType ===
-        TallySourceMachineType.PRECINCT_SCANNER &&
+      {tallyOnCard &&
         precinctScannerTally &&
         reportPurposes.map((reportPurpose) => {
           return (
             <React.Fragment key={reportPurpose}>
               <PrecinctScannerPollsReport
                 key={`polls-report-${reportPurpose}`}
-                ballotCount={talliesOnCard.totalBallotsScanned}
-                currentDateTime={currentDateTime}
+                ballotCount={tallyOnCard.totalBallotsScanned}
+                currentTime={currentTime}
                 election={election}
-                isLiveMode={talliesOnCard.isLiveMode}
-                isPollsOpen={talliesOnCard.isPollsOpen}
-                machineMetadata={talliesOnCard.metadata}
-                precinctSelection={appPrecinct}
+                isLiveMode={tallyOnCard.isLiveMode}
+                isPollsOpen={tallyOnCard.isPollsOpen}
+                precinctScannerMachineId={tallyOnCard.machineId}
+                timeTallySaved={tallyOnCard.timeSaved}
+                precinctSelection={tallyOnCard.precinctSelection}
                 reportPurpose={reportPurpose}
               />
               <PrecinctScannerTallyReport
                 key={`tally-report-${reportPurpose}`}
-                currentDateTime={currentDateTime}
+                reportSavedTime={tallyOnCard.timeSaved}
                 electionDefinition={electionDefinition}
                 signingMachineId={machineConfig.machineId}
-                isPollsOpen={talliesOnCard.isPollsOpen}
-                isLiveMode={talliesOnCard.isLiveMode}
+                isLiveMode={tallyOnCard.isLiveMode}
+                isPollsOpen={tallyOnCard.isPollsOpen}
                 tally={precinctScannerTally}
-                precinctSelection={appPrecinct}
+                precinctSelection={tallyOnCard.precinctSelection}
                 reportPurpose={reportPurpose}
               />
             </React.Fragment>

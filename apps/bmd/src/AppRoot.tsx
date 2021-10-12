@@ -33,13 +33,10 @@ import {
   Hardware,
   isAccessibleController,
   isCardReader,
-  getZeroTally,
-  calculateTally,
-  SerializedTally,
-  CardTally,
+  PrecinctScannerCardTally,
   CardAPI,
   CardPresentAPI,
-  CardTallySchema,
+  PrecinctScannerCardTallySchema,
   throwIllegalValue,
 } from '@votingworks/utils'
 
@@ -95,7 +92,7 @@ interface CardState {
   pauseProcessingUntilNoCardPresent: boolean
   showPostVotingInstructions?: PostVotingInstructions
   voterCardCreatedAt: number
-  talliesOnCard?: Optional<CardTally>
+  tallyOnCard?: Optional<PrecinctScannerCardTally>
 }
 
 interface UserState {
@@ -121,7 +118,6 @@ interface SharedState {
   electionDefinition: OptionalElectionDefinition
   isLiveMode: boolean
   isPollsOpen: boolean
-  tally: SerializedTally
 }
 
 interface OtherState {
@@ -197,7 +193,6 @@ const initialSharedState: Readonly<SharedState> = {
   electionDefinition: undefined,
   isLiveMode: false,
   isPollsOpen: false,
-  tally: [],
 }
 
 const initialOtherState: Readonly<OtherState> = {
@@ -227,7 +222,7 @@ type AppAction =
   | {
       type: 'processPollWorkerCard'
       isPollWorkerCardValid: boolean
-      talliesOnCard?: CardTally
+      tallyOnCard?: PrecinctScannerCardTally
     }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
   | { type: 'pauseCardProcessing' }
@@ -259,15 +254,12 @@ type AppAction =
   | { type: 'maintainCardlessBallot' }
   | {
       type: 'updatePollWorkerCardTally'
-      talliesOnCard?: CardTally
+      tallyOnCard?: PrecinctScannerCardTally
     }
 
 const appReducer = (state: State, action: AppAction): State => {
   const resetTally = {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
-    tally: state.electionDefinition?.election
-      ? getZeroTally(state.electionDefinition.election)
-      : [],
   }
   switch (action.type) {
     case 'processAdminCard':
@@ -284,7 +276,7 @@ const appReducer = (state: State, action: AppAction): State => {
         isCardlessVoter: state.isCardlessVoter,
         isPollWorkerCardPresent: true,
         isPollWorkerCardValid: action.isPollWorkerCardValid,
-        talliesOnCard: action.talliesOnCard,
+        tallyOnCard: action.tallyOnCard,
       }
     case 'processVoterCard':
       assert(typeof action.voterState.voterCardCreatedAt !== 'undefined')
@@ -389,24 +381,9 @@ const appReducer = (state: State, action: AppAction): State => {
         isPollsOpen: !state.isPollsOpen,
       }
     case 'updateTally': {
-      const { electionDefinition, tally, votes, ballotStyleId } = state
-      assert(
-        electionDefinition,
-        'electionDefinition is required to updateTally'
-      )
-      assert(
-        typeof ballotStyleId !== 'undefined',
-        'ballotStyleId is required to updateTally'
-      )
       return {
         ...state,
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
-        tally: calculateTally({
-          election: electionDefinition.election,
-          tally,
-          votes: votes ?? {},
-          ballotStyleId,
-        }),
       }
     }
     case 'updateElectionDefinition':
@@ -476,7 +453,7 @@ const appReducer = (state: State, action: AppAction): State => {
     case 'updatePollWorkerCardTally':
       return {
         ...state,
-        talliesOnCard: action.talliesOnCard,
+        tallyOnCard: action.tallyOnCard,
       }
     /* istanbul ignore next - compile time check for completeness */
     default:
@@ -524,8 +501,7 @@ const AppRoot = ({
     precinctId,
     shortValue,
     showPostVotingInstructions,
-    tally,
-    talliesOnCard,
+    tallyOnCard,
     userSettings,
     votes,
     voterCardCreatedAt,
@@ -682,10 +658,12 @@ const AppRoot = ({
   }, [])
 
   const resetPollWorkerCardTally = useCallback(async () => {
-    const possibleCardTally = await card.readLongObject(CardTallySchema)
+    const possibleCardTally = await card.readLongObject(
+      PrecinctScannerCardTallySchema
+    )
     dispatchAppState({
       type: 'updatePollWorkerCardTally',
-      talliesOnCard: possibleCardTally.ok(),
+      tallyOnCard: possibleCardTally.ok(),
     })
   }, [card])
 
@@ -805,12 +783,12 @@ const AppRoot = ({
 
           const possibleCardTally =
             isValid && longValueExists
-              ? (await card.readLongObject(CardTallySchema)).ok()
+              ? (await card.readLongObject(PrecinctScannerCardTallySchema)).ok()
               : undefined
           dispatchAppState({
             type: 'processPollWorkerCard',
             isPollWorkerCardValid: isValid,
-            talliesOnCard: possibleCardTally,
+            tallyOnCard: possibleCardTally,
           })
           break
         }
@@ -1162,9 +1140,6 @@ const AppRoot = ({
         ballotsPrintedCount: storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
         isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
-        tally: storedTally = storedElectionDefinition?.election
-          ? getZeroTally(storedElectionDefinition.election)
-          : initialAppState.tally,
       } = storedAppState
       dispatchAppState({
         type: 'initializeAppState',
@@ -1177,7 +1152,6 @@ const AppRoot = ({
           isLiveMode: storedIsLiveMode,
           isPollsOpen: storedIsPollsOpen,
           precinctId: retrievedPrecinctId,
-          tally: storedTally,
           votes: await retrieveVotes(),
         },
       })
@@ -1224,7 +1198,6 @@ const AppRoot = ({
           ballotsPrintedCount,
           isLiveMode,
           isPollsOpen,
-          tally,
         })
       }
     }
@@ -1236,7 +1209,6 @@ const AppRoot = ({
     isLiveMode,
     isPollsOpen,
     storage,
-    tally,
     initializedFromStorage,
   ])
 
@@ -1319,7 +1291,7 @@ const AppRoot = ({
           machineConfig={machineConfig}
           printer={printer}
           togglePollsOpen={togglePollsOpen}
-          talliesOnCard={talliesOnCard}
+          tallyOnCard={tallyOnCard}
           clearTalliesOnCard={clearTalliesOnCard}
           hasVotes={!!votes}
         />

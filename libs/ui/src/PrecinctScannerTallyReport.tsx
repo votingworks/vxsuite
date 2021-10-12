@@ -1,11 +1,18 @@
 import QRCodeReact from '@votingworks/qrcode.react'
-import { ElectionDefinition, Tally } from '@votingworks/types'
-import React, { useState, useEffect } from 'react'
-import { format, find, compressTally } from '@votingworks/utils'
 import {
+  ElectionDefinition,
+  Tally,
   PrecinctSelection,
   PrecinctSelectionKind,
-} from './PrecinctScannerPollsReport'
+} from '@votingworks/types'
+import React, { useState, useEffect } from 'react'
+import { DateTime } from 'luxon'
+import {
+  format,
+  find,
+  compressTally,
+  formatFullDateTimeZone,
+} from '@votingworks/utils'
 import { ContestTally } from './ContestTally'
 import {
   PrintableContainer,
@@ -19,7 +26,7 @@ import {
 import { TallyReportSummary } from './TallyReportSummary'
 
 interface Props {
-  currentDateTime: string
+  reportSavedTime: number
   electionDefinition: ElectionDefinition
   signingMachineId: string
   precinctSelection: PrecinctSelection
@@ -30,7 +37,7 @@ interface Props {
 }
 
 export const PrecinctScannerTallyReport = ({
-  currentDateTime,
+  reportSavedTime,
   electionDefinition,
   signingMachineId,
   precinctSelection,
@@ -98,7 +105,8 @@ export const PrecinctScannerTallyReport = ({
               This report should be <strong>{reportPurpose}.</strong>
               <br />
               <Text small as="span">
-                Polls {pollsAction} and report created on {currentDateTime}
+                Polls {pollsAction} and report created on{' '}
+                {formatFullDateTimeZone(DateTime.fromMillis(reportSavedTime))}
               </Text>
             </p>
           </Prose>
@@ -127,7 +135,8 @@ export const PrecinctScannerTallyReport = ({
                 This report should be <strong>{reportPurpose}.</strong>
                 <br />
                 <Text small as="span">
-                  Polls {pollsAction} and report created on {currentDateTime}
+                  Polls {pollsAction} and report created on{' '}
+                  {formatFullDateTimeZone(DateTime.fromMillis(reportSavedTime))}
                 </Text>
               </p>
               <p>

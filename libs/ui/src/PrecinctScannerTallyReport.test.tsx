@@ -1,16 +1,17 @@
 import React from 'react'
 import { render, act, screen } from '@testing-library/react'
 import { electionSample, electionSampleDefinition } from '@votingworks/fixtures'
-import { CastVoteRecord } from '@votingworks/types'
+import { CastVoteRecord, PrecinctSelectionKind } from '@votingworks/types'
 import { calculateTallyForCastVoteRecords } from '@votingworks/utils'
 import { fakeKiosk, mockOf } from '@votingworks/test-utils'
 
-import { PrecinctSelectionKind } from './PrecinctScannerPollsReport'
 import { PrecinctScannerTallyReport } from './PrecinctScannerTallyReport'
 
 afterEach(() => {
   window.kiosk = undefined
 })
+
+const time = new Date(2021, 8, 19, 11, 5).getTime()
 
 test('renders without results reporting when no CVRs', async () => {
   const mockKiosk = fakeKiosk()
@@ -21,7 +22,7 @@ test('renders without results reporting when no CVRs', async () => {
   await act(async () => {
     render(
       <PrecinctScannerTallyReport
-        currentDateTime="September 19th, 2021 11:05am"
+        reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         signingMachineId="DEMO-0000"
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
@@ -58,7 +59,7 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
   await act(async () => {
     render(
       <PrecinctScannerTallyReport
-        currentDateTime="September 19th, 2021 11:05am"
+        reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         signingMachineId="DEMO-0000"
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
@@ -83,7 +84,7 @@ test('renders with results reporting when there are CVRs and polls are closed', 
   await act(async () => {
     render(
       <PrecinctScannerTallyReport
-        currentDateTime="September 19th, 2021 11:05am"
+        reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         signingMachineId="DEMO-0000"
         precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
