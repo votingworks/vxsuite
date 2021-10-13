@@ -12,15 +12,13 @@ import {
   OptionalElectionDefinition,
   Provider,
   CastVoteRecord,
-  UserSession,
-  Optional,
 } from '@votingworks/types'
 import {
-  Smartcard,
   useCancelablePromise,
   useSmartcard,
   useUsbDrive,
   SetupCardReaderPage,
+  useUserSession,
 } from '@votingworks/ui'
 import {
   throwIllegalValue,
@@ -85,7 +83,6 @@ interface HardwareState {
   hasChargerAttached: boolean
   hasLowBattery: boolean
   adminCardElectionHash: string
-  currentUserSession: Optional<UserSession>
   invalidCardPresent: boolean
   machineConfig: Readonly<MachineConfig>
 }
@@ -117,7 +114,6 @@ const initialHardwareState: Readonly<HardwareState> = {
   hasChargerAttached: true,
   hasLowBattery: false,
   adminCardElectionHash: '',
-  currentUserSession: undefined,
   // TODO add concept for invalid card to current user session object
   invalidCardPresent: false,
   machineConfig: {
@@ -188,23 +184,10 @@ type AppAction =
     }
   | { type: 'disableStatusPolling' }
   | { type: 'enableStatusPolling' }
-  | {
-      type: 'invalidCard'
-    }
-  | {
-      type: 'processAdminCard'
-      electionHash: string
-    }
-  | {
-      type: 'processPollWorkerCard'
-      isPollWorkerCardValid: boolean
-    }
-  | { type: 'cardRemoved' }
   | { type: 'updatePrecinctId'; precinctId?: string }
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
-  | { type: 'adminCardAuthenticated' }
 
 const appReducer = (state: State, action: AppAction): State => {
   debug(
@@ -301,37 +284,6 @@ const appReducer = (state: State, action: AppAction): State => {
         ...state,
         isStatusPollingEnabled: true,
       }
-    case 'invalidCard':
-      return {
-        ...state,
-        invalidCardPresent: true,
-      }
-    case 'processAdminCard': {
-      const persistAuthenticatedState =
-        state.currentUserSession?.type === 'admin' &&
-        state.currentUserSession.authenticated
-      return {
-        ...state,
-        currentUserSession: {
-          type: 'admin',
-          authenticated: persistAuthenticatedState,
-        },
-        invalidCardPresent: false,
-        adminCardElectionHash: action.electionHash,
-      }
-    }
-    case 'processPollWorkerCard':
-      return {
-        ...state,
-        currentUserSession: { type: 'pollworker', authenticated: true },
-        invalidCardPresent: !action.isPollWorkerCardValid,
-      }
-    case 'cardRemoved':
-      return {
-        ...state,
-        currentUserSession: undefined,
-        invalidCardPresent: false,
-      }
     case 'updatePrecinctId':
       return {
         ...state,
@@ -353,15 +305,6 @@ const appReducer = (state: State, action: AppAction): State => {
       return {
         ...state,
         ...action.hardwareState,
-      }
-    case 'adminCardAuthenticated':
-      assert(state.currentUserSession?.type === 'admin')
-      return {
-        ...state,
-        currentUserSession: {
-          type: 'admin',
-          authenticated: true,
-        },
       }
     default:
       throwIllegalValue(action)
@@ -385,21 +328,29 @@ const AppRoot = ({
     adjudicationReasonInfo,
     rejectionReason,
     isTestMode,
-    invalidCardPresent,
     currentPrecinctId,
     isPollsOpen,
     machineConfig,
     hasPrinterAttached,
     hasLowBattery,
     hasChargerAttached,
-    currentUserSession,
   } = appState
 
   const usbDrive = useUsbDrive()
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent
 
-  const hasCardInserted = currentUserSession?.type || invalidCardPresent
+  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
+  const { currentUserSession, attemptToAuthenticateAdminUser } = useUserSession(
+    {
+      smartcard,
+      electionDefinition,
+      persistAuthentication: false,
+      bypassAuthentication: machineConfig.bypassAuthentication,
+    }
+  )
+  const hasCardInserted = currentUserSession?.type
+
   const makeCancelable = useCancelablePromise()
 
   const refreshConfig = useCallback(async () => {
@@ -699,80 +650,6 @@ const AppRoot = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchAppState, refreshConfig])
 
-  const processCard = useCallback(
-    async ({ longValueExists, data: cardData }: Smartcard) => {
-      if (!electionDefinition && cardData?.t !== 'admin') {
-        return
-      }
-      switch (cardData?.t) {
-        case 'pollworker': {
-          const isValid = cardData.h === electionDefinition?.electionHash
-
-          dispatchAppState({
-            type: 'processPollWorkerCard',
-            isPollWorkerCardValid: isValid,
-          })
-          break
-        }
-        case 'admin': {
-          /* istanbul ignore else */
-          if (longValueExists) {
-            dispatchAppState({
-              type: 'processAdminCard',
-              electionHash: cardData.h,
-            })
-            if (machineConfig.bypassAuthentication) {
-              dispatchAppState({ type: 'adminCardAuthenticated' })
-            }
-            // no PIN, authenticate for now (stronger auth later will not allow this)
-            if (!cardData.p) {
-              dispatchAppState({ type: 'adminCardAuthenticated' })
-            }
-          }
-          break
-        }
-        default: {
-          dispatchAppState({
-            type: 'invalidCard',
-          })
-          break
-        }
-      }
-    },
-    [electionDefinition, machineConfig.bypassAuthentication]
-  )
-
-  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
-
-  useEffect(() => {
-    void (async () => {
-      if (smartcard) {
-        await processCard(smartcard)
-      } else if (hasCardInserted) {
-        dispatchAppState({ type: 'cardRemoved' })
-      }
-    })()
-  }, [smartcard, hasCardInserted, dispatchAppState, processCard])
-
-  const attemptToAuthenticateUser = useCallback(
-    (passcode: string): boolean => {
-      // The card must be an admin card to authenticate
-      if (smartcard?.data?.t !== 'admin') {
-        return false
-      }
-      // There must be an expected passcode on the card to authenticate.
-      if (!smartcard?.data.p) {
-        return false
-      }
-      if (passcode === smartcard.data.p) {
-        dispatchAppState({ type: 'adminCardAuthenticated' })
-        return true
-      }
-      return false
-    },
-    [smartcard, dispatchAppState]
-  )
-
   const scanner = usePrecinctScanner()
   const scannedBallotCount = scanner?.status.ballotCount ?? 0
 
@@ -881,10 +758,6 @@ const AppRoot = ({
     )
   }
 
-  if (invalidCardPresent) {
-    return <InvalidCardScreen />
-  }
-
   if (currentUserSession?.type === 'admin') {
     return (
       <AppContext.Provider
@@ -906,14 +779,17 @@ const AppRoot = ({
           />
         ) : (
           <UnlockAdminScreen
-            attemptToAuthenticateUser={attemptToAuthenticateUser}
+            attemptToAuthenticateUser={attemptToAuthenticateAdminUser}
           />
         )}
       </AppContext.Provider>
     )
   }
 
-  if (currentUserSession?.type === 'pollworker') {
+  if (
+    currentUserSession?.type === 'pollworker' &&
+    currentUserSession.authenticated
+  ) {
     return (
       <AppContext.Provider
         value={{
@@ -936,6 +812,16 @@ const AppRoot = ({
       </AppContext.Provider>
     )
   }
+
+  if (
+    currentUserSession?.type === 'voter' ||
+    currentUserSession?.type === 'invalid' ||
+    currentUserSession?.authenticated === false
+  ) {
+    return <InvalidCardScreen />
+  }
+
+  assert(currentUserSession === undefined)
 
   let voterScreen = (
     <PollsClosedScreen

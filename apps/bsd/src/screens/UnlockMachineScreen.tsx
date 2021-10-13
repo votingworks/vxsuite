@@ -25,11 +25,11 @@ export const EnteredCode = styled.div`
 `
 
 export interface Props {
-  attemptToAuthenticateUser: (passcode: string) => boolean
+  attemptToAuthenticateAdminUser: (passcode: string) => boolean
 }
 
 export const UnlockMachineScreen = ({
-  attemptToAuthenticateUser,
+  attemptToAuthenticateAdminUser,
 }: Props): JSX.Element => {
   const [currentPasscode, setCurrentPasscode] = useState('')
   const [showError, setShowError] = useState(false)
@@ -47,13 +47,13 @@ export const UnlockMachineScreen = ({
 
   useEffect(() => {
     if (currentPasscode.length === GLOBALS.SECURITY_PIN_LENGTH) {
-      const success = attemptToAuthenticateUser(currentPasscode)
+      const success = attemptToAuthenticateAdminUser(currentPasscode)
       setShowError(!success)
       setCurrentPasscode('')
     }
-  }, [currentPasscode, attemptToAuthenticateUser])
+  }, [currentPasscode, attemptToAuthenticateAdminUser])
 
-  const currentPasscodeDisplayString = '*'
+  const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
     .padEnd(GLOBALS.SECURITY_PIN_LENGTH, '-')
     .split('')

@@ -49,7 +49,7 @@ export interface AppContextInterface {
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
   generateExportableTallies: () => ExportableTallies
   currentUserSession: Optional<UserSession>
-  attemptToAuthenticateUser: (passcode: string) => boolean
+  attemptToAuthenticateAdminUser: (passcode: string) => boolean
   lockMachine: () => void
   machineConfig: MachineConfig
   hasCardReaderAttached: boolean
@@ -79,7 +79,7 @@ const appContext: AppContextInterface = {
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
   currentUserSession: undefined,
-  attemptToAuthenticateUser: () => false,
+  attemptToAuthenticateAdminUser: () => false,
   lockMachine: () => undefined,
   machineConfig: {
     machineId: '0000',
