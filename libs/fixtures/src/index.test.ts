@@ -10,6 +10,8 @@ import electionSample2CVRStandard1 from './data/electionSample2/cvrFiles/standar
 import electionSample2CVRStandard2 from './data/electionSample2/cvrFiles/standard2.txt'
 import msEitherNeitherElectionCVRData from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl'
 import msEitherNeitherElectionSEMSData from './data/electionWithMsEitherNeither/semsFiles/standard.csv'
+import electionMinimalExhaustiveCVRData from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl'
+import electionMinimalExhaustiveSEMSData from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv'
 
 test('has various election definitions', () => {
   expect(
@@ -24,17 +26,20 @@ test('has various election definitions', () => {
       "multiPartyPrimaryElection",
       "electionSampleLongContent",
       "electionWithMsEitherNeither",
+      "electionMinimalExhaustiveSample",
       "electionSampleDefinition",
       "electionSample2Definition",
       "primaryElectionSampleDefinition",
       "multiPartyPrimaryElectionDefinition",
       "electionSampleLongContentDefinition",
       "electionWithMsEitherNeitherDefinition",
+      "electionMinimalExhaustiveSampleDefintion",
       "electionWithMsEitherNeitherRawData",
       "electionMultiPartyPrimaryWithDataFiles",
       "electionSimplePrimaryWithDataFiles",
       "electionSample2WithDataFiles",
       "electionWithMsEitherNeitherWithDataFiles",
+      "electionMinimalExhaustiveSampleWithDataFiles",
     ]
   `)
 })
@@ -83,6 +88,16 @@ const testcases = [
     originalFile:
       './src/data/electionWithMsEitherNeither/cvrFiles/standard.original.jsonl',
     typescriptContent: msEitherNeitherElectionCVRData,
+  },
+  {
+    originalFile:
+      './src/data/electionMinimalExhaustiveSample/cvrFiles/standard.original.jsonl',
+    typescriptContent: electionMinimalExhaustiveCVRData,
+  },
+  {
+    originalFile:
+      './src/data/electionMinimalExhaustiveSample/semsFiles/standard.original.csv',
+    typescriptContent: electionMinimalExhaustiveSEMSData,
   },
 ]
 for (const { originalFile, typescriptContent } of testcases) {
