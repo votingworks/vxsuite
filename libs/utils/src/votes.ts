@@ -1,25 +1,24 @@
-import { strict as assert } from 'assert'
 import {
-  Election,
-  expandEitherNeitherContests,
-  getEitherNeitherContests,
-  VotesDict,
-  YesNoVote,
-  YesOrNo,
-  CastVoteRecord,
   Candidate,
   CandidateContest,
-  YesNoContest,
-  YesNoVoteID,
-  VotingMethod,
   CandidateVote,
+  CastVoteRecord,
   ContestOptionTally,
   ContestTally,
   Dictionary,
+  Election,
+  expandEitherNeitherContests,
   getDistrictIdsForPartyId,
+  getEitherNeitherContests,
   Tally,
-  YesNoVoteOption,
+  VotesDict,
+  VotingMethod,
+  YesNoContest,
+  YesNoVote,
+  YesNoVoteID,
+  YesOrNo,
 } from '@votingworks/types'
+import { strict as assert } from 'assert'
 import { find } from './find'
 
 export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
@@ -154,13 +153,8 @@ export function tallyVotesByContest({
     ) {
       const tallies: Dictionary<ContestOptionTally> = {}
       if (contest.type === 'yesno') {
-        ;[['yes'] as YesNoVoteOption, ['no'] as YesNoVoteOption].forEach(
-          (option: YesNoVoteOption) => {
-            if (option.length === 1) {
-              tallies[option[0]] = { option, tally: 0 }
-            }
-          }
-        )
+        tallies.yes = { option: ['yes'], tally: 0 }
+        tallies.no = { option: ['no'], tally: 0 }
       }
 
       if (contest.type === 'candidate') {
@@ -244,7 +238,8 @@ export function calculateTallyForCastVoteRecords(
   for (const CVR of castVoteRecords) {
     const vote = buildVoteFromCvr({ election, cvr: CVR })
     const votingMethod = getVotingMethodForCastVoteRecord(CVR)
-    const count = ballotCountsByVotingMethod[votingMethod] ?? 0
+    const count = ballotCountsByVotingMethod[votingMethod]
+    assert(typeof count !== 'undefined')
     ballotCountsByVotingMethod[votingMethod] = count + 1
     allVotes.push(vote)
   }

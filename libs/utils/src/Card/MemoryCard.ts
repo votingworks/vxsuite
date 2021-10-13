@@ -45,9 +45,7 @@ export default class MemoryCard implements Card {
     }
 
     const longValueJSON = new TextDecoder().decode(longValue)
-    return schema
-      ? safeParseJSON(longValueJSON, schema)
-      : JSON.parse(longValueJSON)
+    return safeParseJSON(longValueJSON, schema)
   }
 
   /**

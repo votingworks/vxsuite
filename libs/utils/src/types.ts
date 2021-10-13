@@ -30,10 +30,7 @@ export interface PrecinctScannerCardTally {
 }
 export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTally> =
   z.object({
-    tallyMachineType: TallySourceMachineTypeSchema.refine(
-      (tallyMachineType) =>
-        tallyMachineType === TallySourceMachineType.PRECINCT_SCANNER
-    ) as z.ZodSchema<TallySourceMachineType.PRECINCT_SCANNER>,
+    tallyMachineType: z.literal(TallySourceMachineType.PRECINCT_SCANNER),
     tally: CompressedTallySchema,
     machineId: MachineId,
     timeSaved: z.number(),
