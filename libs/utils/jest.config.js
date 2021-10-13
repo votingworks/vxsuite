@@ -10,7 +10,6 @@ module.exports = {
     '!src/cardTallies.ts',
     '!src/tallies.ts',
     '!src/votes.ts',
-    '!src/Printer/utils.ts',
     '!src/Storage/index.ts',
    ]
 }
