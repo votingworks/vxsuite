@@ -79,8 +79,10 @@ export function fakeWritable(): FakeWritable {
 
     if (args.length === 3) {
       ;[chunk, encoding, callback] = args
-    } else if (args.length === 2) {
+    } else if (args.length === 2 && typeof args[1] === 'function') {
       ;[chunk, callback] = args
+    } else if (args.length === 2) {
+      ;[chunk, encoding] = args
     } else {
       ;[chunk] = args
     }
@@ -109,8 +111,10 @@ export function fakeWritable(): FakeWritable {
 
     if (args.length === 3) {
       ;[chunk, encoding, callback] = args
-    } else if (args.length === 2) {
+    } else if (args.length === 2 && typeof args[1] === 'function') {
       ;[chunk, callback] = args
+    } else if (args.length === 2) {
+      ;[chunk, encoding] = args
     } else {
       ;[callback] = args
     }
