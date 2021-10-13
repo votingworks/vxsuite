@@ -2,7 +2,6 @@ import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { strict as assert } from 'assert'
 import { NumberPad } from './NumberPad'
 
 test('snapshot', () => {
