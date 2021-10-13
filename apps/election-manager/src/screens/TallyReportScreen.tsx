@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { useParams } from 'react-router-dom';
-import { find } from '@votingworks/utils';
+import { find, filterTalliesByParams } from '@votingworks/utils';
 import {
   ExternalTally,
   VotingMethod,
@@ -39,10 +39,7 @@ import Prose from '../components/Prose';
 import LinkButton from '../components/LinkButton';
 
 import routerPaths from '../routerPaths';
-import {
-  filterTalliesByParams,
-  filterTalliesByParamsAndBatchId,
-} from '../lib/votecounting';
+import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 import { filterExternalTalliesByParams } from '../utils/externalTallies';
 
 import Text from '../components/Text';

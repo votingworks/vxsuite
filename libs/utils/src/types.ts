@@ -1,6 +1,7 @@
 import {
   CompressedTally,
   CompressedTallySchema,
+  Dictionary,
   MachineId,
   Optional,
   PrecinctSelection,
@@ -18,17 +19,19 @@ export const TallySourceMachineTypeSchema = z.nativeEnum(
   TallySourceMachineType
 );
 
+export type BallotCountDetails = [precinct: number, absentee: number];
+
 export interface PrecinctScannerCardTally {
   readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER;
-  readonly tally: CompressedTally;
   readonly machineId: string;
   readonly timeSaved: number;
   readonly totalBallotsScanned: number;
   readonly isLiveMode: boolean;
   readonly isPollsOpen: boolean;
-  readonly absenteeBallots: number;
-  readonly precinctBallots: number;
+  readonly ballotCounts: Dictionary<BallotCountDetails>;
   readonly precinctSelection: PrecinctSelection;
+  readonly talliesByPrecinct?: Dictionary<CompressedTally>;
+  readonly tally: CompressedTally;
 }
 export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTally> =
   z.object({
@@ -39,9 +42,9 @@ export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTall
     totalBallotsScanned: z.number(),
     isLiveMode: z.boolean(),
     isPollsOpen: z.boolean(),
-    absenteeBallots: z.number(),
-    precinctBallots: z.number(),
     precinctSelection: PrecinctSelectionSchema,
+    talliesByPrecinct: z.object({}).catchall(CompressedTallySchema).optional(),
+    ballotCounts: z.object({}).catchall(z.tuple([z.number(), z.number()])),
   });
 
 /**

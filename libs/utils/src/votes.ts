@@ -17,9 +17,16 @@ import {
   YesNoVote,
   YesNoVoteID,
   YesOrNo,
+  TallyCategory,
+  FullElectionTally,
+  BatchTally,
+  Party,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { find } from './find';
+import { throwIllegalValue, typedAs } from '.';
+
+const MISSING_BATCH_ID = 'missing-batch-id';
 
 export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   if (vote?.length === 1) {
@@ -227,7 +234,7 @@ export function tallyVotesByContest({
 
 export function calculateTallyForCastVoteRecords(
   election: Election,
-  castVoteRecords: Set<CastVoteRecord>,
+  castVoteRecords: ReadonlySet<CastVoteRecord>,
   filterContestsByParty?: string
 ): Tally {
   const allVotes: VotesDict[] = [];
@@ -252,7 +259,335 @@ export function calculateTallyForCastVoteRecords(
 
   return {
     contestTallies: overallTally,
-    castVoteRecords,
+    castVoteRecords: new Set(castVoteRecords),
+    numberOfBallotsCounted: allVotes.length,
+    ballotCountsByVotingMethod,
+  };
+}
+
+interface BatchInfo {
+  readonly castVoteRecords: Set<CastVoteRecord>;
+  readonly batchLabels: Set<string>;
+  readonly scannerIds: Set<string>;
+}
+
+export function getPartyIdForCVR(
+  CVR: CastVoteRecord,
+  election: Election
+): string | undefined {
+  return election.ballotStyles.find((bs) => bs.id === CVR._ballotStyleId)
+    ?.partyId;
+}
+
+export function computeTallyWithPrecomputedCategories(
+  election: Election,
+  castVoteRecords: ReadonlySet<CastVoteRecord>,
+  tallyCategories: TallyCategory[]
+): FullElectionTally {
+  const overallTally = calculateTallyForCastVoteRecords(
+    election,
+    castVoteRecords
+  );
+  const resultsByCategory = new Map<TallyCategory, Dictionary<Tally>>();
+
+  for (const tallyCategory of tallyCategories) {
+    // Batch category is more complex and needs to be handled separately
+    if (tallyCategory === TallyCategory.Batch) {
+      const cvrFilesByBatch: Dictionary<BatchInfo> = {};
+      for (const CVR of castVoteRecords) {
+        const batchId = CVR._batchId || MISSING_BATCH_ID;
+        const batchInfo = cvrFilesByBatch[batchId];
+        const filesForBatch =
+          batchInfo?.castVoteRecords ?? new Set<CastVoteRecord>();
+        const batchLabels = batchInfo?.batchLabels ?? new Set<string>();
+        const batchScannerIds = batchInfo?.scannerIds ?? new Set<string>();
+        if (!batchInfo) {
+          cvrFilesByBatch[batchId] = {
+            castVoteRecords: filesForBatch,
+            batchLabels,
+            scannerIds: batchScannerIds,
+          };
+        }
+        filesForBatch.add(CVR);
+        if (CVR._batchLabel) {
+          batchLabels.add(CVR._batchLabel);
+        }
+        batchScannerIds.add(CVR._scannerId);
+      }
+      const batchTallyResults: Dictionary<Tally> = {};
+      for (const batchId of Object.keys(cvrFilesByBatch)) {
+        const batchInfo = cvrFilesByBatch[batchId];
+        assert(batchInfo);
+        const batchLabels = [...batchInfo.batchLabels];
+        const batchLabel =
+          batchLabels.length > 0 ? batchLabels[0] : 'Missing Batch';
+        assert(typeof batchLabel === 'string');
+        batchTallyResults[batchId] = typedAs<BatchTally>({
+          ...calculateTallyForCastVoteRecords(
+            election,
+            batchInfo.castVoteRecords
+          ),
+          batchLabel,
+          scannerIds: [...batchInfo.scannerIds],
+        });
+      }
+      resultsByCategory.set(tallyCategory, batchTallyResults);
+      continue;
+    }
+
+    const cvrFiles: Dictionary<Set<CastVoteRecord>> = {};
+    // Set up cvrFiles dictionary if necessary for the TallyCategory
+    switch (tallyCategory) {
+      case TallyCategory.Precinct: {
+        for (const precinct of election.precincts) {
+          cvrFiles[precinct.id] = new Set();
+        }
+        break;
+      }
+      case TallyCategory.Party: {
+        for (const bs of election.ballotStyles) {
+          if (bs.partyId !== undefined && !(bs.partyId in cvrFiles)) {
+            cvrFiles[bs.partyId] = new Set();
+          }
+        }
+        break;
+      }
+      case TallyCategory.VotingMethod: {
+        for (const votingMethod of Object.values(VotingMethod)) {
+          cvrFiles[votingMethod] = new Set();
+        }
+        break;
+      }
+      case TallyCategory.Scanner:
+        // do nothing no initialization needed
+        break;
+      /* istanbul ignore next - compile time check for completeness */
+      default:
+        throwIllegalValue(tallyCategory);
+    }
+
+    // Place all the CVRs in the dictionary properly
+    for (const CVR of castVoteRecords) {
+      let dictionaryKey: string | undefined;
+      switch (tallyCategory) {
+        case TallyCategory.Precinct:
+          dictionaryKey = CVR._precinctId;
+          break;
+        case TallyCategory.Scanner:
+          dictionaryKey = CVR._scannerId;
+          break;
+        case TallyCategory.Party:
+          dictionaryKey = getPartyIdForCVR(CVR, election);
+          break;
+        case TallyCategory.VotingMethod:
+          dictionaryKey = getVotingMethodForCastVoteRecord(CVR);
+          break;
+        /* istanbul ignore next - compile time check for completeness */
+        default:
+          throwIllegalValue(tallyCategory);
+      }
+      if (dictionaryKey !== undefined) {
+        let files = cvrFiles[dictionaryKey];
+        if (!files) {
+          files = new Set();
+          cvrFiles[dictionaryKey] = files;
+        }
+        files.add(CVR);
+      }
+    }
+    const tallyResults: Dictionary<Tally> = {};
+    for (const key of Object.keys(cvrFiles)) {
+      const CVRs = cvrFiles[key];
+      assert(CVRs);
+      tallyResults[key] = calculateTallyForCastVoteRecords(
+        election,
+        CVRs,
+        tallyCategory === TallyCategory.Party ? key : undefined
+      );
+    }
+    resultsByCategory.set(tallyCategory, tallyResults);
+  }
+
+  return {
+    overallTally,
+    resultsByCategory,
+  };
+}
+
+export function filterContestTalliesByPartyId(
+  election: Election,
+  contestTallies: Dictionary<ContestTally>,
+  partyId: string
+): Dictionary<ContestTally> {
+  const districts = election.ballotStyles
+    .filter((bs) => bs.partyId === partyId)
+    .flatMap((bs) => bs.districts);
+  const contestIds = expandEitherNeitherContests(
+    election.contests.filter(
+      (contest) =>
+        districts.includes(contest.districtId) && contest.partyId === partyId
+    )
+  ).map((contest) => contest.id);
+
+  const filteredContestTallies: Dictionary<ContestTally> = {};
+  for (const contestId in contestTallies) {
+    if (contestIds.includes(contestId))
+      filteredContestTallies[contestId] = contestTallies[contestId];
+  }
+  return filteredContestTallies;
+}
+
+interface FilterTalliesByPartyParams {
+  election: Election;
+  electionTally: Tally;
+  party?: Party;
+  ballotCountsByParty?: Dictionary<Dictionary<number>>;
+}
+
+export function filterTalliesByParty({
+  election,
+  electionTally,
+  party,
+  ballotCountsByParty,
+}: FilterTalliesByPartyParams): Tally {
+  if (!party) {
+    return electionTally;
+  }
+
+  const ballotCounts =
+    ballotCountsByParty?.[party.id] ?? electionTally.ballotCountsByVotingMethod;
+
+  return {
+    ...electionTally,
+    contestTallies: filterContestTalliesByPartyId(
+      election,
+      electionTally.contestTallies,
+      party.id
+    ),
+    ballotCountsByVotingMethod: ballotCounts,
+  };
+}
+
+export function getEmptyTally(): Tally {
+  return {
+    numberOfBallotsCounted: 0,
+    castVoteRecords: new Set(),
+    contestTallies: {},
+    ballotCountsByVotingMethod: {},
+  };
+}
+
+export function filterTalliesByParams(
+  fullElectionTally: FullElectionTally,
+  election: Election,
+  {
+    precinctId,
+    scannerId,
+    partyId,
+    votingMethod,
+    batchId,
+  }: {
+    precinctId?: string;
+    scannerId?: string;
+    partyId?: string;
+    votingMethod?: VotingMethod;
+    batchId?: string;
+  }
+): Tally {
+  const { overallTally, resultsByCategory } = fullElectionTally;
+
+  if (!scannerId && !precinctId && !partyId && !votingMethod && !batchId) {
+    return overallTally;
+  }
+
+  if (scannerId && !precinctId && !partyId && !votingMethod && !batchId) {
+    return (
+      resultsByCategory.get(TallyCategory.Scanner)?.[scannerId] ||
+      getEmptyTally()
+    );
+  }
+
+  if (batchId && !precinctId && !partyId && !votingMethod && !scannerId) {
+    return (
+      resultsByCategory.get(TallyCategory.Batch)?.[batchId] || getEmptyTally()
+    );
+  }
+
+  if (precinctId && !scannerId && !partyId && !votingMethod && !batchId) {
+    return (
+      resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
+      getEmptyTally()
+    );
+  }
+  if (partyId && !scannerId && !precinctId && !votingMethod && !batchId) {
+    return (
+      resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
+    );
+  }
+
+  if (votingMethod && !partyId && !scannerId && !precinctId && !batchId) {
+    return (
+      resultsByCategory.get(TallyCategory.VotingMethod)?.[votingMethod] ||
+      getEmptyTally()
+    );
+  }
+  const cvrFiles: Set<CastVoteRecord> = new Set();
+  const allVotes: VotesDict[] = [];
+
+  const precinctTally = precinctId
+    ? resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
+      getEmptyTally()
+    : undefined;
+  const scannerTally = scannerId
+    ? resultsByCategory.get(TallyCategory.Scanner)?.[scannerId] ||
+      getEmptyTally()
+    : undefined;
+  const partyTally = partyId
+    ? resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
+    : undefined;
+  const votingMethodTally = votingMethod
+    ? resultsByCategory.get(TallyCategory.VotingMethod)?.[votingMethod] ||
+      getEmptyTally()
+    : undefined;
+  const batchTally = batchId
+    ? resultsByCategory.get(TallyCategory.Batch)?.[batchId] || getEmptyTally()
+    : undefined;
+
+  const ballotCountsByVotingMethod: Dictionary<number> = {};
+  for (const method of Object.values(VotingMethod)) {
+    ballotCountsByVotingMethod[method] = 0;
+  }
+  for (const CVR of overallTally.castVoteRecords) {
+    if (!precinctTally || precinctTally.castVoteRecords.has(CVR)) {
+      if (!scannerTally || scannerTally.castVoteRecords.has(CVR)) {
+        if (!batchTally || batchTally.castVoteRecords.has(CVR)) {
+          if (!partyTally || partyTally.castVoteRecords.has(CVR)) {
+            if (
+              !votingMethodTally ||
+              votingMethodTally.castVoteRecords.has(CVR)
+            ) {
+              const vote = buildVoteFromCvr({ election, cvr: CVR });
+              const votingMethodForCVR = getVotingMethodForCastVoteRecord(CVR);
+              /* istanbul ignore next */
+              const count = ballotCountsByVotingMethod[votingMethodForCVR] ?? 0;
+              ballotCountsByVotingMethod[votingMethodForCVR] = count + 1;
+              cvrFiles.add(CVR);
+              allVotes.push(vote);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const contestTallies = tallyVotesByContest({
+    election,
+    votes: allVotes,
+    filterContestsByParty: partyId,
+  });
+  return {
+    contestTallies,
+    castVoteRecords: cvrFiles,
     numberOfBallotsCounted: allVotes.length,
     ballotCountsByVotingMethod,
   };

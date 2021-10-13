@@ -365,8 +365,10 @@ it('VxMark+Print end-to-end flow', async () => {
       totalBallotsScanned: 10,
       isLiveMode: true,
       isPollsOpen: false,
-      absenteeBallots: 5,
-      precinctBallots: 5,
+      ballotCounts: {
+        'undefined--ALL_PRECINCTS': [5, 5],
+        'undefined--23': [5, 5],
+      },
     })
   );
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3);

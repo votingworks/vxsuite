@@ -7,6 +7,5 @@ module.exports = {
     ...shared.collectCoverageFrom,
     '!src/ContestTally.tsx',
     '!src/PrecinctScannerPollsReport.tsx',
-    '!src/PrecinctScannerTallyReport.tsx',
    ]
 }

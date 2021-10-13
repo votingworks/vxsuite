@@ -19,6 +19,7 @@ import { compressTally, readCompressedTally } from './compressedTallies';
 
 import { calculateTallyForCastVoteRecords } from './votes';
 import { find } from './find';
+import { getTallyIdentifier } from '.';
 
 describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
@@ -201,7 +202,7 @@ describe('readCompressTally', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
     const zeroTally = getZeroCompressedTally(electionEitherNeither);
-    const tally = readCompressedTally(electionEitherNeither, zeroTally, 0, {});
+    const tally = readCompressedTally(electionEitherNeither, zeroTally, [0, 0]);
     expect(tally.numberOfBallotsCounted).toBe(0);
     // Check that all tallies are 0
     for (const contestTally of Object.values(tally.contestTallies)) {
@@ -243,11 +244,10 @@ describe('readCompressTally', () => {
     const tally = readCompressedTally(
       electionEitherNeither,
       compressedTally,
-      20,
-      votingMethodData
+      [15, 5]
     );
     expect(tally.numberOfBallotsCounted).toBe(20);
-    expect(tally.ballotCountsByVotingMethod).toBe(votingMethodData);
+    expect(tally.ballotCountsByVotingMethod).toStrictEqual(votingMethodData);
     const presidentTally = tally.contestTallies['775020876'];
     assert(presidentTally);
     expect(presidentTally.contest).toBe(presidentContest);
@@ -293,11 +293,10 @@ describe('readCompressTally', () => {
     const tally = readCompressedTally(
       electionSampleDefinition.election,
       compressedTally,
-      20,
-      votingMethodData
+      [15, 5]
     );
     expect(tally.numberOfBallotsCounted).toBe(20);
-    expect(tally.ballotCountsByVotingMethod).toBe(votingMethodData);
+    expect(tally.ballotCountsByVotingMethod).toStrictEqual(votingMethodData);
     const presidentTally = tally.contestTallies.president;
     assert(presidentTally);
     expect(presidentTally.contest).toBe(presidentContest);
@@ -365,11 +364,10 @@ describe('readCompressTally', () => {
     const tally = readCompressedTally(
       electionEitherNeither,
       compressedTally,
-      20,
-      votingMethodData
+      [5, 15]
     );
     expect(tally.numberOfBallotsCounted).toBe(20);
-    expect(tally.ballotCountsByVotingMethod).toBe(votingMethodData);
+    expect(tally.ballotCountsByVotingMethod).toStrictEqual(votingMethodData);
     const yesNoTally = tally.contestTallies['750000017'];
     assert(yesNoTally);
     expect(yesNoTally.contest).toBe(yesNoContest);
@@ -407,11 +405,10 @@ describe('readCompressTally', () => {
     const tally = readCompressedTally(
       electionEitherNeither,
       compressedTally,
-      15,
-      votingMethodData
+      [7, 8]
     );
     expect(tally.numberOfBallotsCounted).toBe(15);
-    expect(tally.ballotCountsByVotingMethod).toBe(votingMethodData);
+    expect(tally.ballotCountsByVotingMethod).toStrictEqual(votingMethodData);
     const eitherNeitherTally = tally.contestTallies[eitherNeither.id];
     const pickOneTally = tally.contestTallies[pickOne.id];
     assert(eitherNeitherTally);
@@ -454,11 +451,14 @@ test('either neither tally can compress and be read back and end with the origin
     new Set(castVoteRecords)
   );
   const compressedTally = compressTally(electionEitherNeither, expectedTally);
+  delete expectedTally.ballotCountsByVotingMethod[VotingMethod.Unknown];
   const processedCompressedTally = readCompressedTally(
     electionEitherNeither,
     compressedTally,
-    expectedTally.numberOfBallotsCounted,
-    expectedTally.ballotCountsByVotingMethod
+    [
+      expectedTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
+      expectedTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
+    ]
   );
   expect(processedCompressedTally.ballotCountsByVotingMethod).toStrictEqual(
     expectedTally.ballotCountsByVotingMethod
@@ -488,16 +488,67 @@ test('multi party primary tally can compress and be read back and end with the o
   const processedCompressedTally = readCompressedTally(
     electionMultiParty,
     compressedTally,
-    expectedTally.numberOfBallotsCounted,
-    expectedTally.ballotCountsByVotingMethod
+    [
+      expectedTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
+      expectedTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
+    ]
   );
+  delete expectedTally.ballotCountsByVotingMethod[VotingMethod.Unknown];
   expect(processedCompressedTally.ballotCountsByVotingMethod).toStrictEqual(
     expectedTally.ballotCountsByVotingMethod
   );
   expect(processedCompressedTally.numberOfBallotsCounted).toStrictEqual(
-    expectedTally.numberOfBallotsCounted
+    778 // this is different then the total number of ballots as unknown ballots are ignored
   );
   expect(processedCompressedTally.contestTallies).toStrictEqual(
     expectedTally.contestTallies
   );
+
+  const expectedLibertyTally = calculateTallyForCastVoteRecords(
+    electionMultiParty,
+    new Set(castVoteRecords),
+    '0'
+  );
+  // can read for a specific party id
+  const processedLibertyTally = readCompressedTally(
+    electionMultiParty,
+    compressedTally,
+    [
+      expectedLibertyTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ??
+        0,
+      expectedLibertyTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ??
+        0,
+    ],
+    '0'
+  );
+  delete expectedLibertyTally.ballotCountsByVotingMethod[VotingMethod.Unknown];
+  expect(processedLibertyTally.ballotCountsByVotingMethod).toStrictEqual(
+    expectedLibertyTally.ballotCountsByVotingMethod
+  );
+  expect(processedLibertyTally.numberOfBallotsCounted).toStrictEqual(
+    778 // this is different then the total number of ballots as unknown ballots are ignored
+  );
+  expect(processedLibertyTally.contestTallies).toStrictEqual(
+    expectedLibertyTally.contestTallies
+  );
+});
+
+describe('getTallyIdentifier', () => {
+  test('returns expected identifier with a party and precinct', () => {
+    expect(getTallyIdentifier('party1', 'precinct1')).toBe('party1,precinct1');
+  });
+
+  test('returns expected identifier with no party and a precinct', () => {
+    expect(getTallyIdentifier(undefined, 'precinct1')).toBe(
+      'undefined,precinct1'
+    );
+  });
+
+  test('returns expected identifier with a party and no precinct', () => {
+    expect(getTallyIdentifier('party1')).toBe('party1,__ALL_PRECINCTS');
+  });
+
+  test('returns expected identifier with no party and no precinct', () => {
+    expect(getTallyIdentifier()).toBe('undefined,__ALL_PRECINCTS');
+  });
 });

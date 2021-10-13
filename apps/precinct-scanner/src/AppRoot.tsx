@@ -28,6 +28,7 @@ import {
   Storage,
   usbstick,
   Printer,
+  PrecinctScannerCardTallySchema,
 } from '@votingworks/utils';
 
 import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen';
@@ -662,8 +663,12 @@ function AppRoot({
   }, [electionDefinition, scannedBallotCount]);
 
   const saveTallyToCard = useCallback(
-    async (cardTally: PrecinctScannerCardTally) => {
+    async (cardTally: PrecinctScannerCardTally): Promise<boolean> => {
       await card.writeLongObject(cardTally);
+      const possibleTally = await card.readLongObject(
+        PrecinctScannerCardTallySchema
+      );
+      return possibleTally.ok()?.timeSaved === cardTally.timeSaved;
     },
     [card]
   );
