@@ -6,6 +6,7 @@ import './App.css'
 
 import {
   WebServiceCard,
+  KioskStorage,
   LocalStorage,
   getHardware,
   getPrinter,
@@ -42,7 +43,7 @@ const App = ({
   ),
 
   card = new WebServiceCard(),
-  storage = new LocalStorage(),
+  storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
   hardware,
   machineConfig = machineConfigProvider,
