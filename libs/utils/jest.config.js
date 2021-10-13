@@ -8,7 +8,6 @@ module.exports = {
     ...shared.collectCoverageFrom,
     // TODO: remove these by bringing their coverage to 100% (https://github.com/votingworks/vxsuite/issues/995)
     '!src/cardTallies.ts',
-    '!src/filenames.ts',
     '!src/iterators.ts',
     '!src/tallies.ts',
     '!src/types.ts',

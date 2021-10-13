@@ -13,6 +13,7 @@ import {
   CVRFileData,
   ElectionData,
   generateFilenameForBallotExportPackageFromElectionData,
+  generateBatchResultsDefaultFilename,
 } from './filenames'
 import { typedAs } from './types'
 
@@ -480,5 +481,22 @@ test('generate/parse ballot package filename fuzzing', () => {
         })
       )
     })
+  )
+})
+
+test('generateBatchResultsDefaultFilename', () => {
+  fc.assert(
+    fc.property(
+      fc.boolean(),
+      fc.constant(electionSampleDefinition.election),
+      fc.oneof(fc.constant(undefined), arbitraryTimestampDate()),
+      (isTestModeResults, election, time) => {
+        expect(
+          generateBatchResultsDefaultFilename(isTestModeResults, election, time)
+        ).toMatch(
+          /^votingworks-(test|live)-batch-results_franklin-county_general-election_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d.csv$/
+        )
+      }
+    )
   )
 })

@@ -165,7 +165,7 @@ function generateElectionName(election: Election): string {
 
 export function getElectionDataFromElectionDefinition(
   electionDefinition: ElectionDefinition,
-  timestamp: Date = new Date()
+  timestamp: Date
 ): ElectionData {
   return {
     electionCounty: electionDefinition.election.county.name,
