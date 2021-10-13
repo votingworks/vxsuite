@@ -1,13 +1,56 @@
-import { electionWithMsEitherNeither } from '@votingworks/fixtures'
-import { CastVoteRecord } from '@votingworks/types'
+import {
+  electionSample,
+  electionWithMsEitherNeither,
+} from '@votingworks/fixtures'
+import {
+  BallotStyle,
+  CandidateContest,
+  CastVoteRecord,
+  Party,
+  YesNoContest,
+} from '@votingworks/types'
+import { strict as assert } from 'assert'
+import { find } from './find'
 import {
   getSingleYesNoVote,
   normalizeWriteInId,
   writeInCandidate,
   buildVoteFromCvr,
+  getContestVoteOptionsForYesNoContest,
+  getContestVoteOptionsForCandidateContest,
+  tallyVotesByContest,
 } from './votes'
 
+test('getContestVoteOptionsForYesNoContest', () => {
+  expect(
+    getContestVoteOptionsForYesNoContest(
+      find(
+        electionWithMsEitherNeither.contests,
+        (c): c is YesNoContest => c.type === 'yesno'
+      )
+    )
+  ).toEqual(['yes', 'no'])
+})
+
+test('getContestVoteOptionsForCandidateContest', () => {
+  const contestWithWriteIns = find(
+    electionSample.contests,
+    (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
+  )
+  const contestWithoutWriteIns = find(
+    electionSample.contests,
+    (c): c is CandidateContest => c.type === 'candidate' && !c.allowWriteIns
+  )
+  expect(
+    getContestVoteOptionsForCandidateContest(contestWithWriteIns)
+  ).toHaveLength(contestWithWriteIns.candidates.length + 1)
+  expect(
+    getContestVoteOptionsForCandidateContest(contestWithoutWriteIns)
+  ).toHaveLength(contestWithoutWriteIns.candidates.length)
+})
+
 test('getSingleYesNoVote', () => {
+  expect(getSingleYesNoVote()).toBe(undefined)
   expect(getSingleYesNoVote([])).toBe(undefined)
   expect(getSingleYesNoVote(['yes'])).toBe('yes')
   expect(getSingleYesNoVote(['no'])).toBe('no')
@@ -125,4 +168,52 @@ test('buildVoteFromCvr', () => {
   })
   expect(votes).not.toHaveProperty('750000015') // The either neither contest should be removed since the pick one result was missing
   expect(votes).not.toHaveProperty('750000016')
+})
+
+test('tallyVotesByContest zeroes', () => {
+  const contestIds = electionSample.contests.map(({ id }) => id)
+  const contestTallies = tallyVotesByContest({
+    election: electionSample,
+    votes: [],
+  })
+
+  for (const [contestId, contestTally] of Object.entries(contestTallies)) {
+    expect(contestIds).toContain(contestId)
+    assert(contestTally)
+    for (const [optionId, optionTally] of Object.entries(
+      contestTally.tallies
+    )) {
+      expect(typeof optionId).toEqual('string')
+      expect(optionTally?.tally).toEqual(0)
+    }
+  }
+})
+
+test('tallyVotesByContest filtered by party', () => {
+  const ballotStyleWithParty = find(
+    electionSample.ballotStyles,
+    (bs): bs is BallotStyle & { partyId: Party['id'] } => !!bs.partyId
+  )
+  const filterContestsByParty = ballotStyleWithParty.partyId
+  const contestIds = electionSample.contests
+    .filter(({ districtId }) =>
+      ballotStyleWithParty.districts.includes(districtId)
+    )
+    .map(({ id }) => id)
+  const contestTallies = tallyVotesByContest({
+    election: electionSample,
+    votes: [],
+    filterContestsByParty,
+  })
+
+  for (const [contestId, contestTally] of Object.entries(contestTallies)) {
+    expect(contestIds).toContain(contestId)
+    assert(contestTally)
+    for (const [optionId, optionTally] of Object.entries(
+      contestTally.tallies
+    )) {
+      expect(typeof optionId).toEqual('string')
+      expect(optionTally?.tally).toEqual(0)
+    }
+  }
 })
