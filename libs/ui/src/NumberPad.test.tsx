@@ -2,6 +2,7 @@ import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { strict as assert } from 'assert'
 import { NumberPad } from './NumberPad'
 
 test('snapshot', () => {
@@ -61,6 +62,30 @@ test('click all pad buttons', () => {
   expect(onClear).toHaveBeenCalledTimes(1)
 })
 
+// FIXME: It'd be great to use `userEvent.keyboard`, but it doesn't work.
+// Maybe because the focused element is a `div`? But if it has a tab index
+// then it should work? ¯\_(ツ)_/¯
+//
+//   userEvent.keyboard('0123456789')
+//
+function sendKey(key: string): void {
+  const charCode = key === 'Backspace' ? undefined : key.charCodeAt(0)
+  fireEvent.keyDown(document.activeElement ?? document.body, {
+    key,
+    charCode,
+  })
+  if (charCode !== undefined) {
+    fireEvent.keyPress(document.activeElement ?? document.body, {
+      key,
+      charCode,
+    })
+  }
+  fireEvent.keyUp(document.activeElement ?? document.body, {
+    key,
+    charCode,
+  })
+}
+
 test('keyboard interaction', async () => {
   const onPress = jest.fn()
   const onBackspace = jest.fn()
@@ -74,17 +99,14 @@ test('keyboard interaction', async () => {
   )
   container.focus()
 
-  // FIXME: It'd be great to use `userEvent.keyboard`, but it doesn't work.
-  // Maybe because the focused element is a `div`? But if it has a tab index
-  // then it should work? ¯\_(ツ)_/¯
-  //
-  //   userEvent.keyboard('0123456789')
-  //
+  // some keys should be ignored
+  sendKey('z')
+  expect(onPress).not.toHaveBeenCalled()
+  expect(onBackspace).not.toHaveBeenCalled()
+  expect(onClear).not.toHaveBeenCalled()
+
   for (let digit = 0; digit <= 9; digit += 1) {
-    fireEvent.keyPress(document.activeElement ?? document.body, {
-      key: `${digit}`,
-      charCode: 49 + digit,
-    })
+    sendKey(`${digit}`)
   }
 
   for (let digit = 0; digit <= 9; digit += 1) {
@@ -93,17 +115,9 @@ test('keyboard interaction', async () => {
 
   expect(onPress).toHaveBeenCalledTimes(10)
 
-  fireEvent.keyDown(document.activeElement ?? document.body, {
-    key: 'Backspace',
-  })
-
+  sendKey('Backspace')
   expect(onBackspace).toHaveBeenCalledTimes(1)
 
-  // NOTE: Similar to above, I'd expect to use `userEvent.keyboard('x')`.
-  fireEvent.keyPress(document.activeElement ?? document.body, {
-    key: 'x',
-    charCode: 120,
-  })
-
+  sendKey('x')
   expect(onClear).toHaveBeenCalledTimes(1)
 })

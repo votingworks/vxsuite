@@ -45,6 +45,7 @@ export const NumberPad = ({
   )
 
   useEffect(() => {
+    /* istanbul ignore next */
     container.current?.focus()
   }, [])
 
