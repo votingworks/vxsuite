@@ -350,7 +350,9 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     }
   }, [electionJustLoaded, displayUsbStatus])
 
-  const storage = window.kiosk ? new KioskStorage() : new LocalStorage()
+  const storage = window.kiosk
+    ? new KioskStorage(window.kiosk)
+    : new LocalStorage()
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />

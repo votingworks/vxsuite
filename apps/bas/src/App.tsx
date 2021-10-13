@@ -14,7 +14,7 @@ export type Props = Partial<AppRootProps>
 const App = ({
   hardware,
   card = new WebServiceCard(),
-  storage = window.kiosk ? new KioskStorage() : new LocalStorage(),
+  storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
 }: Props): JSX.Element => {
   const [internalHardware, setInternalHardware] = useState(hardware)
   const makeCancelable = useCancelablePromise()
