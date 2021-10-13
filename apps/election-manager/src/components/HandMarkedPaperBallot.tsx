@@ -132,6 +132,10 @@ const BlankPageContent = styled.div`
 
 type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>
 
+interface HMPBBallotMetadataRender extends HMPBBallotMetadata {
+  readonly isSampleBallot: boolean
+}
+
 interface PagedJSPage {
   element: HTMLElement
   id: string
@@ -196,10 +200,13 @@ class PostRenderBallotProcessor extends Handler {
           precinctId,
           ballotStyleId,
           isTestMode,
+          isSampleBallot,
           locales,
           ballotType,
           ballotId,
-        }: HMPBBallotMetadata = JSON.parse(qrCodeTarget.dataset.metadata ?? '')
+        }: HMPBBallotMetadataRender = JSON.parse(
+          qrCodeTarget.dataset.metadata ?? ''
+        )
 
         const encoded = encodeHMPBBallotPageMetadata(election, {
           electionHash: electionHash.substring(0, 20),
@@ -212,10 +219,12 @@ class PostRenderBallotProcessor extends Handler {
           ballotId,
         })
 
-        ReactDOM.render(
-          <QRCode level="L" value={fromByteArray(encoded)} />,
-          qrCodeTarget
-        )
+        if (!isSampleBallot) {
+          ReactDOM.render(
+            <QRCode level="L" value={fromByteArray(encoded)} />,
+            qrCodeTarget
+          )
+        }
       }
     })
   }
@@ -251,9 +260,27 @@ const AbsenteeFooter = styled.div`
   width: 1in;
   color: #ffffff;
 `
+const Watermark = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  & > div {
+    transform: rotate(305deg);
+    color: #eaeaea;
+    font-size: 18em;
+    font-weight: 700;
+  }
+`
 const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
+  position: relative;
+  z-index: 1;
 `
 const OfficialInitials = styled.div`
   display: none;
@@ -310,9 +337,12 @@ const PageFooterRow = styled.div`
     margin-left: 0.05in;
   }
 `
-const PageFooterQRCode = styled.div`
+const PageFooterQRCode = styled.div<{ isSampleBallot: boolean }>`
   margin-left: 0.15in;
+  border: ${({ isSampleBallot }) =>
+    isSampleBallot ? '1px solid #000000' : undefined};
   width: 0.55in;
+  height: 0.55in;
 `
 const CandidateContestsLayout = styled.div`
   columns: 3;
@@ -478,6 +508,7 @@ export interface HandMarkedPaperBallotProps {
   electionHash: string
   isLiveMode?: boolean
   isAbsentee?: boolean
+  isSampleBallot?: boolean
   precinctId: string
   locales: BallotLocale
   ballotId?: string
@@ -491,6 +522,7 @@ const HandMarkedPaperBallot = ({
   electionHash,
   isLiveMode = true,
   isAbsentee = true,
+  isSampleBallot = false,
   precinctId,
   locales,
   ballotId,
@@ -574,6 +606,7 @@ const HandMarkedPaperBallot = ({
         electionHash,
         isLiveMode,
         isAbsentee,
+        isSampleBallot,
         precinctId,
         votes,
         locales,
@@ -594,6 +627,7 @@ const HandMarkedPaperBallot = ({
     election,
     electionHash,
     isLiveMode,
+    isSampleBallot,
     onRendered,
     precinctId,
     isAbsentee,
@@ -721,14 +755,16 @@ const HandMarkedPaperBallot = ({
           </PageFooterMain>
           <PageFooterQRCode
             className={qrCodeTargetClassName}
+            isSampleBallot={isSampleBallot}
             data-election={JSON.stringify(election)}
             data-metadata={JSON.stringify(
-              ((): HMPBBallotMetadata => ({
+              ((): HMPBBallotMetadataRender => ({
                 electionHash,
                 ballotStyleId,
                 precinctId,
                 locales,
                 isTestMode: !isLiveMode,
+                isSampleBallot,
                 ballotType: isAbsentee
                   ? BallotType.Absentee
                   : BallotType.Standard,
@@ -737,6 +773,14 @@ const HandMarkedPaperBallot = ({
             )}
           />
         </PageFooter>
+      </div>
+
+      <div className="watermark">
+        {isSampleBallot && (
+          <Watermark>
+            <div>SAMPLE</div>
+          </Watermark>
+        )}
       </div>
 
       <Content>
@@ -765,7 +809,9 @@ const HandMarkedPaperBallot = ({
               )}
               <Prose>
                 <h2>
-                  {isLiveMode
+                  {isSampleBallot
+                    ? t('SAMPLE BALLOT', { lng: locales.primary })
+                    : isLiveMode
                     ? t('Official Ballot', { lng: locales.primary })
                     : t('TEST BALLOT', { lng: locales.primary })}
                 </h2>
@@ -782,7 +828,9 @@ const HandMarkedPaperBallot = ({
                 {localeElection && locales.secondary && (
                   <p>
                     <strong>
-                      {isLiveMode
+                      {isSampleBallot
+                        ? t('SAMPLE BALLOT', { lng: locales.secondary })
+                        : isLiveMode
                         ? t('Official Ballot', { lng: locales.secondary })
                         : t('TEST BALLOT', {
                             lng: locales.secondary,

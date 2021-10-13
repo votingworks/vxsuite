@@ -103,8 +103,12 @@ const BallotScreen = (): JSX.Element => {
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
   const [ballotPages, setBallotPages] = useState(0)
+  const [isSampleBallot, setIsSampleBallot] = useState(false)
   const [isLiveMode, setIsLiveMode] = useState(true)
-  const toggleLiveMode = () => setIsLiveMode((m) => !m)
+  const updateSetIsLiveMode = (mode: boolean) => {
+    setIsLiveMode(mode)
+    setIsSampleBallot(false)
+  }
   const [isAbsentee, setIsAbsentee] = useState(true)
   const toggleIsAbsentee = () => setIsAbsentee((m) => !m)
   const [ballotCopies, setBallotCopies] = useState(1)
@@ -172,11 +176,26 @@ const BallotScreen = (): JSX.Element => {
           </h1>
           <p>
             <SegmentedButton>
-              <Button disabled={isLiveMode} onPress={toggleLiveMode} small>
+              <Button
+                disabled={isLiveMode && !isSampleBallot}
+                onPress={() => updateSetIsLiveMode(true)}
+                small
+              >
                 Official
               </Button>
-              <Button disabled={!isLiveMode} onPress={toggleLiveMode} small>
+              <Button
+                disabled={!isLiveMode && !isSampleBallot}
+                onPress={() => updateSetIsLiveMode(false)}
+                small
+              >
                 Test
+              </Button>
+              <Button
+                disabled={isSampleBallot}
+                onPress={() => setIsSampleBallot(true)}
+                small
+              >
+                Sample
               </Button>
             </SegmentedButton>{' '}
             <SegmentedButton>
@@ -244,10 +263,16 @@ const BallotScreen = (): JSX.Element => {
               }}
               copies={ballotCopies}
               sides="two-sided-long-edge"
-              warning={!isLiveMode}
+              warning={!isLiveMode || isSampleBallot}
             >
               Print {ballotCopies}{' '}
-              {isLiveMode ? 'Official' : <strong>Test</strong>}{' '}
+              {isSampleBallot ? (
+                <strong>Sample</strong>
+              ) : isLiveMode ? (
+                'Official'
+              ) : (
+                <strong>Test</strong>
+              )}{' '}
               {isAbsentee ? <strong>Absentee</strong> : 'Precinct'}{' '}
               {pluralize('Ballot', ballotCopies)}{' '}
               {availableLocaleCodes.length > 1 &&
@@ -304,6 +329,7 @@ const BallotScreen = (): JSX.Element => {
         ballotStyleId={ballotStyleId}
         election={election}
         electionHash={electionHash}
+        isSampleBallot={isSampleBallot}
         isLiveMode={isLiveMode}
         isAbsentee={isAbsentee}
         precinctId={precinctId}

@@ -6,5 +6,8 @@
     @bottom-center {
       content: element(ballotfooter);
     }
+    @top-left {
+      content: element(watermark);
+    }
   }
 }
