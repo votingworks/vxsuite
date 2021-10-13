@@ -86,6 +86,7 @@ test('drop', () => {
   expect(take(2, drop(2, integers()))).toEqual([2, 3])
   expect(take(2, drop(0, integers()))).toEqual([0, 1])
   expect(take(2, drop(-2, integers()))).toEqual([0, 1])
+  expect(take(2, drop(2, [1]))).toEqual([])
 })
 
 test('integers', () => {
