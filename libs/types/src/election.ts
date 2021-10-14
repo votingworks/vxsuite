@@ -205,6 +205,7 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
 })
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
+  .nonempty()
   .superRefine((ballotStyles, ctx) => {
     for (const [index, id] of findDuplicateIds(ballotStyles)) {
       ctx.addIssue({
@@ -253,6 +254,7 @@ export const PrecinctSchema: z.ZodSchema<Precinct> = z.object({
 })
 export const PrecinctsSchema = z
   .array(PrecinctSchema)
+  .nonempty()
   .superRefine((precincts, ctx) => {
     for (const [index, id] of findDuplicateIds(precincts)) {
       ctx.addIssue({
@@ -274,6 +276,7 @@ export const DistrictSchema: z.ZodSchema<District> = z.object({
 })
 export const DistrictsSchema = z
   .array(DistrictSchema)
+  .nonempty()
   .superRefine((districts, ctx) => {
     for (const [index, id] of findDuplicateIds(districts)) {
       ctx.addIssue({

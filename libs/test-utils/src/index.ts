@@ -1,4 +1,5 @@
 export * from './advanceTimers'
+export * from './arbitraries'
 export * from './castVoteRecord'
 export * from './child_process'
 export * from './compressedTallies'
