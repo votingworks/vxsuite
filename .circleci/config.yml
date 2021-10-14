@@ -337,6 +337,24 @@ jobs:
           command: |
             pnpm --dir libs/utils test
 
+  test-test-utils:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-utils test
+
   test-integration-testing-bsd:
     docker:
       - image: circleci/python:3.7.7-node-browsers
@@ -395,6 +413,7 @@ workflows:
       - test-module-smartcards
       - test-plustek-sdk
       - test-precinct-scanner
+      - test-test-utils
       - test-types
       - test-ui
       - test-utils
