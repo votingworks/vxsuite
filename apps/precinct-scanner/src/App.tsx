@@ -5,6 +5,7 @@ import './App.css'
 
 import {
   WebServiceCard,
+  KioskStorage,
   LocalStorage,
   getHardware,
   getPrinter,
@@ -24,7 +25,7 @@ export interface Props {
 const App = ({
   hardware,
   card = new WebServiceCard(),
-  storage = new LocalStorage(),
+  storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
 }: Props): JSX.Element => {

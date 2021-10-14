@@ -23,7 +23,9 @@ export interface Props {
   card?: AppRootProps['card']
 }
 
-const defaultStorage = window.kiosk ? new KioskStorage() : new LocalStorage()
+const defaultStorage = window.kiosk
+  ? new KioskStorage(window.kiosk)
+  : new LocalStorage()
 
 const App = ({
   hardware,

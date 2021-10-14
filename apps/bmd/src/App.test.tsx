@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { fakeKiosk } from '@votingworks/test-utils'
 import { render } from '../test/testUtils'
 import App from './App'
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
@@ -20,4 +21,13 @@ it('prevents context menus from appearing', async () => {
   }
 
   await advanceTimersAndPromises()
+})
+
+it('uses kiosk storage when in kiosk-browser', async () => {
+  jest.useFakeTimers()
+  const kiosk = fakeKiosk()
+  window.kiosk = kiosk
+  render(<App machineConfig={fakeMachineConfigProvider()} />)
+  await advanceTimersAndPromises()
+  expect(kiosk.storage.get).toHaveBeenCalled()
 })

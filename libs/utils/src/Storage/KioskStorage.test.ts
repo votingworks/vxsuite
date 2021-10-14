@@ -1,37 +1,36 @@
 import { fakeKiosk } from '@votingworks/test-utils'
 import KioskStorage from './KioskStorage'
 
-beforeEach(() => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-})
-
 it('can remove a value', async () => {
-  const storage = new KioskStorage()
+  const kiosk = fakeKiosk()
+  const storage = new KioskStorage(kiosk)
 
   await storage.remove('a')
-  expect(window.kiosk?.storage.remove).toHaveBeenCalledWith('a')
+  expect(kiosk.storage.remove).toHaveBeenCalledWith('a')
 })
 
 it('can clear all values', async () => {
-  const storage = new KioskStorage()
+  const kiosk = fakeKiosk()
+  const storage = new KioskStorage(kiosk)
 
   await storage.clear()
-  expect(window.kiosk?.storage.clear).toHaveBeenCalled()
+  expect(kiosk.storage.clear).toHaveBeenCalled()
 })
 
 it('can set a value', async () => {
-  const storage = new KioskStorage()
+  const kiosk = fakeKiosk()
+  const storage = new KioskStorage(kiosk)
   const object = { b: 1 }
 
   await storage.set('a', object)
-  expect(window.kiosk?.storage.set).toHaveBeenCalledWith('a', object)
+  expect(kiosk.storage.set).toHaveBeenCalledWith('a', object)
 })
 
 it('can get a value', async () => {
-  const storage = new KioskStorage()
-  window.kiosk!.storage.get = jest.fn().mockResolvedValueOnce('value')
+  const kiosk = fakeKiosk()
+  const storage = new KioskStorage(kiosk)
+  kiosk.storage.get = jest.fn().mockResolvedValueOnce('value')
 
   expect(await storage.get('a')).toEqual('value')
-  expect(window.kiosk?.storage.get).toHaveBeenCalledWith('a')
+  expect(kiosk.storage.get).toHaveBeenCalledWith('a')
 })
