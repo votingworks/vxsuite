@@ -2,6 +2,7 @@ import {
   election,
   electionWithMsEitherNeither,
   primaryElection,
+  electionMinimalExhaustive,
 } from '../test/election'
 import {
   CandidateContest,
@@ -91,6 +92,27 @@ test('can expand ms-either-neither contests into yes no contests', () => {
     } else {
       expect(expandedContests[i].type).toBe('yesno')
       expect(expandedContests[i + 1].type).toBe('yesno')
+    }
+  }
+})
+
+test('can expand ms-either-neither contests into yes no contests in a primary', () => {
+  const expandedContests = expandEitherNeitherContests(
+    electionMinimalExhaustive.contests
+  )
+  // There is 1 contest that should have expanded into two.
+  expect(expandedContests).toHaveLength(
+    1 + electionMinimalExhaustive.contests.length
+  )
+  for (let i = 0; i < electionWithMsEitherNeither.contests.length; i += 1) {
+    const originalContest = electionMinimalExhaustive.contests[i]
+    if (originalContest.type !== 'ms-either-neither') {
+      expect(originalContest).toEqual(expandedContests[i])
+    } else {
+      expect(expandedContests[i].type).toBe('yesno')
+      expect(expandedContests[i + 1].type).toBe('yesno')
+      expect(expandedContests[i].partyId === originalContest.partyId)
+      expect(expandedContests[i + 1].partyId === originalContest.partyId)
     }
   }
 })

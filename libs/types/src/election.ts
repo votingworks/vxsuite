@@ -1225,6 +1225,7 @@ export const expandEitherNeitherContests = (
             description: contest.description,
             yesOption: contest.eitherOption,
             noOption: contest.neitherOption,
+            ...(contest.partyId ? { partyId: contest.partyId } : {}),
           },
           {
             type: 'yesno',
@@ -1235,6 +1236,7 @@ export const expandEitherNeitherContests = (
             description: contest.description,
             yesOption: contest.firstOption,
             noOption: contest.secondOption,
+            ...(contest.partyId ? { partyId: contest.partyId } : {}),
           },
         ]
   )
