@@ -359,17 +359,17 @@ export function computeFullElectionTally(
   const cvrFilesByVotingMethod: Dictionary<Set<CastVoteRecord>> = {}
   const cvrFilesByBatch: Dictionary<BatchInfo> = {}
 
-  election.precincts.forEach((precinct) => {
+  for (const precinct of election.precincts) {
     cvrFilesByPrecinct[precinct.id] = new Set()
-  })
-  election.ballotStyles.forEach((bs) => {
+  }
+  for (const bs of election.ballotStyles) {
     if (bs.partyId !== undefined && !(bs.partyId in cvrFilesByParty)) {
       cvrFilesByParty[bs.partyId] = new Set()
     }
-  })
-  Object.values(VotingMethod).forEach((votingMethod) => {
+  }
+  for (const votingMethod of Object.values(VotingMethod)) {
     cvrFilesByVotingMethod[votingMethod] = new Set()
-  })
+  }
 
   for (const CVR of castVoteRecords) {
     const filesForPrecinct = cvrFilesByPrecinct[CVR._precinctId]
@@ -600,9 +600,9 @@ export function filterTalliesByParams(
     : undefined
 
   const ballotCountsByVotingMethod: Dictionary<number> = {}
-  Object.values(VotingMethod).forEach((method) => {
+  for (const method of Object.values(VotingMethod)) {
     ballotCountsByVotingMethod[method] = 0
-  })
+  }
   for (const CVR of overallTally.castVoteRecords) {
     if (!precinctTally || precinctTally.castVoteRecords.has(CVR)) {
       if (!scannerTally || scannerTally.castVoteRecords.has(CVR)) {

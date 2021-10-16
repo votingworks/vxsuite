@@ -171,7 +171,7 @@ function sanitizeItem(item: string): string {
 
 function parseFileContentRows(fileContent: string): SEMSFileRow[] {
   const parsedRows: SEMSFileRow[] = []
-  fileContent.split('\n').forEach((row) => {
+  for (const row of fileContent.split('\n')) {
     const entries = row
       .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
       .map((e) => sanitizeItem(e))
@@ -190,7 +190,7 @@ function parseFileContentRows(fileContent: string): SEMSFileRow[] {
         numberOfVotes: parseInt(entries[10], 10),
       })
     }
-  })
+  }
   return parsedRows
 }
 

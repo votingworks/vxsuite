@@ -41,13 +41,13 @@ const generateTestDeckBallots = ({
 
   const ballots: Ballot[] = []
 
-  precincts.forEach((pId) => {
+  for (const pId of precincts) {
     const precinct = find(election.precincts, (p) => p.id === pId)
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
 
-    precinctBallotStyles.forEach((ballotStyle) => {
+    for (const ballotStyle of precinctBallotStyles) {
       const contests = election.contests.filter(
         (c) =>
           ballotStyle.districts.includes(c.districtId) &&
@@ -69,7 +69,7 @@ const generateTestDeckBallots = ({
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {}
-        contests.forEach((contest) => {
+        for (const contest of contests) {
           /* istanbul ignore else */
           if (contest.type === 'yesno') {
             votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
@@ -86,15 +86,15 @@ const generateTestDeckBallots = ({
             votes[contest.pickOneContestId] =
               votes[contest.eitherNeitherContestId]
           }
-        })
+        }
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: pId,
           votes,
         })
       }
-    })
-  })
+    }
+  }
 
   return ballots
 }

@@ -164,14 +164,14 @@ describe('getContestTallyForCandidateContest', () => {
     ]
     const expectedVotes: Dictionary<number> = { argent: 8, bainbridge: 12 }
     const expectedTallies: Dictionary<ContestOptionTally> = {}
-    contest.candidates.forEach((candidate) => {
+    for (const candidate of contest.candidates) {
       if (candidate.id in expectedVotes) {
         expectedTallies[candidate.id] = {
           option: candidate,
           tally: expectedVotes[candidate.id]!,
         }
       }
-    })
+    }
     expectedTallies['__write-in'] = {
       option: writeInCandidate,
       tally: 7,

@@ -188,13 +188,13 @@ export const generateTestDeckBallots = ({
 
   const ballots: Dictionary<string | VotesDict>[] = []
 
-  precincts.forEach((currentPrecinctId) => {
+  for (const currentPrecinctId of precincts) {
     const precinct = find(election.precincts, (p) => p.id === currentPrecinctId)
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
     )
 
-    precinctBallotStyles.forEach((ballotStyle) => {
+    for (const ballotStyle of precinctBallotStyles) {
       const contests = election.contests.filter(
         (c) =>
           ballotStyle.districts.includes(c.districtId) &&
@@ -209,7 +209,7 @@ export const generateTestDeckBallots = ({
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {}
-        contests.forEach((contest) => {
+        for (const contest of contests) {
           if (contest.type === 'yesno') {
             votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
           } else if (contest.type === 'ms-either-neither') {
@@ -225,15 +225,15 @@ export const generateTestDeckBallots = ({
               contest.candidates[ballotNum % contest.candidates.length],
             ]
           }
-        })
+        }
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: currentPrecinctId,
           votes,
         })
       }
-    })
-  })
+    }
+  }
 
   return ballots
 }

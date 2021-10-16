@@ -63,12 +63,12 @@ describe('compressTally', () => {
         c.type === 'candidate' && c.id === '775020876'
     )
     const candidateTallies: Dictionary<ContestOptionTally> = {}
-    presidentContest.candidates.forEach((candidate, idx) => {
+    for (const [idx, candidate] of presidentContest.candidates.entries()) {
       candidateTallies[candidate.id] = {
         option: candidate,
         tally: idx * 2,
       }
-    })
+    }
     candidateTallies[writeInCandidate.id] = {
       option: writeInCandidate,
       tally: 5,

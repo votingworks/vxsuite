@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  ESLintUtils,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils'
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
 import { createRule } from '../util'
 
 function isDirectAccess(node: TSESTree.Node): boolean {

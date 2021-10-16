@@ -93,11 +93,11 @@ test('displays correct contests for each precinct', async () => {
     // All precincts have the president contest
     getByText('President')
     // Check that only the expected election commissioner race is shown (the title is shown twice as the section and contest title)
-    commissionerRaces.forEach((raceName) => {
+    for (const raceName of commissionerRaces) {
       expect(queryAllByText(raceName)).toHaveLength(
         raceName === expectedCommissionerRace ? 2 : 0
       )
-    })
+    }
 
     unmount()
   }

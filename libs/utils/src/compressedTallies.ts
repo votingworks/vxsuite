@@ -109,14 +109,14 @@ const getContestTalliesForCompressedContest = (
           ballots !== undefined
       )
       const candidateTallies: Dictionary<ContestOptionTally> = {}
-      contest.candidates.forEach((candidate, candidateIdx) => {
+      for (const [candidateIdx, candidate] of contest.candidates.entries()) {
         const tally = tallyByCandidate[candidateIdx] // We add 3 here to offset from the undervotes, overvotes and total ballots
         assert(tally !== undefined)
         candidateTallies[candidate.id] = {
           option: candidate,
           tally,
         }
-      })
+      }
       if (contest.allowWriteIns) {
         // write ins will be the last thing in the array after the metadata (3 items) and all candidates
         const writeInTally = tallyByCandidate.pop()

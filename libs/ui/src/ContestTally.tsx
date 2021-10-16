@@ -77,14 +77,14 @@ export const ContestTally = ({
         assert(primaryContestTally)
 
         let finalContestTally = primaryContestTally
-        externalTalliesContest.forEach((externalTally) => {
+        for (const externalTally of externalTalliesContest) {
           if (externalTally !== undefined) {
             finalContestTally = combineContestTallies(
               finalContestTally,
               externalTally
             )
           }
-        })
+        }
 
         const { tallies, metadata } = finalContestTally
 
