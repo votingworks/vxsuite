@@ -1444,6 +1444,7 @@ importers:
       '@types/jest': 26.0.21
       '@types/node': 14.14.35
       '@votingworks/types': link:../types
+      fast-check: 2.18.0
       rxjs: 6.6.6
       zip-stream: 4.1.0
     devDependencies:
@@ -1468,6 +1469,7 @@ importers:
       sort-package-json: 1.50.0
       ts-jest: 26.5.6_jest@26.6.3+typescript@4.3.5
       typescript: 4.3.5
+      zod: 3.2.0
     specifiers:
       '@testing-library/react': ^11.2.6
       '@types/jest': ^26.0.21
@@ -1484,6 +1486,7 @@ importers:
       eslint-plugin-import: ^2.24.2
       eslint-plugin-prettier: ^3.4.0
       eslint-plugin-vx: workspace:*
+      fast-check: ^2.18.0
       is-ci-cli: ^2.2.0
       jest: '26'
       jest-watch-typeahead: ^0.6.4
@@ -1496,6 +1499,7 @@ importers:
       ts-jest: '26'
       typescript: ^4.3.5
       zip-stream: ^4.1.0
+      zod: 3.2.0
   libs/types:
     dependencies:
       '@antongolub/iso8601': 1.2.1
@@ -16892,7 +16896,6 @@ packages:
   /fast-check/2.18.0:
     dependencies:
       pure-rand: 5.0.0
-    dev: true
     engines:
       node: '>=8.0.0'
     resolution:
@@ -25172,7 +25175,6 @@ packages:
     resolution:
       integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
   /pure-rand/5.0.0:
-    dev: true
     resolution:
       integrity: sha512-lD2/y78q+7HqBx2SaT6OT4UcwtvXNRfEpzYEzl0EQ+9gZq2Qi3fa0HDnYPeqQwhlHJFBUhT7AO3mLU3+8bynHA==
   /q/1.5.1:
@@ -30325,7 +30327,6 @@ packages:
     resolution:
       integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==
   /zod/3.2.0:
-    dev: false
     resolution:
       integrity: sha512-yvcO3FZ8URR+LliMGqaW7tlVOOTzmup3vzKEe9Ds7twyJtdhvYa7dIYr0FbD1wVfWC1OuS83vZfHtCKslPuRhA==
   /zwitch/1.0.5:
