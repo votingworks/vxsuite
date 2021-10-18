@@ -24,8 +24,45 @@ export default createRule({
 
   create(context) {
     const sourceCode = context.getSourceCode()
+
+    function identifierName(node: TSESTree.Node) {
+      return node.type === AST_NODE_TYPES.Identifier ? node.name : null
+    }
+
+    function getHasOwnPropertyGuard(node: TSESTree.ForInStatement) {
+      const { body } = node
+      assert(body.type === AST_NODE_TYPES.BlockStatement)
+      const [guard] = body.body
+      // for (const k in o)
+      if (
+        (guard.type === AST_NODE_TYPES.IfStatement &&
+          guard.test.type === AST_NODE_TYPES.CallExpression &&
+          guard.test.callee.type === AST_NODE_TYPES.MemberExpression &&
+          guard.test.callee.property.type === AST_NODE_TYPES.Identifier &&
+          guard.test.callee.property.name === 'hasOwnProperty' &&
+          guard.test.arguments.length === 2 &&
+          identifierName(guard.test.arguments[0]) &&
+          identifierName(guard.test.arguments[0]) ===
+            identifierName(node.right),
+        guard.test.arguments[0].type === AST_NODE_TYPES.Identifier &&
+          guard.test.arguments[0].name === node.right.name &&
+          node.left.type === AST_NODE_TYPES.VariableDeclaration &&
+          guard.test.arguments[1].type === AST_NODE_TYPES.Identifier &&
+          guard.test.arguments[1].name === node.left.name)
+      )
+        return guard
+      return null
+    }
+
     return {
       ForInStatement: (node: TSESTree.ForInStatement) => {
+        // const { body } = node
+        // assert(body.type === AST_NODE_TYPES.BlockStatement)
+        // const [firstStatement] = body.body
+        // if (firstStatement.type === 'IfStatement' &&
+
+        // )
+
         context.report({
           node,
           messageId: 'noForInLoop',
@@ -45,6 +82,16 @@ export default createRule({
           },
         })
       },
+      // // '> CallExpression.test > MemberExpression.callee > Identifier[name=hasOwnProperty]':
+      // // .callee > MemberExpression[name=hasOwnProperty]':
+      // ['ForInStatement > BlockStatement > IfStatement' +
+      // '[test.type="CallExpression"]' +
+      // '[test.callee.type="MemberExpression"]' +
+      // '[test.callee.property.name="hasOwnProperty"]']: (
+      //   node: TSESTree.IfStatement
+      // ) => {
+      //   console.log(node)
+      // },
     }
   },
 })

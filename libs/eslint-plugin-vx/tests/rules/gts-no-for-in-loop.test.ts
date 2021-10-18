@@ -13,29 +13,74 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run('gts-no-for-in-loop', rule, {
   valid: [
-    { code: 'for (const k of Object.keys({})) {}' },
-    { code: 'for (const [k, v] of Object.entries({})) {}' },
+    // { code: 'for (const k of Object.keys({})) {}' },
+    // { code: 'for (const [k, v] of Object.entries({})) {}' },
   ],
   invalid: [
-    {
-      code: 'for (const k in {}) {}',
-      output: 'for (const k of Object.keys({})) {}',
-      errors: [{ messageId: 'noForInLoop', line: 1 }],
-    },
+    // {
+    //   code: 'for (const k in {}) {}',
+    //   output: 'for (const k of Object.keys({})) {}',
+    //   errors: [{ messageId: 'noForInLoop', line: 1 }],
+    // },
+    // {
+    //   code: `
+    //     for (const k in o) {
+    //       if (Object.prototype.hasOwnProperty.call(o, k)) {
+    //         o[k] = 1
+    //       }
+    //     }
+    //   `,
+    //   output: `
+    //     for (const k of Object.keys(o)) {
+    //       o[k] = 1
+    //     }
+    //   `,
+    //   errors: [{ messageId: 'noForInLoop', line: 2 }],
+    // },
+    // {
+    //   code: `
+    //     for (const k in o) {
+    //       if (!Object.prototype.hasOwnProperty.call(o, k))
+    //         continue
+    //       o[k] = 1
+    //     }
+    //   `,
+    //   output: `
+    //     for (const k of Object.keys(o)) {
+    //       o[k] = 1
+    //     }
+    //   `,
+    //   errors: [{ messageId: 'noForInLoop', line: 2 }],
+    // },
     {
       code: `
         for (const k in o) {
-          if (!Object.prototype.hasOwnProperty.call(o, k))
-            continue
+          if (o.hasOwnProperty(k)) {
+            o[k] = 1
+          }
         }
       `,
       output: `
         for (const k of Object.keys(o)) {
-          if (!Object.prototype.hasOwnProperty.call(o, k))
-            continue
+          o[k] = 1
         }
       `,
       errors: [{ messageId: 'noForInLoop', line: 2 }],
     },
+    // {
+    //   code: `
+    //     for (const k in o) {
+    //       if (!o.hasOwnProperty(k))
+    //         continue
+    //       o[k] = 1
+    //     }
+    //   `,
+    //   output: `
+    //     for (const k of Object.keys(o)) {
+    //       o[k] = 1
+    //     }
+    //   `,
+    //   errors: [{ messageId: 'noForInLoop', line: 2 }],
+    // },
   ],
 })
