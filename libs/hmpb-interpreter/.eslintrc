@@ -1,10 +1,10 @@
 {
-  "extends": [
-    "plugin:vx/recommended"
-  ],
+  "extends": ["plugin:vx/recommended"],
   "rules": {
     "camelcase": ["error", { "allow": ["matrix_t", "^.+_\\d+"] }],
     "new-cap": ["error", { "newIsCapExceptionPattern": "^jsfeat\\.." }],
-    "no-bitwise": "off"
+    "no-bitwise": "off",
+
+    "vx/gts-no-dollar-sign-names": ["error", { "allowedNames": ["$0"] }]
   }
 }

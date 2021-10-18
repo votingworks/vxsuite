@@ -37,6 +37,7 @@ export = {
   rules: {
     'vx/gts-direct-module-export-access-only': 'error',
     'vx/gts-no-array-constructor': 'error',
+    'vx/gts-no-dollar-sign-names': 'error',
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
     'vx/gts-no-private-fields': 'error',
