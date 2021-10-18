@@ -7,6 +7,7 @@ import gtsNoImportExportType from './gts-no-import-export-type'
 import gtsNoPrivateFields from './gts-no-private-fields'
 import gtsNoPublicModifier from './gts-no-public-modifier'
 import gtsParameterProperties from './gts-parameter-properties'
+import gtsUseOptionals from './gts-use-optionals'
 import noArraySortMutation from './no-array-sort-mutation'
 import noAssertStringOrNumber from './no-assert-truthiness'
 import noFloatingVoids from './no-floating-results'
@@ -20,6 +21,7 @@ export default {
   'gts-no-private-fields': gtsNoPrivateFields,
   'gts-no-public-modifier': gtsNoPublicModifier,
   'gts-parameter-properties': gtsParameterProperties,
+  'gts-use-optionals': gtsUseOptionals,
   'no-array-sort-mutation': noArraySortMutation,
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-floating-results': noFloatingVoids,

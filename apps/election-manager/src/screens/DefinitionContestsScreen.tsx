@@ -89,7 +89,7 @@ const TextField = ({
   pattern?: string
   step?: number
   type?: 'text' | 'textarea' | 'number'
-  value: string | number | undefined
+  value?: string | number
 }) => (
   <StyledField>
     <label htmlFor={name}>

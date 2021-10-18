@@ -9,9 +9,7 @@ export function count(value: number): string {
 
 export const DEFAULT_LOCALE = 'en-US'
 
-export function localeLongDateAndTime(
-  time?: number | Date | undefined
-): string {
+export function localeLongDateAndTime(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     weekday: 'long',
     month: 'long',
@@ -24,7 +22,7 @@ export function localeLongDateAndTime(
   }).format(time)
 }
 
-export function localeWeekdayAndDate(time?: number | Date | undefined): string {
+export function localeWeekdayAndDate(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     weekday: 'long',
     month: 'long',

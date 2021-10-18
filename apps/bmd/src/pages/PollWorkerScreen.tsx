@@ -1,12 +1,7 @@
 import { DateTime } from 'luxon'
 import React, { useState, useEffect, useCallback } from 'react'
 
-import {
-  ElectionDefinition,
-  Optional,
-  Tally,
-  VotingMethod,
-} from '@votingworks/types'
+import { ElectionDefinition, Tally, VotingMethod } from '@votingworks/types'
 import {
   Button,
   ButtonList,
@@ -60,7 +55,7 @@ interface Props {
   machineConfig: MachineConfig
   printer: Printer
   togglePollsOpen: () => void
-  tallyOnCard: Optional<PrecinctScannerCardTally>
+  tallyOnCard?: PrecinctScannerCardTally
   clearTalliesOnCard: () => Promise<void>
 }
 

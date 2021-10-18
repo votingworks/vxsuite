@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { render, fireEvent, waitFor } from '@testing-library/react'
-import fileDownload from 'js-file-download'
 import {
   electionSampleDefinition as electionDefinition,
   electionSampleDefinition,

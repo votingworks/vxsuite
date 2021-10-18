@@ -92,7 +92,7 @@ interface CardState {
   pauseProcessingUntilNoCardPresent: boolean
   showPostVotingInstructions?: PostVotingInstructions
   voterCardCreatedAt: number
-  tallyOnCard?: Optional<PrecinctScannerCardTally>
+  tallyOnCard?: PrecinctScannerCardTally
 }
 
 interface UserState {

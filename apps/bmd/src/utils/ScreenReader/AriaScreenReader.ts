@@ -146,9 +146,7 @@ export default class AriaScreenReader implements ScreenReader {
       : this.describeElement(node)
   }
 
-  private cleanDescription(
-    description: string | undefined
-  ): string | undefined {
+  private cleanDescription(description?: string): string | undefined {
     if (!description) {
       return
     }
