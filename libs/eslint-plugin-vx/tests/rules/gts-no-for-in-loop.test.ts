@@ -67,20 +67,46 @@ ruleTester.run('gts-no-for-in-loop', rule, {
       `,
       errors: [{ messageId: 'noForInLoop', line: 2 }],
     },
-    // {
-    //   code: `
-    //     for (const k in o) {
-    //       if (!o.hasOwnProperty(k))
-    //         continue
-    //       o[k] = 1
-    //     }
-    //   `,
-    //   output: `
-    //     for (const k of Object.keys(o)) {
-    //       o[k] = 1
-    //     }
-    //   `,
-    //   errors: [{ messageId: 'noForInLoop', line: 2 }],
-    // },
+    {
+      code: `
+        for (const k in o)
+          if (o.hasOwnProperty(k))
+            o[k] = 1
+      `,
+      output: `
+        for (const k of Object.keys(o))
+          o[k] = 1
+      `,
+      errors: [{ messageId: 'noForInLoop', line: 2 }],
+    },
+    {
+      code: `
+        for (const k in o) {
+          if (!o.hasOwnProperty(k))
+            continue
+          o[k] = 1
+        }
+      `,
+      output: `
+        for (const k of Object.keys(o)) {
+          o[k] = 1
+        }
+      `,
+      errors: [{ messageId: 'noForInLoop', line: 2 }],
+    },
+    {
+      code: `
+        for (const k in o)
+          if (!o.hasOwnProperty(k))
+            continue
+          else
+            o[k] = 1
+      `,
+      output: `
+        for (const k of Object.keys(o))
+          o[k] = 1
+      `,
+      errors: [{ messageId: 'noForInLoop', line: 2 }],
+    },
   ],
 })

@@ -1,6 +1,8 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
 import { strict as assert } from 'assert'
 import { createRule } from '../util'
+import { Node } from 'typescript'
+import { RuleFixer } from '@typescript-eslint/experimental-utils/dist/ts-eslint'
 
 export default createRule({
   name: 'gts-no-for-in-loop',
@@ -25,44 +27,100 @@ export default createRule({
   create(context) {
     const sourceCode = context.getSourceCode()
 
-    function identifierName(node: TSESTree.Node) {
-      return node.type === AST_NODE_TYPES.Identifier ? node.name : null
+    function areEqualIdentifiers(node1?: TSESTree.Node, node2?: TSESTree.Node) {
+      return (
+        node1?.type === AST_NODE_TYPES.Identifier &&
+        node2?.type === AST_NODE_TYPES.Identifier &&
+        node1.name === node2.name
+      )
     }
 
-    function getHasOwnPropertyGuard(node: TSESTree.ForInStatement) {
+    function removeHasOwnPropertyGuard(
+      node: TSESTree.ForInStatement,
+      fixer: RuleFixer
+    ) {
       const { body } = node
-      assert(body.type === AST_NODE_TYPES.BlockStatement)
-      const [guard] = body.body
-      // for (const k in o)
+      const guard =
+        body.type === AST_NODE_TYPES.BlockStatement
+          ? body.body[0]
+          : body.type === AST_NODE_TYPES.IfStatement
+          ? body
+          : null
+
+      // for (const k in o) if (o.hasOwnProperty(k)) ...
       if (
-        (guard.type === AST_NODE_TYPES.IfStatement &&
-          guard.test.type === AST_NODE_TYPES.CallExpression &&
-          guard.test.callee.type === AST_NODE_TYPES.MemberExpression &&
-          guard.test.callee.property.type === AST_NODE_TYPES.Identifier &&
-          guard.test.callee.property.name === 'hasOwnProperty' &&
-          guard.test.arguments.length === 2 &&
-          identifierName(guard.test.arguments[0]) &&
-          identifierName(guard.test.arguments[0]) ===
-            identifierName(node.right),
-        guard.test.arguments[0].type === AST_NODE_TYPES.Identifier &&
-          guard.test.arguments[0].name === node.right.name &&
-          node.left.type === AST_NODE_TYPES.VariableDeclaration &&
-          guard.test.arguments[1].type === AST_NODE_TYPES.Identifier &&
-          guard.test.arguments[1].name === node.left.name)
-      )
-        return guard
-      return null
+        guard &&
+        guard.type === AST_NODE_TYPES.IfStatement &&
+        guard.test.type === AST_NODE_TYPES.CallExpression &&
+        guard.test.callee.type === AST_NODE_TYPES.MemberExpression &&
+        guard.test.callee.property.type === AST_NODE_TYPES.Identifier &&
+        guard.test.callee.property.name === 'hasOwnProperty' &&
+        areEqualIdentifiers(guard.test.callee.object, node.right) &&
+        guard.test.arguments.length === 1 &&
+        node.left.type === AST_NODE_TYPES.VariableDeclaration &&
+        node.left.declarations.length === 1 &&
+        areEqualIdentifiers(
+          guard.test.arguments[0],
+          node.left.declarations[0].id
+        ) &&
+        !guard.alternate
+      ) {
+        const consequent =
+          guard.consequent.type === AST_NODE_TYPES.BlockStatement
+            ? guard.consequent.body
+            : [guard.consequent]
+        return [
+          fixer.replaceText(
+            guard,
+            consequent
+              .map((statement) => sourceCode.getText(statement))
+              .join('\n')
+          ),
+        ]
+      }
+
+      // for (const k in o) if (!o.hasOwnProperty(k)) continue
+      if (
+        guard &&
+        guard.type === AST_NODE_TYPES.IfStatement &&
+        guard.test.type === AST_NODE_TYPES.UnaryExpression &&
+        guard.test.operator === '!' &&
+        guard.test.argument.type === AST_NODE_TYPES.CallExpression &&
+        guard.test.argument.callee.type === AST_NODE_TYPES.MemberExpression &&
+        guard.test.argument.callee.property.type ===
+          AST_NODE_TYPES.Identifier &&
+        guard.test.argument.callee.property.name === 'hasOwnProperty' &&
+        areEqualIdentifiers(guard.test.argument.callee.object, node.right) &&
+        guard.test.argument.arguments.length === 1 &&
+        node.left.type === AST_NODE_TYPES.VariableDeclaration &&
+        node.left.declarations.length === 1 &&
+        areEqualIdentifiers(
+          guard.test.argument.arguments[0],
+          node.left.declarations[0].id
+        ) &&
+        (guard.consequent.type === AST_NODE_TYPES.BlockStatement
+          ? guard.consequent.body.length === 1 &&
+            guard.consequent.body[0].type === AST_NODE_TYPES.ContinueStatement
+          : guard.consequent.type === AST_NODE_TYPES.ContinueStatement)
+      ) {
+        const newBody = (guard.alternate ? [guard.alternate] : []).concat(
+          node.body.type === AST_NODE_TYPES.BlockStatement
+            ? node.body.body.slice(1)
+            : node.body
+        )
+        return [
+          fixer.replaceText(
+            node.body,
+            newBody.map((statement) => sourceCode.getText(statement)).join('\n')
+          ),
+        ]
+      }
+
+      return []
     }
 
     return {
       ForInStatement: (node: TSESTree.ForInStatement) => {
-        // const { body } = node
-        // assert(body.type === AST_NODE_TYPES.BlockStatement)
-        // const [firstStatement] = body.body
-        // if (firstStatement.type === 'IfStatement' &&
-
-        // )
-
         context.report({
           node,
           messageId: 'noForInLoop',
@@ -72,26 +130,18 @@ export default createRule({
               node.right
             )
             assert(inToken?.value === 'in')
+
             return [
               fixer.replaceTextRange(
                 [inToken.range[0], node.right.range[0]],
                 'of Object.keys('
               ),
               fixer.insertTextAfter(node.right, ')'),
+              ...removeHasOwnPropertyGuard(node, fixer),
             ]
           },
         })
       },
-      // // '> CallExpression.test > MemberExpression.callee > Identifier[name=hasOwnProperty]':
-      // // .callee > MemberExpression[name=hasOwnProperty]':
-      // ['ForInStatement > BlockStatement > IfStatement' +
-      // '[test.type="CallExpression"]' +
-      // '[test.callee.type="MemberExpression"]' +
-      // '[test.callee.property.name="hasOwnProperty"]']: (
-      //   node: TSESTree.IfStatement
-      // ) => {
-      //   console.log(node)
-      // },
     }
   },
 })
