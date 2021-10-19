@@ -1,23 +1,41 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
+import { ReportFixFunction } from '@typescript-eslint/experimental-utils/dist/ts-eslint'
+import { strict as assert } from 'assert'
 import { createRule, isBindingName } from '../util'
 
-function isOptionalType(node: TSESTree.TypeNode): boolean {
+interface GetUndefinedUnionPartResult {
+  unionType: TSESTree.TSUnionType
+  undefinedType: TSESTree.TSUndefinedKeyword
+}
+
+function getUndefinedUnionPart(
+  node: TSESTree.TypeNode
+): GetUndefinedUnionPartResult | undefined {
   if (node.type === AST_NODE_TYPES.TSUnionType) {
-    return node.types.some(
-      (elementType) =>
-        elementType.type === AST_NODE_TYPES.TSUndefinedKeyword ||
-        isOptionalType(elementType)
-    )
+    for (const elementType of node.types) {
+      if (elementType.type === AST_NODE_TYPES.TSUndefinedKeyword) {
+        return { unionType: node, undefinedType: elementType }
+      }
+    }
   }
+}
 
-  if (node.type === AST_NODE_TYPES.TSTypeReference) {
-    return (
-      node.typeName.type === AST_NODE_TYPES.Identifier &&
-      node.typeName.name === 'Optional'
-    )
+interface GetOptionalTypeReferenceResult {
+  optionalType: TSESTree.TSTypeReference
+  wrappedType: TSESTree.TypeNode
+}
+
+function getOptionalTypeReference(
+  node: TSESTree.TypeNode
+): GetOptionalTypeReferenceResult | undefined {
+  if (
+    node.type === AST_NODE_TYPES.TSTypeReference &&
+    node.typeName.type === AST_NODE_TYPES.Identifier &&
+    node.typeName.name === 'Optional' &&
+    node.typeParameters?.params.length === 1
+  ) {
+    return { optionalType: node, wrappedType: node.typeParameters.params[0] }
   }
-
-  return false
 }
 
 export default createRule({
@@ -31,6 +49,7 @@ export default createRule({
       suggestion: false,
       requiresTypeChecking: false,
     },
+    fixable: 'code',
     messages: {
       useOptionalInterfaceProperties: `Use optional properties on interfaces rather than a |undefined type`,
       useOptionalClassFields: `Use optional fields on classes rather than a |undefined type`,
@@ -42,24 +61,95 @@ export default createRule({
   defaultOptions: [],
 
   create(context) {
+    const sourceCode = context.getSourceCode()
+
+    function getFixFunction(
+      typeAnnotation: TSESTree.TSTypeAnnotation
+    ): ReportFixFunction | undefined {
+      const undefinedUnionResult = getUndefinedUnionPart(
+        typeAnnotation.typeAnnotation
+      )
+
+      if (undefinedUnionResult) {
+        return function* getFixes(fixer) {
+          const pipeBefore = sourceCode.getTokenBefore(
+            undefinedUnionResult.undefinedType
+          )
+          const pipeAfter = sourceCode.getTokenAfter(
+            undefinedUnionResult.undefinedType
+          )
+          /* istanbul ignore else */
+          if (pipeBefore?.value === '|') {
+            yield fixer.remove(pipeBefore)
+          } else if (pipeAfter?.value === '|') {
+            yield fixer.remove(pipeAfter)
+          } else {
+            assert.fail('could not find union type pipe around `undefined`')
+          }
+          yield fixer.remove(undefinedUnionResult.undefinedType)
+
+          const colonToken = sourceCode.getFirstToken(typeAnnotation)
+          assert.equal(colonToken?.value, ':')
+          const questionMarkToken = sourceCode.getTokenBefore(colonToken)
+          if (questionMarkToken?.value !== '?') {
+            yield fixer.insertTextBefore(colonToken, '?')
+          }
+        }
+      }
+
+      const optionalTypeReferenceResult = getOptionalTypeReference(
+        typeAnnotation.typeAnnotation
+      )
+
+      if (optionalTypeReferenceResult) {
+        return function* getFixes(fixer) {
+          yield fixer.remove(optionalTypeReferenceResult.optionalType.typeName)
+
+          const typeParamStartToken = sourceCode.getFirstTokenBetween(
+            optionalTypeReferenceResult.optionalType.typeName,
+            optionalTypeReferenceResult.wrappedType
+          )
+          assert.equal(typeParamStartToken?.value, '<')
+          yield fixer.remove(typeParamStartToken)
+
+          const typeParamEndToken = sourceCode.getLastToken(
+            typeAnnotation.typeAnnotation
+          )
+          assert.equal(typeParamEndToken?.value, '>')
+          yield fixer.remove(typeParamEndToken)
+
+          const colonToken = sourceCode.getFirstToken(typeAnnotation)
+          assert.equal(colonToken?.value, ':')
+          const questionMarkToken = sourceCode.getTokenBefore(colonToken)
+          if (questionMarkToken?.value !== '?') {
+            yield fixer.insertTextBefore(colonToken, '?')
+          }
+        }
+      }
+    }
+
     function checkFunction(node: {
       params: readonly TSESTree.Parameter[]
     }): void {
-      const possibleViolations = node.params.map((param) => {
-        if (
-          isBindingName(param) &&
-          param.typeAnnotation &&
-          isOptionalType(param.typeAnnotation.typeAnnotation)
-        ) {
-          return param
+      const possibleViolations = node.params.map<
+        [TSESTree.BindingName, ReportFixFunction] | undefined
+      >((param) => {
+        if (isBindingName(param) && param.typeAnnotation) {
+          const fix = getFixFunction(param.typeAnnotation)
+          if (fix) {
+            return [param, fix]
+          }
         }
 
         if (
           param.type === AST_NODE_TYPES.AssignmentPattern &&
-          param.left.typeAnnotation &&
-          isOptionalType(param.left.typeAnnotation.typeAnnotation)
+          isBindingName(param.left) &&
+          param.left.typeAnnotation
         ) {
-          return param
+          const fix = getFixFunction(param.left.typeAnnotation)
+          if (fix) {
+            return [param.left, fix]
+          }
         }
 
         return undefined
@@ -72,31 +162,32 @@ export default createRule({
         }
       }
 
-      for (const [i, param] of possibleViolations.entries()) {
+      for (const [i, paramAndFix] of possibleViolations.entries()) {
         if (
           // do not report params that come before non-optional params
           i < indexOfLastNonOptionalParam ||
-          !param
+          !paramAndFix
         ) {
           continue
         }
 
+        const [param, fix] = paramAndFix
         context.report({
           messageId: 'useOptionalParams',
           node: param,
+          fix,
         })
       }
     }
 
     return {
       ClassProperty(node: TSESTree.ClassProperty): void {
-        if (
-          node.typeAnnotation &&
-          isOptionalType(node.typeAnnotation.typeAnnotation)
-        ) {
+        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation)
+        if (fix) {
           context.report({
             messageId: 'useOptionalClassFields',
             node,
+            fix,
           })
         }
       },
@@ -108,25 +199,25 @@ export default createRule({
       TSMethodSignature: checkFunction,
 
       TSParameterProperty(node: TSESTree.TSParameterProperty): void {
-        if (
+        const fix =
           node.parameter.typeAnnotation &&
-          isOptionalType(node.parameter.typeAnnotation.typeAnnotation)
-        ) {
+          getFixFunction(node.parameter.typeAnnotation)
+        if (fix) {
           context.report({
             messageId: 'useOptionalClassFields',
             node,
+            fix,
           })
         }
       },
 
       TSPropertySignature(node: TSESTree.TSPropertySignature): void {
-        if (
-          node.typeAnnotation &&
-          isOptionalType(node.typeAnnotation.typeAnnotation)
-        ) {
+        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation)
+        if (fix) {
           context.report({
             messageId: 'useOptionalInterfaceProperties',
             node,
+            fix,
           })
         }
       },
