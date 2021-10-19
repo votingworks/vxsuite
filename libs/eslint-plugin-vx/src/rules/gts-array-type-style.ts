@@ -1,5 +1,5 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils'
-import assert from 'assert'
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
+import { strict as assert } from 'assert'
 import { createRule } from '../util'
 
 export default createRule({
@@ -32,72 +32,54 @@ export default createRule({
     }
 
     return {
-      'TSTypeAnnotation > TSTypeReference.typeAnnotation[typeName.name=Array]':
-        (node: TSESTree.TSTypeReference) => {
-          if (
-            node.typeParameters?.params.length === 1 &&
-            isSimpleType(node.typeParameters.params[0])
-          ) {
-            const elementType = node.typeParameters.params[0]
-            context.report({
-              messageId: 'useShortArrayType',
-              node,
-              fix: (fixer) => [
-                fixer.replaceText(node, `${sourceCode.getText(elementType)}[]`),
-              ],
-            })
-          }
-        },
-      'TSTypeAnnotation > TSTypeReference.typeAnnotation[typeName.name=ReadonlyArray]':
-        (node: TSESTree.TSTypeReference) => {
-          if (
-            node.typeParameters?.params.length === 1 &&
-            isSimpleType(node.typeParameters.params[0])
-          ) {
-            const elementType = node.typeParameters.params[0]
-            context.report({
-              messageId: 'useShortArrayType',
-              node,
-              fix: (fixer) => [
+      'TSTypeReference[typeName.name=/^(Readonly)?Array$/]': (
+        node: TSESTree.TSTypeReference
+      ) => {
+        if (
+          node.typeParameters?.params.length === 1 &&
+          isSimpleType(node.typeParameters.params[0])
+        ) {
+          const elementType = node.typeParameters.params[0]
+          context.report({
+            messageId: 'useShortArrayType',
+            node,
+            fix: (fixer) => {
+              assert(node.typeName.type === AST_NODE_TYPES.Identifier)
+              const readonly =
+                node.typeName.name === 'ReadonlyArray' ? 'readonly ' : ''
+              return [
                 fixer.replaceText(
                   node,
-                  `readonly ${sourceCode.getText(elementType)}[]`
+                  `${readonly}${sourceCode.getText(elementType)}[]`
                 ),
-              ],
-            })
-          }
-        },
-      'TSTypeAnnotation > TSArrayType': (node: TSESTree.TSArrayType) => {
+              ]
+            },
+          })
+        }
+      },
+      TSArrayType: (node: TSESTree.TSArrayType) => {
         if (!isSimpleType(node.elementType))
           context.report({
             messageId: 'useLongArrayType',
             node,
             fix: (fixer) => {
               const text = sourceCode.getText(node)
-              assert(text.slice(-2) === '[]')
-              return [fixer.replaceText(node, `Array<${text.slice(0, -2)}>`)]
-            },
-          })
-      },
-      'TSTypeAnnotation > TSTypeOperator[operator="readonly"] > TSArrayType.typeAnnotation':
-        (node: TSESTree.TSArrayType) => {
-          if (!isSimpleType(node.elementType))
-            context.report({
-              messageId: 'useLongArrayType',
-              node,
-              fix: (fixer) => {
-                assert(node.parent)
-                const text = sourceCode.getText(node)
-                assert(text.slice(-2) === '[]')
+              assert.equal(text.slice(-2), '[]')
+              if (
+                node.parent?.type === AST_NODE_TYPES.TSTypeOperator &&
+                node.parent.operator === 'readonly'
+              )
                 return [
                   fixer.replaceText(
                     node.parent,
                     `ReadonlyArray<${text.slice(0, -2)}>`
                   ),
                 ]
-              },
-            })
-        },
+
+              return [fixer.replaceText(node, `Array<${text.slice(0, -2)}>`)]
+            },
+          })
+      },
     }
   },
 })
