@@ -16,6 +16,9 @@ import Modal from './Modal'
 import Prose from './Prose'
 import Select from './Select'
 
+export const MIN_YEAR = 2020
+export const MAX_YEAR = 2030
+
 export interface Props {
   disabled?: boolean
   onCancel(): void
@@ -108,11 +111,13 @@ const PickDateTimeModal = ({
                   <option value="" disabled>
                     Year
                   </option>
-                  {[...integers({ from: 2020, through: 2030 })].map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {[...integers({ from: MIN_YEAR, through: MAX_YEAR })].map(
+                    (year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    )
+                  )}
                 </Select>
                 <Select
                   data-testid="selectMonth"
@@ -175,8 +180,8 @@ const PickDateTimeModal = ({
                     Hour
                   </option>
                   {[...integers({ from: 1, through: 12 })].map((hour) => (
-                    <option key={hour} value={hour + 1}>
-                      {hour + 1}
+                    <option key={hour} value={hour}>
+                      {hour}
                     </option>
                   ))}
                 </Select>

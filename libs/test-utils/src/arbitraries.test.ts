@@ -7,6 +7,7 @@ import {
 } from '@votingworks/types'
 import { strict as assert } from 'assert'
 import fc from 'fast-check'
+import { arbitraryDateTime } from '.'
 import {
   arbitraryCastVoteRecord,
   arbitraryCastVoteRecords,
@@ -21,6 +22,19 @@ test('arbitraryId', () => {
     fc.property(arbitraryId(), (id) => {
       safeParse(Id, id).unsafeUnwrap()
     })
+  )
+})
+
+test('arbitraryDateTime', () => {
+  fc.assert(
+    fc.property(
+      arbitraryDateTime({ minYear: 2020, maxYear: 2022, zoneName: 'UTC' }),
+      (dateTime) => {
+        expect(dateTime.year).toBeGreaterThanOrEqual(2020)
+        expect(dateTime.year).toBeLessThanOrEqual(2022)
+        expect(dateTime.zoneName).toEqual('UTC')
+      }
+    )
   )
 })
 

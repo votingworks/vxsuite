@@ -153,6 +153,7 @@
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-vx": "workspace:*",
+    "fast-check": "^2.18.0",
     "is-ci-cli": "^2.0.0",
     "jest-date-mock": "^1.0.8",
     "jest-environment-jsdom-sixteen": "^1.0.3",
