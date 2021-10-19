@@ -1,4 +1,5 @@
 import { TSESLint } from '@typescript-eslint/experimental-utils';
+import gtsArrayTypeStyle from './gts-array-type-style';
 import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only';
 import gtsFuncStyle from './gts-func-style';
 import gtsNoArrayConstructor from './gts-no-array-constructor';
@@ -14,6 +15,7 @@ import noAssertStringOrNumber from './no-assert-truthiness';
 import noFloatingVoids from './no-floating-results';
 
 export default {
+  'gts-array-type-style': gtsArrayTypeStyle,
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
   'gts-func-style': gtsFuncStyle,
   'gts-no-array-constructor': gtsNoArrayConstructor,
