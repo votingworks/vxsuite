@@ -1,19 +1,19 @@
-import chalk from 'chalk'
-import { basename } from 'path'
-import { getCommands, GlobalOptions } from '..'
-import * as helpCommand from './help'
-import * as interpretCommand from './interpret'
-import * as layoutCommand from './layout'
+import chalk from 'chalk';
+import { basename } from 'path';
+import { getCommands, GlobalOptions } from '..';
+import * as helpCommand from './help';
+import * as interpretCommand from './interpret';
+import * as layoutCommand from './layout';
 
-export const name = 'help'
-export const description = 'Show help about a command'
+export const name = 'help';
+export const description = 'Show help about a command';
 
 export interface Options {
-  readonly $0: string
+  readonly $0: string;
   readonly command?:
     | typeof helpCommand['name']
     | typeof interpretCommand['name']
-    | typeof layoutCommand['name']
+    | typeof layoutCommand['name'];
 }
 
 export async function parseOptions({
@@ -23,58 +23,58 @@ export async function parseOptions({
   return {
     $0: basename(executablePath),
     command: commandArgs[0] as Options['command'],
-  }
+  };
 }
 
 function printGlobalHelp(options: Options, out: NodeJS.WritableStream): void {
-  out.write(`Usage: ${options.$0} COMMAND [ARGS]\n`)
-  out.write(`\n`)
-  out.write(chalk.bold(`Commands:\n`))
-  out.write(`\n`)
+  out.write(`Usage: ${options.$0} COMMAND [ARGS]\n`);
+  out.write(`\n`);
+  out.write(chalk.bold(`Commands:\n`));
+  out.write(`\n`);
 
-  const commands = getCommands()
+  const commands = getCommands();
   const commandNameSpace =
-    Math.max(...commands.map((command) => command.name.length)) + 3
+    Math.max(...commands.map((command) => command.name.length)) + 3;
 
   for (const command of commands) {
     out.write(
       `  ${chalk.bold(command.name)}${' '.repeat(
         commandNameSpace - command.name.length
       )}${command.description}\n`
-    )
+    );
   }
-  out.write(`\n`)
+  out.write(`\n`);
 }
 
 export function printCommandHelp(
   options: Options,
   out: NodeJS.WritableStream
 ): void {
-  out.write(`Usage: ${options.$0} help COMMAND\n`)
-  out.write(`\n`)
-  out.write(`Print usage information for COMMAND.\n`)
+  out.write(`Usage: ${options.$0} help COMMAND\n`);
+  out.write(`\n`);
+  out.write(`Print usage information for COMMAND.\n`);
 }
 
 export function printHelp(options: Options, out: NodeJS.WritableStream): void {
   switch (options.command) {
     case undefined:
-      printGlobalHelp(options, out)
-      break
+      printGlobalHelp(options, out);
+      break;
 
     case 'help':
-      printCommandHelp(options, out)
-      break
+      printCommandHelp(options, out);
+      break;
 
     case 'interpret':
-      interpretCommand.printHelp(options.$0, out)
-      break
+      interpretCommand.printHelp(options.$0, out);
+      break;
 
     case 'layout':
-      layoutCommand.printHelp(options.$0, out)
-      break
+      layoutCommand.printHelp(options.$0, out);
+      break;
 
     default:
-      throw new Error(`unknown command: ${options.command}`)
+      throw new Error(`unknown command: ${options.command}`);
   }
 }
 
@@ -83,6 +83,6 @@ export async function run(
   _stdin: NodeJS.ReadableStream,
   stdout: NodeJS.WritableStream
 ): Promise<number> {
-  printHelp(options, stdout)
-  return 0
+  printHelp(options, stdout);
+  return 0;
 }

@@ -1,22 +1,22 @@
 export default class KeyedMap<Key, Value, ResolvedKey = string> {
-  private map = new Map<ResolvedKey, Value>()
+  private map = new Map<ResolvedKey, Value>();
 
   constructor(private resolveKey: (key: Key) => ResolvedKey) {}
 
   has(key: Key): boolean {
-    return this.map.has(this.resolveKey(key))
+    return this.map.has(this.resolveKey(key));
   }
 
   get(key: Key): Value | undefined {
-    return this.map.get(this.resolveKey(key))
+    return this.map.get(this.resolveKey(key));
   }
 
   set(key: Key, value: Value): this {
-    this.map.set(this.resolveKey(key), value)
-    return this
+    this.map.set(this.resolveKey(key), value);
+    return this;
   }
 
   delete(key: Key): boolean {
-    return this.map.delete(this.resolveKey(key))
+    return this.map.delete(this.resolveKey(key));
   }
 }

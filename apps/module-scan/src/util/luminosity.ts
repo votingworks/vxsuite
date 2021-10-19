@@ -1,17 +1,17 @@
-import otsu from '@votingworks/hmpb-interpreter/build/src/utils/otsu'
-import makeDebug from 'debug'
+import otsu from '@votingworks/hmpb-interpreter/build/src/utils/otsu';
+import makeDebug from 'debug';
 
-const debug = makeDebug('module-scan:threshold')
+const debug = makeDebug('module-scan:threshold');
 
 export interface Stats {
-  threshold: number
-  foreground: LuminosityCounts
-  background: LuminosityCounts
+  threshold: number;
+  foreground: LuminosityCounts;
+  background: LuminosityCounts;
 }
 
 export interface LuminosityCounts {
-  count: number
-  ratio: number
+  count: number;
+  ratio: number;
 }
 
 /**
@@ -22,15 +22,15 @@ export function stats(
   { data }: ImageData,
   { threshold = otsu(data) } = {}
 ): Stats {
-  const start = Date.now()
+  const start = Date.now();
 
-  let foreground = 0
+  let foreground = 0;
   for (let i = 0; i < data.length; i += 1) {
     if (data[i] < threshold) {
-      foreground += 1
+      foreground += 1;
     }
   }
-  const background = data.length - foreground
+  const background = data.length - foreground;
 
   const result: Stats = {
     threshold,
@@ -42,15 +42,15 @@ export function stats(
       count: background,
       ratio: background / data.length,
     },
-  }
+  };
 
-  const end = Date.now()
+  const end = Date.now();
   debug(
     'computed luminosity stats on %d pixels in %dms: %O',
     data.length,
     end - start,
     result
-  )
+  );
 
-  return result
+  return result;
 }

@@ -1,4 +1,4 @@
-import { Printer } from '../../src/config/types'
+import { Printer } from '../../src/config/types';
 
 export default function fakePrinter({
   print = async () => {
@@ -9,5 +9,5 @@ export default function fakePrinter({
   return {
     print: jest.fn(print),
     ...rest,
-  }
+  };
 }

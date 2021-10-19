@@ -8,5 +8,5 @@ export default function fakeVoice(
     name: '',
     voiceURI: props.name ?? '',
     ...props,
-  }
+  };
 }

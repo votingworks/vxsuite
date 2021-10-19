@@ -1,29 +1,29 @@
-import { ScannerClient } from '@votingworks/plustek-sdk'
-import { ScannerStatus } from '@votingworks/types/api/module-scan'
-import { throwIllegalValue } from '@votingworks/utils'
-import { ChildProcess } from 'child_process'
-import { EventEmitter } from 'events'
-import { Readable, Writable } from 'stream'
-import { fileSync } from 'tmp'
-import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing'
-import { BatchControl, Scanner } from '../../src/scanners'
-import { SheetOf } from '../../src/types'
-import { writeImageData } from '../../src/util/images'
-import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool'
+import { ScannerClient } from '@votingworks/plustek-sdk';
+import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { throwIllegalValue } from '@votingworks/utils';
+import { ChildProcess } from 'child_process';
+import { EventEmitter } from 'events';
+import { Readable, Writable } from 'stream';
+import { fileSync } from 'tmp';
+import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
+import { BatchControl, Scanner } from '../../src/scanners';
+import { SheetOf } from '../../src/types';
+import { writeImageData } from '../../src/util/images';
+import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';
 
 export function makeMock<T>(Cls: new (...args: never[]) => T): MaybeMocked<T> {
   if (!jest.isMockFunction(Cls)) {
     throw new Error(
       `${Cls} is not a mock function; are you missing a jest.mock(…) call?`
-    )
+    );
   }
-  return mocked(new Cls())
+  return mocked(new Cls());
 }
 
 export function mockWorkerPoolProvider<I, O>(
   call: (input: I) => Promise<O>
 ): () => WorkerPool<I, O> {
-  return (): WorkerPool<I, O> => inlinePool(call)
+  return (): WorkerPool<I, O> => inlinePool(call);
 }
 
 export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
@@ -32,22 +32,22 @@ export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
     stop: jest.fn(),
     send: jest.fn(),
     describe: jest.fn(),
-  }
+  };
 }
 
 type ScanSessionStep =
   | { type: 'sheet'; sheet: SheetOf<string> }
-  | { type: 'error'; error: Error }
+  | { type: 'error'; error: Error };
 
 /**
  * Represents a scanner session, but doesn't actually run anything.
  */
 class ScannerSessionPlan {
-  private steps: ScanSessionStep[] = []
-  private ended = false
+  private steps: ScanSessionStep[] = [];
+  private ended = false;
 
   getStep(index: number): ScanSessionStep {
-    return this.steps[index]
+    return this.steps[index];
   }
 
   /**
@@ -55,10 +55,10 @@ class ScannerSessionPlan {
    */
   sheet(sheet: SheetOf<string>): this {
     if (this.ended) {
-      throw new Error('cannot add a sheet scan step to an ended session')
+      throw new Error('cannot add a sheet scan step to an ended session');
     }
-    this.steps.push({ type: 'sheet', sheet })
-    return this
+    this.steps.push({ type: 'sheet', sheet });
+    return this;
   }
 
   /**
@@ -66,30 +66,30 @@ class ScannerSessionPlan {
    */
   error(error: Error): this {
     if (this.ended) {
-      throw new Error('cannot add an error step to an ended session')
+      throw new Error('cannot add an error step to an ended session');
     }
-    this.steps.push({ type: 'error', error })
-    return this
+    this.steps.push({ type: 'error', error });
+    return this;
   }
 
   end(): void {
-    this.ended = true
+    this.ended = true;
   }
 
   *[Symbol.iterator](): IterableIterator<ScanSessionStep> {
     if (!this.ended) {
       throw new Error(
         'session has not been ended; please call `session.end()` before using it'
-      )
+      );
     }
 
-    yield* this.steps
+    yield* this.steps;
   }
 }
 
 export interface MockScanner extends Scanner {
-  withNextScannerSession(): ScannerSessionPlan
-  getStatus: jest.MockedFunction<Scanner['getStatus']>
+  withNextScannerSession(): ScannerSessionPlan;
+  getStatus: jest.MockedFunction<Scanner['getStatus']>;
 }
 
 /**
@@ -106,20 +106,20 @@ export interface MockScanner extends Scanner {
  * // do something to trigger a scan
  */
 export function makeMockScanner(): MockScanner {
-  let nextScannerSession: ScannerSessionPlan | undefined
+  let nextScannerSession: ScannerSessionPlan | undefined;
 
   return {
     getStatus: jest.fn().mockResolvedValue(ScannerStatus.Unknown),
 
     scanSheets(): BatchControl {
-      const session = nextScannerSession
-      nextScannerSession = undefined
-      let stepIndex = 0
+      const session = nextScannerSession;
+      nextScannerSession = undefined;
+      let stepIndex = 0;
 
       if (!session) {
         throw new Error(
           'no session registered; call scanner.withNextScannerSession() to define the next session'
-        )
+        );
       }
 
       return {
@@ -128,29 +128,29 @@ export function makeMockScanner(): MockScanner {
         rejectSheet: jest.fn(),
 
         scanSheet: async (): Promise<SheetOf<string>> => {
-          const step = session.getStep(stepIndex)
-          stepIndex += 1
+          const step = session.getStep(stepIndex);
+          stepIndex += 1;
 
           switch (step.type) {
             case 'sheet':
-              return step.sheet
+              return step.sheet;
 
             case 'error':
-              throw step.error
+              throw step.error;
 
             default:
-              throwIllegalValue(step)
+              throwIllegalValue(step);
           }
         },
 
         endBatch: async (): Promise<void> => {
-          stepIndex = Infinity
+          stepIndex = Infinity;
         },
-      }
+      };
     },
 
     async calibrate(): Promise<boolean> {
-      return true
+      return true;
     },
 
     /**
@@ -158,115 +158,115 @@ export function makeMockScanner(): MockScanner {
      */
     withNextScannerSession(): ScannerSessionPlan {
       if (!nextScannerSession) {
-        nextScannerSession = new ScannerSessionPlan()
+        nextScannerSession = new ScannerSessionPlan();
       }
-      return nextScannerSession
+      return nextScannerSession;
     },
-  }
+  };
 }
 
 export interface MockReadable extends Readable {
-  append(chunk: string): void
+  append(chunk: string): void;
 }
 
 export interface MockWritable extends Writable {
-  writes: readonly { chunk: unknown; encoding?: string }[]
+  writes: readonly { chunk: unknown; encoding?: string }[];
 }
 
 /**
  * Makes a mock readable stream.
  */
 export function makeMockReadable(): MockReadable {
-  const readable = new EventEmitter() as MockReadable
-  let buffer: string | undefined
+  const readable = new EventEmitter() as MockReadable;
+  let buffer: string | undefined;
   readable.append = jest.fn((chunk): void => {
-    buffer = (buffer ?? '') + chunk
-    readable.emit('readable')
-  })
+    buffer = (buffer ?? '') + chunk;
+    readable.emit('readable');
+  });
   readable.read = jest.fn((size): unknown => {
     if (typeof buffer === 'string') {
-      const readSize = size ?? buffer.length
-      const result = buffer.slice(0, readSize)
-      buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize)
-      return result
+      const readSize = size ?? buffer.length;
+      const result = buffer.slice(0, readSize);
+      buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize);
+      return result;
     }
-    return undefined
-  })
-  return readable
+    return undefined;
+  });
+  return readable;
 }
 
 /**
  * Makes a mock writable stream.
  */
 export function makeMockWritable(): MockWritable {
-  const writable = new EventEmitter() as MockWritable
-  const writes: { chunk: unknown; encoding?: string }[] = []
+  const writable = new EventEmitter() as MockWritable;
+  const writes: { chunk: unknown; encoding?: string }[] = [];
 
-  writable.writes = writes
+  writable.writes = writes;
   writable.write = jest.fn((...args: unknown[]): boolean => {
-    let chunk: unknown
-    let encoding: unknown
-    let callback: unknown
+    let chunk: unknown;
+    let encoding: unknown;
+    let callback: unknown;
 
     if (args.length === 3) {
-      ;[chunk, encoding, callback] = args
+      [chunk, encoding, callback] = args;
     } else if (args.length === 2) {
-      ;[chunk, callback] = args
+      [chunk, callback] = args;
     } else {
-      ;[callback] = args
+      [callback] = args;
     }
 
     if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
-      throw new TypeError('encoding expected to be a string')
+      throw new TypeError('encoding expected to be a string');
     }
 
     if (typeof chunk !== 'undefined') {
-      writes.push({ chunk, encoding })
+      writes.push({ chunk, encoding });
     }
 
     process.nextTick(() => {
       if (typeof callback === 'function') {
-        callback()
+        callback();
       }
-    })
+    });
 
-    return true
-  })
+    return true;
+  });
 
   writable.end = jest.fn((...args: unknown[]): void => {
-    let chunk: unknown
-    let encoding: unknown
-    let callback: unknown
+    let chunk: unknown;
+    let encoding: unknown;
+    let callback: unknown;
 
     if (args.length === 3) {
-      ;[chunk, encoding, callback] = args
+      [chunk, encoding, callback] = args;
     } else if (args.length === 2) {
-      ;[chunk, callback] = args
+      [chunk, callback] = args;
     } else {
-      ;[callback] = args
+      [callback] = args;
     }
 
     if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
-      throw new TypeError('encoding expected to be a string')
+      throw new TypeError('encoding expected to be a string');
     }
 
     if (typeof chunk !== 'undefined') {
-      writes.push({ chunk, encoding })
+      writes.push({ chunk, encoding });
     }
 
     process.nextTick(() => {
       if (typeof callback === 'function') {
-        callback()
+        callback();
       }
-    })
-  })
+    });
+  });
 
-  return writable
+  return writable;
 }
 
 export interface MockChildProcess extends ChildProcess {
-  stdout: MockReadable
-  stderr: MockReadable
+  stdout: MockReadable;
+  stderr: MockReadable;
 }
 
 /**
@@ -278,19 +278,19 @@ export function makeMockChildProcess(): MockChildProcess {
     stdin: makeMockWritable(),
     stdout: makeMockReadable(),
     stderr: makeMockReadable(),
-  }
+  };
 
-  return Object.assign(new EventEmitter(), result) as MockChildProcess
+  return Object.assign(new EventEmitter(), result) as MockChildProcess;
 }
 
 export async function makeImageFile(): Promise<string> {
-  const imageFile = fileSync({ postfix: '.png' })
+  const imageFile = fileSync({ postfix: '.png' });
   await writeImageData(imageFile.name, {
     data: Uint8ClampedArray.of(0, 0, 0),
     width: 1,
     height: 1,
-  })
-  return imageFile.name
+  });
+  return imageFile.name;
 }
 
 export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
@@ -303,5 +303,5 @@ export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
     scan: jest.fn(),
     waitForStatus: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
 }

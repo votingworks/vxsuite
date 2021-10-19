@@ -1,9 +1,9 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  compact?: boolean
-  maxWidth?: boolean
-  textCenter?: boolean
+  compact?: boolean;
+  maxWidth?: boolean;
+  textCenter?: boolean;
 }
 
 const Prose = styled('div')<Props>`
@@ -72,6 +72,6 @@ const Prose = styled('div')<Props>`
   & dl {
     margin: 1rem 0;
   }
-`
+`;
 
-export default Prose
+export default Prose;

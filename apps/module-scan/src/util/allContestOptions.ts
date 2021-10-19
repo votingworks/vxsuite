@@ -1,5 +1,5 @@
-import { AnyContest, ContestOption } from '@votingworks/types'
-import { throwIllegalValue } from '@votingworks/utils'
+import { AnyContest, ContestOption } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
@@ -17,7 +17,7 @@ export default function* allContestOptions(
         name: candidate.name,
         isWriteIn: false,
         optionIndex,
-      }
+      };
     }
 
     if (contest.allowWriteIns) {
@@ -30,7 +30,7 @@ export default function* allContestOptions(
             name: 'Write-In',
             isWriteIn: true,
             optionIndex: contest.candidates.length + writeInIndex,
-          }
+          };
         }
       } else {
         for (let i = 0; i < contest.seats; i += 1) {
@@ -41,7 +41,7 @@ export default function* allContestOptions(
             name: 'Write-In',
             isWriteIn: true,
             optionIndex: contest.candidates.length + i,
-          }
+          };
         }
       }
     }
@@ -52,14 +52,14 @@ export default function* allContestOptions(
       contestId: contest.id,
       name: 'Yes',
       optionIndex: 0,
-    }
+    };
     yield {
       type: 'yesno',
       id: 'no',
       contestId: contest.id,
       name: 'No',
       optionIndex: 1,
-    }
+    };
   } else if (contest.type === 'ms-either-neither') {
     yield {
       type: 'ms-either-neither',
@@ -67,29 +67,29 @@ export default function* allContestOptions(
       name: contest.eitherOption.label,
       contestId: contest.eitherNeitherContestId,
       optionIndex: 0,
-    }
+    };
     yield {
       type: 'ms-either-neither',
       id: 'no',
       name: contest.neitherOption.label,
       contestId: contest.eitherNeitherContestId,
       optionIndex: 1,
-    }
+    };
     yield {
       type: 'ms-either-neither',
       id: 'yes',
       name: contest.firstOption.label,
       contestId: contest.pickOneContestId,
       optionIndex: 0,
-    }
+    };
     yield {
       type: 'ms-either-neither',
       id: 'no',
       name: contest.secondOption.label,
       contestId: contest.pickOneContestId,
       optionIndex: 1,
-    }
+    };
   } else {
-    throwIllegalValue(contest, 'type')
+    throwIllegalValue(contest, 'type');
   }
 }

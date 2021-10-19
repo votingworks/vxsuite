@@ -1,15 +1,15 @@
-import React from 'react'
+import React from 'react';
 
-import { Main, MainChild } from '@votingworks/ui'
+import { Main, MainChild } from '@votingworks/ui';
 
-import styled from 'styled-components'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
+import styled from 'styled-components';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
   height: 30vw;
-`
+`;
 
 const RemoveCardScreen = (): JSX.Element => (
   <Screen white>
@@ -31,6 +31,6 @@ const RemoveCardScreen = (): JSX.Element => (
       </MainChild>
     </Main>
   </Screen>
-)
+);
 
-export default RemoveCardScreen
+export default RemoveCardScreen;

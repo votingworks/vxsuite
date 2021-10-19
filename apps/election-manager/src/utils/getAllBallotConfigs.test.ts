@@ -1,6 +1,6 @@
-import { electionSample } from '@votingworks/fixtures'
-import getAllBallotConfigs from './getAllBallotConfigs'
-import { DEFAULT_LOCALE } from '../config/globals'
+import { electionSample } from '@votingworks/fixtures';
+import getAllBallotConfigs from './getAllBallotConfigs';
+import { DEFAULT_LOCALE } from '../config/globals';
 
 test('builds a list of configs for single-language ballots', () => {
   expect(getAllBallotConfigs(electionSample, 'abcde', [DEFAULT_LOCALE]))
@@ -423,5 +423,5 @@ test('builds a list of configs for single-language ballots', () => {
         "precinctId": "21",
       },
     ]
-  `)
-})
+  `);
+});

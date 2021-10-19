@@ -1,16 +1,16 @@
-import { strict as assert } from 'assert'
-import arrayUnique from 'array-unique'
-import { sha256 } from 'js-sha256'
-import { Election } from '@votingworks/types'
-import { parseCVRFileInfoFromFilename } from '@votingworks/utils'
+import { strict as assert } from 'assert';
+import arrayUnique from 'array-unique';
+import { sha256 } from 'js-sha256';
+import { Election } from '@votingworks/types';
+import { parseCVRFileInfoFromFilename } from '@votingworks/utils';
 import {
   CastVoteRecord,
   CastVoteRecordFile,
   CastVoteRecordLists,
   CastVoteRecordFileMode,
-} from '../config/types'
-import readFileAsync from '../lib/readFileAsync'
-import { parseCVRs } from '../lib/votecounting'
+} from '../config/types';
+import readFileAsync from '../lib/readFileAsync';
+import { parseCVRs } from '../lib/votecounting';
 
 /**
  * Adds elements to a set by creating a new set with the contents of the
@@ -24,7 +24,7 @@ import { parseCVRs } from '../lib/votecounting'
  * set               // Set { 1, 2, 3 }
  */
 function setAdd<T>(set: ReadonlySet<T>, ...values: T[]): Set<T> {
-  return new Set([...set, ...values])
+  return new Set([...set, ...values]);
 }
 
 /**
@@ -44,32 +44,32 @@ function mapAdd<K, V>(
   keyfn: (value: V) => K,
   ...values: V[]
 ): Map<K, V> {
-  const result = new Map(map)
+  const result = new Map(map);
 
   for (const value of values) {
-    result.set(keyfn(value), value)
+    result.set(keyfn(value), value);
   }
 
-  return result
+  return result;
 }
 
 function mixedTestModeCVRs(
   castVoteRecords: ReadonlyArray<ReadonlyArray<CastVoteRecord>>
 ) {
-  let liveSeen = false
-  let testSeen = false
+  let liveSeen = false;
+  let testSeen = false;
   for (const cvrs of castVoteRecords) {
     for (const cvr of cvrs) {
-      liveSeen = liveSeen || !cvr._testBallot
-      testSeen = testSeen || cvr._testBallot
+      liveSeen = liveSeen || !cvr._testBallot;
+      testSeen = testSeen || cvr._testBallot;
 
       if (liveSeen && testSeen) {
-        return true
+        return true;
       }
     }
   }
 
-  return false
+  return false;
 }
 
 /**
@@ -102,7 +102,7 @@ export default class CastVoteRecordFiles {
     new Set(),
     new Map(),
     []
-  )
+  );
 
   /**
    * This is private. Use `CastVoteRecordFiles.empty` then call `add(file)` or
@@ -128,14 +128,14 @@ export default class CastVoteRecordFiles {
       duplicateFilenames,
       parseFailedErrors,
       allCastVoteRecords,
-    } = JSON.parse(stringifiedCVRFiles)
+    } = JSON.parse(stringifiedCVRFiles);
     return new CastVoteRecordFiles(
       new Set(signatures),
       new Set(files),
       new Set(duplicateFilenames),
       new Map(parseFailedErrors),
       allCastVoteRecords
-    )
+    );
   }
 
   /**
@@ -148,7 +148,7 @@ export default class CastVoteRecordFiles {
       duplicateFilenames: [...this.duplicateFilenames],
       parseFailedErrors: [...this.parseFailedErrors],
       allCastVoteRecords: this.allCastVoteRecords,
-    })
+    });
   }
 
   /**
@@ -159,13 +159,13 @@ export default class CastVoteRecordFiles {
     files: File[],
     election: Election
   ): Promise<CastVoteRecordFiles> {
-    let result: CastVoteRecordFiles = this // eslint-disable-line @typescript-eslint/no-this-alias
+    let result: CastVoteRecordFiles = this; // eslint-disable-line @typescript-eslint/no-this-alias
 
     for (const file of files) {
-      result = await result.add(file, election)
+      result = await result.add(file, election);
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -176,13 +176,13 @@ export default class CastVoteRecordFiles {
     files: KioskBrowser.FileSystemEntry[],
     election: Election
   ): Promise<CastVoteRecordFiles> {
-    let result: CastVoteRecordFiles = this // eslint-disable-line @typescript-eslint/no-this-alias
+    let result: CastVoteRecordFiles = this; // eslint-disable-line @typescript-eslint/no-this-alias
 
     for (const file of files) {
-      result = await result.addFromFileSystemEntry(file, election)
+      result = await result.addFromFileSystemEntry(file, election);
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -194,15 +194,15 @@ export default class CastVoteRecordFiles {
     election: Election
   ): Promise<CastVoteRecordFiles> {
     try {
-      assert(window.kiosk)
-      const fileContent = await window.kiosk.readFile(file.path, 'utf-8')
-      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name)
+      assert(window.kiosk);
+      const fileContent = await window.kiosk.readFile(file.path, 'utf-8');
+      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name);
       return await this.addFromFileContent(
         fileContent,
         file.name,
         parsedFileInfo?.timestamp || new Date(file.mtime),
         election
-      )
+      );
     } catch (error) {
       return new CastVoteRecordFiles(
         this.signatures,
@@ -210,7 +210,7 @@ export default class CastVoteRecordFiles {
         this.duplicateFilenames,
         mapAdd(this.parseFailedErrors, () => file.name, error.message),
         this.allCastVoteRecords
-      )
+      );
     }
   }
 
@@ -220,14 +220,14 @@ export default class CastVoteRecordFiles {
    */
   async add(file: File, election: Election): Promise<CastVoteRecordFiles> {
     try {
-      const fileContent = await readFileAsync(file)
-      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name)
+      const fileContent = await readFileAsync(file);
+      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name);
       return await this.addFromFileContent(
         fileContent,
         file.name,
         parsedFileInfo?.timestamp || new Date(file.lastModified),
         election
-      )
+      );
     } catch (error) {
       return new CastVoteRecordFiles(
         this.signatures,
@@ -235,7 +235,7 @@ export default class CastVoteRecordFiles {
         this.duplicateFilenames,
         mapAdd(this.parseFailedErrors, () => file.name, error.message),
         this.allCastVoteRecords
-      )
+      );
     }
   }
 
@@ -246,7 +246,7 @@ export default class CastVoteRecordFiles {
     election: Election
   ): Promise<CastVoteRecordFiles> {
     try {
-      const signature = sha256(fileContent)
+      const signature = sha256(fileContent);
 
       if (this.signatures.has(signature)) {
         return new CastVoteRecordFiles(
@@ -255,39 +255,39 @@ export default class CastVoteRecordFiles {
           setAdd(this.duplicateFilenames, fileName),
           this.parseFailedErrors,
           this.allCastVoteRecords
-        )
+        );
       }
 
-      const fileCastVoteRecords: CastVoteRecord[] = []
+      const fileCastVoteRecords: CastVoteRecord[] = [];
 
       for (const { cvr, errors, lineNumber } of parseCVRs(
         fileContent,
         election
       )) {
         if (errors.length) {
-          throw new Error(`Line ${lineNumber}: ${errors.join('\n')}`)
+          throw new Error(`Line ${lineNumber}: ${errors.join('\n')}`);
         }
 
-        fileCastVoteRecords.push(cvr)
+        fileCastVoteRecords.push(cvr);
       }
 
       const scannerIds = arrayUnique(
         fileCastVoteRecords.map((cvr) => cvr._scannerId)
-      )
+      );
 
       const precinctIds = arrayUnique(
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
-      )
+      );
 
       const newCastVoteRecords = [
         ...this.allCastVoteRecords,
         fileCastVoteRecords,
-      ]
+      ];
 
       if (mixedTestModeCVRs(newCastVoteRecords)) {
         throw new Error(
           'These CVRs cannot be tabulated together because they mix live and test ballots'
-        )
+        );
       }
 
       return new CastVoteRecordFiles(
@@ -302,7 +302,7 @@ export default class CastVoteRecordFiles {
         this.duplicateFilenames,
         this.parseFailedErrors,
         newCastVoteRecords
-      )
+      );
     } catch (error) {
       return new CastVoteRecordFiles(
         this.signatures,
@@ -310,7 +310,7 @@ export default class CastVoteRecordFiles {
         this.duplicateFilenames,
         mapAdd(this.parseFailedErrors, () => fileName, error.message),
         this.allCastVoteRecords
-      )
+      );
     }
   }
 
@@ -318,57 +318,57 @@ export default class CastVoteRecordFiles {
    * The error for the last file that failed.
    */
   get lastError(): { filename: string; message: string } | undefined {
-    const last = [...this.parseFailedErrors].pop()
-    return last ? { filename: last[0], message: last[1] } : undefined
+    const last = [...this.parseFailedErrors].pop();
+    return last ? { filename: last[0], message: last[1] } : undefined;
   }
 
   /**
    * All the added CVR files.
    */
   get fileList(): CastVoteRecordFile[] {
-    return [...this.files]
+    return [...this.files];
   }
 
   /**
    * Names of the files that have been added more than once.
    */
   get duplicateFiles(): string[] {
-    return [...this.duplicateFilenames]
+    return [...this.duplicateFilenames];
   }
 
   /**
    * All parsed CVRs from the added files.
    */
   get castVoteRecords(): CastVoteRecordLists {
-    return this.allCastVoteRecords
+    return this.allCastVoteRecords;
   }
 
   /**
    * Gets the file mode for the set of CVR files.
    */
   get fileMode(): CastVoteRecordFileMode | undefined {
-    let liveSeen = false
+    let liveSeen = false;
     for (const cvrs of this.allCastVoteRecords) {
       for (const cvr of cvrs) {
         if (cvr._testBallot) {
-          return 'test'
+          return 'test';
         }
-        liveSeen = true
+        liveSeen = true;
       }
     }
-    return liveSeen ? 'live' : undefined
+    return liveSeen ? 'live' : undefined;
   }
 
   filenameAlreadyImported(filename: string): boolean {
     for (const file of this.files) {
       if (file.name === filename) {
-        return true
+        return true;
       }
     }
-    return this.duplicateFilenames.has(filename)
+    return this.duplicateFilenames.has(filename);
   }
 }
 
 export type SaveCastVoteRecordFiles = (
   value?: CastVoteRecordFiles
-) => Promise<void>
+) => Promise<void>;

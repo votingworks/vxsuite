@@ -1,20 +1,22 @@
-import { electionSample } from '@votingworks/fixtures'
-import { fakeKiosk } from '@votingworks/test-utils'
-import * as workflow from './ExportElectionBallotPackageWorkflow'
-import DownloadableArchive from '../utils/DownloadableArchive'
+import { electionSample } from '@votingworks/fixtures';
+import { fakeKiosk } from '@votingworks/test-utils';
+import * as workflow from './ExportElectionBallotPackageWorkflow';
+import DownloadableArchive from '../utils/DownloadableArchive';
 
 beforeEach(() => {
-  window.kiosk = fakeKiosk()
-})
+  window.kiosk = fakeKiosk();
+});
 
 test('initializes with an Election, hash, and locales', () => {
-  expect(workflow.init(electionSample, 'abcde', ['en-US']).type).toEqual('Init')
-})
+  expect(workflow.init(electionSample, 'abcde', ['en-US']).type).toEqual(
+    'Init'
+  );
+});
 
 test('advances from Init to ArchiveBegin', () => {
-  const state = workflow.init(electionSample, 'abcde', ['en-US'])
-  expect(workflow.next(state).type).toEqual('ArchiveBegin')
-})
+  const state = workflow.init(electionSample, 'abcde', ['en-US']);
+  expect(workflow.next(state).type).toEqual('ArchiveBegin');
+});
 
 test('makes the first ballot config the current one moving from ArchiveBegin to RenderBallot', () => {
   expect(
@@ -49,8 +51,8 @@ test('makes the first ballot config the current one moving from ArchiveBegin to 
         locales: { primary: 'en-US' },
       },
     })
-  )
-})
+  );
+});
 
 test('advances to the next ballot config if there is one', () => {
   expect(
@@ -96,8 +98,8 @@ test('advances to the next ballot config if there is one', () => {
       },
       ballotConfigsCount: 2,
     })
-  )
-})
+  );
+});
 
 test('advances to ArchiveEnd if there are no more ballot configs', () => {
   expect(
@@ -123,8 +125,8 @@ test('advances to ArchiveEnd if there are no more ballot configs', () => {
       type: 'ArchiveEnd',
       ballotConfigsCount: 2,
     })
-  )
-})
+  );
+});
 
 test('advances from ArchiveEnd to Done', () => {
   expect(
@@ -138,8 +140,8 @@ test('advances from ArchiveEnd to Done', () => {
       type: 'Done',
       ballotConfigsCount: 2,
     })
-  )
-})
+  );
+});
 
 test('advances to Failed on render error', () => {
   expect(
@@ -166,5 +168,5 @@ test('advances to Failed on render error', () => {
   ).toEqual({
     type: 'Failed',
     message: 'something happened!',
-  })
-})
+  });
+});

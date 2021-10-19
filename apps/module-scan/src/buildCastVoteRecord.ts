@@ -16,35 +16,35 @@ import {
   MarkAdjudications,
   UninterpretedHmpbPage,
   VotesDict,
-} from '@votingworks/types'
-import { find, throwIllegalValue } from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import { VX_MACHINE_ID } from './globals'
+} from '@votingworks/types';
+import { find, throwIllegalValue } from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import { VX_MACHINE_ID } from './globals';
 import {
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
   SheetOf,
-} from './types'
-import allContestOptions from './util/allContestOptions'
+} from './types';
+import allContestOptions from './util/allContestOptions';
 import {
   describeValidationError,
   validateSheetInterpretation,
-} from './validation'
+} from './validation';
 
 export function getCVRBallotType(
   ballotType: BallotType
 ): CastVoteRecord['_ballotType'] {
   switch (ballotType) {
     case BallotType.Absentee:
-      return 'absentee'
+      return 'absentee';
 
     case BallotType.Provisional:
-      return 'provisional'
+      return 'provisional';
 
     case BallotType.Standard:
-      return 'standard'
+      return 'standard';
 
     default:
-      throwIllegalValue(ballotType)
+      throwIllegalValue(ballotType);
   }
 }
 
@@ -64,10 +64,10 @@ export function buildCastVoteRecordMetadataEntries(
     _scannerId: VX_MACHINE_ID,
     _testBallot: metadata.isTestMode,
     _locales: metadata.locales,
-  }
+  };
 }
 
-type ContestOptionPair = [string, string]
+type ContestOptionPair = [string, string];
 
 export function getWriteInOptionIdsForContestVote(
   contest: AnyContest,
@@ -75,23 +75,23 @@ export function getWriteInOptionIdsForContestVote(
 ): string[] {
   if (contest.type === 'candidate') {
     if (!contest.allowWriteIns) {
-      return []
+      return [];
     }
-    const vote = votes[contest.id]
+    const vote = votes[contest.id];
     return vote
       ? (vote as CandidateVote)
           .filter(({ isWriteIn }) => isWriteIn)
           .map(({ id }) => id)
-      : []
+      : [];
   }
   if (contest.type === 'yesno') {
-    return []
+    return [];
   }
   if (contest.type === 'ms-either-neither') {
-    return []
+    return [];
   }
   // @ts-expect-error -- `contest` has type `never` since all known branches are covered
-  throw new TypeError(`contest type not yet supported: ${contest.type}`)
+  throw new TypeError(`contest type not yet supported: ${contest.type}`);
 }
 
 export function getOptionIdsForContestVote(
@@ -99,12 +99,16 @@ export function getOptionIdsForContestVote(
   votes: VotesDict
 ): ContestOptionPair[] {
   if (contest.type === 'candidate') {
-    const vote = votes[contest.id]
-    return vote ? (vote as CandidateVote).map(({ id }) => [contest.id, id]) : []
+    const vote = votes[contest.id];
+    return vote
+      ? (vote as CandidateVote).map(({ id }) => [contest.id, id])
+      : [];
   }
   if (contest.type === 'yesno') {
-    const vote = votes[contest.id]
-    return vote ? (vote as readonly string[]).map((id) => [contest.id, id]) : []
+    const vote = votes[contest.id];
+    return vote
+      ? (vote as readonly string[]).map((id) => [contest.id, id])
+      : [];
   }
   if (contest.type === 'ms-either-neither') {
     return [
@@ -116,9 +120,9 @@ export function getOptionIdsForContestVote(
       ...((votes[contest.pickOneContestId] ?? []) as readonly string[]).map<
         [string, string]
       >((id) => [contest.pickOneContestId, id]),
-    ]
+    ];
   }
-  throwIllegalValue(contest, 'type')
+  throwIllegalValue(contest, 'type');
 }
 
 export function buildCastVoteRecordVotesEntries(
@@ -126,12 +130,12 @@ export function buildCastVoteRecordVotesEntries(
   votes: VotesDict,
   markAdjudications?: MarkAdjudications
 ): Dictionary<ContestOption['id'][]> {
-  const result: Dictionary<ContestOption['id'][]> = {}
+  const result: Dictionary<ContestOption['id'][]> = {};
 
   for (const contest of contests) {
-    const resolvedOptionIds: ContestOptionPair[] = []
-    const interpretedOptionIds = getOptionIdsForContestVote(contest, votes)
-    const writeInOptions = getWriteInOptionIdsForContestVote(contest, votes)
+    const resolvedOptionIds: ContestOptionPair[] = [];
+    const interpretedOptionIds = getOptionIdsForContestVote(contest, votes);
+    const writeInOptions = getWriteInOptionIdsForContestVote(contest, votes);
 
     // HINT: Do not use `contest.id` in this loop, use `option.contestId`.
     // `contest.id !== option.contestId` for `ms-either-neither` contests.
@@ -140,20 +144,20 @@ export function buildCastVoteRecordVotesEntries(
         markAdjudications?.filter(
           ({ contestId, optionId }) =>
             contestId === option.contestId && optionId === option.id
-        ) ?? []
+        ) ?? [];
 
       if (markAdjudicationsForThisOption.length === 0) {
         // no adjudications, just record it as interpreted
         const interpretedContestOptionPair = interpretedOptionIds.find(
           ([contestId, optionId]) =>
             contestId === option.contestId && optionId === option.id
-        )
+        );
         if (interpretedContestOptionPair) {
-          resolvedOptionIds.push(interpretedContestOptionPair)
+          resolvedOptionIds.push(interpretedContestOptionPair);
         }
       } else if (markAdjudicationsForThisOption.length === 1) {
         // a single adjudication, use it
-        const [markAdjudication] = markAdjudicationsForThisOption
+        const [markAdjudication] = markAdjudicationsForThisOption;
         if (markAdjudication.isMarked) {
           resolvedOptionIds.push([
             option.contestId,
@@ -161,42 +165,42 @@ export function buildCastVoteRecordVotesEntries(
             markAdjudication.type === AdjudicationReason.UnmarkedWriteIn
               ? `${option.id}-${markAdjudication.name}`
               : option.id,
-          ])
+          ]);
         }
       } else {
         throw new Error(
           `multiple adjudications for contest=${option.contestId}, option=${
             option.id
           }: ${JSON.stringify(markAdjudicationsForThisOption)}`
-        )
+        );
       }
 
       // Ensure all contests end up with an empty array if they have no votes.
-      result[option.contestId] ??= []
+      result[option.contestId] ??= [];
     }
 
     for (const [contestId, optionId] of resolvedOptionIds) {
-      result[contestId] = [...(result[contestId] ?? []), optionId]
+      result[contestId] = [...(result[contestId] ?? []), optionId];
     }
   }
 
-  return result
+  return result;
 }
 
 export function getContestsFromIds(
   election: Election,
   contestIds: readonly string[]
 ): Contests {
-  return contestIds.map((id) => find(election.contests, (c) => c.id === id))
+  return contestIds.map((id) => find(election.contests, (c) => c.id === id));
 }
 
 export function getContestsForBallotStyle(
   election: Election,
   ballotStyleId: string
 ): Contests {
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  assert(ballotStyle)
-  return getContests({ ballotStyle, election })
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle);
+  return getContests({ ballotStyle, election });
 }
 
 export function buildCastVoteRecordFromBmdPage(
@@ -220,7 +224,7 @@ export function buildCastVoteRecordFromBmdPage(
       ),
       interpretation.votes
     ),
-  }
+  };
 }
 
 function buildCastVoteRecordFromHmpbPage(
@@ -244,11 +248,11 @@ function buildCastVoteRecordFromHmpbPage(
       batchLabel,
       election,
       [back, front]
-    )
+    );
   }
 
   if (!front.contestIds || !back.contestIds) {
-    throw new Error(`expected sheet to have contest ids with sheet ${sheetId}`)
+    throw new Error(`expected sheet to have contest ids with sheet ${sheetId}`);
   }
 
   return {
@@ -276,7 +280,7 @@ function buildCastVoteRecordFromHmpbPage(
         : {},
       back.markAdjudications
     ),
-  }
+  };
 }
 
 export function buildCastVoteRecord(
@@ -290,13 +294,13 @@ export function buildCastVoteRecord(
   const validationResult = validateSheetInterpretation([
     front.interpretation,
     back.interpretation,
-  ])
+  ]);
 
   if (validationResult.isErr()) {
-    throw new Error(describeValidationError(validationResult.err()))
+    throw new Error(describeValidationError(validationResult.err()));
   }
 
-  const blankPages = ['BlankPage', 'UnreadablePage']
+  const blankPages = ['BlankPage', 'UnreadablePage'];
 
   if (
     blankPages.includes(front.interpretation.type) &&
@@ -309,7 +313,7 @@ export function buildCastVoteRecord(
       ballotId,
       election,
       [back, front]
-    )
+    );
   }
 
   if (front.interpretation.type === 'InterpretedBmdPage') {
@@ -319,7 +323,7 @@ export function buildCastVoteRecord(
       batchLabel,
       election,
       front.interpretation
-    )
+    );
   }
 
   if (
@@ -335,6 +339,6 @@ export function buildCastVoteRecord(
       [front, back] as SheetOf<
         BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
       >
-    )
+    );
   }
 }

@@ -1,34 +1,34 @@
-import { Result } from '@votingworks/types'
+import { Result } from '@votingworks/types';
 import {
   Button,
   Loading,
   Prose,
   USBControllerButton,
   UsbDrive,
-} from '@votingworks/ui'
+} from '@votingworks/ui';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_BACKUPS_FOLDER,
   throwIllegalValue,
   usbstick,
-} from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import path from 'path'
-import React, { useContext, useState } from 'react'
-import styled from 'styled-components'
-import AppContext from '../contexts/AppContext'
-import { download, DownloadError, DownloadErrorKind } from '../utils/download'
-import Modal from './Modal'
+} from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import path from 'path';
+import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
+import AppContext from '../contexts/AppContext';
+import { download, DownloadError, DownloadErrorKind } from '../utils/download';
+import Modal from './Modal';
 
 const USBImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
-`
+`;
 
 export interface Props {
-  onClose: () => void
-  usbDrive: UsbDrive
+  onClose: () => void;
+  usbDrive: UsbDrive;
 }
 
 enum ModalState {
@@ -39,63 +39,63 @@ enum ModalState {
 }
 
 const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
-  const [currentState, setCurrentState] = useState(ModalState.INIT)
-  const [errorMessage, setErrorMessage] = useState('')
+  const [currentState, setCurrentState] = useState(ModalState.INIT);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
   const exportBackup = async (openDialog: boolean) => {
-    setCurrentState(ModalState.SAVING)
+    setCurrentState(ModalState.SAVING);
 
-    let result: Result<void, DownloadError>
+    let result: Result<void, DownloadError>;
     if (window.kiosk && !openDialog) {
-      const usbPath = await usbstick.getDevicePath()
+      const usbPath = await usbstick.getDevicePath();
       if (!usbPath) {
-        setErrorMessage('No USB drive found.')
-        setCurrentState(ModalState.ERROR)
-        return
+        setErrorMessage('No USB drive found.');
+        setCurrentState(ModalState.ERROR);
+        return;
       }
       const electionFolderName = generateElectionBasedSubfolderName(
         electionDefinition.election,
         electionDefinition.electionHash
-      )
+      );
       const pathToFolder = path.join(
         usbPath,
         SCANNER_BACKUPS_FOLDER,
         electionFolderName
-      )
-      result = await download('/scan/backup', { into: pathToFolder })
-      setCurrentState(result.isOk() ? ModalState.DONE : ModalState.ERROR)
+      );
+      result = await download('/scan/backup', { into: pathToFolder });
+      setCurrentState(result.isOk() ? ModalState.DONE : ModalState.ERROR);
     } else {
-      result = await download('/scan/backup')
+      result = await download('/scan/backup');
     }
 
     if (result.isOk()) {
-      setCurrentState(ModalState.DONE)
+      setCurrentState(ModalState.DONE);
     } else {
-      const error = result.err()
+      const error = result.err();
       switch (error.kind) {
         case DownloadErrorKind.FetchFailed:
         case DownloadErrorKind.FileMissing:
           setErrorMessage(
             `Unable to get backup: ${error.kind} (status=${error.response.statusText})`
-          )
-          break
+          );
+          break;
 
         case DownloadErrorKind.OpenFailed:
           setErrorMessage(
             `Unable to write file to download location: ${error.path}`
-          )
-          break
+          );
+          break;
 
         default:
           // nothing to do
-          break
+          break;
       }
-      setCurrentState(ModalState.ERROR)
+      setCurrentState(ModalState.ERROR);
     }
-  }
+  };
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -109,7 +109,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
-    )
+    );
   }
 
   if (currentState === ModalState.DONE) {
@@ -125,7 +125,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
         />
-      )
+      );
     }
 
     return (
@@ -151,16 +151,16 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
           </React.Fragment>
         }
       />
-    )
+    );
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading />} onOverlayClick={onClose} />
+    return <Modal content={<Loading />} onOverlayClick={onClose} />;
   }
 
   /* istanbul ignore next - compile time check for completeness */
   if (currentState !== ModalState.INIT) {
-    throwIllegalValue(currentState)
+    throwIllegalValue(currentState);
   }
 
   switch (usbDrive.status) {
@@ -200,7 +200,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
             </React.Fragment>
           }
         />
-      )
+      );
     case usbstick.UsbDriveStatus.ejecting:
     case usbstick.UsbDriveStatus.present:
       return (
@@ -213,7 +213,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
             </React.Fragment>
           }
         />
-      )
+      );
     case usbstick.UsbDriveStatus.mounted:
       return (
         <Modal
@@ -243,10 +243,10 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
             </React.Fragment>
           }
         />
-      )
+      );
     default:
-      throwIllegalValue(usbDrive.status)
+      throwIllegalValue(usbDrive.status);
   }
-}
+};
 
-export default ExportBackupModal
+export default ExportBackupModal;

@@ -1,7 +1,7 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import Prose from './Prose'
+import Prose from './Prose';
 
 const proseContent = (
   <React.Fragment>
@@ -36,19 +36,19 @@ const proseContent = (
       earum qui inventore minus enim adipisci nemo voluptate at harum?
     </p>
   </React.Fragment>
-)
+);
 
 it('renders Prose defaults', async () => {
-  const { container } = render(<Prose>{proseContent}</Prose>)
-  expect(container.firstChild).toMatchSnapshot()
-})
+  const { container } = render(<Prose>{proseContent}</Prose>);
+  expect(container.firstChild).toMatchSnapshot();
+});
 
 it('renders Prose with compact spacing', async () => {
-  const { container } = render(<Prose compact>{proseContent} </Prose>)
-  expect(container.firstChild).toMatchSnapshot()
-})
+  const { container } = render(<Prose compact>{proseContent} </Prose>);
+  expect(container.firstChild).toMatchSnapshot();
+});
 
 it('renders Prose with compact spacing', async () => {
-  const { container } = render(<Prose textCenter>{proseContent}</Prose>)
-  expect(container.firstChild).toMatchSnapshot()
-})
+  const { container } = render(<Prose textCenter>{proseContent}</Prose>);
+  expect(container.firstChild).toMatchSnapshot();
+});

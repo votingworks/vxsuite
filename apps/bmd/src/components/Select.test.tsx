@@ -1,7 +1,7 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import Select from './Select'
+import Select from './Select';
 
 const options = (
   <React.Fragment>
@@ -9,14 +9,14 @@ const options = (
     <option value="b">b</option>
     <option value="c">c</option>
   </React.Fragment>
-)
+);
 
 it('Inline select', async () => {
-  const { container } = render(<Select>{options}</Select>)
-  expect(container.firstChild).toMatchSnapshot()
-})
+  const { container } = render(<Select>{options}</Select>);
+  expect(container.firstChild).toMatchSnapshot();
+});
 
 it('Full-width select', async () => {
-  const { container } = render(<Select fullWidth>{options}</Select>)
-  expect(container.firstChild).toMatchSnapshot()
-})
+  const { container } = render(<Select fullWidth>{options}</Select>);
+  expect(container.firstChild).toMatchSnapshot();
+});

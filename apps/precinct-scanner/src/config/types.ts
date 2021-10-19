@@ -1,4 +1,4 @@
-import { AdjudicationReasonInfo } from '@votingworks/types'
+import { AdjudicationReasonInfo } from '@votingworks/types';
 
 export enum BallotState {
   IDLE = 'idle',
@@ -26,30 +26,30 @@ export enum RejectedScanningReason {
 export type ScanningResult =
   | AcceptedScanningResult
   | RejectedScanningResult
-  | ScanningResultNeedsReview
+  | ScanningResultNeedsReview;
 
 export interface AcceptedScanningResult {
-  resultType: ScanningResultType.Accepted
+  resultType: ScanningResultType.Accepted;
 }
 
 export interface RejectedScanningResult {
-  resultType: ScanningResultType.Rejected
-  rejectionReason: RejectedScanningReason
+  resultType: ScanningResultType.Rejected;
+  rejectionReason: RejectedScanningReason;
 }
 
 export interface ScanningResultNeedsReview {
-  resultType: ScanningResultType.NeedsReview
-  adjudicationReasonInfo: AdjudicationReasonInfo[]
+  resultType: ScanningResultType.NeedsReview;
+  adjudicationReasonInfo: AdjudicationReasonInfo[];
 }
 
 export interface MachineConfig {
-  machineId: string
-  codeVersion: string
-  bypassAuthentication?: boolean
+  machineId: string;
+  codeVersion: string;
+  bypassAuthentication?: boolean;
 }
 
 export interface MachineConfigResponse {
-  machineId: string
-  codeVersion: string
-  bypassAuthentication?: boolean
+  machineId: string;
+  codeVersion: string;
+  bypassAuthentication?: boolean;
 }

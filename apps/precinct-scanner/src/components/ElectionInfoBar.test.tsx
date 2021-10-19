@@ -1,8 +1,8 @@
-import React from 'react'
-import { render } from '@testing-library/react'
-import { electionSampleDefinition } from '@votingworks/fixtures'
-import ElectionInfoBar from './ElectionInfoBar'
-import AppContext from '../contexts/AppContext'
+import React from 'react';
+import { render } from '@testing-library/react';
+import { electionSampleDefinition } from '@votingworks/fixtures';
+import ElectionInfoBar from './ElectionInfoBar';
+import AppContext from '../contexts/AppContext';
 
 test('Renders ElectionInfoBar', async () => {
   const { container } = render(
@@ -14,9 +14,9 @@ test('Renders ElectionInfoBar', async () => {
     >
       <ElectionInfoBar />
     </AppContext.Provider>
-  )
-  expect(container).toMatchSnapshot()
-})
+  );
+  expect(container).toMatchSnapshot();
+});
 
 test('Renders admin ElectionInfoBar with precinct set', async () => {
   const { container } = render(
@@ -29,6 +29,6 @@ test('Renders admin ElectionInfoBar with precinct set', async () => {
     >
       <ElectionInfoBar mode="admin" />
     </AppContext.Provider>
-  )
-  expect(container).toMatchSnapshot()
-})
+  );
+  expect(container).toMatchSnapshot();
+});

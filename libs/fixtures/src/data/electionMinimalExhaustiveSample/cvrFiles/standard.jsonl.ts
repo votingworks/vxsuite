@@ -2998,4 +2998,4 @@ export default `{"_ballotId":"id-0","_ballotType":"absentee","_precinctId":"prec
 {"_ballotId":"id-2997","_ballotType":"provisional","_precinctId":"precinct-2","_ballotStyleId":"2F","_testBallot":true,"_scannerId":"scanner-1","best-animal-fish":[],"aquarium-council-fish":[],"fishing":["yes"]}
 {"_ballotId":"id-2998","_ballotType":"standard","_precinctId":"precinct-1","_ballotStyleId":"1M","_testBallot":true,"_scannerId":"scanner-1","best-animal-mammal":["fox"],"zoo-council-mammal":["lion","kangaroo","write-in-0"],"new-zoo-either":[],"new-zoo-pick":[]}
 {"_ballotId":"id-2999","_ballotType":"standard","_precinctId":"precinct-2","_ballotStyleId":"2F","_testBallot":true,"_scannerId":"scanner-1","best-animal-fish":["salmon"],"aquarium-council-fish":["manta-ray","pufferfish","rockfish","triggerfish"],"fishing":[]}
-`
+`;

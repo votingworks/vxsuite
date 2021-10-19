@@ -1,5 +1,5 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils'
-import { createRule } from '../util'
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-no-dollar-sign-names',
@@ -29,7 +29,7 @@ export default createRule({
   defaultOptions: [{ allowedNames: [] as string[] }],
 
   create(context) {
-    const { allowedNames = [] } = context.options[0] ?? {}
+    const { allowedNames = [] } = context.options[0] ?? {};
 
     return {
       Identifier(node: TSESTree.Identifier): void {
@@ -37,9 +37,9 @@ export default createRule({
           context.report({
             messageId: 'noDollarSign',
             node,
-          })
+          });
         }
       },
-    }
+    };
   },
-})
+});

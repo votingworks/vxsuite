@@ -1,34 +1,34 @@
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 import React, {
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-} from 'react'
+} from 'react';
 import {
   YesNoVote,
   OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
   Optional,
   YesOrNo,
-} from '@votingworks/types'
-import { Button, Main } from '@votingworks/ui'
+} from '@votingworks/types';
+import { Button, Main } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils'
+import { getSingleYesNoVote } from '@votingworks/utils';
 import {
   EventTargetFunction,
   ScrollDirections,
   UpdateVoteFunction,
-} from '../config/types'
+} from '../config/types';
 
-import BallotContext from '../contexts/ballotContext'
+import BallotContext from '../contexts/ballotContext';
 
-import { FONT_SIZES, YES_NO_VOTES } from '../config/globals'
-import ChoiceButton from './ChoiceButton'
-import Modal from './Modal'
-import Prose from './Prose'
-import Text, { TextWithLineBreaks } from './Text'
+import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
+import ChoiceButton from './ChoiceButton';
+import Modal from './Modal';
+import Prose from './Prose';
+import Text, { TextWithLineBreaks } from './Text';
 import {
   ContentHeader,
   ContestFooter,
@@ -38,109 +38,109 @@ import {
   ScrollContainer,
   ScrollableContentWrapper,
   ChoicesGrid,
-} from './ContestScreenLayout'
+} from './ContestScreenLayout';
 
 interface Props {
-  contest: YesNoContestInterface
-  vote: OptionalYesNoVote
-  updateVote: UpdateVoteFunction
+  contest: YesNoContestInterface;
+  vote: OptionalYesNoVote;
+  updateVote: UpdateVoteFunction;
 }
 
 const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
-  const { userSettings } = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null)
+  const { userSettings } = useContext(BallotContext);
+  const scrollContainer = useRef<HTMLDivElement>(null);
 
-  const [isScrollable, setIsScrollable] = useState(false)
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true)
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [overvoteSelection, setOvervoteSelection] = useState<
     Optional<YesOrNo>
-  >()
-  const [deselectedVote, setDeselectedVote] = useState('')
+  >();
+  const [deselectedVote, setDeselectedVote] = useState('');
 
   useEffect(() => {
     if (deselectedVote !== '') {
-      const timer = setTimeout(() => setDeselectedVote(''), 100)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setDeselectedVote(''), 100);
+      return () => clearTimeout(timer);
     }
-  }, [deselectedVote])
+  }, [deselectedVote]);
 
   const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current
+    const target = scrollContainer.current;
     /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
-      return
+      return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
       /* istanbul ignore next: Tested by Cypress */
       target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
         target.offsetHeight > targetMinHeight
-    )
+    );
     setIsScrollAtBottom(
       windowsScrollTop +
         target.offsetHeight +
         windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
         target.scrollHeight
-    )
-    setIsScrollAtTop(target.scrollTop === 0)
-  }, [scrollContainer, userSettings.textSize])
+    );
+    setIsScrollAtTop(target.scrollTop === 0);
+  }, [scrollContainer, userSettings.textSize]);
 
-  const voteLength = vote?.length
+  const voteLength = vote?.length;
   useEffect(() => {
-    updateContestChoicesScrollStates()
-    window.addEventListener('resize', updateContestChoicesScrollStates)
+    updateContestChoicesScrollStates();
+    window.addEventListener('resize', updateContestChoicesScrollStates);
     return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates)
-    }
-  }, [voteLength, updateContestChoicesScrollStates])
+      window.removeEventListener('resize', updateContestChoicesScrollStates);
+    };
+  }, [voteLength, updateContestChoicesScrollStates]);
 
   const handleUpdateSelection: EventTargetFunction = (event) => {
     const newVote = (event.currentTarget as HTMLInputElement).dataset
-      .choice as YesOrNo
+      .choice as YesOrNo;
     if ((vote as string[] | undefined)?.includes(newVote)) {
-      updateVote(contest.id, undefined)
-      setDeselectedVote(newVote)
+      updateVote(contest.id, undefined);
+      setDeselectedVote(newVote);
     } else {
-      updateVote(contest.id, [newVote] as YesNoVote)
+      updateVote(contest.id, [newVote] as YesNoVote);
     }
-  }
+  };
 
   const handleChangeVoteAlert = (newValue: YesOrNo) => {
-    setOvervoteSelection(newValue)
-  }
+    setOvervoteSelection(newValue);
+  };
 
   const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections
-    const sc = scrollContainer.current
-    assert(sc)
-    const currentScrollTop = sc.scrollTop
-    const { offsetHeight } = sc
-    const { scrollHeight } = sc
-    const idealScrollDistance = Math.round(offsetHeight * 0.75)
+      .direction as ScrollDirections;
+    const sc = scrollContainer.current;
+    assert(sc);
+    const currentScrollTop = sc.scrollTop;
+    const { offsetHeight } = sc;
+    const { scrollHeight } = sc;
+    const idealScrollDistance = Math.round(offsetHeight * 0.75);
     const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop
+      scrollHeight - offsetHeight - currentScrollTop;
     const maxScrollTop =
       direction === 'down'
         ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop
+        : currentScrollTop;
     const idealScrollTop =
       direction === 'down'
         ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
-    sc.scrollTo({ behavior: 'smooth', left: 0, top })
-  }
+        : currentScrollTop - idealScrollDistance;
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
+    sc.scrollTo({ behavior: 'smooth', left: 0, top });
+  };
 
   const closeOvervoteAlert = () => {
-    setOvervoteSelection(undefined)
-  }
+    setOvervoteSelection(undefined);
+  };
 
   return (
     <React.Fragment>
@@ -208,16 +208,16 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
               { label: 'Yes', vote: 'yes' } as const,
               { label: 'No', vote: 'no' } as const,
             ].map((answer) => {
-              const isChecked = getSingleYesNoVote(vote) === answer.vote
-              const isDisabled = !isChecked && !!vote
+              const isChecked = getSingleYesNoVote(vote) === answer.vote;
+              const isDisabled = !isChecked && !!vote;
               const handleDisabledClick = () => {
-                handleChangeVoteAlert(answer.vote)
-              }
-              let prefixAudioText = ''
+                handleChangeVoteAlert(answer.vote);
+              };
+              let prefixAudioText = '';
               if (isChecked) {
-                prefixAudioText = 'Selected,'
+                prefixAudioText = 'Selected,';
               } else if (deselectedVote === answer.vote) {
-                prefixAudioText = 'Deselected,'
+                prefixAudioText = 'Deselected,';
               }
               return (
                 <ChoiceButton
@@ -239,7 +239,7 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
                     </Text>
                   </Prose>
                 </ChoiceButton>
-              )
+              );
             })}
           </ChoicesGrid>
         </ContestFooter>
@@ -275,7 +275,7 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default YesNoContest
+export default YesNoContest;

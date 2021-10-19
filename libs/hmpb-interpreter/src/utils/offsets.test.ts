@@ -1,23 +1,23 @@
-import offsets from './offsets'
+import offsets from './offsets';
 
 function take<T>(count: number, iterable: Iterable<T>): Array<T> {
-  const result: T[] = []
+  const result: T[] = [];
 
   if (count > 0) {
     for (const value of iterable) {
-      result.push(value)
+      result.push(value);
       if (count === result.length) {
-        break
+        break;
       }
     }
   }
 
-  return result
+  return result;
 }
 
 test('yields the null offset first', () => {
-  expect(take(1, offsets())).toEqual([{ x: 0, y: 0 }])
-})
+  expect(take(1, offsets())).toEqual([{ x: 0, y: 0 }]);
+});
 
 test('yields points in a spiral', () => {
   expect(take(25, offsets())).toMatchInlineSnapshot(`
@@ -123,5 +123,5 @@ test('yields points in a spiral', () => {
         "y": 2,
       },
     ]
-  `)
-})
+  `);
+});

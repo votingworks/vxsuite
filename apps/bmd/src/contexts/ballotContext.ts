@@ -1,12 +1,12 @@
-import { createContext } from 'react'
-import { NullPrinter } from '@votingworks/utils'
-import * as GLOBALS from '../config/globals'
+import { createContext } from 'react';
+import { NullPrinter } from '@votingworks/utils';
+import * as GLOBALS from '../config/globals';
 
 import {
   BallotContextInterface,
   TextSizeSetting,
   VxMarkOnly,
-} from '../config/types'
+} from '../config/types';
 
 const ballot: BallotContextInterface = {
   machineConfig: { machineId: '000', appMode: VxMarkOnly, codeVersion: 'dev' },
@@ -23,8 +23,8 @@ const ballot: BallotContextInterface = {
   forceSaveVote: () => undefined,
   userSettings: { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
   votes: {},
-}
+};
 
-const BallotContext = createContext(ballot)
+const BallotContext = createContext(ballot);
 
-export default BallotContext
+export default BallotContext;

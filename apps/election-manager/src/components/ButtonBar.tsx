@@ -1,9 +1,9 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  dark?: boolean
-  primaryRight?: boolean
-  padded?: boolean
+  dark?: boolean;
+  primaryRight?: boolean;
+  padded?: boolean;
 }
 
 const ButtonBar = styled('nav')<Props>`
@@ -23,6 +23,6 @@ const ButtonBar = styled('nav')<Props>`
   & > *:first-child {
     order: ${({ primaryRight = false }) => (primaryRight ? 2 : undefined)};
   }
-`
+`;
 
-export default ButtonBar
+export default ButtonBar;

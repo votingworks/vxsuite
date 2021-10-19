@@ -4,10 +4,10 @@
 // notably related to sqlite3, can't be imported at all, because
 // they use exec under the covers.
 
-import { execFile } from 'child_process'
-import { promisify } from 'util'
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 
-const execFilePromise = promisify(execFile)
-export default execFilePromise
+const execFilePromise = promisify(execFile);
+export default execFilePromise;
 
-export { execFile as streamExecFile }
+export { execFile as streamExecFile };

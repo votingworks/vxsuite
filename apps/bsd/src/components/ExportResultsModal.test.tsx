@@ -1,25 +1,25 @@
-import React from 'react'
+import React from 'react';
 
-import { fireEvent, waitFor } from '@testing-library/react'
-import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures'
-import { Router } from 'react-router-dom'
-import { createMemoryHistory } from 'history'
-import fetchMock from 'fetch-mock'
+import { fireEvent, waitFor } from '@testing-library/react';
+import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
+import { Router } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
+import fetchMock from 'fetch-mock';
 
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils'
-import { MemoryStorage, usbstick } from '@votingworks/utils'
-import ExportResultsModal from './ExportResultsModal'
-import fakeFileWriter from '../../test/helpers/fakeFileWriter'
-import renderInAppContext from '../../test/renderInAppContext'
-import AppContext from '../contexts/AppContext'
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import { MemoryStorage, usbstick } from '@votingworks/utils';
+import ExportResultsModal from './ExportResultsModal';
+import fakeFileWriter from '../../test/helpers/fakeFileWriter';
+import renderInAppContext from '../../test/renderInAppContext';
+import AppContext from '../contexts/AppContext';
 
-const { UsbDriveStatus } = usbstick
+const { UsbDriveStatus } = usbstick;
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting]
+  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn()
+    const closeFn = jest.fn();
     const { getByText, unmount } = renderInAppContext(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal
@@ -30,21 +30,21 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
         />
       </Router>,
       { usbDriveStatus: status }
-    )
-    getByText('Loading')
-    unmount()
+    );
+    getByText('Loading');
+    unmount();
   }
-})
+});
 
 test('render no usb found screen when there is not a mounted usb drive', () => {
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.notavailable,
     UsbDriveStatus.recentlyEjected,
-  ]
+  ];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn()
+    const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal
@@ -55,33 +55,33 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
         />
       </Router>,
       { usbDriveStatus: status }
-    )
-    getByText('No USB Drive Detected')
+    );
+    getByText('No USB Drive Detected');
     getByText(
       'Please insert a USB drive in order to export the scanner results.'
-    )
-    getByAltText('Insert USB Image')
+    );
+    getByAltText('Insert USB Image');
 
-    fireEvent.click(getByText('Cancel'))
-    expect(closeFn).toHaveBeenCalled()
+    fireEvent.click(getByText('Cancel'));
+    expect(closeFn).toHaveBeenCalled();
 
-    unmount()
+    unmount();
   }
-})
+});
 
 test('render export modal when a usb drive is mounted as expected and allows custom export', async () => {
-  const mockKiosk = fakeKiosk()
-  const fileWriter = fakeFileWriter()
-  window.kiosk = mockKiosk
-  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter)
-  mockKiosk.saveAs = saveAsFunction
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+  const mockKiosk = fakeKiosk();
+  const fileWriter = fakeFileWriter();
+  window.kiosk = mockKiosk;
+  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter);
+  mockKiosk.saveAs = saveAsFunction;
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/scan/export', {
     body: '',
-  })
+  });
 
-  const closeFn = jest.fn()
+  const closeFn = jest.fn();
   const { getByText, getByAltText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
@@ -92,35 +92,35 @@ test('render export modal when a usb drive is mounted as expected and allows cus
       />
     </Router>,
     { usbDriveStatus: UsbDriveStatus.mounted }
-  )
-  getByText('Export Results')
+  );
+  getByText('Export Results');
   getByText(
     /A CVR file will automatically be saved to the default location on the mounted USB drive. /
-  )
-  getByAltText('Insert USB Image')
+  );
+  getByAltText('Insert USB Image');
 
-  fireEvent.click(getByText('Custom'))
-  await waitFor(() => getByText(/Download Complete/))
+  fireEvent.click(getByText('Custom'));
+  await waitFor(() => getByText(/Download Complete/));
   await waitFor(() => {
-    expect(saveAsFunction).toHaveBeenCalledTimes(1)
-  })
-  expect(fetchMock.called('/scan/export')).toBe(true)
+    expect(saveAsFunction).toHaveBeenCalledTimes(1);
+  });
+  expect(fetchMock.called('/scan/export')).toBe(true);
 
-  fireEvent.click(getByText('Cancel'))
-  expect(closeFn).toHaveBeenCalled()
-})
+  fireEvent.click(getByText('Cancel'));
+  expect(closeFn).toHaveBeenCalled();
+});
 
 test('render export modal when a usb drive is mounted as expected and allows automatic export', async () => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()])
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/scan/export', {
     body: '',
-  })
+  });
 
-  const closeFn = jest.fn()
-  const history = createMemoryHistory()
+  const closeFn = jest.fn();
+  const history = createMemoryHistory();
   const { getByText, rerender } = renderInAppContext(
     <ExportResultsModal
       onClose={closeFn}
@@ -129,14 +129,14 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       isTestMode
     />,
     { usbDriveStatus: UsbDriveStatus.mounted, history }
-  )
-  getByText('Export Results')
+  );
+  getByText('Export Results');
 
-  fireEvent.click(getByText('Export'))
-  await waitFor(() => getByText(/Download Complete/))
+  fireEvent.click(getByText('Export'));
+  await waitFor(() => getByText(/Download Complete/));
   await waitFor(() => {
-    expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1)
-  })
+    expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
+  });
   expect(
     mockKiosk.makeDirectory
   ).toHaveBeenCalledWith(
@@ -145,13 +145,13 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       10
     )}`,
     { recursive: true }
-  )
-  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1)
-  expect(fetchMock.called('/scan/export')).toBe(true)
+  );
+  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+  expect(fetchMock.called('/scan/export')).toBe(true);
 
-  getByText('Eject USB')
-  fireEvent.click(getByText('Cancel'))
-  expect(closeFn).toHaveBeenCalled()
+  getByText('Eject USB');
+  fireEvent.click(getByText('Cancel'));
+  expect(closeFn).toHaveBeenCalled();
 
   rerender(
     <AppContext.Provider
@@ -173,21 +173,21 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         />
       </Router>
     </AppContext.Provider>
-  )
+  );
   getByText(
     'USB drive successfully ejected, you may now take it to Election Manager for tabulation.'
-  )
-})
+  );
+});
 
 test('render export modal with errors when appropriate', async () => {
-  const mockKiosk = fakeKiosk()
-  window.kiosk = mockKiosk
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
 
   fetchMock.postOnce('/scan/export', {
     body: '',
-  })
+  });
 
-  const closeFn = jest.fn()
+  const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal
@@ -198,15 +198,15 @@ test('render export modal with errors when appropriate', async () => {
       />
     </Router>,
     { usbDriveStatus: UsbDriveStatus.mounted }
-  )
-  getByText('Export Results')
+  );
+  getByText('Export Results');
 
-  mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'))
-  fireEvent.click(getByText('Export'))
-  await waitFor(() => getByText(/Download Failed/))
-  getByText(/Failed to save results./)
-  getByText(/NOPE/)
+  mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'));
+  fireEvent.click(getByText('Export'));
+  await waitFor(() => getByText(/Download Failed/));
+  getByText(/Failed to save results./);
+  getByText(/NOPE/);
 
-  fireEvent.click(getByText('Close'))
-  expect(closeFn).toHaveBeenCalled()
-})
+  fireEvent.click(getByText('Close'));
+  expect(closeFn).toHaveBeenCalled();
+});

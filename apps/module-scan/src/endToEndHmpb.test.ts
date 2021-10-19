@@ -1,25 +1,25 @@
-import { asElectionDefinition } from '@votingworks/fixtures'
-import { AdjudicationReason, CastVoteRecord } from '@votingworks/types'
-import { ScanContinueRequest } from '@votingworks/types/api/module-scan'
-import { BallotPackageManifest, typedAs } from '@votingworks/utils'
-import { EventEmitter } from 'events'
-import { Application } from 'express'
-import * as fs from 'fs-extra'
-import { join } from 'path'
-import request from 'supertest'
-import { dirSync } from 'tmp'
-import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020'
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton'
-import { makeMockScanner, MockScanner } from '../test/util/mocks'
-import Importer from './importer'
-import { buildApp } from './server'
-import { createWorkspace, Workspace } from './util/workspace'
+import { asElectionDefinition } from '@votingworks/fixtures';
+import { AdjudicationReason, CastVoteRecord } from '@votingworks/types';
+import { ScanContinueRequest } from '@votingworks/types/api/module-scan';
+import { BallotPackageManifest, typedAs } from '@votingworks/utils';
+import { EventEmitter } from 'events';
+import { Application } from 'express';
+import * as fs from 'fs-extra';
+import { join } from 'path';
+import request from 'supertest';
+import { dirSync } from 'tmp';
+import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020';
+import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
+import { makeMockScanner, MockScanner } from '../test/util/mocks';
+import Importer from './importer';
+import { buildApp } from './server';
+import { createWorkspace, Workspace } from './util/workspace';
 
 const electionFixturesRoot = join(
   __dirname,
   '..',
   'test/fixtures/state-of-hamilton'
-)
+);
 
 jest.mock('./exec', () => ({
   __esModule: true,
@@ -28,38 +28,38 @@ jest.mock('./exec', () => ({
     stderr: '',
   }),
   streamExecFile: (): unknown => {
-    const child = new EventEmitter()
+    const child = new EventEmitter();
 
     Object.defineProperties(child, {
       stdout: { value: new EventEmitter() },
       stderr: { value: new EventEmitter() },
-    })
+    });
 
-    process.nextTick(() => child.emit('exit', 0))
+    process.nextTick(() => child.emit('exit', 0));
 
-    return child
+    return child;
   },
-}))
+}));
 
-let workspace: Workspace
-let scanner: MockScanner
-let importer: Importer
-let app: Application
+let workspace: Workspace;
+let scanner: MockScanner;
+let importer: Importer;
+let app: Application;
 
 beforeEach(async () => {
-  workspace = await createWorkspace(dirSync().name)
-  scanner = makeMockScanner()
-  importer = new Importer({ workspace, scanner })
-  app = buildApp({ importer, store: workspace.store })
-})
+  workspace = await createWorkspace(dirSync().name);
+  scanner = makeMockScanner();
+  importer = new Importer({ workspace, scanner });
+  app = buildApp({ importer, store: workspace.store });
+});
 
 afterEach(async () => {
-  await importer.unconfigure()
-  await fs.remove(workspace.path)
-})
+  await importer.unconfigure();
+  await fs.remove(workspace.path);
+});
 
 test('going through the whole process works', async () => {
-  jest.setTimeout(25000)
+  jest.setTimeout(25000);
 
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
@@ -67,23 +67,23 @@ test('going through the whole process works', async () => {
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
-  const { election } = stateOfHamilton
-  await importer.restoreConfig()
+  const { election } = stateOfHamilton;
+  await importer.restoreConfig();
 
   await request(app)
     .patch('/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
   const manifest: BallotPackageManifest = JSON.parse(
     await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
-  )
+  );
 
-  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
+  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates');
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
@@ -92,10 +92,10 @@ test('going through the whole process works', async () => {
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
         { filename: 'config.json', contentType: 'application/json' }
-      )
+      );
   }
 
-  await addTemplatesRequest.expect(200, { status: 'ok' })
+  await addTemplatesRequest.expect(200, { status: 'ok' });
 
   await request(app)
     .post('/scan/scanBatch')
@@ -104,22 +104,22 @@ test('going through the whole process works', async () => {
       expect(response.body).toEqual({
         status: 'error',
         errors: [{ type: 'scan-error', message: 'interpreter still loading' }],
-      })
-    })
+      });
+    });
 
-  await request(app).post('/scan/hmpb/doneTemplates')
+  await request(app).post('/scan/hmpb/doneTemplates');
 
   {
     // define the next scanner session
-    const nextSession = scanner.withNextScannerSession()
+    const nextSession = scanner.withNextScannerSession();
 
     // scan some sample ballots
     nextSession.sheet([
       join(electionFixturesRoot, 'filled-in-dual-language-p1.jpg'),
       join(electionFixturesRoot, 'filled-in-dual-language-p2.jpg'),
-    ])
+    ]);
 
-    nextSession.end()
+    nextSession.end();
 
     await request(app)
       .post('/scan/scanBatch')
@@ -128,33 +128,33 @@ test('going through the whole process works', async () => {
         expect(response.body).toEqual({
           status: 'ok',
           batchId: expect.any(String),
-        })
-      })
+        });
+      });
 
-    await importer.waitForEndOfBatchOrScanningPause()
+    await importer.waitForEndOfBatchOrScanningPause();
 
     // check the latest batch has the expected counts
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
-      .expect(200)
-    expect(JSON.parse(status.text).batches.length).toBe(1)
-    expect(JSON.parse(status.text).batches[0].count).toBe(1)
+      .expect(200);
+    expect(JSON.parse(status.text).batches.length).toBe(1);
+    expect(JSON.parse(status.text).batches[0].count).toBe(1);
   }
 
   {
     const exportResponse = await request(app)
       .post('/scan/export')
       .set('Accept', 'application/json')
-      .expect(200)
+      .expect(200);
 
     const cvrs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
-      .map((line) => JSON.parse(line))
+      .map((line) => JSON.parse(line));
 
-    expect(cvrs).toHaveLength(1)
-    const [cvr] = cvrs
+    expect(cvrs).toHaveLength(1);
+    const [cvr] = cvrs;
     expect(
       typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
     ).toMatchObject({
@@ -177,12 +177,12 @@ test('going through the whole process works', async () => {
       senator: ['brown'],
       'state-assembly-district-54': ['keller'],
       'state-senator-district-31': [],
-    })
+    });
   }
-})
+});
 
 test('failed scan with QR code can be adjudicated and exported', async () => {
-  jest.setTimeout(25000)
+  jest.setTimeout(25000);
 
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
@@ -190,23 +190,23 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
-  const { election } = stateOfHamilton
-  await importer.restoreConfig()
+  const { election } = stateOfHamilton;
+  await importer.restoreConfig();
 
   await request(app)
     .patch('/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
   const manifest: BallotPackageManifest = JSON.parse(
     await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
-  )
+  );
 
-  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
+  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates');
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
@@ -215,22 +215,22 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
         { filename: 'config.json', contentType: 'application/json' }
-      )
+      );
   }
 
-  await addTemplatesRequest.expect(200, { status: 'ok' })
+  await addTemplatesRequest.expect(200, { status: 'ok' });
 
-  await request(app).post('/scan/hmpb/doneTemplates')
+  await request(app).post('/scan/hmpb/doneTemplates');
 
   {
-    const nextSession = scanner.withNextScannerSession()
+    const nextSession = scanner.withNextScannerSession();
 
     nextSession
       .sheet([
         join(electionFixturesRoot, 'filled-in-dual-language-p3.jpg'),
         join(electionFixturesRoot, 'filled-in-dual-language-p4.jpg'),
       ])
-      .end()
+      .end();
 
     await request(app)
       .post('/scan/scanBatch')
@@ -239,18 +239,18 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         expect(response.body).toEqual({
           status: 'ok',
           batchId: expect.any(String),
-        })
-      })
+        });
+      });
 
-    await importer.waitForEndOfBatchOrScanningPause()
+    await importer.waitForEndOfBatchOrScanningPause();
 
     // check the latest batch has the expected ballots
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
-      .expect(200)
-    expect(JSON.parse(status.text).batches.length).toBe(1)
-    expect(JSON.parse(status.text).batches[0].count).toBe(1)
+      .expect(200);
+    expect(JSON.parse(status.text).batches.length).toBe(1);
+    expect(JSON.parse(status.text).batches[0].count).toBe(1);
   }
 
   await request(app)
@@ -282,13 +282,13 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         ],
       })
     )
-    .expect(200)
+    .expect(200);
 
   {
     const exportResponse = await request(app)
       .post('/scan/export')
       .set('Accept', 'application/json')
-      .expect(200)
+      .expect(200);
 
     // response is a few lines, each JSON.
     // can't predict the order so can't compare
@@ -296,10 +296,10 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     const cvrs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
-      .map((line) => JSON.parse(line))
+      .map((line) => JSON.parse(line));
 
-    expect(cvrs).toHaveLength(1)
-    const [cvr] = cvrs
+    expect(cvrs).toHaveLength(1);
+    const [cvr] = cvrs;
     expect(cvr).toMatchObject({
       _ballotId: expect.any(String),
       _ballotStyleId: '12',
@@ -323,12 +323,12 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
       'question-a': ['no'],
       'question-b': ['yes'],
       'question-c': ['no'],
-    })
+    });
   }
-})
+});
 
 test('ms-either-neither end-to-end', async () => {
-  jest.setTimeout(25000)
+  jest.setTimeout(25000);
 
   const {
     election,
@@ -336,8 +336,8 @@ test('ms-either-neither end-to-end', async () => {
     root,
     filledInPage1,
     filledInPage2,
-  } = choctawMockGeneral2020Fixtures
-  await importer.restoreConfig()
+  } = choctawMockGeneral2020Fixtures;
+  await importer.restoreConfig();
 
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
@@ -345,16 +345,16 @@ test('ms-either-neither end-to-end', async () => {
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
   await request(app)
     .patch('/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
-  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates')
+  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates');
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
@@ -363,17 +363,17 @@ test('ms-either-neither end-to-end', async () => {
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
         { filename: 'config.json', contentType: 'application/json' }
-      )
+      );
   }
 
-  await addTemplatesRequest.expect(200, { status: 'ok' })
+  await addTemplatesRequest.expect(200, { status: 'ok' });
 
-  await request(app).post('/scan/hmpb/doneTemplates')
+  await request(app).post('/scan/hmpb/doneTemplates');
 
   {
-    const nextSession = scanner.withNextScannerSession()
+    const nextSession = scanner.withNextScannerSession();
 
-    nextSession.sheet([filledInPage1, filledInPage2]).end()
+    nextSession.sheet([filledInPage1, filledInPage2]).end();
 
     await request(app)
       .post('/scan/scanBatch')
@@ -382,25 +382,25 @@ test('ms-either-neither end-to-end', async () => {
         expect(response.body).toEqual({
           status: 'ok',
           batchId: expect.any(String),
-        })
-      })
+        });
+      });
 
-    await importer.waitForEndOfBatchOrScanningPause()
+    await importer.waitForEndOfBatchOrScanningPause();
 
     // check the latest batch has the expected ballots
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
-      .expect(200)
-    expect(JSON.parse(status.text).batches.length).toBe(1)
-    expect(JSON.parse(status.text).batches[0].count).toBe(1)
+      .expect(200);
+    expect(JSON.parse(status.text).batches.length).toBe(1);
+    expect(JSON.parse(status.text).batches[0].count).toBe(1);
   }
 
   {
     const exportResponse = await request(app)
       .post('/scan/export')
       .set('Accept', 'application/json')
-      .expect(200)
+      .expect(200);
 
     // response is a few lines, each JSON.
     // can't predict the order so can't compare
@@ -408,10 +408,10 @@ test('ms-either-neither end-to-end', async () => {
     const cvrs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
-      .map((line) => JSON.parse(line))
+      .map((line) => JSON.parse(line));
 
-    expect(cvrs).toHaveLength(1)
-    const [cvr] = cvrs
+    expect(cvrs).toHaveLength(1);
+    const [cvr] = cvrs;
     expect(cvr).toMatchObject({
       '750000015': ['yes'],
       '750000016': ['yes'],
@@ -434,6 +434,6 @@ test('ms-either-neither end-to-end', async () => {
       _precinctId: '6538',
       _scannerId: '000',
       _testBallot: false,
-    })
+    });
   }
-})
+});

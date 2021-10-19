@@ -1,86 +1,89 @@
-import { strict as assert } from 'assert'
-import React, { useState, useEffect } from 'react'
-import path from 'path'
-import { OptionalElectionDefinition, getPrecinctById } from '@votingworks/types'
-import { ballotPackageUtils, usbstick } from '@votingworks/utils'
-import { addTemplates, doneTemplates } from '../api/hmpb'
-import { PRECINCT_SCANNER_FOLDER } from '../config/globals'
-import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import { strict as assert } from 'assert';
+import React, { useState, useEffect } from 'react';
+import path from 'path';
+import {
+  OptionalElectionDefinition,
+  getPrecinctById,
+} from '@votingworks/types';
+import { ballotPackageUtils, usbstick } from '@votingworks/utils';
+import { addTemplates, doneTemplates } from '../api/hmpb';
+import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
 import {
   QuestionCircle,
   IndeterminateProgressBar,
-} from '../components/Graphics'
+} from '../components/Graphics';
 
 interface Props {
-  usbDriveStatus: usbstick.UsbDriveStatus
+  usbDriveStatus: usbstick.UsbDriveStatus;
   setElectionDefinition: (
     electionDefinition: OptionalElectionDefinition
-  ) => Promise<void>
+  ) => Promise<void>;
 }
 
 const UnconfiguredElectionScreen = ({
   usbDriveStatus,
   setElectionDefinition,
 }: Props): JSX.Element => {
-  const [errorMessage, setErrorMessage] = useState('')
-  const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false);
 
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,
-  ] = useState(-1)
-  const [totalTemplates, setTotalTemplates] = useState(0)
+  ] = useState(-1);
+  const [totalTemplates, setTotalTemplates] = useState(0);
   const [currentUploadingBallot, setCurrentUploadingBallot] = useState<{
-    ballotStyle: string
-    precinct: string
-    isLiveMode: boolean
-    locales?: string
-  }>()
-  const [isLoadingTemplates, setLoadingTemplates] = useState(false)
+    ballotStyle: string;
+    precinct: string;
+    isLiveMode: boolean;
+    locales?: string;
+  }>();
+  const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
   useEffect(() => {
     const attemptToLoadBallotPackageFromUSB = async () => {
       if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
-        setErrorMessage('')
-        setIsLoadingBallotPackage(false)
-        setLoadingTemplates(false)
-        setTotalTemplates(0)
-        return
+        setErrorMessage('');
+        setIsLoadingBallotPackage(false);
+        setLoadingTemplates(false);
+        setTotalTemplates(0);
+        return;
       }
-      setIsLoadingBallotPackage(true)
+      setIsLoadingBallotPackage(true);
 
       try {
-        const usbPath = await usbstick.getDevicePath()
-        let files: KioskBrowser.FileSystemEntry[]
+        const usbPath = await usbstick.getDevicePath();
+        let files: KioskBrowser.FileSystemEntry[];
         try {
-          assert(typeof usbPath !== 'undefined')
-          assert(window.kiosk)
+          assert(typeof usbPath !== 'undefined');
+          assert(window.kiosk);
           files = await window.kiosk.getFileSystemEntries(
             path.join(usbPath, PRECINCT_SCANNER_FOLDER)
-          )
+          );
         } catch (error) {
-          throw new Error('No ballot package found on the inserted USB drive.')
+          throw new Error('No ballot package found on the inserted USB drive.');
         }
         const ballotPackages = files.filter(
           (f) => f.type === 1 && f.name.endsWith('.zip')
-        )
+        );
 
         if (ballotPackages.length === 0) {
-          throw new Error('No ballot package found on the inserted USB drive.')
+          throw new Error('No ballot package found on the inserted USB drive.');
         }
 
         // Get the most recently-created ballot package.
         const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
           [...ballotPackages].sort((a, b) => +b.ctime - +a.ctime)[0]
-        )
+        );
         addTemplates(ballotPackage)
           .on('configuring', () => {
-            setCurrentUploadingBallotIndex(0)
-            setTotalTemplates(ballotPackage.ballots.length)
-            setIsLoadingBallotPackage(false)
+            setCurrentUploadingBallotIndex(0);
+            setTotalTemplates(ballotPackage.ballots.length);
+            setIsLoadingBallotPackage(false);
           })
           .on('uploading', (_pkg, ballot) => {
-            const { locales } = ballot.ballotConfig
+            const { locales } = ballot.ballotConfig;
             setCurrentUploadingBallot({
               ballotStyle: ballot.ballotConfig.ballotStyleId,
               precinct:
@@ -93,31 +96,31 @@ const UnconfiguredElectionScreen = ({
               locales: locales?.secondary
                 ? `${locales.primary} / ${locales.secondary}`
                 : locales?.primary,
-            })
+            });
             setCurrentUploadingBallotIndex(
               ballotPackage.ballots.indexOf(ballot)
-            )
+            );
           })
           .on('completed', async () => {
-            setLoadingTemplates(true)
-            await doneTemplates()
-            setLoadingTemplates(false)
-            await setElectionDefinition(ballotPackage.electionDefinition)
-          })
+            setLoadingTemplates(true);
+            await doneTemplates();
+            setLoadingTemplates(false);
+            await setElectionDefinition(ballotPackage.electionDefinition);
+          });
       } catch (error) {
         if (error instanceof Error) {
-          setErrorMessage(error.message)
+          setErrorMessage(error.message);
         } else {
-          setErrorMessage('Unknown Error')
+          setErrorMessage('Unknown Error');
         }
-        setIsLoadingBallotPackage(false)
+        setIsLoadingBallotPackage(false);
       }
-    }
+    };
 
     // function handles its own errors, so no `.catch` needed
-    void attemptToLoadBallotPackageFromUSB()
+    void attemptToLoadBallotPackageFromUSB();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usbDriveStatus])
+  }, [usbDriveStatus]);
 
   let content = (
     <React.Fragment>
@@ -131,7 +134,7 @@ const UnconfiguredElectionScreen = ({
         </p>
       </CenteredLargeProse>
     </React.Fragment>
-  )
+  );
   if (isLoadingBallotPackage) {
     content = (
       <React.Fragment>
@@ -140,7 +143,7 @@ const UnconfiguredElectionScreen = ({
           <h1>Searching USB for ballot package…</h1>
         </CenteredLargeProse>
       </React.Fragment>
-    )
+    );
   }
 
   if (isLoadingTemplates) {
@@ -151,7 +154,7 @@ const UnconfiguredElectionScreen = ({
           <h1>Preparing scanner…</h1>
         </CenteredLargeProse>
       </React.Fragment>
-    )
+    );
   }
 
   if (totalTemplates > 0 && currentUploadingBallot) {
@@ -186,13 +189,13 @@ const UnconfiguredElectionScreen = ({
           </ul>
         </CenteredLargeProse>
       </React.Fragment>
-    )
+    );
   }
 
-  return <CenteredScreen infoBar={false}>{content}</CenteredScreen>
-}
+  return <CenteredScreen infoBar={false}>{content}</CenteredScreen>;
+};
 
-export default UnconfiguredElectionScreen
+export default UnconfiguredElectionScreen;
 
 /* istanbul ignore next */
 export const DefaultPreview = (): JSX.Element => {
@@ -201,5 +204,5 @@ export const DefaultPreview = (): JSX.Element => {
       usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
       setElectionDefinition={() => Promise.resolve()}
     />
-  )
-}
+  );
+};

@@ -1,17 +1,17 @@
-import { strict as assert } from 'assert'
-import React, { useCallback, useContext, useState } from 'react'
+import { strict as assert } from 'assert';
+import React, { useCallback, useContext, useState } from 'react';
 
-import { NumberPad, useCancelablePromise } from '@votingworks/ui'
-import styled from 'styled-components'
-import { sleep } from '@votingworks/utils'
-import AppContext from '../contexts/AppContext'
+import { NumberPad, useCancelablePromise } from '@votingworks/ui';
+import styled from 'styled-components';
+import { sleep } from '@votingworks/utils';
+import AppContext from '../contexts/AppContext';
 
-import NavigationScreen from '../components/NavigationScreen'
-import Prose from '../components/Prose'
-import Button from '../components/Button'
-import Modal from '../components/Modal'
-import Loading from '../components/Loading'
-import { SECURITY_PIN_LENGTH } from '../config/globals'
+import NavigationScreen from '../components/NavigationScreen';
+import Prose from '../components/Prose';
+import Button from '../components/Button';
+import Modal from '../components/Modal';
+import Loading from '../components/Loading';
+import { SECURITY_PIN_LENGTH } from '../config/globals';
 
 export const Passcode = styled.div`
   text-align: center;
@@ -19,7 +19,7 @@ export const Passcode = styled.div`
   font-family: monospace;
   font-size: 1.5em;
   font-weight: 600;
-`
+`;
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -28,98 +28,98 @@ const NumberPadWrapper = styled.div`
   > div {
     width: 300px;
   }
-`
+`;
 
 const DefinitionScreen = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
-  const { electionData, electionHash } = electionDefinition
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+  const { electionData, electionHash } = electionDefinition;
 
-  const makeCancelable = useCancelablePromise()
+  const makeCancelable = useCancelablePromise();
 
-  const [isProgrammingCard, setIsProgrammingCard] = useState(false)
+  const [isProgrammingCard, setIsProgrammingCard] = useState(false);
   const [
     isPromptingForAdminPasscode,
     setIsPromptingForAdminPasscode,
-  ] = useState(false)
-  const [currentPasscode, setCurrentPasscode] = useState('')
+  ] = useState(false);
+  const [currentPasscode, setCurrentPasscode] = useState('');
 
-  const [isShowingError, setIsShowingError] = useState(false)
-  const closeErrorDialog = () => setIsShowingError(false)
+  const [isShowingError, setIsShowingError] = useState(false);
+  const closeErrorDialog = () => setIsShowingError(false);
 
   const overrideWriteProtection = async () => {
-    setIsProgrammingCard(true)
+    setIsProgrammingCard(true);
     await fetch('/card/write_protect_override', {
       method: 'post',
-    })
-    await makeCancelable(sleep(1000))
-    setIsProgrammingCard(false)
-  }
+    });
+    await makeCancelable(sleep(1000));
+    setIsProgrammingCard(false);
+  };
 
   const programPollWorkerCard = async () => {
-    setIsProgrammingCard(true)
+    setIsProgrammingCard(true);
 
     const shortValue = JSON.stringify({
       t: 'pollworker',
       h: electionHash,
-    })
+    });
     const response = await fetch('/card/write', {
       method: 'post',
       body: shortValue,
-    })
-    const body = await response.json()
+    });
+    const body = await response.json();
     if (!body.success) {
-      setIsShowingError(true)
+      setIsShowingError(true);
     }
-    setIsProgrammingCard(false)
-  }
+    setIsProgrammingCard(false);
+  };
   const programAdminCard = async (passcode: string) => {
-    const formData = new FormData()
-    setIsProgrammingCard(true)
-    setIsPromptingForAdminPasscode(false)
+    const formData = new FormData();
+    setIsProgrammingCard(true);
+    setIsPromptingForAdminPasscode(false);
     const shortValue = JSON.stringify({
       t: 'admin',
       h: electionHash,
       p: passcode,
-    })
-    formData.append('short_value', shortValue)
-    formData.append('long_value', electionData)
+    });
+    formData.append('short_value', shortValue);
+    formData.append('long_value', electionData);
     const response = await fetch('/card/write_short_and_long', {
       method: 'post',
       body: formData,
-    })
-    const body = await response.json()
+    });
+    const body = await response.json();
     if (!body.success) {
-      setIsShowingError(true)
+      setIsShowingError(true);
     }
 
-    setIsProgrammingCard(false)
-  }
+    setIsProgrammingCard(false);
+  };
 
   const initiateAdminCardProgramming = () => {
-    setCurrentPasscode('')
-    setIsPromptingForAdminPasscode(true)
-  }
+    setCurrentPasscode('');
+    setIsPromptingForAdminPasscode(true);
+  };
 
   const addNumberToPin = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
       prev.length >= SECURITY_PIN_LENGTH ? prev : `${prev}${digit}`
-    )
-  }, [])
+    );
+  }, []);
 
   const deleteFromEndOfPin = useCallback(() => {
-    setCurrentPasscode((prev) => prev.slice(0, -1))
-  }, [])
+    setCurrentPasscode((prev) => prev.slice(0, -1));
+  }, []);
 
   const clearPin = useCallback(() => {
-    setCurrentPasscode('')
-  }, [])
+    setCurrentPasscode('');
+  }, []);
 
   // Add hyphens for any missing digits in the pin and separate all characters with a space.
   const pinDisplayString = currentPasscode
     .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
-    .join(' ')
+    .join(' ');
 
   return (
     <React.Fragment>
@@ -202,7 +202,7 @@ const DefinitionScreen = (): JSX.Element => {
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default DefinitionScreen
+export default DefinitionScreen;

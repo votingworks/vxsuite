@@ -3,8 +3,8 @@ import {
   MarksByContestId,
   MarksByOptionId,
   MarkThresholds,
-} from '@votingworks/types'
-import { getMarkStatus } from '../types'
+} from '@votingworks/types';
+import { getMarkStatus } from '../types';
 
 /**
  * Merges a list of changes to an original set of marks into each other,
@@ -15,37 +15,37 @@ export function mergeChanges(
   original: MarksByContestId,
   ...changes: readonly MarksByContestId[]
 ): MarksByContestId {
-  const result: MarksByContestId = {}
+  const result: MarksByContestId = {};
 
   for (const change of changes) {
     for (const contestId of Object.keys({ ...original, ...change })) {
-      const contestOptions: MarksByOptionId = result[contestId] ?? {}
+      const contestOptions: MarksByOptionId = result[contestId] ?? {};
 
       for (const optionId of Object.keys({
         ...original[contestId],
         ...change[contestId],
       })) {
-        const changeMark = change[contestId]?.[optionId]
-        const originalMark = original[contestId]?.[optionId]
+        const changeMark = change[contestId]?.[optionId];
+        const originalMark = original[contestId]?.[optionId];
 
         if (typeof changeMark !== 'undefined') {
           if (changeMark !== originalMark) {
-            contestOptions[optionId] = changeMark
+            contestOptions[optionId] = changeMark;
           } else {
-            delete contestOptions[optionId]
+            delete contestOptions[optionId];
           }
         }
       }
 
       if (Object.keys(contestOptions).length > 0) {
-        result[contestId] = contestOptions
+        result[contestId] = contestOptions;
       } else {
-        delete result[contestId]
+        delete result[contestId];
       }
     }
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -55,11 +55,11 @@ export function changesFromMarks(
   marks: readonly BallotMark[],
   markThresholds: MarkThresholds
 ): MarksByContestId {
-  const result: MarksByContestId = {}
+  const result: MarksByContestId = {};
 
   for (const mark of marks) {
     if (mark.type === 'stray') {
-      continue
+      continue;
     }
 
     result[mark.contest.id] = {
@@ -69,8 +69,8 @@ export function changesFromMarks(
         mark,
         markThresholds
       ),
-    }
+    };
   }
 
-  return result
+  return result;
 }

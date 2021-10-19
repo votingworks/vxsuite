@@ -1,7 +1,7 @@
-import { strict as assert } from 'assert'
-import React, { useContext, useEffect, useState } from 'react'
-import makeDebug from 'debug'
-import useInterval from '@rooks/use-interval'
+import { strict as assert } from 'assert';
+import React, { useContext, useEffect, useState } from 'react';
+import makeDebug from 'debug';
+import useInterval from '@rooks/use-interval';
 
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   PrecinctScannerPollsReport,
   PrecinctScannerTallyReport,
   UsbDrive,
-} from '@votingworks/ui'
+} from '@votingworks/ui';
 import {
   calculateTallyForCastVoteRecords,
   compressTally,
@@ -18,37 +18,37 @@ import {
   PrecinctScannerCardTally,
   Printer,
   TallySourceMachineType,
-} from '@votingworks/utils'
+} from '@votingworks/utils';
 import {
   CastVoteRecord,
   Tally,
   VotingMethod,
   PrecinctSelection,
   PrecinctSelectionKind,
-} from '@votingworks/types'
-import pluralize from 'pluralize'
-import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals'
-import { CenteredScreen } from '../components/Layout'
-import { Absolute } from '../components/Absolute'
-import { Bar } from '../components/Bar'
-import ExportResultsModal from '../components/ExportResultsModal'
-import Modal from '../components/Modal'
+} from '@votingworks/types';
+import pluralize from 'pluralize';
+import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
+import { CenteredScreen } from '../components/Layout';
+import { Absolute } from '../components/Absolute';
+import { Bar } from '../components/Bar';
+import ExportResultsModal from '../components/ExportResultsModal';
+import Modal from '../components/Modal';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-const debug = makeDebug('precinct-scanner:pollworker-screen')
-const reportPurposes = ['Publicly Posted', 'Officially Filed']
+const debug = makeDebug('precinct-scanner:pollworker-screen');
+const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
 interface Props {
-  scannedBallotCount: number
-  isPollsOpen: boolean
-  isLiveMode: boolean
-  togglePollsOpen: () => void
-  getCVRsFromExport: () => Promise<CastVoteRecord[]>
-  saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>
-  printer: Printer
-  hasPrinterAttached: boolean
-  usbDrive: UsbDrive
+  scannedBallotCount: number;
+  isPollsOpen: boolean;
+  isLiveMode: boolean;
+  togglePollsOpen: () => void;
+  getCVRsFromExport: () => Promise<CastVoteRecord[]>;
+  saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>;
+  printer: Printer;
+  hasPrinterAttached: boolean;
+  usbDrive: UsbDrive;
 }
 
 const PollWorkerScreen = ({
@@ -64,62 +64,62 @@ const PollWorkerScreen = ({
 }: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
-  )
-  assert(electionDefinition)
-  const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false)
-  const [currentTally, setCurrentTally] = useState<Tally>()
+  );
+  assert(electionDefinition);
+  const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false);
+  const [currentTally, setCurrentTally] = useState<Tally>();
   const [systemAuthenticationCode, setSystemAuthenticationCode] = useState(
     '---·---'
-  )
-  const [isExportingResults, setIsExportingResults] = useState(false)
-  const hasPrinterAttached = printerFromProps || !window.kiosk
-  const { election } = electionDefinition
+  );
+  const [isExportingResults, setIsExportingResults] = useState(false);
+  const hasPrinterAttached = printerFromProps || !window.kiosk;
+  const { election } = electionDefinition;
 
   useEffect(() => {
     const calculateTally = async () => {
-      const castVoteRecords = await getCVRsFromExport()
+      const castVoteRecords = await getCVRsFromExport();
       const tally = calculateTallyForCastVoteRecords(
         election,
         new Set(castVoteRecords)
-      )
+      );
       if (castVoteRecords.length !== scannedBallotCount) {
         debug(
           `Warning, ballots scanned count from status endpoint (${scannedBallotCount}) does not match number of CVRs (${castVoteRecords.length}) `
-        )
+        );
       }
       if (tally.numberOfBallotsCounted !== castVoteRecords.length) {
         debug(
           `Warning, ballot count from calculated tally (${tally.numberOfBallotsCounted}) does not match number of CVRs (${castVoteRecords.length}) `
-        )
+        );
       }
-      setCurrentTally(tally)
-    }
-    void calculateTally()
-  }, [election, getCVRsFromExport, scannedBallotCount])
+      setCurrentTally(tally);
+    };
+    void calculateTally();
+  }, [election, getCVRsFromExport, scannedBallotCount]);
 
   useInterval(
     async () => {
-      const totpResult = await window.kiosk?.totp?.get()
+      const totpResult = await window.kiosk?.totp?.get();
       if (totpResult) {
-        const codeChunks = totpResult.code.match(/.{1,3}/g)
-        if (codeChunks) setSystemAuthenticationCode(codeChunks.join('·'))
+        const codeChunks = totpResult.code.match(/.{1,3}/g);
+        if (codeChunks) setSystemAuthenticationCode(codeChunks.join('·'));
       }
     },
     POLLING_INTERVAL_FOR_TOTP,
     true
-  )
-  const precinct = election.precincts.find((p) => p.id === currentPrecinctId)
+  );
+  const precinct = election.precincts.find((p) => p.id === currentPrecinctId);
   const precinctSelection: PrecinctSelection =
     precinct === undefined
       ? { kind: PrecinctSelectionKind.AllPrecincts }
       : {
           kind: PrecinctSelectionKind.SinglePrecinct,
           precinctId: precinct.id,
-        }
+        };
 
   const saveTally = async () => {
-    assert(currentTally)
-    const compressedTally = compressTally(election, currentTally)
+    assert(currentTally);
+    const compressedTally = compressTally(election, currentTally);
     await saveTallyToCard({
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: scannedBallotCount,
@@ -133,45 +133,45 @@ const PollWorkerScreen = ({
       machineId: machineConfig.machineId,
       timeSaved: Date.now(),
       precinctSelection,
-    })
-  }
+    });
+  };
 
   const printTallyReport = async () => {
-    await printer.print({ sides: 'one-sided' })
-  }
+    await printer.print({ sides: 'one-sided' });
+  };
 
-  const [confirmOpenPolls, setConfirmOpenPolls] = useState(false)
-  const openConfirmOpenPollsModal = () => setConfirmOpenPolls(true)
-  const closeConfirmOpenPollsModal = () => setConfirmOpenPolls(false)
+  const [confirmOpenPolls, setConfirmOpenPolls] = useState(false);
+  const openConfirmOpenPollsModal = () => setConfirmOpenPolls(true);
+  const closeConfirmOpenPollsModal = () => setConfirmOpenPolls(false);
   const openPollsAndHandleZeroReport = async () => {
-    setIsHandlingTallyReport(true)
+    setIsHandlingTallyReport(true);
     if (hasPrinterAttached) {
-      await printTallyReport()
+      await printTallyReport();
     } else {
-      await saveTally()
+      await saveTally();
     }
-    togglePollsOpen()
-    setIsHandlingTallyReport(false)
-    closeConfirmOpenPollsModal()
-  }
+    togglePollsOpen();
+    setIsHandlingTallyReport(false);
+    closeConfirmOpenPollsModal();
+  };
 
-  const [confirmClosePolls, setConfirmClosePolls] = useState(false)
-  const openConfirmClosePollsModal = () => setConfirmClosePolls(true)
-  const closeConfirmClosePollsModal = () => setConfirmClosePolls(false)
+  const [confirmClosePolls, setConfirmClosePolls] = useState(false);
+  const openConfirmClosePollsModal = () => setConfirmClosePolls(true);
+  const closeConfirmClosePollsModal = () => setConfirmClosePolls(false);
   const closePollsAndHandleTabulationReport = async () => {
-    setIsHandlingTallyReport(true)
+    setIsHandlingTallyReport(true);
     if (hasPrinterAttached) {
-      await printTallyReport()
+      await printTallyReport();
     } else {
-      await saveTally()
+      await saveTally();
     }
-    togglePollsOpen()
-    setIsHandlingTallyReport(false)
-    closeConfirmClosePollsModal()
-  }
+    togglePollsOpen();
+    setIsHandlingTallyReport(false);
+    closeConfirmClosePollsModal();
+  };
 
-  const precinctName = precinct === undefined ? 'All Precincts' : precinct.name
-  const currentTime = Date.now()
+  const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
+  const currentTime = Date.now();
 
   return (
     <React.Fragment>
@@ -324,10 +324,10 @@ const PollWorkerScreen = ({
                 reportSavedTime={currentTime}
               />
             </React.Fragment>
-          )
+          );
         })}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default PollWorkerScreen
+export default PollWorkerScreen;

@@ -1,9 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-import { Main, MainChild } from '@votingworks/ui'
+import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
 
 const UnconfiguredScreen = (): JSX.Element => (
   <Screen>
@@ -16,6 +16,6 @@ const UnconfiguredScreen = (): JSX.Element => (
       </MainChild>
     </Main>
   </Screen>
-)
+);
 
-export default UnconfiguredScreen
+export default UnconfiguredScreen;

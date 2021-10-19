@@ -1,4 +1,4 @@
-import { basename, dirname, extname, join } from 'path'
+import { basename, dirname, extname, join } from 'path';
 
 /**
  * Gets the path to a file adjacent to this one.
@@ -11,7 +11,7 @@ export function adjacentFile(
   path: string,
   ext = extname(path)
 ): string {
-  const dir = dirname(path)
-  const base = basename(path, extname(path))
-  return join(dir, base + suffix + ext)
+  const dir = dirname(path);
+  const base = basename(path, extname(path));
+  return join(dir, base + suffix + ext);
 }

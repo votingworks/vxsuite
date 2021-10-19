@@ -1,38 +1,38 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import styled from 'styled-components'
-import pluralize from 'pluralize'
+import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import pluralize from 'pluralize';
 
 import {
   BatchInfo,
   GetScanStatusResponse,
-} from '@votingworks/types/api/module-scan'
+} from '@votingworks/types/api/module-scan';
 
-import Prose from '../components/Prose'
-import Table, { TD } from '../components/Table'
-import Button from '../components/Button'
-import Modal from '../components/Modal'
-import Text from '../components/Text'
+import Prose from '../components/Prose';
+import Table, { TD } from '../components/Table';
+import Button from '../components/Button';
+import Modal from '../components/Modal';
+import Text from '../components/Text';
 
-pluralize.addIrregularRule('requires', 'require')
-pluralize.addIrregularRule('has', 'have')
+pluralize.addIrregularRule('requires', 'require');
+pluralize.addIrregularRule('has', 'have');
 
 const Scanning = styled.em`
   color: rgb(71, 167, 75);
-`
+`;
 
-const z2 = (number: number) => number.toString().padStart(2, '0')
+const z2 = (number: number) => number.toString().padStart(2, '0');
 
 const shortDateTime = (iso8601Timestamp: string) => {
-  const d = new Date(iso8601Timestamp)
+  const d = new Date(iso8601Timestamp);
   return `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(
     d.getDate()
-  )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`
-}
+  )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
+};
 
 interface Props {
-  isScanning: boolean
-  status: GetScanStatusResponse
-  deleteBatch(batchId: string): Promise<void>
+  isScanning: boolean;
+  status: GetScanStatusResponse;
+  deleteBatch(batchId: string): Promise<void>;
 }
 
 const DashboardScreen = ({
@@ -40,52 +40,52 @@ const DashboardScreen = ({
   status,
   deleteBatch,
 }: Props): JSX.Element => {
-  const { batches } = status
-  const batchCount = batches.length
-  const ballotCount = batches.reduce((result, b) => result + b.count, 0)
+  const { batches } = status;
+  const batchCount = batches.length;
+  const ballotCount = batches.reduce((result, b) => result + b.count, 0);
 
-  const [pendingDeleteBatch, setPendingDeleteBatchId] = useState<BatchInfo>()
-  const [isDeletingBatch, setIsDeletingBatch] = useState(false)
-  const [deleteBatchError, setDeleteBatchError] = useState<string>()
+  const [pendingDeleteBatch, setPendingDeleteBatchId] = useState<BatchInfo>();
+  const [isDeletingBatch, setIsDeletingBatch] = useState(false);
+  const [deleteBatchError, setDeleteBatchError] = useState<string>();
 
   const confirmDeleteBatch = useCallback(() => {
-    setIsDeletingBatch(true)
-  }, [])
+    setIsDeletingBatch(true);
+  }, []);
 
   const cancelDeleteBatch = useCallback(() => {
-    setPendingDeleteBatchId(undefined)
-    setDeleteBatchError(undefined)
-  }, [])
+    setPendingDeleteBatchId(undefined);
+    setDeleteBatchError(undefined);
+  }, []);
 
   const onDeleteBatchSucceeded = useCallback(() => {
-    setIsDeletingBatch(false)
-    setPendingDeleteBatchId(undefined)
-  }, [])
+    setIsDeletingBatch(false);
+    setPendingDeleteBatchId(undefined);
+  }, []);
 
   const onDeleteBatchFailed = useCallback((error: Error) => {
-    setIsDeletingBatch(false)
-    setDeleteBatchError(error.message)
-  }, [])
+    setIsDeletingBatch(false);
+    setDeleteBatchError(error.message);
+  }, []);
 
   useEffect(() => {
     if (pendingDeleteBatch && isDeletingBatch) {
-      let isMounted = true
+      let isMounted = true;
       void (async () => {
         try {
-          await deleteBatch(pendingDeleteBatch.id)
+          await deleteBatch(pendingDeleteBatch.id);
 
           if (isMounted) {
-            onDeleteBatchSucceeded()
+            onDeleteBatchSucceeded();
           }
         } catch (error) {
           if (isMounted) {
-            onDeleteBatchFailed(error)
+            onDeleteBatchFailed(error);
           }
         }
-      })()
+      })();
       return () => {
-        isMounted = false
-      }
+        isMounted = false;
+      };
     }
   }, [
     pendingDeleteBatch,
@@ -93,7 +93,7 @@ const DashboardScreen = ({
     deleteBatch,
     onDeleteBatchSucceeded,
     onDeleteBatchFailed,
-  ])
+  ]);
 
   return (
     <React.Fragment>
@@ -179,7 +179,7 @@ const DashboardScreen = ({
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default DashboardScreen
+export default DashboardScreen;

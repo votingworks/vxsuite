@@ -6,48 +6,48 @@ import {
   Optional,
   Result,
   safeParseJSON,
-} from '@votingworks/types'
-import { Card, Hardware, isCardReader } from '@votingworks/utils'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { map } from 'rxjs/operators'
-import useInterval from 'use-interval'
-import { useCancelablePromise } from './useCancelablePromise'
+} from '@votingworks/types';
+import { Card, Hardware, isCardReader } from '@votingworks/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { map } from 'rxjs/operators';
+import useInterval from 'use-interval';
+import { useCancelablePromise } from './useCancelablePromise';
 
-export const CARD_POLLING_INTERVAL = 100
+export const CARD_POLLING_INTERVAL = 100;
 
 export interface UseSmartcardProps {
-  card: Card
-  hardware: Hardware
+  card: Card;
+  hardware: Hardware;
 }
 
 export interface Smartcard {
-  data?: AnyCardData
-  longValueExists?: boolean
-  readLongUint8Array(): Promise<Result<Optional<Uint8Array>, Error>>
-  readLongString(): Promise<Result<Optional<string>, Error>>
-  writeShortValue(value: string): Promise<Result<void, Error>>
-  writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>
+  data?: AnyCardData;
+  longValueExists?: boolean;
+  readLongUint8Array(): Promise<Result<Optional<Uint8Array>, Error>>;
+  readLongString(): Promise<Result<Optional<string>, Error>>;
+  writeShortValue(value: string): Promise<Result<void, Error>>;
+  writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>;
 }
 
 export type UseSmartcardResult = [
   smartcard: Smartcard | undefined,
   hasCardReader: boolean
-]
+];
 
 interface State {
-  readonly isWriting: boolean
-  readonly lastCardDataString?: string
-  readonly longValueExists?: boolean
-  readonly isCardPresent: boolean
-  readonly cardData?: AnyCardData
-  readonly hasCardReaderAttached: boolean
+  readonly isWriting: boolean;
+  readonly lastCardDataString?: string;
+  readonly longValueExists?: boolean;
+  readonly isCardPresent: boolean;
+  readonly cardData?: AnyCardData;
+  readonly hasCardReaderAttached: boolean;
 }
 
 const initialState: State = {
   isWriting: false,
   isCardPresent: false,
   hasCardReaderAttached: false,
-}
+};
 
 /**
  * React hook for getting the current smartcard data.
@@ -84,89 +84,89 @@ export const useSmartcard = ({
       longValueExists,
     },
     setState,
-  ] = useState(initialState)
-  const isReading = useRef(false)
-  const makeCancelable = useCancelablePromise()
+  ] = useState(initialState);
+  const isReading = useRef(false);
+  const makeCancelable = useCancelablePromise();
 
   const set = useCallback(
     (updates: Partial<State>) => setState((prev) => ({ ...prev, ...updates })),
     []
-  )
+  );
 
   const readLongUint8Array = useCallback(async (): Promise<
     Result<Optional<Uint8Array>, Error>
   > => {
     try {
-      return ok(await makeCancelable(card.readLongUint8Array()))
+      return ok(await makeCancelable(card.readLongUint8Array()));
     } catch (error) {
-      return err(error)
+      return err(error);
     }
-  }, [card, makeCancelable])
+  }, [card, makeCancelable]);
 
   const readLongString = useCallback(async (): Promise<
     Result<Optional<string>, Error>
   > => {
     try {
-      return ok(await makeCancelable(card.readLongString()))
+      return ok(await makeCancelable(card.readLongString()));
     } catch (error) {
-      return err(error)
+      return err(error);
     }
-  }, [card, makeCancelable])
+  }, [card, makeCancelable]);
 
   const writeShortValue = useCallback(
     async (value: string): Promise<Result<void, Error>> => {
       try {
-        set({ isWriting: true })
-        await makeCancelable(card.writeShortValue(value))
-        return ok()
+        set({ isWriting: true });
+        await makeCancelable(card.writeShortValue(value));
+        return ok();
       } catch (error) {
-        return err(error)
+        return err(error);
       } finally {
-        setState((prev) => ({ ...prev, isWriting: false }))
+        setState((prev) => ({ ...prev, isWriting: false }));
       }
     },
     [set, makeCancelable, card]
-  )
+  );
 
   const writeLongValue = useCallback(
     async (value: unknown | Uint8Array): Promise<Result<void, Error>> => {
       try {
-        set({ isWriting: true })
+        set({ isWriting: true });
         if (value instanceof Uint8Array) {
-          await makeCancelable(card.writeLongUint8Array(value))
+          await makeCancelable(card.writeLongUint8Array(value));
         } else {
-          await makeCancelable(card.writeLongObject(value))
+          await makeCancelable(card.writeLongObject(value));
         }
-        return ok()
+        return ok();
       } catch (error) {
-        return err(error)
+        return err(error);
       } finally {
-        set({ isWriting: false })
+        set({ isWriting: false });
       }
     },
     [set, makeCancelable, card]
-  )
+  );
 
   useEffect(() => {
     const hardwareStatusSubscription = hardware.devices
       .pipe(map((devices) => Array.from(devices)))
       .subscribe(async (devices) => {
-        set({ hasCardReaderAttached: devices.some(isCardReader) })
-      })
+        set({ hasCardReaderAttached: devices.some(isCardReader) });
+      });
     return () => {
-      hardwareStatusSubscription.unsubscribe()
-    }
-  }, [hardware, set])
+      hardwareStatusSubscription.unsubscribe();
+    };
+  }, [hardware, set]);
 
   useInterval(
     async () => {
       if (isReading.current || isWriting || !hasCardReaderAttached) {
-        return
+        return;
       }
 
-      isReading.current = true
+      isReading.current = true;
       try {
-        const insertedCard = await makeCancelable(card.readStatus())
+        const insertedCard = await makeCancelable(card.readStatus());
 
         // we compare last card and current card without the longValuePresent flag
         // otherwise when we first write the ballot to the card, it reprocesses it
@@ -179,10 +179,10 @@ export const useSmartcard = ({
         const cardCopy = {
           ...insertedCard,
           longValueExists: undefined, // override longValueExists (see above comment)
-        }
-        const currentCardDataString = JSON.stringify(cardCopy)
+        };
+        const currentCardDataString = JSON.stringify(cardCopy);
         if (currentCardDataString === lastCardDataString) {
-          return
+          return;
         }
 
         set({
@@ -193,14 +193,14 @@ export const useSmartcard = ({
               ? safeParseJSON(insertedCard.shortValue, AnyCardDataSchema).ok()
               : undefined,
           lastCardDataString: currentCardDataString,
-        })
+        });
       } finally {
-        isReading.current = false
+        isReading.current = false;
       }
     },
     CARD_POLLING_INTERVAL,
     true
-  )
+  );
 
   const result = useMemo<UseSmartcardResult>(
     () => [
@@ -226,7 +226,7 @@ export const useSmartcard = ({
       writeLongValue,
       hasCardReaderAttached,
     ]
-  )
+  );
 
-  return result
-}
+  return result;
+};

@@ -1,55 +1,55 @@
-import React, { useContext } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import React, { useContext } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
-import { SetupCardReaderPage } from '@votingworks/ui'
-import AppContext from '../contexts/AppContext'
+import { SetupCardReaderPage } from '@votingworks/ui';
+import AppContext from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths'
-import DefinitionScreen from '../screens/DefinitionScreen'
-import BallotListScreen from '../screens/BallotListScreen'
-import BallotScreen from '../screens/BallotScreen'
-import PrintTestDeckScreen from '../screens/PrintTestDeckScreen'
-import UnconfiguredScreen from '../screens/UnconfiguredScreen'
-import TestDeckScreen from '../screens/TestDeckScreen'
-import TallyScreen from '../screens/TallyScreen'
-import TallyReportScreen from '../screens/TallyReportScreen'
-import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen'
-import DefinitionEditorScreen from '../screens/DefinitionEditorScreen'
-import DefinitionContestsScreen from '../screens/DefinitionContestsScreen'
-import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen'
-import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen'
-import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen'
-import SmartcardsScreen from '../screens/SmartcardsScreen'
-import { MachineLockedScreen } from '../screens/MachineLockedScreen'
-import { InvalidCardScreen } from '../screens/InvalidCardScreen'
-import { UnlockMachineScreen } from '../screens/UnlockMachineScreen'
+import routerPaths from '../routerPaths';
+import DefinitionScreen from '../screens/DefinitionScreen';
+import BallotListScreen from '../screens/BallotListScreen';
+import BallotScreen from '../screens/BallotScreen';
+import PrintTestDeckScreen from '../screens/PrintTestDeckScreen';
+import UnconfiguredScreen from '../screens/UnconfiguredScreen';
+import TestDeckScreen from '../screens/TestDeckScreen';
+import TallyScreen from '../screens/TallyScreen';
+import TallyReportScreen from '../screens/TallyReportScreen';
+import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen';
+import DefinitionEditorScreen from '../screens/DefinitionEditorScreen';
+import DefinitionContestsScreen from '../screens/DefinitionContestsScreen';
+import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen';
+import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen';
+import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen';
+import SmartcardsScreen from '../screens/SmartcardsScreen';
+import { MachineLockedScreen } from '../screens/MachineLockedScreen';
+import { InvalidCardScreen } from '../screens/InvalidCardScreen';
+import { UnlockMachineScreen } from '../screens/UnlockMachineScreen';
 
 const ElectionManager = (): JSX.Element => {
   const {
     electionDefinition,
     currentUserSession,
     hasCardReaderAttached,
-  } = useContext(AppContext)
-  const election = electionDefinition?.election
+  } = useContext(AppContext);
+  const election = electionDefinition?.election;
 
   if (!hasCardReaderAttached) {
-    return <SetupCardReaderPage />
+    return <SetupCardReaderPage />;
   }
 
   if (!election) {
-    return <UnconfiguredScreen />
+    return <UnconfiguredScreen />;
   }
 
   if (!currentUserSession) {
-    return <MachineLockedScreen />
+    return <MachineLockedScreen />;
   }
 
   if (currentUserSession.type !== 'admin') {
-    return <InvalidCardScreen />
+    return <InvalidCardScreen />;
   }
 
   if (!currentUserSession.authenticated) {
-    return <UnlockMachineScreen />
+    return <UnlockMachineScreen />;
   }
 
   return (
@@ -163,7 +163,7 @@ const ElectionManager = (): JSX.Element => {
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>
-  )
-}
+  );
+};
 
-export default ElectionManager
+export default ElectionManager;

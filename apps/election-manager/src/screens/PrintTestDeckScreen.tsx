@@ -1,31 +1,31 @@
-import { strict as assert } from 'assert'
-import React, { useState, useContext, useCallback, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { Election, getPrecinctById, VotesDict } from '@votingworks/types'
-import { sleep } from '@votingworks/utils'
-import routerPaths from '../routerPaths'
+import { strict as assert } from 'assert';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Election, getPrecinctById, VotesDict } from '@votingworks/types';
+import { sleep } from '@votingworks/utils';
+import routerPaths from '../routerPaths';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import Button from '../components/Button'
-import ButtonList from '../components/ButtonList'
-import Prose from '../components/Prose'
-import Modal from '../components/Modal'
-import Loading from '../components/Loading'
+import Button from '../components/Button';
+import ButtonList from '../components/ButtonList';
+import Prose from '../components/Prose';
+import Modal from '../components/Modal';
+import Loading from '../components/Loading';
 
-import NavigationScreen from '../components/NavigationScreen'
-import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps } from '../config/types'
+import NavigationScreen from '../components/NavigationScreen';
+import LinkButton from '../components/LinkButton';
+import { PrecinctReportScreenProps } from '../config/types';
 
-import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot'
+import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot';
 
-import { generateTestDeckBallots } from '../utils/election'
+import { generateTestDeckBallots } from '../utils/election';
 
 interface TestDeckBallotsParams {
-  election: Election
-  electionHash: string
-  precinctId: string
-  onAllRendered: (numBallots: number) => void
+  election: Election;
+  electionHash: string;
+  precinctId: string;
+  onAllRendered: (numBallots: number) => void;
 }
 
 const TestDeckBallots = ({
@@ -34,15 +34,15 @@ const TestDeckBallots = ({
   precinctId,
   onAllRendered,
 }: TestDeckBallotsParams) => {
-  const ballots = generateTestDeckBallots({ election, precinctId })
+  const ballots = generateTestDeckBallots({ election, precinctId });
 
-  let numRendered = 0
+  let numRendered = 0;
   const onRendered = async () => {
-    numRendered += 1
+    numRendered += 1;
     if (numRendered === ballots.length) {
-      onAllRendered(ballots.length)
+      onAllRendered(ballots.length);
     }
-  }
+  };
 
   return (
     <div className="print-only">
@@ -61,28 +61,28 @@ const TestDeckBallots = ({
         />
       ))}
     </div>
-  )
-}
+  );
+};
 
-const TestDeckBallotsMemoized = React.memo(TestDeckBallots)
+const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
 const PrintTestDeckScreen = (): JSX.Element => {
-  const { electionDefinition, printer } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election, electionHash } = electionDefinition
-  const [precinctIds, setPrecinctIds] = useState<string[]>([])
-  const [precinctIndex, setPrecinctIndex] = useState<number>()
+  const { electionDefinition, printer } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election, electionHash } = electionDefinition;
+  const [precinctIds, setPrecinctIds] = useState<string[]>([]);
+  const [precinctIndex, setPrecinctIndex] = useState<number>();
 
   const {
     precinctId: precinctIdFromParams = '',
-  } = useParams<PrecinctReportScreenProps>()
-  const precinctId = precinctIdFromParams.trim()
+  } = useParams<PrecinctReportScreenProps>();
+  const precinctId = precinctIdFromParams.trim();
 
-  const pageTitle = 'Test Deck'
+  const pageTitle = 'Test Deck';
   const precinctName =
     precinctId === 'all'
       ? 'All Precincts'
-      : getPrecinctById({ election, precinctId })?.name
+      : getPrecinctById({ election, precinctId })?.name;
 
   useEffect(() => {
     if (precinctId) {
@@ -90,52 +90,52 @@ const PrintTestDeckScreen = (): JSX.Element => {
         a.name.localeCompare(b.name, undefined, {
           ignorePunctuation: true,
         })
-      )
+      );
       const newPrecinctIds =
-        precinctId === 'all' ? sortedPrecincts.map((p) => p.id) : [precinctId]
-      setPrecinctIds(newPrecinctIds)
+        precinctId === 'all' ? sortedPrecincts.map((p) => p.id) : [precinctId];
+      setPrecinctIds(newPrecinctIds);
     } else {
-      setPrecinctIds([])
-      setPrecinctIndex(undefined)
+      setPrecinctIds([]);
+      setPrecinctIndex(undefined);
     }
-  }, [precinctId, election.precincts])
+  }, [precinctId, election.precincts]);
 
   const startPrint = async () => {
     if (window.kiosk) {
-      const printers = await window.kiosk.getPrinterInfo()
+      const printers = await window.kiosk.getPrinterInfo();
       if (printers.some((p) => p.connected)) {
-        setPrecinctIndex(0)
+        setPrecinctIndex(0);
       } else {
         // eslint-disable-next-line no-alert
-        window.alert('please connect the printer.')
+        window.alert('please connect the printer.');
       }
     } else {
-      setPrecinctIndex(0)
+      setPrecinctIndex(0);
     }
-  }
+  };
 
   const onAllRendered = useCallback(
     async (pIndex, numBallots) => {
-      await printer.print({ sides: 'two-sided-long-edge' })
+      await printer.print({ sides: 'two-sided-long-edge' });
 
       if (pIndex < precinctIds.length - 1) {
         // wait 5s per ballot printed
         // that's how long printing takes in duplex, no reason to get ahead of it.
-        await sleep(numBallots * 5000)
-        setPrecinctIndex(pIndex + 1)
+        await sleep(numBallots * 5000);
+        setPrecinctIndex(pIndex + 1);
       } else {
-        await sleep(3000)
-        setPrecinctIndex(undefined)
+        await sleep(3000);
+        setPrecinctIndex(undefined);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [setPrecinctIndex, precinctIds]
-  )
+  );
 
   const currentPrecinct =
     precinctIndex === undefined
       ? undefined
-      : getPrecinctById({ election, precinctId: precinctIds[precinctIndex] })
+      : getPrecinctById({ election, precinctId: precinctIds[precinctIndex] });
 
   if (precinctIds.length > 0) {
     return (
@@ -185,7 +185,7 @@ const PrintTestDeckScreen = (): JSX.Element => {
           />
         )}
       </React.Fragment>
-    )
+    );
   }
 
   return (
@@ -222,7 +222,7 @@ const PrintTestDeckScreen = (): JSX.Element => {
           ))}
       </ButtonList>
     </NavigationScreen>
-  )
-}
+  );
+};
 
-export default PrintTestDeckScreen
+export default PrintTestDeckScreen;

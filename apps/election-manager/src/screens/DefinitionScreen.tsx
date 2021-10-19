@@ -1,52 +1,52 @@
-import { strict as assert } from 'assert'
-import React, { useContext, useState } from 'react'
-import { Contest } from '@votingworks/types'
-import styled from 'styled-components'
+import { strict as assert } from 'assert';
+import React, { useContext, useState } from 'react';
+import { Contest } from '@votingworks/types';
+import styled from 'styled-components';
 
-import { format } from '@votingworks/utils'
+import { format } from '@votingworks/utils';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths'
+import routerPaths from '../routerPaths';
 
-import NavigationScreen from '../components/NavigationScreen'
-import LinkButton from '../components/LinkButton'
-import Prose from '../components/Prose'
-import Text from '../components/Text'
-import RemoveElectionModal from '../components/RemoveElectionModal'
+import NavigationScreen from '../components/NavigationScreen';
+import LinkButton from '../components/LinkButton';
+import Prose from '../components/Prose';
+import Text from '../components/Text';
+import RemoveElectionModal from '../components/RemoveElectionModal';
 
 const ButtonListItem = styled.span`
   display: block;
   margin-bottom: 0.25em;
-`
+`;
 
 interface ContestSection {
-  name: string
-  contests: Contest[]
+  name: string;
+  contests: Contest[];
 }
 
 const DefinitionScreen = (): JSX.Element => {
-  const { electionDefinition, configuredAt } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election } = electionDefinition
+  const { electionDefinition, configuredAt } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
 
-  const [isRemovingElection, setIsRemovingElection] = useState(false)
+  const [isRemovingElection, setIsRemovingElection] = useState(false);
 
   const electionsBySection = election.contests.reduce<ContestSection[]>(
     (prev, curr) => {
-      const existingIndex = prev.findIndex((s) => s.name === curr.section)
+      const existingIndex = prev.findIndex((s) => s.name === curr.section);
       if (existingIndex >= 0) {
-        prev[existingIndex].contests.push(curr)
+        prev[existingIndex].contests.push(curr);
       } else {
         prev.push({
           name: curr.section,
           contests: [curr],
-        })
+        });
       }
-      return prev
+      return prev;
     },
     []
-  )
+  );
 
   return (
     <React.Fragment>
@@ -115,7 +115,7 @@ const DefinitionScreen = (): JSX.Element => {
         <RemoveElectionModal onClose={() => setIsRemovingElection(false)} />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default DefinitionScreen
+export default DefinitionScreen;

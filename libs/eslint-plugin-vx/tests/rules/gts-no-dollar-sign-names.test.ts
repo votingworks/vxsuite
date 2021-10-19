@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-no-dollar-sign-names'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-no-dollar-sign-names';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-no-dollar-sign-names', rule, {
   valid: [
@@ -43,4 +43,4 @@ ruleTester.run('gts-no-dollar-sign-names', rule, {
       errors: [{ messageId: 'noDollarSign', line: 1 }],
     },
   ],
-})
+});

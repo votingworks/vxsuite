@@ -5,16 +5,16 @@ import {
   ContestOption,
   Contests,
   MarkStatus,
-} from '@votingworks/types'
-import { throwIllegalValue } from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import allContestOptions from './allContestOptions'
+} from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import allContestOptions from './allContestOptions';
 
 export interface Options {
   optionMarkStatus: (
     contestId: Contest['id'],
     optionId: ContestOption['id']
-  ) => MarkStatus
+  ) => MarkStatus;
 }
 
 /**
@@ -29,24 +29,24 @@ export default function* ballotAdjudicationReasons(
   if (!contests) {
     yield {
       type: AdjudicationReason.UninterpretableBallot,
-    }
+    };
   } else if (contests.length === 0) {
     // This page is intentionally blank.
   } else {
-    let isBlankBallot = true
+    let isBlankBallot = true;
 
     for (const contest of contests) {
       const selectedOptionsByContestId = new Map<
         Contest['id'],
         { id: ContestOption['id']; index: number }[]
-      >()
+      >();
 
       for (const option of allContestOptions(contest)) {
         const selectedOptions =
-          selectedOptionsByContestId.get(option.contestId) ?? []
-        selectedOptionsByContestId.set(option.contestId, selectedOptions)
+          selectedOptionsByContestId.get(option.contestId) ?? [];
+        selectedOptionsByContestId.set(option.contestId, selectedOptions);
 
-        const status = optionMarkStatus(option.contestId, option.id)
+        const status = optionMarkStatus(option.contestId, option.id);
         switch (status) {
           case MarkStatus.Marginal:
             yield {
@@ -54,12 +54,12 @@ export default function* ballotAdjudicationReasons(
               contestId: option.contestId,
               optionId: option.id,
               optionIndex: option.optionIndex,
-            }
-            break
+            };
+            break;
 
           case MarkStatus.Marked:
-            selectedOptions.push({ id: option.id, index: option.optionIndex })
-            isBlankBallot = false
+            selectedOptions.push({ id: option.id, index: option.optionIndex });
+            isBlankBallot = false;
 
             if (option.type === 'candidate' && option.isWriteIn) {
               yield {
@@ -67,45 +67,45 @@ export default function* ballotAdjudicationReasons(
                 contestId: option.contestId,
                 optionId: option.id,
                 optionIndex: option.optionIndex,
-              }
+              };
             }
-            break
+            break;
 
           case MarkStatus.UnmarkedWriteIn:
-            assert.equal(option.type, 'candidate' as const)
-            assert(option.isWriteIn)
+            assert.equal(option.type, 'candidate' as const);
+            assert(option.isWriteIn);
 
             yield {
               type: AdjudicationReason.UnmarkedWriteIn,
               contestId: option.contestId,
               optionId: option.id,
               optionIndex: option.optionIndex,
-            }
-            break
+            };
+            break;
 
           case MarkStatus.Unmarked:
-            break
+            break;
 
           default:
-            throwIllegalValue(status)
+            throwIllegalValue(status);
         }
       }
 
       for (const [contestId, selectedOptions] of selectedOptionsByContestId) {
-        let expectedSelectionCount: number
+        let expectedSelectionCount: number;
 
         switch (contest.type) {
           case 'candidate':
-            expectedSelectionCount = contest.seats
-            break
+            expectedSelectionCount = contest.seats;
+            break;
 
           case 'yesno': // yes or no
           case 'ms-either-neither': // either or neither, first or second
-            expectedSelectionCount = 1
-            break
+            expectedSelectionCount = 1;
+            break;
 
           default:
-            throwIllegalValue(contest, 'type')
+            throwIllegalValue(contest, 'type');
         }
 
         if (selectedOptions.length < expectedSelectionCount) {
@@ -115,7 +115,7 @@ export default function* ballotAdjudicationReasons(
             optionIds: selectedOptions.map(({ id }) => id),
             optionIndexes: selectedOptions.map(({ index }) => index),
             expected: expectedSelectionCount,
-          }
+          };
         } else if (selectedOptions.length > expectedSelectionCount) {
           yield {
             type: AdjudicationReason.Overvote,
@@ -123,7 +123,7 @@ export default function* ballotAdjudicationReasons(
             optionIds: selectedOptions.map(({ id }) => id),
             optionIndexes: selectedOptions.map(({ index }) => index),
             expected: expectedSelectionCount,
-          }
+          };
         }
       }
     }
@@ -131,7 +131,7 @@ export default function* ballotAdjudicationReasons(
     if (isBlankBallot) {
       yield {
         type: AdjudicationReason.BlankBallot,
-      }
+      };
     }
   }
 }
@@ -141,10 +141,10 @@ export function adjudicationReasonDescription(
 ): string {
   switch (reason.type) {
     case AdjudicationReason.UninterpretableBallot:
-      return 'The ballot could not be interpreted at all, possibly due to a bad scan.'
+      return 'The ballot could not be interpreted at all, possibly due to a bad scan.';
 
     case AdjudicationReason.MarginalMark:
-      return `Contest '${reason.contestId}' has a marginal mark for option '${reason.optionId}'.`
+      return `Contest '${reason.contestId}' has a marginal mark for option '${reason.optionId}'.`;
 
     case AdjudicationReason.Overvote:
       return `Contest '${reason.contestId}' is overvoted, expected ${
@@ -155,7 +155,7 @@ export function adjudicationReasonDescription(
               .map((id) => `'${id}'`)
               .join(', ')}`
           : 'none'
-      }.`
+      }.`;
 
     case AdjudicationReason.Undervote:
       return `Contest '${reason.contestId}' is undervoted, expected ${
@@ -166,18 +166,18 @@ export function adjudicationReasonDescription(
               .map((id) => `'${id}'`)
               .join(', ')}`
           : 'none'
-      }.`
+      }.`;
 
     case AdjudicationReason.WriteIn:
-      return `Contest '${reason.contestId}' has a write-in.`
+      return `Contest '${reason.contestId}' has a write-in.`;
 
     case AdjudicationReason.UnmarkedWriteIn:
-      return `Contest '${reason.contestId}' has an unmarked write-in.`
+      return `Contest '${reason.contestId}' has an unmarked write-in.`;
 
     case AdjudicationReason.BlankBallot:
-      return `Ballot has no votes.`
+      return `Ballot has no votes.`;
 
     default:
-      throwIllegalValue(reason)
+      throwIllegalValue(reason);
   }
 }

@@ -1,12 +1,12 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { DateTime } from 'luxon'
-import React from 'react'
-import fc from 'fast-check'
-import { arbitraryDateTime } from '@votingworks/test-utils'
-import PickDateTimeModal, { MAX_YEAR, MIN_YEAR } from './PickDateTimeModal'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { DateTime } from 'luxon';
+import React from 'react';
+import fc from 'fast-check';
+import { arbitraryDateTime } from '@votingworks/test-utils';
+import PickDateTimeModal, { MAX_YEAR, MIN_YEAR } from './PickDateTimeModal';
 
 function getSelect(testId: string): HTMLSelectElement {
-  return screen.getByTestId(testId) as HTMLSelectElement
+  return screen.getByTestId(testId) as HTMLSelectElement;
 }
 
 const aDate = DateTime.fromObject({
@@ -17,11 +17,11 @@ const aDate = DateTime.fromObject({
   minute: 34,
   second: 56,
   zone: 'America/Los_Angeles',
-})
+});
 
 test('shows pickers for the datetime parts of the given time', () => {
-  const onCancel = jest.fn()
-  const onSave = jest.fn()
+  const onCancel = jest.fn();
+  const onSave = jest.fn();
   render(
     <PickDateTimeModal
       onCancel={onCancel}
@@ -29,20 +29,20 @@ test('shows pickers for the datetime parts of the given time', () => {
       saveLabel="Save"
       value={aDate}
     />
-  )
+  );
 
-  expect(getSelect('selectYear').value).toEqual('2021')
-  expect(getSelect('selectMonth').value).toEqual('3')
-  expect(getSelect('selectDay').value).toEqual('31')
-  expect(getSelect('selectHour').value).toEqual('7')
-  expect(getSelect('selectMinute').value).toEqual('34')
-  expect(getSelect('selectMeridian').value).toEqual('PM')
-  expect(getSelect('selectTimezone').value).toEqual('America/Los_Angeles')
-})
+  expect(getSelect('selectYear').value).toEqual('2021');
+  expect(getSelect('selectMonth').value).toEqual('3');
+  expect(getSelect('selectDay').value).toEqual('31');
+  expect(getSelect('selectHour').value).toEqual('7');
+  expect(getSelect('selectMinute').value).toEqual('34');
+  expect(getSelect('selectMeridian').value).toEqual('PM');
+  expect(getSelect('selectTimezone').value).toEqual('America/Los_Angeles');
+});
 
 test('updates the displayed time as changes are made', () => {
-  const onCancel = jest.fn()
-  const onSave = jest.fn()
+  const onCancel = jest.fn();
+  const onSave = jest.fn();
   render(
     <PickDateTimeModal
       onCancel={onCancel}
@@ -50,45 +50,45 @@ test('updates the displayed time as changes are made', () => {
       saveLabel="Save"
       value={aDate}
     />
-  )
+  );
 
   // Starts with the right value
-  screen.getByText('Wed, Mar 31, 2021, 7:34 PM')
+  screen.getByText('Wed, Mar 31, 2021, 7:34 PM');
 
   // Change year
-  fireEvent.change(getSelect('selectYear'), { target: { value: '2025' } })
-  screen.getByText('Mon, Mar 31, 2025, 7:34 PM')
+  fireEvent.change(getSelect('selectYear'), { target: { value: '2025' } });
+  screen.getByText('Mon, Mar 31, 2025, 7:34 PM');
 
   // Change month
-  fireEvent.change(getSelect('selectMonth'), { target: { value: '11' } })
-  screen.getByText('Sun, Nov 30, 2025, 7:34 PM')
+  fireEvent.change(getSelect('selectMonth'), { target: { value: '11' } });
+  screen.getByText('Sun, Nov 30, 2025, 7:34 PM');
 
   // Change day
-  fireEvent.change(getSelect('selectDay'), { target: { value: '20' } })
-  screen.getByText('Thu, Nov 20, 2025, 7:34 PM')
+  fireEvent.change(getSelect('selectDay'), { target: { value: '20' } });
+  screen.getByText('Thu, Nov 20, 2025, 7:34 PM');
 
   // Change hour
-  fireEvent.change(getSelect('selectHour'), { target: { value: '3' } })
-  screen.getByText('Thu, Nov 20, 2025, 3:34 PM')
+  fireEvent.change(getSelect('selectHour'), { target: { value: '3' } });
+  screen.getByText('Thu, Nov 20, 2025, 3:34 PM');
 
   // Change minute
-  fireEvent.change(getSelect('selectMinute'), { target: { value: '1' } })
-  screen.getByText('Thu, Nov 20, 2025, 3:01 PM')
+  fireEvent.change(getSelect('selectMinute'), { target: { value: '1' } });
+  screen.getByText('Thu, Nov 20, 2025, 3:01 PM');
 
   // Change meridian
-  fireEvent.change(getSelect('selectMeridian'), { target: { value: 'AM' } })
-  screen.getByText('Thu, Nov 20, 2025, 3:01 AM')
+  fireEvent.change(getSelect('selectMeridian'), { target: { value: 'AM' } });
+  screen.getByText('Thu, Nov 20, 2025, 3:01 AM');
 
   // Change timezone (does not change display)
   fireEvent.change(getSelect('selectTimezone'), {
     target: { value: 'America/Chicago' },
-  })
-  screen.getByText('Thu, Nov 20, 2025, 3:01 AM')
-})
+  });
+  screen.getByText('Thu, Nov 20, 2025, 3:01 AM');
+});
 
 test('calls back with the new date on save', () => {
-  const onCancel = jest.fn()
-  const onSave = jest.fn()
+  const onCancel = jest.fn();
+  const onSave = jest.fn();
   render(
     <PickDateTimeModal
       onCancel={onCancel}
@@ -96,32 +96,32 @@ test('calls back with the new date on save', () => {
       saveLabel="Save"
       value={aDate}
     />
-  )
+  );
 
-  expect(onSave).not.toHaveBeenCalled()
-  fireEvent.click(screen.getByText('Save'))
+  expect(onSave).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByText('Save'));
 
   // No changes yet, expect the same date
-  expect(onSave).toHaveBeenNthCalledWith(1, aDate)
+  expect(onSave).toHaveBeenNthCalledWith(1, aDate);
 
   // Make a change & save
-  const changedDay = 20
+  const changedDay = 20;
   fireEvent.change(getSelect('selectDay'), {
     target: { value: changedDay.toString() },
-  })
-  fireEvent.click(screen.getByText('Save'))
+  });
+  fireEvent.click(screen.getByText('Save'));
 
   // Expect a changed date
   expect(onSave).toHaveBeenNthCalledWith(
     2,
     aDate.set({ day: changedDay, second: 0 })
-  )
+  );
 
   // Make a timezone change & save
   fireEvent.change(getSelect('selectTimezone'), {
     target: { value: 'America/Chicago' },
-  })
-  fireEvent.click(screen.getByText('Save'))
+  });
+  fireEvent.click(screen.getByText('Save'));
 
   // Expect a changed timezone
   expect(onSave).toHaveBeenNthCalledWith(
@@ -135,12 +135,12 @@ test('calls back with the new date on save', () => {
       second: 0,
       zone: 'America/Chicago',
     })
-  )
-})
+  );
+});
 
 test('calls back on cancel', () => {
-  const onCancel = jest.fn()
-  const onSave = jest.fn()
+  const onCancel = jest.fn();
+  const onSave = jest.fn();
   render(
     <PickDateTimeModal
       onCancel={onCancel}
@@ -148,12 +148,12 @@ test('calls back on cancel', () => {
       saveLabel="Save"
       value={aDate}
     />
-  )
+  );
 
-  expect(onCancel).not.toHaveBeenCalled()
-  fireEvent.click(screen.getByText('Cancel'))
-  expect(onCancel).toHaveBeenCalledTimes(1)
-})
+  expect(onCancel).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByText('Cancel'));
+  expect(onCancel).toHaveBeenCalledTimes(1);
+});
 
 test('can set any valid date & time', () => {
   fc.assert(
@@ -164,10 +164,10 @@ test('can set any valid date & time', () => {
         zoneName: aDate.zoneName,
       }).map((dateTime) => dateTime.set({ second: 0 })),
       (dateTime) => {
-        cleanup()
+        cleanup();
 
-        const onCancel = jest.fn()
-        const onSave = jest.fn()
+        const onCancel = jest.fn();
+        const onSave = jest.fn();
         render(
           <PickDateTimeModal
             onCancel={onCancel}
@@ -175,20 +175,20 @@ test('can set any valid date & time', () => {
             saveLabel="Save"
             value={aDate}
           />
-        )
+        );
 
-        expect(onSave).not.toHaveBeenCalled()
+        expect(onSave).not.toHaveBeenCalled();
 
         // Make a change & save
         fireEvent.change(getSelect('selectYear'), {
           target: { value: dateTime.year.toString() },
-        })
+        });
         fireEvent.change(getSelect('selectMonth'), {
           target: { value: dateTime.month.toString() },
-        })
+        });
         fireEvent.change(getSelect('selectDay'), {
           target: { value: dateTime.day.toString() },
-        })
+        });
         fireEvent.change(getSelect('selectHour'), {
           target: {
             value: (dateTime.hour > 12
@@ -198,19 +198,19 @@ test('can set any valid date & time', () => {
               : dateTime.hour
             ).toString(),
           },
-        })
+        });
         fireEvent.change(getSelect('selectMinute'), {
           target: { value: dateTime.minute.toString() },
-        })
+        });
         fireEvent.change(getSelect('selectMeridian'), {
           target: { value: dateTime.hour < 12 ? 'AM' : 'PM' },
-        })
-        fireEvent.click(screen.getByText('Save'))
+        });
+        fireEvent.click(screen.getByText('Save'));
 
         // Expect a changed date
-        expect(onSave).toHaveBeenCalledWith(aDate.set(dateTime.toObject()))
+        expect(onSave).toHaveBeenCalledWith(aDate.set(dateTime.toObject()));
       }
     ),
     { numRuns: 50 }
-  )
-})
+  );
+});

@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react'
-import styled from 'styled-components'
-import { Button } from './Button'
+import React, { useCallback, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+import { Button } from './Button';
 
 export const NumberPadContainer = styled.div`
   display: flex;
@@ -10,13 +10,13 @@ export const NumberPadContainer = styled.div`
     margin: 2px;
     width: 26%;
   }
-`
+`;
 
-const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 export interface NumberPadProps {
-  onButtonPress: (buttonValue: number) => void
-  onBackspace: () => void
-  onClear: () => void
+  onButtonPress: (buttonValue: number) => void;
+  onBackspace: () => void;
+  onClear: () => void;
 }
 
 export const NumberPad = ({
@@ -24,30 +24,30 @@ export const NumberPad = ({
   onBackspace,
   onClear,
 }: NumberPadProps): JSX.Element => {
-  const container = useRef<HTMLDivElement>(null)
+  const container = useRef<HTMLDivElement>(null);
   const onKeyPress: React.KeyboardEventHandler = useCallback(
     (event) => {
       if (DIGITS.includes(event.key)) {
-        onButtonPress(Number(event.key))
+        onButtonPress(Number(event.key));
       } else if (event.key === 'x') {
-        onClear()
+        onClear();
       }
     },
     [onButtonPress, onClear]
-  )
+  );
   const onKeyDown: React.KeyboardEventHandler = useCallback(
     (event) => {
       if (event.key === 'Backspace') {
-        onBackspace()
+        onBackspace();
       }
     },
     [onBackspace]
-  )
+  );
 
   useEffect(() => {
     /* istanbul ignore next */
-    container.current?.focus()
-  }, [])
+    container.current?.focus();
+  }, []);
 
   return (
     <NumberPadContainer
@@ -97,5 +97,5 @@ export const NumberPad = ({
         </span>
       </Button>
     </NumberPadContainer>
-  )
-}
+  );
+};

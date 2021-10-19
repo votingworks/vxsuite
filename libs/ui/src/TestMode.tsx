@@ -1,15 +1,15 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { Text } from './Text'
+import { Text } from './Text';
 
 const TestingModeContainer = styled(Text)`
   border: 0.5rem solid;
   padding: 0.5rem;
-`
+`;
 
 interface Props {
-  isLiveMode: boolean
+  isLiveMode: boolean;
 }
 
 export const TestMode = ({ isLiveMode }: Props): JSX.Element =>
@@ -19,4 +19,4 @@ export const TestMode = ({ isLiveMode }: Props): JSX.Element =>
     <TestingModeContainer warning bold warningIcon center>
       Testing Mode
     </TestingModeContainer>
-  )
+  );

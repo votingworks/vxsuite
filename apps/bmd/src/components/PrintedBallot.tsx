@@ -1,10 +1,10 @@
-import { strict as assert } from 'assert'
-import { fromByteArray } from 'base64-js'
-import { DateTime } from 'luxon'
-import React from 'react'
-import styled from 'styled-components'
+import { strict as assert } from 'assert';
+import { fromByteArray } from 'base64-js';
+import { DateTime } from 'luxon';
+import React from 'react';
+import styled from 'styled-components';
 
-import { encodeBallot } from '@votingworks/ballot-encoder'
+import { encodeBallot } from '@votingworks/ballot-encoder';
 import {
   BallotType,
   CandidateVote,
@@ -15,33 +15,33 @@ import {
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
-} from '@votingworks/types'
-import { formatLongDate, getSingleYesNoVote } from '@votingworks/utils'
+} from '@votingworks/types';
+import { formatLongDate, getSingleYesNoVote } from '@votingworks/utils';
 
-import * as GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals';
 
-import { randomBase64 } from '../utils/random'
-import { findPartyById } from '../utils/find'
+import { randomBase64 } from '../utils/random';
+import { findPartyById } from '../utils/find';
 
-import QRCode from './QRCode'
-import Prose from './Prose'
-import Text, { NoWrap } from './Text'
+import QRCode from './QRCode';
+import Prose from './Prose';
+import Text, { NoWrap } from './Text';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
   YesNoContestResultInterface,
-} from '../config/types'
+} from '../config/types';
 
 const Ballot = styled.div`
   page-break-after: always;
   @media screen {
     display: none;
   }
-`
+`;
 
 const SealImage = styled.img`
   max-width: 1in;
-`
+`;
 
 const Header = styled.div`
   display: flex;
@@ -63,7 +63,7 @@ const Header = styled.div`
     margin: 0 1rem;
     max-width: 100%;
   }
-`
+`;
 const QRCodeContainer = styled.div`
   display: flex;
   flex: 3;
@@ -98,38 +98,38 @@ const QRCodeContainer = styled.div`
       }
     }
   }
-`
+`;
 const Content = styled.div`
   flex: 1;
-`
+`;
 const BallotSelections = styled.div`
   columns: 2;
   column-gap: 2rem;
-`
+`;
 const Contest = styled.div`
   border-bottom: 0.01rem solid #000000;
   padding: 0.5rem 0;
   break-inside: avoid;
   page-break-inside: avoid;
-`
+`;
 const ContestProse = styled(Prose)`
   & > h3 {
     font-size: 0.875em;
     font-weight: 400;
   }
-`
+`;
 const NoSelection = ({ prefix }: { prefix?: string }): JSX.Element => (
   <Text italic muted>
     {prefix}[no selection]
   </Text>
-)
+);
 
 const CandidateContestResult = ({
   contest,
   parties,
   vote = [],
 }: CandidateContestResultInterface): JSX.Element => {
-  const remainingChoices = contest.seats - vote.length
+  const remainingChoices = contest.seats - vote.length;
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
@@ -150,14 +150,14 @@ const CandidateContestResult = ({
         </Text>
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
 const YesNoContestResult = ({
   contest,
   vote,
 }: YesNoContestResultInterface): JSX.Element => {
-  const yesNo = getSingleYesNoVote(vote)
+  const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
       {GLOBALS.YES_NO_VOTES[yesNo]}{' '}
@@ -165,16 +165,16 @@ const YesNoContestResult = ({
     </Text>
   ) : (
     <NoSelection />
-  )
-}
+  );
+};
 
 const MsEitherNeitherContestResult = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
 }: MsEitherNeitherContestResultInterface): JSX.Element => {
-  const eitherNeitherVote = eitherNeitherContestVote?.[0]
-  const pickOneVote = pickOneContestVote?.[0]
+  const eitherNeitherVote = eitherNeitherContestVote?.[0];
+  const pickOneVote = pickOneContestVote?.[0];
 
   return eitherNeitherVote || pickOneVote ? (
     <React.Fragment>
@@ -201,15 +201,15 @@ const MsEitherNeitherContestResult = ({
     </React.Fragment>
   ) : (
     <NoSelection />
-  )
-}
+  );
+};
 
 interface Props {
-  ballotStyleId: string
-  electionDefinition: ElectionDefinition
-  isLiveMode: boolean
-  precinctId: string
-  votes: VotesDict
+  ballotStyleId: string;
+  electionDefinition: ElectionDefinition;
+  isLiveMode: boolean;
+  precinctId: string;
+  votes: VotesDict;
 }
 
 const PrintBallot = ({
@@ -219,21 +219,21 @@ const PrintBallot = ({
   precinctId,
   votes,
 }: Props): JSX.Element => {
-  const ballotId = randomBase64(10)
+  const ballotId = randomBase64(10);
   const {
     election,
     election: { county, date, seal, sealURL, state, parties, title },
     electionHash,
-  } = electionDefinition
+  } = electionDefinition;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     ballotStyleId,
     election,
-  })
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  assert(ballotStyle)
-  const contests = getContests({ ballotStyle, election })
-  const precinct = getPrecinctById({ election, precinctId })
-  assert(precinct)
+  });
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle);
+  const contests = getContests({ ballotStyle, election });
+  const precinct = getPrecinctById({ election, precinctId });
+  assert(precinct);
   const encodedBallot = encodeBallot(election, {
     electionHash,
     precinctId,
@@ -242,7 +242,7 @@ const PrintBallot = ({
     votes,
     isTestMode: !isLiveMode,
     ballotType: BallotType.Standard,
-  })
+  });
 
   return (
     <Ballot aria-hidden>
@@ -331,7 +331,7 @@ const PrintBallot = ({
         </BallotSelections>
       </Content>
     </Ballot>
-  )
-}
+  );
+};
 
-export default PrintBallot
+export default PrintBallot;

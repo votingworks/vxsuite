@@ -1,7 +1,7 @@
-import MemoryStream from 'memorystream'
-import { relative } from 'path'
-import { parseGlobalOptions } from '..'
-import { adjacentMetadataFile } from '../../../test/fixtures'
+import MemoryStream from 'memorystream';
+import { relative } from 'path';
+import { parseGlobalOptions } from '..';
+import { adjacentMetadataFile } from '../../../test/fixtures';
 import {
   blankPage1,
   blankPage2,
@@ -9,8 +9,8 @@ import {
   electionPath,
   filledInPage1,
   filledInPage2,
-} from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
-import { OutputFormat, parseOptions, printHelp, run } from './interpret'
+} from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
+import { OutputFormat, parseOptions, printHelp, run } from './interpret';
 
 test('parse options: --election', async () => {
   for (const electionFlag of ['--election', '-e']) {
@@ -28,9 +28,9 @@ test('parse options: --election', async () => {
       expect.objectContaining({
         election,
       })
-    )
+    );
   }
-})
+});
 
 test('parse options: --min-mark-score', async () => {
   for (const minMarkScoreFlag of ['--min-mark-score', '-m']) {
@@ -50,7 +50,7 @@ test('parse options: --min-mark-score', async () => {
       expect.objectContaining({
         markScoreVoteThreshold: 0.9,
       })
-    )
+    );
 
     expect(
       await parseOptions(
@@ -68,7 +68,7 @@ test('parse options: --min-mark-score', async () => {
       expect.objectContaining({
         markScoreVoteThreshold: 0.42,
       })
-    )
+    );
   }
 
   await expect(
@@ -83,8 +83,8 @@ test('parse options: --min-mark-score', async () => {
         'I am not a number',
       ])
     )
-  ).rejects.toThrowError('Invalid minimum mark score: I am not a number')
-})
+  ).rejects.toThrowError('Invalid minimum mark score: I am not a number');
+});
 
 test('parse options: --test-mode', async () => {
   for (const testModeFlag of ['--test-mode', '-T', '--no-test-mode']) {
@@ -103,9 +103,9 @@ test('parse options: --test-mode', async () => {
       expect.objectContaining({
         testMode: testModeFlag !== '--no-test-mode',
       })
-    )
+    );
   }
-})
+});
 
 test('parse options: --format', async () => {
   expect(
@@ -122,7 +122,7 @@ test('parse options: --format', async () => {
     expect.objectContaining({
       format: OutputFormat.Table,
     })
-  )
+  );
 
   for (const formatFlag of ['--format', '-f']) {
     expect(
@@ -141,7 +141,7 @@ test('parse options: --format', async () => {
       expect.objectContaining({
         format: OutputFormat.JSON,
       })
-    )
+    );
   }
 
   await expect(
@@ -156,13 +156,13 @@ test('parse options: --format', async () => {
         'yaml',
       ])
     )
-  ).rejects.toThrowError('Unknown output format: yaml')
-})
+  ).rejects.toThrowError('Unknown output format: yaml');
+});
 
 test('parse options requires election', async () => {
   await expect(
     parseOptions(parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret']))
-  ).rejects.toThrowError(`Required option 'election' is missing.`)
+  ).rejects.toThrowError(`Required option 'election' is missing.`);
 
   await expect(
     parseOptions(
@@ -170,7 +170,7 @@ test('parse options requires election', async () => {
     )
   ).rejects.toThrowError(
     `Expected election definition file after -e, but got nothing.`
-  )
+  );
 
   await expect(
     parseOptions(
@@ -178,16 +178,16 @@ test('parse options requires election', async () => {
     )
   ).rejects.toThrowError(
     `Expected election definition file after -e, but got -t.`
-  )
-})
+  );
+});
 
 test('invalid options', async () => {
   await expect(
     parseOptions(
       parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '--wrong'])
     )
-  ).rejects.toThrowError('Unknown option: --wrong')
-})
+  ).rejects.toThrowError('Unknown option: --wrong');
+});
 
 test('template and ballot flags', async () => {
   const options = await parseOptions(
@@ -202,9 +202,9 @@ test('template and ballot flags', async () => {
       '-b',
       'ballot.png',
     ])
-  )
-  expect(options.ballotInputs.map((bi) => bi.id())).toEqual(['ballot.png'])
-  expect(options.templateInputs.map((ti) => ti.id())).toEqual(['template.png'])
+  );
+  expect(options.ballotInputs.map((bi) => bi.id())).toEqual(['ballot.png']);
+  expect(options.templateInputs.map((ti) => ti.id())).toEqual(['template.png']);
 
   await expect(
     parseOptions(
@@ -219,7 +219,7 @@ test('template and ballot flags', async () => {
         'ballot.png',
       ])
     )
-  ).rejects.toThrowError('Expected template file after -t, but got -b')
+  ).rejects.toThrowError('Expected template file after -t, but got -b');
 
   await expect(
     parseOptions(
@@ -232,7 +232,7 @@ test('template and ballot flags', async () => {
         '-t',
       ])
     )
-  ).rejects.toThrowError('Expected template file after -t, but got nothing')
+  ).rejects.toThrowError('Expected template file after -t, but got nothing');
 
   await expect(
     parseOptions(
@@ -247,8 +247,8 @@ test('template and ballot flags', async () => {
         '-b',
       ])
     )
-  ).rejects.toThrowError('Expected ballot file after -b, but got nothing')
-})
+  ).rejects.toThrowError('Expected ballot file after -b, but got nothing');
+});
 
 test('file paths without explicit template/ballot flags', async () => {
   const parsed = await parseOptions(
@@ -261,17 +261,17 @@ test('file paths without explicit template/ballot flags', async () => {
       'img01.png',
       'img02.png',
     ])
-  )
+  );
   expect(parsed.autoInputs.map((ai) => ai.id())).toEqual([
     'img01.png',
     'img02.png',
-  ])
-})
+  ]);
+});
 
 test('help', async () => {
-  const stdout = new MemoryStream()
+  const stdout = new MemoryStream();
 
-  printHelp('hmpb-interpreter', stdout)
+  printHelp('hmpb-interpreter', stdout);
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "hmpb-interpreter interpret -e JSON IMG1 [IMG2 …]
 
@@ -295,12 +295,12 @@ test('help', async () => {
     # Automatically process images as templates until all pages are found.
     hmpb-interpreter interpret -e election.json image*.png
     "
-  `)
-})
+  `);
+});
 
 test('run interpret', async () => {
-  const stdin = new MemoryStream()
-  const stdout = new MemoryStream()
+  const stdin = new MemoryStream();
+  const stdout = new MemoryStream();
 
   expect(
     await run(
@@ -324,7 +324,7 @@ test('run interpret', async () => {
       stdin,
       stdout
     )
-  ).toEqual(0)
+  ).toEqual(0);
 
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "╔═══════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -353,15 +353,15 @@ test('run interpret', async () => {
     ║ Mayor                                                 │                                                                                                    │                                                                                                    ║
     ╚═══════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╝
     "
-  `)
-})
+  `);
+});
 
 test('run interpret with auto inputs', async () => {
-  const stdin = new MemoryStream()
-  const stdout = new MemoryStream()
+  const stdin = new MemoryStream();
+  const stdout = new MemoryStream();
 
-  const templatePath = blankPage1.filePath()
-  const ballotPath = relative(process.cwd(), filledInPage1.filePath())
+  const templatePath = blankPage1.filePath();
+  const ballotPath = relative(process.cwd(), filledInPage1.filePath());
 
   expect(
     await run(
@@ -379,7 +379,7 @@ test('run interpret with auto inputs', async () => {
       stdin,
       stdout
     )
-  ).toEqual(0)
+  ).toEqual(0);
 
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "╔═══════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -408,12 +408,12 @@ test('run interpret with auto inputs', async () => {
     ║ Mayor                                                 │                                                                                                    ║
     ╚═══════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╝
     "
-  `)
-})
+  `);
+});
 
 test('run interpret with JSON output', async () => {
-  const stdin = new MemoryStream()
-  const stdout = new MemoryStream()
+  const stdin = new MemoryStream();
+  const stdout = new MemoryStream();
 
   expect(
     await run(
@@ -435,7 +435,7 @@ test('run interpret with JSON output', async () => {
       stdin,
       stdout
     )
-  ).toEqual(0)
+  ).toEqual(0);
 
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "[
@@ -762,5 +762,5 @@ test('run interpret with JSON output', async () => {
         }
       }
     ]"
-  `)
-})
+  `);
+});

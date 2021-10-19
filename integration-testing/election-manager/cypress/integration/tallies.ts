@@ -1,34 +1,34 @@
-import { electionMultiPartyPrimaryWithDataFiles } from '@votingworks/fixtures'
+import { electionMultiPartyPrimaryWithDataFiles } from '@votingworks/fixtures';
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Election Manager can tally results properly', () => {
-    cy.visit('/')
+    cy.visit('/');
     cy.get('input[type="file"]').attachFile(
       'electionMultiPartyPrimarySample.json'
-    )
-    cy.contains('Election loading')
-    cy.contains('Election Hash: 28d2f3e8b7')
-    cy.contains('Tally').click()
-    cy.contains('Import CVR Files').click()
+    );
+    cy.contains('Election loading');
+    cy.contains('Election Hash: 28d2f3e8b7');
+    cy.contains('Tally').click();
+    cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile(
       'multiPartyPrimaryCVRResults.jsonl'
-    )
+    );
     cy.get('[data-testid="total-ballot-count"]').within(() =>
       cy.contains('4,530')
-    )
-    cy.contains('Save Results File').click()
-    cy.get('[data-testid="manual-export"]').click()
-    cy.contains('Results Saved')
+    );
+    cy.contains('Save Results File').click();
+    cy.get('[data-testid="manual-export"]').click();
+    cy.contains('Results Saved');
     cy.task('readMostRecentFile', 'cypress/downloads').then((fileContent) => {
-      const recievedLines = (fileContent as string).split('\r\n')
+      const recievedLines = (fileContent as string).split('\r\n');
       for (const [
         i,
         expectedLine,
       ] of electionMultiPartyPrimaryWithDataFiles.semsData
         .split('\n')
         .entries()) {
-        expect(recievedLines[i].replace('\n', ': ')).to.eqls(expectedLine)
+        expect(recievedLines[i].replace('\n', ': ')).to.eqls(expectedLine);
       }
-    })
-  })
-})
+    });
+  });
+});

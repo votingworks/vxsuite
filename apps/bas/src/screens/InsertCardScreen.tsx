@@ -1,19 +1,19 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Screen from '../components/Screen'
-import Button from '../components/Button'
+import Prose from '../components/Prose';
+import Main, { MainChild } from '../components/Main';
+import MainNav from '../components/MainNav';
+import Screen from '../components/Screen';
+import Button from '../components/Button';
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1.75rem;
   height: 40vw;
-`
+`;
 
 interface Props {
-  lockScreen: () => void
+  lockScreen: () => void;
 }
 
 const InsertCardScreen = ({ lockScreen }: Props): JSX.Element => {
@@ -36,7 +36,7 @@ const InsertCardScreen = ({ lockScreen }: Props): JSX.Element => {
         </Button>
       </MainNav>
     </Screen>
-  )
-}
+  );
+};
 
-export default InsertCardScreen
+export default InsertCardScreen;

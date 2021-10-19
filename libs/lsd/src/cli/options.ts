@@ -15,93 +15,96 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Size } from '../util/geometry'
+import { Size } from '../util/geometry';
 
-export type LengthThreshold = number | { width: number } | { height: number }
+export type LengthThreshold = number | { width: number } | { height: number };
 
 export interface Options {
-  background: 'none' | 'white' | 'original'
-  format: 'svg' | 'png'
-  help: boolean
-  imagePaths: readonly string[]
-  minLength?: LengthThreshold
-  scale: number
-  size?: Size
+  background: 'none' | 'white' | 'original';
+  format: 'svg' | 'png';
+  help: boolean;
+  imagePaths: readonly string[];
+  minLength?: LengthThreshold;
+  scale: number;
+  size?: Size;
 }
 
 export function parseOptions(args: readonly string[]): Options {
-  const imagePaths: string[] = []
-  let background: Options['background'] = 'none'
-  let format: Options['format'] = 'svg'
-  let help = false
-  let scale = 1
-  let size: Size | undefined
-  let minLength: LengthThreshold | undefined
+  const imagePaths: string[] = [];
+  let background: Options['background'] = 'none';
+  let format: Options['format'] = 'svg';
+  let help = false;
+  let scale = 1;
+  let size: Size | undefined;
+  let minLength: LengthThreshold | undefined;
 
   for (let i = 0; i < args.length; i += 1) {
-    const arg = args[i]
+    const arg = args[i];
     if (arg === '--min-length') {
-      i += 1
-      const value = args[i]
+      i += 1;
+      const value = args[i];
       if (/^\d+$/.test(value)) {
-        minLength = parseInt(value, 10)
+        minLength = parseInt(value, 10);
       } else {
-        const match = /^(\d+)%([wh])$/.exec(value)
+        const match = /^(\d+)%([wh])$/.exec(value);
         if (match) {
-          const percent = parseInt(match[1], 10)
+          const percent = parseInt(match[1], 10);
           minLength =
-            match[2] === 'w' ? { width: percent } : { height: percent }
+            match[2] === 'w' ? { width: percent } : { height: percent };
         } else {
-          throw new Error(`invalid format for ${arg}: ${value}`)
+          throw new Error(`invalid format for ${arg}: ${value}`);
         }
       }
     } else if (arg === '--scale') {
-      i += 1
-      const value = args[i]
+      i += 1;
+      const value = args[i];
       if (value.endsWith('%')) {
-        scale = parseFloat(value.slice(0, -1)) / 100
+        scale = parseFloat(value.slice(0, -1)) / 100;
       } else {
-        scale = parseFloat(value)
+        scale = parseFloat(value);
       }
 
       if (Number.isNaN(scale)) {
-        throw new Error(`invalid format for ${arg}: ${value}`)
+        throw new Error(`invalid format for ${arg}: ${value}`);
       }
     } else if (arg === '--size') {
-      i += 1
-      const value = args[i]
-      const match = /^(\d+)x(\d+)$/.exec(value)
+      i += 1;
+      const value = args[i];
+      const match = /^(\d+)x(\d+)$/.exec(value);
       if (match) {
-        size = { width: parseInt(match[1], 10), height: parseInt(match[2], 10) }
+        size = {
+          width: parseInt(match[1], 10),
+          height: parseInt(match[2], 10),
+        };
       } else {
-        throw new Error(`invalid size '${value}', expected 'WxH'`)
+        throw new Error(`invalid size '${value}', expected 'WxH'`);
       }
     } else if (arg === '--format' || arg === '-f') {
-      i += 1
-      const value = args[i]
+      i += 1;
+      const value = args[i];
       if (value === 'svg' || value === 'png') {
-        format = value
+        format = value;
       } else {
-        throw new Error(`invalid format '${value}', expected 'svg' or 'png'`)
+        throw new Error(`invalid format '${value}', expected 'svg' or 'png'`);
       }
     } else if (arg === '--background' || arg === '-b') {
-      i += 1
-      const value = args[i]
+      i += 1;
+      const value = args[i];
       if (value === 'none' || value === 'white' || value === 'original') {
-        background = value
+        background = value;
       } else {
         throw new Error(
           `invalid background '${value}', expected 'none', 'white', or 'original'`
-        )
+        );
       }
     } else if (arg === '--help' || arg === '-h') {
-      help = true
+      help = true;
     } else if (arg.startsWith('-')) {
-      throw new Error(`unexpected option '${arg}'`)
+      throw new Error(`unexpected option '${arg}'`);
     } else {
-      imagePaths.push(arg)
+      imagePaths.push(arg);
     }
   }
 
-  return { imagePaths, background, format, help, minLength, scale, size }
+  return { imagePaths, background, format, help, minLength, scale, size };
 }

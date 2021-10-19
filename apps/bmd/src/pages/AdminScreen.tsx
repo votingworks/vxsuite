@@ -1,50 +1,50 @@
-import { DateTime } from 'luxon'
-import React, { useCallback, useEffect, useState } from 'react'
+import { DateTime } from 'luxon';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { ElectionDefinition } from '@votingworks/types'
-import { formatFullDateTimeZone, Printer } from '@votingworks/utils'
+import { ElectionDefinition } from '@votingworks/types';
+import { formatFullDateTimeZone, Printer } from '@votingworks/utils';
 import {
   Button,
   Main,
   MainChild,
   SegmentedButton,
   useNow,
-} from '@votingworks/ui'
+} from '@votingworks/ui';
 import {
   MachineConfig,
   PrecinctSelection,
   PrecinctSelectionKind,
   ScreenReader,
   SelectChangeEventFunction,
-} from '../config/types'
+} from '../config/types';
 
-import TestBallotDeckScreen from './TestBallotDeckScreen'
+import TestBallotDeckScreen from './TestBallotDeckScreen';
 
-import Prose from '../components/Prose'
-import Text from '../components/Text'
-import Sidebar from '../components/Sidebar'
-import ElectionInfo from '../components/ElectionInfo'
-import Screen from '../components/Screen'
-import Select from '../components/Select'
-import VersionsData from '../components/VersionsData'
-import PickDateTimeModal from '../components/PickDateTimeModal'
-import { AllPrecinctsDisplayName } from '../utils/precinctSelection'
+import Prose from '../components/Prose';
+import Text from '../components/Text';
+import Sidebar from '../components/Sidebar';
+import ElectionInfo from '../components/ElectionInfo';
+import Screen from '../components/Screen';
+import Select from '../components/Select';
+import VersionsData from '../components/VersionsData';
+import PickDateTimeModal from '../components/PickDateTimeModal';
+import { AllPrecinctsDisplayName } from '../utils/precinctSelection';
 
 interface Props {
-  appPrecinct?: PrecinctSelection
-  ballotsPrintedCount: number
-  electionDefinition?: ElectionDefinition
-  isLiveMode: boolean
-  fetchElection: VoidFunction
-  updateAppPrecinct: (appPrecinct: PrecinctSelection) => void
-  toggleLiveMode: VoidFunction
-  unconfigure: () => Promise<void>
-  machineConfig: MachineConfig
-  printer: Printer
-  screenReader: ScreenReader
+  appPrecinct?: PrecinctSelection;
+  ballotsPrintedCount: number;
+  electionDefinition?: ElectionDefinition;
+  isLiveMode: boolean;
+  fetchElection: VoidFunction;
+  updateAppPrecinct: (appPrecinct: PrecinctSelection) => void;
+  toggleLiveMode: VoidFunction;
+  unconfigure: () => Promise<void>;
+  machineConfig: MachineConfig;
+  printer: Printer;
+  screenReader: ScreenReader;
 }
 
-const ALL_PRECINCTS_OPTION_VALUE = '_ALL'
+const ALL_PRECINCTS_OPTION_VALUE = '_ALL';
 
 const AdminScreen = ({
   appPrecinct,
@@ -59,56 +59,56 @@ const AdminScreen = ({
   printer,
   screenReader,
 }: Props): JSX.Element => {
-  const election = electionDefinition?.election
+  const election = electionDefinition?.election;
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
-    const precinctId = event.currentTarget.value
+    const precinctId = event.currentTarget.value;
 
     if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
-      updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts })
+      updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts });
     } else if (precinctId) {
       updateAppPrecinct({
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId,
-      })
+      });
     }
-  }
+  };
 
-  const [isFetchingElection, setIsFetchingElection] = useState(false)
+  const [isFetchingElection, setIsFetchingElection] = useState(false);
   const loadElection = () => {
-    setIsFetchingElection(true)
-    fetchElection()
-  }
+    setIsFetchingElection(true);
+    fetchElection();
+  };
 
-  const [isTestDeck, setIsTestDeck] = useState(false)
-  const showTestDeck = () => setIsTestDeck(true)
-  const hideTestDeck = () => setIsTestDeck(false)
+  const [isTestDeck, setIsTestDeck] = useState(false);
+  const showTestDeck = () => setIsTestDeck(true);
+  const hideTestDeck = () => setIsTestDeck(false);
 
-  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
-  const [isSettingClock, setIsSettingClock] = useState(false)
-  const systemDate = useNow()
+  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false);
+  const [isSettingClock, setIsSettingClock] = useState(false);
+  const systemDate = useNow();
 
   const setClock = useCallback(
     async (date: DateTime) => {
-      setIsSettingClock(true)
+      setIsSettingClock(true);
       try {
         await window.kiosk?.setClock({
           isoDatetime: date.toISO(),
           IANAZone: date.zoneName,
-        })
-        setIsSystemDateModalActive(false)
+        });
+        setIsSystemDateModalActive(false);
       } finally {
-        setIsSettingClock(false)
+        setIsSettingClock(false);
       }
     },
     [setIsSettingClock, setIsSystemDateModalActive]
-  )
+  );
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
-    const initialMuted = screenReader.isMuted()
-    screenReader.mute()
-    return () => screenReader.toggleMuted(initialMuted)
-  }, [screenReader])
+    const initialMuted = screenReader.isMuted();
+    screenReader.mute();
+    return () => screenReader.toggleMuted(initialMuted);
+  }, [screenReader]);
 
   if (isTestDeck && electionDefinition) {
     return (
@@ -120,10 +120,10 @@ const AdminScreen = ({
         isLiveMode={false} // always false for Test Mode
         printer={printer}
       />
-    )
+    );
   }
 
-  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isVxPrint
+  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isVxPrint;
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
@@ -283,7 +283,7 @@ const AdminScreen = ({
         />
       )}
     </Screen>
-  )
-}
+  );
+};
 
-export default AdminScreen
+export default AdminScreen;

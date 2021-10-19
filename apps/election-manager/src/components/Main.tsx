@@ -1,8 +1,8 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  padded?: boolean
-  noOverflow?: boolean
+  padded?: boolean;
+  noOverflow?: boolean;
 }
 
 const Main = styled('main')<Props>`
@@ -13,13 +13,13 @@ const Main = styled('main')<Props>`
   @media (min-width: 480px) {
     padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
   }
-`
+`;
 
 interface ChildProps {
-  center?: boolean
-  centerVertical?: boolean
-  centerHorizontal?: boolean
-  flexContainer?: boolean
+  center?: boolean;
+  centerVertical?: boolean;
+  centerHorizontal?: boolean;
+  flexContainer?: boolean;
 }
 
 export const MainChild = styled('div')<ChildProps>`
@@ -31,6 +31,6 @@ export const MainChild = styled('div')<ChildProps>`
     centerVertical = center,
     centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
-`
+`;
 
-export default Main
+export default Main;

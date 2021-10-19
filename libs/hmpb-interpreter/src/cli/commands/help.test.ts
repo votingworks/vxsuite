@@ -1,26 +1,26 @@
-import MemoryStream from 'memorystream'
-import { Readable } from 'stream'
-import { parseOptions, printHelp, run } from './help'
+import MemoryStream from 'memorystream';
+import { Readable } from 'stream';
+import { parseOptions, printHelp, run } from './help';
 
 async function readStream(stream: Readable): Promise<string> {
   return new Promise((resolve, reject) => {
-    const chunks: string[] = []
-    stream.on('data', (chunk) => chunks.push(chunk))
-    stream.on('end', () => resolve(chunks.join('')))
-    stream.on('error', reject)
-  })
+    const chunks: string[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('end', () => resolve(chunks.join('')));
+    stream.on('error', reject);
+  });
 }
 
 test('prints usage examples to stdout', async () => {
-  const stdout = new MemoryStream()
+  const stdout = new MemoryStream();
   await run(
     { $0: 'hmpb-interpreter' },
     Readable.from('') as NodeJS.ReadStream,
     stdout as NodeJS.WriteStream
-  )
-  stdout.end()
-  expect(await readStream(stdout)).toContain('hmpb-interpreter COMMAND')
-})
+  );
+  stdout.end();
+  expect(await readStream(stdout)).toContain('hmpb-interpreter COMMAND');
+});
 
 test('expects an optional command', async () => {
   expect(
@@ -31,7 +31,7 @@ test('expects an optional command', async () => {
       nodePath: 'node',
       help: true,
     })
-  ).toEqual({ $0: 'hmpb-interpreter', command: undefined })
+  ).toEqual({ $0: 'hmpb-interpreter', command: undefined });
   expect(
     await parseOptions({
       command: 'help',
@@ -40,25 +40,25 @@ test('expects an optional command', async () => {
       nodePath: 'node',
       help: true,
     })
-  ).toEqual({ $0: 'hmpb-interpreter', command: 'foo' })
-})
+  ).toEqual({ $0: 'hmpb-interpreter', command: 'foo' });
+});
 
 test('help command help', () => {
-  const stdout = new MemoryStream()
+  const stdout = new MemoryStream();
 
-  printHelp({ $0: 'hmpb-interpret', command: 'help' }, stdout)
+  printHelp({ $0: 'hmpb-interpret', command: 'help' }, stdout);
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "Usage: hmpb-interpret help COMMAND
 
     Print usage information for COMMAND.
     "
-  `)
-})
+  `);
+});
 
 test('interpret command help', () => {
-  const stdout = new MemoryStream()
+  const stdout = new MemoryStream();
 
-  printHelp({ $0: 'hmpb-interpret', command: 'interpret' }, stdout)
+  printHelp({ $0: 'hmpb-interpret', command: 'interpret' }, stdout);
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "hmpb-interpret interpret -e JSON IMG1 [IMG2 …]
 
@@ -82,13 +82,13 @@ test('interpret command help', () => {
     # Automatically process images as templates until all pages are found.
     hmpb-interpret interpret -e election.json image*.png
     "
-  `)
-})
+  `);
+});
 
 test('layout command help', () => {
-  const stdout = new MemoryStream()
+  const stdout = new MemoryStream();
 
-  printHelp({ $0: 'hmpb-interpret', command: 'layout' }, stdout)
+  printHelp({ $0: 'hmpb-interpret', command: 'layout' }, stdout);
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
     "hmpb-interpret layout IMG1 [IMG2 …]
 
@@ -100,12 +100,12 @@ test('layout command help', () => {
     # Annotate layout for many ballot pages.
     hmpb-interpret layout ballot*.jpg
     "
-  `)
-})
+  `);
+});
 
 test('unknown command', () => {
   expect(() =>
     // @ts-expect-error - intentionally invalid command
     printHelp({ $0: 'hmpb-interpret', command: 'nope' }, new MemoryStream())
-  ).toThrowError('unknown command: nope')
-})
+  ).toThrowError('unknown command: nope');
+});

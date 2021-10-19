@@ -1,11 +1,11 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface TableProps {
-  borderTop?: boolean
-  condensed?: boolean
+  borderTop?: boolean;
+  condensed?: boolean;
 }
 
-const borderColor = 'rgb(194, 200, 203)'
+const borderColor = 'rgb(194, 200, 203)';
 
 export const Table = styled.table<TableProps>`
   border-top: ${({ borderTop = false }) =>
@@ -27,16 +27,16 @@ export const Table = styled.table<TableProps>`
   @media print {
     border-top: 1px solid ${borderColor};
   }
-`
+`;
 
 interface TableDataProps {
-  narrow?: boolean
-  nowrap?: boolean
-  textAlign?: 'right' | 'left' | 'center'
+  narrow?: boolean;
+  nowrap?: boolean;
+  textAlign?: 'right' | 'left' | 'center';
 }
 
 export const TD = styled.td<TableDataProps>`
   width: ${({ narrow = false }) => (narrow ? '1%' : undefined)};
   text-align: ${({ textAlign }) => textAlign};
   white-space: ${({ nowrap }) => (nowrap ? 'nowrap' : undefined)};
-`
+`;

@@ -1,43 +1,43 @@
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 import React, {
   useContext,
   useState,
   useEffect,
   useRef,
   useCallback,
-} from 'react'
-import moment from 'moment'
+} from 'react';
+import moment from 'moment';
 
 import {
   generateFinalExportDefaultFilename,
   format,
   find,
-} from '@votingworks/utils'
-import { Table, TD } from '@votingworks/ui'
-import { TallyCategory, ExternalTallySourceType } from '@votingworks/types'
-import { InputEventFunction, ResultsFileType } from '../config/types'
+} from '@votingworks/utils';
+import { Table, TD } from '@votingworks/ui';
+import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
+import { InputEventFunction, ResultsFileType } from '../config/types';
 
-import AppContext from '../contexts/AppContext'
-import ConverterClient from '../lib/ConverterClient'
-import { getPrecinctIdsInExternalTally } from '../utils/externalTallies'
+import AppContext from '../contexts/AppContext';
+import ConverterClient from '../lib/ConverterClient';
+import { getPrecinctIdsInExternalTally } from '../utils/externalTallies';
 
-import Button from '../components/Button'
-import Text from '../components/Text'
-import Loading from '../components/Loading'
-import NavigationScreen from '../components/NavigationScreen'
-import routerPaths from '../routerPaths'
-import LinkButton from '../components/LinkButton'
-import HorizontalRule from '../components/HorizontalRule'
-import Prose from '../components/Prose'
-import ImportCVRFilesModal from '../components/ImportCVRFilesModal'
-import BallotCountsTable from '../components/BallotCountsTable'
-import Modal from '../components/Modal'
-import FileInputButton from '../components/FileInputButton'
-import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
-import { TIME_FORMAT } from '../config/globals'
-import { getPartiesWithPrimaryElections } from '../utils/election'
-import ImportExternalResultsModal from '../components/ImportExternalResultsModal'
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+import Button from '../components/Button';
+import Text from '../components/Text';
+import Loading from '../components/Loading';
+import NavigationScreen from '../components/NavigationScreen';
+import routerPaths from '../routerPaths';
+import LinkButton from '../components/LinkButton';
+import HorizontalRule from '../components/HorizontalRule';
+import Prose from '../components/Prose';
+import ImportCVRFilesModal from '../components/ImportCVRFilesModal';
+import BallotCountsTable from '../components/BallotCountsTable';
+import Modal from '../components/Modal';
+import FileInputButton from '../components/FileInputButton';
+import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal';
+import { TIME_FORMAT } from '../config/globals';
+import { getPartiesWithPrimaryElections } from '../utils/election';
+import ImportExternalResultsModal from '../components/ImportExternalResultsModal';
+import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
 
 const TallyScreen = (): JSX.Element => {
   const {
@@ -49,114 +49,114 @@ const TallyScreen = (): JSX.Element => {
     fullElectionExternalTallies,
     generateExportableTallies,
     resetFiles,
-  } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election } = electionDefinition
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test'
-  const externalFileInput = useRef<HTMLInputElement>(null)
+  } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
+  const isTestMode = castVoteRecordFiles?.fileMode === 'test';
+  const externalFileInput = useRef<HTMLInputElement>(null);
 
   const [
     confirmingRemoveFileType,
     setConfirmingRemoveFileType,
-  ] = useState<ResultsFileType>()
-  const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false)
+  ] = useState<ResultsFileType>();
+  const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false);
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
     false
-  )
+  );
 
-  const [isShowingBatchResults, setIsShowingBatchResults] = useState(false)
+  const [isShowingBatchResults, setIsShowingBatchResults] = useState(false);
   const toggleShowingBatchResults = useCallback(() => {
-    setIsShowingBatchResults(!isShowingBatchResults)
-  }, [isShowingBatchResults, setIsShowingBatchResults])
+    setIsShowingBatchResults(!isShowingBatchResults);
+  }, [isShowingBatchResults, setIsShowingBatchResults]);
 
   const beginConfirmRemoveFiles = (fileType: ResultsFileType) => {
-    setConfirmingRemoveFileType(fileType)
-  }
+    setConfirmingRemoveFileType(fileType);
+  };
   const cancelConfirmingRemoveFiles = () => {
-    setConfirmingRemoveFileType(undefined)
-  }
+    setConfirmingRemoveFileType(undefined);
+  };
   const confirmRemoveFiles = async (fileType: ResultsFileType) => {
-    setConfirmingRemoveFileType(undefined)
-    await resetFiles(fileType)
-  }
+    setConfirmingRemoveFileType(undefined);
+    await resetFiles(fileType);
+  };
 
-  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial'
-  const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false)
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+  const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false);
   const cancelConfirmingOfficial = () => {
-    setIsConfirmingOfficial(false)
-  }
+    setIsConfirmingOfficial(false);
+  };
   const confirmOfficial = () => {
-    setIsConfirmingOfficial(true)
-  }
+    setIsConfirmingOfficial(true);
+  };
   const setOfficial = async () => {
-    setIsConfirmingOfficial(false)
-    await saveIsOfficialResults()
-  }
+    setIsConfirmingOfficial(false);
+    await saveIsOfficialResults();
+  };
 
   const getPrecinctNames = (precinctIds: readonly string[]) =>
     precinctIds
       .map((id) => find(election.precincts, (p) => p.id === id).name)
-      .join(', ')
-  const partiesForPrimaries = getPartiesWithPrimaryElections(election)
+      .join(', ');
+  const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
-  const castVoteRecordFileList = castVoteRecordFiles.fileList
+  const castVoteRecordFileList = castVoteRecordFiles.fileList;
   const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError
+    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
   const hasAnyFiles =
-    hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0
+    hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0;
   const hasExternalSEMSFile = fullElectionExternalTallies.some(
     (t) => t.source === ExternalTallySourceType.SEMS
-  )
+  );
   const hasExternalManualData = fullElectionExternalTallies.some(
     (t) => t.source === ExternalTallySourceType.Manual
-  )
+  );
 
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
     false
-  )
+  );
   const [
     externalResultsSelectedFile,
     setExternalResultsSelectedFile,
-  ] = useState<File>()
+  ] = useState<File>();
 
   const importExternalSEMSFile: InputEventFunction = async (event) => {
-    const input = event.currentTarget
-    const files = Array.from(input.files || [])
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []);
     if (files.length === 1) {
-      setIsImportExternalModalOpen(true)
-      setExternalResultsSelectedFile(files[0])
+      setIsImportExternalModalOpen(true);
+      setExternalResultsSelectedFile(files[0]);
     }
-  }
+  };
 
   const closeExternalFileImport = () => {
-    setIsImportExternalModalOpen(false)
-    setExternalResultsSelectedFile(undefined)
+    setIsImportExternalModalOpen(false);
+    setExternalResultsSelectedFile(undefined);
     if (externalFileInput?.current) {
-      externalFileInput.current.value = ''
+      externalFileInput.current.value = '';
     }
-  }
+  };
 
-  const [hasConverter, setHasConverter] = useState(false)
+  const [hasConverter, setHasConverter] = useState(false);
   useEffect(() => {
     void (async () => {
       try {
-        await new ConverterClient('tallies').getFiles()
-        setHasConverter(true)
+        await new ConverterClient('tallies').getFiles();
+        setHasConverter(true);
       } catch {
-        setHasConverter(false)
+        setHasConverter(false);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
-  const fileMode = castVoteRecordFiles?.fileMode
+  const fileMode = castVoteRecordFiles?.fileMode;
   const fileModeText =
     fileMode === 'test'
       ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before importing live ballot results.'
       : fileMode === 'live'
       ? 'Currently tallying live ballots.'
-      : ''
+      : '';
 
-  let tallyResultsInfo = <Loading>Tabulating Results…</Loading>
+  let tallyResultsInfo = <Loading>Tabulating Results…</Loading>;
   if (!isTabulationRunning) {
     const resultTables = (
       <React.Fragment>
@@ -184,7 +184,7 @@ const TallyScreen = (): JSX.Element => {
           <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
         )}
       </React.Fragment>
-    )
+    );
 
     tallyResultsInfo = (
       <React.Fragment>
@@ -196,11 +196,11 @@ const TallyScreen = (): JSX.Element => {
           </LinkButton>
         </p>
       </React.Fragment>
-    )
+    );
   }
 
   const externalTallyRows = fullElectionExternalTallies.map((t) => {
-    const precinctsInExternalFile = getPrecinctIdsInExternalTally(t)
+    const precinctsInExternalFile = getPrecinctIdsInExternalTally(t);
     return (
       <tr key={t.inputSourceName}>
         <TD narrow nowrap>
@@ -212,40 +212,40 @@ const TallyScreen = (): JSX.Element => {
         <TD narrow>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
         <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
       </tr>
-    )
-  })
+    );
+  });
   const externalFileBallotCount = fullElectionExternalTallies.reduce(
     (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
     0
-  )
+  );
 
   const generateSEMSResults = async (): Promise<string> => {
-    const exportableTallies = generateExportableTallies()
+    const exportableTallies = generateExportableTallies();
     // process on the server
-    const client = new ConverterClient('tallies')
-    const { inputFiles, outputFiles } = await client.getFiles()
-    const [electionDefinitionFile, talliesFile] = inputFiles
-    const resultsFile = outputFiles[0]
+    const client = new ConverterClient('tallies');
+    const { inputFiles, outputFiles } = await client.getFiles();
+    const [electionDefinitionFile, talliesFile] = inputFiles;
+    const resultsFile = outputFiles[0];
 
     await client.setInputFile(
       electionDefinitionFile.name,
       new File([electionDefinition.electionData], electionDefinitionFile.name, {
         type: 'application/json',
       })
-    )
+    );
     await client.setInputFile(
       talliesFile.name,
       new File([JSON.stringify(exportableTallies)], 'tallies')
-    )
-    await client.process()
+    );
+    await client.process();
 
     // download the result
-    const results = await client.getOutputFile(resultsFile.name)
+    const results = await client.getOutputFile(resultsFile.name);
 
     // reset files on the server
-    await client.reset()
-    return await results.text()
-  }
+    await client.reset();
+    return await results.text();
+  };
 
   return (
     <React.Fragment>
@@ -468,7 +468,7 @@ const TallyScreen = (): JSX.Element => {
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default TallyScreen
+export default TallyScreen;

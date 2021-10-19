@@ -1,25 +1,25 @@
-import { strict as assert } from 'assert'
-import React, { useContext, useEffect, useRef } from 'react'
-import styled from 'styled-components'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types'
-import { LinkButton, Main, MainChild } from '@votingworks/ui'
+import { strict as assert } from 'assert';
+import React, { useContext, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
+import { LinkButton, Main, MainChild } from '@votingworks/ui';
 
-import BallotContext from '../contexts/ballotContext'
+import BallotContext from '../contexts/ballotContext';
 
-import { Wobble } from '../components/Animations'
-import ElectionInfo from '../components/ElectionInfo'
-import Prose from '../components/Prose'
-import Sidebar from '../components/Sidebar'
-import Screen from '../components/Screen'
-import SettingsTextSize from '../components/SettingsTextSize'
-import { PrecinctSelectionKind } from '../config/types'
+import { Wobble } from '../components/Animations';
+import ElectionInfo from '../components/ElectionInfo';
+import Prose from '../components/Prose';
+import Sidebar from '../components/Sidebar';
+import Screen from '../components/Screen';
+import SettingsTextSize from '../components/SettingsTextSize';
+import { PrecinctSelectionKind } from '../config/types';
 
 const SidebarSpacer = styled.div`
   height: 90px;
-`
+`;
 
-type Props = RouteComponentProps<Record<string, string | undefined>>
+type Props = RouteComponentProps<Record<string, string | undefined>>;
 
 const StartPage = ({ history }: Props): JSX.Element => {
   const {
@@ -30,35 +30,35 @@ const StartPage = ({ history }: Props): JSX.Element => {
     setUserSettings,
     userSettings,
     forceSaveVote,
-  } = useContext(BallotContext)
+  } = useContext(BallotContext);
   assert(
     electionDefinition,
     'electionDefinition is required to render StartPage'
-  )
+  );
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render StartPage'
-  )
+  );
   assert(
     typeof ballotStyleId !== 'undefined',
     'ballotStyleId is required to render StartPage'
-  )
-  const audioFocus = useRef<HTMLDivElement>(null)
-  const { election } = electionDefinition
-  const { title } = election
+  );
+  const audioFocus = useRef<HTMLDivElement>(null);
+  const { election } = electionDefinition;
+  const { title } = election;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
     election,
     ballotStyleId,
-  })
+  });
 
   const onStart = () => {
-    forceSaveVote()
-    history.push('/contests/0')
-  }
+    forceSaveVote();
+    history.push('/contests/0');
+  };
 
   useEffect(() => {
-    audioFocus.current?.click()
-  }, [])
+    audioFocus.current?.click();
+  }, []);
 
   return (
     <Screen ref={audioFocus}>
@@ -119,7 +119,7 @@ const StartPage = ({ history }: Props): JSX.Element => {
         </Prose>
       </Sidebar>
     </Screen>
-  )
-}
+  );
+};
 
-export default withRouter(StartPage)
+export default withRouter(StartPage);

@@ -1,4 +1,4 @@
-import { Rect } from '@votingworks/types'
+import { Rect } from '@votingworks/types';
 
 /**
  * Builds a function to convert rect absolute values to relative percentage
@@ -10,5 +10,5 @@ export default function relativeRect(width: number, height: number) {
     y: (rect.y / height) * 100,
     width: (rect.width / width) * 100,
     height: (rect.height / height) * 100,
-  })
+  });
 }

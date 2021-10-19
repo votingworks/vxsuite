@@ -1,8 +1,8 @@
 // Inspiration: https://www.filamentgroup.com/lab/select-css.html
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  fullWidth?: boolean
+  fullWidth?: boolean;
 }
 
 const Select = styled.select<Props>`
@@ -22,6 +22,6 @@ const Select = styled.select<Props>`
     background: #dddddd;
     color: rgb(170, 170, 170);
   }
-`
+`;
 
-export default Select
+export default Select;

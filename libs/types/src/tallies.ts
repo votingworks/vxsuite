@@ -1,44 +1,44 @@
-import { z } from 'zod'
-import { CastVoteRecord } from './castVoteRecord'
-import { Contest, Candidate } from './election'
-import { Dictionary, Optional } from './generic'
+import { z } from 'zod';
+import { CastVoteRecord } from './castVoteRecord';
+import { Contest, Candidate } from './election';
+import { Dictionary, Optional } from './generic';
 
-export type YesNoVoteID = 'yes' | 'no'
-export type YesNoVoteOption = ['yes'] | ['no'] | []
-export type ContestVoteOption = Candidate | YesNoVoteOption
+export type YesNoVoteID = 'yes' | 'no';
+export type YesNoVoteOption = ['yes'] | ['no'] | [];
+export type ContestVoteOption = Candidate | YesNoVoteOption;
 
 export interface YesNoContestOptionTally {
-  readonly option: YesNoVoteOption
-  readonly tally: number
+  readonly option: YesNoVoteOption;
+  readonly tally: number;
 }
 export interface ContestOptionTally {
-  readonly option: ContestVoteOption
-  readonly tally: number
+  readonly option: ContestVoteOption;
+  readonly tally: number;
 }
 
 export interface ContestTally {
-  readonly contest: Contest
-  readonly tallies: Dictionary<ContestOptionTally>
-  readonly metadata: ContestTallyMeta
+  readonly contest: Contest;
+  readonly tallies: Dictionary<ContestOptionTally>;
+  readonly metadata: ContestTallyMeta;
 }
 
 export interface ContestTallyMeta {
-  readonly overvotes: number
-  readonly undervotes: number
-  readonly ballots: number
+  readonly overvotes: number;
+  readonly undervotes: number;
+  readonly ballots: number;
 }
-export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>
+export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>;
 
 export interface Tally {
-  readonly numberOfBallotsCounted: number
-  readonly castVoteRecords: Set<CastVoteRecord>
-  readonly contestTallies: Dictionary<ContestTally>
-  readonly ballotCountsByVotingMethod: Dictionary<number>
+  readonly numberOfBallotsCounted: number;
+  readonly castVoteRecords: Set<CastVoteRecord>;
+  readonly contestTallies: Dictionary<ContestTally>;
+  readonly ballotCountsByVotingMethod: Dictionary<number>;
 }
 
 export interface BatchTally extends Tally {
-  readonly batchLabel: string
-  readonly scannerIds: string[]
+  readonly batchLabel: string;
+  readonly scannerIds: string[];
 }
 
 export enum TallyCategory {
@@ -50,13 +50,13 @@ export enum TallyCategory {
 }
 
 export interface FullElectionTally {
-  readonly overallTally: Tally
-  readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>
+  readonly overallTally: Tally;
+  readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>;
 }
 
 export interface ExternalTally {
-  readonly contestTallies: Dictionary<ContestTally>
-  readonly numberOfBallotsCounted: number
+  readonly contestTallies: Dictionary<ContestTally>;
+  readonly numberOfBallotsCounted: number;
 }
 
 export enum ExternalTallySourceType {
@@ -71,22 +71,22 @@ export enum VotingMethod {
 }
 
 export interface FullElectionExternalTally {
-  readonly overallTally: ExternalTally
+  readonly overallTally: ExternalTally;
   readonly resultsByCategory: ReadonlyMap<
     TallyCategory,
     Dictionary<ExternalTally>
-  >
-  readonly votingMethod: VotingMethod
-  readonly source: ExternalTallySourceType
-  readonly inputSourceName: string
-  readonly timestampCreated: Date
+  >;
+  readonly votingMethod: VotingMethod;
+  readonly source: ExternalTallySourceType;
+  readonly inputSourceName: string;
+  readonly timestampCreated: Date;
 }
 
-export type OptionalExternalTally = Optional<ExternalTally>
-export type OptionalFullElectionTally = Optional<FullElectionTally>
-export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>
+export type OptionalExternalTally = Optional<ExternalTally>;
+export type OptionalFullElectionTally = Optional<FullElectionTally>;
+export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>;
 
-export type CompressedTally = number[][]
+export type CompressedTally = number[][];
 export const CompressedTallySchema: z.ZodSchema<CompressedTally> = z.array(
   z.array(z.number().nonnegative().int())
-)
+);

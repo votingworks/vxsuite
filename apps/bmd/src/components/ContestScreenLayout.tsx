@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { Scrollable, ScrollShadows } from '../config/types'
+import styled from 'styled-components';
+import { Scrollable, ScrollShadows } from '../config/types';
 
 export const ContentHeader = styled.div<{ isCandidateStyle?: boolean }>`
   margin: 0 auto;
@@ -7,17 +7,17 @@ export const ContentHeader = styled.div<{ isCandidateStyle?: boolean }>`
   padding: 1rem 2rem 0.5rem;
   padding-left: ${({ isCandidateStyle }) =>
     isCandidateStyle ? '6rem' : undefined};
-`
+`;
 export const ContestFooter = styled.div`
   margin: 0 auto;
   width: 100%;
   padding: 1rem 2rem;
-`
+`;
 export const ContestSection = styled.div`
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-`
+`;
 export const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
   flex: 1;
@@ -52,7 +52,7 @@ export const VariableContentContainer = styled.div<ScrollShadows>`
       rgb(177, 186, 190) 100%
     );
   }
-`
+`;
 export const ScrollControls = styled.div`
   z-index: 2;
   & > button {
@@ -109,11 +109,11 @@ export const ScrollControls = styled.div`
       }
     }
   }
-`
+`;
 export const ScrollContainer = styled.div`
   flex: 1;
   overflow: auto;
-`
+`;
 export const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
@@ -122,9 +122,9 @@ export const ScrollableContentWrapper = styled.div<Scrollable>`
     isScrollable
       ? /* istanbul ignore next: Tested by Cypress */ '11rem'
       : undefined};
-`
+`;
 export const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
   grid-gap: 1rem;
-`
+`;

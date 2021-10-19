@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/no-array-sort-mutation'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/no-array-sort-mutation';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('no-array-sort-mutation', rule, {
   valid: [`[].sort()`, `[...array].sort()`, `array.slice().sort()`],
@@ -27,4 +27,4 @@ ruleTester.run('no-array-sort-mutation', rule, {
       errors: [{ line: 1, messageId: 'badSort' }],
     },
   ],
-})
+});

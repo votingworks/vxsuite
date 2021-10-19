@@ -1,14 +1,14 @@
-import { strict as assert } from 'assert'
-import React, { ReactNode } from 'react'
-import ReactModal from 'react-modal'
-import styled from 'styled-components'
+import { strict as assert } from 'assert';
+import React, { ReactNode } from 'react';
+import ReactModal from 'react-modal';
+import styled from 'styled-components';
 
-import './Modal.css'
+import './Modal.css';
 
-import ButtonBar from './ButtonBar'
+import ButtonBar from './ButtonBar';
 
 interface ModalContentInterface {
-  centerContent?: boolean
+  centerContent?: boolean;
 }
 
 const ModalContent = styled('div')<ModalContentInterface>`
@@ -21,16 +21,16 @@ const ModalContent = styled('div')<ModalContentInterface>`
     centerContent ? 'center' : undefined};
   overflow: auto;
   padding: 2rem;
-`
+`;
 
 interface Props {
-  ariaLabel?: string
-  className?: string
-  content?: ReactNode
-  centerContent?: boolean
-  actions?: ReactNode
-  onAfterOpen?: () => void
-  onOverlayClick?: () => void
+  ariaLabel?: string;
+  className?: string;
+  content?: ReactNode;
+  centerContent?: boolean;
+  actions?: ReactNode;
+  onAfterOpen?: () => void;
+  onOverlayClick?: () => void;
 }
 
 const Modal = ({
@@ -41,18 +41,18 @@ const Modal = ({
   content,
   onAfterOpen = () => {
     window.setTimeout(() => {
-      const element = document.getElementById('modalaudiofocus')
+      const element = document.getElementById('modalaudiofocus');
       if (element) {
-        element.focus()
-        element.click()
+        element.focus();
+        element.click();
       }
-    }, 10)
+    }, 10);
   },
   onOverlayClick,
 }: Props): JSX.Element => {
   const appElement =
-    document.getElementById('root') ?? document.body.firstElementChild
-  assert(appElement)
+    document.getElementById('root') ?? document.body.firstElementChild;
+  assert(appElement);
   return (
     <ReactModal
       appElement={appElement}
@@ -75,7 +75,7 @@ const Modal = ({
         </ButtonBar>
       )}
     </ReactModal>
-  )
-}
+  );
+};
 
-export default Modal
+export default Modal;

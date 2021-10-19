@@ -1,5 +1,5 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
 export const PlaceholderGraphic = styled.div`
   margin: 0 auto 1rem;
@@ -7,12 +7,12 @@ export const PlaceholderGraphic = styled.div`
   background: #6638b6;
   width: 250px;
   height: 250px;
-`
+`;
 
 export const Graphic = styled.img`
   margin: 0 auto 1rem;
   width: 250px;
-`
+`;
 
 export const QuestionCircle = (): JSX.Element => (
   <Graphic
@@ -20,7 +20,7 @@ export const QuestionCircle = (): JSX.Element => (
     alt="question-circle"
     aria-hidden
   />
-)
+);
 
 export const DoNotEnter = (): JSX.Element => (
   <Graphic
@@ -28,7 +28,7 @@ export const DoNotEnter = (): JSX.Element => (
     alt="do-not-enter"
     aria-hidden
   />
-)
+);
 
 export const CircleCheck = (): JSX.Element => (
   <Graphic
@@ -36,7 +36,7 @@ export const CircleCheck = (): JSX.Element => (
     alt="check-circle"
     aria-hidden
   />
-)
+);
 
 export const TimesCircle = (): JSX.Element => (
   <Graphic
@@ -45,7 +45,7 @@ export const TimesCircle = (): JSX.Element => (
     aria-hidden
     style={{ height: '400px' }}
   />
-)
+);
 
 export const ExclamationTriangle = (): JSX.Element => (
   <Graphic
@@ -53,7 +53,7 @@ export const ExclamationTriangle = (): JSX.Element => (
     alt="exclamation-triangle"
     aria-hidden
   />
-)
+);
 
 export const InsertBallot = (): JSX.Element => (
   <Graphic
@@ -62,7 +62,7 @@ export const InsertBallot = (): JSX.Element => (
     aria-hidden
     style={{ width: '600px' }}
   />
-)
+);
 
 export const IndeterminateProgressBar = (): JSX.Element => (
   <Graphic
@@ -71,4 +71,4 @@ export const IndeterminateProgressBar = (): JSX.Element => (
     aria-hidden
     style={{ width: '400px' }}
   />
-)
+);

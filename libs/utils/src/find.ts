@@ -7,26 +7,26 @@
 export function find<T, S extends T>(
   array: readonly T[],
   predicate: (element: T) => element is S
-): S
+): S;
 export function find<T>(
   array: readonly T[],
   predicate: (element: T) => boolean,
   defaultValue?: T
-): T
+): T;
 export function find<T>(
   array: readonly T[],
   predicate: (element: T) => boolean,
   defaultValue?: T
 ): T {
-  const result = array.find(predicate)
+  const result = array.find(predicate);
 
   if (result === undefined) {
     if (defaultValue === undefined) {
-      throw new Error('unable to find an element matching a predicate')
+      throw new Error('unable to find an element matching a predicate');
     }
 
-    return defaultValue
+    return defaultValue;
   }
 
-  return result
+  return result;
 }

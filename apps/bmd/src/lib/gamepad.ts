@@ -1,84 +1,84 @@
-import { Button } from 'react-gamepad'
-import mod from '../utils/mod'
+import { Button } from 'react-gamepad';
+import mod from '../utils/mod';
 
 export const getActiveElement = (): HTMLElement =>
-  document.activeElement as HTMLElement
+  document.activeElement as HTMLElement;
 
 function getFocusableElements(): HTMLElement[] {
   const tabbableElements = Array.from(
     document.querySelectorAll(
       'button:not([aria-hidden="true"]):not([disabled])'
     )
-  )
+  );
   const ariaHiddenTabbableElements = Array.from(
     document.querySelectorAll('[aria-hidden="true"] button')
-  )
+  );
   return tabbableElements.filter(
     (element) => ariaHiddenTabbableElements.indexOf(element) === -1
-  ) as HTMLElement[]
+  ) as HTMLElement[];
 }
 
 function handleArrowUp() {
-  const focusable = getFocusableElements()
-  const currentIndex = focusable.indexOf(getActiveElement())
+  const focusable = getFocusableElements();
+  const currentIndex = focusable.indexOf(getActiveElement());
   /* istanbul ignore else */
   if (focusable.length) {
     if (currentIndex > -1) {
-      focusable[mod(currentIndex - 1, focusable.length)].focus()
+      focusable[mod(currentIndex - 1, focusable.length)].focus();
     } else {
-      focusable[focusable.length - 1].focus()
+      focusable[focusable.length - 1].focus();
     }
   }
 }
 
 function handleArrowDown() {
-  const focusable = getFocusableElements()
-  const currentIndex = focusable.indexOf(getActiveElement())
+  const focusable = getFocusableElements();
+  const currentIndex = focusable.indexOf(getActiveElement());
   /* istanbul ignore else */
   if (focusable.length) {
-    focusable[mod(currentIndex + 1, focusable.length)].focus()
+    focusable[mod(currentIndex + 1, focusable.length)].focus();
   }
 }
 
 function handleArrowLeft() {
-  const prevButton = document.getElementById('previous')
+  const prevButton = document.getElementById('previous');
   /* istanbul ignore else */
   if (prevButton) {
-    prevButton.click()
+    prevButton.click();
   }
 }
 
 function handleArrowRight() {
-  const nextButton = document.getElementById('next')
+  const nextButton = document.getElementById('next');
   /* istanbul ignore else */
   if (nextButton) {
-    nextButton.click()
+    nextButton.click();
   }
 }
 
 function handleClick() {
-  const activeElement = getActiveElement()
-  activeElement.click()
+  const activeElement = getActiveElement();
+  activeElement.click();
 }
 
 export function handleGamepadButtonDown(buttonName: Button): void {
   switch (buttonName) {
     case 'DPadUp':
-      handleArrowUp()
-      break
+      handleArrowUp();
+      break;
     case 'B':
     case 'DPadDown':
-      handleArrowDown()
-      break
+      handleArrowDown();
+      break;
     case 'DPadLeft':
-      handleArrowLeft()
-      break
+      handleArrowLeft();
+      break;
     case 'DPadRight':
-      handleArrowRight()
-      break
+      handleArrowRight();
+      break;
     case 'A':
-      handleClick()
-      break
+      handleClick();
+      break;
     // no default
   }
 }
@@ -90,25 +90,25 @@ export /* istanbul ignore next - triggering keystrokes issue - https://github.co
 ): void {
   switch (event.key) {
     case 'ArrowUp':
-      handleArrowUp()
-      break
+      handleArrowUp();
+      break;
     case '[':
     case 'ArrowDown':
-      handleArrowDown()
-      break
+      handleArrowDown();
+      break;
     case 'ArrowLeft':
-      handleArrowLeft()
-      break
+      handleArrowLeft();
+      break;
     case 'ArrowRight':
-      handleArrowRight()
-      break
+      handleArrowRight();
+      break;
     case ']':
-      handleClick()
-      break
+      handleClick();
+      break;
     case 'Enter':
       // Enter already acts like a click
       // handleClick()
-      break
+      break;
     // no default
   }
 }

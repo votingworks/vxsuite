@@ -1,6 +1,6 @@
-import { fakeDevice, fakeKiosk } from '@votingworks/test-utils'
-import { getHardware } from '.'
-import KioskHardware from './KioskHardware'
+import { fakeDevice, fakeKiosk } from '@votingworks/test-utils';
+import { getHardware } from '.';
+import KioskHardware from './KioskHardware';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
@@ -10,27 +10,27 @@ import {
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
-} from './utils'
+} from './utils';
 
 it('getHardware returns KioskHardware when window.kiosk is set', async () => {
   try {
-    window.kiosk = fakeKiosk()
-    const hardware = await getHardware()
-    expect(hardware).toBeInstanceOf(KioskHardware)
+    window.kiosk = fakeKiosk();
+    const hardware = await getHardware();
+    expect(hardware).toBeInstanceOf(KioskHardware);
   } finally {
-    window.kiosk = undefined
+    window.kiosk = undefined;
   }
-})
+});
 
 it('getHardware does not return KioskHardware when window.kiosk is not set', async () => {
-  expect(window.kiosk).toBeUndefined()
-  const hardware = await getHardware()
-  expect(hardware).not.toBeInstanceOf(KioskHardware)
-})
+  expect(window.kiosk).toBeUndefined();
+  const hardware = await getHardware();
+  expect(hardware).not.toBeInstanceOf(KioskHardware);
+});
 
 it('isCardReader does not match just any device', () => {
-  expect(isCardReader(fakeDevice())).toBe(false)
-})
+  expect(isCardReader(fakeDevice())).toBe(false);
+});
 
 it('isCardReader matches a device with the right vendor ID and product ID', () => {
   expect(
@@ -40,8 +40,8 @@ it('isCardReader matches a device with the right vendor ID and product ID', () =
         productId: OmniKeyCardReaderProductId,
       })
     )
-  ).toBe(true)
-})
+  ).toBe(true);
+});
 
 it('isCardReader matches a device with the right product name and manufacturer (using spaces)', () => {
   expect(
@@ -51,8 +51,8 @@ it('isCardReader matches a device with the right product name and manufacturer (
         manufacturer: OmniKeyCardReaderManufacturer,
       })
     )
-  ).toBe(true)
-})
+  ).toBe(true);
+});
 
 it('isCardReader matches a device with the right product name and manufacturer (using underscores)', () => {
   expect(
@@ -62,12 +62,12 @@ it('isCardReader matches a device with the right product name and manufacturer (
         manufacturer: OmniKeyCardReaderManufacturer.replace(/ /g, '_'),
       })
     )
-  ).toBe(true)
-})
+  ).toBe(true);
+});
 
 it('isAccessibleController does not match just any device', () => {
-  expect(isAccessibleController(fakeDevice())).toBe(false)
-})
+  expect(isAccessibleController(fakeDevice())).toBe(false);
+});
 
 it('isAccessibleController matches a device with the right vendor and product id', () => {
   expect(
@@ -77,5 +77,5 @@ it('isAccessibleController matches a device with the right vendor and product id
         productId: AccessibleControllerProductId,
       })
     )
-  ).toBe(true)
-})
+  ).toBe(true);
+});

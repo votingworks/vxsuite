@@ -1,5 +1,5 @@
-import { electionSample } from '@votingworks/fixtures'
-import { getBallotPath } from './election'
+import { electionSample } from '@votingworks/fixtures';
+import { getBallotPath } from './election';
 
 test('getBallotPath allows digits in file names', () => {
   expect(
@@ -14,5 +14,5 @@ test('getBallotPath allows digits in file names', () => {
     })
   ).toEqual(
     'election-d34db33f-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf'
-  )
-})
+  );
+});

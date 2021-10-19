@@ -7,31 +7,31 @@ import {
   UnmarkedWriteInAdjudicationReasonInfo,
   WriteInAdjudicationReasonInfo,
   YesNoContest,
-} from '@votingworks/types'
-import { typedAs } from '@votingworks/utils'
-import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020'
+} from '@votingworks/types';
+import { typedAs } from '@votingworks/utils';
+import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020';
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
-} from './ballotAdjudicationReasons'
+} from './ballotAdjudicationReasons';
 
 const president = choctawMockGeneral2020.election.contests.find(
   ({ id }) => id === '775020876'
-) as CandidateContest
+) as CandidateContest;
 const senator = choctawMockGeneral2020.election.contests.find(
   ({ id }) => id === '775020877'
-) as CandidateContest
-const [presidentialCandidate1, presidentialCandidate2] = president.candidates
+) as CandidateContest;
+const [presidentialCandidate1, presidentialCandidate2] = president.candidates;
 const [
   senatorialCandidate1,
   senatorialCandidate2,
   senatorialCandidate3,
-] = senator.candidates
+] = senator.candidates;
 const flagInitiative = choctawMockGeneral2020.election.contests.find(
   ({ id }) => id === '750000018'
-) as YesNoContest
+) as YesNoContest;
 const eitherNeitherQuestion = choctawMockGeneral2020.election.contests.find(
   ({ id }) => id === '750000015-750000016-either-neither'
-) as MsEitherNeitherContest
+) as MsEitherNeitherContest;
 
 test('an uninterpretable ballot', () => {
   expect([
@@ -42,8 +42,8 @@ test('an uninterpretable ballot', () => {
     typedAs<AdjudicationReasonInfo[]>([
       { type: AdjudicationReason.UninterpretableBallot },
     ])
-  )
-})
+  );
+});
 
 test('a ballot with no adjudication reasons', () => {
   expect([
@@ -54,8 +54,8 @@ test('a ballot with no adjudication reasons', () => {
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
-  ]).toEqual([])
-})
+  ]).toEqual([]);
+});
 
 test('a ballot with marginal marks', () => {
   const reasons = [
@@ -65,16 +65,16 @@ test('a ballot with marginal marks', () => {
           // eslint-disable-next-line default-case
           switch (optionId) {
             case presidentialCandidate1.id:
-              return MarkStatus.Marked
+              return MarkStatus.Marked;
             case presidentialCandidate2.id:
-              return MarkStatus.Marginal
+              return MarkStatus.Marginal;
           }
         }
 
-        return MarkStatus.Unmarked
+        return MarkStatus.Unmarked;
       },
     }),
-  ]
+  ];
 
   expect(reasons).toEqual(
     typedAs<AdjudicationReasonInfo[]>([
@@ -85,21 +85,21 @@ test('a ballot with marginal marks', () => {
         optionIndex: 1,
       },
     ])
-  )
+  );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
       "Contest '775020876' has a marginal mark for option '775031987'.",
     ]
-  `)
-})
+  `);
+});
 
 test('a ballot with no marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([president], {
       optionMarkStatus: () => MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   expect(reasons).toEqual(
     typedAs<AdjudicationReasonInfo[]>([
@@ -114,26 +114,26 @@ test('a ballot with no marks', () => {
         type: AdjudicationReason.BlankBallot,
       },
     ])
-  )
+  );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
       "Contest '775020876' is undervoted, expected 1 but got none.",
       "Ballot has no votes.",
     ]
-  `)
-})
+  `);
+});
 
 test('a ballot page with no contests', () => {
   const reasons = [
     ...ballotAdjudicationReasons([], {
       optionMarkStatus: () => MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   // Notably, there is no BlankBallot adjudication reason.
-  expect(reasons).toEqual([])
-})
+  expect(reasons).toEqual([]);
+});
 
 test('a ballot with too many marks', () => {
   const reasons = [
@@ -144,14 +144,14 @@ test('a ballot with too many marks', () => {
           switch (optionId) {
             case presidentialCandidate1.id:
             case presidentialCandidate2.id:
-              return MarkStatus.Marked
+              return MarkStatus.Marked;
           }
         }
 
-        return MarkStatus.Unmarked
+        return MarkStatus.Unmarked;
       },
     }),
-  ]
+  ];
 
   expect(reasons).toEqual(
     typedAs<AdjudicationReasonInfo[]>([
@@ -163,14 +163,14 @@ test('a ballot with too many marks', () => {
         expected: 1,
       },
     ])
-  )
+  );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
       "Contest '775020876' is overvoted, expected 1 but got 2: '775031988', '775031987'.",
     ]
-  `)
-})
+  `);
+});
 
 test('multiple contests with issues', () => {
   const reasons = [
@@ -185,7 +185,7 @@ test('multiple contests with issues', () => {
           : // everything else unmarked
             MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   expect(reasons).toEqual(
     typedAs<AdjudicationReasonInfo[]>([
@@ -221,7 +221,7 @@ test('multiple contests with issues', () => {
         expected: 1,
       },
     ])
-  )
+  );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
@@ -230,15 +230,15 @@ test('multiple contests with issues', () => {
       "Contest '775020877' has a write-in.",
       "Contest '775020877' is overvoted, expected 1 but got 4: '775031985', '775031986', '775031990', '__write-in-0'.",
     ]
-  `)
-})
+  `);
+});
 
 test('yesno contest overvotes', () => {
   const reasons = [
     ...ballotAdjudicationReasons([flagInitiative], {
       optionMarkStatus: () => MarkStatus.Marked,
     }),
-  ]
+  ];
 
   expect(reasons).toEqual(
     typedAs<AdjudicationReasonInfo[]>([
@@ -250,14 +250,14 @@ test('yesno contest overvotes', () => {
         expected: 1,
       },
     ])
-  )
+  );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
       "Contest '750000018' is overvoted, expected 1 but got 2: 'yes', 'no'.",
     ]
-  `)
-})
+  `);
+});
 
 test('a ballot with just a write-in', () => {
   const reasons = [
@@ -267,7 +267,7 @@ test('a ballot with just a write-in', () => {
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   expect(reasons).toEqual(
     typedAs<WriteInAdjudicationReasonInfo[]>([
@@ -278,8 +278,8 @@ test('a ballot with just a write-in', () => {
         optionIndex: 3,
       },
     ])
-  )
-})
+  );
+});
 
 test('a ballot with just an unmarked write-in', () => {
   const reasons = [
@@ -289,20 +289,20 @@ test('a ballot with just an unmarked write-in', () => {
           ? MarkStatus.UnmarkedWriteIn
           : MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   const expectedReason: UnmarkedWriteInAdjudicationReasonInfo = {
     type: AdjudicationReason.UnmarkedWriteIn,
     contestId: president.id,
     optionId: '__write-in-0',
     optionIndex: 3,
-  }
+  };
 
-  expect(reasons).toContainEqual(expectedReason)
+  expect(reasons).toContainEqual(expectedReason);
   expect(adjudicationReasonDescription(expectedReason)).toMatchInlineSnapshot(
     `"Contest '775020876' has an unmarked write-in."`
-  )
-})
+  );
+});
 
 test('a ballot with an ms-either-neither happy path', () => {
   const reasons = [
@@ -313,7 +313,7 @@ test('a ballot with an ms-either-neither happy path', () => {
           contestId === eitherNeitherQuestion.eitherNeitherContestId &&
           optionId === 'yes'
         ) {
-          return MarkStatus.Marked
+          return MarkStatus.Marked;
         }
 
         // second
@@ -321,16 +321,16 @@ test('a ballot with an ms-either-neither happy path', () => {
           contestId === eitherNeitherQuestion.pickOneContestId &&
           optionId === 'no'
         ) {
-          return MarkStatus.Marked
+          return MarkStatus.Marked;
         }
 
-        return MarkStatus.Unmarked
+        return MarkStatus.Unmarked;
       },
     }),
-  ]
+  ];
 
-  expect(reasons).toEqual([])
-})
+  expect(reasons).toEqual([]);
+});
 
 test('a ballot with an ms-either-neither either-neither overvote', () => {
   const reasons = [
@@ -341,7 +341,7 @@ test('a ballot with an ms-either-neither either-neither overvote', () => {
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   expect(reasons).toContainEqual(
     typedAs<AdjudicationReasonInfo>({
@@ -351,8 +351,8 @@ test('a ballot with an ms-either-neither either-neither overvote', () => {
       optionIndexes: [0, 1],
       expected: 1,
     })
-  )
-})
+  );
+});
 
 test('a ballot with an ms-either-neither pick-one overvote', () => {
   const reasons = [
@@ -363,7 +363,7 @@ test('a ballot with an ms-either-neither pick-one overvote', () => {
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
-  ]
+  ];
 
   expect(reasons).toContainEqual(
     typedAs<AdjudicationReasonInfo>({
@@ -373,5 +373,5 @@ test('a ballot with an ms-either-neither pick-one overvote', () => {
       optionIndexes: [0, 1],
       expected: 1,
     })
-  )
-})
+  );
+});

@@ -1,5 +1,5 @@
-import { Corners, Point, Rect } from '@votingworks/types'
-import { strict as assert } from 'assert'
+import { Corners, Point, Rect } from '@votingworks/types';
+import { strict as assert } from 'assert';
 
 /**
  * Gets the four extreme points of a rectangle, inclusive.
@@ -10,7 +10,7 @@ export function rectCorners({ x, y, width, height }: Rect): Corners {
     { x: x + width - 1, y },
     { x, y: y + height - 1 },
     { x: x + width - 1, y: y + height - 1 },
-  ]
+  ];
 }
 
 /**
@@ -20,7 +20,7 @@ export function roundPoint(
   { x, y }: Point,
   { round = Math.round } = {}
 ): Point {
-  return { x: round(x), y: round(y) }
+  return { x: round(x), y: round(y) };
 }
 
 /**
@@ -30,9 +30,9 @@ export function rectCenter(
   { x, y, width, height }: Rect,
   { round = false } = {}
 ): Point {
-  const center = { x: x + (width - 1) / 2, y: y + (height - 1) / 2 }
-  const result = round ? roundPoint(center) : center
-  return result
+  const center = { x: x + (width - 1) / 2, y: y + (height - 1) / 2 };
+  const result = round ? roundPoint(center) : center;
+  return result;
 }
 
 /**
@@ -48,38 +48,38 @@ export function flipRectVH(outer: Rect, inner: Rect): Rect {
     y: outer.y + outer.height - (inner.y + inner.height),
     width: inner.width,
     height: inner.height,
-  }
+  };
 }
 
 /**
  * Find how many pixel moves it takes to get from a to b.
  */
 export function editDistance(a: Point, b: Point): number {
-  return Math.abs(b.x - a.x) + Math.abs(b.y - a.y)
+  return Math.abs(b.x - a.x) + Math.abs(b.y - a.y);
 }
 
 export function euclideanDistance(a: Point, b: Point): number {
-  return ((b.x - a.x) ** 2 + (b.y - a.y) ** 2) ** 0.5
+  return ((b.x - a.x) ** 2 + (b.y - a.y) ** 2) ** 0.5;
 }
 
 /**
  * Find the median of a list of numbers.
  */
 export function median(numbers: ArrayLike<number>): number {
-  assert(numbers.length > 0)
+  assert(numbers.length > 0);
 
   if (numbers.length === 1) {
-    return numbers[0]
+    return numbers[0];
   }
 
-  const sorted = Array.from(numbers).sort()
+  const sorted = Array.from(numbers).sort();
 
   if (sorted.length % 2 === 0) {
-    const halfway = sorted.length / 2
-    return (sorted[halfway] + sorted[halfway + 1]) / 2
+    const halfway = sorted.length / 2;
+    return (sorted[halfway] + sorted[halfway + 1]) / 2;
   }
 
-  return sorted[Math.ceil(sorted.length / 2)]
+  return sorted[Math.ceil(sorted.length / 2)];
 }
 
 /**
@@ -88,10 +88,10 @@ export function median(numbers: ArrayLike<number>): number {
  * @see https://math.stackexchange.com/a/361419
  */
 export function angleBetweenPoints(a: Point, b: Point, c: Point): number {
-  const abDotBc = (a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)
-  const abDist = euclideanDistance(a, b)
-  const bcDist = euclideanDistance(b, c)
-  return Math.acos(abDotBc / (abDist * bcDist))
+  const abDotBc = (a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y);
+  const abDist = euclideanDistance(a, b);
+  const bcDist = euclideanDistance(b, c);
+  return Math.acos(abDotBc / (abDist * bcDist));
 }
 
 /**
@@ -102,7 +102,7 @@ export function angleBetweenPoints(a: Point, b: Point, c: Point): number {
 export function triangleArea(a: Point, b: Point, c: Point): number {
   return Math.abs(
     (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2
-  )
+  );
 }
 
 /**
@@ -117,5 +117,5 @@ export function poly4Area([
   return (
     triangleArea(topLeft, bottomLeft, bottomRight) +
     triangleArea(topLeft, topRight, bottomRight)
-  )
+  );
 }

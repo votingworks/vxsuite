@@ -16,5 +16,5 @@ export function randomBase64(numBytes: number): string {
         ...window.crypto.getRandomValues(new Uint8ClampedArray(numBytes))
       )
     )
-    .replace(/=+$/, '')
+    .replace(/=+$/, '');
 }

@@ -1,12 +1,12 @@
-import styled from 'styled-components'
-import { Theme } from './themes'
+import styled from 'styled-components';
+import { Theme } from './themes';
 
 interface Props {
-  theme?: Theme
-  compact?: boolean
-  maxWidth?: boolean
-  textCenter?: boolean
-  textRight?: boolean
+  theme?: Theme;
+  compact?: boolean;
+  maxWidth?: boolean;
+  textCenter?: boolean;
+  textRight?: boolean;
 }
 
 export const Prose = styled('div')<Props>`
@@ -78,4 +78,4 @@ export const Prose = styled('div')<Props>`
     border: 0;
     border-top: 0.1em solid #666666;
   }
-`
+`;

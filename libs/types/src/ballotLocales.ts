@@ -1,4 +1,4 @@
 export interface BallotLocales {
-  primary: string
-  secondary?: string
+  primary: string;
+  secondary?: string;
 }

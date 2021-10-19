@@ -1,9 +1,9 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
 interface Props {
-  primaryNav?: React.ReactNode
-  secondaryNav?: React.ReactNode
+  primaryNav?: React.ReactNode;
+  secondaryNav?: React.ReactNode;
 }
 
 const NavBar = styled.div`
@@ -12,7 +12,7 @@ const NavBar = styled.div`
   background: #455a64;
   min-height: 3rem;
   color: #ffffff;
-`
+`;
 const Brand = styled.div`
   display: inline-block;
   margin: 0 1rem 0.35rem;
@@ -20,16 +20,16 @@ const Brand = styled.div`
   color: #ffffff;
 
   /* font-family: 'Vx Helvetica Neue Condensed'; */ /* stylelint-disable-line font-family-no-missing-generic-family-keyword */
-`
+`;
 const MakeName = styled.div`
   font-size: 0.75rem;
   font-weight: 700;
   span {
     font-weight: 400;
   }
-`
+`;
 
-const ModelName = styled.div``
+const ModelName = styled.div``;
 
 const PrimaryNav = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const PrimaryNav = styled.div`
       color: #000000;
     }
   }
-`
+`;
 const SecondaryNav = styled.div`
   align-self: center;
   margin: 0 1rem;
@@ -68,7 +68,7 @@ const SecondaryNav = styled.div`
       margin-right: 0;
     }
   }
-`
+`;
 
 const Navigation = ({ primaryNav, secondaryNav }: Props): JSX.Element => {
   return (
@@ -82,7 +82,7 @@ const Navigation = ({ primaryNav, secondaryNav }: Props): JSX.Element => {
       <PrimaryNav>{primaryNav}</PrimaryNav>
       {secondaryNav && <SecondaryNav>{secondaryNav}</SecondaryNav>}
     </NavBar>
-  )
-}
+  );
+};
 
-export default Navigation
+export default Navigation;

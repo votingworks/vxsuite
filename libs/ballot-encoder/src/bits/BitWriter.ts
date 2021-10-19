@@ -1,25 +1,25 @@
-import BitCursor from './BitCursor'
-import { Encoding, UTF8Encoding } from './encoding'
-import { Uint1, Uint8, Uint8Size } from './types'
-import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils'
+import BitCursor from './BitCursor';
+import { Encoding, UTF8Encoding } from './encoding';
+import { Uint1, Uint8, Uint8Size } from './types';
+import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils';
 
 /**
  * Writes structured data into a `Uint8Array`. Data is written in little-endian
  * order.
  */
 export default class BitWriter {
-  private data = new Uint8Array()
-  private cursor = new BitCursor()
-  private nextByte: Uint8 = 0b00000000
+  private data = new Uint8Array();
+  private cursor = new BitCursor();
+  private nextByte: Uint8 = 0b00000000;
 
   /**
    * Append `byte` to the internal buffer.
    */
   private appendByte(byte: Uint8): void {
-    const nextData = new Uint8Array(this.data.length + 1)
-    nextData.set(this.data)
-    nextData[this.data.length] = byte
-    this.data = nextData
+    const nextData = new Uint8Array(this.data.length + 1);
+    nextData.set(this.data);
+    nextData[this.data.length] = byte;
+    this.data = nextData;
   }
 
   /**
@@ -27,17 +27,17 @@ export default class BitWriter {
    */
   writeUint1(...uint1s: Uint1[]): this {
     for (const uint1 of uint1s) {
-      const mask = this.cursor.mask(uint1)
-      this.nextByte |= mask
-      this.cursor.next()
+      const mask = this.cursor.mask(uint1);
+      this.nextByte |= mask;
+      this.cursor.next();
 
       if (this.cursor.isByteStart) {
-        this.appendByte(toUint8(this.nextByte))
-        this.nextByte = 0b00000000
+        this.appendByte(toUint8(this.nextByte));
+        this.nextByte = 0b00000000;
       }
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -45,10 +45,10 @@ export default class BitWriter {
    */
   writeBoolean(...booleans: boolean[]): this {
     for (const boolean of booleans) {
-      this.writeUint1(boolean ? 1 : 0)
+      this.writeUint1(boolean ? 1 : 0);
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -56,9 +56,9 @@ export default class BitWriter {
    */
   writeUint8(...uint8s: Uint8[]): this {
     for (const uint8 of uint8s) {
-      this.writeUint(uint8, { size: Uint8Size })
+      this.writeUint(uint8, { size: Uint8Size });
     }
-    return this
+    return this;
   }
 
   /**
@@ -73,42 +73,42 @@ export default class BitWriter {
    * bits.writeUint(23, { max: 30 })  // writes `10111`
    * bits.writeUint(99, { size: 8 })  // writes `01100011`
    */
-  writeUint(number: number, { max }: { max: number }): this
-  writeUint(number: number, { size }: { size: number }): this
+  writeUint(number: number, { max }: { max: number }): this;
+  writeUint(number: number, { size }: { size: number }): this;
   writeUint(
     number: number,
     { max, size }: { max?: number; size?: number }
   ): this {
     if (typeof max !== 'undefined' && typeof size !== 'undefined') {
-      throw new Error("cannot specify both 'max' and 'size' options")
+      throw new Error("cannot specify both 'max' and 'size' options");
     }
 
     if (typeof max !== 'undefined') {
       if (number > max) {
-        throw new Error(`overflow: ${number} must be less than ${max}`)
+        throw new Error(`overflow: ${number} must be less than ${max}`);
       }
 
-      return this.writeUint(number, { size: sizeof(max) })
+      return this.writeUint(number, { size: sizeof(max) });
     }
 
     if (typeof size === 'undefined') {
-      throw new Error('size cannot be undefined')
+      throw new Error('size cannot be undefined');
     }
 
     if (number >= 2 ** size) {
-      throw new Error(`overflow: ${number} cannot fit in ${size} bits`)
+      throw new Error(`overflow: ${number} cannot fit in ${size} bits`);
     }
 
     if (size === Uint8Size && this.cursor.isByteStart) {
-      this.appendByte(toUint8(number))
-      this.cursor.advance(Uint8Size)
+      this.appendByte(toUint8(number));
+      this.cursor.advance(Uint8Size);
     } else {
       for (const mask of makeMasks(size)) {
-        this.writeUint1((number & mask) === 0 ? 0 : 1)
+        this.writeUint1((number & mask) === 0 ? 0 : 1);
       }
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -137,21 +137,21 @@ export default class BitWriter {
    *                                                                          ↑ ↑↑
    *                                                                   length=2 'h''i'
    */
-  writeString(string: string): this
-  writeString(string: string, options: { encoding?: Encoding }): this
+  writeString(string: string): this;
+  writeString(string: string, options: { encoding?: Encoding }): this;
   writeString(
     string: string,
     options: { encoding?: Encoding; includeLength: false; length: number }
-  ): this
+  ): this;
 
   writeString(
     string: string,
     options: {
-      encoding?: Encoding
-      includeLength?: true
-      maxLength?: number
+      encoding?: Encoding;
+      includeLength?: true;
+      maxLength?: number;
     }
-  ): this
+  ): this;
 
   writeString(
     string: string,
@@ -161,35 +161,35 @@ export default class BitWriter {
       includeLength = true,
       length,
     }: {
-      encoding?: Encoding
-      maxLength?: number
-      includeLength?: boolean
-      length?: number
+      encoding?: Encoding;
+      maxLength?: number;
+      includeLength?: boolean;
+      length?: number;
     } = {}
   ): this {
-    const codes = encoding.encode(string)
+    const codes = encoding.encode(string);
 
     // write length
     if (includeLength) {
       if (codes.length > maxLength) {
         throw new Error(
           `overflow: cannot write a string longer than max length: ${string.length} > ${maxLength}`
-        )
+        );
       }
 
-      this.writeUint(codes.length, { max: maxLength })
+      this.writeUint(codes.length, { max: maxLength });
     } else if (string.length !== length) {
       throw new Error(
         `string length (${string.length}) does not match known length (${length}); an explicit length must be provided when includeLength=false as a safe-guard`
-      )
+      );
     }
 
     // write content
     for (const code of codes) {
-      this.writeUint(code, { size: encoding.bitsPerElement })
+      this.writeUint(code, { size: encoding.bitsPerElement });
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -203,24 +203,24 @@ export default class BitWriter {
    *   .writeBoolean(false)
    */
   with(callback: (writer: this) => void): this {
-    callback(this)
-    return this
+    callback(this);
+    return this;
   }
 
   /**
    * Converts the data written to this `BitWriter` to a `Uint8Array`.
    */
   toUint8Array(): Uint8Array {
-    const pendingByte = this.getPendingByte()
+    const pendingByte = this.getPendingByte();
 
     if (typeof pendingByte === 'undefined') {
-      return Uint8Array.from(this.data)
+      return Uint8Array.from(this.data);
     }
 
-    const result = new Uint8Array(this.data.length + 1)
-    result.set(this.data)
-    result[this.data.length] = pendingByte
-    return result
+    const result = new Uint8Array(this.data.length + 1);
+    result.set(this.data);
+    result[this.data.length] = pendingByte;
+    return result;
   }
 
   /**
@@ -228,15 +228,15 @@ export default class BitWriter {
    */
   private getPendingByte(): Uint8 | undefined {
     if (this.cursor.isByteStart) {
-      return undefined
+      return undefined;
     }
-    return this.nextByte
+    return this.nextByte;
   }
 
   debug(label?: string): this {
     if (label) {
       // eslint-disable-next-line no-console
-      console.log(label)
+      console.log(label);
     }
     // eslint-disable-next-line no-console
     console.log(
@@ -253,7 +253,7 @@ export default class BitWriter {
       )
         .map((row) => row.map((cell) => cell.join('')).join(' '))
         .join('\n')
-    )
-    return this
+    );
+    return this;
   }
 }

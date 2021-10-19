@@ -1,4 +1,4 @@
-import ZipStream from 'zip-stream'
+import ZipStream from 'zip-stream';
 
 export async function addFile(
   zipStream: ZipStream,
@@ -8,27 +8,27 @@ export async function addFile(
   return new Promise((resolve, reject) => {
     zipStream.entry(data, { name }, (error) => {
       if (error) {
-        reject(error)
+        reject(error);
       } else {
-        resolve()
+        resolve();
       }
-    })
-  })
+    });
+  });
 }
 
 export async function zipFile(files: {
-  [key: string]: Buffer | string
+  [key: string]: Buffer | string;
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    const zip = new ZipStream()
+    const chunks: Buffer[] = [];
+    const zip = new ZipStream();
     zip.on('data', (chunk) => {
       if (Buffer.isBuffer(chunk)) {
-        chunks.push(chunk)
+        chunks.push(chunk);
       }
-    })
-    zip.on('end', () => resolve(Buffer.concat(chunks)))
-    zip.on('error', reject)
+    });
+    zip.on('end', () => resolve(Buffer.concat(chunks)));
+    zip.on('error', reject);
 
     return Object.entries(files)
       .reduce(
@@ -36,7 +36,7 @@ export async function zipFile(files: {
         Promise.resolve()
       )
       .then(() => {
-        zip.finalize()
-      })
-  })
+        zip.finalize();
+      });
+  });
 }

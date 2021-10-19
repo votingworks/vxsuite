@@ -1,20 +1,20 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 
-import { Main, MainChild } from '@votingworks/ui'
+import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import { NoWrap } from '../components/Text'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import { NoWrap } from '../components/Text';
 
 interface Props {
-  useEffectToggleLargeDisplay: () => void
+  useEffectToggleLargeDisplay: () => void;
 }
 
 const SetupPowerPage = ({
   useEffectToggleLargeDisplay,
 }: Props): JSX.Element => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, [])
+  useEffect(useEffectToggleLargeDisplay, []);
 
   return (
     <Screen white>
@@ -32,7 +32,7 @@ const SetupPowerPage = ({
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default SetupPowerPage
+export default SetupPowerPage;

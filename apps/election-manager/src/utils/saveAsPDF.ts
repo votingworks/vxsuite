@@ -1,9 +1,9 @@
-import { strict as assert } from 'assert'
-import { Election } from '@votingworks/types'
+import { strict as assert } from 'assert';
+import { Election } from '@votingworks/types';
 
 export async function generateFileContentToSaveAsPDF(): Promise<Uint8Array> {
-  assert(window.kiosk)
-  return await window.kiosk.printToPDF()
+  assert(window.kiosk);
+  return await window.kiosk.printToPDF();
 }
 
 export function generateDefaultReportFilename(
@@ -14,5 +14,5 @@ export function generateDefaultReportFilename(
   return `${`${fileNamePrefix}-${election.county.name}-${election.title}-${fileSuffix}`
     .replace(/[^a-z0-9]+/gi, '-')
     .replace(/(^-|-$)+/g, '')
-    .toLocaleLowerCase()}.pdf`
+    .toLocaleLowerCase()}.pdf`;
 }

@@ -9,34 +9,34 @@ export type SerializedMessage =
   | SerializedArray
   | SerializedObject
   | SerializedBuffer
-  | SerializedUint8Array
+  | SerializedUint8Array;
 
 export interface SerializedUndefined {
-  __dataType__: 'undefined'
+  __dataType__: 'undefined';
 }
 
 export interface SerializedArray {
-  __dataType__: 'Array'
+  __dataType__: 'Array';
   // TODO: replace `unknown` with `SerializedMessage` after upgrading
   // to TS 4.1+, which has support for circular type references.
-  value: Array<unknown>
+  value: Array<unknown>;
 }
 
 export interface SerializedObject {
-  __dataType__: 'Object'
+  __dataType__: 'Object';
   // TODO: replace `unknown` with `SerializedMessage` after upgrading
   // to TS 4.1+, which has support for circular type references.
-  value: Record<string, unknown>
+  value: Record<string, unknown>;
 }
 
 export interface SerializedBuffer {
-  __dataType__: 'Buffer'
-  value: ArrayLike<number>
+  __dataType__: 'Buffer';
+  value: ArrayLike<number>;
 }
 
 export interface SerializedUint8Array {
-  __dataType__: 'Uint8Array'
-  value: ArrayLike<number>
+  __dataType__: 'Uint8Array';
+  value: ArrayLike<number>;
 }
 
 export function serialize(
@@ -47,14 +47,14 @@ export function serialize(
     case 'string':
     case 'number':
     case 'boolean':
-      return data
+      return data;
 
     case 'undefined':
-      return { __dataType__: 'undefined' }
+      return { __dataType__: 'undefined' };
 
     case 'object': {
       if (data === null) {
-        return data
+        return data;
       }
 
       if (Array.isArray(data)) {
@@ -63,31 +63,31 @@ export function serialize(
           value: data.map((element, i) =>
             serialize(element, [...keypath, i.toString()])
           ),
-        }
+        };
       }
 
       if (Buffer.isBuffer(data)) {
-        return { __dataType__: 'Buffer', value: [...data] }
+        return { __dataType__: 'Buffer', value: [...data] };
       }
 
       if (data instanceof Uint8Array) {
-        return { __dataType__: 'Uint8Array', value: [...data] }
+        return { __dataType__: 'Uint8Array', value: [...data] };
       }
 
-      const toStringValue = Object.prototype.toString.call(data)
+      const toStringValue = Object.prototype.toString.call(data);
       if (toStringValue !== '[object Object]') {
         throw new Error(
           `unsupported object type ${toStringValue} at key path '${keypath.join(
             '.'
           )}'`
-        )
+        );
       }
 
-      const result: Record<string, unknown> = {}
+      const result: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(data)) {
-        result[key] = serialize(value, [...keypath, key])
+        result[key] = serialize(value, [...keypath, key]);
       }
-      return { __dataType__: 'Object', value: result }
+      return { __dataType__: 'Object', value: result };
     }
 
     default:
@@ -95,7 +95,7 @@ export function serialize(
         `cannot serialize ${typeof data} in message at key path '${keypath.join(
           '.'
         )}'`
-      )
+      );
   }
 }
 
@@ -107,17 +107,17 @@ export function deserialize(
     case 'string':
     case 'number':
     case 'boolean':
-      return data
+      return data;
 
     case 'object': {
       if (data === null) {
-        return data
+        return data;
       }
 
       if (!('__dataType__' in data)) {
         throw new TypeError(
           `unknown data type at key path ${keypath.join('.')}`
-        )
+        );
       }
 
       switch (data.__dataType__) {
@@ -127,32 +127,32 @@ export function deserialize(
               ...keypath,
               i.toString(),
             ])
-          )
+          );
 
         case 'Object': {
-          const result: Record<string, unknown> = {}
+          const result: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(data.value)) {
             result[key] = deserialize(value as SerializedMessage, [
               ...keypath,
               key,
-            ])
+            ]);
           }
-          return result
+          return result;
         }
 
         case 'Buffer':
-          return Buffer.from(data.value)
+          return Buffer.from(data.value);
 
         case 'Uint8Array':
-          return Uint8Array.from(data.value)
+          return Uint8Array.from(data.value);
 
         case 'undefined':
-          return undefined
+          return undefined;
 
         default:
           throw new Error(
             `unknown serialized data type at key path ${keypath.join('.')}`
-          )
+          );
       }
     }
 
@@ -161,6 +161,6 @@ export function deserialize(
         `cannot deserialize ${typeof data} in message at key path '${keypath.join(
           '.'
         )}'`
-      )
+      );
   }
 }

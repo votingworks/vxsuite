@@ -1,8 +1,8 @@
 import {
   filledInPage2_05,
   filledInPage2_07,
-} from '../../test/fixtures/choctaw-county-2020-general-election'
-import findContests from './findContests'
+} from '../../test/fixtures/choctaw-county-2020-general-election';
+import findContests from './findContests';
 
 test('repairs contests with small gaps', async () => {
   expect([
@@ -90,8 +90,8 @@ test('repairs contests with small gaps', async () => {
         ],
       },
     ]
-  `)
-})
+  `);
+});
 
 test('handles fold lines sticking out of a contest', async () => {
   expect([
@@ -179,5 +179,5 @@ test('handles fold lines sticking out of a contest', async () => {
         ],
       },
     ]
-  `)
-})
+  `);
+});

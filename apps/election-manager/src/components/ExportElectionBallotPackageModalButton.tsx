@@ -1,51 +1,51 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
-import pluralize from 'pluralize'
-import styled from 'styled-components'
-import { join } from 'path'
-import { getElectionLocales, getPrecinctById } from '@votingworks/types'
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import pluralize from 'pluralize';
+import styled from 'styled-components';
+import { join } from 'path';
+import { getElectionLocales, getPrecinctById } from '@votingworks/types';
 
 import {
   generateFilenameForBallotExportPackage,
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   throwIllegalValue,
-} from '@votingworks/utils'
-import { USBControllerButton } from '@votingworks/ui'
-import { strict as assert } from 'assert'
-import { DEFAULT_LOCALE } from '../config/globals'
-import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election'
+} from '@votingworks/utils';
+import { USBControllerButton } from '@votingworks/ui';
+import { strict as assert } from 'assert';
+import { DEFAULT_LOCALE } from '../config/globals';
+import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
 
-import AppContext from '../contexts/AppContext'
-import HandMarkedPaperBallot from './HandMarkedPaperBallot'
-import Modal from './Modal'
-import Button from './Button'
-import Prose from './Prose'
-import LinkButton from './LinkButton'
-import Loading from './Loading'
-import { Monospace } from './Text'
+import AppContext from '../contexts/AppContext';
+import HandMarkedPaperBallot from './HandMarkedPaperBallot';
+import Modal from './Modal';
+import Button from './Button';
+import Prose from './Prose';
+import LinkButton from './LinkButton';
+import Loading from './Loading';
+import { Monospace } from './Text';
 
-import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow'
+import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow';
 
-const { UsbDriveStatus } = usbstick
+const { UsbDriveStatus } = usbstick;
 const USBImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
-`
+`;
 
 const ExportElectionBallotPackageModalButton = (): JSX.Element => {
   const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
     AppContext
-  )
-  assert(electionDefinition)
-  const { election, electionData, electionHash } = electionDefinition
-  const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE)
+  );
+  assert(electionDefinition);
+  const { election, electionData, electionHash } = electionDefinition;
+  const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
 
   const [state, setState] = useState<workflow.State>(
     workflow.init(election, electionHash, electionLocaleCodes)
-  )
+  );
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   /**
    * Execute side effects for the current state and, when ready, transition to
@@ -55,22 +55,22 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
     void (async () => {
       switch (state.type) {
         case 'Init': {
-          setState(workflow.next)
-          break
+          setState(workflow.next);
+          break;
         }
 
         case 'ArchiveEnd': {
-          await state.archive.end()
-          setState(workflow.next)
-          break
+          await state.archive.end();
+          setState(workflow.next);
+          break;
         }
 
         default:
           // nothing to do
-          break
+          break;
       }
-    })()
-  }, [state, election, electionData, electionHash])
+    })();
+  }, [state, election, electionData, electionHash]);
 
   /**
    * Callback from `HandMarkedPaperBallot` to let us know the preview has been
@@ -81,7 +81,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
     if (state.type !== 'RenderBallot') {
       throw new Error(
         `unexpected state '${state.type}' found during onRendered callback`
-      )
+      );
     }
 
     const {
@@ -90,7 +90,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
       locales,
       isLiveMode,
       isAbsentee,
-    } = state.currentBallotConfig
+    } = state.currentBallotConfig;
     const path = getBallotPath({
       ballotStyleId,
       election,
@@ -99,66 +99,66 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
       locales,
       isLiveMode,
       isAbsentee,
-    })
-    assert(window.kiosk)
-    const data = await window.kiosk.printToPDF()
-    await state.archive.file(path, Buffer.from(data))
-    setState(workflow.next)
-  }, [election, electionHash, state])
+    });
+    assert(window.kiosk);
+    const data = await window.kiosk.printToPDF();
+    await state.archive.file(path, Buffer.from(data));
+    setState(workflow.next);
+  }, [election, electionHash, state]);
 
   const closeModal = () => {
-    setIsModalOpen(false)
-    setState(workflow.init(election, electionHash, electionLocaleCodes))
-  }
+    setIsModalOpen(false);
+    setState(workflow.init(election, electionHash, electionLocaleCodes));
+  };
 
-  const now = new Date()
+  const now = new Date();
   const defaultFileName = generateFilenameForBallotExportPackage(
     electionDefinition,
     now
-  )
+  );
 
   // Callback to open the file dialog.
   const saveFileCallback = async (openDialog: boolean) => {
     if (state.type !== 'ArchiveBegin') {
       throw new Error(
         `unexpected state '${state.type}' found during saveFileCallback`
-      )
+      );
     }
     try {
-      const usbPath = await usbstick.getDevicePath()
-      const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER)
-      const pathToFile = join(pathToFolder ?? '.', defaultFileName)
+      const usbPath = await usbstick.getDevicePath();
+      const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER);
+      const pathToFile = join(pathToFolder ?? '.', defaultFileName);
       if (openDialog || !pathToFolder) {
         await state.archive.beginWithDialog({
           defaultPath: pathToFile,
           filters: [{ name: 'Archive Files', extensions: ['zip'] }],
-        })
+        });
       } else {
-        await state.archive.beginWithDirectSave(pathToFolder, defaultFileName)
+        await state.archive.beginWithDirectSave(pathToFolder, defaultFileName);
       }
-      await state.archive.file('election.json', electionData)
+      await state.archive.file('election.json', electionData);
       await state.archive.file(
         'manifest.json',
         JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
-      )
-      setState(workflow.next)
+      );
+      setState(workflow.next);
     } catch (error) {
-      setState(workflow.error(state, error))
+      setState(workflow.error(state, error));
     }
-  }
+  };
 
-  let mainContent = null
-  let actions = null
+  let mainContent = null;
+  let actions = null;
 
   switch (state.type) {
     case 'Init': {
-      mainContent = <Loading />
+      mainContent = <Loading />;
       actions = (
         <LinkButton onPress={closeModal} disabled>
           Cancel
         </LinkButton>
-      )
-      break
+      );
+      break;
     }
 
     case 'ArchiveBegin':
@@ -166,7 +166,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
         case UsbDriveStatus.absent:
         case UsbDriveStatus.notavailable:
         case UsbDriveStatus.recentlyEjected:
-          actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>
+          actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
           mainContent = (
             <Prose>
               <h1>No USB Drive Detected</h1>
@@ -181,17 +181,17 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
                 configuration.
               </p>
             </Prose>
-          )
-          break
+          );
+          break;
         case UsbDriveStatus.ejecting:
         case UsbDriveStatus.present:
-          mainContent = <Loading />
+          mainContent = <Loading />;
           actions = (
             <LinkButton onPress={closeModal} disabled>
               Cancel
             </LinkButton>
-          )
-          break
+          );
+          break;
         case UsbDriveStatus.mounted: {
           actions = (
             <React.Fragment>
@@ -201,7 +201,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
                 Export
               </Button>
             </React.Fragment>
-          )
+          );
           mainContent = (
             <Prose>
               <h1>Export Ballot Package</h1>
@@ -212,21 +212,21 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
                 location.
               </p>
             </Prose>
-          )
-          break
+          );
+          break;
         }
 
         default:
-          throwIllegalValue(usbDriveStatus)
+          throwIllegalValue(usbDriveStatus);
       }
-      break
+      break;
 
     case 'RenderBallot': {
       actions = (
         <LinkButton onPress={closeModal} disabled>
           Cancel
         </LinkButton>
-      )
+      );
       const {
         ballotStyleId,
         precinctId,
@@ -234,10 +234,10 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
         isLiveMode,
         locales,
         isAbsentee,
-      } = state.currentBallotConfig
-      const precinct = getPrecinctById({ election, precinctId })
-      assert(precinct)
-      const precinctName = precinct.name
+      } = state.currentBallotConfig;
+      const precinct = getPrecinctById({ election, precinctId });
+      assert(precinct);
+      const precinctName = precinct.name;
 
       mainContent = (
         <Prose>
@@ -276,8 +276,8 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
             locales={locales}
           />
         </Prose>
-      )
-      break
+      );
+      break;
     }
 
     case 'ArchiveEnd': {
@@ -285,7 +285,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
         <LinkButton onPress={closeModal} disabled>
           Cancel
         </LinkButton>
-      )
+      );
       mainContent = (
         <Prose>
           <h1>Finishing Download…</h1>
@@ -294,8 +294,8 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
             closing zip file.
           </p>
         </Prose>
-      )
-      break
+      );
+      break;
     }
 
     case 'Done': {
@@ -310,9 +310,9 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
               usbDriveStatus={usbDriveStatus}
             />
           </React.Fragment>
-        )
+        );
       } else {
-        actions = <LinkButton onPress={closeModal}>Close</LinkButton>
+        actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
       }
       mainContent = (
         <Prose>
@@ -322,24 +322,24 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
             this USB drive to configure the Ballot Scanner.
           </p>
         </Prose>
-      )
-      break
+      );
+      break;
     }
 
     case 'Failed': {
-      actions = <LinkButton onPress={closeModal}>Close</LinkButton>
+      actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
       mainContent = (
         <Prose>
           <h1>Download Failed</h1>
           <p>An error occurred: {state.message}.</p>
         </Prose>
-      )
-      break
+      );
+      break;
     }
 
     default:
       // nothing to do
-      break
+      break;
   }
 
   return (
@@ -355,7 +355,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default ExportElectionBallotPackageModalButton
+export default ExportElectionBallotPackageModalButton;

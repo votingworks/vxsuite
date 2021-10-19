@@ -1,16 +1,16 @@
-import { DateTime } from 'luxon'
-import { useState } from 'react'
-import useInterval from 'use-interval'
+import { DateTime } from 'luxon';
+import { useState } from 'react';
+import useInterval from 'use-interval';
 
 /**
  * React hook to get a current-to-the-second date.
  */
 export const useNow = (): DateTime => {
-  const [now, setNow] = useState(DateTime.local())
+  const [now, setNow] = useState(DateTime.local());
 
   useInterval(() => {
-    setNow(DateTime.local())
-  }, 1000)
+    setNow(DateTime.local());
+  }, 1000);
 
-  return now
-}
+  return now;
+};

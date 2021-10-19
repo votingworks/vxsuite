@@ -1,29 +1,29 @@
-import { waitFor } from '@testing-library/react'
+import { waitFor } from '@testing-library/react';
 import {
   electionSample as election,
   electionWithMsEitherNeither,
-} from '@votingworks/fixtures'
-import * as testUtils from '@votingworks/test-utils'
+} from '@votingworks/fixtures';
+import * as testUtils from '@votingworks/test-utils';
 import {
   makeUsedVoterCard as makeUsedVoterCardForElection,
   makeVoterCard,
-} from '@votingworks/test-utils'
+} from '@votingworks/test-utils';
 import {
   CandidateContest,
   vote,
   getContests,
   VotesDict,
   VoterCardData,
-} from '@votingworks/types'
-import * as GLOBALS from '../../src/config/globals'
-import utcTimestamp from '../../src/utils/utcTimestamp'
+} from '@votingworks/types';
+import * as GLOBALS from '../../src/config/globals';
+import utcTimestamp from '../../src/utils/utcTimestamp';
 
-const contest0 = election.contests[0] as CandidateContest
-const contest1 = election.contests[1] as CandidateContest
-const contest0candidate0 = contest0.candidates[0]
-const contest1candidate0 = contest1.candidates[0]
-const altBallotStyleId = election.ballotStyles[1].id
-const altPrecinctId = election.precincts[1].id
+const contest0 = election.contests[0] as CandidateContest;
+const contest1 = election.contests[1] as CandidateContest;
+const contest0candidate0 = contest0.candidates[0];
+const contest1candidate0 = contest1.candidates[0];
+const altBallotStyleId = election.ballotStyles[1].id;
+const altPrecinctId = election.precincts[1].id;
 
 export const sampleVotes0: Readonly<VotesDict> = vote(
   getContests({
@@ -36,7 +36,7 @@ export const sampleVotes0: Readonly<VotesDict> = vote(
     'question-b': ['yes'],
     senator: [contest1candidate0],
   }
-)
+);
 
 export const sampleVotes1: Readonly<VotesDict> = vote(
   getContests({
@@ -65,7 +65,7 @@ export const sampleVotes1: Readonly<VotesDict> = vote(
     'proposition-1': ['yes'],
     'measure-101': ['yes'],
   }
-)
+);
 
 export const sampleVotes2: Readonly<VotesDict> = vote(
   getContests({
@@ -96,7 +96,7 @@ export const sampleVotes2: Readonly<VotesDict> = vote(
     'proposition-1': ['no'],
     'measure-101': ['no'],
   }
-)
+);
 
 export const sampleVotes3: Readonly<VotesDict> = vote(
   getContests({
@@ -127,33 +127,33 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
     'proposition-1': ['yes'],
     'measure-101': ['yes'],
   }
-)
+);
 
 export const makeAlternateNewVoterCard = (): VoterCardData =>
   makeVoterCard(election, {
     pr: altPrecinctId,
     bs: altBallotStyleId,
-  })
+  });
 
 export const makeOtherElectionVoterCard = (
   e = electionWithMsEitherNeither
-): VoterCardData => makeVoterCard(e)
+): VoterCardData => makeVoterCard(e);
 
 export const makeExpiredVoterCard = (e = election): VoterCardData =>
   makeVoterCard(e, {
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
-  })
+  });
 
 export const makeUsedVoterCard = (e = election): VoterCardData =>
-  makeUsedVoterCardForElection(e)
+  makeUsedVoterCardForElection(e);
 
 export const advanceTimers = (seconds = 0): void => {
-  testUtils.advanceTimers(seconds || GLOBALS.CARD_POLLING_INTERVAL / 1000)
-}
+  testUtils.advanceTimers(seconds || GLOBALS.CARD_POLLING_INTERVAL / 1000);
+};
 
 export const advanceTimersAndPromises = async (seconds = 0): Promise<void> => {
-  advanceTimers(seconds)
+  advanceTimers(seconds);
   await waitFor(() => {
     // Wait for promises.
-  })
-}
+  });
+};

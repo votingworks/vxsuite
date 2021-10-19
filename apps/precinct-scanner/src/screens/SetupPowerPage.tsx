@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
-import { Main, MainChild, Prose, NoWrap } from '@votingworks/ui'
+import { Main, MainChild, Prose, NoWrap } from '@votingworks/ui';
 
-import { CenteredScreen } from '../components/Layout'
+import { CenteredScreen } from '../components/Layout';
 
 const SetupPowerPage = (): JSX.Element => {
   return (
@@ -21,12 +21,12 @@ const SetupPowerPage = (): JSX.Element => {
         </MainChild>
       </Main>
     </CenteredScreen>
-  )
-}
+  );
+};
 
-export default SetupPowerPage
+export default SetupPowerPage;
 
 /* istanbul ignore next */
 export const DefaultPreview = (): JSX.Element => {
-  return <SetupPowerPage />
-}
+  return <SetupPowerPage />;
+};

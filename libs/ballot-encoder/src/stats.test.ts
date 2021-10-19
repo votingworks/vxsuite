@@ -1,6 +1,6 @@
-import { asElectionDefinition } from '@votingworks/fixtures'
-import { BallotType, Election } from '@votingworks/types'
-import { encodeBallot, encodeHMPBBallotPageMetadata } from '.'
+import { asElectionDefinition } from '@votingworks/fixtures';
+import { BallotType, Election } from '@votingworks/types';
+import { encodeBallot, encodeHMPBBallotPageMetadata } from '.';
 
 const election: Election = {
   title: 'Election',
@@ -23,8 +23,8 @@ const election: Election = {
       section: 'DC',
     },
   ],
-}
-const { electionHash } = asElectionDefinition(election)
+};
+const { electionHash } = asElectionDefinition(election);
 
 test('BMD: smallest possible encoded ballot', () => {
   expect(
@@ -37,8 +37,8 @@ test('BMD: smallest possible encoded ballot', () => {
       isTestMode: true,
       votes: {},
     }).byteLength
-  ).toEqual(18)
-})
+  ).toEqual(18);
+});
 
 test('HMPB: smallest possible encoded metadata', () => {
   expect(
@@ -52,5 +52,5 @@ test('HMPB: smallest possible encoded metadata', () => {
       locales: { primary: 'en-US' },
       pageNumber: 1,
     }).byteLength
-  ).toEqual(20)
-})
+  ).toEqual(20);
+});

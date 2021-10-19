@@ -4,9 +4,9 @@ import {
   getBallotStyle,
   getContests,
   SerializableBallotPageLayout,
-} from '@votingworks/types'
-import { election } from '../../test/fixtures/state-of-hamilton'
-import getBallotPageContests from './getBallotPageContests'
+} from '@votingworks/types';
+import { election } from '../../test/fixtures/state-of-hamilton';
+import getBallotPageContests from './getBallotPageContests';
 
 function metadataForPage(pageNumber: number): BallotPageMetadata {
   return {
@@ -17,11 +17,11 @@ function metadataForPage(pageNumber: number): BallotPageMetadata {
     locales: { primary: 'en-US', secondary: 'es-US' },
     ballotType: BallotType.Standard,
     electionHash: '',
-  }
+  };
 }
 test('gets contests broken across pages according to the layout', () => {
-  const ballotStyle = getBallotStyle({ ballotStyleId: '12', election })!
-  const allContestsForBallot = getContests({ ballotStyle, election })
+  const ballotStyle = getBallotStyle({ ballotStyleId: '12', election })!;
+  const allContestsForBallot = getContests({ ballotStyle, election });
   const layouts = Array.from({ length: 5 }).map<SerializableBallotPageLayout>(
     (_, i) => ({
       ballotImage: {
@@ -41,11 +41,11 @@ test('gets contests broken across pages according to the layout', () => {
         },
       ],
     })
-  )
+  );
 
   for (let pageNumber = 1; pageNumber <= layouts.length; pageNumber += 1) {
     expect(
       getBallotPageContests(election, metadataForPage(pageNumber), layouts)
-    ).toEqual(allContestsForBallot.slice(pageNumber - 1, pageNumber))
+    ).toEqual(allContestsForBallot.slice(pageNumber - 1, pageNumber));
   }
-})
+});

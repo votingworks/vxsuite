@@ -1,25 +1,25 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
-import styled from 'styled-components'
-import { parseElection } from '@votingworks/types'
+import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import { parseElection } from '@votingworks/types';
 
-import ConverterClient, { VxFile } from '../lib/ConverterClient'
-import readFileAsync from '../lib/readFileAsync'
+import ConverterClient, { VxFile } from '../lib/ConverterClient';
+import readFileAsync from '../lib/readFileAsync';
 
-import { InputEventFunction } from '../config/types'
+import { InputEventFunction } from '../config/types';
 
-import defaultElection from '../data/defaultElection.json'
+import defaultElection from '../data/defaultElection.json';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import Button from '../components/Button'
-import routerPaths from '../routerPaths'
-import FileInputButton from '../components/FileInputButton'
-import HorizontalRule from '../components/HorizontalRule'
-import Prose from '../components/Prose'
-import Loading from '../components/Loading'
-import NavigationScreen from '../components/NavigationScreen'
-import Modal from '../components/Modal'
+import Button from '../components/Button';
+import routerPaths from '../routerPaths';
+import FileInputButton from '../components/FileInputButton';
+import HorizontalRule from '../components/HorizontalRule';
+import Prose from '../components/Prose';
+import Loading from '../components/Loading';
+import NavigationScreen from '../components/NavigationScreen';
+import Modal from '../components/Modal';
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -27,184 +27,186 @@ const Loaded = styled.p`
   &::before {
     content: '✓ ';
   }
-`
+`;
 const Invalid = styled.p`
   line-height: 2.5rem;
   color: rgb(128, 0, 0);
   &::before {
     content: '✘ ';
   }
-`
+`;
 
 interface InputFile {
-  name: string
-  file: File
+  name: string;
+  file: File;
 }
 
-const allFilesExist = (files: VxFile[]) => files.every((f) => f.path)
-const someFilesExist = (files: VxFile[]) => files.some((f) => f.path)
+const allFilesExist = (files: VxFile[]) => files.every((f) => f.path);
+const someFilesExist = (files: VxFile[]) => files.some((f) => f.path);
 
-const newElection = JSON.stringify(defaultElection)
+const newElection = JSON.stringify(defaultElection);
 
 const UnconfiguredScreen = (): JSX.Element => {
-  const history = useHistory()
-  const location = useLocation()
+  const history = useHistory();
+  const location = useLocation();
 
-  const { saveElection } = useContext(AppContext)
+  const { saveElection } = useContext(AppContext);
 
-  const [isUploading, setIsUploading] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [isUploading, setIsUploading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false)
-  const [client] = useState(new ConverterClient('election'))
-  const [isConvertSEMS, setIsConvertSEMS] = useState(false)
+  const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>(
+    []
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
+  const [client] = useState(new ConverterClient('election'));
+  const [isConvertSEMS, setIsConvertSEMS] = useState(false);
 
   const createNewElection = async () => {
-    await saveElection(newElection)
-    history.push(routerPaths.electionDefinition)
-  }
+    await saveElection(newElection);
+    history.push(routerPaths.electionDefinition);
+  };
 
   const saveElectionAndShowSuccess = useCallback(
     (electionJSON: string) => {
-      parseElection(JSON.parse(electionJSON))
-      setShowSuccess(true)
+      parseElection(JSON.parse(electionJSON));
+      setShowSuccess(true);
       setTimeout(async () => {
-        setShowSuccess(false)
-        await saveElection(electionJSON)
-      }, 3000)
+        setShowSuccess(false);
+        await saveElection(electionJSON);
+      }, 3000);
     },
     [saveElection, setShowSuccess]
-  )
+  );
 
   const handleVxElectionFile: InputEventFunction = async (event) => {
-    setIsUploading(true)
-    const input = event.currentTarget
-    const file = input.files && input.files[0]
+    setIsUploading(true);
+    const input = event.currentTarget;
+    const file = input.files && input.files[0];
 
     if (file) {
-      setVxElectionFileIsInvalid(false)
+      setVxElectionFileIsInvalid(false);
       try {
-        const fileContent = await readFileAsync(file)
-        saveElectionAndShowSuccess(fileContent)
+        const fileContent = await readFileAsync(file);
+        saveElectionAndShowSuccess(fileContent);
       } catch (error) {
-        setVxElectionFileIsInvalid(true)
-        console.error('handleVxElectionFile failed', error) // eslint-disable-line no-console
+        setVxElectionFileIsInvalid(true);
+        console.error('handleVxElectionFile failed', error); // eslint-disable-line no-console
       } finally {
-        setIsUploading(false)
+        setIsUploading(false);
       }
     }
-  }
+  };
 
   const resetServerFiles = useCallback(async () => {
     try {
-      await client.reset()
+      await client.reset();
     } catch (error) {
-      console.log('failed resetServerFiles()', error) // eslint-disable-line no-console
+      console.log('failed resetServerFiles()', error); // eslint-disable-line no-console
     }
-  }, [client])
+  }, [client]);
 
   const getOutputFile = useCallback(
     async (electionFileName: string) => {
       try {
-        const blob = await client.getOutputFile(electionFileName)
-        await resetServerFiles()
-        const electionJSON = await new Response(blob).text()
-        saveElectionAndShowSuccess(electionJSON)
+        const blob = await client.getOutputFile(electionFileName);
+        await resetServerFiles();
+        const electionJSON = await new Response(blob).text();
+        saveElectionAndShowSuccess(electionJSON);
       } catch (error) {
-        console.log('failed getOutputFile()', error) // eslint-disable-line no-console
+        console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
     [client, resetServerFiles, saveElectionAndShowSuccess]
-  )
+  );
 
   const processInputFiles = useCallback(
     async (electionFileName: string) => {
       try {
-        await client.process()
-        await getOutputFile(electionFileName)
+        await client.process();
+        await getOutputFile(electionFileName);
       } catch (error) {
-        console.log('failed processInputFiles()', error) // eslint-disable-line no-console
-        await client.reset()
-        setIsLoading(false)
+        console.log('failed processInputFiles()', error); // eslint-disable-line no-console
+        await client.reset();
+        setIsLoading(false);
       }
     },
     [client, getOutputFile, setIsLoading]
-  )
+  );
 
   const updateStatus = useCallback(async () => {
     try {
-      const files = await client.getFiles()
+      const files = await client.getFiles();
 
-      setIsLoading(true)
+      setIsLoading(true);
 
-      const electionFile = files.outputFiles[0]
+      const electionFile = files.outputFiles[0];
       if (electionFile.path) {
-        await getOutputFile(electionFile.name)
-        return
+        await getOutputFile(electionFile.name);
+        return;
       }
 
       if (allFilesExist(files.inputFiles)) {
-        await processInputFiles(electionFile.name)
-        return
+        await processInputFiles(electionFile.name);
+        return;
       }
 
-      setInputConversionFiles(files.inputFiles)
-      setIsLoading(false)
+      setInputConversionFiles(files.inputFiles);
+      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [client, getOutputFile, processInputFiles])
+  }, [client, getOutputFile, processInputFiles]);
 
   const submitFile = async ({ file, name }: InputFile) => {
     try {
-      await client.setInputFile(name, file)
-      await updateStatus()
+      await client.setInputFile(name, file);
+      await updateStatus();
     } catch (error) {
-      console.log('failed handleFileInput()', error) // eslint-disable-line no-console
+      console.log('failed handleFileInput()', error); // eslint-disable-line no-console
     }
-  }
+  };
 
   const handleFileInput: InputEventFunction = async (event) => {
-    const input = event.currentTarget
-    const file = input.files && input.files[0]
-    const { name } = input
+    const input = event.currentTarget;
+    const file = input.files && input.files[0];
+    const { name } = input;
     if (file && name) {
-      await submitFile({ file, name })
+      await submitFile({ file, name });
     }
-  }
+  };
 
   const resetUploadFiles = async () => {
-    setInputConversionFiles([])
-    setVxElectionFileIsInvalid(false)
-    await resetServerFiles()
-    await updateStatus()
-  }
+    setInputConversionFiles([]);
+    setVxElectionFileIsInvalid(false);
+    await resetServerFiles();
+    await updateStatus();
+  };
 
   const resetUploadFilesAndGoBack = async () => {
-    await resetUploadFiles()
-    setIsConvertSEMS(false)
-  }
+    await resetUploadFiles();
+    setIsConvertSEMS(false);
+  };
 
   useEffect(() => {
-    void updateStatus()
-  }, [updateStatus])
+    void updateStatus();
+  }, [updateStatus]);
 
   useEffect(() => {
     if (location.pathname !== '/') {
-      history.push(routerPaths.root)
+      history.push(routerPaths.root);
     }
-  }, [location, history])
+  }, [location, history]);
 
   if (isUploading || isLoading) {
     return (
       <NavigationScreen>
         <Loading isFullscreen />
       </NavigationScreen>
-    )
+    );
   }
 
   if (showSuccess) {
@@ -219,7 +221,7 @@ const UnconfiguredScreen = (): JSX.Element => {
           }
         />
       </NavigationScreen>
-    )
+    );
   }
 
   if (isConvertSEMS && inputConversionFiles.length > 0) {
@@ -266,7 +268,7 @@ const UnconfiguredScreen = (): JSX.Element => {
           </p>
         </Prose>
       </NavigationScreen>
-    )
+    );
   }
 
   return (
@@ -305,7 +307,7 @@ const UnconfiguredScreen = (): JSX.Element => {
         )}
       </Prose>
     </NavigationScreen>
-  )
-}
+  );
+};
 
-export default UnconfiguredScreen
+export default UnconfiguredScreen;

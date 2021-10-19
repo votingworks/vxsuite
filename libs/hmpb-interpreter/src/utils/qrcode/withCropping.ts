@@ -1,6 +1,6 @@
-import { DetectQRCode, DetectQRCodeResult } from '../../types'
-import crop from '../crop'
-import { flipRectVH } from '../geometry'
+import { DetectQRCode, DetectQRCodeResult } from '../../types';
+import crop from '../crop';
+import { flipRectVH } from '../geometry';
 
 /**
  * Makes a new QR code detector from an existing one that works by cropping the
@@ -11,24 +11,24 @@ export function withCropping(
   { widthFraction = 1 / 4, heightFraction = 1 / 5 } = {}
 ): DetectQRCode {
   return async (imageData): Promise<DetectQRCodeResult | undefined> => {
-    const width = Math.floor(imageData.width * widthFraction)
-    const height = Math.floor(imageData.height * heightFraction)
+    const width = Math.floor(imageData.width * widthFraction);
+    const height = Math.floor(imageData.height * heightFraction);
     const searchBounds = {
       x: imageData.width - width,
       y: imageData.height - height,
       width,
       height,
-    }
+    };
 
     {
-      const cropped = crop(imageData, searchBounds)
-      const decoded = await decode(cropped)
+      const cropped = crop(imageData, searchBounds);
+      const decoded = await decode(cropped);
 
       if (decoded) {
         return {
           data: decoded.data,
           rightSideUp: decoded.rightSideUp ?? true,
-        }
+        };
       }
     }
 
@@ -39,17 +39,17 @@ export function withCropping(
           { x: 0, y: 0, width: imageData.width, height: imageData.height },
           searchBounds
         )
-      )
-      const decoded = await decode(cropped)
+      );
+      const decoded = await decode(cropped);
 
       if (decoded) {
         return {
           data: decoded.data,
           rightSideUp: decoded.rightSideUp ?? false,
-        }
+        };
       }
     }
 
-    return undefined
-  }
+    return undefined;
+  };
 }

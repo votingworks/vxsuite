@@ -1,9 +1,9 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse'
-  voterMode?: boolean
-  white?: boolean
+  flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+  voterMode?: boolean;
+  white?: boolean;
 }
 
 export const Screen = styled.div<Props>`
@@ -20,4 +20,4 @@ export const Screen = styled.div<Props>`
   @media print {
     display: none;
   }
-`
+`;

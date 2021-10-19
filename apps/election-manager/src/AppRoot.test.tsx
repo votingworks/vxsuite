@@ -1,9 +1,9 @@
-import fetchMock from 'fetch-mock'
-import React from 'react'
-import { render } from '@testing-library/react'
-import { act } from 'react-dom/test-utils'
+import fetchMock from 'fetch-mock';
+import React from 'react';
+import { render } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom';
 
 // import { electionSample } from '@votingworks/fixtures'
 import {
@@ -11,17 +11,17 @@ import {
   MemoryHardware,
   MemoryStorage,
   NullPrinter,
-} from '@votingworks/utils'
-import AppRoot from './AppRoot'
-import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
+} from '@votingworks/utils';
+import AppRoot from './AppRoot';
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
 beforeEach(() => {
-  fetchMock.get(/^\/convert/, {})
-})
+  fetchMock.get(/^\/convert/, {});
+});
 
 test('renders without crashing', async () => {
   await act(async () => {
-    const storage = new MemoryStorage()
+    const storage = new MemoryStorage();
     render(
       <BrowserRouter>
         <Route
@@ -38,6 +38,6 @@ test('renders without crashing', async () => {
           )}
         />
       </BrowserRouter>
-    )
-  })
-})
+    );
+  });
+});

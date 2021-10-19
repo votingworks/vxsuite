@@ -3,30 +3,30 @@
 
 if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line import/no-extraneous-dependencies
-  require('ts-node').register({ transpileOnly: true })
+  require('ts-node').register({ transpileOnly: true });
 }
 
-const { resolve } = require('path')
-const { parentPort, workerData } = require('worker_threads')
-const json = require('./json-serialization')
+const { resolve } = require('path');
+const { parentPort, workerData } = require('worker_threads');
+const json = require('./json-serialization');
 
 if (typeof workerData.__workerPath !== 'string') {
-  throw new Error('missing worker path')
+  throw new Error('missing worker path');
 }
 
-const { call } = require(resolve(__dirname, workerData.__workerPath))
+const { call } = require(resolve(__dirname, workerData.__workerPath));
 
-const pp = parentPort
+const pp = parentPort;
 if (pp) {
   pp.on('message', async (input) => {
-    let output
+    let output;
 
     try {
-      output = await call(json.deserialize(input))
+      output = await call(json.deserialize(input));
     } catch (error) {
-      output = { type: 'error', error: `${error.stack}` }
+      output = { type: 'error', error: `${error.stack}` };
     }
 
-    pp.postMessage({ output: json.serialize(output) })
-  })
+    pp.postMessage({ output: json.serialize(output) });
+  });
 }

@@ -1,29 +1,29 @@
-import { join } from 'path'
-import { Interpreter } from '../../src'
-import { Fixture } from '../fixtures'
-import { election } from '../fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+import { join } from 'path';
+import { Interpreter } from '../../src';
+import { Fixture } from '../fixtures';
+import { election } from '../fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 
-const skip = process.env.REGRESSION_TESTS !== '1'
-const test = skip ? it.skip : it
-let interpreter: Interpreter
+const skip = process.env.REGRESSION_TESTS !== '1';
+const test = skip ? it.skip : it;
+let interpreter: Interpreter;
 
 function readFixture(name: string): Fixture {
-  return new Fixture(join(__dirname, '../fixtures/28lb-paper', name))
+  return new Fixture(join(__dirname, '../fixtures/28lb-paper', name));
 }
 
 beforeAll(async () => {
-  if (skip) return
+  if (skip) return;
 
-  const p1 = readFixture('batch-1-20200504_210852-ballot-0018.jpg')
-  const p2 = readFixture('batch-1-20200504_210852-ballot-0017.jpg')
+  const p1 = readFixture('batch-1-20200504_210852-ballot-0018.jpg');
+  const p2 = readFixture('batch-1-20200504_210852-ballot-0017.jpg');
 
-  interpreter = new Interpreter(election)
-  await interpreter.addTemplate(await p1.imageData(), await p1.metadata())
-  await interpreter.addTemplate(await p2.imageData(), await p2.metadata())
-})
+  interpreter = new Interpreter(election);
+  await interpreter.addTemplate(await p1.imageData(), await p1.metadata());
+  await interpreter.addTemplate(await p2.imageData(), await p2.metadata());
+});
 
 test('batch-1-20200504_210852-ballot-0001', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0001.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0001.jpg');
 
   expect(
     (
@@ -65,11 +65,11 @@ test('batch-1-20200504_210852-ballot-0001', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0002', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0002.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0002.jpg');
 
   expect(
     (
@@ -135,11 +135,11 @@ test('batch-1-20200504_210852-ballot-0002', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0003', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0003.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0003.jpg');
 
   expect(
     (
@@ -171,11 +171,11 @@ test('batch-1-20200504_210852-ballot-0003', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0004', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0004.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0004.jpg');
 
   expect(
     (
@@ -234,11 +234,11 @@ test('batch-1-20200504_210852-ballot-0004', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0005', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0005.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0005.jpg');
 
   expect(
     (
@@ -280,11 +280,11 @@ test('batch-1-20200504_210852-ballot-0005', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0006', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0006.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0006.jpg');
 
   expect(
     (
@@ -350,11 +350,11 @@ test('batch-1-20200504_210852-ballot-0006', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0007', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0007.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0007.jpg');
 
   expect(
     (
@@ -396,11 +396,11 @@ test('batch-1-20200504_210852-ballot-0007', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0008', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0008.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0008.jpg');
 
   expect(
     (
@@ -466,11 +466,11 @@ test('batch-1-20200504_210852-ballot-0008', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0009', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0009.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0009.jpg');
 
   expect(
     (
@@ -507,11 +507,11 @@ test('batch-1-20200504_210852-ballot-0009', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0010', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0010.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0010.jpg');
 
   expect(
     (
@@ -570,11 +570,11 @@ test('batch-1-20200504_210852-ballot-0010', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0011', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0011.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0011.jpg');
 
   expect(
     (
@@ -616,11 +616,11 @@ test('batch-1-20200504_210852-ballot-0011', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0012', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0012.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0012.jpg');
 
   expect(
     (
@@ -686,11 +686,11 @@ test('batch-1-20200504_210852-ballot-0012', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0013', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0013.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0013.jpg');
 
   expect(
     (
@@ -732,11 +732,11 @@ test('batch-1-20200504_210852-ballot-0013', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0014', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0014.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0014.jpg');
 
   expect(
     (
@@ -797,11 +797,11 @@ test('batch-1-20200504_210852-ballot-0014', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0015', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0015.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0015.jpg');
 
   expect(
     (
@@ -843,11 +843,11 @@ test('batch-1-20200504_210852-ballot-0015', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0016', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0016.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0016.jpg');
 
   expect(
     (
@@ -906,11 +906,11 @@ test('batch-1-20200504_210852-ballot-0016', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0017', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0017.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0017.jpg');
 
   expect(
     (
@@ -919,11 +919,11 @@ test('batch-1-20200504_210852-ballot-0017', async () => {
         await fixture.metadata()
       )
     ).ballot.votes
-  ).toMatchInlineSnapshot(`Object {}`)
-})
+  ).toMatchInlineSnapshot(`Object {}`);
+});
 
 test('batch-1-20200504_210852-ballot-0018', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0018.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0018.jpg');
 
   expect(
     (
@@ -932,11 +932,11 @@ test('batch-1-20200504_210852-ballot-0018', async () => {
         await fixture.metadata()
       )
     ).ballot.votes
-  ).toMatchInlineSnapshot(`Object {}`)
-})
+  ).toMatchInlineSnapshot(`Object {}`);
+});
 
 test('batch-1-20200504_210852-ballot-0019', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0019.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0019.jpg');
 
   expect(
     (
@@ -978,11 +978,11 @@ test('batch-1-20200504_210852-ballot-0019', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0020', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0020.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0020.jpg');
 
   expect(
     (
@@ -1043,11 +1043,11 @@ test('batch-1-20200504_210852-ballot-0020', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0021', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0021.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0021.jpg');
 
   expect(
     (
@@ -1079,11 +1079,11 @@ test('batch-1-20200504_210852-ballot-0021', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0022', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0022.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0022.jpg');
 
   expect(
     (
@@ -1149,11 +1149,11 @@ test('batch-1-20200504_210852-ballot-0022', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0023', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0023.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0023.jpg');
 
   expect(
     (
@@ -1162,11 +1162,11 @@ test('batch-1-20200504_210852-ballot-0023', async () => {
         await fixture.metadata()
       )
     ).ballot.votes
-  ).toMatchInlineSnapshot(`Object {}`)
-})
+  ).toMatchInlineSnapshot(`Object {}`);
+});
 
 test('batch-1-20200504_210852-ballot-0024', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0024.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0024.jpg');
 
   expect(
     (
@@ -1175,11 +1175,11 @@ test('batch-1-20200504_210852-ballot-0024', async () => {
         await fixture.metadata()
       )
     ).ballot.votes
-  ).toMatchInlineSnapshot(`Object {}`)
-})
+  ).toMatchInlineSnapshot(`Object {}`);
+});
 
 test('batch-1-20200504_210852-ballot-0025', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0025.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0025.jpg');
 
   expect(
     (
@@ -1221,11 +1221,11 @@ test('batch-1-20200504_210852-ballot-0025', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0026', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0026.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0026.jpg');
 
   expect(
     (
@@ -1286,11 +1286,11 @@ test('batch-1-20200504_210852-ballot-0026', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0027', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0027.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0027.jpg');
 
   expect(
     (
@@ -1332,11 +1332,11 @@ test('batch-1-20200504_210852-ballot-0027', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0028', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0028.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0028.jpg');
 
   expect(
     (
@@ -1402,11 +1402,11 @@ test('batch-1-20200504_210852-ballot-0028', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0029', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0029.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0029.jpg');
 
   expect(
     (
@@ -1448,11 +1448,11 @@ test('batch-1-20200504_210852-ballot-0029', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0030', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0030.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0030.jpg');
 
   expect(
     (
@@ -1511,11 +1511,11 @@ test('batch-1-20200504_210852-ballot-0030', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0031', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0031.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0031.jpg');
 
   expect(
     (
@@ -1557,11 +1557,11 @@ test('batch-1-20200504_210852-ballot-0031', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('batch-1-20200504_210852-ballot-0032', async () => {
-  const fixture = readFixture('batch-1-20200504_210852-ballot-0032.jpg')
+  const fixture = readFixture('batch-1-20200504_210852-ballot-0032.jpg');
 
   expect(
     (
@@ -1627,5 +1627,5 @@ test('batch-1-20200504_210852-ballot-0032', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});

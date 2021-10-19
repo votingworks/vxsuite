@@ -1,14 +1,14 @@
-import { screen } from '@testing-library/react'
-import React from 'react'
-import { Route } from 'react-router-dom'
+import { screen } from '@testing-library/react';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
-import { render } from '../../test/testUtils'
+import { render } from '../../test/testUtils';
 
-import electionSample from '../data/electionSample.json'
+import electionSample from '../data/electionSample.json';
 
-import ContestPage from './ContestPage'
+import ContestPage from './ContestPage';
 
-const firstContestTitle = electionSample.contests[0].title
+const firstContestTitle = electionSample.contests[0].title;
 
 it('Renders ContestPage', () => {
   const { container } = render(
@@ -18,7 +18,7 @@ it('Renders ContestPage', () => {
       precinctId: electionSample.precincts[0].id,
       ballotStyleId: electionSample.ballotStyles[0].id,
     }
-  )
-  screen.getByText(firstContestTitle)
-  expect(container).toMatchSnapshot()
-})
+  );
+  screen.getByText(firstContestTitle);
+  expect(container).toMatchSnapshot();
+});

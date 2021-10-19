@@ -1,8 +1,8 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import { InputGroup } from './InputGroup'
-import { Select } from './Select'
+import { InputGroup } from './InputGroup';
+import { Select } from './Select';
 
 test('renders InputGroup', async () => {
   const { container } = render(
@@ -17,6 +17,6 @@ test('renders InputGroup', async () => {
         <option value="3">3</option>
       </Select>
     </InputGroup>
-  )
-  expect(container.firstChild).toMatchSnapshot()
-})
+  );
+  expect(container.firstChild).toMatchSnapshot();
+});

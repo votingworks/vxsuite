@@ -1,18 +1,22 @@
-import { strict as assert } from 'assert'
-import pluralize from 'pluralize'
+import { strict as assert } from 'assert';
+import pluralize from 'pluralize';
 import React, {
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-} from 'react'
-import styled from 'styled-components'
-import { CandidateVote, YesNoVote, OptionalYesNoVote } from '@votingworks/types'
-import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui'
+} from 'react';
+import styled from 'styled-components';
+import {
+  CandidateVote,
+  YesNoVote,
+  OptionalYesNoVote,
+} from '@votingworks/types';
+import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils'
-import { findPartyById } from '../utils/find'
+import { getSingleYesNoVote } from '@votingworks/utils';
+import { findPartyById } from '../utils/find';
 import {
   CandidateContestResultInterface,
   EventTargetFunction,
@@ -22,27 +26,27 @@ import {
   ScrollDirections,
   ScrollShadows,
   YesNoContestResultInterface,
-} from '../config/types'
+} from '../config/types';
 
-import Prose from '../components/Prose'
-import Text, { NoWrap } from '../components/Text'
-import { FONT_SIZES, YES_NO_VOTES } from '../config/globals'
-import BallotContext from '../contexts/ballotContext'
-import Screen from '../components/Screen'
-import Sidebar from '../components/Sidebar'
-import ElectionInfo from '../components/ElectionInfo'
-import SettingsTextSize from '../components/SettingsTextSize'
+import Prose from '../components/Prose';
+import Text, { NoWrap } from '../components/Text';
+import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
+import BallotContext from '../contexts/ballotContext';
+import Screen from '../components/Screen';
+import Sidebar from '../components/Sidebar';
+import ElectionInfo from '../components/ElectionInfo';
+import SettingsTextSize from '../components/SettingsTextSize';
 
 const ContentHeader = styled.div`
   margin: 0 auto;
   width: 100%;
   padding: 1rem 5rem 0.5rem 3rem;
-`
+`;
 const ContestSection = styled.div`
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
-`
+`;
 const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
   flex: 1;
@@ -77,7 +81,7 @@ const VariableContentContainer = styled.div<ScrollShadows>`
       rgb(177, 186, 190) 100%
     );
   }
-`
+`;
 const ScrollControls = styled.div`
   z-index: 2;
   & > button {
@@ -134,11 +138,11 @@ const ScrollControls = styled.div`
       }
     }
   }
-`
+`;
 const ScrollContainer = styled.div`
   flex: 1;
   overflow: auto;
-`
+`;
 const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
@@ -147,7 +151,7 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
     isScrollable
       ? /* istanbul ignore next: Tested by Cypress */ '11rem'
       : undefined};
-`
+`;
 
 const Contest = styled.button`
   display: flex;
@@ -173,20 +177,20 @@ const Contest = styled.button`
   @media (min-width: 480px) {
     padding: 0.75rem 1rem;
   }
-`
+`;
 const ContestProse = styled(Prose)`
   flex: 1;
   & > h3 {
     font-weight: 400;
   }
-`
+`;
 const ContestActions = styled.div`
   display: none;
   padding-left: 1rem;
   @media (min-width: 480px) {
     display: block;
   }
-`
+`;
 const NoSelection = (): JSX.Element => (
   <Text
     aria-label="You may still vote in this contest."
@@ -197,21 +201,21 @@ const NoSelection = (): JSX.Element => (
   >
     You may still vote in this contest.
   </Text>
-)
+);
 
 const CandidateContestResult = ({
   contest,
   parties,
   vote = [],
 }: CandidateContestResultInterface): JSX.Element => {
-  const remainingChoices = contest.seats - vote.length
+  const remainingChoices = contest.seats - vote.length;
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
     <React.Fragment>
       {vote.map((candidate, index, array) => {
         const party =
-          candidate.partyId && findPartyById(parties, candidate.partyId)
+          candidate.partyId && findPartyById(parties, candidate.partyId);
         return (
           <Text
             key={candidate.id}
@@ -224,7 +228,7 @@ const CandidateContestResult = ({
             <strong>{candidate.name}</strong> {party && `/ ${party.name}`}
             {candidate.isWriteIn && '(write-in)'}
           </Text>
-        )
+        );
       })}
       {!!remainingChoices && (
         <Text bold warning warningIcon wordBreak>
@@ -233,30 +237,30 @@ const CandidateContestResult = ({
         </Text>
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
 const YesNoContestResult = ({
   contest,
   vote,
 }: YesNoContestResultInterface): JSX.Element => {
-  const yesNo = getSingleYesNoVote(vote)
+  const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak voteIcon>
       {YES_NO_VOTES[yesNo]} {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
   ) : (
     <NoSelection />
-  )
-}
+  );
+};
 
 const MsEitherNeitherContestResult = ({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
 }: MsEitherNeitherContestResultInterface): JSX.Element => {
-  const eitherNeitherVote = eitherNeitherContestVote?.[0]
-  const pickOneVote = pickOneContestVote?.[0]
+  const eitherNeitherVote = eitherNeitherContestVote?.[0];
+  const pickOneVote = pickOneContestVote?.[0];
   return eitherNeitherVote || pickOneVote ? (
     <React.Fragment>
       {eitherNeitherVote ? (
@@ -280,12 +284,12 @@ const MsEitherNeitherContestResult = ({
     </React.Fragment>
   ) : (
     <NoSelection />
-  )
-}
+  );
+};
 
 const SidebarSpacer = styled.div`
   height: 90px;
-`
+`;
 
 const ReviewPage = (): JSX.Element => {
   const {
@@ -297,87 +301,87 @@ const ReviewPage = (): JSX.Element => {
     precinctId,
     votes,
     setUserSettings,
-  } = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null)
+  } = useContext(BallotContext);
+  const scrollContainer = useRef<HTMLDivElement>(null);
 
-  const [isScrollable, setIsScrollable] = useState(false)
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true)
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
 
   const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current
+    const target = scrollContainer.current;
     /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
-      return
+      return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
       /* istanbul ignore next: Tested by Cypress */
       target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
         target.offsetHeight > targetMinHeight
-    )
+    );
     setIsScrollAtBottom(
       windowsScrollTop +
         target.offsetHeight +
         windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
         target.scrollHeight
-    )
-    setIsScrollAtTop(target.scrollTop === 0)
-  }, [scrollContainer, userSettings.textSize])
+    );
+    setIsScrollAtTop(target.scrollTop === 0);
+  }, [scrollContainer, userSettings.textSize]);
 
   useEffect(() => {
-    updateContestChoicesScrollStates()
-    window.addEventListener('resize', updateContestChoicesScrollStates)
+    updateContestChoicesScrollStates();
+    window.addEventListener('resize', updateContestChoicesScrollStates);
     const targetElement =
-      window.location.hash && document.querySelector(window.location.hash)
+      window.location.hash && document.querySelector(window.location.hash);
     /* istanbul ignore next: Tested by Cypress */
     if (targetElement && !navigator.userAgent.includes('jsdom')) {
-      targetElement.scrollIntoView({ block: 'center' })
-      window.setTimeout(() => (targetElement as HTMLDivElement).focus(), 1)
+      targetElement.scrollIntoView({ block: 'center' });
+      window.setTimeout(() => (targetElement as HTMLDivElement).focus(), 1);
     }
     return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates)
-    }
-  }, [updateContestChoicesScrollStates])
+      window.removeEventListener('resize', updateContestChoicesScrollStates);
+    };
+  }, [updateContestChoicesScrollStates]);
 
   const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections
-    const sc = scrollContainer.current
-    assert(sc)
-    const currentScrollTop = sc.scrollTop
-    const { offsetHeight } = sc
-    const { scrollHeight } = sc
-    const idealScrollDistance = Math.round(offsetHeight * 0.75)
+      .direction as ScrollDirections;
+    const sc = scrollContainer.current;
+    assert(sc);
+    const currentScrollTop = sc.scrollTop;
+    const { offsetHeight } = sc;
+    const { scrollHeight } = sc;
+    const idealScrollDistance = Math.round(offsetHeight * 0.75);
     const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop
+      scrollHeight - offsetHeight - currentScrollTop;
     const maxScrollTop =
       direction === 'down'
         ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop
+        : currentScrollTop;
     const idealScrollTop =
       direction === 'down'
         ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
-    sc.scrollTo({ behavior: 'smooth', left: 0, top })
-  }
+        : currentScrollTop - idealScrollDistance;
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
+    sc.scrollTo({ behavior: 'smooth', left: 0, top });
+  };
 
   assert(
     electionDefinition,
     'electionDefinition is required to render ReviewPage'
-  )
+  );
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render ReviewPage'
-  )
-  const { election } = electionDefinition
-  const { parties } = election
+  );
+  const { election } = electionDefinition;
+  const { parties } = election;
 
   return (
     <Screen>
@@ -519,7 +523,7 @@ const ReviewPage = (): JSX.Element => {
         </Prose>
       </Sidebar>
     </Screen>
-  )
-}
+  );
+};
 
-export default ReviewPage
+export default ReviewPage;

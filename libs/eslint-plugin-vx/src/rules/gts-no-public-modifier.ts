@@ -1,6 +1,9 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { strict as assert } from 'assert'
-import { createRule } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { strict as assert } from 'assert';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-no-public-modifier',
@@ -24,28 +27,28 @@ export default createRule({
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.getSourceCode();
 
     function reportPublicToken(node: TSESTree.Node): void {
       const [publicToken, nextToken] = sourceCode.getFirstTokens(node, {
         count: 2,
-      })
-      assert.equal(publicToken?.value, 'public' as const)
-      assert(nextToken)
+      });
+      assert.equal(publicToken?.value, 'public' as const);
+      assert(nextToken);
 
       context.report({
         node: publicToken,
         messageId: 'noPublicModifier',
         fix: (fixer) =>
           fixer.removeRange([publicToken.range[0], nextToken.range[0]]),
-      })
+      });
     }
 
     function processNode(
       node: TSESTree.ClassProperty | TSESTree.MethodDefinition
     ): void {
       if (node.accessibility === 'public') {
-        reportPublicToken(node)
+        reportPublicToken(node);
       }
 
       if (
@@ -59,7 +62,7 @@ export default createRule({
             param.accessibility === 'public' &&
             param.readonly
           ) {
-            reportPublicToken(param)
+            reportPublicToken(param);
           }
         }
       }
@@ -68,6 +71,6 @@ export default createRule({
     return {
       ClassProperty: processNode,
       MethodDefinition: processNode,
-    }
+    };
   },
-})
+});

@@ -1,6 +1,6 @@
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { electionSampleDefinition } from '@votingworks/fixtures'
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotType,
@@ -9,35 +9,35 @@ import {
   ContestOption,
   getContests,
   HMPBBallotPageMetadata,
-} from '@votingworks/types'
-import { find, typedAs } from '@votingworks/utils'
-import React from 'react'
-import renderInAppContext from '../../test/renderInAppContext'
+} from '@votingworks/types';
+import { find, typedAs } from '@votingworks/utils';
+import React from 'react';
+import renderInAppContext from '../../test/renderInAppContext';
 import WriteInAdjudicationScreen, {
   Props as WriteInAdjudicationScreenProps,
-} from './WriteInAdjudicationScreen'
+} from './WriteInAdjudicationScreen';
 
 type onAdjudicationCompleteType = Exclude<
   WriteInAdjudicationScreenProps['onAdjudicationComplete'],
   undefined
->
+>;
 
 function renderWriteInAdjudicationScreen(
   reason: AdjudicationReason.WriteIn | AdjudicationReason.UnmarkedWriteIn
 ): {
-  contest: Contest
-  optionId: ContestOption['id']
-  onAdjudicationComplete: onAdjudicationCompleteType
+  contest: Contest;
+  optionId: ContestOption['id'];
+  onAdjudicationComplete: onAdjudicationCompleteType;
 } {
-  const { election } = electionSampleDefinition
-  const ballotStyle = election.ballotStyles[0]
-  const precinctId = ballotStyle.precincts[0]
-  const contests = getContests({ election, ballotStyle })
+  const { election } = electionSampleDefinition;
+  const ballotStyle = election.ballotStyles[0];
+  const precinctId = ballotStyle.precincts[0];
+  const contests = getContests({ election, ballotStyle });
   const contest = find(
     contests,
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
-  )
-  const optionId: ContestOption['id'] = '__write-in-0'
+  );
+  const optionId: ContestOption['id'] = '__write-in-0';
   const metadata: HMPBBallotPageMetadata = {
     ballotStyleId: ballotStyle.id,
     precinctId,
@@ -46,14 +46,14 @@ function renderWriteInAdjudicationScreen(
     isTestMode: true,
     locales: { primary: 'en-US' },
     pageNumber: 1,
-  }
+  };
 
   const onAdjudicationComplete = jest
     .fn<
       ReturnType<onAdjudicationCompleteType>,
       Parameters<onAdjudicationCompleteType>
     >()
-    .mockResolvedValue()
+    .mockResolvedValue();
 
   renderInAppContext(
     <WriteInAdjudicationScreen
@@ -108,9 +108,9 @@ function renderWriteInAdjudicationScreen(
       contestIds={[contest.id]}
       onAdjudicationComplete={onAdjudicationComplete}
     />
-  )
+  );
 
-  return { contest, optionId, onAdjudicationComplete }
+  return { contest, optionId, onAdjudicationComplete };
 }
 
 test('supports typing in a candidate name', async () => {
@@ -118,18 +118,18 @@ test('supports typing in a candidate name', async () => {
     contest,
     optionId,
     onAdjudicationComplete,
-  } = renderWriteInAdjudicationScreen(AdjudicationReason.WriteIn)
+  } = renderWriteInAdjudicationScreen(AdjudicationReason.WriteIn);
 
-  screen.getByText('Write-In Adjudication')
-  screen.getByText(contest.title)
+  screen.getByText('Write-In Adjudication');
+  screen.getByText(contest.title);
 
   userEvent.type(
     screen.getByTestId(`write-in-input-${optionId}`),
     'Lizard People'
-  )
+  );
 
-  expect(onAdjudicationComplete).not.toHaveBeenCalled()
-  userEvent.click(screen.getByText('Save & Continue Scanning'))
+  expect(onAdjudicationComplete).not.toHaveBeenCalled();
+  userEvent.click(screen.getByText('Save & Continue Scanning'));
 
   await waitFor(() => {
     expect(onAdjudicationComplete).toHaveBeenCalledWith(
@@ -146,28 +146,28 @@ test('supports typing in a candidate name', async () => {
           },
         ],
       ])
-    )
-  })
-})
+    );
+  });
+});
 
 test('supports canceling a write-in', async () => {
   const {
     contest,
     optionId,
     onAdjudicationComplete,
-  } = renderWriteInAdjudicationScreen(AdjudicationReason.UnmarkedWriteIn)
+  } = renderWriteInAdjudicationScreen(AdjudicationReason.UnmarkedWriteIn);
 
-  screen.getByText('Write-In Adjudication')
-  screen.getByText(contest.title)
+  screen.getByText('Write-In Adjudication');
+  screen.getByText(contest.title);
 
   const isNotWriteInCheckbox = screen.getByTestId(
     `write-in-checkbox-${optionId}`
-  ) as HTMLInputElement
-  expect(isNotWriteInCheckbox.checked).toBe(false)
-  userEvent.click(isNotWriteInCheckbox)
+  ) as HTMLInputElement;
+  expect(isNotWriteInCheckbox.checked).toBe(false);
+  userEvent.click(isNotWriteInCheckbox);
 
-  expect(onAdjudicationComplete).not.toHaveBeenCalled()
-  userEvent.click(screen.getByText('Save & Continue Scanning'))
+  expect(onAdjudicationComplete).not.toHaveBeenCalled();
+  userEvent.click(screen.getByText('Save & Continue Scanning'));
 
   await waitFor(() => {
     expect(onAdjudicationComplete).toHaveBeenCalledWith(
@@ -183,6 +183,6 @@ test('supports canceling a write-in', async () => {
           },
         ],
       ])
-    )
-  })
-})
+    );
+  });
+});

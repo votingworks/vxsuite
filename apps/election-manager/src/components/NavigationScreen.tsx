@@ -1,20 +1,20 @@
-import React, { useContext } from 'react'
-import { useLocation } from 'react-router-dom'
+import React, { useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 
-import { Button, USBControllerButton } from '@votingworks/ui'
-import AppContext from '../contexts/AppContext'
+import { Button, USBControllerButton } from '@votingworks/ui';
+import AppContext from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths'
-import Screen from './Screen'
-import Main, { MainChild } from './Main'
-import Navigation from './Navigation'
-import LinkButton from './LinkButton'
-import StatusFooter from './StatusFooter'
+import routerPaths from '../routerPaths';
+import Screen from './Screen';
+import Main, { MainChild } from './Main';
+import Navigation from './Navigation';
+import LinkButton from './LinkButton';
+import StatusFooter from './StatusFooter';
 
 interface Props {
-  children: React.ReactNode
-  mainChildCenter?: boolean
-  mainChildFlex?: boolean
+  children: React.ReactNode;
+  mainChildCenter?: boolean;
+  mainChildFlex?: boolean;
 }
 
 const NavigationScreen = ({
@@ -22,9 +22,9 @@ const NavigationScreen = ({
   mainChildCenter = false,
   mainChildFlex = false,
 }: Props): JSX.Element => {
-  const location = useLocation()
+  const location = useLocation();
   const isActiveSection = (path: string) =>
-    new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : ''
+    new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : '';
 
   const {
     electionDefinition,
@@ -32,8 +32,8 @@ const NavigationScreen = ({
     usbDriveStatus,
     lockMachine,
     machineConfig,
-  } = useContext(AppContext)
-  const election = electionDefinition?.election
+  } = useContext(AppContext);
+  const election = electionDefinition?.election;
 
   return (
     <Screen>
@@ -90,7 +90,7 @@ const NavigationScreen = ({
       </Main>
       <StatusFooter />
     </Screen>
-  )
-}
+  );
+};
 
-export default NavigationScreen
+export default NavigationScreen;

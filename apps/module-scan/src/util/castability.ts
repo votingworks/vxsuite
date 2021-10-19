@@ -1,5 +1,5 @@
-import { PageInterpretation } from '@votingworks/types'
-import { SheetOf } from '../types'
+import { PageInterpretation } from '@votingworks/types';
+import { SheetOf } from '../types';
 
 export enum Castability {
   Uncastable = 'Uncastable',
@@ -15,7 +15,7 @@ export function checkSheetCastability([
     (front.type === 'InterpretedBmdPage' && back.type === 'BlankPage') ||
     (front.type === 'BlankPage' && back.type === 'InterpretedBmdPage')
   ) {
-    return Castability.CastableWithoutReview
+    return Castability.CastableWithoutReview;
   }
 
   if (
@@ -26,11 +26,11 @@ export function checkSheetCastability([
       front.adjudicationInfo.requiresAdjudication ||
       back.adjudicationInfo.requiresAdjudication
     ) {
-      return Castability.CastableWithReview
+      return Castability.CastableWithReview;
     }
 
-    return Castability.CastableWithoutReview
+    return Castability.CastableWithoutReview;
   }
 
-  return Castability.Uncastable
+  return Castability.Uncastable;
 }

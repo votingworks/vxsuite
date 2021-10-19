@@ -3,7 +3,7 @@ import {
   Corners,
   Rect,
   TargetShape,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
 /**
  * Finds contest choice areas based on the contest box bounds and the contest
@@ -11,9 +11,9 @@ import {
  */
 export default function findContestOptions(
   contests: readonly {
-    bounds: Rect
-    corners: Corners
-    targets: readonly TargetShape[]
+    bounds: Rect;
+    corners: Corners;
+    targets: readonly TargetShape[];
   }[],
   { topMarginPercent = 3 } = {}
 ): readonly BallotPageContestLayout[] {
@@ -28,11 +28,11 @@ export default function findContestOptions(
           bounds,
           corners,
           options: targets.map((target, i) => {
-            const nextTarget = targets[i + 1]
+            const nextTarget = targets[i + 1];
             const height = nextTarget
               ? Math.abs(nextTarget.bounds.y - target.bounds.y)
-              : Math.abs(bounds.y + bounds.height - target.bounds.y)
-            const topMargin = Math.round((height * topMarginPercent) / 100)
+              : Math.abs(bounds.y + bounds.height - target.bounds.y);
+            const topMargin = Math.round((height * topMarginPercent) / 100);
 
             return {
               bounds: {
@@ -42,8 +42,8 @@ export default function findContestOptions(
                 height,
               },
               target,
-            }
+            };
           }),
         }
-  )
+  );
 }

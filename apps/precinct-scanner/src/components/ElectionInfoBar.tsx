@@ -1,33 +1,33 @@
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 
-import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui'
-import { getPrecinctById } from '@votingworks/types'
-import { format } from '@votingworks/utils'
-import { Bar, BarSpacer } from './Bar'
-import AppContext from '../contexts/AppContext'
+import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui';
+import { getPrecinctById } from '@votingworks/types';
+import { format } from '@votingworks/utils';
+import { Bar, BarSpacer } from './Bar';
+import AppContext from '../contexts/AppContext';
 
-export type InfoBarMode = 'voter' | 'pollworker' | 'admin'
+export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
 interface Props {
-  mode?: InfoBarMode
+  mode?: InfoBarMode;
 }
 const ElectionInfoBar = ({ mode = 'voter' }: Props): JSX.Element => {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
-  )
+  );
   if (!electionDefinition) {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
   const electionDate = format.localeWeekdayAndDate(
     new Date(electionDefinition.election.date)
-  )
+  );
   const precinct =
     currentPrecinctId !== undefined
       ? getPrecinctById({
           election: electionDefinition.election,
           precinctId: currentPrecinctId,
         })
-      : undefined
+      : undefined;
   return (
     <Bar theme={{ ...contrastTheme.dark }}>
       <Prose maxWidth={false} compact>
@@ -65,7 +65,7 @@ const ElectionInfoBar = ({ mode = 'voter' }: Props): JSX.Element => {
         <strong>{electionDefinition.electionHash.slice(0, 10)}</strong>
       </Prose>
     </Bar>
-  )
-}
+  );
+};
 
-export default ElectionInfoBar
+export default ElectionInfoBar;

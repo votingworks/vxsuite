@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react'
-import styled from 'styled-components'
-import fileDownload from 'js-file-download'
-import path from 'path'
+import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
+import fileDownload from 'js-file-download';
+import path from 'path';
 
 import {
   Button,
@@ -9,29 +9,29 @@ import {
   Loading,
   USBControllerButton,
   UsbDrive,
-} from '@votingworks/ui'
+} from '@votingworks/ui';
 import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
   throwIllegalValue,
   usbstick,
-} from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import AppContext from '../contexts/AppContext'
-import Modal from './Modal'
+} from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import AppContext from '../contexts/AppContext';
+import Modal from './Modal';
 
 const USBImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
-`
+`;
 
 export interface Props {
-  onClose: () => void
-  usbDrive: UsbDrive
-  scannedBallotCount: number
-  isTestMode: boolean
+  onClose: () => void;
+  usbDrive: UsbDrive;
+  scannedBallotCount: number;
+  isTestMode: boolean;
 }
 
 enum ModalState {
@@ -47,28 +47,28 @@ const ExportResultsModal = ({
   scannedBallotCount,
   isTestMode,
 }: Props): JSX.Element => {
-  const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT)
-  const [errorMessage, setErrorMessage] = useState('')
+  const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition, machineConfig } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition, machineConfig } = useContext(AppContext);
+  assert(electionDefinition);
 
   const exportResults = async (openDialog: boolean) => {
-    setCurrentState(ModalState.SAVING)
+    setCurrentState(ModalState.SAVING);
 
     try {
       const response = await fetch('/scan/export', {
         method: 'post',
-      })
+      });
 
-      const blob = await response.blob()
+      const blob = await response.blob();
 
       if (response.status !== 200) {
         setErrorMessage(
           'Failed to save results. Error retrieving CVRs from the scanner.'
-        )
-        setCurrentState(ModalState.ERROR)
-        return
+        );
+        setCurrentState(ModalState.ERROR);
+        return;
       }
 
       const cvrFilename = generateFilenameForScanningResults(
@@ -76,50 +76,52 @@ const ExportResultsModal = ({
         scannedBallotCount,
         isTestMode,
         new Date()
-      )
+      );
 
       if (window.kiosk) {
-        const usbPath = await usbstick.getDevicePath()
+        const usbPath = await usbstick.getDevicePath();
         if (!usbPath) {
-          throw new Error('could not begin download; path to usb drive missing')
+          throw new Error(
+            'could not begin download; path to usb drive missing'
+          );
         }
         const electionFolderName = generateElectionBasedSubfolderName(
           electionDefinition.election,
           electionDefinition.electionHash
-        )
+        );
         const pathToFolder = path.join(
           usbPath,
           SCANNER_RESULTS_FOLDER,
           electionFolderName
-        )
-        const pathToFile = path.join(pathToFolder, cvrFilename)
+        );
+        const pathToFile = path.join(pathToFolder, cvrFilename);
         if (openDialog) {
           const fileWriter = await window.kiosk.saveAs({
             defaultPath: pathToFile,
-          })
+          });
 
           if (!fileWriter) {
-            throw new Error('could not begin download; no file was chosen')
+            throw new Error('could not begin download; no file was chosen');
           }
 
-          await fileWriter.write(await blob.text())
-          await fileWriter.end()
+          await fileWriter.write(await blob.text());
+          await fileWriter.end();
         } else {
           await window.kiosk.makeDirectory(pathToFolder, {
             recursive: true,
-          })
-          await window.kiosk.writeFile(pathToFile, await blob.text())
+          });
+          await window.kiosk.writeFile(pathToFile, await blob.text());
         }
-        setCurrentState(ModalState.DONE)
+        setCurrentState(ModalState.DONE);
       } else {
-        fileDownload(blob, cvrFilename, 'application/x-jsonlines')
-        setCurrentState(ModalState.DONE)
+        fileDownload(blob, cvrFilename, 'application/x-jsonlines');
+        setCurrentState(ModalState.DONE);
       }
     } catch (error) {
-      setErrorMessage(`Failed to save results. ${error.message}`)
-      setCurrentState(ModalState.ERROR)
+      setErrorMessage(`Failed to save results. ${error.message}`);
+      setCurrentState(ModalState.ERROR);
     }
-  }
+  };
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -133,7 +135,7 @@ const ExportResultsModal = ({
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
-    )
+    );
   }
 
   if (currentState === ModalState.DONE) {
@@ -152,7 +154,7 @@ const ExportResultsModal = ({
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
         />
-      )
+      );
     }
     return (
       <Modal
@@ -180,15 +182,15 @@ const ExportResultsModal = ({
           </React.Fragment>
         }
       />
-    )
+    );
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading />} onOverlayClick={onClose} />
+    return <Modal content={<Loading />} onOverlayClick={onClose} />;
   }
 
   if (currentState !== ModalState.INIT) {
-    throwIllegalValue(currentState)
+    throwIllegalValue(currentState);
   }
 
   switch (usbDrive.status) {
@@ -228,7 +230,7 @@ const ExportResultsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case usbstick.UsbDriveStatus.ejecting:
     case usbstick.UsbDriveStatus.present:
       return (
@@ -241,7 +243,7 @@ const ExportResultsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case usbstick.UsbDriveStatus.mounted:
       return (
         <Modal
@@ -270,10 +272,10 @@ const ExportResultsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     default:
-      throwIllegalValue(usbDrive.status)
+      throwIllegalValue(usbDrive.status);
   }
-}
+};
 
-export default ExportResultsModal
+export default ExportResultsModal;

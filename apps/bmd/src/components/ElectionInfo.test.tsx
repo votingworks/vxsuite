@@ -1,9 +1,9 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import ElectionInfo from './ElectionInfo'
-import { electionSampleWithSealDefinition as electionDefinition } from '../data'
-import { PrecinctSelectionKind } from '../config/types'
+import ElectionInfo from './ElectionInfo';
+import { electionSampleWithSealDefinition as electionDefinition } from '../data';
+import { PrecinctSelectionKind } from '../config/types';
 
 it('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(
@@ -15,9 +15,9 @@ it('renders horizontal ElectionInfo with hash when specified', () => {
       electionDefinition={electionDefinition}
       horizontal
     />
-  )
-  expect(container).toMatchSnapshot()
-})
+  );
+  expect(container).toMatchSnapshot();
+});
 
 it('renders horizontal ElectionInfo without hash by default', () => {
   const { container } = render(
@@ -29,9 +29,9 @@ it('renders horizontal ElectionInfo without hash by default', () => {
       electionDefinition={electionDefinition}
       horizontal
     />
-  )
-  expect(container).toMatchSnapshot()
-})
+  );
+  expect(container).toMatchSnapshot();
+});
 
 it('renders vertical ElectionInfo with hash when specified', () => {
   const { container } = render(
@@ -42,9 +42,9 @@ it('renders vertical ElectionInfo with hash when specified', () => {
       }}
       electionDefinition={electionDefinition}
     />
-  )
-  expect(container).toMatchSnapshot()
-})
+  );
+  expect(container).toMatchSnapshot();
+});
 
 it('renders vertical ElectionInfo without hash by default', () => {
   const { container } = render(
@@ -55,6 +55,6 @@ it('renders vertical ElectionInfo without hash by default', () => {
       }}
       electionDefinition={electionDefinition}
     />
-  )
-  expect(container).toMatchSnapshot()
-})
+  );
+  expect(container).toMatchSnapshot();
+});

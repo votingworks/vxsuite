@@ -1,40 +1,40 @@
-import { strict as assert } from 'assert'
-import camelCase from 'lodash.camelcase'
+import { strict as assert } from 'assert';
+import camelCase from 'lodash.camelcase';
 import React, {
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-} from 'react'
-import styled from 'styled-components'
+} from 'react';
+import styled from 'styled-components';
 
 import {
   Candidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Parties,
-} from '@votingworks/types'
-import { Button, Main } from '@votingworks/ui'
+} from '@votingworks/types';
+import { Button, Main } from '@votingworks/ui';
 
-import { findPartyById } from '../utils/find'
-import stripQuotes from '../utils/stripQuotes'
+import { findPartyById } from '../utils/find';
+import stripQuotes from '../utils/stripQuotes';
 
 import {
   EventTargetFunction,
   ScrollDirections,
   UpdateVoteFunction,
-} from '../config/types'
+} from '../config/types';
 
-import BallotContext from '../contexts/ballotContext'
+import BallotContext from '../contexts/ballotContext';
 
-import { Blink } from './Animations'
-import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals'
-import ChoiceButton from './ChoiceButton'
-import Modal from './Modal'
-import Prose from './Prose'
-import Text from './Text'
-import VirtualKeyboard from './VirtualKeyboard'
+import { Blink } from './Animations';
+import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
+import ChoiceButton from './ChoiceButton';
+import Modal from './Modal';
+import Prose from './Prose';
+import Text from './Text';
+import VirtualKeyboard from './VirtualKeyboard';
 import {
   ContentHeader,
   ContestSection,
@@ -43,22 +43,22 @@ import {
   ScrollContainer,
   ScrollableContentWrapper,
   ChoicesGrid,
-} from './ContestScreenLayout'
+} from './ContestScreenLayout';
 
 const WriteInModalContent = styled.div`
   margin: -0.5rem;
-`
+`;
 
 const WriteInCandidateForm = styled.div`
   margin-top: 1rem;
   border-radius: 0.25rem;
   background-color: rgb(211, 211, 211);
   padding: 0.25rem;
-`
+`;
 
 const WriteInCandidateFieldSet = styled.div`
   margin: 0 0.5rem 0.5rem;
-`
+`;
 
 const WriteInCandidateName = styled.div`
   border: 1px solid rgb(169, 169, 169);
@@ -67,7 +67,7 @@ const WriteInCandidateName = styled.div`
   width: 100%;
   padding: 1rem;
   font-size: 1.5rem;
-`
+`;
 
 const WriteInCandidateCursor = styled(Blink)`
   display: inline-block;
@@ -76,20 +76,20 @@ const WriteInCandidateCursor = styled(Blink)`
   margin-left: 0.1rem;
   border-left: 0.15rem solid #000000;
   height: 1.3rem;
-`
+`;
 
 interface Props {
-  contest: CandidateContestInterface
-  parties: Parties
-  vote: CandidateVote
-  updateVote: UpdateVoteFunction
+  contest: CandidateContestInterface;
+  parties: Parties;
+  vote: CandidateVote;
+  updateVote: UpdateVoteFunction;
 }
 
 const findCandidateById = (candidates: readonly Candidate[], id: string) =>
-  candidates.find((c) => c.id === id)
+  candidates.find((c) => c.id === id);
 
 const normalizeCandidateName = (name: string) =>
-  name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ')
+  name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ');
 
 const CandidateContest = ({
   contest,
@@ -97,126 +97,129 @@ const CandidateContest = ({
   vote,
   updateVote,
 }: Props): JSX.Element => {
-  const { userSettings } = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null)
+  const { userSettings } = useContext(BallotContext);
+  const scrollContainer = useRef<HTMLDivElement>(null);
 
   const [
     attemptedOvervoteCandidate,
     setAttemptedOvervoteCandidate,
-  ] = useState<Candidate>()
+  ] = useState<Candidate>();
   const [
     candidatePendingRemoval,
     setCandidatePendingRemoval,
-  ] = useState<Candidate>()
-  const [isScrollable, setIsScrollable] = useState(false)
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true)
+  ] = useState<Candidate>();
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [
     writeInCandidateModalIsOpen,
     setWriteInCandidateModalIsOpen,
-  ] = useState(false)
-  const [writeInCandidateName, setWriteInCandidateName] = useState('')
-  const [deselectedCandidate, setDeselectedCandidate] = useState('')
+  ] = useState(false);
+  const [writeInCandidateName, setWriteInCandidateName] = useState('');
+  const [deselectedCandidate, setDeselectedCandidate] = useState('');
 
   const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current
+    const target = scrollContainer.current;
     /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
-      return
+      return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
       /* istanbul ignore next: Tested by Cypress */
       target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
         target.offsetHeight > targetMinHeight
-    )
+    );
     setIsScrollAtBottom(
       windowsScrollTop +
         target.offsetHeight +
         windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
         target.scrollHeight
-    )
-    setIsScrollAtTop(target.scrollTop === 0)
-  }, [scrollContainer, userSettings.textSize])
+    );
+    setIsScrollAtTop(target.scrollTop === 0);
+  }, [scrollContainer, userSettings.textSize]);
 
   useEffect(() => {
-    updateContestChoicesScrollStates()
-    window.addEventListener('resize', updateContestChoicesScrollStates)
+    updateContestChoicesScrollStates();
+    window.addEventListener('resize', updateContestChoicesScrollStates);
     return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates)
-    }
-  }, [vote.length, updateContestChoicesScrollStates])
+      window.removeEventListener('resize', updateContestChoicesScrollStates);
+    };
+  }, [vote.length, updateContestChoicesScrollStates]);
 
   useEffect(() => {
     if (deselectedCandidate !== '') {
       const timer = setTimeout(() => {
-        setDeselectedCandidate('')
-      }, 100)
-      return () => clearTimeout(timer)
+        setDeselectedCandidate('');
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [deselectedCandidate])
+  }, [deselectedCandidate]);
 
   const addCandidateToVote = (id: string) => {
-    const { candidates } = contest
-    const candidate = findCandidateById(candidates, id)
-    assert(candidate)
-    updateVote(contest.id, [...vote, candidate])
-  }
+    const { candidates } = contest;
+    const candidate = findCandidateById(candidates, id);
+    assert(candidate);
+    updateVote(contest.id, [...vote, candidate]);
+  };
 
   const removeCandidateFromVote = (id: string) => {
-    const newVote = vote.filter((c) => c.id !== id)
-    updateVote(contest.id, newVote)
-    setDeselectedCandidate(id)
-  }
+    const newVote = vote.filter((c) => c.id !== id);
+    updateVote(contest.id, newVote);
+    setDeselectedCandidate(id);
+  };
 
   const handleUpdateSelection: EventTargetFunction = (event) => {
-    const candidateId = (event.currentTarget as HTMLInputElement).dataset.choice
+    const candidateId = (event.currentTarget as HTMLInputElement).dataset
+      .choice;
     /* istanbul ignore else */
     if (candidateId) {
-      const candidate = findCandidateById(vote, candidateId)
+      const candidate = findCandidateById(vote, candidateId);
       if (candidate) {
         if (candidate.isWriteIn) {
-          setCandidatePendingRemoval(candidate)
+          setCandidatePendingRemoval(candidate);
         } else {
-          removeCandidateFromVote(candidateId)
+          removeCandidateFromVote(candidateId);
         }
       } else {
-        addCandidateToVote(candidateId)
+        addCandidateToVote(candidateId);
       }
     }
-  }
+  };
 
   const handleChangeVoteAlert = (candidate?: Candidate) => {
-    setAttemptedOvervoteCandidate(candidate)
-  }
+    setAttemptedOvervoteCandidate(candidate);
+  };
 
   const closeAttemptedVoteAlert = () => {
-    setAttemptedOvervoteCandidate(undefined)
-  }
+    setAttemptedOvervoteCandidate(undefined);
+  };
 
   const clearCandidateIdPendingRemoval = () => {
-    setCandidatePendingRemoval(undefined)
-  }
+    setCandidatePendingRemoval(undefined);
+  };
 
   const confirmRemovePendingWriteInCandidate = () => {
-    assert(candidatePendingRemoval)
-    removeCandidateFromVote(candidatePendingRemoval.id)
-    clearCandidateIdPendingRemoval()
-  }
+    assert(candidatePendingRemoval);
+    removeCandidateFromVote(candidatePendingRemoval.id);
+    clearCandidateIdPendingRemoval();
+  };
 
   const toggleWriteInCandidateModal = (newValue: boolean) => {
-    setWriteInCandidateModalIsOpen(newValue)
-  }
+    setWriteInCandidateModalIsOpen(newValue);
+  };
 
   const initWriteInCandidate = () => {
-    toggleWriteInCandidateModal(true)
-  }
+    toggleWriteInCandidateModal(true);
+  };
 
   const addWriteInCandidate = () => {
-    const normalizedCandidateName = normalizeCandidateName(writeInCandidateName)
+    const normalizedCandidateName = normalizeCandidateName(
+      writeInCandidateName
+    );
     updateVote(contest.id, [
       ...vote,
       {
@@ -224,68 +227,68 @@ const CandidateContest = ({
         isWriteIn: true,
         name: normalizedCandidateName,
       },
-    ])
-    setWriteInCandidateName('')
-    toggleWriteInCandidateModal(false)
-  }
+    ]);
+    setWriteInCandidateName('');
+    toggleWriteInCandidateModal(false);
+  };
 
   const cancelWriteInCandidateModal = () => {
-    setWriteInCandidateName('')
-    toggleWriteInCandidateModal(false)
-  }
+    setWriteInCandidateName('');
+    toggleWriteInCandidateModal(false);
+  };
 
   const onKeyboardInput: EventTargetFunction = (event) => {
-    const { key } = (event.target as HTMLElement).dataset
+    const { key } = (event.target as HTMLElement).dataset;
     setWriteInCandidateName((prevName) => {
-      let newName = prevName
+      let newName = prevName;
       if (key === 'space') {
-        newName += ' '
+        newName += ' ';
       } else if (key === '⌫ delete') {
-        newName = newName.slice(0, -1)
+        newName = newName.slice(0, -1);
       } else {
-        newName += key
+        newName += key;
       }
-      return newName.slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH)
-    })
-  }
+      return newName.slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH);
+    });
+  };
 
   const keyDisabled = (key: string) =>
     writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
-    key !== '⌫ delete'
+    key !== '⌫ delete';
 
   const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections
-    const sc = scrollContainer.current
-    assert(sc)
-    const currentScrollTop = sc.scrollTop
-    const { offsetHeight } = sc
-    const { scrollHeight } = sc
-    const idealScrollDistance = Math.round(offsetHeight * 0.75)
+      .direction as ScrollDirections;
+    const sc = scrollContainer.current;
+    assert(sc);
+    const currentScrollTop = sc.scrollTop;
+    const { offsetHeight } = sc;
+    const { scrollHeight } = sc;
+    const idealScrollDistance = Math.round(offsetHeight * 0.75);
     const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop
+      scrollHeight - offsetHeight - currentScrollTop;
     const maxScrollTop =
       direction === 'down'
         ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop
+        : currentScrollTop;
     const idealScrollTop =
       direction === 'down'
         ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
-    sc.scrollTo({ behavior: 'smooth', left: 0, top })
-  }
+        : currentScrollTop - idealScrollDistance;
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
+    sc.scrollTo({ behavior: 'smooth', left: 0, top });
+  };
 
   const handleDisabledAddWriteInClick = () => {
     handleChangeVoteAlert({
       id: 'write-in',
       name: 'a write-in candidate',
-    })
-  }
+    });
+  };
 
-  const hasReachedMaxSelections = contest.seats === vote.length
+  const hasReachedMaxSelections = contest.seats === vote.length;
 
   return (
     <React.Fragment>
@@ -326,19 +329,19 @@ const CandidateContest = ({
             <ScrollableContentWrapper isScrollable={isScrollable}>
               <ChoicesGrid>
                 {contest.candidates.map((candidate) => {
-                  const isChecked = !!findCandidateById(vote, candidate.id)
-                  const isDisabled = hasReachedMaxSelections && !isChecked
+                  const isChecked = !!findCandidateById(vote, candidate.id);
+                  const isDisabled = hasReachedMaxSelections && !isChecked;
                   const handleDisabledClick = () => {
-                    handleChangeVoteAlert(candidate)
-                  }
+                    handleChangeVoteAlert(candidate);
+                  };
                   const party =
                     candidate.partyId &&
-                    findPartyById(parties, candidate.partyId)
-                  let prefixAudioText = ''
+                    findPartyById(parties, candidate.partyId);
+                  let prefixAudioText = '';
                   if (isChecked) {
-                    prefixAudioText = 'Selected,'
+                    prefixAudioText = 'Selected,';
                   } else if (deselectedCandidate === candidate.id) {
-                    prefixAudioText = 'Deselected,'
+                    prefixAudioText = 'Deselected,';
                   }
                   return (
                     <ChoiceButton
@@ -364,7 +367,7 @@ const CandidateContest = ({
                         </Text>
                       </Prose>
                     </ChoiceButton>
-                  )
+                  );
                 })}
                 {contest.allowWriteIns &&
                   vote
@@ -385,7 +388,7 @@ const CandidateContest = ({
                             </p>
                           </Prose>
                         </ChoiceButton>
-                      )
+                      );
                     })}
                 {contest.allowWriteIns && (
                   <ChoiceButton
@@ -541,7 +544,7 @@ const CandidateContest = ({
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default CandidateContest
+export default CandidateContest;

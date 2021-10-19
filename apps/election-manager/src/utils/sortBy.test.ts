@@ -1,12 +1,12 @@
-import sortBy from './sortBy'
+import sortBy from './sortBy';
 
 test('returns a copy with the same order given no comparators', () => {
-  expect(sortBy([1, 2, 3])).toEqual([1, 2, 3])
-})
+  expect(sortBy([1, 2, 3])).toEqual([1, 2, 3]);
+});
 
 test('returns a sorted copy based on a single comparator', () => {
-  expect(sortBy([1, 2, 3, 4, 5], (a, b) => b - a)).toEqual([5, 4, 3, 2, 1])
-})
+  expect(sortBy([1, 2, 3, 4, 5], (a, b) => b - a)).toEqual([5, 4, 3, 2, 1]);
+});
 
 test('sorts by the comparators in the order given', () => {
   expect(
@@ -17,8 +17,8 @@ test('sorts by the comparators in the order given', () => {
       // reversed within odd/even
       (a, b) => b - a
     )
-  ).toEqual([5, 3, 1, 4, 2])
-})
+  ).toEqual([5, 3, 1, 4, 2]);
+});
 
 test('falls back to preserving order if no comparator specifies', () => {
   expect(
@@ -32,5 +32,5 @@ test('falls back to preserving order if no comparator specifies', () => {
       // as if this last comparator were given:
       // () => 0
     )
-  ).toEqual([3, 2, 4, 5, 6, 7, 8, 9, 0, 1])
-})
+  ).toEqual([3, 2, 4, 5, 6, 7, 8, 9, 0, 1]);
+});

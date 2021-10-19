@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { Redirect } from 'react-router-dom';
 
-import { Loading, Main, MainChild, ProgressBar } from '@votingworks/ui'
+import { Loading, Main, MainChild, ProgressBar } from '@votingworks/ui';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
 
 const SaveCardScreen = (): JSX.Element => {
-  const saveDelay = 2500
-  const [progress, setProgress] = useState(0)
-  const [done, setDone] = useState(false)
+  const saveDelay = 2500;
+  const [progress, setProgress] = useState(0);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
-      setProgress(1)
-    }, 1)
+      setProgress(1);
+    }, 1);
     setTimeout(() => {
-      setDone(true)
-    }, saveDelay)
-  }, [])
+      setDone(true);
+    }, saveDelay);
+  }, []);
 
   if (done) {
-    return <Redirect to="/remove" />
+    return <Redirect to="/remove" />;
   }
   return (
     <Screen white>
@@ -36,7 +36,7 @@ const SaveCardScreen = (): JSX.Element => {
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default SaveCardScreen
+export default SaveCardScreen;

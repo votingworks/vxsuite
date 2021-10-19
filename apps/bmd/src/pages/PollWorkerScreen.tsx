@@ -1,7 +1,7 @@
-import { DateTime } from 'luxon'
-import React, { useState, useEffect, useCallback } from 'react'
+import { DateTime } from 'luxon';
+import React, { useState, useEffect, useCallback } from 'react';
 
-import { ElectionDefinition, Tally, VotingMethod } from '@votingworks/types'
+import { ElectionDefinition, Tally, VotingMethod } from '@votingworks/types';
 import {
   Button,
   ButtonList,
@@ -11,52 +11,52 @@ import {
   MainChild,
   PrecinctScannerTallyReport,
   PrecinctScannerPollsReport,
-} from '@votingworks/ui'
+} from '@votingworks/ui';
 
 import {
   TallySourceMachineType,
   find,
   readCompressedTally,
   PrecinctScannerCardTally,
-} from '@votingworks/utils'
+} from '@votingworks/utils';
 
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 import {
   MachineConfig,
   PrecinctSelection,
   PrecinctSelectionKind,
   Printer,
-} from '../config/types'
+} from '../config/types';
 
-import Modal from '../components/Modal'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import Text from '../components/Text'
-import Sidebar from '../components/Sidebar'
-import ElectionInfo from '../components/ElectionInfo'
-import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
-import VersionsData from '../components/VersionsData'
-import triggerAudioFocus from '../utils/triggerAudioFocus'
+import Modal from '../components/Modal';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import Text from '../components/Text';
+import Sidebar from '../components/Sidebar';
+import ElectionInfo from '../components/ElectionInfo';
+import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
+import VersionsData from '../components/VersionsData';
+import triggerAudioFocus from '../utils/triggerAudioFocus';
 
 interface Props {
   activateCardlessVoterSession: (
     precinctId: string,
     ballotStyleId?: string
-  ) => void
-  resetCardlessVoterSession: () => void
-  appPrecinct: PrecinctSelection
-  cardlessVoterSessionPrecinctId?: string
-  cardlessVoterSessionBallotStyleId?: string
-  electionDefinition: ElectionDefinition
-  enableLiveMode: () => void
-  hasVotes: boolean
-  isLiveMode: boolean
-  isPollsOpen: boolean
-  machineConfig: MachineConfig
-  printer: Printer
-  togglePollsOpen: () => void
-  tallyOnCard?: PrecinctScannerCardTally
-  clearTalliesOnCard: () => Promise<void>
+  ) => void;
+  resetCardlessVoterSession: () => void;
+  appPrecinct: PrecinctSelection;
+  cardlessVoterSessionPrecinctId?: string;
+  cardlessVoterSessionBallotStyleId?: string;
+  electionDefinition: ElectionDefinition;
+  enableLiveMode: () => void;
+  hasVotes: boolean;
+  isLiveMode: boolean;
+  isPollsOpen: boolean;
+  machineConfig: MachineConfig;
+  printer: Printer;
+  togglePollsOpen: () => void;
+  tallyOnCard?: PrecinctScannerCardTally;
+  clearTalliesOnCard: () => Promise<void>;
 }
 
 const PollWorkerScreen = ({
@@ -81,19 +81,19 @@ const PollWorkerScreen = ({
   tallyOnCard,
   clearTalliesOnCard,
 }: Props): JSX.Element => {
-  const { election } = electionDefinition
-  const electionDate = DateTime.fromISO(electionDefinition.election.date)
-  const isElectionDay = electionDate.hasSame(DateTime.now(), 'day')
+  const { election } = electionDefinition;
+  const electionDate = DateTime.fromISO(electionDefinition.election.date);
+  const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
   const precinctName =
     appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
       ? 'All Precincts'
-      : find(election.precincts, (p) => p.id === appPrecinct.precinctId).name
+      : find(election.precincts, (p) => p.id === appPrecinct.precinctId).name;
 
   const precinctBallotStyles = cardlessVoterSessionPrecinctId
     ? election.ballotStyles.filter((bs) =>
         bs.precincts.includes(cardlessVoterSessionPrecinctId)
       )
-    : []
+    : [];
   /*
    * Various state parameters to handle controlling when certain modals on the page are open or not.
    * If you are adding a new modal make sure to add the new parameter to the triggerAudiofocus useEffect
@@ -102,19 +102,19 @@ const PollWorkerScreen = ({
    */
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
     !isLiveMode && isElectionDay
-  )
-  const cancelEnableLiveMode = () => setIsConfirmingEnableLiveMode(false)
+  );
+  const cancelEnableLiveMode = () => setIsConfirmingEnableLiveMode(false);
 
   const [
     isConfirmingPrecinctScannerPrint,
     setIsConfirmingPrecinctScannerPrint,
-  ] = useState(tallyOnCard !== undefined)
+  ] = useState(tallyOnCard !== undefined);
   const [
     isPrintingPrecinctScannerReport,
     setIsPrintingPrecinctScannerReport,
-  ] = useState(false)
+  ] = useState(false);
 
-  const [precinctScannerTally, setPrecinctScannerTally] = useState<Tally>()
+  const [precinctScannerTally, setPrecinctScannerTally] = useState<Tally>();
 
   useEffect(() => {
     if (tallyOnCard) {
@@ -122,7 +122,7 @@ const PollWorkerScreen = ({
         tallyOnCard &&
           tallyOnCard.tallyMachineType ===
             TallySourceMachineType.PRECINCT_SCANNER
-      )
+      );
       const fullTally = readCompressedTally(
         election,
         tallyOnCard.tally,
@@ -131,10 +131,10 @@ const PollWorkerScreen = ({
           [VotingMethod.Precinct]: tallyOnCard.precinctBallots,
           [VotingMethod.Absentee]: tallyOnCard.absenteeBallots,
         }
-      )
-      setPrecinctScannerTally(fullTally)
+      );
+      setPrecinctScannerTally(fullTally);
     }
-  }, [election, tallyOnCard])
+  }, [election, tallyOnCard]);
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -147,57 +147,57 @@ const PollWorkerScreen = ({
       !isPrintingPrecinctScannerReport &&
       !isConfirmingEnableLiveMode
     ) {
-      triggerAudioFocus()
+      triggerAudioFocus();
     }
   }, [
     cardlessVoterSessionBallotStyleId,
     isConfirmingPrecinctScannerPrint,
     isPrintingPrecinctScannerReport,
     isConfirmingEnableLiveMode,
-  ])
+  ]);
 
-  const isPrintMode = machineConfig.appMode.isVxPrint
+  const isPrintMode = machineConfig.appMode.isVxPrint;
   const isMarkAndPrintMode =
-    machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark
+    machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark;
 
   const requestPrintPrecinctScannerReport = () => {
-    setIsPrintingPrecinctScannerReport(true)
-    setIsConfirmingPrecinctScannerPrint(false)
-  }
+    setIsPrintingPrecinctScannerReport(true);
+    setIsConfirmingPrecinctScannerPrint(false);
+  };
 
   const resetCardTallyData = useCallback(async () => {
-    await clearTalliesOnCard()
-    setIsPrintingPrecinctScannerReport(false)
-  }, [clearTalliesOnCard])
+    await clearTalliesOnCard();
+    setIsPrintingPrecinctScannerReport(false);
+  }, [clearTalliesOnCard]);
 
   const confirmEnableLiveMode = () => {
-    enableLiveMode()
-    setIsConfirmingEnableLiveMode(false)
-  }
+    enableLiveMode();
+    setIsConfirmingEnableLiveMode(false);
+  };
 
   useEffect(() => {
-    let isPrinting = false
+    let isPrinting = false;
     async function printReport() {
       if (!isPrinting && isPrintingPrecinctScannerReport) {
-        await printer.print({ sides: 'one-sided' })
+        await printer.print({ sides: 'one-sided' });
         window.setTimeout(async () => {
-          await resetCardTallyData()
-        }, REPORT_PRINTING_TIMEOUT_SECONDS * 1000)
+          await resetCardTallyData();
+        }, REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
       }
     }
-    void printReport()
+    void printReport();
     return () => {
-      isPrinting = true
-    }
+      isPrinting = true;
+    };
   }, [
     isPrintingPrecinctScannerReport,
     printer,
     togglePollsOpen,
     resetCardTallyData,
-  ])
+  ]);
 
-  const currentTime = Date.now()
-  const reportPurposes = ['Publicly Posted', 'Officially Filed']
+  const currentTime = Date.now();
+  const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
   if (hasVotes && cardlessVoterSessionBallotStyleId) {
     return (
@@ -222,14 +222,14 @@ const PollWorkerScreen = ({
           </MainChild>
         </Main>
       </Screen>
-    )
+    );
   }
 
   if (cardlessVoterSessionPrecinctId && cardlessVoterSessionBallotStyleId) {
     const activationPrecinctName = find(
       election.precincts,
       (p) => p.id === cardlessVoterSessionPrecinctId
-    ).name
+    ).name;
 
     return (
       <Screen>
@@ -262,7 +262,7 @@ const PollWorkerScreen = ({
           </MainChild>
         </Main>
       </Screen>
-    )
+    );
   }
 
   return (
@@ -477,10 +477,10 @@ const PollWorkerScreen = ({
                 reportPurpose={reportPurpose}
               />
             </React.Fragment>
-          )
+          );
         })}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default PollWorkerScreen
+export default PollWorkerScreen;

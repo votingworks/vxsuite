@@ -1,10 +1,10 @@
 /* stylelint-disable value-keyword-case */
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled-components';
 
 export interface Props {
-  readonly arrowLeft?: boolean
-  readonly arrowRight?: boolean
-  readonly white?: boolean
+  readonly arrowLeft?: boolean;
+  readonly arrowRight?: boolean;
+  readonly white?: boolean;
 }
 
 const arrowLeftStyles = css<Props>`
@@ -17,7 +17,7 @@ const arrowLeftStyles = css<Props>`
     vertical-align: text-bottom;
     content: '';
   }
-`
+`;
 const arrowRightStyles = css<Props>`
   &::after {
     display: inline-block;
@@ -32,11 +32,11 @@ const arrowRightStyles = css<Props>`
     vertical-align: text-bottom;
     content: '';
   }
-`
+`;
 
 const TextIcon = styled.span<Props>`
   ${({ arrowLeft }) => arrowLeft && arrowLeftStyles}
   ${({ arrowRight }) => arrowRight && arrowRightStyles}
-`
+`;
 
-export default TextIcon
+export default TextIcon;

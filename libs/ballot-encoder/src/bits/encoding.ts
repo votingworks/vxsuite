@@ -1,5 +1,5 @@
-import { Uint8Size } from './types'
-import { sizeof } from './utils'
+import { Uint8Size } from './types';
+import { sizeof } from './utils';
 
 /**
  * Encoding to be used for encoding and decoding text.
@@ -8,9 +8,9 @@ import { sizeof } from './utils'
  * @see `BitReader#readString`
  */
 export interface Encoding {
-  readonly bitsPerElement: number
-  encode(string: string): Uint8Array
-  decode(data: Uint8Array): string
+  readonly bitsPerElement: number;
+  encode(string: string): Uint8Array;
+  decode(data: Uint8Array): string;
 }
 
 /**
@@ -23,16 +23,16 @@ export const UTF8Encoding: Encoding = {
    * Encodes a string as UTF-8 code points.
    */
   encode(string: string): Uint8Array {
-    return new TextEncoder().encode(string)
+    return new TextEncoder().encode(string);
   },
 
   /**
    * Decodes a string from UTF-8 code points.
    */
   decode(data: Uint8Array): string {
-    return new TextDecoder('utf-8').decode(data)
+    return new TextDecoder('utf-8').decode(data);
   },
-}
+};
 
 /**
  * Encoding based on a string of representable characters. Each character is
@@ -48,15 +48,15 @@ export class CustomEncoding implements Encoding {
   /**
    * The maximum character code representable by this class.
    */
-  static MAX_CODE = (1 << (Uint8Array.BYTES_PER_ELEMENT * Uint8Size)) - 1
-  readonly bitsPerElement: number
+  static MAX_CODE = (1 << (Uint8Array.BYTES_PER_ELEMENT * Uint8Size)) - 1;
+  readonly bitsPerElement: number;
 
   /**
    * @param chars a string of representable characters without duplicates
    */
   constructor(readonly chars: string) {
-    CustomEncoding.validateChars(chars)
-    this.bitsPerElement = sizeof(chars.length - 1)
+    CustomEncoding.validateChars(chars);
+    this.bitsPerElement = sizeof(chars.length - 1);
   }
 
   private static validateChars(chars: string): void {
@@ -65,17 +65,17 @@ export class CustomEncoding implements Encoding {
         `character set too large, has ${chars.length} but only ${
           CustomEncoding.MAX_CODE + 1
         } are allowed`
-      )
+      );
     }
 
     for (let i = 0; i < chars.length - 1; i += 1) {
-      const duplicateIndex = chars.indexOf(chars.charAt(i), i + 1)
+      const duplicateIndex = chars.indexOf(chars.charAt(i), i + 1);
       if (duplicateIndex > 0) {
         throw new Error(
           `duplicate character found in character set:\n- set: ${JSON.stringify(
             chars
           )}\n- duplicates: ${i} & ${duplicateIndex}`
-        )
+        );
       }
     }
   }
@@ -87,24 +87,24 @@ export class CustomEncoding implements Encoding {
    * @param string a string containing only representable characters
    */
   encode(string: string): Uint8Array {
-    const codes = new Uint8Array(string.length)
+    const codes = new Uint8Array(string.length);
 
     for (let i = 0; i < string.length; i += 1) {
-      const char = string.charAt(i)
-      const code = this.chars.indexOf(char)
+      const char = string.charAt(i);
+      const code = this.chars.indexOf(char);
 
       if (code < 0) {
         throw new Error(
           `cannot encode unrepresentable character: ${JSON.stringify(
             char
           )} (allowed: ${JSON.stringify(this.chars)})`
-        )
+        );
       }
 
-      codes.set([code], i)
+      codes.set([code], i);
     }
 
-    return codes
+    return codes;
   }
 
   /**
@@ -117,11 +117,13 @@ export class CustomEncoding implements Encoding {
     return Array.from(data)
       .map((code, i) => {
         if (code >= this.chars.length) {
-          throw new Error(`character code out of bounds at index ${i}: ${code}`)
+          throw new Error(
+            `character code out of bounds at index ${i}: ${code}`
+          );
         }
 
-        return this.chars[code]
+        return this.chars[code];
       })
-      .join('')
+      .join('');
   }
 }

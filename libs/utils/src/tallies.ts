@@ -1,25 +1,25 @@
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 import {
   ContestOptionTally,
   ContestTally,
   Dictionary,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
 export function combineContestTallies(
   firstTally: ContestTally,
   secondTally: ContestTally
 ): ContestTally {
-  assert(firstTally.contest.id === secondTally.contest.id)
-  const combinedTallies: Dictionary<ContestOptionTally> = {}
+  assert(firstTally.contest.id === secondTally.contest.id);
+  const combinedTallies: Dictionary<ContestOptionTally> = {};
 
   for (const optionId of Object.keys(firstTally.tallies)) {
-    const firstTallyOption = firstTally.tallies[optionId]
-    assert(firstTallyOption)
-    const secondTallyOption = secondTally.tallies[optionId]
+    const firstTallyOption = firstTally.tallies[optionId];
+    assert(firstTallyOption);
+    const secondTallyOption = secondTally.tallies[optionId];
     combinedTallies[optionId] = {
       option: firstTallyOption.option,
       tally: firstTallyOption.tally + (secondTallyOption?.tally ?? 0),
-    }
+    };
   }
 
   return {
@@ -31,5 +31,5 @@ export function combineContestTallies(
         firstTally.metadata.undervotes + secondTally.metadata.undervotes,
       ballots: firstTally.metadata.ballots + secondTally.metadata.ballots,
     },
-  }
+  };
 }

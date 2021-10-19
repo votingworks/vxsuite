@@ -1,5 +1,5 @@
 export interface Options {
-  defaultPath?: string
+  defaultPath?: string;
 }
 
 /**
@@ -16,11 +16,11 @@ export interface Options {
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
  */
 function readContentDispositionFilename(header: string): string | undefined {
-  const match = header.match(/filename=(?:"([^"]+)"|(\S+))\s*$/)
+  const match = header.match(/filename=(?:"([^"]+)"|(\S+))\s*$/);
 
   if (match) {
-    const [, quoted, unquoted] = match
-    return quoted || unquoted
+    const [, quoted, unquoted] = match;
+    return quoted || unquoted;
   }
 }
 
@@ -33,42 +33,42 @@ async function kioskDownload(
   url: string,
   { defaultPath }: Options = {}
 ): Promise<void> {
-  const controller = new AbortController()
-  const { headers, body } = await fetch(url, { signal: controller.signal })
+  const controller = new AbortController();
+  const { headers, body } = await fetch(url, { signal: controller.signal });
 
   if (!body) {
-    controller.abort()
-    throw new Error('response has no body')
+    controller.abort();
+    throw new Error('response has no body');
   }
 
-  const contentDispositionHeader = headers.get('content-disposition')
+  const contentDispositionHeader = headers.get('content-disposition');
   const downloadTarget = await kiosk.saveAs({
     defaultPath:
       (contentDispositionHeader &&
         readContentDispositionFilename(contentDispositionHeader)) ||
       defaultPath,
-  })
+  });
 
   if (!downloadTarget) {
-    controller.abort()
-    throw new Error('no file was chosen')
+    controller.abort();
+    throw new Error('no file was chosen');
   }
 
   await body.pipeTo(
     new WritableStream({
       abort: (error) => {
-        throw error
+        throw error;
       },
 
       async write(chunk) {
-        await downloadTarget.write(chunk)
+        await downloadTarget.write(chunk);
       },
 
       async close() {
-        await downloadTarget.end()
+        await downloadTarget.end();
       },
     })
-  )
+  );
 }
 
 /**
@@ -80,8 +80,8 @@ export default async function download(
   options: Options = {}
 ): Promise<void> {
   if (!window.kiosk) {
-    window.location.assign(url)
+    window.location.assign(url);
   } else {
-    await kioskDownload(window.kiosk, url, options)
+    await kioskDownload(window.kiosk, url, options);
   }
 }

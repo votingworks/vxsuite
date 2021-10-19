@@ -4,7 +4,7 @@ import {
   assertSizesMatch,
   isRGBA,
   makeInPlaceImageTransform,
-} from './imageFormatUtils'
+} from './imageFormatUtils';
 
 /**
  * Copies a grayscale image to a destination.
@@ -13,15 +13,15 @@ export function fromGray(
   srcImageData: ImageData,
   dstImageData = srcImageData
 ): void {
-  assertGrayscaleImage(srcImageData)
-  assertGrayscaleImage(dstImageData)
-  assertSizesMatch(srcImageData, dstImageData)
+  assertGrayscaleImage(srcImageData);
+  assertGrayscaleImage(dstImageData);
+  assertSizesMatch(srcImageData, dstImageData);
 
   if (srcImageData === dstImageData) {
-    return
+    return;
   }
 
-  dstImageData.data.set(srcImageData.data)
+  dstImageData.data.set(srcImageData.data);
 }
 
 /**
@@ -35,38 +35,38 @@ export function fromRGBA(
   srcImageData: ImageData,
   dstImageData = srcImageData
 ): void {
-  assertRGBAImage(srcImageData)
-  assertSizesMatch(srcImageData, dstImageData)
+  assertRGBAImage(srcImageData);
+  assertSizesMatch(srcImageData, dstImageData);
 
-  const src32 = new Int32Array(srcImageData.data.buffer)
+  const src32 = new Int32Array(srcImageData.data.buffer);
 
   if (isRGBA(dstImageData)) {
-    const dst32 = new Int32Array(dstImageData.data.buffer)
+    const dst32 = new Int32Array(dstImageData.data.buffer);
     for (let offset = 0, size = src32.length; offset < size; offset += 1) {
-      const px = src32[offset]
-      const r = px & 0xff
-      const g = (px >>> 8) & 0xff
-      const b = (px >>> 16) & 0xff
-      const a = (px >>> 24) & 0xff
+      const px = src32[offset];
+      const r = px & 0xff;
+      const g = (px >>> 8) & 0xff;
+      const b = (px >>> 16) & 0xff;
+      const a = (px >>> 24) & 0xff;
 
       // Luminosity grayscale formula.
-      const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
+      const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0;
       dst32[offset] =
-        luminosity | (luminosity << 8) | (luminosity << 16) | (a << 24)
+        luminosity | (luminosity << 8) | (luminosity << 16) | (a << 24);
     }
   } else {
-    const dst8 = dstImageData.data
+    const dst8 = dstImageData.data;
     for (let offset = 0, size = src32.length; offset < size; offset += 1) {
-      const px = src32[offset]
-      const r = px & 0xff
-      const g = (px >>> 8) & 0xff
-      const b = (px >>> 16) & 0xff
+      const px = src32[offset];
+      const r = px & 0xff;
+      const g = (px >>> 8) & 0xff;
+      const b = (px >>> 16) & 0xff;
 
       // Luminosity grayscale formula.
-      const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
-      dst8[offset] = luminosity
+      const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0;
+      dst8[offset] = luminosity;
     }
   }
 }
 
-export default makeInPlaceImageTransform(fromGray, fromRGBA)
+export default makeInPlaceImageTransform(fromGray, fromRGBA);

@@ -1,27 +1,27 @@
-import React from 'react'
-import styled, { css } from 'styled-components'
+import React from 'react';
+import styled, { css } from 'styled-components';
 
-import * as GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals';
 
 interface Props {
-  bold?: boolean
-  light?: boolean
-  center?: boolean
-  error?: boolean
-  italic?: boolean
-  left?: boolean
-  muted?: boolean
-  narrow?: boolean
-  normal?: boolean
-  noWrap?: boolean
-  preLine?: boolean
-  right?: boolean
-  small?: boolean
-  warning?: boolean
-  warningIcon?: boolean
-  wordBreak?: boolean
-  voteIcon?: boolean
-  white?: boolean
+  bold?: boolean;
+  light?: boolean;
+  center?: boolean;
+  error?: boolean;
+  italic?: boolean;
+  left?: boolean;
+  muted?: boolean;
+  narrow?: boolean;
+  normal?: boolean;
+  noWrap?: boolean;
+  preLine?: boolean;
+  right?: boolean;
+  small?: boolean;
+  warning?: boolean;
+  warningIcon?: boolean;
+  wordBreak?: boolean;
+  voteIcon?: boolean;
+  white?: boolean;
 }
 
 const iconStyles = css<Props>`
@@ -43,7 +43,7 @@ const iconStyles = css<Props>`
     content: ${({ warningIcon, voteIcon }) =>
       (warningIcon && "'!'") ?? (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
   }
-`
+`;
 
 const Text = styled('p')<Props>`
   margin-right: ${({ narrow }) => (narrow ? 'auto' : undefined)};
@@ -77,7 +77,7 @@ const Text = styled('p')<Props>`
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
   /* stylelint-disable-next-line value-keyword-case, order/properties-order */
   ${({ warningIcon, voteIcon }) => (warningIcon ?? voteIcon) && iconStyles}
-`
+`;
 
 export const TextWithLineBreaks = ({ text }: { text: string }): JSX.Element => (
   <React.Fragment>
@@ -92,14 +92,14 @@ export const TextWithLineBreaks = ({ text }: { text: string }): JSX.Element => (
       </p>
     ))}
   </React.Fragment>
-)
+);
 
 export const NoWrap = styled.span`
   white-space: nowrap;
-`
+`;
 
 export const Monospace = styled.span`
   font-family: monospace;
-`
+`;
 
-export default Text
+export default Text;

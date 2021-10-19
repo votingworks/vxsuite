@@ -1,11 +1,11 @@
-import { Rect, TargetShape } from '@votingworks/types'
-import makeDebug from 'debug'
-import { PIXEL_WHITE } from '../utils/binarize'
-import { rectCenter } from '../utils/geometry'
-import { VisitedPoints } from '../utils/VisitedPoints'
-import { findShape, Shape } from './shapes'
+import { Rect, TargetShape } from '@votingworks/types';
+import makeDebug from 'debug';
+import { PIXEL_WHITE } from '../utils/binarize';
+import { rectCenter } from '../utils/geometry';
+import { VisitedPoints } from '../utils/VisitedPoints';
+import { findShape, Shape } from './shapes';
 
-const debug = makeDebug('hmpb-interpreter:findTargets')
+const debug = makeDebug('hmpb-interpreter:findTargets');
 
 export default function* findTargets(
   ballotImage: ImageData,
@@ -18,23 +18,26 @@ export default function* findTargets(
     errorMargin = Math.ceil(0.04 * expectedWidth),
   } = {}
 ): Generator<TargetShape> {
-  debug('finding targets in %o', bounds)
-  const visitedPoints = new VisitedPoints(ballotImage.width, ballotImage.height)
-  const minAspectRatio = aspectRatio - aspectRatioTolerance
-  const maxAspectRatio = aspectRatio + aspectRatioTolerance
+  debug('finding targets in %o', bounds);
+  const visitedPoints = new VisitedPoints(
+    ballotImage.width,
+    ballotImage.height
+  );
+  const minAspectRatio = aspectRatio - aspectRatioTolerance;
+  const maxAspectRatio = aspectRatio + aspectRatioTolerance;
 
-  const x = bounds.x + Math.round(inset + expectedWidth / 2)
-  let lastShape: Shape | undefined
+  const x = bounds.x + Math.round(inset + expectedWidth / 2);
+  let lastShape: Shape | undefined;
 
   for (let y = bounds.y + bounds.height - inset; y > bounds.y; y -= 1) {
-    const shape = findShape(ballotImage, { x, y }, { visitedPoints })
+    const shape = findShape(ballotImage, { x, y }, { visitedPoints });
 
     if (shape.bounds.width === 0 || shape.bounds.height === 0) {
-      continue
+      continue;
     }
 
     // If we already found one, so let's use it to determine the right size.
-    let found: boolean
+    let found: boolean;
 
     if (lastShape) {
       if (
@@ -43,18 +46,18 @@ export default function* findTargets(
         shape.bounds.height <= lastShape.bounds.height + errorMargin &&
         shape.bounds.height >= lastShape.bounds.height - errorMargin
       ) {
-        debug('shape matches last target shape!')
-        found = true
+        debug('shape matches last target shape!');
+        found = true;
       } else {
         debug(
           'skipping shape because it does not match the last known target shape: %O ≉ %O',
           shape.bounds,
           lastShape.bounds
-        )
-        found = false
+        );
+        found = false;
       }
     } else {
-      const actualAspectRatio = shape.bounds.width / shape.bounds.height
+      const actualAspectRatio = shape.bounds.width / shape.bounds.height;
       if (
         actualAspectRatio < minAspectRatio ||
         actualAspectRatio > maxAspectRatio
@@ -65,8 +68,8 @@ export default function* findTargets(
           aspectRatio,
           aspectRatioTolerance,
           shape.bounds
-        )
-        found = false
+        );
+        found = false;
       } else if (
         shape.bounds.width < expectedWidth - errorMargin ||
         shape.bounds.width > expectedWidth + errorMargin
@@ -77,27 +80,27 @@ export default function* findTargets(
           expectedWidth,
           errorMargin,
           shape.bounds
-        )
-        found = false
+        );
+        found = false;
       } else {
-        found = true
+        found = true;
       }
     }
 
     if (found) {
-      debug('found shape: %O', shape.bounds)
+      debug('found shape: %O', shape.bounds);
       const innerShape = findShape(
         ballotImage,
         rectCenter(shape.bounds, { round: true }),
         { color: PIXEL_WHITE }
-      )
-      lastShape = shape
+      );
+      lastShape = shape;
       yield {
         bounds: shape.bounds,
         inner: innerShape.bounds,
-      }
+      };
     }
 
-    y = shape.bounds.y
+    y = shape.bounds.y;
   }
 }

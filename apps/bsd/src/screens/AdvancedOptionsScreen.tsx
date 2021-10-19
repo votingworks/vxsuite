@@ -1,27 +1,27 @@
-import { ElectionDefinition, MarkThresholds } from '@votingworks/types'
-import React, { useCallback, useEffect, useState, useContext } from 'react'
-import Button from '../components/Button'
-import LinkButton from '../components/LinkButton'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Modal from '../components/Modal'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import ToggleTestModeButton from '../components/ToggleTestModeButton'
-import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal'
-import AppContext from '../contexts/AppContext'
+import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
+import Button from '../components/Button';
+import LinkButton from '../components/LinkButton';
+import Main, { MainChild } from '../components/Main';
+import MainNav from '../components/MainNav';
+import Modal from '../components/Modal';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import ToggleTestModeButton from '../components/ToggleTestModeButton';
+import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal';
+import AppContext from '../contexts/AppContext';
 
 interface Props {
-  unconfigureServer: () => Promise<void>
-  zeroData: () => Promise<void>
-  backup: () => Promise<void>
-  hasBatches: boolean
-  isTestMode: boolean
-  isTogglingTestMode: boolean
-  toggleTestMode: () => Promise<void>
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>
-  markThresholds?: MarkThresholds
-  electionDefinition: ElectionDefinition
+  unconfigureServer: () => Promise<void>;
+  zeroData: () => Promise<void>;
+  backup: () => Promise<void>;
+  hasBatches: boolean;
+  isTestMode: boolean;
+  isTogglingTestMode: boolean;
+  toggleTestMode: () => Promise<void>;
+  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
+  markThresholds?: MarkThresholds;
+  electionDefinition: ElectionDefinition;
 }
 
 const AdvancedOptionsScreen = ({
@@ -36,46 +36,46 @@ const AdvancedOptionsScreen = ({
   markThresholds,
   electionDefinition,
 }: Props): JSX.Element => {
-  const { lockMachine } = useContext(AppContext)
+  const { lockMachine } = useContext(AppContext);
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
-  )
-  const [isFactoryResetting, setIsFactoryResetting] = useState(false)
-  const [isBackingUp, setIsBackingUp] = useState(false)
-  const [backupError, setBackupError] = useState('')
+  );
+  const [isFactoryResetting, setIsFactoryResetting] = useState(false);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [backupError, setBackupError] = useState('');
   const toggleIsConfirmingFactoryReset = () =>
-    setIsConfirmingFactoryReset((s) => !s)
-  const [isConfirmingZero, setIsConfirmingZero] = useState(false)
+    setIsConfirmingFactoryReset((s) => !s);
+  const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
     false
-  )
-  const toggleIsConfirmingZero = () => setIsConfirmingZero((s) => !s)
+  );
+  const toggleIsConfirmingZero = () => setIsConfirmingZero((s) => !s);
   const exportBackup = useCallback(async () => {
     try {
-      setBackupError('')
-      setIsBackingUp(true)
-      await backup()
+      setBackupError('');
+      setIsBackingUp(true);
+      await backup();
     } catch (error) {
-      setBackupError(error.toString())
+      setBackupError(error.toString());
     } finally {
-      setIsBackingUp(false)
+      setIsBackingUp(false);
     }
-  }, [backup])
+  }, [backup]);
 
   useEffect(() => {
     if (isFactoryResetting) {
-      let isMounted = true
+      let isMounted = true;
       void (async () => {
-        await unconfigureServer()
+        await unconfigureServer();
         if (isMounted) {
-          setIsFactoryResetting(false)
+          setIsFactoryResetting(false);
         }
-      })()
+      })();
       return () => {
-        isMounted = false
-      }
+        isMounted = false;
+      };
     }
-  }, [isFactoryResetting, unconfigureServer])
+  }, [isFactoryResetting, unconfigureServer]);
 
   return (
     <React.Fragment>
@@ -173,8 +173,8 @@ const AdvancedOptionsScreen = ({
               <Button
                 danger
                 onPress={() => {
-                  setIsConfirmingFactoryReset(false)
-                  setIsFactoryResetting(true)
+                  setIsConfirmingFactoryReset(false);
+                  setIsFactoryResetting(true);
                 }}
               >
                 Yes, Factory Reset
@@ -203,7 +203,7 @@ const AdvancedOptionsScreen = ({
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default AdvancedOptionsScreen
+export default AdvancedOptionsScreen;

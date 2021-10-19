@@ -2,22 +2,22 @@ import {
   Election,
   PrecinctSelection,
   PrecinctSelectionKind,
-} from '@votingworks/types'
+} from '@votingworks/types';
 import {
   find,
   formatFullDateTimeZone,
   formatLongDate,
-} from '@votingworks/utils'
-import { DateTime } from 'luxon'
-import React from 'react'
-import styled from 'styled-components'
-import { PrintableContainer } from './TallyReport'
+} from '@votingworks/utils';
+import { DateTime } from 'luxon';
+import React from 'react';
+import styled from 'styled-components';
+import { PrintableContainer } from './TallyReport';
 
-import { Prose } from './Prose'
+import { Prose } from './Prose';
 
 const SealImage = styled.img`
   max-width: 1in;
-`
+`;
 
 const Header = styled.div`
   display: flex;
@@ -39,7 +39,7 @@ const Header = styled.div`
     margin: 0 1rem;
     max-width: 100%;
   }
-`
+`;
 const Content = styled.div`
   padding-top: 2rem;
   & dd {
@@ -49,13 +49,13 @@ const Content = styled.div`
       font-weight: 600;
     }
   }
-`
+`;
 
 const Certification = styled.div`
   margin-top: 0.5rem;
   width: 50%;
   font-weight: 600;
-`
+`;
 const SignatureLine = styled.div`
   display: flex;
   align-items: flex-end;
@@ -66,18 +66,18 @@ const SignatureLine = styled.div`
     font-size: 1.5rem;
     content: '⨉';
   }
-`
+`;
 
 interface Props {
-  ballotCount: number
-  currentTime: number
-  election: Election
-  isLiveMode: boolean
-  isPollsOpen: boolean
-  precinctScannerMachineId: string
-  timeTallySaved?: number
-  precinctSelection: PrecinctSelection
-  reportPurpose: string
+  ballotCount: number;
+  currentTime: number;
+  election: Election;
+  isLiveMode: boolean;
+  isPollsOpen: boolean;
+  precinctScannerMachineId: string;
+  timeTallySaved?: number;
+  precinctSelection: PrecinctSelection;
+  reportPurpose: string;
 }
 
 export const PrecinctScannerPollsReport = ({
@@ -91,11 +91,11 @@ export const PrecinctScannerPollsReport = ({
   precinctSelection,
   reportPurpose,
 }: Props): JSX.Element => {
-  const { title, date, county, precincts, state, seal, sealURL } = election
+  const { title, date, county, precincts, state, seal, sealURL } = election;
   const precinctName =
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
       ? 'All Precincts'
-      : find(precincts, (p) => p.id === precinctSelection.precinctId).name
+      : find(precincts, (p) => p.id === precinctSelection.precinctId).name;
   const machineSection = (
     <React.Fragment>
       <dt>Machine ID</dt>
@@ -103,7 +103,7 @@ export const PrecinctScannerPollsReport = ({
         <span>Precinct Scanner #{precinctScannerMachineId}</span>
       </dd>
     </React.Fragment>
-  )
+  );
 
   return (
     <PrintableContainer>
@@ -201,5 +201,5 @@ export const PrecinctScannerPollsReport = ({
         </Prose>
       </Content>
     </PrintableContainer>
-  )
-}
+  );
+};

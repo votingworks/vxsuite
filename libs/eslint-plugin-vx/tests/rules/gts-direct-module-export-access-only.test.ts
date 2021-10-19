@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-direct-module-export-access-only'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-direct-module-export-access-only';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-direct-namespace-property-access-only', rule, {
   valid: [
@@ -85,4 +85,4 @@ ruleTester.run('gts-direct-namespace-property-access-only', rule, {
       errors: [{ line: 3, messageId: 'directAccessOnly' }],
     },
   ],
-})
+});

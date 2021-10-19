@@ -1,11 +1,11 @@
-import { Corners } from '@votingworks/types'
-import * as fixtures from '../../test/fixtures/choctaw-county-2020-general-election'
-import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize'
-import { findShape, parseRectangle } from './shapes'
+import { Corners } from '@votingworks/types';
+import * as fixtures from '../../test/fixtures/choctaw-county-2020-general-election';
+import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
+import { findShape, parseRectangle } from './shapes';
 
 test('target size', async () => {
-  const imageData = await fixtures.district5BlankPage1.imageData()
-  binarize(imageData)
+  const imageData = await fixtures.district5BlankPage1.imageData();
+  binarize(imageData);
   expect(findShape(imageData, { x: 451, y: 1325 }).bounds)
     .toMatchInlineSnapshot(`
     Object {
@@ -14,8 +14,8 @@ test('target size', async () => {
       "x": 451,
       "y": 1315,
     }
-  `)
-})
+  `);
+});
 
 test('parseRectangle with a perfect rectangle', () => {
   expect(
@@ -35,8 +35,8 @@ test('parseRectangle with a perfect rectangle', () => {
       ],
       "isRectangle": true,
     }
-  `)
-})
+  `);
+});
 
 test('parseRectangle with a slightly skewed rectangle', () => {
   expect(
@@ -56,8 +56,8 @@ test('parseRectangle with a slightly skewed rectangle', () => {
       ],
       "isRectangle": true,
     }
-  `)
-})
+  `);
+});
 
 test('parseRectangle with very skewed rectangle', () => {
   const corners: Corners = [
@@ -65,7 +65,7 @@ test('parseRectangle with very skewed rectangle', () => {
     { x: 200, y: 80 },
     { x: 100, y: 200 },
     { x: 200, y: 180 },
-  ]
+  ];
   expect(parseRectangle(corners)).toMatchInlineSnapshot(`
     Object {
       "angles": Array [
@@ -76,7 +76,7 @@ test('parseRectangle with very skewed rectangle', () => {
       ],
       "isRectangle": false,
     }
-  `)
+  `);
 
   // allowed with a really big allowed error
   expect(parseRectangle(corners, { allowedErrorAngle: (30 / 180) * Math.PI }))
@@ -90,8 +90,8 @@ test('parseRectangle with very skewed rectangle', () => {
       ],
       "isRectangle": true,
     }
-  `)
-})
+  `);
+});
 
 test('findShape skipping gaps', () => {
   const imageData: ImageData = {
@@ -108,7 +108,7 @@ test('findShape skipping gaps', () => {
     ),
     width: 4,
     height: 9,
-  }
+  };
 
   // no gap skipping
   expect(findShape(imageData, { x: 1, y: 1 }).bounds).toMatchInlineSnapshot(`
@@ -118,7 +118,7 @@ test('findShape skipping gaps', () => {
       "x": 1,
       "y": 1,
     }
-  `)
+  `);
 
   // skip 1px gaps once
   expect(
@@ -134,7 +134,7 @@ test('findShape skipping gaps', () => {
       "x": 1,
       "y": 1,
     }
-  `)
+  `);
 
   // skip 1px gaps twice
   expect(
@@ -150,7 +150,7 @@ test('findShape skipping gaps', () => {
       "x": 1,
       "y": 1,
     }
-  `)
+  `);
 
   // skip 2px gaps thrice
   expect(
@@ -166,5 +166,5 @@ test('findShape skipping gaps', () => {
       "x": 1,
       "y": 1,
     }
-  `)
-})
+  `);
+});

@@ -1,12 +1,12 @@
-import makeDebug from 'debug'
-import { Corners, Point } from '@votingworks/types'
-import { Edge, Shape } from '../hmpb/shapes'
-import { editDistance, median, rectCorners } from './geometry'
+import makeDebug from 'debug';
+import { Corners, Point } from '@votingworks/types';
+import { Edge, Shape } from '../hmpb/shapes';
+import { editDistance, median, rectCorners } from './geometry';
 
-const debug = makeDebug('hmpb-interpreter:corners')
+const debug = makeDebug('hmpb-interpreter:corners');
 
-const MIN_INSET_PIXELS = 10
-const MEDIAN_INSET_MULTIPLIER = 2.5
+const MIN_INSET_PIXELS = 10;
+const MEDIAN_INSET_MULTIPLIER = 2.5;
 
 function findTopLeftCorner(
   topLeft: Point,
@@ -17,9 +17,9 @@ function findTopLeftCorner(
   maxUpDownSkewDistance: number,
   maxLeftRightSkewDistance: number
 ): Point {
-  debug('finding top-left corner from %o', topLeft)
-  let bestDistance = Infinity
-  let bestPoints: Point[] = []
+  debug('finding top-left corner from %o', topLeft);
+  let bestDistance = Infinity;
+  let bestPoints: Point[] = [];
 
   for (
     let { x } = topLeft,
@@ -30,18 +30,18 @@ function findTopLeftCorner(
     x <= topLeft.x + xInset;
     x += 1
   ) {
-    const y = topEdge[x]
+    const y = topEdge[x];
 
     if (Math.abs(y - topLeft.y) > maxUpDownSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, topLeft)
+    const newDistance = editDistance({ x, y }, topLeft);
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
@@ -54,34 +54,34 @@ function findTopLeftCorner(
     y <= topLeft.y + yInset;
     y += 1
   ) {
-    const x = leftEdge[y]
+    const x = leftEdge[y];
 
     if (Math.abs(x - topLeft.x) > maxLeftRightSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, topLeft)
+    const newDistance = editDistance({ x, y }, topLeft);
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
-  debug('found top-left corner candidates: %o', bestPoints)
+  debug('found top-left corner candidates: %o', bestPoints);
 
   if (bestPoints.length === 0) {
-    debug('found no points!? falling back to top-left: %o', topLeft)
-    return topLeft
+    debug('found no points!? falling back to top-left: %o', topLeft);
+    return topLeft;
   }
 
   const bestPoint = {
     x: Math.min(...bestPoints.map(({ x }) => x)),
     y: Math.min(...bestPoints.map(({ y }) => y)),
-  }
-  debug('merging top-left corner candidates: %o', bestPoint)
-  return bestPoint
+  };
+  debug('merging top-left corner candidates: %o', bestPoint);
+  return bestPoint;
 }
 
 function findTopRightCorner(
@@ -93,9 +93,9 @@ function findTopRightCorner(
   maxUpDownSkewDistance: number,
   maxLeftRightSkewDistance: number
 ): Point {
-  debug('finding top-right corner from %o', topRight)
-  let bestDistance = Infinity
-  let bestPoints: Point[] = []
+  debug('finding top-right corner from %o', topRight);
+  let bestDistance = Infinity;
+  let bestPoints: Point[] = [];
 
   for (
     let { x } = topRight,
@@ -106,19 +106,19 @@ function findTopRightCorner(
     x >= topRight.x - xInset;
     x -= 1
   ) {
-    const y = topEdge[x]
+    const y = topEdge[x];
 
     if (Math.abs(y - topRight.y) > maxUpDownSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, topRight)
+    const newDistance = editDistance({ x, y }, topRight);
 
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
@@ -131,35 +131,35 @@ function findTopRightCorner(
     y <= topRight.y + yInset;
     y += 1
   ) {
-    const x = rightEdge[y]
+    const x = rightEdge[y];
 
     if (x - topRight.x > maxLeftRightSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, topRight)
+    const newDistance = editDistance({ x, y }, topRight);
 
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
-  debug('found top-right corner candidates: %o', bestPoints)
+  debug('found top-right corner candidates: %o', bestPoints);
 
   if (bestPoints.length === 0) {
-    debug('found no points!? falling back to top-right: %o', topRight)
-    return topRight
+    debug('found no points!? falling back to top-right: %o', topRight);
+    return topRight;
   }
 
   const bestPoint = {
     x: Math.max(...bestPoints.map(({ x }) => x)),
     y: Math.min(...bestPoints.map(({ y }) => y)),
-  }
-  debug('merging top-right corner candidates: %o', bestPoint)
-  return bestPoint
+  };
+  debug('merging top-right corner candidates: %o', bestPoint);
+  return bestPoint;
 }
 
 function findBottomLeftCorner(
@@ -171,9 +171,9 @@ function findBottomLeftCorner(
   maxUpDownSkewDistance: number,
   maxLeftRightSkewDistance: number
 ): Point {
-  debug('finding bottom-left corner from %o', bottomLeft)
-  let bestDistance = Infinity
-  let bestPoints: Point[] = []
+  debug('finding bottom-left corner from %o', bottomLeft);
+  let bestDistance = Infinity;
+  let bestPoints: Point[] = [];
 
   for (
     let { x } = bottomLeft,
@@ -184,18 +184,18 @@ function findBottomLeftCorner(
     x <= bottomLeft.x + xInset;
     x += 1
   ) {
-    const y = bottomEdge[x]
+    const y = bottomEdge[x];
 
     if (Math.abs(y - bottomLeft.y) > maxUpDownSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, bottomLeft)
+    const newDistance = editDistance({ x, y }, bottomLeft);
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
@@ -208,33 +208,33 @@ function findBottomLeftCorner(
     y >= bottomLeft.y - yInset;
     y -= 1
   ) {
-    const x = leftEdge[y]
+    const x = leftEdge[y];
 
     if (Math.abs(x - bottomLeft.x) > maxLeftRightSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, bottomLeft)
+    const newDistance = editDistance({ x, y }, bottomLeft);
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
-  debug('found bottom-left corner candidates: %o', bestPoints)
+  debug('found bottom-left corner candidates: %o', bestPoints);
   if (bestPoints.length === 0) {
-    debug('found no points!? falling back to bottom-left: %o', bottomLeft)
-    return bottomLeft
+    debug('found no points!? falling back to bottom-left: %o', bottomLeft);
+    return bottomLeft;
   }
 
   const bestPoint = {
     x: Math.min(...bestPoints.map(({ x }) => x)),
     y: Math.max(...bestPoints.map(({ y }) => y)),
-  }
-  debug('merging bottom-left corner candidates: %o', bestPoint)
-  return bestPoint
+  };
+  debug('merging bottom-left corner candidates: %o', bestPoint);
+  return bestPoint;
 }
 
 function findBottomRightCorner(
@@ -246,9 +246,9 @@ function findBottomRightCorner(
   maxUpDownSkewDistance: number,
   maxLeftRightSkewDistance: number
 ): Point {
-  debug('finding bottom-right corner from %o', bottomRight)
-  let bestDistance = Infinity
-  let bestPoints: Point[] = []
+  debug('finding bottom-right corner from %o', bottomRight);
+  let bestDistance = Infinity;
+  let bestPoints: Point[] = [];
 
   for (
     let { x } = bottomRight,
@@ -259,18 +259,18 @@ function findBottomRightCorner(
     x >= bottomRight.x - xInset;
     x -= 1
   ) {
-    const y = bottomEdge[x]
+    const y = bottomEdge[x];
 
     if (Math.abs(y - bottomRight.y) > maxUpDownSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, bottomRight)
+    const newDistance = editDistance({ x, y }, bottomRight);
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
@@ -283,34 +283,34 @@ function findBottomRightCorner(
     y >= bottomRight.y - yInset;
     y -= 1
   ) {
-    const x = rightEdge[y]
+    const x = rightEdge[y];
 
     if (x - bottomRight.x > maxLeftRightSkewDistance) {
-      continue
+      continue;
     }
 
-    const newDistance = editDistance({ x, y }, bottomRight)
+    const newDistance = editDistance({ x, y }, bottomRight);
     if (newDistance < bestDistance) {
-      bestPoints = [{ x, y }]
-      bestDistance = newDistance
+      bestPoints = [{ x, y }];
+      bestDistance = newDistance;
     } else if (newDistance === bestDistance) {
-      bestPoints.push({ x, y })
+      bestPoints.push({ x, y });
     }
   }
 
-  debug('found bottom-right corner candidates: %o', bestPoints)
+  debug('found bottom-right corner candidates: %o', bestPoints);
 
   if (bestPoints.length === 0) {
-    debug('found no points!? falling back to top-left: %o', bottomRight)
-    return bottomRight
+    debug('found no points!? falling back to top-left: %o', bottomRight);
+    return bottomRight;
   }
 
   const bestPoint = {
     x: Math.max(...bestPoints.map(({ x }) => x)),
     y: Math.max(...bestPoints.map(({ y }) => y)),
-  }
-  debug('merging bottom-right corner candidates: %o', bestPoint)
-  return bestPoint
+  };
+  debug('merging bottom-right corner candidates: %o', bestPoint);
+  return bestPoint;
 }
 
 export function getCorners(
@@ -321,37 +321,37 @@ export function getCorners(
     'finding corners of shape with bounds (%o); maxSkew=%d°',
     shape.bounds,
     (maxSkewRadians * 180) / Math.PI
-  )
-  const { bounds, edges } = shape
+  );
+  const { bounds, edges } = shape;
   const [
     boundsTopLeft,
     boundsTopRight,
     boundsBottomLeft,
     boundsBottomRight,
-  ] = rectCorners(bounds)
+  ] = rectCorners(bounds);
   const maxLeftRightSkewDistance = Math.ceil(
     bounds.height * Math.tan(maxSkewRadians)
-  )
+  );
   const maxUpDownSkewDistance = Math.ceil(
     bounds.width * Math.tan(maxSkewRadians)
-  )
+  );
 
   const leftMedian = median(
     edges.left.slice(bounds.y, bounds.y + bounds.height)
-  )
+  );
   const rightMedian = median(
     edges.right.slice(bounds.y, bounds.y + bounds.height)
-  )
-  const topMedian = median(edges.top.slice(bounds.x, bounds.x + bounds.width))
+  );
+  const topMedian = median(edges.top.slice(bounds.x, bounds.x + bounds.width));
   const bottomMedian = median(
     edges.bottom.slice(bounds.x, bounds.x + bounds.width)
-  )
+  );
 
   debug(
     'calculated max left/right skew distance: %dpx',
     maxLeftRightSkewDistance
-  )
-  debug('calculated max up/down skew distance: %dpx', maxUpDownSkewDistance)
+  );
+  debug('calculated max up/down skew distance: %dpx', maxUpDownSkewDistance);
 
   const topLeftCorner = findTopLeftCorner(
     boundsTopLeft,
@@ -361,7 +361,7 @@ export function getCorners(
     edges.top,
     maxUpDownSkewDistance,
     maxLeftRightSkewDistance
-  )
+  );
 
   const topRightCorner = findTopRightCorner(
     boundsTopRight,
@@ -371,7 +371,7 @@ export function getCorners(
     edges.top,
     maxUpDownSkewDistance,
     maxLeftRightSkewDistance
-  )
+  );
 
   const bottomLeftCorner = findBottomLeftCorner(
     boundsBottomLeft,
@@ -381,7 +381,7 @@ export function getCorners(
     edges.bottom,
     maxUpDownSkewDistance,
     maxLeftRightSkewDistance
-  )
+  );
 
   const bottomRightCorner = findBottomRightCorner(
     boundsBottomRight,
@@ -391,7 +391,7 @@ export function getCorners(
     edges.bottom,
     maxUpDownSkewDistance,
     maxLeftRightSkewDistance
-  )
+  );
 
-  return [topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner]
+  return [topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner];
 }

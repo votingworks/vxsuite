@@ -1,27 +1,27 @@
-import { ok } from 'assert'
-import React, { useContext, useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { CandidateVote, OptionalYesNoVote } from '@votingworks/types'
-import { LinkButton } from '@votingworks/ui'
+import { ok } from 'assert';
+import React, { useContext, useEffect, useState } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
+import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
+import { LinkButton } from '@votingworks/ui';
 
-import ordinal from '../utils/ordinal'
+import ordinal from '../utils/ordinal';
 
-import BallotContext from '../contexts/ballotContext'
+import BallotContext from '../contexts/ballotContext';
 
-import CandidateContest from '../components/CandidateContest'
-import ElectionInfo from '../components/ElectionInfo'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import Sidebar from '../components/Sidebar'
-import Text from '../components/Text'
-import YesNoContest from '../components/YesNoContest'
-import SettingsTextSize from '../components/SettingsTextSize'
-import TextIcon from '../components/TextIcon'
-import MsEitherNeitherContest from '../components/MsEitherNeitherContest'
-import { PrecinctSelectionKind } from '../config/types'
+import CandidateContest from '../components/CandidateContest';
+import ElectionInfo from '../components/ElectionInfo';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import Sidebar from '../components/Sidebar';
+import Text from '../components/Text';
+import YesNoContest from '../components/YesNoContest';
+import SettingsTextSize from '../components/SettingsTextSize';
+import TextIcon from '../components/TextIcon';
+import MsEitherNeitherContest from '../components/MsEitherNeitherContest';
+import { PrecinctSelectionKind } from '../config/types';
 
 interface ContestParams {
-  contestNumber: string
+  contestNumber: string;
 }
 
 const ContestPage = ({
@@ -29,7 +29,7 @@ const ContestPage = ({
     params: { contestNumber },
   },
 }: RouteComponentProps<ContestParams>): JSX.Element => {
-  const isReviewMode = window.location.hash === '#review'
+  const isReviewMode = window.location.hash === '#review';
   const {
     ballotStyleId,
     contests,
@@ -39,41 +39,44 @@ const ContestPage = ({
     updateVote,
     userSettings,
     votes,
-  } = useContext(BallotContext)
-  ok(electionDefinition, 'electionDefinition is required to render ContestPage')
-  ok(precinctId, 'precinctId is required to render ContestPage')
-  const { election } = electionDefinition
-  const currentContestIndex = parseInt(contestNumber, 10)
-  const contest = contests[currentContestIndex]
+  } = useContext(BallotContext);
+  ok(
+    electionDefinition,
+    'electionDefinition is required to render ContestPage'
+  );
+  ok(precinctId, 'precinctId is required to render ContestPage');
+  const { election } = electionDefinition;
+  const currentContestIndex = parseInt(contestNumber, 10);
+  const contest = contests[currentContestIndex];
 
-  const vote = votes[contest.id]
+  const vote = votes[contest.id];
 
-  const [isVoteComplete, setIsVoteComplete] = useState(false)
+  const [isVoteComplete, setIsVoteComplete] = useState(false);
 
-  const prevContestIndex = currentContestIndex - 1
-  const prevContest = contests[prevContestIndex]
+  const prevContestIndex = currentContestIndex - 1;
+  const prevContest = contests[prevContestIndex];
 
-  const nextContestIndex = currentContestIndex + 1
-  const nextContest = contests[nextContestIndex]
+  const nextContestIndex = currentContestIndex + 1;
+  const nextContest = contests[nextContestIndex];
 
   useEffect(() => {
     const calculateIsVoteComplete = () => {
       /* istanbul ignore else */
       if (contest.type === 'yesno') {
-        setIsVoteComplete(!!vote)
+        setIsVoteComplete(!!vote);
       } else if (contest.type === 'candidate') {
         setIsVoteComplete(
           contest.seats === ((vote as CandidateVote) ?? []).length
-        )
+        );
       } else if (contest.type === 'ms-either-neither') {
         setIsVoteComplete(
           votes[contest.pickOneContestId]?.length === 1 ||
             votes[contest.eitherNeitherContestId]?.[0] === 'no'
-        )
+        );
       }
-    }
-    calculateIsVoteComplete()
-  }, [contest, vote, votes])
+    };
+    calculateIsVoteComplete();
+  }, [contest, vote, votes]);
 
   return (
     <Screen>
@@ -175,7 +178,7 @@ const ContestPage = ({
         </Prose>
       </Sidebar>
     </Screen>
-  )
-}
+  );
+};
 
-export default ContestPage
+export default ContestPage;

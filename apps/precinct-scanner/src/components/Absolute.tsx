@@ -1,11 +1,11 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  top?: boolean
-  right?: boolean
-  left?: boolean
-  bottom?: boolean
-  padded?: boolean
+  top?: boolean;
+  right?: boolean;
+  left?: boolean;
+  bottom?: boolean;
+  padded?: boolean;
 }
 
 export const Absolute = styled.div<Props>`
@@ -15,4 +15,4 @@ export const Absolute = styled.div<Props>`
   bottom: ${({ bottom }) => bottom && 0};
   left: ${({ left }) => left && 0};
   padding: ${({ padded }) => padded && '1rem'};
-`
+`;

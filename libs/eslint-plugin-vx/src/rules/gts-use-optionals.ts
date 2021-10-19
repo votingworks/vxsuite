@@ -1,11 +1,14 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { ReportFixFunction } from '@typescript-eslint/experimental-utils/dist/ts-eslint'
-import { strict as assert } from 'assert'
-import { createRule, isBindingName } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { ReportFixFunction } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
+import { strict as assert } from 'assert';
+import { createRule, isBindingName } from '../util';
 
 interface GetUndefinedUnionPartResult {
-  unionType: TSESTree.TSUnionType
-  undefinedType: TSESTree.TSUndefinedKeyword
+  unionType: TSESTree.TSUnionType;
+  undefinedType: TSESTree.TSUndefinedKeyword;
 }
 
 function getUndefinedUnionPart(
@@ -14,15 +17,15 @@ function getUndefinedUnionPart(
   if (node.type === AST_NODE_TYPES.TSUnionType) {
     for (const elementType of node.types) {
       if (elementType.type === AST_NODE_TYPES.TSUndefinedKeyword) {
-        return { unionType: node, undefinedType: elementType }
+        return { unionType: node, undefinedType: elementType };
       }
     }
   }
 }
 
 interface GetOptionalTypeReferenceResult {
-  optionalType: TSESTree.TSTypeReference
-  wrappedType: TSESTree.TypeNode
+  optionalType: TSESTree.TSTypeReference;
+  wrappedType: TSESTree.TypeNode;
 }
 
 function getOptionalTypeReference(
@@ -34,7 +37,7 @@ function getOptionalTypeReference(
     node.typeName.name === 'Optional' &&
     node.typeParameters?.params.length === 1
   ) {
-    return { optionalType: node, wrappedType: node.typeParameters.params[0] }
+    return { optionalType: node, wrappedType: node.typeParameters.params[0] };
   }
 }
 
@@ -61,83 +64,83 @@ export default createRule({
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.getSourceCode();
 
     function getFixFunction(
       typeAnnotation: TSESTree.TSTypeAnnotation
     ): ReportFixFunction | undefined {
       const undefinedUnionResult = getUndefinedUnionPart(
         typeAnnotation.typeAnnotation
-      )
+      );
 
       if (undefinedUnionResult) {
         return function* getFixes(fixer) {
           const pipeBefore = sourceCode.getTokenBefore(
             undefinedUnionResult.undefinedType
-          )
+          );
           const pipeAfter = sourceCode.getTokenAfter(
             undefinedUnionResult.undefinedType
-          )
+          );
           /* istanbul ignore else */
           if (pipeBefore?.value === '|') {
-            yield fixer.remove(pipeBefore)
+            yield fixer.remove(pipeBefore);
           } else if (pipeAfter?.value === '|') {
-            yield fixer.remove(pipeAfter)
+            yield fixer.remove(pipeAfter);
           } else {
-            assert.fail('could not find union type pipe around `undefined`')
+            assert.fail('could not find union type pipe around `undefined`');
           }
-          yield fixer.remove(undefinedUnionResult.undefinedType)
+          yield fixer.remove(undefinedUnionResult.undefinedType);
 
-          const colonToken = sourceCode.getFirstToken(typeAnnotation)
-          assert.equal(colonToken?.value, ':')
-          const questionMarkToken = sourceCode.getTokenBefore(colonToken)
+          const colonToken = sourceCode.getFirstToken(typeAnnotation);
+          assert.equal(colonToken?.value, ':');
+          const questionMarkToken = sourceCode.getTokenBefore(colonToken);
           if (questionMarkToken?.value !== '?') {
-            yield fixer.insertTextBefore(colonToken, '?')
+            yield fixer.insertTextBefore(colonToken, '?');
           }
-        }
+        };
       }
 
       const optionalTypeReferenceResult = getOptionalTypeReference(
         typeAnnotation.typeAnnotation
-      )
+      );
 
       if (optionalTypeReferenceResult) {
         return function* getFixes(fixer) {
-          yield fixer.remove(optionalTypeReferenceResult.optionalType.typeName)
+          yield fixer.remove(optionalTypeReferenceResult.optionalType.typeName);
 
           const typeParamStartToken = sourceCode.getFirstTokenBetween(
             optionalTypeReferenceResult.optionalType.typeName,
             optionalTypeReferenceResult.wrappedType
-          )
-          assert.equal(typeParamStartToken?.value, '<')
-          yield fixer.remove(typeParamStartToken)
+          );
+          assert.equal(typeParamStartToken?.value, '<');
+          yield fixer.remove(typeParamStartToken);
 
           const typeParamEndToken = sourceCode.getLastToken(
             typeAnnotation.typeAnnotation
-          )
-          assert.equal(typeParamEndToken?.value, '>')
-          yield fixer.remove(typeParamEndToken)
+          );
+          assert.equal(typeParamEndToken?.value, '>');
+          yield fixer.remove(typeParamEndToken);
 
-          const colonToken = sourceCode.getFirstToken(typeAnnotation)
-          assert.equal(colonToken?.value, ':')
-          const questionMarkToken = sourceCode.getTokenBefore(colonToken)
+          const colonToken = sourceCode.getFirstToken(typeAnnotation);
+          assert.equal(colonToken?.value, ':');
+          const questionMarkToken = sourceCode.getTokenBefore(colonToken);
           if (questionMarkToken?.value !== '?') {
-            yield fixer.insertTextBefore(colonToken, '?')
+            yield fixer.insertTextBefore(colonToken, '?');
           }
-        }
+        };
       }
     }
 
     function checkFunction(node: {
-      params: readonly TSESTree.Parameter[]
+      params: readonly TSESTree.Parameter[];
     }): void {
       const possibleViolations = node.params.map<
         [TSESTree.BindingName, ReportFixFunction] | undefined
       >((param) => {
         if (isBindingName(param) && param.typeAnnotation) {
-          const fix = getFixFunction(param.typeAnnotation)
+          const fix = getFixFunction(param.typeAnnotation);
           if (fix) {
-            return [param, fix]
+            return [param, fix];
           }
         }
 
@@ -146,19 +149,19 @@ export default createRule({
           isBindingName(param.left) &&
           param.left.typeAnnotation
         ) {
-          const fix = getFixFunction(param.left.typeAnnotation)
+          const fix = getFixFunction(param.left.typeAnnotation);
           if (fix) {
-            return [param.left, fix]
+            return [param.left, fix];
           }
         }
 
-        return undefined
-      })
+        return undefined;
+      });
 
-      let indexOfLastNonOptionalParam = -1
+      let indexOfLastNonOptionalParam = -1;
       for (const [i, param] of node.params.entries()) {
         if (isBindingName(param) && !param.optional) {
-          indexOfLastNonOptionalParam = i
+          indexOfLastNonOptionalParam = i;
         }
       }
 
@@ -168,27 +171,27 @@ export default createRule({
           i < indexOfLastNonOptionalParam ||
           !paramAndFix
         ) {
-          continue
+          continue;
         }
 
-        const [param, fix] = paramAndFix
+        const [param, fix] = paramAndFix;
         context.report({
           messageId: 'useOptionalParams',
           node: param,
           fix,
-        })
+        });
       }
     }
 
     return {
       ClassProperty(node: TSESTree.ClassProperty): void {
-        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation)
+        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation);
         if (fix) {
           context.report({
             messageId: 'useOptionalClassFields',
             node,
             fix,
-          })
+          });
         }
       },
 
@@ -201,26 +204,26 @@ export default createRule({
       TSParameterProperty(node: TSESTree.TSParameterProperty): void {
         const fix =
           node.parameter.typeAnnotation &&
-          getFixFunction(node.parameter.typeAnnotation)
+          getFixFunction(node.parameter.typeAnnotation);
         if (fix) {
           context.report({
             messageId: 'useOptionalClassFields',
             node,
             fix,
-          })
+          });
         }
       },
 
       TSPropertySignature(node: TSESTree.TSPropertySignature): void {
-        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation)
+        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation);
         if (fix) {
           context.report({
             messageId: 'useOptionalInterfaceProperties',
             node,
             fix,
-          })
+          });
         }
       },
-    }
+    };
   },
-})
+});

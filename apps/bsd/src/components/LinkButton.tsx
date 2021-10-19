@@ -1,8 +1,8 @@
-import React from 'react'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { EventTargetFunction } from '../config/types'
+import React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { EventTargetFunction } from '../config/types';
 
-import Button, { ButtonInterface } from './Button'
+import Button, { ButtonInterface } from './Button';
 
 interface Props
   extends ButtonInterface,
@@ -11,10 +11,10 @@ interface Props
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {}
 
 interface Props {
-  goBack?: boolean
-  onPress?: EventTargetFunction
-  primary?: boolean
-  to?: string
+  goBack?: boolean;
+  onPress?: EventTargetFunction;
+  primary?: boolean;
+  to?: string;
 }
 
 const LinkButton = (props: Props) => {
@@ -28,24 +28,24 @@ const LinkButton = (props: Props) => {
     to,
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
-  } = props
+  } = props;
   const handleOnPress: EventTargetFunction = (event) => {
     /* istanbul ignore else */
     if (onPress) {
-      onPress(event)
+      onPress(event);
     } else if (goBack && !to) {
-      history.goBack()
+      history.goBack();
     } else if (to && !goBack) {
-      history.push(to)
+      history.push(to);
     }
-  }
+  };
   return (
     <Button
       {...rest} // `children` is just another prop!
       role="option"
       onPress={handleOnPress}
     />
-  )
-}
+  );
+};
 
-export default withRouter(LinkButton)
+export default withRouter(LinkButton);

@@ -1,31 +1,31 @@
-import React, { useEffect } from 'react'
-import styled from 'styled-components'
-import { ElectionDefinition } from '@votingworks/types'
-import { Main, MainChild } from '@votingworks/ui'
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
+import { ElectionDefinition } from '@votingworks/types';
+import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import Sidebar from '../components/Sidebar'
-import TestMode from '../components/TestMode'
-import Text from '../components/Text'
-import ElectionInfo from '../components/ElectionInfo'
-import { MachineConfig, PrecinctSelection } from '../config/types'
-import VersionsData from '../components/VersionsData'
-import triggerAudioFocus from '../utils/triggerAudioFocus'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import Sidebar from '../components/Sidebar';
+import TestMode from '../components/TestMode';
+import Text from '../components/Text';
+import ElectionInfo from '../components/ElectionInfo';
+import { MachineConfig, PrecinctSelection } from '../config/types';
+import VersionsData from '../components/VersionsData';
+import triggerAudioFocus from '../utils/triggerAudioFocus';
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
   height: 30vw;
-`
+`;
 
 interface Props {
-  appPrecinct: PrecinctSelection
-  electionDefinition: ElectionDefinition
-  showNoChargerAttachedWarning: boolean
-  isLiveMode: boolean
-  isPollsOpen: boolean
-  showNoAccessibleControllerWarning: boolean
-  machineConfig: MachineConfig
+  appPrecinct: PrecinctSelection;
+  electionDefinition: ElectionDefinition;
+  showNoChargerAttachedWarning: boolean;
+  isLiveMode: boolean;
+  isPollsOpen: boolean;
+  showNoAccessibleControllerWarning: boolean;
+  machineConfig: MachineConfig;
 }
 
 const InsertCardScreen = ({
@@ -37,7 +37,7 @@ const InsertCardScreen = ({
   showNoAccessibleControllerWarning,
   machineConfig,
 }: Props): JSX.Element => {
-  useEffect(triggerAudioFocus, [])
+  useEffect(triggerAudioFocus, []);
   return (
     <Screen flexDirection="row-reverse" white>
       <Sidebar>
@@ -87,7 +87,7 @@ const InsertCardScreen = ({
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default InsertCardScreen
+export default InsertCardScreen;

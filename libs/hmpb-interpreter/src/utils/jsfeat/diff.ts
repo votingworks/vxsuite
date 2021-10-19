@@ -1,11 +1,11 @@
-import { Rect } from '@votingworks/types'
-import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize'
+import { Rect } from '@votingworks/types';
+import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
 import {
   assertImageChannelsMatch,
   assertSizesMatch,
   getImageChannelCount,
   isRGBA,
-} from '../imageFormatUtils'
+} from '../imageFormatUtils';
 
 /**
  * Generates an image from two binarized images where black pixels are where
@@ -36,57 +36,57 @@ export default function diff(
     height: compare.height,
   }
 ): ImageData {
-  assertImageChannelsMatch(base, compare)
-  assertSizesMatch(baseBounds, compareBounds)
+  assertImageChannelsMatch(base, compare);
+  assertSizesMatch(baseBounds, compareBounds);
 
-  const { data: baseData, width: baseWidth } = base
-  const { data: compareData, width: compareWidth } = compare
-  const { x: baseXOffset, y: baseYOffset } = baseBounds
-  const { x: compareXOffset, y: compareYOffset } = compareBounds
-  const { width: dstWidth, height: dstHeight } = baseBounds
-  let dst: Uint8ClampedArray
+  const { data: baseData, width: baseWidth } = base;
+  const { data: compareData, width: compareWidth } = compare;
+  const { x: baseXOffset, y: baseYOffset } = baseBounds;
+  const { x: compareXOffset, y: compareYOffset } = compareBounds;
+  const { width: dstWidth, height: dstHeight } = baseBounds;
+  let dst: Uint8ClampedArray;
 
   if (isRGBA(base)) {
-    dst = new Uint8ClampedArray(dstWidth * dstHeight * 4)
+    dst = new Uint8ClampedArray(dstWidth * dstHeight * 4);
 
     for (let y = 0; y < dstHeight; y += 1) {
       for (let x = 0; x < dstWidth; x += 1) {
         const baseOffset =
-          (baseXOffset + x + (baseYOffset + y) * baseWidth) << 2
+          (baseXOffset + x + (baseYOffset + y) * baseWidth) << 2;
         const compareOffset =
-          (compareXOffset + x + (compareYOffset + y) * compareWidth) << 2
-        const dstOffset = (x + y * dstWidth) << 2
+          (compareXOffset + x + (compareYOffset + y) * compareWidth) << 2;
+        const dstOffset = (x + y * dstWidth) << 2;
 
         if (
           baseData[baseOffset] === PIXEL_BLACK &&
           baseData[baseOffset + 1] === PIXEL_BLACK &&
           baseData[baseOffset + 2] === PIXEL_BLACK
         ) {
-          dst[dstOffset] = PIXEL_WHITE
-          dst[dstOffset + 1] = PIXEL_WHITE
-          dst[dstOffset + 2] = PIXEL_WHITE
+          dst[dstOffset] = PIXEL_WHITE;
+          dst[dstOffset + 1] = PIXEL_WHITE;
+          dst[dstOffset + 2] = PIXEL_WHITE;
         } else {
-          dst[dstOffset] = compareData[compareOffset]
-          dst[dstOffset + 1] = compareData[compareOffset + 1]
-          dst[dstOffset + 2] = compareData[compareOffset + 2]
+          dst[dstOffset] = compareData[compareOffset];
+          dst[dstOffset + 1] = compareData[compareOffset + 1];
+          dst[dstOffset + 2] = compareData[compareOffset + 2];
         }
-        dst[dstOffset + 3] = 0xff
+        dst[dstOffset + 3] = 0xff;
       }
     }
   } else {
-    dst = new Uint8ClampedArray(dstWidth * dstHeight)
+    dst = new Uint8ClampedArray(dstWidth * dstHeight);
 
     for (let y = 0; y < dstHeight; y += 1) {
       for (let x = 0; x < dstWidth; x += 1) {
-        const baseOffset = baseXOffset + x + (baseYOffset + y) * baseWidth
+        const baseOffset = baseXOffset + x + (baseYOffset + y) * baseWidth;
         const compareOffset =
-          compareXOffset + x + (compareYOffset + y) * compareWidth
-        const dstOffset = x + y * dstWidth
+          compareXOffset + x + (compareYOffset + y) * compareWidth;
+        const dstOffset = x + y * dstWidth;
 
         if (baseData[baseOffset] === PIXEL_BLACK) {
-          dst[dstOffset] = PIXEL_WHITE
+          dst[dstOffset] = PIXEL_WHITE;
         } else {
-          dst[dstOffset] = compareData[compareOffset]
+          dst[dstOffset] = compareData[compareOffset];
         }
       }
     }
@@ -96,12 +96,12 @@ export default function diff(
     data: dst,
     width: dstWidth,
     height: dstHeight,
-  }
+  };
 }
 
 export interface CountOptions {
-  color?: number
-  bounds?: Rect
+  color?: number;
+  bounds?: Rect;
 }
 
 /**
@@ -114,22 +114,22 @@ export function countPixels(
     bounds = { x: 0, y: 0, width: image.width, height: image.height },
   }: CountOptions = {}
 ): number {
-  const { data } = image
-  const channels = getImageChannelCount(image)
-  const { x: startX, y: startY, width, height } = bounds
-  let count = 0
+  const { data } = image;
+  const channels = getImageChannelCount(image);
+  const { x: startX, y: startY, width, height } = bounds;
+  let count = 0;
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
       if (
         data[((startY + y) * image.width + startX + x) * channels] === color
       ) {
-        count += 1
+        count += 1;
       }
     }
   }
 
-  return count
+  return count;
 }
 
 /**
@@ -137,6 +137,6 @@ export function countPixels(
  * total number of pixels.
  */
 export function ratio(image: ImageData, options: CountOptions = {}): number {
-  const { width, height } = image
-  return countPixels(image, options) / (width * height)
+  const { width, height } = image;
+  return countPixels(image, options) / (width * height);
 }

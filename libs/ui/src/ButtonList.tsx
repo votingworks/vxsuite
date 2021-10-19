@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const ButtonList = styled.p`
   column-gap: 1rem;
@@ -12,4 +12,4 @@ export const ButtonList = styled.p`
     margin-bottom: 0.5rem;
     overflow: hidden;
   }
-`
+`;

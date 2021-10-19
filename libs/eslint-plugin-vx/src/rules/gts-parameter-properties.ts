@@ -1,16 +1,19 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { createRule } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { createRule } from '../util';
 
 function getParamName(param: TSESTree.Parameter): string | undefined {
   switch (param.type) {
     case AST_NODE_TYPES.Identifier:
-      return param.name
+      return param.name;
 
     case AST_NODE_TYPES.TSParameterProperty:
-      return getParamName(param.parameter)
+      return getParamName(param.parameter);
 
     default:
-      return undefined
+      return undefined;
   }
 }
 
@@ -18,7 +21,7 @@ function isPropertyInitializerAssignment(
   param: TSESTree.Parameter,
   statement: TSESTree.Statement
 ): boolean {
-  const name = getParamName(param)
+  const name = getParamName(param);
 
   return (
     Boolean(name) &&
@@ -30,7 +33,7 @@ function isPropertyInitializerAssignment(
     statement.expression.left.property.name === name &&
     statement.expression.right.type === AST_NODE_TYPES.Identifier &&
     statement.expression.right.name === name
-  )
+  );
 }
 
 export default createRule({
@@ -61,18 +64,18 @@ export default createRule({
           node.key.type !== AST_NODE_TYPES.Identifier ||
           node.key.name !== 'constructor'
         ) {
-          return
+          return;
         }
 
-        const { params, body } = node.value
-        const statements = body?.body ?? []
+        const { params, body } = node.value;
+        const statements = body?.body ?? [];
 
         for (const param of params) {
           const assignmentStatement = statements.find((statement) =>
             isPropertyInitializerAssignment(param, statement)
-          )
+          );
           if (!assignmentStatement) {
-            continue
+            continue;
           }
 
           switch (param.type) {
@@ -80,22 +83,22 @@ export default createRule({
               context.report({
                 node: param,
                 messageId: 'useParameterProperties',
-              })
-              break
+              });
+              break;
 
             case AST_NODE_TYPES.TSParameterProperty:
               context.report({
                 node: assignmentStatement,
                 messageId: 'noRedundantAssignment',
-              })
-              break
+              });
+              break;
 
             default:
               // nothing to do
-              break
+              break;
           }
         }
       },
-    }
+    };
   },
-})
+});

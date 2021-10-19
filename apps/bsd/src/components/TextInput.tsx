@@ -1,7 +1,7 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 const TextInput = styled.input<Props>`
@@ -10,6 +10,6 @@ const TextInput = styled.input<Props>`
   width: 100%;
   padding: 0.35rem 0.5rem;
   line-height: 1.25;
-`
+`;
 
-export default TextInput
+export default TextInput;

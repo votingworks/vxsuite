@@ -8,12 +8,12 @@ import {
   decodeElectionHash,
   detect,
   ELECTION_HASH_LENGTH,
-} from '@votingworks/ballot-encoder'
+} from '@votingworks/ballot-encoder';
 import {
   DetectQRCodeResult,
   Interpreter as HMPBInterpreter,
   metadataFromBytes,
-} from '@votingworks/hmpb-interpreter'
+} from '@votingworks/hmpb-interpreter';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -28,35 +28,35 @@ import {
   ok,
   PageInterpretation,
   Result,
-} from '@votingworks/types'
-import makeDebug from 'debug'
-import { BallotPageQrcode, SheetOf } from './types'
+} from '@votingworks/types';
+import makeDebug from 'debug';
+import { BallotPageQrcode, SheetOf } from './types';
 import ballotAdjudicationReasons, {
   adjudicationReasonDescription,
-} from './util/ballotAdjudicationReasons'
-import { loadImageData } from './util/images'
-import optionMarkStatus from './util/optionMarkStatus'
-import { time } from './util/perf'
-import { detectQRCode } from './util/qrcode'
-import * as qrcodeWorker from './workers/qrcode'
+} from './util/ballotAdjudicationReasons';
+import { loadImageData } from './util/images';
+import optionMarkStatus from './util/optionMarkStatus';
+import { time } from './util/perf';
+import { detectQRCode } from './util/qrcode';
+import * as qrcodeWorker from './workers/qrcode';
 
-const debug = makeDebug('module-scan:interpreter')
+const debug = makeDebug('module-scan:interpreter');
 
 export interface InterpretFileParams {
-  readonly ballotImagePath: string
-  readonly ballotImageFile: Buffer
-  readonly detectQrcodeResult: qrcodeWorker.Output
+  readonly ballotImagePath: string;
+  readonly ballotImageFile: Buffer;
+  readonly detectQrcodeResult: qrcodeWorker.Output;
 }
 
 export interface InterpretFileResult {
-  interpretation: PageInterpretation
-  normalizedImage?: ImageData
+  interpretation: PageInterpretation;
+  normalizedImage?: ImageData;
 }
 
 interface BallotImageData {
-  file: Buffer
-  image: ImageData
-  qrcode: BallotPageQrcode
+  file: Buffer;
+  image: ImageData;
+  qrcode: BallotPageQrcode;
 }
 
 export async function getBallotImageData(
@@ -64,18 +64,18 @@ export async function getBallotImageData(
   filename: string,
   detectQrcodeResult: qrcodeWorker.Output
 ): Promise<Result<BallotImageData, PageInterpretation>> {
-  const { data, width, height } = await loadImageData(file)
-  const image = { data: Uint8ClampedArray.from(data), width, height }
+  const { data, width, height } = await loadImageData(file);
+  const image = { data: Uint8ClampedArray.from(data), width, height };
 
   if (!detectQrcodeResult.blank && detectQrcodeResult.qrcode) {
-    return ok({ file, image, qrcode: detectQrcodeResult.qrcode })
+    return ok({ file, image, qrcode: detectQrcodeResult.qrcode });
   }
 
-  debug('no QR code found in %s', filename)
+  debug('no QR code found in %s', filename);
   return err({
     type: 'UnreadablePage',
     reason: 'No QR code found',
-  })
+  });
 }
 
 /**
@@ -89,7 +89,7 @@ export function sheetRequiresAdjudication([
     front.type === 'InterpretedBmdPage' ||
     back.type === 'InterpretedBmdPage'
   ) {
-    return false
+    return false;
   }
 
   const [
@@ -107,11 +107,11 @@ export function sheetRequiresAdjudication([
         !pi.adjudicationInfo.enabledReasonInfos.some(
           (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
         ))
-  )
+  );
 
   // non-blank adjudication reasons are "dominant" traits: one page triggers adjudication
   if (frontRequiresAdjudicationNonBlank || backRequiresAdjudicationNonBlank) {
-    return true
+    return true;
   }
 
   // Always require adjudication of pairs with HMPB & something else.
@@ -121,7 +121,7 @@ export function sheetRequiresAdjudication([
     (back.type === 'InterpretedHmpbPage' &&
       front.type !== 'InterpretedHmpbPage')
   ) {
-    return true
+    return true;
   }
 
   const [frontIsBlankHmpbPage, backIsBlankHmpbPage] = [front, back].map(
@@ -133,33 +133,33 @@ export function sheetRequiresAdjudication([
             pi.adjudicationInfo.enabledReasonInfos.some(
               (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
             ))))
-  )
+  );
 
   // blank-page adjudication is a "recessive" trait: both pages need to be blank to trigger
   if (frontIsBlankHmpbPage && backIsBlankHmpbPage) {
-    return true
+    return true;
   }
 
-  return false
+  return false;
 }
 
 export interface InterpreterOptions {
   // TODO: consolidate these into an election definition
-  election: Election
-  electionHash?: string
+  election: Election;
+  electionHash?: string;
   // END TODO
-  testMode: boolean
-  markThresholdOverrides?: MarkThresholds
-  adjudicationReasons: readonly AdjudicationReason[]
+  testMode: boolean;
+  markThresholdOverrides?: MarkThresholds;
+  adjudicationReasons: readonly AdjudicationReason[];
 }
 
 export default class Interpreter {
-  private hmpbInterpreter?: HMPBInterpreter
-  private election: Election
-  private electionHash?: string
-  private testMode: boolean
-  private markThresholds: MarkThresholds
-  private adjudicationReasons: readonly AdjudicationReason[]
+  private hmpbInterpreter?: HMPBInterpreter;
+  private election: Election;
+  private electionHash?: string;
+  private testMode: boolean;
+  private markThresholds: MarkThresholds;
+  private adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
     election,
@@ -168,39 +168,39 @@ export default class Interpreter {
     markThresholdOverrides,
     adjudicationReasons,
   }: InterpreterOptions) {
-    this.election = election
-    this.electionHash = electionHash
-    this.testMode = testMode
+    this.election = election;
+    this.electionHash = electionHash;
+    this.testMode = testMode;
 
-    const markThresholds = markThresholdOverrides ?? election.markThresholds
+    const markThresholds = markThresholdOverrides ?? election.markThresholds;
 
     if (!markThresholds) {
-      throw new Error('missing mark thresholds')
+      throw new Error('missing mark thresholds');
     }
 
-    this.markThresholds = markThresholds
-    this.adjudicationReasons = adjudicationReasons
+    this.markThresholds = markThresholds;
+    this.adjudicationReasons = adjudicationReasons;
   }
 
   async addHmpbTemplate(
     imageData: ImageData,
     metadata?: BallotPageMetadata
-  ): Promise<BallotPageLayout>
-  async addHmpbTemplate(layout: BallotPageLayout): Promise<BallotPageLayout>
+  ): Promise<BallotPageLayout>;
+  async addHmpbTemplate(layout: BallotPageLayout): Promise<BallotPageLayout>;
   async addHmpbTemplate(
     imageDataOrLayout: ImageData | BallotPageLayout,
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayout> {
-    const interpreter = this.getHmpbInterpreter()
-    let layout: BallotPageLayout
+    const interpreter = this.getHmpbInterpreter();
+    let layout: BallotPageLayout;
 
     if ('data' in imageDataOrLayout) {
-      layout = await interpreter.interpretTemplate(imageDataOrLayout, metadata)
+      layout = await interpreter.interpretTemplate(imageDataOrLayout, metadata);
     } else {
-      layout = imageDataOrLayout
+      layout = imageDataOrLayout;
     }
 
-    const resolvedMetadata = layout.ballotImage.metadata
+    const resolvedMetadata = layout.ballotImage.metadata;
 
     debug(
       'Adding HMPB template page %d: ballotStyleId=%s precinctId=%s isTestMode=%s',
@@ -208,24 +208,24 @@ export default class Interpreter {
       resolvedMetadata.ballotStyleId,
       resolvedMetadata.precinctId,
       resolvedMetadata.isTestMode
-    )
+    );
 
     if (resolvedMetadata.isTestMode === this.testMode) {
       debug(
         'template test mode (%s) matches current test mode (%s), adding to underlying interpreter',
         resolvedMetadata.isTestMode,
         this.testMode
-      )
-      await interpreter.addTemplate(layout)
+      );
+      await interpreter.addTemplate(layout);
     } else {
       debug(
         'template test mode (%s) does not match current test mode (%s), skipping',
         resolvedMetadata.isTestMode,
         this.testMode
-      )
+      );
     }
 
-    return layout
+    return layout;
   }
 
   async interpretFile({
@@ -233,32 +233,32 @@ export default class Interpreter {
     ballotImageFile,
     detectQrcodeResult,
   }: InterpretFileParams): Promise<InterpretFileResult> {
-    const timer = time(`interpretFile: ${ballotImagePath}`)
+    const timer = time(`interpretFile: ${ballotImagePath}`);
     const result = await getBallotImageData(
       ballotImageFile,
       ballotImagePath,
       detectQrcodeResult
-    )
+    );
 
     if (result.isErr()) {
-      timer.end()
-      return { interpretation: result.err() }
+      timer.end();
+      return { interpretation: result.err() };
     }
 
-    const ballotImageData = result.ok()
+    const ballotImageData = result.ok();
     if (typeof this.electionHash === 'string') {
       const actualElectionHash =
-        decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found'
+        decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found';
       const expectedElectionHash = this.electionHash.slice(
         0,
         ELECTION_HASH_LENGTH
-      )
+      );
 
       debug(
         'comparing election hash (%s) to expected value (%s)',
         actualElectionHash,
         expectedElectionHash
-      )
+      );
       if (actualElectionHash !== expectedElectionHash) {
         return {
           interpretation: {
@@ -266,80 +266,80 @@ export default class Interpreter {
             expectedElectionHash,
             actualElectionHash,
           },
-        }
+        };
       }
     }
 
-    const bmdResult = await this.interpretBMDFile(ballotImageData)
+    const bmdResult = await this.interpretBMDFile(ballotImageData);
 
     if (bmdResult) {
       const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
-        .metadata
+        .metadata;
       if (bmdMetadata.isTestMode === this.testMode) {
-        timer.end()
-        return bmdResult
+        timer.end();
+        return bmdResult;
       }
 
-      timer.end()
+      timer.end();
       return {
         interpretation: {
           type: 'InvalidTestModePage',
           metadata: bmdMetadata,
         },
-      }
+      };
     }
 
     try {
-      const hmpbResult = await this.interpretHMPBFile(ballotImageData)
+      const hmpbResult = await this.interpretHMPBFile(ballotImageData);
 
       if (hmpbResult) {
-        timer.end()
-        return hmpbResult
+        timer.end();
+        return hmpbResult;
       }
     } catch (error) {
-      debug('interpretHMPBFile failed: %s', error.message)
+      debug('interpretHMPBFile failed: %s', error.message);
     }
 
     try {
       debug(
         'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
         new TextDecoder().decode(ballotImageData.qrcode.data)
-      )
+      );
       const metadata = metadataFromBytes(
         this.election,
         Buffer.from(ballotImageData.qrcode.data)
-      )
+      );
 
       if (metadata.isTestMode !== this.testMode) {
         debug(
           'cannot process a HMPB with isTestMode=%s when testMode=%s',
           metadata.isTestMode,
           this.testMode
-        )
-        timer.end()
+        );
+        timer.end();
         return {
           interpretation: {
             type: 'InvalidTestModePage',
             metadata,
           },
-        }
+        };
       }
 
-      timer.end()
+      timer.end();
       return {
         interpretation: {
           type: 'UninterpretedHmpbPage',
           metadata,
         },
-      }
+      };
     } catch (error) {
-      timer.end()
+      timer.end();
       return {
         interpretation: {
           type: 'UnreadablePage',
           reason: error.message,
         },
-      }
+      };
     }
   }
 
@@ -347,12 +347,12 @@ export default class Interpreter {
     qrcode,
   }: BallotImageData): Promise<InterpretFileResult | undefined> {
     if (!detect(qrcode.data)) {
-      return
+      return;
     }
 
-    debug('decoding BMD ballot: %o', qrcode)
-    const ballot = decodeBallot(this.election, qrcode.data)
-    debug('decoded BMD ballot: %o', ballot.votes)
+    debug('decoding BMD ballot: %o', qrcode);
+    const ballot = decodeBallot(this.election, qrcode.data);
+    debug('decoded BMD ballot: %o', ballot.votes);
 
     return {
       interpretation: {
@@ -368,14 +368,14 @@ export default class Interpreter {
         },
         votes: ballot.votes,
       },
-    }
+    };
   }
 
   private async interpretHMPBFile({
     image,
     qrcode,
   }: BallotImageData): Promise<InterpretFileResult | undefined> {
-    const hmpbInterpreter = this.getHmpbInterpreter()
+    const hmpbInterpreter = this.getHmpbInterpreter();
     const {
       ballot,
       marks,
@@ -385,10 +385,10 @@ export default class Interpreter {
       image,
       metadataFromBytes(this.election, Buffer.from(qrcode.data)),
       { flipped: qrcode.position === 'top' }
-    )
-    const { votes } = ballot
+    );
+    const { votes } = ballot;
 
-    const enabledReasons = this.adjudicationReasons
+    const enabledReasons = this.adjudicationReasons;
 
     const allReasonInfos: readonly AdjudicationReasonInfo[] = [
       ...ballotAdjudicationReasons(
@@ -410,28 +410,28 @@ export default class Interpreter {
             }),
         }
       ),
-    ]
+    ];
 
-    const enabledReasonInfos: AdjudicationReasonInfo[] = []
-    const ignoredReasonInfos: AdjudicationReasonInfo[] = []
+    const enabledReasonInfos: AdjudicationReasonInfo[] = [];
+    const ignoredReasonInfos: AdjudicationReasonInfo[] = [];
 
     for (const reason of allReasonInfos) {
       if (enabledReasons.includes(reason.type)) {
         debug(
           'Adjudication required for reason: %s',
           adjudicationReasonDescription(reason)
-        )
-        enabledReasonInfos.push(reason)
+        );
+        enabledReasonInfos.push(reason);
       } else {
         debug(
           'Adjudication reason ignored by configuration: %s',
           adjudicationReasonDescription(reason)
-        )
-        ignoredReasonInfos.push(reason)
+        );
+        ignoredReasonInfos.push(reason);
       }
     }
 
-    const requiresAdjudication = enabledReasonInfos.length > 0
+    const requiresAdjudication = enabledReasonInfos.length > 0;
 
     return {
       interpretation: {
@@ -453,7 +453,7 @@ export default class Interpreter {
         },
       },
       normalizedImage: mappedBallot,
-    }
+    };
   }
 
   private getHmpbInterpreter(): HMPBInterpreter {
@@ -461,7 +461,7 @@ export default class Interpreter {
       if (typeof this.testMode === 'undefined') {
         throw new Error(
           'testMode has not been configured; please set it to true or false before interpreting ballots'
-        )
+        );
       }
 
       this.hmpbInterpreter = new HMPBInterpreter({
@@ -470,17 +470,17 @@ export default class Interpreter {
         detectQRCode: async (
           imageData
         ): Promise<DetectQRCodeResult | undefined> => {
-          const result = await detectQRCode(imageData)
+          const result = await detectQRCode(imageData);
 
           if (result) {
             return {
               data: result.data,
               rightSideUp: result.position === 'bottom',
-            }
+            };
           }
         },
-      })
+      });
     }
-    return this.hmpbInterpreter
+    return this.hmpbInterpreter;
   }
 }

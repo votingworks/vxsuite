@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 const HorizontalRule = styled.p`
   display: flex;
@@ -16,6 +16,6 @@ const HorizontalRule = styled.p`
   &::after {
     margin-left: ${({ children }) => (children ? '0.5rem' : undefined)};
   }
-`
+`;
 
-export default HorizontalRule
+export default HorizontalRule;

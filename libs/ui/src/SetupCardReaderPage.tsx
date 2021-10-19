@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react'
-import { fontSizeTheme, Main, MainChild, Prose, Screen } from '.'
+import React, { useEffect } from 'react';
+import { fontSizeTheme, Main, MainChild, Prose, Screen } from '.';
 
 const doNothing = () => {
   // do nothing
-}
+};
 
 interface Props {
-  useEffectToggleLargeDisplay?: () => void
+  useEffectToggleLargeDisplay?: () => void;
 }
 
 export const SetupCardReaderPage = ({
   useEffectToggleLargeDisplay = doNothing,
 }: Props): JSX.Element => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, [])
+  useEffect(useEffectToggleLargeDisplay, []);
 
   return (
     <Screen white>
@@ -26,5 +26,5 @@ export const SetupCardReaderPage = ({
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};

@@ -4,22 +4,22 @@ import {
   ParserServices,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils'
-import * as ts from 'typescript'
-import { createRule } from '../util'
+} from '@typescript-eslint/experimental-utils';
+import * as ts from 'typescript';
+import { createRule } from '../util';
 
 interface Options {
-  ignoreVoid?: boolean
+  ignoreVoid?: boolean;
 }
 
 function isResultType(checker: ts.TypeChecker, node: ts.Node): boolean {
   // TODO: consider the actual declaration location?
-  const type = checker.getTypeAtLocation(node)
+  const type = checker.getTypeAtLocation(node);
   // FIXME: I'm unsure why I need both of these.
   return (
     type.getSymbol()?.getName() === 'Result' ||
     type.aliasSymbol?.getName() === 'Result'
-  )
+  );
 }
 
 function isUnhandledResult(
@@ -34,11 +34,11 @@ function isUnhandledResult(
     // value is a Result.
     return node.expressions.some((item) =>
       isUnhandledResult(checker, parserServices, options, item)
-    )
+    );
   }
 
   if (node.type === AST_NODE_TYPES.AssignmentExpression) {
-    return false
+    return false;
   }
 
   if (
@@ -48,11 +48,11 @@ function isUnhandledResult(
   ) {
     // Similarly, a `void` expression always returns undefined, so we need to
     // see what's inside it without checking the type of the overall expression.
-    return isUnhandledResult(checker, parserServices, options, node.argument)
+    return isUnhandledResult(checker, parserServices, options, node.argument);
   }
 
   // Check the type. At this point it can't be unhandled if it isn't a Result
-  return isResultType(checker, parserServices.esTreeNodeToTSNodeMap.get(node))
+  return isResultType(checker, parserServices.esTreeNodeToTSNodeMap.get(node));
 }
 
 export default createRule({
@@ -90,9 +90,9 @@ export default createRule({
   ],
 
   create(context, [options]) {
-    const parserServices = ESLintUtils.getParserServices(context)
-    const checker = parserServices.program.getTypeChecker()
-    const sourceCode = context.getSourceCode()
+    const parserServices = ESLintUtils.getParserServices(context);
+    const checker = parserServices.program.getTypeChecker();
+    const sourceCode = context.getSourceCode();
 
     return {
       ExpressionStatement(node: TSESTree.ExpressionStatement): void {
@@ -107,21 +107,21 @@ export default createRule({
                 {
                   messageId: 'floatingFixVoid',
                   fix(fixer): TSESLint.RuleFix {
-                    let code = sourceCode.getText(node)
-                    code = `void ${code}`
-                    return fixer.replaceText(node, code)
+                    let code = sourceCode.getText(node);
+                    code = `void ${code}`;
+                    return fixer.replaceText(node, code);
                   },
                 },
               ],
-            })
+            });
           } else {
             context.report({
               node,
               messageId: 'floating',
-            })
+            });
           }
         }
       },
-    }
+    };
   },
-})
+});

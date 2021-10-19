@@ -1,7 +1,7 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  color?: string
+  color?: string;
 }
 
 export const HorizontalRule = styled.p<Props>`
@@ -21,4 +21,4 @@ export const HorizontalRule = styled.p<Props>`
   &::after {
     margin-left: 0.5rem;
   }
-`
+`;

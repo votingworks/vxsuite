@@ -5,22 +5,22 @@ import {
   CandidateContest,
   ElectionDefinition,
   InterpretedHmpbPage,
-} from '@votingworks/types'
-import { find } from '@votingworks/utils'
+} from '@votingworks/types';
+import { find } from '@votingworks/utils';
 
 export function interpretedHmpb({
   electionDefinition,
   pageNumber,
   adjudicationReason,
 }: {
-  electionDefinition: ElectionDefinition
-  pageNumber: number
-  adjudicationReason?: AdjudicationReason
+  electionDefinition: ElectionDefinition;
+  pageNumber: number;
+  adjudicationReason?: AdjudicationReason;
 }): InterpretedHmpbPage {
   const contest = find(
     electionDefinition.election.contests,
     (c): c is CandidateContest => c.type === 'candidate'
-  )
+  );
   const enabledReasonInfos: AdjudicationInfo['enabledReasonInfos'] =
     adjudicationReason === AdjudicationReason.Overvote
       ? [
@@ -34,7 +34,7 @@ export function interpretedHmpb({
         ]
       : adjudicationReason === AdjudicationReason.BlankBallot
       ? [{ type: adjudicationReason }]
-      : []
+      : [];
   return {
     type: 'InterpretedHmpbPage',
     adjudicationInfo: {
@@ -59,5 +59,5 @@ export function interpretedHmpb({
       pageNumber,
     },
     votes: {},
-  }
+  };
 }

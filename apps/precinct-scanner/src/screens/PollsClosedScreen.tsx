@@ -1,11 +1,11 @@
-import React from 'react'
-import { TestMode, Text } from '@votingworks/ui'
-import { DoNotEnter } from '../components/Graphics'
-import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import React from 'react';
+import { TestMode, Text } from '@votingworks/ui';
+import { DoNotEnter } from '../components/Graphics';
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
 
 interface Props {
-  isLiveMode: boolean
-  showNoChargerWarning: boolean
+  isLiveMode: boolean;
+  showNoChargerWarning: boolean;
 }
 
 const PollsClosedScreen = ({
@@ -27,27 +27,27 @@ const PollsClosedScreen = ({
         <p>Insert a Poll Worker Card to Open Polls.</p>
       </CenteredLargeProse>
     </CenteredScreen>
-  )
-}
+  );
+};
 
-export default PollsClosedScreen
+export default PollsClosedScreen;
 
 /* istanbul ignore next */
 export const DefaultPreview = (): JSX.Element => {
-  return <PollsClosedScreen isLiveMode showNoChargerWarning={false} />
-}
+  return <PollsClosedScreen isLiveMode showNoChargerWarning={false} />;
+};
 
 /* istanbul ignore next */
 export const DefaultTestModePreview = (): JSX.Element => {
-  return <PollsClosedScreen isLiveMode={false} showNoChargerWarning={false} />
-}
+  return <PollsClosedScreen isLiveMode={false} showNoChargerWarning={false} />;
+};
 
 /* istanbul ignore next */
 export const NoPowerConnectedLivePreview = (): JSX.Element => {
-  return <PollsClosedScreen isLiveMode showNoChargerWarning />
-}
+  return <PollsClosedScreen isLiveMode showNoChargerWarning />;
+};
 
 /* istanbul ignore next */
 export const NoPowerConnectedTestModePreview = (): JSX.Element => {
-  return <PollsClosedScreen isLiveMode={false} showNoChargerWarning />
-}
+  return <PollsClosedScreen isLiveMode={false} showNoChargerWarning />;
+};

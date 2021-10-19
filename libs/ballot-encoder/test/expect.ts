@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace jest {
   interface Matchers<R> {
-    toEqualBits(buffer: Uint8Array): R
+    toEqualBits(buffer: Uint8Array): R;
   }
 }
 
@@ -9,13 +9,13 @@ declare namespace jest {
  * Groups `array` into arrays of size `count`.
  */
 function inGroupsOf<T>(count: number, array: T[]): T[][] {
-  const result: T[][] = []
+  const result: T[][] = [];
 
   for (let i = 0; i < array.length; i += count) {
-    result.push(array.slice(i, i + count))
+    result.push(array.slice(i, i + count));
   }
 
-  return result
+  return result;
 }
 
 function asBinaryString(buffer: Uint8Array): string {
@@ -24,7 +24,7 @@ function asBinaryString(buffer: Uint8Array): string {
     Array.from(buffer).map((n) => n.toString(2).padStart(8, '0'))
   )
     .map((group) => group.join(' '))
-    .join('\n')
+    .join('\n');
 }
 
 expect.extend({
@@ -37,6 +37,6 @@ expect.extend({
       message: (): string =>
         this.utils.diff(asBinaryString(received), asBinaryString(expected)) ||
         '',
-    }
+    };
   },
-})
+});

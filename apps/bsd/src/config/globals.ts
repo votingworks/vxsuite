@@ -1,4 +1,4 @@
-export const DEFAULT_LOCALE = 'en-US'
+export const DEFAULT_LOCALE = 'en-US';
 export default {
   CHECK_ICON: '✓',
   FONT_SIZES: [18, 24, 28, 32],
@@ -8,4 +8,4 @@ export default {
     no: 'No',
     yes: 'Yes',
   },
-}
+};

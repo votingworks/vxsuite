@@ -1,11 +1,11 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  dark?: boolean
-  naturalOrder?: boolean
-  secondary?: boolean
-  separatePrimaryButton?: boolean
-  centerOnlyChild?: boolean
+  dark?: boolean;
+  naturalOrder?: boolean;
+  secondary?: boolean;
+  separatePrimaryButton?: boolean;
+  centerOnlyChild?: boolean;
 }
 
 const ButtonBar = styled('nav')<Props>`
@@ -49,6 +49,6 @@ const ButtonBar = styled('nav')<Props>`
   @media print {
     display: none;
   }
-`
+`;
 
-export default ButtonBar
+export default ButtonBar;

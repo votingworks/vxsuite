@@ -1,6 +1,9 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { strict as assert } from 'assert'
-import { createRule } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { strict as assert } from 'assert';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-no-import-export-type',
@@ -38,31 +41,31 @@ export default createRule({
   ],
 
   create(context, [{ allowReexport }]) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.getSourceCode();
 
     function isReexportOnly(name: string): boolean {
-      const scope = context.getScope()
-      const variable = scope.set.get(name)
+      const scope = context.getScope();
+      const variable = scope.set.get(name);
 
       if (!variable) {
-        return false
+        return false;
       }
 
       if (variable.defs.length !== 1) {
-        return false
+        return false;
       }
 
-      const [def] = variable.defs
+      const [def] = variable.defs;
 
       if (def.node.parent?.type !== AST_NODE_TYPES.ImportDeclaration) {
-        return false
+        return false;
       }
 
       if (variable.references.length !== 1) {
-        return false
+        return false;
       }
 
-      const [reference] = variable.references
+      const [reference] = variable.references;
 
       if (
         reference.identifier.parent?.type !==
@@ -70,10 +73,10 @@ export default createRule({
         reference.identifier.parent?.parent?.type !==
           AST_NODE_TYPES.ExportNamedDeclaration
       ) {
-        return false
+        return false;
       }
 
-      return true
+      return true;
     }
 
     function reportExport(
@@ -84,29 +87,29 @@ export default createRule({
     ): void {
       const [exportToken, typeToken] = sourceCode.getFirstTokens(node, {
         count: 2,
-      })
-      assert.equal(exportToken.value, 'export')
-      assert.equal(typeToken.value, 'type')
+      });
+      assert.equal(exportToken.value, 'export');
+      assert.equal(typeToken.value, 'type');
 
       context.report({
         node: typeToken,
         messageId: 'noExportType',
         fix: (fixer) =>
           fixer.removeRange([exportToken.range[1], typeToken.range[1]]),
-      })
+      });
     }
 
     return {
       ImportDeclaration(node: TSESTree.ImportDeclaration) {
         if (node.importKind !== 'type') {
-          return
+          return;
         }
 
         const [importToken, typeToken] = sourceCode.getFirstTokens(node, {
           count: 2,
-        })
-        assert.equal(importToken.value, 'import')
-        assert.equal(typeToken.value, 'type')
+        });
+        assert.equal(importToken.value, 'import');
+        assert.equal(typeToken.value, 'type');
 
         // import type { foo } from 'foo'
         // export type { foo }
@@ -116,7 +119,7 @@ export default createRule({
             isReexportOnly(specifier.local.name)
           )
         ) {
-          return
+          return;
         }
 
         context.report({
@@ -124,19 +127,19 @@ export default createRule({
           messageId: 'noImportType',
           fix: (fixer) =>
             fixer.removeRange([importToken.range[1], typeToken.range[1]]),
-        })
+        });
       },
 
       ExportNamedDeclaration(node: TSESTree.ExportNamedDeclaration) {
         // export const foo = 1
         // export type foo = string
         if (node.exportKind !== 'type' || node.declaration) {
-          return
+          return;
         }
 
         // export type { foo } from 'foo'
         if (allowReexport && node.source) {
-          return
+          return;
         }
 
         // import type { foo } from 'foo'
@@ -147,19 +150,19 @@ export default createRule({
             isReexportOnly(specifier.local.name)
           )
         ) {
-          return
+          return;
         }
 
-        reportExport(node)
+        reportExport(node);
       },
 
       ExportAllDeclaration(node: TSESTree.ExportAllDeclaration) {
         if (node.exportKind !== 'type' || allowReexport) {
-          return
+          return;
         }
 
-        reportExport(node)
+        reportExport(node);
       },
-    }
+    };
   },
-})
+});

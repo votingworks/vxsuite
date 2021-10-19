@@ -1,12 +1,12 @@
-import { electionWithMsEitherNeither } from '@votingworks/fixtures'
+import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 import {
   generateCVR,
   generateFileContentFromCVRs,
-} from '@votingworks/test-utils'
+} from '@votingworks/test-utils';
 import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
-} from '../support/assertions'
+} from '../support/assertions';
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for yes no and either neither contests compute end to end as expected', () => {
@@ -107,23 +107,23 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: '6538', ballotStyleId: '4' }
       ),
-    ])
-    cy.visit('/')
-    cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json')
-    cy.contains('Election loading')
-    cy.contains('Election Hash: abdfbe6a58')
-    cy.contains('Tally').click()
-    cy.contains('Import CVR Files').click()
+    ]);
+    cy.visit('/');
+    cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json');
+    cy.contains('Election loading');
+    cy.contains('Election Hash: abdfbe6a58');
+    cy.contains('Tally').click();
+    cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({
       fileContent: new Blob([fakeCVRFileContents]),
       fileName: 'cvrFile.jsonl',
       mimeType: 'text/plain',
       encoding: 'utf-8',
-    })
-    cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('8'))
+    });
+    cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('8'));
 
     // Check that the internal tally reports have the correct tallies
-    cy.contains('View Unofficial Full Election Tally Report').click()
+    cy.contains('View Unofficial Full Election Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -160,9 +160,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { absentee: 4, precinct: 4 }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial District 5 Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial District 5 Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -199,9 +199,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { absentee: 2, precinct: 2 }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial Bywy Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial Bywy Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -238,9 +238,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { absentee: 2, precinct: 2 }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial Panhandle Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial Panhandle Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -277,9 +277,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { absentee: 0, precinct: 0 }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial Absentee Ballot Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial Absentee Ballot Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -316,9 +316,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { hide: true }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial Precinct Ballot Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial Precinct Ballot Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -355,9 +355,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { hide: true }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial Scanner scanner-1 Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial Scanner scanner-1 Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -394,9 +394,9 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { absentee: 1, precinct: 3 }
-    )
-    cy.contains('Back to Tally Index').click()
-    cy.contains('View Unofficial Scanner scanner-2 Tally Report').click()
+    );
+    cy.contains('Back to Tally Index').click();
+    cy.contains('View Unofficial Scanner scanner-2 Tally Report').click();
     assertExpectedResultsMatchTallyReport(
       [
         {
@@ -433,13 +433,13 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       ],
       { absentee: 3, precinct: 1 }
-    )
-    cy.contains('Back to Tally Index').click()
+    );
+    cy.contains('Back to Tally Index').click();
 
     // Check that the exported SEMS result file as the correct tallies
-    cy.contains('Save Results File').click()
-    cy.get('[data-testid="manual-export"]').click()
-    cy.contains('Results Saved')
+    cy.contains('Save Results File').click();
+    cy.get('[data-testid="manual-export"]').click();
+    cy.contains('Results Saved');
     cy.task<string>('readMostRecentFile', 'cypress/downloads').then(
       (fileContent) => {
         assertExpectedResultsMatchSEMsFile(
@@ -722,8 +722,8 @@ describe('Election Manager can create SEMS tallies', () => {
             },
           ],
           fileContent
-        )
+        );
       }
-    )
-  })
-})
+    );
+  });
+});

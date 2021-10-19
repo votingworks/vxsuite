@@ -1,16 +1,16 @@
-import React, { useState } from 'react'
-import styled, { css, StyledComponent } from 'styled-components'
-import { EventTargetFunction } from '../config/types'
+import React, { useState } from 'react';
+import styled, { css, StyledComponent } from 'styled-components';
+import { EventTargetFunction } from '../config/types';
 
 export interface ButtonInterface {
-  readonly big?: boolean
-  readonly danger?: boolean
-  readonly fullWidth?: boolean
-  readonly noWrap?: boolean
-  readonly primary?: boolean
-  readonly small?: boolean
-  readonly textAlign?: 'left' | 'center' | 'right'
-  readonly warning?: boolean
+  readonly big?: boolean;
+  readonly danger?: boolean;
+  readonly fullWidth?: boolean;
+  readonly noWrap?: boolean;
+  readonly primary?: boolean;
+  readonly small?: boolean;
+  readonly textAlign?: 'left' | 'center' | 'right';
+  readonly warning?: boolean;
 }
 
 interface StyledButtonProps
@@ -19,7 +19,7 @@ interface StyledButtonProps
 
 export const buttonFocusStyle = css`
   outline: none;
-`
+`;
 const buttonStyles = css<StyledButtonProps>`
   display: inline-block;
   border: none;
@@ -48,44 +48,44 @@ const buttonStyles = css<StyledButtonProps>`
   &:active {
     outline: none;
   }
-`
+`;
 
 export const DecoyButton = styled.div`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
-`
+`;
 
 const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
   type,
 }))`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
-`
+`;
 
 export interface Props extends StyledButtonProps {
-  component?: StyledComponent<'button', never, StyledButtonProps, never>
-  onPress: EventTargetFunction
-  ref?: React.Ref<HTMLButtonElement>
+  component?: StyledComponent<'button', never, StyledButtonProps, never>;
+  onPress: EventTargetFunction;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, Props>(
   ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
-    const [startCoordinates, setStartCoordinates] = useState([0, 0])
+    const [startCoordinates, setStartCoordinates] = useState([0, 0]);
 
     const onTouchStart = (event: React.TouchEvent) => {
-      const { clientX, clientY } = event.touches[0]
-      setStartCoordinates([clientX, clientY])
-    }
+      const { clientX, clientY } = event.touches[0];
+      setStartCoordinates([clientX, clientY]);
+    };
 
     const onTouchEnd = (event: React.TouchEvent) => {
-      const maxMove = 30
-      const { clientX, clientY } = event.changedTouches[0]
+      const maxMove = 30;
+      const { clientX, clientY } = event.changedTouches[0];
       if (
         Math.abs(startCoordinates[0] - clientX) < maxMove &&
         Math.abs(startCoordinates[1] - clientY) < maxMove
       ) {
-        onPress(event)
-        event.preventDefault()
+        onPress(event);
+        event.preventDefault();
       }
-    }
+    };
 
     return (
       <Component
@@ -95,11 +95,11 @@ const Button = React.forwardRef<HTMLButtonElement, Props>(
         onClick={onPress}
         ref={ref}
       />
-    )
+    );
   }
-)
+);
 
-Button.displayName = 'Button'
+Button.displayName = 'Button';
 
 export const SegmentedButton = styled.span`
   display: inline-flex;
@@ -122,10 +122,10 @@ export const SegmentedButton = styled.span`
     background: #028099;
     color: #ffffff;
   }
-`
+`;
 
 export const LabelButton = styled.label`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
-`
+`;
 
-export default Button
+export default Button;

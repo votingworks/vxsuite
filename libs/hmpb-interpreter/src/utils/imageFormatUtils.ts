@@ -1,11 +1,11 @@
-import { strict as assert } from 'assert'
-import { Size } from '@votingworks/types'
+import { strict as assert } from 'assert';
+import { Size } from '@votingworks/types';
 
 export type InPlaceImageTransform<A extends unknown[], R> = (
   srcImageData: ImageData,
   dstImageData?: ImageData,
   ...args: A
-) => R
+) => R;
 
 export function makeInPlaceImageTransform<A extends unknown[], R>(
   gray: InPlaceImageTransform<A, R>,
@@ -13,25 +13,25 @@ export function makeInPlaceImageTransform<A extends unknown[], R>(
 ): InPlaceImageTransform<A, R> {
   return (srcImageData: ImageData, dstImageData?: ImageData, ...args: A): R => {
     const channels =
-      srcImageData.data.length / (srcImageData.width * srcImageData.height)
+      srcImageData.data.length / (srcImageData.width * srcImageData.height);
 
     switch (channels) {
       case 1:
-        return gray(srcImageData, dstImageData, ...args)
+        return gray(srcImageData, dstImageData, ...args);
 
       case 4:
-        return rgba(srcImageData, dstImageData, ...args)
+        return rgba(srcImageData, dstImageData, ...args);
 
       default:
-        throw new Error(`unexpected ${channels}-channel image`)
+        throw new Error(`unexpected ${channels}-channel image`);
     }
-  }
+  };
 }
 
 export type ImageTransform<A extends unknown[], R> = (
   imageData: ImageData,
   ...args: A
-) => R
+) => R;
 
 export function makeImageTransform<A extends unknown[], R>(
   gray: ImageTransform<A, R>,
@@ -39,31 +39,31 @@ export function makeImageTransform<A extends unknown[], R>(
 ): ImageTransform<A, R> {
   return (imageData: ImageData, ...args: A): R => {
     const channels =
-      imageData.data.length / (imageData.width * imageData.height)
+      imageData.data.length / (imageData.width * imageData.height);
 
     switch (channels) {
       case 1:
-        return gray(imageData, ...args)
+        return gray(imageData, ...args);
 
       case 4:
-        return rgba(imageData, ...args)
+        return rgba(imageData, ...args);
 
       default:
-        throw new Error(`unexpected ${channels}-channel image`)
+        throw new Error(`unexpected ${channels}-channel image`);
     }
-  }
+  };
 }
 
 export function getImageChannelCount(imageData: ImageData): number {
-  return imageData.data.length / (imageData.width * imageData.height)
+  return imageData.data.length / (imageData.width * imageData.height);
 }
 
 export function isGrayscale(imageData: ImageData): boolean {
-  return getImageChannelCount(imageData) === 1
+  return getImageChannelCount(imageData) === 1;
 }
 
 export function isRGBA(imageData: ImageData): boolean {
-  return getImageChannelCount(imageData) === 4
+  return getImageChannelCount(imageData) === 4;
 }
 
 export function assertRGBAImage(imageData: ImageData): void {
@@ -71,7 +71,7 @@ export function assertRGBAImage(imageData: ImageData): void {
     imageData.data.length,
     imageData.width * imageData.height * 4,
     'expected 4-channel RGBA image'
-  )
+  );
 }
 
 export function assertGrayscaleImage(imageData: ImageData): void {
@@ -79,12 +79,12 @@ export function assertGrayscaleImage(imageData: ImageData): void {
     imageData.data.length,
     imageData.width * imageData.height,
     'expected 1-channel grayscale image'
-  )
+  );
 }
 
 export function assertRGBAOrGrayscaleImage(imageData: ImageData): void {
   if (!isRGBA(imageData) && !isGrayscale(imageData)) {
-    assert.fail('expected 1-channel grayscale or 4-channel RGBA image')
+    assert.fail('expected 1-channel grayscale or 4-channel RGBA image');
   }
 }
 
@@ -96,7 +96,7 @@ export function assertImageChannelsMatch(
     getImageChannelCount(imageData1),
     getImageChannelCount(imageData2),
     'expected images to have the same number of channels'
-  )
+  );
 }
 
 export function assertSizesMatch(size1: Size, size2: Size): void {
@@ -104,5 +104,5 @@ export function assertSizesMatch(size1: Size, size2: Size): void {
     { width: size1.width, height: size1.height },
     { width: size2.width, height: size2.height },
     'expected sizes to be equal'
-  )
+  );
 }

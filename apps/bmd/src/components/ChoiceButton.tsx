@@ -1,15 +1,15 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { Button, ButtonProps } from '@votingworks/ui'
+import { Button, ButtonProps } from '@votingworks/ui';
 
-import * as GLOBALS from '../config/globals'
+import * as GLOBALS from '../config/globals';
 
 interface Props
   extends ButtonProps,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
-  choice: string
-  isSelected: boolean
+  choice: string;
+  isSelected: boolean;
 }
 
 const StyledChoiceButton = styled('button').attrs((props) => ({
@@ -50,7 +50,7 @@ const StyledChoiceButton = styled('button').attrs((props) => ({
     font-weight: 700;
     content: '${({ isSelected }) => (isSelected ? GLOBALS.CHECK_ICON : '')}';
   }
-`
+`;
 
 const ChoiceButton = ({ choice, ...rest }: Props): JSX.Element => {
   return (
@@ -60,7 +60,7 @@ const ChoiceButton = ({ choice, ...rest }: Props): JSX.Element => {
       data-choice={choice}
       data-selected={rest.isSelected}
     />
-  )
-}
+  );
+};
 
-export default ChoiceButton
+export default ChoiceButton;

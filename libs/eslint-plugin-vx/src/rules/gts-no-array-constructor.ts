@@ -1,7 +1,10 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { RuleFix } from '@typescript-eslint/experimental-utils/dist/ts-eslint'
-import { strict as assert } from 'assert'
-import { createRule } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { RuleFix } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
+import { strict as assert } from 'assert';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-no-array-constructor',
@@ -24,7 +27,7 @@ export default createRule({
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.getSourceCode();
 
     function processNode(
       node: TSESTree.CallExpression | TSESTree.NewExpression
@@ -38,20 +41,20 @@ export default createRule({
           node,
           messageId: 'noArrayConstructor',
           fix: (fixer) => {
-            const result: RuleFix[] = []
+            const result: RuleFix[] = [];
 
             const leftParen = sourceCode.getTokenAfter(
               node.typeParameters ?? node.callee
-            )
-            assert.equal(leftParen?.value, '(')
+            );
+            assert.equal(leftParen?.value, '(');
 
-            const rightParen = sourceCode.getLastToken(node)
-            assert.equal(rightParen?.value, ')')
+            const rightParen = sourceCode.getLastToken(node);
+            assert.equal(rightParen?.value, ')');
 
             if (node.type === AST_NODE_TYPES.NewExpression) {
-              const newToken = sourceCode.getFirstToken(node)
-              assert.equal(newToken?.value, 'new')
-              const commentsAfterNew = sourceCode.getCommentsAfter(newToken)
+              const newToken = sourceCode.getFirstToken(node);
+              assert.equal(newToken?.value, 'new');
+              const commentsAfterNew = sourceCode.getCommentsAfter(newToken);
               result.push(
                 // `new Array()` → `Array()`
                 //  ^^^^
@@ -59,7 +62,7 @@ export default createRule({
                   newToken.range[0],
                   (commentsAfterNew[0] ?? node.callee).range[0],
                 ])
-              )
+              );
             }
 
             if (node.arguments.length !== 1) {
@@ -68,7 +71,7 @@ export default createRule({
                   // `Array<number>()` → `Array.of<number>()`
                   //                           ^^^
                   fixer.insertTextAfterRange(node.callee.range, '.of')
-                )
+                );
               } else {
                 result.push(
                   // `Array(a, b)` → `(a, b)`
@@ -80,7 +83,7 @@ export default createRule({
                   // `[a, b)` → `[a, b]`
                   //       ^          ^
                   fixer.replaceTextRange(rightParen.range, ']')
-                )
+                );
               }
             } else {
               result.push(
@@ -93,18 +96,18 @@ export default createRule({
                 // `Array.from({ length: 5)` → `Array.from({ length: 5 })`
                 //                                                    ^^
                 fixer.insertTextBeforeRange(rightParen.range, ' }')
-              )
+              );
             }
 
-            return result
+            return result;
           },
-        })
+        });
       }
     }
 
     return {
       CallExpression: processNode,
       NewExpression: processNode,
-    }
+    };
   },
-})
+});

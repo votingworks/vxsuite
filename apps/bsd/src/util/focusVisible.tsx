@@ -4,15 +4,15 @@
 const focusVisible = (): void => {
   // Let the document know when the mouse is being used
   document.body.addEventListener('mousedown', () => {
-    document.body.classList.remove('using-keyboard')
-  })
+    document.body.classList.remove('using-keyboard');
+  });
 
   // Re-enable focus styling when Tab is pressed
   document.body.addEventListener('keydown', (event) => {
     if (event.keyCode === 9) {
-      document.body.classList.add('using-keyboard')
+      document.body.classList.add('using-keyboard');
     }
-  })
-}
+  });
+};
 
-export default focusVisible
+export default focusVisible;

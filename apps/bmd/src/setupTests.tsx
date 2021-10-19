@@ -1,28 +1,28 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
-import 'jest-styled-components'
-import crypto from 'crypto'
-import fetchMock from 'fetch-mock'
-import { TextDecoder, TextEncoder } from 'util'
-import { mockOf } from '@votingworks/test-utils'
+import 'jest-styled-components';
+import crypto from 'crypto';
+import fetchMock from 'fetch-mock';
+import { TextDecoder, TextEncoder } from 'util';
+import { mockOf } from '@votingworks/test-utils';
 
 // globalThis.crypto is not defined in JSDOM
 Object.defineProperty(globalThis, 'crypto', {
   value: {
     getRandomValues(arr: Parameters<typeof crypto['randomFillSync']>[0]) {
-      return crypto.randomFillSync(arr)
+      return crypto.randomFillSync(arr);
     },
   },
-})
+});
 
 // react-gamepad calls this function which does not exist in JSDOM
-globalThis.navigator.getGamepads = jest.fn(() => [])
+globalThis.navigator.getGamepads = jest.fn(() => []);
 
 globalThis.print = jest.fn(() => {
-  throw new Error('globalThis.print() should never be called')
-})
+  throw new Error('globalThis.print() should never be called');
+});
 
-const printMock = mockOf(globalThis.print)
+const printMock = mockOf(globalThis.print);
 
 function makeSpeechSynthesisDouble(): typeof speechSynthesis {
   return {
@@ -40,26 +40,26 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
       utterance.onend?.(new SpeechSynthesisEvent('end', { utterance }))
     ),
     speaking: false,
-  }
+  };
 }
 
 function mockSpeechSynthesis() {
-  globalThis.speechSynthesis = makeSpeechSynthesisDouble()
+  globalThis.speechSynthesis = makeSpeechSynthesisDouble();
   globalThis.SpeechSynthesisUtterance = jest
     .fn()
-    .mockImplementation((text) => ({ text }))
-  globalThis.SpeechSynthesisEvent = jest.fn()
+    .mockImplementation((text) => ({ text }));
+  globalThis.SpeechSynthesisEvent = jest.fn();
 }
 
 beforeEach(() => {
-  mockSpeechSynthesis()
-  fetchMock.mock()
-})
+  mockSpeechSynthesis();
+  fetchMock.mock();
+});
 
 afterEach(() => {
-  fetchMock.restore()
-  printMock.mockClear()
-})
+  fetchMock.restore();
+  printMock.mockClear();
+});
 
-globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder
-globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder
+globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
+globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;

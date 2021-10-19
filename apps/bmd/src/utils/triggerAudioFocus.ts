@@ -1,8 +1,8 @@
 const triggerAudioFocus = (): void => {
-  const element = document.getElementById('audiofocus')
+  const element = document.getElementById('audiofocus');
   if (element) {
-    element.focus()
-    element.click()
+    element.focus();
+    element.click();
   }
-}
-export default triggerAudioFocus
+};
+export default triggerAudioFocus;

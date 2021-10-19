@@ -1,19 +1,19 @@
-import { Corners, Point, Rect } from '@votingworks/types'
-import { PIXEL_BLACK } from '../utils/binarize'
-import { angleBetweenPoints } from '../utils/geometry'
-import { getImageChannelCount } from '../utils/imageFormatUtils'
-import { VisitedPoints } from '../utils/VisitedPoints'
+import { Corners, Point, Rect } from '@votingworks/types';
+import { PIXEL_BLACK } from '../utils/binarize';
+import { angleBetweenPoints } from '../utils/geometry';
+import { getImageChannelCount } from '../utils/imageFormatUtils';
+import { VisitedPoints } from '../utils/VisitedPoints';
 
-export type Edge = Int32Array
+export type Edge = Int32Array;
 
 export interface Shape {
-  bounds: Rect
+  bounds: Rect;
   edges: {
-    top: Edge
-    right: Edge
-    bottom: Edge
-    left: Edge
-  }
+    top: Edge;
+    right: Edge;
+    bottom: Edge;
+    left: Edge;
+  };
 }
 
 /**
@@ -30,70 +30,70 @@ export function findShape(
     maximumAllowedSkipCount = 0,
   } = {}
 ): Shape {
-  const toVisit: Point[] = [startingPoint]
-  const points = new VisitedPoints(imageData.width, imageData.height)
-  const { data, width, height } = imageData
-  const channel = getImageChannelCount(imageData)
+  const toVisit: Point[] = [startingPoint];
+  const points = new VisitedPoints(imageData.width, imageData.height);
+  const { data, width, height } = imageData;
+  const channel = getImageChannelCount(imageData);
 
-  const topEdge = new Int32Array(imageData.width).fill(imageData.height)
-  const rightEdge = new Int32Array(imageData.height).fill(-1)
-  const bottomEdge = new Int32Array(imageData.width).fill(-1)
-  const leftBorder = new Int32Array(imageData.height).fill(imageData.width)
-  let xMin = startingPoint.x
-  let yMin = startingPoint.y
-  let xMax = startingPoint.x
-  let yMax = startingPoint.y
-  let remainingSkipCount = maximumAllowedSkipCount
+  const topEdge = new Int32Array(imageData.width).fill(imageData.height);
+  const rightEdge = new Int32Array(imageData.height).fill(-1);
+  const bottomEdge = new Int32Array(imageData.width).fill(-1);
+  const leftBorder = new Int32Array(imageData.height).fill(imageData.width);
+  let xMin = startingPoint.x;
+  let yMin = startingPoint.y;
+  let xMax = startingPoint.x;
+  let yMax = startingPoint.y;
+  let remainingSkipCount = maximumAllowedSkipCount;
 
-  let point: Point | undefined
+  let point: Point | undefined;
   for (;;) {
-    point = toVisit.shift()
+    point = toVisit.shift();
 
     if (!point) {
-      break
+      break;
     }
 
-    const { x, y } = point
+    const { x, y } = point;
 
     if (!visitedPoints.add(x, y)) {
-      continue
+      continue;
     }
 
-    const index = (x + y * width) * channel
-    const isForeground = data[index] === color
-    points.add(x, y, isForeground)
+    const index = (x + y * width) * channel;
+    const isForeground = data[index] === color;
+    points.add(x, y, isForeground);
 
     if (isForeground) {
       if (x < xMin) {
-        xMin = x
+        xMin = x;
       }
       if (y < yMin) {
-        yMin = y
+        yMin = y;
       }
       if (x > xMax) {
-        xMax = x
+        xMax = x;
       }
       if (y > yMax) {
-        yMax = y
+        yMax = y;
       }
       if (x < leftBorder[y]) {
-        leftBorder[y] = x
+        leftBorder[y] = x;
       }
       if (y < topEdge[x]) {
-        topEdge[x] = y
+        topEdge[x] = y;
       }
       if (x > rightEdge[y]) {
-        rightEdge[y] = x
+        rightEdge[y] = x;
       }
       if (y > bottomEdge[x]) {
-        bottomEdge[x] = y
+        bottomEdge[x] = y;
       }
 
-      let found = false
+      let found = false;
       for (const xD of [-1, 0, 1]) {
         for (const yD of [-1, 0, 1]) {
-          const nextX = x + xD
-          const nextY = y + yD
+          const nextX = x + xD;
+          const nextY = y + yD;
 
           if (
             nextX > 0 &&
@@ -103,8 +103,8 @@ export function findShape(
             data[(nextX + nextY * width) * channel] === color &&
             !points.has(nextX, nextY)
           ) {
-            found = true
-            toVisit.push({ x: nextX, y: nextY })
+            found = true;
+            toVisit.push({ x: nextX, y: nextY });
           }
         }
       }
@@ -120,8 +120,8 @@ export function findShape(
             yD <= maximumSkipDistance + 1;
             yD += 1
           ) {
-            const nextX = x + xD
-            const nextY = y + yD
+            const nextX = x + xD;
+            const nextY = y + yD;
 
             if (
               nextX > 0 &&
@@ -131,14 +131,14 @@ export function findShape(
               data[(nextX + nextY * width) * channel] === color &&
               !points.has(nextX, nextY)
             ) {
-              found = true
-              toVisit.push({ x: nextX, y: nextY })
+              found = true;
+              toVisit.push({ x: nextX, y: nextY });
             }
           }
         }
 
         if (found) {
-          remainingSkipCount -= 1
+          remainingSkipCount -= 1;
         }
       }
     }
@@ -157,12 +157,12 @@ export function findShape(
       bottom: bottomEdge,
       left: leftBorder,
     },
-  }
+  };
 }
 
 export interface ParseRectangleResult {
-  isRectangle: boolean
-  angles: [number, number, number, number]
+  isRectangle: boolean;
+  angles: [number, number, number, number];
 }
 
 /**
@@ -176,13 +176,17 @@ export function parseRectangle(
   corners: Corners,
   { allowedErrorAngle = (5 / 180) * Math.PI } = {}
 ): ParseRectangleResult {
-  const [topLeft, topRight, bottomLeft, bottomRight] = corners
-  const minAllowedRightAngle = Math.PI / 2 - allowedErrorAngle
-  const maxAllowedRightAngle = Math.PI / 2 + allowedErrorAngle
-  const topLeftAngle = angleBetweenPoints(bottomLeft, topLeft, topRight)
-  const topRightAngle = angleBetweenPoints(topLeft, topRight, bottomRight)
-  const bottomLeftAngle = angleBetweenPoints(bottomRight, bottomLeft, topLeft)
-  const bottomRightAngle = angleBetweenPoints(topRight, bottomRight, bottomLeft)
+  const [topLeft, topRight, bottomLeft, bottomRight] = corners;
+  const minAllowedRightAngle = Math.PI / 2 - allowedErrorAngle;
+  const maxAllowedRightAngle = Math.PI / 2 + allowedErrorAngle;
+  const topLeftAngle = angleBetweenPoints(bottomLeft, topLeft, topRight);
+  const topRightAngle = angleBetweenPoints(topLeft, topRight, bottomRight);
+  const bottomLeftAngle = angleBetweenPoints(bottomRight, bottomLeft, topLeft);
+  const bottomRightAngle = angleBetweenPoints(
+    topRight,
+    bottomRight,
+    bottomLeft
+  );
   return {
     isRectangle:
       topLeftAngle >= minAllowedRightAngle &&
@@ -194,5 +198,5 @@ export function parseRectangle(
       bottomRightAngle >= minAllowedRightAngle &&
       bottomRightAngle <= maxAllowedRightAngle,
     angles: [topLeftAngle, topRightAngle, bottomLeftAngle, bottomRightAngle],
-  }
+  };
 }

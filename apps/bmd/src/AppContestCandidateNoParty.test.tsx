@@ -1,20 +1,20 @@
-import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
+import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import { Election } from '@votingworks/types'
-import { asElectionDefinition } from '@votingworks/fixtures'
-import { makeVoterCard } from '@votingworks/test-utils'
-import App from './App'
+import { Election } from '@votingworks/types';
+import { asElectionDefinition } from '@votingworks/fixtures';
+import { makeVoterCard } from '@votingworks/test-utils';
+import App from './App';
 
-import { advanceTimersAndPromises } from '../test/helpers/smartcards'
+import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-import { setStateInStorage } from '../test/helpers/election'
-import electionSample from './data/electionSample.json'
-import { electionStorageKey } from './AppRoot'
-import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
+import { setStateInStorage } from '../test/helpers/election';
+import electionSample from './data/electionSample.json';
+import { electionStorageKey } from './AppRoot';
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
-const election = electionSample as Election
+const election = electionSample as Election;
 const electionWithNoPartyCandidateContests: Election = {
   ...election,
   contests: election.contests.map((contest) => {
@@ -25,33 +25,33 @@ const electionWithNoPartyCandidateContests: Election = {
           ...candidate,
           partyId: undefined,
         })),
-      }
-      return noPartyCandidateContest
+      };
+      return noPartyCandidateContest;
     }
 
-    return contest
+    return contest;
   }),
-}
+};
 
-jest.useFakeTimers()
+jest.useFakeTimers();
 
 beforeEach(() => {
-  window.location.href = '/'
-})
+  window.location.href = '/';
+});
 
 it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard()
-  const hardware = await MemoryHardware.buildStandard()
-  const storage = new MemoryStorage()
-  const machineConfig = fakeMachineConfigProvider()
+  const card = new MemoryCard();
+  const hardware = await MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  const machineConfig = fakeMachineConfigProvider();
 
   await storage.set(
     electionStorageKey,
     asElectionDefinition(electionWithNoPartyCandidateContests)
-  )
-  await setStateInStorage(storage)
+  );
+  await setStateInStorage(storage);
 
   const { container } = render(
     <App
@@ -60,26 +60,26 @@ it('Single Seat Contest', async () => {
       storage={storage}
       machineConfig={machineConfig}
     />
-  )
-  await advanceTimersAndPromises()
+  );
+  await advanceTimersAndPromises();
 
   // Insert Voter Card
-  card.insertCard(makeVoterCard(election))
-  await advanceTimersAndPromises()
+  card.insertCard(makeVoterCard(election));
+  await advanceTimersAndPromises();
 
   // Go to First Contest
-  fireEvent.click(screen.getByText('Start Voting'))
-  await advanceTimersAndPromises()
+  fireEvent.click(screen.getByText('Start Voting'));
+  await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //
 
-  expect(screen.queryByText('Federalist')).toEqual(null)
-  expect(screen.queryByText('Labor')).toEqual(null)
-  expect(screen.queryByText("People's")).toEqual(null)
-  expect(screen.queryByText('Liberty')).toEqual(null)
-  expect(screen.queryByText('Constitution')).toEqual(null)
-  expect(screen.queryByText('Whig')).toEqual(null)
+  expect(screen.queryByText('Federalist')).toEqual(null);
+  expect(screen.queryByText('Labor')).toEqual(null);
+  expect(screen.queryByText("People's")).toEqual(null);
+  expect(screen.queryByText('Liberty')).toEqual(null);
+  expect(screen.queryByText('Constitution')).toEqual(null);
+  expect(screen.queryByText('Whig')).toEqual(null);
 
   // Capture styles of Single Candidate Contest
-  expect(container.firstChild).toMatchSnapshot()
-})
+  expect(container.firstChild).toMatchSnapshot();
+});

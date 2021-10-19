@@ -1,4 +1,4 @@
-import * as z from 'zod'
+import * as z from 'zod';
 
 export enum PaperStatus {
   NoPaper = 'PAPER_STATUS_NO_PAPER',
@@ -21,4 +21,4 @@ export enum PaperStatus {
   VtmBothSideHavePaper = 'PLKSS_ERRCODE_VTM_BOTH_SIDE_HAVE_PAPER',
 }
 
-export const PaperStatusSchema = z.nativeEnum(PaperStatus)
+export const PaperStatusSchema = z.nativeEnum(PaperStatus);

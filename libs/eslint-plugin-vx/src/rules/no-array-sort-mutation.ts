@@ -1,16 +1,19 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { createRule } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { createRule } from '../util';
 
 function isDirectAccess(node: TSESTree.Node): boolean {
   if (node.type === AST_NODE_TYPES.Identifier) {
-    return true
+    return true;
   }
 
   if (node.type === AST_NODE_TYPES.MemberExpression) {
-    return isDirectAccess(node.object)
+    return isDirectAccess(node.object);
   }
 
-  return false
+  return false;
 }
 
 export default createRule({
@@ -39,16 +42,16 @@ export default createRule({
           callee.property.type !== AST_NODE_TYPES.Identifier ||
           callee.property.name !== 'sort'
         ) {
-          return
+          return;
         }
 
         if (isDirectAccess(callee.object)) {
           context.report({
             node: callee.property,
             messageId: 'badSort',
-          })
+          });
         }
       },
-    }
+    };
   },
-})
+});

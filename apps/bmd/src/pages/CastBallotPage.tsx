@@ -1,16 +1,16 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { Button, Main, MainChild } from '@votingworks/ui'
+import { Button, Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import { PostVotingInstructions } from '../config/types'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import { PostVotingInstructions } from '../config/types';
 
 const SingleGraphic = styled.img`
   margin: 0 auto 1em;
   height: 20vw;
-`
+`;
 
 const Instructions = styled.ol`
   display: flex;
@@ -27,17 +27,17 @@ const Instructions = styled.ol`
       position: relative;
     }
   }
-`
+`;
 
 const Done = styled.div`
   position: absolute;
   right: 1em;
   bottom: 1em;
-`
+`;
 
 interface Props {
-  hidePostVotingInstructions: () => void
-  showPostVotingInstructions: PostVotingInstructions
+  hidePostVotingInstructions: () => void;
+  showPostVotingInstructions: PostVotingInstructions;
 }
 
 const CastBallotPage = ({
@@ -90,6 +90,6 @@ const CastBallotPage = ({
       </MainChild>
     </Main>
   </Screen>
-)
+);
 
-export default CastBallotPage
+export default CastBallotPage;

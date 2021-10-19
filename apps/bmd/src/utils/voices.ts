@@ -1,4 +1,4 @@
-import { VoiceSelector } from '../config/types'
+import { VoiceSelector } from '../config/types';
 
 /**
  * Get a voice suitable for use with `speechSynthesis` APIs to be spoken to US
@@ -8,7 +8,7 @@ export const getUSEnglishVoice: VoiceSelector = () => {
   // Only use local voices.
   const voices = speechSynthesis
     .getVoices()
-    .filter((voice) => voice.localService)
+    .filter((voice) => voice.localService);
 
   // Find voices in ranked order.
   return (
@@ -27,5 +27,5 @@ export const getUSEnglishVoice: VoiceSelector = () => {
     voices.find((voice) => voice.lang.startsWith('en-')) ??
     voices.find((voice) => voice.default) ??
     voices[0]
-  )
-}
+  );
+};

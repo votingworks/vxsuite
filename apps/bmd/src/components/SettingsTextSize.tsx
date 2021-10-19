@@ -1,15 +1,15 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { Button, SegmentedButton } from '@votingworks/ui'
+import { Button, SegmentedButton } from '@votingworks/ui';
 
 import {
   EventTargetFunction,
   SetUserSettings,
   TextSizeSetting,
   UserSettings,
-} from '../config/types'
-import { FONT_SIZES } from '../config/globals'
+} from '../config/types';
+import { FONT_SIZES } from '../config/globals';
 
 const Container = styled.div`
   display: flex;
@@ -17,11 +17,11 @@ const Container = styled.div`
   border: 1px solid #808080;
   border-width: 1px 0;
   padding: 1rem 0;
-`
+`;
 const Center = styled.div`
   display: flex;
   justify-content: center;
-`
+`;
 const FontSizeButtons = styled.div`
   button {
     min-width: ${FONT_SIZES[1] * 4}px;
@@ -37,16 +37,16 @@ const FontSizeButtons = styled.div`
     }
     /* stylelint-enable */
   }
-`
+`;
 
 const Label = styled.div`
   display: block;
   margin-bottom: 0.4rem;
-`
+`;
 
 interface Props {
-  userSettings: UserSettings
-  setUserSettings: SetUserSettings
+  userSettings: UserSettings;
+  setUserSettings: SetUserSettings;
 }
 
 const SettingsTextSize = ({
@@ -54,10 +54,10 @@ const SettingsTextSize = ({
   setUserSettings,
 }: Props): JSX.Element => {
   const adjustFontSize: EventTargetFunction = (event) => {
-    const target = event.currentTarget as HTMLButtonElement
-    const textSize = +target.value as TextSizeSetting
-    setUserSettings({ textSize })
-  }
+    const target = event.currentTarget as HTMLButtonElement;
+    const textSize = +target.value as TextSizeSetting;
+    setUserSettings({ textSize });
+  };
   return (
     <Container aria-hidden>
       <Center>
@@ -82,7 +82,7 @@ const SettingsTextSize = ({
         </div>
       </Center>
     </Container>
-  )
-}
+  );
+};
 
-export default SettingsTextSize
+export default SettingsTextSize;

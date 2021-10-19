@@ -1,4 +1,4 @@
-import { ExternalTally } from '@votingworks/types'
+import { ExternalTally } from '@votingworks/types';
 
 export default function fakeTally(
   props: Partial<ExternalTally> = {}
@@ -7,5 +7,5 @@ export default function fakeTally(
     numberOfBallotsCounted: 0,
     contestTallies: {},
     ...props,
-  }
+  };
 }

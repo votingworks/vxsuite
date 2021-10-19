@@ -1,23 +1,23 @@
-import { TextToSpeech } from '../../src/config/types'
+import { TextToSpeech } from '../../src/config/types';
 
 /**
  * Builds a fake `TextToSpeech` instance with mock functions.
  */
 export default function fakeTTS(): jest.Mocked<TextToSpeech> {
-  let isMuted = true
+  let isMuted = true;
 
   return {
     speak: jest.fn().mockResolvedValue(undefined),
     stop: jest.fn(),
     mute: jest.fn(() => {
-      isMuted = true
+      isMuted = true;
     }),
     unmute: jest.fn(() => {
-      isMuted = false
+      isMuted = false;
     }),
     isMuted: jest.fn(() => isMuted),
     toggleMuted: jest.fn((muted = !isMuted) => {
-      isMuted = muted
+      isMuted = muted;
     }),
-  }
+  };
 }

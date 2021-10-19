@@ -1,22 +1,22 @@
-import React from 'react'
+import React from 'react';
 
-import { Election } from '@votingworks/types'
+import { Election } from '@votingworks/types';
 
-import { format } from '@votingworks/utils'
+import { format } from '@votingworks/utils';
 
-import { Text } from './Text'
+import { Text } from './Text';
 
 interface Props {
-  election: Election
-  generatedAtTime: Date
+  election: Election;
+  generatedAtTime: Date;
 }
 
 export const TallyReportMetadata = ({
   election,
   generatedAtTime,
 }: Props): JSX.Element => {
-  const electionDate = format.localeWeekdayAndDate(new Date(election.date))
-  const generatedAt = format.localeLongDateAndTime(generatedAtTime)
+  const electionDate = format.localeWeekdayAndDate(new Date(election.date));
+  const generatedAt = format.localeLongDateAndTime(generatedAtTime);
 
   return (
     <p>
@@ -26,5 +26,5 @@ export const TallyReportMetadata = ({
         This report was created on {generatedAt}
       </Text>
     </p>
-  )
-}
+  );
+};

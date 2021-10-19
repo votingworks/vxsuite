@@ -1,8 +1,8 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  noPadding?: boolean
-  noOverflow?: boolean
+  noPadding?: boolean;
+  noOverflow?: boolean;
 }
 
 const Main = styled('main')<Props>`
@@ -20,14 +20,14 @@ const Main = styled('main')<Props>`
     justify-content: flex-start;
     padding: 0;
   }
-`
+`;
 
 interface ChildProps {
-  center?: boolean
-  centerVertical?: boolean
-  centerHorizontal?: boolean
-  maxWidth?: boolean
-  padded?: boolean
+  center?: boolean;
+  centerVertical?: boolean;
+  centerHorizontal?: boolean;
+  maxWidth?: boolean;
+  padded?: boolean;
 }
 
 export const MainChild = styled('div')<ChildProps>`
@@ -42,6 +42,6 @@ export const MainChild = styled('div')<ChildProps>`
     margin: 0;
     max-width: 100%;
   }
-`
+`;
 
-export default Main
+export default Main;

@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'
-import styled from 'styled-components'
-import { format } from '@votingworks/utils'
-import Text from './Text'
-import AppContext from '../contexts/AppContext'
+import React, { useContext } from 'react';
+import styled from 'styled-components';
+import { format } from '@votingworks/utils';
+import Text from './Text';
+import AppContext from '../contexts/AppContext';
 
 const StatusBar = styled.div`
   display: flex;
@@ -11,13 +11,13 @@ const StatusBar = styled.div`
   background: #455a64;
   color: #ffffff;
   padding: 0.375rem 1rem;
-`
+`;
 
 const StatusFooter = (): JSX.Element => {
-  const { electionDefinition, machineConfig } = useContext(AppContext)
+  const { electionDefinition, machineConfig } = useContext(AppContext);
   const electionDate =
     electionDefinition &&
-    format.localeWeekdayAndDate(new Date(electionDefinition.election.date))
+    format.localeWeekdayAndDate(new Date(electionDefinition.election.date));
 
   return (
     <StatusBar>
@@ -38,7 +38,7 @@ const StatusFooter = (): JSX.Element => {
         </Text>
       )}
     </StatusBar>
-  )
-}
+  );
+};
 
-export default StatusFooter
+export default StatusFooter;

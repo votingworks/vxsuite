@@ -1,42 +1,42 @@
-import { ScannerStatus } from '@votingworks/types/api/module-scan'
-import { Button, Prose, useCancelablePromise } from '@votingworks/ui'
-import React, { useCallback, useState } from 'react'
-import usePrecinctScanner from '../hooks/usePrecinctScanner'
-import Modal from './Modal'
+import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { Button, Prose, useCancelablePromise } from '@votingworks/ui';
+import React, { useCallback, useState } from 'react';
+import usePrecinctScanner from '../hooks/usePrecinctScanner';
+import Modal from './Modal';
 
 export interface Props {
-  onCalibrate(): Promise<boolean>
-  onCancel: VoidFunction
+  onCalibrate(): Promise<boolean>;
+  onCancel: VoidFunction;
 }
 
 const noop = () => {
   // noop
-}
+};
 
 const CalibrateScannerModal = ({
   onCancel,
   onCalibrate,
 }: Props): JSX.Element => {
-  const makeCancelable = useCancelablePromise()
-  const [calibrationSuccess, setCalibrationSuccess] = useState<boolean>()
-  const [isCalibrating, setIsCalibrating] = useState(false)
+  const makeCancelable = useCancelablePromise();
+  const [calibrationSuccess, setCalibrationSuccess] = useState<boolean>();
+  const [isCalibrating, setIsCalibrating] = useState(false);
 
-  const scanner = usePrecinctScanner(isCalibrating ? false : undefined)
-  const scannerStatus = scanner?.status.scannerState
+  const scanner = usePrecinctScanner(isCalibrating ? false : undefined);
+  const scannerStatus = scanner?.status.scannerState;
 
   const beginCalibration = useCallback(async () => {
-    setIsCalibrating(true)
+    setIsCalibrating(true);
     try {
-      setCalibrationSuccess(await makeCancelable(onCalibrate()))
+      setCalibrationSuccess(await makeCancelable(onCalibrate()));
     } finally {
-      setIsCalibrating(false)
+      setIsCalibrating(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onCalibrate, setIsCalibrating])
+  }, [onCalibrate, setIsCalibrating]);
 
   const resetAndTryAgain = useCallback(async () => {
-    setCalibrationSuccess(undefined)
-  }, [setCalibrationSuccess])
+    setCalibrationSuccess(undefined);
+  }, [setCalibrationSuccess]);
 
   if (isCalibrating) {
     return (
@@ -48,7 +48,7 @@ const CalibrateScannerModal = ({
           </Prose>
         }
       />
-    )
+    );
   }
 
   if (calibrationSuccess === true) {
@@ -62,7 +62,7 @@ const CalibrateScannerModal = ({
         }
         actions={<Button onPress={onCancel}>Back</Button>}
       />
-    )
+    );
   }
 
   if (calibrationSuccess === false) {
@@ -84,7 +84,7 @@ const CalibrateScannerModal = ({
           </React.Fragment>
         }
       />
-    )
+    );
   }
 
   return (
@@ -118,7 +118,7 @@ const CalibrateScannerModal = ({
         </React.Fragment>
       }
     />
-  )
-}
+  );
+};
 
-export default CalibrateScannerModal
+export default CalibrateScannerModal;

@@ -1,8 +1,8 @@
-import recommended = require('./recommended')
+import recommended = require('./recommended');
 
-const jsExtensions = ['.js', '.jsx']
-const tsExtensions = ['.ts', '.tsx']
-const allExtensions = jsExtensions.concat(tsExtensions)
+const jsExtensions = ['.js', '.jsx'];
+const tsExtensions = ['.ts', '.tsx'];
+const allExtensions = jsExtensions.concat(tsExtensions);
 
 export = {
   ...recommended,
@@ -37,4 +37,4 @@ export = {
     'react/prop-types': 'off',
     'react/require-default-props': 'off',
   },
-}
+};
