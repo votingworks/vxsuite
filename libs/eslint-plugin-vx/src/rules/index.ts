@@ -11,6 +11,7 @@ import gtsNoObjectLiteralTypeAssertions from './gts-no-object-literal-type-asser
 import gtsNoPrivateFields from './gts-no-private-fields';
 import gtsNoPublicModifier from './gts-no-public-modifier';
 import gtsNoReturnTypeOnlyGenerics from './gts-no-return-type-only-generics';
+import gtsNoUnnecessaryHasOwnPropertyCheck from './gts-no-unnecessary-has-own-property-check';
 import gtsParameterProperties from './gts-parameter-properties';
 import gtsUseOptionals from './gts-use-optionals';
 import noArraySortMutation from './no-array-sort-mutation';
@@ -35,6 +36,8 @@ const rules: Record<
   'gts-no-private-fields': gtsNoPrivateFields,
   'gts-no-public-modifier': gtsNoPublicModifier,
   'gts-no-return-type-only-generics': gtsNoReturnTypeOnlyGenerics,
+  'gts-no-unnecessary-has-own-property-check':
+    gtsNoUnnecessaryHasOwnPropertyCheck,
   'gts-parameter-properties': gtsParameterProperties,
   'gts-use-optionals': gtsUseOptionals,
   'no-array-sort-mutation': noArraySortMutation,

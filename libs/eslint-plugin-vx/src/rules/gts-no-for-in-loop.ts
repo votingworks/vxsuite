@@ -1,8 +1,6 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
+import { TSESTree } from '@typescript-eslint/experimental-utils'
 import { strict as assert } from 'assert'
 import { createRule } from '../util'
-import { Node } from 'typescript'
-import { RuleFixer } from '@typescript-eslint/experimental-utils/dist/ts-eslint'
 
 export default createRule({
   name: 'gts-no-for-in-loop',
