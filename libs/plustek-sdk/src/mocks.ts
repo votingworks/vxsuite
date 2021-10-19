@@ -215,8 +215,8 @@ export class MockScannerClient implements ScannerClient {
     timeout,
   }: {
     status: PaperStatus
-    timeout?: number | undefined
-    interval?: number | undefined
+    timeout?: number
+    interval?: number
   }): Promise<GetPaperStatusResult | undefined> {
     debug('waitForStatus')
 

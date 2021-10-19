@@ -1,8 +1,4 @@
-import {
-  ElectionDefinition,
-  MarkThresholds,
-  Optional,
-} from '@votingworks/types'
+import { ElectionDefinition, MarkThresholds } from '@votingworks/types'
 import React, { useCallback, useEffect, useState, useContext } from 'react'
 import Button from '../components/Button'
 import LinkButton from '../components/LinkButton'
@@ -23,10 +19,8 @@ interface Props {
   isTestMode: boolean
   isTogglingTestMode: boolean
   toggleTestMode: () => Promise<void>
-  setMarkThresholdOverrides: (
-    markThresholds: Optional<MarkThresholds>
-  ) => Promise<void>
-  markThresholds: Optional<MarkThresholds>
+  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>
+  markThresholds?: MarkThresholds
   electionDefinition: ElectionDefinition
 }
 

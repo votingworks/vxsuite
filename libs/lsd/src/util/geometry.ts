@@ -36,9 +36,7 @@ export function angle(x1: number, y1: number, x2: number, y2: number): number {
 export function approximatelyEqual(
   a: number,
   b: number,
-  {
-    relativeErrorFactor = 100,
-  }: { relativeErrorFactor?: number } | undefined = {}
+  { relativeErrorFactor = 100 }: { relativeErrorFactor?: number } = {}
 ): boolean {
   const max = Math.max(a, b)
   const diff = Math.abs(a - b)

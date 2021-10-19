@@ -10,7 +10,6 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  Optional,
   UserSession,
 } from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
@@ -35,7 +34,7 @@ export const eitherNeitherElectionDefinition = {
 }
 
 interface RenderInAppContextParams {
-  route?: string | undefined
+  route?: string
   history?: MemoryHistory<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   castVoteRecordFiles?: CastVoteRecordFiles
   electionDefinition?: ElectionDefinition
@@ -63,7 +62,7 @@ interface RenderInAppContextParams {
   ) => Promise<void>
   fullElectionExternalTallies?: FullElectionExternalTally[]
   generateExportableTallies?: () => ExportableTallies
-  currentUserSession?: Optional<UserSession>
+  currentUserSession?: UserSession
   attemptToAuthenticateAdminUser?: () => boolean
   lockMachine?: () => undefined
   machineConfig?: MachineConfig

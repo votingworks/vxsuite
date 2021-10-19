@@ -5,7 +5,6 @@ import {
   ElectionDefinition,
   MarkAdjudications,
   MarkThresholds,
-  Optional,
   PageInterpretation,
 } from '@votingworks/types'
 import { ScannerStatus, ScanStatus } from '@votingworks/types/api/module-scan'
@@ -69,8 +68,8 @@ export async function saveImages(
 export default class Importer {
   private workspace: Workspace
   private scanner: Scanner
-  private sheetGenerator: BatchControl | undefined
-  private batchId: string | undefined
+  private sheetGenerator?: BatchControl
+  private batchId?: string
   private workerPool?: WorkerPool<workers.Input, workers.Output>
   private workerPoolProvider: () => WorkerPool<workers.Input, workers.Output>
   private interpreterReady = true
@@ -191,7 +190,7 @@ export default class Importer {
   }
 
   async setMarkThresholdOverrides(
-    markThresholds: Optional<MarkThresholds>
+    markThresholds?: MarkThresholds
   ): Promise<void> {
     debug('setting mark thresholds overrides to %s', markThresholds)
     await this.workspace.store.setMarkThresholdOverrides(markThresholds)

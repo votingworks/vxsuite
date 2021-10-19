@@ -8,7 +8,7 @@ import { Router } from 'react-router-dom'
 import AppContext from '../src/contexts/AppContext'
 
 interface RenderInAppContextParams {
-  route?: string | undefined
+  route?: string
   history?: MemoryHistory<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   electionDefinition?: ElectionDefinition
   machineId?: string

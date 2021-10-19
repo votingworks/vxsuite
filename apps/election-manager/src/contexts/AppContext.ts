@@ -3,7 +3,6 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  Optional,
   UserSession,
 } from '@votingworks/types'
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
@@ -48,7 +47,7 @@ export interface AppContextInterface {
   ) => Promise<void>
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
   generateExportableTallies: () => ExportableTallies
-  currentUserSession: Optional<UserSession>
+  currentUserSession?: UserSession
   attemptToAuthenticateAdminUser: (passcode: string) => boolean
   lockMachine: () => void
   machineConfig: MachineConfig

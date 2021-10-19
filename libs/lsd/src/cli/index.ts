@@ -246,7 +246,7 @@ export async function processFile(
 
 export async function main(
   args: readonly string[],
-  stdout: NodeJS.WritableStream | undefined = process.stdout
+  stdout: NodeJS.WritableStream = process.stdout
 ): Promise<void> {
   const options = parseOptions(args)
 

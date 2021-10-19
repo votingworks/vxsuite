@@ -43,6 +43,7 @@ export = {
     'vx/gts-no-private-fields': 'error',
     'vx/gts-no-public-modifier': 'error',
     'vx/gts-parameter-properties': 'error',
+    'vx/gts-use-optionals': 'error',
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],

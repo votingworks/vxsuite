@@ -413,7 +413,7 @@ export default class Store {
    * in the election definition.
    */
   async setMarkThresholdOverrides(
-    markThresholds: Optional<MarkThresholds>
+    markThresholds?: MarkThresholds
   ): Promise<void> {
     await this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds)
   }

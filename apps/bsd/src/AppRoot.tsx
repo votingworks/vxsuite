@@ -123,7 +123,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     setMarkThresholds(await config.getMarkThresholdOverrides())
   }, [])
 
-  const updateElectionDefinition = async (e: Optional<ElectionDefinition>) => {
+  const updateElectionDefinition = async (e?: ElectionDefinition) => {
     setElectionDefinition(e)
     setElectionJustLoaded(true)
   }
@@ -264,7 +264,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
   }, [history, isTestMode, refreshConfig])
 
   const setMarkThresholdOverrides = useCallback(
-    async (markThresholdOverrides: Optional<MarkThresholds>) => {
+    async (markThresholdOverrides?: MarkThresholds) => {
       await config.setMarkThresholdOverrides(markThresholdOverrides)
       await refreshConfig()
       history.replace('/')
