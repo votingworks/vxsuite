@@ -4,8 +4,8 @@ import {
   ContestOption,
   MarkStatus,
   MarkThresholds,
-} from '@votingworks/types'
-import { getMarkStatus } from '../types'
+} from '@votingworks/types';
+import { getMarkStatus } from '../types';
 
 /**
  * state of the mark for a given contest and option
@@ -16,17 +16,17 @@ export default function optionMarkStatus({
   contestId,
   optionId,
 }: {
-  markThresholds: MarkThresholds
-  marks: BallotMark[]
-  contestId: Contest['id']
-  optionId: ContestOption['id']
+  markThresholds: MarkThresholds;
+  marks: BallotMark[];
+  contestId: Contest['id'];
+  optionId: ContestOption['id'];
 }): MarkStatus {
   for (const mark of marks) {
     if (
       mark.type === 'stray' ||
       (mark.type !== 'ms-either-neither' && mark.contest.id !== contestId)
     ) {
-      continue
+      continue;
     }
 
     // the criteria for ms-either-neither is more complex, handling it in the switch.
@@ -40,7 +40,7 @@ export default function optionMarkStatus({
             (mark.contest.neitherOption.id === mark.option.id &&
               optionId === 'no')
           ) {
-            return getMarkStatus(mark, markThresholds)
+            return getMarkStatus(mark, markThresholds);
           }
         }
 
@@ -51,30 +51,30 @@ export default function optionMarkStatus({
             (mark.contest.secondOption.id === mark.option.id &&
               optionId === 'no')
           ) {
-            return getMarkStatus(mark, markThresholds)
+            return getMarkStatus(mark, markThresholds);
           }
         }
 
-        break
+        break;
       case 'candidate':
         if (mark.option.id === optionId) {
-          return getMarkStatus(mark, markThresholds)
+          return getMarkStatus(mark, markThresholds);
         }
-        break
+        break;
 
       case 'yesno':
         if (mark.option === optionId) {
-          return getMarkStatus(mark, markThresholds)
+          return getMarkStatus(mark, markThresholds);
         }
-        break
+        break;
 
       default:
         throw new Error(
           // @ts-expect-error - `mark` is of type `never` since we exhausted all branches, in theory
           `contest type is not yet supported: ${mark.type}`
-        )
+        );
     }
   }
 
-  return MarkStatus.Unmarked
+  return MarkStatus.Unmarked;
 }

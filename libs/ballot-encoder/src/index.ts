@@ -17,8 +17,8 @@ import {
   validateVotes,
   VotesDict,
   YesNoVote,
-} from '@votingworks/types'
-import { strict as assert } from 'assert'
+} from '@votingworks/types';
+import { strict as assert } from 'assert';
 import {
   BitReader,
   BitWriter,
@@ -26,58 +26,58 @@ import {
   toUint8,
   Uint8,
   Uint8Size,
-} from './bits'
+} from './bits';
 
-export const MAXIMUM_WRITE_IN_LENGTH = 40
-export const MAXIMUM_PAGE_NUMBERS = 30
-export const ELECTION_HASH_LENGTH = 20
+export const MAXIMUM_WRITE_IN_LENGTH = 40;
+export const MAXIMUM_PAGE_NUMBERS = 30;
+export const ELECTION_HASH_LENGTH = 20;
 
 // pad this locale array so the same code can later be upgraded
 // to support other languages without breaking previously printed ballots
 export const SUPPORTED_LOCALES = ['en-US', 'es-US'].concat(
   Array.from({ length: 250 })
-)
+);
 
 // TODO: include "magic number" and encoding version
 
 export const WriteInEncoding = new CustomEncoding(
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,'
-)
+);
 
-export const HexEncoding = new CustomEncoding('0123456789abcdef')
+export const HexEncoding = new CustomEncoding('0123456789abcdef');
 
 export const Prelude: readonly Uint8[] = [
   /* V */ 86,
   /* X */ 88,
   /* version = */ 2,
-]
+];
 
 export const HMPBPrelude: readonly Uint8[] = [
   /* V */ 86,
   /* P = Paper */ 80,
   /* version = */ 1,
-]
+];
 
 /**
  * Detects whether `data` is a v1-encoded ballot.
  */
 export function detect(data: Uint8Array): boolean {
-  const prelude = data.slice(0, Prelude.length)
+  const prelude = data.slice(0, Prelude.length);
 
   return (
     prelude.length === Prelude.length &&
     prelude.every((byte, i) => byte === Prelude[i])
-  )
+  );
 }
 
 export interface BallotConfig {
-  ballotId?: string
-  ballotStyleId: string
-  ballotType: BallotType
-  isTestMode: boolean
-  locales?: BallotLocale
-  pageNumber?: number
-  precinctId: string
+  ballotId?: string;
+  ballotStyleId: string;
+  ballotType: BallotType;
+  isTestMode: boolean;
+  locales?: BallotLocale;
+  pageNumber?: number;
+  precinctId: string;
 }
 
 export function encodeBallotConfigInto(
@@ -93,68 +93,68 @@ export function encodeBallotConfigInto(
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
-  const { precincts, ballotStyles, contests } = election
-  const precinctCount = toUint8(precincts.length)
-  const ballotStyleCount = toUint8(ballotStyles.length)
-  const contestCount = toUint8(contests.length)
-  const precinctIndex = precincts.findIndex((p) => p.id === precinctId)
+  const { precincts, ballotStyles, contests } = election;
+  const precinctCount = toUint8(precincts.length);
+  const ballotStyleCount = toUint8(ballotStyles.length);
+  const contestCount = toUint8(contests.length);
+  const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
   const ballotStyleIndex = ballotStyles.findIndex(
     (bs) => bs.id === ballotStyleId
-  )
+  );
 
   if (precinctIndex === -1) {
-    throw new Error(`precinct ID not found: ${precinctId}`)
+    throw new Error(`precinct ID not found: ${precinctId}`);
   }
 
   if (ballotStyleIndex === -1) {
-    throw new Error(`ballot style ID not found: ${ballotStyleId}`)
+    throw new Error(`ballot style ID not found: ${ballotStyleId}`);
   }
 
   bits
     .writeUint8(precinctCount, ballotStyleCount, contestCount)
     .writeUint(precinctIndex, { max: precinctCount - 1 })
-    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 })
+    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
 
   if (locales) {
-    const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary)
+    const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary);
     const secondaryLocaleIndex = locales.secondary
       ? SUPPORTED_LOCALES.indexOf(locales.secondary)
-      : undefined
+      : undefined;
 
     if (primaryLocaleIndex === -1) {
-      throw new Error(`primary locale not found: ${locales.primary}`)
+      throw new Error(`primary locale not found: ${locales.primary}`);
     }
 
     if (secondaryLocaleIndex === -1) {
-      throw new Error(`secondary locale not found: ${locales.secondary}`)
+      throw new Error(`secondary locale not found: ${locales.secondary}`);
     }
 
     bits
       .writeUint(primaryLocaleIndex, { max: SUPPORTED_LOCALES.length - 1 })
-      .writeBoolean(!!secondaryLocaleIndex)
+      .writeBoolean(!!secondaryLocaleIndex);
 
     if (secondaryLocaleIndex) {
       bits.writeUint(secondaryLocaleIndex, {
         max: SUPPORTED_LOCALES.length - 1,
-      })
+      });
     }
   }
 
   if (typeof pageNumber === 'number') {
-    bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS })
+    bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
   }
 
   bits
     .writeBoolean(isTestMode)
-    .writeUint(ballotType, { max: BallotTypeMaximumValue })
+    .writeUint(ballotType, { max: BallotTypeMaximumValue });
 
-  bits.writeBoolean(!!ballotId)
+  bits.writeBoolean(!!ballotId);
 
   if (ballotId) {
-    bits.writeString(ballotId)
+    bits.writeString(ballotId);
   }
 
-  return bits
+  return bits;
 }
 
 export function decodeBallotConfigFromReader(
@@ -164,22 +164,22 @@ export function decodeBallotConfigFromReader(
     readPageNumber,
   }: { readLocales: false; readPageNumber: false },
   bits: BitReader
-): BallotConfig & { locales: undefined; pageNumber: undefined }
+): BallotConfig & { locales: undefined; pageNumber: undefined };
 export function decodeBallotConfigFromReader(
   election: Election,
   { readLocales, readPageNumber }: { readLocales: false; readPageNumber: true },
   bits: BitReader
-): BallotConfig & { locales: undefined; pageNumber: number }
+): BallotConfig & { locales: undefined; pageNumber: number };
 export function decodeBallotConfigFromReader(
   election: Election,
   { readLocales, readPageNumber }: { readLocales: true; readPageNumber: false },
   bits: BitReader
-): BallotConfig & { locales: BallotLocale; pageNumber: undefined }
+): BallotConfig & { locales: BallotLocale; pageNumber: undefined };
 export function decodeBallotConfigFromReader(
   election: Election,
   { readLocales, readPageNumber }: { readLocales: true; readPageNumber: true },
   bits: BitReader
-): BallotConfig & { locales: BallotLocale; pageNumber: number }
+): BallotConfig & { locales: BallotLocale; pageNumber: number };
 export function decodeBallotConfigFromReader(
   election: Election,
   {
@@ -188,67 +188,67 @@ export function decodeBallotConfigFromReader(
   }: { readLocales: boolean; readPageNumber: boolean },
   bits: BitReader
 ): BallotConfig {
-  const { precincts, ballotStyles, contests } = election
-  const precinctCount = bits.readUint8()
-  const ballotStyleCount = bits.readUint8()
-  const contestCount = bits.readUint8()
+  const { precincts, ballotStyles, contests } = election;
+  const precinctCount = bits.readUint8();
+  const ballotStyleCount = bits.readUint8();
+  const contestCount = bits.readUint8();
 
   if (precinctCount !== precincts.length) {
     throw new Error(
       `expected ${precincts.length} precinct(s), but read ${precinctCount} from encoded config`
-    )
+    );
   }
 
   if (ballotStyleCount !== ballotStyles.length) {
     throw new Error(
       `expected ${ballotStyles.length} ballot style(s), but read ${ballotStyleCount} from encoded config`
-    )
+    );
   }
 
-  const precinctIndex = bits.readUint({ max: precinctCount - 1 })
-  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 })
+  const precinctIndex = bits.readUint({ max: precinctCount - 1 });
+  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 });
 
   if (contestCount !== contests.length) {
     throw new Error(
       `expected ${contests.length} contest(s), but read ${contestCount} from encoded config`
-    )
+    );
   }
 
   const primaryLocaleIndex = readLocales
     ? bits.readUint({
         max: SUPPORTED_LOCALES.length - 1,
       })
-    : undefined
+    : undefined;
   const secondaryLocaleIndex =
     readLocales && bits.readBoolean()
       ? bits.readUint({ max: SUPPORTED_LOCALES.length - 1 })
-      : undefined
+      : undefined;
   const pageNumber = readPageNumber
     ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
-    : undefined
-  const isTestMode = bits.readBoolean()
-  const ballotType = bits.readUint({ max: BallotTypeMaximumValue })
-  const ballotId = bits.readBoolean() ? bits.readString() : undefined
+    : undefined;
+  const isTestMode = bits.readBoolean();
+  const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
+  const ballotId = bits.readBoolean() ? bits.readString() : undefined;
 
-  const ballotStyle = ballotStyles[ballotStyleIndex]
-  const precinct = precincts[precinctIndex]
+  const ballotStyle = ballotStyles[ballotStyleIndex];
+  const precinct = precincts[precinctIndex];
   const primaryLocale =
     readLocales && typeof primaryLocaleIndex === 'number'
       ? SUPPORTED_LOCALES[primaryLocaleIndex]
-      : undefined
+      : undefined;
   const secondaryLocale =
     readLocales && typeof secondaryLocaleIndex === 'number'
       ? SUPPORTED_LOCALES[secondaryLocaleIndex]
-      : undefined
+      : undefined;
 
-  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`)
-  assert(precinct, `precinct index ${precinctIndex} is invalid`)
+  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`);
+  assert(precinct, `precinct index ${precinctIndex} is invalid`);
   assert(
     !readLocales ||
       (typeof primaryLocaleIndex === 'number' &&
         typeof primaryLocale !== 'undefined'),
     `primary locale index ${primaryLocaleIndex} is invalid`
-  )
+  );
 
   return {
     ballotId,
@@ -260,24 +260,24 @@ export function decodeBallotConfigFromReader(
       ? { primary: primaryLocale, secondary: secondaryLocale }
       : undefined,
     pageNumber,
-  }
+  };
 }
 
 function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
   if (!Array.isArray(ynVote)) {
     throw new Error(
       `cannot encode a non-array yes/no vote: ${JSON.stringify(ynVote)}`
-    )
+    );
   }
 
   if (ynVote.length > 1) {
     throw new Error(
       `cannot encode a yes/no overvote: ${JSON.stringify(ynVote)}`
-    )
+    );
   }
 
   // yesno votes get a single bit
-  bits.writeBoolean(ynVote[0] === 'yes')
+  bits.writeBoolean(ynVote[0] === 'yes');
 }
 
 function encodeBallotVotesInto(
@@ -288,10 +288,10 @@ function encodeBallotVotesInto(
   // write roll call
   for (const contest of contests) {
     if (contest.type === 'ms-either-neither') {
-      bits.writeBoolean(isVotePresent(votes[contest.eitherNeitherContestId]))
-      bits.writeBoolean(isVotePresent(votes[contest.pickOneContestId]))
+      bits.writeBoolean(isVotePresent(votes[contest.eitherNeitherContestId]));
+      bits.writeBoolean(isVotePresent(votes[contest.pickOneContestId]));
     } else {
-      bits.writeBoolean(isVotePresent(votes[contest.id]))
+      bits.writeBoolean(isVotePresent(votes[contest.id]));
     }
   }
 
@@ -300,37 +300,37 @@ function encodeBallotVotesInto(
     if (contest.type === 'ms-either-neither') {
       const eitherNeitherYnVote = votes[
         contest.eitherNeitherContestId
-      ] as Optional<YesNoVote>
+      ] as Optional<YesNoVote>;
       const pickOneYnVote = votes[
         contest.pickOneContestId
-      ] as Optional<YesNoVote>
+      ] as Optional<YesNoVote>;
 
       if (eitherNeitherYnVote) {
-        writeYesNoVote(bits, eitherNeitherYnVote)
+        writeYesNoVote(bits, eitherNeitherYnVote);
       }
 
       if (pickOneYnVote) {
-        writeYesNoVote(bits, pickOneYnVote)
+        writeYesNoVote(bits, pickOneYnVote);
       }
 
-      continue
+      continue;
     }
 
-    const contestVote = votes[contest.id]
+    const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
       if (contest.type === 'yesno') {
-        const ynVote = contestVote as YesNoVote
+        const ynVote = contestVote as YesNoVote;
 
-        writeYesNoVote(bits, ynVote)
+        writeYesNoVote(bits, ynVote);
       } else {
-        const choices = contestVote as CandidateVote
+        const choices = contestVote as CandidateVote;
 
         // candidate choices get one bit per candidate
         for (const candidate of contest.candidates) {
           bits.writeBoolean(
             choices.some((choice) => choice.id === candidate.id)
-          )
+          );
         }
 
         if (contest.allowWriteIns) {
@@ -338,19 +338,19 @@ function encodeBallotVotesInto(
           const writeInCount = choices.reduce(
             (count, choice) => count + (choice.isWriteIn ? 1 : 0),
             0
-          )
-          const nonWriteInCount = choices.length - writeInCount
-          const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount)
+          );
+          const nonWriteInCount = choices.length - writeInCount;
+          const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount);
 
           if (maximumWriteIns > 0) {
-            bits.writeUint(writeInCount, { max: maximumWriteIns })
+            bits.writeUint(writeInCount, { max: maximumWriteIns });
 
             for (const choice of choices) {
               if (choice.isWriteIn) {
                 bits.writeString(choice.name, {
                   encoding: WriteInEncoding,
                   maxLength: MAXIMUM_WRITE_IN_LENGTH,
-                })
+                });
               }
             }
           }
@@ -359,7 +359,7 @@ function encodeBallotVotesInto(
     }
   }
 
-  return bits
+  return bits;
 }
 
 export function encodeBallotInto(
@@ -375,15 +375,15 @@ export function encodeBallotInto(
   }: CompletedBallot,
   bits: BitWriter
 ): BitWriter {
-  const ballotStyle = getBallotStyle({ election, ballotStyleId })
+  const ballotStyle = getBallotStyle({ election, ballotStyleId });
 
   if (!ballotStyle) {
-    throw new Error(`unknown ballot style id: ${ballotStyleId}`)
+    throw new Error(`unknown ballot style id: ${ballotStyleId}`);
   }
 
-  validateVotes({ election, ballotStyle, votes })
+  validateVotes({ election, ballotStyle, votes });
 
-  const contests = getContests({ ballotStyle, election })
+  const contests = getContests({ ballotStyle, election });
 
   return bits
     .writeUint8(...Prelude)
@@ -405,58 +405,60 @@ export function encodeBallotInto(
         bits
       )
     )
-    .with(() => encodeBallotVotesInto(contests, votes, bits))
+    .with(() => encodeBallotVotesInto(contests, votes, bits));
 }
 
 export function encodeBallot(
   election: Election,
   ballot: CompletedBallot
 ): Uint8Array {
-  const bits = new BitWriter()
-  encodeBallotInto(election, ballot, bits)
-  return bits.toUint8Array()
+  const bits = new BitWriter();
+  encodeBallotInto(election, ballot, bits);
+  return bits.toUint8Array();
 }
 
 function readPaddingToEnd(bits: BitReader): void {
-  let padding = 0
+  let padding = 0;
 
   while (bits.canRead()) {
     if (bits.readUint1() !== 0) {
       throw new Error(
         'unexpected data found while reading padding, expected EOF'
-      )
+      );
     }
 
-    padding += 1
+    padding += 1;
   }
 
   if (padding >= Uint8Size) {
-    throw new Error('unexpected data found while reading padding, expected EOF')
+    throw new Error(
+      'unexpected data found while reading padding, expected EOF'
+    );
   }
 }
 
 function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
-  const votes: VotesDict = {}
+  const votes: VotesDict = {};
 
   // read roll call
   const contestsWithAnswers = contests.flatMap<{
-    contest: AnyContest
-    hasEitherNeither?: boolean
-    hasPickOne?: boolean
+    contest: AnyContest;
+    hasEitherNeither?: boolean;
+    hasPickOne?: boolean;
   }>((contest) => {
     if (contest.type === 'ms-either-neither') {
-      const hasEitherNeither = bits.readBoolean()
-      const hasPickOne = bits.readBoolean()
+      const hasEitherNeither = bits.readBoolean();
+      const hasPickOne = bits.readBoolean();
 
       if (hasEitherNeither || hasPickOne) {
-        return [{ contest, hasEitherNeither, hasPickOne }]
+        return [{ contest, hasEitherNeither, hasPickOne }];
       }
     } else if (bits.readBoolean()) {
-      return [{ contest }]
+      return [{ contest }];
     }
 
-    return []
-  })
+    return [];
+  });
 
   // read vote data
   for (const { contest, hasEitherNeither, hasPickOne } of contestsWithAnswers) {
@@ -464,51 +466,51 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
       if (hasEitherNeither) {
         votes[contest.eitherNeitherContestId] = bits.readBoolean()
           ? ['yes']
-          : ['no']
+          : ['no'];
       }
       if (hasPickOne) {
-        votes[contest.pickOneContestId] = bits.readBoolean() ? ['yes'] : ['no']
+        votes[contest.pickOneContestId] = bits.readBoolean() ? ['yes'] : ['no'];
       }
     } else if (contest.type === 'yesno') {
       // yesno votes get a single bit
-      votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no']
+      votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no'];
     } else {
-      const contestVote: Candidate[] = []
+      const contestVote: Candidate[] = [];
 
       // candidate choices get one bit per candidate
       for (const candidate of contest.candidates) {
         if (bits.readBoolean()) {
-          contestVote.push(candidate)
+          contestVote.push(candidate);
         }
       }
 
       if (contest.allowWriteIns) {
         // read write-in data
-        const maximumWriteIns = Math.max(0, contest.seats - contestVote.length)
+        const maximumWriteIns = Math.max(0, contest.seats - contestVote.length);
 
         if (maximumWriteIns > 0) {
-          const writeInCount = bits.readUint({ max: maximumWriteIns })
+          const writeInCount = bits.readUint({ max: maximumWriteIns });
 
           for (let i = 0; i < writeInCount; i += 1) {
             const name = bits.readString({
               encoding: WriteInEncoding,
               maxLength: MAXIMUM_WRITE_IN_LENGTH,
-            })
+            });
 
             contestVote.push({
               id: `write-in__${name}`,
               name,
               isWriteIn: true,
-            })
+            });
           }
         }
       }
 
-      votes[contest.id] = contestVote
+      votes[contest.id] = contestVote;
     }
   }
 
-  return votes
+  return votes;
 }
 
 export function decodeBallotFromReader(
@@ -518,13 +520,13 @@ export function decodeBallotFromReader(
   if (!bits.skipUint8(...Prelude)) {
     throw new Error(
       "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-    )
+    );
   }
 
   const electionHash = bits.readString({
     encoding: HexEncoding,
     length: ELECTION_HASH_LENGTH,
-  })
+  });
 
   const {
     ballotId = '',
@@ -536,17 +538,17 @@ export function decodeBallotFromReader(
     election,
     { readLocales: false, readPageNumber: false },
     bits
-  )
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  const precinct = getPrecinctById({ precinctId, election })
+  );
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  const precinct = getPrecinctById({ precinctId, election });
 
-  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`)
-  assert(precinct, `invalid precinct id: ${precinctId}`)
+  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`);
+  assert(precinct, `invalid precinct id: ${precinctId}`);
 
-  const contests = getContests({ ballotStyle, election })
-  const votes = decodeBallotVotes(contests, bits)
+  const contests = getContests({ ballotStyle, election });
+  const votes = decodeBallotVotes(contests, bits);
 
-  readPaddingToEnd(bits)
+  readPaddingToEnd(bits);
 
   return {
     electionHash,
@@ -556,21 +558,21 @@ export function decodeBallotFromReader(
     votes,
     isTestMode,
     ballotType,
-  }
+  };
 }
 
 export function decodeBallot(
   election: Election,
   data: Uint8Array
 ): CompletedBallot {
-  return decodeBallotFromReader(election, new BitReader(data))
+  return decodeBallotFromReader(election, new BitReader(data));
 }
 
 export interface HMPBBallotPageMetadataCheckData {
-  electionHash: string
-  precinctCount: number
-  ballotStyleCount: number
-  contestCount: number
+  electionHash: string;
+  precinctCount: number;
+  ballotStyleCount: number;
+  contestCount: number;
 }
 
 export function encodeHMPBBallotPageMetadataInto(
@@ -608,7 +610,7 @@ export function encodeHMPBBallotPageMetadataInto(
           bits
         )
       )
-  )
+  );
 }
 
 export function encodeHMPBBallotPageMetadata(
@@ -619,7 +621,7 @@ export function encodeHMPBBallotPageMetadata(
     election,
     metadata,
     new BitWriter()
-  ).toUint8Array()
+  ).toUint8Array();
 }
 
 /**
@@ -629,14 +631,14 @@ export function encodeHMPBBallotPageMetadata(
 export function detectHMPBBallotPageMetadataFromReader(
   bits: BitReader
 ): boolean {
-  return bits.skipUint8(...HMPBPrelude)
+  return bits.skipUint8(...HMPBPrelude);
 }
 
 /**
  * Reads the HMPB prelude bytes from `data`, returning true when they are found.
  */
 export function detectHMPBBallotPageMetadata(data: Uint8Array): boolean {
-  return detectHMPBBallotPageMetadataFromReader(new BitReader(data))
+  return detectHMPBBallotPageMetadataFromReader(new BitReader(data));
 }
 
 /**
@@ -646,14 +648,14 @@ export function decodeElectionHashFromReader(
   bits: BitReader
 ): string | undefined {
   if (bits.skipUint8(...HMPBPrelude)) {
-    return bits.readString({ encoding: HexEncoding })
+    return bits.readString({ encoding: HexEncoding });
   }
 
   if (bits.skipUint8(...Prelude)) {
     return bits.readString({
       encoding: HexEncoding,
       length: ELECTION_HASH_LENGTH,
-    })
+    });
   }
 }
 
@@ -661,7 +663,7 @@ export function decodeElectionHashFromReader(
  * Reads the election hash from an encoded ballot or encoded HMPB metadata.
  */
 export function decodeElectionHash(data: Uint8Array): string | undefined {
-  return decodeElectionHashFromReader(new BitReader(data))
+  return decodeElectionHashFromReader(new BitReader(data));
 }
 
 export function decodeHMPBBallotPageMetadataFromReader(
@@ -671,10 +673,10 @@ export function decodeHMPBBallotPageMetadataFromReader(
   if (!detectHMPBBallotPageMetadataFromReader(bits)) {
     throw new Error(
       "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
-    )
+    );
   }
 
-  const electionHash = bits.readString({ encoding: HexEncoding })
+  const electionHash = bits.readString({ encoding: HexEncoding });
   const {
     ballotId,
     ballotStyleId,
@@ -687,7 +689,7 @@ export function decodeHMPBBallotPageMetadataFromReader(
     election,
     { readLocales: true, readPageNumber: true },
     bits
-  )
+  );
 
   return {
     electionHash,
@@ -698,12 +700,12 @@ export function decodeHMPBBallotPageMetadataFromReader(
     isTestMode,
     ballotType,
     ballotId,
-  }
+  };
 }
 
 export function decodeHMPBBallotPageMetadata(
   election: Election,
   data: Uint8Array
 ): HMPBBallotPageMetadata {
-  return decodeHMPBBallotPageMetadataFromReader(election, new BitReader(data))
+  return decodeHMPBBallotPageMetadataFromReader(election, new BitReader(data));
 }

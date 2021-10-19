@@ -1,13 +1,13 @@
-import React, { RefObject } from 'react'
-import styled from 'styled-components'
+import React, { RefObject } from 'react';
+import styled from 'styled-components';
 
-import { InputEventFunction } from '../config/types'
+import { InputEventFunction } from '../config/types';
 
 import {
   LabelButton,
   buttonFocusStyle,
   ButtonInterface as ButtonProps,
-} from './Button'
+} from './Button';
 
 const HiddenFileInput = styled.input`
   position: relative;
@@ -23,17 +23,17 @@ const HiddenFileInput = styled.input`
   &:active + label {
     outline: none;
   }
-`
+`;
 
 interface Props {
-  accept?: string
-  buttonProps?: ButtonProps
-  disabled?: boolean
-  name?: string
-  multiple?: boolean
-  children: string
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  innerRef?: RefObject<HTMLInputElement>
+  accept?: string;
+  buttonProps?: ButtonProps;
+  disabled?: boolean;
+  name?: string;
+  multiple?: boolean;
+  children: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  innerRef?: RefObject<HTMLInputElement>;
 }
 
 const FileInputButton = ({
@@ -46,9 +46,9 @@ const FileInputButton = ({
   ...rest
 }: Props): JSX.Element => {
   const onBlur: InputEventFunction = (event) => {
-    const input = event.currentTarget
-    input?.blur()
-  }
+    const input = event.currentTarget;
+    input?.blur();
+  };
   return (
     <React.Fragment>
       <LabelButton {...buttonProps} disabled={disabled}>
@@ -64,7 +64,7 @@ const FileInputButton = ({
         {children}
       </LabelButton>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default FileInputButton
+export default FileInputButton;

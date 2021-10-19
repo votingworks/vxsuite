@@ -8,13 +8,13 @@ export async function fetchJSON<Res>(
       Accept: 'application/json',
       ...(init?.headers ?? {}),
     },
-  })
+  });
 
   if (!response.ok) {
-    throw new Error('fetch response is not ok')
+    throw new Error('fetch response is not ok');
   }
 
-  const json: Res = await response.json()
+  const json: Res = await response.json();
 
-  return json
+  return json;
 }

@@ -1,6 +1,6 @@
-const jsExtensions = ['.js', '.jsx']
-const tsExtensions = ['.ts', '.tsx']
-const allExtensions = jsExtensions.concat(tsExtensions)
+const jsExtensions = ['.js', '.jsx'];
+const tsExtensions = ['.ts', '.tsx'];
+const allExtensions = jsExtensions.concat(tsExtensions);
 
 export = {
   parser: '@typescript-eslint/parser',
@@ -119,4 +119,4 @@ export = {
       },
     },
   ],
-}
+};

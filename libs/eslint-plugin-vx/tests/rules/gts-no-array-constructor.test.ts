@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-no-array-constructor'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-no-array-constructor';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-no-array-constructor', rule, {
   valid: [
@@ -92,4 +92,4 @@ ruleTester.run('gts-no-array-constructor', rule, {
       errors: [{ line: 1, messageId: 'noArrayConstructor' }],
     },
   ],
-})
+});

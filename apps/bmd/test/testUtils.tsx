@@ -1,21 +1,21 @@
-import { createMemoryHistory, History } from 'history'
-import React from 'react'
-import { Router } from 'react-router-dom'
-import { render as testRender } from '@testing-library/react'
+import { createMemoryHistory, History } from 'history';
+import React from 'react';
+import { Router } from 'react-router-dom';
+import { render as testRender } from '@testing-library/react';
 import {
   Contests,
   ElectionDefinition,
   parseElection,
   VotesDict,
-} from '@votingworks/types'
-import { asElectionDefinition } from '@votingworks/fixtures'
+} from '@votingworks/types';
+import { asElectionDefinition } from '@votingworks/fixtures';
 
-import * as GLOBALS from '../src/config/globals'
+import * as GLOBALS from '../src/config/globals';
 
 // it's necessary to use the no-seal version, which has neither
 // of the two optional seal fields, because otherwise
 // typescript concludes that sealURL is required.
-import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json'
+import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json';
 
 import {
   MachineConfig,
@@ -23,11 +23,11 @@ import {
   Printer,
   TextSizeSetting,
   VxMarkOnly,
-} from '../src/config/types'
+} from '../src/config/types';
 
-import BallotContext from '../src/contexts/ballotContext'
-import fakePrinter from './helpers/fakePrinter'
-import fakeMachineConfig from './helpers/fakeMachineConfig'
+import BallotContext from '../src/contexts/ballotContext';
+import fakePrinter from './helpers/fakePrinter';
+import fakeMachineConfig from './helpers/fakeMachineConfig';
 
 export function render(
   component: React.ReactNode,
@@ -54,25 +54,25 @@ export function render(
     userSettings = { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
     votes = {},
   }: {
-    route?: string
-    ballotStyleId?: string
-    electionDefinition?: ElectionDefinition
-    contests?: Contests
-    markVoterCardVoided?: MarkVoterCardFunction
-    markVoterCardPrinted?: MarkVoterCardFunction
-    history?: History
-    isCardlessVoter?: boolean
-    isLiveMode?: boolean
-    machineConfig?: MachineConfig
-    precinctId?: string
-    printer?: Printer
-    resetBallot?(): void
-    setUserSettings?(): void
-    updateTally?(): void
-    updateVote?(): void
-    forceSaveVote?(): void
-    userSettings?: { textSize: TextSizeSetting }
-    votes?: VotesDict
+    route?: string;
+    ballotStyleId?: string;
+    electionDefinition?: ElectionDefinition;
+    contests?: Contests;
+    markVoterCardVoided?: MarkVoterCardFunction;
+    markVoterCardPrinted?: MarkVoterCardFunction;
+    history?: History;
+    isCardlessVoter?: boolean;
+    isLiveMode?: boolean;
+    machineConfig?: MachineConfig;
+    precinctId?: string;
+    printer?: Printer;
+    resetBallot?(): void;
+    setUserSettings?(): void;
+    updateTally?(): void;
+    updateVote?(): void;
+    forceSaveVote?(): void;
+    userSettings?: { textSize: TextSizeSetting };
+    votes?: VotesDict;
   } = {}
 ): ReturnType<typeof testRender> {
   return {
@@ -102,5 +102,5 @@ export function render(
       </BallotContext.Provider>
     ),
     history,
-  }
+  };
 }

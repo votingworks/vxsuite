@@ -1,9 +1,9 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  isSelected?: boolean
-  isRemoved?: boolean
-  isUnknown?: boolean
+  isSelected?: boolean;
+  isRemoved?: boolean;
+  isUnknown?: boolean;
 }
 
 const Checkbox = styled.span<Props>`
@@ -30,6 +30,6 @@ const Checkbox = styled.span<Props>`
     content: '${({ isSelected, isRemoved, isUnknown }) =>
       isRemoved ? '✕' : isSelected ? '✓' : isUnknown ? '?' : undefined}';
   }
-`
+`;
 
-export default Checkbox
+export default Checkbox;

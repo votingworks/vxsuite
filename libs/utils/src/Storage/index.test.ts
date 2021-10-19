@@ -1,4 +1,4 @@
-import * as storage from '.'
+import * as storage from '.';
 
 test('exports the storage types', () => {
   expect(Object.keys(storage)).toMatchInlineSnapshot(`
@@ -7,5 +7,5 @@ test('exports the storage types', () => {
       "LocalStorage",
       "MemoryStorage",
     ]
-  `)
-})
+  `);
+});

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { BrowserRouter, Route } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
 
-import './App.css'
+import './App.css';
 
 import {
   WebServiceCard,
@@ -9,17 +9,17 @@ import {
   LocalStorage,
   getHardware,
   getPrinter,
-} from '@votingworks/utils'
-import AppRoot, { Props as AppRootProps } from './AppRoot'
+} from '@votingworks/utils';
+import AppRoot, { Props as AppRootProps } from './AppRoot';
 
-import machineConfigProvider from './utils/machineConfig'
+import machineConfigProvider from './utils/machineConfig';
 
 export interface Props {
-  hardware?: AppRootProps['hardware']
-  printer?: AppRootProps['printer']
-  card?: AppRootProps['card']
-  machineConfig?: AppRootProps['machineConfig']
-  storage?: AppRootProps['storage']
+  hardware?: AppRootProps['hardware'];
+  printer?: AppRootProps['printer'];
+  card?: AppRootProps['card'];
+  machineConfig?: AppRootProps['machineConfig'];
+  storage?: AppRootProps['storage'];
 }
 
 const App = ({
@@ -29,19 +29,19 @@ const App = ({
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
 }: Props): JSX.Element => {
-  const [internalHardware, setInternalHardware] = useState(hardware)
+  const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
     const updateHardware = async () => {
       if (internalHardware === undefined) {
-        setInternalHardware(await getHardware())
+        setInternalHardware(await getHardware());
       }
-    }
-    void updateHardware()
+    };
+    void updateHardware();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hardware])
+  }, [hardware]);
 
   if (!internalHardware) {
-    return <BrowserRouter />
+    return <BrowserRouter />;
   }
   return (
     <BrowserRouter>
@@ -59,7 +59,7 @@ const App = ({
         )}
       />
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;

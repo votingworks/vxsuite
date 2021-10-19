@@ -1,15 +1,15 @@
-import React from 'react'
-import styled from 'styled-components'
-import Prose from './Prose'
-import Text from './Text'
+import React from 'react';
+import styled from 'styled-components';
+import Prose from './Prose';
+import Text from './Text';
 
 interface Props {
-  appName?: string
-  centerContent?: boolean
-  children?: React.ReactNode
-  footer?: React.ReactNode
-  title?: string
-  screenReaderInstructions?: string
+  appName?: string;
+  centerContent?: boolean;
+  children?: React.ReactNode;
+  footer?: React.ReactNode;
+  title?: string;
+  screenReaderInstructions?: string;
 }
 
 const StyledSidebar = styled.nav`
@@ -17,11 +17,11 @@ const StyledSidebar = styled.nav`
   flex-direction: column;
   background-color: #333333;
   color: #ffffff;
-`
+`;
 
 const Header = styled.div`
   margin: 2rem 1rem 1rem;
-`
+`;
 
 const Content = styled.div<Props>`
   display: flex;
@@ -33,11 +33,11 @@ const Content = styled.div<Props>`
   p > button {
     width: 100%;
   }
-`
+`;
 
 const Footer = styled.div`
   margin: 1rem;
-`
+`;
 
 const Sidebar = ({
   appName,
@@ -69,7 +69,7 @@ const Sidebar = ({
       <Content centerContent={centerContent}>{children}</Content>
       {footer && <Footer>{footer}</Footer>}
     </StyledSidebar>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

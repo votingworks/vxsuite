@@ -1,15 +1,15 @@
-import React from 'react'
-import { format } from '@votingworks/utils'
-import { TestMode, Text } from '@votingworks/ui'
-import { Absolute } from '../components/Absolute'
-import { InsertBallot } from '../components/Graphics'
-import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
-import { Bar } from '../components/Bar'
+import React from 'react';
+import { format } from '@votingworks/utils';
+import { TestMode, Text } from '@votingworks/ui';
+import { Absolute } from '../components/Absolute';
+import { InsertBallot } from '../components/Graphics';
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
+import { Bar } from '../components/Bar';
 
 interface Props {
-  isLiveMode: boolean
-  scannedBallotCount: number
-  showNoChargerWarning: boolean
+  isLiveMode: boolean;
+  scannedBallotCount: number;
+  showNoChargerWarning: boolean;
 }
 
 const InsertBallotScreen = ({
@@ -42,9 +42,9 @@ const InsertBallotScreen = ({
         </Bar>
       </Absolute>
     </CenteredScreen>
-  )
-}
-export default InsertBallotScreen
+  );
+};
+export default InsertBallotScreen;
 
 /* istanbul ignore next */
 export const ZeroBallotsScannedTestPreview = (): JSX.Element => {
@@ -54,8 +54,8 @@ export const ZeroBallotsScannedTestPreview = (): JSX.Element => {
       scannedBallotCount={0}
       showNoChargerWarning={false}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const ManyBallotsScannedLivePreview = (): JSX.Element => {
@@ -65,8 +65,8 @@ export const ManyBallotsScannedLivePreview = (): JSX.Element => {
       isLiveMode
       showNoChargerWarning={false}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const NoPowerConnectedTestPreview = (): JSX.Element => {
@@ -76,5 +76,5 @@ export const NoPowerConnectedTestPreview = (): JSX.Element => {
       scannedBallotCount={1234}
       showNoChargerWarning
     />
-  )
-}
+  );
+};

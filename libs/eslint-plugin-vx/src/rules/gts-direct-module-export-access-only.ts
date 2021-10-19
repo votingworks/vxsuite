@@ -1,6 +1,9 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils'
-import { strict as assert } from 'assert'
-import { createRule } from '../util'
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
+import { strict as assert } from 'assert';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-direct-module-export-access-only',
@@ -25,9 +28,9 @@ export default createRule({
   create(context) {
     return {
       ImportNamespaceSpecifier(node: TSESTree.ImportNamespaceSpecifier): void {
-        const scope = context.getScope()
-        const variable = scope.set.get(node.local.name)
-        assert(variable)
+        const scope = context.getScope();
+        const variable = scope.set.get(node.local.name);
+        assert(variable);
 
         for (const reference of variable.references) {
           // A.b
@@ -36,7 +39,7 @@ export default createRule({
               AST_NODE_TYPES.MemberExpression &&
             reference.identifier.parent.object === reference.identifier
           ) {
-            continue
+            continue;
           }
 
           // let a: A.b
@@ -45,7 +48,7 @@ export default createRule({
               AST_NODE_TYPES.TSQualifiedName &&
             reference.identifier.parent.left === reference.identifier
           ) {
-            continue
+            continue;
           }
 
           // let a: A['b']
@@ -57,7 +60,7 @@ export default createRule({
             reference.identifier.parent.parent.objectType.typeName ===
               reference.identifier
           ) {
-            continue
+            continue;
           }
 
           // let a: typeof A['b']
@@ -69,7 +72,7 @@ export default createRule({
             reference.identifier.parent.parent.objectType.exprName ===
               reference.identifier
           ) {
-            continue
+            continue;
           }
 
           // import * as React from 'react'
@@ -81,15 +84,15 @@ export default createRule({
               AST_NODE_TYPES.ImportNamespaceSpecifier &&
             reference.identifier.parent.local === reference.identifier
           ) {
-            continue
+            continue;
           }
 
           context.report({
             node: reference.identifier,
             messageId: 'directAccessOnly',
-          })
+          });
         }
       },
-    }
+    };
   },
-})
+});

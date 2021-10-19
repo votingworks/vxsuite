@@ -1,29 +1,29 @@
-import { electionSample } from '@votingworks/fixtures'
-import { BallotType } from '@votingworks/types'
-import { WritableStream } from 'memory-streams'
-import { mocked } from 'ts-jest/utils'
-import { countProvider } from '../util/spinner'
-import { retryScan } from './index'
-import main, { printHelp } from './main'
+import { electionSample } from '@votingworks/fixtures';
+import { BallotType } from '@votingworks/types';
+import { WritableStream } from 'memory-streams';
+import { mocked } from 'ts-jest/utils';
+import { countProvider } from '../util/spinner';
+import { retryScan } from './index';
+import main, { printHelp } from './main';
 
-jest.mock('../util/spinner')
-jest.mock('./index')
+jest.mock('../util/spinner');
+jest.mock('./index');
 
-const countProviderMock = mocked(countProvider)
-const retryScanMock = mocked(retryScan)
+const countProviderMock = mocked(countProvider);
+const retryScanMock = mocked(retryScan);
 
 beforeEach(() => {
-  retryScanMock.mockClear()
-  countProviderMock.mockClear()
+  retryScanMock.mockClear();
+  countProviderMock.mockClear();
   countProviderMock.mockReturnValue({
     increment: jest.fn(),
     toString: jest.fn(() => ''),
-  })
-})
+  });
+});
 
 test('printHelp', () => {
-  const out = new WritableStream()
-  printHelp(out)
+  const out = new WritableStream();
+  printHelp(out);
   expect(out.toString()).toMatchInlineSnapshot(`
     "retry-scan: Retry scanning already-scanned sheets.
 
@@ -41,52 +41,52 @@ test('printHelp', () => {
                               Defaults to a temporary directory.
       -d, --diff-when RULE    When to print a diff of interpretations: always, never, or same-type (default).
     "
-  `)
-})
+  `);
+});
 
 test('fails given invalid options', async () => {
-  const stdout = new WritableStream()
-  const stderr = new WritableStream()
-  expect(await main([], { stdout, stderr })).not.toEqual(0)
-  expect(stderr.toString()).toContain('no filters provided')
-  expect(stdout.toString()).toEqual('')
-})
+  const stdout = new WritableStream();
+  const stderr = new WritableStream();
+  expect(await main([], { stdout, stderr })).not.toEqual(0);
+  expect(stderr.toString()).toContain('no filters provided');
+  expect(stdout.toString()).toEqual('');
+});
 
 test('prints help to stdout', async () => {
-  const stdout = new WritableStream()
-  const stderr = new WritableStream()
-  expect(await main(['--help'], { stdout, stderr })).toEqual(0)
+  const stdout = new WritableStream();
+  const stderr = new WritableStream();
+  expect(await main(['--help'], { stdout, stderr })).toEqual(0);
   expect(stdout.toString()).toContain(
     'retry-scan: Retry scanning already-scanned sheets.'
-  )
-  expect(stderr.toString()).toEqual('')
-})
+  );
+  expect(stderr.toString()).toEqual('');
+});
 
 test('successful rescan with no changes', async () => {
-  const stdout = new WritableStream()
-  const stderr = new WritableStream()
+  const stdout = new WritableStream();
+  const stderr = new WritableStream();
 
-  retryScanMock.mockResolvedValue()
-  expect(await main(['--all'], { stdout, stderr })).toEqual(0)
+  retryScanMock.mockResolvedValue();
+  expect(await main(['--all'], { stdout, stderr })).toEqual(0);
   expect(stdout.toString()).toContain(
     '🏁 No pages differed from their original interpretation'
-  )
-  expect(stderr.toString()).toEqual('')
-})
+  );
+  expect(stderr.toString()).toEqual('');
+});
 
 test('successful rescan with one non-type change', async () => {
-  const stdout = new WritableStream()
-  const stderr = new WritableStream()
+  const stdout = new WritableStream();
+  const stderr = new WritableStream();
 
-  let resolve: (() => void) | undefined
+  let resolve: (() => void) | undefined;
   retryScanMock.mockResolvedValue(
     new Promise((res) => {
-      resolve = res
+      resolve = res;
     })
-  )
+  );
 
-  const mainPromise = main(['--all'], { stdout, stderr })
-  const [[, listeners]] = retryScanMock.mock.calls
+  const mainPromise = main(['--all'], { stdout, stderr });
+  const [[, listeners]] = retryScanMock.mock.calls;
   const frontScan = {
     interpretation: {
       type: 'InterpretedBmdPage',
@@ -103,27 +103,27 @@ test('successful rescan with one non-type change', async () => {
     },
     originalFilename: '/tmp/abc.png',
     normalizedFilename: '/tmp/abc-normalized.png',
-  } as const
+  } as const;
   const backScan = {
     interpretation: { type: 'BlankPage' },
     originalFilename: '/tmp/def.png',
     normalizedFilename: '/tmp/def-normalized.png',
-  } as const
+  } as const;
 
-  listeners?.sheetsLoading?.()
-  listeners?.sheetsLoaded?.(1, electionSample)
-  listeners?.interpreterLoading?.()
-  listeners?.interpreterLoaded?.()
+  listeners?.sheetsLoading?.();
+  listeners?.sheetsLoaded?.(1, electionSample);
+  listeners?.interpreterLoading?.();
+  listeners?.interpreterLoaded?.();
   listeners?.pageInterpreted?.('a-test-sheet-id', 'front', frontScan, {
     ...frontScan,
     // change the votes in the rescan
     interpretation: { ...frontScan.interpretation, votes: { 99: ['yes'] } },
-  })
-  listeners?.pageInterpreted?.('a-test-sheet-id', 'back', backScan, backScan)
-  listeners?.interpreterUnloaded?.()
+  });
+  listeners?.pageInterpreted?.('a-test-sheet-id', 'back', backScan, backScan);
+  listeners?.interpreterUnloaded?.();
 
-  process.nextTick(resolve!)
-  await mainPromise
+  process.nextTick(resolve!);
+  await mainPromise;
 
   expect(stdout.toString()).toMatchInlineSnapshot(`
     "🏁 1 page(s) differed from the original interpretation.
@@ -158,6 +158,6 @@ test('successful rescan with one non-type change', async () => {
       }
 
     "
-  `)
-  expect(stderr.toString()).toEqual('')
-})
+  `);
+  expect(stderr.toString()).toEqual('');
+});

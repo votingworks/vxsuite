@@ -1,19 +1,19 @@
-import { ElectionDefinition, Optional, UserSession } from '@votingworks/types'
-import { useCallback, useEffect, useState } from 'react'
-import { Smartcard } from '..'
+import { ElectionDefinition, Optional, UserSession } from '@votingworks/types';
+import { useCallback, useEffect, useState } from 'react';
+import { Smartcard } from '..';
 
 export interface UseUserSessionProps {
-  smartcard?: Smartcard
-  electionDefinition?: ElectionDefinition
-  persistAuthentication: boolean // Persist an authenticated admin session when the admin card is removed.
-  bypassAuthentication?: boolean // Always maintain an authenticated admin session for apps persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
+  smartcard?: Smartcard;
+  electionDefinition?: ElectionDefinition;
+  persistAuthentication: boolean; // Persist an authenticated admin session when the admin card is removed.
+  bypassAuthentication?: boolean; // Always maintain an authenticated admin session for apps persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
 }
 
 export interface UseUserSessionResult {
-  currentUserSession?: UserSession
-  attemptToAuthenticateAdminUser: (passcode: string) => boolean
-  lockMachine: () => void
-  bootstrapAuthenticatedAdminSession: () => void
+  currentUserSession?: UserSession;
+  attemptToAuthenticateAdminUser: (passcode: string) => boolean;
+  lockMachine: () => void;
+  bootstrapAuthenticatedAdminSession: () => void;
 }
 
 /**
@@ -36,23 +36,23 @@ export const useUserSession = ({
 }: UseUserSessionProps): UseUserSessionResult => {
   const [currentUserSession, setCurrentUserSession] = useState<
     Optional<UserSession>
-  >()
+  >();
 
   useEffect(() => {
     void (() => {
       setCurrentUserSession((prev) => {
         const previousIsAuthenticatedAdmin =
-          prev?.type === 'admin' && prev.authenticated
+          prev?.type === 'admin' && prev.authenticated;
         if (bypassAuthentication && !prev && persistAuthentication) {
           return {
             type: 'admin',
             authenticated: true,
-          }
+          };
         }
 
         if (smartcard) {
           if (persistAuthentication && previousIsAuthenticatedAdmin) {
-            return prev
+            return prev;
           }
           if (smartcard.data?.t) {
             if (smartcard.data.t === 'pollworker') {
@@ -62,79 +62,82 @@ export const useUserSession = ({
                   (electionDefinition &&
                     smartcard.data.h === electionDefinition.electionHash) ??
                   false,
-              }
+              };
             }
             if (smartcard.data.t === 'admin') {
               // TODO check election hash matches election definition (if there is one)
-              const adminCardHasNoPin = smartcard.data.p === undefined
+              const adminCardHasNoPin = smartcard.data.p === undefined;
               return {
                 type: smartcard.data.t,
                 authenticated:
                   bypassAuthentication ||
                   previousIsAuthenticatedAdmin ||
                   adminCardHasNoPin,
-              }
+              };
             }
             return {
               type: smartcard.data.t,
               authenticated: true,
-            }
+            };
           }
           // Invalid card type
           return {
             type: 'invalid',
             authenticated: false,
-          }
+          };
         }
         if (prev && (!persistAuthentication || !previousIsAuthenticatedAdmin)) {
           // If a card is removed when there is not an authenticated session, clear the session.
-          return undefined
+          return undefined;
         }
 
-        return prev
-      })
-    })()
+        return prev;
+      });
+    })();
   }, [
     bypassAuthentication,
     persistAuthentication,
     smartcard,
     electionDefinition,
-  ])
+  ]);
 
   const attemptToAuthenticateAdminUser = useCallback(
     (passcode: string): boolean => {
-      let isAdminCard = false
-      let passcodeMatches = false
+      let isAdminCard = false;
+      let passcodeMatches = false;
       // The card must be an admin card to authenticate
       if (smartcard?.data?.t === 'admin') {
-        isAdminCard = true
+        isAdminCard = true;
         // There must be an expected passcode on the card to authenticate.
         if (typeof smartcard.data.p === 'string') {
-          passcodeMatches = passcode === smartcard.data.p
+          passcodeMatches = passcode === smartcard.data.p;
         }
       }
       if (isAdminCard) {
-        setCurrentUserSession({ type: 'admin', authenticated: passcodeMatches })
+        setCurrentUserSession({
+          type: 'admin',
+          authenticated: passcodeMatches,
+        });
       }
-      return isAdminCard && passcodeMatches
+      return isAdminCard && passcodeMatches;
     },
     [smartcard]
-  )
+  );
 
   const lockMachine = useCallback(() => {
     if (!bypassAuthentication) {
-      setCurrentUserSession(undefined)
+      setCurrentUserSession(undefined);
     }
-  }, [bypassAuthentication])
+  }, [bypassAuthentication]);
 
   const bootstrapAuthenticatedAdminSession = useCallback(() => {
-    setCurrentUserSession({ type: 'admin', authenticated: true })
-  }, [])
+    setCurrentUserSession({ type: 'admin', authenticated: true });
+  }, []);
 
   return {
     currentUserSession,
     attemptToAuthenticateAdminUser,
     lockMachine,
     bootstrapAuthenticatedAdminSession,
-  }
-}
+  };
+};

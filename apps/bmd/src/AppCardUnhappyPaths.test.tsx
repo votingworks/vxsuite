@@ -1,52 +1,52 @@
-import React from 'react'
-import { render, fireEvent, screen } from '@testing-library/react'
+import React from 'react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import {
   electionSample,
   electionSampleDefinition as election,
   electionSampleDefinition,
-} from '@votingworks/fixtures'
+} from '@votingworks/fixtures';
 import {
   makeVoidedVoterCard,
   makeVoterCard,
   makePollWorkerCard,
-} from '@votingworks/test-utils'
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
+} from '@votingworks/test-utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App'
+import App from './App';
 
-import { CARD_EXPIRATION_SECONDS } from './config/globals'
+import { CARD_EXPIRATION_SECONDS } from './config/globals';
 import {
   advanceTimersAndPromises,
   makeExpiredVoterCard,
   makeOtherElectionVoterCard,
-} from '../test/helpers/smartcards'
+} from '../test/helpers/smartcards';
 
 import {
   setElectionInStorage,
   setStateInStorage,
-} from '../test/helpers/election'
-import utcTimestamp from './utils/utcTimestamp'
-import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import { VxPrintOnly } from './config/types'
+} from '../test/helpers/election';
+import utcTimestamp from './utils/utcTimestamp';
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
+import { VxPrintOnly } from './config/types';
 
-jest.useFakeTimers()
+jest.useFakeTimers();
 
 beforeEach(() => {
-  window.location.href = '/'
-})
+  window.location.href = '/';
+});
 
 test('Display App Card Unhappy Paths', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard()
-  const hardware = await MemoryHardware.buildStandard()
-  const storage = new MemoryStorage()
-  const machineConfig = fakeMachineConfigProvider()
+  const card = new MemoryCard();
+  const hardware = await MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  const machineConfig = fakeMachineConfigProvider();
 
-  card.removeCard()
+  card.removeCard();
 
-  await setElectionInStorage(storage)
-  await setStateInStorage(storage)
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
 
   render(
     <App
@@ -55,112 +55,112 @@ test('Display App Card Unhappy Paths', async () => {
       storage={storage}
       machineConfig={machineConfig}
     />
-  )
-  await advanceTimersAndPromises()
+  );
+  await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //
 
   // Insert used Voter card
-  card.insertCard(makeOtherElectionVoterCard())
-  await advanceTimersAndPromises()
-  screen.getByText('Card is not configured for this election.')
+  card.insertCard(makeOtherElectionVoterCard());
+  await advanceTimersAndPromises();
+  screen.getByText('Card is not configured for this election.');
 
   // Remove card
-  card.removeCard()
-  await advanceTimersAndPromises()
-  screen.getByText('Insert voter card to load ballot.')
+  card.removeCard();
+  await advanceTimersAndPromises();
+  screen.getByText('Insert voter card to load ballot.');
 
   // ---------------
 
   // Insert used Voter card
-  card.insertCard(makeVoidedVoterCard(electionSample))
-  await advanceTimersAndPromises()
-  screen.getByText('Expired Card')
+  card.insertCard(makeVoidedVoterCard(electionSample));
+  await advanceTimersAndPromises();
+  screen.getByText('Expired Card');
 
   // Remove card
-  card.removeCard()
-  await advanceTimersAndPromises()
-  screen.getByText('Insert voter card to load ballot.')
+  card.removeCard();
+  await advanceTimersAndPromises();
+  screen.getByText('Insert voter card to load ballot.');
 
   // ---------------
 
   // Insert expired Voter card
-  card.insertCard(makeExpiredVoterCard())
-  await advanceTimersAndPromises()
-  screen.getByText('Expired Card')
+  card.insertCard(makeExpiredVoterCard());
+  await advanceTimersAndPromises();
+  screen.getByText('Expired Card');
 
   // Remove card
-  card.removeCard()
-  await advanceTimersAndPromises()
-  screen.getByText('Insert voter card to load ballot.')
+  card.removeCard();
+  await advanceTimersAndPromises();
+  screen.getByText('Insert voter card to load ballot.');
 
   // ---------------
 
   // Voter Card which eventually expires
   const expiringCard = makeVoterCard(electionSample, {
     c: utcTimestamp() - CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
-  })
+  });
 
   // First Insert is Good
-  card.insertCard(expiringCard)
-  await advanceTimersAndPromises()
-  fireEvent.click(screen.getByText('Start Voting'))
+  card.insertCard(expiringCard);
+  await advanceTimersAndPromises();
+  fireEvent.click(screen.getByText('Start Voting'));
 
   // Slow voter clicks around, expiration Time passes, card still works.
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
 
   // Card expires, but card still works as expected.
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
-  await advanceTimersAndPromises(60)
-  fireEvent.mouseDown(document) // reset Idle Timer
-  fireEvent.click(screen.getByText('Next'))
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises(60);
+  fireEvent.mouseDown(document); // reset Idle Timer
+  fireEvent.click(screen.getByText('Next'));
 
   // Remove card
-  card.removeCard()
-  await advanceTimersAndPromises()
-  screen.getByText('Insert voter card to load ballot.')
+  card.removeCard();
+  await advanceTimersAndPromises();
+  screen.getByText('Insert voter card to load ballot.');
 
   // Reinsert expired card
-  card.insertCard(makeExpiredVoterCard())
-  await advanceTimersAndPromises()
-  screen.getByText('Expired Card')
+  card.insertCard(makeExpiredVoterCard());
+  await advanceTimersAndPromises();
+  screen.getByText('Expired Card');
 
   // Remove Card
-  card.removeCard()
-  await advanceTimersAndPromises()
-  screen.getByText('Insert voter card to load ballot.')
+  card.removeCard();
+  await advanceTimersAndPromises();
+  screen.getByText('Insert voter card to load ballot.');
 
   // ---------------
-})
+});
 
 test('Inserting voter card when machine is unconfigured does nothing', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard()
-  const hardware = await MemoryHardware.buildStandard()
-  const storage = new MemoryStorage()
-  const machineConfig = fakeMachineConfigProvider()
+  const card = new MemoryCard();
+  const hardware = await MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  const machineConfig = fakeMachineConfigProvider();
 
-  card.removeCard()
+  card.removeCard();
 
   render(
     <App
@@ -169,34 +169,34 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
       storage={storage}
       machineConfig={machineConfig}
     />
-  )
-  await advanceTimersAndPromises()
+  );
+  await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured')
+  screen.getByText('Device Not Configured');
 
-  card.insertCard(makeVoterCard(electionSample))
-  await advanceTimersAndPromises()
+  card.insertCard(makeVoterCard(electionSample));
+  await advanceTimersAndPromises();
 
-  screen.getByText('Device Not Configured')
-})
+  screen.getByText('Device Not Configured');
+});
 
 test('Inserting pollworker card with invalid long data fall back as if there is no long data', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard()
-  const hardware = await MemoryHardware.buildStandard()
-  const storage = new MemoryStorage()
-  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly })
+  const card = new MemoryCard();
+  const hardware = await MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
 
-  card.removeCard()
+  card.removeCard();
 
-  await setElectionInStorage(storage, electionSampleDefinition)
+  await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, {
     isPollsOpen: false,
-  })
+  });
 
   render(
     <App
@@ -205,20 +205,20 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
       storage={storage}
       machineConfig={machineConfig}
     />
-  )
-  await advanceTimersAndPromises()
+  );
+  await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //
 
-  screen.getByText('Insert Poll Worker card to open.')
+  screen.getByText('Insert Poll Worker card to open.');
 
-  const pollworkerCard = makePollWorkerCard(election.electionHash)
-  card.insertCard(pollworkerCard, electionSampleDefinition.electionData)
-  await advanceTimersAndPromises()
+  const pollworkerCard = makePollWorkerCard(election.electionHash);
+  card.insertCard(pollworkerCard, electionSampleDefinition.electionData);
+  await advanceTimersAndPromises();
 
   // Land on pollworker screen
-  screen.getByText('Open/Close Polls')
+  screen.getByText('Open/Close Polls');
 
   // No prompt to print precinct tally report
-  expect(await screen.queryAllByText('Tally Report on Card')).toHaveLength(0)
-})
+  expect(await screen.queryAllByText('Tally Report on Card')).toHaveLength(0);
+});

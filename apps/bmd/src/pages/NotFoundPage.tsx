@@ -1,19 +1,19 @@
-import React, { useContext } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import React, { useContext } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
 
-import { Button, Main, MainChild } from '@votingworks/ui'
-import BallotContext from '../contexts/ballotContext'
+import { Button, Main, MainChild } from '@votingworks/ui';
+import BallotContext from '../contexts/ballotContext';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
 
 const NotFoundPage = ({
   location: { pathname },
 }: RouteComponentProps): JSX.Element => {
-  const { resetBallot } = useContext(BallotContext)
+  const { resetBallot } = useContext(BallotContext);
   const requestResetBallot = () => {
-    resetBallot()
-  }
+    resetBallot();
+  };
   return (
     <Screen>
       <Main>
@@ -30,7 +30,7 @@ const NotFoundPage = ({
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default NotFoundPage
+export default NotFoundPage;

@@ -1,31 +1,31 @@
-import React, { useState } from 'react'
-import { Route, Switch } from 'react-router-dom'
-import IdleTimer from 'react-idle-timer'
+import React, { useState } from 'react';
+import { Route, Switch } from 'react-router-dom';
+import IdleTimer from 'react-idle-timer';
 
-import ContestPage from '../pages/ContestPage'
-import IdlePage from '../pages/IdlePage'
-import NotFoundPage from '../pages/NotFoundPage'
-import PrintPage from '../pages/PrintPage'
-import ReviewPage from '../pages/ReviewPage'
-import SaveCardScreen from '../pages/SaveCardScreen'
-import StartPage from '../pages/StartPage'
-import RemoveCardScreen from '../pages/RemoveCardScreen'
-import CastBallotPage from '../pages/CastBallotPage'
-import { IDLE_TIMEOUT_SECONDS } from '../config/globals'
+import ContestPage from '../pages/ContestPage';
+import IdlePage from '../pages/IdlePage';
+import NotFoundPage from '../pages/NotFoundPage';
+import PrintPage from '../pages/PrintPage';
+import ReviewPage from '../pages/ReviewPage';
+import SaveCardScreen from '../pages/SaveCardScreen';
+import StartPage from '../pages/StartPage';
+import RemoveCardScreen from '../pages/RemoveCardScreen';
+import CastBallotPage from '../pages/CastBallotPage';
+import { IDLE_TIMEOUT_SECONDS } from '../config/globals';
 
 const Ballot = (): JSX.Element => {
-  const [isIdle, setIsIdle] = useState(false)
+  const [isIdle, setIsIdle] = useState(false);
 
   const onActive = () => {
     // Delay to avoid passing tap to next screen
     window.setTimeout(() => {
-      setIsIdle(false)
-    }, 200)
-  }
+      setIsIdle(false);
+    }, 200);
+  };
 
   const onIdle = () => {
-    setIsIdle(true)
-  }
+    setIsIdle(true);
+  };
 
   return (
     <IdleTimer
@@ -50,7 +50,7 @@ const Ballot = (): JSX.Element => {
         </Switch>
       )}
     </IdleTimer>
-  )
-}
+  );
+};
 
-export default Ballot
+export default Ballot;

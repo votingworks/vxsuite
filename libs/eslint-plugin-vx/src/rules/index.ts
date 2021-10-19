@@ -1,16 +1,16 @@
-import { TSESLint } from '@typescript-eslint/experimental-utils'
-import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only'
-import gtsNoArrayConstructor from './gts-no-array-constructor'
-import gtsNoDollarSignNames from './gts-no-dollar-sign-names'
-import gtsNoForeach from './gts-no-foreach'
-import gtsNoImportExportType from './gts-no-import-export-type'
-import gtsNoPrivateFields from './gts-no-private-fields'
-import gtsNoPublicModifier from './gts-no-public-modifier'
-import gtsParameterProperties from './gts-parameter-properties'
-import gtsUseOptionals from './gts-use-optionals'
-import noArraySortMutation from './no-array-sort-mutation'
-import noAssertStringOrNumber from './no-assert-truthiness'
-import noFloatingVoids from './no-floating-results'
+import { TSESLint } from '@typescript-eslint/experimental-utils';
+import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only';
+import gtsNoArrayConstructor from './gts-no-array-constructor';
+import gtsNoDollarSignNames from './gts-no-dollar-sign-names';
+import gtsNoForeach from './gts-no-foreach';
+import gtsNoImportExportType from './gts-no-import-export-type';
+import gtsNoPrivateFields from './gts-no-private-fields';
+import gtsNoPublicModifier from './gts-no-public-modifier';
+import gtsParameterProperties from './gts-parameter-properties';
+import gtsUseOptionals from './gts-use-optionals';
+import noArraySortMutation from './no-array-sort-mutation';
+import noAssertStringOrNumber from './no-assert-truthiness';
+import noFloatingVoids from './no-floating-results';
 
 export default {
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
@@ -28,4 +28,4 @@ export default {
 } as Record<
   string,
   TSESLint.RuleModule<string, readonly unknown[], TSESLint.RuleListener>
->
+>;

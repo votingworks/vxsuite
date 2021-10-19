@@ -1,30 +1,30 @@
-import React from 'react'
-import styled from 'styled-components'
-import { BallotStyle } from '@votingworks/types'
+import React from 'react';
+import styled from 'styled-components';
+import { BallotStyle } from '@votingworks/types';
 
-import { EventTargetFunction } from '../config/types'
+import { EventTargetFunction } from '../config/types';
 
-import Button from '../components/Button'
-import ButtonList from '../components/ButtonList'
-import Heading from '../components/Heading'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import Text from '../components/Text'
+import Button from '../components/Button';
+import ButtonList from '../components/ButtonList';
+import Heading from '../components/Heading';
+import Main, { MainChild } from '../components/Main';
+import MainNav from '../components/MainNav';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import Text from '../components/Text';
 
 const ButtonContainer = styled.div`
   float: right;
-`
+`;
 
 interface Props {
-  isSinglePrecinctMode: boolean
-  lockScreen: () => void
-  partyId?: string
-  precinctBallotStyles: readonly BallotStyle[]
-  precinctName: string
-  programCard: EventTargetFunction
-  showPrecincts: () => void
+  isSinglePrecinctMode: boolean;
+  lockScreen: () => void;
+  partyId?: string;
+  precinctBallotStyles: readonly BallotStyle[];
+  precinctName: string;
+  programCard: EventTargetFunction;
+  showPrecincts: () => void;
 }
 
 const PrecinctBallotStylesScreen = ({
@@ -38,8 +38,8 @@ const PrecinctBallotStylesScreen = ({
 }: Props): JSX.Element => {
   const ballotStyles = partyId
     ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
-    : precinctBallotStyles
-  const ballotStylesColumns = ballotStyles.length > 4 ? 3 : 2
+    : precinctBallotStyles;
+  const ballotStylesColumns = ballotStyles.length > 4 ? 3 : 2;
   return (
     <Screen>
       <Main>
@@ -81,7 +81,7 @@ const PrecinctBallotStylesScreen = ({
         </Button>
       </MainNav>
     </Screen>
-  )
-}
+  );
+};
 
-export default PrecinctBallotStylesScreen
+export default PrecinctBallotStylesScreen;

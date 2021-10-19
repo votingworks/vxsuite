@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react'
-import { WebServiceCard, getHardware } from '@votingworks/utils'
-import { BrowserRouter, Route } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { WebServiceCard, getHardware } from '@votingworks/utils';
+import { BrowserRouter, Route } from 'react-router-dom';
 
-import './App.css'
+import './App.css';
 
-import AppRoot, { AppRootProps } from './AppRoot'
+import AppRoot, { AppRootProps } from './AppRoot';
 
 export interface Props {
-  card?: AppRootProps['card']
-  hardware?: AppRootProps['hardware']
+  card?: AppRootProps['card'];
+  hardware?: AppRootProps['hardware'];
 }
 
 const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
-  const [internalHardware, setInternalHardware] = useState(hardware)
+  const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
     const updateHardware = async () => {
       if (internalHardware === undefined) {
-        setInternalHardware(await getHardware())
+        setInternalHardware(await getHardware());
       }
-    }
-    void updateHardware()
+    };
+    void updateHardware();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hardware])
+  }, [hardware]);
 
   if (!internalHardware) {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
   return (
     <BrowserRouter>
@@ -32,7 +32,7 @@ const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
         <AppRoot hardware={internalHardware} card={card} />
       </Route>
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;

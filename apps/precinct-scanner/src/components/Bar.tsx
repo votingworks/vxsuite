@@ -1,8 +1,8 @@
-import styled from 'styled-components'
-import { Theme } from '@votingworks/ui'
+import styled from 'styled-components';
+import { Theme } from '@votingworks/ui';
 
 interface Props {
-  theme?: Theme
+  theme?: Theme;
 }
 
 export const Bar = styled.div<Props>`
@@ -14,8 +14,8 @@ export const Bar = styled.div<Props>`
   & > div {
     padding: 0.5rem 0.75rem;
   }
-`
+`;
 
 export const BarSpacer = styled.div`
   flex: 1;
-`
+`;

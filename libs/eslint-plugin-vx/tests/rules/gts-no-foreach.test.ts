@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-no-foreach'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-no-foreach';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-no-foreach', rule, {
   valid: [
@@ -188,4 +188,4 @@ ruleTester.run('gts-no-foreach', rule, {
     //   ],
     // },
   ],
-})
+});

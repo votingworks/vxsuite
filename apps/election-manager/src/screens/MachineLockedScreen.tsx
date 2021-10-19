@@ -1,15 +1,15 @@
-import { fontSizeTheme, Main, MainChild, Prose } from '@votingworks/ui'
-import React from 'react'
-import styled from 'styled-components'
-import Screen from '../components/Screen'
-import StatusFooter from '../components/StatusFooter'
+import { fontSizeTheme, Main, MainChild, Prose } from '@votingworks/ui';
+import React from 'react';
+import styled from 'styled-components';
+import Screen from '../components/Screen';
+import StatusFooter from '../components/StatusFooter';
 
 const LockedImage = styled.img`
   margin-right: auto;
   margin-bottom: 5px;
   margin-left: auto;
   height: 20vw;
-`
+`;
 
 export const MachineLockedScreen = (): JSX.Element => {
   return (
@@ -25,5 +25,5 @@ export const MachineLockedScreen = (): JSX.Element => {
       </Main>
       <StatusFooter />
     </Screen>
-  )
-}
+  );
+};

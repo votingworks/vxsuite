@@ -17,7 +17,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-const UINT8_MAX = (1 << 8) - 1
+const UINT8_MAX = (1 << 8) - 1;
 
 /**
  * Finds a threshold separating `data` into foreground and background values.
@@ -28,45 +28,45 @@ export default function otsu(
   data: Uint8Array | Uint8ClampedArray,
   step = 1
 ): number {
-  const numPixels = data.length / step
+  const numPixels = data.length / step;
 
   // Calculate histogram
-  const histogram = new Int32Array(UINT8_MAX + 1)
+  const histogram = new Int32Array(UINT8_MAX + 1);
   for (let ptr = 0, length = numPixels; length; length -= 1, ptr += step) {
-    histogram[data[ptr]] += 1
+    histogram[data[ptr]] += 1;
   }
 
   // Calculate weighted sum of histogram values
-  let sum = 0
-  let i = 0
+  let sum = 0;
+  let i = 0;
   for (i = 0; i <= UINT8_MAX; i += 1) {
-    sum += i * histogram[i]
+    sum += i * histogram[i];
   }
 
   // Compute threshold
-  let sumB = 0
-  let q1 = 0
-  let max = 0
-  let threshold = 0
+  let sumB = 0;
+  let q1 = 0;
+  let max = 0;
+  let threshold = 0;
   for (i = 0; i <= UINT8_MAX; i += 1) {
     // Weighted background
-    q1 += histogram[i]
-    if (q1 === 0) continue
+    q1 += histogram[i];
+    if (q1 === 0) continue;
 
     // Weighted foreground
-    const q2 = numPixels - q1
-    if (q2 === 0) break
+    const q2 = numPixels - q1;
+    if (q2 === 0) break;
 
-    sumB += i * histogram[i]
-    const m1 = sumB / q1
-    const m2 = (sum - sumB) / q2
-    const m1m2 = m1 - m2
-    const variance = m1m2 * m1m2 * q1 * q2
+    sumB += i * histogram[i];
+    const m1 = sumB / q1;
+    const m2 = (sum - sumB) / q2;
+    const m1m2 = m1 - m2;
+    const variance = m1m2 * m1m2 * q1 * q2;
     if (variance >= max) {
-      threshold = i
-      max = variance
+      threshold = i;
+      max = variance;
     }
   }
 
-  return threshold
+  return threshold;
 }

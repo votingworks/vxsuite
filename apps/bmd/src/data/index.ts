@@ -1,27 +1,27 @@
 import {
   ElectionDefinition,
   safeParseElectionDefinition,
-} from '@votingworks/types'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+} from '@votingworks/types';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 function electionDefinitionFromFile(path: string): ElectionDefinition {
-  const electionData = readFileSync(path, 'utf-8')
+  const electionData = readFileSync(path, 'utf-8');
   return {
     ...safeParseElectionDefinition(electionData).unsafeUnwrap(),
     electionData,
-  }
+  };
 }
 
 export const electionSampleDefinition = electionDefinitionFromFile(
   join(__dirname, 'electionSample.json')
-)
+);
 export const electionSampleNoSealDefinition = electionDefinitionFromFile(
   join(__dirname, 'electionSampleNoSeal.json')
-)
+);
 export const electionSampleWithSealDefinition = electionDefinitionFromFile(
   join(__dirname, 'electionSampleWithSeal.json')
-)
+);
 export const electionPrimarySampleDefinition = electionDefinitionFromFile(
   join(__dirname, 'electionPrimarySample.json')
-)
+);

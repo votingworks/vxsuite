@@ -1,10 +1,10 @@
 // Inspiration: https://www.filamentgroup.com/lab/select-css.html
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface Props {
-  fullWidth?: boolean
-  large?: boolean
-  small?: boolean
+  fullWidth?: boolean;
+  large?: boolean;
+  small?: boolean;
 }
 
 export const Select = styled.select<Props>`
@@ -36,4 +36,4 @@ export const Select = styled.select<Props>`
     background: #dddddd;
     color: rgb(170, 170, 170);
   }
-`
+`;

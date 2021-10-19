@@ -8,9 +8,9 @@ import {
   Tally,
   writeInCandidate,
   CompressedTally,
-} from '@votingworks/types'
-import { strict as assert } from 'assert'
-import { throwIllegalValue } from './throwIllegalValue'
+} from '@votingworks/types';
+import { strict as assert } from 'assert';
+import { throwIllegalValue } from './throwIllegalValue';
 
 /**
  * A compressed tally
@@ -23,21 +23,21 @@ export const compressTally = (
   return election.contests.map((contest) => {
     switch (contest.type) {
       case 'yesno': {
-        const contestTally = tally.contestTallies[contest.id]
+        const contestTally = tally.contestTallies[contest.id];
         return [
           contestTally?.metadata.undervotes ?? 0, // undervotes
           contestTally?.metadata.overvotes ?? 0, // overvotes
           contestTally?.metadata.ballots ?? 0, // ballots cast
           contestTally?.tallies.yes?.tally ?? 0, // yes
           contestTally?.tallies.no?.tally ?? 0, // no
-        ]
+        ];
       }
 
       case 'ms-either-neither': {
         const eitherNeitherContestTally =
-          tally.contestTallies[contest.eitherNeitherContestId]
+          tally.contestTallies[contest.eitherNeitherContestId];
         const pickOneContestTally =
-          tally.contestTallies[contest.pickOneContestId]
+          tally.contestTallies[contest.pickOneContestId];
         return [
           eitherNeitherContestTally?.tallies.yes?.tally ?? 0, // eitherOption
           eitherNeitherContestTally?.tallies.no?.tally ?? 0, // neitherOption
@@ -48,11 +48,11 @@ export const compressTally = (
           pickOneContestTally?.metadata.undervotes ?? 0, // pickOneUndervotes
           pickOneContestTally?.metadata.overvotes ?? 0, // pickOneOvervotes
           pickOneContestTally?.metadata.ballots ?? 0, // ballotsCast
-        ]
+        ];
       }
 
       case 'candidate': {
-        const contestTally = tally.contestTallies[contest.id]
+        const contestTally = tally.contestTallies[contest.id];
         return [
           contestTally?.metadata.undervotes ?? 0, // undervotes
           contestTally?.metadata.overvotes ?? 0, // overvotes
@@ -61,15 +61,15 @@ export const compressTally = (
             (candidate) => contestTally?.tallies[candidate.id]?.tally ?? 0
           ),
           contestTally?.tallies[writeInCandidate.id]?.tally ?? 0, // writeIns
-        ]
+        ];
       }
 
       /* istanbul ignore next - compile time check for completeness */
       default:
-        throwIllegalValue(contest, 'type')
+        throwIllegalValue(contest, 'type');
     }
-  })
-}
+  });
+};
 
 const getContestTalliesForCompressedContest = (
   contest: AnyContest,
@@ -77,14 +77,14 @@ const getContestTalliesForCompressedContest = (
 ): ContestTally[] => {
   switch (contest.type) {
     case 'yesno': {
-      const [undervotes, overvotes, ballots, yes, no] = compressedContest
+      const [undervotes, overvotes, ballots, yes, no] = compressedContest;
       assert(
         undervotes !== undefined &&
           overvotes !== undefined &&
           ballots !== undefined &&
           yes !== undefined &&
           no !== undefined
-      )
+      );
       return [
         {
           contest,
@@ -98,33 +98,33 @@ const getContestTalliesForCompressedContest = (
             ballots,
           },
         },
-      ]
+      ];
     }
     case 'candidate': {
       const [undervotes, overvotes, ballots, ...tallyByCandidate] =
-        compressedContest
+        compressedContest;
       assert(
         undervotes !== undefined &&
           overvotes !== undefined &&
           ballots !== undefined
-      )
-      const candidateTallies: Dictionary<ContestOptionTally> = {}
+      );
+      const candidateTallies: Dictionary<ContestOptionTally> = {};
       for (const [candidateIdx, candidate] of contest.candidates.entries()) {
-        const tally = tallyByCandidate[candidateIdx] // We add 3 here to offset from the undervotes, overvotes and total ballots
-        assert(tally !== undefined)
+        const tally = tallyByCandidate[candidateIdx]; // We add 3 here to offset from the undervotes, overvotes and total ballots
+        assert(tally !== undefined);
         candidateTallies[candidate.id] = {
           option: candidate,
           tally,
-        }
+        };
       }
       if (contest.allowWriteIns) {
         // write ins will be the last thing in the array after the metadata (3 items) and all candidates
-        const writeInTally = tallyByCandidate.pop()
-        assert(writeInTally !== undefined)
+        const writeInTally = tallyByCandidate.pop();
+        assert(writeInTally !== undefined);
         candidateTallies[writeInCandidate.id] = {
           option: writeInCandidate,
           tally: writeInTally,
-        }
+        };
       }
       return [
         {
@@ -136,7 +136,7 @@ const getContestTalliesForCompressedContest = (
             ballots,
           },
         },
-      ]
+      ];
     }
     case 'ms-either-neither': {
       const [
@@ -149,7 +149,7 @@ const getContestTalliesForCompressedContest = (
         pickOneUndervotes,
         pickOneOvervotes,
         ballots,
-      ] = compressedContest
+      ] = compressedContest;
       assert(
         eitherOption !== undefined &&
           neitherOption !== undefined &&
@@ -160,10 +160,10 @@ const getContestTalliesForCompressedContest = (
           pickOneUndervotes !== undefined &&
           pickOneOvervotes !== undefined &&
           ballots !== undefined
-      )
-      const newYesNoContests = expandEitherNeitherContests([contest])
+      );
+      const newYesNoContests = expandEitherNeitherContests([contest]);
       return newYesNoContests.map((yesno) => {
-        assert(yesno.type === 'yesno')
+        assert(yesno.type === 'yesno');
         return yesno.id === contest.eitherNeitherContestId
           ? {
               contest: yesno,
@@ -200,14 +200,14 @@ const getContestTalliesForCompressedContest = (
                 overvotes: pickOneOvervotes,
                 ballots,
               },
-            }
-      })
+            };
+      });
     }
     /* istanbul ignore next - compile time check for completeness */
     default:
-      throwIllegalValue(contest, 'type')
+      throwIllegalValue(contest, 'type');
   }
-}
+};
 
 export const readCompressedTally = (
   election: Election,
@@ -215,16 +215,16 @@ export const readCompressedTally = (
   totalBallotCount: number,
   ballotCountsByVotingMethod: Dictionary<number>
 ): Tally => {
-  const contestTallies: Dictionary<ContestTally> = {}
+  const contestTallies: Dictionary<ContestTally> = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
-    const serializedContestTally = serializedTally[contestIdx]
-    assert(serializedContestTally)
+    const serializedContestTally = serializedTally[contestIdx];
+    assert(serializedContestTally);
     const tallies = getContestTalliesForCompressedContest(
       contest,
       serializedContestTally
-    )
+    );
     for (const tally of tallies) {
-      contestTallies[tally.contest.id] = tally
+      contestTallies[tally.contest.id] = tally;
     }
   }
   return {
@@ -232,5 +232,5 @@ export const readCompressedTally = (
     castVoteRecords: new Set(),
     contestTallies,
     ballotCountsByVotingMethod,
-  }
-}
+  };
+};

@@ -1,11 +1,11 @@
-import React from 'react'
-import { Screen, Main, MainChild, Prose, fontSizeTheme } from '@votingworks/ui'
-import ElectionInfoBar, { InfoBarMode } from './ElectionInfoBar'
+import React from 'react';
+import { Screen, Main, MainChild, Prose, fontSizeTheme } from '@votingworks/ui';
+import ElectionInfoBar, { InfoBarMode } from './ElectionInfoBar';
 
 interface CenteredScreenProps {
-  children: React.ReactNode
-  infoBar?: boolean
-  infoBarMode?: InfoBarMode
+  children: React.ReactNode;
+  infoBar?: boolean;
+  infoBarMode?: InfoBarMode;
 }
 
 export const CenteredScreen = ({
@@ -21,10 +21,10 @@ export const CenteredScreen = ({
     </Main>
     {infoBar && <ElectionInfoBar mode={infoBarMode} />}
   </Screen>
-)
+);
 
 interface CenteredLargeProseProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const CenteredLargeProse = ({
@@ -33,4 +33,4 @@ export const CenteredLargeProse = ({
   <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
     {children}
   </Prose>
-)
+);

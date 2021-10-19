@@ -1,5 +1,5 @@
 interface Name {
-  name: string
+  name: string;
 }
 export const compareName = (a: Name, b: Name): number =>
-  a.name.localeCompare(b.name)
+  a.name.localeCompare(b.name);

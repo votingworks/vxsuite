@@ -1,14 +1,14 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
 import {
   Dictionary,
   VotingMethod,
   getLabelForVotingMethod,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import { format } from '@votingworks/utils'
-import { Table, TD } from './Table'
+import { format } from '@votingworks/utils';
+import { Table, TD } from './Table';
 
 const BallotSummary = styled.div`
   margin-bottom: 1em;
@@ -19,11 +19,11 @@ const BallotSummary = styled.div`
     background: rgb(194, 200, 203);
     padding: 0.25rem 0.5rem;
   }
-`
+`;
 
 interface Props {
-  totalBallotCount: number
-  ballotCountsByVotingMethod: Dictionary<number>
+  totalBallotCount: number;
+  ballotCountsByVotingMethod: Dictionary<number>;
 }
 
 export const TallyReportSummary = ({
@@ -37,14 +37,14 @@ export const TallyReportSummary = ({
         <tbody>
           {Object.values(VotingMethod).map((votingMethod) => {
             if (!(votingMethod in ballotCountsByVotingMethod)) {
-              return null
+              return null;
             }
             // Hide the "Other" row when it does not apply to any CVRs
             if (
               votingMethod === VotingMethod.Unknown &&
               ballotCountsByVotingMethod[votingMethod] === 0
             ) {
-              return null
+              return null;
             }
             return (
               <tr key={votingMethod} data-testid={votingMethod}>
@@ -56,7 +56,7 @@ export const TallyReportSummary = ({
                   )}
                 </TD>
               </tr>
-            )
+            );
           })}
           <tr data-testid="total">
             <TD>
@@ -69,5 +69,5 @@ export const TallyReportSummary = ({
         </tbody>
       </Table>
     </BallotSummary>
-  )
-}
+  );
+};

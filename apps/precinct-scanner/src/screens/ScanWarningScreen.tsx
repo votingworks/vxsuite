@@ -5,30 +5,30 @@ import {
   AdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
-} from '@votingworks/types'
-import { Button, Prose, Text } from '@votingworks/ui'
-import { integers, take } from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import pluralize from 'pluralize'
-import React, { useCallback, useContext, useState } from 'react'
-import { Absolute } from '../components/Absolute'
-import { Bar } from '../components/Bar'
-import { ExclamationTriangle } from '../components/Graphics'
-import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
-import Modal from '../components/Modal'
+} from '@votingworks/types';
+import { Button, Prose, Text } from '@votingworks/ui';
+import { integers, take } from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import pluralize from 'pluralize';
+import React, { useCallback, useContext, useState } from 'react';
+import { Absolute } from '../components/Absolute';
+import { Bar } from '../components/Bar';
+import { ExclamationTriangle } from '../components/Graphics';
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
+import Modal from '../components/Modal';
 
-import AppContext from '../contexts/AppContext'
-import { toSentence } from '../utils/toSentence'
+import AppContext from '../contexts/AppContext';
+import { toSentence } from '../utils/toSentence';
 
 export interface Props {
-  acceptBallot: () => Promise<void>
-  adjudicationReasonInfo: readonly AdjudicationReasonInfo[]
+  acceptBallot: () => Promise<void>;
+  adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
 }
 
 interface OvervoteWarningScreenProps {
-  electionDefinition: ElectionDefinition
-  overvotes: readonly OvervoteAdjudicationReasonInfo[]
-  acceptBallot: () => Promise<void>
+  electionDefinition: ElectionDefinition;
+  overvotes: readonly OvervoteAdjudicationReasonInfo[];
+  acceptBallot: () => Promise<void>;
 }
 
 const OvervoteWarningScreen = ({
@@ -36,27 +36,27 @@ const OvervoteWarningScreen = ({
   overvotes,
   acceptBallot,
 }: OvervoteWarningScreenProps): JSX.Element => {
-  const [confirmTabulate, setConfirmTabulate] = useState(false)
+  const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
     []
-  )
+  );
   const closeConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(false),
     []
-  )
+  );
 
   const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal()
-    await acceptBallot()
-  }, [acceptBallot, closeConfirmTabulateModal])
+    closeConfirmTabulateModal();
+    await acceptBallot();
+  }, [acceptBallot, closeConfirmTabulateModal]);
 
   const contests = electionDefinition.election.contests.filter((c) =>
     overvotes.some((r) => c.id === r.contestId)
-  )
+  );
   const contestNames = toSentence(
     contests.map(({ id, title }) => <strong key={id}>{title}</strong>)
-  )
+  );
 
   return (
     <CenteredScreen infoBar={false}>
@@ -102,13 +102,13 @@ const OvervoteWarningScreen = ({
         />
       )}
     </CenteredScreen>
-  )
-}
+  );
+};
 
 interface UndervoteWarningScreenProps {
-  electionDefinition: ElectionDefinition
-  undervotes: readonly UndervoteAdjudicationReasonInfo[]
-  acceptBallot: () => Promise<void>
+  electionDefinition: ElectionDefinition;
+  undervotes: readonly UndervoteAdjudicationReasonInfo[];
+  acceptBallot: () => Promise<void>;
 }
 
 const UndervoteWarningScreen = ({
@@ -116,36 +116,36 @@ const UndervoteWarningScreen = ({
   undervotes,
   acceptBallot,
 }: UndervoteWarningScreenProps): JSX.Element => {
-  const [confirmTabulate, setConfirmTabulate] = useState(false)
+  const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
     []
-  )
+  );
   const closeConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(false),
     []
-  )
+  );
 
   const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal()
-    await acceptBallot()
-  }, [acceptBallot, closeConfirmTabulateModal])
+    closeConfirmTabulateModal();
+    await acceptBallot();
+  }, [acceptBallot, closeConfirmTabulateModal]);
 
   const contests = electionDefinition.election.contests.filter((c) =>
     undervotes.some((r) => c.id === r.contestId)
-  )
+  );
   const contestNames = toSentence(
     contests.map(({ id, title }) => <strong key={id}>{title}</strong>)
-  )
+  );
 
   const singleCandidateUndervote =
     undervotes.length === 1 && contests[0].type === 'candidate'
       ? undervotes[0]
-      : undefined
+      : undefined;
   const remainingChoices = singleCandidateUndervote
     ? singleCandidateUndervote.expected -
       singleCandidateUndervote.optionIds.length
-    : 0
+    : 0;
 
   return (
     <CenteredScreen infoBar={false}>
@@ -199,30 +199,30 @@ const UndervoteWarningScreen = ({
         />
       )}
     </CenteredScreen>
-  )
-}
+  );
+};
 
 interface BlankBallotWarningScreenProps {
-  acceptBallot: () => Promise<void>
+  acceptBallot: () => Promise<void>;
 }
 
 const BlankBallotWarningScreen = ({
   acceptBallot,
 }: BlankBallotWarningScreenProps): JSX.Element => {
-  const [confirmTabulate, setConfirmTabulate] = useState(false)
+  const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
     []
-  )
+  );
   const closeConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(false),
     []
-  )
+  );
 
   const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal()
-    await acceptBallot()
-  }, [acceptBallot, closeConfirmTabulateModal])
+    closeConfirmTabulateModal();
+    await acceptBallot();
+  }, [acceptBallot, closeConfirmTabulateModal]);
 
   return (
     <CenteredScreen infoBar={false}>
@@ -262,30 +262,30 @@ const BlankBallotWarningScreen = ({
         />
       )}
     </CenteredScreen>
-  )
-}
+  );
+};
 
 interface OtherReasonWarningScreenProps {
-  acceptBallot: () => Promise<void>
+  acceptBallot: () => Promise<void>;
 }
 
 const OtherReasonWarningScreen = ({
   acceptBallot,
 }: OtherReasonWarningScreenProps): JSX.Element => {
-  const [confirmTabulate, setConfirmTabulate] = useState(false)
+  const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
     []
-  )
+  );
   const closeConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(false),
     []
-  )
+  );
 
   const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal()
-    await acceptBallot()
-  }, [acceptBallot, closeConfirmTabulateModal])
+    closeConfirmTabulateModal();
+    await acceptBallot();
+  }, [acceptBallot, closeConfirmTabulateModal]);
 
   return (
     <CenteredScreen infoBar={false}>
@@ -325,32 +325,32 @@ const OtherReasonWarningScreen = ({
         />
       )}
     </CenteredScreen>
-  )
-}
+  );
+};
 
 const ScanWarningScreen = ({
   acceptBallot,
   adjudicationReasonInfo,
 }: Props): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
-  let isBlank = false
-  const overvoteReasons: OvervoteAdjudicationReasonInfo[] = []
-  const undervoteReasons: UndervoteAdjudicationReasonInfo[] = []
+  let isBlank = false;
+  const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
+  const undervoteReasons: UndervoteAdjudicationReasonInfo[] = [];
 
   for (const reason of adjudicationReasonInfo) {
     if (reason.type === AdjudicationReason.BlankBallot) {
-      isBlank = true
+      isBlank = true;
     } else if (reason.type === AdjudicationReason.Overvote) {
-      overvoteReasons.push(reason)
+      overvoteReasons.push(reason);
     } else if (reason.type === AdjudicationReason.Undervote) {
-      undervoteReasons.push(reason)
+      undervoteReasons.push(reason);
     }
   }
 
   if (isBlank) {
-    return <BlankBallotWarningScreen acceptBallot={acceptBallot} />
+    return <BlankBallotWarningScreen acceptBallot={acceptBallot} />;
   }
 
   if (overvoteReasons.length > 0) {
@@ -360,7 +360,7 @@ const ScanWarningScreen = ({
         overvotes={overvoteReasons}
         acceptBallot={acceptBallot}
       />
-    )
+    );
   }
 
   if (undervoteReasons.length > 0) {
@@ -370,24 +370,24 @@ const ScanWarningScreen = ({
         undervotes={undervoteReasons}
         acceptBallot={acceptBallot}
       />
-    )
+    );
   }
 
-  return <OtherReasonWarningScreen acceptBallot={acceptBallot} />
-}
+  return <OtherReasonWarningScreen acceptBallot={acceptBallot} />;
+};
 
-export default ScanWarningScreen
+export default ScanWarningScreen;
 
 /* istanbul ignore next */
 export const OvervotePreview = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest =>
       c.type === 'candidate' && c.seats === 1 && c.candidates.length > 1
-  )
-  assert(contest)
+  );
+  assert(contest);
 
   return (
     <ScanWarningScreen
@@ -409,18 +409,18 @@ export const OvervotePreview = (): JSX.Element => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const UndervoteNoVotesPreview = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
-  )
-  assert(contest)
+  );
+  assert(contest);
 
   return (
     <ScanWarningScreen
@@ -435,18 +435,18 @@ export const UndervoteNoVotesPreview = (): JSX.Element => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const UndervoteBy1Preview = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  )
-  assert(contest)
+  );
+  assert(contest);
 
   return (
     <ScanWarningScreen
@@ -463,20 +463,20 @@ export const UndervoteBy1Preview = (): JSX.Element => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const UndervoteByNPreview = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  )
-  assert(contest)
+  );
+  assert(contest);
 
-  const undervotedOptionCount = 1
+  const undervotedOptionCount = 1;
   return (
     <ScanWarningScreen
       acceptBallot={() => Promise.resolve()}
@@ -492,18 +492,18 @@ export const UndervoteByNPreview = (): JSX.Element => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const MultipleUndervotesPreview = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
 
   const contests = electionDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
-  )
-  assert(contests.length > 0)
+  );
+  assert(contests.length > 0);
 
   return (
     <ScanWarningScreen
@@ -516,8 +516,8 @@ export const MultipleUndervotesPreview = (): JSX.Element => {
         expected: contest.seats,
       }))}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const BlankBallotPreview = (): JSX.Element => {
@@ -526,8 +526,8 @@ export const BlankBallotPreview = (): JSX.Element => {
       acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
     />
-  )
-}
+  );
+};
 
 /* istanbul ignore next */
 export const UninterpretableBallotPreview = (): JSX.Element => {
@@ -538,5 +538,5 @@ export const UninterpretableBallotPreview = (): JSX.Element => {
         { type: AdjudicationReason.UninterpretableBallot },
       ]}
     />
-  )
-}
+  );
+};

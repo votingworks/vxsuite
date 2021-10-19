@@ -1,46 +1,46 @@
-import { strict as assert } from 'assert'
-import React, { ReactChild, useContext, useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import styled from 'styled-components'
+import { strict as assert } from 'assert';
+import React, { ReactChild, useContext, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { Table, TD } from '@votingworks/ui'
+import { Table, TD } from '@votingworks/ui';
 import {
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
-} from '@votingworks/types'
-import { ResultsFileType } from '../config/types'
-import routerPaths from '../routerPaths'
+} from '@votingworks/types';
+import { ResultsFileType } from '../config/types';
+import routerPaths from '../routerPaths';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import Prose from '../components/Prose'
+import Prose from '../components/Prose';
 
-import NavigationScreen from '../components/NavigationScreen'
-import Button, { SegmentedButton } from '../components/Button'
-import Text from '../components/Text'
+import NavigationScreen from '../components/NavigationScreen';
+import Button, { SegmentedButton } from '../components/Button';
+import Text from '../components/Text';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
-} from '../utils/externalTallies'
-import LinkButton from '../components/LinkButton'
-import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal'
+} from '../utils/externalTallies';
+import LinkButton from '../components/LinkButton';
+import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal';
 
-const MANUAL_DATA_NAME = 'Manually Added Data'
+const MANUAL_DATA_NAME = 'Manually Added Data';
 
 const SummaryInfo = styled.div`
   align-self: flex-start;
   position: sticky;
   top: 0;
-`
+`;
 
 const PrecinctRowText = styled(Text)`
   &&& {
     margin: 0;
     padding: 0;
   }
-`
+`;
 
 const ManualDataImportIndexScreen = (): JSX.Element => {
   const {
@@ -48,37 +48,37 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
     fullElectionExternalTallies,
     saveExternalTallies,
     resetFiles,
-  } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election } = electionDefinition
-  const history = useHistory()
+  } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
+  const history = useHistory();
 
   const existingManualDataTallies = fullElectionExternalTallies.filter(
     (t) => t.source === ExternalTallySourceType.Manual
-  )
+  );
   const existingManualData =
     existingManualDataTallies.length === 1
       ? existingManualDataTallies[0]
-      : undefined
+      : undefined;
   const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
     TallyCategory.Precinct
-  )
+  );
   const talliesByPrecinct =
-    existingTalliesByPrecinct ?? getEmptyExternalTalliesByPrecinct(election)
+    existingTalliesByPrecinct ?? getEmptyExternalTalliesByPrecinct(election);
   const [ballotType, setBallotType] = useState<VotingMethod>(
     existingManualData?.votingMethod ?? VotingMethod.Precinct
-  )
-  const [isClearing, setIsClearing] = useState(false)
+  );
+  const [isClearing, setIsClearing] = useState(false);
   const hasManualData = !!existingManualData?.overallTally
-    .numberOfBallotsCounted
+    .numberOfBallotsCounted;
 
   const confirmClearManualData = async (fileType: ResultsFileType) => {
-    setIsClearing(false)
-    await resetFiles(fileType)
-  }
+    setIsClearing(false);
+    await resetFiles(fileType);
+  };
 
   const handleSettingBallotType = async (newBallotType: VotingMethod) => {
-    setBallotType(newBallotType)
+    setBallotType(newBallotType);
 
     // Note this WILL save an empty external tally if ballot type is toggled but there is not an external tally yet.
     const externalTally = convertTalliesByPrecinctToFullExternalTally(
@@ -88,31 +88,31 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
       ExternalTallySourceType.Manual,
       MANUAL_DATA_NAME,
       new Date()
-    )
+    );
     // Don't modify any external tallies for non-manual data
     const newTallies = fullElectionExternalTallies.filter(
       (t) => t.source !== ExternalTallySourceType.Manual
-    )
+    );
     // Add the new tally
-    newTallies.push(externalTally)
-    await saveExternalTallies(newTallies)
-  }
+    newTallies.push(externalTally);
+    await saveExternalTallies(newTallies);
+  };
 
   useEffect(() => {
     // If the data gets cleared, reset voting method.
     if (existingManualData === undefined) {
-      setBallotType(VotingMethod.Precinct)
+      setBallotType(VotingMethod.Precinct);
     }
-  }, [existingManualData])
+  }, [existingManualData]);
 
   const votingMethodName =
-    ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct'
+    ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
 
-  let totalNumberBallotsEntered = 0
-  const enteredDataRows: ReactChild[] = []
+  let totalNumberBallotsEntered = 0;
+  const enteredDataRows: ReactChild[] = [];
   for (const precinct of election.precincts) {
     /* istanbul ignore next */
-    const tally = talliesByPrecinct[precinct.id] ?? getEmptyExternalTally()
+    const tally = talliesByPrecinct[precinct.id] ?? getEmptyExternalTally();
     enteredDataRows.push(
       <tr key={precinct.id}>
         <TD>
@@ -132,8 +132,8 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
           </LinkButton>
         </TD>
       </tr>
-    )
-    totalNumberBallotsEntered += tally.numberOfBallotsCounted
+    );
+    totalNumberBallotsEntered += tally.numberOfBallotsCounted;
   }
 
   return (
@@ -211,7 +211,7 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default ManualDataImportIndexScreen
+export default ManualDataImportIndexScreen;

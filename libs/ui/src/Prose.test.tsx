@@ -1,7 +1,7 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import { Prose } from './Prose'
+import { Prose } from './Prose';
 
 const proseContent = (
   <React.Fragment>
@@ -36,26 +36,26 @@ const proseContent = (
       earum qui inventore minus enim adipisci nemo voluptate at harum?
     </p>
   </React.Fragment>
-)
+);
 describe('renders Prose', () => {
   test('with defaults', async () => {
-    const { container } = render(<Prose>{proseContent}</Prose>)
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    const { container } = render(<Prose>{proseContent}</Prose>);
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('with with non-default options', async () => {
     const { container } = render(
       <Prose compact textCenter maxWidth={false}>
         {proseContent}
       </Prose>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('with right-aligned text', async () => {
-    const { container } = render(<Prose textRight>{proseContent}</Prose>)
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    const { container } = render(<Prose textRight>{proseContent}</Prose>);
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('with theme', async () => {
     const { container } = render(
@@ -67,7 +67,7 @@ describe('renders Prose', () => {
       >
         {proseContent}
       </Prose>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
-})
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
+});

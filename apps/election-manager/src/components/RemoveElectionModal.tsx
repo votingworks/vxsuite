@@ -1,24 +1,24 @@
-import React, { useContext } from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import AppContext from '../contexts/AppContext'
-import routerPaths from '../routerPaths'
-import Modal from './Modal'
-import Prose from './Prose'
-import Button from './Button'
+import AppContext from '../contexts/AppContext';
+import routerPaths from '../routerPaths';
+import Modal from './Modal';
+import Prose from './Prose';
+import Button from './Button';
 
 export interface Props {
-  onClose: () => void
+  onClose: () => void;
 }
 
 const RemoveElectionModal = ({ onClose }: Props): JSX.Element => {
-  const history = useHistory()
-  const { saveElection } = useContext(AppContext)
+  const history = useHistory();
+  const { saveElection } = useContext(AppContext);
 
   const unconfigureElection = async () => {
-    await saveElection(undefined)
-    history.push(routerPaths.root)
-  }
+    await saveElection(undefined);
+    history.push(routerPaths.root);
+  };
 
   return (
     <Modal
@@ -39,7 +39,7 @@ const RemoveElectionModal = ({ onClose }: Props): JSX.Element => {
         </React.Fragment>
       }
     />
-  )
-}
+  );
+};
 
-export default RemoveElectionModal
+export default RemoveElectionModal;

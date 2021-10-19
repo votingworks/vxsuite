@@ -1,4 +1,4 @@
-export type Comparator<T> = Exclude<Parameters<T[]['sort']>[0], undefined>
+export type Comparator<T> = Exclude<Parameters<T[]['sort']>[0], undefined>;
 
 /**
  * Sort an array by comparators in priority order.
@@ -10,16 +10,16 @@ export default function sortBy<T>(
   ...comparators: Comparator<T>[]
 ): T[] {
   if (comparators.length === 0) {
-    return [...array]
+    return [...array];
   }
 
   return [...array].sort((a, b) => {
     for (const comparator of comparators) {
-      const result = comparator(a, b)
+      const result = comparator(a, b);
       if (result !== 0) {
-        return result
+        return result;
       }
     }
-    return 0
-  })
+    return 0;
+  });
 }

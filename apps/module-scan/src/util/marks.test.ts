@@ -1,15 +1,15 @@
-import { BallotMark, MarkStatus } from '@votingworks/types'
-import { changesFromMarks, mergeChanges } from './marks'
+import { BallotMark, MarkStatus } from '@votingworks/types';
+import { changesFromMarks, mergeChanges } from './marks';
 
 test('returns an empty object when no changes are given', () => {
-  expect(mergeChanges({ contest: { option: MarkStatus.Marked } })).toEqual({})
-})
+  expect(mergeChanges({ contest: { option: MarkStatus.Marked } })).toEqual({});
+});
 
 test('returns an empty object when a change without values is given', () => {
   expect(mergeChanges({ contest: { option: MarkStatus.Marked } }, {})).toEqual(
     {}
-  )
-})
+  );
+});
 
 test('returns the subset of the changes that differ from the original marks', () => {
   expect(
@@ -29,8 +29,8 @@ test('returns the subset of the changes that differ from the original marks', ()
     )
   ).toEqual({
     contest: { option1: MarkStatus.Unmarked },
-  })
-})
+  });
+});
 
 test('takes the last value for a given option', () => {
   expect(
@@ -39,8 +39,8 @@ test('takes the last value for a given option', () => {
       { contest: { option: MarkStatus.Unmarked } },
       { contest: { option: MarkStatus.Marked } }
     )
-  ).toEqual({ contest: { option: MarkStatus.Marked } })
-})
+  ).toEqual({ contest: { option: MarkStatus.Marked } });
+});
 
 test('merges options from the same contest', () => {
   expect(
@@ -51,8 +51,8 @@ test('merges options from the same contest', () => {
     )
   ).toEqual({
     contest: { option1: MarkStatus.Unmarked, option2: MarkStatus.Marked },
-  })
-})
+  });
+});
 
 test('merges multiple contests', () => {
   expect(
@@ -64,8 +64,8 @@ test('merges multiple contests', () => {
   ).toEqual({
     contest1: { option: MarkStatus.Unmarked },
     contest2: { option: MarkStatus.Marked },
-  })
-})
+  });
+});
 
 test('removes contests that revert back to the original', () => {
   expect(
@@ -74,8 +74,8 @@ test('removes contests that revert back to the original', () => {
       { contest: { option: MarkStatus.Marked } },
       { contest: { option: MarkStatus.Unmarked } }
     )
-  ).toEqual({})
-})
+  ).toEqual({});
+});
 
 test('changesFromMarks works with ms-either-neither', () => {
   const marks: BallotMark[] = [
@@ -124,11 +124,11 @@ test('changesFromMarks works with ms-either-neither', () => {
       score: 0.9,
       scoredOffset: { x: 0, y: 0 },
     },
-  ]
+  ];
 
   expect(changesFromMarks(marks, { marginal: 0.12, definite: 0.2 })).toEqual({
     'either-neither-1': {
       'either-id': 'marked',
     },
-  })
-})
+  });
+});

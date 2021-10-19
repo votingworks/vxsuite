@@ -1,15 +1,15 @@
-import React from 'react'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { EventTargetFunction } from '@votingworks/types'
-import { Button, ButtonProps } from './Button'
+import React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { EventTargetFunction } from '@votingworks/types';
+import { Button, ButtonProps } from './Button';
 
 export interface LinkButtonProps
   extends Omit<ButtonProps, 'onPress'>,
     RouteComponentProps<Record<string, string | undefined>> {
-  goBack?: boolean
-  onPress?: EventTargetFunction
-  primary?: boolean
-  to?: string
+  goBack?: boolean;
+  onPress?: EventTargetFunction;
+  primary?: boolean;
+  to?: string;
 }
 
 const LinkButton = (props: LinkButtonProps): JSX.Element => {
@@ -23,24 +23,24 @@ const LinkButton = (props: LinkButtonProps): JSX.Element => {
     to,
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
-  } = props
+  } = props;
   const handleOnPress: EventTargetFunction = (event) => {
     /* istanbul ignore else */
     if (onPress) {
-      onPress(event)
+      onPress(event);
     } else if (goBack && !to) {
-      history.goBack()
+      history.goBack();
     } else if (to && !goBack) {
-      history.push(to)
+      history.push(to);
     }
-  }
+  };
   return (
     <Button
       {...rest} // `children` is just another prop!
       role="option"
       onPress={handleOnPress}
     />
-  )
-}
+  );
+};
 
-export default withRouter(LinkButton)
+export default withRouter(LinkButton);

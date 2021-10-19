@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 const Table = styled.table`
   width: 100%;
@@ -21,19 +21,19 @@ const Table = styled.table`
   @media print {
     border-top: 1px solid rgb(194, 200, 203);
   }
-`
+`;
 
 interface TableData {
-  narrow?: boolean
-  nowrap?: boolean
-  padding?: number
-  textAlign?: 'right' | 'left' | 'center'
+  narrow?: boolean;
+  nowrap?: boolean;
+  padding?: number;
+  textAlign?: 'right' | 'left' | 'center';
 }
 
 export const TD = styled.td<TableData>`
   width: ${({ narrow = false }) => (narrow ? '1%' : undefined)};
   text-align: ${({ textAlign }) => textAlign};
   white-space: ${({ nowrap = false }) => (nowrap ? 'nowrap' : undefined)};
-`
+`;
 
-export default Table
+export default Table;

@@ -1,17 +1,17 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { electionSampleDefinition } from '@votingworks/fixtures'
-import { AdjudicationReason, CandidateContest } from '@votingworks/types'
-import { integers, take } from '@votingworks/utils'
-import React from 'react'
-import AppContext from '../contexts/AppContext'
-import ScanWarningScreen from './ScanWarningScreen'
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { electionSampleDefinition } from '@votingworks/fixtures';
+import { AdjudicationReason, CandidateContest } from '@votingworks/types';
+import { integers, take } from '@votingworks/utils';
+import React from 'react';
+import AppContext from '../contexts/AppContext';
+import ScanWarningScreen from './ScanWarningScreen';
 
 test('overvote', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
-  )!
+  )!;
 
   render(
     <AppContext.Provider
@@ -36,17 +36,17 @@ test('overvote', async () => {
         ]}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('Too many marks for:')
-  screen.getByText(contest.title)
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count ballot with errors'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('Too many marks for:');
+  screen.getByText(contest.title);
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count ballot with errors'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});
 
 test('blank ballot', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
 
   render(
     <AppContext.Provider
@@ -63,19 +63,19 @@ test('blank ballot', async () => {
         adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('Remove the ballot, fix the issue, then scan again.')
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count blank ballot'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('Remove the ballot, fix the issue, then scan again.');
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count blank ballot'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});
 
 test('undervote no votes', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
-  )!
+  )!;
 
   render(
     <AppContext.Provider
@@ -100,21 +100,21 @@ test('undervote no votes', async () => {
         ]}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('You may still vote in this contest:')
-  screen.getByText(contest.title)
-  screen.getByText('Remove the ballot, fix the issue, then scan again.')
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count ballot with undervotes'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('You may still vote in this contest:');
+  screen.getByText(contest.title);
+  screen.getByText('Remove the ballot, fix the issue, then scan again.');
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count ballot with undervotes'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});
 
 test('undervote by 1', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  )!
+  )!;
 
   render(
     <AppContext.Provider
@@ -141,23 +141,23 @@ test('undervote by 1', async () => {
         ]}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('You may still vote for 1 more candidate in this contest:')
-  screen.getByText(contest.title)
-  screen.getByText('Remove the ballot, fix the issue, then scan again.')
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count ballot with undervotes'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('You may still vote for 1 more candidate in this contest:');
+  screen.getByText(contest.title);
+  screen.getByText('Remove the ballot, fix the issue, then scan again.');
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count ballot with undervotes'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});
 
 test('undervote by N', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  )!
+  )!;
 
-  const undervotedOptionCount = 1
+  const undervotedOptionCount = 1;
   render(
     <AppContext.Provider
       value={{
@@ -183,21 +183,21 @@ test('undervote by N', async () => {
         ]}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('You may still vote for 3 more candidates in this contest:')
-  screen.getByText(contest.title)
-  screen.getByText('Remove the ballot, fix the issue, then scan again.')
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count ballot with undervotes'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('You may still vote for 3 more candidates in this contest:');
+  screen.getByText(contest.title);
+  screen.getByText('Remove the ballot, fix the issue, then scan again.');
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count ballot with undervotes'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});
 
 test('multiple undervotes', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
   const contests = electionSampleDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
-  )!
+  )!;
 
   render(
     <AppContext.Provider
@@ -220,20 +220,20 @@ test('multiple undervotes', async () => {
         }))}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('You may still vote in these contests:')
+  screen.getByText('You may still vote in these contests:');
   for (const contest of contests) {
-    screen.getByText(contest.title)
+    screen.getByText(contest.title);
   }
-  screen.getByText('Remove the ballot, fix the issue, then scan again.')
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count ballot with undervotes'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('Remove the ballot, fix the issue, then scan again.');
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count ballot with undervotes'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});
 
 test('unreadable', async () => {
-  const acceptBallot = jest.fn()
+  const acceptBallot = jest.fn();
 
   render(
     <AppContext.Provider
@@ -252,10 +252,10 @@ test('unreadable', async () => {
         ]}
       />
     </AppContext.Provider>
-  )
+  );
 
-  screen.getByText('Remove the ballot, fix the issue, then scan again.')
-  userEvent.click(screen.getByText('Count Ballot'))
-  userEvent.click(screen.getByText('Yes, count ballot with errors'))
-  expect(acceptBallot).toHaveBeenCalledTimes(1)
-})
+  screen.getByText('Remove the ballot, fix the issue, then scan again.');
+  userEvent.click(screen.getByText('Count Ballot'));
+  userEvent.click(screen.getByText('Yes, count ballot with errors'));
+  expect(acceptBallot).toHaveBeenCalledTimes(1);
+});

@@ -1,18 +1,18 @@
-import { DateTime } from 'luxon'
-import React from 'react'
-import styled from 'styled-components'
+import { DateTime } from 'luxon';
+import React from 'react';
+import styled from 'styled-components';
 
 import {
   ElectionDefinition,
   getPartyPrimaryAdjectiveFromBallotStyle,
-} from '@votingworks/types'
-import { formatLongDate } from '@votingworks/utils'
+} from '@votingworks/types';
+import { formatLongDate } from '@votingworks/utils';
 
-import Seal from './Seal'
-import Prose from './Prose'
-import Text, { NoWrap } from './Text'
-import { PrecinctSelection } from '../config/types'
-import { precinctSelectionName } from '../utils/precinctSelection'
+import Seal from './Seal';
+import Prose from './Prose';
+import Text, { NoWrap } from './Text';
+import { PrecinctSelection } from '../config/types';
+import { precinctSelectionName } from '../utils/precinctSelection';
 
 const VerticalContainer = styled.div`
   display: block;
@@ -20,12 +20,12 @@ const VerticalContainer = styled.div`
   div:first-child {
     margin: 0 auto 0.5rem;
   }
-`
+`;
 
 const CenterinBlock = styled.div`
   display: flex;
   margin: 1.5rem 1rem 0;
-`
+`;
 
 const HorizontalContainer = styled.div`
   display: flex;
@@ -36,13 +36,13 @@ const HorizontalContainer = styled.div`
     margin-right: 1rem;
     min-width: 5rem;
   }
-`
+`;
 
 interface Props {
-  precinctSelection?: PrecinctSelection
-  ballotStyleId?: string
-  electionDefinition: ElectionDefinition
-  horizontal?: boolean
+  precinctSelection?: PrecinctSelection;
+  ballotStyleId?: string;
+  electionDefinition: ElectionDefinition;
+  horizontal?: boolean;
 }
 
 const ElectionInfo = ({
@@ -51,18 +51,18 @@ const ElectionInfo = ({
   electionDefinition,
   horizontal = false,
 }: Props): JSX.Element => {
-  const { election } = electionDefinition
-  const { title: t, state, county, date, seal, sealURL } = election
+  const { election } = electionDefinition;
+  const { title: t, state, county, date, seal, sealURL } = election;
   const precinctName =
     precinctSelection &&
-    precinctSelectionName(election.precincts, precinctSelection)
+    precinctSelectionName(election.precincts, precinctSelection);
   const partyPrimaryAdjective = ballotStyleId
     ? getPartyPrimaryAdjectiveFromBallotStyle({
         election,
         ballotStyleId,
       })
-    : ''
-  const title = `${partyPrimaryAdjective} ${t}`
+    : '';
+  const title = `${partyPrimaryAdjective} ${t}`;
   if (horizontal) {
     return (
       <CenterinBlock aria-hidden data-testid="election-info">
@@ -87,7 +87,7 @@ const ElectionInfo = ({
           </Prose>
         </HorizontalContainer>
       </CenterinBlock>
-    )
+    );
   }
   return (
     <VerticalContainer aria-hidden>
@@ -104,7 +104,7 @@ const ElectionInfo = ({
         {precinctName && <Text bold>{precinctName}</Text>}
       </Prose>
     </VerticalContainer>
-  )
-}
+  );
+};
 
-export default ElectionInfo
+export default ElectionInfo;

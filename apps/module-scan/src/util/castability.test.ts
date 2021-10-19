@@ -4,8 +4,8 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   UnreadablePage,
-} from '@votingworks/types'
-import { Castability, checkSheetCastability } from './castability'
+} from '@votingworks/types';
+import { Castability, checkSheetCastability } from './castability';
 
 const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   type: 'InterpretedBmdPage',
@@ -21,7 +21,7 @@ const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   votes: {
     'flag-question': ['yes'],
   },
-}
+};
 
 const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
   type: 'InterpretedHmpbPage',
@@ -43,7 +43,7 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
     ignoredReasonInfos: [],
   },
   votes: {},
-}
+};
 
 const interpretedHmpbPageRequiringAdjudication: Readonly<InterpretedHmpbPage> = {
   ...interpretedHmpbPage,
@@ -51,34 +51,34 @@ const interpretedHmpbPageRequiringAdjudication: Readonly<InterpretedHmpbPage> = 
     ...interpretedHmpbPage.adjudicationInfo,
     requiresAdjudication: true,
   },
-}
+};
 
-const unreadablePage: Readonly<UnreadablePage> = { type: 'UnreadablePage' }
+const unreadablePage: Readonly<UnreadablePage> = { type: 'UnreadablePage' };
 
 const blankPage: Readonly<BlankPage> = {
   type: 'BlankPage',
-}
+};
 
 test('castability of a BMD ballot', () => {
   expect(checkSheetCastability([interpretedBmdPage, blankPage])).toEqual(
     Castability.CastableWithoutReview
-  )
+  );
   expect(checkSheetCastability([blankPage, interpretedBmdPage])).toEqual(
     Castability.CastableWithoutReview
-  )
-})
+  );
+});
 
 test('castability of a blank sheet', () => {
   expect(checkSheetCastability([blankPage, blankPage])).toEqual(
     Castability.Uncastable
-  )
-})
+  );
+});
 
 test('castability of a HMPB ballot not requiring adjudication', () => {
   expect(
     checkSheetCastability([interpretedHmpbPage, interpretedHmpbPage])
-  ).toEqual(Castability.CastableWithoutReview)
-})
+  ).toEqual(Castability.CastableWithoutReview);
+});
 
 test('castability of a HMPB ballot requiring adjudication', () => {
   expect(
@@ -86,17 +86,17 @@ test('castability of a HMPB ballot requiring adjudication', () => {
       interpretedHmpbPageRequiringAdjudication,
       interpretedHmpbPage,
     ])
-  ).toEqual(Castability.CastableWithReview)
+  ).toEqual(Castability.CastableWithReview);
   expect(
     checkSheetCastability([
       interpretedHmpbPage,
       interpretedHmpbPageRequiringAdjudication,
     ])
-  ).toEqual(Castability.CastableWithReview)
-})
+  ).toEqual(Castability.CastableWithReview);
+});
 
 test('castability of an unreadable ballot', () => {
   expect(checkSheetCastability([unreadablePage, unreadablePage])).toEqual(
     Castability.Uncastable
-  )
-})
+  );
+});

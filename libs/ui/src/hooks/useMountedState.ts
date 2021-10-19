@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react';
 
 /**
  * React hook for determining the current mounted state for the enclosing
@@ -17,15 +17,15 @@ import { useCallback, useEffect, useRef } from 'react'
  * }, [isMounted])
  */
 export function useMountedState(): () => boolean {
-  const mountedRef = useRef(false)
+  const mountedRef = useRef(false);
 
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
 
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
-  return useCallback(() => mountedRef.current, [])
+  return useCallback(() => mountedRef.current, []);
 }

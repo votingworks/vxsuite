@@ -15,44 +15,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import assert from 'assert'
-import bindings from 'bindings'
+import assert from 'assert';
+import bindings from 'bindings';
 
 const addon = bindings('lsd') as {
-  lsd(image: Float64Array, width: number, height: number): Float64Array
-  LSD_RESULT_DIM: number
-}
+  lsd(image: Float64Array, width: number, height: number): Float64Array;
+  LSD_RESULT_DIM: number;
+};
 
 export interface LineSegment {
-  x1: number
-  x2: number
-  y1: number
-  y2: number
-  width: number
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
+  width: number;
 }
 
 export default function lsd(imageData: ImageData): LineSegment[] {
-  const { data, width, height } = imageData
-  const channels = imageData.data.length / imageData.width / imageData.height
+  const { data, width, height } = imageData;
+  const channels = imageData.data.length / imageData.width / imageData.height;
 
   assert.strictEqual(
     channels,
     1,
     `expected a grayscale image, got a ${channels}-channel image`
-  )
+  );
 
-  const dst = Float64Array.from(data)
-  const result = addon.lsd(dst, width, height)
+  const dst = Float64Array.from(data);
+  const result = addon.lsd(dst, width, height);
 
   assert.strictEqual(
     result.length % addon.LSD_RESULT_DIM,
     0,
     'invalid dimension'
-  )
+  );
 
   const segments = Array.from<LineSegment>({
     length: result.length / addon.LSD_RESULT_DIM,
-  })
+  });
 
   for (
     let ri = 0, si = 0;
@@ -65,8 +65,8 @@ export default function lsd(imageData: ImageData): LineSegment[] {
       x2: result[ri + 2],
       y2: result[ri + 3],
       width: result[ri + 4],
-    }
+    };
   }
 
-  return segments
+  return segments;
 }

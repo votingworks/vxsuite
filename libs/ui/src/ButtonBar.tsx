@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const ButtonBar = styled('nav')`
   display: flex;
@@ -25,4 +25,4 @@ export const ButtonBar = styled('nav')`
       min-width: 33.333%;
     }
   }
-`
+`;

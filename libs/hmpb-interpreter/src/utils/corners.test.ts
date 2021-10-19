@@ -1,15 +1,15 @@
-import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election'
-import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
-import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
-import * as walthall2020 from '../../test/fixtures/walthall-county-2020-general-election-6f6f9cdb30'
-import { findShape } from '../hmpb/shapes'
-import { binarize } from './binarize'
-import { getCorners } from './corners'
+import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election';
+import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
+import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020';
+import * as walthall2020 from '../../test/fixtures/walthall-county-2020-general-election-6f6f9cdb30';
+import { findShape } from '../hmpb/shapes';
+import { binarize } from './binarize';
+import { getCorners } from './corners';
 
 test('already pretty straight', async () => {
-  const imageData = await oaklawn.filledInPage1.imageData()
+  const imageData = await oaklawn.filledInPage1.imageData();
 
-  binarize(imageData)
+  binarize(imageData);
   expect(getCorners(findShape(imageData, { x: 1700, y: 1420 })))
     .toMatchInlineSnapshot(`
     Array [
@@ -30,13 +30,13 @@ test('already pretty straight', async () => {
         "y": 2065,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('skewed', async () => {
-  const imageData = await walthall2020.filledInPage1Skewed.imageData()
+  const imageData = await walthall2020.filledInPage1Skewed.imageData();
 
-  binarize(imageData)
+  binarize(imageData);
   expect(getCorners(findShape(imageData, { x: 1000, y: 80 })))
     .toMatchInlineSnapshot(`
     Array [
@@ -57,12 +57,12 @@ test('skewed', async () => {
         "y": 2878,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('a little skewed', async () => {
-  const imageData = await choctaw.filledInPage2.imageData()
-  binarize(imageData)
+  const imageData = await choctaw.filledInPage2.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 80, y: 90 })))
     .toMatchInlineSnapshot(`
@@ -84,12 +84,12 @@ test('a little skewed', async () => {
         "y": 2512,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('regression: choctaw county filled-in-p1-01', async () => {
-  const imageData = await choctaw.filledInPage1_01.imageData()
-  binarize(imageData)
+  const imageData = await choctaw.filledInPage1_01.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 930, y: 90 })))
     .toMatchInlineSnapshot(`
@@ -111,12 +111,12 @@ test('regression: choctaw county filled-in-p1-01', async () => {
         "y": 2888,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('regression: state of hamilton p4', async () => {
-  const imageData = await hamilton.filledInPage4.imageData()
-  binarize(imageData)
+  const imageData = await hamilton.filledInPage4.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 910, y: 140 })))
     .toMatchInlineSnapshot(`
@@ -138,12 +138,12 @@ test('regression: state of hamilton p4', async () => {
         "y": 1874,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('overlapping bounding boxes', async () => {
-  const imageData = await choctaw.filledInPage1_06.imageData()
-  binarize(imageData)
+  const imageData = await choctaw.filledInPage1_06.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 870, y: 80 })))
     .toMatchInlineSnapshot(`
@@ -165,12 +165,12 @@ test('overlapping bounding boxes', async () => {
         "y": 2848,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('another issue', async () => {
-  const imageData = await choctaw.filledInPage2_02.imageData()
-  binarize(imageData)
+  const imageData = await choctaw.filledInPage2_02.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 150, y: 90 })))
     .toMatchInlineSnapshot(`
@@ -192,12 +192,12 @@ test('another issue', async () => {
         "y": 2523,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('top-right corner bug', async () => {
-  const imageData = await choctaw.filledInPage2_03.imageData()
-  binarize(imageData)
+  const imageData = await choctaw.filledInPage2_03.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 2450, y: 100 })))
     .toMatchInlineSnapshot(`
@@ -219,12 +219,12 @@ test('top-right corner bug', async () => {
         "y": 902,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('top-left corner bug', async () => {
-  const imageData = await choctaw.filledInPage2_04.imageData()
-  binarize(imageData)
+  const imageData = await choctaw.filledInPage2_04.imageData();
+  binarize(imageData);
 
   expect(getCorners(findShape(imageData, { x: 100, y: 105 })))
     .toMatchInlineSnapshot(`
@@ -246,5 +246,5 @@ test('top-left corner bug', async () => {
         "y": 2530,
       },
     ]
-  `)
-})
+  `);
+});

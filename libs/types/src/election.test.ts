@@ -3,7 +3,7 @@ import {
   electionWithMsEitherNeither,
   primaryElection,
   electionMinimalExhaustive,
-} from '../test/election'
+} from '../test/election';
 import {
   CandidateContest,
   expandEitherNeitherContests,
@@ -18,36 +18,36 @@ import {
   vote,
   withLocale,
   YesNoContest,
-} from './election'
+} from './election';
 
 test('can build votes from a candidate ID', () => {
-  const contests = election.contests.filter((c) => c.id === 'CC')
-  const contest = contests[0] as CandidateContest
+  const contests = election.contests.filter((c) => c.id === 'CC');
+  const contest = contests[0] as CandidateContest;
 
   expect(vote(contests, { CC: 'C' })).toEqual({
     CC: [contest.candidates[0]],
-  })
-})
+  });
+});
 
 test('can build votes from an array of candidate IDs', () => {
-  const contests = election.contests.filter((c) => c.id === 'CC')
-  const contest = contests[0] as CandidateContest
+  const contests = election.contests.filter((c) => c.id === 'CC');
+  const contest = contests[0] as CandidateContest;
 
   expect(
     vote(contests, { [contest.id]: contest.candidates.map((c) => c.id) })
   ).toEqual({
     [contest.id]: contest.candidates,
-  })
-})
+  });
+});
 
 test('can build votes from yesno values', () => {
   expect(vote(election.contests, { YNC: 'yes' })).toEqual({
     YNC: 'yes',
-  })
+  });
   expect(vote(election.contests, { YNC: 'no' })).toEqual({
     YNC: 'no',
-  })
-})
+  });
+});
 
 test('can build votes from ms-either-neither yesno values', () => {
   expect(
@@ -58,121 +58,121 @@ test('can build votes from ms-either-neither yesno values', () => {
   ).toEqual({
     MSEN: 'yes',
     MSPO: 'no',
-  })
-})
+  });
+});
 
 test('can build votes from a candidate object', () => {
-  const contests = election.contests.filter((c) => c.id === 'CC')
-  const contest = contests[0] as CandidateContest
-  const candidate = contest.candidates[0]
+  const contests = election.contests.filter((c) => c.id === 'CC');
+  const contest = contests[0] as CandidateContest;
+  const candidate = contest.candidates[0];
 
   expect(vote(contests, { CC: candidate })).toEqual({
     CC: [candidate],
-  })
-})
+  });
+});
 
 test('can get ms-either-neither contests from a list', () => {
   expect(
     getEitherNeitherContests(electionWithMsEitherNeither.contests)
-  ).toHaveLength(1)
-})
+  ).toHaveLength(1);
+});
 
 test('can expand ms-either-neither contests into yes no contests', () => {
   const expandedContests = expandEitherNeitherContests(
     electionWithMsEitherNeither.contests
-  )
+  );
   // There is 1 contest that should have expanded into two.
   expect(expandedContests).toHaveLength(
     1 + electionWithMsEitherNeither.contests.length
-  )
+  );
   for (let i = 0; i < electionWithMsEitherNeither.contests.length; i += 1) {
-    const originalContest = electionWithMsEitherNeither.contests[i]
+    const originalContest = electionWithMsEitherNeither.contests[i];
     if (originalContest.type !== 'ms-either-neither') {
-      expect(originalContest).toEqual(expandedContests[i])
+      expect(originalContest).toEqual(expandedContests[i]);
     } else {
-      expect(expandedContests[i].type).toBe('yesno')
-      expect(expandedContests[i + 1].type).toBe('yesno')
+      expect(expandedContests[i].type).toBe('yesno');
+      expect(expandedContests[i + 1].type).toBe('yesno');
     }
   }
-})
+});
 
 test('can expand ms-either-neither contests into yes no contests in a primary', () => {
   const expandedContests = expandEitherNeitherContests(
     electionMinimalExhaustive.contests
-  )
+  );
   // There is 1 contest that should have expanded into two.
   expect(expandedContests).toHaveLength(
     1 + electionMinimalExhaustive.contests.length
-  )
+  );
   for (let i = 0; i < electionWithMsEitherNeither.contests.length; i += 1) {
-    const originalContest = electionMinimalExhaustive.contests[i]
+    const originalContest = electionMinimalExhaustive.contests[i];
     if (originalContest.type !== 'ms-either-neither') {
-      expect(originalContest).toEqual(expandedContests[i])
+      expect(originalContest).toEqual(expandedContests[i]);
     } else {
-      expect(expandedContests[i].type).toBe('yesno')
-      expect(expandedContests[i + 1].type).toBe('yesno')
-      expect(expandedContests[i].partyId === originalContest.partyId)
-      expect(expandedContests[i + 1].partyId === originalContest.partyId)
+      expect(expandedContests[i].type).toBe('yesno');
+      expect(expandedContests[i + 1].type).toBe('yesno');
+      expect(expandedContests[i].partyId === originalContest.partyId);
+      expect(expandedContests[i + 1].partyId === originalContest.partyId);
     }
   }
-})
+});
 
 test('can build votes from a candidates array', () => {
-  const contests = election.contests.filter((c) => c.id === 'CC')
-  const contest = contests[0] as CandidateContest
-  const { candidates } = contest
+  const contests = election.contests.filter((c) => c.id === 'CC');
+  const contest = contests[0] as CandidateContest;
+  const { candidates } = contest;
 
   expect(vote(contests, { CC: candidates })).toEqual({
     CC: candidates,
-  })
-})
+  });
+});
 
 test('vote throws when given a contest id that does not match a contest', () => {
-  expect(() => vote([], { nope: 'yes' })).toThrowError('unknown contest nope')
-})
+  expect(() => vote([], { nope: 'yes' })).toThrowError('unknown contest nope');
+});
 
 test('can get a party primary adjective from ballot style', () => {
-  const ballotStyleId = '1D'
+  const ballotStyleId = '1D';
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
       election: primaryElection,
     })
-  ).toEqual('Democratic')
-})
+  ).toEqual('Democratic');
+});
 
 test('can get a party full name from ballot style', () => {
-  const ballotStyleId = '1D'
+  const ballotStyleId = '1D';
   expect(
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
       election: primaryElection,
     })
-  ).toEqual('Democratic Party')
-})
+  ).toEqual('Democratic Party');
+});
 
 test('can get a party full name from ballot style', () => {
-  const ballotStyleId = 'DOES_NOT_EXIST'
+  const ballotStyleId = 'DOES_NOT_EXIST';
   expect(
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
       election: primaryElection,
     })
-  ).toEqual('')
-})
+  ).toEqual('');
+});
 
 test('special cases party primary adjective transform "Democrat" -> "Democratic"', () => {
-  const ballotStyleId = '1D'
+  const ballotStyleId = '1D';
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
       election: primaryElection,
     })
-  ).toEqual('Democratic')
-})
+  ).toEqual('Democratic');
+});
 
 test('defaults to empty string if no party can be found', () => {
-  const ballotStyleId = '12Z'
+  const ballotStyleId = '12Z';
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
@@ -181,35 +181,35 @@ test('defaults to empty string if no party can be found', () => {
         parties: [],
       },
     })
-  ).toEqual('')
-})
+  ).toEqual('');
+});
 
 test('getPrecinctById', () => {
   expect(
     getPrecinctById({ election, precinctId: election.precincts[0].id })
-  ).toBe(election.precincts[0])
-  expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined()
-})
+  ).toBe(election.precincts[0]);
+  expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined();
+});
 
 test('isVotePresent', () => {
-  expect(isVotePresent()).toBe(false)
-  expect(isVotePresent([])).toBe(false)
-  expect(isVotePresent(['yes'])).toBe(true)
+  expect(isVotePresent()).toBe(false);
+  expect(isVotePresent([])).toBe(false);
+  expect(isVotePresent(['yes'])).toBe(true);
   expect(
     isVotePresent([
       election.contests.find(
         (c): c is CandidateContest => c.type === 'candidate'
       )!.candidates[0],
     ])
-  ).toBe(true)
-})
+  ).toBe(true);
+});
 
 test('validates votes by checking that contests are present in a given ballot style', () => {
-  const ballotStyle = election.ballotStyles[0]
+  const ballotStyle = election.ballotStyles[0];
 
   const yesno = election.contests.find(
     (c): c is YesNoContest => c.type === 'yesno'
-  ) as YesNoContest
+  ) as YesNoContest;
   expect(() =>
     validateVotes({
       votes: {
@@ -218,22 +218,22 @@ test('validates votes by checking that contests are present in a given ballot st
       ballotStyle,
       election,
     })
-  ).not.toThrowError()
+  ).not.toThrowError();
   expect(() =>
     validateVotes({ votes: { nope: ['yes'] }, ballotStyle, election })
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 1'
-  )
-})
+  );
+});
 
 test('list locales in election definition', () => {
-  expect(getElectionLocales(election)).toEqual(['en-US'])
-  expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN'])
+  expect(getElectionLocales(election)).toEqual(['en-US']);
+  expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN']);
   expect(getElectionLocales({ ...election, _lang: { 'es-US': {} } })).toEqual([
     'en-US',
     'es-US',
-  ])
-})
+  ]);
+});
 
 test('pulls translation keys from the top level object', () => {
   expect(
@@ -241,8 +241,8 @@ test('pulls translation keys from the top level object', () => {
       { ...election, _lang: { 'es-US': { title: 'Eleccion General' } } },
       'es-US'
     ).title
-  ).toEqual('Eleccion General')
-})
+  ).toEqual('Eleccion General');
+});
 
 test('withLocale ignores undefined keys', () => {
   withLocale(
@@ -256,8 +256,8 @@ test('withLocale ignores undefined keys', () => {
       _lang: { 'es-US': {} },
     },
     'es-US'
-  )
-})
+  );
+});
 
 test('withLocale ignores missing strings for the locale', () => {
   withLocale(
@@ -271,8 +271,8 @@ test('withLocale ignores missing strings for the locale', () => {
       _lang: { 'es-US': {} },
     },
     'es-US'
-  )
-})
+  );
+});
 
 test('pulls translation keys from nested objects', () => {
   expect(
@@ -292,29 +292,29 @@ test('pulls translation keys from nested objects', () => {
       },
       'es-US'
     ).parties[0].name
-  ).toEqual('Federalista')
-})
+  ).toEqual('Federalista');
+});
 
 test('treats locale identifier as case-insensitive', () => {
-  expect(withLocale(election, 'es-US')).toEqual(withLocale(election, 'eS-Us'))
-})
+  expect(withLocale(election, 'es-US')).toEqual(withLocale(election, 'eS-Us'));
+});
 
 test('passes undefined values through', () => {
   expect(withLocale({ ...election, seal: undefined }, 'es-US')).toHaveProperty(
     'seal',
     undefined
-  )
-})
+  );
+});
 
 test('uses the defaults for anything without a translation', () => {
-  expect(withLocale(election, 'en-US').title).toEqual(election.title)
-  expect(withLocale(election, 'fr-FR').title).toEqual(election.title)
-})
+  expect(withLocale(election, 'en-US').title).toEqual(election.title);
+  expect(withLocale(election, 'fr-FR').title).toEqual(election.title);
+});
 
 test('trying to vote in the top-level ms-either-neither contest fails', () => {
   expect(() => {
     vote(electionWithMsEitherNeither.contests, {
       '750000015-either-neither': ['yes'],
-    })
-  }).toThrowError()
-})
+    });
+  }).toThrowError();
+});

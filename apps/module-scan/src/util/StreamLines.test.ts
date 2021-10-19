@@ -1,31 +1,31 @@
-import EventEmitter from 'events'
-import { Readable } from 'stream'
-import StreamLines from './StreamLines'
+import EventEmitter from 'events';
+import { Readable } from 'stream';
+import StreamLines from './StreamLines';
 
 test('streams lines from an input stream', async () => {
-  const onLine = jest.fn()
-  const read = jest.fn()
-  const input = new EventEmitter() as Readable
-  input.read = read
+  const onLine = jest.fn();
+  const read = jest.fn();
+  const input = new EventEmitter() as Readable;
+  input.read = read;
 
-  new StreamLines(input).on('line', onLine)
-  expect(onLine).not.toHaveBeenCalled()
+  new StreamLines(input).on('line', onLine);
+  expect(onLine).not.toHaveBeenCalled();
 
-  read.mockReturnValueOnce('abc')
-  input.emit('readable')
-  expect(onLine).not.toHaveBeenCalled()
+  read.mockReturnValueOnce('abc');
+  input.emit('readable');
+  expect(onLine).not.toHaveBeenCalled();
 
-  read.mockReturnValueOnce('def\n')
-  input.emit('readable')
-  expect(onLine).toHaveBeenNthCalledWith(1, 'abcdef\n')
+  read.mockReturnValueOnce('def\n');
+  input.emit('readable');
+  expect(onLine).toHaveBeenNthCalledWith(1, 'abcdef\n');
 
-  read.mockReturnValueOnce('Hello World!\nWelcome')
-  input.emit('readable')
-  expect(onLine).toHaveBeenNthCalledWith(2, 'Hello World!\n')
+  read.mockReturnValueOnce('Hello World!\nWelcome');
+  input.emit('readable');
+  expect(onLine).toHaveBeenNthCalledWith(2, 'Hello World!\n');
 
-  read.mockReturnValueOnce(undefined)
-  input.emit('readable')
+  read.mockReturnValueOnce(undefined);
+  input.emit('readable');
 
-  input.emit('close')
-  expect(onLine).toHaveBeenNthCalledWith(3, 'Welcome')
-})
+  input.emit('close');
+  expect(onLine).toHaveBeenNthCalledWith(3, 'Welcome');
+});

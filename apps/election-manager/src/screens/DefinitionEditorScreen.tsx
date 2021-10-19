@@ -1,24 +1,24 @@
-import { strict as assert } from 'assert'
-import React, { useCallback, useContext, useState, useEffect } from 'react'
-import styled from 'styled-components'
-import fileDownload from 'js-file-download'
+import { strict as assert } from 'assert';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
+import styled from 'styled-components';
+import fileDownload from 'js-file-download';
 
-import dashify from 'dashify'
+import dashify from 'dashify';
 
-import { safeParseElection } from '@votingworks/types'
-import AppContext from '../contexts/AppContext'
+import { safeParseElection } from '@votingworks/types';
+import AppContext from '../contexts/AppContext';
 
-import Button from '../components/Button'
-import Textarea from '../components/Textarea'
-import ButtonBar from '../components/ButtonBar'
-import Prose from '../components/Prose'
-import NavigationScreen from '../components/NavigationScreen'
-import { TextareaEventFunction } from '../config/types'
-import RemoveElectionModal from '../components/RemoveElectionModal'
+import Button from '../components/Button';
+import Textarea from '../components/Textarea';
+import ButtonBar from '../components/ButtonBar';
+import Prose from '../components/Prose';
+import NavigationScreen from '../components/NavigationScreen';
+import { TextareaEventFunction } from '../config/types';
+import RemoveElectionModal from '../components/RemoveElectionModal';
 
 const Header = styled.div`
   margin-bottom: 1rem;
-`
+`;
 
 const FlexTextareaWrapper = styled.div`
   display: flex;
@@ -29,50 +29,50 @@ const FlexTextareaWrapper = styled.div`
     min-height: 400px;
     font-family: monospace;
   }
-`
+`;
 const DefinitionEditorScreen = ({
   allowEditing,
 }: {
-  allowEditing: boolean
+  allowEditing: boolean;
 }): JSX.Element => {
-  const { electionDefinition, saveElection } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election, electionData } = electionDefinition
-  const stringifiedElection = JSON.stringify(election, undefined, 2)
-  const [electionString, setElectionString] = useState(stringifiedElection)
-  const [dirty, setDirty] = useState(false)
-  const [error, setError] = useState('')
+  const { electionDefinition, saveElection } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election, electionData } = electionDefinition;
+  const stringifiedElection = JSON.stringify(election, undefined, 2);
+  const [electionString, setElectionString] = useState(stringifiedElection);
+  const [dirty, setDirty] = useState(false);
+  const [error, setError] = useState('');
 
-  const [isConfimingUnconfig, setIsConfimingUnconfig] = useState(false)
+  const [isConfimingUnconfig, setIsConfimingUnconfig] = useState(false);
   const cancelConfirmingUnconfig = () => {
-    setIsConfimingUnconfig(false)
-  }
+    setIsConfimingUnconfig(false);
+  };
   const initConfirmingUnconfig = () => {
-    setIsConfimingUnconfig(true)
-  }
+    setIsConfimingUnconfig(true);
+  };
 
   const validateElectionDefinition = useCallback(() => {
-    const result = safeParseElection(electionString)
-    setError(result.err()?.message ?? '')
-    return result.isOk()
-  }, [electionString])
+    const result = safeParseElection(electionString);
+    setError(result.err()?.message ?? '');
+    return result.isOk();
+  }, [electionString]);
   const editElection: TextareaEventFunction = (event) => {
-    setDirty(true)
-    setElectionString(event.currentTarget.value)
-  }
+    setDirty(true);
+    setElectionString(event.currentTarget.value);
+  };
   const handleSaveElection = async () => {
-    const valid = validateElectionDefinition()
+    const valid = validateElectionDefinition();
     if (valid) {
-      await saveElection(electionString)
-      setDirty(false)
-      setError('')
+      await saveElection(electionString);
+      setDirty(false);
+      setError('');
     }
-  }
+  };
   const resetElectionConfig = () => {
-    setElectionString(stringifiedElection)
-    setDirty(false)
-    setError('')
-  }
+    setElectionString(stringifiedElection);
+    setDirty(false);
+    setError('');
+  };
 
   const downloadElectionDefinition = () => {
     fileDownload(
@@ -81,12 +81,12 @@ const DefinitionEditorScreen = ({
         election.title
       )}-vx-election-definition.json`,
       'application/json'
-    )
-  }
+    );
+  };
 
   useEffect(() => {
-    validateElectionDefinition()
-  }, [validateElectionDefinition, electionString])
+    validateElectionDefinition();
+  }, [validateElectionDefinition, electionString]);
 
   return (
     <React.Fragment>
@@ -140,7 +140,7 @@ const DefinitionEditorScreen = ({
         <RemoveElectionModal onClose={cancelConfirmingUnconfig} />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default DefinitionEditorScreen
+export default DefinitionEditorScreen;

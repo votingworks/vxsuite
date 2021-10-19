@@ -1,20 +1,20 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import { SetupCardReaderPage } from './SetupCardReaderPage'
+import { SetupCardReaderPage } from './SetupCardReaderPage';
 
 describe('renders SetupCardReaderPage', () => {
   test('with no useEffect trigger as expected', async () => {
-    const { container } = render(<SetupCardReaderPage />)
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    const { container } = render(<SetupCardReaderPage />);
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('triggers useEffect property', async () => {
-    const triggerFn = jest.fn()
+    const triggerFn = jest.fn();
     const { container } = render(
       <SetupCardReaderPage useEffectToggleLargeDisplay={triggerFn} />
-    )
-    expect(container.firstChild).toMatchSnapshot()
-    expect(triggerFn).toHaveBeenCalled()
-  })
-})
+    );
+    expect(container.firstChild).toMatchSnapshot();
+    expect(triggerFn).toHaveBeenCalled();
+  });
+});

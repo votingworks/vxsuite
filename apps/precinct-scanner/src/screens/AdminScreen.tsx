@@ -1,4 +1,4 @@
-import { Precinct, SelectChangeEventFunction } from '@votingworks/types'
+import { Precinct, SelectChangeEventFunction } from '@votingworks/types';
 import {
   Button,
   Loading,
@@ -7,29 +7,29 @@ import {
   Select,
   UsbDrive,
   useNow,
-} from '@votingworks/ui'
-import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import { DateTime } from 'luxon'
-import React, { useCallback, useContext, useState } from 'react'
-import { Absolute } from '../components/Absolute'
-import { Bar } from '../components/Bar'
-import CalibrateScannerModal from '../components/CalibrateScannerModal'
-import ExportBackupModal from '../components/ExportBackupModal'
-import ExportResultsModal from '../components/ExportResultsModal'
-import { CenteredScreen } from '../components/Layout'
-import Modal from '../components/Modal'
-import PickDateTimeModal from '../components/PickDateTimeModal'
-import AppContext from '../contexts/AppContext'
+} from '@votingworks/ui';
+import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import { DateTime } from 'luxon';
+import React, { useCallback, useContext, useState } from 'react';
+import { Absolute } from '../components/Absolute';
+import { Bar } from '../components/Bar';
+import CalibrateScannerModal from '../components/CalibrateScannerModal';
+import ExportBackupModal from '../components/ExportBackupModal';
+import ExportResultsModal from '../components/ExportResultsModal';
+import { CenteredScreen } from '../components/Layout';
+import Modal from '../components/Modal';
+import PickDateTimeModal from '../components/PickDateTimeModal';
+import AppContext from '../contexts/AppContext';
 
 interface Props {
-  scannedBallotCount: number
-  isTestMode: boolean
-  updateAppPrecinctId(appPrecinctId: string): Promise<void>
-  toggleLiveMode(): Promise<void>
-  unconfigure(): Promise<void>
-  calibrate(): Promise<boolean>
-  usbDrive: UsbDrive
+  scannedBallotCount: number;
+  isTestMode: boolean;
+  updateAppPrecinctId(appPrecinctId: string): Promise<void>;
+  toggleLiveMode(): Promise<void>;
+  unconfigure(): Promise<void>;
+  calibrate(): Promise<boolean>;
+  usbDrive: UsbDrive;
 }
 
 const AdminScreen = ({
@@ -41,67 +41,67 @@ const AdminScreen = ({
   calibrate,
   usbDrive,
 }: Props): JSX.Element => {
-  const { electionDefinition, currentPrecinctId } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election } = electionDefinition
+  const { electionDefinition, currentPrecinctId } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
 
-  const systemDate = useNow()
-  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false)
-  const [isSettingClock, setIsSettingClock] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isExportingResults, setIsExportingResults] = useState(false)
-  const [isExportingBackup, setIsExportingBackup] = useState(false)
+  const systemDate = useNow();
+  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false);
+  const [isSettingClock, setIsSettingClock] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExportingResults, setIsExportingResults] = useState(false);
+  const [isExportingBackup, setIsExportingBackup] = useState(false);
 
   const setClock = useCallback(
     async (date: DateTime) => {
-      setIsSettingClock(true)
+      setIsSettingClock(true);
       try {
         await window.kiosk?.setClock({
           isoDatetime: date.toISO(),
           IANAZone: date.zoneName,
-        })
-        setIsSystemDateModalActive(false)
+        });
+        setIsSystemDateModalActive(false);
       } finally {
-        setIsSettingClock(false)
+        setIsSettingClock(false);
       }
     },
     [setIsSettingClock, setIsSystemDateModalActive]
-  )
+  );
 
-  const [confirmUnconfigure, setConfirmUnconfigure] = useState(false)
+  const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
   const openConfirmUnconfigureModal = useCallback(
     () => setConfirmUnconfigure(true),
     []
-  )
+  );
   const closeConfirmUnconfigureModal = useCallback(
     () => setConfirmUnconfigure(false),
     []
-  )
+  );
 
-  const [isCalibratingScanner, setIsCalibratingScanner] = useState(false)
+  const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
   const openCalibrateScannerModal = useCallback(
     () => setIsCalibratingScanner(true),
     []
-  )
+  );
   const closeCalibrateScannerModal = useCallback(
     () => setIsCalibratingScanner(false),
     []
-  )
+  );
 
   const changeAppPrecinctId: SelectChangeEventFunction = async (event) => {
-    await updateAppPrecinctId(event.currentTarget.value)
-  }
+    await updateAppPrecinctId(event.currentTarget.value);
+  };
 
   const handleTogglingLiveMode = async () => {
-    setIsLoading(true)
-    await toggleLiveMode()
-    setIsLoading(false)
-  }
+    setIsLoading(true);
+    await toggleLiveMode();
+    setIsLoading(false);
+  };
 
   const handleUnconfigure = async () => {
-    setIsLoading(true)
-    await unconfigure()
-  }
+    setIsLoading(true);
+    await unconfigure();
+  };
 
   return (
     <CenteredScreen infoBarMode="admin">
@@ -241,18 +241,18 @@ const AdminScreen = ({
         />
       )}
     </CenteredScreen>
-  )
-}
+  );
+};
 
-export default AdminScreen
+export default AdminScreen;
 
 /* istanbul ignore next */
 export const DefaultPreview: React.FC =
   process.env.NODE_ENV === 'development'
     ? () => {
-        const { machineConfig, electionDefinition } = useContext(AppContext)
-        const [isTestMode, setIsTestMode] = useState(false)
-        const [precinctId, setPrecinctId] = useState<Precinct['id']>()
+        const { machineConfig, electionDefinition } = useContext(AppContext);
+        const [isTestMode, setIsTestMode] = useState(false);
+        const [precinctId, setPrecinctId] = useState<Precinct['id']>();
         return (
           <AppContext.Provider
             value={{
@@ -276,6 +276,6 @@ export const DefaultPreview: React.FC =
               }}
             />
           </AppContext.Provider>
-        )
+        );
       }
-    : () => null
+    : () => null;

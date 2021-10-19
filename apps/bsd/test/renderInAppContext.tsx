@@ -1,22 +1,22 @@
-import { render as testRender, RenderResult } from '@testing-library/react'
-import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures'
-import { ElectionDefinition } from '@votingworks/types'
-import { MemoryStorage, Storage, usbstick } from '@votingworks/utils'
-import { createMemoryHistory, MemoryHistory } from 'history'
-import React from 'react'
-import { Router } from 'react-router-dom'
-import AppContext from '../src/contexts/AppContext'
+import { render as testRender, RenderResult } from '@testing-library/react';
+import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { ElectionDefinition } from '@votingworks/types';
+import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
+import { createMemoryHistory, MemoryHistory } from 'history';
+import React from 'react';
+import { Router } from 'react-router-dom';
+import AppContext from '../src/contexts/AppContext';
 
 interface RenderInAppContextParams {
-  route?: string
-  history?: MemoryHistory<any> // eslint-disable-line @typescript-eslint/no-explicit-any
-  electionDefinition?: ElectionDefinition
-  machineId?: string
-  usbDriveStatus?: usbstick.UsbDriveStatus
-  usbDriveEject?: () => void
-  storage?: Storage
-  lockMachine?: () => void
-  bypassAuthentication?: boolean
+  route?: string;
+  history?: MemoryHistory<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  electionDefinition?: ElectionDefinition;
+  machineId?: string;
+  usbDriveStatus?: usbstick.UsbDriveStatus;
+  usbDriveEject?: () => void;
+  storage?: Storage;
+  lockMachine?: () => void;
+  bypassAuthentication?: boolean;
 }
 
 export default function renderInAppContext(
@@ -46,5 +46,5 @@ export default function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>
-  )
+  );
 }

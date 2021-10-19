@@ -1,13 +1,13 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import { Table, TD } from './Table'
+import { Table, TD } from './Table';
 
 describe('renders Table', () => {
   test('as table tag', () => {
-    const { container } = render(<Table />)
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    const { container } = render(<Table />);
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('can specify borderTop', () => {
     const { container } = render(
@@ -18,9 +18,9 @@ describe('renders Table', () => {
           </tr>
         </tbody>
       </Table>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('can specify condensed', () => {
     const { container } = render(
@@ -31,9 +31,9 @@ describe('renders Table', () => {
           </tr>
         </tbody>
       </Table>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('can render TD inside Table', () => {
     const { container } = render(
@@ -52,7 +52,7 @@ describe('renders Table', () => {
           </tr>
         </tbody>
       </Table>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
-})
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
+});

@@ -1,6 +1,6 @@
-import { election } from '../../test/helpers/election'
-import { PrecinctSelectionKind } from '../config/types'
-import { precinctSelectionName } from './precinctSelection'
+import { election } from '../../test/helpers/election';
+import { PrecinctSelectionKind } from '../config/types';
+import { precinctSelectionName } from './precinctSelection';
 
 test('single precinct with no matching precincts', () => {
   expect(() =>
@@ -8,8 +8,8 @@ test('single precinct with no matching precincts', () => {
       kind: PrecinctSelectionKind.SinglePrecinct,
       precinctId: 'nope',
     })
-  ).toThrow()
-})
+  ).toThrow();
+});
 
 test('single precinct with matching precinct', () => {
   expect(
@@ -17,11 +17,11 @@ test('single precinct with matching precinct', () => {
       kind: PrecinctSelectionKind.SinglePrecinct,
       precinctId: '23',
     })
-  ).toEqual('Center Springfield')
-})
+  ).toEqual('Center Springfield');
+});
 
 test('all precincts', () => {
   expect(
     precinctSelectionName([], { kind: PrecinctSelectionKind.AllPrecincts })
-  ).toEqual('All Precincts')
-})
+  ).toEqual('All Precincts');
+});

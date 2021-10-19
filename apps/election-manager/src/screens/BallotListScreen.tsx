@@ -1,55 +1,55 @@
-import { strict as assert } from 'assert'
-import React, { useContext, useState } from 'react'
-import styled from 'styled-components'
-import pluralize from 'pluralize'
-import moment from 'moment'
+import { strict as assert } from 'assert';
+import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
+import pluralize from 'pluralize';
+import moment from 'moment';
 
-import { find } from '@votingworks/utils'
-import { Table, TD } from '@votingworks/ui'
-import AppContext from '../contexts/AppContext'
+import { find } from '@votingworks/utils';
+import { Table, TD } from '@votingworks/ui';
+import AppContext from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths'
-import Button, { SegmentedButton } from '../components/Button'
-import LinkButton from '../components/LinkButton'
-import { NoWrap } from '../components/Text'
-import Prose from '../components/Prose'
+import routerPaths from '../routerPaths';
+import Button, { SegmentedButton } from '../components/Button';
+import LinkButton from '../components/LinkButton';
+import { NoWrap } from '../components/Text';
+import Prose from '../components/Prose';
 import {
   getBallotStylesData,
   sortBallotStyleDataByPrecinct,
   sortBallotStyleDataByStyle,
-} from '../utils/election'
-import NavigationScreen from '../components/NavigationScreen'
-import ExportElectionBallotPackageModalButton from '../components/ExportElectionBallotPackageModalButton'
+} from '../utils/election';
+import NavigationScreen from '../components/NavigationScreen';
+import ExportElectionBallotPackageModalButton from '../components/ExportElectionBallotPackageModalButton';
 
 const Header = styled.div`
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-between;
   margin-bottom: 1rem;
-`
+`;
 
 const BallotListScreen = (): JSX.Element => {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
-  )
-  assert(electionDefinition)
-  const { election } = electionDefinition
+  );
+  assert(electionDefinition);
+  const { election } = electionDefinition;
 
-  const allBallotStyles = getBallotStylesData(election)
+  const allBallotStyles = getBallotStylesData(election);
   const ballotLists = [
     sortBallotStyleDataByStyle(election, allBallotStyles),
     sortBallotStyleDataByPrecinct(election, allBallotStyles),
-  ]
-  const [ballotView, setBallotView] = useState(1)
-  const sortByStyle = () => setBallotView(0)
-  const sortByPrecinct = () => setBallotView(1)
+  ];
+  const [ballotView, setBallotView] = useState(1);
+  const sortByStyle = () => setBallotView(0);
+  const sortByPrecinct = () => setBallotView(1);
 
-  const ballots = ballotLists[ballotView]
+  const ballots = ballotLists[ballotView];
 
   const numBallotsPrinted = printedBallots.reduce(
     (count, ballot) => count + ballot.numCopies,
     0
-  )
+  );
 
   return (
     <NavigationScreen>
@@ -99,7 +99,7 @@ const BallotListScreen = (): JSX.Element => {
             const precinctName = find(
               election.precincts,
               (p) => p.id === ballot.precinctId
-            ).name
+            ).name;
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>
                 <TD textAlign="right" nowrap>
@@ -117,12 +117,12 @@ const BallotListScreen = (): JSX.Element => {
                 <TD>{ballot.ballotStyleId}</TD>
                 <TD>{ballot.contestIds.length}</TD>
               </tr>
-            )
+            );
           })}
         </tbody>
       </Table>
     </NavigationScreen>
-  )
-}
+  );
+};
 
-export default BallotListScreen
+export default BallotListScreen;

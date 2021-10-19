@@ -1,11 +1,11 @@
-import React from 'react'
-import { render } from '../../test/testUtils'
+import React from 'react';
+import { render } from '../../test/testUtils';
 
-import FocusManager from './FocusManager'
+import FocusManager from './FocusManager';
 import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
-} from '../utils/ScreenReader'
+} from '../utils/ScreenReader';
 
 it('renders FocusManager', async () => {
   const { container } = render(
@@ -14,6 +14,6 @@ it('renders FocusManager', async () => {
     >
       foo
     </FocusManager>
-  )
-  expect(container.firstChild).toMatchSnapshot()
-})
+  );
+  expect(container.firstChild).toMatchSnapshot();
+});

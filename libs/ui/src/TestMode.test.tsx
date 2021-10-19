@@ -1,17 +1,17 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import { TestMode } from './TestMode'
+import { TestMode } from './TestMode';
 
 describe('renders TestMode', () => {
   test('as nothing when not in test mode', async () => {
-    const { container } = render(<TestMode isLiveMode />)
-    expect(container).toMatchInlineSnapshot(`<div />`)
-  })
+    const { container } = render(<TestMode isLiveMode />);
+    expect(container).toMatchInlineSnapshot(`<div />`);
+  });
 
   test('with testing banner in test mode', () => {
-    const { getByText, container } = render(<TestMode isLiveMode={false} />)
-    getByText('Testing Mode')
+    const { getByText, container } = render(<TestMode isLiveMode={false} />);
+    getByText('Testing Mode');
     expect(container).toMatchInlineSnapshot(`
       <div>
         <p
@@ -20,6 +20,6 @@ describe('renders TestMode', () => {
           Testing Mode
         </p>
       </div>
-    `)
-  })
-})
+    `);
+  });
+});

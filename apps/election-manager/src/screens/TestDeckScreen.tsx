@@ -1,13 +1,13 @@
-import { strict as assert } from 'assert'
-import React, { useContext, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { strict as assert } from 'assert';
+import React, { useContext, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   getPrecinctById,
   Precinct,
   VotesDict,
   Tally,
   VotingMethod,
-} from '@votingworks/types'
+} from '@votingworks/types';
 import {
   ContestTally,
   ReportSection,
@@ -15,56 +15,56 @@ import {
   TallyReportTitle,
   TallyReportMetadata,
   LogoMark,
-} from '@votingworks/ui'
-import { tallyVotesByContest } from '@votingworks/utils'
-import routerPaths from '../routerPaths'
+} from '@votingworks/ui';
+import { tallyVotesByContest } from '@votingworks/utils';
+import routerPaths from '../routerPaths';
 
-import AppContext from '../contexts/AppContext'
+import AppContext from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton'
-import ButtonList from '../components/ButtonList'
-import Prose from '../components/Prose'
-import Button from '../components/Button'
+import PrintButton from '../components/PrintButton';
+import ButtonList from '../components/ButtonList';
+import Prose from '../components/Prose';
+import Button from '../components/Button';
 
-import { filterTalliesByParty } from '../lib/votecounting'
-import NavigationScreen from '../components/NavigationScreen'
-import LinkButton from '../components/LinkButton'
-import { PrecinctReportScreenProps } from '../config/types'
+import { filterTalliesByParty } from '../lib/votecounting';
+import NavigationScreen from '../components/NavigationScreen';
+import LinkButton from '../components/LinkButton';
+import { PrecinctReportScreenProps } from '../config/types';
 
-import { generateTestDeckBallots } from '../utils/election'
+import { generateTestDeckBallots } from '../utils/election';
 
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB'
+import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
-} from '../utils/saveAsPDF'
+} from '../utils/saveAsPDF';
 
 const allPrecincts: Precinct = {
   id: '',
   name: 'All Precincts',
-}
+};
 
 const TestDeckScreen = (): JSX.Element => {
-  const { electionDefinition } = useContext(AppContext)
-  assert(electionDefinition)
-  const { election } = electionDefinition
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
   const {
     precinctId: precinctIdFromParams = '',
-  } = useParams<PrecinctReportScreenProps>()
-  const precinctId = precinctIdFromParams.trim()
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
+  } = useParams<PrecinctReportScreenProps>();
+  const precinctId = precinctIdFromParams.trim();
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const precinct =
     precinctId === 'all'
       ? allPrecincts
-      : getPrecinctById({ election, precinctId })
+      : getPrecinctById({ election, precinctId });
 
   const ballots = generateTestDeckBallots({
     election,
     precinctId: precinct?.id,
-  })
+  });
 
-  const votes: VotesDict[] = ballots.map((b) => b.votes as VotesDict)
+  const votes: VotesDict[] = ballots.map((b) => b.votes as VotesDict);
 
   const electionTally: Tally = {
     numberOfBallotsCounted: ballots.length,
@@ -74,21 +74,21 @@ const TestDeckScreen = (): JSX.Element => {
       votes,
     }),
     ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
-  }
+  };
 
   const ballotStylePartyIds = Array.from(
     new Set(election.ballotStyles.map((bs) => bs.partyId))
-  )
+  );
 
   const defaultReportFilename = generateDefaultReportFilename(
     'test-desk-tally-report',
     election,
     precinct?.name
-  )
+  );
 
-  const pageTitle = 'Test Ballot Deck Tally'
+  const pageTitle = 'Test Ballot Deck Tally';
 
-  const generatedAtTime = new Date()
+  const generatedAtTime = new Date();
 
   if (precinct?.name) {
     return (
@@ -137,15 +137,15 @@ const TestDeckScreen = (): JSX.Element => {
         )}
         <div className="print-only">
           {ballotStylePartyIds.map((partyId) => {
-            const party = election.parties.find((p) => p.id === partyId)
+            const party = election.parties.find((p) => p.id === partyId);
             const electionTallyForParty = filterTalliesByParty({
               election,
               electionTally,
               party,
-            })
+            });
             const electionTitle = `${party ? party.fullName : ''} ${
               election.title
-            }`
+            }`;
             return (
               <ReportSection key={partyId || 'no-party'}>
                 <LogoMark />
@@ -172,11 +172,11 @@ const TestDeckScreen = (): JSX.Element => {
                   />
                 </TallyReportColumns>
               </ReportSection>
-            )
+            );
           })}
         </div>
       </React.Fragment>
-    )
+    );
   }
 
   return (
@@ -213,7 +213,7 @@ const TestDeckScreen = (): JSX.Element => {
           ))}
       </ButtonList>
     </NavigationScreen>
-  )
-}
+  );
+};
 
-export default TestDeckScreen
+export default TestDeckScreen;

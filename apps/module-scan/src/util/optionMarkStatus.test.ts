@@ -4,27 +4,27 @@ import {
   MarkThresholds,
   MsEitherNeitherContest,
   YesNoContest,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import optionMarkStatus from './optionMarkStatus'
+import optionMarkStatus from './optionMarkStatus';
 
-import { election } from '../../test/fixtures/state-of-hamilton'
-import { election as eitherNeitherElection } from '../../test/fixtures/choctaw-mock-general-election-2020'
+import { election } from '../../test/fixtures/state-of-hamilton';
+import { election as eitherNeitherElection } from '../../test/fixtures/choctaw-mock-general-election-2020';
 
 const markThresholds: MarkThresholds = {
   definite: 0.17,
   marginal: 0.17,
   writeInText: 0.01,
-}
+};
 const defaultShape = {
   bounds: { x: 0, y: 0, width: 10, height: 10 },
   inner: { x: 0, y: 0, width: 10, height: 10 },
-}
+};
 
 test('a yesno mark', () => {
   const contest = election.contests.find(
     (c) => c.type === 'yesno'
-  ) as YesNoContest
+  ) as YesNoContest;
   const result = optionMarkStatus({
     markThresholds,
     marks: [
@@ -40,24 +40,24 @@ test('a yesno mark', () => {
     ],
     contestId: contest.id,
     optionId: 'yes',
-  })
+  });
 
-  expect(result).toBe(MarkStatus.Marked)
+  expect(result).toBe(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
     markThresholds,
     marks: [],
     contestId: contest.id,
     optionId: 'yes',
-  })
+  });
 
-  expect(emptyResult).toBe(MarkStatus.Unmarked)
-})
+  expect(emptyResult).toBe(MarkStatus.Unmarked);
+});
 
 test('a candidate mark', () => {
   const contest = election.contests.find(
     (c) => c.type === 'candidate'
-  ) as CandidateContest
+  ) as CandidateContest;
   const result = optionMarkStatus({
     markThresholds,
     marks: [
@@ -73,25 +73,25 @@ test('a candidate mark', () => {
     ],
     contestId: contest.id,
     optionId: contest.candidates[2].id,
-  })
+  });
 
-  expect(result).toBe(MarkStatus.Marked)
+  expect(result).toBe(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
     markThresholds,
     marks: [],
     contestId: contest.id,
     optionId: contest.candidates[2].id,
-  })
+  });
 
-  expect(emptyResult).toBe(MarkStatus.Unmarked)
-})
+  expect(emptyResult).toBe(MarkStatus.Unmarked);
+});
 
 test('a candidate write-in mark', () => {
   const contest = election.contests.find(
     (c) => c.type === 'candidate' && c.allowWriteIns
-  ) as CandidateContest
-  const optionId = '__write-in-0'
+  ) as CandidateContest;
+  const optionId = '__write-in-0';
   const result = optionMarkStatus({
     markThresholds,
     marks: [
@@ -112,15 +112,15 @@ test('a candidate write-in mark', () => {
     ],
     contestId: contest.id,
     optionId,
-  })
+  });
 
-  expect(result).toBe(MarkStatus.UnmarkedWriteIn)
-})
+  expect(result).toBe(MarkStatus.UnmarkedWriteIn);
+});
 
 test('a ms-either-neither mark', () => {
   const contest = eitherNeitherElection.contests.find(
     (c) => c.type === 'ms-either-neither'
-  ) as MsEitherNeitherContest
+  ) as MsEitherNeitherContest;
   const eitherResult = optionMarkStatus({
     markThresholds,
     marks: [
@@ -136,9 +136,9 @@ test('a ms-either-neither mark', () => {
     ],
     contestId: contest.eitherNeitherContestId,
     optionId: 'no',
-  })
+  });
 
-  expect(eitherResult).toBe(MarkStatus.Marked)
+  expect(eitherResult).toBe(MarkStatus.Marked);
 
   const pickOneResult = optionMarkStatus({
     markThresholds,
@@ -155,16 +155,16 @@ test('a ms-either-neither mark', () => {
     ],
     contestId: contest.pickOneContestId,
     optionId: 'yes',
-  })
+  });
 
-  expect(pickOneResult).toBe(MarkStatus.Marked)
+  expect(pickOneResult).toBe(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
     markThresholds,
     marks: [],
     contestId: contest.id,
     optionId: 'yes',
-  })
+  });
 
-  expect(emptyResult).toBe(MarkStatus.Unmarked)
-})
+  expect(emptyResult).toBe(MarkStatus.Unmarked);
+});

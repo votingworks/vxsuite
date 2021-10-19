@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState } from 'react'
-import Button from './Button'
-import Modal from './Modal'
-import Prose from './Prose'
+import React, { useCallback, useRef, useState } from 'react';
+import Button from './Button';
+import Modal from './Modal';
+import Prose from './Prose';
 
 export interface Props {
-  isTestMode: boolean
-  isTogglingTestMode: boolean
-  toggleTestMode(): void
+  isTestMode: boolean;
+  isTogglingTestMode: boolean;
+  toggleTestMode(): void;
 }
 
 /**
@@ -17,19 +17,19 @@ const ToggleTestModeButton = ({
   isTogglingTestMode,
   toggleTestMode,
 }: Props): JSX.Element => {
-  const [isConfirming, setIsConfirming] = useState(isTogglingTestMode)
-  const defaultButtonRef = useRef<HTMLButtonElement>(null)
+  const [isConfirming, setIsConfirming] = useState(isTogglingTestMode);
+  const defaultButtonRef = useRef<HTMLButtonElement>(null);
 
   const toggleIsConfirming = useCallback(() => {
     /* istanbul ignore else - just catches the case of clicking the overlay when toggling */
     if (!isTogglingTestMode) {
-      setIsConfirming((prev) => !prev)
+      setIsConfirming((prev) => !prev);
     }
-  }, [isTogglingTestMode, setIsConfirming])
+  }, [isTogglingTestMode, setIsConfirming]);
 
   const focusDefaultButton = useCallback(() => {
-    defaultButtonRef.current?.focus()
-  }, [])
+    defaultButtonRef.current?.focus();
+  }, []);
 
   return (
     <React.Fragment>
@@ -84,7 +84,7 @@ const ToggleTestModeButton = ({
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default ToggleTestModeButton
+export default ToggleTestModeButton;

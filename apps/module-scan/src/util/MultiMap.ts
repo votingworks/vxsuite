@@ -1,85 +1,85 @@
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 
 /**
  * Maps composite keys to multiple values.
  */
 export default class MultiMap<K extends string[] = string[], V = unknown> {
-  private valueMap = new Map<string, Set<V>>()
-  private keyMap = new Map<string, K>()
+  private valueMap = new Map<string, Set<V>>();
+  private keyMap = new Map<string, K>();
 
   /**
    * Determine the internal key from the composite `key`.
    */
   private valueMapKey(key: K): string {
-    const result = key.join('\0')
+    const result = key.join('\0');
     if (!this.keyMap.has(result)) {
-      this.keyMap.set(result, key)
+      this.keyMap.set(result, key);
     }
-    return result
+    return result;
   }
 
   /**
    * Gets all values for `key`.
    */
   get(key: K): Set<V> | undefined {
-    const valueMapKey = this.valueMapKey(key)
-    const values = this.valueMap.get(valueMapKey)
-    return values && new Set([...values])
+    const valueMapKey = this.valueMapKey(key);
+    const values = this.valueMap.get(valueMapKey);
+    return values && new Set([...values]);
   }
 
   /**
    * Adds `value` to the list of values for `key`.
    */
   set(key: K, value: V): this {
-    const valueMapKey = this.valueMapKey(key)
+    const valueMapKey = this.valueMapKey(key);
     this.valueMap.set(
       valueMapKey,
       (this.valueMap.get(valueMapKey) ?? new Set()).add(value)
-    )
-    return this
+    );
+    return this;
   }
 
   /**
    * Delete all values for `key`.
    */
-  delete(key: K): boolean
+  delete(key: K): boolean;
 
   /**
    * Delete a single value for `key`.
    */
-  delete(key: K, value: V): boolean
+  delete(key: K, value: V): boolean;
 
   delete(key: K, value?: V): boolean {
-    const valueMapKey = this.valueMapKey(key)
+    const valueMapKey = this.valueMapKey(key);
     if (typeof value === 'undefined') {
-      return this.valueMap.delete(valueMapKey)
+      return this.valueMap.delete(valueMapKey);
     }
 
-    const set = this.valueMap.get(valueMapKey)
+    const set = this.valueMap.get(valueMapKey);
     return set?.delete(value) && set.size === 0
       ? this.valueMap.delete(valueMapKey)
-      : false
+      : false;
   }
 
   /**
    * Clear all entries.
    */
   clear(): void {
-    this.valueMap.clear()
+    this.valueMap.clear();
   }
 
   /**
    * The number of unique keys.
    */
   get size(): number {
-    return this.valueMap.size
+    return this.valueMap.size;
   }
 
   /**
    * The number of unique keys.
    */
   get keySize(): number {
-    return this.size
+    return this.size;
   }
 
   /**
@@ -89,7 +89,7 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
     return [...this.valueMap.values()].reduce(
       (size, values) => size + values.size,
       0
-    )
+    );
   }
 
   /**
@@ -97,10 +97,10 @@ export default class MultiMap<K extends string[] = string[], V = unknown> {
    */
   *[Symbol.iterator](): Generator<[K, Set<V>]> {
     for (const [valueMapKey, values] of this.valueMap) {
-      const key = this.keyMap.get(valueMapKey)
-      assert(key)
-      assert(values)
-      yield [key, new Set([...values])]
+      const key = this.keyMap.get(valueMapKey);
+      assert(key);
+      assert(values);
+      yield [key, new Set([...values])];
     }
   }
 }

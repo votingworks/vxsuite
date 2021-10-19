@@ -1,7 +1,7 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import ButtonBar from './ButtonBar'
+import ButtonBar from './ButtonBar';
 
 const Brand = styled.div`
   margin: 0.45rem 0.25rem;
@@ -12,11 +12,11 @@ const Brand = styled.div`
   & span {
     font-weight: 400;
   }
-`
+`;
 
 interface Props {
-  children?: React.ReactNode
-  title?: string
+  children?: React.ReactNode;
+  title?: string;
 }
 
 const MainNav = ({ children, title }: Props): JSX.Element => (
@@ -24,6 +24,6 @@ const MainNav = ({ children, title }: Props): JSX.Element => (
     <Brand>VxEncode{title && <span> / {title}</span>}</Brand>
     {children || <div />}
   </ButtonBar>
-)
+);
 
-export default MainNav
+export default MainNav;

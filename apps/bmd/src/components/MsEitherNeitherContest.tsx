@@ -1,31 +1,31 @@
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 import React, {
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-} from 'react'
-import styled from 'styled-components'
+} from 'react';
+import styled from 'styled-components';
 
 import {
   YesNoVote,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
   OptionalYesNoVote,
-} from '@votingworks/types'
-import { Button, Main } from '@votingworks/ui'
+} from '@votingworks/types';
+import { Button, Main } from '@votingworks/ui';
 
 import {
   EventTargetFunction,
   ScrollDirections,
   UpdateVoteFunction,
-} from '../config/types'
+} from '../config/types';
 
-import { FONT_SIZES } from '../config/globals'
+import { FONT_SIZES } from '../config/globals';
 
-import ChoiceButton from './ChoiceButton'
-import Prose from './Prose'
-import Text, { TextWithLineBreaks } from './Text'
+import ChoiceButton from './ChoiceButton';
+import Prose from './Prose';
+import Text, { TextWithLineBreaks } from './Text';
 import {
   ContentHeader,
   ContestSection,
@@ -33,8 +33,8 @@ import {
   ScrollControls,
   ScrollContainer,
   ScrollableContentWrapper,
-} from './ContestScreenLayout'
-import BallotContext from '../contexts/ballotContext'
+} from './ContestScreenLayout';
+import BallotContext from '../contexts/ballotContext';
 
 const ChoicesGrid = styled.div`
   display: grid;
@@ -47,11 +47,11 @@ const ChoicesGrid = styled.div`
   grid-template-columns: 1fr calc(2rem + 1px) 1fr;
   grid-template-rows: auto;
   padding: 1rem 2rem;
-`
+`;
 const GridLabel = styled.div`
   display: flex;
   align-items: flex-end;
-`
+`;
 const Divider = styled.div`
   display: flex;
   grid-area: divider;
@@ -61,13 +61,13 @@ const Divider = styled.div`
     width: 2px;
     content: '';
   }
-`
+`;
 
 interface Props {
-  contest: MsEitherNeitherContestInterface
-  eitherNeitherContestVote: OptionalYesNoVote
-  pickOneContestVote: OptionalYesNoVote
-  updateVote: UpdateVoteFunction
+  contest: MsEitherNeitherContestInterface;
+  eitherNeitherContestVote: OptionalYesNoVote;
+  pickOneContestVote: OptionalYesNoVote;
+  updateVote: UpdateVoteFunction;
 }
 
 const MsEitherNeitherContest = ({
@@ -76,131 +76,131 @@ const MsEitherNeitherContest = ({
   pickOneContestVote,
   updateVote,
 }: Props): JSX.Element => {
-  const { userSettings } = useContext(BallotContext)
-  const scrollContainer = useRef<HTMLDivElement>(null)
-  const [isScrollable, setIsScrollable] = useState(true)
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true)
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true)
+  const { userSettings } = useContext(BallotContext);
+  const scrollContainer = useRef<HTMLDivElement>(null);
+  const [isScrollable, setIsScrollable] = useState(true);
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
+  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
   const [deselectedOption, setDeselectedOption] = useState<
     'either' | 'neither' | 'first' | 'second'
-  >()
-  const showTopShadow = true
-  const showBottomShadow = true
+  >();
+  const showTopShadow = true;
+  const showBottomShadow = true;
 
   const handleUpdateEitherNeither: EventTargetFunction = (event) => {
-    const currentVote = eitherNeitherContestVote?.[0]
-    const targetVote = (event.currentTarget as HTMLElement).dataset.choice
+    const currentVote = eitherNeitherContestVote?.[0];
+    const targetVote = (event.currentTarget as HTMLElement).dataset.choice;
     const newVote =
-      currentVote === targetVote ? ([] as YesNoVote) : [targetVote]
+      currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
       currentVote === 'yes'
         ? 'either'
         : currentVote === 'no'
         ? 'neither'
         : undefined
-    )
-    updateVote(contest.eitherNeitherContestId, newVote as YesNoVote)
-  }
+    );
+    updateVote(contest.eitherNeitherContestId, newVote as YesNoVote);
+  };
   const handleUpdatePickOne: EventTargetFunction = (event) => {
-    const currentVote = pickOneContestVote?.[0]
-    const targetVote = (event.currentTarget as HTMLElement).dataset.choice
+    const currentVote = pickOneContestVote?.[0];
+    const targetVote = (event.currentTarget as HTMLElement).dataset.choice;
     const newVote =
-      currentVote === targetVote ? ([] as YesNoVote) : [targetVote]
+      currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
       currentVote === 'yes'
         ? 'first'
         : currentVote === 'no'
         ? 'second'
         : undefined
-    )
-    updateVote(contest.pickOneContestId, newVote as YesNoVote)
-  }
+    );
+    updateVote(contest.pickOneContestId, newVote as YesNoVote);
+  };
 
   const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current
+    const target = scrollContainer.current;
     /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
-      return
+      return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8 // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1 // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop) // Windows Chrome scrolls to sub-pixel values.
+    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
+    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
       /* istanbul ignore next: Tested by Cypress */
       target.scrollHeight > target.offsetHeight &&
         /* istanbul ignore next: Tested by Cypress */
         target.offsetHeight > targetMinHeight
-    )
+    );
     setIsScrollAtBottom(
       windowsScrollTop +
         target.offsetHeight +
         windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
         target.scrollHeight
-    )
-    setIsScrollAtTop(target.scrollTop === 0)
-  }, [userSettings.textSize])
+    );
+    setIsScrollAtTop(target.scrollTop === 0);
+  }, [userSettings.textSize]);
 
   const scrollContestChoices: EventTargetFunction = /* istanbul ignore next: Tested by Cypress */ (
     event
   ) => {
     const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections
-    const sc = scrollContainer.current
-    assert(sc)
-    const currentScrollTop = sc.scrollTop
-    const { offsetHeight, scrollHeight } = sc
-    const idealScrollDistance = Math.round(offsetHeight * 0.75)
+      .direction as ScrollDirections;
+    const sc = scrollContainer.current;
+    assert(sc);
+    const currentScrollTop = sc.scrollTop;
+    const { offsetHeight, scrollHeight } = sc;
+    const idealScrollDistance = Math.round(offsetHeight * 0.75);
     const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop
+      scrollHeight - offsetHeight - currentScrollTop;
     const maxScrollTop =
       direction === 'down'
         ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop
+        : currentScrollTop;
     const idealScrollTop =
       direction === 'down'
         ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop
+        : currentScrollTop - idealScrollDistance;
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
     sc.scrollTo({
       behavior: 'smooth',
       left: 0,
       top,
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    updateContestChoicesScrollStates()
-    window.addEventListener('resize', updateContestChoicesScrollStates)
+    updateContestChoicesScrollStates();
+    window.addEventListener('resize', updateContestChoicesScrollStates);
     return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates)
-    }
-  }, [updateContestChoicesScrollStates])
+      window.removeEventListener('resize', updateContestChoicesScrollStates);
+    };
+  }, [updateContestChoicesScrollStates]);
 
   useEffect(() => {
-    updateContestChoicesScrollStates()
+    updateContestChoicesScrollStates();
   }, [
     eitherNeitherContestVote,
     pickOneContestVote,
     updateContestChoicesScrollStates,
-  ])
+  ]);
 
-  const eitherNeitherVote = eitherNeitherContestVote?.[0]
-  const forEither = '“for either”'
-  const againstBoth = '“against both”'
-  const eitherLabel = eitherNeitherVote === 'yes' ? forEither : againstBoth
-  const pickOneVote = pickOneContestVote?.[0]
+  const eitherNeitherVote = eitherNeitherContestVote?.[0];
+  const forEither = '“for either”';
+  const againstBoth = '“against both”';
+  const eitherLabel = eitherNeitherVote === 'yes' ? forEither : againstBoth;
+  const pickOneVote = pickOneContestVote?.[0];
 
-  const eitherSelected = eitherNeitherContestVote?.[0] === 'yes'
-  const neitherSelected = eitherNeitherContestVote?.[0] === 'no'
-  const firstSelected = pickOneContestVote?.[0] === 'yes'
-  const secondSelected = pickOneContestVote?.[0] === 'no'
+  const eitherSelected = eitherNeitherContestVote?.[0] === 'yes';
+  const neitherSelected = eitherNeitherContestVote?.[0] === 'no';
+  const firstSelected = pickOneContestVote?.[0] === 'yes';
+  const secondSelected = pickOneContestVote?.[0] === 'no';
 
   useEffect(() => {
     if (deselectedOption) {
-      const timer = setTimeout(() => setDeselectedOption(undefined), 100)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setDeselectedOption(undefined), 100);
+      return () => clearTimeout(timer);
     }
-  }, [deselectedOption])
+  }, [deselectedOption]);
 
   return (
     <React.Fragment>
@@ -420,7 +420,7 @@ const MsEitherNeitherContest = ({
         </ChoicesGrid>
       </Main>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default MsEitherNeitherContest
+export default MsEitherNeitherContest;

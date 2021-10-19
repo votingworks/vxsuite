@@ -1,6 +1,6 @@
-import QRCodeReact, { QRCodeProps } from '@votingworks/qrcode.react'
-import React from 'react'
-import styled from 'styled-components'
+import QRCodeReact, { QRCodeProps } from '@votingworks/qrcode.react';
+import React from 'react';
+import styled from 'styled-components';
 
 const ResponsiveSvgWrapper = styled.div`
   & > svg {
@@ -8,7 +8,7 @@ const ResponsiveSvgWrapper = styled.div`
     width: 100%; /* reset width */
     height: auto; /* reset height */
   }
-`
+`;
 
 const QRCode = ({
   level = 'H',
@@ -18,6 +18,6 @@ const QRCode = ({
   <ResponsiveSvgWrapper>
     <QRCodeReact renderAs={renderAs} value={value} level={level} />
   </ResponsiveSvgWrapper>
-)
+);
 
-export default QRCode
+export default QRCode;

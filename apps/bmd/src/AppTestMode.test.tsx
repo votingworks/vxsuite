@@ -1,31 +1,31 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils'
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App'
+import App from './App';
 
 import {
   setElectionInStorage,
   setStateInStorage,
-} from '../test/helpers/election'
-import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig'
-import { advanceTimersAndPromises } from '../test/helpers/smartcards'
+} from '../test/helpers/election';
+import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
+import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-jest.useFakeTimers()
+jest.useFakeTimers();
 
 beforeEach(() => {
-  window.location.href = '/'
-})
+  window.location.href = '/';
+});
 
 it('Displays testing message if not live mode', async () => {
-  const card = new MemoryCard()
-  const storage = new MemoryStorage()
-  const machineConfig = fakeMachineConfigProvider()
-  const hardware = await MemoryHardware.buildStandard()
-  await setElectionInStorage(storage)
+  const card = new MemoryCard();
+  const storage = new MemoryStorage();
+  const machineConfig = fakeMachineConfigProvider();
+  const hardware = await MemoryHardware.buildStandard();
+  await setElectionInStorage(storage);
   await setStateInStorage(storage, {
     isLiveMode: false,
-  })
+  });
   render(
     <App
       card={card}
@@ -33,10 +33,10 @@ it('Displays testing message if not live mode', async () => {
       machineConfig={machineConfig}
       hardware={hardware}
     />
-  )
+  );
 
   // Let the initial hardware detection run.
-  await advanceTimersAndPromises()
+  await advanceTimersAndPromises();
 
-  screen.getByText('Testing Mode')
-})
+  screen.getByText('Testing Mode');
+});

@@ -1,11 +1,11 @@
-import { strict as assert } from 'assert'
-import { sleep } from './sleep'
+import { strict as assert } from 'assert';
+import { sleep } from './sleep';
 
-export const FLUSH_IO_DELAY_MS = 10_000
+export const FLUSH_IO_DELAY_MS = 10_000;
 
 const isAvailable = () => {
-  return !!window.kiosk
-}
+  return !!window.kiosk;
+};
 
 export enum UsbDriveStatus {
   notavailable = 'notavailable',
@@ -17,47 +17,47 @@ export enum UsbDriveStatus {
 }
 
 const getDevice = async (): Promise<KioskBrowser.UsbDrive | undefined> => {
-  return (await window.kiosk?.getUsbDrives())?.[0]
-}
+  return (await window.kiosk?.getUsbDrives())?.[0];
+};
 
 export const getDevicePath = async (): Promise<string | undefined> => {
-  const device = await getDevice()
-  return device?.mountPoint
-}
+  const device = await getDevice();
+  return device?.mountPoint;
+};
 
 export const getStatus = async (): Promise<UsbDriveStatus> => {
   if (!isAvailable()) {
-    return UsbDriveStatus.notavailable
+    return UsbDriveStatus.notavailable;
   }
 
-  const device = await getDevice()
+  const device = await getDevice();
 
   if (!device) {
-    return UsbDriveStatus.absent
+    return UsbDriveStatus.absent;
   }
 
   if (device.mountPoint) {
-    return UsbDriveStatus.mounted
+    return UsbDriveStatus.mounted;
   }
-  return UsbDriveStatus.present
-}
+  return UsbDriveStatus.present;
+};
 
 export const doMount = async (): Promise<void> => {
-  const device = await getDevice()
+  const device = await getDevice();
   if (!device || device.mountPoint) {
-    return
+    return;
   }
 
-  assert(window.kiosk)
-  await window.kiosk.mountUsbDrive(device.deviceName)
-}
+  assert(window.kiosk);
+  await window.kiosk.mountUsbDrive(device.deviceName);
+};
 
 export const doUnmount = async (): Promise<void> => {
-  const device = await getDevice()
+  const device = await getDevice();
   if (!device?.mountPoint) {
-    return
+    return;
   }
-  assert(window.kiosk)
-  await window.kiosk.unmountUsbDrive(device.deviceName)
-  return await sleep(FLUSH_IO_DELAY_MS)
-}
+  assert(window.kiosk);
+  await window.kiosk.unmountUsbDrive(device.deviceName);
+  return await sleep(FLUSH_IO_DELAY_MS);
+};

@@ -1,5 +1,5 @@
-import { electionSample } from '@votingworks/fixtures'
-import { metadataFromBytes } from '@votingworks/hmpb-interpreter'
+import { electionSample } from '@votingworks/fixtures';
+import { metadataFromBytes } from '@votingworks/hmpb-interpreter';
 import {
   AdjudicationReason,
   BlankPage,
@@ -9,36 +9,36 @@ import {
   PageInterpretation,
   UninterpretedHmpbPage,
   UnreadablePage,
-} from '@votingworks/types'
-import { readFile } from 'fs-extra'
-import { join } from 'path'
-import { election as choctaw2020Election } from '../test/fixtures/2020-choctaw'
-import * as general2020Fixtures from '../test/fixtures/2020-general'
-import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
-import { election as stateOfHamiltonElection } from '../test/fixtures/state-of-hamilton'
+} from '@votingworks/types';
+import { readFile } from 'fs-extra';
+import { join } from 'path';
+import { election as choctaw2020Election } from '../test/fixtures/2020-choctaw';
+import * as general2020Fixtures from '../test/fixtures/2020-general';
+import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import { election as stateOfHamiltonElection } from '../test/fixtures/state-of-hamilton';
 import Interpreter, {
   getBallotImageData,
   sheetRequiresAdjudication,
-} from './interpreter'
-import pdfToImages from './util/pdfToImages'
-import { detectQrcodeInFilePath } from './workers/qrcode'
+} from './interpreter';
+import pdfToImages from './util/pdfToImages';
+import { detectQrcodeInFilePath } from './workers/qrcode';
 
-const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
+const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const stateOfHamiltonFixturesRoot = join(
   __dirname,
   '..',
   'test/fixtures/state-of-hamilton'
-)
+);
 const choctaw2020FixturesRoot = join(
   __dirname,
   '..',
   'test/fixtures/2020-choctaw'
-)
+);
 
-jest.setTimeout(10000)
+jest.setTimeout(10000);
 
 test('does not find QR codes when there are none to find', async () => {
-  const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg')
+  const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg');
   expect(
     (
       await getBallotImageData(
@@ -47,14 +47,14 @@ test('does not find QR codes when there are none to find', async () => {
         await detectQrcodeInFilePath(filepath)
       )
     ).unsafeUnwrapErr()
-  ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' })
-})
+  ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' });
+});
 
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = join(
     sampleBallotImagesPath,
     'sample-batch-1-ballot-1.png'
-  )
+  );
   expect(
     (
       await new Interpreter({
@@ -95,14 +95,14 @@ test('extracts votes encoded in a QR code', async () => {
         ],
       },
     }
-  `)
-})
+  `);
+});
 
 test('properly detects test ballot in live mode', async () => {
   const ballotImagePath = join(
     sampleBallotImagesPath,
     'sample-batch-1-ballot-1.png'
-  )
+  );
   const interpretationResult = await new Interpreter({
     election: {
       ...electionSample,
@@ -114,23 +114,23 @@ test('properly detects test ballot in live mode', async () => {
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
     detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-  })
+  });
 
   expect(interpretationResult.interpretation.type).toEqual(
     'InvalidTestModePage'
-  )
-})
+  );
+});
 
 test('can read metadata encoded in a QR code with base64', async () => {
-  const fixtures = choctaw2020SpecialFixtures
-  const { election } = fixtures
+  const fixtures = choctaw2020SpecialFixtures;
+  const { election } = fixtures;
   const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.blankPage1),
       fixtures.blankPage1,
       await detectQrcodeInFilePath(fixtures.blankPage1)
     )
-  ).unsafeUnwrap()
+  ).unsafeUnwrap();
 
   expect(metadataFromBytes(election, Buffer.from(qrcode.data)))
     .toMatchInlineSnapshot(`
@@ -147,18 +147,18 @@ test('can read metadata encoded in a QR code with base64', async () => {
       "pageNumber": 1,
       "precinctId": "6538",
     }
-  `)
-})
+  `);
+});
 
 test('can read metadata in QR code with skewed / dirty ballot', async () => {
-  const fixtures = general2020Fixtures
+  const fixtures = general2020Fixtures;
   const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.skewedQRCodeBallotPage),
       fixtures.skewedQRCodeBallotPage,
       await detectQrcodeInFilePath(fixtures.skewedQRCodeBallotPage)
     )
-  ).unsafeUnwrap()
+  ).unsafeUnwrap();
 
   expect(qrcode.data).toMatchInlineSnapshot(`
     Object {
@@ -187,38 +187,38 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
       ],
       "type": "Buffer",
     }
-  `)
-})
+  `);
+});
 
 test('interprets marks on a HMPB', async () => {
   const interpreter = new Interpreter({
     election: stateOfHamiltonElection,
     testMode: false,
     adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
-  })
+  });
 
   for await (const { page, pageNumber } of pdfToImages(
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page)
+    await interpreter.addHmpbTemplate(page);
 
     if (pageNumber === 1) {
-      break
+      break;
     }
   }
 
   const ballotImagePath = join(
     stateOfHamiltonFixturesRoot,
     'filled-in-dual-language-p1.jpg'
-  )
+  );
   const { votes } = (
     await interpreter.interpretFile({
       ballotImagePath,
       ballotImageFile: await readFile(ballotImagePath),
       detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
     })
-  ).interpretation as InterpretedHmpbPage
+  ).interpretation as InterpretedHmpbPage;
 
   expect(votes).toMatchInlineSnapshot(`
     Object {
@@ -244,31 +244,31 @@ test('interprets marks on a HMPB', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('interprets marks on an upside-down HMPB', async () => {
   const interpreter = new Interpreter({
     election: stateOfHamiltonElection,
     testMode: false,
     adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
-  })
+  });
 
   for await (const { page, pageNumber } of pdfToImages(
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page)
+    await interpreter.addHmpbTemplate(page);
 
     if (pageNumber === 1) {
-      break
+      break;
     }
   }
 
   const ballotImagePath = join(
     stateOfHamiltonFixturesRoot,
     'filled-in-dual-language-p1-flipped.jpg'
-  )
+  );
   expect(
     (
       await interpreter.interpretFile({
@@ -1798,31 +1798,31 @@ test('interprets marks on an upside-down HMPB', async () => {
         ],
       },
     }
-  `)
-})
+  `);
+});
 
 test('interprets marks in PNG ballots', async () => {
-  jest.setTimeout(15000)
+  jest.setTimeout(15000);
 
   const election: Election = {
     markThresholds: { definite: 0.2, marginal: 0.12 },
     ...choctaw2020Election,
-  }
+  };
   const interpreter = new Interpreter({
     election,
     testMode: false,
     adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
-  })
+  });
 
   for await (const { page } of pdfToImages(
     await readFile(join(choctaw2020FixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page)
+    await interpreter.addHmpbTemplate(page);
   }
 
   {
-    const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p1.png')
+    const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p1.png');
     expect(
       (
         await interpreter.interpretFile({
@@ -2804,11 +2804,11 @@ test('interprets marks in PNG ballots', async () => {
           ],
         },
       }
-    `)
+    `);
   }
 
   {
-    const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p2.png')
+    const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p2.png');
     expect(
       (
         await interpreter.interpretFile({
@@ -3010,32 +3010,32 @@ test('interprets marks in PNG ballots', async () => {
           ],
         },
       }
-    `)
+    `);
   }
-})
+});
 
 test('returns metadata if the QR code is readable but the HMPB ballot is not', async () => {
   const interpreter = new Interpreter({
     election: stateOfHamiltonElection,
     testMode: false,
     adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
-  })
+  });
 
   for await (const { page, pageNumber } of pdfToImages(
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page)
+    await interpreter.addHmpbTemplate(page);
 
     if (pageNumber === 3) {
-      break
+      break;
     }
   }
 
   const ballotImagePath = join(
     stateOfHamiltonFixturesRoot,
     'filled-in-dual-language-p3.jpg'
-  )
+  );
   expect(
     (
       await interpreter.interpretFile({
@@ -3060,8 +3060,8 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
       },
       "type": "UninterpretedHmpbPage",
     }
-  `)
-})
+  `);
+});
 
 const pageInterpretationBoilerplate: InterpretedHmpbPage = {
   type: 'InterpretedHmpbPage',
@@ -3127,7 +3127,7 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
     enabledReasons: [],
     requiresAdjudication: false,
   },
-}
+};
 
 function withPageNumber(
   page: PageInterpretation,
@@ -3138,23 +3138,23 @@ function withPageNumber(
     case 'InterpretedBmdPage':
     case 'InvalidElectionHashPage':
     case 'UnreadablePage':
-      return page
+      return page;
 
     case 'InterpretedHmpbPage':
     case 'UninterpretedHmpbPage':
-      return { ...page, metadata: { ...page.metadata, pageNumber } }
+      return { ...page, metadata: { ...page.metadata, pageNumber } };
 
     case 'InvalidPrecinctPage':
     case 'InvalidTestModePage':
       if ('pageNumber' in page.metadata) {
-        return { ...page, metadata: { ...page.metadata, pageNumber } }
+        return { ...page, metadata: { ...page.metadata, pageNumber } };
       }
-      return page
+      return page;
 
     default:
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      throw new Error(`unknown page type: ${page.type}`)
+      throw new Error(`unknown page type: ${page.type}`);
   }
 }
 
@@ -3175,7 +3175,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
       ignoredReasonInfos: [],
       requiresAdjudication: true,
     },
-  }
+  };
 
   const sideNo: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
@@ -3183,33 +3183,33 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
       ...pageInterpretationBoilerplate.adjudicationInfo,
       requiresAdjudication: false,
     },
-  }
+  };
 
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideYes, 1),
       withPageNumber(sideNo, 2),
     ])
-  ).toBe(true)
+  ).toBe(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideNo, 1),
       withPageNumber(sideYes, 2),
     ])
-  ).toBe(true)
+  ).toBe(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideYes, 1),
       withPageNumber(sideYes, 2),
     ])
-  ).toBe(true)
+  ).toBe(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideNo, 1),
       withPageNumber(sideNo, 2),
     ])
-  ).toBe(false)
-})
+  ).toBe(false);
+});
 
 test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
   const hmpbNoVotes: InterpretedHmpbPage = {
@@ -3223,11 +3223,11 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
       enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
       ignoredReasonInfos: [],
     },
-  }
+  };
 
   const blank: BlankPage = {
     type: 'BlankPage',
-  }
+  };
 
   const hmpbWithVotes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
@@ -3237,30 +3237,30 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
       enabledReasonInfos: [],
       ignoredReasonInfos: [],
     },
-  }
+  };
 
-  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toBe(true)
+  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toBe(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(hmpbNoVotes, 1),
       withPageNumber(hmpbWithVotes, 2),
     ])
-  ).toBe(false)
+  ).toBe(false);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(hmpbWithVotes, 1),
       withPageNumber(hmpbWithVotes, 2),
     ])
-  ).toBe(false)
+  ).toBe(false);
 
-  expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toBe(true)
-  expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toBe(true)
+  expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toBe(true);
+  expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toBe(true);
 
-  expect(sheetRequiresAdjudication([hmpbWithVotes, blank])).toBe(true)
-  expect(sheetRequiresAdjudication([blank, hmpbWithVotes])).toBe(true)
+  expect(sheetRequiresAdjudication([hmpbWithVotes, blank])).toBe(true);
+  expect(sheetRequiresAdjudication([blank, hmpbWithVotes])).toBe(true);
 
-  expect(sheetRequiresAdjudication([blank, blank])).toBe(true)
-})
+  expect(sheetRequiresAdjudication([blank, blank])).toBe(true);
+});
 
 test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
   const bmd: InterpretedBmdPage = {
@@ -3277,20 +3277,20 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
       ballotType: 0,
     },
     votes: {},
-  }
+  };
 
   const unreadable: UnreadablePage = {
     type: 'UnreadablePage',
     reason:
       'cause there were a few too many black pixels so it was not filtered',
-  }
+  };
 
   const blank: BlankPage = {
     type: 'BlankPage',
-  }
+  };
 
-  expect(sheetRequiresAdjudication([bmd, unreadable])).toBe(false)
-  expect(sheetRequiresAdjudication([unreadable, bmd])).toBe(false)
-  expect(sheetRequiresAdjudication([bmd, blank])).toBe(false)
-  expect(sheetRequiresAdjudication([blank, bmd])).toBe(false)
-})
+  expect(sheetRequiresAdjudication([bmd, unreadable])).toBe(false);
+  expect(sheetRequiresAdjudication([unreadable, bmd])).toBe(false);
+  expect(sheetRequiresAdjudication([bmd, blank])).toBe(false);
+  expect(sheetRequiresAdjudication([blank, bmd])).toBe(false);
+});

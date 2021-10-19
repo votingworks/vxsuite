@@ -1,8 +1,8 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 interface ProgressBarProps {
-  progress?: number // 0–1
-  duration?: number // milliseconds
+  progress?: number; // 0–1
+  duration?: number; // milliseconds
 }
 
 export const ProgressBar = styled.span<ProgressBarProps>`
@@ -22,4 +22,4 @@ export const ProgressBar = styled.span<ProgressBarProps>`
     content: '';
     transition: width ${({ duration = 1500 }) => duration}ms ease-out;
   }
-`
+`;

@@ -3,46 +3,46 @@
 import {
   ElectionDefinition,
   safeParseElectionDefinition,
-} from '@votingworks/types'
-import { Select } from '@votingworks/ui'
-import React, { useCallback, useRef, useState } from 'react'
-import { BrowserRouter, Link, Route } from 'react-router-dom'
-import styled from 'styled-components'
-import AppContext from './contexts/AppContext'
+} from '@votingworks/types';
+import { Select } from '@votingworks/ui';
+import React, { useCallback, useRef, useState } from 'react';
+import { BrowserRouter, Link, Route } from 'react-router-dom';
+import styled from 'styled-components';
+import AppContext from './contexts/AppContext';
 
 export interface PreviewableModule {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  default: React.FC<any>
+  default: React.FC<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: React.FC<any>
+  [key: string]: React.FC<any>;
 }
 
 export interface PreviewableComponent {
-  componentId: string
-  componentName: string
-  previews: readonly ComponentPreview[]
+  componentId: string;
+  componentName: string;
+  previews: readonly ComponentPreview[];
 }
 
 export interface ComponentPreview {
-  componentId: string
-  componentName: string
-  previewId: string
-  previewName: string
-  previewComponent: React.FC<unknown>
+  componentId: string;
+  componentName: string;
+  previewId: string;
+  previewName: string;
+  previewComponent: React.FC<unknown>;
 }
 
-export const PREVIEW_COMPONENT_SUFFIX = 'Preview'
+export const PREVIEW_COMPONENT_SUFFIX = 'Preview';
 
 function asTitle(id: string): string {
-  return id.split(/(?=[A-Z\d]+)/).join(' ')
+  return id.split(/(?=[A-Z\d]+)/).join(' ');
 }
 
 function getPreviewURL(preview: ComponentPreview): string {
-  return `/preview/${preview.componentId}/${preview.previewId}`
+  return `/preview/${preview.componentId}/${preview.previewId}`;
 }
 
 export function getPreviews(mod: PreviewableModule): PreviewableComponent {
-  const componentId = mod.default.name
+  const componentId = mod.default.name;
   const previews = Object.keys(mod)
     .filter((key) => key.endsWith(PREVIEW_COMPONENT_SUFFIX))
     .map((previewId) => ({
@@ -53,13 +53,13 @@ export function getPreviews(mod: PreviewableModule): PreviewableComponent {
         previewId.slice(0, -PREVIEW_COMPONENT_SUFFIX.length)
       ),
       previewComponent: mod[previewId],
-    }))
-  return { componentId, componentName: asTitle(componentId), previews }
+    }));
+  return { componentId, componentName: asTitle(componentId), previews };
 }
 
 export interface Props {
-  modules: readonly PreviewableModule[]
-  electionDefinitions: readonly ElectionDefinition[]
+  modules: readonly PreviewableModule[];
+  electionDefinitions: readonly ElectionDefinition[];
 }
 
 const ConfigBox = styled.div`
@@ -67,46 +67,46 @@ const ConfigBox = styled.div`
   top: 20px;
   right: 10px;
   width: auto;
-`
+`;
 
 const PreviewDashboard = ({
   modules,
   electionDefinitions: initialElectionDefinitions,
 }: Props): JSX.Element => {
-  const previewables = modules.map(getPreviews)
+  const previewables = modules.map(getPreviews);
   const [electionDefinition, setElectionDefinition] = useState(
     initialElectionDefinitions[0]
-  )
+  );
   const [electionDefinitions, setElectionDefinitions] = useState(
     initialElectionDefinitions
-  )
-  const electionDefinitionFileRef = useRef<HTMLInputElement>(null)
+  );
+  const electionDefinitionFileRef = useRef<HTMLInputElement>(null);
 
   const onElectionDefinitionSelected: React.ChangeEventHandler<HTMLSelectElement> = useCallback(
     (event) => {
-      const { value } = event.target.selectedOptions[0]
+      const { value } = event.target.selectedOptions[0];
       if (value === 'custom') {
-        electionDefinitionFileRef.current?.click()
+        electionDefinitionFileRef.current?.click();
       } else {
-        setElectionDefinition(electionDefinitions[event.target.selectedIndex])
+        setElectionDefinition(electionDefinitions[event.target.selectedIndex]);
       }
     },
     [electionDefinitions, electionDefinitionFileRef]
-  )
+  );
   const onElectionDefinitionFileChosen: React.ChangeEventHandler<HTMLInputElement> = useCallback(
     async (event) => {
-      const file = event.target.files?.[0]
+      const file = event.target.files?.[0];
       if (file) {
-        const json = await file.text()
-        const result = safeParseElectionDefinition(json)
+        const json = await file.text();
+        const result = safeParseElectionDefinition(json);
         if (result.isOk()) {
-          setElectionDefinitions((prev) => [...prev, result.ok()])
-          setElectionDefinition(result.ok())
+          setElectionDefinitions((prev) => [...prev, result.ok()]);
+          setElectionDefinition(result.ok());
         }
       }
     },
     []
-  )
+  );
 
   return (
     <AppContext.Provider
@@ -137,7 +137,7 @@ const PreviewDashboard = ({
                     ))}
                   </ul>
                 </div>
-              )
+              );
             })}
           </div>
           <ConfigBox>
@@ -184,7 +184,7 @@ const PreviewDashboard = ({
         )}
       </BrowserRouter>
     </AppContext.Provider>
-  )
-}
+  );
+};
 
-export default PreviewDashboard
+export default PreviewDashboard;

@@ -1,14 +1,14 @@
-import BitCursor from './BitCursor'
-import { Uint1, Uint8, Uint8Size } from './types'
-import { sizeof, makeMasks, toUint8 } from './utils'
-import { UTF8Encoding, Encoding } from './encoding'
+import BitCursor from './BitCursor';
+import { Uint1, Uint8, Uint8Size } from './types';
+import { sizeof, makeMasks, toUint8 } from './utils';
+import { UTF8Encoding, Encoding } from './encoding';
 
 /**
  * Reads structured data from a `Uint8Array`. Data is read in little-endian
  * order.
  */
 export default class BitReader {
-  private cursor = new BitCursor()
+  private cursor = new BitCursor();
 
   /**
    * @param data a buffer to read data from
@@ -19,26 +19,26 @@ export default class BitReader {
    * Reads a Uint1 and moves the internal cursor forward one bit.
    */
   readUint1(): Uint1 {
-    const byte = this.getCurrentByte()
-    const mask = this.cursor.mask()
+    const byte = this.getCurrentByte();
+    const mask = this.cursor.mask();
 
-    this.cursor.next()
+    this.cursor.next();
 
-    return (byte & mask) === 0 ? 0 : 1
+    return (byte & mask) === 0 ? 0 : 1;
   }
 
   /**
    * Reads a number by reading 8 bits.
    */
   readUint8(): Uint8 {
-    return this.readUint({ size: Uint8Size }) as Uint8
+    return this.readUint({ size: Uint8Size }) as Uint8;
   }
 
   /**
    * Reads a boolean by reading a bit and returning whether the bit was set.
    */
   readBoolean(): boolean {
-    return this.readUint1() === 1
+    return this.readUint1() === 1;
   }
 
   /**
@@ -57,29 +57,29 @@ export default class BitReader {
    * bits.readUint({ size: 8 })    // reads next 8 bits:  0xf0
    * bits.readUint({ size: 4 })    // reads last 4 bits:  0x0f
    */
-  readUint({ max }: { max: number }): number
-  readUint({ size }: { size: number }): number
+  readUint({ max }: { max: number }): number;
+  readUint({ size }: { size: number }): number;
   readUint({ max, size }: { max?: number; size?: number }): number {
-    const sizeofUint = this.sizeofUint({ max, size })
+    const sizeofUint = this.sizeofUint({ max, size });
 
     // Optimize for the case of reading a byte straight from the underlying buffer.
     if (sizeofUint === Uint8Size && this.cursor.isByteStart) {
-      const result = this.getCurrentByte()
-      this.cursor.advance(Uint8Size)
-      return result
+      const result = this.getCurrentByte();
+      this.cursor.advance(Uint8Size);
+      return result;
     }
 
     // Fall back to reading bits individually.
-    let result = 0
+    let result = 0;
 
     for (const mask of makeMasks(sizeofUint)) {
-      const bit = this.readUint1()
+      const bit = this.readUint1();
       if (bit) {
-        result |= mask
+        result |= mask;
       }
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -111,28 +111,28 @@ export default class BitReader {
    * const bits = new BitReader(Uint8Array.of(104, 105))
    * bits.readString({ length: 2 }) // "hi"
    */
-  readString(): string
-  readString(options: { encoding?: Encoding }): string
-  readString(options: { encoding?: Encoding; maxLength?: number }): string
+  readString(): string;
+  readString(options: { encoding?: Encoding }): string;
+  readString(options: { encoding?: Encoding; maxLength?: number }): string;
 
-  readString(options: { encoding?: Encoding; length?: number }): string
+  readString(options: { encoding?: Encoding; length?: number }): string;
   readString({
     encoding = UTF8Encoding,
     maxLength = (1 << Uint8Size) - 1,
     length,
   }: {
-    encoding?: Encoding
-    maxLength?: number
-    length?: number
+    encoding?: Encoding;
+    maxLength?: number;
+    length?: number;
   } = {}): string {
-    const lengthToRead = length ?? this.readUint({ max: maxLength })
-    const codes = new Uint8Array(lengthToRead)
+    const lengthToRead = length ?? this.readUint({ max: maxLength });
+    const codes = new Uint8Array(lengthToRead);
 
     for (let i = 0; i < lengthToRead; i += 1) {
-      codes.set([this.readUint({ size: encoding.bitsPerElement })], i)
+      codes.set([this.readUint({ size: encoding.bitsPerElement })], i);
     }
 
-    return encoding.decode(codes)
+    return encoding.decode(codes);
   }
 
   /**
@@ -140,46 +140,46 @@ export default class BitReader {
    *
    * @returns true if the uints matched and were skipped, false otherwise
    */
-  skipUint(expected: number, { max }: { max: number }): boolean
-  skipUint(expected: number, { size }: { size: number }): boolean
-  skipUint(expected: number[], { max }: { max: number }): boolean
-  skipUint(expected: number[], { size }: { size: number }): boolean
+  skipUint(expected: number, { max }: { max: number }): boolean;
+  skipUint(expected: number, { size }: { size: number }): boolean;
+  skipUint(expected: number[], { max }: { max: number }): boolean;
+  skipUint(expected: number[], { size }: { size: number }): boolean;
   skipUint(
     expected: number | number[],
     { max, size }: { max?: number; size?: number }
   ): boolean {
-    const originalCursor = this.cursor.copy()
-    const uints = Array.isArray(expected) ? expected : [expected]
-    const options = { max, size } as { size: number } & { max: number }
-    const sizeofUint = this.sizeofUint(options)
+    const originalCursor = this.cursor.copy();
+    const uints = Array.isArray(expected) ? expected : [expected];
+    const options = { max, size } as { size: number } & { max: number };
+    const sizeofUint = this.sizeofUint(options);
 
     for (const uint of uints) {
       if (!this.canRead(sizeofUint) || uint !== this.readUint(options)) {
-        this.cursor = originalCursor
-        return false
+        this.cursor = originalCursor;
+        return false;
       }
     }
 
-    return true
+    return true;
   }
 
-  private sizeofUint({ max }: { max: number }): number
-  private sizeofUint({ size }: { size: number }): number
-  private sizeofUint({ max, size }: { max?: number; size?: number }): number
+  private sizeofUint({ max }: { max: number }): number;
+  private sizeofUint({ size }: { size: number }): number;
+  private sizeofUint({ max, size }: { max?: number; size?: number }): number;
   private sizeofUint({ max, size }: { max?: number; size?: number }): number {
     if (typeof max !== 'undefined' && typeof size !== 'undefined') {
-      throw new Error("cannot specify both 'max' and 'size' options")
+      throw new Error("cannot specify both 'max' and 'size' options");
     }
 
     if (typeof max !== 'undefined') {
-      return sizeof(max)
+      return sizeof(max);
     }
 
     if (typeof size === 'undefined') {
-      throw new Error('size cannot be undefined')
+      throw new Error('size cannot be undefined');
     }
 
-    return size
+    return size;
   }
 
   /**
@@ -188,7 +188,7 @@ export default class BitReader {
    * @returns true if the bits matched and were skipped, false otherwise
    */
   skipUint1(...uint1s: number[]): boolean {
-    return this.skipUint(uint1s, { size: 1 })
+    return this.skipUint(uint1s, { size: 1 });
   }
 
   /**
@@ -197,7 +197,7 @@ export default class BitReader {
    * @returns true if the bytes matched and were skipped, false otherwise
    */
   skipUint8(...uint8s: number[]): boolean {
-    return this.skipUint(uint8s, { size: Uint8Size })
+    return this.skipUint(uint8s, { size: Uint8Size });
   }
 
   /**
@@ -205,18 +205,18 @@ export default class BitReader {
    * `false`, then any call to read data will throw an exception.
    */
   canRead(size = 1): boolean {
-    const totalBits = this.data.length * Uint8Size
-    const readBits = this.cursor.combinedBitOffset
-    return readBits + size <= totalBits
+    const totalBits = this.data.length * Uint8Size;
+    const readBits = this.cursor.combinedBitOffset;
+    return readBits + size <= totalBits;
   }
 
   private getCurrentByte(): Uint8 {
     if (this.cursor.byteOffset >= this.data.length) {
       throw new Error(
         `end of buffer reached: byteOffset=${this.cursor.byteOffset} bitOffset=${this.cursor.bitOffset} data.length=${this.data.length}`
-      )
+      );
     }
 
-    return toUint8(this.data[this.cursor.byteOffset])
+    return toUint8(this.data[this.cursor.byteOffset]);
   }
 }

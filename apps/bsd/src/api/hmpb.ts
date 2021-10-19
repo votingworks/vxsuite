@@ -1,12 +1,12 @@
-import { ElectionDefinition } from '@votingworks/types'
-import { EventEmitter } from 'events'
+import { ElectionDefinition } from '@votingworks/types';
+import { EventEmitter } from 'events';
 import {
   fetchJSON,
   BallotPackage,
   BallotPackageEntry,
-} from '@votingworks/utils'
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan'
-import { setElection } from './config'
+} from '@votingworks/utils';
+import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
+import { setElection } from './config';
 
 export interface AddTemplatesEvents extends EventEmitter {
   on(
@@ -15,79 +15,79 @@ export interface AddTemplatesEvents extends EventEmitter {
       pkg: BallotPackage,
       electionDefinition: ElectionDefinition
     ) => void
-  ): this
+  ): this;
   on(
     event: 'uploading',
     callback: (pkg: BallotPackage, entry: BallotPackageEntry) => void
-  ): this
-  on(event: 'completed', callback: (pkg: BallotPackage) => void): this
-  on(event: 'error', callback: (error: Error) => void): this
+  ): this;
+  on(event: 'completed', callback: (pkg: BallotPackage) => void): this;
+  on(event: 'error', callback: (error: Error) => void): this;
   off(
     event: 'configuring',
     callback: (
       pkg: BallotPackage,
       electionDefinition: ElectionDefinition
     ) => void
-  ): this
+  ): this;
   off(
     event: 'uploading',
     callback: (pkg: BallotPackage, entry: BallotPackageEntry) => void
-  ): this
-  off(event: 'completed', callback: (pkg: BallotPackage) => void): this
-  off(event: 'error', callback: (error: Error) => void): this
+  ): this;
+  off(event: 'completed', callback: (pkg: BallotPackage) => void): this;
+  off(event: 'error', callback: (error: Error) => void): this;
   emit(
     event: 'configuring',
     pkg: BallotPackage,
     electionDefinition: ElectionDefinition
-  ): boolean
+  ): boolean;
   emit(
     event: 'uploading',
     pkg: BallotPackage,
     entry: BallotPackageEntry
-  ): boolean
-  emit(event: 'completed', pkg: BallotPackage): boolean
-  emit(event: 'error', error: Error): boolean
+  ): boolean;
+  emit(event: 'completed', pkg: BallotPackage): boolean;
+  emit(event: 'error', error: Error): boolean;
 }
 
 export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
-  const result: AddTemplatesEvents = new EventEmitter()
+  const result: AddTemplatesEvents = new EventEmitter();
 
   setImmediate(async () => {
     try {
-      result.emit('configuring', pkg, pkg.electionDefinition)
-      await setElection(pkg.electionDefinition.electionData)
+      result.emit('configuring', pkg, pkg.electionDefinition);
+      await setElection(pkg.electionDefinition.electionData);
 
       for (const ballot of pkg.ballots) {
-        result.emit('uploading', pkg, ballot)
+        result.emit('uploading', pkg, ballot);
 
-        const body = new FormData()
+        const body = new FormData();
 
         body.append(
           'ballots',
           new Blob([ballot.pdf], { type: 'application/pdf' })
-        )
+        );
 
         body.append(
           'metadatas',
           new Blob([JSON.stringify(ballot.ballotConfig)], {
             type: 'application/json',
           })
-        )
+        );
 
-        await fetch('/scan/hmpb/addTemplates', { method: 'POST', body })
+        await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });
       }
 
-      result.emit('completed', pkg)
+      result.emit('completed', pkg);
     } catch (error) {
-      result.emit('error', error)
+      result.emit('error', error);
     }
-  })
+  });
 
-  return result
+  return result;
 }
 
 export async function doneTemplates(): Promise<void> {
-  await fetch('/scan/hmpb/doneTemplates', { method: 'POST' })
+  await fetch('/scan/hmpb/doneTemplates', { method: 'POST' });
 }
 
 export async function fetchNextBallotSheetToReview(): Promise<
@@ -96,8 +96,8 @@ export async function fetchNextBallotSheetToReview(): Promise<
   try {
     return await fetchJSON<GetNextReviewSheetResponse>(
       '/scan/hmpb/review/next-sheet'
-    )
+    );
   } catch {
-    return undefined
+    return undefined;
   }
 }

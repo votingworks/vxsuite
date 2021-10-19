@@ -1,9 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Screen from '../components/Screen'
+import Prose from '../components/Prose';
+import Main, { MainChild } from '../components/Main';
+import MainNav from '../components/MainNav';
+import Screen from '../components/Screen';
 
 const LoadElectionScreen = (): JSX.Element => {
   return (
@@ -18,7 +18,7 @@ const LoadElectionScreen = (): JSX.Element => {
       </Main>
       <MainNav />
     </Screen>
-  )
-}
+  );
+};
 
-export default LoadElectionScreen
+export default LoadElectionScreen;

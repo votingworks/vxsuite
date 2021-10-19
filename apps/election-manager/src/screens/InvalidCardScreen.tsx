@@ -1,7 +1,7 @@
-import { fontSizeTheme, Main, MainChild, Prose } from '@votingworks/ui'
-import React from 'react'
-import Screen from '../components/Screen'
-import StatusFooter from '../components/StatusFooter'
+import { fontSizeTheme, Main, MainChild, Prose } from '@votingworks/ui';
+import React from 'react';
+import Screen from '../components/Screen';
+import StatusFooter from '../components/StatusFooter';
 
 export const InvalidCardScreen = (): JSX.Element => {
   return (
@@ -19,5 +19,5 @@ export const InvalidCardScreen = (): JSX.Element => {
       </Main>
       <StatusFooter />
     </Screen>
-  )
-}
+  );
+};

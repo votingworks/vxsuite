@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { BrowserRouter, Route } from 'react-router-dom'
+import React, { useCallback, useEffect, useState } from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
 
-import 'normalize.css'
-import './App.css'
+import 'normalize.css';
+import './App.css';
 
 import {
   WebServiceCard,
@@ -11,30 +11,30 @@ import {
   getHardware,
   getPrinter,
   isAccessibleController,
-} from '@votingworks/utils'
-import memoize from './utils/memoize'
+} from '@votingworks/utils';
+import memoize from './utils/memoize';
 import {
   ScreenReader,
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
-} from './utils/ScreenReader'
-import { getUSEnglishVoice } from './utils/voices'
+} from './utils/ScreenReader';
+import { getUSEnglishVoice } from './utils/voices';
 
-import AppRoot, { Props as AppRootProps } from './AppRoot'
-import FocusManager from './components/FocusManager'
-import machineConfigProvider from './utils/machineConfig'
+import AppRoot, { Props as AppRootProps } from './AppRoot';
+import FocusManager from './components/FocusManager';
+import machineConfigProvider from './utils/machineConfig';
 
 window.oncontextmenu = (e: MouseEvent): void => {
-  e.preventDefault()
-}
+  e.preventDefault();
+};
 
 export interface Props {
-  hardware?: AppRootProps['hardware']
-  card?: AppRootProps['card']
-  storage?: AppRootProps['storage']
-  printer?: AppRootProps['printer']
-  machineConfig?: AppRootProps['machineConfig']
-  screenReader?: ScreenReader
+  hardware?: AppRootProps['hardware'];
+  card?: AppRootProps['card'];
+  storage?: AppRootProps['storage'];
+  printer?: AppRootProps['printer'];
+  machineConfig?: AppRootProps['machineConfig'];
+  screenReader?: ScreenReader;
 }
 
 const App = ({
@@ -48,17 +48,17 @@ const App = ({
   hardware,
   machineConfig = machineConfigProvider,
 }: Props): JSX.Element => {
-  screenReader.mute()
-  const [internalHardware, setInternalHardware] = useState(hardware)
+  screenReader.mute();
+  const [internalHardware, setInternalHardware] = useState(hardware);
 
   useEffect(() => {
     const updateHardware = async () => {
       if (internalHardware === undefined) {
-        setInternalHardware(await getHardware())
+        setInternalHardware(await getHardware());
       }
-    }
-    void updateHardware()
-  }, [internalHardware])
+    };
+    void updateHardware();
+  }, [internalHardware]);
 
   /* istanbul ignore next - need to figure out how to test this */
   useEffect(() => {
@@ -67,26 +67,26 @@ const App = ({
         screenReader.toggleMuted(
           !Array.from(devices).some(isAccessibleController)
         )
-      )
-      return () => subscription.unsubscribe()
+      );
+      return () => subscription.unsubscribe();
     }
-  }, [internalHardware, screenReader])
+  }, [internalHardware, screenReader]);
 
   /* istanbul ignore next - need to figure out how to test this */
   const onKeyPress = useCallback(
     async (event: React.KeyboardEvent) => {
       if (event.key === 'r') {
-        await screenReader.toggle()
+        await screenReader.toggle();
       }
     },
     [screenReader]
-  )
+  );
 
   /* istanbul ignore next - need to figure out how to test this */
   const onClick = useCallback(
     ({ target }: React.MouseEvent) => {
       if (target) {
-        const currentPath = window.location.pathname
+        const currentPath = window.location.pathname;
 
         setImmediate(async () => {
           // Only send `onClick` to the screen reader if the click didn't
@@ -95,19 +95,19 @@ const App = ({
             window.location.pathname === currentPath &&
             document.body.contains(target as Node)
           ) {
-            await screenReader.onClick(target)
+            await screenReader.onClick(target);
           }
-        })
+        });
       }
     },
     [screenReader]
-  )
+  );
 
   /* istanbul ignore next - need to figure out how to test this */
   const onFocus = useCallback(
     ({ target }: React.FocusEvent) => {
       if (target) {
-        const currentPath = window.location.pathname
+        const currentPath = window.location.pathname;
 
         setImmediate(async () => {
           // Only send `onFocus` to the screen reader if the focus didn't
@@ -116,15 +116,15 @@ const App = ({
             window.location.pathname === currentPath &&
             document.body.contains(target as Node)
           ) {
-            await screenReader.onFocus(target)
+            await screenReader.onFocus(target);
           }
-        })
+        });
       }
     },
     [screenReader]
-  )
+  );
   if (internalHardware === undefined) {
-    return <BrowserRouter />
+    return <BrowserRouter />;
   }
   return (
     <BrowserRouter>
@@ -150,7 +150,7 @@ const App = ({
         />
       </FocusManager>
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;

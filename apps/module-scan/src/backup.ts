@@ -1,19 +1,19 @@
-import makeDebug from 'debug'
-import { createReadStream } from 'fs-extra'
-import { WritableStream } from 'memory-streams'
-import { basename } from 'path'
-import { Database } from 'sqlite3'
-import { fileSync } from 'tmp'
-import ZipStream from 'zip-stream'
-import Store from './store'
+import makeDebug from 'debug';
+import { createReadStream } from 'fs-extra';
+import { WritableStream } from 'memory-streams';
+import { basename } from 'path';
+import { Database } from 'sqlite3';
+import { fileSync } from 'tmp';
+import ZipStream from 'zip-stream';
+import Store from './store';
 
-const debug = makeDebug('module-scan:backup')
+const debug = makeDebug('module-scan:backup');
 
 /**
  * Creates a backup of the database and all scanned files.
  */
 export class Backup {
-  private readonly entries = new Set<string>()
+  private readonly entries = new Set<string>();
 
   constructor(private readonly zip: ZipStream, private readonly store: Store) {}
 
@@ -27,20 +27,20 @@ export class Backup {
     data: string | Buffer | NodeJS.ReadableStream
   ): Promise<void> {
     if (this.entries.has(name)) {
-      return
+      return;
     }
-    this.entries.add(name)
+    this.entries.add(name);
 
-    debug('adding %s to backup archive', name)
+    debug('adding %s to backup archive', name);
     await new Promise((resolve, reject) =>
       this.zip.entry(data, { name }, (error, entry) => {
         if (error) {
-          reject(error)
+          reject(error);
         } else {
-          resolve(entry)
+          resolve(entry);
         }
       })
-    )
+    );
   }
 
   /**
@@ -53,42 +53,42 @@ export class Backup {
     filepath: string,
     name = basename(filepath)
   ): Promise<void> {
-    await this.addEntry(name, createReadStream(filepath))
+    await this.addEntry(name, createReadStream(filepath));
   }
 
   /**
    * Runs the backup.
    */
   async backup(): Promise<void> {
-    debug('starting a backup')
+    debug('starting a backup');
 
-    const electionDefinition = await this.store.getElectionDefinition()
+    const electionDefinition = await this.store.getElectionDefinition();
 
     if (!electionDefinition) {
-      throw new Error('cannot backup without election configuration')
+      throw new Error('cannot backup without election configuration');
     }
 
-    await this.addEntry('election.json', electionDefinition.electionData)
+    await this.addEntry('election.json', electionDefinition.electionData);
 
-    const cvrStream = new WritableStream()
-    await this.store.exportCVRs(cvrStream)
-    await this.addEntry('cvrs.jsonl', cvrStream.toBuffer())
+    const cvrStream = new WritableStream();
+    await this.store.exportCVRs(cvrStream);
+    await this.addEntry('cvrs.jsonl', cvrStream.toBuffer());
 
-    const dbBackupFile = fileSync()
-    await this.store.backup(dbBackupFile.name)
-    await this.rewriteFilePaths(dbBackupFile.name)
-    await this.addFileEntry(dbBackupFile.name, 'ballots.db')
-    await this.addEntry('ballots.db.digest', await Store.getSchemaDigest())
-    dbBackupFile.removeCallback()
+    const dbBackupFile = fileSync();
+    await this.store.backup(dbBackupFile.name);
+    await this.rewriteFilePaths(dbBackupFile.name);
+    await this.addFileEntry(dbBackupFile.name, 'ballots.db');
+    await this.addEntry('ballots.db.digest', await Store.getSchemaDigest());
+    dbBackupFile.removeCallback();
 
     for await (const sheet of this.store.getSheets()) {
-      await this.addFileEntry(sheet.front.original)
-      await this.addFileEntry(sheet.front.normalized)
-      await this.addFileEntry(sheet.back.original)
-      await this.addFileEntry(sheet.back.normalized)
+      await this.addFileEntry(sheet.front.original);
+      await this.addFileEntry(sheet.front.normalized);
+      await this.addFileEntry(sheet.back.original);
+      await this.addFileEntry(sheet.back.normalized);
     }
 
-    this.zip.finalize()
+    this.zip.finalize();
   }
 
   /**
@@ -100,14 +100,14 @@ export class Backup {
     const db = await new Promise<Database>((resolve, reject) => {
       const result = new Database(dbPath, (error) => {
         if (error) {
-          reject(error)
+          reject(error);
         } else {
-          resolve(result)
+          resolve(result);
         }
-      })
-    })
+      });
+    });
 
-    const updates: Promise<void>[] = []
+    const updates: Promise<void>[] = [];
     await new Promise<void>((resolve, reject) => {
       db.each(
         `
@@ -121,7 +121,7 @@ export class Backup {
       `,
         (error, row) => {
           if (error) {
-            reject(error)
+            reject(error);
           } else {
             updates.push(
               new Promise((updateResolve, updateReject) =>
@@ -143,27 +143,27 @@ export class Backup {
                   ],
                   (updateError) => {
                     if (updateError) {
-                      updateReject(updateError)
+                      updateReject(updateError);
                     } else {
-                      updateResolve()
+                      updateResolve();
                     }
                   }
                 )
               )
-            )
+            );
           }
         },
         (error) => {
           if (error) {
-            reject(error)
+            reject(error);
           } else {
-            resolve()
+            resolve();
           }
         }
-      )
-    })
+      );
+    });
 
-    await Promise.all(updates)
+    await Promise.all(updates);
   }
 }
 
@@ -171,14 +171,14 @@ export class Backup {
  * Backs up the store and all referenced files into a zip archive.
  */
 export default function backup(store: Store): NodeJS.ReadableStream {
-  const zip = new ZipStream()
+  const zip = new ZipStream();
 
   process.nextTick(() => {
     new Backup(zip, store).backup().catch((error) => {
-      zip.emit('error', error)
-      zip.destroy()
-    })
-  })
+      zip.emit('error', error);
+      zip.destroy();
+    });
+  });
 
-  return zip
+  return zip;
 }

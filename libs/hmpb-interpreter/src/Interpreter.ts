@@ -23,53 +23,53 @@ import {
   TargetShape,
   YesNoContest,
   YesNoOption,
-} from '@votingworks/types'
-import { map, reversed, zip, zipMin } from '@votingworks/utils'
-import { strict as assert } from 'assert'
-import makeDebug from 'debug'
-import * as jsfeat from 'jsfeat'
-import { inspect } from 'util'
-import { v4 as uuid } from 'uuid'
-import getVotesFromMarks from './getVotesFromMarks'
-import findContestOptions from './hmpb/findContestOptions'
+} from '@votingworks/types';
+import { map, reversed, zip, zipMin } from '@votingworks/utils';
+import { strict as assert } from 'assert';
+import makeDebug from 'debug';
+import * as jsfeat from 'jsfeat';
+import { inspect } from 'util';
+import { v4 as uuid } from 'uuid';
+import getVotesFromMarks from './getVotesFromMarks';
+import findContestOptions from './hmpb/findContestOptions';
 import findContests, {
   ContestShape,
   findBallotLayoutCorrespondence,
-} from './hmpb/findContests'
-import findTargets from './hmpb/findTargets'
-import { detect } from './metadata'
-import { DetectQRCode, FindMarksResult, Interpreted } from './types'
-import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize'
-import crop from './utils/crop'
-import defined from './utils/defined'
-import { vh as flipVH } from './utils/flip'
-import { rectCorners } from './utils/geometry'
-import diff, { countPixels } from './utils/jsfeat/diff'
-import matToImageData from './utils/jsfeat/matToImageData'
-import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage'
-import KeyedMap from './utils/KeyedMap'
-import offsets from './utils/offsets'
-import outline from './utils/outline'
+} from './hmpb/findContests';
+import findTargets from './hmpb/findTargets';
+import { detect } from './metadata';
+import { DetectQRCode, FindMarksResult, Interpreted } from './types';
+import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize';
+import crop from './utils/crop';
+import defined from './utils/defined';
+import { vh as flipVH } from './utils/flip';
+import { rectCorners } from './utils/geometry';
+import diff, { countPixels } from './utils/jsfeat/diff';
+import matToImageData from './utils/jsfeat/matToImageData';
+import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage';
+import KeyedMap from './utils/KeyedMap';
+import offsets from './utils/offsets';
+import outline from './utils/outline';
 
-const debug = makeDebug('hmpb-interpreter:Interpreter')
+const debug = makeDebug('hmpb-interpreter:Interpreter');
 
 export interface Options {
-  readonly election: Election
-  readonly detectQRCode?: DetectQRCode
-  readonly markScoreVoteThreshold?: number
-  readonly testMode?: boolean
+  readonly election: Election;
+  readonly detectQRCode?: DetectQRCode;
+  readonly markScoreVoteThreshold?: number;
+  readonly testMode?: boolean;
 
   /** @deprecated */
-  decodeQRCode?: DetectQRCode
+  decodeQRCode?: DetectQRCode;
 }
 
-export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.12
-export const WRITE_IN_REGION_UPWARD_SHIFT_HEIGHT_RATIO = 0.15
+export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.12;
+export const WRITE_IN_REGION_UPWARD_SHIFT_HEIGHT_RATIO = 0.15;
 
 type TemplateKey = Pick<
   BallotPageMetadata,
   'ballotStyleId' | 'precinctId' | 'locales' | 'pageNumber'
->
+>;
 
 /**
  * Interprets ballot images based on templates. A template is simply an empty
@@ -101,30 +101,30 @@ export default class Interpreter {
       precinctId,
       pageNumber,
     ].join('-')
-  )
-  private readonly election: Election
-  private readonly testMode: boolean
-  private readonly detectQRCode?: DetectQRCode
-  private readonly markScoreVoteThreshold: number
+  );
+  private readonly election: Election;
+  private readonly testMode: boolean;
+  private readonly detectQRCode?: DetectQRCode;
+  private readonly markScoreVoteThreshold: number;
 
-  constructor(election: Election)
-  constructor(options: Options)
+  constructor(election: Election);
+  constructor(options: Options);
   constructor(optionsOrElection: Options | Election) {
     if ('election' in optionsOrElection) {
-      this.election = optionsOrElection.election
+      this.election = optionsOrElection.election;
       this.detectQRCode =
-        optionsOrElection.detectQRCode ?? optionsOrElection.decodeQRCode
+        optionsOrElection.detectQRCode ?? optionsOrElection.decodeQRCode;
       this.markScoreVoteThreshold =
         optionsOrElection.markScoreVoteThreshold ??
         this.election.markThresholds?.definite ??
-        DEFAULT_MARK_SCORE_VOTE_THRESHOLD
-      this.testMode = optionsOrElection.testMode ?? false
+        DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
+      this.testMode = optionsOrElection.testMode ?? false;
     } else {
-      this.election = optionsOrElection
+      this.election = optionsOrElection;
       this.markScoreVoteThreshold =
         this.election.markThresholds?.definite ??
-        DEFAULT_MARK_SCORE_VOTE_THRESHOLD
-      this.testMode = false
+        DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
+      this.testMode = false;
     }
   }
 
@@ -137,8 +137,8 @@ export default class Interpreter {
     imageData: ImageData,
     metadata?: BallotPageMetadata,
     { flipped }?: { flipped?: boolean }
-  ): Promise<BallotPageLayout>
-  async addTemplate(template: BallotPageLayout): Promise<BallotPageLayout>
+  ): Promise<BallotPageLayout>;
+  async addTemplate(template: BallotPageLayout): Promise<BallotPageLayout>;
   async addTemplate(
     imageDataOrTemplate: ImageData | BallotPageLayout,
     metadata?: BallotPageMetadata,
@@ -149,17 +149,17 @@ export default class Interpreter {
         ? await this.interpretTemplate(imageDataOrTemplate, metadata, {
             flipped,
           })
-        : imageDataOrTemplate
-    const effectiveMetadata = metadata ?? template.ballotImage.metadata
+        : imageDataOrTemplate;
+    const effectiveMetadata = metadata ?? template.ballotImage.metadata;
 
     if (effectiveMetadata.isTestMode !== this.testMode) {
       throw new Error(
         `interpreter configured with testMode=${this.testMode} cannot add templates with isTestMode=${effectiveMetadata.isTestMode}`
-      )
+      );
     }
 
-    this.setTemplate(effectiveMetadata, template)
-    return template
+    this.setTemplate(effectiveMetadata, template);
+    return template;
   }
 
   /**
@@ -171,7 +171,7 @@ export default class Interpreter {
     precinctId,
     pageNumber,
   }: TemplateKey): BallotPageLayout | undefined {
-    return this.templates.get([locales, ballotStyleId, precinctId, pageNumber])
+    return this.templates.get([locales, ballotStyleId, precinctId, pageNumber]);
   }
 
   /**
@@ -184,7 +184,7 @@ export default class Interpreter {
     this.templates.set(
       [locales, ballotStyleId, precinctId, pageNumber],
       template
-    )
+    );
   }
 
   /**
@@ -201,16 +201,16 @@ export default class Interpreter {
       'interpretTemplate: looking for contests in %d×%d image',
       imageData.width,
       imageData.height
-    )
+    );
     const normalized = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
       {
         flipped,
       }
-    )
+    );
 
-    debug('using metadata for template: %O', normalized.metadata)
+    debug('using metadata for template: %O', normalized.metadata);
 
     const contests = findContestOptions([
       ...map(
@@ -221,12 +221,12 @@ export default class Interpreter {
           targets: [...reversed(findTargets(normalized.imageData, bounds))],
         })
       ),
-    ])
+    ]);
 
     return {
       ballotImage: normalized,
       contests,
-    }
+    };
   }
 
   private findContests(
@@ -237,10 +237,10 @@ export default class Interpreter {
       ...findContests(imageData, {
         columns: [true, true, true],
       }),
-    ]
+    ];
 
     if (shapesWithThreeColumns.length > 0) {
-      return { contests: shapesWithThreeColumns, columns: 3 }
+      return { contests: shapesWithThreeColumns, columns: 3 };
     }
 
     // Try two columns, i.e. measure pages.
@@ -251,7 +251,7 @@ export default class Interpreter {
         }),
       ],
       columns: 2,
-    }
+    };
   }
 
   /**
@@ -259,20 +259,20 @@ export default class Interpreter {
    * scanning a ballot with the given metadata.
    */
   canScanBallot(metadata: BallotPageMetadata): boolean {
-    debug('canScanBallot metadata=%O', metadata)
+    debug('canScanBallot metadata=%O', metadata);
 
     for (
       let pageNumber = 1;
       pageNumber <= metadata.pageNumber;
       pageNumber += 1
     ) {
-      const pageTemplate = this.getTemplate({ ...metadata, pageNumber })
+      const pageTemplate = this.getTemplate({ ...metadata, pageNumber });
       if (!pageTemplate) {
         debug(
           'cannot scan ballot because template page %d is missing',
           pageNumber
-        )
-        return false
+        );
+        return false;
       }
 
       if (
@@ -283,12 +283,12 @@ export default class Interpreter {
           'cannot scan ballot because template page %d does not match the expected test ballot value (%s)',
           pageNumber,
           metadata.isTestMode
-        )
-        return false
+        );
+        return false;
       }
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -306,43 +306,47 @@ export default class Interpreter {
       'interpretBallot: looking in %d×%d image',
       imageData.width,
       imageData.height
-    )
+    );
     const normalized = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
       {
         flipped,
       }
-    )
+    );
 
     if (normalized.metadata.isTestMode !== this.testMode) {
       throw new Error(
         `interpreter configured with testMode=${this.testMode} cannot interpret ballots with isTestMode=${normalized.metadata.isTestMode}`
-      )
+      );
     }
 
-    debug('using metadata: %O', normalized.metadata)
+    debug('using metadata: %O', normalized.metadata);
     const marked = await this.findMarks(
       normalized.imageData,
       normalized.metadata
-    )
-    const ballot = this.interpretMarks(marked, { markScoreVoteThreshold })
-    return { ...marked, ballot }
+    );
+    const ballot = this.interpretMarks(marked, { markScoreVoteThreshold });
+    return { ...marked, ballot };
   }
 
   private async findMarks(
     imageData: ImageData,
     metadata: BallotPageMetadata
   ): Promise<FindMarksResult> {
-    debug('looking for marks in %d×%d image', imageData.width, imageData.height)
+    debug(
+      'looking for marks in %d×%d image',
+      imageData.width,
+      imageData.height
+    );
 
     if (!this.canScanBallot(metadata)) {
       throw new Error(
         'Cannot scan ballot because not all required templates have been added'
-      )
+      );
     }
 
-    const { contests } = this.findContests(imageData)
+    const { contests } = this.findContests(imageData);
     const ballotLayout: BallotPageLayout = {
       ballotImage: { imageData, metadata },
       contests: [
@@ -352,55 +356,55 @@ export default class Interpreter {
           options: [],
         })),
       ],
-    }
+    };
     debug(
       'found contest areas: %O',
       ballotLayout.contests.map(({ bounds }) => bounds)
-    )
+    );
 
-    const { locales, ballotStyleId, precinctId, pageNumber } = metadata
+    const { locales, ballotStyleId, precinctId, pageNumber } = metadata;
     const matchedTemplate = defined(
       this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
-    )
+    );
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
       this.getContestsForTemplate(matchedTemplate)
-    )
+    );
 
-    return { matchedTemplate, mappedBallot, metadata, marks }
+    return { matchedTemplate, mappedBallot, metadata, marks };
   }
 
   /**
    * Get the contests for the given template.
    */
   private getContestsForTemplate(template: BallotPageLayout): Contests {
-    const { election } = this
+    const { election } = this;
     const {
       locales,
       ballotStyleId,
       pageNumber,
       precinctId,
-    } = template.ballotImage.metadata
+    } = template.ballotImage.metadata;
     const ballotStyle = defined(
       getBallotStyle({
         ballotStyleId,
         election,
       })
-    )
+    );
 
-    let contestOffset = 0
+    let contestOffset = 0;
     for (let i = 1; i < pageNumber; i += 1) {
       const pageTemplate = defined(
         this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber: i })
-      )
-      contestOffset += pageTemplate.contests.length
+      );
+      contestOffset += pageTemplate.contests.length;
     }
 
     return getContests({ ballotStyle, election }).slice(
       contestOffset,
       contestOffset + template.contests.length
-    )
+    );
   }
 
   private interpretMarks(
@@ -417,7 +421,7 @@ export default class Interpreter {
       isTestMode: metadata.isTestMode,
       precinctId: metadata.precinctId,
       votes: getVotesFromMarks(marks, { markScoreVoteThreshold }),
-    }
+    };
   }
 
   private async normalizeImageDataAndMetadata(
@@ -425,26 +429,26 @@ export default class Interpreter {
     metadata?: BallotPageMetadata,
     { flipped = false } = {}
   ): Promise<{ imageData: ImageData; metadata: BallotPageMetadata }> {
-    binarize(imageData)
+    binarize(imageData);
 
     if (metadata) {
       if (flipped) {
-        flipVH(imageData)
+        flipVH(imageData);
       }
 
-      return { imageData, metadata }
+      return { imageData, metadata };
     }
 
     const detectResult = await detect(this.election, imageData, {
       detectQRCode: this.detectQRCode,
-    })
+    });
 
     if (detectResult.flipped) {
-      debug('detected image is flipped, correcting orientation')
-      flipVH(imageData)
+      debug('detected image is flipped, correcting orientation');
+      flipVH(imageData);
     }
 
-    return { imageData, metadata: detectResult.metadata }
+    return { imageData, metadata: detectResult.metadata };
   }
 
   private getMarksForBallot(
@@ -456,19 +460,19 @@ export default class Interpreter {
       template.contests.length,
       contests.length,
       `template and election definition have different numbers of contests (${template.contests.length} vs ${contests.length}); maybe the template is from an old version of the election definition?`
-    )
+    );
 
     assert.equal(
       ballotLayout.contests.length,
       contests.length,
       `ballot and election definition have different numbers of contests (${ballotLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
-    )
+    );
 
     const correspondence = findBallotLayoutCorrespondence(
       contests,
       ballotLayout,
       template
-    )
+    );
 
     assert(
       correspondence.corresponds,
@@ -477,19 +481,19 @@ export default class Interpreter {
         undefined,
         null
       )}`
-    )
+    );
 
     const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template, {
       leftSideOnly: false,
-    })
-    const marks: BallotMark[] = []
+    });
+    const marks: BallotMark[] = [];
 
     const addCandidateMark = (
       contest: CandidateContest,
       layout: BallotPageContestOptionLayout,
       option: Candidate
     ): void => {
-      let writeInTextScore: BallotCandidateTargetMark['writeInTextScore']
+      let writeInTextScore: BallotCandidateTargetMark['writeInTextScore'];
 
       if (option.isWriteIn) {
         writeInTextScore = this.writeInTextScore(
@@ -498,15 +502,15 @@ export default class Interpreter {
           layout,
           contest,
           option
-        )
+        );
       }
 
       const { score, offset } = this.targetMarkScore(
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
-      )
-      debug(`'${option.id}' mark score: %d`, score)
+      );
+      debug(`'${option.id}' mark score: %d`, score);
       const mark: BallotCandidateTargetMark = {
         type: 'candidate',
         bounds: layout.target.bounds,
@@ -516,9 +520,9 @@ export default class Interpreter {
         scoredOffset: offset,
         target: layout.target,
         writeInTextScore,
-      }
-      marks.push(mark)
-    }
+      };
+      marks.push(mark);
+    };
 
     const addYesNoMark = (
       contest: YesNoContest,
@@ -529,8 +533,8 @@ export default class Interpreter {
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
-      )
-      debug(`'${option}' mark score: %d`, score)
+      );
+      debug(`'${option}' mark score: %d`, score);
       const mark: BallotYesNoTargetMark = {
         type: 'yesno',
         bounds: layout.target.bounds,
@@ -539,9 +543,9 @@ export default class Interpreter {
         score,
         scoredOffset: offset,
         target: layout.target,
-      }
-      marks.push(mark)
-    }
+      };
+      marks.push(mark);
+    };
 
     const addEitherNeitherMark = (
       contest: MsEitherNeitherContest,
@@ -552,7 +556,7 @@ export default class Interpreter {
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
-      )
+      );
       debug(
         `'${
           option === contest.eitherOption
@@ -564,7 +568,7 @@ export default class Interpreter {
             : 'second'
         }' mark score: %d`,
         score
-      )
+      );
       const mark: BallotMsEitherNeitherTargetMark = {
         type: 'ms-either-neither',
         bounds: layout.target.bounds,
@@ -573,65 +577,70 @@ export default class Interpreter {
         score,
         scoredOffset: offset,
         target: layout.target,
-      }
-      marks.push(mark)
-    }
+      };
+      marks.push(mark);
+    };
 
     for (const [{ options }, contest] of zip(template.contests, contests)) {
-      debug(`getting marks for %s contest '%s'`, contest.type, contest.id)
+      debug(`getting marks for %s contest '%s'`, contest.type, contest.id);
 
       if (contest.type === 'candidate') {
         const expectedOptions =
           contest.candidates.length +
-          (contest.allowWriteIns ? contest.seats : 0)
+          (contest.allowWriteIns ? contest.seats : 0);
 
         if (options.length !== expectedOptions) {
           throw new Error(
             `Contest ${contest.id} is supposed to have ${expectedOptions} options(s), but found ${options.length}.`
-          )
+          );
         }
 
         for (const [layout, candidate] of zipMin(options, contest.candidates)) {
-          addCandidateMark(contest, layout, candidate)
+          addCandidateMark(contest, layout, candidate);
         }
 
         if (contest.allowWriteIns) {
-          const writeInOptions = options.slice(contest.candidates.length)
+          const writeInOptions = options.slice(contest.candidates.length);
 
           for (const [index, layout] of writeInOptions.entries()) {
             addCandidateMark(contest, layout, {
               id: `__write-in-${index}`,
               name: 'Write-In',
               isWriteIn: true,
-            })
+            });
           }
         }
       } else if (contest.type === 'ms-either-neither') {
         if (options.length !== 4) {
           throw new Error(
             `Contest ${contest.id} is supposed to have four options (either/neither/first/second), but found ${options.length}.`
-          )
+          );
         }
 
-        const [eitherLayout, neitherLayout, firstLayout, secondLayout] = options
-        addEitherNeitherMark(contest, eitherLayout, contest.eitherOption)
-        addEitherNeitherMark(contest, neitherLayout, contest.neitherOption)
-        addEitherNeitherMark(contest, firstLayout, contest.firstOption)
-        addEitherNeitherMark(contest, secondLayout, contest.secondOption)
+        const [
+          eitherLayout,
+          neitherLayout,
+          firstLayout,
+          secondLayout,
+        ] = options;
+        addEitherNeitherMark(contest, eitherLayout, contest.eitherOption);
+        addEitherNeitherMark(contest, neitherLayout, contest.neitherOption);
+        addEitherNeitherMark(contest, firstLayout, contest.firstOption);
+        addEitherNeitherMark(contest, secondLayout, contest.secondOption);
       } else {
         if (options.length !== 2) {
           throw new Error(
             `Contest ${contest.id} is supposed to have two options (yes/no), but found ${options.length}.`
-          )
+          );
         }
 
-        const [yesLayout, noLayout] = options
-        addYesNoMark(contest, yesLayout, 'yes')
-        addYesNoMark(contest, noLayout, 'no')
+        const [yesLayout, noLayout] = options;
+        addYesNoMark(contest, yesLayout, 'yes');
+        addYesNoMark(contest, noLayout, 'no');
       }
     }
 
-    return [mappedBallot, marks]
+    return [mappedBallot, marks];
   }
 
   private targetMarkScore(
@@ -651,38 +660,38 @@ export default class Interpreter {
       target.inner.y,
       zeroScoreThreshold,
       highScoreThreshold
-    )
+    );
 
-    let bestMatchNewTemplatePixels: number | undefined
-    let bestMatchOffset: Offset | undefined
-    let bestMatchScore: number | undefined
-    const templateTarget = outline(crop(template, target.bounds))
-    const templateTargetInner = outline(crop(template, target.inner))
+    let bestMatchNewTemplatePixels: number | undefined;
+    let bestMatchOffset: Offset | undefined;
+    let bestMatchScore: number | undefined;
+    const templateTarget = outline(crop(template, target.bounds));
+    const templateTargetInner = outline(crop(template, target.inner));
 
-    binarize(templateTarget)
-    binarize(templateTargetInner)
+    binarize(templateTarget);
+    binarize(templateTargetInner);
 
     const templatePixelCountAvailableToFill = countPixels(templateTargetInner, {
       color: PIXEL_WHITE,
-    })
+    });
 
     for (const { x, y } of offsets()) {
-      const xOver = Math.abs(x) > maximumCorrectionPixelsX
-      const yOver = Math.abs(y) > maximumCorrectionPixelsY
+      const xOver = Math.abs(x) > maximumCorrectionPixelsX;
+      const yOver = Math.abs(y) > maximumCorrectionPixelsY;
 
       if (xOver && yOver) {
-        break
+        break;
       }
 
       if (xOver || yOver) {
-        continue
+        continue;
       }
 
       const offsetTargetInner: Rect = {
         ...target.inner,
         x: target.inner.x + x,
         y: target.inner.y + y,
-      }
+      };
       const newBallotPixels = diff(
         templateTarget,
         ballot,
@@ -692,7 +701,7 @@ export default class Interpreter {
           y: target.inner.y - target.bounds.y,
         },
         offsetTargetInner
-      )
+      );
       const newTemplatePixels = diff(
         ballot,
         templateTarget,
@@ -702,21 +711,21 @@ export default class Interpreter {
           x: target.inner.x - target.bounds.x,
           y: target.inner.y - target.bounds.y,
         }
-      )
+      );
       const ballotTargetInnerNewBlackPixelCount = countPixels(newBallotPixels, {
         color: PIXEL_BLACK,
-      })
+      });
       const score =
-        ballotTargetInnerNewBlackPixelCount / templatePixelCountAvailableToFill
-      const newTemplatePixelsCount = countPixels(newTemplatePixels)
+        ballotTargetInnerNewBlackPixelCount / templatePixelCountAvailableToFill;
+      const newTemplatePixelsCount = countPixels(newTemplatePixels);
 
       if (
         typeof bestMatchNewTemplatePixels === 'undefined' ||
         newTemplatePixelsCount < bestMatchNewTemplatePixels
       ) {
-        bestMatchNewTemplatePixels = newTemplatePixelsCount
-        bestMatchOffset = { x, y }
-        bestMatchScore = score
+        bestMatchNewTemplatePixels = newTemplatePixelsCount;
+        bestMatchOffset = { x, y };
+        bestMatchScore = score;
       }
     }
 
@@ -726,12 +735,12 @@ export default class Interpreter {
       bestMatchNewTemplatePixels,
       bestMatchOffset?.x,
       bestMatchOffset?.y
-    )
+    );
     assert(
       typeof bestMatchScore === 'number' && typeof bestMatchOffset === 'object'
-    )
+    );
 
-    return { score: bestMatchScore, offset: bestMatchOffset }
+    return { score: bestMatchScore, offset: bestMatchOffset };
   }
 
   private writeInTextScore(
@@ -750,30 +759,30 @@ export default class Interpreter {
         ),
       width: layout.bounds.width - layout.target.bounds.width,
       height: layout.bounds.height,
-    }
+    };
 
     debug(
       'contest=%s/candidate=%s checking region for write-in text: %o',
       contest.id,
       candidate.id,
       writeInRegion
-    )
+    );
 
     const templateWriteInRegionImage = outline(
       outline(crop(template, writeInRegion))
-    )
-    const scannedWriteInRegionImage = crop(ballot, writeInRegion)
+    );
+    const scannedWriteInRegionImage = crop(ballot, writeInRegion);
 
-    binarize(templateWriteInRegionImage)
-    binarize(scannedWriteInRegionImage)
+    binarize(templateWriteInRegionImage);
+    binarize(scannedWriteInRegionImage);
 
     const newScannedPixels = diff(
       templateWriteInRegionImage,
       scannedWriteInRegionImage
-    )
-    const newScannedPixelsCount = countPixels(newScannedPixels)
-    const totalRegionPixelCount = writeInRegion.width * writeInRegion.height
-    const score = newScannedPixelsCount / totalRegionPixelCount
+    );
+    const newScannedPixelsCount = countPixels(newScannedPixels);
+    const totalRegionPixelCount = writeInRegion.width * writeInRegion.height;
+    const score = newScannedPixelsCount / totalRegionPixelCount;
 
     debug(
       'contest=%s/candidate=%s computed write-in text score: %d (%d / %d pixels)',
@@ -782,9 +791,9 @@ export default class Interpreter {
       score,
       newScannedPixelsCount,
       totalRegionPixelCount
-    )
+    );
 
-    return score
+    return score;
   }
 
   private mapImageWithPoints(
@@ -797,7 +806,7 @@ export default class Interpreter {
       mappedSize.width,
       mappedSize.height,
       jsfeat.U8C1_t
-    )
+    );
 
     if (fromPoints.length === 0) {
       // Nothing to guide mapping, so all we actually want to do is resize.
@@ -808,16 +817,16 @@ export default class Interpreter {
         mappedImage,
         mappedSize.width,
         mappedSize.height
-      )
+      );
     } else {
-      const homography = new jsfeat.motion_model.homography2d()
-      const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t)
+      const homography = new jsfeat.motion_model.homography2d();
+      const transform = new jsfeat.matrix_t(3, 3, jsfeat.F32_t | jsfeat.C1_t);
 
-      homography.run(toPoints, fromPoints, transform, toPoints.length)
-      jsfeat.imgproc.warp_perspective(imageMat, mappedImage, transform, 255)
+      homography.run(toPoints, fromPoints, transform, toPoints.length);
+      jsfeat.imgproc.warp_perspective(imageMat, mappedImage, transform, 255);
     }
 
-    return matToImageData(mappedImage)
+    return matToImageData(mappedImage);
   }
 
   private mapBallotOntoTemplate(
@@ -825,13 +834,13 @@ export default class Interpreter {
     template: BallotPageLayout,
     { leftSideOnly }: { leftSideOnly: boolean }
   ): ImageData {
-    const ballotMat = readGrayscaleImage(ballot.ballotImage.imageData)
+    const ballotMat = readGrayscaleImage(ballot.ballotImage.imageData);
     const templateSize = {
       width: template.ballotImage.imageData.width,
       height: template.ballotImage.imageData.height,
-    }
-    const ballotPoints: Point[] = []
-    const templatePoints: Point[] = []
+    };
+    const ballotPoints: Point[] = [];
+    const templatePoints: Point[] = [];
 
     for (const [
       { corners: ballotContestCorners },
@@ -842,30 +851,30 @@ export default class Interpreter {
         ballotTopRight,
         ballotBottomLeft,
         ballotBottomRight,
-      ] = ballotContestCorners
+      ] = ballotContestCorners;
       const [
         templateTopLeft,
         templateTopRight,
         templateBottomLeft,
         templateBottomRight,
-      ] = rectCorners(templateContestBounds)
+      ] = rectCorners(templateContestBounds);
 
       if (leftSideOnly) {
-        ballotPoints.push(ballotTopLeft, ballotBottomLeft)
-        templatePoints.push(templateTopLeft, templateBottomLeft)
+        ballotPoints.push(ballotTopLeft, ballotBottomLeft);
+        templatePoints.push(templateTopLeft, templateBottomLeft);
       } else {
         ballotPoints.push(
           ballotTopLeft,
           ballotTopRight,
           ballotBottomLeft,
           ballotBottomRight
-        )
+        );
         templatePoints.push(
           templateTopLeft,
           templateTopRight,
           templateBottomLeft,
           templateBottomRight
-        )
+        );
       }
     }
 
@@ -874,8 +883,8 @@ export default class Interpreter {
       templateSize,
       ballotPoints,
       templatePoints
-    )
-    binarize(result)
-    return result
+    );
+    binarize(result);
+    return result;
   }
 }

@@ -1,14 +1,14 @@
-import { strict as assert } from 'assert'
-import React, { useLayoutEffect, useRef, useContext } from 'react'
-import ReactDOM from 'react-dom'
-import styled from 'styled-components'
-import DOMPurify from 'dompurify'
-import moment from 'moment'
-import 'moment/min/locales'
-import { fromByteArray } from 'base64-js'
-import { Handler, Previewer, registerHandlers } from 'pagedjs'
-import { TFunction, StringMap } from 'i18next'
-import { useTranslation, Trans } from 'react-i18next'
+import { strict as assert } from 'assert';
+import React, { useLayoutEffect, useRef, useContext } from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import DOMPurify from 'dompurify';
+import moment from 'moment';
+import 'moment/min/locales';
+import { fromByteArray } from 'base64-js';
+import { Handler, Previewer, registerHandlers } from 'pagedjs';
+import { TFunction, StringMap } from 'i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   AnyContest,
   BallotLocale,
@@ -30,37 +30,37 @@ import {
   getPrecinctById,
   withLocale,
   safeParseElection,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
-import AppContext from '../contexts/AppContext'
+import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
+import AppContext from '../contexts/AppContext';
 
-import findPartyById from '../utils/findPartyById'
+import findPartyById from '../utils/findPartyById';
 
-import BubbleMark from './BubbleMark'
-import WriteInLine from './WriteInLine'
-import QRCode from './QRCode'
-import Prose from './Prose'
-import Text from './Text'
-import HorizontalRule from './HorizontalRule'
-import { ABSENTEE_TINT_COLOR } from '../config/globals'
-import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize'
-import { getBallotLayoutDensity } from '../utils/getBallotLayoutDensity'
+import BubbleMark from './BubbleMark';
+import WriteInLine from './WriteInLine';
+import QRCode from './QRCode';
+import Prose from './Prose';
+import Text from './Text';
+import HorizontalRule from './HorizontalRule';
+import { ABSENTEE_TINT_COLOR } from '../config/globals';
+import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize';
+import { getBallotLayoutDensity } from '../utils/getBallotLayoutDensity';
 
 function hasVote(vote: Vote | undefined, optionId: string): boolean {
   return (
     vote?.some((choice: Candidate | string) =>
       typeof choice === 'string' ? choice === optionId : choice.id === optionId
     ) ?? false
-  )
+  );
 }
 
 const localeDateLong = (dateString: string, locale: string) =>
-  moment(new Date(dateString)).locale(locale).format('LL')
+  moment(new Date(dateString)).locale(locale).format('LL');
 
 const dualPhraseWithBreak = (t1: string, t2?: string) => {
   if (!t2 || t1 === t2) {
-    return t1
+    return t1;
   }
   return (
     <React.Fragment>
@@ -68,8 +68,8 @@ const dualPhraseWithBreak = (t1: string, t2?: string) => {
       <br />
       {t2}
     </React.Fragment>
-  )
-}
+  );
+};
 
 const dualPhraseWithSlash = (
   t1: string,
@@ -80,7 +80,7 @@ const dualPhraseWithSlash = (
   }: { separator?: string; normal?: boolean } = {}
 ) => {
   if (!t2 || t1 === t2) {
-    return t1
+    return t1;
   }
   if (normal) {
     return (
@@ -91,10 +91,10 @@ const dualPhraseWithSlash = (
           {t2}
         </Text>
       </React.Fragment>
-    )
+    );
   }
-  return `${t1}${separator}${t2}`
-}
+  return `${t1}${separator}${t2}`;
+};
 
 const dualLanguageComposer = (
   t: TFunction,
@@ -104,68 +104,68 @@ const dualLanguageComposer = (
   const enTranslation = t(key, {
     ...options,
     lng: locales.primary,
-  })
+  });
   if (!locales.secondary) {
-    return enTranslation
+    return enTranslation;
   }
   const dualTranslation = t(key, {
     ...options,
     lng: locales.secondary,
-  })
+  });
   if (separator === 'break') {
-    return dualPhraseWithBreak(enTranslation, dualTranslation)
+    return dualPhraseWithBreak(enTranslation, dualTranslation);
   }
   return dualPhraseWithSlash(enTranslation, dualTranslation, {
     separator,
     normal: true,
-  })
-}
+  });
+};
 
-const qrCodeTargetClassName = 'qr-code-target'
+const qrCodeTargetClassName = 'qr-code-target';
 
 const BlankPageContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-`
+`;
 
-type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>
+type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>;
 
 interface HMPBBallotMetadataRender extends HMPBBallotMetadata {
-  readonly isSampleBallot: boolean
+  readonly isSampleBallot: boolean;
 }
 
 interface PagedJSPage {
-  element: HTMLElement
-  id: string
-  pagesArea: HTMLElement
+  element: HTMLElement;
+  id: string;
+  pagesArea: HTMLElement;
 }
 class PostRenderBallotProcessor extends Handler {
   afterRendered(pages: PagedJSPage[]) {
     // Insert blank page if ballot page count is odd.
     if (pages.length % 2) {
-      const pagedjsPages = pages[0].pagesArea
+      const pagedjsPages = pages[0].pagesArea;
       if (pagedjsPages.lastChild) {
         const newLastPageElement = pagedjsPages.lastChild.cloneNode(
           true
-        ) as HTMLElement
-        pagedjsPages.appendChild(newLastPageElement)
+        ) as HTMLElement;
+        pagedjsPages.appendChild(newLastPageElement);
         pagedjsPages.setAttribute(
           'style',
           `--pagedjs-page-count:${pages.length + 1};`
-        )
-        newLastPageElement.id = `page-${pages.length + 1}`
+        );
+        newLastPageElement.id = `page-${pages.length + 1}`;
         newLastPageElement.classList.remove(
           'pagedjs_first_page',
           'pagedjs_right_page'
-        )
-        newLastPageElement.classList.add('pagedjs_left_page')
+        );
+        newLastPageElement.classList.add('pagedjs_left_page');
         newLastPageElement.setAttribute(
           'data-page-number',
           `${pages.length + 1}`
-        )
-        newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`)
+        );
+        newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`);
         ReactDOM.render(
           <BlankPageContent>
             <Prose>
@@ -173,28 +173,28 @@ class PostRenderBallotProcessor extends Handler {
             </Prose>
           </BlankPageContent>,
           newLastPageElement.getElementsByClassName('pagedjs_page_content')[0]
-        )
+        );
 
         const newPage = {
           ...pages[pages.length - 1],
           element: newLastPageElement,
-        }
+        };
 
-        pages.push(newPage)
+        pages.push(newPage);
       }
     }
 
     // Post-process QR codes in footer.
     for (const page of pages) {
-      const { pageNumber } = page.element.dataset
-      assert(typeof pageNumber !== 'undefined')
+      const { pageNumber } = page.element.dataset;
+      assert(typeof pageNumber !== 'undefined');
       const qrCodeTarget = page.element.getElementsByClassName(
         qrCodeTargetClassName
-      )[0]
+      )[0];
       if (qrCodeTarget && qrCodeTarget instanceof HTMLElement) {
         const election = safeParseElection(
           qrCodeTarget.dataset.election ?? ''
-        ).unsafeUnwrap()
+        ).unsafeUnwrap();
         const {
           electionHash,
           precinctId,
@@ -206,7 +206,7 @@ class PostRenderBallotProcessor extends Handler {
           ballotId,
         }: HMPBBallotMetadataRender = JSON.parse(
           qrCodeTarget.dataset.metadata ?? ''
-        )
+        );
 
         const encoded = encodeHMPBBallotPageMetadata(election, {
           electionHash: electionHash.substring(0, 20),
@@ -217,29 +217,29 @@ class PostRenderBallotProcessor extends Handler {
           pageNumber: parseInt(pageNumber, 10),
           ballotType,
           ballotId,
-        })
+        });
 
         if (!isSampleBallot) {
           ReactDOM.render(
             <QRCode level="L" value={fromByteArray(encoded)} />,
             qrCodeTarget
-          )
+          );
         }
       }
     }
   }
 }
-registerHandlers(PostRenderBallotProcessor)
+registerHandlers(PostRenderBallotProcessor);
 
 const Ballot = styled.div`
   display: none;
-`
+`;
 const SealImage = styled.img`
   max-width: 1in;
-`
+`;
 const Content = styled.div`
   flex: 1;
-`
+`;
 const AbsenteeHeader = styled.div`
   display: flex;
   align-items: center;
@@ -250,7 +250,7 @@ const AbsenteeHeader = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.025in;
   color: #ffffff;
-`
+`;
 const AbsenteeFooter = styled.div`
   display: flex;
   align-items: center;
@@ -259,7 +259,7 @@ const AbsenteeFooter = styled.div`
   background: ${ABSENTEE_TINT_COLOR};
   width: 1in;
   color: #ffffff;
-`
+`;
 const Watermark = styled.div`
   display: flex;
   align-items: center;
@@ -275,13 +275,13 @@ const Watermark = styled.div`
     font-size: 18em;
     font-weight: 700;
   }
-`
+`;
 const PageFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   position: relative;
   z-index: 1;
-`
+`;
 const OfficialInitials = styled.div`
   display: none;
   align-items: flex-start;
@@ -293,7 +293,7 @@ const OfficialInitials = styled.div`
   .pagedjs_left_page & {
     display: flex;
   }
-`
+`;
 const PageFooterMain = styled.div`
   display: flex;
   flex: 1;
@@ -309,7 +309,7 @@ const PageFooterMain = styled.div`
   h2 {
     margin: 0;
   }
-`
+`;
 const PageFooterRow = styled.div`
   display: flex;
   flex-direction: row;
@@ -336,27 +336,27 @@ const PageFooterRow = styled.div`
   h2 + div {
     margin-left: 0.05in;
   }
-`
+`;
 const PageFooterQRCode = styled.div<{ isSampleBallot: boolean }>`
   margin-left: 0.15in;
   border: ${({ isSampleBallot }) =>
     isSampleBallot ? '1px solid #000000' : undefined};
   width: 0.55in;
   height: 0.55in;
-`
+`;
 const CandidateContestsLayout = styled.div`
   columns: 3;
   column-gap: 1em;
-`
+`;
 const OtherContestsLayout = styled(CandidateContestsLayout)`
   columns: 2;
   break-before: column;
-`
+`;
 const IntroColumn = styled.div`
   break-after: column;
   break-inside: avoid;
   page-break-inside: avoid;
-`
+`;
 const BallotHeader = styled.div`
   margin-bottom: 2em;
   & h2 {
@@ -370,7 +370,7 @@ const BallotHeader = styled.div`
     margin: 0 0 0.25em 0.25em;
     width: 1in;
   }
-`
+`;
 const Instructions = styled.div`
   margin-bottom: 1em;
   img {
@@ -385,7 +385,7 @@ const Instructions = styled.div`
   h4:nth-child(2) {
     margin-top: 0;
   }
-`
+`;
 export const StyledContest = styled.div<{ density?: number }>`
   margin-bottom: 1em;
   border: 0.2em solid #000000;
@@ -399,12 +399,12 @@ export const StyledContest = styled.div<{ density?: number }>`
       density === 1 || density === 2 ? '-0.3em' : '-0.6em'};
     line-height: 1.05;
   }
-`
+`;
 interface ContestProps {
-  section: React.ReactNode
-  title: React.ReactNode
-  children: React.ReactNode
-  density?: number
+  section: React.ReactNode;
+  title: React.ReactNode;
+  children: React.ReactNode;
+  density?: number;
 }
 export const Contest = ({
   section,
@@ -421,28 +421,28 @@ export const Contest = ({
       {children}
     </Prose>
   </StyledContest>
-)
+);
 const StyledColumnFooter = styled.div`
   page-break-inside: avoid;
-`
+`;
 const WriteInItem = styled.p`
   margin: 0.5em 0 !important; /* stylelint-disable-line declaration-no-important */
   page-break-inside: avoid;
   &:last-child {
     margin-bottom: 0 !important; /* stylelint-disable-line declaration-no-important */
   }
-`
+`;
 
 const CandidateDescription = styled.span<{ isSmall?: boolean }>`
   font-size: ${({ isSmall }) => (isSmall ? '0.9em' : undefined)};
-`
+`;
 
 export interface CandidateContestChoicesProps {
-  contest: CandidateContest
-  locales: BallotLocale
-  parties: Parties
-  vote?: CandidateVote
-  density?: number
+  contest: CandidateContest;
+  locales: BallotLocale;
+  parties: Parties;
+  vote?: CandidateVote;
+  density?: number;
 }
 
 export const CandidateContestChoices = ({
@@ -452,10 +452,10 @@ export const CandidateContestChoices = ({
   parties,
   vote,
 }: CandidateContestChoicesProps): JSX.Element => {
-  const { t } = useTranslation()
-  const writeInCandidates = vote?.filter((c) => c.isWriteIn)
-  const remainingChoices = [...Array.from({ length: contest.seats }).keys()]
-  const dualLanguageWithSlash = dualLanguageComposer(t, locales)
+  const { t } = useTranslation();
+  const writeInCandidates = vote?.filter((c) => c.isWriteIn);
+  const remainingChoices = [...Array.from({ length: contest.seats }).keys()];
+  const dualLanguageWithSlash = dualLanguageComposer(t, locales);
   return (
     <React.Fragment>
       {contest.candidates.map((candidate) => (
@@ -499,21 +499,21 @@ export const CandidateContestChoices = ({
           </WriteInItem>
         ))}
     </React.Fragment>
-  )
-}
+  );
+};
 
 export interface HandMarkedPaperBallotProps {
-  ballotStyleId: string
-  election: Election
-  electionHash: string
-  isLiveMode?: boolean
-  isAbsentee?: boolean
-  isSampleBallot?: boolean
-  precinctId: string
-  locales: BallotLocale
-  ballotId?: string
-  votes?: VotesDict
-  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void
+  ballotStyleId: string;
+  election: Election;
+  electionHash: string;
+  isLiveMode?: boolean;
+  isAbsentee?: boolean;
+  isSampleBallot?: boolean;
+  precinctId: string;
+  locales: BallotLocale;
+  ballotId?: string;
+  votes?: VotesDict;
+  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
 }
 
 const HandMarkedPaperBallot = ({
@@ -529,42 +529,42 @@ const HandMarkedPaperBallot = ({
   votes,
   onRendered,
 }: HandMarkedPaperBallotProps): JSX.Element => {
-  const layoutDensity = getBallotLayoutDensity(election)
+  const layoutDensity = getBallotLayoutDensity(election);
   assert.notEqual(
     locales.primary,
     locales.secondary,
     'rendering a dual-language ballot with both languages the same is not allowed'
-  )
+  );
 
-  const { t, i18n } = useTranslation()
-  const { printBallotRef } = useContext(AppContext)
-  const { county, date, seal, sealURL, state, parties, title } = election
+  const { t, i18n } = useTranslation();
+  const { printBallotRef } = useContext(AppContext);
+  const { county, date, seal, sealURL, state, parties, title } = election;
   const localeElection: OptionalElection = locales.secondary
     ? withLocale(election, locales.secondary)
-    : undefined
-  i18n.addResources(locales.primary, 'translation', election.ballotStrings)
+    : undefined;
+  i18n.addResources(locales.primary, 'translation', election.ballotStrings);
   if (localeElection && locales.secondary) {
     i18n.addResources(
       locales.secondary,
       'translation',
       localeElection.ballotStrings
-    )
+    );
   }
   const primaryPartyName = getPartyFullNameFromBallotStyle({
     ballotStyleId,
     election,
-  })
+  });
   const localePrimaryPartyName =
     localeElection &&
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
       election: localeElection,
-    })
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })
-  assert(ballotStyle)
-  const contests = getContests({ ballotStyle, election })
-  const candidateContests = contests.filter((c) => c.type === 'candidate')
-  const otherContests = contests.filter((c) => c.type !== 'candidate')
+    });
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle);
+  const contests = getContests({ ballotStyle, election });
+  const candidateContests = contests.filter((c) => c.type === 'candidate');
+  const otherContests = contests.filter((c) => c.type !== 'candidate');
   const localeContestsById =
     localeElection &&
     getContests({ ballotStyle, election: localeElection }).reduce<
@@ -575,15 +575,15 @@ const HandMarkedPaperBallot = ({
         [curr.id]: curr,
       }),
       {}
-    )
-  const precinct = getPrecinctById({ election, precinctId })
-  assert(precinct)
+    );
+  const precinct = getPrecinctById({ election, precinctId });
+  assert(precinct);
 
-  const ballotRef = useRef<HTMLDivElement>(null)
+  const ballotRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (!printBallotRef?.current) {
-      return
+      return;
     }
 
     const ballotStylesheets = [
@@ -591,15 +591,15 @@ const HandMarkedPaperBallot = ({
         election
       )}.css`,
       '/ballot/ballot.css',
-    ]
+    ];
 
     void (async () => {
-      assert(ballotRef.current)
+      assert(ballotRef.current);
       await new Previewer().preview(
         ballotRef.current.innerHTML,
         ballotStylesheets,
         printBallotRef?.current
-      )
+      );
       onRendered?.({
         ballotStyleId,
         election,
@@ -610,18 +610,18 @@ const HandMarkedPaperBallot = ({
         precinctId,
         votes,
         locales,
-      })
-    })()
+      });
+    })();
 
     return () => {
       if (printBallotRef.current) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        printBallotRef.current.innerHTML = ''
+        printBallotRef.current.innerHTML = '';
       }
       document.head
         .querySelectorAll('[data-pagedjs-inserted-styles]')
-        .forEach((e) => e.parentNode?.removeChild(e))
-    }
+        .forEach((e) => e.parentNode?.removeChild(e));
+    };
   }, [
     ballotStyleId,
     election,
@@ -634,10 +634,10 @@ const HandMarkedPaperBallot = ({
     printBallotRef,
     locales,
     votes,
-  ])
+  ]);
 
-  const dualLanguageWithSlash = dualLanguageComposer(t, locales)
-  const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break')
+  const dualLanguageWithSlash = dualLanguageComposer(t, locales);
+  const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break');
 
   const columnFooter = (
     <StyledColumnFooter>
@@ -654,7 +654,7 @@ const HandMarkedPaperBallot = ({
         </p>
       </Prose>
     </StyledColumnFooter>
-  )
+  );
 
   return (
     <Ballot aria-hidden data-ballot ref={ballotRef}>
@@ -1131,7 +1131,7 @@ const HandMarkedPaperBallot = ({
         )}
       </Content>
     </Ballot>
-  )
-}
+  );
+};
 
-export default HandMarkedPaperBallot
+export default HandMarkedPaperBallot;

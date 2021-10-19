@@ -1,8 +1,8 @@
-import { ok, Optional, Result, safeParseJSON } from '@votingworks/types'
-import { fromByteArray, toByteArray } from 'base64-js'
-import { z } from 'zod'
-import { fetchJSON } from '../fetchJSON'
-import { Card, CardAPI } from '../types'
+import { ok, Optional, Result, safeParseJSON } from '@votingworks/types';
+import { fromByteArray, toByteArray } from 'base64-js';
+import { z } from 'zod';
+import { fetchJSON } from '../fetchJSON';
+import { Card, CardAPI } from '../types';
 
 /**
  * Implements the `Card` API by accessing it through a web service.
@@ -13,7 +13,7 @@ export default class WebServiceCard implements Card {
    * what its short value is and whether it has a long value.
    */
   async readStatus(): Promise<CardAPI> {
-    return await fetchJSON<CardAPI>('/card/read')
+    return await fetchJSON<CardAPI>('/card/read');
   }
 
   /**
@@ -23,9 +23,9 @@ export default class WebServiceCard implements Card {
   async readLongObject<T>(
     schema: z.ZodSchema<T>
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
-    const response = await fetch('/card/read_long')
-    const { longValue } = await response.json()
-    return longValue ? safeParseJSON(longValue, schema) : ok(undefined)
+    const response = await fetch('/card/read_long');
+    const { longValue } = await response.json();
+    return longValue ? safeParseJSON(longValue, schema) : ok(undefined);
   }
 
   /**
@@ -33,9 +33,9 @@ export default class WebServiceCard implements Card {
    * value.
    */
   async readLongString(): Promise<Optional<string>> {
-    const response = await fetch('/card/read_long')
-    const { longValue } = await response.json()
-    return longValue || undefined
+    const response = await fetch('/card/read_long');
+    const { longValue } = await response.json();
+    return longValue || undefined;
   }
 
   /**
@@ -43,9 +43,9 @@ export default class WebServiceCard implements Card {
    * value.
    */
   async readLongUint8Array(): Promise<Optional<Uint8Array>> {
-    const response = await fetch('/card/read_long_b64')
-    const { longValue } = await response.json()
-    return longValue ? toByteArray(longValue) : undefined
+    const response = await fetch('/card/read_long_b64');
+    const { longValue } = await response.json();
+    return longValue ? toByteArray(longValue) : undefined;
   }
 
   /**
@@ -56,7 +56,7 @@ export default class WebServiceCard implements Card {
       method: 'post',
       body: value,
       headers: { 'Content-Type': 'application/json' },
-    })
+    });
   }
 
   /**
@@ -65,21 +65,21 @@ export default class WebServiceCard implements Card {
   async writeLongObject(value: unknown): Promise<void> {
     await this.writeLongUint8Array(
       new TextEncoder().encode(JSON.stringify(value))
-    )
+    );
   }
 
   /**
    * Writes binary data to the long value.
    */
   async writeLongUint8Array(value: Uint8Array): Promise<void> {
-    const longValueBase64 = fromByteArray(value)
-    const formData = new FormData()
+    const longValueBase64 = fromByteArray(value);
+    const formData = new FormData();
 
-    formData.append('long_value', longValueBase64)
+    formData.append('long_value', longValueBase64);
 
     await fetch('/card/write_long_b64', {
       method: 'post',
       body: formData,
-    })
+    });
   }
 }

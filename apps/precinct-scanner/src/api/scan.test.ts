@@ -1,53 +1,53 @@
 import {
   electionSampleDefinition,
   electionWithMsEitherNeitherWithDataFiles,
-} from '@votingworks/fixtures'
-import { AdjudicationReason, BallotType } from '@votingworks/types'
+} from '@votingworks/fixtures';
+import { AdjudicationReason, BallotType } from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
   ScannerStatus,
-} from '@votingworks/types/src/api/module-scan'
-import { typedAs } from '@votingworks/utils'
-import fetchMock from 'fetch-mock'
-import { DateTime } from 'luxon'
-import { interpretedHmpb } from '../../test/fixtures'
+} from '@votingworks/types/src/api/module-scan';
+import { typedAs } from '@votingworks/utils';
+import fetchMock from 'fetch-mock';
+import { DateTime } from 'luxon';
+import { interpretedHmpb } from '../../test/fixtures';
 import {
   RejectedScanningReason,
   RejectedScanningResult,
   ScanningResultNeedsReview,
   ScanningResultType,
-} from '../config/types'
-import * as scan from './scan'
+} from '../config/types';
+import * as scan from './scan';
 
 const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
   scanner: ScannerStatus.ReadyToScan,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
-}
+};
 test('scanDetectedSheet throws on bad status', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'error', error: 'hello' },
-  })
+  });
   await expect(
     scan.scanDetectedSheet()
-  ).rejects.toThrowErrorMatchingInlineSnapshot('"hello"')
-})
+  ).rejects.toThrowErrorMatchingInlineSnapshot('"hello"');
+});
 
 test('scanDetectedSheet throws on invalid batch', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody)
+  });
+  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody);
   await expect(
     scan.scanDetectedSheet()
-  ).rejects.toThrowErrorMatchingInlineSnapshot('"batch not found: test-batch"')
-})
+  ).rejects.toThrowErrorMatchingInlineSnapshot('"batch not found: test-batch"');
+});
 
 test('scanDetectedSheet returns rejected ballot if batch has a 0 count', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -63,18 +63,18 @@ test('scanDetectedSheet returns rejected ballot if batch has a 0 count', async (
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.Rejected)
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.Rejected);
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
     RejectedScanningReason.Unknown
-  )
-})
+  );
+});
 
 test('scanDetectedSheet returns accepted ballot when successful', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -90,20 +90,20 @@ test('scanDetectedSheet returns accepted ballot when successful', async () => {
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.Accepted)
-})
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.Accepted);
+});
 
 test('scanDetectedSheet returns rejected ballot on invalid test mode', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get('/scan/status', {
     scanner: ScannerStatus.ReadyToScan,
     batches: [{ id: 'test-batch', count: 1 }],
     adjudication: { adjudicated: 0, remaining: 1 },
-  })
+  });
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
     typedAs<GetNextReviewSheetResponse>({
@@ -135,18 +135,18 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
       layouts: {},
       definitions: {},
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.Rejected)
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.Rejected);
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
     RejectedScanningReason.InvalidTestMode
-  )
-})
+  );
+});
 
 test('scanDetectedSheet returns rejected ballot on invalid precinct', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -161,7 +161,7 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
     })
-  )
+  );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
     typedAs<GetNextReviewSheetResponse>({
@@ -193,18 +193,18 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
       layouts: {},
       definitions: {},
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.Rejected)
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.Rejected);
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
     RejectedScanningReason.InvalidPrecinct
-  )
-})
+  );
+});
 
 test('scanDetectedSheet returns rejected ballot on invalid election hash', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -219,7 +219,7 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
     })
-  )
+  );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
     typedAs<GetNextReviewSheetResponse>({
@@ -244,18 +244,18 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
       layouts: {},
       definitions: {},
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.Rejected)
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.Rejected);
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
     RejectedScanningReason.InvalidElectionHash
-  )
-})
+  );
+});
 
 test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -270,7 +270,7 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
     })
-  )
+  );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
     typedAs<GetNextReviewSheetResponse>({
@@ -293,18 +293,18 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
       layouts: {},
       definitions: {},
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.Rejected)
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.Rejected);
   expect((result as RejectedScanningResult).rejectionReason).toEqual(
     RejectedScanningReason.Unreadable
-  )
-})
+  );
+});
 
 test('scanDetectedSheet returns ballot needs review on adjudication', async () => {
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
-  })
+  });
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -319,7 +319,7 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
       ],
       adjudication: { adjudicated: 0, remaining: 1 },
     })
-  )
+  );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
     typedAs<GetNextReviewSheetResponse>({
@@ -344,9 +344,9 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
       layouts: {},
       definitions: {},
     })
-  )
-  const result = await scan.scanDetectedSheet()
-  expect(result.resultType).toEqual(ScanningResultType.NeedsReview)
+  );
+  const result = await scan.scanDetectedSheet();
+  expect(result.resultType).toEqual(ScanningResultType.NeedsReview);
   expect((result as ScanningResultNeedsReview).adjudicationReasonInfo)
     .toMatchInlineSnapshot(`
     Array [
@@ -372,49 +372,52 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
         "type": "Overvote",
       },
     ]
-  `)
-})
+  `);
+});
 
 test('acceptBallotAfterReview accepts ballot', async () => {
-  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'ok' } })
-  expect(await scan.acceptBallotAfterReview()).toEqual(true)
-})
+  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'ok' } });
+  expect(await scan.acceptBallotAfterReview()).toEqual(true);
+});
 
 test('acceptBallotAfterReview returns false on failure', async () => {
-  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'error' } })
-  expect(await scan.acceptBallotAfterReview()).toEqual(false)
-})
+  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'error' } });
+  expect(await scan.acceptBallotAfterReview()).toEqual(false);
+});
 
 test('endBatch accepts ballot', async () => {
-  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'ok' } })
-  expect(await scan.endBatch()).toEqual(true)
-})
+  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'ok' } });
+  expect(await scan.endBatch()).toEqual(true);
+});
 
 test('endBatch returns false on failure', async () => {
-  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'error' } })
-  expect(await scan.endBatch()).toEqual(false)
-})
+  fetchMock.postOnce('/scan/scanContinue', { body: { status: 'error' } });
+  expect(await scan.endBatch()).toEqual(false);
+});
 
 test('calibrate returns true on success', async () => {
-  fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } })
-  expect(await scan.calibrate()).toEqual(true)
-})
+  fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } });
+  expect(await scan.calibrate()).toEqual(true);
+});
 
 test('calibrate returns false on failure', async () => {
-  fetchMock.postOnce('/scan/calibrate', { body: { status: 'error' } })
-  expect(await scan.calibrate()).toEqual(false)
-})
+  fetchMock.postOnce('/scan/calibrate', { body: { status: 'error' } });
+  expect(await scan.calibrate()).toEqual(false);
+});
 
 test('getExport returns CVRs on success', async () => {
-  const fileContent = electionWithMsEitherNeitherWithDataFiles.cvrData
-  fetchMock.postOnce('/scan/export', fileContent)
-  const cvrs = await scan.getExport()
-  expect(cvrs).toHaveLength(100)
-})
+  const fileContent = electionWithMsEitherNeitherWithDataFiles.cvrData;
+  fetchMock.postOnce('/scan/export', fileContent);
+  const cvrs = await scan.getExport();
+  expect(cvrs).toHaveLength(100);
+});
 
 test('getExport throws on failure', async () => {
-  fetchMock.postOnce('/scan/export', { status: 500, body: { status: 'error' } })
+  fetchMock.postOnce('/scan/export', {
+    status: 500,
+    body: { status: 'error' },
+  });
   await expect(scan.getExport()).rejects.toThrowError(
     'failed to generate scan export'
-  )
-})
+  );
+});

@@ -1,10 +1,10 @@
-import { dirSync } from 'tmp'
-import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99'
-import { createWorkspace } from '../../util/workspace'
-import { queryFromOptions, retryScan } from '.'
-import { parseOptions } from './options'
+import { dirSync } from 'tmp';
+import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import { createWorkspace } from '../../util/workspace';
+import { queryFromOptions, retryScan } from '.';
+import { parseOptions } from './options';
 
-jest.setTimeout(20000)
+jest.setTimeout(20000);
 
 test('--all query', () => {
   expect(queryFromOptions(parseOptions(['--all']))).toMatchInlineSnapshot(`
@@ -23,8 +23,8 @@ test('--all query', () => {
         ",
       Array [],
     ]
-  `)
-})
+  `);
+});
 
 test('--unreadable query', () => {
   expect(queryFromOptions(parseOptions(['--unreadable'])))
@@ -45,8 +45,8 @@ test('--unreadable query', () => {
         ",
       Array [],
     ]
-  `)
-})
+  `);
+});
 
 test('--uninterpreted query', () => {
   expect(queryFromOptions(parseOptions(['--uninterpreted'])))
@@ -67,8 +67,8 @@ test('--uninterpreted query', () => {
         ",
       Array [],
     ]
-  `)
-})
+  `);
+});
 
 test('--uninterpreted & --unreadable query', () => {
   expect(queryFromOptions(parseOptions(['--uninterpreted', '--unreadable'])))
@@ -90,8 +90,8 @@ test('--uninterpreted & --unreadable query', () => {
         ",
       Array [],
     ]
-  `)
-})
+  `);
+});
 
 test('--no-unreadable query', () => {
   expect(queryFromOptions(parseOptions(['--no-unreadable'])))
@@ -112,8 +112,8 @@ test('--no-unreadable query', () => {
         ",
       Array [],
     ]
-  `)
-})
+  `);
+});
 
 test('query with sheet ids', () => {
   expect(queryFromOptions(parseOptions(['abcdefg', 'hijklm'])))
@@ -136,20 +136,20 @@ test('query with sheet ids', () => {
         "hijklm",
       ],
     ]
-  `)
-})
+  `);
+});
 
 test('full rescan', async () => {
-  const inputWorkspace = await createWorkspace(dirSync().name)
-  const { store } = inputWorkspace
+  const inputWorkspace = await createWorkspace(dirSync().name);
+  const { store } = inputWorkspace;
 
   await store.setElection({
     election: fixtures.election,
     electionData: JSON.stringify(fixtures.election),
     electionHash: '02f807b005e006da160b',
-  })
+  });
 
-  const batchId = await store.addBatch()
+  const batchId = await store.addBatch();
   await store.addSheet('a-test-sheet-id', batchId, [
     {
       interpretation: {
@@ -167,14 +167,14 @@ test('full rescan', async () => {
       originalFilename: fixtures.blankPage2,
       normalizedFilename: fixtures.blankPage2,
     },
-  ])
+  ]);
 
-  const sheetsLoading = jest.fn()
-  const sheetsLoaded = jest.fn()
-  const interpreterLoading = jest.fn()
-  const interpreterLoaded = jest.fn()
-  const pageInterpreted = jest.fn()
-  const interpreterUnloaded = jest.fn()
+  const sheetsLoading = jest.fn();
+  const sheetsLoaded = jest.fn();
+  const interpreterLoading = jest.fn();
+  const interpreterLoaded = jest.fn();
+  const pageInterpreted = jest.fn();
+  const interpreterUnloaded = jest.fn();
   await retryScan(
     parseOptions(['--input-workspace', inputWorkspace.path, '--all']),
     {
@@ -185,13 +185,13 @@ test('full rescan', async () => {
       pageInterpreted,
       interpreterUnloaded,
     }
-  )
+  );
 
-  expect(sheetsLoading).toHaveBeenCalledTimes(1)
-  expect(sheetsLoaded).toHaveBeenNthCalledWith(1, 1, fixtures.election)
-  expect(interpreterLoading).toHaveBeenCalledTimes(1)
-  expect(interpreterLoaded).toHaveBeenCalledTimes(1)
-  expect(pageInterpreted).toHaveBeenCalledTimes(2)
+  expect(sheetsLoading).toHaveBeenCalledTimes(1);
+  expect(sheetsLoaded).toHaveBeenNthCalledWith(1, 1, fixtures.election);
+  expect(interpreterLoading).toHaveBeenCalledTimes(1);
+  expect(interpreterLoaded).toHaveBeenCalledTimes(1);
+  expect(pageInterpreted).toHaveBeenCalledTimes(2);
   expect(pageInterpreted).toHaveBeenNthCalledWith(
     1,
     'a-test-sheet-id',
@@ -204,7 +204,7 @@ test('full rescan', async () => {
         type: 'UninterpretedHmpbPage',
       }),
     })
-  )
+  );
   expect(pageInterpreted).toHaveBeenNthCalledWith(
     2,
     'a-test-sheet-id',
@@ -217,21 +217,21 @@ test('full rescan', async () => {
         type: 'UninterpretedHmpbPage',
       }),
     })
-  )
-})
+  );
+});
 
 test('writing output to another database', async () => {
-  const inputWorkspace = await createWorkspace(dirSync().name)
-  const outputWorkspace = await createWorkspace(dirSync().name)
-  const inputDb = inputWorkspace.store
+  const inputWorkspace = await createWorkspace(dirSync().name);
+  const outputWorkspace = await createWorkspace(dirSync().name);
+  const inputDb = inputWorkspace.store;
 
   await inputDb.setElection({
     election: fixtures.election,
     electionData: JSON.stringify(fixtures.election),
     electionHash: '02f807b005e006da160b',
-  })
+  });
 
-  const batchId = await inputDb.addBatch()
+  const batchId = await inputDb.addBatch();
   await inputDb.addSheet('a-test-sheet-id', batchId, [
     {
       interpretation: {
@@ -249,9 +249,9 @@ test('writing output to another database', async () => {
       originalFilename: fixtures.blankPage2,
       normalizedFilename: fixtures.blankPage2,
     },
-  ])
+  ]);
 
-  const pageInterpreted = jest.fn()
+  const pageInterpreted = jest.fn();
   await retryScan(
     parseOptions([
       '--input-workspace',
@@ -261,9 +261,9 @@ test('writing output to another database', async () => {
       '--all',
     ]),
     { pageInterpreted }
-  )
+  );
 
-  expect(pageInterpreted).toHaveBeenCalledTimes(2)
+  expect(pageInterpreted).toHaveBeenCalledTimes(2);
   expect(pageInterpreted).toHaveBeenNthCalledWith(
     1,
     'a-test-sheet-id',
@@ -276,7 +276,7 @@ test('writing output to another database', async () => {
         type: 'UninterpretedHmpbPage',
       }),
     })
-  )
+  );
   expect(pageInterpreted).toHaveBeenNthCalledWith(
     2,
     'a-test-sheet-id',
@@ -289,9 +289,9 @@ test('writing output to another database', async () => {
         type: 'UninterpretedHmpbPage',
       }),
     })
-  )
+  );
 
-  const outputDb = outputWorkspace.store
+  const outputDb = outputWorkspace.store;
   expect(
     await outputDb.dbAllAsync(
       'select id, front_interpretation_json, back_interpretation_json from sheets'
@@ -304,5 +304,5 @@ test('writing output to another database', async () => {
         "id": "a-test-sheet-id",
       },
     ]
-  `)
-})
+  `);
+});

@@ -1,7 +1,7 @@
 export interface Config {
-  savepath?: string
-  'filename-format'?: string
-  'filename-beginindex'?: number
+  savepath?: string;
+  'filename-format'?: string;
+  'filename-beginindex'?: number;
   'paper-size'?:
     | 'A3'
     | 'A4'
@@ -9,7 +9,7 @@ export interface Config {
     | 'B5'
     | 'B6'
     | 'Letter'
-    | { left: number; top: number; right: number; bottom: number }
+    | { left: number; top: number; right: number; bottom: number };
   source?:
     | 'ADF-Front'
     | 'ADF-Back'
@@ -18,12 +18,12 @@ export interface Config {
     | 'Sheetfed-Front'
     | 'Sheetfed-Back'
     | 'Sheetfed-Duplex'
-    | 'Camera'
-  resolution?: 100 | 150 | 200 | 300 | 600
-  mode?: 'lineart' | 'gray' | 'color'
-  brightness?: number
-  contrast?: number
-  multifeed?: boolean
+    | 'Camera';
+  resolution?: 100 | 150 | 200 | 300 | 600;
+  mode?: 'lineart' | 'gray' | 'color';
+  brightness?: number;
+  contrast?: number;
+  multifeed?: boolean;
   imagefmt:
     | 'jpeg'
     | 'pdf'
@@ -32,15 +32,15 @@ export interface Config {
     | 'multi-odf'
     | 'bmp'
     | 'tif'
-    | 'multi-tif'
-  quality?: number
-  swdeskew?: boolean
-  swcrop?: boolean
-  thumbnail?: boolean
-  'remove-blankpage'?: number
-  borderfill?: number
-  gamma?: number
-  autoenhance?: boolean
+    | 'multi-tif';
+  quality?: number;
+  swdeskew?: boolean;
+  swcrop?: boolean;
+  thumbnail?: boolean;
+  'remove-blankpage'?: number;
+  borderfill?: number;
+  gamma?: number;
+  autoenhance?: boolean;
   lang?:
     | 'Arabic'
     | 'ChinesePRC'
@@ -55,11 +55,11 @@ export interface Config {
     | 'Portuguese'
     | 'Russian'
     | 'Spanish'
-    | 'Turkish'
-  autodensity?: boolean
-  'remove-background'?: boolean
-  'character-enhancement'?: boolean
-  'remove-punchhold'?: boolean
+    | 'Turkish';
+  autodensity?: boolean;
+  'remove-background'?: boolean;
+  'character-enhancement'?: boolean;
+  'remove-punchhold'?: boolean;
 }
 
 export const DEFAULT_CONFIG: Readonly<Config> = {
@@ -81,4 +81,4 @@ export const DEFAULT_CONFIG: Readonly<Config> = {
   borderfill: 10,
   gamma: 0.8,
   autoenhance: false,
-}
+};

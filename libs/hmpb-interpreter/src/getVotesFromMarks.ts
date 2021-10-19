@@ -1,8 +1,8 @@
-import { BallotMark, VotesDict } from '@votingworks/types'
-import makeDebug from 'debug'
-import { addVote } from './hmpb/votes'
+import { BallotMark, VotesDict } from '@votingworks/types';
+import makeDebug from 'debug';
+import { addVote } from './hmpb/votes';
 
-const debug = makeDebug('hmpb-interpreter:getVotesFromMarks')
+const debug = makeDebug('hmpb-interpreter:getVotesFromMarks');
 
 /**
  * Gets the votes where the given marks have a high enough score to count, where
@@ -13,7 +13,7 @@ export default function getVotesFromMarks(
   marks: readonly BallotMark[],
   { markScoreVoteThreshold }: { markScoreVoteThreshold: number }
 ): VotesDict {
-  const votes: VotesDict = {}
+  const votes: VotesDict = {};
 
   for (const mark of marks) {
     switch (mark.type) {
@@ -26,10 +26,10 @@ export default function getVotesFromMarks(
             mark.score,
             mark.option.name,
             markScoreVoteThreshold
-          )
-          addVote(votes, mark.contest, mark.option)
+          );
+          addVote(votes, mark.contest, mark.option);
         }
-        break
+        break;
 
       case 'yesno':
         if (mark.score >= markScoreVoteThreshold) {
@@ -40,10 +40,10 @@ export default function getVotesFromMarks(
             mark.score,
             mark.option,
             markScoreVoteThreshold
-          )
-          addVote(votes, mark.contest, mark.option)
+          );
+          addVote(votes, mark.contest, mark.option);
         }
-        break
+        break;
 
       case 'ms-either-neither':
         if (mark.score >= markScoreVoteThreshold) {
@@ -54,15 +54,15 @@ export default function getVotesFromMarks(
             mark.score,
             mark.option.label,
             markScoreVoteThreshold
-          )
-          addVote(votes, mark.contest, mark.option)
+          );
+          addVote(votes, mark.contest, mark.option);
         }
-        break
+        break;
 
       default:
-        throw new Error(`mark type '${mark.type}' is not yet supported`)
+        throw new Error(`mark type '${mark.type}' is not yet supported`);
     }
   }
 
-  return votes
+  return votes;
 }

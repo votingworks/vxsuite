@@ -1,4 +1,4 @@
-import { Election, safeParseElection } from '../src/election'
+import { Election, safeParseElection } from '../src/election';
 
 export const electionData = `
 {
@@ -65,8 +65,10 @@ export const electionData = `
     }
   ],
   "state": "STATE"
-}`
-export const election: Election = safeParseElection(electionData).unsafeUnwrap()
+}`;
+export const election: Election = safeParseElection(
+  electionData
+).unsafeUnwrap();
 export const primaryElection: Election = {
   ...election,
   ballotStyles: [
@@ -94,7 +96,7 @@ export const primaryElection: Election = {
       fullName: 'Republican Party',
     },
   ],
-}
+};
 export const electionWithMsEitherNeither: Election = {
   ...election,
   contests: [
@@ -128,7 +130,7 @@ export const electionWithMsEitherNeither: Election = {
       },
     },
   ],
-}
+};
 
 const electionMinimalExhaustiveData = `
 {
@@ -348,7 +350,7 @@ const electionMinimalExhaustiveData = `
     }
   ],
   "sealURL": "/seals/Sample-Seal.svg"
-}`
+}`;
 export const electionMinimalExhaustive: Election = safeParseElection(
   electionMinimalExhaustiveData
-).unsafeUnwrap()
+).unsafeUnwrap();

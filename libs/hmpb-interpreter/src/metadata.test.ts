@@ -1,16 +1,16 @@
-import { BallotType } from '@votingworks/types'
-import { croppedQRCode } from '../test/fixtures'
+import { BallotType } from '@votingworks/types';
+import { croppedQRCode } from '../test/fixtures';
 import {
   election as urlQRCodeElection,
   blankPage1 as urlQRCodePage1,
-} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
+} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import {
   election as binaryQRCodeElection,
   blankPage1 as binaryQRCodePage1,
-} from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
-import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
-import { decodeSearchParams, detect } from './metadata'
-import { jsqr } from './utils/qrcode'
+} from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
+import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import { decodeSearchParams, detect } from './metadata';
+import { jsqr } from './utils/qrcode';
 
 test('read base64-encoded binary metadata from QR code image', async () => {
   expect(
@@ -33,8 +33,8 @@ test('read base64-encoded binary metadata from QR code image', async () => {
       precinctId: '6538',
     },
     flipped: false,
-  })
-})
+  });
+});
 
 test('read binary metadata from QR code image', async () => {
   expect(
@@ -51,8 +51,8 @@ test('read binary metadata from QR code image', async () => {
       ballotType: BallotType.Standard,
     },
     flipped: false,
-  })
-})
+  });
+});
 
 describe('old-style URL-based metadata', () => {
   test('URL decoding', () => {
@@ -75,8 +75,8 @@ describe('old-style URL-based metadata', () => {
       pageNumber: 2,
       electionHash: '',
       ballotType: BallotType.Standard,
-    })
-  })
+    });
+  });
 
   test('omitted secondary locale code', () => {
     expect(
@@ -97,8 +97,8 @@ describe('old-style URL-based metadata', () => {
       pageNumber: 2,
       electionHash: '',
       ballotType: BallotType.Standard,
-    })
-  })
+    });
+  });
 
   test('live mode', () => {
     expect(
@@ -111,14 +111,14 @@ describe('old-style URL-based metadata', () => {
           ['l1', 'en-US'],
         ])
       )
-    ).toEqual(expect.objectContaining({ isTestMode: false }))
-  })
+    ).toEqual(expect.objectContaining({ isTestMode: false }));
+  });
 
   test('cropped QR code', async () => {
     await expect(
       detect(urlQRCodeElection, await croppedQRCode.imageData())
-    ).rejects.toThrow('Expected QR code not found.')
-  })
+    ).rejects.toThrow('Expected QR code not found.');
+  });
 
   test('ballot', async () => {
     expect(
@@ -134,8 +134,8 @@ describe('old-style URL-based metadata', () => {
         ballotType: BallotType.Standard,
       },
       flipped: false,
-    })
-  })
+    });
+  });
 
   test('alternate QR code reader', async () => {
     expect(
@@ -153,8 +153,8 @@ describe('old-style URL-based metadata', () => {
         ballotType: BallotType.Standard,
       },
       flipped: false,
-    })
-  })
+    });
+  });
 
   test('custom QR code reader', async () => {
     expect(
@@ -174,8 +174,8 @@ describe('old-style URL-based metadata', () => {
         ballotType: BallotType.Standard,
       },
       flipped: false,
-    })
-  })
+    });
+  });
 
   test('upside-down ballot images', async () => {
     expect(
@@ -194,6 +194,6 @@ describe('old-style URL-based metadata', () => {
         ballotType: BallotType.Standard,
       },
       flipped: true,
-    })
-  })
-})
+    });
+  });
+});

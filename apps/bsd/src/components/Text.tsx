@@ -1,22 +1,22 @@
-import React from 'react'
-import styled, { css } from 'styled-components'
+import React from 'react';
+import styled, { css } from 'styled-components';
 
-import GLOBALS from '../config/globals'
+import GLOBALS from '../config/globals';
 
 interface Props {
-  bold?: boolean
-  center?: boolean
-  error?: boolean
-  success?: boolean
-  italic?: boolean
-  muted?: boolean
-  narrow?: boolean
-  small?: boolean
-  warning?: boolean
-  warningIcon?: boolean
-  wordBreak?: boolean
-  white?: boolean
-  voteIcon?: boolean
+  bold?: boolean;
+  center?: boolean;
+  error?: boolean;
+  success?: boolean;
+  italic?: boolean;
+  muted?: boolean;
+  narrow?: boolean;
+  small?: boolean;
+  warning?: boolean;
+  warningIcon?: boolean;
+  wordBreak?: boolean;
+  white?: boolean;
+  voteIcon?: boolean;
 }
 
 const iconStyles = css<Props>`
@@ -38,7 +38,7 @@ const iconStyles = css<Props>`
     content: ${({ warningIcon, voteIcon }) =>
       (warningIcon && `'!'`) || (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
   }
-`
+`;
 
 const Text = styled('p')<Props>`
   margin-right: ${({ narrow }) => (narrow ? 'auto' : undefined)};
@@ -67,7 +67,7 @@ const Text = styled('p')<Props>`
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
   /* stylelint-disable-next-line value-keyword-case */
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
-`
+`;
 
 export const TextWithLineBreaks = ({ text }: { text: string }): JSX.Element => (
   <React.Fragment>
@@ -82,6 +82,6 @@ export const TextWithLineBreaks = ({ text }: { text: string }): JSX.Element => (
       </p>
     ))}
   </React.Fragment>
-)
+);
 
-export default Text
+export default Text;

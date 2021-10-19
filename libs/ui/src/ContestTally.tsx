@@ -1,27 +1,27 @@
-import React from 'react'
-import styled from 'styled-components'
-import pluralize from 'pluralize'
-import { strict as assert } from 'assert'
+import React from 'react';
+import styled from 'styled-components';
+import pluralize from 'pluralize';
+import { strict as assert } from 'assert';
 
 import {
   Election,
   expandEitherNeitherContests,
   ExternalTally,
   Tally,
-} from '@votingworks/types'
+} from '@votingworks/types';
 import {
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
   combineContestTallies,
   throwIllegalValue,
-} from '@votingworks/utils'
+} from '@votingworks/utils';
 
-import { Table, TD } from './Table'
-import { Prose } from './Prose'
-import { Text, NoWrap } from './Text'
+import { Table, TD } from './Table';
+import { Prose } from './Prose';
+import { Text, NoWrap } from './Text';
 
 interface ContestProps {
-  dim?: boolean
+  dim?: boolean;
 }
 
 const Contest = styled.div<ContestProps>`
@@ -42,13 +42,13 @@ const Contest = styled.div<ContestProps>`
       margin-top: -0.5em;
     }
   }
-`
+`;
 
 interface Props {
-  election: Election
-  electionTally: Tally
-  externalTallies: ExternalTally[]
-  precinctId?: string
+  election: Election;
+  electionTally: Tally;
+  externalTallies: ExternalTally[];
+  precinctId?: string;
 }
 
 export const ContestTally = ({
@@ -61,46 +61,48 @@ export const ContestTally = ({
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
     ? election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
-    : []
-  const districts = ballotStyles.flatMap((bs) => bs.districts)
+    : [];
+  const districts = ballotStyles.flatMap((bs) => bs.districts);
 
   return (
     <React.Fragment>
       {expandEitherNeitherContests(election.contests).map((contest) => {
         if (!(contest.id in electionTally.contestTallies)) {
-          return null
+          return null;
         }
         const externalTalliesContest = externalTallies.map(
           (t) => t.contestTallies[contest.id]
-        )
-        const primaryContestTally = electionTally.contestTallies[contest.id]
-        assert(primaryContestTally)
+        );
+        const primaryContestTally = electionTally.contestTallies[contest.id];
+        assert(primaryContestTally);
 
-        let finalContestTally = primaryContestTally
+        let finalContestTally = primaryContestTally;
         for (const externalTally of externalTalliesContest) {
           if (externalTally !== undefined) {
             finalContestTally = combineContestTallies(
               finalContestTally,
               externalTally
-            )
+            );
           }
         }
 
-        const { tallies, metadata } = finalContestTally
+        const { tallies, metadata } = finalContestTally;
 
         const talliesRelevant = precinctId
           ? districts.includes(contest.districtId)
-          : true
+          : true;
 
-        const { ballots, overvotes, undervotes } = metadata
+        const { ballots, overvotes, undervotes } = metadata;
 
-        const contestOptionTableRows: JSX.Element[] = []
+        const contestOptionTableRows: JSX.Element[] = [];
         switch (contest.type) {
           case 'candidate': {
-            const candidates = getContestVoteOptionsForCandidateContest(contest)
+            const candidates = getContestVoteOptionsForCandidateContest(
+              contest
+            );
             for (const candidate of candidates) {
-              const key = `${contest.id}-${candidate.id}`
-              const tally = tallies[candidate.id]
+              const key = `${contest.id}-${candidate.id}`;
+              const tally = tallies[candidate.id];
               contestOptionTableRows.push(
                 <tr key={key} data-testid={key}>
                   <td>{candidate.name}</td>
@@ -108,16 +110,16 @@ export const ContestTally = ({
                     {talliesRelevant && (tally?.tally ?? 'X')}
                   </TD>
                 </tr>
-              )
+              );
             }
-            break
+            break;
           }
           case 'yesno': {
-            const voteOptions = getContestVoteOptionsForYesNoContest(contest)
+            const voteOptions = getContestVoteOptionsForYesNoContest(contest);
             for (const option of voteOptions) {
-              const key = `${contest.id}-${option}`
-              const tally = tallies[option]
-              const choiceName = option === 'yes' ? 'Yes' : 'No'
+              const key = `${contest.id}-${option}`;
+              const tally = tallies[option];
+              const choiceName = option === 'yes' ? 'Yes' : 'No';
               contestOptionTableRows.push(
                 <tr key={key} data-testid={key}>
                   <td>{choiceName}</td>
@@ -125,12 +127,12 @@ export const ContestTally = ({
                     {talliesRelevant && (tally?.tally ?? 'X')}
                   </TD>
                 </tr>
-              )
+              );
             }
-            break
+            break;
           }
           default:
-            throwIllegalValue(contest, 'type')
+            throwIllegalValue(contest, 'type');
         }
 
         return (
@@ -148,8 +150,8 @@ export const ContestTally = ({
               </Table>
             </Prose>
           </Contest>
-        )
+        );
       })}
     </React.Fragment>
-  )
-}
+  );
+};

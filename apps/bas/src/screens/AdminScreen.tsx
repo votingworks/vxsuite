@@ -1,34 +1,34 @@
-import React from 'react'
-import pluralize from 'pluralize'
-import { DateTime } from 'luxon'
+import React from 'react';
+import pluralize from 'pluralize';
+import { DateTime } from 'luxon';
 
-import { BallotStyle, OptionalElection } from '@votingworks/types'
-import { formatFullDateTimeZone } from '@votingworks/utils'
+import { BallotStyle, OptionalElection } from '@votingworks/types';
+import { formatFullDateTimeZone } from '@votingworks/utils';
 
-import { compareName } from '../utils/sort'
-import Button from '../components/Button'
-import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Screen from '../components/Screen'
-import Select from '../components/Select'
-import Text from '../components/Text'
+import { compareName } from '../utils/sort';
+import Button from '../components/Button';
+import Prose from '../components/Prose';
+import Main, { MainChild } from '../components/Main';
+import MainNav from '../components/MainNav';
+import Screen from '../components/Screen';
+import Select from '../components/Select';
+import Text from '../components/Text';
 
 interface Props {
-  election: OptionalElection
-  fetchElection: () => void
-  getBallotStylesByPrecinctId: (id?: string) => BallotStyle[]
-  isLoadingElection: boolean
-  partyId?: string
-  partyName?: string
-  precinctId?: string
-  precinctName?: string
-  setParty: (id: string) => void
-  setPrecinct: (id: string) => void
-  unconfigure: () => void
-  isSinglePrecinctMode: boolean
-  setIsSinglePrecinctMode: (enabled: boolean) => void
-  precinctBallotStyles: BallotStyle[]
+  election: OptionalElection;
+  fetchElection: () => void;
+  getBallotStylesByPrecinctId: (id?: string) => BallotStyle[];
+  isLoadingElection: boolean;
+  partyId?: string;
+  partyName?: string;
+  precinctId?: string;
+  precinctName?: string;
+  setParty: (id: string) => void;
+  setPrecinct: (id: string) => void;
+  unconfigure: () => void;
+  isSinglePrecinctMode: boolean;
+  setIsSinglePrecinctMode: (enabled: boolean) => void;
+  precinctBallotStyles: BallotStyle[];
 }
 
 const AdminScreen = ({
@@ -47,26 +47,26 @@ const AdminScreen = ({
   setIsSinglePrecinctMode,
   unconfigure,
 }: Props): JSX.Element => {
-  const precincts = election ? [...election.precincts].sort(compareName) : []
-  const parties = election ? [...election.parties].sort(compareName) : []
+  const precincts = election ? [...election.precincts].sort(compareName) : [];
+  const parties = election ? [...election.parties].sort(compareName) : [];
   const onChangeParty = (event: React.FormEvent<HTMLSelectElement>) => {
-    setParty(event.currentTarget.value)
-  }
+    setParty(event.currentTarget.value);
+  };
   const onChangePrecinct = (event: React.FormEvent<HTMLSelectElement>) => {
-    const { value } = event.currentTarget
-    setPrecinct(value)
-    setIsSinglePrecinctMode(!!value)
-  }
+    const { value } = event.currentTarget;
+    setPrecinct(value);
+    setIsSinglePrecinctMode(!!value);
+  };
   const reset = () => {
-    setPrecinct('')
-    setParty('')
-    setIsSinglePrecinctMode(false)
-  }
+    setPrecinct('');
+    setParty('');
+    setIsSinglePrecinctMode(false);
+  };
   const ballotStyles = partyId
     ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
-    : precinctBallotStyles
-  const ballotStylesCount = ballotStyles.length
-  const ballotStylesIds = ballotStyles.map((bs) => bs.id).join(', ')
+    : precinctBallotStyles;
+  const ballotStylesCount = ballotStyles.length;
+  const ballotStylesIds = ballotStyles.map((bs) => bs.id).join(', ');
   return (
     <Screen>
       <Main>
@@ -103,12 +103,12 @@ const AdminScreen = ({
                   {parties.map((p) => {
                     const partyLength = precinctBallotStyles.filter(
                       (bs) => bs.partyId === p.id
-                    ).length
+                    ).length;
                     return (
                       <option key={p.id} value={p.id} disabled={!partyLength}>
                         {p.name} ({partyLength})
                       </option>
-                    )
+                    );
                   })}
                 </Select>{' '}
                 <Button small disabled={!precinctId} onPress={reset}>
@@ -163,7 +163,7 @@ const AdminScreen = ({
       </Main>
       <MainNav title="Admin Actions" />
     </Screen>
-  )
-}
+  );
+};
 
-export default AdminScreen
+export default AdminScreen;

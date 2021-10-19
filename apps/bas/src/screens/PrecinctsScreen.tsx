@@ -1,22 +1,22 @@
-import React from 'react'
-import { Precinct } from '@votingworks/types'
+import React from 'react';
+import { Precinct } from '@votingworks/types';
 
-import { EventTargetFunction } from '../config/types'
+import { EventTargetFunction } from '../config/types';
 
-import Button from '../components/Button'
-import ButtonList from '../components/ButtonList'
-import Heading from '../components/Heading'
-import Main, { MainChild } from '../components/Main'
-import MainNav from '../components/MainNav'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import Text from '../components/Text'
+import Button from '../components/Button';
+import ButtonList from '../components/ButtonList';
+import Heading from '../components/Heading';
+import Main, { MainChild } from '../components/Main';
+import MainNav from '../components/MainNav';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import Text from '../components/Text';
 
 interface Props {
-  countyName: string
-  lockScreen: () => void
-  precincts: readonly Precinct[]
-  updatePrecinct: EventTargetFunction
+  countyName: string;
+  lockScreen: () => void;
+  precincts: readonly Precinct[];
+  updatePrecinct: EventTargetFunction;
 }
 
 const PrecinctsScreen = ({
@@ -59,7 +59,7 @@ const PrecinctsScreen = ({
         </Button>
       </MainNav>
     </Screen>
-  )
-}
+  );
+};
 
-export default PrecinctsScreen
+export default PrecinctsScreen;

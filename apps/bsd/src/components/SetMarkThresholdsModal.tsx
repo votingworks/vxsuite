@@ -1,23 +1,23 @@
-import { strict as assert } from 'assert'
-import React, { useState } from 'react'
-import styled from 'styled-components'
+import { strict as assert } from 'assert';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import { MarkThresholds } from '@votingworks/types'
+import { MarkThresholds } from '@votingworks/types';
 
-import { throwIllegalValue } from '@votingworks/utils'
-import Modal from './Modal'
-import Button from './Button'
-import Prose from './Prose'
-import LinkButton from './LinkButton'
-import Loading from './Loading'
-import TextInput from './TextInput'
-import Text from './Text'
+import { throwIllegalValue } from '@votingworks/utils';
+import Modal from './Modal';
+import Button from './Button';
+import Prose from './Prose';
+import LinkButton from './LinkButton';
+import Loading from './Loading';
+import TextInput from './TextInput';
+import Text from './Text';
 
 export interface Props {
-  onClose: () => void
-  markThresholds?: MarkThresholds
-  markThresholdOverrides?: MarkThresholds
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>
+  onClose: () => void;
+  markThresholds?: MarkThresholds;
+  markThresholdOverrides?: MarkThresholds;
+  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
 }
 
 const ThresholdColumns = styled.div`
@@ -26,7 +26,7 @@ const ThresholdColumns = styled.div`
   > div {
     flex: 1;
   }
-`
+`;
 
 enum ModalState {
   SAVING = 'saving',
@@ -39,7 +39,7 @@ enum ModalState {
 export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   marginal: 0.17,
   definite: 0.25,
-}
+};
 
 const SetMarkThresholdsModal = ({
   onClose,
@@ -51,60 +51,60 @@ const SetMarkThresholdsModal = ({
     markThresholdOverrides === undefined
       ? ModalState.CONFIRM_INTENT
       : ModalState.RESET_THRESHOLDS
-  )
+  );
 
-  const [errorMessage, setErrorMessage] = useState('')
-  const defaultMarkThresholds = markThresholds ?? DefaultMarkThresholds
-  const defaultDefiniteThreshold = defaultMarkThresholds.definite
-  const defaultMarginalThreshold = defaultMarkThresholds.marginal
+  const [errorMessage, setErrorMessage] = useState('');
+  const defaultMarkThresholds = markThresholds ?? DefaultMarkThresholds;
+  const defaultDefiniteThreshold = defaultMarkThresholds.definite;
+  const defaultMarginalThreshold = defaultMarkThresholds.marginal;
 
   const [definiteThreshold, setDefiniteThreshold] = useState(
     defaultDefiniteThreshold.toString()
-  )
+  );
   const [marginalThreshold, setMarginalThreshold] = useState(
     defaultMarginalThreshold.toString()
-  )
+  );
 
   const overrideThresholds = async (definite: string, marginal: string) => {
-    setCurrentState(ModalState.SAVING)
+    setCurrentState(ModalState.SAVING);
     try {
-      const definiteFloat = parseFloat(definite)
+      const definiteFloat = parseFloat(definite);
       if (Number.isNaN(definiteFloat) || definiteFloat > 1) {
         throw new Error(
           `Inputted definite threshold invalid: ${definite}. Please enter a number from 0 to 1.`
-        )
+        );
       }
-      const marginalFloat = parseFloat(marginal)
+      const marginalFloat = parseFloat(marginal);
       if (Number.isNaN(marginalFloat) || marginalFloat > 1) {
         throw new Error(
           `Inputted marginal threshold invalid: ${marginal}. Please enter a number from 0 to 1.`
-        )
+        );
       }
       await setMarkThresholdOverrides({
         definite: definiteFloat,
         marginal: marginalFloat,
-      })
-      onClose()
+      });
+      onClose();
     } catch (error) {
-      setCurrentState(ModalState.ERROR)
-      setErrorMessage(`Error setting thresholds: ${error.message}`)
+      setCurrentState(ModalState.ERROR);
+      setErrorMessage(`Error setting thresholds: ${error.message}`);
     }
-  }
+  };
 
   const resetThresholds = async () => {
-    setCurrentState(ModalState.SAVING)
+    setCurrentState(ModalState.SAVING);
     try {
-      await setMarkThresholdOverrides(undefined)
-      onClose()
+      await setMarkThresholdOverrides(undefined);
+      onClose();
     } catch (error) {
-      setCurrentState(ModalState.ERROR)
-      setErrorMessage(`Error setting thresholds: ${error.message}`)
+      setCurrentState(ModalState.ERROR);
+      setErrorMessage(`Error setting thresholds: ${error.message}`);
     }
-  }
+  };
 
   switch (currentState) {
     case ModalState.SAVING:
-      return <Modal content={<Loading />} onOverlayClick={onClose} />
+      return <Modal content={<Loading />} onOverlayClick={onClose} />;
     case ModalState.ERROR:
       return (
         <Modal
@@ -121,7 +121,7 @@ const SetMarkThresholdsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case ModalState.CONFIRM_INTENT:
       return (
         <Modal
@@ -150,7 +150,7 @@ const SetMarkThresholdsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case ModalState.SET_THRESHOLDS:
       return (
         <Modal
@@ -192,9 +192,9 @@ const SetMarkThresholdsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case ModalState.RESET_THRESHOLDS:
-      assert(markThresholdOverrides)
+      assert(markThresholdOverrides);
       return (
         <Modal
           content={
@@ -233,10 +233,10 @@ const SetMarkThresholdsModal = ({
             </React.Fragment>
           }
         />
-      )
+      );
     default:
-      throwIllegalValue(currentState)
+      throwIllegalValue(currentState);
   }
-}
+};
 
-export default SetMarkThresholdsModal
+export default SetMarkThresholdsModal;

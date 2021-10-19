@@ -1,14 +1,14 @@
-import React, { ReactNode } from 'react'
-import ReactModal from 'react-modal'
-import styled from 'styled-components'
+import React, { ReactNode } from 'react';
+import ReactModal from 'react-modal';
+import styled from 'styled-components';
 
-import { ButtonBar } from '@votingworks/ui'
+import { ButtonBar } from '@votingworks/ui';
 
-import './Modal.css'
-import { strict as assert } from 'assert'
+import './Modal.css';
+import { strict as assert } from 'assert';
 
 interface ModalContentInterface {
-  centerContent?: boolean
+  centerContent?: boolean;
 }
 
 const ModalContent = styled('div')<ModalContentInterface>`
@@ -21,16 +21,16 @@ const ModalContent = styled('div')<ModalContentInterface>`
     centerContent ? 'center' : undefined};
   overflow: auto;
   padding: 2rem;
-`
+`;
 
 interface Props {
-  ariaLabel?: string
-  className?: string
-  content?: ReactNode
-  centerContent?: boolean
-  actions?: ReactNode
-  onAfterOpen?: () => void
-  onOverlayClick?: () => void
+  ariaLabel?: string;
+  className?: string;
+  content?: ReactNode;
+  centerContent?: boolean;
+  actions?: ReactNode;
+  onAfterOpen?: () => void;
+  onOverlayClick?: () => void;
 }
 
 const Modal = ({
@@ -43,19 +43,19 @@ const Modal = ({
   onAfterOpen = () => {
     /* istanbul ignore next - unclear why this isn't covered */
     window.setTimeout(() => {
-      const element = document.getElementById('modalaudiofocus')
+      const element = document.getElementById('modalaudiofocus');
       if (element) {
-        element.focus()
-        element.click()
+        element.focus();
+        element.click();
       }
-    }, 10)
+    }, 10);
   },
 
   onOverlayClick,
 }: Props): JSX.Element => {
   const appElement =
-    document.getElementById('root') ?? document.body.firstElementChild
-  assert(appElement)
+    document.getElementById('root') ?? document.body.firstElementChild;
+  assert(appElement);
   return (
     <ReactModal
       appElement={appElement}
@@ -74,7 +74,7 @@ const Modal = ({
       <ModalContent centerContent={centerContent}>{content}</ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}
     </ReactModal>
-  )
-}
+  );
+};
 
-export default Modal
+export default Modal;

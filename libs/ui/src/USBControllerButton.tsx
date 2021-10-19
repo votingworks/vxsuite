@@ -1,19 +1,19 @@
-import React from 'react'
-import { usbstick } from '@votingworks/utils'
+import React from 'react';
+import { usbstick } from '@votingworks/utils';
 
-import { Button } from './Button'
+import { Button } from './Button';
 
-const { UsbDriveStatus } = usbstick
+const { UsbDriveStatus } = usbstick;
 
 /* istanbul ignore next */
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const doNothing = () => {}
+const doNothing = () => {};
 
 interface Props {
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => void
-  primary?: boolean
-  small?: boolean
+  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveEject: () => void;
+  primary?: boolean;
+  small?: boolean;
 }
 
 export const USBControllerButton = ({
@@ -23,7 +23,7 @@ export const USBControllerButton = ({
   small = true,
 }: Props): JSX.Element => {
   if (usbDriveStatus === UsbDriveStatus.notavailable) {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
 
   if (usbDriveStatus === UsbDriveStatus.absent) {
@@ -31,7 +31,7 @@ export const USBControllerButton = ({
       <Button small={small} disabled onPress={doNothing}>
         No USB
       </Button>
-    )
+    );
   }
 
   if (usbDriveStatus === UsbDriveStatus.present) {
@@ -39,7 +39,7 @@ export const USBControllerButton = ({
       <Button small={small} disabled onPress={doNothing}>
         Connecting…
       </Button>
-    )
+    );
   }
 
   if (usbDriveStatus === UsbDriveStatus.recentlyEjected) {
@@ -47,7 +47,7 @@ export const USBControllerButton = ({
       <Button small={small} disabled onPress={doNothing}>
         Ejected
       </Button>
-    )
+    );
   }
 
   if (usbDriveStatus === UsbDriveStatus.ejecting) {
@@ -55,12 +55,12 @@ export const USBControllerButton = ({
       <Button small={small} disabled onPress={doNothing}>
         Ejecting…
       </Button>
-    )
+    );
   }
 
   return (
     <Button small={small} primary={primary} onPress={usbDriveEject}>
       Eject USB
     </Button>
-  )
-}
+  );
+};

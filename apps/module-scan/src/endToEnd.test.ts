@@ -1,45 +1,45 @@
 import {
   asElectionDefinition,
   electionSample as election,
-} from '@votingworks/fixtures'
-import { CastVoteRecord } from '@votingworks/types'
-import { Application } from 'express'
-import * as fsExtra from 'fs-extra'
-import * as path from 'path'
-import request from 'supertest'
-import { dirSync } from 'tmp'
-import { makeMockScanner, MockScanner } from '../test/util/mocks'
-import Importer from './importer'
-import { buildApp } from './server'
-import { createWorkspace, Workspace } from './util/workspace'
+} from '@votingworks/fixtures';
+import { CastVoteRecord } from '@votingworks/types';
+import { Application } from 'express';
+import * as fsExtra from 'fs-extra';
+import * as path from 'path';
+import request from 'supertest';
+import { dirSync } from 'tmp';
+import { makeMockScanner, MockScanner } from '../test/util/mocks';
+import Importer from './importer';
+import { buildApp } from './server';
+import { createWorkspace, Workspace } from './util/workspace';
 
 const sampleBallotImagesPath = path.join(
   __dirname,
   '..',
   'sample-ballot-images/'
-)
+);
 
 // we need more time for ballot interpretation
-jest.setTimeout(20000)
+jest.setTimeout(20000);
 
-let app: Application
-let importer: Importer
-let workspace: Workspace
-let scanner: MockScanner
+let app: Application;
+let importer: Importer;
+let workspace: Workspace;
+let scanner: MockScanner;
 
 beforeEach(async () => {
-  scanner = makeMockScanner()
-  workspace = await createWorkspace(dirSync().name)
+  scanner = makeMockScanner();
+  workspace = await createWorkspace(dirSync().name);
   importer = new Importer({
     workspace,
     scanner,
-  })
-  app = buildApp({ importer, store: workspace.store })
-})
+  });
+  app = buildApp({ importer, store: workspace.store });
+});
 
 afterEach(async () => {
-  await fsExtra.remove(workspace.path)
-})
+  await fsExtra.remove(workspace.path);
+});
 
 test('going through the whole process works', async () => {
   // Do this first so interpreter workers get initialized with the right value.
@@ -48,15 +48,15 @@ test('going through the whole process works', async () => {
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
   {
     // try export before configure
     const response = await request(app)
       .post('/scan/export')
       .set('Accept', 'application/json')
-      .expect(200)
-    expect(response.text).toBe('')
+      .expect(200);
+    expect(response.text).toBe('');
   }
 
   await request(app)
@@ -64,14 +64,14 @@ test('going through the whole process works', async () => {
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
   await request(app)
     .patch('/config/testMode')
     .send({ testMode: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' })
+    .expect(200, { status: 'ok' });
 
   {
     // define the next scanner session & scan some sample ballots
@@ -89,7 +89,7 @@ test('going through the whole process works', async () => {
         path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
         path.join(sampleBallotImagesPath, 'blank-page.png'),
       ])
-      .end()
+      .end();
     await request(app)
       .post('/scan/scanBatch')
       .expect(200)
@@ -97,30 +97,30 @@ test('going through the whole process works', async () => {
         expect(response.body).toEqual({
           status: 'ok',
           batchId: expect.any(String),
-        })
-      })
+        });
+      });
 
-    await importer.waitForEndOfBatchOrScanningPause()
+    await importer.waitForEndOfBatchOrScanningPause();
 
     // check the status
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
-      .expect(200)
+      .expect(200);
 
-    expect(JSON.parse(status.text).batches[0].count).toBe(3)
+    expect(JSON.parse(status.text).batches[0].count).toBe(3);
   }
 
   {
     const exportResponse = await request(app)
       .post('/scan/export')
       .set('Accept', 'application/json')
-      .expect(200)
+      .expect(200);
 
     const CVRs: CastVoteRecord[] = exportResponse.text
       .split('\n')
       .filter(Boolean)
-      .map((line) => JSON.parse(line))
+      .map((line) => JSON.parse(line));
     expect(CVRs).toEqual([
       // sample-batch-1-ballot-1.png
       expect.objectContaining({ president: ['cramer-vuocolo'] }),
@@ -131,7 +131,7 @@ test('going through the whole process works', async () => {
       }),
       // sample-batch-1-ballot-3.png
       expect.objectContaining({ president: ['barchi-hallaren'] }),
-    ])
+    ]);
   }
 
   {
@@ -139,18 +139,18 @@ test('going through the whole process works', async () => {
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
-      .expect(200)
+      .expect(200);
     for (const { id } of JSON.parse(status.text).batches) {
       await request(app)
         .delete(`/scan/batch/${id}`)
         .set('Accept', 'application/json')
-        .expect(200)
+        .expect(200);
 
       // can't delete it again
       await request(app)
         .delete(`/scan/batch/${id}`)
         .set('Accept', 'application/json')
-        .expect(404)
+        .expect(404);
     }
   }
 
@@ -159,16 +159,16 @@ test('going through the whole process works', async () => {
     const status = await request(app)
       .get('/scan/status')
       .set('Accept', 'application/json')
-      .expect(200)
-    expect(JSON.parse(status.text).batches).toEqual([])
+      .expect(200);
+    expect(JSON.parse(status.text).batches).toEqual([]);
   }
 
   // no CVRs!
   await request(app)
     .post('/scan/export')
     .set('Accept', 'application/json')
-    .expect(200, '')
+    .expect(200, '');
 
   // clean up
-  await request(app).delete('/config/election')
-})
+  await request(app).delete('/config/election');
+});

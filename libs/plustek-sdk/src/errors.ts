@@ -1,5 +1,5 @@
-import { safeParse } from '@votingworks/types'
-import * as z from 'zod'
+import { safeParse } from '@votingworks/types';
+import * as z from 'zod';
 
 export enum ScannerError {
   /* VTM STATUS */
@@ -85,9 +85,9 @@ export enum ScannerError {
   Unknown = 'UNKNOWN',
 }
 
-export const ScannerErrorSchema = z.nativeEnum(ScannerError)
+export const ScannerErrorSchema = z.nativeEnum(ScannerError);
 
 export function parseScannerError(error: string): ScannerError | Error {
-  const result = safeParse(ScannerErrorSchema, error)
-  return result.isErr() ? new Error(error) : result.ok()
+  const result = safeParse(ScannerErrorSchema, error);
+  return result.isErr() ? new Error(error) : result.ok();
 }

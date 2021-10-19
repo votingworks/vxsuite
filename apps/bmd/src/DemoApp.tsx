@@ -1,27 +1,27 @@
-import * as React from 'react'
+import * as React from 'react';
 
-import { Provider, VoterCardData } from '@votingworks/types'
-import { electionSampleDefinition } from '@votingworks/fixtures'
+import { Provider, VoterCardData } from '@votingworks/types';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   Card,
   MemoryCard,
   Storage,
   MemoryStorage,
   MemoryHardware,
-} from '@votingworks/utils'
-import App, { Props } from './App'
-import utcTimestamp from './utils/utcTimestamp'
+} from '@votingworks/utils';
+import App, { Props } from './App';
+import utcTimestamp from './utils/utcTimestamp';
 import {
   MachineConfig,
   PrecinctSelectionKind,
   SerializableActivationData,
   VxMarkPlusVxPrint,
-} from './config/types'
-import { State } from './AppRoot'
+} from './config/types';
+import { State } from './AppRoot';
 
-const ballotStyleId = '12'
-const precinctId = '23'
-const appPrecinctId = '23'
+const ballotStyleId = '12';
+const precinctId = '23';
+const appPrecinctId = '23';
 
 export function getSampleCard(): Card {
   const voterCardData: VoterCardData = {
@@ -29,9 +29,9 @@ export function getSampleCard(): Card {
     t: 'voter',
     bs: ballotStyleId,
     pr: precinctId,
-  }
+  };
 
-  return new MemoryCard().insertCard(JSON.stringify(voterCardData))
+  return new MemoryCard().insertCard(JSON.stringify(voterCardData));
 }
 
 export function getDemoStorage(): Storage {
@@ -47,17 +47,17 @@ export function getDemoStorage(): Storage {
     ballotStyleId,
     isCardlessVoter: false,
     precinctId,
-  }
+  };
   const activation: SerializableActivationData = {
     ballotStyleId,
     isCardlessVoter: false,
     precinctId,
-  }
+  };
   return new MemoryStorage({
     state,
     electionDefinition: electionSampleDefinition,
     activation,
-  })
+  });
 }
 
 export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
@@ -67,9 +67,9 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
         appMode: VxMarkPlusVxPrint,
         machineId: '012',
         codeVersion: 'demo',
-      }
+      };
     },
-  }
+  };
 }
 
 /* istanbul ignore next */
@@ -80,17 +80,17 @@ const DemoApp = ({
   hardware,
   ...rest
 }: Props): JSX.Element => {
-  const [internalHardware, setInternalHardware] = React.useState(hardware)
+  const [internalHardware, setInternalHardware] = React.useState(hardware);
   React.useEffect(() => {
     const updateHardware = async () => {
       if (internalHardware === undefined) {
-        setInternalHardware(await MemoryHardware.buildDemo())
+        setInternalHardware(await MemoryHardware.buildDemo());
       }
-    }
-    void updateHardware()
-  }, [internalHardware])
+    };
+    void updateHardware();
+  }, [internalHardware]);
   if (internalHardware === undefined) {
-    return <div />
+    return <div />;
   }
   return (
     <App
@@ -100,7 +100,7 @@ const DemoApp = ({
       hardware={internalHardware}
       {...rest}
     />
-  )
-}
+  );
+};
 
-export default DemoApp
+export default DemoApp;

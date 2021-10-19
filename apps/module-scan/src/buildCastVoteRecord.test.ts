@@ -1,4 +1,4 @@
-import { electionWithMsEitherNeither } from '@votingworks/fixtures'
+import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   AnyContest,
@@ -9,41 +9,41 @@ import {
   MsEitherNeitherContest,
   vote,
   YesNoContest,
-} from '@votingworks/types'
-import { election } from '../test/fixtures/2020-choctaw'
+} from '@votingworks/types';
+import { election } from '../test/fixtures/2020-choctaw';
 import {
   buildCastVoteRecord,
   getCVRBallotType,
   getOptionIdsForContestVote,
   getWriteInOptionIdsForContestVote,
-} from './buildCastVoteRecord'
+} from './buildCastVoteRecord';
 
 const candidateContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is CandidateContest => contest.type === 'candidate'
-)!
+)!;
 const yesnoContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is YesNoContest => contest.type === 'yesno'
-)!
+)!;
 const msEitherNeitherContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is MsEitherNeitherContest =>
     contest.type === 'ms-either-neither'
-)!
+)!;
 
 test('getCVRBallotType', () => {
-  expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee')
-  expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional')
-  expect(getCVRBallotType(BallotType.Standard)).toEqual('standard')
-  expect(() => getCVRBallotType(-1)).toThrowError('Illegal Value: -1')
-})
+  expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee');
+  expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional');
+  expect(getCVRBallotType(BallotType.Standard)).toEqual('standard');
+  expect(() => getCVRBallotType(-1)).toThrowError('Illegal Value: -1');
+});
 
 test('getWriteInOptionIdsForContestVote', () => {
-  expect(getWriteInOptionIdsForContestVote(candidateContest, {})).toEqual([])
+  expect(getWriteInOptionIdsForContestVote(candidateContest, {})).toEqual([]);
   expect(
     getWriteInOptionIdsForContestVote(
       { ...candidateContest, allowWriteIns: true },
       {}
     )
-  ).toEqual([])
+  ).toEqual([]);
   expect(
     getWriteInOptionIdsForContestVote(
       {
@@ -56,11 +56,11 @@ test('getWriteInOptionIdsForContestVote', () => {
         ],
       }
     )
-  ).toEqual(['__write-in-0'])
-  expect(getWriteInOptionIdsForContestVote(yesnoContest, {})).toEqual([])
+  ).toEqual(['__write-in-0']);
+  expect(getWriteInOptionIdsForContestVote(yesnoContest, {})).toEqual([]);
   expect(getWriteInOptionIdsForContestVote(msEitherNeitherContest, {})).toEqual(
     []
-  )
+  );
   expect(() =>
     getWriteInOptionIdsForContestVote(
       ({
@@ -69,11 +69,11 @@ test('getWriteInOptionIdsForContestVote', () => {
       } as unknown) as AnyContest,
       {}
     )
-  ).toThrowError('contest type not yet supported: not-supported-type')
-})
+  ).toThrowError('contest type not yet supported: not-supported-type');
+});
 
 test('getOptionIdsForContestVote', () => {
-  expect(getOptionIdsForContestVote(candidateContest, {})).toEqual([])
+  expect(getOptionIdsForContestVote(candidateContest, {})).toEqual([]);
   expect(
     getOptionIdsForContestVote(
       candidateContest,
@@ -81,7 +81,7 @@ test('getOptionIdsForContestVote', () => {
         [candidateContest.id]: [candidateContest.candidates[0].id],
       })
     )
-  ).toEqual([[candidateContest.id, candidateContest.candidates[0].id]])
+  ).toEqual([[candidateContest.id, candidateContest.candidates[0].id]]);
   expect(
     getOptionIdsForContestVote(
       yesnoContest,
@@ -89,7 +89,7 @@ test('getOptionIdsForContestVote', () => {
         [yesnoContest.id]: ['yes'],
       })
     )
-  ).toEqual([[yesnoContest.id, 'yes']])
+  ).toEqual([[yesnoContest.id, 'yes']]);
   expect(
     getOptionIdsForContestVote(
       msEitherNeitherContest,
@@ -104,7 +104,7 @@ test('getOptionIdsForContestVote', () => {
       msEitherNeitherContest.eitherNeitherContestId,
       msEitherNeitherContest.eitherOption.id,
     ],
-  ])
+  ]);
   expect(() =>
     getOptionIdsForContestVote(
       ({
@@ -113,20 +113,20 @@ test('getOptionIdsForContestVote', () => {
       } as unknown) as AnyContest,
       {}
     )
-  ).toThrowError('Illegal Value: not-supported-type')
-})
+  ).toThrowError('Illegal Value: not-supported-type');
+});
 
 test('generates a CVR from a completed BMD ballot', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const contests = getContests({ ballotStyle, election })
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
+  const contests = getContests({ ballotStyle, election });
 
-  const blankPageTypes = ['BlankPage', 'UnreadablePage']
+  const blankPageTypes = ['BlankPage', 'UnreadablePage'];
   for (const blankPageType of blankPageTypes) {
     expect(
       buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -184,20 +184,20 @@ test('generates a CVR from a completed BMD ballot', () => {
             "initiative-65-a": Array [],
             "runoffs-question": Array [],
           }
-        `)
+        `);
   }
-})
+});
 test('generates a CVR from a completed BMD ballot with write in and overvotes', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const contests = getContests({ ballotStyle, election })
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
+  const contests = getContests({ ballotStyle, election });
 
-  const blankPageTypes = ['BlankPage', 'UnreadablePage']
+  const blankPageTypes = ['BlankPage', 'UnreadablePage'];
   for (const blankPageType of blankPageTypes) {
     expect(
       buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -256,19 +256,19 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             "initiative-65-a": Array [],
             "runoffs-question": Array [],
           }
-        `)
+        `);
   }
-})
+});
 
 test('generates a CVR from a completed HMPB page', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const contests = getContests({ ballotStyle, election })
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
+  const contests = getContests({ ballotStyle, election });
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -354,18 +354,18 @@ test('generates a CVR from a completed HMPB page', () => {
         "no",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('generates a CVR from a completed HMPB page with write in votes and overvotes', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const contests = getContests({ ballotStyle, election })
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
+  const contests = getContests({ ballotStyle, election });
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -452,18 +452,18 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
         "no",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('generates a CVR from a completed absentee HMPB page', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const contests = getContests({ ballotStyle, election })
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
+  const contests = getContests({ ballotStyle, election });
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -549,18 +549,18 @@ test('generates a CVR from a completed absentee HMPB page', () => {
         "no",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('generates a CVR from an adjudicated HMPB page', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!
-  const contests = getContests({ ballotStyle, election })
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
+  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
+  const contests = getContests({ ballotStyle, election });
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -661,16 +661,16 @@ test('generates a CVR from an adjudicated HMPB page', () => {
         "yes",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('fails to generate a CVR from an invalid HMPB sheet with two pages having the same page number', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -716,16 +716,16 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
     ])
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=1'
-  )
-})
+  );
+});
 
 test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutive pages', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -771,15 +771,15 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
     ])
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=3'
-  )
-})
+  );
+});
 
 test('fails to generate a CVR from an invalid HMPB sheet with different ballot styles', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -825,15 +825,15 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
     ])
   ).toThrowError(
     'expected a sheet to have the same ballot style, but got front=1 back=2'
-  )
-})
+  );
+});
 
 test('fails to generate a CVR from an invalid HMPB sheet with different precincts', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -879,16 +879,16 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
     ])
   ).toThrowError(
     'expected a sheet to have the same precinct, but got front=6522 back=6523'
-  )
-})
+  );
+});
 
 test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -975,16 +975,16 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
         "no",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('generates a CVR from an adjudicated write-in', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -1085,16 +1085,16 @@ test('generates a CVR from an adjudicated write-in', () => {
       "_scannerId": "000",
       "_testBallot": false,
     }
-  `)
-})
+  `);
+});
 
 test('generates a CVR from an adjudicated unmarked write-in', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -1189,30 +1189,30 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
       "_scannerId": "000",
       "_testBallot": false,
     }
-  `)
-})
+  `);
+});
 
 test('fails to generate CVRs from blank pages', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
       { interpretation: { type: 'BlankPage' } },
       { interpretation: { type: 'BlankPage' } },
     ])
-  ).toBeUndefined()
-})
+  ).toBeUndefined();
+});
 
 test('fails to generate CVRs from invalid test mode pages', () => {
-  const sheetId = 'sheetid'
-  const ballotId = 'abcdefg'
-  const ballotStyleId = '1'
-  const precinctId = '6522'
-  const batchId = '1234'
-  const batchLabel = 'Batch 1'
+  const sheetId = 'sheetid';
+  const ballotId = 'abcdefg';
+  const ballotStyleId = '1';
+  const precinctId = '6522';
+  const batchId = '1234';
+  const batchLabel = 'Batch 1';
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -1231,5 +1231,5 @@ test('fails to generate CVRs from invalid test mode pages', () => {
       },
       { interpretation: { type: 'BlankPage' } },
     ])
-  ).toBeUndefined()
-})
+  ).toBeUndefined();
+});

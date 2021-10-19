@@ -1,11 +1,11 @@
-import { ElectionDefinition } from '@votingworks/types'
-import { createContext } from 'react'
-import { MachineConfig } from '../config/types'
+import { ElectionDefinition } from '@votingworks/types';
+import { createContext } from 'react';
+import { MachineConfig } from '../config/types';
 
 export interface AppContextInterface {
-  electionDefinition?: ElectionDefinition
-  machineConfig: Readonly<MachineConfig>
-  currentPrecinctId?: string
+  electionDefinition?: ElectionDefinition;
+  machineConfig: Readonly<MachineConfig>;
+  currentPrecinctId?: string;
 }
 
 const appContext: AppContextInterface = {
@@ -16,8 +16,8 @@ const appContext: AppContextInterface = {
     codeVersion: '',
     bypassAuthentication: false,
   },
-}
+};
 
-const AppContext = createContext(appContext)
+const AppContext = createContext(appContext);
 
-export default AppContext
+export default AppContext;

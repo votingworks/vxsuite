@@ -6,12 +6,12 @@
  * non-undefined value.
  */
 export default function memoize<R, F extends () => R>(fn: F): () => R {
-  let returnValue: R
+  let returnValue: R;
 
   return () => {
     if (typeof returnValue === 'undefined') {
-      returnValue = fn()
+      returnValue = fn();
     }
-    return returnValue
-  }
+    return returnValue;
+  };
 }

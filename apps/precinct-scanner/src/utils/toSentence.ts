@@ -1,5 +1,5 @@
-import { strict as assert } from 'assert'
-import React from 'react'
+import { strict as assert } from 'assert';
+import React from 'react';
 
 /**
  * Joins elements of `list` along with `comma` and `and` into parts that, when
@@ -10,18 +10,18 @@ export function toSentence(
   comma = ', ',
   and = ' and '
 ): React.ReactChild[] {
-  const elements = [...list]
+  const elements = [...list];
 
   if (elements.length < 2) {
-    return elements
+    return elements;
   }
 
   if (elements.length === 2) {
-    return [elements[0], and, elements[1]]
+    return [elements[0], and, elements[1]];
   }
 
-  const head = elements
-  const tail = head.pop()
-  assert(typeof tail !== 'undefined')
-  return [...head.flatMap((element) => [element, comma]), and, tail]
+  const head = elements;
+  const tail = head.pop();
+  assert(typeof tail !== 'undefined');
+  return [...head.flatMap((element) => [element, comma]), and, tail];
 }

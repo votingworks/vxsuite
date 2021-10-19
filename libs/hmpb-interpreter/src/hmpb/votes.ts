@@ -8,24 +8,24 @@ import {
   YesNoContest,
   YesNoOption,
   YesNoVote,
-} from '@votingworks/types'
-import { inspect } from 'util'
+} from '@votingworks/types';
+import { inspect } from 'util';
 
 export function addVote(
   votes: VotesDict,
   contest: CandidateContest,
   candidate: Candidate
-): void
+): void;
 export function addVote(
   votes: VotesDict,
   contest: YesNoContest,
   yesNo: 'yes' | 'no'
-): void
+): void;
 export function addVote(
   votes: VotesDict,
   contest: MsEitherNeitherContest,
   option: YesNoOption
-): void
+): void;
 export function addVote(
   votes: VotesDict,
   contest: AnyContest,
@@ -39,7 +39,7 @@ export function addVote(
     votes[contest.id] = [
       ...(votes[contest.id] ?? []),
       candidateOrYesNoOrEitherNeither,
-    ] as CandidateVote
+    ] as CandidateVote;
   } else if (
     contest.type === 'yesno' &&
     typeof candidateOrYesNoOrEitherNeither === 'string'
@@ -47,7 +47,7 @@ export function addVote(
     votes[contest.id] = [
       ...(votes[contest.id] ?? []),
       candidateOrYesNoOrEitherNeither,
-    ] as YesNoVote
+    ] as YesNoVote;
   } else if (
     contest.type === 'ms-either-neither' &&
     typeof candidateOrYesNoOrEitherNeither === 'object'
@@ -57,41 +57,41 @@ export function addVote(
         votes[contest.eitherNeitherContestId] = [
           ...(votes[contest.eitherNeitherContestId] ?? []),
           'yes',
-        ] as YesNoVote
-        break
+        ] as YesNoVote;
+        break;
 
       case contest.neitherOption.id:
         votes[contest.eitherNeitherContestId] = [
           ...(votes[contest.eitherNeitherContestId] ?? []),
           'no',
-        ] as YesNoVote
-        break
+        ] as YesNoVote;
+        break;
 
       case contest.firstOption.id:
         votes[contest.pickOneContestId] = [
           ...(votes[contest.pickOneContestId] ?? []),
           'yes',
-        ] as YesNoVote
-        break
+        ] as YesNoVote;
+        break;
 
       case contest.secondOption.id:
         votes[contest.pickOneContestId] = [
           ...(votes[contest.pickOneContestId] ?? []),
           'no',
-        ] as YesNoVote
-        break
+        ] as YesNoVote;
+        break;
 
       default:
         throw new Error(
           `unexpected option in ${contest.type} contest: ${candidateOrYesNoOrEitherNeither.id}`
-        )
+        );
     }
   } else {
     throw new Error(
       `Invalid vote for '${contest.type}' contest type: ${inspect(
         candidateOrYesNoOrEitherNeither
       )}`
-    )
+    );
   }
   /* eslint-enable no-param-reassign */
 }

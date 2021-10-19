@@ -21,29 +21,29 @@ import {
   Precinct,
   safeParseJSON,
   SerializableBallotPageLayout,
-} from '@votingworks/types'
+} from '@votingworks/types';
 import {
   AdjudicationStatus,
   BatchInfo,
   Side,
-} from '@votingworks/types/api/module-scan'
-import { strict as assert } from 'assert'
-import { createHash } from 'crypto'
-import makeDebug from 'debug'
-import { promises as fs } from 'fs'
-import { DateTime } from 'luxon'
-import { dirname, join } from 'path'
-import * as sqlite3 from 'sqlite3'
-import { Writable } from 'stream'
-import { inspect } from 'util'
-import { v4 as uuid } from 'uuid'
-import { z } from 'zod'
-import { buildCastVoteRecord } from './buildCastVoteRecord'
-import { sheetRequiresAdjudication } from './interpreter'
-import { PageInterpretationWithFiles, SheetOf } from './types'
-import { normalizeAndJoin } from './util/path'
+} from '@votingworks/types/api/module-scan';
+import { strict as assert } from 'assert';
+import { createHash } from 'crypto';
+import makeDebug from 'debug';
+import { promises as fs } from 'fs';
+import { DateTime } from 'luxon';
+import { dirname, join } from 'path';
+import * as sqlite3 from 'sqlite3';
+import { Writable } from 'stream';
+import { inspect } from 'util';
+import { v4 as uuid } from 'uuid';
+import { z } from 'zod';
+import { buildCastVoteRecord } from './buildCastVoteRecord';
+import { sheetRequiresAdjudication } from './interpreter';
+import { PageInterpretationWithFiles, SheetOf } from './types';
+import { normalizeAndJoin } from './util/path';
 
-const debug = makeDebug('module-scan:store')
+const debug = makeDebug('module-scan:store');
 
 export enum ConfigKey {
   Election = 'election',
@@ -54,21 +54,21 @@ export enum ConfigKey {
   CurrentPrecinctId = 'currentPrecinctId',
 }
 
-const SchemaPath = join(__dirname, '../schema.sql')
+const SchemaPath = join(__dirname, '../schema.sql');
 
-export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey)
+export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey);
 
 export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   marginal: 0.17,
   definite: 0.25,
-}
+};
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
  */
 export default class Store {
-  private db?: sqlite3.Database
+  private db?: sqlite3.Database;
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
@@ -79,65 +79,65 @@ export default class Store {
    * Gets the sha256 digest of the current schema file.
    */
   static async getSchemaDigest(): Promise<string> {
-    const schemaSql = await fs.readFile(SchemaPath, 'utf-8')
-    return createHash('sha256').update(schemaSql).digest('hex')
+    const schemaSql = await fs.readFile(SchemaPath, 'utf-8');
+    return createHash('sha256').update(schemaSql).digest('hex');
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
   static async memoryStore(): Promise<Store> {
-    const store = new Store(':memory:')
-    await store.dbCreate()
-    return store
+    const store = new Store(':memory:');
+    await store.dbCreate();
+    return store;
   }
 
   /**
    * Builds and returns a new store at `dbPath`.
    */
   static async fileStore(dbPath: string): Promise<Store> {
-    const schemaDigestPath = `${dbPath}.digest`
-    let schemaDigest: string | undefined
+    const schemaDigestPath = `${dbPath}.digest`;
+    let schemaDigest: string | undefined;
     try {
-      schemaDigest = (await fs.readFile(schemaDigestPath, 'utf-8')).trim()
+      schemaDigest = (await fs.readFile(schemaDigestPath, 'utf-8')).trim();
     } catch {
       debug(
         'could not read %s, assuming the database needs to be created',
         schemaDigestPath
-      )
+      );
     }
-    const newSchemaDigest = await this.getSchemaDigest()
-    const shouldResetDatabase = newSchemaDigest !== schemaDigest
+    const newSchemaDigest = await this.getSchemaDigest();
+    const shouldResetDatabase = newSchemaDigest !== schemaDigest;
 
     if (shouldResetDatabase) {
       debug(
         'database schema has changed (%s ≉ %s)',
         schemaDigest,
         newSchemaDigest
-      )
+      );
       try {
         const backupPath = `${dbPath}.backup-${new Date()
           .toISOString()
           .replace(/[^\d]+/g, '-')
-          .replace(/-+$/, '')}`
-        await fs.rename(dbPath, backupPath)
-        debug('backed up database to be reset to %s', backupPath)
+          .replace(/-+$/, '')}`;
+        await fs.rename(dbPath, backupPath);
+        debug('backed up database to be reset to %s', backupPath);
       } catch {
         // ignore for now
       }
     }
 
-    const store = new Store(dbPath)
+    const store = new Store(dbPath);
 
     if (shouldResetDatabase) {
-      debug('resetting database to updated schema')
-      await store.reset()
-      await fs.writeFile(schemaDigestPath, newSchemaDigest, 'utf-8')
+      debug('resetting database to updated schema');
+      await store.reset();
+      await fs.writeFile(schemaDigestPath, newSchemaDigest, 'utf-8');
     } else {
-      debug('database schema appears to be up to date')
+      debug('database schema appears to be up to date');
     }
 
-    return store
+    return store;
   }
 
   /**
@@ -145,9 +145,9 @@ export default class Store {
    */
   private async getDb(): Promise<sqlite3.Database> {
     if (!this.db) {
-      return this.dbConnect()
+      return this.dbConnect();
     }
-    return this.db
+    return this.db;
   }
 
   /**
@@ -161,17 +161,17 @@ export default class Store {
     sql: string,
     ...params: P
   ): Promise<void> {
-    const db = await this.getDb()
+    const db = await this.getDb();
     return new Promise((resolve, reject) => {
       db.run(sql, ...params, (err: unknown) => {
         if (err) {
-          debug('failed to execute %s (%o): %s', sql, params, err)
-          reject(err)
+          debug('failed to execute %s (%o): %s', sql, params, err);
+          reject(err);
         } else {
-          resolve()
+          resolve();
         }
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -187,17 +187,17 @@ export default class Store {
    * `)
    */
   async dbExecAsync(sql: string): Promise<void> {
-    const db = await this.getDb()
+    const db = await this.getDb();
     return new Promise((resolve, reject) => {
       db.exec(sql, (err: unknown) => {
         if (err) {
-          debug('failed to execute %s (%o): %s', sql, err)
-          reject(err)
+          debug('failed to execute %s (%o): %s', sql, err);
+          reject(err);
         } else {
-          resolve()
+          resolve();
         }
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -211,16 +211,16 @@ export default class Store {
     sql: string,
     ...params: P
   ): Promise<T[]> {
-    const db = await this.getDb()
+    const db = await this.getDb();
     return new Promise((resolve, reject) => {
       db.all(sql, params, (err: unknown, rows: T[]) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(rows)
+          resolve(rows);
         }
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -234,75 +234,75 @@ export default class Store {
     sql: string,
     ...params: P
   ): Promise<T> {
-    const db = await this.getDb()
+    const db = await this.getDb();
     return new Promise<T>((resolve, reject) => {
       db.get(sql, params, (err: unknown, row: T) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(row)
+          resolve(row);
         }
-      })
-    })
+      });
+    });
   }
 
   /**
    * Deletes the entire database, including its on-disk representation.
    */
   async dbDestroy(): Promise<void> {
-    const db = await this.getDb()
+    const db = await this.getDb();
     return new Promise((resolve) => {
       db.close(async () => {
         try {
-          debug('deleting the database file at %s', this.dbPath)
-          await fs.unlink(this.dbPath)
+          debug('deleting the database file at %s', this.dbPath);
+          await fs.unlink(this.dbPath);
         } catch (error) {
           debug(
             'failed to delete database file %s: %s',
             this.dbPath,
             error.message
-          )
+          );
         }
 
-        resolve()
-      })
-    })
+        resolve();
+      });
+    });
   }
 
   async dbConnect(): Promise<sqlite3.Database> {
-    debug('connecting to the database at %s', this.dbPath)
+    debug('connecting to the database at %s', this.dbPath);
     this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
       const db = new sqlite3.Database(this.dbPath, (err: unknown) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(db)
+          resolve(db);
         }
-      })
-    })
+      });
+    });
 
     // Enforce foreign key constraints. This is not in schema.sql because that
     // only runs on db creation.
-    await this.dbRunAsync('pragma foreign_keys = 1')
+    await this.dbRunAsync('pragma foreign_keys = 1');
 
-    return this.db
+    return this.db;
   }
 
   /**
    * Creates the database including its tables.
    */
   async dbCreate(): Promise<sqlite3.Database> {
-    debug('creating the database at %s', this.dbPath)
-    const db = await this.dbConnect()
-    await this.dbExecAsync(await fs.readFile(SchemaPath, 'utf-8'))
-    return db
+    debug('creating the database at %s', this.dbPath);
+    const db = await this.dbConnect();
+    await this.dbExecAsync(await fs.readFile(SchemaPath, 'utf-8'));
+    return db;
   }
 
   /**
    * Writes a copy of the database to the given path.
    */
   async backup(filepath: string): Promise<void> {
-    await this.dbRunAsync('vacuum into ?', filepath)
+    await this.dbRunAsync('vacuum into ?', filepath);
   }
 
   /**
@@ -310,10 +310,10 @@ export default class Store {
    */
   async reset(): Promise<void> {
     if (this.db) {
-      await this.dbDestroy()
+      await this.dbDestroy();
     }
 
-    await this.dbCreate()
+    await this.dbCreate();
   }
 
   /**
@@ -325,7 +325,7 @@ export default class Store {
       | undefined = await this.getConfig(
       ConfigKey.Election,
       ElectionDefinitionSchema
-    )
+    );
 
     if (electionDefinition) {
       return {
@@ -334,24 +334,24 @@ export default class Store {
           markThresholds: DefaultMarkThresholds,
           ...electionDefinition.election,
         },
-      }
+      };
     }
 
-    return undefined
+    return undefined;
   }
 
   /**
    * Sets the current election definition.
    */
   async setElection(electionDefinition?: ElectionDefinition): Promise<void> {
-    await this.setConfig(ConfigKey.Election, electionDefinition)
+    await this.setConfig(ConfigKey.Election, electionDefinition);
   }
 
   /**
    * Gets the current test mode setting value.
    */
   async getTestMode(): Promise<boolean> {
-    return await this.getConfig(ConfigKey.TestMode, false, z.boolean())
+    return await this.getConfig(ConfigKey.TestMode, false, z.boolean());
   }
 
   /**
@@ -362,14 +362,14 @@ export default class Store {
       ConfigKey.SkipElectionHashCheck,
       false,
       z.boolean()
-    )
+    );
   }
 
   /**
    * Sets the current test mode setting value.
    */
   async setTestMode(testMode: boolean): Promise<void> {
-    await this.setConfig(ConfigKey.TestMode, testMode)
+    await this.setConfig(ConfigKey.TestMode, testMode);
   }
 
   /**
@@ -378,7 +378,10 @@ export default class Store {
   async setSkipElectionHashCheck(
     skipElectionHashCheck: boolean
   ): Promise<void> {
-    await this.setConfig(ConfigKey.SkipElectionHashCheck, skipElectionHashCheck)
+    await this.setConfig(
+      ConfigKey.SkipElectionHashCheck,
+      skipElectionHashCheck
+    );
   }
 
   /**
@@ -389,22 +392,22 @@ export default class Store {
     return await this.getConfig(
       ConfigKey.MarkThresholdOverrides,
       MarkThresholdsSchema
-    )
+    );
   }
 
   async getCurrentMarkThresholds(): Promise<Optional<MarkThresholds>> {
     return (
       (await this.getMarkThresholdOverrides()) ??
       (await this.getElectionDefinition())?.election.markThresholds
-    )
+    );
   }
 
   async getBallotPaperSizeForElection(): Promise<BallotPaperSize> {
-    const electionDefinition = await this.getElectionDefinition()
+    const electionDefinition = await this.getElectionDefinition();
     return (
       electionDefinition?.election.ballotLayout?.paperSize ??
       BallotPaperSize.Letter
-    )
+    );
   }
 
   /**
@@ -415,7 +418,7 @@ export default class Store {
   async setMarkThresholdOverrides(
     markThresholds?: MarkThresholds
   ): Promise<void> {
-    await this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds)
+    await this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds);
   }
 
   /**
@@ -424,7 +427,7 @@ export default class Store {
    * default).
    */
   async getCurrentPrecinctId(): Promise<Optional<Precinct['id']>> {
-    return this.getConfig(ConfigKey.CurrentPrecinctId, z.string())
+    return this.getConfig(ConfigKey.CurrentPrecinctId, z.string());
   }
 
   /**
@@ -434,7 +437,7 @@ export default class Store {
   async setCurrentPrecinctId(
     currentPrecinctId?: Precinct['id']
   ): Promise<void> {
-    await this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId)
+    await this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId);
   }
 
   /**
@@ -443,68 +446,68 @@ export default class Store {
   private async getConfig<T>(
     key: ConfigKey,
     schema: z.ZodSchema<T>
-  ): Promise<T | undefined>
+  ): Promise<T | undefined>;
   private async getConfig<T>(
     key: ConfigKey,
     defaultValue: T,
     schema: z.ZodSchema<T>
-  ): Promise<T>
+  ): Promise<T>;
   private async getConfig<T>(
     key: ConfigKey,
     defaultValueOrSchema: z.ZodSchema<T> | T,
     maybeSchema?: z.ZodSchema<T>
   ): Promise<T | undefined> {
-    debug('get config %s', key)
+    debug('get config %s', key);
 
     const row = await this.dbGetAsync<{ value: string } | undefined, [string]>(
       'select value from configs where key = ?',
       key
-    )
+    );
 
-    let defaultValue: T | undefined
-    let schema: z.ZodSchema<T>
+    let defaultValue: T | undefined;
+    let schema: z.ZodSchema<T>;
 
     if (maybeSchema) {
-      defaultValue = defaultValueOrSchema as T
-      schema = maybeSchema
+      defaultValue = defaultValueOrSchema as T;
+      schema = maybeSchema;
     } else {
-      schema = defaultValueOrSchema as z.ZodSchema<T>
+      schema = defaultValueOrSchema as z.ZodSchema<T>;
     }
 
     if (typeof row === 'undefined') {
-      debug('returning default value for config %s: %o', key, defaultValue)
-      return defaultValue
+      debug('returning default value for config %s: %o', key, defaultValue);
+      return defaultValue;
     }
 
-    const result = safeParseJSON(row.value, schema)
+    const result = safeParseJSON(row.value, schema);
 
     if (result.isErr()) {
-      debug('failed to validate stored config %s: %s', key, result.err())
-      return undefined
+      debug('failed to validate stored config %s: %s', key, result.err());
+      return undefined;
     }
 
-    const value = result.ok()
-    let inspectedResult = inspect(value, false, 2, true)
+    const value = result.ok();
+    let inspectedResult = inspect(value, false, 2, true);
     if (inspectedResult.length > 200) {
-      inspectedResult = `${inspectedResult.slice(0, 199)}…`
+      inspectedResult = `${inspectedResult.slice(0, 199)}…`;
     }
-    debug('returning stored value for config %s: %s', key, inspectedResult)
-    return value
+    debug('returning stored value for config %s: %s', key, inspectedResult);
+    return value;
   }
 
   /**
    * Sets the current election definition.
    */
   private async setConfig<T>(key: ConfigKey, value?: T): Promise<void> {
-    debug('set config %s=%O', key, value)
+    debug('set config %s=%O', key, value);
     if (typeof value === 'undefined') {
-      await this.dbRunAsync('delete from configs where key = ?', key)
+      await this.dbRunAsync('delete from configs where key = ?', key);
     } else {
       await this.dbRunAsync(
         'insert or replace into configs (key, value) values (?, ?)',
         key,
         JSON.stringify(value)
-      )
+      );
     }
   }
 
@@ -512,13 +515,13 @@ export default class Store {
    * Adds a batch and returns its id.
    */
   async addBatch(): Promise<string> {
-    const id = uuid()
-    await this.dbRunAsync('insert into batches (id) values (?)', id)
+    const id = uuid();
+    await this.dbRunAsync('insert into batches (id) values (?)', id);
     await this.dbRunAsync(
       'update batches set label= "Batch " || batch_number WHERE id = ?',
       id
-    )
-    return id
+    );
+    return id;
   }
 
   /**
@@ -528,24 +531,24 @@ export default class Store {
     batchId,
     error,
   }: {
-    batchId: string
-    error?: string
+    batchId: string;
+    error?: string;
   }): Promise<void> {
     await this.dbRunAsync(
       'update batches set ended_at = current_timestamp, error = ? where id = ?',
       error,
       batchId
-    )
+    );
   }
 
   async addBallotCard(batchId: string): Promise<string> {
-    const id = uuid()
+    const id = uuid();
     await this.dbRunAsync(
       'insert into ballot_cards (id, batch_id) values (?, ?)',
       id,
       batchId
-    )
-    return id
+    );
+    return id;
   }
 
   /**
@@ -561,12 +564,12 @@ export default class Store {
         front.interpretation.type === 'InterpretedHmpbPage' &&
         !front.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
-          : undefined
+          : undefined;
       const backFinishedAdjudicationAt =
         back.interpretation.type === 'InterpretedHmpbPage' &&
         !back.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
-          : undefined
+          : undefined;
       await this.dbRunAsync(
         `insert into sheets (
             id,
@@ -594,27 +597,27 @@ export default class Store {
         sheetRequiresAdjudication([front.interpretation, back.interpretation]),
         frontFinishedAdjudicationAt,
         backFinishedAdjudicationAt
-      )
+      );
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
         front.originalFilename,
         back.originalFilename
-      )
+      );
 
       const row = await this.dbGetAsync<{ id: string } | undefined, [string]>(
         'select id from sheets where front_original_filename = ?',
         front.originalFilename
-      )
+      );
 
       if (row) {
-        return row.id
+        return row.id;
       }
 
-      throw error
+      throw error;
     }
 
-    return sheetId
+    return sheetId;
   }
 
   /**
@@ -624,11 +627,11 @@ export default class Store {
     await this.dbRunAsync(
       'update sheets set deleted_at = current_timestamp where id = ?',
       sheetId
-    )
+    );
   }
 
   async zero(): Promise<void> {
-    await this.dbRunAsync('delete from batches')
+    await this.dbRunAsync('delete from batches');
   }
 
   async getBallotFilenames(
@@ -649,26 +652,26 @@ export default class Store {
         id = ?
     `,
       ballotId
-    )
+    );
 
     if (!row) {
-      return
+      return;
     }
 
     return {
       original: normalizeAndJoin(dirname(this.dbPath), row.original),
       normalized: normalizeAndJoin(dirname(this.dbPath), row.normalized),
-    }
+    };
   }
 
   async getNextAdjudicationSheet(): Promise<BallotSheetInfo | undefined> {
     const row = await this.dbGetAsync<
       | {
-          id: string
-          frontInterpretationJSON: string
-          backInterpretationJSON: string
-          frontFinishedAdjudicationAt?: string
-          backFinishedAdjudicationAt?: string
+          id: string;
+          frontInterpretationJSON: string;
+          backInterpretationJSON: string;
+          frontFinishedAdjudicationAt?: string;
+          backFinishedAdjudicationAt?: string;
         }
       | undefined
     >(
@@ -687,12 +690,12 @@ export default class Store {
       order by created_at asc
       limit 1
       `
-    )
+    );
 
     // TODO: these URLs and others in this file probably don't belong
     //       in this file, which shouldn't deal with the URL API.
     if (row) {
-      debug('got next review sheet requiring adjudication (id=%s)', row.id)
+      debug('got next review sheet requiring adjudication (id=%s)', row.id);
       return {
         id: row.id,
         front: {
@@ -709,15 +712,15 @@ export default class Store {
           interpretation: JSON.parse(row.backInterpretationJSON),
           adjudicationFinishedAt: row.backFinishedAdjudicationAt,
         },
-      }
+      };
     }
-    debug('no review sheets requiring adjudication')
+    debug('no review sheets requiring adjudication');
   }
 
   async *getSheets(): AsyncGenerator<{
-    id: string
-    front: { original: string; normalized: string }
-    back: { original: string; normalized: string }
+    id: string;
+    front: { original: string; normalized: string };
+    back: { original: string; normalized: string };
   }> {
     for (const {
       id,
@@ -726,11 +729,11 @@ export default class Store {
       backOriginalFilename,
       backNormalizedFilename,
     } of await this.dbAllAsync<{
-      id: string
-      frontOriginalFilename: string
-      frontNormalizedFilename: string
-      backOriginalFilename: string
-      backNormalizedFilename: string
+      id: string;
+      frontOriginalFilename: string;
+      frontNormalizedFilename: string;
+      backOriginalFilename: string;
+      backNormalizedFilename: string;
     }>(`
       select
         id,
@@ -751,7 +754,7 @@ export default class Store {
           original: backOriginalFilename,
           normalized: backNormalizedFilename,
         },
-      }
+      };
     }
   }
 
@@ -765,7 +768,7 @@ export default class Store {
       side,
       sheetId,
       adjudications
-    )
+    );
 
     await this.dbRunAsync(
       `
@@ -779,9 +782,9 @@ export default class Store {
       JSON.stringify(adjudications, undefined, 2),
       new Date().toISOString(),
       sheetId
-    )
+    );
 
-    return true
+    return true;
   }
 
   /**
@@ -791,9 +794,9 @@ export default class Store {
     const { count }: { count: number } = await this.dbGetAsync(
       'select count(*) as count from batches where id = ?',
       batchId
-    )
-    await this.dbRunAsync('delete from batches where id = ?', batchId)
-    return count > 0
+    );
+    await this.dbRunAsync('delete from batches where id = ?', batchId);
+    return count > 0;
   }
 
   /**
@@ -801,7 +804,7 @@ export default class Store {
    */
   async cleanupIncompleteBatches(): Promise<void> {
     // cascades to the sheets
-    await this.dbRunAsync('delete from batches where ended_at is null')
+    await this.dbRunAsync('delete from batches where ended_at is null');
   }
 
   /**
@@ -809,12 +812,12 @@ export default class Store {
    */
   async batchStatus(): Promise<BatchInfo[]> {
     interface SqliteBatchInfo {
-      id: string
-      label: string
-      startedAt: string
-      endedAt: string | null
-      error: string | null
-      count: number
+      id: string;
+      label: string;
+      startedAt: string;
+      endedAt: string | null;
+      error: string | null;
+      count: number;
     }
     const batchInfo = await this.dbAllAsync<SqliteBatchInfo>(`
       select
@@ -837,7 +840,7 @@ export default class Store {
         error
       order by
         batches.started_at desc
-    `)
+    `);
     return batchInfo.map((info) => ({
       id: info.id,
       label: info.label,
@@ -847,7 +850,7 @@ export default class Store {
         undefined,
       error: info.error || undefined,
       count: info.count,
-    }))
+    }));
   }
 
   /**
@@ -870,18 +873,18 @@ export default class Store {
           requires_adjudication = 1
           and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
       `),
-    ])
-    return { adjudicated, remaining }
+    ]);
+    return { adjudicated, remaining };
   }
 
   /**
    * Exports all CVR JSON data to a stream.
    */
   async exportCVRs(writeStream: Writable): Promise<void> {
-    const electionDefinition = await this.getElectionDefinition()
+    const electionDefinition = await this.getElectionDefinition();
 
     if (!electionDefinition) {
-      throw new Error('no election configured')
+      throw new Error('no election configured');
     }
 
     const sql = `
@@ -899,7 +902,7 @@ export default class Store {
         (requires_adjudication = 0 or
         (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
         and deleted_at is null
-    `
+    `;
     for (const {
       id,
       batchId,
@@ -909,26 +912,26 @@ export default class Store {
       frontAdjudicationJSON,
       backAdjudicationJSON,
     } of await this.dbAllAsync<{
-      id: string
-      batchId: string
-      batchLabel?: string
-      frontInterpretationJSON: string
-      backInterpretationJSON: string
-      frontAdjudicationJSON?: string
-      backAdjudicationJSON?: string
+      id: string;
+      batchId: string;
+      batchLabel?: string;
+      frontInterpretationJSON: string;
+      backInterpretationJSON: string;
+      frontAdjudicationJSON?: string;
+      backAdjudicationJSON?: string;
     }>(sql)) {
       const frontInterpretation: PageInterpretation = JSON.parse(
         frontInterpretationJSON
-      )
+      );
       const backInterpretation: PageInterpretation = JSON.parse(
         backInterpretationJSON
-      )
+      );
       const frontAdjudications = frontAdjudicationJSON
         ? safeParseJSON(frontAdjudicationJSON, MarkAdjudicationsSchema).ok()
-        : undefined
+        : undefined;
       const backAdjudications = backAdjudicationJSON
         ? safeParseJSON(backAdjudicationJSON, MarkAdjudicationsSchema).ok()
-        : undefined
+        : undefined;
       const cvr = buildCastVoteRecord(
         id,
         batchId,
@@ -963,11 +966,11 @@ export default class Store {
             markAdjudications: backAdjudications,
           },
         ]
-      )
+      );
 
       if (cvr) {
-        writeStream.write(JSON.stringify(cvr))
-        writeStream.write('\n')
+        writeStream.write(JSON.stringify(cvr));
+        writeStream.write('\n');
       }
     }
   }
@@ -977,7 +980,7 @@ export default class Store {
     metadata: BallotMetadata,
     layouts: readonly SerializableBallotPageLayout[]
   ): Promise<string> {
-    debug('storing HMPB template: %O', metadata)
+    debug('storing HMPB template: %O', metadata);
 
     await this.dbRunAsync(
       `
@@ -993,9 +996,9 @@ export default class Store {
       metadata.ballotStyleId,
       metadata.precinctId,
       metadata.isTestMode
-    )
+    );
 
-    const id = uuid()
+    const id = uuid();
     await this.dbRunAsync(
       `
       insert into hmpb_templates (
@@ -1011,8 +1014,8 @@ export default class Store {
       pdf,
       JSON.stringify(metadata),
       JSON.stringify(layouts)
-    )
-    return id
+    );
+    return id;
   }
 
   async getHmpbTemplates(): Promise<
@@ -1031,13 +1034,13 @@ export default class Store {
         from hmpb_templates
         order by created_at asc
       `
-    )
-    const results: [Buffer, SerializableBallotPageLayout[]][] = []
+    );
+    const results: [Buffer, SerializableBallotPageLayout[]][] = [];
 
     for (const { id, pdf, metadataJSON, layoutsJSON } of rows) {
-      const metadata: BallotMetadata = JSON.parse(metadataJSON)
-      debug('loading stored HMPB template id=%s: %O', id, metadata)
-      const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJSON)
+      const metadata: BallotMetadata = JSON.parse(metadataJSON);
+      debug('loading stored HMPB template id=%s: %O', id, metadata);
+      const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJSON);
       results.push([
         pdf,
         layouts.map((layout, i) => ({
@@ -1050,18 +1053,18 @@ export default class Store {
             },
           },
         })),
-      ])
+      ]);
     }
 
-    return results
+    return results;
   }
 
   async getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
   ): Promise<SerializableBallotPageLayout[]> {
     const rows = await this.dbAllAsync<{
-      layoutsJSON: string
-      metadataJSON: string
+      layoutsJSON: string;
+      metadataJSON: string;
     }>(
       `
         select
@@ -1069,7 +1072,7 @@ export default class Store {
           metadata_json as metadataJSON
         from hmpb_templates
       `
-    )
+    );
 
     for (const row of rows) {
       const {
@@ -1077,7 +1080,7 @@ export default class Store {
         ballotStyleId,
         precinctId,
         isTestMode,
-      }: BallotMetadata = JSON.parse(row.metadataJSON)
+      }: BallotMetadata = JSON.parse(row.metadataJSON);
 
       if (
         metadata.locales.primary === locales.primary &&
@@ -1086,49 +1089,49 @@ export default class Store {
         metadata.precinctId === precinctId &&
         metadata.isTestMode === isTestMode
       ) {
-        return JSON.parse(row.layoutsJSON)
+        return JSON.parse(row.layoutsJSON);
       }
     }
 
     throw new Error(
       `no ballot layouts found matching metadata: ${inspect(metadata)}`
-    )
+    );
   }
 
   async getContestIdsForMetadata(
     metadata: BallotPageMetadata
   ): Promise<AnyContest['id'][]> {
-    const electionDefinition = await this.getElectionDefinition()
+    const electionDefinition = await this.getElectionDefinition();
 
     if (!electionDefinition) {
-      throw new Error('no election configured')
+      throw new Error('no election configured');
     }
 
-    const layouts = await this.getBallotLayoutsForMetadata(metadata)
-    let contestOffset = 0
+    const layouts = await this.getBallotLayoutsForMetadata(metadata);
+    let contestOffset = 0;
 
     for (const layout of layouts) {
       if (layout.ballotImage.metadata.pageNumber === metadata.pageNumber) {
         const ballotStyle = getBallotStyle({
           election: electionDefinition.election,
           ballotStyleId: metadata.ballotStyleId,
-        })
-        assert(ballotStyle)
+        });
+        assert(ballotStyle);
         const contests = getContests({
           election: electionDefinition.election,
           ballotStyle,
-        })
+        });
 
         return contests
           .slice(contestOffset, contestOffset + layout.contests.length)
-          .map(({ id }) => id)
+          .map(({ id }) => id);
       }
 
-      contestOffset += layout.contests.length
+      contestOffset += layout.contests.length;
     }
 
     throw new Error(
       `unable to find page with pageNumber=${metadata.pageNumber}`
-    )
+    );
   }
 }

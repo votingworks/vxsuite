@@ -1,4 +1,4 @@
-import { Ora } from 'ora'
+import { Ora } from 'ora';
 
 export default function ora(): Ora {
   return {
@@ -18,5 +18,5 @@ export default function ora(): Ora {
     succeed: jest.fn().mockReturnThis(),
     text: '',
     warn: jest.fn().mockReturnThis(),
-  }
+  };
 }

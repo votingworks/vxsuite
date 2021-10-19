@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 
-import { Main, MainChild } from '@votingworks/ui'
+import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
 
 interface Props {
-  useEffectToggleLargeDisplay: () => void
+  useEffectToggleLargeDisplay: () => void;
 }
 
 const SetupPrinterPage = ({
   useEffectToggleLargeDisplay,
 }: Props): JSX.Element => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, [])
+  useEffect(useEffectToggleLargeDisplay, []);
 
   return (
     <Screen white>
@@ -26,7 +26,7 @@ const SetupPrinterPage = ({
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default SetupPrinterPage
+export default SetupPrinterPage;

@@ -8,13 +8,13 @@ export default async function fetchJSON<T>(
       Accept: 'application/json',
       ...(init?.headers ?? {}),
     },
-  })
+  });
 
   if (!response.ok) {
-    throw new Error('fetch response is not ok')
+    throw new Error('fetch response is not ok');
   }
 
-  const json: T = await response.json()
+  const json: T = await response.json();
 
-  return json
+  return json;
 }

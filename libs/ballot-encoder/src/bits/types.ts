@@ -1,5 +1,5 @@
-export type Uint8Index = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
-export type Uint1 = 0 | 1
+export type Uint8Index = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type Uint1 = 0 | 1;
 export type Uint8 =
   | 0
   | 1
@@ -256,6 +256,6 @@ export type Uint8 =
   | 252
   | 253
   | 254
-  | 255
+  | 255;
 
-export const Uint8Size = 8
+export const Uint8Size = 8;

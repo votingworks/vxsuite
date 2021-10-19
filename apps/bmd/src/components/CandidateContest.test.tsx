@@ -1,20 +1,20 @@
-import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import {
   CandidateContest as CandidateContestInterface,
   Parties,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import { act } from 'react-dom/test-utils'
-import CandidateContest from './CandidateContest'
+import { act } from 'react-dom/test-utils';
+import CandidateContest from './CandidateContest';
 
 const parties: Parties = [0, 1].map((i) => ({
   abbrev: `${i}`,
   id: `party-${i}`,
   name: `Party ${i}`,
   fullName: `Party ${i}`,
-}))
+}));
 
 const contest: CandidateContestInterface = {
   allowWriteIns: false,
@@ -29,16 +29,16 @@ const contest: CandidateContestInterface = {
   section: 'City',
   title: 'Mayor',
   type: 'candidate',
-}
-const candidate0 = contest.candidates[0]
-const candidate1 = contest.candidates[1]
-const candidate2 = contest.candidates[2]
+};
+const candidate0 = contest.candidates[0];
+const candidate1 = contest.candidates[1];
+const candidate2 = contest.candidates[2];
 
 describe('supports single-seat contest', () => {
   it('allows any candidate to be selected when no candidate is selected', () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers();
 
-    const updateVote = jest.fn()
+    const updateVote = jest.fn();
     const { container } = render(
       <CandidateContest
         contest={contest}
@@ -46,27 +46,27 @@ describe('supports single-seat contest', () => {
         vote={[]}
         updateVote={updateVote}
       />
-    )
-    expect(container).toMatchSnapshot()
+    );
+    expect(container).toMatchSnapshot();
 
-    fireEvent.click(screen.getByText(candidate0.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByText(candidate0.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByText(candidate1.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalledTimes(2)
+    fireEvent.click(screen.getByText(candidate1.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledTimes(2);
 
-    fireEvent.click(screen.getByText(candidate2.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalledTimes(3)
+    fireEvent.click(screen.getByText(candidate2.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledTimes(3);
 
     act(() => {
-      jest.runOnlyPendingTimers()
-    })
-  })
+      jest.runOnlyPendingTimers();
+    });
+  });
 
   it("doesn't allow other candidates to be selected when a candidate is selected", async () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers();
 
-    const updateVote = jest.fn()
+    const updateVote = jest.fn();
     const { container } = render(
       <CandidateContest
         contest={contest}
@@ -74,31 +74,31 @@ describe('supports single-seat contest', () => {
         vote={[candidate0]}
         updateVote={updateVote}
       />
-    )
-    expect(container).toMatchSnapshot()
+    );
+    expect(container).toMatchSnapshot();
 
     expect(
       screen.getByText(candidate0.name).closest('button')!.dataset.selected
-    ).toBe('true')
+    ).toBe('true');
 
-    fireEvent.click(screen.getByText(candidate1.name).closest('button')!)
-    expect(updateVote).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByText(candidate1.name).closest('button')!);
+    expect(updateVote).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(candidate2.name).closest('button')!)
-    expect(updateVote).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByText(candidate2.name).closest('button')!);
+    expect(updateVote).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(candidate0.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalled()
+    fireEvent.click(screen.getByText(candidate0.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalled();
 
     act(() => {
-      jest.runOnlyPendingTimers()
-    })
-  })
-})
+      jest.runOnlyPendingTimers();
+    });
+  });
+});
 
 describe('supports multi-seat contests', () => {
   it('allows a second candidate to be selected when one is selected', () => {
-    const updateVote = jest.fn()
+    const updateVote = jest.fn();
     const { container } = render(
       <CandidateContest
         contest={{ ...contest, seats: 2 }}
@@ -106,46 +106,46 @@ describe('supports multi-seat contests', () => {
         vote={[candidate0]}
         updateVote={updateVote}
       />
-    )
-    expect(container).toMatchSnapshot()
+    );
+    expect(container).toMatchSnapshot();
 
     expect(
       screen.getByText(candidate0.name).closest('button')!.dataset.selected
-    ).toBe('true')
+    ).toBe('true');
     expect(
       screen.getByText(candidate1.name).closest('button')!.dataset.selected
-    ).toBe('false')
+    ).toBe('false');
     expect(
       screen.getByText(candidate2.name).closest('button')!.dataset.selected
-    ).toBe('false')
+    ).toBe('false');
 
-    fireEvent.click(screen.getByText(candidate1.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByText(candidate1.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByText(candidate2.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalledTimes(2)
+    fireEvent.click(screen.getByText(candidate2.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledTimes(2);
 
-    fireEvent.click(screen.getByText(candidate0.name).closest('button')!)
-    expect(updateVote).toHaveBeenCalledTimes(3)
+    fireEvent.click(screen.getByText(candidate0.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledTimes(3);
 
     act(() => {
-      jest.runOnlyPendingTimers()
-    })
-  })
-})
+      jest.runOnlyPendingTimers();
+    });
+  });
+});
 
 describe('supports write-in candidates', () => {
   function typeKeysInVirtualKeyboard(chars: string): void {
     for (const i of chars) {
-      const key = i === ' ' ? 'space' : i
-      fireEvent.click(screen.getByText(key).closest('button')!)
+      const key = i === ' ' ? 'space' : i;
+      fireEvent.click(screen.getByText(key).closest('button')!);
     }
   }
 
   it('updates votes when a write-in candidate is selected', () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers();
 
-    const updateVote = jest.fn()
+    const updateVote = jest.fn();
     render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
@@ -153,28 +153,28 @@ describe('supports write-in candidates', () => {
         vote={[]}
         updateVote={updateVote}
       />
-    )
+    );
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
-    )
-    screen.getByText('Write-In Candidate')
-    typeKeysInVirtualKeyboard('LIZARD PEOPLE')
-    fireEvent.click(screen.getByText('Accept'))
-    expect(screen.queryByText('Write-In Candidate')).toBeFalsy()
+    );
+    screen.getByText('Write-In Candidate');
+    typeKeysInVirtualKeyboard('LIZARD PEOPLE');
+    fireEvent.click(screen.getByText('Accept'));
+    expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
       { id: 'write-in__lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
-    ])
+    ]);
 
     act(() => {
-      jest.runOnlyPendingTimers()
-    })
-  })
+      jest.runOnlyPendingTimers();
+    });
+  });
 
   it('displays warning if write-in candidate name is too long', () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers();
 
-    const updateVote = jest.fn()
+    const updateVote = jest.fn();
     render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
@@ -182,25 +182,25 @@ describe('supports write-in candidates', () => {
         vote={[]}
         updateVote={updateVote}
       />
-    )
+    );
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
-    )
-    screen.getByText('Write-In Candidate')
-    typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT')
-    screen.getByText('You have entered 37 of maximum 40 characters.')
-    fireEvent.click(screen.getByText('Cancel'))
-    expect(screen.queryByText('Write-In Candidate')).toBeFalsy()
+    );
+    screen.getByText('Write-In Candidate');
+    typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
+    screen.getByText('You have entered 37 of maximum 40 characters.');
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 
     act(() => {
-      jest.runOnlyPendingTimers()
-    })
-  })
+      jest.runOnlyPendingTimers();
+    });
+  });
 
   it('prevents writing more than the allowed number of characters', () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers();
 
-    const updateVote = jest.fn()
+    const updateVote = jest.fn();
     render(
       <CandidateContest
         contest={{ ...contest, allowWriteIns: true }}
@@ -208,21 +208,21 @@ describe('supports write-in candidates', () => {
         vote={[]}
         updateVote={updateVote}
       />
-    )
+    );
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
-    )
-    screen.getByText('Write-In Candidate')
+    );
+    screen.getByText('Write-In Candidate');
     const writeInCandidate =
-      "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO"
-    typeKeysInVirtualKeyboard(writeInCandidate)
-    screen.getByText('You have entered 40 of maximum 40 characters.')
+      "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
+    typeKeysInVirtualKeyboard(writeInCandidate);
+    screen.getByText('You have entered 40 of maximum 40 characters.');
 
     expect(
       screen.getByText('space').closest('button')!.hasAttribute('disabled')
-    ).toBe(true)
-    fireEvent.click(screen.getByText('Accept'))
-    expect(screen.queryByText('Write-In Candidate')).toBeFalsy()
+    ).toBe(true);
+    fireEvent.click(screen.getByText('Accept'));
+    expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 
     expect(updateVote).toHaveBeenCalledWith(contest.id, [
       {
@@ -230,10 +230,10 @@ describe('supports write-in candidates', () => {
         isWriteIn: true,
         name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
       },
-    ])
+    ]);
 
     act(() => {
-      jest.runOnlyPendingTimers()
-    })
-  })
-})
+      jest.runOnlyPendingTimers();
+    });
+  });
+});

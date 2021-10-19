@@ -1,34 +1,38 @@
-import { ElectionDefinition, Optional } from '@votingworks/types'
-import { Button, Main, MainChild, useCancelablePromise } from '@votingworks/ui'
-import { formatLongDate } from '@votingworks/utils'
-import { DateTime } from 'luxon'
-import pluralize from 'pluralize'
-import React, { useEffect, useState } from 'react'
-import ElectionInfo from '../components/ElectionInfo'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import Sidebar from '../components/Sidebar'
-import Text from '../components/Text'
-import VersionsData from '../components/VersionsData'
-import { MachineConfig, PrecinctSelection, ScreenReader } from '../config/types'
+import { ElectionDefinition, Optional } from '@votingworks/types';
+import { Button, Main, MainChild, useCancelablePromise } from '@votingworks/ui';
+import { formatLongDate } from '@votingworks/utils';
+import { DateTime } from 'luxon';
+import pluralize from 'pluralize';
+import React, { useEffect, useState } from 'react';
+import ElectionInfo from '../components/ElectionInfo';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import Sidebar from '../components/Sidebar';
+import Text from '../components/Text';
+import VersionsData from '../components/VersionsData';
+import {
+  MachineConfig,
+  PrecinctSelection,
+  ScreenReader,
+} from '../config/types';
 
 interface Props {
-  appPrecinct?: PrecinctSelection
-  ballotsPrintedCount: number
-  electionDefinition: ElectionDefinition
-  getElectionDefinitionFromCard(): Promise<Optional<ElectionDefinition>>
-  machineConfig: MachineConfig
-  screenReader: ScreenReader
-  unconfigure(): Promise<void>
+  appPrecinct?: PrecinctSelection;
+  ballotsPrintedCount: number;
+  electionDefinition: ElectionDefinition;
+  getElectionDefinitionFromCard(): Promise<Optional<ElectionDefinition>>;
+  machineConfig: MachineConfig;
+  screenReader: ScreenReader;
+  unconfigure(): Promise<void>;
 }
 
 const BriefElectionDefinitionInfo = ({
   electionDefinition,
 }: {
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition;
 }) => {
-  const { election, electionHash } = electionDefinition
-  const displayElectionHash = electionHash.slice(0, 10)
+  const { election, electionHash } = electionDefinition;
+  const displayElectionHash = electionHash.slice(0, 10);
   return (
     <ul>
       <li>
@@ -44,8 +48,8 @@ const BriefElectionDefinitionInfo = ({
         <strong>Election ID:</strong> {displayElectionHash}
       </li>
     </ul>
-  )
-}
+  );
+};
 
 const ReplaceElectionScreen = ({
   appPrecinct,
@@ -56,25 +60,25 @@ const ReplaceElectionScreen = ({
   screenReader,
   unconfigure,
 }: Props): JSX.Element => {
-  const makeCancelable = useCancelablePromise()
+  const makeCancelable = useCancelablePromise();
   const [
     cardElectionDefinition,
     setCardElectionDefinition,
-  ] = useState<ElectionDefinition>()
+  ] = useState<ElectionDefinition>();
 
   useEffect(() => {
     void (async () => {
       setCardElectionDefinition(
         await makeCancelable(getElectionDefinitionFromCard())
-      )
-    })()
-  }, [getElectionDefinitionFromCard, makeCancelable])
+      );
+    })();
+  }, [getElectionDefinitionFromCard, makeCancelable]);
 
   useEffect(() => {
-    const muted = screenReader.isMuted()
-    screenReader.mute()
-    return () => screenReader.toggleMuted(muted)
-  }, [screenReader])
+    const muted = screenReader.isMuted();
+    screenReader.mute();
+    return () => screenReader.toggleMuted(muted);
+  }, [screenReader]);
 
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
@@ -145,7 +149,7 @@ const ReplaceElectionScreen = ({
         </Prose>
       </Sidebar>
     </Screen>
-  )
-}
+  );
+};
 
-export default ReplaceElectionScreen
+export default ReplaceElectionScreen;

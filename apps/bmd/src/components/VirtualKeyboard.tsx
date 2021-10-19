@@ -1,9 +1,9 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { Button } from '@votingworks/ui'
+import { Button } from '@votingworks/ui';
 
-import { EventTargetFunction } from '../config/types'
+import { EventTargetFunction } from '../config/types';
 
 const Keyboard = styled.div`
   & div {
@@ -44,21 +44,21 @@ const Keyboard = styled.div`
       color: #999999;
     }
   }
-`
+`;
 
 interface Props {
-  onKeyPress: EventTargetFunction
-  keyDisabled?(key: string): boolean
-  keyMap?: KeyMap
+  onKeyPress: EventTargetFunction;
+  keyDisabled?(key: string): boolean;
+  keyMap?: KeyMap;
 }
 
 interface Key {
-  label: string
-  ariaLabel?: string
+  label: string;
+  ariaLabel?: string;
 }
 
 interface KeyMap {
-  rows: Key[][]
+  rows: Key[][];
 }
 
 const US_ENGLISH_KEYMAP: KeyMap = {
@@ -102,7 +102,7 @@ const US_ENGLISH_KEYMAP: KeyMap = {
     ],
     [{ label: 'space' }, { label: '⌫ delete', ariaLabel: 'delete' }],
   ],
-}
+};
 
 const VirtualKeyboard = ({
   onKeyPress,
@@ -125,9 +125,9 @@ const VirtualKeyboard = ({
             </Button>
           ))}
         </div>
-      )
+      );
     })}
   </Keyboard>
-)
+);
 
-export default VirtualKeyboard
+export default VirtualKeyboard;

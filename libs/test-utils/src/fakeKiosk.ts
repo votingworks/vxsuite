@@ -1,4 +1,4 @@
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject } from 'rxjs';
 
 export function fakeDevice(
   props: Partial<KioskBrowser.Device> = {}
@@ -12,7 +12,7 @@ export function fakeDevice(
     serialNumber: '12345',
     vendorId: 0,
     ...props,
-  }
+  };
 }
 
 export function fakeUsbDrive(
@@ -22,7 +22,7 @@ export function fakeUsbDrive(
     deviceName: 'fake device',
     mountPoint: 'fake mount point',
     ...props,
-  }
+  };
 }
 
 export function fakePrinterInfo(
@@ -35,7 +35,7 @@ export function fakePrinterInfo(
     name: 'Fake Printer',
     status: 3, // idle
     ...props,
-  }
+  };
 }
 
 /**
@@ -45,11 +45,11 @@ export function fakeKiosk({
   battery: { level = 1, discharging = false } = {},
   printers = [{}],
 }: {
-  battery?: Partial<KioskBrowser.BatteryInfo>
-  printers?: Partial<KioskBrowser.PrinterInfo>[]
+  battery?: Partial<KioskBrowser.BatteryInfo>;
+  printers?: Partial<KioskBrowser.PrinterInfo>[];
 } = {}): jest.Mocked<KioskBrowser.Kiosk> & {
-  devices: BehaviorSubject<Set<KioskBrowser.Device>>
-  printers: BehaviorSubject<Set<KioskBrowser.PrinterInfo>>
+  devices: BehaviorSubject<Set<KioskBrowser.Device>>;
+  printers: BehaviorSubject<Set<KioskBrowser.PrinterInfo>>;
 } {
   return {
     print: jest.fn().mockResolvedValue(undefined),
@@ -78,5 +78,5 @@ export function fakeKiosk({
       get: jest.fn(),
     },
     sign: jest.fn(),
-  }
+  };
 }

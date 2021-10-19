@@ -1,34 +1,34 @@
-import React, { useState } from 'react'
-import pluralize from 'pluralize'
+import React, { useState } from 'react';
+import pluralize from 'pluralize';
 
-import { VotesDict, Election, ElectionDefinition } from '@votingworks/types'
-import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui'
-import { find, throwIllegalValue, Printer } from '@votingworks/utils'
+import { VotesDict, Election, ElectionDefinition } from '@votingworks/types';
+import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui';
+import { find, throwIllegalValue, Printer } from '@votingworks/utils';
 
 import {
   EventTargetFunction,
   MachineConfig,
   PrecinctSelection,
-} from '../config/types'
+} from '../config/types';
 
-import ElectionInfo from '../components/ElectionInfo'
-import PrintedBallot from '../components/PrintedBallot'
-import Prose from '../components/Prose'
-import Sidebar from '../components/Sidebar'
-import Screen from '../components/Screen'
-import Modal from '../components/Modal'
-import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals'
+import ElectionInfo from '../components/ElectionInfo';
+import PrintedBallot from '../components/PrintedBallot';
+import Prose from '../components/Prose';
+import Sidebar from '../components/Sidebar';
+import Screen from '../components/Screen';
+import Modal from '../components/Modal';
+import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 interface Ballot {
-  ballotId?: string
-  precinctId: string
-  ballotStyleId: string
-  votes: VotesDict
+  ballotId?: string;
+  precinctId: string;
+  ballotStyleId: string;
+  votes: VotesDict;
 }
 
 interface GenerateTestDeckParams {
-  election: Election
-  precinctId?: string
+  election: Election;
+  precinctId?: string;
 }
 
 const generateTestDeckBallots = ({
@@ -37,22 +37,22 @@ const generateTestDeckBallots = ({
 }: GenerateTestDeckParams) => {
   const precincts: string[] = precinctId
     ? [precinctId]
-    : election.precincts.map((p) => p.id)
+    : election.precincts.map((p) => p.id);
 
-  const ballots: Ballot[] = []
+  const ballots: Ballot[] = [];
 
   for (const pId of precincts) {
-    const precinct = find(election.precincts, (p) => p.id === pId)
+    const precinct = find(election.precincts, (p) => p.id === pId);
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)
-    )
+    );
 
     for (const ballotStyle of precinctBallotStyles) {
       const contests = election.contests.filter(
         (c) =>
           ballotStyle.districts.includes(c.districtId) &&
           ballotStyle.partyId === c.partyId
-      )
+      );
 
       const numBallots = Math.max(
         ...contests.map((c) => {
@@ -63,57 +63,57 @@ const generateTestDeckBallots = ({
             : c.type === 'ms-either-neither'
             ? 2
             : /* istanbul ignore next - compile time check for completeness */
-              throwIllegalValue(c)
+              throwIllegalValue(c);
         })
-      )
+      );
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
-        const votes: VotesDict = {}
+        const votes: VotesDict = {};
         for (const contest of contests) {
           /* istanbul ignore else */
           if (contest.type === 'yesno') {
-            votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no']
+            votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no'];
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
           ) {
             votes[contest.id] = [
               contest.candidates[ballotNum % contest.candidates.length],
-            ]
+            ];
           } else if (contest.type === 'ms-either-neither') {
             votes[contest.eitherNeitherContestId] =
-              ballotNum % 2 === 0 ? ['yes'] : ['no']
+              ballotNum % 2 === 0 ? ['yes'] : ['no'];
             votes[contest.pickOneContestId] =
-              votes[contest.eitherNeitherContestId]
+              votes[contest.eitherNeitherContestId];
           }
         }
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: pId,
           votes,
-        })
+        });
       }
     }
   }
 
-  return ballots
-}
+  return ballots;
+};
 
 interface Precinct {
-  name: string
-  id: string
+  name: string;
+  id: string;
 }
 
 interface Props {
-  appPrecinct?: PrecinctSelection
-  electionDefinition: ElectionDefinition
-  hideTestDeck: () => void
-  isLiveMode: boolean
-  machineConfig: MachineConfig
-  printer: Printer
+  appPrecinct?: PrecinctSelection;
+  electionDefinition: ElectionDefinition;
+  hideTestDeck: () => void;
+  isLiveMode: boolean;
+  machineConfig: MachineConfig;
+  printer: Printer;
 }
 
-const initialPrecinct: Precinct = { id: '', name: '' }
+const initialPrecinct: Precinct = { id: '', name: '' };
 
 const TestBallotDeckScreen = ({
   appPrecinct,
@@ -123,43 +123,43 @@ const TestBallotDeckScreen = ({
   machineConfig,
   printer,
 }: Props): JSX.Element => {
-  const { election } = electionDefinition
-  const [ballots, setBallots] = useState<Ballot[]>([])
-  const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct)
-  const [showPrinterNotConnected, setShowPrinterNotConnected] = useState(false)
-  const [isPrinting, setIsPrinting] = useState(false)
+  const { election } = electionDefinition;
+  const [ballots, setBallots] = useState<Ballot[]>([]);
+  const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct);
+  const [showPrinterNotConnected, setShowPrinterNotConnected] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const selectPrecinct: EventTargetFunction = (event) => {
-    const { id = '', name = '' } = (event.target as HTMLElement).dataset
-    setPrecinct({ name, id })
+    const { id = '', name = '' } = (event.target as HTMLElement).dataset;
+    setPrecinct({ name, id });
     const selectedBallots = generateTestDeckBallots({
       election,
       precinctId: id,
-    })
-    setBallots(selectedBallots)
-  }
+    });
+    setBallots(selectedBallots);
+  };
 
   const resetDeck = () => {
-    setBallots([])
-    setPrecinct(initialPrecinct)
-  }
+    setBallots([]);
+    setPrecinct(initialPrecinct);
+  };
 
   const handlePrinting = async () => {
     if (window.kiosk) {
-      const printers = await window.kiosk.getPrinterInfo()
+      const printers = await window.kiosk.getPrinterInfo();
       if (!printers.some((p) => p.connected)) {
-        setShowPrinterNotConnected(true)
-        return
+        setShowPrinterNotConnected(true);
+        return;
       }
     }
-    setIsPrinting(true)
+    setIsPrinting(true);
 
     setTimeout(() => {
-      setIsPrinting(false)
-    }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000)
+      setIsPrinting(false);
+    }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000);
 
-    await printer.print({ sides: 'one-sided' })
-  }
+    await printer.print({ sides: 'one-sided' });
+  };
 
   return (
     <React.Fragment>
@@ -277,7 +277,7 @@ const TestBallotDeckScreen = ({
         />
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default TestBallotDeckScreen
+export default TestBallotDeckScreen;

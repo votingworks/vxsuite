@@ -1,55 +1,55 @@
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder'
+import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
 import {
   asElectionDefinition,
   electionSample as election,
-} from '@votingworks/fixtures'
+} from '@votingworks/fixtures';
 import {
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
-} from '@votingworks/types'
-import { sleep } from '@votingworks/utils'
-import * as fs from 'fs-extra'
-import { join } from 'path'
-import { dirSync } from 'tmp'
-import { v4 as uuid } from 'uuid'
-import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks'
-import Importer from './importer'
-import { BatchControl, Scanner } from './scanners'
-import { createWorkspace, Workspace } from './util/workspace'
-import * as workers from './workers/combined'
+} from '@votingworks/types';
+import { sleep } from '@votingworks/utils';
+import * as fs from 'fs-extra';
+import { join } from 'path';
+import { dirSync } from 'tmp';
+import { v4 as uuid } from 'uuid';
+import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks';
+import Importer from './importer';
+import { BatchControl, Scanner } from './scanners';
+import { createWorkspace, Workspace } from './util/workspace';
+import * as workers from './workers/combined';
 
-const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/')
+const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 
-let workspace: Workspace
+let workspace: Workspace;
 
 beforeEach(async () => {
-  workspace = await createWorkspace(dirSync().name)
-})
+  workspace = await createWorkspace(dirSync().name);
+});
 
 afterEach(async () => {
-  await fs.remove(workspace.path)
-  jest.restoreAllMocks()
-})
+  await fs.remove(workspace.path);
+  jest.restoreAllMocks();
+});
 
-jest.setTimeout(20000)
+jest.setTimeout(20000);
 
 test('startImport calls scanner.scanSheet', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
   const importer = new Importer({
     workspace,
     scanner,
-  })
+  });
 
   await expect(importer.startImport()).rejects.toThrow(
     'no election configuration'
-  )
+  );
 
-  await importer.configure(asElectionDefinition(election))
+  await importer.configure(asElectionDefinition(election));
 
   // failed scan
   const batchControl: BatchControl = {
@@ -60,16 +60,16 @@ test('startImport calls scanner.scanSheet', async () => {
       .fn()
       .mockRejectedValueOnce(new Error('scanner is a banana')),
     endBatch: jest.fn(),
-  }
-  scanner.scanSheets.mockReturnValueOnce(batchControl)
+  };
+  scanner.scanSheets.mockReturnValueOnce(batchControl);
 
-  await importer.startImport()
-  await importer.waitForEndOfBatchOrScanningPause()
+  await importer.startImport();
+  await importer.waitForEndOfBatchOrScanningPause();
 
-  expect(batchControl.endBatch).toHaveBeenCalled()
+  expect(batchControl.endBatch).toHaveBeenCalled();
 
-  const batches = await workspace.store.batchStatus()
-  expect(batches[0].error).toEqual('Error: scanner is a banana')
+  const batches = await workspace.store.batchStatus();
+  expect(batches[0].error).toEqual('Error: scanner is a banana');
 
   // successful scan
   scanner.scanSheets.mockReturnValueOnce({
@@ -83,40 +83,40 @@ test('startImport calls scanner.scanSheet', async () => {
         join(sampleBallotImagesPath, 'blank-page.png'),
       ]),
     endBatch: jest.fn(),
-  })
+  });
 
-  await importer.startImport()
-  await importer.waitForEndOfBatchOrScanningPause()
-  await importer.unconfigure()
-})
+  await importer.startImport();
+  await importer.waitForEndOfBatchOrScanningPause();
+  await importer.unconfigure();
+});
 
 test('unconfigure clears all data.', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
   const importer = new Importer({
     workspace,
     scanner,
-  })
+  });
 
-  await importer.configure(asElectionDefinition(election))
-  expect(await workspace.store.getElectionDefinition()).toBeDefined()
-  await importer.unconfigure()
-  expect(await workspace.store.getElectionDefinition()).toBeUndefined()
-})
+  await importer.configure(asElectionDefinition(election));
+  expect(await workspace.store.getElectionDefinition()).toBeDefined();
+  await importer.unconfigure();
+  expect(await workspace.store.getElectionDefinition()).toBeUndefined();
+});
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
   const importer = new Importer({
     workspace,
     scanner,
-  })
+  });
 
   const frontMetadata: BallotPageMetadata = {
     locales: { primary: 'en-US' },
@@ -126,13 +126,13 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     precinctId: election.precincts[0].id,
     isTestMode: false,
     pageNumber: 1,
-  }
+  };
   const backMetadata: BallotPageMetadata = {
     ...frontMetadata,
     pageNumber: 2,
-  }
-  await importer.configure(asElectionDefinition(election))
-  const batchId = await workspace.store.addBatch()
+  };
+  await importer.configure(asElectionDefinition(election));
+  const batchId = await workspace.store.addBatch();
   await workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
@@ -150,49 +150,49 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
         metadata: backMetadata,
       },
     },
-  ])
-  expect((await importer.getStatus()).batches).toHaveLength(1)
+  ]);
+  expect((await importer.getStatus()).batches).toHaveLength(1);
 
-  await importer.setTestMode(true)
-  expect((await importer.getStatus()).batches).toHaveLength(0)
-  await importer.unconfigure()
-})
+  await importer.setTestMode(true);
+  expect((await importer.getStatus()).batches).toHaveLength(0);
+  await importer.unconfigure();
+});
 
 test('restoreConfig reconfigures the interpreter worker', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
-  const workerCall = jest.fn()
+  };
+  const workerCall = jest.fn();
   const workerPoolProvider = mockWorkerPoolProvider<
     workers.Input,
     workers.Output
-  >(workerCall)
+  >(workerCall);
   const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
-  })
+  });
 
-  await importer.restoreConfig()
+  await importer.restoreConfig();
   expect(workerCall).toHaveBeenCalledWith({
     action: 'configure',
     dbPath: workspace.store.dbPath,
-  })
-  await importer.unconfigure()
-})
+  });
+  await importer.unconfigure();
+});
 
 test('cannot add HMPB templates before configuring an election', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
   const importer = new Importer({
     workspace,
     scanner,
-  })
+  });
 
   await expect(
     importer.addHmpbTemplates(Buffer.of(), {
@@ -205,25 +205,25 @@ test('cannot add HMPB templates before configuring an election', async () => {
     })
   ).rejects.toThrowError(
     'cannot add a HMPB template without a configured election'
-  )
-})
+  );
+});
 
 test('manually importing files', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
-  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
+  };
+  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
     workers.Input,
     workers.Output
-  >(workerCall)
+  >(workerCall);
   const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
-  })
+  });
 
   const frontMetadata: BallotPageMetadata = {
     electionHash: '',
@@ -233,20 +233,20 @@ test('manually importing files', async () => {
     precinctId: election.precincts[0].id,
     isTestMode: false,
     pageNumber: 1,
-  }
+  };
   const backMetadata: BallotPageMetadata = {
     ...frontMetadata,
     pageNumber: 2,
-  }
-  await workspace.store.setElection(asElectionDefinition(election))
+  };
+  await workspace.store.setElection(asElectionDefinition(election));
 
-  const frontImagePath = await makeImageFile()
-  const backImagePath = await makeImageFile()
+  const frontImagePath = await makeImageFile();
+  const backImagePath = await makeImageFile();
 
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        break;
 
       case 'detect-qrcode':
         if (input.imagePath === frontImagePath) {
@@ -256,7 +256,7 @@ test('manually importing files', async () => {
               data: encodeHMPBBallotPageMetadata(election, frontMetadata),
               position: 'bottom',
             },
-          }
+          };
         }
 
         if (input.imagePath === backImagePath) {
@@ -266,10 +266,10 @@ test('manually importing files', async () => {
               data: encodeHMPBBallotPageMetadata(election, backMetadata),
               position: 'bottom',
             },
-          }
+          };
         }
 
-        throw new Error(`unexpected image path: ${input.imagePath}`)
+        throw new Error(`unexpected image path: ${input.imagePath}`);
 
       case 'interpret':
         if (input.imagePath === frontImagePath) {
@@ -280,7 +280,7 @@ test('manually importing files', async () => {
             },
             originalFilename: '/tmp/front.png',
             normalizedFilename: '/tmp/front-normalized.png',
-          }
+          };
         }
         if (input.imagePath === backImagePath) {
           return {
@@ -290,44 +290,44 @@ test('manually importing files', async () => {
             },
             originalFilename: '/tmp/back.png',
             normalizedFilename: '/tmp/back-normalized.png',
-          }
+          };
         }
-        throw new Error(`unexpected image path: ${input.imagePath}`)
+        throw new Error(`unexpected image path: ${input.imagePath}`);
 
       default:
-        throw new Error('unexpected action')
+        throw new Error('unexpected action');
     }
-  })
+  });
 
   const sheetId = await importer.importFile(
     await workspace.store.addBatch(),
     frontImagePath,
     backImagePath
-  )
+  );
 
   expect(workerCall).toHaveBeenNthCalledWith(1, {
     action: 'configure',
     dbPath: workspace.store.dbPath,
-  })
+  });
 
   expect((await workspace.store.getBallotFilenames(sheetId, 'front'))!).toEqual(
     {
       original: '/tmp/front.png',
       normalized: '/tmp/front-normalized.png',
     }
-  )
+  );
   expect((await workspace.store.getBallotFilenames(sheetId, 'back'))!).toEqual({
     original: '/tmp/back.png',
     normalized: '/tmp/back-normalized.png',
-  })
-})
+  });
+});
 
 test('scanning pauses on adjudication then continues', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
   const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => {
     return {
       id: 'mock-sheet-id',
@@ -339,40 +339,40 @@ test('scanning pauses on adjudication then continues', async () => {
         image: { url: '/url/back' },
         interpretation: { type: 'BlankPage' },
       },
-    }
-  }
+    };
+  };
 
   const importer = new Importer({
     workspace,
     scanner,
-  })
+  });
 
-  await importer.configure(asElectionDefinition(election))
+  await importer.configure(asElectionDefinition(election));
 
-  jest.spyOn(workspace.store, 'deleteSheet')
-  jest.spyOn(workspace.store, 'adjudicateSheet')
+  jest.spyOn(workspace.store, 'deleteSheet');
+  jest.spyOn(workspace.store, 'adjudicateSheet');
 
   jest
     .spyOn(workspace.store, 'addSheet')
     .mockImplementationOnce(async () => {
-      return 'sheet-1'
+      return 'sheet-1';
     })
     .mockImplementationOnce(async () => {
       jest
         .spyOn(workspace.store, 'adjudicationStatus')
         .mockImplementation(async () => {
-          return { adjudicated: 0, remaining: 1 }
-        })
-      return 'sheet-2'
+          return { adjudicated: 0, remaining: 1 };
+        });
+      return 'sheet-2';
     })
     .mockImplementationOnce(async () => {
       jest
         .spyOn(workspace.store, 'adjudicationStatus')
         .mockImplementation(async () => {
-          return { adjudicated: 0, remaining: 1 }
-        })
-      return 'sheet-3'
-    })
+          return { adjudicated: 0, remaining: 1 };
+        });
+      return 'sheet-3';
+    });
 
   scanner.scanSheets.mockReturnValueOnce({
     acceptSheet: jest.fn(),
@@ -393,81 +393,81 @@ test('scanning pauses on adjudication then continues', async () => {
         join(sampleBallotImagesPath, 'blank-page.png'),
       ]),
     endBatch: jest.fn(),
-  })
+  });
 
-  await importer.startImport()
-  await importer.waitForEndOfBatchOrScanningPause()
+  await importer.startImport();
+  await importer.waitForEndOfBatchOrScanningPause();
 
-  expect(workspace.store.addSheet).toHaveBeenCalledTimes(2)
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(2);
 
   // wait a bit and make sure no other call is made
-  await sleep(1)
-  expect(workspace.store.addSheet).toHaveBeenCalledTimes(2)
+  await sleep(1);
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(2);
 
-  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(0)
+  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(0);
 
   jest
     .spyOn(workspace.store, 'getNextAdjudicationSheet')
-    .mockImplementationOnce(mockGetNextAdjudicationSheet)
+    .mockImplementationOnce(mockGetNextAdjudicationSheet);
 
   jest
     .spyOn(workspace.store, 'adjudicationStatus')
     .mockImplementation(async () => {
-      return { adjudicated: 0, remaining: 0 }
-    })
+      return { adjudicated: 0, remaining: 0 };
+    });
 
-  await importer.continueImport({ forceAccept: false })
-  await importer.waitForEndOfBatchOrScanningPause()
+  await importer.continueImport({ forceAccept: false });
+  await importer.waitForEndOfBatchOrScanningPause();
 
-  expect(workspace.store.addSheet).toHaveBeenCalledTimes(3)
-  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1)
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(3);
+  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1);
 
   jest
     .spyOn(workspace.store, 'getNextAdjudicationSheet')
-    .mockImplementationOnce(mockGetNextAdjudicationSheet)
+    .mockImplementationOnce(mockGetNextAdjudicationSheet);
 
   jest
     .spyOn(workspace.store, 'adjudicationStatus')
     .mockImplementation(async () => {
-      return { adjudicated: 0, remaining: 0 }
-    })
+      return { adjudicated: 0, remaining: 0 };
+    });
 
   await importer.continueImport({
     forceAccept: true,
     frontMarkAdjudications: [],
     backMarkAdjudications: [],
-  })
-  await importer.waitForEndOfBatchOrScanningPause()
+  });
+  await importer.waitForEndOfBatchOrScanningPause();
 
-  expect(workspace.store.addSheet).toHaveBeenCalledTimes(3) // no more of these
-  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1) // no more deletes
-  expect(workspace.store.adjudicateSheet).toHaveBeenCalledTimes(2)
-})
+  expect(workspace.store.addSheet).toHaveBeenCalledTimes(3); // no more of these
+  expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1); // no more deletes
+  expect(workspace.store.adjudicateSheet).toHaveBeenCalledTimes(2);
+});
 
 test('importing a sheet normalizes and orders HMPB pages', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
-  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
+  };
+  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
     workers.Input,
     workers.Output
-  >(workerCall)
+  >(workerCall);
 
   const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
-  })
+  });
 
-  await importer.configure(asElectionDefinition(election))
-  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
+  await importer.configure(asElectionDefinition(election));
+  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
-    expect(input.action).toEqual('configure')
-  })
+    expect(input.action).toEqual('configure');
+  });
 
   const frontMetadata: BallotPageMetadata = {
     ballotStyleId: election.ballotStyles[0].id,
@@ -477,26 +477,26 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     isTestMode: false,
     locales: { primary: 'en-US' },
     pageNumber: 1,
-  }
+  };
   const backMetadata: BallotPageMetadata = {
     ...frontMetadata,
     pageNumber: 2,
-  }
+  };
 
-  const frontImagePath = await makeImageFile()
-  const backImagePath = await makeImageFile()
+  const frontImagePath = await makeImageFile();
+  const backImagePath = await makeImageFile();
 
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        break;
 
       case 'detect-qrcode':
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
         ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
+          throw new Error(`unexpected image path: ${input.imagePath}`);
         }
 
         return {
@@ -509,14 +509,14 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
                 }
               : // assume back fails to find QR code, then infers it
                 undefined,
-        }
+        };
 
       case 'interpret':
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
         ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
+          throw new Error(`unexpected image path: ${input.imagePath}`);
         }
 
         return {
@@ -538,14 +538,14 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
           },
           originalFilename: '/tmp/original.png',
           normalizedFilename: '/tmp/normalized.png',
-        }
+        };
 
       default:
-        throw new Error('unexpected action')
+        throw new Error('unexpected action');
     }
-  })
+  });
 
-  await importer.importFile('batch-id', backImagePath, frontImagePath)
+  await importer.importFile('batch-id', backImagePath, frontImagePath);
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
@@ -566,34 +566,34 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
         }),
       }),
     ]
-  )
-})
+  );
+});
 
 test('rejects pages that do not match the current precinct', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
-  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
+  };
+  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
     workers.Input,
     workers.Output
-  >(workerCall)
+  >(workerCall);
 
   const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
-  })
+  });
 
-  await importer.configure(asElectionDefinition(election))
-  await workspace.store.setCurrentPrecinctId(election.precincts[1].id)
-  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
+  await importer.configure(asElectionDefinition(election));
+  await workspace.store.setCurrentPrecinctId(election.precincts[1].id);
+  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
-    expect(input.action).toEqual('configure')
-  })
+    expect(input.action).toEqual('configure');
+  });
 
   const frontMetadata: BallotPageMetadata = {
     ballotStyleId: election.ballotStyles[0].id,
@@ -603,26 +603,26 @@ test('rejects pages that do not match the current precinct', async () => {
     isTestMode: false,
     locales: { primary: 'en-US' },
     pageNumber: 1,
-  }
+  };
   const backMetadata: BallotPageMetadata = {
     ...frontMetadata,
     pageNumber: 2,
-  }
+  };
 
-  const frontImagePath = await makeImageFile()
-  const backImagePath = await makeImageFile()
+  const frontImagePath = await makeImageFile();
+  const backImagePath = await makeImageFile();
 
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        break;
 
       case 'detect-qrcode':
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
         ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
+          throw new Error(`unexpected image path: ${input.imagePath}`);
         }
 
         return {
@@ -635,14 +635,14 @@ test('rejects pages that do not match the current precinct', async () => {
                 }
               : // assume back fails to find QR code, then infers it
                 undefined,
-        }
+        };
 
       case 'interpret':
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
         ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
+          throw new Error(`unexpected image path: ${input.imagePath}`);
         }
 
         return {
@@ -664,14 +664,14 @@ test('rejects pages that do not match the current precinct', async () => {
           },
           originalFilename: '/tmp/original.png',
           normalizedFilename: '/tmp/normalized.png',
-        }
+        };
 
       default:
-        throw new Error('unexpected action')
+        throw new Error('unexpected action');
     }
-  })
+  });
 
-  await importer.importFile('batch-id', backImagePath, frontImagePath)
+  await importer.importFile('batch-id', backImagePath, frontImagePath);
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
@@ -694,35 +694,35 @@ test('rejects pages that do not match the current precinct', async () => {
         }),
       }),
     ]
-  )
-})
+  );
+});
 
 test('rejects sheets that would not produce a valid CVR', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
-  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>()
+  };
+  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
     workers.Input,
     workers.Output
-  >(workerCall)
+  >(workerCall);
 
   const importer = new Importer({
     workspace,
     scanner,
     workerPoolProvider,
-  })
+  });
 
-  const currentPrecinctId = election.precincts[0].id
-  await importer.configure(asElectionDefinition(election))
-  await workspace.store.setCurrentPrecinctId(currentPrecinctId)
-  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id')
+  const currentPrecinctId = election.precincts[0].id;
+  await importer.configure(asElectionDefinition(election));
+  await workspace.store.setCurrentPrecinctId(currentPrecinctId);
+  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
-    expect(input.action).toEqual('configure')
-  })
+    expect(input.action).toEqual('configure');
+  });
 
   const frontMetadata: BallotPageMetadata = {
     ballotStyleId: election.ballotStyles[0].id,
@@ -732,27 +732,27 @@ test('rejects sheets that would not produce a valid CVR', async () => {
     isTestMode: false,
     locales: { primary: 'en-US' },
     pageNumber: 1,
-  }
+  };
   const backMetadata: BallotPageMetadata = {
     ...frontMetadata,
     ballotStyleId: election.ballotStyles[1].id,
     pageNumber: 2,
-  }
+  };
 
-  const frontImagePath = await makeImageFile()
-  const backImagePath = await makeImageFile()
+  const frontImagePath = await makeImageFile();
+  const backImagePath = await makeImageFile();
 
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
-        break
+        break;
 
       case 'detect-qrcode':
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
         ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
+          throw new Error(`unexpected image path: ${input.imagePath}`);
         }
 
         return {
@@ -765,14 +765,14 @@ test('rejects sheets that would not produce a valid CVR', async () => {
                 }
               : // assume back fails to find QR code, then infers it
                 undefined,
-        }
+        };
 
       case 'interpret':
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
         ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`)
+          throw new Error(`unexpected image path: ${input.imagePath}`);
         }
 
         return {
@@ -794,14 +794,14 @@ test('rejects sheets that would not produce a valid CVR', async () => {
           },
           originalFilename: '/tmp/original.png',
           normalizedFilename: '/tmp/normalized.png',
-        }
+        };
 
       default:
-        throw new Error('unexpected action')
+        throw new Error('unexpected action');
     }
-  })
+  });
 
-  await importer.importFile('batch-id', backImagePath, frontImagePath)
+  await importer.importFile('batch-id', backImagePath, frontImagePath);
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
@@ -814,22 +814,22 @@ test('rejects sheets that would not produce a valid CVR', async () => {
         interpretation: expect.objectContaining({ type: 'UnreadablePage' }),
       }),
     ]
-  )
-})
+  );
+});
 
 test('doCalibrate', async () => {
   const scanner: jest.Mocked<Scanner> = {
     getStatus: jest.fn(),
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
-  }
+  };
   const importer = new Importer({
     workspace,
     scanner,
-  })
+  });
 
-  scanner.calibrate.mockResolvedValueOnce(true)
-  expect(await importer.doCalibrate()).toEqual(true)
-  scanner.calibrate.mockResolvedValueOnce(false)
-  expect(await importer.doCalibrate()).toEqual(false)
-})
+  scanner.calibrate.mockResolvedValueOnce(true);
+  expect(await importer.doCalibrate()).toEqual(true);
+  scanner.calibrate.mockResolvedValueOnce(false);
+  expect(await importer.doCalibrate()).toEqual(false);
+});

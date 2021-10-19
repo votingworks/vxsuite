@@ -1,6 +1,6 @@
-import React from 'react'
-import { IndeterminateProgressBar } from '../components/Graphics'
-import { CenteredLargeProse, CenteredScreen } from '../components/Layout'
+import React from 'react';
+import { IndeterminateProgressBar } from '../components/Graphics';
+import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
 
 const ScanProcessingScreen = (): JSX.Element => (
   <CenteredScreen>
@@ -9,11 +9,11 @@ const ScanProcessingScreen = (): JSX.Element => (
       <h1>Scanning Ballot…</h1>
     </CenteredLargeProse>
   </CenteredScreen>
-)
+);
 
-export default ScanProcessingScreen
+export default ScanProcessingScreen;
 
 /* istanbul ignore next */
 export const DefaultPreview = (): JSX.Element => {
-  return <ScanProcessingScreen />
-}
+  return <ScanProcessingScreen />;
+};

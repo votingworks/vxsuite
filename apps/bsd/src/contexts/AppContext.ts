@@ -1,16 +1,16 @@
-import { ElectionDefinition } from '@votingworks/types'
-import { MemoryStorage, Storage, usbstick } from '@votingworks/utils'
-import { createContext } from 'react'
-import { MachineConfig } from '../config/types'
+import { ElectionDefinition } from '@votingworks/types';
+import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
+import { createContext } from 'react';
+import { MachineConfig } from '../config/types';
 
 interface AppContextInterface {
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => void
-  machineConfig: MachineConfig
-  electionDefinition?: ElectionDefinition
-  electionHash?: string
-  storage: Storage
-  lockMachine: () => void
+  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveEject: () => void;
+  machineConfig: MachineConfig;
+  electionDefinition?: ElectionDefinition;
+  electionHash?: string;
+  storage: Storage;
+  lockMachine: () => void;
 }
 
 const appContext: AppContextInterface = {
@@ -21,8 +21,8 @@ const appContext: AppContextInterface = {
   electionHash: undefined,
   storage: new MemoryStorage(),
   lockMachine: () => undefined,
-}
+};
 
-const AppContext = createContext(appContext)
+const AppContext = createContext(appContext);
 
-export default AppContext
+export default AppContext;

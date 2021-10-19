@@ -1,15 +1,15 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import ChoiceButton from './ChoiceButton'
+import ChoiceButton from './ChoiceButton';
 
-const onPress = jest.fn()
+const onPress = jest.fn();
 
 it('renders ChoiceButton', () => {
   const { container } = render(
     <ChoiceButton choice="foo" isSelected={false} onPress={onPress}>
       foo
     </ChoiceButton>
-  )
-  expect(container.firstChild).toMatchSnapshot()
-})
+  );
+  expect(container.firstChild).toMatchSnapshot();
+});

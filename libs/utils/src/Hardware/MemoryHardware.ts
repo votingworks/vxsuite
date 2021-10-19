@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable } from 'rxjs'
-import { Hardware, PrinterStatus } from '../types'
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Hardware, PrinterStatus } from '../types';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
@@ -10,7 +10,7 @@ import {
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
-} from './utils'
+} from './utils';
 
 /**
  * Implements the `Hardware` API with an in-memory implementation.
@@ -19,9 +19,9 @@ export default class MemoryHardware implements Hardware {
   private batteryStatus: KioskBrowser.BatteryInfo = {
     discharging: false,
     level: 0.8,
-  }
+  };
 
-  private connectedDevices = new Set<KioskBrowser.Device>()
+  private connectedDevices = new Set<KioskBrowser.Device>();
 
   private accessibleController: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
@@ -31,7 +31,7 @@ export default class MemoryHardware implements Hardware {
     productId: AccessibleControllerProductId,
     vendorId: AccessibleControllerVendorId,
     serialNumber: '',
-  }
+  };
 
   private printer: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
@@ -41,7 +41,7 @@ export default class MemoryHardware implements Hardware {
     productId: BrotherHLL5100DNProductId,
     vendorId: BrotherHLL5100DNVendorId,
     serialNumber: '',
-  }
+  };
 
   private cardReader: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
@@ -51,24 +51,24 @@ export default class MemoryHardware implements Hardware {
     vendorId: OmniKeyCardReaderVendorId,
     productId: OmniKeyCardReaderProductId,
     serialNumber: '',
-  }
+  };
 
   static async build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
   }: {
-    connectPrinter?: boolean
-    connectAccessibleController?: boolean
-    connectCardReader?: boolean
+    connectPrinter?: boolean;
+    connectAccessibleController?: boolean;
+    connectCardReader?: boolean;
   } = {}): Promise<MemoryHardware> {
-    const newMemoryHardware = new MemoryHardware()
-    await newMemoryHardware.setPrinterConnected(connectPrinter)
+    const newMemoryHardware = new MemoryHardware();
+    await newMemoryHardware.setPrinterConnected(connectPrinter);
     await newMemoryHardware.setAccessibleControllerConnected(
       connectAccessibleController
-    )
-    await newMemoryHardware.setCardReaderConnected(connectCardReader)
-    return newMemoryHardware
+    );
+    await newMemoryHardware.setCardReaderConnected(connectCardReader);
+    return newMemoryHardware;
   }
 
   static async buildStandard(): Promise<MemoryHardware> {
@@ -76,7 +76,7 @@ export default class MemoryHardware implements Hardware {
       connectPrinter: true,
       connectAccessibleController: true,
       connectCardReader: true,
-    })
+    });
   }
 
   static async buildDemo(): Promise<MemoryHardware> {
@@ -84,21 +84,21 @@ export default class MemoryHardware implements Hardware {
       connectPrinter: true,
       connectAccessibleController: false,
       connectCardReader: true,
-    })
+    });
   }
 
   /**
    * Sets Accessible Controller connected
    */
   async setAccessibleControllerConnected(connected: boolean): Promise<void> {
-    this.setDeviceConnected(this.accessibleController, connected)
+    this.setDeviceConnected(this.accessibleController, connected);
   }
 
   /**
    * Reads Battery status
    */
   async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
-    return this.batteryStatus
+    return this.batteryStatus;
   }
 
   /**
@@ -108,7 +108,7 @@ export default class MemoryHardware implements Hardware {
     this.batteryStatus = {
       ...this.batteryStatus,
       discharging,
-    }
+    };
   }
 
   /**
@@ -118,14 +118,14 @@ export default class MemoryHardware implements Hardware {
     this.batteryStatus = {
       ...this.batteryStatus,
       level,
-    }
+    };
   }
 
   /**
    * Sets Card Reader connected
    */
   async setCardReaderConnected(connected: boolean): Promise<void> {
-    this.setDeviceConnected(this.cardReader, connected)
+    this.setDeviceConnected(this.cardReader, connected);
   }
 
   /**
@@ -134,14 +134,14 @@ export default class MemoryHardware implements Hardware {
   async readPrinterStatus(): Promise<PrinterStatus> {
     return {
       connected: Array.from(this.connectedDevices).some(isPrinter),
-    }
+    };
   }
 
   /**
    * Sets Printer connected
    */
   async setPrinterConnected(connected: boolean): Promise<void> {
-    this.setDeviceConnected(this.printer, connected)
+    this.setDeviceConnected(this.printer, connected);
     this.printersSubject.next([
       {
         name: this.printer.deviceName,
@@ -150,31 +150,31 @@ export default class MemoryHardware implements Hardware {
         isDefault: true,
         status: 0,
       },
-    ])
+    ]);
   }
 
-  private devicesSubject = new BehaviorSubject(this.connectedDevices)
+  private devicesSubject = new BehaviorSubject(this.connectedDevices);
 
   /**
    * Subscribe to USB device updates.
    */
-  devices: Observable<Iterable<KioskBrowser.Device>> = this.devicesSubject
+  devices: Observable<Iterable<KioskBrowser.Device>> = this.devicesSubject;
 
   private printersSubject = new BehaviorSubject<
     Iterable<KioskBrowser.PrinterInfo>
-  >([])
+  >([]);
 
   /**
    * Subscribe to printer updates.
    */
   printers: Observable<Iterable<KioskBrowser.PrinterInfo>> =
-    this.printersSubject
+    this.printersSubject;
 
   /**
    * Determines whether a device is in the list of connected devices.
    */
   hasDevice(device: KioskBrowser.Device): boolean {
-    return this.connectedDevices.has(device)
+    return this.connectedDevices.has(device);
   }
 
   /**
@@ -183,9 +183,9 @@ export default class MemoryHardware implements Hardware {
   setDeviceConnected(device: KioskBrowser.Device, connected: boolean): void {
     if (connected !== this.hasDevice(device)) {
       if (connected) {
-        this.addDevice(device)
+        this.addDevice(device);
       } else {
-        this.removeDevice(device)
+        this.removeDevice(device);
       }
     }
   }
@@ -197,25 +197,25 @@ export default class MemoryHardware implements Hardware {
     if (this.connectedDevices.has(device)) {
       throw new Error(
         `cannot add device that was already added: ${device.deviceName}`
-      )
+      );
     }
 
-    this.connectedDevices.add(device)
-    this.devicesSubject.next(this.connectedDevices)
+    this.connectedDevices.add(device);
+    this.devicesSubject.next(this.connectedDevices);
   }
 
   /**
    * Removes a previously-added device from the set of connected devices.
    */
   removeDevice(device: KioskBrowser.Device): void {
-    const hadDevice = this.connectedDevices.delete(device)
+    const hadDevice = this.connectedDevices.delete(device);
 
     if (!hadDevice) {
       throw new Error(
         `cannot remove device that was never added: ${device.deviceName}`
-      )
+      );
     }
 
-    this.devicesSubject.next(this.connectedDevices)
+    this.devicesSubject.next(this.connectedDevices);
   }
 }

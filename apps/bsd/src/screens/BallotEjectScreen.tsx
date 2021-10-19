@@ -2,30 +2,30 @@ import {
   AdjudicationReason,
   Contest,
   MarkAdjudications,
-} from '@votingworks/types'
+} from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   ScanContinueRequest,
   Side,
-} from '@votingworks/types/api/module-scan'
-import { strict as assert } from 'assert'
-import React, { useCallback, useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { fetchNextBallotSheetToReview } from '../api/hmpb'
-import BallotSheetImage from '../components/BallotSheetImage'
-import Button from '../components/Button'
-import Main from '../components/Main'
-import MainNav from '../components/MainNav'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import StatusFooter from '../components/StatusFooter'
-import Text from '../components/Text'
-import WriteInAdjudicationScreen from './WriteInAdjudicationScreen'
+} from '@votingworks/types/api/module-scan';
+import { strict as assert } from 'assert';
+import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { fetchNextBallotSheetToReview } from '../api/hmpb';
+import BallotSheetImage from '../components/BallotSheetImage';
+import Button from '../components/Button';
+import Main from '../components/Main';
+import MainNav from '../components/MainNav';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import StatusFooter from '../components/StatusFooter';
+import Text from '../components/Text';
+import WriteInAdjudicationScreen from './WriteInAdjudicationScreen';
 
 const EjectReason = styled.div`
   font-size: 3em;
   font-weight: 900;
-`
+`;
 
 const MainChildColumns = styled.div`
   flex: 1;
@@ -43,7 +43,7 @@ const MainChildColumns = styled.div`
   button {
     margin-top: 0.3rem;
   }
-`
+`;
 
 const RectoVerso = styled.div`
   display: flex;
@@ -56,36 +56,36 @@ const RectoVerso = styled.div`
     max-width: 100%;
     max-height: 87vh;
   }
-`
+`;
 
-const HIGHLIGHTER_COLOR = '#fbff0066'
+const HIGHLIGHTER_COLOR = '#fbff0066';
 
 interface Props {
-  continueScanning: (request: ScanContinueRequest) => Promise<void>
-  isTestMode: boolean
+  continueScanning: (request: ScanContinueRequest) => Promise<void>;
+  isTestMode: boolean;
 }
 
-type EjectState = 'removeBallot' | 'acceptBallot'
+type EjectState = 'removeBallot' | 'acceptBallot';
 
 const doNothing = () => {
-  console.log('disabled') // eslint-disable-line no-console
-}
+  console.log('disabled'); // eslint-disable-line no-console
+};
 
 const BallotEjectScreen = ({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element => {
-  const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>()
-  const [ballotState, setBallotState] = useState<EjectState>()
+  const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>();
+  const [ballotState, setBallotState] = useState<EjectState>();
 
   useEffect(() => {
     void (async () => {
-      setReviewInfo(await fetchNextBallotSheetToReview())
-    })()
-  }, [])
+      setReviewInfo(await fetchNextBallotSheetToReview());
+    })();
+  }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const contestIdsWithIssues = new Set<Contest['id']>()
+  const contestIdsWithIssues = new Set<Contest['id']>();
 
   const styleForContest = useCallback(
     (contestId: Contest['id']): React.CSSProperties =>
@@ -93,25 +93,25 @@ const BallotEjectScreen = ({
         ? { backgroundColor: HIGHLIGHTER_COLOR }
         : {},
     [contestIdsWithIssues]
-  )
+  );
 
   const [
     frontMarkAdjudications,
     setFrontMarkAdjudications,
-  ] = useState<MarkAdjudications>()
+  ] = useState<MarkAdjudications>();
   const [
     backMarkAdjudications,
     setBackMarkAdjudications,
-  ] = useState<MarkAdjudications>()
+  ] = useState<MarkAdjudications>();
 
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
   useEffect(() => {
     if (!reviewInfo) {
-      return
+      return;
     }
 
-    const frontInterpretation = reviewInfo.interpreted.front.interpretation
-    const backInterpretation = reviewInfo.interpreted.back.interpretation
+    const frontInterpretation = reviewInfo.interpreted.front.interpretation;
+    const backInterpretation = reviewInfo.interpreted.back.interpretation;
 
     if (
       !(
@@ -119,11 +119,11 @@ const BallotEjectScreen = ({
         backInterpretation.type === 'InterpretedHmpbPage'
       )
     ) {
-      return
+      return;
     }
 
-    const frontAdjudication = frontInterpretation.adjudicationInfo
-    const backAdjudication = backInterpretation.adjudicationInfo
+    const frontAdjudication = frontInterpretation.adjudicationInfo;
+    const backAdjudication = backInterpretation.adjudicationInfo;
 
     // A ballot is blank if both sides are marked blank
     // and neither side contains an unmarked write in,
@@ -144,7 +144,7 @@ const BallotEjectScreen = ({
       ) &&
       !backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.UnmarkedWriteIn
-      )
+      );
 
     if (!isBlank) {
       if (
@@ -156,7 +156,7 @@ const BallotEjectScreen = ({
             )
         )
       ) {
-        setFrontMarkAdjudications([])
+        setFrontMarkAdjudications([]);
       }
       if (
         !backAdjudication.enabledReasons.some(
@@ -167,10 +167,10 @@ const BallotEjectScreen = ({
             )
         )
       ) {
-        setBackMarkAdjudications([])
+        setBackMarkAdjudications([]);
       }
     }
-  }, [reviewInfo])
+  }, [reviewInfo]);
 
   const onAdjudicationComplete = useCallback(
     async (
@@ -179,52 +179,52 @@ const BallotEjectScreen = ({
       adjudications: MarkAdjudications
     ): Promise<void> => {
       if (side === 'front') {
-        setFrontMarkAdjudications(adjudications)
+        setFrontMarkAdjudications(adjudications);
       } else {
-        setBackMarkAdjudications(adjudications)
+        setBackMarkAdjudications(adjudications);
       }
     },
     []
-  )
+  );
 
   useEffect(() => {
     void (async () => {
       const frontAdjudicationComplete =
         !!frontMarkAdjudications ||
-        !!reviewInfo?.interpreted.front.adjudicationFinishedAt
+        !!reviewInfo?.interpreted.front.adjudicationFinishedAt;
       const backAdjudicationComplete =
         !!backMarkAdjudications ||
-        !!reviewInfo?.interpreted.back.adjudicationFinishedAt
+        !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
       if (frontAdjudicationComplete && backAdjudicationComplete) {
         await continueScanning({
           forceAccept: true,
           frontMarkAdjudications: frontMarkAdjudications ?? [],
           backMarkAdjudications: backMarkAdjudications ?? [],
-        })
+        });
       }
-    })()
+    })();
   }, [
     backMarkAdjudications,
     continueScanning,
     frontMarkAdjudications,
     reviewInfo?.interpreted.back.adjudicationFinishedAt,
     reviewInfo?.interpreted.front.adjudicationFinishedAt,
-  ])
+  ]);
 
   if (!reviewInfo) {
-    return <React.Fragment />
+    return <React.Fragment />;
   }
 
-  let isOvervotedSheet = false
-  let isUndervotedSheet = false
-  let isFrontBlank = false
-  let isBackBlank = false
-  let isUnreadableSheet = false
-  let isInvalidTestModeSheet = false
-  let isInvalidElectionHashSheet = false
-  let isInvalidPrecinctSheet = false
+  let isOvervotedSheet = false;
+  let isUndervotedSheet = false;
+  let isFrontBlank = false;
+  let isBackBlank = false;
+  let isUnreadableSheet = false;
+  let isInvalidTestModeSheet = false;
+  let isInvalidElectionHashSheet = false;
+  let isInvalidPrecinctSheet = false;
 
-  let actualElectionHash: string | undefined
+  let actualElectionHash: string | undefined;
 
   for (const reviewPageInfo of [
     {
@@ -251,34 +251,34 @@ const BallotEjectScreen = ({
       (reviewPageInfo.side === 'front' && frontMarkAdjudications) ||
       (reviewPageInfo.side === 'back' && backMarkAdjudications)
     ) {
-      continue
+      continue;
     }
 
     if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
-      isInvalidTestModeSheet = true
+      isInvalidTestModeSheet = true;
     } else if (
       reviewPageInfo.interpretation.type === 'InvalidElectionHashPage'
     ) {
-      isInvalidElectionHashSheet = true
-      actualElectionHash = reviewPageInfo.interpretation.actualElectionHash
+      isInvalidElectionHashSheet = true;
+      actualElectionHash = reviewPageInfo.interpretation.actualElectionHash;
     } else if (reviewPageInfo.interpretation.type === 'InvalidPrecinctPage') {
-      isInvalidPrecinctSheet = true
+      isInvalidPrecinctSheet = true;
     } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
         for (const adjudicationReason of reviewPageInfo.interpretation
           .adjudicationInfo.enabledReasonInfos) {
           if (adjudicationReason.type === AdjudicationReason.Overvote) {
-            isOvervotedSheet = true
-            contestIdsWithIssues.add(adjudicationReason.contestId)
+            isOvervotedSheet = true;
+            contestIdsWithIssues.add(adjudicationReason.contestId);
           } else if (adjudicationReason.type === AdjudicationReason.Undervote) {
-            isUndervotedSheet = true
-            contestIdsWithIssues.add(adjudicationReason.contestId)
+            isUndervotedSheet = true;
+            contestIdsWithIssues.add(adjudicationReason.contestId);
           } else if (
             adjudicationReason.type === AdjudicationReason.WriteIn ||
             adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
           ) {
-            assert(reviewPageInfo.layout)
-            assert(reviewPageInfo.contestIds)
+            assert(reviewPageInfo.layout);
+            assert(reviewPageInfo.contestIds);
             return (
               <WriteInAdjudicationScreen
                 sheetId={reviewInfo.interpreted.id}
@@ -289,20 +289,20 @@ const BallotEjectScreen = ({
                 contestIds={reviewPageInfo.contestIds}
                 onAdjudicationComplete={onAdjudicationComplete}
               />
-            )
+            );
           } else if (
             adjudicationReason.type === AdjudicationReason.BlankBallot
           ) {
             if (reviewPageInfo.side === 'front') {
-              isFrontBlank = true
+              isFrontBlank = true;
             } else {
-              isBackBlank = true
+              isBackBlank = true;
             }
           }
         }
       }
     } else {
-      isUnreadableSheet = true
+      isUnreadableSheet = true;
     }
   }
 
@@ -310,9 +310,9 @@ const BallotEjectScreen = ({
     !isInvalidTestModeSheet &&
     !isInvalidElectionHashSheet &&
     !isInvalidPrecinctSheet &&
-    !isUnreadableSheet
+    !isUnreadableSheet;
 
-  const isBlankSheet = isFrontBlank && isBackBlank
+  const isBlankSheet = isFrontBlank && isBackBlank;
 
   return (
     <Screen>
@@ -474,6 +474,6 @@ const BallotEjectScreen = ({
       </Main>
       <StatusFooter />
     </Screen>
-  )
-}
-export default BallotEjectScreen
+  );
+};
+export default BallotEjectScreen;

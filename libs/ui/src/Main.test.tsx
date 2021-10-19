@@ -1,7 +1,7 @@
-import React from 'react'
-import { render } from '@testing-library/react'
+import React from 'react';
+import { render } from '@testing-library/react';
 
-import { Main, MainChild } from './Main'
+import { Main, MainChild } from './Main';
 
 describe('renders Main', () => {
   test('with defaults', () => {
@@ -9,9 +9,9 @@ describe('renders Main', () => {
       <Main>
         <MainChild>foo</MainChild>
       </Main>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('with all non-default Main options and common MainChild options', () => {
     const { container } = render(
@@ -20,9 +20,9 @@ describe('renders Main', () => {
           foo
         </MainChild>
       </Main>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('with MainChild with no max width', () => {
     const { container } = render(
@@ -31,16 +31,16 @@ describe('renders Main', () => {
           foo
         </MainChild>
       </Main>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   test('with not centered content', () => {
     const { container } = render(
       <Main noOverflow>
         <MainChild centerHorizontal={false}>foo</MainChild>
       </Main>
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
-})
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
+});

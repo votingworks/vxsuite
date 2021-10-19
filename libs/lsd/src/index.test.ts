@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import lsd from '.'
+import lsd from '.';
 
 /**
  * Create a simple image: left half black, right half gray.
@@ -24,15 +24,15 @@ function exampleImage({
   width = 128,
   height = 128,
 }: { width?: number; height?: number } = {}): ImageData {
-  const data = new Uint8ClampedArray(width * height)
+  const data = new Uint8ClampedArray(width * height);
 
   for (let x = 0; x < width; x += 1) {
     for (let y = 0; y < height; y += 1) {
-      data[x + y * width] = x < width / 2 ? 0.0 : 64.0
+      data[x + y * width] = x < width / 2 ? 0.0 : 64.0;
     }
   }
 
-  return { data, width, height }
+  return { data, width, height };
 }
 
 test('simple image', () => {
@@ -46,32 +46,32 @@ test('simple image', () => {
         "y2": 126.875,
       },
     ]
-  `)
-})
+  `);
+});
 
 // `global.gc` is only defined when `--expose-gc` is provided to `node`.
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const gctest = global.gc ? test : test.skip
+const gctest = global.gc ? test : test.skip;
 
 gctest('garbage collection reclaims buffer', () => {
-  const iterations = 20
-  const image = exampleImage()
-  const expectedSegments = lsd(image).length
-  const externalMemory = []
-  let count = 0
+  const iterations = 20;
+  const image = exampleImage();
+  const expectedSegments = lsd(image).length;
+  const externalMemory = [];
+  let count = 0;
 
   for (let i = 0; i < iterations; i += 1) {
-    global.gc()
-    externalMemory.push(process.memoryUsage().external)
-    count += lsd(image).length
+    global.gc();
+    externalMemory.push(process.memoryUsage().external);
+    count += lsd(image).length;
   }
 
-  expect(count).toEqual(iterations * expectedSegments)
+  expect(count).toEqual(iterations * expectedSegments);
 
   const medianMemory = [...externalMemory].sort()[
     Math.round(externalMemory.length / 2)
-  ]
-  const finalMemory = externalMemory[externalMemory.length - 1]
-  expect(Math.abs(medianMemory - finalMemory) / medianMemory).toBeLessThan(0.1)
-})
+  ];
+  const finalMemory = externalMemory[externalMemory.length - 1];
+  expect(Math.abs(medianMemory - finalMemory) / medianMemory).toBeLessThan(0.1);
+});

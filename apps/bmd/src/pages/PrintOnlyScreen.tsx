@@ -1,51 +1,51 @@
-import { strict as assert } from 'assert'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import { strict as assert } from 'assert';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
-import { VotesDict, ElectionDefinition } from '@votingworks/types'
-import { Loading, Main, MainChild } from '@votingworks/ui'
+import { VotesDict, ElectionDefinition } from '@votingworks/types';
+import { Loading, Main, MainChild } from '@votingworks/ui';
 
-import PrintedBallot from '../components/PrintedBallot'
-import Prose from '../components/Prose'
-import Screen from '../components/Screen'
-import { MarkVoterCardFunction, Printer } from '../config/types'
+import PrintedBallot from '../components/PrintedBallot';
+import Prose from '../components/Prose';
+import Screen from '../components/Screen';
+import { MarkVoterCardFunction, Printer } from '../config/types';
 
-import Text from '../components/Text'
+import Text from '../components/Text';
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
   height: 40vw;
-`
+`;
 
 const TopLeftContent = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   margin: 0.5rem 0.75rem;
-`
+`;
 const TopRightContent = styled.div`
   position: absolute;
   top: 0;
   right: 0;
   margin: 0.5rem 0.75rem;
-`
+`;
 
 interface Props {
-  ballotStyleId?: string
-  ballotsPrintedCount: number
-  electionDefinition: ElectionDefinition
-  isLiveMode: boolean
-  isVoterCardPresent: boolean
-  markVoterCardPrinted: MarkVoterCardFunction
-  precinctId?: string
-  printer: Printer
-  useEffectToggleLargeDisplay: () => void
-  showNoChargerAttachedWarning: boolean
-  updateTally: () => void
-  votes?: VotesDict
+  ballotStyleId?: string;
+  ballotsPrintedCount: number;
+  electionDefinition: ElectionDefinition;
+  isLiveMode: boolean;
+  isVoterCardPresent: boolean;
+  markVoterCardPrinted: MarkVoterCardFunction;
+  precinctId?: string;
+  printer: Printer;
+  useEffectToggleLargeDisplay: () => void;
+  showNoChargerAttachedWarning: boolean;
+  updateTally: () => void;
+  votes?: VotesDict;
 }
 
-export const printingMessageTimeoutSeconds = 5
+export const printingMessageTimeoutSeconds = 5;
 
 const PrintOnlyScreen = ({
   ballotStyleId,
@@ -61,11 +61,11 @@ const PrintOnlyScreen = ({
   updateTally,
   votes,
 }: Props): JSX.Element => {
-  const printerTimer = useRef(0)
-  const [okToPrint, setOkToPrint] = useState(true)
-  const [isPrinted, updateIsPrinted] = useState(false)
-  const isCardVotesEmpty = votes === undefined
-  const { election } = electionDefinition
+  const printerTimer = useRef(0);
+  const [okToPrint, setOkToPrint] = useState(true);
+  const [isPrinted, updateIsPrinted] = useState(false);
+  const isCardVotesEmpty = votes === undefined;
+  const { election } = electionDefinition;
 
   const isReadyToPrint =
     election &&
@@ -73,48 +73,48 @@ const PrintOnlyScreen = ({
     precinctId &&
     isVoterCardPresent &&
     !isCardVotesEmpty &&
-    !isPrinted
+    !isPrinted;
 
   // Handle Font Size when voter card is present.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, [isVoterCardPresent])
+  useEffect(useEffectToggleLargeDisplay, [isVoterCardPresent]);
 
   const printBallot = useCallback(async () => {
-    const isUsed = await markVoterCardPrinted()
+    const isUsed = await markVoterCardPrinted();
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print({ sides: 'one-sided' })
-      updateTally()
+      await printer.print({ sides: 'one-sided' });
+      updateTally();
       printerTimer.current = window.setTimeout(() => {
-        updateIsPrinted(true)
-      }, printingMessageTimeoutSeconds * 1000)
+        updateIsPrinted(true);
+      }, printingMessageTimeoutSeconds * 1000);
     }
-  }, [markVoterCardPrinted, printer, updateTally])
+  }, [markVoterCardPrinted, printer, updateTally]);
 
   useEffect(() => {
     if (isReadyToPrint && okToPrint) {
-      setOkToPrint(false)
+      setOkToPrint(false);
 
-      void printBallot()
+      void printBallot();
     }
-  }, [votes, printBallot, isReadyToPrint, okToPrint, setOkToPrint])
+  }, [votes, printBallot, isReadyToPrint, okToPrint, setOkToPrint]);
 
   useEffect(() => {
     if (!isVoterCardPresent) {
-      updateIsPrinted(false)
+      updateIsPrinted(false);
 
       // once card is taken out, ok to print again
       if (!okToPrint) {
-        setOkToPrint(true)
+        setOkToPrint(true);
       }
     }
-  }, [isVoterCardPresent, okToPrint, setOkToPrint])
+  }, [isVoterCardPresent, okToPrint, setOkToPrint]);
 
   useEffect(() => {
     return () => {
-      clearTimeout(printerTimer.current)
-    }
-  }, [])
+      clearTimeout(printerTimer.current);
+    };
+  }, []);
 
   const renderContent = () => {
     if (isVoterCardPresent && isCardVotesEmpty) {
@@ -123,7 +123,7 @@ const PrintOnlyScreen = ({
           <h1>Empty Card</h1>
           <p>This card does not contain any votes.</p>
         </React.Fragment>
-      )
+      );
     }
     if (isPrinted) {
       return (
@@ -141,7 +141,7 @@ const PrintOnlyScreen = ({
             Cast your official ballot in the ballot box.
           </p>
         </React.Fragment>
-      )
+      );
     }
     if (isReadyToPrint) {
       return (
@@ -157,7 +157,7 @@ const PrintOnlyScreen = ({
             <Loading>Printing your official ballot</Loading>
           </h1>
         </React.Fragment>
-      )
+      );
     }
     return (
       <React.Fragment>
@@ -182,8 +182,8 @@ const PrintOnlyScreen = ({
           )}
         </p>
       </React.Fragment>
-    )
-  }
+    );
+  };
 
   return (
     <React.Fragment>
@@ -227,7 +227,7 @@ const PrintOnlyScreen = ({
           />
         ))}
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default PrintOnlyScreen
+export default PrintOnlyScreen;

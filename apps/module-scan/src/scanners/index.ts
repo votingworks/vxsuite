@@ -1,27 +1,27 @@
-import { BallotPaperSize } from '@votingworks/types'
-import { ScannerStatus } from '@votingworks/types/api/module-scan'
-import { SheetOf } from '../types'
+import { BallotPaperSize } from '@votingworks/types';
+import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { SheetOf } from '../types';
 
-export * from './fujitsu'
-export * from './plustek'
+export * from './fujitsu';
+export * from './plustek';
 
 export interface BatchControl {
-  scanSheet(): Promise<SheetOf<string> | undefined>
-  acceptSheet(): Promise<boolean>
-  reviewSheet(): Promise<boolean>
-  rejectSheet(): Promise<boolean>
-  endBatch(): Promise<void>
+  scanSheet(): Promise<SheetOf<string> | undefined>;
+  acceptSheet(): Promise<boolean>;
+  reviewSheet(): Promise<boolean>;
+  rejectSheet(): Promise<boolean>;
+  endBatch(): Promise<void>;
 }
 
 export interface ScanOptions {
-  directory?: string
-  pageSize?: BallotPaperSize
+  directory?: string;
+  pageSize?: BallotPaperSize;
 }
 
 export interface Scanner {
-  getStatus(): Promise<ScannerStatus>
-  scanSheets(options?: ScanOptions): BatchControl
-  calibrate(): Promise<boolean>
+  getStatus(): Promise<ScannerStatus>;
+  scanSheets(options?: ScanOptions): BatchControl;
+  calibrate(): Promise<boolean>;
 }
 
 export enum ScannerImageFormat {

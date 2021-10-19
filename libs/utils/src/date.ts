@@ -1,4 +1,4 @@
-import { DateTime, Duration } from 'luxon'
+import { DateTime, Duration } from 'luxon';
 
 export const AMERICA_TIMEZONES = [
   'Pacific/Honolulu',
@@ -8,22 +8,22 @@ export const AMERICA_TIMEZONES = [
   'America/Denver',
   'America/Chicago',
   'America/New_York',
-]
+];
 
 function* getShortMonthNames(): Generator<string> {
   const monthShortNameFormatter = new Intl.DateTimeFormat(undefined, {
     month: 'short',
-  })
-  const year = new Date().getFullYear()
+  });
+  const year = new Date().getFullYear();
   for (
     let month = 0;
     new Date(year, month, 1).getFullYear() === year;
     month += 1
   ) {
-    yield monthShortNameFormatter.format(new Date(year, month, 1))
+    yield monthShortNameFormatter.format(new Date(year, month, 1));
   }
 }
-export const MONTHS_SHORT = [...getShortMonthNames()]
+export const MONTHS_SHORT = [...getShortMonthNames()];
 
 export const formatTimeZoneName = (date: DateTime): string =>
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -32,7 +32,7 @@ export const formatTimeZoneName = (date: DateTime): string =>
     timeZone: date.zoneName,
   })
     .formatToParts(date.toJSDate())
-    .find((part) => part.type === 'timeZoneName')!.value
+    .find((part) => part.type === 'timeZoneName')!.value;
 
 export const formatFullDateTimeZone = (
   date: DateTime,
@@ -47,7 +47,7 @@ export const formatFullDateTimeZone = (
     hour: 'numeric',
     minute: 'numeric',
     timeZoneName: includeTimezone ? 'short' : undefined,
-  }).format(date.toJSDate())
+  }).format(date.toJSDate());
 
 export const formatLongDate = (date: DateTime, timeZone?: string): string =>
   new Intl.DateTimeFormat(undefined, {
@@ -55,17 +55,17 @@ export const formatLongDate = (date: DateTime, timeZone?: string): string =>
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }).format(date.toJSDate())
+  }).format(date.toJSDate());
 
 /**
  * Get days in given month and year.
  */
 export function getDaysInMonth(year: number, month: number): DateTime[] {
-  let date = DateTime.fromObject({ year, month, day: 1 })
-  const days = []
+  let date = DateTime.fromObject({ year, month, day: 1 });
+  const days = [];
   while (date.month === month) {
-    days.push(date)
-    date = date.plus(Duration.fromObject({ day: 1 }))
+    days.push(date);
+    date = date.plus(Duration.fromObject({ day: 1 }));
   }
-  return days
+  return days;
 }

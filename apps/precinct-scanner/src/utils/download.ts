@@ -1,5 +1,5 @@
-import { err, ok, Result } from '@votingworks/types'
-import { join } from 'path'
+import { err, ok, Result } from '@votingworks/types';
+import { join } from 'path';
 
 /**
  * Extract the filename from a `Content-Disposition` header.
@@ -17,11 +17,11 @@ import { join } from 'path'
 export function readContentDispositionFilename(
   header: string
 ): string | undefined {
-  const match = header.match(/filename=(?:"([^"]+)"|(\S+))\s*$/)
+  const match = header.match(/filename=(?:"([^"]+)"|(\S+))\s*$/);
 
   if (match) {
-    const [, quoted, unquoted] = match
-    return quoted || unquoted
+    const [, quoted, unquoted] = match;
+    return quoted || unquoted;
   }
 }
 
@@ -36,55 +36,55 @@ export type DownloadError =
   | { kind: DownloadErrorKind.FetchFailed; response: Response }
   | { kind: DownloadErrorKind.FileMissing; response: Response }
   | { kind: DownloadErrorKind.OpenFailed; path: string; error: Error }
-  | { kind: DownloadErrorKind.NoFileChosen }
+  | { kind: DownloadErrorKind.NoFileChosen };
 
 async function kioskDownload(
   kiosk: KioskBrowser.Kiosk,
   url: string,
   directory?: string
 ): Promise<Result<void, DownloadError>> {
-  const abortController = new AbortController()
-  const response = await fetch(url, { signal: abortController.signal })
+  const abortController = new AbortController();
+  const response = await fetch(url, { signal: abortController.signal });
 
   if (response.status !== 200) {
-    return err({ kind: DownloadErrorKind.FetchFailed, response })
+    return err({ kind: DownloadErrorKind.FetchFailed, response });
   }
 
-  const contentDisposition = response.headers.get('content-disposition')
+  const contentDisposition = response.headers.get('content-disposition');
   const filename =
-    contentDisposition && readContentDispositionFilename(contentDisposition)
+    contentDisposition && readContentDispositionFilename(contentDisposition);
 
   if (!filename) {
-    return err({ kind: DownloadErrorKind.FileMissing, response })
+    return err({ kind: DownloadErrorKind.FileMissing, response });
   }
 
-  const { body } = response
+  const { body } = response;
 
   if (!body) {
-    abortController.abort()
-    return err({ kind: DownloadErrorKind.FileMissing, response })
+    abortController.abort();
+    return err({ kind: DownloadErrorKind.FileMissing, response });
   }
 
-  let downloadTarget: KioskBrowser.FileWriter
+  let downloadTarget: KioskBrowser.FileWriter;
   if (directory) {
-    await kiosk.makeDirectory(directory, { recursive: true })
-    const path = join(directory, filename)
+    await kiosk.makeDirectory(directory, { recursive: true });
+    const path = join(directory, filename);
     try {
-      downloadTarget = await kiosk.writeFile(path)
+      downloadTarget = await kiosk.writeFile(path);
     } catch (error) {
-      return err({ kind: DownloadErrorKind.OpenFailed, path, error })
+      return err({ kind: DownloadErrorKind.OpenFailed, path, error });
     }
   } else {
     try {
-      const saveAsTarget = await kiosk.saveAs({ defaultPath: filename })
+      const saveAsTarget = await kiosk.saveAs({ defaultPath: filename });
 
       if (!saveAsTarget) {
-        return err({ kind: DownloadErrorKind.NoFileChosen })
+        return err({ kind: DownloadErrorKind.NoFileChosen });
       }
 
-      downloadTarget = saveAsTarget
+      downloadTarget = saveAsTarget;
     } catch (error) {
-      return err({ kind: DownloadErrorKind.OpenFailed, path: filename, error })
+      return err({ kind: DownloadErrorKind.OpenFailed, path: filename, error });
     }
   }
 
@@ -93,24 +93,24 @@ async function kioskDownload(
     await body.pipeTo(
       new WritableStream({
         abort(error) {
-          throw error
+          throw error;
         },
 
         async write(chunk) {
-          await downloadTarget.write(chunk)
+          await downloadTarget.write(chunk);
         },
 
         async close() {
-          await downloadTarget.end()
+          await downloadTarget.end();
         },
       })
-    )
+    );
   } else {
-    await downloadTarget.write((body as unknown) as Uint8Array)
-    await downloadTarget.end()
+    await downloadTarget.write((body as unknown) as Uint8Array);
+    await downloadTarget.end();
   }
 
-  return ok()
+  return ok();
 }
 /**
  * Download data from `url`. By default, this will either use the browser's
@@ -122,9 +122,9 @@ export async function download(
   { into: directory }: { into?: string } = {}
 ): Promise<Result<void, DownloadError>> {
   if (window.kiosk) {
-    return kioskDownload(window.kiosk, url, directory)
+    return kioskDownload(window.kiosk, url, directory);
   }
 
-  window.location.assign(url)
-  return ok()
+  window.location.assign(url);
+  return ok();
 }

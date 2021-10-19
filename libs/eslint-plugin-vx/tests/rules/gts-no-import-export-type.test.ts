@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-no-import-export-type'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-no-import-export-type';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-no-import-export-type', rule, {
   valid: [
@@ -118,4 +118,4 @@ ruleTester.run('gts-no-import-export-type', rule, {
       errors: [{ line: 5, messageId: 'noExportType' }],
     },
   ],
-})
+});

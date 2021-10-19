@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-use-optionals'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-use-optionals';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-no-use-optionals', rule, {
   valid: [
@@ -145,4 +145,4 @@ ruleTester.run('gts-no-use-optionals', rule, {
       errors: [{ messageId: 'useOptionalParams', line: 1 }],
     },
   ],
-})
+});

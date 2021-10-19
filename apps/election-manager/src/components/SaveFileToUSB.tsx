@@ -1,26 +1,26 @@
-import React, { useContext, useState } from 'react'
-import styled from 'styled-components'
-import path from 'path'
-import fileDownload from 'js-file-download'
-import { usbstick, throwIllegalValue } from '@votingworks/utils'
+import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
+import path from 'path';
+import fileDownload from 'js-file-download';
+import { usbstick, throwIllegalValue } from '@votingworks/utils';
 
-import { USBControllerButton } from '@votingworks/ui'
-import assert from 'assert'
-import AppContext from '../contexts/AppContext'
-import Modal from './Modal'
-import Button from './Button'
-import Prose from './Prose'
-import LinkButton from './LinkButton'
-import Loading from './Loading'
-import { MainChild } from './Main'
+import { USBControllerButton } from '@votingworks/ui';
+import assert from 'assert';
+import AppContext from '../contexts/AppContext';
+import Modal from './Modal';
+import Button from './Button';
+import Prose from './Prose';
+import LinkButton from './LinkButton';
+import Loading from './Loading';
+import { MainChild } from './Main';
 
-const { UsbDriveStatus } = usbstick
+const { UsbDriveStatus } = usbstick;
 
 const USBImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
-`
+`;
 
 export enum FileType {
   TallyReport = 'TallyReport',
@@ -31,11 +31,11 @@ export enum FileType {
 }
 
 export interface Props {
-  onClose: () => void
-  generateFileContent: () => Promise<Uint8Array | string>
-  defaultFilename: string
-  fileType: FileType
-  promptToEjectUSB?: boolean
+  onClose: () => void;
+  generateFileContent: () => Promise<Uint8Array | string>;
+  defaultFilename: string;
+  fileType: FileType;
+  promptToEjectUSB?: boolean;
 }
 
 enum ModalState {
@@ -54,76 +54,76 @@ const SaveFileToUSB = ({
 }: Props): JSX.Element => {
   const { usbDriveStatus, usbDriveEject, isOfficialResults } = useContext(
     AppContext
-  )
+  );
 
-  const [currentState, setCurrentState] = useState(ModalState.INIT)
-  const [errorMessage, setErrorMessage] = useState('')
+  const [currentState, setCurrentState] = useState(ModalState.INIT);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const [savedFilename, setSavedFilename] = useState('')
+  const [savedFilename, setSavedFilename] = useState('');
 
   const exportResults = async (openFileDialog: boolean) => {
-    setCurrentState(ModalState.SAVING)
+    setCurrentState(ModalState.SAVING);
 
     try {
-      const results = await generateFileContent()
+      const results = await generateFileContent();
       if (!window.kiosk) {
-        fileDownload(results, defaultFilename, 'text/csv')
+        fileDownload(results, defaultFilename, 'text/csv');
       } else {
-        const usbPath = await usbstick.getDevicePath()
+        const usbPath = await usbstick.getDevicePath();
         if (openFileDialog) {
           const fileWriter = await window.kiosk.saveAs({
             defaultPath: defaultFilename,
-          })
+          });
 
           if (!fileWriter) {
-            throw new Error('could not begin download; no file was chosen')
+            throw new Error('could not begin download; no file was chosen');
           }
 
-          await fileWriter.write(results)
-          setSavedFilename(fileWriter.filename)
-          await fileWriter.end()
+          await fileWriter.write(results);
+          setSavedFilename(fileWriter.filename);
+          await fileWriter.end();
         } else {
-          assert(typeof usbPath !== 'undefined')
-          const pathToFile = path.join(usbPath, defaultFilename)
-          assert(window.kiosk)
-          await window.kiosk.writeFile(pathToFile, results)
-          setSavedFilename(defaultFilename)
+          assert(typeof usbPath !== 'undefined');
+          const pathToFile = path.join(usbPath, defaultFilename);
+          assert(window.kiosk);
+          await window.kiosk.writeFile(pathToFile, results);
+          setSavedFilename(defaultFilename);
         }
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      setCurrentState(ModalState.DONE)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setCurrentState(ModalState.DONE);
     } catch (error) {
-      setErrorMessage(error.message)
-      setCurrentState(ModalState.ERROR)
+      setErrorMessage(error.message);
+      setCurrentState(ModalState.ERROR);
     }
-  }
+  };
 
-  let title = '' // Will be used in headings like Save Title
-  let fileName = '' // Will be used in sentence like "Would you like to save the title?"
+  let title = ''; // Will be used in headings like Save Title
+  let fileName = ''; // Will be used in sentence like "Would you like to save the title?"
   switch (fileType) {
     case FileType.TallyReport:
-      title = `${isOfficialResults ? 'Official' : 'Unofficial'} Tally Report`
-      fileName = 'tally report'
-      break
+      title = `${isOfficialResults ? 'Official' : 'Unofficial'} Tally Report`;
+      fileName = 'tally report';
+      break;
     case FileType.TestDeckTallyReport:
-      title = 'Test Deck Tally Report'
-      fileName = 'test deck tally report'
-      break
+      title = 'Test Deck Tally Report';
+      fileName = 'test deck tally report';
+      break;
     case FileType.Ballot:
-      title = 'Ballot'
-      fileName = 'ballot'
-      break
+      title = 'Ballot';
+      fileName = 'ballot';
+      break;
     case FileType.Results:
-      title = 'Results'
-      fileName = 'election results'
-      break
+      title = 'Results';
+      fileName = 'election results';
+      break;
     case FileType.BatchResultsCSV:
-      title = 'Batch Results'
-      fileName = 'election batch results'
-      break
+      title = 'Batch Results';
+      fileName = 'election batch results';
+      break;
     default:
-      throwIllegalValue(fileType)
+      throwIllegalValue(fileType);
   }
 
   if (currentState === ModalState.ERROR) {
@@ -140,11 +140,11 @@ const SaveFileToUSB = ({
         onOverlayClick={onClose}
         actions={<LinkButton onPress={onClose}>Close</LinkButton>}
       />
-    )
+    );
   }
 
   if (currentState === ModalState.DONE) {
-    let actions = <LinkButton onPress={onClose}>Close</LinkButton>
+    let actions = <LinkButton onPress={onClose}>Close</LinkButton>;
     if (promptToEjectUSB && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
       actions = (
         <React.Fragment>
@@ -156,7 +156,7 @@ const SaveFileToUSB = ({
             usbDriveEject={usbDriveEject}
           />
         </React.Fragment>
-      )
+      );
     }
     return (
       <Modal
@@ -179,15 +179,15 @@ const SaveFileToUSB = ({
         onOverlayClick={onClose}
         actions={actions}
       />
-    )
+    );
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading>Saving {title}</Loading>} />
+    return <Modal content={<Loading>Saving {title}</Loading>} />;
   }
 
   if (currentState !== ModalState.INIT) {
-    throwIllegalValue(currentState)
+    throwIllegalValue(currentState);
   }
 
   switch (usbDriveStatus) {
@@ -223,7 +223,7 @@ const SaveFileToUSB = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case UsbDriveStatus.ejecting:
     case UsbDriveStatus.present:
       return (
@@ -236,7 +236,7 @@ const SaveFileToUSB = ({
             </React.Fragment>
           }
         />
-      )
+      );
     case UsbDriveStatus.mounted: {
       return (
         <Modal
@@ -262,12 +262,12 @@ const SaveFileToUSB = ({
             </React.Fragment>
           }
         />
-      )
+      );
     }
     default:
       // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-      throwIllegalValue(usbDriveStatus)
+      throwIllegalValue(usbDriveStatus);
   }
-}
+};
 
-export default SaveFileToUSB
+export default SaveFileToUSB;

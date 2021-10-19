@@ -16,8 +16,8 @@
  */
 
 export interface Size {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
 export function distance(
@@ -26,11 +26,11 @@ export function distance(
   x2: number,
   y2: number
 ): number {
-  return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+  return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
 }
 
 export function angle(x1: number, y1: number, x2: number, y2: number): number {
-  return Math.atan2(y2 - y1, x2 - x1)
+  return Math.atan2(y2 - y1, x2 - x1);
 }
 
 export function approximatelyEqual(
@@ -38,7 +38,7 @@ export function approximatelyEqual(
   b: number,
   { relativeErrorFactor = 100 }: { relativeErrorFactor?: number } = {}
 ): boolean {
-  const max = Math.max(a, b)
-  const diff = Math.abs(a - b)
-  return diff / max <= Number.EPSILON * relativeErrorFactor
+  const max = Math.max(a, b);
+  const diff = Math.abs(a - b);
+  return diff / max <= Number.EPSILON * relativeErrorFactor;
 }

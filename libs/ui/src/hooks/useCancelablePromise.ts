@@ -1,5 +1,5 @@
-import { useCallback } from 'react'
-import { useMountedState } from './useMountedState'
+import { useCallback } from 'react';
+import { useMountedState } from './useMountedState';
 
 /**
  * React hook for wrapping promises that automatically cancel on unmount.
@@ -18,29 +18,29 @@ export function useCancelablePromise(): <Value>(
   promise: Promise<Value>,
   onCancel?: () => void
 ) => Promise<Value> {
-  const isMounted = useMountedState()
+  const isMounted = useMountedState();
 
   return useCallback(
     async (promise, onCancel) => {
       try {
-        const result = await promise
+        const result = await promise;
         if (isMounted()) {
-          return result
+          return result;
         }
       } catch (error) {
         if (isMounted()) {
-          throw error
+          throw error;
         }
       } finally {
         if (!isMounted()) {
-          onCancel?.()
+          onCancel?.();
         }
       }
 
       return new Promise(() => {
         // never resolves or rejects
-      })
+      });
     },
     [isMounted]
-  )
+  );
 }

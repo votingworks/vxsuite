@@ -6,7 +6,7 @@ import {
   VotingMethodReportScreenProps,
   ManualDataPrecinctScreenProps,
   BatchReportScreenProps,
-} from './config/types'
+} from './config/types';
 
 const routerPaths = {
   root: '/',
@@ -51,6 +51,6 @@ const routerPaths = {
   testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/tally/test-ballot-deck/${precinctId}`,
   overvoteCombinationReport: '/tally/pairs',
-}
+};
 
-export default routerPaths
+export default routerPaths;

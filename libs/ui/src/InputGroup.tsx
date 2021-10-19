@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const InputGroup = styled.div`
   display: inline-flex;
@@ -21,4 +21,4 @@ export const InputGroup = styled.div`
     border: 1px solid #333333;
     background-color: #ffffff;
   }
-`
+`;

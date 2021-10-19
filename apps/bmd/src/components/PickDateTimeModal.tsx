@@ -1,7 +1,7 @@
-import { DateTime } from 'luxon'
-import React, { useCallback, useState } from 'react'
+import { DateTime } from 'luxon';
+import React, { useCallback, useState } from 'react';
 
-import { Button, InputGroup } from '@votingworks/ui'
+import { Button, InputGroup } from '@votingworks/ui';
 
 import {
   AMERICA_TIMEZONES,
@@ -10,21 +10,21 @@ import {
   getDaysInMonth,
   integers,
   MONTHS_SHORT,
-} from '@votingworks/utils'
-import { SelectChangeEventFunction } from '../config/types'
-import Modal from './Modal'
-import Prose from './Prose'
-import Select from './Select'
+} from '@votingworks/utils';
+import { SelectChangeEventFunction } from '../config/types';
+import Modal from './Modal';
+import Prose from './Prose';
+import Select from './Select';
 
-export const MIN_YEAR = 2020
-export const MAX_YEAR = 2030
+export const MIN_YEAR = 2020;
+export const MAX_YEAR = 2030;
 
 export interface Props {
-  disabled?: boolean
-  onCancel(): void
-  onSave(value: DateTime): void
-  saveLabel: string
-  value: DateTime
+  disabled?: boolean;
+  onCancel(): void;
+  onSave(value: DateTime): void;
+  saveLabel: string;
+  value: DateTime;
 }
 
 const PickDateTimeModal = ({
@@ -34,32 +34,32 @@ const PickDateTimeModal = ({
   saveLabel,
   value: currentValue,
 }: Props): JSX.Element => {
-  const [newValue, setNewValue] = useState(currentValue)
-  const systemMeridian = newValue.hour < 12 ? 'AM' : 'PM'
+  const [newValue, setNewValue] = useState(currentValue);
+  const systemMeridian = newValue.hour < 12 ? 'AM' : 'PM';
 
   const updateTimePart: SelectChangeEventFunction = (event) => {
-    const { name, value: stringValue } = event.currentTarget
-    const partValue = parseInt(stringValue, 10)
-    let { hour } = newValue
+    const { name, value: stringValue } = event.currentTarget;
+    const partValue = parseInt(stringValue, 10);
+    let { hour } = newValue;
     if (name === 'hour') {
       if (systemMeridian === 'AM') {
-        hour = partValue % 12
+        hour = partValue % 12;
       } else {
-        hour = (partValue % 12) + 12
+        hour = (partValue % 12) + 12;
       }
     }
     if (name === 'meridian') {
       if (stringValue === 'AM' && newValue.hour >= 12) {
-        hour = newValue.hour - 12
+        hour = newValue.hour - 12;
       }
       if (stringValue === 'PM' && newValue.hour < 12) {
-        hour = newValue.hour + 12
+        hour = newValue.hour + 12;
       }
     }
-    const year = name === 'year' ? partValue : newValue.year
-    const month = name === 'month' ? partValue : newValue.month
-    const lastDayOfMonth = getDaysInMonth(year, month).slice(-1).pop()?.day
-    const day = name === 'day' ? partValue : newValue.day
+    const year = name === 'year' ? partValue : newValue.year;
+    const month = name === 'month' ? partValue : newValue.month;
+    const lastDayOfMonth = getDaysInMonth(year, month).slice(-1).pop()?.day;
+    const day = name === 'day' ? partValue : newValue.day;
     setNewValue(
       DateTime.fromObject({
         year,
@@ -69,8 +69,8 @@ const PickDateTimeModal = ({
         minute: name === 'minute' ? partValue : newValue.minute,
         zone: newValue.zone,
       })
-    )
-  }
+    );
+  };
   const updateTimeZone: SelectChangeEventFunction = useCallback(
     (event) => {
       setNewValue(
@@ -83,13 +83,13 @@ const PickDateTimeModal = ({
           second: newValue.second,
           zone: event.currentTarget.value,
         })
-      )
+      );
     },
     [newValue, setNewValue]
-  )
+  );
   const saveDateAndZone = async () => {
-    onSave(newValue)
-  }
+    onSave(newValue);
+  };
 
   return (
     <Modal
@@ -265,7 +265,7 @@ const PickDateTimeModal = ({
         </React.Fragment>
       }
     />
-  )
-}
+  );
+};
 
-export default PickDateTimeModal
+export default PickDateTimeModal;

@@ -1,13 +1,13 @@
-import { strict as assert } from 'assert'
+import { strict as assert } from 'assert';
 import {
   Election,
   expandEitherNeitherContests,
   writeInCandidate,
   FullElectionTally,
   TallyCategory,
-} from '@votingworks/types'
+} from '@votingworks/types';
 
-import { filterTalliesByParamsAndBatchId } from '../lib/votecounting'
+import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 
 export function* generateRowsForBatchTallyResultsCSV(
   fullElectionTally: FullElectionTally,
@@ -15,41 +15,43 @@ export function* generateRowsForBatchTallyResultsCSV(
 ): Generator<string> {
   const batchResults = fullElectionTally.resultsByCategory.get(
     TallyCategory.Batch
-  )
-  assert(batchResults)
+  );
+  assert(batchResults);
   for (const batchId of Object.keys(batchResults)) {
     const batchTally = filterTalliesByParamsAndBatchId(
       fullElectionTally,
       election,
       batchId,
       {}
-    )
-    const contestVoteTotals: string[] = []
+    );
+    const contestVoteTotals: string[] = [];
     for (const contest of expandEitherNeitherContests(election.contests)) {
-      const contestTally = batchTally.contestTallies[contest.id]
-      contestVoteTotals.push(contestTally?.metadata.ballots.toString() ?? '0')
+      const contestTally = batchTally.contestTallies[contest.id];
+      contestVoteTotals.push(contestTally?.metadata.ballots.toString() ?? '0');
       contestVoteTotals.push(
         contestTally?.metadata.undervotes.toString() ?? '0'
-      )
-      contestVoteTotals.push(contestTally?.metadata.overvotes.toString() ?? '0')
+      );
+      contestVoteTotals.push(
+        contestTally?.metadata.overvotes.toString() ?? '0'
+      );
       if (contest.type === 'candidate') {
         for (const candidate of contest.candidates) {
           contestVoteTotals.push(
             contestTally?.tallies[candidate.id]?.tally.toString() ?? '0'
-          )
+          );
         }
         if (contest.allowWriteIns) {
           contestVoteTotals.push(
             contestTally?.tallies[writeInCandidate.id]?.tally.toString() ?? '0'
-          )
+          );
         }
       } else if (contest.type === 'yesno') {
         contestVoteTotals.push(
           contestTally?.tallies.yes?.tally.toString() ?? '0'
-        )
+        );
         contestVoteTotals.push(
           contestTally?.tallies.no?.tally.toString() ?? '0'
-        )
+        );
       }
     }
     const row = [
@@ -58,37 +60,37 @@ export function* generateRowsForBatchTallyResultsCSV(
       batchTally.scannerIds.join(', '),
       batchTally.numberOfBallotsCounted,
       ...contestVoteTotals,
-    ]
-    yield row.join(',')
+    ];
+    yield row.join(',');
   }
 }
 
 export function generateHeaderRowForBatchResultsCSV(
   election: Election
 ): string {
-  const contestSelectionHeaders: string[] = []
+  const contestSelectionHeaders: string[] = [];
   for (const contest of expandEitherNeitherContests(election.contests)) {
-    let contestTitle = contest.title
+    let contestTitle = contest.title;
     if (contest.partyId) {
-      const party = election.parties.find((p) => p.id === contest.partyId)
+      const party = election.parties.find((p) => p.id === contest.partyId);
       if (party) {
-        contestTitle = `${party.fullName} ${contestTitle}`
+        contestTitle = `${party.fullName} ${contestTitle}`;
       }
     }
-    contestTitle = contestTitle.replace(/[^a-z0-9 _-]+/gi, ' ').trim()
-    contestSelectionHeaders.push(`${contestTitle} - Ballots Cast`)
-    contestSelectionHeaders.push(`${contestTitle} - Undervotes`)
-    contestSelectionHeaders.push(`${contestTitle} - Overvotes`)
+    contestTitle = contestTitle.replace(/[^a-z0-9 _-]+/gi, ' ').trim();
+    contestSelectionHeaders.push(`${contestTitle} - Ballots Cast`);
+    contestSelectionHeaders.push(`${contestTitle} - Undervotes`);
+    contestSelectionHeaders.push(`${contestTitle} - Overvotes`);
     if (contest.type === 'candidate') {
       for (const candidate of contest.candidates) {
-        contestSelectionHeaders.push(`${contestTitle} - ${candidate.name}`)
+        contestSelectionHeaders.push(`${contestTitle} - ${candidate.name}`);
       }
       if (contest.allowWriteIns) {
-        contestSelectionHeaders.push(`${contestTitle} - Write In`)
+        contestSelectionHeaders.push(`${contestTitle} - Write In`);
       }
     } else if (contest.type === 'yesno') {
-      contestSelectionHeaders.push(`${contestTitle} - Yes`)
-      contestSelectionHeaders.push(`${contestTitle} - No`)
+      contestSelectionHeaders.push(`${contestTitle} - Yes`);
+      contestSelectionHeaders.push(`${contestTitle} - No`);
     }
   }
   const headers = [
@@ -97,8 +99,8 @@ export function generateHeaderRowForBatchResultsCSV(
     'Tabulator',
     'Number of Ballots',
     ...contestSelectionHeaders,
-  ]
-  return headers.join(',')
+  ];
+  return headers.join(',');
 }
 
 /**
@@ -117,13 +119,13 @@ export default function generateBatchTallyResultsCSV(
   fullElectionTally: FullElectionTally,
   election: Election
 ): string {
-  let finalDataString = generateHeaderRowForBatchResultsCSV(election)
+  let finalDataString = generateHeaderRowForBatchResultsCSV(election);
   for (const rowCSVString of generateRowsForBatchTallyResultsCSV(
     fullElectionTally,
     election
   )) {
-    finalDataString += `\n${rowCSVString}`
+    finalDataString += `\n${rowCSVString}`;
   }
 
-  return finalDataString
+  return finalDataString;
 }

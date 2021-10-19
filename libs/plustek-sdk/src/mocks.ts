@@ -1,9 +1,9 @@
-import { strict as assert } from 'assert'
-import { err, ok, Result } from '@votingworks/types'
-import { sleep } from '@votingworks/utils'
-import makeDebug from 'debug'
-import { ScannerError } from './errors'
-import { PaperStatus } from './paper-status'
+import { strict as assert } from 'assert';
+import { err, ok, Result } from '@votingworks/types';
+import { sleep } from '@votingworks/utils';
+import makeDebug from 'debug';
+import { ScannerError } from './errors';
+import { PaperStatus } from './paper-status';
 import {
   AcceptResult,
   CalibrateResult,
@@ -13,9 +13,9 @@ import {
   RejectResult,
   ScannerClient,
   ScanResult,
-} from './scanner'
+} from './scanner';
 
-const debug = makeDebug('plustek-sdk:mock-client')
+const debug = makeDebug('plustek-sdk:mock-client');
 
 export enum Errors {
   DuplicateLoad = 'DuplicateLoad',
@@ -29,49 +29,49 @@ export interface Options {
   /**
    * How long does it take to take or release a paper hold forward or backward?
    */
-  toggleHoldDuration?: number
+  toggleHoldDuration?: number;
 
   /**
    * How long does it take to pass a sheet through the scanner forward or
    * backward?
    */
-  passthroughDuration?: number
+  passthroughDuration?: number;
 }
 
 /**
  * Provides a mock `ScannerClient` that acts like the plustek VTM 300.
  */
 export class MockScannerClient implements ScannerClient {
-  private connected = false
-  private unresponsive = false
-  private crashed = false
-  private frontSheet?: readonly string[]
-  private backSheet?: readonly string[]
-  private toggleHoldDuration: number
-  private passthroughDuration: number
+  private connected = false;
+  private unresponsive = false;
+  private crashed = false;
+  private frontSheet?: readonly string[];
+  private backSheet?: readonly string[];
+  private toggleHoldDuration: number;
+  private passthroughDuration: number;
 
   constructor({
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
   }: Options = {}) {
-    this.toggleHoldDuration = toggleHoldDuration
-    this.passthroughDuration = passthroughDuration
+    this.toggleHoldDuration = toggleHoldDuration;
+    this.passthroughDuration = passthroughDuration;
   }
 
   /**
    * "Connects" to the mock scanner, must be called before other interactions.
    */
   async connect(): Promise<void> {
-    debug('connecting')
-    this.connected = true
+    debug('connecting');
+    this.connected = true;
   }
 
   /**
    * "Disconnects" from the mock scanner.
    */
   async disconnect(): Promise<void> {
-    debug('disconnecting')
-    this.connected = false
+    debug('disconnecting');
+    this.connected = false;
   }
 
   /**
@@ -80,63 +80,63 @@ export class MockScannerClient implements ScannerClient {
   async simulateLoadSheet(
     files: readonly string[]
   ): Promise<Result<void, Errors>> {
-    debug('manualLoad files=%o', files)
+    debug('manualLoad files=%o', files);
 
     if (this.unresponsive) {
-      debug('cannot load, scanner unresponsive')
-      return err(Errors.Unresponsive)
+      debug('cannot load, scanner unresponsive');
+      return err(Errors.Unresponsive);
     }
 
     if (this.crashed) {
-      debug('cannot load, plustekctl crashed')
-      return err(Errors.Crashed)
+      debug('cannot load, plustekctl crashed');
+      return err(Errors.Crashed);
     }
 
     if (!this.connected) {
-      debug('cannot load, not connected')
-      return err(Errors.NotConnected)
+      debug('cannot load, not connected');
+      return err(Errors.NotConnected);
     }
 
     if (this.frontSheet) {
-      debug('cannot load, already loaded')
-      return err(Errors.DuplicateLoad)
+      debug('cannot load, already loaded');
+      return err(Errors.DuplicateLoad);
     }
 
-    await sleep(this.toggleHoldDuration)
-    this.frontSheet = files
-    debug('manualLoad success')
-    return ok()
+    await sleep(this.toggleHoldDuration);
+    this.frontSheet = files;
+    debug('manualLoad success');
+    return ok();
   }
 
   /**
    * Removes a loaded sheet if present.
    */
   async simulateRemoveSheet(): Promise<Result<void, Errors>> {
-    debug('manualRemove')
+    debug('manualRemove');
 
     if (this.unresponsive) {
-      debug('cannot remove, scanner unresponsive')
-      return err(Errors.Unresponsive)
+      debug('cannot remove, scanner unresponsive');
+      return err(Errors.Unresponsive);
     }
 
     if (this.crashed) {
-      debug('cannot remove, plustekctl crashed')
-      return err(Errors.Crashed)
+      debug('cannot remove, plustekctl crashed');
+      return err(Errors.Crashed);
     }
 
     if (!this.connected) {
-      debug('cannot remove, not connected')
-      return err(Errors.NotConnected)
+      debug('cannot remove, not connected');
+      return err(Errors.NotConnected);
     }
 
     if (!this.frontSheet) {
-      debug('cannot remove, no paper')
-      return err(Errors.NoPaperToRemove)
+      debug('cannot remove, no paper');
+      return err(Errors.NoPaperToRemove);
     }
 
-    delete this.frontSheet
-    debug('manualRemove success')
-    return ok()
+    delete this.frontSheet;
+    debug('manualRemove success');
+    return ok();
   }
 
   /**
@@ -145,7 +145,7 @@ export class MockScannerClient implements ScannerClient {
    * become responsive again, and a new client/connection must be established.
    */
   simulateUnresponsive(): void {
-    this.unresponsive = true
+    this.unresponsive = true;
   }
 
   /**
@@ -153,56 +153,56 @@ export class MockScannerClient implements ScannerClient {
    * must be established.
    */
   simulatePlustekctlCrash(): void {
-    this.crashed = true
+    this.crashed = true;
   }
 
   /**
    * Determines whether the client is connected.
    */
   isConnected(): boolean {
-    return this.connected && !this.crashed
+    return this.connected && !this.crashed;
   }
 
   /**
    * Gets the current paper status.
    */
   async getPaperStatus(): Promise<GetPaperStatusResult> {
-    debug('getPaperStatus')
+    debug('getPaperStatus');
 
     if (this.unresponsive) {
-      debug('cannot get paper status, scanner unresponsive')
-      return err(ScannerError.SaneStatusIoError)
+      debug('cannot get paper status, scanner unresponsive');
+      return err(ScannerError.SaneStatusIoError);
     }
 
     if (this.crashed) {
-      debug('cannot get paper status, plustekctl crashed')
+      debug('cannot get paper status, plustekctl crashed');
       return err(
         new ClientDisconnectedError('#simulateCrash was previously called')
-      )
+      );
     }
 
     if (!this.connected) {
-      debug('cannot get paper status, not connected')
-      return err(ScannerError.NoDevices)
+      debug('cannot get paper status, not connected');
+      return err(ScannerError.NoDevices);
     }
 
     if (!this.frontSheet && !this.backSheet) {
-      debug('nothing loaded')
-      return ok(PaperStatus.VtmDevReadyNoPaper)
+      debug('nothing loaded');
+      return ok(PaperStatus.VtmDevReadyNoPaper);
     }
 
     if (this.frontSheet && !this.backSheet) {
-      debug('only front has paper')
-      return ok(PaperStatus.VtmReadyToScan)
+      debug('only front has paper');
+      return ok(PaperStatus.VtmReadyToScan);
     }
 
     if (!this.frontSheet && this.backSheet) {
-      debug('only back has paper')
-      return ok(PaperStatus.VtmReadyToEject)
+      debug('only back has paper');
+      return ok(PaperStatus.VtmReadyToEject);
     }
 
-    debug('front and back both have paper')
-    return ok(PaperStatus.VtmBothSideHavePaper)
+    debug('front and back both have paper');
+    return ok(PaperStatus.VtmBothSideHavePaper);
   }
 
   /**
@@ -214,238 +214,238 @@ export class MockScannerClient implements ScannerClient {
     interval = 50,
     timeout,
   }: {
-    status: PaperStatus
-    timeout?: number
-    interval?: number
+    status: PaperStatus;
+    timeout?: number;
+    interval?: number;
   }): Promise<GetPaperStatusResult | undefined> {
-    debug('waitForStatus')
+    debug('waitForStatus');
 
     if (this.unresponsive) {
-      debug('cannot wait for status, scanner unresponsive')
-      return err(ScannerError.SaneStatusIoError)
+      debug('cannot wait for status, scanner unresponsive');
+      return err(ScannerError.SaneStatusIoError);
     }
 
     if (this.crashed) {
-      debug('cannot wait for status, plustekctl crashed')
+      debug('cannot wait for status, plustekctl crashed');
       return err(
         new ClientDisconnectedError('#simulateCrash was previously called')
-      )
+      );
     }
 
     if (!this.connected) {
-      debug('cannot wait for status, not connected')
-      return err(ScannerError.NoDevices)
+      debug('cannot wait for status, not connected');
+      return err(ScannerError.NoDevices);
     }
 
-    let result: GetPaperStatusResult | undefined
-    const until = typeof timeout === 'number' ? Date.now() + timeout : Infinity
+    let result: GetPaperStatusResult | undefined;
+    const until = typeof timeout === 'number' ? Date.now() + timeout : Infinity;
 
     while (Date.now() < until) {
-      result = await this.getPaperStatus()
+      result = await this.getPaperStatus();
       /* istanbul ignore next */
-      debug('got paper status: %s', result.ok() ?? result.err())
+      debug('got paper status: %s', result.ok() ?? result.err());
       if (result.ok() === status) {
-        break
+        break;
       }
 
-      await sleep(Math.min(interval, until - Date.now()))
+      await sleep(Math.min(interval, until - Date.now()));
     }
 
     /* istanbul ignore next */
-    debug('final paper status: %s', result?.ok() ?? result?.err())
-    return result
+    debug('final paper status: %s', result?.ok() ?? result?.err());
+    return result;
   }
 
   /**
    * Scans the currently-loaded sheet if any is present.
    */
   async scan(): Promise<ScanResult> {
-    debug('scan')
+    debug('scan');
 
     if (this.unresponsive) {
-      debug('cannot scan, scanner unresponsive')
-      return err(ScannerError.PaperStatusErrorFeeding)
+      debug('cannot scan, scanner unresponsive');
+      return err(ScannerError.PaperStatusErrorFeeding);
     }
 
     if (this.crashed) {
-      debug('cannot scan, plustekctl crashed')
+      debug('cannot scan, plustekctl crashed');
       return err(
         new ClientDisconnectedError('#simulateCrash was previously called')
-      )
+      );
     }
 
     if (!this.connected) {
-      debug('cannot scan, not connected')
-      return err(ScannerError.NoDevices)
+      debug('cannot scan, not connected');
+      return err(ScannerError.NoDevices);
     }
 
     if (!this.frontSheet && this.backSheet) {
-      debug('cannot scan, paper is held at back')
-      return err(ScannerError.VtmPsReadyToEject)
+      debug('cannot scan, paper is held at back');
+      return err(ScannerError.VtmPsReadyToEject);
     }
 
     if (!this.frontSheet && !this.backSheet) {
-      debug('cannot scan, no paper')
-      return err(ScannerError.VtmPsDevReadyNoPaper)
+      debug('cannot scan, no paper');
+      return err(ScannerError.VtmPsDevReadyNoPaper);
     }
 
     if (this.frontSheet && this.backSheet) {
-      debug('cannot scan, both sides have paper')
-      return err(ScannerError.VtmBothSideHavePaper)
+      debug('cannot scan, both sides have paper');
+      return err(ScannerError.VtmBothSideHavePaper);
     }
 
-    await sleep(this.passthroughDuration)
-    assert(this.frontSheet)
-    this.backSheet = this.frontSheet
-    delete this.frontSheet
-    debug('scanned files=%o', this.backSheet)
-    return ok({ files: this.backSheet.slice() })
+    await sleep(this.passthroughDuration);
+    assert(this.frontSheet);
+    this.backSheet = this.frontSheet;
+    delete this.frontSheet;
+    debug('scanned files=%o', this.backSheet);
+    return ok({ files: this.backSheet.slice() });
   }
 
   /**
    * Accepts the currently-loaded sheet if any.
    */
   async accept(): Promise<AcceptResult> {
-    debug('accept')
+    debug('accept');
 
     if (this.unresponsive) {
-      debug('cannot accept, scanner unresponsive')
-      return err(ScannerError.SaneStatusIoError)
+      debug('cannot accept, scanner unresponsive');
+      return err(ScannerError.SaneStatusIoError);
     }
 
     if (this.crashed) {
-      debug('cannot accept, plustekctl crashed')
+      debug('cannot accept, plustekctl crashed');
       return err(
         new ClientDisconnectedError('#simulateCrash was previously called')
-      )
+      );
     }
 
     if (!this.connected) {
-      debug('cannot accept, not connected')
-      return err(ScannerError.NoDevices)
+      debug('cannot accept, not connected');
+      return err(ScannerError.NoDevices);
     }
 
     if (this.frontSheet && this.backSheet) {
-      debug('cannot accept, both sides have paper')
-      return err(ScannerError.VtmBothSideHavePaper)
+      debug('cannot accept, both sides have paper');
+      return err(ScannerError.VtmBothSideHavePaper);
     }
 
     if (!this.frontSheet && !this.backSheet) {
-      debug('cannot accept, no paper')
-      return err(ScannerError.VtmPsDevReadyNoPaper)
+      debug('cannot accept, no paper');
+      return err(ScannerError.VtmPsDevReadyNoPaper);
     }
 
     if (this.frontSheet) {
-      await sleep(this.passthroughDuration)
+      await sleep(this.passthroughDuration);
     } else {
-      await sleep(this.toggleHoldDuration)
+      await sleep(this.toggleHoldDuration);
     }
 
-    delete this.frontSheet
-    delete this.backSheet
-    debug('accept success')
-    return ok()
+    delete this.frontSheet;
+    delete this.backSheet;
+    debug('accept success');
+    return ok();
   }
 
   /**
    * Rejects and optionally holds the currently-loaded sheet if any.
    */
   async reject({ hold }: { hold: boolean }): Promise<RejectResult> {
-    debug('reject hold=%s', hold)
+    debug('reject hold=%s', hold);
 
     if (this.unresponsive) {
-      debug('cannot reject, scanner unresponsive')
-      return err(ScannerError.SaneStatusIoError)
+      debug('cannot reject, scanner unresponsive');
+      return err(ScannerError.SaneStatusIoError);
     }
 
     if (this.crashed) {
-      debug('cannot reject, plustekctl crashed')
+      debug('cannot reject, plustekctl crashed');
       return err(
         new ClientDisconnectedError('#simulateCrash was previously called')
-      )
+      );
     }
 
     if (!this.connected) {
-      debug('cannot reject, not connected')
-      return err(ScannerError.NoDevices)
+      debug('cannot reject, not connected');
+      return err(ScannerError.NoDevices);
     }
 
     if (this.frontSheet && this.backSheet) {
-      debug('cannot reject, both sides have paper')
-      return err(ScannerError.VtmBothSideHavePaper)
+      debug('cannot reject, both sides have paper');
+      return err(ScannerError.VtmBothSideHavePaper);
     }
 
     if (!this.frontSheet && !this.backSheet) {
-      debug('cannot reject, no paper')
-      return err(ScannerError.VtmPsDevReadyNoPaper)
+      debug('cannot reject, no paper');
+      return err(ScannerError.VtmPsDevReadyNoPaper);
     }
 
     if (this.frontSheet) {
-      await sleep(this.passthroughDuration)
+      await sleep(this.passthroughDuration);
     } else {
-      await sleep(this.toggleHoldDuration)
+      await sleep(this.toggleHoldDuration);
     }
 
     if (hold) {
-      this.frontSheet = this.backSheet ?? this.frontSheet
-      delete this.backSheet
+      this.frontSheet = this.backSheet ?? this.frontSheet;
+      delete this.backSheet;
     } else {
-      delete this.frontSheet
-      delete this.backSheet
+      delete this.frontSheet;
+      delete this.backSheet;
     }
 
-    debug('reject success')
-    return ok()
+    debug('reject success');
+    return ok();
   }
 
   async calibrate(): Promise<CalibrateResult> {
-    debug('calibrate')
+    debug('calibrate');
 
     if (this.unresponsive) {
-      debug('cannot calibrate, scanner unresponsive')
-      return err(ScannerError.SaneStatusIoError)
+      debug('cannot calibrate, scanner unresponsive');
+      return err(ScannerError.SaneStatusIoError);
     }
 
     if (this.crashed) {
-      debug('cannot calibrate, plustekctl crashed')
+      debug('cannot calibrate, plustekctl crashed');
       return err(
         new ClientDisconnectedError('#simulateCrash was previously called')
-      )
+      );
     }
 
     if (!this.connected) {
-      debug('cannot reject, not connected')
-      return err(ScannerError.NoDevices)
+      debug('cannot reject, not connected');
+      return err(ScannerError.NoDevices);
     }
 
     if (this.frontSheet && this.backSheet) {
-      debug('cannot calibrate, both sides have paper')
-      return err(ScannerError.VtmBothSideHavePaper)
+      debug('cannot calibrate, both sides have paper');
+      return err(ScannerError.VtmBothSideHavePaper);
     }
 
     if (!this.frontSheet && !this.backSheet) {
-      debug('cannot calibrate, no paper')
-      return err(ScannerError.VtmPsDevReadyNoPaper)
+      debug('cannot calibrate, no paper');
+      return err(ScannerError.VtmPsDevReadyNoPaper);
     }
 
     if (!this.frontSheet && this.backSheet) {
-      debug('cannot calibrate, paper held at back')
-      return err(ScannerError.SaneStatusNoDocs)
+      debug('cannot calibrate, paper held at back');
+      return err(ScannerError.SaneStatusNoDocs);
     }
 
-    await sleep(this.passthroughDuration * 3)
-    delete this.frontSheet
-    delete this.backSheet
-    debug('calibrate success')
-    return ok()
+    await sleep(this.passthroughDuration * 3);
+    delete this.frontSheet;
+    delete this.backSheet;
+    debug('calibrate success');
+    return ok();
   }
 
   /**
    * Closes the connection to the mock scanner.
    */
   async close(): Promise<CloseResult> {
-    debug('close')
-    this.connected = false
-    return ok()
+    debug('close');
+    this.connected = false;
+    return ok();
   }
 }

@@ -15,16 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { join, basename, dirname, extname } from 'path'
+import { join, basename, dirname, extname } from 'path';
 
 export function adjacentFile(
   path: string,
   suffix: string,
   newExt?: string
 ): string {
-  const ext = extname(path)
-  const base = basename(path, ext)
-  const dir = dirname(path)
+  const ext = extname(path);
+  const base = basename(path, ext);
+  const dir = dirname(path);
 
-  return join(dir, base + suffix + (newExt || ext))
+  return join(dir, base + suffix + (newExt || ext));
 }

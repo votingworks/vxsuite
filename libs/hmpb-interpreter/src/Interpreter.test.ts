@@ -1,21 +1,21 @@
-import { BallotTargetMark, BallotType } from '@votingworks/types'
-import { fail } from 'assert'
-import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99'
-import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election'
-import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c'
-import * as oaklawn from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library'
-import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020'
-import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020'
-import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019'
-import Interpreter from './Interpreter'
-import { DetectQRCodeResult } from './types'
+import { BallotTargetMark, BallotType } from '@votingworks/types';
+import { fail } from 'assert';
+import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election';
+import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
+import * as oaklawn from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
+import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020';
+import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020';
+import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019';
+import Interpreter from './Interpreter';
+import { DetectQRCodeResult } from './types';
 
 test('interpret three-column template with instructions', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
-  const imageData = await fixtures.blankPage1.imageData()
-  const template = await interpreter.interpretTemplate(imageData)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
+  const imageData = await fixtures.blankPage1.imageData();
+  const template = await interpreter.interpretTemplate(imageData);
 
   expect(template.ballotImage.metadata).toMatchInlineSnapshot(`
     Object {
@@ -29,7 +29,7 @@ test('interpret three-column template with instructions', async () => {
       "pageNumber": 1,
       "precinctId": "42",
     }
-  `)
+  `);
 
   expect(template.contests).toMatchInlineSnapshot(`
     Array [
@@ -576,16 +576,16 @@ test('interpret three-column template with instructions', async () => {
         ],
       },
     ]
-  `)
-})
+  `);
+});
 
 test('interpret two-column template', async () => {
-  const { election } = choctawMock2020
-  const interpreter = new Interpreter(election)
+  const { election } = choctawMock2020;
+  const interpreter = new Interpreter(election);
 
   {
-    const imageData = await choctawMock2020.blankPage1.imageData()
-    const template = await interpreter.addTemplate(imageData)
+    const imageData = await choctawMock2020.blankPage1.imageData();
+    const template = await interpreter.addTemplate(imageData);
 
     expect(template.ballotImage.metadata).toMatchInlineSnapshot(`
       Object {
@@ -601,7 +601,7 @@ test('interpret two-column template', async () => {
         "pageNumber": 1,
         "precinctId": "6525",
       }
-    `)
+    `);
 
     expect(template.contests).toMatchInlineSnapshot(`
       Array [
@@ -1120,12 +1120,12 @@ test('interpret two-column template', async () => {
           ],
         },
       ]
-    `)
+    `);
   }
 
   {
-    const imageData = await choctawMock2020.blankPage2.imageData()
-    const template = await interpreter.addTemplate(imageData)
+    const imageData = await choctawMock2020.blankPage2.imageData();
+    const template = await interpreter.addTemplate(imageData);
 
     expect(template.ballotImage.metadata).toMatchInlineSnapshot(`
           Object {
@@ -1141,7 +1141,7 @@ test('interpret two-column template', async () => {
             "pageNumber": 2,
             "precinctId": "6525",
           }
-      `)
+      `);
 
     expect(template.contests).toMatchInlineSnapshot(`
       Array [
@@ -1406,7 +1406,7 @@ test('interpret two-column template', async () => {
           ],
         },
       ]
-    `)
+    `);
   }
 
   {
@@ -1414,7 +1414,7 @@ test('interpret two-column template', async () => {
       ballot: { votes },
     } = await interpreter.interpretBallot(
       await choctawMock2020.filledInPage1.imageData()
-    )
+    );
     expect(votes).toMatchInlineSnapshot(`
       Object {
         "775020870": Array [
@@ -1452,7 +1452,7 @@ test('interpret two-column template', async () => {
           },
         ],
       }
-    `)
+    `);
   }
 
   {
@@ -1460,7 +1460,7 @@ test('interpret two-column template', async () => {
       ballot: { votes },
     } = await interpreter.interpretBallot(
       await choctawMock2020.filledInPage2.imageData()
-    )
+    );
     expect(votes).toMatchInlineSnapshot(`
       Object {
         "750000015": Array [
@@ -1476,48 +1476,50 @@ test('interpret two-column template', async () => {
           "no",
         ],
       }
-    `)
+    `);
   }
-})
+});
 
 test('interpret empty ballot', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
   await expect(
     interpreter.interpretBallot(await fixtures.blankPage1.imageData())
   ).rejects.toThrow(
     'Cannot scan ballot because not all required templates have been added'
-  )
+  );
   const p1 = await interpreter.addTemplate(
     await fixtures.blankPage1.imageData()
-  )
-  await interpreter.addTemplate(await fixtures.blankPage2.imageData())
+  );
+  await interpreter.addTemplate(await fixtures.blankPage2.imageData());
 
   const {
     matchedTemplate,
     mappedBallot,
     metadata,
     ballot,
-  } = await interpreter.interpretBallot(await fixtures.blankPage1.imageData())
-  expect(matchedTemplate === p1).toBe(true)
-  expect(mappedBallot.width).toBe(matchedTemplate.ballotImage.imageData.width)
-  expect(mappedBallot.height).toBe(matchedTemplate.ballotImage.imageData.height)
-  expect(metadata.ballotStyleId).toEqual(p1.ballotImage.metadata.ballotStyleId)
-  expect(ballot.votes).toEqual({})
-})
+  } = await interpreter.interpretBallot(await fixtures.blankPage1.imageData());
+  expect(matchedTemplate === p1).toBe(true);
+  expect(mappedBallot.width).toBe(matchedTemplate.ballotImage.imageData.width);
+  expect(mappedBallot.height).toBe(
+    matchedTemplate.ballotImage.imageData.height
+  );
+  expect(metadata.ballotStyleId).toEqual(p1.ballotImage.metadata.ballotStyleId);
+  expect(ballot.votes).toEqual({});
+});
 
 test('interpret votes', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
-  await interpreter.addTemplate(await fixtures.blankPage1.imageData())
+  await interpreter.addTemplate(await fixtures.blankPage1.imageData());
 
   const { ballot, marks } = await interpreter.interpretBallot(
     await fixtures.filledInPage1.imageData()
-  )
+  );
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "dallas-county-sheriff": Array [
@@ -1563,7 +1565,7 @@ test('interpret votes', async () => {
         },
       ],
     }
-  `)
+  `);
 
   expect(
     marks.map((mark) =>
@@ -1661,27 +1663,27 @@ test('interpret votes', async () => {
         "type": "candidate",
       },
     ]
-  `)
-})
+  `);
+});
 
 test('invalid marks', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
     await fixtures.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await fixtures.blankPage2.imageData(),
     await fixtures.blankPage2.metadata()
-  )
+  );
 
   const { ballot, marks } = await interpreter.interpretBallot(
     await fixtures.filledInPage2.imageData(),
     await fixtures.filledInPage2.metadata()
-  )
+  );
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "dallas-city-council": Array [
@@ -1715,7 +1717,7 @@ test('invalid marks', async () => {
         "yes",
       ],
     }
-  `)
+  `);
 
   expect(marks).toMatchInlineSnapshot(`
     Array [
@@ -3008,21 +3010,21 @@ test('invalid marks', async () => {
         "writeInTextScore": 0,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('custom QR code reader', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
+  const fixtures = oaklawn;
+  const { election } = fixtures;
   const interpreter = new Interpreter({
     election,
     detectQRCode: async (): Promise<DetectQRCodeResult> => ({
       data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
     }),
-  })
+  });
   const template = await interpreter.interpretTemplate(
     await fixtures.blankPage1.imageData()
-  )
+  );
 
   expect(template.ballotImage.metadata).toEqual({
     locales: { primary: 'en-US' },
@@ -3032,26 +3034,26 @@ test('custom QR code reader', async () => {
     pageNumber: 3,
     electionHash: '',
     ballotType: BallotType.Standard,
-  })
-})
+  });
+});
 
 test('upside-down ballot', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
     await fixtures.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await fixtures.blankPage2.imageData(),
     await fixtures.blankPage2.metadata()
-  )
+  );
 
   const { ballot, metadata } = await interpreter.interpretBallot(
     await fixtures.filledInPage1.imageData()
-  )
+  );
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "dallas-county-sheriff": Array [
@@ -3097,7 +3099,7 @@ test('upside-down ballot', async () => {
         },
       ],
     }
-  `)
+  `);
 
   const {
     ballot: { votes: votesWithFlipped },
@@ -3105,15 +3107,15 @@ test('upside-down ballot', async () => {
     await fixtures.filledInPage1.imageData({ flipped: true }),
     metadata,
     { flipped: true }
-  )
+  );
 
-  expect(votesWithFlipped).toEqual(ballot.votes)
-})
+  expect(votesWithFlipped).toEqual(ballot.votes);
+});
 
 test('enforcing test vs live mode', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
   await expect(
     interpreter.addTemplate(
@@ -3122,16 +3124,16 @@ test('enforcing test vs live mode', async () => {
     )
   ).rejects.toThrowError(
     'interpreter configured with testMode=false cannot add templates with isTestMode=true'
-  )
+  );
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
     await fixtures.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await fixtures.blankPage2.imageData(),
     await fixtures.blankPage2.metadata()
-  )
+  );
 
   await expect(
     interpreter.interpretBallot(
@@ -3140,13 +3142,13 @@ test('enforcing test vs live mode', async () => {
     )
   ).rejects.toThrowError(
     'interpreter configured with testMode=false cannot interpret ballots with isTestMode=true'
-  )
-})
+  );
+});
 
 test('can interpret a template that is not in the same mode as the interpreter', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter({ election, testMode: true })
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter({ election, testMode: true });
 
   expect(
     (
@@ -3155,21 +3157,21 @@ test('can interpret a template that is not in the same mode as the interpreter',
         await fixtures.blankPage1.metadata({ isTestMode: false })
       )
     ).ballotImage.metadata.isTestMode
-  ).toBe(false)
-})
+  ).toBe(false);
+});
 
 test('dual language ballot', async () => {
-  const { election } = hamilton
-  const interpreter = new Interpreter({ election })
+  const { election } = hamilton;
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await hamilton.blankPage1.imageData(),
     await hamilton.blankPage1.metadata()
-  )
+  );
 
   const { ballot } = await interpreter.interpretBallot(
     await hamilton.filledInPage1.imageData()
-  )
+  );
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "president": Array [
@@ -3194,8 +3196,8 @@ test('dual language ballot', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 /**
  * TODO: Enable this test when contest box identification improves.
@@ -3205,56 +3207,56 @@ test('dual language ballot', async () => {
  * someone draws lines connecting boxes then we can't distinguish them.
  */
 test.skip('handles lines connecting contest boxes', async () => {
-  const { election } = hamilton
-  const interpreter = new Interpreter({ election })
+  const { election } = hamilton;
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await hamilton.blankPage1.imageData(),
     await hamilton.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await hamilton.blankPage2.imageData(),
     await hamilton.blankPage2.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await hamilton.blankPage3.imageData(),
     await hamilton.blankPage3.metadata()
-  )
+  );
 
   const { ballot } = await interpreter.interpretBallot(
     await hamilton.filledInPage3.imageData()
-  )
-  expect(ballot.votes).toMatchInlineSnapshot()
-})
+  );
+  expect(ballot.votes).toMatchInlineSnapshot();
+});
 
 test('yesno overvotes', async () => {
-  const { election } = hamilton
-  const interpreter = new Interpreter({ election })
+  const { election } = hamilton;
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await hamilton.blankPage1.imageData(),
     await hamilton.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await hamilton.blankPage2.imageData(),
     await hamilton.blankPage2.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await hamilton.blankPage3.imageData(),
     await hamilton.blankPage3.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await hamilton.blankPage4.imageData(),
     await hamilton.blankPage4.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await hamilton.blankPage5.imageData(),
     await hamilton.blankPage5.metadata()
-  )
+  );
 
   const { ballot } = await interpreter.interpretBallot(
     await hamilton.filledInPage5YesNoOvervote.imageData()
-  )
+  );
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "102": Array [
@@ -3268,26 +3270,26 @@ test('yesno overvotes', async () => {
         "no",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('regression: page outline', async () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = oaklawn;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
     await fixtures.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await fixtures.blankPage2.imageData(),
     await fixtures.blankPage2.metadata()
-  )
+  );
 
   const { ballot } = await interpreter.interpretBallot(
     await fixtures.partialBorderPage2.imageData()
-  )
+  );
   expect(ballot.votes).toMatchInlineSnapshot(`
     Object {
       "dallas-city-council": Array [
@@ -3321,22 +3323,22 @@ test('regression: page outline', async () => {
         "yes",
       ],
     }
-  `)
-})
+  `);
+});
 
 test('choctaw general 2019', async () => {
-  jest.setTimeout(10000)
-  const { election } = choctaw2019
-  const interpreter = new Interpreter(election)
+  jest.setTimeout(10000);
+  const { election } = choctaw2019;
+  const interpreter = new Interpreter(election);
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage1.imageData(),
     await choctaw2019.blankPage1.metadata()
-  )
+  );
   await interpreter.addTemplate(
     await choctaw2019.blankPage2.imageData(),
     await choctaw2019.blankPage2.metadata()
-  )
+  );
 
   expect(
     (
@@ -3397,7 +3399,7 @@ test('choctaw general 2019', async () => {
         },
       ],
     }
-  `)
+  `);
 
   expect(
     (
@@ -3437,27 +3439,27 @@ test('choctaw general 2019', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('determining layout of a ballot with borders', async () => {
-  const { election } = choctaw2019
-  const interpreter = new Interpreter(election)
+  const { election } = choctaw2019;
+  const interpreter = new Interpreter(election);
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage1.imageData(),
     await choctaw2019.blankPage1.metadata()
-  )
+  );
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage2.imageData(),
     await choctaw2019.blankPage2.metadata()
-  )
+  );
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage3.imageData(),
     await choctaw2019.blankPage3.metadata()
-  )
+  );
 
   expect(
     (
@@ -3466,7 +3468,7 @@ test('determining layout of a ballot with borders', async () => {
         await choctaw2019.blankPage1.metadata()
       )
     ).ballot.votes
-  ).toMatchInlineSnapshot(`Object {}`)
+  ).toMatchInlineSnapshot(`Object {}`);
 
   expect(
     (
@@ -3475,42 +3477,42 @@ test('determining layout of a ballot with borders', async () => {
         await choctaw2019.blankPage3.metadata()
       )
     ).ballot.votes
-  ).toMatchInlineSnapshot(`Object {}`)
-})
+  ).toMatchInlineSnapshot(`Object {}`);
+});
 
 test('takes the mark score vote threshold from the election definition if present', () => {
-  const fixtures = oaklawn
-  const { election } = fixtures
+  const fixtures = oaklawn;
+  const { election } = fixtures;
   const interpreter = new Interpreter({
     ...election,
     markThresholds: {
       definite: 0.99,
       marginal: 0.98,
     },
-  })
+  });
 
   // eslint-disable-next-line dot-notation
-  expect(interpreter['markScoreVoteThreshold']).toEqual(0.99)
-})
+  expect(interpreter['markScoreVoteThreshold']).toEqual(0.99);
+});
 
 test('choctaw 2020 general', async () => {
-  const { election } = choctaw2020
-  const interpreter = new Interpreter(election)
+  const { election } = choctaw2020;
+  const interpreter = new Interpreter(election);
 
   await interpreter.addTemplate(
     await choctaw2020.blankPage1.imageData(),
     await choctaw2020.blankPage1.metadata()
-  )
+  );
 
   await interpreter.addTemplate(
     await choctaw2020.blankPage2.imageData(),
     await choctaw2020.blankPage2.metadata()
-  )
+  );
 
   const p1Interpreted = await interpreter.interpretBallot(
     await choctaw2020.filledInPage1.imageData(),
     await choctaw2020.filledInPage1.metadata()
-  )
+  );
   expect(
     p1Interpreted.marks
       .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
@@ -3607,12 +3609,12 @@ test('choctaw 2020 general', async () => {
         "score": 0,
       },
     ]
-  `)
+  `);
 
   const p2Interpreted = await interpreter.interpretBallot(
     await choctaw2020.filledInPage2.imageData(),
     await choctaw2020.filledInPage2.metadata()
-  )
+  );
   expect(
     p2Interpreted.marks
       .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
@@ -3644,41 +3646,41 @@ test('choctaw 2020 general', async () => {
         "score": 0.46774193548387094,
       },
     ]
-  `)
-})
+  `);
+});
 
 test('normalizes intentionally empty pages correctly', async () => {
-  const fixtures = choctaw2020Special
-  const { election } = fixtures
-  const interpreter = new Interpreter(election)
+  const fixtures = choctaw2020Special;
+  const { election } = fixtures;
+  const interpreter = new Interpreter(election);
 
-  await interpreter.addTemplate(await fixtures.blankPage1.imageData())
+  await interpreter.addTemplate(await fixtures.blankPage1.imageData());
   const page2Template = await interpreter.addTemplate(
     await fixtures.blankPage2.imageData()
-  )
+  );
   const { mappedBallot } = await interpreter.interpretBallot(
     await fixtures.absenteePage2.imageData()
-  )
+  );
 
   // there was a bug where all pixels were white
-  expect(mappedBallot.data.some((px) => px !== 0xff)).toBe(true)
+  expect(mappedBallot.data.some((px) => px !== 0xff)).toBe(true);
 
   // ensure the size is the same as the template
-  expect(mappedBallot.width).toEqual(page2Template.ballotImage.imageData.width)
+  expect(mappedBallot.width).toEqual(page2Template.ballotImage.imageData.width);
   expect(mappedBallot.height).toEqual(
     page2Template.ballotImage.imageData.height
-  )
-})
+  );
+});
 
 test('regression: overvote on choctaw county p1-05', async () => {
-  const fixtures = choctaw2020LegalSize
-  const { election } = fixtures
-  const interpreter = new Interpreter({ election, testMode: true })
+  const fixtures = choctaw2020LegalSize;
+  const { election } = fixtures;
+  const interpreter = new Interpreter({ election, testMode: true });
 
-  await interpreter.addTemplate(await fixtures.district5BlankPage1.imageData())
+  await interpreter.addTemplate(await fixtures.district5BlankPage1.imageData());
   const interpretation = await interpreter.interpretBallot(
     await fixtures.filledInPage1_05.imageData()
-  )
+  );
 
   expect(
     interpretation.marks
@@ -3877,7 +3879,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
     ]
-  `)
+  `);
   expect(interpretation.ballot.votes).toMatchInlineSnapshot(`
     Object {
       "775020890": Array [
@@ -3921,30 +3923,30 @@ test('regression: overvote on choctaw county p1-05', async () => {
         },
       ],
     }
-  `)
-})
+  `);
+});
 
 test('rejects an incorrect-but-plausible contest layout', async () => {
-  const fixtures = choctaw2020LegalSize
+  const fixtures = choctaw2020LegalSize;
   const interpreter = new Interpreter({
     election: fixtures.election,
     testMode: true,
-  })
+  });
 
-  await interpreter.addTemplate(await fixtures.district5BlankPage1.imageData())
+  await interpreter.addTemplate(await fixtures.district5BlankPage1.imageData());
   const p2 = await interpreter.addTemplate(
     await fixtures.district5BlankPage2.imageData()
-  )
+  );
 
   try {
     await interpreter.interpretBallot(
       await fixtures.filledInPage2_06.imageData(),
       p2.ballotImage.metadata
-    )
-    fail('expected interpretation to fail')
+    );
+    fail('expected interpretation to fail');
   } catch (error) {
     expect(error.message).toMatch(
       'ballot and template contest shapes do not correspond'
-    )
+    );
   }
-})
+});

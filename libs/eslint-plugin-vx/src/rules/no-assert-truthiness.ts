@@ -2,41 +2,43 @@ import {
   AST_NODE_TYPES,
   ESLintUtils,
   TSESTree,
-} from '@typescript-eslint/experimental-utils'
-import * as ts from 'typescript'
-import { createRule } from '../util'
+} from '@typescript-eslint/experimental-utils';
+import * as ts from 'typescript';
+import { createRule } from '../util';
 
 export interface Options {
-  objects: boolean
-  asserts: string[]
+  objects: boolean;
+  asserts: string[];
 }
 
 function typeIncludesStringOrNumber(type: ts.Type): boolean {
   if (type.isUnion()) {
-    return type.types.some((subtype) => typeIncludesStringOrNumber(subtype))
+    return type.types.some((subtype) => typeIncludesStringOrNumber(subtype));
   }
 
-  const flags = type.getFlags()
+  const flags = type.getFlags();
 
   return (
     flags === ts.TypeFlags.String ||
     flags === ts.TypeFlags.Number ||
     flags === ts.TypeFlags.NumberLiteral ||
     flags === ts.TypeFlags.StringLiteral
-  )
+  );
 }
 
 function typeIncludesUndefined(type: ts.Type): boolean {
   if (type.isUnion()) {
-    return type.types.some((subtype) => typeIncludesUndefined(subtype))
+    return type.types.some((subtype) => typeIncludesUndefined(subtype));
   }
 
-  return type.getFlags() === ts.TypeFlags.Undefined
+  return type.getFlags() === ts.TypeFlags.Undefined;
 }
 
 function typeIsBoolean(type: ts.Type): boolean {
-  const flags = type.getFlags()
-  return flags === ts.TypeFlags.Boolean || flags === ts.TypeFlags.BooleanLiteral
+  const flags = type.getFlags();
+  return (
+    flags === ts.TypeFlags.Boolean || flags === ts.TypeFlags.BooleanLiteral
+  );
 }
 
 export default createRule({
@@ -76,38 +78,38 @@ export default createRule({
   ],
 
   create(context, [options]) {
-    const parserServices = ESLintUtils.getParserServices(context)
-    const checker = parserServices.program.getTypeChecker()
+    const parserServices = ESLintUtils.getParserServices(context);
+    const checker = parserServices.program.getTypeChecker();
 
     return {
       CallExpression(node: TSESTree.CallExpression): void {
         if (node.callee.type !== AST_NODE_TYPES.Identifier) {
-          return
+          return;
         }
 
         if (!options.asserts.includes(node.callee.name)) {
-          return
+          return;
         }
 
         if (node.arguments.length === 0) {
-          return
+          return;
         }
 
-        const [assertValue] = node.arguments
+        const [assertValue] = node.arguments;
         const tsAssertionNode =
-          parserServices.esTreeNodeToTSNodeMap.get(assertValue)
-        const assertValueType = checker.getTypeAtLocation(tsAssertionNode)
+          parserServices.esTreeNodeToTSNodeMap.get(assertValue);
+        const assertValueType = checker.getTypeAtLocation(tsAssertionNode);
 
         if (typeIsBoolean(assertValueType)) {
-          return
+          return;
         }
 
-        const hasStringOrNumber = typeIncludesStringOrNumber(assertValueType)
-        const isViolation = options.objects || hasStringOrNumber
+        const hasStringOrNumber = typeIncludesStringOrNumber(assertValueType);
+        const isViolation = options.objects || hasStringOrNumber;
 
         if (isViolation) {
-          const includesUndefined = typeIncludesUndefined(assertValueType)
-          const isFixable = !hasStringOrNumber && includesUndefined
+          const includesUndefined = typeIncludesUndefined(assertValueType);
+          const isFixable = !hasStringOrNumber && includesUndefined;
           context.report({
             node: assertValue,
             messageId: hasStringOrNumber
@@ -122,9 +124,9 @@ export default createRule({
                     ` !== 'undefined'`
                   ),
                 ],
-          })
+          });
         }
       },
-    }
+    };
   },
-})
+});

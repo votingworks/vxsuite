@@ -1,9 +1,9 @@
-import styled, { css } from 'styled-components'
-import ReactTextareaAutosize from 'react-textarea-autosize'
+import styled, { css } from 'styled-components';
+import ReactTextareaAutosize from 'react-textarea-autosize';
 
 interface Props {
-  disabled?: boolean
-  resize?: boolean
+  disabled?: boolean;
+  resize?: boolean;
 }
 
 const styles = css<Props>`
@@ -15,14 +15,14 @@ const styles = css<Props>`
   line-height: 1.25;
   font-size: 1rem;
   resize: ${({ resize = 0 }) => (resize ? undefined : 'none')};
-`
+`;
 
 export const TextareaAutosize = styled(ReactTextareaAutosize)<Props>`
   ${styles}/* stylelint-disable-line value-keyword-case */
-`
+`;
 
 const Textarea = styled.textarea<Props>`
   ${styles}/* stylelint-disable-line value-keyword-case */
-`
+`;
 
-export default Textarea
+export default Textarea;

@@ -2,15 +2,15 @@
  * Builds a text node with the given text content.
  */
 export function text(data: string): Text {
-  return document.createTextNode(data)
+  return document.createTextNode(data);
 }
 
 export type CreatableElementType = Parameters<
   typeof document['createElement']
->[0]
+>[0];
 
 export interface Attributes {
-  [key: string]: string
+  [key: string]: string;
 }
 
 /**
@@ -27,7 +27,7 @@ export interface Attributes {
 function element(
   type: CreatableElementType,
   ...children: Node[]
-): ReturnType<typeof document['createElement']>
+): ReturnType<typeof document['createElement']>;
 
 /**
  * Builds an element with tag name `type`, whatever attributes the element
@@ -46,7 +46,7 @@ function element(
   type: CreatableElementType,
   attributes: { [key: string]: string },
   ...children: Node[]
-): ReturnType<typeof document['createElement']>
+): ReturnType<typeof document['createElement']>;
 
 /**
  * Builds an element with tag name `type`, whatever attributes the element
@@ -65,27 +65,27 @@ function element(
   type: CreatableElementType,
   ...rest: unknown[]
 ): ReturnType<typeof document['createElement']> {
-  const result = document.createElement(type)
-  let attributes: Attributes
-  let children: Node[]
+  const result = document.createElement(type);
+  let attributes: Attributes;
+  let children: Node[];
 
   if (rest[0] instanceof Node) {
-    attributes = {}
-    children = rest as Node[]
+    attributes = {};
+    children = rest as Node[];
   } else {
-    attributes = rest[0] as Attributes
-    children = rest.slice(1) as Node[]
+    attributes = rest[0] as Attributes;
+    children = rest.slice(1) as Node[];
   }
 
   for (const key in attributes) {
     if (Object.prototype.hasOwnProperty.call(attributes, key)) {
-      result.setAttribute(key, attributes[key])
+      result.setAttribute(key, attributes[key]);
     }
   }
 
-  result.append(...children)
+  result.append(...children);
 
-  return result
+  return result;
 }
 
-export { element }
+export { element };

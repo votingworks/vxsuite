@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { Route, Switch, useHistory } from 'react-router-dom'
+import React, { useEffect, useState, useCallback } from 'react';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import {
   ElectionDefinition,
   MarkThresholds,
   Optional,
   safeParseJSON,
-} from '@votingworks/types'
-import styled from 'styled-components'
+} from '@votingworks/types';
+import styled from 'styled-components';
 
 import {
   ScannerStatus,
@@ -16,87 +16,87 @@ import {
   ScanContinueRequest,
   ScanContinueResponseSchema,
   ZeroResponseSchema,
-} from '@votingworks/types/api/module-scan'
+} from '@votingworks/types/api/module-scan';
 import {
   usbstick,
   KioskStorage,
   LocalStorage,
   Card,
   Hardware,
-} from '@votingworks/utils'
+} from '@votingworks/utils';
 import {
   useUsbDrive,
   USBControllerButton,
   useSmartcard,
   SetupCardReaderPage,
   useUserSession,
-} from '@votingworks/ui'
-import { MachineConfig } from './config/types'
-import AppContext from './contexts/AppContext'
+} from '@votingworks/ui';
+import { MachineConfig } from './config/types';
+import AppContext from './contexts/AppContext';
 
-import Button from './components/Button'
-import Main, { MainChild } from './components/Main'
-import Screen from './components/Screen'
-import Prose from './components/Prose'
-import Text from './components/Text'
-import ScanButton from './components/ScanButton'
-import useInterval from './hooks/useInterval'
+import Button from './components/Button';
+import Main, { MainChild } from './components/Main';
+import Screen from './components/Screen';
+import Prose from './components/Prose';
+import Text from './components/Text';
+import ScanButton from './components/ScanButton';
+import useInterval from './hooks/useInterval';
 
-import LoadElectionScreen from './screens/LoadElectionScreen'
-import DashboardScreen from './screens/DashboardScreen'
-import BallotEjectScreen from './screens/BallotEjectScreen'
-import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen'
+import LoadElectionScreen from './screens/LoadElectionScreen';
+import DashboardScreen from './screens/DashboardScreen';
+import BallotEjectScreen from './screens/BallotEjectScreen';
+import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen';
 
-import 'normalize.css'
-import './App.css'
-import download from './util/download'
-import * as config from './api/config'
-import LinkButton from './components/LinkButton'
-import MainNav from './components/MainNav'
-import StatusFooter from './components/StatusFooter'
+import 'normalize.css';
+import './App.css';
+import download from './util/download';
+import * as config from './api/config';
+import LinkButton from './components/LinkButton';
+import MainNav from './components/MainNav';
+import StatusFooter from './components/StatusFooter';
 
-import ExportResultsModal from './components/ExportResultsModal'
-import machineConfigProvider from './util/machineConfig'
-import { MachineLockedScreen } from './screens/MachineLockedScreen'
-import { InvalidCardScreen } from './screens/InvalidCardScreen'
-import { UnlockMachineScreen } from './screens/UnlockMachineScreen'
+import ExportResultsModal from './components/ExportResultsModal';
+import machineConfigProvider from './util/machineConfig';
+import { MachineLockedScreen } from './screens/MachineLockedScreen';
+import { InvalidCardScreen } from './screens/InvalidCardScreen';
+import { UnlockMachineScreen } from './screens/UnlockMachineScreen';
 
 const Buttons = styled.div`
   padding: 10px 0;
   & * {
     margin-right: 10px;
   }
-`
+`;
 
 export interface AppRootProps {
-  card: Card
-  hardware: Hardware
+  card: Card;
+  hardware: Hardware;
 }
 
 const App = ({ card, hardware }: AppRootProps): JSX.Element => {
-  const history = useHistory()
-  const [isConfigLoaded, setIsConfigLoaded] = useState(false)
+  const history = useHistory();
+  const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [
     electionDefinition,
     setElectionDefinition,
-  ] = useState<ElectionDefinition>()
-  const [electionJustLoaded, setElectionJustLoaded] = useState(false)
-  const [isTestMode, setTestMode] = useState(false)
-  const [isTogglingTestMode, setTogglingTestMode] = useState(false)
+  ] = useState<ElectionDefinition>();
+  const [electionJustLoaded, setElectionJustLoaded] = useState(false);
+  const [isTestMode, setTestMode] = useState(false);
+  const [isTogglingTestMode, setTogglingTestMode] = useState(false);
   const [status, setStatus] = useState<GetScanStatusResponse>({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
-  })
+  });
 
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
     bypassAuthentication: false,
-  })
+  });
 
-  const usbDrive = useUsbDrive()
+  const usbDrive = useUsbDrive();
 
-  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware })
+  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware });
   const {
     currentUserSession,
     attemptToAuthenticateAdminUser,
@@ -106,91 +106,91 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     electionDefinition,
     persistAuthentication: true,
     bypassAuthentication: machineConfig.bypassAuthentication,
-  })
-  const [isExportingCVRs, setIsExportingCVRs] = useState(false)
+  });
+  const [isExportingCVRs, setIsExportingCVRs] = useState(false);
 
   const [markThresholds, setMarkThresholds] = useState<
     Optional<MarkThresholds>
-  >()
+  >();
 
-  const { adjudication } = status
+  const { adjudication } = status;
 
-  const [isScanning, setIsScanning] = useState(false)
+  const [isScanning, setIsScanning] = useState(false);
 
   const refreshConfig = useCallback(async () => {
-    setElectionDefinition(await config.getElectionDefinition())
-    setTestMode(await config.getTestMode())
-    setMarkThresholds(await config.getMarkThresholdOverrides())
-  }, [])
+    setElectionDefinition(await config.getElectionDefinition());
+    setTestMode(await config.getTestMode());
+    setMarkThresholds(await config.getMarkThresholdOverrides());
+  }, []);
 
   const updateElectionDefinition = async (e?: ElectionDefinition) => {
-    setElectionDefinition(e)
-    setElectionJustLoaded(true)
-  }
+    setElectionDefinition(e);
+    setElectionJustLoaded(true);
+  };
 
   useEffect(() => {
     const initialize = async () => {
       try {
-        await refreshConfig()
-        setIsConfigLoaded(true)
+        await refreshConfig();
+        setIsConfigLoaded(true);
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.error('failed to initialize:', e)
-        window.setTimeout(initialize, 1000)
+        console.error('failed to initialize:', e);
+        window.setTimeout(initialize, 1000);
       }
-    }
+    };
 
-    void initialize()
-  }, [refreshConfig])
+    void initialize();
+  }, [refreshConfig]);
 
   useEffect(() => {
     const initialize = async () => {
       try {
-        const newMachineConfig = await machineConfigProvider.get()
-        setMachineConfig(newMachineConfig)
+        const newMachineConfig = await machineConfigProvider.get();
+        setMachineConfig(newMachineConfig);
       } catch (e) {
         // TODO: what should happen in machineConfig not returned?
       }
-    }
+    };
 
-    void initialize()
-  }, [setMachineConfig])
+    void initialize();
+  }, [setMachineConfig]);
 
   const updateStatus = useCallback(async () => {
     try {
-      const body = await (await fetch('/scan/status')).text()
+      const body = await (await fetch('/scan/status')).text();
       const newStatus = safeParseJSON(
         body,
         GetScanStatusResponseSchema
-      ).unsafeUnwrap()
+      ).unsafeUnwrap();
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
-          return prevStatus
+          return prevStatus;
         }
         setIsScanning(
           newStatus.adjudication.remaining === 0 &&
             newStatus.batches.some(({ endedAt }) => !endedAt)
-        )
-        return newStatus
-      })
+        );
+        return newStatus;
+      });
     } catch (error) {
-      setIsScanning(false)
-      console.log('failed updateStatus()', error) // eslint-disable-line no-console
+      setIsScanning(false);
+      console.log('failed updateStatus()', error); // eslint-disable-line no-console
     }
-  }, [setStatus])
+  }, [setStatus]);
 
   const unconfigureServer = useCallback(async () => {
     try {
-      await config.setElection(undefined)
-      await refreshConfig()
-      history.replace('/')
+      await config.setElection(undefined);
+      await refreshConfig();
+      history.replace('/');
     } catch (error) {
-      console.log('failed unconfigureServer()', error) // eslint-disable-line no-console
+      console.log('failed unconfigureServer()', error); // eslint-disable-line no-console
     }
-  }, [history, refreshConfig])
+  }, [history, refreshConfig]);
 
   const scanBatch = useCallback(async () => {
-    setIsScanning(true)
+    setIsScanning(true);
     try {
       const result = safeParseJSON(
         await (
@@ -199,19 +199,19 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
           })
         ).text(),
         ScanBatchResponseSchema
-      ).unsafeUnwrap()
+      ).unsafeUnwrap();
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
-        window.alert(`could not scan: ${JSON.stringify(result.errors)}`)
-        setIsScanning(false)
+        window.alert(`could not scan: ${JSON.stringify(result.errors)}`);
+        setIsScanning(false);
       }
     } catch (error) {
-      console.log('failed handleFileInput()', error) // eslint-disable-line no-console
+      console.log('failed handleFileInput()', error); // eslint-disable-line no-console
     }
-  }, [])
+  }, []);
 
   const continueScanning = useCallback(async (request: ScanContinueRequest) => {
-    setIsScanning(true)
+    setIsScanning(true);
     try {
       safeParseJSON(
         await (
@@ -224,11 +224,11 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
           })
         ).text(),
         ScanContinueResponseSchema
-      ).unsafeUnwrap()
+      ).unsafeUnwrap();
     } catch (error) {
-      console.log('failed handleFileInput()', error) // eslint-disable-line no-console
+      console.log('failed handleFileInput()', error); // eslint-disable-line no-console
     }
-  }, [])
+  }, []);
 
   const zeroData = useCallback(async () => {
     try {
@@ -239,75 +239,75 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
           })
         ).text(),
         ZeroResponseSchema
-      ).unsafeUnwrap()
-      await refreshConfig()
-      history.replace('/')
+      ).unsafeUnwrap();
+      await refreshConfig();
+      history.replace('/');
     } catch (error) {
-      console.log('failed zeroData()', error) // eslint-disable-line no-console
+      console.log('failed zeroData()', error); // eslint-disable-line no-console
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history])
+  }, [history]);
 
   const backup = useCallback(async () => {
-    await download('/scan/backup')
-  }, [])
+    await download('/scan/backup');
+  }, []);
 
   const toggleTestMode = useCallback(async () => {
     try {
-      setTogglingTestMode(true)
-      await config.setTestMode(!isTestMode)
-      await refreshConfig()
-      history.replace('/')
+      setTogglingTestMode(true);
+      await config.setTestMode(!isTestMode);
+      await refreshConfig();
+      history.replace('/');
     } finally {
-      setTogglingTestMode(false)
+      setTogglingTestMode(false);
     }
-  }, [history, isTestMode, refreshConfig])
+  }, [history, isTestMode, refreshConfig]);
 
   const setMarkThresholdOverrides = useCallback(
     async (markThresholdOverrides?: MarkThresholds) => {
-      await config.setMarkThresholdOverrides(markThresholdOverrides)
-      await refreshConfig()
-      history.replace('/')
+      await config.setMarkThresholdOverrides(markThresholdOverrides);
+      await refreshConfig();
+      history.replace('/');
     },
     [history, refreshConfig]
-  )
+  );
 
   const deleteBatch = useCallback(async (id: string) => {
     await fetch(`/scan/batch/${id}`, {
       method: 'DELETE',
-    })
-  }, [])
+    });
+  }, []);
 
   useInterval(
     useCallback(async () => {
       if (electionDefinition) {
-        await updateStatus()
+        await updateStatus();
       }
     }, [electionDefinition, updateStatus]),
     1000
-  )
+  );
 
-  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent
+  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
   useEffect(() => {
-    void updateStatus()
-  }, [updateStatus])
+    void updateStatus();
+  }, [updateStatus]);
 
   useEffect(() => {
     if (
       electionJustLoaded &&
       displayUsbStatus === usbstick.UsbDriveStatus.recentlyEjected
     ) {
-      setElectionJustLoaded(false)
+      setElectionJustLoaded(false);
     }
-  }, [electionJustLoaded, displayUsbStatus])
+  }, [electionJustLoaded, displayUsbStatus]);
 
   const storage = window.kiosk
     ? new KioskStorage(window.kiosk)
-    : new LocalStorage()
+    : new LocalStorage();
 
   if (!hasCardReaderAttached) {
-    return <SetupCardReaderPage />
+    return <SetupCardReaderPage />;
   }
 
   if (!currentUserSession) {
@@ -324,7 +324,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
       >
         <MachineLockedScreen />
       </AppContext.Provider>
-    )
+    );
   }
 
   if (currentUserSession.type !== 'admin') {
@@ -341,7 +341,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
       >
         <InvalidCardScreen />
       </AppContext.Provider>
-    )
+    );
   }
 
   if (!currentUserSession.authenticated) {
@@ -360,7 +360,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
           attemptToAuthenticateAdminUser={attemptToAuthenticateAdminUser}
         />
       </AppContext.Provider>
-    )
+    );
   }
 
   if (electionDefinition) {
@@ -406,7 +406,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
             </MainNav>
           </Screen>
         </AppContext.Provider>
-      )
+      );
     }
     if (adjudication.remaining > 0 && !isScanning) {
       return (
@@ -425,16 +425,16 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
             isTestMode={isTestMode}
           />
         </AppContext.Provider>
-      )
+      );
     }
 
-    let exportButtonTitle
+    let exportButtonTitle;
     if (adjudication.remaining > 0) {
       exportButtonTitle =
-        'You cannot export results until all ballots have been adjudicated.'
+        'You cannot export results until all ballots have been adjudicated.';
     } else if (status.batches.length === 0) {
       exportButtonTitle =
-        'You cannot export results until you have scanned at least 1 ballot.'
+        'You cannot export results until you have scanned at least 1 ballot.';
     }
 
     return (
@@ -513,7 +513,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
           </Route>
         </Switch>
       </AppContext.Provider>
-    )
+    );
   }
 
   if (isConfigLoaded) {
@@ -530,7 +530,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
       >
         <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />
       </AppContext.Provider>
-    )
+    );
   }
 
   return (
@@ -541,7 +541,7 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default App
+export default App;

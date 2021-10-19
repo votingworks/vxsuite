@@ -1,47 +1,47 @@
-import { strict as assert } from 'assert'
-import React, { useState, useCallback, useEffect, useContext } from 'react'
-import path from 'path'
+import { strict as assert } from 'assert';
+import React, { useState, useCallback, useEffect, useContext } from 'react';
+import path from 'path';
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 import {
   parseBallotExportPackageInfoFromFilename,
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   ElectionData,
-} from '@votingworks/utils'
-import { USBControllerButton } from '@votingworks/ui'
-import Prose from './Prose'
-import Main, { MainChild } from './Main'
-import MainNav from './MainNav'
-import Screen from './Screen'
-import Text from './Text'
-import Loading from './Loading'
-import FileInputButton from './FileInputButton'
-import AppContext from '../contexts/AppContext'
+} from '@votingworks/utils';
+import { USBControllerButton } from '@votingworks/ui';
+import Prose from './Prose';
+import Main, { MainChild } from './Main';
+import MainNav from './MainNav';
+import Screen from './Screen';
+import Text from './Text';
+import Loading from './Loading';
+import FileInputButton from './FileInputButton';
+import AppContext from '../contexts/AppContext';
 
-import Button from './Button'
-import Table, { TD } from './Table'
+import Button from './Button';
+import Table, { TD } from './Table';
 
 const Image = styled.img`
   float: right;
   max-width: 300px;
   margin-top: -35px;
   margin-left: -10px;
-`
+`;
 
 const ListItem = styled.li`
   margin: 0 0 10px 0;
-`
+`;
 
 const Title = styled.span`
   text-transform: capitalize;
-`
+`;
 
 export interface Props {
-  acceptManuallyChosenFile(file: File): Promise<void>
+  acceptManuallyChosenFile(file: File): Promise<void>;
   acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
-  ): Promise<void>
+  ): Promise<void>;
 }
 
 const ElectionConfiguration = ({
@@ -50,69 +50,69 @@ const ElectionConfiguration = ({
 }: Props): JSX.Element => {
   const [foundFilenames, setFoundFilenames] = useState<
     KioskBrowser.FileSystemEntry[]
-  >([])
-  const [loadingFiles, setLoadingFiles] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const { usbDriveStatus, usbDriveEject, lockMachine } = useContext(AppContext)
+  >([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { usbDriveStatus, usbDriveEject, lockMachine } = useContext(AppContext);
 
   const acceptAutomaticallyChosenFile = async (
     file: KioskBrowser.FileSystemEntry
   ) => {
     try {
-      await acceptAutomaticallyChosenFileFromProps(file)
+      await acceptAutomaticallyChosenFileFromProps(file);
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage(error.message);
     }
-  }
+  };
 
   const acceptManuallyChosenFile = async (file: File) => {
     try {
-      await acceptManuallyChosenFileFromProps(file)
+      await acceptManuallyChosenFileFromProps(file);
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage(error.message);
     }
-  }
+  };
 
   const fetchFilenames = useCallback(async () => {
-    setLoadingFiles(true)
-    const usbPath = await usbstick.getDevicePath()
+    setLoadingFiles(true);
+    const usbPath = await usbstick.getDevicePath();
     try {
-      assert(typeof usbPath !== 'undefined')
-      assert(window.kiosk)
+      assert(typeof usbPath !== 'undefined');
+      assert(window.kiosk);
       const files = await window.kiosk.getFileSystemEntries(
         path.join(usbPath, BALLOT_PACKAGE_FOLDER)
-      )
+      );
       setFoundFilenames(
         files.filter((f) => f.type === 1 && f.name.endsWith('.zip'))
-      )
-      setLoadingFiles(false)
+      );
+      setLoadingFiles(false);
     } catch (err) {
       if (err.message.includes('ENOENT')) {
         // The directory on the usb drive was not found. Treat this the same
         // as finding no matching zip files.
-        setFoundFilenames([])
-        setLoadingFiles(false)
+        setFoundFilenames([]);
+        setLoadingFiles(false);
       } else {
-        throw err
+        throw err;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setFoundFilenames, setLoadingFiles, usbDriveStatus])
+  }, [setFoundFilenames, setLoadingFiles, usbDriveStatus]);
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
-      void fetchFilenames()
+      void fetchFilenames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usbDriveStatus])
+  }, [usbDriveStatus]);
 
   const handleFileInput = async (event: React.FormEvent<HTMLInputElement>) => {
-    const input = event.currentTarget
-    const file = input.files && input.files[0]
+    const input = event.currentTarget;
+    const file = input.files && input.files[0];
     if (file) {
-      await acceptManuallyChosenFile(file)
+      await acceptManuallyChosenFile(file);
     }
-  }
+  };
 
   const mainNav = (
     <MainNav isTestMode={false}>
@@ -124,7 +124,7 @@ const ElectionConfiguration = ({
         usbDriveStatus={usbDriveStatus}
       />
     </MainNav>
-  )
+  );
 
   if (
     usbDriveStatus === usbstick.UsbDriveStatus.present ||
@@ -140,7 +140,7 @@ const ElectionConfiguration = ({
         </Main>
         {mainNav}
       </Screen>
-    )
+    );
   }
 
   if (usbDriveStatus === usbstick.UsbDriveStatus.mounted && !loadingFiles) {
@@ -150,30 +150,30 @@ const ElectionConfiguration = ({
         return {
           parsedInfo: parseBallotExportPackageInfoFromFilename(f.name),
           fileEntry: f,
-        }
+        };
       })
       .filter(
         (
           f
         ): f is {
-          parsedInfo: ElectionData
-          fileEntry: KioskBrowser.FileSystemEntry
+          parsedInfo: ElectionData;
+          fileEntry: KioskBrowser.FileSystemEntry;
         } => !!f.parsedInfo
       )
       .sort(
         (a, b) =>
           b.parsedInfo.timestamp.getTime() - a.parsedInfo.timestamp.getTime()
-      )
+      );
 
     // Create table rows for each found file
-    const fileOptions = []
+    const fileOptions = [];
     for (const { parsedInfo, fileEntry } of parsedFileInformation) {
       const {
         electionCounty,
         electionName,
         electionHash,
         timestamp,
-      } = parsedInfo
+      } = parsedInfo;
       fileOptions.push(
         <tr key={fileEntry.name} data-testid="table-row">
           <td>{timestamp.toLocaleString()}</td>
@@ -193,7 +193,7 @@ const ElectionConfiguration = ({
             </Button>
           </TD>
         </tr>
-      )
+      );
     }
 
     // If there were no valid files found prompt the user to select a file themselves.
@@ -225,7 +225,7 @@ const ElectionConfiguration = ({
           </Main>
           {mainNav}
         </Screen>
-      )
+      );
     }
 
     return (
@@ -281,7 +281,7 @@ const ElectionConfiguration = ({
         </Main>
         {mainNav}
       </Screen>
-    )
+    );
   }
 
   // No USB Drive was found show initial screen.
@@ -317,7 +317,7 @@ const ElectionConfiguration = ({
       </Main>
       {mainNav}
     </Screen>
-  )
-}
+  );
+};
 
-export default ElectionConfiguration
+export default ElectionConfiguration;

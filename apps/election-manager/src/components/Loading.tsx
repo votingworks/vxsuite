@@ -1,20 +1,20 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import { ProgressEllipsis } from '@votingworks/ui'
-import Prose from './Prose'
+import { ProgressEllipsis } from '@votingworks/ui';
+import Prose from './Prose';
 
 const Fullscreen = styled.div`
   display: flex;
   flex: 1;
   align-items: center;
   justify-content: center;
-`
+`;
 
 interface Props {
-  children?: string | string[]
-  isFullscreen?: boolean
-  as?: keyof JSX.IntrinsicElements
+  children?: string | string[];
+  isFullscreen?: boolean;
+  as?: keyof JSX.IntrinsicElements;
 }
 
 const Loading = ({
@@ -30,11 +30,11 @@ const Loading = ({
         {children}
       </ProgressEllipsis>
     </Prose>
-  )
+  );
   if (isFullscreen) {
-    return <Fullscreen>{content}</Fullscreen>
+    return <Fullscreen>{content}</Fullscreen>;
   }
-  return content
-}
+  return content;
+};
 
-export default Loading
+export default Loading;

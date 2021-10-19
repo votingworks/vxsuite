@@ -1,4 +1,4 @@
-import { ScreenReader, SpeakOptions, TextToSpeech } from '../../config/types'
+import { ScreenReader, SpeakOptions, TextToSpeech } from '../../config/types';
 
 /**
  * Implements `ScreenReader` using the ARIA DOM attributes.
@@ -13,21 +13,21 @@ export default class AriaScreenReader implements ScreenReader {
    * Call this with an event target when a focus event occurs. Resolves when speaking is done.
    */
   async onFocus(target?: EventTarget): Promise<void> {
-    await this.speakEventTarget(target)
+    await this.speakEventTarget(target);
   }
 
   /**
    * Call this with an event target when a click event occurs. Resolves when speaking is done.
    */
   async onClick(target?: EventTarget): Promise<void> {
-    await this.speakEventTarget(target)
+    await this.speakEventTarget(target);
   }
 
   /**
    * Call this when a page load occurs. Resolves when speaking is done.
    */
   async onPageLoad(): Promise<void> {
-    this.tts.stop()
+    this.tts.stop();
   }
 
   /**
@@ -35,8 +35,8 @@ export default class AriaScreenReader implements ScreenReader {
    * is done.
    */
   async enable(): Promise<void> {
-    this.unmute()
-    await this.speak('Screen reader enabled', { now: true })
+    this.unmute();
+    await this.speak('Screen reader enabled', { now: true });
   }
 
   /**
@@ -44,8 +44,8 @@ export default class AriaScreenReader implements ScreenReader {
    * is done.
    */
   async disable(): Promise<void> {
-    await this.speak('Screen reader disabled', { now: true })
-    this.mute()
+    await this.speak('Screen reader disabled', { now: true });
+    this.mute();
   }
 
   /**
@@ -54,9 +54,9 @@ export default class AriaScreenReader implements ScreenReader {
    */
   async toggle(enabled = this.isMuted()): Promise<void> {
     if (enabled) {
-      await this.enable()
+      await this.enable();
     } else {
-      await this.disable()
+      await this.disable();
     }
   }
 
@@ -64,28 +64,28 @@ export default class AriaScreenReader implements ScreenReader {
    * Prevents any sound from being made but otherwise functions normally.
    */
   mute(): void {
-    return this.tts.mute()
+    return this.tts.mute();
   }
 
   /**
    * Allows sounds to be made.
    */
   unmute(): void {
-    return this.tts.unmute()
+    return this.tts.unmute();
   }
 
   /**
    * Checks whether this TTS is muted.
    */
   isMuted(): boolean {
-    return this.tts.isMuted()
+    return this.tts.isMuted();
   }
 
   /**
    * Toggles muted state, or sets it according to the argument.
    */
   toggleMuted(muted?: boolean): void {
-    this.tts.toggleMuted(muted)
+    this.tts.toggleMuted(muted);
   }
 
   /**
@@ -99,18 +99,18 @@ export default class AriaScreenReader implements ScreenReader {
         `[ScreenReader] speak(now: ${
           options.now || false
         }) (muted: ${this.isMuted()}) ${text}`
-      )
+      );
     }
-    await this.tts.speak(text, options)
+    await this.tts.speak(text, options);
   }
 
   /**
    * Directly triggers speech of an element. Resolves when speaking is done.
    */
   async speakNode(node: Node, options?: SpeakOptions): Promise<void> {
-    const description = this.describe(node)
+    const description = this.describe(node);
     if (description) {
-      await this.speak(description, options)
+      await this.speak(description, options);
     }
   }
 
@@ -122,7 +122,7 @@ export default class AriaScreenReader implements ScreenReader {
     { now = true }: SpeakOptions = {}
   ): Promise<void> {
     if (target && target instanceof Element) {
-      await this.speakNode(target, { now })
+      await this.speakNode(target, { now });
     }
   }
 
@@ -130,7 +130,7 @@ export default class AriaScreenReader implements ScreenReader {
    * Generates a clean text string to be spoken for an element.
    */
   describe(node: Node): string | undefined {
-    return this.cleanDescription(this.describeNode(node))
+    return this.cleanDescription(this.describeNode(node));
   }
 
   /**
@@ -138,17 +138,17 @@ export default class AriaScreenReader implements ScreenReader {
    */
   private describeNode(node: Node): string | undefined {
     if (!(node instanceof Text) && !(node instanceof Element)) {
-      return
+      return;
     }
 
     return node instanceof Text
       ? this.describeText(node)
-      : this.describeElement(node)
+      : this.describeElement(node);
   }
 
   private cleanDescription(description?: string): string | undefined {
     if (!description) {
-      return
+      return;
     }
     return description
       .replace(/ +/g, ' ')
@@ -158,35 +158,35 @@ export default class AriaScreenReader implements ScreenReader {
       .replace(/ +,/g, ',')
       .replace(/\.+/g, '.')
       .replace(/ +$/g, '')
-      .replace(/^ +/g, '')
+      .replace(/^ +/g, '');
   }
 
   private describeText(node: Text): string | undefined {
-    return node.textContent ?? undefined
+    return node.textContent ?? undefined;
   }
 
   private describeElement(node: Element): string | undefined {
     if (this.isHidden(node)) {
-      return
+      return;
     }
 
-    const terminator = this.isBlockElement(node) ? '.' : ''
-    const ariaLabel = node.getAttribute('aria-label')
+    const terminator = this.isBlockElement(node) ? '.' : '';
+    const ariaLabel = node.getAttribute('aria-label');
 
     if (ariaLabel) {
-      return ariaLabel + terminator
+      return ariaLabel + terminator;
     }
 
-    const ariaLabeledBy = node.getAttribute('aria-labeledby')
+    const ariaLabeledBy = node.getAttribute('aria-labeledby');
 
     if (ariaLabeledBy) {
-      const element = document.getElementById(ariaLabeledBy)
+      const element = document.getElementById(ariaLabeledBy);
 
       if (element) {
-        const description = this.describeNode(element)
+        const description = this.describeNode(element);
 
         if (description) {
-          return description + terminator
+          return description + terminator;
         }
       }
     }
@@ -196,14 +196,14 @@ export default class AriaScreenReader implements ScreenReader {
         .map((child) => this.describeNode(child))
         .filter(Boolean)
         .join(' ') + terminator
-    )
+    );
   }
 
   /**
    * Determines whether `element` is a block or inline element.
    */
   private isBlockElement(element: Element): boolean {
-    return getComputedStyle(element).display === 'block'
+    return getComputedStyle(element).display === 'block';
   }
 
   /**
@@ -215,15 +215,15 @@ export default class AriaScreenReader implements ScreenReader {
       element.hasAttribute('aria-hidden') &&
       element.getAttribute('aria-hidden') !== 'false'
     ) {
-      return true
+      return true;
     }
 
-    const style = getComputedStyle(element)
+    const style = getComputedStyle(element);
 
     if (style.display === 'none' || style.visibility === 'hidden') {
-      return true
+      return true;
     }
 
-    return false
+    return false;
   }
 }

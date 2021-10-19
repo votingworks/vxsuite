@@ -15,69 +15,69 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { loadImage, createCanvas } from 'canvas'
-import { approximatelyEqual, Size } from './geometry'
+import { loadImage, createCanvas } from 'canvas';
+import { approximatelyEqual, Size } from './geometry';
 
 export async function readGrayscaleImage(
   path: string,
   { scale = 1, size }: { scale?: number; size?: Size } = {}
 ): Promise<{
-  imageData: ImageData
-  originalImageData: ImageData
-  scale: number
+  imageData: ImageData;
+  originalImageData: ImageData;
+  scale: number;
 }> {
-  const image = await loadImage(path)
-  let effectiveSize: Size
-  let effectiveScale: number
+  const image = await loadImage(path);
+  let effectiveSize: Size;
+  let effectiveScale: number;
 
   if (size) {
-    const xScale = size.width / image.width
-    const yScale = size.height / image.height
+    const xScale = size.width / image.width;
+    const yScale = size.height / image.height;
 
     if (!approximatelyEqual(xScale, yScale)) {
       throw new Error(
         `when specifying 'size', the aspect ratio of the new size (${size.width}x${size.height}) must equal the aspect ratio of the original size (${image.width}x${image.height})`
-      )
+      );
     }
 
-    effectiveSize = size
-    effectiveScale = xScale
+    effectiveSize = size;
+    effectiveScale = xScale;
   } else {
     effectiveSize = {
       width: Math.round(image.width * scale),
       height: Math.round(image.height * scale),
-    }
-    effectiveScale = scale
+    };
+    effectiveScale = scale;
   }
 
-  const canvas = createCanvas(image.width, image.height)
-  const context = canvas.getContext('2d')
-  context.drawImage(image, 0, 0, image.width, image.height)
+  const canvas = createCanvas(image.width, image.height);
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0, image.width, image.height);
   const originalImageData = context.getImageData(
     0,
     0,
     image.width,
     image.height
-  )
-  context.drawImage(image, 0, 0, effectiveSize.width, effectiveSize.height)
+  );
+  context.drawImage(image, 0, 0, effectiveSize.width, effectiveSize.height);
   const imageData = context.getImageData(
     0,
     0,
     effectiveSize.width,
     effectiveSize.height
-  )
-  const src32 = new Int32Array(imageData.data.buffer)
-  const dst = new Uint8ClampedArray(effectiveSize.width * effectiveSize.height)
+  );
+  const src32 = new Int32Array(imageData.data.buffer);
+  const dst = new Uint8ClampedArray(effectiveSize.width * effectiveSize.height);
 
   for (let offset = 0, { length } = src32; offset < length; offset += 1) {
-    const px = src32[offset]
-    const r = px & 0xff
-    const g = (px >>> 8) & 0xff
-    const b = (px >>> 16) & 0xff
+    const px = src32[offset];
+    const r = px & 0xff;
+    const g = (px >>> 8) & 0xff;
+    const b = (px >>> 16) & 0xff;
 
     // Luminosity grayscale formula.
-    const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0
-    dst[offset] = luminosity
+    const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0;
+    dst[offset] = luminosity;
   }
 
   return {
@@ -88,5 +88,5 @@ export async function readGrayscaleImage(
       height: imageData.height,
     },
     scale: effectiveScale,
-  }
+  };
 }

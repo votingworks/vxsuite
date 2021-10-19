@@ -11,20 +11,20 @@
 // opt-in, read https://bit.ly/CRA-PWA
 
 async function registerValidSW(swUrl: string, config?: Config): Promise<void> {
-  let registration: ServiceWorkerRegistration
+  let registration: ServiceWorkerRegistration;
 
   try {
-    registration = await navigator.serviceWorker.register(swUrl)
+    registration = await navigator.serviceWorker.register(swUrl);
   } catch (error) {
     /* eslint-disable-next-line no-console */
-    console.error('Error during service worker registration:', error)
-    return
+    console.error('Error during service worker registration:', error);
+    return;
   }
 
   registration.onupdatefound = () => {
-    const installingWorker = registration.installing
+    const installingWorker = registration.installing;
     if (!installingWorker) {
-      return
+      return;
     }
     installingWorker.onstatechange = () => {
       if (installingWorker.state === 'installed') {
@@ -36,43 +36,45 @@ async function registerValidSW(swUrl: string, config?: Config): Promise<void> {
           console.log(
             'New content is available and will be used when all ' +
               'tabs for this page are closed. See https://bit.ly/CRA-PWA.'
-          )
+          );
 
           // Execute callback
-          config?.onUpdate?.(registration)
+          config?.onUpdate?.(registration);
         } else {
           // At this point, everything has been precached.
           // It's the perfect time to display a
           // "Content is cached for offline use." message.
           /* eslint-disable-next-line no-console */
-          console.log('Content is cached for offline use.')
+          console.log('Content is cached for offline use.');
 
           // Execute callback
-          config?.onSuccess?.(registration)
+          config?.onSuccess?.(registration);
         }
       }
-    }
-  }
+    };
+  };
 }
 
 async function checkValidServiceWorker(swUrl: string, config?: Config) {
   // Check if the service worker can be found. If it can't reload the page.
   try {
-    const response = await fetch(swUrl)
+    const response = await fetch(swUrl);
     // Ensure service worker exists, and that we really are getting a JS file.
-    const contentType = response.headers.get('content-type')
+    const contentType = response.headers.get('content-type');
     if (response.status === 404 || contentType?.indexOf('javascript') === -1) {
       // No service worker found. Probably a different app. Reload the page.
-      const registration = await navigator.serviceWorker.ready
-      await registration.unregister()
-      window.location.reload()
+      const registration = await navigator.serviceWorker.ready;
+      await registration.unregister();
+      window.location.reload();
     } else {
       // Service worker found. Proceed as normal.
-      await registerValidSW(swUrl, config)
+      await registerValidSW(swUrl, config);
     }
   } catch {
     /* eslint-disable-next-line no-console */
-    console.log('No internet connection found. App is running in offline mode.')
+    console.log(
+      'No internet connection found. App is running in offline mode.'
+    );
   }
 }
 
@@ -84,11 +86,11 @@ const isLocalhost = Boolean(
     window.location.hostname.match(
       /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
     )
-)
+);
 
 interface Config {
-  onSuccess?: (registration: ServiceWorkerRegistration) => void
-  onUpdate?: (registration: ServiceWorkerRegistration) => void
+  onSuccess?: (registration: ServiceWorkerRegistration) => void;
+  onUpdate?: (registration: ServiceWorkerRegistration) => void;
 }
 
 export function register(config?: Config): void {
@@ -97,40 +99,40 @@ export function register(config?: Config): void {
     const publicUrl = new URL(
       (process as { env: { [key: string]: string } }).env.PUBLIC_URL,
       window.location.href
-    )
+    );
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
       // serve assets; see https://github.com/facebook/create-react-app/issues/2374
-      return
+      return;
     }
 
     window.addEventListener('load', async () => {
-      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`
+      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
-        await checkValidServiceWorker(swUrl, config)
+        await checkValidServiceWorker(swUrl, config);
 
         // Add some additional logging to localhost, pointing developers to the
         // service worker/PWA documentation.
-        await navigator.serviceWorker.ready
+        await navigator.serviceWorker.ready;
         /* eslint-disable-next-line no-console */
         console.log(
           'This web app is being served cache-first by a service ' +
             'worker. To learn more, visit https://bit.ly/CRA-PWA'
-        )
+        );
       } else {
         // Is not localhost. Just register service worker
-        await registerValidSW(swUrl, config)
+        await registerValidSW(swUrl, config);
       }
-    })
+    });
   }
 }
 
 export async function unregister(): Promise<void> {
   if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.ready
-    await registration.unregister()
+    const registration = await navigator.serviceWorker.ready;
+    await registration.unregister();
   }
 }

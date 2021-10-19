@@ -27,5 +27,5 @@ export function throwIllegalValue(value: never, displayKey?: string): never {
     `Illegal Value: ${
       displayKey ? (value as { [key: string]: unknown })[displayKey] : value
     }`
-  )
+  );
 }

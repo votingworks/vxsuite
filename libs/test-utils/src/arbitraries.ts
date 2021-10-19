@@ -2,8 +2,8 @@
  * Defines election arbitraries for `fast-check` property tests.
  */
 
-import fc from 'fast-check'
-import { DateTime } from 'luxon'
+import fc from 'fast-check';
+import { DateTime } from 'luxon';
 import {
   BallotLayout,
   BallotPaperSize,
@@ -22,12 +22,12 @@ import {
   Precinct,
   YesNoContest,
   YesNoOption,
-} from '@votingworks/types'
-import { createHash } from 'crypto'
+} from '@votingworks/types';
+import { createHash } from 'crypto';
 
 // We're only importing this for the types and we can't use `import type`.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { z } from 'zod'
+import { z } from 'zod';
 
 /**
  * Wraps another arbitrary, making the value possibly missing.
@@ -35,13 +35,13 @@ import { z } from 'zod'
 export function arbitraryOptional<T>(
   arbitrary: fc.Arbitrary<T>
 ): fc.Arbitrary<T | undefined> {
-  return fc.oneof(fc.constant(undefined), arbitrary)
+  return fc.oneof(fc.constant(undefined), arbitrary);
 }
 
 function hasUniqueIds<T extends { id: z.TypeOf<typeof Id> }>(
   values: readonly T[]
 ): boolean {
-  return new Set(values.map(({ id }) => id)).size === values.length
+  return new Set(values.map(({ id }) => id)).size === values.length;
 }
 
 /**
@@ -55,7 +55,7 @@ export function arbitraryId(): fc.Arbitrary<z.TypeOf<typeof Id>> {
       })
       // make sure IDs don't start with underscore
       .map((value) => (value.startsWith('_') ? `0${value}` : value))
-  )
+  );
 }
 
 export function arbitraryDateTime({
@@ -63,9 +63,9 @@ export function arbitraryDateTime({
   maxYear,
   zoneName,
 }: {
-  minYear?: number
-  maxYear?: number
-  zoneName?: DateTime['zoneName']
+  minYear?: number;
+  maxYear?: number;
+  zoneName?: DateTime['zoneName'];
 } = {}): fc.Arbitrary<DateTime> {
   return fc
     .record({
@@ -78,7 +78,7 @@ export function arbitraryDateTime({
     })
     .map((parts) => {
       try {
-        const result = DateTime.fromObject({ ...parts, zone: zoneName })
+        const result = DateTime.fromObject({ ...parts, zone: zoneName });
         if (
           result.year === parts.year &&
           result.month === parts.month &&
@@ -87,14 +87,14 @@ export function arbitraryDateTime({
           result.minute === parts.minute &&
           result.second === parts.second
         ) {
-          return result
+          return result;
         }
       } catch {
         // ignore invalid dates
       }
-      return undefined
+      return undefined;
     })
-    .filter((dateTime): dateTime is DateTime => !!dateTime)
+    .filter((dateTime): dateTime is DateTime => !!dateTime);
 }
 
 /**
@@ -113,7 +113,7 @@ export function arbitraryYesNoOption({
           ? fc.constantFrom('No', 'Nope', 'Nuh-uh')
           : fc.string({ minLength: 1 }),
     })
-  )
+  );
 }
 
 /**
@@ -124,9 +124,9 @@ export function arbitraryYesNoContest({
   districtId = arbitraryId(),
   partyId = arbitraryOptional(arbitraryId()),
 }: {
-  id?: fc.Arbitrary<YesNoContest['id']>
-  districtId?: fc.Arbitrary<District['id']>
-  partyId?: fc.Arbitrary<Party['id'] | undefined>
+  id?: fc.Arbitrary<YesNoContest['id']>;
+  districtId?: fc.Arbitrary<District['id']>;
+  partyId?: fc.Arbitrary<Party['id'] | undefined>;
 } = {}): fc.Arbitrary<YesNoContest> {
   return fc.boolean().chain((hasCustomOptions) =>
     fc.record({
@@ -145,7 +145,7 @@ export function arbitraryYesNoContest({
         ? arbitraryYesNoOption({ id: fc.constant('no') })
         : fc.constant(undefined),
     })
-  )
+  );
 }
 
 /**
@@ -155,15 +155,15 @@ export function arbitraryCandidate({
   id = arbitraryId(),
   partyId = fc.constant(undefined),
 }: {
-  id?: fc.Arbitrary<Candidate['id']>
-  partyId?: fc.Arbitrary<Party['id'] | undefined>
+  id?: fc.Arbitrary<Candidate['id']>;
+  partyId?: fc.Arbitrary<Party['id'] | undefined>;
 } = {}): fc.Arbitrary<Candidate> {
   return fc.record({
     id,
     name: fc.string({ minLength: 1 }),
     isWriteIn: arbitraryOptional(fc.boolean()),
     partyId,
-  })
+  });
 }
 
 /**
@@ -174,9 +174,9 @@ export function arbitraryCandidateContest({
   districtId = arbitraryId(),
   partyIds = fc.array(arbitraryId(), { minLength: 1 }),
 }: {
-  id?: fc.Arbitrary<CandidateContest['id']>
-  districtId?: fc.Arbitrary<District['id']>
-  partyIds?: fc.Arbitrary<Party['id'][]>
+  id?: fc.Arbitrary<CandidateContest['id']>;
+  districtId?: fc.Arbitrary<District['id']>;
+  partyIds?: fc.Arbitrary<Party['id'][]>;
 } = {}): fc.Arbitrary<CandidateContest> {
   return fc.record({
     type: fc.constant('candidate'),
@@ -197,13 +197,13 @@ export function arbitraryCandidateContest({
           )
       )
       .filter(hasUniqueIds),
-  })
+  });
 }
 
 export function arbitraryMsEitherNeitherContest({
   districtId = arbitraryId(),
 }: {
-  districtId?: fc.Arbitrary<District['id']>
+  districtId?: fc.Arbitrary<District['id']>;
 } = {}): fc.Arbitrary<MsEitherNeitherContest> {
   return fc.record({
     type: fc.constant('ms-either-neither'),
@@ -220,7 +220,7 @@ export function arbitraryMsEitherNeitherContest({
     firstOption: arbitraryYesNoOption(),
     secondOption: arbitraryYesNoOption(),
     pickOneLabel: fc.string({ minLength: 1 }),
-  })
+  });
 }
 
 export function arbitraryContests({
@@ -238,7 +238,7 @@ export function arbitraryContests({
       ...otherContests,
     ])
     .filter((contests) => contests.length > 0)
-    .filter(hasUniqueIds)
+    .filter(hasUniqueIds);
 }
 
 export function arbitraryDistrict({
@@ -247,7 +247,7 @@ export function arbitraryDistrict({
   return fc.record({
     id,
     name: fc.string({ minLength: 1 }),
-  })
+  });
 }
 
 export function arbitraryPrecinct({
@@ -256,7 +256,7 @@ export function arbitraryPrecinct({
   return fc.record({
     id,
     name: fc.string({ minLength: 1 }),
-  })
+  });
 }
 
 export function arbitraryBallotStyle({
@@ -264,21 +264,21 @@ export function arbitraryBallotStyle({
   districtIds = fc.array(arbitraryId()),
   precinctIds = fc.array(arbitraryId()),
 }: {
-  id?: fc.Arbitrary<BallotStyle['id']>
-  districtIds?: fc.Arbitrary<District['id'][]>
-  precinctIds?: fc.Arbitrary<Precinct['id'][]>
+  id?: fc.Arbitrary<BallotStyle['id']>;
+  districtIds?: fc.Arbitrary<District['id'][]>;
+  precinctIds?: fc.Arbitrary<Precinct['id'][]>;
 } = {}): fc.Arbitrary<BallotStyle> {
   return fc.record({
     id,
     districts: districtIds,
     precincts: precinctIds,
-  })
+  });
 }
 
 export function arbitraryCounty({
   id = arbitraryId(),
 }: { id?: fc.Arbitrary<County['id']> } = {}): fc.Arbitrary<County> {
-  return fc.record({ id, name: fc.string({ minLength: 1 }) })
+  return fc.record({ id, name: fc.string({ minLength: 1 }) });
 }
 
 export function arbitraryParty({
@@ -290,13 +290,13 @@ export function arbitraryParty({
       abbrev: fc.string({ minLength: 1 }),
       name: fc.string({ minLength: 1 }),
     })
-    .map((party) => ({ ...party, fullName: `${party.name} Party` }))
+    .map((party) => ({ ...party, fullName: `${party.name} Party` }));
 }
 
 export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
   return fc.record({
     paperSize: fc.constantFrom(...Object.values(BallotPaperSize)),
-  })
+  });
 }
 
 export function arbitraryElection(): fc.Arbitrary<Election> {
@@ -341,7 +341,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
       )
       // performing a shrink on this data structure takes forever
       .noShrink()
-  )
+  );
 }
 
 /**
@@ -375,7 +375,7 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> 
       election,
       electionData,
       electionHash: createHash('sha256').update(electionData).digest('hex'),
-    }))
+    }));
 }
 
 /**
@@ -386,8 +386,8 @@ export function arbitraryCastVoteRecord({
   election = arbitraryElection(),
   testBallot = fc.boolean(),
 }: {
-  election?: fc.Arbitrary<Election>
-  testBallot?: fc.Arbitrary<boolean>
+  election?: fc.Arbitrary<Election>;
+  testBallot?: fc.Arbitrary<boolean>;
 } = {}): fc.Arbitrary<CastVoteRecord> {
   return election.chain((e) =>
     fc.record({
@@ -406,7 +406,7 @@ export function arbitraryCastVoteRecord({
         fc.record({ primary: fc.constantFrom('en-US') })
       ),
     })
-  )
+  );
 }
 
 /**
@@ -418,10 +418,10 @@ export function arbitraryCastVoteRecords({
   minLength,
   maxLength,
 }: {
-  election: Election
-  testBallot: boolean
-  minLength?: number
-  maxLength?: number
+  election: Election;
+  testBallot: boolean;
+  minLength?: number;
+  maxLength?: number;
 }): fc.Arbitrary<CastVoteRecord[]> {
   return fc.array(
     arbitraryCastVoteRecord({
@@ -429,5 +429,5 @@ export function arbitraryCastVoteRecords({
       testBallot: fc.constant(testBallot),
     }),
     { minLength, maxLength }
-  )
+  );
 }

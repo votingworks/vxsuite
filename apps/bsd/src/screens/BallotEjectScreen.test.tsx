@@ -1,18 +1,18 @@
-import { waitFor, fireEvent, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import fetchMock from 'fetch-mock'
-import React from 'react'
-import { act } from 'react-dom/test-utils'
+import { waitFor, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import fetchMock from 'fetch-mock';
+import React from 'react';
+import { act } from 'react-dom/test-utils';
 import {
   BallotType,
   AdjudicationReason,
   WriteInAdjudicationReasonInfo,
   UnmarkedWriteInAdjudicationReasonInfo,
-} from '@votingworks/types'
-import { typedAs } from '@votingworks/utils'
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan'
-import BallotEjectScreen from './BallotEjectScreen'
-import renderInAppContext from '../../test/renderInAppContext'
+} from '@votingworks/types';
+import { typedAs } from '@votingworks/utils';
+import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
+import BallotEjectScreen from './BallotEjectScreen';
+import renderInAppContext from '../../test/renderInAppContext';
 
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
@@ -32,23 +32,23 @@ test('says the sheet is unreadable if it is', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  expect(container).toMatchSnapshot()
+  expect(container).toMatchSnapshot();
 
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
-})
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
+});
 
 test('says the ballot sheet is overvoted if it is', async () => {
   fetchMock.getOnce(
@@ -120,34 +120,34 @@ test('says the ballot sheet is overvoted if it is', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  expect(container).toMatchSnapshot()
+  expect(container).toMatchSnapshot();
 
-  fireEvent.click(getByText('Original Ballot Removed'))
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
+  fireEvent.click(getByText('Original Ballot Removed'));
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
-  continueScanning.mockClear()
+  continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'))
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
+  fireEvent.click(getByText('Tabulate Duplicate Ballot'));
+  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
     frontMarkAdjudications: [],
     backMarkAdjudications: [],
-  })
-})
+  });
+});
 
 test('says the ballot sheet is undervoted if it is', async () => {
   fetchMock.getOnce(
@@ -219,34 +219,34 @@ test('says the ballot sheet is undervoted if it is', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  expect(container).toMatchSnapshot()
+  expect(container).toMatchSnapshot();
 
-  fireEvent.click(getByText('Original Ballot Removed'))
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
+  fireEvent.click(getByText('Original Ballot Removed'));
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
-  continueScanning.mockClear()
+  continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'))
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
+  fireEvent.click(getByText('Tabulate Duplicate Ballot'));
+  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
     frontMarkAdjudications: [],
     backMarkAdjudications: [],
-  })
-})
+  });
+});
 
 test('says the ballot sheet is blank if it is', async () => {
   fetchMock.getOnce(
@@ -325,34 +325,34 @@ test('says the ballot sheet is blank if it is', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  expect(container).toMatchSnapshot()
+  expect(container).toMatchSnapshot();
 
-  fireEvent.click(getByText('Original Ballot Removed'))
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
+  fireEvent.click(getByText('Original Ballot Removed'));
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
-  continueScanning.mockClear()
+  continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'))
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'))
+  fireEvent.click(getByText('Tabulate Duplicate Ballot'));
+  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
     frontMarkAdjudications: [],
     backMarkAdjudications: [],
-  })
-})
+  });
+});
 
 test('calls out live ballot sheets in test mode', async () => {
   fetchMock.getOnce(
@@ -394,23 +394,23 @@ test('calls out live ballot sheets in test mode', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  expect(container).toMatchSnapshot()
+  expect(container).toMatchSnapshot();
 
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
-})
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
+});
 
 test('calls out test ballot sheets in live mode', async () => {
   fetchMock.getOnce(
@@ -452,23 +452,23 @@ test('calls out test ballot sheets in live mode', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode={false} />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  expect(container).toMatchSnapshot()
+  expect(container).toMatchSnapshot();
 
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
-})
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
+});
 
 test('shows invalid election screen when appropriate', async () => {
   fetchMock.getOnce(
@@ -492,25 +492,25 @@ test('shows invalid election screen when appropriate', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { getByText, queryAllByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode={false} />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  getByText('Wrong Election')
-  getByText('Ballot Election Hash: this-is-a-')
-  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0)
+  getByText('Wrong Election');
+  getByText('Ballot Election Hash: this-is-a-');
+  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0);
 
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
-})
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
+});
 
 test('shows invalid election screen when appropriate', async () => {
   fetchMock.getOnce(
@@ -552,24 +552,24 @@ test('shows invalid election screen when appropriate', async () => {
       layouts: {},
       definitions: {},
     })
-  )
+  );
 
-  const continueScanning = jest.fn()
+  const continueScanning = jest.fn();
 
   const { getByText, queryAllByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode={false} />
-  )
+  );
 
   await act(async () => {
-    await waitFor(() => fetchMock.called)
-  })
+    await waitFor(() => fetchMock.called);
+  });
 
-  getByText('Wrong Precinct')
-  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0)
+  getByText('Wrong Precinct');
+  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0);
 
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'))
-  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false })
-})
+  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
+});
 
 test('does NOT say ballot is blank if one side is blank and the other requires write-in adjudication (marked or unmarked)', async () => {
   for (const writeInReason of [
@@ -709,33 +709,33 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
           },
         },
       })
-    )
+    );
 
-    const continueScanning = jest.fn()
+    const continueScanning = jest.fn();
 
     const { unmount } = renderInAppContext(
       <BallotEjectScreen continueScanning={continueScanning} isTestMode />
-    )
+    );
 
     await act(async () => {
-      await waitFor(() => fetchMock.called)
-    })
+      await waitFor(() => fetchMock.called);
+    });
 
-    expect(screen.queryByText('Blank Ballot')).toBeNull()
-    expect(screen.queryByText('Unknown Reason')).toBeNull()
-    screen.getByText('Write-In')
+    expect(screen.queryByText('Blank Ballot')).toBeNull();
+    expect(screen.queryByText('Unknown Reason')).toBeNull();
+    screen.getByText('Write-In');
 
     userEvent.type(
       screen.getByTestId(`write-in-input-__write-in-0`),
       'Lizard People'
-    )
+    );
 
     // doubly nested acts() because there's setIsSaving(true) and then (false).
     await act(async () => {
       await act(async () => {
-        userEvent.click(screen.getByText('Save & Continue Scanning'))
-      })
-    })
+        userEvent.click(screen.getByText('Save & Continue Scanning'));
+      });
+    });
 
     expect(continueScanning).toHaveBeenCalledWith({
       forceAccept: true,
@@ -749,10 +749,10 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
           type: writeInReason,
         },
       ],
-    })
-    continueScanning.mockClear()
+    });
+    continueScanning.mockClear();
 
-    unmount()
-    fetchMock.reset()
+    unmount();
+    fetchMock.reset();
   }
-})
+});

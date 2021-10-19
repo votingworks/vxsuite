@@ -5,11 +5,11 @@ import {
   NumberPad,
   Main,
   MainChild,
-} from '@votingworks/ui'
-import React, { useState, useEffect, useCallback } from 'react'
-import styled from 'styled-components'
-import { SECURITY_PIN_LENGTH } from '../config/globals'
-import { CenteredScreen } from '../components/Layout'
+} from '@votingworks/ui';
+import React, { useState, useEffect, useCallback } from 'react';
+import styled from 'styled-components';
+import { SECURITY_PIN_LENGTH } from '../config/globals';
+import { CenteredScreen } from '../components/Layout';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -19,7 +19,7 @@ const NumberPadWrapper = styled.div`
   > div {
     width: 400px;
   }
-`
+`;
 
 const EnteredCode = styled.div`
   margin-top: 5px;
@@ -27,48 +27,48 @@ const EnteredCode = styled.div`
   font-family: monospace;
   font-size: 1.5em;
   font-weight: 600;
-`
+`;
 
 interface Props {
-  attemptToAuthenticateUser: (passcode: string) => boolean
+  attemptToAuthenticateUser: (passcode: string) => boolean;
 }
 
 const UnlockAdminScreen = ({
   attemptToAuthenticateUser,
 }: Props): JSX.Element => {
-  const [currentPasscode, setCurrentPasscode] = useState('')
-  const [showError, setShowError] = useState(false)
+  const [currentPasscode, setCurrentPasscode] = useState('');
+  const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
       `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
-    )
-  }, [])
+    );
+  }, []);
   const handleBackspace = useCallback(() => {
-    setCurrentPasscode((prev) => prev.slice(0, -1))
-  }, [])
+    setCurrentPasscode((prev) => prev.slice(0, -1));
+  }, []);
   const handleClear = useCallback(() => {
-    setCurrentPasscode('')
-  }, [])
+    setCurrentPasscode('');
+  }, []);
 
   useEffect(() => {
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
-      const success = attemptToAuthenticateUser(currentPasscode)
-      setShowError(!success)
-      setCurrentPasscode('')
+      const success = attemptToAuthenticateUser(currentPasscode);
+      setShowError(!success);
+      setCurrentPasscode('');
     }
-  }, [currentPasscode, attemptToAuthenticateUser])
+  }, [currentPasscode, attemptToAuthenticateUser]);
 
   const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
     .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
-    .join(' ')
+    .join(' ');
 
   let primarySentence: JSX.Element = (
     <p>Enter the card security code to unlock.</p>
-  )
+  );
   if (showError) {
-    primarySentence = <Text warning>Invalid code. Please try again.</Text>
+    primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
     <CenteredScreen>
@@ -88,10 +88,10 @@ const UnlockAdminScreen = ({
         </MainChild>
       </Main>
     </CenteredScreen>
-  )
-}
+  );
+};
 
-export default UnlockAdminScreen
+export default UnlockAdminScreen;
 
 /* istanbul ignore next */
 export const DefaultPreview = (): JSX.Element => {
@@ -99,5 +99,5 @@ export const DefaultPreview = (): JSX.Element => {
     <UnlockAdminScreen
       attemptToAuthenticateUser={(passcode) => passcode === '000000'}
     />
-  )
-}
+  );
+};

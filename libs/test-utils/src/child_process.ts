@@ -1,145 +1,145 @@
-import { ChildProcess } from 'child_process'
-import { EventEmitter } from 'events'
-import { Readable, Writable } from 'stream'
+import { ChildProcess } from 'child_process';
+import { EventEmitter } from 'events';
+import { Readable, Writable } from 'stream';
 
 export interface FakeReadable extends Readable {
-  append(chunk: string): void
-  end(): void
+  append(chunk: string): void;
+  end(): void;
 }
 
 export interface FakeWritable extends Writable {
-  toBuffer(): Buffer
-  toString(): string
-  writes: readonly { chunk: unknown; encoding?: string }[]
+  toBuffer(): Buffer;
+  toString(): string;
+  writes: readonly { chunk: unknown; encoding?: string }[];
 }
 
 /**
  * Makes a fake readable stream.
  */
 export function fakeReadable(): FakeReadable {
-  const readable = new EventEmitter() as FakeReadable
-  let buffer: string | undefined
-  let isPaused = false
-  let pendingChunks: unknown[] = []
+  const readable = new EventEmitter() as FakeReadable;
+  let buffer: string | undefined;
+  let isPaused = false;
+  let pendingChunks: unknown[] = [];
 
   function flush(): void {
     for (const chunk of pendingChunks) {
-      buffer = (buffer ?? '') + chunk
-      readable.emit('readable')
-      readable.emit('data', chunk)
+      buffer = (buffer ?? '') + chunk;
+      readable.emit('readable');
+      readable.emit('data', chunk);
     }
-    pendingChunks = []
+    pendingChunks = [];
   }
 
   readable.resume = jest.fn(() => {
-    isPaused = false
-    flush()
-    return readable
-  })
+    isPaused = false;
+    flush();
+    return readable;
+  });
   readable.pause = jest.fn(() => {
-    isPaused = true
-    return readable
-  })
-  readable.isPaused = jest.fn().mockImplementation(() => isPaused)
-  readable.setEncoding = jest.fn()
+    isPaused = true;
+    return readable;
+  });
+  readable.isPaused = jest.fn().mockImplementation(() => isPaused);
+  readable.setEncoding = jest.fn();
   readable.append = jest.fn((chunk): void => {
-    pendingChunks.push(chunk)
+    pendingChunks.push(chunk);
     if (!isPaused) {
-      flush()
+      flush();
     }
-  })
+  });
   readable.read = jest.fn((size): unknown => {
     if (typeof buffer === 'string') {
-      const readSize = size ?? buffer.length
-      const result = buffer.slice(0, readSize)
-      buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize)
-      return result
+      const readSize = size ?? buffer.length;
+      const result = buffer.slice(0, readSize);
+      buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize);
+      return result;
     }
 
-    return undefined
-  })
+    return undefined;
+  });
   readable.end = jest.fn(() => {
-    readable.emit('end')
-  })
-  return readable
+    readable.emit('end');
+  });
+  return readable;
 }
 
 /**
  * Makes a fake writable stream.
  */
 export function fakeWritable(): FakeWritable {
-  const writable = new EventEmitter() as FakeWritable
-  const writes: { chunk: unknown; encoding?: string }[] = []
+  const writable = new EventEmitter() as FakeWritable;
+  const writes: { chunk: unknown; encoding?: string }[] = [];
 
-  writable.writes = writes
+  writable.writes = writes;
   writable.write = jest.fn((...args: unknown[]): boolean => {
-    let chunk: unknown
-    let encoding: unknown
-    let callback: unknown
+    let chunk: unknown;
+    let encoding: unknown;
+    let callback: unknown;
 
     if (args.length === 3) {
-      ;[chunk, encoding, callback] = args
+      [chunk, encoding, callback] = args;
     } else if (args.length === 2 && typeof args[1] === 'function') {
-      ;[chunk, callback] = args
+      [chunk, callback] = args;
     } else if (args.length === 2) {
-      ;[chunk, encoding] = args
+      [chunk, encoding] = args;
     } else {
-      ;[chunk] = args
+      [chunk] = args;
     }
 
     if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
-      throw new TypeError('encoding expected to be a string')
+      throw new TypeError('encoding expected to be a string');
     }
 
     if (typeof chunk !== 'undefined') {
-      writes.push({ chunk, encoding })
+      writes.push({ chunk, encoding });
     }
 
     process.nextTick(() => {
       if (typeof callback === 'function') {
-        callback()
+        callback();
       }
-    })
+    });
 
-    return true
-  })
+    return true;
+  });
 
   writable.end = jest.fn((...args: unknown[]): void => {
-    let chunk: unknown
-    let encoding: unknown
-    let callback: unknown
+    let chunk: unknown;
+    let encoding: unknown;
+    let callback: unknown;
 
     if (args.length === 3) {
-      ;[chunk, encoding, callback] = args
+      [chunk, encoding, callback] = args;
     } else if (args.length === 2 && typeof args[1] === 'function') {
-      ;[chunk, callback] = args
+      [chunk, callback] = args;
     } else if (args.length === 2) {
-      ;[chunk, encoding] = args
+      [chunk, encoding] = args;
     } else {
-      ;[callback] = args
+      [callback] = args;
     }
 
     if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
-      throw new TypeError('encoding expected to be a string')
+      throw new TypeError('encoding expected to be a string');
     }
 
     if (typeof chunk !== 'undefined') {
-      writes.push({ chunk, encoding })
+      writes.push({ chunk, encoding });
     }
 
     process.nextTick(() => {
       if (typeof callback === 'function') {
-        callback()
+        callback();
       }
-    })
-  })
+    });
+  });
 
   writable.toBuffer = () =>
     writes.reduce(
       (result, { chunk }) =>
         Buffer.concat([result, Buffer.from(chunk as Buffer | string)]),
       Buffer.of()
-    )
+    );
 
   writable.toString = () =>
     writes.reduce(
@@ -149,15 +149,15 @@ export function fakeWritable(): FakeWritable {
           ? chunk
           : (chunk as Buffer).toString(encoding as BufferEncoding | undefined)),
       ''
-    )
+    );
 
-  return writable
+  return writable;
 }
 
 export interface FakeChildProcess extends ChildProcess {
-  stdin: FakeWritable
-  stdout: FakeReadable
-  stderr: FakeReadable
+  stdin: FakeWritable;
+  stdout: FakeReadable;
+  stderr: FakeReadable;
 }
 
 /**
@@ -169,7 +169,7 @@ export function fakeChildProcess(): FakeChildProcess {
     stdin: fakeWritable(),
     stdout: fakeReadable(),
     stderr: fakeReadable(),
-  }
+  };
 
-  return Object.assign(new EventEmitter(), result) as FakeChildProcess
+  return Object.assign(new EventEmitter(), result) as FakeChildProcess;
 }

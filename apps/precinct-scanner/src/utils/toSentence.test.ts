@@ -1,20 +1,20 @@
-import { toSentence } from './toSentence'
+import { toSentence } from './toSentence';
 
 test('empty list', () => {
-  expect(toSentence([])).toEqual([])
-})
+  expect(toSentence([])).toEqual([]);
+});
 
 test('single-element list', () => {
-  expect(toSentence(['Mayor'])).toEqual(['Mayor'])
-})
+  expect(toSentence(['Mayor'])).toEqual(['Mayor']);
+});
 
 test('two-element list', () => {
   expect(toSentence(['Mayor', 'Senator'])).toEqual([
     'Mayor',
     ' and ',
     'Senator',
-  ])
-})
+  ]);
+});
 
 test('three-element list', () => {
   expect(toSentence(['Mayor', 'Senator', 'Sheriff'])).toEqual([
@@ -24,5 +24,5 @@ test('three-element list', () => {
     ', ',
     ' and ',
     'Sheriff',
-  ])
-})
+  ]);
+});

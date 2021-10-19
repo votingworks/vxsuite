@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 
-import Prose from '../components/Prose'
-import Main, { MainChild } from '../components/Main'
-import ProgressBar from '../components/ProgressBar'
-import Screen from '../components/Screen'
+import Prose from '../components/Prose';
+import Main, { MainChild } from '../components/Main';
+import ProgressBar from '../components/ProgressBar';
+import Screen from '../components/Screen';
 
 interface Props {
-  precinctName: string
-  ballotStyleId: string
+  precinctName: string;
+  ballotStyleId: string;
 }
 
 const WritingCardScreen = ({
   ballotStyleId,
   precinctName,
 }: Props): JSX.Element => {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     setTimeout(() => {
-      setProgress(1)
-    }, 0)
-  }, [])
+      setProgress(1);
+    }, 0);
+  }, []);
 
   return (
     <Screen>
@@ -38,7 +38,7 @@ const WritingCardScreen = ({
         </MainChild>
       </Main>
     </Screen>
-  )
-}
+  );
+};
 
-export default WritingCardScreen
+export default WritingCardScreen;

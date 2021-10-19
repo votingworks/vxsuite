@@ -1,11 +1,11 @@
-import { createContext, RefObject } from 'react'
+import { createContext, RefObject } from 'react';
 import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
   UserSession,
-} from '@votingworks/types'
-import { usbstick, NullPrinter, Printer } from '@votingworks/utils'
+} from '@votingworks/types';
+import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import {
   SaveElection,
   PrintedBallot,
@@ -13,45 +13,45 @@ import {
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
-} from '../config/types'
+} from '../config/types';
 import CastVoteRecordFiles, {
   SaveCastVoteRecordFiles,
-} from '../utils/CastVoteRecordFiles'
-import { getEmptyFullElectionTally } from '../lib/votecounting'
-import { getEmptyExportableTallies } from '../utils/exportableTallies'
+} from '../utils/CastVoteRecordFiles';
+import { getEmptyFullElectionTally } from '../lib/votecounting';
+import { getEmptyExportableTallies } from '../utils/exportableTallies';
 
 export interface AppContextInterface {
-  castVoteRecordFiles: CastVoteRecordFiles
-  electionDefinition?: ElectionDefinition
-  configuredAt: ISO8601Timestamp
-  isOfficialResults: boolean
-  printer: Printer
-  printBallotRef?: RefObject<HTMLElement>
-  saveCastVoteRecordFiles: SaveCastVoteRecordFiles
-  saveElection: SaveElection
+  castVoteRecordFiles: CastVoteRecordFiles;
+  electionDefinition?: ElectionDefinition;
+  configuredAt: ISO8601Timestamp;
+  isOfficialResults: boolean;
+  printer: Printer;
+  printBallotRef?: RefObject<HTMLElement>;
+  saveCastVoteRecordFiles: SaveCastVoteRecordFiles;
+  saveElection: SaveElection;
   setCastVoteRecordFiles: React.Dispatch<
     React.SetStateAction<CastVoteRecordFiles>
-  >
-  saveIsOfficialResults: () => Promise<void>
-  resetFiles: (fileType: ResultsFileType) => Promise<void>
-  usbDriveStatus: usbstick.UsbDriveStatus
-  usbDriveEject: () => Promise<void>
-  addPrintedBallot: (printedBallot: PrintedBallot) => void
-  printedBallots: PrintedBallot[]
-  fullElectionTally: FullElectionTally
-  fullElectionExternalTallies: FullElectionExternalTally[]
-  isTabulationRunning: boolean
-  setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>
+  >;
+  saveIsOfficialResults: () => Promise<void>;
+  resetFiles: (fileType: ResultsFileType) => Promise<void>;
+  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveEject: () => Promise<void>;
+  addPrintedBallot: (printedBallot: PrintedBallot) => void;
+  printedBallots: PrintedBallot[];
+  fullElectionTally: FullElectionTally;
+  fullElectionExternalTallies: FullElectionExternalTally[];
+  isTabulationRunning: boolean;
+  setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>;
   saveExternalTallies: (
     externalTallies: FullElectionExternalTally[]
-  ) => Promise<void>
-  setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>
-  generateExportableTallies: () => ExportableTallies
-  currentUserSession?: UserSession
-  attemptToAuthenticateAdminUser: (passcode: string) => boolean
-  lockMachine: () => void
-  machineConfig: MachineConfig
-  hasCardReaderAttached: boolean
+  ) => Promise<void>;
+  setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
+  generateExportableTallies: () => ExportableTallies;
+  currentUserSession?: UserSession;
+  attemptToAuthenticateAdminUser: (passcode: string) => boolean;
+  lockMachine: () => void;
+  machineConfig: MachineConfig;
+  hasCardReaderAttached: boolean;
 }
 
 const appContext: AppContextInterface = {
@@ -86,8 +86,8 @@ const appContext: AppContextInterface = {
     bypassAuthentication: false,
   },
   hasCardReaderAttached: true,
-}
+};
 
-const AppContext = createContext(appContext)
+const AppContext = createContext(appContext);
 
-export default AppContext
+export default AppContext;
