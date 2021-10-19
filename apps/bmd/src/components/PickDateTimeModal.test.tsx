@@ -1,7 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { DateTime } from 'luxon'
 import React from 'react'
-import PickDateTimeModal from './PickDateTimeModal'
+import fc from 'fast-check'
+import { arbitraryDateTime } from '@votingworks/test-utils'
+import PickDateTimeModal, { MAX_YEAR, MIN_YEAR } from './PickDateTimeModal'
 
 function getSelect(testId: string): HTMLSelectElement {
   return screen.getByTestId(testId) as HTMLSelectElement
@@ -151,4 +153,64 @@ test('calls back on cancel', () => {
   expect(onCancel).not.toHaveBeenCalled()
   fireEvent.click(screen.getByText('Cancel'))
   expect(onCancel).toHaveBeenCalledTimes(1)
+})
+
+test('can set any valid date & time', () => {
+  fc.assert(
+    fc.property(
+      arbitraryDateTime({
+        minYear: MIN_YEAR,
+        maxYear: MAX_YEAR,
+        zoneName: aDate.zoneName,
+      }).map((dateTime) => dateTime.set({ second: 0 })),
+      (dateTime) => {
+        cleanup()
+
+        const onCancel = jest.fn()
+        const onSave = jest.fn()
+        render(
+          <PickDateTimeModal
+            onCancel={onCancel}
+            onSave={onSave}
+            saveLabel="Save"
+            value={aDate}
+          />
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+
+        // Make a change & save
+        fireEvent.change(getSelect('selectYear'), {
+          target: { value: dateTime.year.toString() },
+        })
+        fireEvent.change(getSelect('selectMonth'), {
+          target: { value: dateTime.month.toString() },
+        })
+        fireEvent.change(getSelect('selectDay'), {
+          target: { value: dateTime.day.toString() },
+        })
+        fireEvent.change(getSelect('selectHour'), {
+          target: {
+            value: (dateTime.hour > 12
+              ? dateTime.hour % 12
+              : dateTime.hour === 0
+              ? 12
+              : dateTime.hour
+            ).toString(),
+          },
+        })
+        fireEvent.change(getSelect('selectMinute'), {
+          target: { value: dateTime.minute.toString() },
+        })
+        fireEvent.change(getSelect('selectMeridian'), {
+          target: { value: dateTime.hour < 12 ? 'AM' : 'PM' },
+        })
+        fireEvent.click(screen.getByText('Save'))
+
+        // Expect a changed date
+        expect(onSave).toHaveBeenCalledWith(aDate.set(dateTime.toObject()))
+      }
+    ),
+    { numRuns: 50 }
+  )
 })

@@ -187,6 +187,7 @@ importers:
       eslint-plugin-react: 7.22.0_eslint@7.17.0
       eslint-plugin-react-hooks: 4.2.0_eslint@7.17.0
       eslint-plugin-vx: link:../../libs/eslint-plugin-vx
+      fast-check: 2.18.0
       is-ci-cli: 2.1.2
       jest-date-mock: 1.0.8
       jest-environment-jsdom-sixteen: 1.0.3
@@ -251,6 +252,7 @@ importers:
       eslint-plugin-react: ^7.22.0
       eslint-plugin-react-hooks: ^4.2.0
       eslint-plugin-vx: workspace:*
+      fast-check: ^2.18.0
       fetch-mock: ^9.5.0
       history: ^4.10.1
       http-proxy-middleware: 1.0.6
@@ -1445,10 +1447,12 @@ importers:
       '@types/node': 14.14.35
       '@votingworks/types': link:../types
       fast-check: 2.18.0
+      luxon: 1.26.0
       rxjs: 6.6.6
       zip-stream: 4.1.0
     devDependencies:
       '@types/kiosk-browser': link:../@types/kiosk-browser
+      '@types/luxon': 1.27.1
       '@types/react': 17.0.4
       '@types/zip-stream': link:../@types/zip-stream
       '@typescript-eslint/eslint-plugin': 4.28.4_7c03a75aea7335694a69bfe42f42321f
@@ -1474,6 +1478,7 @@ importers:
       '@testing-library/react': ^11.2.6
       '@types/jest': ^26.0.21
       '@types/kiosk-browser': workspace:*
+      '@types/luxon': ^1.26.5
       '@types/node': ^14.14.35
       '@types/react': ^17.0.4
       '@types/zip-stream': workspace:*
@@ -1491,6 +1496,7 @@ importers:
       jest: '26'
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^11.0.0
+      luxon: 1.26.0
       prettier: ^2.3.1
       react: ^17.0.1
       react-dom: ^17.0.1
