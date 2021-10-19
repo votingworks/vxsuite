@@ -5,9 +5,8 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "esModuleInterop": true,
+    "noEmit": true,
     "composite": true,
-    "outDir": "build",
-    "rootDir": "src",
     "skipLibCheck": true
   },
   "include": ["src", "tests"],
