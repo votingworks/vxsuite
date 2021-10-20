@@ -1367,6 +1367,17 @@ export function getDistrictIdsForPartyId(
 }
 
 /**
+ * Returns an array of party ids present in ballot styles in the given election.
+ * In the case of a ballot style without a party the element "undefined" will be included
+ * in the returned array.
+ */
+export function getPartyIdsInBallotStyles(
+  election: Election
+): Array<string | undefined> {
+  return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
+}
+
+/**
  * Helper function to build a `VotesDict` more easily, primarily for testing.
  *
  * @param contests The contests the voter voted in, probably from `getContests`.

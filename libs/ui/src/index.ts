@@ -19,6 +19,7 @@ export * from './Main';
 export * from './NumberPad';
 export * from './PrecinctScannerPollsReport';
 export * from './PrecinctScannerTallyReport';
+export * from './PrecinctScannerTallyQRCode';
 export * from './ProgressBar';
 export * from './ProgressEllipsis';
 export * from './Prose';

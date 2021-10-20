@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import makeDebug from 'debug';
 import useInterval from '@rooks/use-interval';
 
@@ -9,22 +9,33 @@ import {
   Loading,
   PrecinctScannerPollsReport,
   PrecinctScannerTallyReport,
+  PrecinctScannerTallyQRCode,
+  PrintableContainer,
+  TallyReport,
   UsbDrive,
 } from '@votingworks/ui';
 import {
-  calculateTallyForCastVoteRecords,
+  BallotCountDetails,
   compressTally,
+  computeTallyWithPrecomputedCategories,
+  filterTalliesByParams,
   format,
+  getTallyIdentifier,
   PrecinctScannerCardTally,
   Printer,
   TallySourceMachineType,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
-  Tally,
   VotingMethod,
   PrecinctSelection,
   PrecinctSelectionKind,
+  TallyCategory,
+  FullElectionTally,
+  Tally,
+  Dictionary,
+  CompressedTally,
+  getPartyIdsInBallotStyles,
 } from '@votingworks/types';
 import pluralize from 'pluralize';
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
@@ -45,7 +56,7 @@ interface Props {
   isLiveMode: boolean;
   togglePollsOpen: () => void;
   getCVRsFromExport: () => Promise<CastVoteRecord[]>;
-  saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<void>;
+  saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<boolean>;
   printer: Printer;
   hasPrinterAttached: boolean;
   usbDrive: UsbDrive;
@@ -67,7 +78,10 @@ function PollWorkerScreen({
   );
   assert(electionDefinition);
   const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false);
-  const [currentTally, setCurrentTally] = useState<Tally>();
+  const [currentTally, setCurrentTally] = useState<FullElectionTally>();
+  const [currentSubTallies, setCurrentSubTallies] = useState<
+    ReadonlyMap<string, Tally>
+  >(new Map());
   const [systemAuthenticationCode, setSystemAuthenticationCode] = useState(
     '---·---'
   );
@@ -75,27 +89,81 @@ function PollWorkerScreen({
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
+  const precinct = election.precincts.find((p) => p.id === currentPrecinctId);
+  const precinctSelection: PrecinctSelection = useMemo(
+    () =>
+      precinct === undefined
+        ? { kind: PrecinctSelectionKind.AllPrecincts }
+        : {
+            kind: PrecinctSelectionKind.SinglePrecinct,
+            precinctId: precinct.id,
+          },
+    [precinct]
+  );
+
+  const currentCompressedTally = useMemo(
+    () => currentTally && compressTally(election, currentTally.overallTally),
+    [election, currentTally]
+  );
+
+  const precinctList = useMemo(
+    () =>
+      precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
+        ? election.precincts.map(({ id }) => id)
+        : [precinctSelection.precinctId],
+    [precinctSelection, election.precincts]
+  );
+
+  const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
+    election,
+  ]);
+
   useEffect(() => {
     async function calculateTally() {
       const castVoteRecords = await getCVRsFromExport();
-      const tally = calculateTallyForCastVoteRecords(
+      const tally = computeTallyWithPrecomputedCategories(
         election,
-        new Set(castVoteRecords)
+        new Set(castVoteRecords),
+        [TallyCategory.Party, TallyCategory.Precinct]
       );
+      // Get all tallies by precinct and party
+      const newSubTallies = new Map();
+      for (const partyId of parties) {
+        for (const precinctId of precinctList) {
+          const filteredTally = filterTalliesByParams(tally, election, {
+            precinctId,
+            partyId,
+          });
+          newSubTallies.set(
+            getTallyIdentifier(partyId, precinctId),
+            filteredTally
+          );
+        }
+      }
+      setCurrentSubTallies(newSubTallies);
       if (castVoteRecords.length !== scannedBallotCount) {
         debug(
           `Warning, ballots scanned count from status endpoint (${scannedBallotCount}) does not match number of CVRs (${castVoteRecords.length}) `
         );
       }
-      if (tally.numberOfBallotsCounted !== castVoteRecords.length) {
+      if (
+        tally.overallTally.numberOfBallotsCounted !== castVoteRecords.length
+      ) {
         debug(
-          `Warning, ballot count from calculated tally (${tally.numberOfBallotsCounted}) does not match number of CVRs (${castVoteRecords.length}) `
+          `Warning, ballot count from calculated tally (${tally.overallTally.numberOfBallotsCounted}) does not match number of CVRs (${castVoteRecords.length}) `
         );
       }
       setCurrentTally(tally);
     }
     void calculateTally();
-  }, [election, getCVRsFromExport, scannedBallotCount]);
+  }, [
+    election,
+    getCVRsFromExport,
+    scannedBallotCount,
+    precinctSelection,
+    parties,
+    precinctList,
+  ]);
 
   useInterval(
     async () => {
@@ -108,32 +176,88 @@ function PollWorkerScreen({
     POLLING_INTERVAL_FOR_TOTP,
     true
   );
-  const precinct = election.precincts.find((p) => p.id === currentPrecinctId);
-  const precinctSelection: PrecinctSelection =
-    precinct === undefined
-      ? { kind: PrecinctSelectionKind.AllPrecincts }
-      : {
-          kind: PrecinctSelectionKind.SinglePrecinct,
-          precinctId: precinct.id,
-        };
 
   async function saveTally() {
     assert(currentTally);
-    const compressedTally = compressTally(election, currentTally);
-    await saveTallyToCard({
+    let compressedTalliesByPrecinct: Dictionary<CompressedTally> = {};
+    // We only need to save tallies by precinct if the precinct scanner is configured for all precincts
+    if (precinctSelection.kind === PrecinctSelectionKind.AllPrecincts) {
+      const talliesByPrecinct = currentTally.resultsByCategory.get(
+        TallyCategory.Precinct
+      );
+      assert(talliesByPrecinct);
+      compressedTalliesByPrecinct = Object.keys(talliesByPrecinct).reduce(
+        (input: Dictionary<CompressedTally>, key) => {
+          const tally = talliesByPrecinct[key];
+          assert(tally);
+          return {
+            ...input,
+            [key]: compressTally(election, tally),
+          };
+        },
+        {}
+      );
+    } else {
+      compressedTalliesByPrecinct[precinctSelection.precinctId] = compressTally(
+        election,
+        currentTally.overallTally
+      );
+    }
+
+    const ballotCountBreakdowns = [...currentSubTallies.entries()].reduce<
+      Dictionary<BallotCountDetails>
+    >((input, [key, subTally]) => {
+      const bcDictionary = subTally.ballotCountsByVotingMethod;
+      const newRow: BallotCountDetails = [
+        bcDictionary[VotingMethod.Precinct] ?? 0,
+        bcDictionary[VotingMethod.Absentee] ?? 0,
+      ];
+      return {
+        ...input,
+        [key]: newRow,
+      };
+    }, {});
+    const talliesByParty = currentTally.resultsByCategory.get(
+      TallyCategory.Party
+    );
+    assert(talliesByParty);
+    for (const partyId of parties) {
+      const subTally = partyId
+        ? talliesByParty[partyId]
+        : currentTally.overallTally;
+      assert(subTally);
+      ballotCountBreakdowns[getTallyIdentifier(partyId)] = [
+        subTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
+        subTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
+      ];
+    }
+    assert(currentCompressedTally);
+
+    const fullTallyInformation = {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: scannedBallotCount,
       isLiveMode,
       isPollsOpen: !isPollsOpen, // When we are saving we are about to either open or close polls and want the state to reflect what it will be after that is complete.
-      tally: compressedTally,
-      absenteeBallots:
-        currentTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
-      precinctBallots:
-        currentTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
       machineId: machineConfig.machineId,
       timeSaved: Date.now(),
       precinctSelection,
-    });
+      ballotCounts: ballotCountBreakdowns,
+      talliesByPrecinct: compressedTalliesByPrecinct,
+      tally: currentCompressedTally,
+    };
+
+    const success = await saveTallyToCard(fullTallyInformation);
+    if (!success) {
+      debug(
+        'Error saving tally information to card, trying again without precinct-specific data'
+      );
+      // TODO show an error message if this attempt also fails
+      await saveTallyToCard({
+        ...fullTallyInformation,
+        talliesByPrecinct: undefined,
+        timeSaved: Date.now(),
+      });
+    }
   }
 
   async function printTallyReport() {
@@ -309,6 +433,7 @@ function PollWorkerScreen({
       </CenteredScreen>
       {currentTally &&
         reportPurposes.map((reportPurpose) => {
+          // TODO filter to precinct tally, (unless this is the only precinct then use overallTally)
           return (
             <React.Fragment key={reportPurpose}>
               <PrecinctScannerPollsReport
@@ -321,16 +446,45 @@ function PollWorkerScreen({
                 precinctSelection={precinctSelection}
                 reportPurpose={reportPurpose}
               />
-              <PrecinctScannerTallyReport
-                electionDefinition={electionDefinition}
-                signingMachineId={machineConfig.machineId}
-                tally={currentTally}
-                precinctSelection={precinctSelection}
-                reportPurpose={reportPurpose}
-                isPollsOpen={!isPollsOpen}
-                isLiveMode={isLiveMode}
-                reportSavedTime={currentTime}
-              />
+              <PrintableContainer>
+                <TallyReport>
+                  {precinctList.map((precinctId) =>
+                    parties.map((partyId) => {
+                      const tallyForReport = currentSubTallies.get(
+                        getTallyIdentifier(partyId, precinctId)
+                      );
+                      assert(tallyForReport);
+                      return (
+                        <PrecinctScannerTallyReport
+                          key={getTallyIdentifier(partyId, precinctId)}
+                          data-testid={getTallyIdentifier(partyId, precinctId)}
+                          electionDefinition={electionDefinition}
+                          tally={tallyForReport}
+                          precinctSelection={{
+                            kind: PrecinctSelectionKind.SinglePrecinct,
+                            precinctId,
+                          }}
+                          partyId={partyId}
+                          reportPurpose={reportPurpose}
+                          isPollsOpen={!isPollsOpen}
+                          reportSavedTime={currentTime}
+                        />
+                      );
+                    })
+                  )}
+                  {currentCompressedTally && scannedBallotCount > 0 && (
+                    <PrecinctScannerTallyQRCode
+                      electionDefinition={electionDefinition}
+                      signingMachineId={machineConfig.machineId}
+                      compressedTally={currentCompressedTally}
+                      reportPurpose={reportPurpose}
+                      isPollsOpen={!isPollsOpen}
+                      isLiveMode={isLiveMode}
+                      reportSavedTime={currentTime}
+                    />
+                  )}
+                </TallyReport>
+              </PrintableContainer>
             </React.Fragment>
           );
         })}

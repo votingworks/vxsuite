@@ -8,9 +8,21 @@ import {
   Tally,
   writeInCandidate,
   CompressedTally,
+  VotingMethod,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
+import { BallotCountDetails } from '.';
 import { throwIllegalValue } from './throwIllegalValue';
+import { filterContestTalliesByPartyId } from './votes';
+
+const ALL_PRECINCTS = '__ALL_PRECINCTS';
+
+export function getTallyIdentifier(
+  partyId?: string,
+  precinctId: string = ALL_PRECINCTS
+): string {
+  return `${partyId},${precinctId}`;
+}
 
 /**
  * A compressed tally
@@ -212,10 +224,10 @@ function getContestTalliesForCompressedContest(
 export function readCompressedTally(
   election: Election,
   serializedTally: CompressedTally,
-  totalBallotCount: number,
-  ballotCountsByVotingMethod: Dictionary<number>
+  ballotCounts: BallotCountDetails,
+  partyId?: string
 ): Tally {
-  const contestTallies: Dictionary<ContestTally> = {};
+  let contestTallies: Dictionary<ContestTally> = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
     const serializedContestTally = serializedTally[contestIdx];
     assert(serializedContestTally);
@@ -227,10 +239,24 @@ export function readCompressedTally(
       contestTallies[tally.contest.id] = tally;
     }
   }
+
+  if (partyId) {
+    contestTallies = filterContestTalliesByPartyId(
+      election,
+      contestTallies,
+      partyId
+    );
+  }
   return {
-    numberOfBallotsCounted: totalBallotCount,
+    numberOfBallotsCounted: ballotCounts.reduce(
+      (prev, value) => prev + value,
+      0
+    ),
     castVoteRecords: new Set(),
     contestTallies,
-    ballotCountsByVotingMethod,
+    ballotCountsByVotingMethod: {
+      [VotingMethod.Precinct]: ballotCounts[0],
+      [VotingMethod.Absentee]: ballotCounts[1],
+    },
   };
 }
