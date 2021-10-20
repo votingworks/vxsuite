@@ -170,7 +170,7 @@ export interface MockReadable extends Readable {
 }
 
 export interface MockWritable extends Writable {
-  writes: readonly { chunk: unknown; encoding?: string }[];
+  writes: ReadonlyArray<{ chunk: unknown; encoding?: string }>;
 }
 
 /**
@@ -200,7 +200,7 @@ export function makeMockReadable(): MockReadable {
  */
 export function makeMockWritable(): MockWritable {
   const writable = new EventEmitter() as MockWritable;
-  const writes: { chunk: unknown; encoding?: string }[] = [];
+  const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
   writable.write = jest.fn((...args: unknown[]): boolean => {

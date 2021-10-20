@@ -26,7 +26,7 @@ export interface BallotPackageManifest {
 
 export interface BallotStyleData {
   ballotStyleId: BallotStyle['id'];
-  contestIds: Contest['id'][];
+  contestIds: Array<Contest['id']>;
   precinctId: Precinct['id'];
 }
 

@@ -10,7 +10,7 @@ export interface FakeReadable extends Readable {
 export interface FakeWritable extends Writable {
   toBuffer(): Buffer;
   toString(): string;
-  writes: readonly { chunk: unknown; encoding?: string }[];
+  writes: ReadonlyArray<{ chunk: unknown; encoding?: string }>;
 }
 
 /**
@@ -69,7 +69,7 @@ export function fakeReadable(): FakeReadable {
  */
 export function fakeWritable(): FakeWritable {
   const writable = new EventEmitter() as FakeWritable;
-  const writes: { chunk: unknown; encoding?: string }[] = [];
+  const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
   writable.write = jest.fn((...args: unknown[]): boolean => {

@@ -682,7 +682,7 @@ export interface Pair<T> {
   second: T;
 }
 
-function makePairs<T>(inputArray: T[]): Pair<T>[] {
+const makePairs = <T>(inputArray: T[]): Array<Pair<T>>  {
   const pairs = [];
   for (let i = 0; i < inputArray.length; i += 1) {
     for (let j = i + 1; j < inputArray.length; j += 1) {

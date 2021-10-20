@@ -13,7 +13,7 @@ import {
 import { throwIllegalValue } from '@votingworks/utils';
 import { SheetOf } from './types';
 
-const BlankPageTypes: readonly PageInterpretation['type'][] = [
+const BlankPageTypes: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',
   'UnreadablePage',
 ];

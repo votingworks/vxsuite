@@ -38,7 +38,7 @@ export default function* ballotAdjudicationReasons(
     for (const contest of contests) {
       const selectedOptionsByContestId = new Map<
         Contest['id'],
-        { id: ContestOption['id']; index: number }[]
+        Array<{ id: ContestOption['id']; index: number }>
       >();
 
       for (const option of allContestOptions(contest)) {

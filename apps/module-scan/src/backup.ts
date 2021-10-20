@@ -107,7 +107,7 @@ export class Backup {
       });
     });
 
-    const updates: Promise<void>[] = [];
+    const updates: Array<Promise<void>> = [];
     await new Promise<void>((resolve, reject) => {
       db.each(
         `

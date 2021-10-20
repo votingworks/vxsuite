@@ -60,7 +60,7 @@ export const writableString = fc
     value,
     maxLength: max === null ? undefined : Math.max(max, value.length),
   }));
-export const anyWritable = fc.oneof<fc.Arbitrary<AnyWritable>[]>(
+export const anyWritable = fc.oneof<Array<fc.Arbitrary<AnyWritable>>>(
   writableBoolean,
   writableUint1,
   writableUint8,

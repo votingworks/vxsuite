@@ -86,7 +86,7 @@ export type OptionalExternalTally = Optional<ExternalTally>;
 export type OptionalFullElectionTally = Optional<FullElectionTally>;
 export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>;
 
-export type CompressedTally = number[][];
+export type CompressedTally = Array<number[]>;
 export const CompressedTallySchema: z.ZodSchema<CompressedTally> = z.array(
   z.array(z.number().nonnegative().int())
 );

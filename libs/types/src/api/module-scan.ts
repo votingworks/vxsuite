@@ -597,10 +597,10 @@ export interface GetNextReviewSheetResponse {
   };
   definitions: {
     front?: {
-      contestIds: readonly Contest['id'][];
+      contestIds: ReadonlyArray<Contest['id']>;
     };
     back?: {
-      contestIds: readonly Contest['id'][];
+      contestIds: ReadonlyArray<Contest['id']>;
     };
   };
 }

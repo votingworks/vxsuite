@@ -113,7 +113,7 @@ test('HMPB template handling', async () => {
   ]);
 
   expect(await store.getHmpbTemplates()).toEqual(
-    typedAs<[Buffer, SerializableBallotPageLayout[]][]>([
+    typedAs<Array<[Buffer, SerializableBallotPageLayout[]]>>([
       [
         Buffer.of(1, 2, 3),
         [

@@ -1,6 +1,6 @@
 import offsets from './offsets';
 
-function take<T>(count: number, iterable: Iterable<T>): Array<T> {
+function take<T>(count: number, iterable: Iterable<T>): T[] {
   const result: T[] = [];
 
   if (count > 0) {

@@ -11,8 +11,8 @@ const debug = makeDebug('module-scan:pool');
 export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
   private workers?: Set<W>;
   private claimedWorkers?: Set<W>;
-  private outstandingClaims: Deferred<W>[] = [];
-  private outstandingPerWorkerClaims = new Map<W, Deferred<W>[]>();
+  private outstandingClaims: Array<Deferred<W>> = [];
+  private outstandingPerWorkerClaims = new Map<W, Array<Deferred<W>>>();
 
   constructor(
     private readonly workerOps: WorkerOps<I, W>,
@@ -189,7 +189,7 @@ export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     }
 
     const traceId = uuid();
-    const promises: Promise<O>[] = [];
+    const promises: Array<Promise<O>> = [];
 
     debug('[%s] callAll start: input=%O', traceId, input);
     for (const worker of workers) {

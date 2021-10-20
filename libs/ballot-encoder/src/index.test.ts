@@ -378,9 +378,9 @@ it('encodes & decodes ms-either-neither votes correctly', () => {
   const precinctId = precinct.id;
   const ballotId = 'abcde';
   const contests = getContests({ ballotStyle, election });
-  const votePermutations: {
+  const votePermutations: Array<{
     [key: string]: Vote | string | string[] | Candidate;
-  }[] = [
+  }> = [
     { '750000015': ['yes'], '750000016': ['no'] },
     { '750000015': ['yes'], '750000016': ['yes'] },
     { '750000015': ['no'], '750000016': ['no'] },

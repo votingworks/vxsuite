@@ -40,11 +40,11 @@ interface CastVoteRecord
 function generateCombinations<T>(
   sourceArray: readonly T[],
   comboLength: number
-): T[][] {
+): Array<T[]> {
   const sourceLength = sourceArray.length;
   if (comboLength > sourceLength) return [];
 
-  const combos: T[][] = []; // Stores valid combinations as they are generated.
+  const combos: Array<T[]> = []; // Stores valid combinations as they are generated.
 
   // Accepts a partial combination, an index into sourceArray,
   // and the number of elements required to be added to create a full-length combination.
@@ -86,8 +86,10 @@ const YES_NO_OPTIONS = [['yes'], ['no'], ['yes', 'no'], []];
  * @param contest CandidateContest to generate contest choices for
  * @returns Array of possible contest choice selections. Each contest choice selection is an array of candidates to vote for.
  */
-function getCandidateOptionsForContest(contest: CandidateContest): string[][] {
-  const candidateOptions: string[][] = [];
+function getCandidateOptionsForContest(
+  contest: CandidateContest
+): Array<string[]> {
+  const candidateOptions: Array<string[]> = [];
   const numSeats = contest.seats;
   const candidateIds = contest.candidates.map((c: Candidate) => c.id);
 
@@ -135,8 +137,8 @@ function getCandidateOptionsForContest(contest: CandidateContest): string[][] {
  * @returns Array of dictionaries where each dictionary represents the votes across all contests provided from each contest ID to the votes to mark on that contest.
  */
 function getVoteConfigurationsForCandidateOptions(
-  candidateOptionsForContest: ReadonlyMap<string, string[][]>
-): Map<string, string[]>[] {
+  candidateOptionsForContest: ReadonlyMap<string, Array<string[]>>
+): Array<Map<string, string[]>> {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
   const numOptionsToProduce = [...candidateOptionsForContest.values()].reduce(
     (prev, options) => Math.max(prev, options?.length ?? 0),
@@ -188,7 +190,7 @@ function* generateCVRs(
           };
 
           // For each contest determine all possible contest choices.
-          const candidateOptionsForContest = new Map<string, string[][]>();
+          const candidateOptionsForContest = new Map<string, Array<string[]>>();
           for (const contest of contests) {
             if (
               districts.includes(contest.districtId) &&
@@ -249,7 +251,7 @@ interface GenerateCVRFileArguments {
   electionPath?: string;
   outputPath?: string;
   numBallots?: number;
-  scannerNames?: (string | number)[];
+  scannerNames?: Array<string | number>;
   liveBallots?: boolean;
   help?: boolean;
   [x: string]: unknown;

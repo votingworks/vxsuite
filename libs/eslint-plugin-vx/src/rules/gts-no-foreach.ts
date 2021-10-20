@@ -171,10 +171,9 @@ export default createRule({
         return { forEachCall, forEachIdentifier, collection };
       }
 
-      const [valueParam, indexParam, arrayParam] = callback.params as (
-        | TSESTree.Parameter
-        | undefined
-      )[];
+      const [valueParam, indexParam, arrayParam] = callback.params as Array<
+        TSESTree.Parameter | undefined
+      >;
 
       if (
         arrayParam ||

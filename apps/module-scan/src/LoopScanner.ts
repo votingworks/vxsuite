@@ -4,13 +4,13 @@ import { join, resolve } from 'path';
 import { BatchControl, Scanner } from './scanners';
 import { SheetOf } from './types';
 
-type Batch = readonly SheetOf<string>[];
+type Batch = ReadonlyArray<SheetOf<string>>;
 
 export function parseBatches(
   imagePathsAndBatchSeparators: readonly string[]
 ): Batch[] {
-  const batches: SheetOf<string>[][] = [];
-  let currentBatch: SheetOf<string>[] = [];
+  const batches: Array<Array<SheetOf<string>>> = [];
+  let currentBatch: Array<SheetOf<string>> = [];
 
   for (let i = 0; i < imagePathsAndBatchSeparators.length; i += 1) {
     const entry = imagePathsAndBatchSeparators[i].trim();

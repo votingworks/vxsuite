@@ -7,7 +7,7 @@ export interface TextProvider<P extends unknown[] = []> {
 
 export default class Spinner {
   private readonly parts: readonly TextProvider[];
-  private readonly deinits: readonly (() => void)[];
+  private readonly deinits: ReadonlyArray<() => void>;
 
   constructor(private readonly spinner: Ora, ...parts: TextProvider[]) {
     this.parts = parts;
