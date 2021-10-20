@@ -8,7 +8,7 @@ export interface Props {
 
 export const FUJITSU_VENDOR_ID = 0x4c5;
 
-const ScanButton = ({ onPress, disabled }: Props): JSX.Element => {
+function ScanButton({ onPress, disabled }: Props): JSX.Element {
   const [isScannerConnected, setIsScannerConnected] = useState(!window.kiosk);
 
   useEffect(() => {
@@ -30,6 +30,6 @@ const ScanButton = ({ onPress, disabled }: Props): JSX.Element => {
       {isScannerConnected ? 'Scan New Batch' : 'No Scanner'}
     </Button>
   );
-};
+}
 
 export default ScanButton;

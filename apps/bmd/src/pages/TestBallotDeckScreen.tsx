@@ -31,10 +31,10 @@ interface GenerateTestDeckParams {
   precinctId?: string;
 }
 
-const generateTestDeckBallots = ({
+function generateTestDeckBallots({
   election,
   precinctId,
-}: GenerateTestDeckParams) => {
+}: GenerateTestDeckParams) {
   const precincts: string[] = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id);
@@ -97,7 +97,7 @@ const generateTestDeckBallots = ({
   }
 
   return ballots;
-};
+}
 
 interface Precinct {
   name: string;
@@ -115,14 +115,14 @@ interface Props {
 
 const initialPrecinct: Precinct = { id: '', name: '' };
 
-const TestBallotDeckScreen = ({
+function TestBallotDeckScreen({
   appPrecinct,
   electionDefinition,
   hideTestDeck,
   isLiveMode,
   machineConfig,
   printer,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { election } = electionDefinition;
   const [ballots, setBallots] = useState<Ballot[]>([]);
   const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct);
@@ -139,12 +139,12 @@ const TestBallotDeckScreen = ({
     setBallots(selectedBallots);
   };
 
-  const resetDeck = () => {
+  function resetDeck() {
     setBallots([]);
     setPrecinct(initialPrecinct);
-  };
+  }
 
-  const handlePrinting = async () => {
+  async function handlePrinting() {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
       if (!printers.some((p) => p.connected)) {
@@ -159,7 +159,7 @@ const TestBallotDeckScreen = ({
     }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000);
 
     await printer.print({ sides: 'one-sided' });
-  };
+  }
 
   return (
     <React.Fragment>
@@ -278,6 +278,6 @@ const TestBallotDeckScreen = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default TestBallotDeckScreen;

@@ -80,7 +80,7 @@ interface Props {
   reportPurpose: string;
 }
 
-export const PrecinctScannerPollsReport = ({
+export function PrecinctScannerPollsReport({
   ballotCount,
   currentTime,
   election,
@@ -90,7 +90,7 @@ export const PrecinctScannerPollsReport = ({
   timeTallySaved,
   precinctSelection,
   reportPurpose,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { title, date, county, precincts, state, seal, sealURL } = election;
   const precinctName =
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
@@ -202,4 +202,4 @@ export const PrecinctScannerPollsReport = ({
       </Content>
     </PrintableContainer>
   );
-};
+}

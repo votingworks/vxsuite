@@ -3,13 +3,13 @@ import { fireEvent, render } from '@testing-library/react';
 
 import { Button, DecoyButton } from './Button';
 
-const createTouchStartEventProperties = (x: number, y: number) => {
+function createTouchStartEventProperties(x: number, y: number) {
   return { touches: [{ clientX: x, clientY: y }] };
-};
+}
 
-const createTouchEndEventProperties = (x: number, y: number) => {
+function createTouchEndEventProperties(x: number, y: number) {
   return { changedTouches: [{ clientX: x, clientY: y }] };
-};
+}
 
 describe('renders Button', () => {
   test('with defaults', () => {

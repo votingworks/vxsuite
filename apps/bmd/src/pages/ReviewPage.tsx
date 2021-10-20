@@ -191,23 +191,25 @@ const ContestActions = styled.div`
     display: block;
   }
 `;
-const NoSelection = (): JSX.Element => (
-  <Text
-    aria-label="You may still vote in this contest."
-    bold
-    warning
-    warningIcon
-    wordBreak
-  >
-    You may still vote in this contest.
-  </Text>
-);
+function NoSelection(): JSX.Element {
+  return (
+    <Text
+      aria-label="You may still vote in this contest."
+      bold
+      warning
+      warningIcon
+      wordBreak
+    >
+      You may still vote in this contest.
+    </Text>
+  );
+}
 
-const CandidateContestResult = ({
+function CandidateContestResult({
   contest,
   parties,
   vote = [],
-}: CandidateContestResultInterface): JSX.Element => {
+}: CandidateContestResultInterface): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -238,12 +240,12 @@ const CandidateContestResult = ({
       )}
     </React.Fragment>
   );
-};
+}
 
-const YesNoContestResult = ({
+function YesNoContestResult({
   contest,
   vote,
-}: YesNoContestResultInterface): JSX.Element => {
+}: YesNoContestResultInterface): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak voteIcon>
@@ -252,13 +254,13 @@ const YesNoContestResult = ({
   ) : (
     <NoSelection />
   );
-};
+}
 
-const MsEitherNeitherContestResult = ({
+function MsEitherNeitherContestResult({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: MsEitherNeitherContestResultInterface): JSX.Element => {
+}: MsEitherNeitherContestResultInterface): JSX.Element {
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const pickOneVote = pickOneContestVote?.[0];
   return eitherNeitherVote || pickOneVote ? (
@@ -285,13 +287,13 @@ const MsEitherNeitherContestResult = ({
   ) : (
     <NoSelection />
   );
-};
+}
 
 const SidebarSpacer = styled.div`
   height: 90px;
 `;
 
-const ReviewPage = (): JSX.Element => {
+function ReviewPage(): JSX.Element {
   const {
     userSettings,
     contests,
@@ -524,6 +526,6 @@ const ReviewPage = (): JSX.Element => {
       </Sidebar>
     </Screen>
   );
-};
+}
 
 export default ReviewPage;

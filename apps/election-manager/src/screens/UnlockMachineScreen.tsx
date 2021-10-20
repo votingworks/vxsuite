@@ -32,7 +32,7 @@ export const EnteredCode = styled.div`
   font-weight: 600;
 `;
 
-export const UnlockMachineScreen = (): JSX.Element => {
+export function UnlockMachineScreen(): JSX.Element {
   const { attemptToAuthenticateAdminUser, saveElection } = useContext(
     AppContext
   );
@@ -106,4 +106,4 @@ export const UnlockMachineScreen = (): JSX.Element => {
       <StatusFooter />
     </Screen>
   );
-};
+}

@@ -63,9 +63,9 @@ interface IpcHandlers<T> {
   else(line: string, resolve: (value: T) => void): void;
 }
 
-const noop = () => {
+function noop() {
   // do nothing
-};
+}
 
 type PlustekEvent = { type: 'line'; line: string } | { type: 'exit' };
 

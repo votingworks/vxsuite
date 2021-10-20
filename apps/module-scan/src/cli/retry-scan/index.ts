@@ -136,8 +136,9 @@ export async function retryScan(
   });
   listeners?.interpreterLoaded?.();
 
-  const absolutify = (path: string): string =>
-    isAbsolute(path) ? path : resolve(input.store.dbPath, '..', path);
+  function absolutify(path: string): string {
+    return isAbsolute(path) ? path : resolve(input.store.dbPath, '..', path);
+  }
 
   await Promise.all(
     sheets.map(

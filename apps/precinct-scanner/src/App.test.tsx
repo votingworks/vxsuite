@@ -83,7 +83,7 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
   status: 'ok',
 };
 
-const authenticateAdminCard = async () => {
+async function authenticateAdminCard() {
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
@@ -91,7 +91,7 @@ const authenticateAdminCard = async () => {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
-};
+}
 
 test('shows setup card reader screen when there is no card reader', async () => {
   const storage = new MemoryStorage();

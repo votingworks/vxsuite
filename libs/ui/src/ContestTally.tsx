@@ -51,12 +51,12 @@ interface Props {
   precinctId?: string;
 }
 
-export const ContestTally = ({
+export function ContestTally({
   election,
   electionTally,
   externalTallies,
   precinctId,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   // if there is no precinctId defined, we don't need to do extra work
   // that will later be ignored, so we just use the empty array
   const ballotStyles = precinctId
@@ -154,4 +154,4 @@ export const ContestTally = ({
       })}
     </React.Fragment>
   );
-};
+}

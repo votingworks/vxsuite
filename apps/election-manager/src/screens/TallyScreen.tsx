@@ -39,7 +39,7 @@ import { getPartiesWithPrimaryElections } from '../utils/election';
 import ImportExternalResultsModal from '../components/ImportExternalResultsModal';
 import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
 
-const TallyScreen = (): JSX.Element => {
+function TallyScreen(): JSX.Element {
   const {
     castVoteRecordFiles,
     electionDefinition,
@@ -69,34 +69,35 @@ const TallyScreen = (): JSX.Element => {
     setIsShowingBatchResults(!isShowingBatchResults);
   }, [isShowingBatchResults, setIsShowingBatchResults]);
 
-  const beginConfirmRemoveFiles = (fileType: ResultsFileType) => {
+  function beginConfirmRemoveFiles(fileType: ResultsFileType) {
     setConfirmingRemoveFileType(fileType);
-  };
-  const cancelConfirmingRemoveFiles = () => {
+  }
+  function cancelConfirmingRemoveFiles() {
     setConfirmingRemoveFileType(undefined);
-  };
-  const confirmRemoveFiles = async (fileType: ResultsFileType) => {
+  }
+  async function confirmRemoveFiles(fileType: ResultsFileType) {
     setConfirmingRemoveFileType(undefined);
     await resetFiles(fileType);
-  };
+  }
 
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
   const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false);
-  const cancelConfirmingOfficial = () => {
+  function cancelConfirmingOfficial() {
     setIsConfirmingOfficial(false);
-  };
-  const confirmOfficial = () => {
+  }
+  function confirmOfficial() {
     setIsConfirmingOfficial(true);
-  };
-  const setOfficial = async () => {
+  }
+  async function setOfficial() {
     setIsConfirmingOfficial(false);
     await saveIsOfficialResults();
-  };
+  }
 
-  const getPrecinctNames = (precinctIds: readonly string[]) =>
-    precinctIds
+  function getPrecinctNames(precinctIds: readonly string[]) {
+    return precinctIds
       .map((id) => find(election.precincts, (p) => p.id === id).name)
       .join(', ');
+  }
   const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList;
@@ -128,13 +129,13 @@ const TallyScreen = (): JSX.Element => {
     }
   };
 
-  const closeExternalFileImport = () => {
+  function closeExternalFileImport() {
     setIsImportExternalModalOpen(false);
     setExternalResultsSelectedFile(undefined);
     if (externalFileInput?.current) {
       externalFileInput.current.value = '';
     }
-  };
+  }
 
   const [hasConverter, setHasConverter] = useState(false);
   useEffect(() => {
@@ -219,7 +220,7 @@ const TallyScreen = (): JSX.Element => {
     0
   );
 
-  const generateSEMSResults = async (): Promise<string> => {
+  const generateSEMSResults = useCallback(async (): Promise<string> => {
     const exportableTallies = generateExportableTallies();
     // process on the server
     const client = new ConverterClient('tallies');
@@ -245,7 +246,7 @@ const TallyScreen = (): JSX.Element => {
     // reset files on the server
     await client.reset();
     return await results.text();
-  };
+  }, [electionDefinition.electionData, generateExportableTallies]);
 
   return (
     <React.Fragment>
@@ -469,6 +470,6 @@ const TallyScreen = (): JSX.Element => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default TallyScreen;

@@ -12,11 +12,12 @@ interface Props {
   isLiveMode: boolean;
 }
 
-export const TestMode = ({ isLiveMode }: Props): JSX.Element =>
-  isLiveMode ? (
+export function TestMode({ isLiveMode }: Props): JSX.Element {
+  return isLiveMode ? (
     <React.Fragment />
   ) : (
     <TestingModeContainer warning bold warningIcon center>
       Testing Mode
     </TestingModeContainer>
   );
+}

@@ -70,12 +70,12 @@ interface Props {
   updateVote: UpdateVoteFunction;
 }
 
-const MsEitherNeitherContest = ({
+function MsEitherNeitherContest({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
   updateVote,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { userSettings } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
   const [isScrollable, setIsScrollable] = useState(true);
@@ -421,6 +421,6 @@ const MsEitherNeitherContest = ({
       </Main>
     </React.Fragment>
   );
-};
+}
 
 export default MsEitherNeitherContest;

@@ -34,11 +34,13 @@ const Content = styled.span`
   flex-direction: column;
 `;
 
-const BubbleMark = ({ checked = false, children }: Props): JSX.Element => (
-  <Container>
-    <Bubble checked={checked} data-mark />
-    <Content>{children}</Content>
-  </Container>
-);
+function BubbleMark({ checked = false, children }: Props): JSX.Element {
+  return (
+    <Container>
+      <Bubble checked={checked} data-mark />
+      <Content>{children}</Content>
+    </Container>
+  );
+}
 
 export default BubbleMark;

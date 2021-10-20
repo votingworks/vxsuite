@@ -31,7 +31,7 @@ interface Props {
   precinctBallotStyles: BallotStyle[];
 }
 
-const AdminScreen = ({
+function AdminScreen({
   election,
   fetchElection,
   getBallotStylesByPrecinctId,
@@ -46,22 +46,22 @@ const AdminScreen = ({
   setPrecinct,
   setIsSinglePrecinctMode,
   unconfigure,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const precincts = election ? [...election.precincts].sort(compareName) : [];
   const parties = election ? [...election.parties].sort(compareName) : [];
-  const onChangeParty = (event: React.FormEvent<HTMLSelectElement>) => {
+  function onChangeParty(event: React.FormEvent<HTMLSelectElement>) {
     setParty(event.currentTarget.value);
-  };
-  const onChangePrecinct = (event: React.FormEvent<HTMLSelectElement>) => {
+  }
+  function onChangePrecinct(event: React.FormEvent<HTMLSelectElement>) {
     const { value } = event.currentTarget;
     setPrecinct(value);
     setIsSinglePrecinctMode(!!value);
-  };
-  const reset = () => {
+  }
+  function reset() {
     setPrecinct('');
     setParty('');
     setIsSinglePrecinctMode(false);
-  };
+  }
   const ballotStyles = partyId
     ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
     : precinctBallotStyles;
@@ -164,6 +164,6 @@ const AdminScreen = ({
       <MainNav title="Admin Actions" />
     </Screen>
   );
-};
+}
 
 export default AdminScreen;

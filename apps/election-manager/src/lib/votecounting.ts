@@ -281,12 +281,12 @@ export interface GetContestTallyMetaParams {
   scannerId?: string;
 }
 
-export const getContestTallyMeta = ({
+export function getContestTallyMeta({
   election,
   castVoteRecords,
   precinctId,
   scannerId,
-}: GetContestTallyMetaParams): ContestTallyMetaDictionary => {
+}: GetContestTallyMetaParams): ContestTallyMetaDictionary {
   const filteredCVRs = castVoteRecords
     .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
     .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId);
@@ -326,7 +326,7 @@ export const getContestTallyMeta = ({
       },
     };
   }, {});
-};
+}
 
 function getPartyIdForCVR(
   CVR: CastVoteRecord,
@@ -682,7 +682,7 @@ export interface Pair<T> {
   second: T;
 }
 
-const makePairs = <T>(inputArray: T[]): Pair<T>[] => {
+function makePairs<T>(inputArray: T[]): Pair<T>[] {
   const pairs = [];
   for (let i = 0; i < inputArray.length; i += 1) {
     for (let j = i + 1; j < inputArray.length; j += 1) {
@@ -691,7 +691,7 @@ const makePairs = <T>(inputArray: T[]): Pair<T>[] => {
   }
 
   return pairs;
-};
+}
 
 export interface OvervotePairTally {
   candidates: Pair<Candidate>;
@@ -703,10 +703,10 @@ export interface ContestOvervotePairTallies {
   tallies: OvervotePairTally[];
 }
 
-const findOvervotePairTally = (
+function findOvervotePairTally(
   pairTallies: OvervotePairTally[],
   pair: Pair<Candidate>
-): OvervotePairTally | undefined => {
+): OvervotePairTally | undefined {
   for (const pairTally of pairTallies) {
     if (
       (pairTally.candidates.first === pair.first &&
@@ -717,7 +717,7 @@ const findOvervotePairTally = (
       return pairTally;
     }
   }
-};
+}
 
 // filters the CVR so it doesn't contain contests it shouldn't (TODO: should we cancel it altogether if it does?)
 interface ProcessCastVoteRecordParams {
@@ -725,10 +725,10 @@ interface ProcessCastVoteRecordParams {
   castVoteRecord: CastVoteRecord;
 }
 
-const processCastVoteRecord = ({
+function processCastVoteRecord({
   election,
   castVoteRecord,
-}: ProcessCastVoteRecordParams): CastVoteRecord | undefined => {
+}: ProcessCastVoteRecordParams): CastVoteRecord | undefined {
   const ballotStyle = getBallotStyle({
     ballotStyleId: castVoteRecord._ballotStyleId,
     election,
@@ -755,17 +755,17 @@ const processCastVoteRecord = ({
     if (castVoteRecord[key]) newCVR[key] = castVoteRecord[key];
   }
   return newCVR;
-};
+}
 
 interface FullTallyParams {
   election: Election;
   castVoteRecords: CastVoteRecord[];
 }
 
-export const getOvervotePairTallies = ({
+export function getOvervotePairTallies({
   election,
   castVoteRecords,
-}: FullTallyParams): Dictionary<ContestOvervotePairTallies> => {
+}: FullTallyParams): Dictionary<ContestOvervotePairTallies> {
   const overvotePairTallies: Dictionary<ContestOvervotePairTallies> = election.contests
     .filter((contest) => contest.type === 'candidate')
     .reduce(
@@ -812,4 +812,4 @@ export const getOvervotePairTallies = ({
   }
 
   return overvotePairTallies;
-};
+}

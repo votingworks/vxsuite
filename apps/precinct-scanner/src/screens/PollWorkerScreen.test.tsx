@@ -19,13 +19,13 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const renderScreen = ({
+function renderScreen({
   scannedBallotCount = 0,
   isPollsOpen = false,
 }: {
   scannedBallotCount?: number;
   isPollsOpen?: boolean;
-}): void => {
+}): void {
   render(
     <AppContext.Provider
       value={{
@@ -49,7 +49,7 @@ const renderScreen = ({
       />
     </AppContext.Provider>
   );
-};
+}
 
 test('shows system authentication code', async () => {
   const mockKiosk = fakeKiosk();

@@ -33,7 +33,7 @@ const USBImage = styled.img`
   height: 200px;
 `;
 
-const ExportElectionBallotPackageModalButton = (): JSX.Element => {
+function ExportElectionBallotPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
     AppContext
   );
@@ -106,10 +106,10 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
     setState(workflow.next);
   }, [election, electionHash, state]);
 
-  const closeModal = () => {
+  function closeModal() {
     setIsModalOpen(false);
     setState(workflow.init(election, electionHash, electionLocaleCodes));
-  };
+  }
 
   const now = new Date();
   const defaultFileName = generateFilenameForBallotExportPackage(
@@ -118,7 +118,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
   );
 
   // Callback to open the file dialog.
-  const saveFileCallback = async (openDialog: boolean) => {
+  async function saveFileCallback(openDialog: boolean) {
     if (state.type !== 'ArchiveBegin') {
       throw new Error(
         `unexpected state '${state.type}' found during saveFileCallback`
@@ -145,7 +145,7 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
     } catch (error) {
       setState(workflow.error(state, error));
     }
-  };
+  }
 
   let mainContent = null;
   let actions = null;
@@ -356,6 +356,6 @@ const ExportElectionBallotPackageModalButton = (): JSX.Element => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default ExportElectionBallotPackageModalButton;

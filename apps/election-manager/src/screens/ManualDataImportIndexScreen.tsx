@@ -42,7 +42,7 @@ const PrecinctRowText = styled(Text)`
   }
 `;
 
-const ManualDataImportIndexScreen = (): JSX.Element => {
+function ManualDataImportIndexScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
@@ -72,12 +72,12 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
   const hasManualData = !!existingManualData?.overallTally
     .numberOfBallotsCounted;
 
-  const confirmClearManualData = async (fileType: ResultsFileType) => {
+  async function confirmClearManualData(fileType: ResultsFileType) {
     setIsClearing(false);
     await resetFiles(fileType);
-  };
+  }
 
-  const handleSettingBallotType = async (newBallotType: VotingMethod) => {
+  async function handleSettingBallotType(newBallotType: VotingMethod) {
     setBallotType(newBallotType);
 
     // Note this WILL save an empty external tally if ballot type is toggled but there is not an external tally yet.
@@ -96,7 +96,7 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
     // Add the new tally
     newTallies.push(externalTally);
     await saveExternalTallies(newTallies);
-  };
+  }
 
   useEffect(() => {
     // If the data gets cleared, reset voting method.
@@ -212,6 +212,6 @@ const ManualDataImportIndexScreen = (): JSX.Element => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default ManualDataImportIndexScreen;

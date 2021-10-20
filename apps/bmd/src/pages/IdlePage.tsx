@@ -17,7 +17,7 @@ import { EventTargetFunction } from '../config/types';
 
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS;
 
-const IdlePage = (): JSX.Element => {
+function IdlePage(): JSX.Element {
   const { markVoterCardVoided, resetBallot } = useContext(BallotContext);
   const [countdown, setCountdown] = useState(timeoutSeconds);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,11 +27,11 @@ const IdlePage = (): JSX.Element => {
   };
 
   useEffect(() => {
-    const reset = async () => {
+    async function reset() {
       setIsLoading(true);
       await markVoterCardVoided();
       resetBallot();
-    };
+    }
     if (countdown === 0) void reset();
   }, [countdown, markVoterCardVoided, resetBallot]);
 
@@ -67,6 +67,6 @@ const IdlePage = (): JSX.Element => {
       </Main>
     </Screen>
   );
-};
+}
 
 export default IdlePage;

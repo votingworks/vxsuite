@@ -21,7 +21,7 @@ export interface Props {
   breakdownCategory: TallyCategory;
 }
 
-const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
+function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
   const {
     electionDefinition,
     isTabulationRunning,
@@ -426,6 +426,6 @@ const BallotCountsTable = ({ breakdownCategory }: Props): JSX.Element => {
     default:
       throwIllegalValue(breakdownCategory);
   }
-};
+}
 
 export default BallotCountsTable;

@@ -25,7 +25,7 @@ interface ContestSection {
   contests: Contest[];
 }
 
-const DefinitionScreen = (): JSX.Element => {
+function DefinitionScreen(): JSX.Element {
   const { electionDefinition, configuredAt } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -116,6 +116,6 @@ const DefinitionScreen = (): JSX.Element => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default DefinitionScreen;

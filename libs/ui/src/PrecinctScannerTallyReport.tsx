@@ -36,7 +36,7 @@ interface Props {
   tally: Tally;
 }
 
-export const PrecinctScannerTallyReport = ({
+export function PrecinctScannerTallyReport({
   reportSavedTime,
   electionDefinition,
   signingMachineId,
@@ -45,7 +45,7 @@ export const PrecinctScannerTallyReport = ({
   isPollsOpen,
   isLiveMode,
   tally,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { election, electionHash } = electionDefinition;
   const [resultsReportingUrl, setResultsReportingUrl] = useState('');
   const precinctId =
@@ -154,4 +154,4 @@ export const PrecinctScannerTallyReport = ({
       </TallyReport>
     </PrintableContainer>
   );
-};
+}

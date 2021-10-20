@@ -118,17 +118,19 @@ const ContestProse = styled(Prose)`
     font-weight: 400;
   }
 `;
-const NoSelection = ({ prefix }: { prefix?: string }): JSX.Element => (
-  <Text italic muted>
-    {prefix}[no selection]
-  </Text>
-);
+function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
+  return (
+    <Text italic muted>
+      {prefix}[no selection]
+    </Text>
+  );
+}
 
-const CandidateContestResult = ({
+function CandidateContestResult({
   contest,
   parties,
   vote = [],
-}: CandidateContestResultInterface): JSX.Element => {
+}: CandidateContestResultInterface): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
@@ -151,12 +153,12 @@ const CandidateContestResult = ({
       )}
     </React.Fragment>
   );
-};
+}
 
-const YesNoContestResult = ({
+function YesNoContestResult({
   contest,
   vote,
-}: YesNoContestResultInterface): JSX.Element => {
+}: YesNoContestResultInterface): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
@@ -166,13 +168,13 @@ const YesNoContestResult = ({
   ) : (
     <NoSelection />
   );
-};
+}
 
-const MsEitherNeitherContestResult = ({
+function MsEitherNeitherContestResult({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: MsEitherNeitherContestResultInterface): JSX.Element => {
+}: MsEitherNeitherContestResultInterface): JSX.Element {
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const pickOneVote = pickOneContestVote?.[0];
 
@@ -202,7 +204,7 @@ const MsEitherNeitherContestResult = ({
   ) : (
     <NoSelection />
   );
-};
+}
 
 interface Props {
   ballotStyleId: string;
@@ -212,13 +214,13 @@ interface Props {
   votes: VotesDict;
 }
 
-const PrintBallot = ({
+function PrintBallot({
   ballotStyleId,
   electionDefinition,
   isLiveMode,
   precinctId,
   votes,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const ballotId = randomBase64(10);
   const {
     election,
@@ -332,6 +334,6 @@ const PrintBallot = ({
       </Content>
     </Ballot>
   );
-};
+}
 
 export default PrintBallot;

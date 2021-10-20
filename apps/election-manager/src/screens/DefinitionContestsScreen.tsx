@@ -68,7 +68,7 @@ const StyledField = styled.div`
     font-size: 0.85rem;
   }
 `;
-const TextField = ({
+function TextField({
   disabled = false,
   name,
   label = name,
@@ -90,44 +90,46 @@ const TextField = ({
   step?: number;
   type?: 'text' | 'textarea' | 'number';
   value?: string | number;
-}) => (
-  <StyledField>
-    <label htmlFor={name}>
-      <Text as="span" small>
-        {label}
-      </Text>
-      {optional && (
-        <Text as="span" small muted>
-          {' '}
-          (optional)
+}) {
+  return (
+    <StyledField>
+      <label htmlFor={name}>
+        <Text as="span" small>
+          {label}
         </Text>
+        {optional && (
+          <Text as="span" small muted>
+            {' '}
+            (optional)
+          </Text>
+        )}
+      </label>
+      {type === 'textarea' ? (
+        <TextareaAutosize
+          id={name}
+          name={name}
+          disabled={disabled}
+          defaultValue={value}
+          onChange={onChange as TextareaEventFunction}
+        />
+      ) : (
+        <TextInput
+          id={name}
+          name={name}
+          type={type}
+          disabled={disabled}
+          defaultValue={value}
+          onChange={onChange as InputEventFunction}
+          min={min}
+          pattern={pattern}
+          step={step}
+        />
       )}
-    </label>
-    {type === 'textarea' ? (
-      <TextareaAutosize
-        id={name}
-        name={name}
-        disabled={disabled}
-        defaultValue={value}
-        onChange={onChange as TextareaEventFunction}
-      />
-    ) : (
-      <TextInput
-        id={name}
-        name={name}
-        type={type}
-        disabled={disabled}
-        defaultValue={value}
-        onChange={onChange as InputEventFunction}
-        min={min}
-        pattern={pattern}
-        step={step}
-      />
-    )}
-  </StyledField>
-);
+    </StyledField>
+  );
+}
 
-const ToggleField = ({
+function ToggleField({
   name,
   label = name,
   trueLabel = 'true',
@@ -145,48 +147,50 @@ const ToggleField = ({
   optional?: boolean;
   onChange: EventTargetFunction;
   disabled?: boolean;
-}) => (
-  <StyledField>
-    <label htmlFor={name}>
-      <strong>{label}:</strong>
-      {optional && <small> (optional)</small>}
-    </label>
-    {disabled ? (
-      value ? (
-        trueLabel
+}) {
+  return (
+    <StyledField>
+      <label htmlFor={name}>
+        <strong>{label}:</strong>
+        {optional && <small> (optional)</small>}
+      </label>
+      {disabled ? (
+        value ? (
+          trueLabel
+        ) : (
+          falseLabel
+        )
       ) : (
-        falseLabel
-      )
-    ) : (
-      <SegmentedButton>
-        <Button
-          small
-          disabled={value}
-          name={name}
-          value="true"
-          onPress={onChange}
-        >
-          {trueLabel}
-        </Button>
-        <Button
-          small
-          disabled={!value}
-          name={name}
-          value="false"
-          onPress={onChange}
-        >
-          {falseLabel}
-        </Button>
-      </SegmentedButton>
-    )}
-  </StyledField>
-);
+        <SegmentedButton>
+          <Button
+            small
+            disabled={value}
+            name={name}
+            value="true"
+            onPress={onChange}
+          >
+            {trueLabel}
+          </Button>
+          <Button
+            small
+            disabled={!value}
+            name={name}
+            value="false"
+            onPress={onChange}
+          >
+            {falseLabel}
+          </Button>
+        </SegmentedButton>
+      )}
+    </StyledField>
+  );
+}
 
-const DefinitionContestsScreen = ({
+function DefinitionContestsScreen({
   allowEditing,
 }: {
   allowEditing: boolean;
-}): JSX.Element => {
+}): JSX.Element {
   const { electionDefinition, saveElection } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -194,7 +198,7 @@ const DefinitionContestsScreen = ({
   const contestIndex = election.contests.findIndex((c) => c.id === contestId);
   const contest = election.contests[contestIndex];
 
-  const saveContest = async (newContest: AnyContest) => {
+  async function saveContest(newContest: AnyContest) {
     if (allowEditing) {
       const newElection: Election = {
         ...election,
@@ -206,7 +210,7 @@ const DefinitionContestsScreen = ({
       };
       await saveElection(JSON.stringify(newElection));
     }
-  };
+  }
 
   const saveTextField: InputEventFunction = async (event) => {
     const { name, value: targetValue, type } = event.currentTarget;
@@ -582,6 +586,6 @@ ${fileContent}`;
       </p>
     </NavigationScreen>
   );
-};
+}
 
 export default DefinitionContestsScreen;

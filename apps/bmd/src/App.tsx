@@ -37,7 +37,7 @@ export interface Props {
   screenReader?: ScreenReader;
 }
 
-const App = ({
+function App({
   screenReader = new AriaScreenReader(
     new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice))
   ),
@@ -47,16 +47,16 @@ const App = ({
   printer = getPrinter(),
   hardware,
   machineConfig = machineConfigProvider,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   screenReader.mute();
   const [internalHardware, setInternalHardware] = useState(hardware);
 
   useEffect(() => {
-    const updateHardware = async () => {
+    async function updateHardware() {
       if (internalHardware === undefined) {
         setInternalHardware(await getHardware());
       }
-    };
+    }
     void updateHardware();
   }, [internalHardware]);
 
@@ -151,6 +151,6 @@ const App = ({
       </FocusManager>
     </BrowserRouter>
   );
-};
+}
 
 export default App;

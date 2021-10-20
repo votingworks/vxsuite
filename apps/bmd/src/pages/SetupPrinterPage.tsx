@@ -9,9 +9,7 @@ interface Props {
   useEffectToggleLargeDisplay: () => void;
 }
 
-const SetupPrinterPage = ({
-  useEffectToggleLargeDisplay,
-}: Props): JSX.Element => {
+function SetupPrinterPage({ useEffectToggleLargeDisplay }: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
 
@@ -27,6 +25,6 @@ const SetupPrinterPage = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default SetupPrinterPage;

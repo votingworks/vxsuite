@@ -100,18 +100,18 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const createMemoryStorageWith = async ({
+async function createMemoryStorageWith({
   electionDefinition,
 }: {
   electionDefinition: ElectionDefinition;
-}) => {
+}) {
   const storage = new MemoryStorage();
   await storage.set(electionDefinitionStorageKey, electionDefinition);
   await storage.set(configuredAtStorageKey, new Date().toISOString());
   return storage;
-};
+}
 
-const authenticateWithAdminCard = async (card: MemoryCard) => {
+async function authenticateWithAdminCard(card: MemoryCard) {
   // Machine should be locked
   await screen.findByText('Machine Locked');
   card.insertCard({
@@ -127,7 +127,7 @@ const authenticateWithAdminCard = async (card: MemoryCard) => {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
-};
+}
 test('create election works', async () => {
   jest.useFakeTimers();
   const card = new MemoryCard();

@@ -16,7 +16,7 @@ interface Props {
   setElectionDefinition: SetElectionDefinition;
 }
 
-const LoadElectionScreen = ({ setElectionDefinition }: Props): JSX.Element => {
+function LoadElectionScreen({ setElectionDefinition }: Props): JSX.Element {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,
@@ -30,7 +30,7 @@ const LoadElectionScreen = ({ setElectionDefinition }: Props): JSX.Element => {
   }>();
   const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
-  const handleBallotLoading = async (pkg: BallotPackage) => {
+  async function handleBallotLoading(pkg: BallotPackage) {
     addTemplates(pkg)
       .on('configuring', () => {
         setCurrentUploadingBallotIndex(0);
@@ -58,9 +58,9 @@ const LoadElectionScreen = ({ setElectionDefinition }: Props): JSX.Element => {
         setLoadingTemplates(false);
         setElectionDefinition(pkg.electionDefinition);
       });
-  };
+  }
 
-  const onManualFileImport = async (file: File) => {
+  async function onManualFileImport(file: File) {
     const isElectionJSON = file.name.endsWith('.json');
     const reader = new FileReader();
 
@@ -86,14 +86,14 @@ const LoadElectionScreen = ({ setElectionDefinition }: Props): JSX.Element => {
         await ballotPackageUtils.readBallotPackageFromFile(file)
       );
     }
-  };
+  }
 
-  const onAutomaticFileImport = async (file: KioskBrowser.FileSystemEntry) => {
+  async function onAutomaticFileImport(file: KioskBrowser.FileSystemEntry) {
     // All automatic file imports will be on zip packages
     await handleBallotLoading(
       await ballotPackageUtils.readBallotPackageFromFilePointer(file)
     );
-  };
+  }
 
   if (isLoadingTemplates) {
     return (
@@ -149,6 +149,6 @@ const LoadElectionScreen = ({ setElectionDefinition }: Props): JSX.Element => {
       acceptAutomaticallyChosenFile={onAutomaticFileImport}
     />
   );
-};
+}
 
 export default LoadElectionScreen;

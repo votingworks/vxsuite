@@ -17,7 +17,7 @@ const Graphic = styled.img`
   height: 40vw;
 `;
 
-const PrintPage = (): JSX.Element => {
+function PrintPage(): JSX.Element {
   const {
     ballotStyleId,
     electionDefinition,
@@ -100,6 +100,6 @@ const PrintPage = (): JSX.Element => {
       />
     </React.Fragment>
   );
-};
+}
 
 export default PrintPage;

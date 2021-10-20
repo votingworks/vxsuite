@@ -67,20 +67,22 @@ const Text = styled('p')<Props>`
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `;
 
-export const TextWithLineBreaks = ({ text }: { text: string }): JSX.Element => (
-  <React.Fragment>
-    {text.split(/[\n|\r]{2}/g).map((x) => (
-      <p key={x}>
-        {x.split(/[\n|\r]/g).map((y, i, arr) => (
-          <React.Fragment key={y}>
-            {y}
-            {arr.length > 1 && i !== arr.length - 1 && <br />}
-          </React.Fragment>
-        ))}
-      </p>
-    ))}
-  </React.Fragment>
-);
+export function TextWithLineBreaks({ text }: { text: string }): JSX.Element {
+  return (
+    <React.Fragment>
+      {text.split(/[\n|\r]{2}/g).map((x) => (
+        <p key={x}>
+          {x.split(/[\n|\r]/g).map((y, i, arr) => (
+            <React.Fragment key={y}>
+              {y}
+              {arr.length > 1 && i !== arr.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </p>
+      ))}
+    </React.Fragment>
+  );
+}
 
 export const NoWrap = styled.span`
   white-space: nowrap;

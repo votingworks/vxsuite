@@ -67,7 +67,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
 }
 
-const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
+function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,
@@ -81,9 +81,7 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
   );
   const { election, electionHash } = electionDefinition;
 
-  const importSelectedFile = async (
-    fileEntry: KioskBrowser.FileSystemEntry
-  ) => {
+  async function importSelectedFile(fileEntry: KioskBrowser.FileSystemEntry) {
     setCurrentState(ModalState.LOADING);
     const newCastVoteRecordFiles = await castVoteRecordFiles.addAllFromFileSystemEntries(
       [fileEntry],
@@ -98,7 +96,7 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
     } else {
       onClose();
     }
-  };
+  }
 
   const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
     event
@@ -128,7 +126,7 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
     }
   };
 
-  const fetchFilenames = async () => {
+  async function fetchFilenames() {
     setCurrentState(ModalState.LOADING);
     const usbPath = await usbstick.getDevicePath();
     try {
@@ -154,7 +152,7 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
         throw err;
       }
     }
-  };
+  }
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
@@ -396,6 +394,6 @@ const ImportCVRFilesModal = ({ onClose }: Props): JSX.Element => {
   }
   // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
   throwBadStatus(usbDriveStatus);
-};
+}
 
 export default ImportCVRFilesModal;

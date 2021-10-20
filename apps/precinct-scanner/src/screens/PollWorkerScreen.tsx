@@ -51,7 +51,7 @@ interface Props {
   usbDrive: UsbDrive;
 }
 
-const PollWorkerScreen = ({
+function PollWorkerScreen({
   scannedBallotCount,
   isPollsOpen,
   togglePollsOpen,
@@ -61,7 +61,7 @@ const PollWorkerScreen = ({
   hasPrinterAttached: printerFromProps,
   printer,
   usbDrive,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
   );
@@ -76,7 +76,7 @@ const PollWorkerScreen = ({
   const { election } = electionDefinition;
 
   useEffect(() => {
-    const calculateTally = async () => {
+    async function calculateTally() {
       const castVoteRecords = await getCVRsFromExport();
       const tally = calculateTallyForCastVoteRecords(
         election,
@@ -93,7 +93,7 @@ const PollWorkerScreen = ({
         );
       }
       setCurrentTally(tally);
-    };
+    }
     void calculateTally();
   }, [election, getCVRsFromExport, scannedBallotCount]);
 
@@ -117,7 +117,7 @@ const PollWorkerScreen = ({
           precinctId: precinct.id,
         };
 
-  const saveTally = async () => {
+  async function saveTally() {
     assert(currentTally);
     const compressedTally = compressTally(election, currentTally);
     await saveTallyToCard({
@@ -134,16 +134,20 @@ const PollWorkerScreen = ({
       timeSaved: Date.now(),
       precinctSelection,
     });
-  };
+  }
 
-  const printTallyReport = async () => {
+  async function printTallyReport() {
     await printer.print({ sides: 'one-sided' });
-  };
+  }
 
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false);
-  const openConfirmOpenPollsModal = () => setConfirmOpenPolls(true);
-  const closeConfirmOpenPollsModal = () => setConfirmOpenPolls(false);
-  const openPollsAndHandleZeroReport = async () => {
+  function openConfirmOpenPollsModal() {
+    return setConfirmOpenPolls(true);
+  }
+  function closeConfirmOpenPollsModal() {
+    return setConfirmOpenPolls(false);
+  }
+  async function openPollsAndHandleZeroReport() {
     setIsHandlingTallyReport(true);
     if (hasPrinterAttached) {
       await printTallyReport();
@@ -153,12 +157,16 @@ const PollWorkerScreen = ({
     togglePollsOpen();
     setIsHandlingTallyReport(false);
     closeConfirmOpenPollsModal();
-  };
+  }
 
   const [confirmClosePolls, setConfirmClosePolls] = useState(false);
-  const openConfirmClosePollsModal = () => setConfirmClosePolls(true);
-  const closeConfirmClosePollsModal = () => setConfirmClosePolls(false);
-  const closePollsAndHandleTabulationReport = async () => {
+  function openConfirmClosePollsModal() {
+    return setConfirmClosePolls(true);
+  }
+  function closeConfirmClosePollsModal() {
+    return setConfirmClosePolls(false);
+  }
+  async function closePollsAndHandleTabulationReport() {
     setIsHandlingTallyReport(true);
     if (hasPrinterAttached) {
       await printTallyReport();
@@ -168,7 +176,7 @@ const PollWorkerScreen = ({
     togglePollsOpen();
     setIsHandlingTallyReport(false);
     closeConfirmClosePollsModal();
-  };
+  }
 
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
@@ -328,6 +336,6 @@ const PollWorkerScreen = ({
         })}
     </React.Fragment>
   );
-};
+}
 
 export default PollWorkerScreen;

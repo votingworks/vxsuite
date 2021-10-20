@@ -3,9 +3,9 @@ import { sleep } from './sleep';
 
 export const FLUSH_IO_DELAY_MS = 10_000;
 
-const isAvailable = () => {
+function isAvailable() {
   return !!window.kiosk;
-};
+}
 
 export enum UsbDriveStatus {
   notavailable = 'notavailable',
@@ -16,16 +16,16 @@ export enum UsbDriveStatus {
   ejecting = 'ejecting',
 }
 
-const getDevice = async (): Promise<KioskBrowser.UsbDrive | undefined> => {
+async function getDevice(): Promise<KioskBrowser.UsbDrive | undefined> {
   return (await window.kiosk?.getUsbDrives())?.[0];
-};
+}
 
-export const getDevicePath = async (): Promise<string | undefined> => {
+export async function getDevicePath(): Promise<string | undefined> {
   const device = await getDevice();
   return device?.mountPoint;
-};
+}
 
-export const getStatus = async (): Promise<UsbDriveStatus> => {
+export async function getStatus(): Promise<UsbDriveStatus> {
   if (!isAvailable()) {
     return UsbDriveStatus.notavailable;
   }
@@ -40,9 +40,9 @@ export const getStatus = async (): Promise<UsbDriveStatus> => {
     return UsbDriveStatus.mounted;
   }
   return UsbDriveStatus.present;
-};
+}
 
-export const doMount = async (): Promise<void> => {
+export async function doMount(): Promise<void> {
   const device = await getDevice();
   if (!device || device.mountPoint) {
     return;
@@ -50,9 +50,9 @@ export const doMount = async (): Promise<void> => {
 
   assert(window.kiosk);
   await window.kiosk.mountUsbDrive(device.deviceName);
-};
+}
 
-export const doUnmount = async (): Promise<void> => {
+export async function doUnmount(): Promise<void> {
   const device = await getDevice();
   if (!device?.mountPoint) {
     return;
@@ -60,4 +60,4 @@ export const doUnmount = async (): Promise<void> => {
   assert(window.kiosk);
   await window.kiosk.unmountUsbDrive(device.deviceName);
   return await sleep(FLUSH_IO_DELAY_MS);
-};
+}

@@ -53,7 +53,7 @@ test('returns the status after the first tick', async () => {
 });
 
 test('full lifecycle with USBControllerButton', async () => {
-  const ThisTestComponent = () => {
+  function ThisTestComponent() {
     const usbDrive = useUsbDrive();
     return (
       <USBControllerButton
@@ -61,7 +61,7 @@ test('full lifecycle with USBControllerButton', async () => {
         usbDriveEject={usbDrive.eject}
       />
     );
-  };
+  }
 
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([]);

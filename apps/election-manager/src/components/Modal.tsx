@@ -33,7 +33,7 @@ interface Props {
   onOverlayClick?: () => void;
 }
 
-const Modal = ({
+function Modal({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
@@ -49,7 +49,7 @@ const Modal = ({
     }, 10);
   },
   onOverlayClick,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const appElement =
     document.getElementById('root') ?? document.body.firstElementChild;
   assert(appElement);
@@ -72,6 +72,6 @@ const Modal = ({
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}
     </ReactModal>
   );
-};
+}
 
 export default Modal;

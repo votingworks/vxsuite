@@ -10,7 +10,7 @@ interface Props {
   lockScreen: () => void;
 }
 
-const NonWritableCardScreen = ({ lockScreen }: Props): JSX.Element => {
+function NonWritableCardScreen({ lockScreen }: Props): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -27,6 +27,6 @@ const NonWritableCardScreen = ({ lockScreen }: Props): JSX.Element => {
       </MainNav>
     </Screen>
   );
-};
+}
 
 export default NonWritableCardScreen;

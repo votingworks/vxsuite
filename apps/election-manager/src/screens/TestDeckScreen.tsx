@@ -44,7 +44,7 @@ const allPrecincts: Precinct = {
   name: 'All Precincts',
 };
 
-const TestDeckScreen = (): JSX.Element => {
+function TestDeckScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -214,6 +214,6 @@ const TestDeckScreen = (): JSX.Element => {
       </ButtonList>
     </NavigationScreen>
   );
-};
+}
 
 export default TestDeckScreen;

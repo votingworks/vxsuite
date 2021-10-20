@@ -79,12 +79,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
     const [startCoordinates, setStartCoordinates] = useState([0, 0]);
 
-    const onTouchStart = (event: React.TouchEvent) => {
+    function onTouchStart(event: React.TouchEvent) {
       const { clientX, clientY } = event.touches[0];
       setStartCoordinates([clientX, clientY]);
-    };
+    }
 
-    const onTouchEnd = (event: React.TouchEvent) => {
+    function onTouchEnd(event: React.TouchEvent) {
       const maxMove = 30;
       const { clientX, clientY } = event.changedTouches[0];
       if (
@@ -94,7 +94,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onPress(event);
         event.preventDefault();
       }
-    };
+    }
 
     return (
       <Component

@@ -24,7 +24,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
 }
 
-const AdvancedOptionsScreen = ({
+function AdvancedOptionsScreen({
   unconfigureServer,
   zeroData,
   backup,
@@ -35,7 +35,7 @@ const AdvancedOptionsScreen = ({
   setMarkThresholdOverrides,
   markThresholds,
   electionDefinition,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { lockMachine } = useContext(AppContext);
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
@@ -43,13 +43,16 @@ const AdvancedOptionsScreen = ({
   const [isFactoryResetting, setIsFactoryResetting] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
-  const toggleIsConfirmingFactoryReset = () =>
-    setIsConfirmingFactoryReset((s) => !s);
+  function toggleIsConfirmingFactoryReset() {
+    return setIsConfirmingFactoryReset((s) => !s);
+  }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
     false
   );
-  const toggleIsConfirmingZero = () => setIsConfirmingZero((s) => !s);
+  function toggleIsConfirmingZero() {
+    return setIsConfirmingZero((s) => !s);
+  }
   const exportBackup = useCallback(async () => {
     try {
       setBackupError('');
@@ -204,6 +207,6 @@ const AdvancedOptionsScreen = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default AdvancedOptionsScreen;

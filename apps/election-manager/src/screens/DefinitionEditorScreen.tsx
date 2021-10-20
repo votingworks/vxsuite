@@ -30,11 +30,11 @@ const FlexTextareaWrapper = styled.div`
     font-family: monospace;
   }
 `;
-const DefinitionEditorScreen = ({
+function DefinitionEditorScreen({
   allowEditing,
 }: {
   allowEditing: boolean;
-}): JSX.Element => {
+}): JSX.Element {
   const { electionDefinition, saveElection } = useContext(AppContext);
   assert(electionDefinition);
   const { election, electionData } = electionDefinition;
@@ -44,12 +44,12 @@ const DefinitionEditorScreen = ({
   const [error, setError] = useState('');
 
   const [isConfimingUnconfig, setIsConfimingUnconfig] = useState(false);
-  const cancelConfirmingUnconfig = () => {
+  function cancelConfirmingUnconfig() {
     setIsConfimingUnconfig(false);
-  };
-  const initConfirmingUnconfig = () => {
+  }
+  function initConfirmingUnconfig() {
     setIsConfimingUnconfig(true);
-  };
+  }
 
   const validateElectionDefinition = useCallback(() => {
     const result = safeParseElection(electionString);
@@ -60,21 +60,21 @@ const DefinitionEditorScreen = ({
     setDirty(true);
     setElectionString(event.currentTarget.value);
   };
-  const handleSaveElection = async () => {
+  async function handleSaveElection() {
     const valid = validateElectionDefinition();
     if (valid) {
       await saveElection(electionString);
       setDirty(false);
       setError('');
     }
-  };
-  const resetElectionConfig = () => {
+  }
+  function resetElectionConfig() {
     setElectionString(stringifiedElection);
     setDirty(false);
     setError('');
-  };
+  }
 
-  const downloadElectionDefinition = () => {
+  function downloadElectionDefinition() {
     fileDownload(
       electionData,
       `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
@@ -82,7 +82,7 @@ const DefinitionEditorScreen = ({
       )}-vx-election-definition.json`,
       'application/json'
     );
-  };
+  }
 
   useEffect(() => {
     validateElectionDefinition();
@@ -141,6 +141,6 @@ const DefinitionEditorScreen = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default DefinitionEditorScreen;

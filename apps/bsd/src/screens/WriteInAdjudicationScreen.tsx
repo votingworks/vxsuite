@@ -66,7 +66,7 @@ function uniq<T>(array: readonly T[]): T[] {
   return [...new Set(array)];
 }
 
-const Stack = ({
+function Stack({
   as = 'div',
   children,
   flexDirection,
@@ -76,16 +76,16 @@ const Stack = ({
   children: React.ReactNode;
   flexDirection: React.CSSProperties['flexDirection'];
   style?: React.CSSProperties;
-}): JSX.Element => {
+}): JSX.Element {
   return React.createElement(
     as,
     { style: { display: 'flex', flex: '1', flexDirection, ...style } },
     null,
     ...(Array.isArray(children) ? children : [children])
   );
-};
+}
 
-const VStack = ({
+function VStack({
   as,
   children,
   style,
@@ -95,17 +95,19 @@ const VStack = ({
   children: React.ReactNode;
   style?: React.CSSProperties;
   reverse?: boolean;
-}): JSX.Element => (
-  <Stack
-    as={as}
-    flexDirection={reverse ? 'column-reverse' : 'column'}
-    style={style}
-  >
-    {children}
-  </Stack>
-);
+}): JSX.Element {
+  return (
+    <Stack
+      as={as}
+      flexDirection={reverse ? 'column-reverse' : 'column'}
+      style={style}
+    >
+      {children}
+    </Stack>
+  );
+}
 
-const HStack = ({
+function HStack({
   as,
   children,
   style,
@@ -115,17 +117,25 @@ const HStack = ({
   children: React.ReactNode;
   style?: React.CSSProperties;
   reverse?: boolean;
-}): JSX.Element => (
-  <Stack as={as} flexDirection={reverse ? 'row-reverse' : 'row'} style={style}>
-    {children}
-  </Stack>
-);
+}): JSX.Element {
+  return (
+    <Stack
+      as={as}
+      flexDirection={reverse ? 'row-reverse' : 'row'}
+      style={style}
+    >
+      {children}
+    </Stack>
+  );
+}
 
-const Spacer = ({
+function Spacer({
   flex = 1,
 }: {
   flex?: React.CSSProperties['flex'];
-}): JSX.Element => <div style={{ flex }} />;
+}): JSX.Element {
+  return <div style={{ flex }} />;
+}
 
 const Header = styled.div`
   font-size: 3em;
@@ -171,7 +181,7 @@ const WriteInAdjudicationBox = styled.div`
   margin: 1em 0;
 `;
 
-const WriteInLabel = ({
+function WriteInLabel({
   contest,
   writeIn,
 }: {
@@ -179,39 +189,43 @@ const WriteInLabel = ({
   writeIn:
     | WriteInAdjudicationReasonInfo
     | UnmarkedWriteInAdjudicationReasonInfo;
-}) => (
-  <HStack>
-    <div>
-      <strong>Write-In</strong>
-    </div>
-    <Text style={{ margin: '0 0.25em' }}>
-      (line {writeIn.optionIndex - contest.candidates.length + 1})
-    </Text>
-  </HStack>
-);
+}) {
+  return (
+    <HStack>
+      <div>
+        <strong>Write-In</strong>
+      </div>
+      <Text style={{ margin: '0 0.25em' }}>
+        (line {writeIn.optionIndex - contest.candidates.length + 1})
+      </Text>
+    </HStack>
+  );
+}
 
-const WriteInImage = ({
+function WriteInImage({
   imageURL,
   bounds,
 }: {
   imageURL: string;
   bounds: Rect;
-}) => (
-  <CroppedImage
-    src={imageURL}
-    alt="write-in area"
-    crop={{
-      x: bounds.x,
-      y: bounds.y - bounds.height * EXTRA_WRITE_IN_MARGIN_PERCENTAGE,
-      width: bounds.width,
-      height: bounds.height * (1 + 2 * EXTRA_WRITE_IN_MARGIN_PERCENTAGE),
-    }}
-    style={{
-      boxShadow: '4px 4px 3px 3px #999',
-      width: '50%',
-    }}
-  />
-);
+}) {
+  return (
+    <CroppedImage
+      src={imageURL}
+      alt="write-in area"
+      crop={{
+        x: bounds.x,
+        y: bounds.y - bounds.height * EXTRA_WRITE_IN_MARGIN_PERCENTAGE,
+        width: bounds.width,
+        height: bounds.height * (1 + 2 * EXTRA_WRITE_IN_MARGIN_PERCENTAGE),
+      }}
+      style={{
+        boxShadow: '4px 4px 3px 3px #999',
+        width: '50%',
+      }}
+    />
+  );
+}
 
 interface ContestOptionAdjudicationProps {
   imageURL: string;
@@ -226,7 +240,7 @@ interface ContestOptionAdjudicationProps {
   writeInPresets: CandidateNamesByContestId;
 }
 
-const ContestOptionAdjudication = ({
+function ContestOptionAdjudication({
   imageURL,
   contest,
   writeIn,
@@ -235,7 +249,7 @@ const ContestOptionAdjudication = ({
   onChange,
   autoFocus,
   writeInPresets,
-}: ContestOptionAdjudicationProps): JSX.Element => {
+}: ContestOptionAdjudicationProps): JSX.Element {
   const writeInIndex = writeIn.optionIndex;
   const { bounds } = layout.options[writeInIndex];
   const adjudication = adjudications.find(
@@ -352,7 +366,7 @@ const ContestOptionAdjudication = ({
       </HStack>
     </WriteInAdjudicationBox>
   );
-};
+}
 
 interface ContestAdjudicationProps {
   imageURL: string;
@@ -367,7 +381,7 @@ interface ContestAdjudicationProps {
   writeInPresets: CandidateNamesByContestId;
 }
 
-const ContestAdjudication = ({
+function ContestAdjudication({
   imageURL,
   contest,
   layout,
@@ -375,7 +389,7 @@ const ContestAdjudication = ({
   onChange,
   adjudications,
   writeInPresets,
-}: ContestAdjudicationProps): JSX.Element => {
+}: ContestAdjudicationProps): JSX.Element {
   return (
     <div>
       <HStack style={{ alignItems: 'center' }}>
@@ -396,9 +410,9 @@ const ContestAdjudication = ({
       ))}
     </div>
   );
-};
+}
 
-const WriteInAdjudicationByContest = ({
+function WriteInAdjudicationByContest({
   electionDefinition,
   imageURL,
   interpretation,
@@ -420,7 +434,7 @@ const WriteInAdjudicationByContest = ({
   onAdjudicationChanged?(adjudication: WriteInMarkAdjudication): void;
   onAdjudicationComplete(): Promise<void>;
   writeInPresets: CandidateNamesByContestId;
-}): JSX.Element => {
+}): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const [isSaving, setIsSaving] = useState(false);
   const [selectedContestIndex, setSelectedContestIndex] = useState(0);
@@ -530,7 +544,7 @@ const WriteInAdjudicationByContest = ({
       </HStack>
     </form>
   );
-};
+}
 
 export interface Props {
   sheetId: string;

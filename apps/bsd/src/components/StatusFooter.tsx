@@ -13,7 +13,7 @@ const StatusBar = styled.div`
   padding: 0.375rem 1rem;
 `;
 
-const StatusFooter = (): JSX.Element => {
+function StatusFooter(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   const electionDate =
     electionDefinition &&
@@ -39,6 +39,6 @@ const StatusFooter = (): JSX.Element => {
       )}
     </StatusBar>
   );
-};
+}
 
 export default StatusFooter;

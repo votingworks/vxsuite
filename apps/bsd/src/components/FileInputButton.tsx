@@ -37,14 +37,14 @@ interface Props {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const FileInputButton = ({
+function FileInputButton({
   accept = '*/*',
   buttonProps,
   children,
   disabled,
   onChange,
   ...rest
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const onBlur: InputEventFunction = (event) => {
     const input = event.currentTarget;
     input?.blur();
@@ -64,6 +64,6 @@ const FileInputButton = ({
       </LabelButton>
     </React.Fragment>
   );
-};
+}
 
 export default FileInputButton;

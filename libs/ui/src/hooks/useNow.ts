@@ -5,7 +5,7 @@ import useInterval from 'use-interval';
 /**
  * React hook to get a current-to-the-second date.
  */
-export const useNow = (): DateTime => {
+export function useNow(): DateTime {
   const [now, setNow] = useState(DateTime.local());
 
   useInterval(() => {
@@ -13,4 +13,4 @@ export const useNow = (): DateTime => {
   }, 1000);
 
   return now;
-};
+}

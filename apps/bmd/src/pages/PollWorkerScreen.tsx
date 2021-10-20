@@ -59,7 +59,7 @@ interface Props {
   clearTalliesOnCard: () => Promise<void>;
 }
 
-const PollWorkerScreen = ({
+function PollWorkerScreen({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
@@ -80,7 +80,7 @@ const PollWorkerScreen = ({
   hasVotes,
   tallyOnCard,
   clearTalliesOnCard,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
@@ -103,7 +103,9 @@ const PollWorkerScreen = ({
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
     !isLiveMode && isElectionDay
   );
-  const cancelEnableLiveMode = () => setIsConfirmingEnableLiveMode(false);
+  function cancelEnableLiveMode() {
+    return setIsConfirmingEnableLiveMode(false);
+  }
 
   const [
     isConfirmingPrecinctScannerPrint,
@@ -160,20 +162,20 @@ const PollWorkerScreen = ({
   const isMarkAndPrintMode =
     machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark;
 
-  const requestPrintPrecinctScannerReport = () => {
+  function requestPrintPrecinctScannerReport() {
     setIsPrintingPrecinctScannerReport(true);
     setIsConfirmingPrecinctScannerPrint(false);
-  };
+  }
 
   const resetCardTallyData = useCallback(async () => {
     await clearTalliesOnCard();
     setIsPrintingPrecinctScannerReport(false);
   }, [clearTalliesOnCard]);
 
-  const confirmEnableLiveMode = () => {
+  function confirmEnableLiveMode() {
     enableLiveMode();
     setIsConfirmingEnableLiveMode(false);
-  };
+  }
 
   useEffect(() => {
     let isPrinting = false;
@@ -481,6 +483,6 @@ const PollWorkerScreen = ({
         })}
     </React.Fragment>
   );
-};
+}
 
 export default PollWorkerScreen;

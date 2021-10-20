@@ -1,5 +1,6 @@
 import { TSESLint } from '@typescript-eslint/experimental-utils';
 import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only';
+import gtsFuncStyle from './gts-func-style';
 import gtsNoArrayConstructor from './gts-no-array-constructor';
 import gtsNoDollarSignNames from './gts-no-dollar-sign-names';
 import gtsNoForeach from './gts-no-foreach';
@@ -14,6 +15,7 @@ import noFloatingVoids from './no-floating-results';
 
 export default {
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
+  'gts-func-style': gtsFuncStyle,
   'gts-no-array-constructor': gtsNoArrayConstructor,
   'gts-no-dollar-sign-names': gtsNoDollarSignNames,
   'gts-no-foreach': gtsNoForeach,

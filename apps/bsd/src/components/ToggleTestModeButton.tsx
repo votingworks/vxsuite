@@ -12,11 +12,11 @@ export interface Props {
 /**
  * Presents a button to toggle between test & live modes with a confirmation.
  */
-const ToggleTestModeButton = ({
+function ToggleTestModeButton({
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [isConfirming, setIsConfirming] = useState(isTogglingTestMode);
   const defaultButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -85,6 +85,6 @@ const ToggleTestModeButton = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default ToggleTestModeButton;

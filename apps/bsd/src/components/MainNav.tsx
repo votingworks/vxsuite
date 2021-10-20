@@ -45,21 +45,23 @@ interface Props {
   isTestMode?: boolean;
 }
 
-const MainNav = ({ children, isTestMode = false }: Props): JSX.Element => (
-  <Nav>
-    <StyledNav>
-      <Brand>
-        <MakeName>
-          Voting<span>Works</span>
-        </MakeName>
-        <ModelName>
-          Ballot Scanner
-          {isTestMode && <TestMode>&nbsp;TEST&nbsp;MODE</TestMode>}
-        </ModelName>
-      </Brand>
-      <NavButtons>{children}</NavButtons>
-    </StyledNav>
-  </Nav>
-);
+function MainNav({ children, isTestMode = false }: Props): JSX.Element {
+  return (
+    <Nav>
+      <StyledNav>
+        <Brand>
+          <MakeName>
+            Voting<span>Works</span>
+          </MakeName>
+          <ModelName>
+            Ballot Scanner
+            {isTestMode && <TestMode>&nbsp;TEST&nbsp;MODE</TestMode>}
+          </ModelName>
+        </Brand>
+        <NavButtons>{children}</NavButtons>
+      </StyledNav>
+    </Nav>
+  );
+}
 
 export default MainNav;

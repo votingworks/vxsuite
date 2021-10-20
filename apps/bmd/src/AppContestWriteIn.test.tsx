@@ -60,8 +60,9 @@ it('Single Seat Contest with Write In', async () => {
   await advanceTimersAndPromises();
   const getByTextWithMarkup = withMarkup(screen.getByText);
 
-  const getWithinKeyboard = (text: string) =>
-    within(screen.getByTestId('virtual-keyboard')).getByText(text);
+  function getWithinKeyboard(text: string) {
+    return within(screen.getByTestId('virtual-keyboard')).getByText(text);
+  }
 
   // Insert Voter Card
   card.insertCard(makeVoterCard(electionSample));

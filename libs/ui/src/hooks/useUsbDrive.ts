@@ -27,7 +27,7 @@ export const POLLING_INTERVAL_FOR_USB = 100;
  *   />
  * )
  */
-export const useUsbDrive = (): UsbDrive => {
+export function useUsbDrive(): UsbDrive {
   const [isMountingOrUnmounting, setIsMountingOrUnmounting] = useState(false);
   const [status, setStatus] = useState<usbstick.UsbDriveStatus>();
   const [recentlyEjected, setRecentlyEjected] = useState(false);
@@ -99,4 +99,4 @@ export const useUsbDrive = (): UsbDrive => {
         : status,
     eject,
   };
-};
+}

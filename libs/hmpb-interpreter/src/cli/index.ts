@@ -24,30 +24,32 @@ export interface GlobalOptions {
   commandArgs: readonly string[];
 }
 
-export const getCommands = (): [
+export function getCommands(): [
   Command<helpCommand.Options>,
   Command<interpretCommand.Options>,
   Command<layoutCommand.Options>
-] => [
-  {
-    name: helpCommand.name,
-    description: helpCommand.description,
-    parseOptions: helpCommand.parseOptions,
-    run: helpCommand.run,
-  },
-  {
-    name: interpretCommand.name,
-    description: interpretCommand.description,
-    parseOptions: interpretCommand.parseOptions,
-    run: interpretCommand.run,
-  },
-  {
-    name: layoutCommand.name,
-    description: layoutCommand.description,
-    parseOptions: layoutCommand.parseOptions,
-    run: layoutCommand.run,
-  },
-];
+] {
+  return [
+    {
+      name: helpCommand.name,
+      description: helpCommand.description,
+      parseOptions: helpCommand.parseOptions,
+      run: helpCommand.run,
+    },
+    {
+      name: interpretCommand.name,
+      description: interpretCommand.description,
+      parseOptions: interpretCommand.parseOptions,
+      run: interpretCommand.run,
+    },
+    {
+      name: layoutCommand.name,
+      description: layoutCommand.description,
+      parseOptions: layoutCommand.parseOptions,
+      run: layoutCommand.run,
+    },
+  ];
+}
 
 export type Options =
   | {

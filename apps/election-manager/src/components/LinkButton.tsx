@@ -15,7 +15,7 @@ interface Props
   to?: string;
 }
 
-const LinkButton = (props: Props) => {
+function LinkButton(props: Props) {
   const {
     goBack,
     history,
@@ -44,6 +44,6 @@ const LinkButton = (props: Props) => {
       onPress={handleOnPress}
     />
   );
-};
+}
 
 export default withRouter(LinkButton);

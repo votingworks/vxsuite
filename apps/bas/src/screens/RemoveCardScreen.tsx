@@ -18,11 +18,11 @@ interface Props {
   precinctName: string;
 }
 
-const RemoveCardScreen = ({
+function RemoveCardScreen({
   ballotStyleId,
   lockScreen,
   precinctName,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -46,6 +46,6 @@ const RemoveCardScreen = ({
       </MainNav>
     </Screen>
   );
-};
+}
 
 export default RemoveCardScreen;

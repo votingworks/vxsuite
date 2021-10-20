@@ -80,11 +80,11 @@ export function* getSearchAreas(
   };
 }
 
-export const detectQRCode = async (
+export async function detectQRCode(
   imageData: ImageData
 ): Promise<
   { data: Buffer; position: 'top' | 'bottom'; detector: string } | undefined
-> => {
+> {
   debug(
     'detectQRCode: checking %dˣ%d image',
     imageData.width,
@@ -143,4 +143,4 @@ export const detectQRCode = async (
   } finally {
     timer.end();
   }
-};
+}

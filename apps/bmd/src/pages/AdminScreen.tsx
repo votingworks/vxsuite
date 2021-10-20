@@ -46,7 +46,7 @@ interface Props {
 
 const ALL_PRECINCTS_OPTION_VALUE = '_ALL';
 
-const AdminScreen = ({
+function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -58,7 +58,7 @@ const AdminScreen = ({
   machineConfig,
   printer,
   screenReader,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const election = electionDefinition?.election;
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     const precinctId = event.currentTarget.value;
@@ -74,14 +74,18 @@ const AdminScreen = ({
   };
 
   const [isFetchingElection, setIsFetchingElection] = useState(false);
-  const loadElection = () => {
+  function loadElection() {
     setIsFetchingElection(true);
     fetchElection();
-  };
+  }
 
   const [isTestDeck, setIsTestDeck] = useState(false);
-  const showTestDeck = () => setIsTestDeck(true);
-  const hideTestDeck = () => setIsTestDeck(false);
+  function showTestDeck() {
+    return setIsTestDeck(true);
+  }
+  function hideTestDeck() {
+    return setIsTestDeck(false);
+  }
 
   const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false);
   const [isSettingClock, setIsSettingClock] = useState(false);
@@ -284,6 +288,6 @@ const AdminScreen = ({
       )}
     </Screen>
   );
-};
+}
 
 export default AdminScreen;

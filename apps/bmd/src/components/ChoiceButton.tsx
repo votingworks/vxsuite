@@ -52,7 +52,7 @@ const StyledChoiceButton = styled('button').attrs((props) => ({
   }
 `;
 
-const ChoiceButton = ({ choice, ...rest }: Props): JSX.Element => {
+function ChoiceButton({ choice, ...rest }: Props): JSX.Element {
   return (
     <Button
       {...rest}
@@ -61,6 +61,6 @@ const ChoiceButton = ({ choice, ...rest }: Props): JSX.Element => {
       data-selected={rest.isSelected}
     />
   );
-};
+}
 
 export default ChoiceButton;

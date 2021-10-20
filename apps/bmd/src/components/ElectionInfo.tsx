@@ -45,12 +45,12 @@ interface Props {
   horizontal?: boolean;
 }
 
-const ElectionInfo = ({
+function ElectionInfo({
   precinctSelection,
   ballotStyleId,
   electionDefinition,
   horizontal = false,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { election } = electionDefinition;
   const { title: t, state, county, date, seal, sealURL } = election;
   const precinctName =
@@ -105,6 +105,6 @@ const ElectionInfo = ({
       </Prose>
     </VerticalContainer>
   );
-};
+}
 
 export default ElectionInfo;

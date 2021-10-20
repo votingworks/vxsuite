@@ -63,56 +63,70 @@ const sortOptions = {
   numeric: true,
 };
 
-export const getBallotStylesData = (election: Election): BallotStyleData[] =>
-  election.ballotStyles.flatMap((ballotStyle) =>
+export function getBallotStylesData(election: Election): BallotStyleData[] {
+  return election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map<BallotStyleData>((precinctId) => ({
       ballotStyleId: ballotStyle.id,
       precinctId,
       contestIds: getContests({ ballotStyle, election }).map((c) => c.id),
     }))
   );
+}
 
-const ballotStyleComparator = (a: BallotStyleData, b: BallotStyleData) =>
-  a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions);
+function ballotStyleComparator(a: BallotStyleData, b: BallotStyleData) {
+  return a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions);
+}
 
-const makePrecinctComparator = (election: Election) => (
-  a: BallotStyleData,
-  b: BallotStyleData
-) =>
-  find(election.precincts, (p) => p.id === a.precinctId).name.localeCompare(
-    find(election.precincts, (p) => p.id === b.precinctId).name,
-    undefined,
-    sortOptions
+function makePrecinctComparator(election: Election) {
+  return (a: BallotStyleData, b: BallotStyleData) =>
+    find(election.precincts, (p) => p.id === a.precinctId).name.localeCompare(
+      find(election.precincts, (p) => p.id === b.precinctId).name,
+      undefined,
+      sortOptions
+    );
+}
+
+export function sortBallotStyleDataByStyle(
+  election: Election,
+  styles: readonly BallotStyleData[]
+): BallotStyleData[] {
+  return sortBy(
+    styles,
+    ballotStyleComparator,
+    makePrecinctComparator(election)
   );
+}
 
-export const sortBallotStyleDataByStyle = (
+export function sortBallotStyleDataByPrecinct(
   election: Election,
   styles: readonly BallotStyleData[]
-): BallotStyleData[] =>
-  sortBy(styles, ballotStyleComparator, makePrecinctComparator(election));
+): BallotStyleData[] {
+  return sortBy(
+    styles,
+    makePrecinctComparator(election),
+    ballotStyleComparator
+  );
+}
 
-export const sortBallotStyleDataByPrecinct = (
-  election: Election,
-  styles: readonly BallotStyleData[]
-): BallotStyleData[] =>
-  sortBy(styles, makePrecinctComparator(election), ballotStyleComparator);
-
-export const getBallotStylesDataByStyle = (
+export function getBallotStylesDataByStyle(
   election: Election
-): BallotStyleData[] =>
-  sortBallotStyleDataByStyle(election, getBallotStylesData(election));
+): BallotStyleData[] {
+  return sortBallotStyleDataByStyle(election, getBallotStylesData(election));
+}
 
-export const getLanguageByLocaleCode = (localeCode: string): string =>
-  LANGUAGES[localeCode.split('-')[0]] ?? localeCode;
+export function getLanguageByLocaleCode(localeCode: string): string {
+  return LANGUAGES[localeCode.split('-')[0]] ?? localeCode;
+}
 
-export const getHumanBallotLanguageFormat = (locales: BallotLocale): string =>
-  !locales.secondary
+export function getHumanBallotLanguageFormat(locales: BallotLocale): string {
+  return !locales.secondary
     ? getLanguageByLocaleCode(locales.primary)
     : `${getLanguageByLocaleCode(locales.primary)}/${getLanguageByLocaleCode(
         locales.secondary
       )}`;
+}
 
-export const getBallotPath = ({
+export function getBallotPath({
   ballotStyleId,
   election,
   electionHash,
@@ -128,7 +142,7 @@ export const getBallotPath = ({
   locales: BallotLocale;
   isLiveMode: boolean;
   isAbsentee: boolean;
-}): string => {
+}): string {
   const precinctName = getPrecinctById({
     election,
     precinctId,
@@ -142,21 +156,21 @@ export const getBallotPath = ({
   ).replace(/[^a-z]+/gi, '-')}-${isLiveMode ? 'live' : 'test'}${
     isAbsentee ? '-absentee' : ''
   }.pdf`;
-};
+}
 
-export const getAllPossibleCandidatesForCandidateContest = (
+export function getAllPossibleCandidatesForCandidateContest(
   contest: CandidateContest
-): readonly Candidate[] => {
+): readonly Candidate[] {
   if (contest.allowWriteIns) {
     return [...contest.candidates, writeInCandidate];
   }
   return contest.candidates;
-};
+}
 
-export const getContestsForPrecinct = (
+export function getContestsForPrecinct(
   election: Election,
   precinctId: string
-): AnyContest[] => {
+): AnyContest[] {
   const precinct = election.precincts.find((p) => p.id === precinctId);
   if (precinct === undefined) {
     return [];
@@ -171,17 +185,17 @@ export const getContestsForPrecinct = (
       .flatMap((bs) => bs.districts);
     return districts.includes(c.districtId);
   });
-};
+}
 
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: string;
 }
 
-export const generateTestDeckBallots = ({
+export function generateTestDeckBallots({
   election,
   precinctId,
-}: GenerateTestDeckParams): Dictionary<string | VotesDict>[] => {
+}: GenerateTestDeckParams): Dictionary<string | VotesDict>[] {
   const precincts: string[] = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id);
@@ -239,4 +253,4 @@ export const generateTestDeckBallots = ({
   }
 
   return ballots;
-};
+}

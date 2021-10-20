@@ -73,28 +73,30 @@ interface TextWithLineBreaksProps extends Props {
   style?: React.CSSProperties;
 }
 
-export const TextWithLineBreaks = ({
+export function TextWithLineBreaks({
   text,
   ...rest
-}: TextWithLineBreaksProps): JSX.Element => (
-  <React.Fragment>
-    {text.split(/[\n\r]{2}/g).map((x) => (
-      <Text {...rest} key={x}>
-        {x.split(/[\n\r]/g).map((y, i, arr) => (
-          <React.Fragment key={y}>
-            <span
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(y),
-              }}
-            />
-            {i !== arr.length - 1 && <br />}
-          </React.Fragment>
-        ))}
-      </Text>
-    ))}
-  </React.Fragment>
-);
+}: TextWithLineBreaksProps): JSX.Element {
+  return (
+    <React.Fragment>
+      {text.split(/[\n\r]{2}/g).map((x) => (
+        <Text {...rest} key={x}>
+          {x.split(/[\n\r]/g).map((y, i, arr) => (
+            <React.Fragment key={y}>
+              <span
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(y),
+                }}
+              />
+              {i !== arr.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </Text>
+      ))}
+    </React.Fragment>
+  );
+}
 
 export const NoWrap = styled.span`
   white-space: nowrap;

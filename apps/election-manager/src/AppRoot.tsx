@@ -73,13 +73,13 @@ export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
-const AppRoot = ({
+function AppRoot({
   storage,
   printer,
   card,
   hardware,
   machineConfigProvider,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const printBallotRef = useRef<HTMLDivElement>(null);
 
   const getElectionDefinition = useCallback(async (): Promise<
@@ -130,10 +130,10 @@ const AppRoot = ({
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
   const [isOfficialResults, setIsOfficialResults] = useState(false);
 
-  const saveIsOfficialResults = async () => {
+  async function saveIsOfficialResults() {
     setIsOfficialResults(true);
     await storage.set(isOfficialResultsKey, true);
-  };
+  }
 
   const [fullElectionTally, setFullElectionTally] = useState(
     getEmptyFullElectionTally()
@@ -190,16 +190,16 @@ const AppRoot = ({
     );
   }, [storage]);
 
-  const savePrintedBallots = async (printedBallotsToStore: PrintedBallot[]) => {
+  async function savePrintedBallots(printedBallotsToStore: PrintedBallot[]) {
     return await storage.set(printedBallotsStorageKey, printedBallotsToStore);
-  };
+  }
 
-  const addPrintedBallot = async (printedBallot: PrintedBallot) => {
+  async function addPrintedBallot(printedBallot: PrintedBallot) {
     const ballots = await getPrintedBallots();
     ballots.push(printedBallot);
     await savePrintedBallots(ballots);
     setPrintedBallots(ballots);
-  };
+  }
 
   useEffect(() => {
     void (async () => {
@@ -277,9 +277,9 @@ const AppRoot = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computeVoteCounts, castVoteRecordFiles]);
 
-  const saveExternalTallies = async (
+  async function saveExternalTallies(
     externalTallies: FullElectionExternalTally[]
-  ) => {
+  ) {
     setFullElectionExternalTallies(externalTallies);
     if (externalTallies.length > 0) {
       await storage.set(
@@ -289,7 +289,7 @@ const AppRoot = ({
     } else {
       await storage.remove(externalVoteTalliesFileStorageKey);
     }
-  };
+  }
 
   const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = async (
     newCVRFiles = CastVoteRecordFiles.empty
@@ -356,16 +356,16 @@ const AppRoot = ({
     ]
   );
 
-  const generateExportableTallies = (): ExportableTallies => {
+  function generateExportableTallies(): ExportableTallies {
     assert(electionDefinition);
     return getExportableTallies(
       fullElectionTally,
       fullElectionExternalTallies,
       electionDefinition.election
     );
-  };
+  }
 
-  const resetFiles = async (fileType: ResultsFileType) => {
+  async function resetFiles(fileType: ResultsFileType) {
     switch (fileType) {
       case ResultsFileType.CastVoteRecord:
         await saveCastVoteRecordFiles();
@@ -391,7 +391,7 @@ const AppRoot = ({
       default:
         throwIllegalValue(fileType);
     }
-  };
+  }
 
   return (
     <AppContext.Provider
@@ -429,6 +429,6 @@ const AppRoot = ({
       <div ref={printBallotRef} />
     </AppContext.Provider>
   );
-};
+}
 
 export default AppRoot;

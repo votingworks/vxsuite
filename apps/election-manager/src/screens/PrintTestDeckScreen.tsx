@@ -28,21 +28,21 @@ interface TestDeckBallotsParams {
   onAllRendered: (numBallots: number) => void;
 }
 
-const TestDeckBallots = ({
+function TestDeckBallots({
   election,
   electionHash,
   precinctId,
   onAllRendered,
-}: TestDeckBallotsParams) => {
+}: TestDeckBallotsParams) {
   const ballots = generateTestDeckBallots({ election, precinctId });
 
   let numRendered = 0;
-  const onRendered = async () => {
+  async function onRendered() {
     numRendered += 1;
     if (numRendered === ballots.length) {
       onAllRendered(ballots.length);
     }
-  };
+  }
 
   return (
     <div className="print-only">
@@ -62,11 +62,11 @@ const TestDeckBallots = ({
       ))}
     </div>
   );
-};
+}
 
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
-const PrintTestDeckScreen = (): JSX.Element => {
+function PrintTestDeckScreen(): JSX.Element {
   const { electionDefinition, printer } = useContext(AppContext);
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
@@ -100,7 +100,7 @@ const PrintTestDeckScreen = (): JSX.Element => {
     }
   }, [precinctId, election.precincts]);
 
-  const startPrint = async () => {
+  async function startPrint() {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
       if (printers.some((p) => p.connected)) {
@@ -112,7 +112,7 @@ const PrintTestDeckScreen = (): JSX.Element => {
     } else {
       setPrecinctIndex(0);
     }
-  };
+  }
 
   const onAllRendered = useCallback(
     async (pIndex, numBallots) => {
@@ -223,6 +223,6 @@ const PrintTestDeckScreen = (): JSX.Element => {
       </ButtonList>
     </NavigationScreen>
   );
-};
+}
 
 export default PrintTestDeckScreen;

@@ -5,7 +5,7 @@ import Main, { MainChild } from '../components/Main';
 import MainNav from '../components/MainNav';
 import Screen from '../components/Screen';
 
-const LoadElectionScreen = (): JSX.Element => {
+function LoadElectionScreen(): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -19,6 +19,6 @@ const LoadElectionScreen = (): JSX.Element => {
       <MainNav />
     </Screen>
   );
-};
+}
 
 export default LoadElectionScreen;

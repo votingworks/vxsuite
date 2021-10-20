@@ -67,14 +67,14 @@ interface Props {
 
 type EjectState = 'removeBallot' | 'acceptBallot';
 
-const doNothing = () => {
+function doNothing() {
   console.log('disabled'); // eslint-disable-line no-console
-};
+}
 
-const BallotEjectScreen = ({
+function BallotEjectScreen({
   continueScanning,
   isTestMode,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
 
@@ -475,5 +475,5 @@ const BallotEjectScreen = ({
       <StatusFooter />
     </Screen>
   );
-};
+}
 export default BallotEjectScreen;

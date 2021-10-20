@@ -19,11 +19,11 @@ export interface NumberPadProps {
   onClear: () => void;
 }
 
-export const NumberPad = ({
+export function NumberPad({
   onButtonPress,
   onBackspace,
   onClear,
-}: NumberPadProps): JSX.Element => {
+}: NumberPadProps): JSX.Element {
   const container = useRef<HTMLDivElement>(null);
   const onKeyPress: React.KeyboardEventHandler = useCallback(
     (event) => {
@@ -98,4 +98,4 @@ export const NumberPad = ({
       </Button>
     </NumberPadContainer>
   );
-};
+}

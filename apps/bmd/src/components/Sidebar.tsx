@@ -39,14 +39,14 @@ const Footer = styled.div`
   margin: 1rem;
 `;
 
-const Sidebar = ({
+function Sidebar({
   appName,
   centerContent,
   footer,
   children,
   title,
   screenReaderInstructions,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   return (
     <StyledSidebar>
       {title && (
@@ -70,6 +70,6 @@ const Sidebar = ({
       {footer && <Footer>{footer}</Footer>}
     </StyledSidebar>
   );
-};
+}
 
 export default Sidebar;

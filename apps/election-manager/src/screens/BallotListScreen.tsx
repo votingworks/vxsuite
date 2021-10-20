@@ -28,7 +28,7 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `;
 
-const BallotListScreen = (): JSX.Element => {
+function BallotListScreen(): JSX.Element {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   );
@@ -41,8 +41,12 @@ const BallotListScreen = (): JSX.Element => {
     sortBallotStyleDataByPrecinct(election, allBallotStyles),
   ];
   const [ballotView, setBallotView] = useState(1);
-  const sortByStyle = () => setBallotView(0);
-  const sortByPrecinct = () => setBallotView(1);
+  function sortByStyle() {
+    return setBallotView(0);
+  }
+  function sortByPrecinct() {
+    return setBallotView(1);
+  }
 
   const ballots = ballotLists[ballotView];
 
@@ -123,6 +127,6 @@ const BallotListScreen = (): JSX.Element => {
       </Table>
     </NavigationScreen>
   );
-};
+}
 
 export default BallotListScreen;

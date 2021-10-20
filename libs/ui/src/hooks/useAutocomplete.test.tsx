@@ -22,7 +22,7 @@ test('basic autocomplete', async () => {
     Parameters<onConfirmType<string>>
   >();
 
-  const TestComponent = (): JSX.Element => {
+  function TestComponent(): JSX.Element {
     const options = useMemo(() => ['one', 'two', 'three'], []);
     const getOptionLabel = useCallback((option: string): string => option, []);
 
@@ -40,7 +40,7 @@ test('basic autocomplete', async () => {
         {...autocomplete.getInputProps()}
       />
     );
-  };
+  }
 
   render(<TestComponent />);
 
@@ -133,7 +133,7 @@ test('basic autocomplete', async () => {
 test('can pass a wrapped onInput through', async () => {
   const onInput = jest.fn();
 
-  const TestComponent = (): JSX.Element => {
+  function TestComponent(): JSX.Element {
     const options = useMemo(() => ['one', 'two', 'three'], []);
     const getOptionLabel = useCallback((option: string): string => option, []);
 
@@ -149,7 +149,7 @@ test('can pass a wrapped onInput through', async () => {
         {...autocomplete.getInputProps({ onInput })}
       />
     );
-  };
+  }
 
   render(<TestComponent />);
   const input = screen.getByTestId('autocomplete');
@@ -160,7 +160,7 @@ test('can pass a wrapped onInput through', async () => {
 test('can pass a wrapped onKeyDown through', async () => {
   const onKeyDown = jest.fn();
 
-  const TestComponent = (): JSX.Element => {
+  function TestComponent(): JSX.Element {
     const options = useMemo(() => ['one', 'two', 'three'], []);
     const getOptionLabel = useCallback((option: string): string => option, []);
 
@@ -176,7 +176,7 @@ test('can pass a wrapped onKeyDown through', async () => {
         {...autocomplete.getInputProps({ onKeyDown })}
       />
     );
-  };
+  }
 
   render(<TestComponent />);
   const input = screen.getByTestId('autocomplete');
@@ -190,7 +190,7 @@ test('does not autocomplete unless typing at the end', async () => {
     Parameters<onSuggestType<string>>
   >();
 
-  const TestComponent = (): JSX.Element => {
+  function TestComponent(): JSX.Element {
     const options = useMemo(() => ['one', 'two', 'three'], []);
     const getOptionLabel = useCallback((option: string): string => option, []);
 
@@ -207,7 +207,7 @@ test('does not autocomplete unless typing at the end', async () => {
         {...autocomplete.getInputProps()}
       />
     );
-  };
+  }
 
   render(<TestComponent />);
   const input = screen.getByTestId('autocomplete');

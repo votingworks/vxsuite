@@ -14,61 +14,75 @@ export const Graphic = styled.img`
   width: 250px;
 `;
 
-export const QuestionCircle = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/question-circle.svg`}
-    alt="question-circle"
-    aria-hidden
-  />
-);
+export function QuestionCircle(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/question-circle.svg`}
+      alt="question-circle"
+      aria-hidden
+    />
+  );
+}
 
-export const DoNotEnter = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/do-not-enter.svg`}
-    alt="do-not-enter"
-    aria-hidden
-  />
-);
+export function DoNotEnter(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/do-not-enter.svg`}
+      alt="do-not-enter"
+      aria-hidden
+    />
+  );
+}
 
-export const CircleCheck = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/check-circle.svg`}
-    alt="check-circle"
-    aria-hidden
-  />
-);
+export function CircleCheck(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/check-circle.svg`}
+      alt="check-circle"
+      aria-hidden
+    />
+  );
+}
 
-export const TimesCircle = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/times-circle.svg`}
-    alt="times-circle"
-    aria-hidden
-    style={{ height: '400px' }}
-  />
-);
+export function TimesCircle(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/times-circle.svg`}
+      alt="times-circle"
+      aria-hidden
+      style={{ height: '400px' }}
+    />
+  );
+}
 
-export const ExclamationTriangle = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/exclamation-triangle.svg`}
-    alt="exclamation-triangle"
-    aria-hidden
-  />
-);
+export function ExclamationTriangle(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/exclamation-triangle.svg`}
+      alt="exclamation-triangle"
+      aria-hidden
+    />
+  );
+}
 
-export const InsertBallot = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/insert-ballot.svg`}
-    alt="insert-ballot"
-    aria-hidden
-    style={{ width: '600px' }}
-  />
-);
+export function InsertBallot(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/insert-ballot.svg`}
+      alt="insert-ballot"
+      aria-hidden
+      style={{ width: '600px' }}
+    />
+  );
+}
 
-export const IndeterminateProgressBar = (): JSX.Element => (
-  <Graphic
-    src={`${process.env.PUBLIC_URL}/assets/indeterminate-progress-bar.svg`}
-    alt="indeterminate-progress-bar"
-    aria-hidden
-    style={{ width: '400px' }}
-  />
-);
+export function IndeterminateProgressBar(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/indeterminate-progress-bar.svg`}
+      alt="indeterminate-progress-bar"
+      aria-hidden
+      style={{ width: '400px' }}
+    />
+  );
+}

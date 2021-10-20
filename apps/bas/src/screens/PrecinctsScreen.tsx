@@ -19,12 +19,12 @@ interface Props {
   updatePrecinct: EventTargetFunction;
 }
 
-const PrecinctsScreen = ({
+function PrecinctsScreen({
   countyName,
   lockScreen,
   precincts,
   updatePrecinct,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -60,6 +60,6 @@ const PrecinctsScreen = ({
       </MainNav>
     </Screen>
   );
-};
+}
 
 export default PrecinctsScreen;

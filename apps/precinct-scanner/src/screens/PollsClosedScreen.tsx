@@ -8,10 +8,10 @@ interface Props {
   showNoChargerWarning: boolean;
 }
 
-const PollsClosedScreen = ({
+function PollsClosedScreen({
   isLiveMode,
   showNoChargerWarning,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   return (
     <CenteredScreen>
       <TestMode isLiveMode={isLiveMode} />
@@ -28,26 +28,26 @@ const PollsClosedScreen = ({
       </CenteredLargeProse>
     </CenteredScreen>
   );
-};
+}
 
 export default PollsClosedScreen;
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
+export function DefaultPreview(): JSX.Element {
   return <PollsClosedScreen isLiveMode showNoChargerWarning={false} />;
-};
+}
 
 /* istanbul ignore next */
-export const DefaultTestModePreview = (): JSX.Element => {
+export function DefaultTestModePreview(): JSX.Element {
   return <PollsClosedScreen isLiveMode={false} showNoChargerWarning={false} />;
-};
+}
 
 /* istanbul ignore next */
-export const NoPowerConnectedLivePreview = (): JSX.Element => {
+export function NoPowerConnectedLivePreview(): JSX.Element {
   return <PollsClosedScreen isLiveMode showNoChargerWarning />;
-};
+}
 
 /* istanbul ignore next */
-export const NoPowerConnectedTestModePreview = (): JSX.Element => {
+export function NoPowerConnectedTestModePreview(): JSX.Element {
   return <PollsClosedScreen isLiveMode={false} showNoChargerWarning />;
-};
+}

@@ -40,7 +40,7 @@ const Contest = styled.div`
   }
 `;
 
-const PairsReportScreen = (): JSX.Element => {
+function PairsReportScreen(): JSX.Element {
   const {
     castVoteRecordFiles,
     electionDefinition,
@@ -150,6 +150,6 @@ const PairsReportScreen = (): JSX.Element => {
       </div>
     </React.Fragment>
   );
-};
+}
 
 export default PairsReportScreen;

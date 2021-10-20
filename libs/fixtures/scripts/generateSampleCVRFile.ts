@@ -49,11 +49,11 @@ function generateCombinations<T>(
   // Accepts a partial combination, an index into sourceArray,
   // and the number of elements required to be added to create a full-length combination.
   // Called recursively to build combinations, adding subsequent elements at each call depth.
-  const makeNextCombos = (
+  function makeNextCombos(
     workingCombo: T[],
     currentIndex: number,
     remainingCount: number
-  ) => {
+  ) {
     const oneAwayFromComboLength = remainingCount === 1;
 
     // For each element that remaines to be added to the working combination.
@@ -73,7 +73,7 @@ function generateCombinations<T>(
         makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
       }
     }
-  };
+  }
   makeNextCombos([], 0, comboLength);
   return combos;
 }

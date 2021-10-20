@@ -5,7 +5,7 @@ function throwIllegalValue(s: never): never {
   throw new Error(`Illegal Value: ${s}`);
 }
 
-export const getZeroCompressedTally = (election: Election): CompressedTally => {
+export function getZeroCompressedTally(election: Election): CompressedTally {
   // eslint-disable-next-line array-callback-return
   return election.contests.map((contest) => {
     if (contest.type === 'yesno') {
@@ -20,4 +20,4 @@ export const getZeroCompressedTally = (election: Election): CompressedTally => {
     /* istanbul ignore next - compile time check for completeness */
     throwIllegalValue(contest);
   });
-};
+}

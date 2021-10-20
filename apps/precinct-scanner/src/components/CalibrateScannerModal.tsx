@@ -9,14 +9,11 @@ export interface Props {
   onCancel: VoidFunction;
 }
 
-const noop = () => {
+function noop() {
   // noop
-};
+}
 
-const CalibrateScannerModal = ({
-  onCancel,
-  onCalibrate,
-}: Props): JSX.Element => {
+function CalibrateScannerModal({ onCancel, onCalibrate }: Props): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const [calibrationSuccess, setCalibrationSuccess] = useState<boolean>();
   const [isCalibrating, setIsCalibrating] = useState(false);
@@ -119,6 +116,6 @@ const CalibrateScannerModal = ({
       }
     />
   );
-};
+}
 
 export default CalibrateScannerModal;

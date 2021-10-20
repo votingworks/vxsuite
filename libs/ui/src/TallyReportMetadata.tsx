@@ -11,10 +11,10 @@ interface Props {
   generatedAtTime: Date;
 }
 
-export const TallyReportMetadata = ({
+export function TallyReportMetadata({
   election,
   generatedAtTime,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
   const generatedAt = format.localeLongDateAndTime(generatedAtTime);
 
@@ -27,4 +27,4 @@ export const TallyReportMetadata = ({
       </Text>
     </p>
   );
-};
+}

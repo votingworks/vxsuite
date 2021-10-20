@@ -74,7 +74,7 @@ const BallotPreview = styled.div`
   }
 `;
 
-const BallotScreen = (): JSX.Element => {
+function BallotScreen(): JSX.Element {
   const history = useHistory();
   const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
@@ -105,20 +105,22 @@ const BallotScreen = (): JSX.Element => {
   const [ballotPages, setBallotPages] = useState(0);
   const [isSampleBallot, setIsSampleBallot] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(true);
-  const updateSetIsLiveMode = (mode: boolean) => {
+  function updateSetIsLiveMode(mode: boolean) {
     setIsLiveMode(mode);
     setIsSampleBallot(false);
-  };
+  }
   const [isAbsentee, setIsAbsentee] = useState(true);
-  const toggleIsAbsentee = () => setIsAbsentee((m) => !m);
+  function toggleIsAbsentee() {
+    return setIsAbsentee((m) => !m);
+  }
   const [ballotCopies, setBallotCopies] = useState(1);
   const updateBallotCopies: InputEventFunction = (event) => {
     const { value } = event.currentTarget;
     const copies = value ? parseInt(value, 10) : 1;
     setBallotCopies(copies < 1 ? 1 : copies);
   };
-  const changeLocale = (localeCode: string) =>
-    history.replace(
+  function changeLocale(localeCode: string) {
+    return history.replace(
       localeCode === DEFAULT_LOCALE
         ? routerPaths.ballotsView({ precinctId, ballotStyleId })
         : routerPaths.ballotsViewLanguage({
@@ -127,6 +129,7 @@ const BallotScreen = (): JSX.Element => {
             localeCode,
           })
     );
+  }
 
   const filename = getBallotPath({
     ballotStyleId,
@@ -138,7 +141,7 @@ const BallotScreen = (): JSX.Element => {
     isAbsentee,
   });
 
-  const afterPrint = (numCopies: number) => {
+  function afterPrint(numCopies: number) {
     if (isLiveMode) {
       addPrintedBallot({
         ballotStyleId,
@@ -151,7 +154,7 @@ const BallotScreen = (): JSX.Element => {
           : PrintableBallotType.Precinct,
       });
     }
-  };
+  }
 
   const onRendered = useCallback(() => {
     if (ballotPreviewRef?.current && printBallotRef?.current) {
@@ -338,6 +341,6 @@ const BallotScreen = (): JSX.Element => {
       />
     </React.Fragment>
   );
-};
+}
 
 export default BallotScreen;

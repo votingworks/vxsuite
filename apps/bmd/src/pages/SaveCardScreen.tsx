@@ -6,7 +6,7 @@ import { Loading, Main, MainChild, ProgressBar } from '@votingworks/ui';
 import Prose from '../components/Prose';
 import Screen from '../components/Screen';
 
-const SaveCardScreen = (): JSX.Element => {
+function SaveCardScreen(): JSX.Element {
   const saveDelay = 2500;
   const [progress, setProgress] = useState(0);
   const [done, setDone] = useState(false);
@@ -37,6 +37,6 @@ const SaveCardScreen = (): JSX.Element => {
       </Main>
     </Screen>
   );
-};
+}
 
 export default SaveCardScreen;

@@ -17,11 +17,11 @@ export interface Props {
   fileType: ResultsFileType;
 }
 
-export const ConfirmRemovingFileModal = ({
+export function ConfirmRemovingFileModal({
   onConfirm,
   onCancel,
   fileType,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { castVoteRecordFiles, fullElectionExternalTallies } = useContext(
     AppContext
   );
@@ -119,4 +119,4 @@ export const ConfirmRemovingFileModal = ({
       onOverlayClick={onCancel}
     />
   );
-};
+}

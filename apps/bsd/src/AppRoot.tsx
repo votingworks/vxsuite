@@ -73,7 +73,7 @@ export interface AppRootProps {
   hardware: Hardware;
 }
 
-const App = ({ card, hardware }: AppRootProps): JSX.Element => {
+function App({ card, hardware }: AppRootProps): JSX.Element {
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [
@@ -123,13 +123,13 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
     setMarkThresholds(await config.getMarkThresholdOverrides());
   }, []);
 
-  const updateElectionDefinition = async (e?: ElectionDefinition) => {
+  async function updateElectionDefinition(e?: ElectionDefinition) {
     setElectionDefinition(e);
     setElectionJustLoaded(true);
-  };
+  }
 
   useEffect(() => {
-    const initialize = async () => {
+    async function initialize() {
       try {
         await refreshConfig();
         setIsConfigLoaded(true);
@@ -138,20 +138,20 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
         console.error('failed to initialize:', e);
         window.setTimeout(initialize, 1000);
       }
-    };
+    }
 
     void initialize();
   }, [refreshConfig]);
 
   useEffect(() => {
-    const initialize = async () => {
+    async function initialize() {
       try {
         const newMachineConfig = await machineConfigProvider.get();
         setMachineConfig(newMachineConfig);
       } catch (e) {
         // TODO: what should happen in machineConfig not returned?
       }
-    };
+    }
 
     void initialize();
   }, [setMachineConfig]);
@@ -542,6 +542,6 @@ const App = ({ card, hardware }: AppRootProps): JSX.Element => {
       </Main>
     </Screen>
   );
-};
+}
 
 export default App;
