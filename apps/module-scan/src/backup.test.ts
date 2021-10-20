@@ -81,7 +81,7 @@ async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
   return string;
 }
 
-async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
+async function readJSONEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
   return JSON.parse(await readTextEntry(zipfile, entry));
 }
 

@@ -1,12 +1,13 @@
 import {
   AdjudicationReasonInfo,
-  safeParseJSON,
   CastVoteRecord,
+  safeParse,
+  safeParseJSON,
 } from '@votingworks/types';
 import {
   CalibrateResponseSchema,
-  GetNextReviewSheetResponse,
-  GetScanStatusResponse,
+  GetNextReviewSheetResponseSchema,
+  GetScanStatusResponseSchema,
   ScanContinueRequest,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan';
@@ -27,8 +28,10 @@ export interface ScannerStatusDetails {
 }
 
 export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
-  const response = await fetchJSON<GetScanStatusResponse>('/scan/status');
-  const { scanner, batches, adjudication } = response;
+  const { scanner, batches, adjudication } = safeParse(
+    GetScanStatusResponseSchema,
+    await fetchJSON('/scan/status')
+  ).unsafeUnwrap();
   const ballotCount =
     batches &&
     batches
@@ -53,7 +56,10 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
   const { batchId } = result;
 
   for (;;) {
-    const status = await fetchJSON<GetScanStatusResponse>('/scan/status');
+    const status = safeParse(
+      GetScanStatusResponseSchema,
+      await fetchJSON('/scan/status')
+    ).unsafeUnwrap();
     const batch = status.batches.find(({ id }) => id === batchId);
 
     if (!batch) {
@@ -73,9 +79,10 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 
     const adjudicationReasons: AdjudicationReasonInfo[] = [];
     if (status.adjudication.remaining > 0) {
-      const sheetInfo = await fetchJSON<GetNextReviewSheetResponse>(
-        '/scan/hmpb/review/next-sheet'
-      );
+      const sheetInfo = safeParse(
+        GetNextReviewSheetResponseSchema,
+        await fetchJSON('/scan/hmpb/review/next-sheet')
+      ).unsafeUnwrap();
 
       for (const { interpretation } of [
         sheetInfo.interpreted.front,

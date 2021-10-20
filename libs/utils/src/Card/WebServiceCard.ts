@@ -1,8 +1,14 @@
-import { ok, Optional, Result, safeParseJSON } from '@votingworks/types';
+import {
+  ok,
+  Optional,
+  Result,
+  safeParse,
+  safeParseJSON,
+} from '@votingworks/types';
 import { fromByteArray, toByteArray } from 'base64-js';
 import { z } from 'zod';
 import { fetchJSON } from '../fetchJSON';
-import { Card, CardAPI } from '../types';
+import { Card, CardAPI, CardAPISchema } from '../types';
 
 /**
  * Implements the `Card` API by accessing it through a web service.
@@ -13,7 +19,10 @@ export default class WebServiceCard implements Card {
    * what its short value is and whether it has a long value.
    */
   async readStatus(): Promise<CardAPI> {
-    return await fetchJSON<CardAPI>('/card/read');
+    return safeParse(
+      CardAPISchema,
+      await fetchJSON('/card/read')
+    ).unsafeUnwrap();
   }
 
   /**

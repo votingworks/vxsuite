@@ -26,7 +26,7 @@ export function mockWorkerPoolProvider<I, O>(
   return (): WorkerPool<I, O> => inlinePool(call);
 }
 
-export function makeMockWorkerOps<I>(): jest.Mocked<WorkerOps<I>> {
+export function makeMockWorkerOps(): jest.Mocked<WorkerOps<unknown>> {
   return {
     start: jest.fn(),
     stop: jest.fn(),

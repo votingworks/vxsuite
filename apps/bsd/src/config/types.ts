@@ -1,19 +1,23 @@
 import {
   Dictionary,
   ElectionDefinition,
+  MachineId,
   MarkInfo,
   SerializableBallotPageLayout,
 } from '@votingworks/types';
+import { z } from 'zod';
 
 export interface MachineConfig {
   machineId: string;
   bypassAuthentication: boolean;
 }
+export const MachingConfigSchema: z.ZodSchema<MachineConfig> = z.object({
+  machineId: MachineId,
+  bypassAuthentication: z.boolean(),
+});
 
-export interface MachineConfigResponse {
-  machineId: string;
-  bypassAuthentication: boolean;
-}
+export type MachineConfigResponse = MachineConfig;
+export const MachineConfigResponseSchema = MachingConfigSchema;
 
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;

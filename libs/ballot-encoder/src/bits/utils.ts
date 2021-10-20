@@ -10,11 +10,11 @@ import { Uint8 } from './types';
  * makeMasks(2) // [0b10, 0b01]
  * makeMasks(3) // [0b100, 0b010, 0b001]
  */
-export function makeMasks<T extends number>(count: number): T[] {
-  const results: T[] = [];
+export function makeMasks(count: number): number[] {
+  const results: number[] = [];
 
   for (let i = count - 1; i >= 0; i -= 1) {
-    results.push((1 << i) as T);
+    results.push(1 << i);
   }
 
   return results;

@@ -3,12 +3,14 @@ import {
   MarkThresholds,
   Optional,
   Precinct,
+  safeParse,
   safeParseJSON,
 } from '@votingworks/types';
 import {
   GetCurrentPrecinctResponseSchema,
   GetElectionConfigResponse,
   GetElectionConfigResponseSchema,
+  GetMarkThresholdOverridesConfigResponseSchema,
   GetTestModeConfigResponseSchema,
   PatchElectionConfigRequest,
   PatchMarkThresholdOverridesConfigRequest,
@@ -124,9 +126,10 @@ export async function setTestMode(testMode: boolean): Promise<void> {
 export async function getMarkThresholdOverrides(): Promise<
   MarkThresholds | undefined
 > {
-  const { markThresholdOverrides } = await fetchJSON(
-    '/config/markThresholdOverrides'
-  );
+  const { markThresholdOverrides } = safeParse(
+    GetMarkThresholdOverridesConfigResponseSchema,
+    await fetchJSON('/config/markThresholdOverrides')
+  ).unsafeUnwrap();
   return markThresholdOverrides;
 }
 

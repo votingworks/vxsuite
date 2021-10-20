@@ -207,13 +207,13 @@ export default class Store {
    *
    * await store.dbAllAsync('select * from muppets')
    */
-  async dbAllAsync<T, P extends unknown[] = []>(
+  async dbAllAsync<P extends unknown[] = []>(
     sql: string,
     ...params: P
-  ): Promise<T[]> {
+  ): Promise<unknown[]> {
     const db = await this.getDb();
     return new Promise((resolve, reject) => {
-      db.all(sql, params, (err: unknown, rows: T[]) => {
+      db.all(sql, params, (err: unknown, rows: unknown[]) => {
         if (err) {
           reject(err);
         } else {
@@ -230,13 +230,13 @@ export default class Store {
    *
    * await store.dbGetAsync('select count(*) as count from muppets')
    */
-  async dbGetAsync<T, P extends unknown[] = []>(
+  async dbGetAsync<P extends unknown[] = []>(
     sql: string,
     ...params: P
-  ): Promise<T> {
+  ): Promise<unknown> {
     const db = await this.getDb();
-    return new Promise<T>((resolve, reject) => {
-      db.get(sql, params, (err: unknown, row: T) => {
+    return new Promise<unknown>((resolve, reject) => {
+      db.get(sql, params, (err: unknown, row: unknown) => {
         if (err) {
           reject(err);
         } else {
@@ -459,10 +459,10 @@ export default class Store {
   ): Promise<T | undefined> {
     debug('get config %s', key);
 
-    const row = await this.dbGetAsync<{ value: string } | undefined, [string]>(
+    const row = (await this.dbGetAsync<[string]>(
       'select value from configs where key = ?',
       key
-    );
+    )) as { value: string } | undefined;
 
     let defaultValue: T | undefined;
     let schema: z.ZodSchema<T>;
@@ -605,10 +605,10 @@ export default class Store {
         back.originalFilename
       );
 
-      const row = await this.dbGetAsync<{ id: string } | undefined, [string]>(
+      const row = (await this.dbGetAsync<[string]>(
         'select id from sheets where front_original_filename = ?',
         front.originalFilename
-      );
+      )) as { id: string } | undefined;
 
       if (row) {
         return row.id;
@@ -638,10 +638,7 @@ export default class Store {
     ballotId: string,
     side: Side
   ): Promise<{ original: string; normalized: string } | undefined> {
-    const row = await this.dbGetAsync<
-      { original: string; normalized: string } | undefined,
-      [string]
-    >(
+    const row = (await this.dbGetAsync<[string]>(
       `
       select
         ${side}_original_filename as original,
@@ -652,7 +649,7 @@ export default class Store {
         id = ?
     `,
       ballotId
-    );
+    )) as { original: string; normalized: string } | undefined;
 
     if (!row) {
       return;
@@ -665,16 +662,7 @@ export default class Store {
   }
 
   async getNextAdjudicationSheet(): Promise<BallotSheetInfo | undefined> {
-    const row = await this.dbGetAsync<
-      | {
-          id: string;
-          frontInterpretationJSON: string;
-          backInterpretationJSON: string;
-          frontFinishedAdjudicationAt?: string;
-          backFinishedAdjudicationAt?: string;
-        }
-      | undefined
-    >(
+    const row = (await this.dbGetAsync(
       `
       select
         id,
@@ -690,7 +678,15 @@ export default class Store {
       order by created_at asc
       limit 1
       `
-    );
+    )) as
+      | {
+          id: string;
+          frontInterpretationJSON: string;
+          backInterpretationJSON: string;
+          frontFinishedAdjudicationAt?: string;
+          backFinishedAdjudicationAt?: string;
+        }
+      | undefined;
 
     // TODO: these URLs and others in this file probably don't belong
     //       in this file, which shouldn't deal with the URL API.
@@ -728,13 +724,7 @@ export default class Store {
       frontNormalizedFilename,
       backOriginalFilename,
       backNormalizedFilename,
-    } of await this.dbAllAsync<{
-      id: string;
-      frontOriginalFilename: string;
-      frontNormalizedFilename: string;
-      backOriginalFilename: string;
-      backNormalizedFilename: string;
-    }>(`
+    } of (await this.dbAllAsync(`
       select
         id,
         front_original_filename as frontOriginalFilename,
@@ -743,7 +733,13 @@ export default class Store {
         back_normalized_filename as backNormalizedFilename
       from sheets
       order by created_at asc
-    `)) {
+    `)) as Array<{
+      id: string;
+      frontOriginalFilename: string;
+      frontNormalizedFilename: string;
+      backOriginalFilename: string;
+      backNormalizedFilename: string;
+    }>) {
       yield {
         id,
         front: {
@@ -791,10 +787,10 @@ export default class Store {
    * Deletes the batch with id `batchId`.
    */
   async deleteBatch(batchId: string): Promise<boolean> {
-    const { count }: { count: number } = await this.dbGetAsync(
+    const { count } = (await this.dbGetAsync(
       'select count(*) as count from batches where id = ?',
       batchId
-    );
+    )) as { count: number };
     await this.dbRunAsync('delete from batches where id = ?', batchId);
     return count > 0;
   }
@@ -819,7 +815,7 @@ export default class Store {
       error: string | null;
       count: number;
     }
-    const batchInfo = await this.dbAllAsync<SqliteBatchInfo>(`
+    const batchInfo = (await this.dbAllAsync(`
       select
         batches.id as id,
         batches.label as label,
@@ -840,7 +836,7 @@ export default class Store {
         error
       order by
         batches.started_at desc
-    `);
+    `)) as SqliteBatchInfo[];
     return batchInfo.map((info) => ({
       id: info.id,
       label: info.label,
@@ -858,21 +854,21 @@ export default class Store {
    */
   async adjudicationStatus(): Promise<AdjudicationStatus> {
     const [{ remaining }, { adjudicated }] = await Promise.all([
-      this.dbGetAsync<{ remaining: number }>(`
+      this.dbGetAsync(`
         select count(*) as remaining
         from sheets
         where
           requires_adjudication = 1
           and deleted_at is null
           and (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
-      `),
-      this.dbGetAsync<{ adjudicated: number }>(`
+      `) as Promise<{ remaining: number }>,
+      this.dbGetAsync(`
         select count(*) as adjudicated
         from sheets
         where
           requires_adjudication = 1
           and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
-      `),
+      `) as Promise<{ adjudicated: number }>,
     ]);
     return { adjudicated, remaining };
   }
@@ -911,7 +907,7 @@ export default class Store {
       backInterpretationJSON,
       frontAdjudicationJSON,
       backAdjudicationJSON,
-    } of await this.dbAllAsync<{
+    } of (await this.dbAllAsync(sql)) as Array<{
       id: string;
       batchId: string;
       batchLabel?: string;
@@ -919,7 +915,7 @@ export default class Store {
       backInterpretationJSON: string;
       frontAdjudicationJSON?: string;
       backAdjudicationJSON?: string;
-    }>(sql)) {
+    }>) {
       const frontInterpretation: PageInterpretation = JSON.parse(
         frontInterpretationJSON
       );
@@ -1021,10 +1017,7 @@ export default class Store {
   async getHmpbTemplates(): Promise<
     Array<[Buffer, SerializableBallotPageLayout[]]>
   > {
-    const rows = await this.dbAllAsync<
-      { id: string; pdf: Buffer; layoutsJSON: string; metadataJSON: string },
-      []
-    >(
+    const rows = (await this.dbAllAsync(
       `
         select
           id,
@@ -1034,7 +1027,12 @@ export default class Store {
         from hmpb_templates
         order by created_at asc
       `
-    );
+    )) as Array<{
+      id: string;
+      pdf: Buffer;
+      layoutsJSON: string;
+      metadataJSON: string;
+    }>;
     const results: Array<[Buffer, SerializableBallotPageLayout[]]> = [];
 
     for (const { id, pdf, metadataJSON, layoutsJSON } of rows) {
@@ -1062,17 +1060,17 @@ export default class Store {
   async getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
   ): Promise<SerializableBallotPageLayout[]> {
-    const rows = await this.dbAllAsync<{
-      layoutsJSON: string;
-      metadataJSON: string;
-    }>(
+    const rows = (await this.dbAllAsync(
       `
         select
           layouts_json as layoutsJSON,
           metadata_json as metadataJSON
         from hmpb_templates
       `
-    );
+    )) as Array<{
+      layoutsJSON: string;
+      metadataJSON: string;
+    }>;
 
     for (const row of rows) {
       const {

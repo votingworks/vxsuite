@@ -128,7 +128,7 @@ async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
   return new TextDecoder().decode(bytes);
 }
 
-async function readJSONEntry<T>(zipfile: ZipFile, entry: Entry): Promise<T> {
+async function readJSONEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
   return JSON.parse(await readTextEntry(zipfile, entry));
 }
 
@@ -158,10 +158,10 @@ async function readBallotPackageFromZip(
   }
 
   const electionData = await readTextEntry(zipfile, electionEntry);
-  const manifest: BallotPackageManifest = await readJSONEntry(
+  const manifest = (await readJSONEntry(
     zipfile,
     manifestEntry
-  );
+  )) as BallotPackageManifest;
   const ballots: BallotPackageEntry[] = [];
 
   for (const entry of entries) {

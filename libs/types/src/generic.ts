@@ -81,12 +81,15 @@ export interface Err<E> {
 /**
  * Returns an empty `Result`.
  */
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function ok<E>(): Result<void, E>;
 
 /**
  * Returns a `Result` containing `value`.
  */
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function ok<T, E>(value: T): Result<T, E>;
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function ok<T, E>(value: T = (undefined as unknown) as T): Result<T, E> {
   return {
     isErr: () => false,
@@ -103,6 +106,7 @@ export function ok<T, E>(value: T = (undefined as unknown) as T): Result<T, E> {
 /**
  * Returns a `Result` containing `error`.
  */
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function err<T, E>(error: E): Result<T, E> {
   return {
     isErr: () => true,

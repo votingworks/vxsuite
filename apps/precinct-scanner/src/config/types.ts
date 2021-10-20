@@ -1,4 +1,5 @@
-import { AdjudicationReasonInfo } from '@votingworks/types';
+import { AdjudicationReasonInfo, MachineId } from '@votingworks/types';
+import { z } from 'zod';
 
 export enum BallotState {
   IDLE = 'idle',
@@ -47,9 +48,11 @@ export interface MachineConfig {
   codeVersion: string;
   bypassAuthentication?: boolean;
 }
+export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
+  machineId: MachineId,
+  codeVersion: z.string().nonempty(),
+  bypassAuthentication: z.boolean().optional(),
+});
 
-export interface MachineConfigResponse {
-  machineId: string;
-  codeVersion: string;
-  bypassAuthentication?: boolean;
-}
+export type MachineConfigResponse = MachineConfig;
+export const MachineConfigResponseSchema = MachineConfigSchema;
