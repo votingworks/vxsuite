@@ -220,7 +220,7 @@ function TallyScreen(): JSX.Element {
     0
   );
 
-  async function generateSEMSResults(): Promise<string> {
+  const generateSEMSResults = useCallback(async (): Promise<string> => {
     const exportableTallies = generateExportableTallies();
     // process on the server
     const client = new ConverterClient('tallies');
@@ -246,7 +246,7 @@ function TallyScreen(): JSX.Element {
     // reset files on the server
     await client.reset();
     return await results.text();
-  }
+  }, [electionDefinition.electionData, generateExportableTallies]);
 
   return (
     <React.Fragment>

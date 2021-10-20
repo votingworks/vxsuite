@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import fileDownload from 'js-file-download';
 import path from 'path';
@@ -53,75 +53,84 @@ function ExportResultsModal({
   const { electionDefinition, machineConfig } = useContext(AppContext);
   assert(electionDefinition);
 
-  async function exportResults(openDialog: boolean) {
-    setCurrentState(ModalState.SAVING);
+  const exportResults = useCallback(
+    async (openDialog: boolean) => {
+      setCurrentState(ModalState.SAVING);
 
-    try {
-      const response = await fetch('/scan/export', {
-        method: 'post',
-      });
+      try {
+        const response = await fetch('/scan/export', {
+          method: 'post',
+        });
 
-      const blob = await response.blob();
+        const blob = await response.blob();
 
-      if (response.status !== 200) {
-        setErrorMessage(
-          'Failed to save results. Error retrieving CVRs from the scanner.'
-        );
-        setCurrentState(ModalState.ERROR);
-        return;
-      }
-
-      const cvrFilename = generateFilenameForScanningResults(
-        machineConfig.machineId,
-        scannedBallotCount,
-        isTestMode,
-        new Date()
-      );
-
-      if (window.kiosk) {
-        const usbPath = await usbstick.getDevicePath();
-        if (!usbPath) {
-          throw new Error(
-            'could not begin download; path to usb drive missing'
+        if (response.status !== 200) {
+          setErrorMessage(
+            'Failed to save results. Error retrieving CVRs from the scanner.'
           );
+          setCurrentState(ModalState.ERROR);
+          return;
         }
-        const electionFolderName = generateElectionBasedSubfolderName(
-          electionDefinition.election,
-          electionDefinition.electionHash
-        );
-        const pathToFolder = path.join(
-          usbPath,
-          SCANNER_RESULTS_FOLDER,
-          electionFolderName
-        );
-        const pathToFile = path.join(pathToFolder, cvrFilename);
-        if (openDialog) {
-          const fileWriter = await window.kiosk.saveAs({
-            defaultPath: pathToFile,
-          });
 
-          if (!fileWriter) {
-            throw new Error('could not begin download; no file was chosen');
+        const cvrFilename = generateFilenameForScanningResults(
+          machineConfig.machineId,
+          scannedBallotCount,
+          isTestMode,
+          new Date()
+        );
+
+        if (window.kiosk) {
+          const usbPath = await usbstick.getDevicePath();
+          if (!usbPath) {
+            throw new Error(
+              'could not begin download; path to usb drive missing'
+            );
           }
+          const electionFolderName = generateElectionBasedSubfolderName(
+            electionDefinition.election,
+            electionDefinition.electionHash
+          );
+          const pathToFolder = path.join(
+            usbPath,
+            SCANNER_RESULTS_FOLDER,
+            electionFolderName
+          );
+          const pathToFile = path.join(pathToFolder, cvrFilename);
+          if (openDialog) {
+            const fileWriter = await window.kiosk.saveAs({
+              defaultPath: pathToFile,
+            });
 
-          await fileWriter.write(await blob.text());
-          await fileWriter.end();
+            if (!fileWriter) {
+              throw new Error('could not begin download; no file was chosen');
+            }
+
+            await fileWriter.write(await blob.text());
+            await fileWriter.end();
+          } else {
+            await window.kiosk.makeDirectory(pathToFolder, {
+              recursive: true,
+            });
+            await window.kiosk.writeFile(pathToFile, await blob.text());
+          }
+          setCurrentState(ModalState.DONE);
         } else {
-          await window.kiosk.makeDirectory(pathToFolder, {
-            recursive: true,
-          });
-          await window.kiosk.writeFile(pathToFile, await blob.text());
+          fileDownload(blob, cvrFilename, 'application/x-jsonlines');
+          setCurrentState(ModalState.DONE);
         }
-        setCurrentState(ModalState.DONE);
-      } else {
-        fileDownload(blob, cvrFilename, 'application/x-jsonlines');
-        setCurrentState(ModalState.DONE);
+      } catch (error) {
+        setErrorMessage(`Failed to save results. ${error.message}`);
+        setCurrentState(ModalState.ERROR);
       }
-    } catch (error) {
-      setErrorMessage(`Failed to save results. ${error.message}`);
-      setCurrentState(ModalState.ERROR);
-    }
-  }
+    },
+    [
+      electionDefinition.election,
+      electionDefinition.electionHash,
+      isTestMode,
+      machineConfig.machineId,
+      scannedBallotCount,
+    ]
+  );
 
   if (currentState === ModalState.ERROR) {
     return (

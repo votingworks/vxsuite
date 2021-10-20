@@ -14,7 +14,7 @@ import {
 } from '@votingworks/utils';
 import { strict as assert } from 'assert';
 import path from 'path';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import AppContext from '../contexts/AppContext';
 import { download, DownloadError, DownloadErrorKind } from '../utils/download';
@@ -45,57 +45,60 @@ function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
-  async function exportBackup(openDialog: boolean) {
-    setCurrentState(ModalState.SAVING);
+  const exportBackup = useCallback(
+    async (openDialog: boolean) => {
+      setCurrentState(ModalState.SAVING);
 
-    let result: Result<void, DownloadError>;
-    if (window.kiosk && !openDialog) {
-      const usbPath = await usbstick.getDevicePath();
-      if (!usbPath) {
-        setErrorMessage('No USB drive found.');
+      let result: Result<void, DownloadError>;
+      if (window.kiosk && !openDialog) {
+        const usbPath = await usbstick.getDevicePath();
+        if (!usbPath) {
+          setErrorMessage('No USB drive found.');
+          setCurrentState(ModalState.ERROR);
+          return;
+        }
+        const electionFolderName = generateElectionBasedSubfolderName(
+          electionDefinition.election,
+          electionDefinition.electionHash
+        );
+        const pathToFolder = path.join(
+          usbPath,
+          SCANNER_BACKUPS_FOLDER,
+          electionFolderName
+        );
+        result = await download('/scan/backup', { into: pathToFolder });
+        setCurrentState(result.isOk() ? ModalState.DONE : ModalState.ERROR);
+      } else {
+        result = await download('/scan/backup');
+      }
+
+      if (result.isOk()) {
+        setCurrentState(ModalState.DONE);
+      } else {
+        const error = result.err();
+        switch (error.kind) {
+          case DownloadErrorKind.FetchFailed:
+          case DownloadErrorKind.FileMissing:
+            setErrorMessage(
+              `Unable to get backup: ${error.kind} (status=${error.response.statusText})`
+            );
+            break;
+
+          case DownloadErrorKind.OpenFailed:
+            setErrorMessage(
+              `Unable to write file to download location: ${error.path}`
+            );
+            break;
+
+          default:
+            // nothing to do
+            break;
+        }
         setCurrentState(ModalState.ERROR);
-        return;
       }
-      const electionFolderName = generateElectionBasedSubfolderName(
-        electionDefinition.election,
-        electionDefinition.electionHash
-      );
-      const pathToFolder = path.join(
-        usbPath,
-        SCANNER_BACKUPS_FOLDER,
-        electionFolderName
-      );
-      result = await download('/scan/backup', { into: pathToFolder });
-      setCurrentState(result.isOk() ? ModalState.DONE : ModalState.ERROR);
-    } else {
-      result = await download('/scan/backup');
-    }
-
-    if (result.isOk()) {
-      setCurrentState(ModalState.DONE);
-    } else {
-      const error = result.err();
-      switch (error.kind) {
-        case DownloadErrorKind.FetchFailed:
-        case DownloadErrorKind.FileMissing:
-          setErrorMessage(
-            `Unable to get backup: ${error.kind} (status=${error.response.statusText})`
-          );
-          break;
-
-        case DownloadErrorKind.OpenFailed:
-          setErrorMessage(
-            `Unable to write file to download location: ${error.path}`
-          );
-          break;
-
-        default:
-          // nothing to do
-          break;
-      }
-      setCurrentState(ModalState.ERROR);
-    }
-  }
+    },
+    [electionDefinition.election, electionDefinition.electionHash]
+  );
 
   if (currentState === ModalState.ERROR) {
     return (
