@@ -41,12 +41,16 @@ interface InputFile {
   file: File;
 }
 
-const allFilesExist = (files: VxFile[]) => files.every((f) => f.path);
-const someFilesExist = (files: VxFile[]) => files.some((f) => f.path);
+function allFilesExist(files: VxFile[]) {
+  return files.every((f) => f.path);
+}
+function someFilesExist(files: VxFile[]) {
+  return files.some((f) => f.path);
+}
 
 const newElection = JSON.stringify(defaultElection);
 
-const UnconfiguredScreen = (): JSX.Element => {
+function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
 
@@ -63,10 +67,10 @@ const UnconfiguredScreen = (): JSX.Element => {
   const [client] = useState(new ConverterClient('election'));
   const [isConvertSEMS, setIsConvertSEMS] = useState(false);
 
-  const createNewElection = async () => {
+  async function createNewElection() {
     await saveElection(newElection);
     history.push(routerPaths.electionDefinition);
-  };
+  }
 
   const saveElectionAndShowSuccess = useCallback(
     (electionJSON: string) => {
@@ -161,14 +165,14 @@ const UnconfiguredScreen = (): JSX.Element => {
     }
   }, [client, getOutputFile, processInputFiles]);
 
-  const submitFile = async ({ file, name }: InputFile) => {
+  async function submitFile({ file, name }: InputFile) {
     try {
       await client.setInputFile(name, file);
       await updateStatus();
     } catch (error) {
       console.log('failed handleFileInput()', error); // eslint-disable-line no-console
     }
-  };
+  }
 
   const handleFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget;
@@ -179,17 +183,17 @@ const UnconfiguredScreen = (): JSX.Element => {
     }
   };
 
-  const resetUploadFiles = async () => {
+  async function resetUploadFiles() {
     setInputConversionFiles([]);
     setVxElectionFileIsInvalid(false);
     await resetServerFiles();
     await updateStatus();
-  };
+  }
 
-  const resetUploadFilesAndGoBack = async () => {
+  async function resetUploadFilesAndGoBack() {
     await resetUploadFiles();
     setIsConvertSEMS(false);
-  };
+  }
 
   useEffect(() => {
     void updateStatus();
@@ -308,6 +312,6 @@ const UnconfiguredScreen = (): JSX.Element => {
       </Prose>
     </NavigationScreen>
   );
-};
+}
 
 export default UnconfiguredScreen;

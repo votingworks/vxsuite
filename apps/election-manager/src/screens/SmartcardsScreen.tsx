@@ -30,7 +30,7 @@ const NumberPadWrapper = styled.div`
   }
 `;
 
-const DefinitionScreen = (): JSX.Element => {
+function DefinitionScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { electionData, electionHash } = electionDefinition;
@@ -45,18 +45,20 @@ const DefinitionScreen = (): JSX.Element => {
   const [currentPasscode, setCurrentPasscode] = useState('');
 
   const [isShowingError, setIsShowingError] = useState(false);
-  const closeErrorDialog = () => setIsShowingError(false);
+  function closeErrorDialog() {
+    return setIsShowingError(false);
+  }
 
-  const overrideWriteProtection = async () => {
+  async function overrideWriteProtection() {
     setIsProgrammingCard(true);
     await fetch('/card/write_protect_override', {
       method: 'post',
     });
     await makeCancelable(sleep(1000));
     setIsProgrammingCard(false);
-  };
+  }
 
-  const programPollWorkerCard = async () => {
+  async function programPollWorkerCard() {
     setIsProgrammingCard(true);
 
     const shortValue = JSON.stringify({
@@ -72,8 +74,8 @@ const DefinitionScreen = (): JSX.Element => {
       setIsShowingError(true);
     }
     setIsProgrammingCard(false);
-  };
-  const programAdminCard = async (passcode: string) => {
+  }
+  async function programAdminCard(passcode: string) {
     const formData = new FormData();
     setIsProgrammingCard(true);
     setIsPromptingForAdminPasscode(false);
@@ -94,12 +96,12 @@ const DefinitionScreen = (): JSX.Element => {
     }
 
     setIsProgrammingCard(false);
-  };
+  }
 
-  const initiateAdminCardProgramming = () => {
+  function initiateAdminCardProgramming() {
     setCurrentPasscode('');
     setIsPromptingForAdminPasscode(true);
-  };
+  }
 
   const addNumberToPin = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
@@ -203,6 +205,6 @@ const DefinitionScreen = (): JSX.Element => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default DefinitionScreen;

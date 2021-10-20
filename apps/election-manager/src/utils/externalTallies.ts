@@ -262,9 +262,9 @@ export function convertTalliesByPrecinctToFullExternalTally(
   };
 }
 
-export const getEmptyContestTallies = (
+export function getEmptyContestTallies(
   election: Election
-): Dictionary<ContestTally> => {
+): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {};
   for (const contest of expandEitherNeitherContests(election.contests)) {
     const optionTallies: Dictionary<ContestOptionTally> = {};
@@ -305,11 +305,11 @@ export const getEmptyContestTallies = (
     };
   }
   return contestTallies;
-};
+}
 
-export const getEmptyExternalTalliesByPrecinct = (
+export function getEmptyExternalTalliesByPrecinct(
   election: Election
-): Dictionary<ExternalTally> => {
+): Dictionary<ExternalTally> {
   const tallies: Dictionary<ExternalTally> = {};
   for (const precinct of election.precincts) {
     tallies[precinct.id] = {
@@ -318,4 +318,4 @@ export const getEmptyExternalTalliesByPrecinct = (
     };
   }
   return tallies;
-};
+}

@@ -10,10 +10,10 @@ interface Props {
   ballotStyleId: string;
 }
 
-const WritingCardScreen = ({
+function WritingCardScreen({
   ballotStyleId,
   precinctName,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -39,6 +39,6 @@ const WritingCardScreen = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default WritingCardScreen;

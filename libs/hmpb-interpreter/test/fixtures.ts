@@ -6,8 +6,9 @@ import { vh as flipVH } from '../src/utils/flip';
 import { loadImageData } from '../src/utils/images';
 import { adjacentFile } from '../src/utils/path';
 
-export const adjacentMetadataFile = (imagePath: string): string =>
-  adjacentFile('-metadata', imagePath, '.json');
+export function adjacentMetadataFile(imagePath: string): string {
+  return adjacentFile('-metadata', imagePath, '.json');
+}
 
 export class Fixture implements Input {
   constructor(private basePath: string) {}

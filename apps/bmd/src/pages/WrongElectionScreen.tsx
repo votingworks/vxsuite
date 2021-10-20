@@ -11,10 +11,10 @@ interface Props {
   isVoterCard: boolean;
 }
 
-const WrongElectionScreen = ({
+function WrongElectionScreen({
   useEffectToggleLargeDisplay,
   isVoterCard,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
   useEffect(triggerAudioFocus, []);
@@ -34,6 +34,6 @@ const WrongElectionScreen = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default WrongElectionScreen;

@@ -20,10 +20,10 @@ export interface Props {
   selectedFile?: File;
 }
 
-const ImportExternalResultsModal = ({
+function ImportExternalResultsModal({
   onClose,
   selectedFile,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const {
     saveExternalTallies,
     setIsTabulationRunning,
@@ -41,7 +41,7 @@ const ImportExternalResultsModal = ({
 
   const { election } = electionDefinition;
 
-  const loadFile = async (file: File) => {
+  async function loadFile(file: File) {
     const fileContent = await readFileAsync(file);
     // Compute the tallies to see if there are any errors, if so display
     // an error modal.
@@ -70,7 +70,7 @@ const ImportExternalResultsModal = ({
     } finally {
       setIsImportingFile(false);
     }
-  };
+  }
 
   useEffect(() => {
     if (selectedFile !== undefined) {
@@ -79,7 +79,7 @@ const ImportExternalResultsModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile]);
 
-  const saveImportedFile = async () => {
+  async function saveImportedFile() {
     if (selectedFile !== undefined) {
       setIsTabulationRunning(true);
       const fileContent = await readFileAsync(selectedFile);
@@ -94,7 +94,7 @@ const ImportExternalResultsModal = ({
       setIsTabulationRunning(false);
       onClose();
     }
-  };
+  }
 
   if (isImportingFile) {
     return (
@@ -162,6 +162,6 @@ const ImportExternalResultsModal = ({
       }
     />
   );
-};
+}
 
 export default ImportExternalResultsModal;

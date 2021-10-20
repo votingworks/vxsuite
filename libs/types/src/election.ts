@@ -1188,33 +1188,34 @@ export const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
 /**
  * Gets contests which belong to a ballot style in an election.
  */
-export const getContests = ({
+export function getContests({
   ballotStyle,
   election,
 }: {
   ballotStyle: BallotStyle;
   election: Election;
-}): Contests =>
-  election.contests.filter(
+}): Contests {
+  return election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
       ballotStyle.partyId === c.partyId
   );
+}
 
 /**
  * Get all MS either-neither contests.
  */
-export const getEitherNeitherContests = (
+export function getEitherNeitherContests(
   contests: Contests
-): MsEitherNeitherContest[] => {
+): MsEitherNeitherContest[] {
   return contests.filter(
     (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
   );
-};
+}
 
-export const expandEitherNeitherContests = (
+export function expandEitherNeitherContests(
   contests: Contests
-): Exclude<AnyContest, MsEitherNeitherContest>[] => {
+): Exclude<AnyContest, MsEitherNeitherContest>[] {
   return contests.flatMap((contest) =>
     contest.type !== 'ms-either-neither'
       ? [contest]
@@ -1243,56 +1244,59 @@ export const expandEitherNeitherContests = (
           },
         ]
   );
-};
+}
 
 /**
  * Retrieves a precinct by id.
  */
-export const getPrecinctById = ({
+export function getPrecinctById({
   election,
   precinctId,
 }: {
   election: Election;
   precinctId: string;
-}): Precinct | undefined => election.precincts.find((p) => p.id === precinctId);
+}): Precinct | undefined {
+  return election.precincts.find((p) => p.id === precinctId);
+}
 
 /**
  * Retrieves a ballot style by id.
  */
-export const getBallotStyle = ({
+export function getBallotStyle({
   ballotStyleId,
   election,
 }: {
   ballotStyleId: string;
   election: Election;
-}): BallotStyle | undefined =>
-  election.ballotStyles.find((bs) => bs.id === ballotStyleId);
+}): BallotStyle | undefined {
+  return election.ballotStyles.find((bs) => bs.id === ballotStyleId);
+}
 
 /**
  * Retrieve a contest from a set of contests based on ID
  * special-cases Ms Either Neither contests
  */
-export const findContest = ({
+export function findContest({
   contests,
   contestId,
 }: {
   contests: Contests;
   contestId: string;
-}): AnyContest | undefined => {
+}): AnyContest | undefined {
   return contests.find((c) =>
     c.type === 'ms-either-neither'
       ? c.eitherNeitherContestId === contestId ||
         c.pickOneContestId === contestId
       : c.id === contestId
   );
-};
+}
 
 /**
  * Validates the votes for a given ballot style in a given election.
  *
  * @throws When an inconsistency is found.
  */
-export const validateVotes = ({
+export function validateVotes({
   votes,
   ballotStyle,
   election,
@@ -1300,7 +1304,7 @@ export const validateVotes = ({
   votes: VotesDict;
   ballotStyle: BallotStyle;
   election: Election;
-}): void => {
+}): void {
   const contests = getContests({ election, ballotStyle });
 
   for (const contestId of Object.getOwnPropertyNames(votes)) {
@@ -1316,42 +1320,42 @@ export const validateVotes = ({
       );
     }
   }
-};
+}
 
 /**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
  * Gets the adjective used to describe the political party for a primary
  * election, e.g. "Republican" or "Democratic".
  */
-export const getPartyPrimaryAdjectiveFromBallotStyle = ({
+export function getPartyPrimaryAdjectiveFromBallotStyle({
   ballotStyleId,
   election,
 }: {
   ballotStyleId: string;
   election: Election;
-}): string => {
+}): string {
   const parts = /(\d+)(\w+)/i.exec(ballotStyleId);
   const abbrev = parts?.[2];
   const party = election.parties.find((p) => p.abbrev === abbrev);
   const name = party?.name;
   return (name === 'Democrat' && 'Democratic') || name || '';
-};
+}
 
 /**
  * Gets the full name of the political party for a primary election,
  * e.g. "Republican Party" or "Democratic Party".
  */
-export const getPartyFullNameFromBallotStyle = ({
+export function getPartyFullNameFromBallotStyle({
   ballotStyleId,
   election,
 }: {
   ballotStyleId: string;
   election: Election;
-}): string => {
+}): string {
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   const party = election.parties.find((p) => p.id === ballotStyle?.partyId);
   return party?.fullName ?? '';
-};
+}
 
 export function getDistrictIdsForPartyId(
   election: Election,
@@ -1437,11 +1441,14 @@ export function isVotePresent(v?: Vote): boolean {
 /**
  * Helper function to get array of locale codes used in election definition.
  */
-export const getElectionLocales = (
+export function getElectionLocales(
   election: Election,
   baseLocale = 'en-US'
-): string[] =>
-  election._lang ? [baseLocale, ...Object.keys(election._lang)] : [baseLocale];
+): string[] {
+  return election._lang
+    ? [baseLocale, ...Object.keys(election._lang)]
+    : [baseLocale];
+}
 
 function copyWithLocale<T>(value: T, locale: string): T;
 function copyWithLocale<T>(value: readonly T[], locale: string): readonly T[];

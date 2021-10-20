@@ -33,9 +33,7 @@ interface Props {
   attemptToAuthenticateUser: (passcode: string) => boolean;
 }
 
-const UnlockAdminScreen = ({
-  attemptToAuthenticateUser,
-}: Props): JSX.Element => {
+function UnlockAdminScreen({ attemptToAuthenticateUser }: Props): JSX.Element {
   const [currentPasscode, setCurrentPasscode] = useState('');
   const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
@@ -89,15 +87,15 @@ const UnlockAdminScreen = ({
       </Main>
     </CenteredScreen>
   );
-};
+}
 
 export default UnlockAdminScreen;
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
+export function DefaultPreview(): JSX.Element {
   return (
     <UnlockAdminScreen
       attemptToAuthenticateUser={(passcode) => passcode === '000000'}
     />
   );
-};
+}

@@ -1,12 +1,12 @@
 import React from 'react';
 import { HandMarkedPaperBallotProps } from '../HandMarkedPaperBallot';
 
-const HandMarkedPaperBallot = ({
+function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   precinctId,
   onRendered,
-}: HandMarkedPaperBallotProps): JSX.Element => {
+}: HandMarkedPaperBallotProps): JSX.Element {
   if (onRendered) {
     setImmediate(onRendered);
   }
@@ -19,6 +19,6 @@ const HandMarkedPaperBallot = ({
       Ballot Style {ballotStyleId}, precinct {precinctId}.
     </div>
   );
-};
+}
 
 export default HandMarkedPaperBallot;

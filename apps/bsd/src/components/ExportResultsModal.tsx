@@ -42,12 +42,12 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportResultsModal = ({
+function ExportResultsModal({
   onClose,
   electionDefinition,
   numberOfBallots,
   isTestMode,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -55,7 +55,7 @@ const ExportResultsModal = ({
     AppContext
   );
 
-  const exportResults = async (openDialog: boolean) => {
+  async function exportResults(openDialog: boolean) {
     setCurrentState(ModalState.SAVING);
 
     try {
@@ -123,7 +123,7 @@ const ExportResultsModal = ({
       setErrorMessage(`Failed to save results. ${error.message}`);
       setCurrentState(ModalState.ERROR);
     }
-  };
+  }
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -278,6 +278,6 @@ const ExportResultsModal = ({
       // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
       throwBadStatus(usbDriveStatus);
   }
-};
+}
 
 export default ExportResultsModal;

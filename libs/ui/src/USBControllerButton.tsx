@@ -7,7 +7,7 @@ const { UsbDriveStatus } = usbstick;
 
 /* istanbul ignore next */
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const doNothing = () => {};
+function doNothing() {}
 
 interface Props {
   usbDriveStatus: usbstick.UsbDriveStatus;
@@ -16,12 +16,12 @@ interface Props {
   small?: boolean;
 }
 
-export const USBControllerButton = ({
+export function USBControllerButton({
   usbDriveStatus,
   usbDriveEject,
   primary = false,
   small = true,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   if (usbDriveStatus === UsbDriveStatus.notavailable) {
     return <React.Fragment />;
   }
@@ -63,4 +63,4 @@ export const USBControllerButton = ({
       Eject USB
     </Button>
   );
-};
+}

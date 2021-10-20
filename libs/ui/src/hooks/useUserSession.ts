@@ -28,12 +28,12 @@ export interface UseUserSessionResult {
  * @param bypassAuthentication Used to bypass the need to enter a passcode to authenticate admin sessions
  *
  */
-export const useUserSession = ({
+export function useUserSession({
   smartcard,
   electionDefinition,
   persistAuthentication,
   bypassAuthentication = false,
-}: UseUserSessionProps): UseUserSessionResult => {
+}: UseUserSessionProps): UseUserSessionResult {
   const [currentUserSession, setCurrentUserSession] = useState<
     Optional<UserSession>
   >();
@@ -140,4 +140,4 @@ export const useUserSession = ({
     lockMachine,
     bootstrapAuthenticatedAdminSession,
   };
-};
+}

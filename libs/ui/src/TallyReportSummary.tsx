@@ -26,10 +26,10 @@ interface Props {
   ballotCountsByVotingMethod: Dictionary<number>;
 }
 
-export const TallyReportSummary = ({
+export function TallyReportSummary({
   totalBallotCount,
   ballotCountsByVotingMethod,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   return (
     <BallotSummary>
       <h3>Ballots by Voting Method</h3>
@@ -70,4 +70,4 @@ export const TallyReportSummary = ({
       </Table>
     </BallotSummary>
   );
-};
+}

@@ -10,14 +10,16 @@ const ResponsiveSvgWrapper = styled.div`
   }
 `;
 
-const QRCode = ({
+function QRCode({
   level = 'H',
   renderAs = 'svg',
   value,
-}: QRCodeProps): JSX.Element => (
-  <ResponsiveSvgWrapper>
-    <QRCodeReact renderAs={renderAs} value={value} level={level} />
-  </ResponsiveSvgWrapper>
-);
+}: QRCodeProps): JSX.Element {
+  return (
+    <ResponsiveSvgWrapper>
+      <QRCodeReact renderAs={renderAs} value={value} level={level} />
+    </ResponsiveSvgWrapper>
+  );
+}
 
 export default QRCode;

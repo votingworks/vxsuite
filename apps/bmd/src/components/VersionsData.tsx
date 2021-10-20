@@ -21,10 +21,10 @@ interface Props {
   electionHash?: string;
 }
 
-const VersionsData = ({
+function VersionsData({
   machineConfig: { machineId, codeVersion },
   electionHash,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const electionId = electionHash?.substring(0, 10);
   const content = (
     <React.Fragment>
@@ -49,6 +49,6 @@ const VersionsData = ({
     );
   }
   return <HorizontalVersions compact>{content}</HorizontalVersions>;
-};
+}
 
 export default VersionsData;

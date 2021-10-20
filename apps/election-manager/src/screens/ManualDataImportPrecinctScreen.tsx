@@ -66,18 +66,20 @@ export const ContestData = styled.div`
   }
 `;
 
-const ContestDataRow = ({
+function ContestDataRow({
   label,
   children,
 }: {
   label: string | React.ReactNode;
   children: React.ReactNode;
-}) => (
-  <tr>
-    <TD narrow>{children}</TD>
-    <TD>{label}</TD>
-  </tr>
-);
+}) {
+  return (
+    <tr>
+      <TD narrow>{children}</TD>
+      <TD>{label}</TD>
+    </tr>
+  );
+}
 
 // While we're holding data internally in this component tallys can be stored
 // as strings or as numbers to allow the user to delete a "0" in the text boxes.
@@ -104,16 +106,16 @@ interface TempExternalTally {
   readonly numberOfBallotsCounted: number;
 }
 
-const getNumericalValueForTally = (tally: number | EmptyValue): number => {
+function getNumericalValueForTally(tally: number | EmptyValue): number {
   if (tally === '') {
     return 0;
   }
   return tally;
-};
+}
 
-export const getExpectedNumberOfBallotsForContestTally = (
+export function getExpectedNumberOfBallotsForContestTally(
   contestTally: TempContestTally
-): number => {
+): number {
   const numSeats =
     contestTally.contest.type === 'candidate'
       ? (contestTally.contest as CandidateContest).seats
@@ -130,9 +132,9 @@ export const getExpectedNumberOfBallotsForContestTally = (
       sumOfCandidateVotes) /
       numSeats
   );
-};
+}
 
-const ManualDataImportPrecinctScreen = (): JSX.Element => {
+function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
@@ -181,9 +183,9 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
 
   // Convert internal structure of contest data that allows for empty strings, to the regular
   // type by mapping any empty string values to zeros.
-  const convertContestTallies = (
+  function convertContestTallies(
     contestTallies: Dictionary<TempContestTally>
-  ): Dictionary<ContestTally> => {
+  ): Dictionary<ContestTally> {
     const convertedContestTallies: Dictionary<ContestTally> = {};
     for (const contestId of Object.keys(contestTallies)) {
       const contestTally = contestTallies[contestId];
@@ -217,9 +219,9 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
       };
     }
     return convertedContestTallies;
-  };
+  }
 
-  const handleImportingData = async () => {
+  async function handleImportingData() {
     // Turn the precinct tallies into a CSV SEMS file
     // Save that file as the external results file with a name implied manual data entry happened
 
@@ -254,12 +256,12 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
     newTallies.push(externalTally);
     await saveExternalTallies(newTallies);
     history.push(routerPaths.manualDataImport);
-  };
+  }
 
-  const getValueForInput = (
+  function getValueForInput(
     contestId: string,
     dataKey: string
-  ): number | EmptyValue => {
+  ): number | EmptyValue {
     const contestTally = currentPrecinctTally.contestTallies[contestId];
     assert(contestTally);
     switch (dataKey) {
@@ -272,13 +274,13 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
       default:
         return contestTally.tallies[dataKey]?.tally ?? 0;
     }
-  };
+  }
 
-  const updateContestData = (
+  function updateContestData(
     contestId: string,
     dataKey: string,
     event: React.FormEvent<HTMLInputElement>
-  ) => {
+  ) {
     const contestTally = currentPrecinctTally.contestTallies[contestId];
     assert(contestTally);
     const stringValue = event.currentTarget.value;
@@ -348,7 +350,7 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
       numberOfBallotsCounted: numberBallotsInPrecinct,
       contestTallies: newContestTallies,
     });
-  };
+  }
 
   const currentContests = expandEitherNeitherContests(
     getContestsForPrecinct(election, currentPrecinctId)
@@ -484,6 +486,6 @@ const ManualDataImportPrecinctScreen = (): JSX.Element => {
       </NavigationScreen>
     </React.Fragment>
   );
-};
+}
 
 export default ManualDataImportPrecinctScreen;

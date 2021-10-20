@@ -1,2 +1,4 @@
-const stripQuotes = (string: string): string => string.replace(/['‘’"“”]/g, '');
+function stripQuotes(string: string): string {
+  return string.replace(/['‘’"“”]/g, '');
+}
 export default stripQuotes;

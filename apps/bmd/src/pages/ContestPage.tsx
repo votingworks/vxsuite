@@ -24,11 +24,11 @@ interface ContestParams {
   contestNumber: string;
 }
 
-const ContestPage = ({
+function ContestPage({
   match: {
     params: { contestNumber },
   },
-}: RouteComponentProps<ContestParams>): JSX.Element => {
+}: RouteComponentProps<ContestParams>): JSX.Element {
   const isReviewMode = window.location.hash === '#review';
   const {
     ballotStyleId,
@@ -60,7 +60,7 @@ const ContestPage = ({
   const nextContest = contests[nextContestIndex];
 
   useEffect(() => {
-    const calculateIsVoteComplete = () => {
+    function calculateIsVoteComplete() {
       /* istanbul ignore else */
       if (contest.type === 'yesno') {
         setIsVoteComplete(!!vote);
@@ -74,7 +74,7 @@ const ContestPage = ({
             votes[contest.eitherNeitherContestId]?.[0] === 'no'
         );
       }
-    };
+    }
     calculateIsVoteComplete();
   }, [contest, vote, votes]);
 
@@ -179,6 +179,6 @@ const ContestPage = ({
       </Sidebar>
     </Screen>
   );
-};
+}
 
 export default ContestPage;

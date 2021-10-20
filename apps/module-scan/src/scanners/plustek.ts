@@ -22,7 +22,7 @@ export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>;
 const SCANNER_RETRY_DURATION_SECONDS = 5;
 const NANOSECONDS_PER_SECOND = BigInt(1_000_000_000);
 
-const retryFor = ({ seconds }: { seconds: number }): ScanRetryPredicate => {
+function retryFor({ seconds }: { seconds: number }): ScanRetryPredicate {
   const start = process.hrtime.bigint();
   const end = start + BigInt(seconds) * NANOSECONDS_PER_SECOND;
   return (result) => {
@@ -32,7 +32,7 @@ const retryFor = ({ seconds }: { seconds: number }): ScanRetryPredicate => {
     const now = process.hrtime.bigint();
     return now < end;
   };
-};
+}
 
 export class PlustekScanner implements Scanner {
   private statusOverride?: ScannerStatus;
@@ -96,10 +96,10 @@ export class PlustekScanner implements Scanner {
     debug('scanSheets: ignoring directory: %s', directory);
     debug('scanSheets: ignoring pageSize: %s', pageSize);
 
-    const waitForStatus = async (
+    async function waitForStatus(
       client: ScannerClient,
       status: PaperStatus
-    ): Promise<boolean> => {
+    ): Promise<boolean> {
       debug('PlustekScanner waitForStatus: %s', status);
       const awaitedStatus = (
         await client.waitForStatus({
@@ -109,7 +109,7 @@ export class PlustekScanner implements Scanner {
       )?.ok();
 
       return awaitedStatus === status;
-    };
+    }
 
     const scanSheet = async (): Promise<SheetOf<string> | undefined> => {
       try {
@@ -372,7 +372,7 @@ export function withReconnect(
   let clientPromise: Promise<ScannerClient> | undefined;
   let client: ScannerClient | undefined;
 
-  const getClient = async (): Promise<ScannerClient> => {
+  async function getClient(): Promise<ScannerClient> {
     let result: ScannerClient | undefined;
     while (!result) {
       debug('withReconnect: establishing new connection');
@@ -380,23 +380,26 @@ export function withReconnect(
       debug('withReconnect: client=%o', result);
     }
     return result;
-  };
+  }
 
-  const ensureClient = async (): Promise<ScannerClient> => {
+  async function ensureClient(): Promise<ScannerClient> {
     clientPromise ??= getClient();
     client = await clientPromise;
     return clientPromise;
-  };
+  }
 
-  const discardClient = async (): Promise<void> => {
+  async function discardClient(): Promise<void> {
     debug('withReconnect: closing client');
     await (await clientPromise)?.close();
     clientPromise = undefined;
-  };
+  }
 
-  const shouldDiscardAndRetry = (result: Result<unknown, unknown>) =>
-    result.err() === ScannerError.SaneStatusIoError ||
-    result.err() instanceof ClientDisconnectedError;
+  function shouldDiscardAndRetry(result: Result<unknown, unknown>) {
+    return (
+      result.err() === ScannerError.SaneStatusIoError ||
+      result.err() instanceof ClientDisconnectedError
+    );
+  }
 
   const wrapper: ScannerClient = {
     accept: async () => {

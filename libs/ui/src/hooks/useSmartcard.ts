@@ -70,10 +70,10 @@ const initialState: State = {
  *    }
  * }, [smartcard, hasCardReader])
  */
-export const useSmartcard = ({
+export function useSmartcard({
   card,
   hardware,
-}: UseSmartcardProps): UseSmartcardResult => {
+}: UseSmartcardProps): UseSmartcardResult {
   const [
     {
       cardData,
@@ -229,4 +229,4 @@ export const useSmartcard = ({
   );
 
   return result;
-};
+}

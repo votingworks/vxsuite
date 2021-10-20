@@ -46,7 +46,7 @@ interface Props {
   updateVote: UpdateVoteFunction;
 }
 
-const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
+function YesNoContest({ contest, vote, updateVote }: Props): JSX.Element {
   const { userSettings } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
@@ -109,9 +109,9 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
     }
   };
 
-  const handleChangeVoteAlert = (newValue: YesOrNo) => {
+  function handleChangeVoteAlert(newValue: YesOrNo) {
     setOvervoteSelection(newValue);
-  };
+  }
 
   const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
@@ -138,9 +138,9 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
     sc.scrollTo({ behavior: 'smooth', left: 0, top });
   };
 
-  const closeOvervoteAlert = () => {
+  function closeOvervoteAlert() {
     setOvervoteSelection(undefined);
-  };
+  }
 
   return (
     <React.Fragment>
@@ -210,9 +210,9 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
             ].map((answer) => {
               const isChecked = getSingleYesNoVote(vote) === answer.vote;
               const isDisabled = !isChecked && !!vote;
-              const handleDisabledClick = () => {
+              function handleDisabledClick() {
                 handleChangeVoteAlert(answer.vote);
-              };
+              }
               let prefixAudioText = '';
               if (isChecked) {
                 prefixAudioText = 'Selected,';
@@ -276,6 +276,6 @@ const YesNoContest = ({ contest, vote, updateVote }: Props): JSX.Element => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default YesNoContest;

@@ -4,15 +4,19 @@ import { MatcherFunction, Nullish } from '@testing-library/react';
 
 type Query<T> = (f: MatcherFunction) => T;
 
-const hasText = (text: string, node: HTMLElement) => node.textContent === text;
+function hasText(text: string, node: HTMLElement) {
+  return node.textContent === text;
+}
 
-const withMarkup = <T>(query: Query<T>) => (text: string): T =>
-  query((content: string, node: Nullish<Element>) => {
-    if (!node || !(node instanceof HTMLElement)) return false;
-    const childrenDontHaveText = Array.from(node.children).every(
-      (child) => !hasText(text, child as HTMLElement)
-    );
-    return hasText(text, node) && childrenDontHaveText;
-  });
+function withMarkup<T>(query: Query<T>) {
+  return (text: string): T =>
+    query((content: string, node: Nullish<Element>) => {
+      if (!node || !(node instanceof HTMLElement)) return false;
+      const childrenDontHaveText = Array.from(node.children).every(
+        (child) => !hasText(text, child as HTMLElement)
+      );
+      return hasText(text, node) && childrenDontHaveText;
+    });
+}
 
 export default withMarkup;

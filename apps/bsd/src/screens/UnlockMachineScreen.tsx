@@ -28,9 +28,9 @@ export interface Props {
   attemptToAuthenticateAdminUser: (passcode: string) => boolean;
 }
 
-export const UnlockMachineScreen = ({
+export function UnlockMachineScreen({
   attemptToAuthenticateAdminUser,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [currentPasscode, setCurrentPasscode] = useState('');
   const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
@@ -85,4 +85,4 @@ export const UnlockMachineScreen = ({
       <StatusFooter />
     </Screen>
   );
-};
+}

@@ -85,18 +85,20 @@ interface Props {
   updateVote: UpdateVoteFunction;
 }
 
-const findCandidateById = (candidates: readonly Candidate[], id: string) =>
-  candidates.find((c) => c.id === id);
+function findCandidateById(candidates: readonly Candidate[], id: string) {
+  return candidates.find((c) => c.id === id);
+}
 
-const normalizeCandidateName = (name: string) =>
-  name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ');
+function normalizeCandidateName(name: string) {
+  return name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ');
+}
 
-const CandidateContest = ({
+function CandidateContest({
   contest,
   parties,
   vote,
   updateVote,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { userSettings } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
@@ -159,18 +161,18 @@ const CandidateContest = ({
     }
   }, [deselectedCandidate]);
 
-  const addCandidateToVote = (id: string) => {
+  function addCandidateToVote(id: string) {
     const { candidates } = contest;
     const candidate = findCandidateById(candidates, id);
     assert(candidate);
     updateVote(contest.id, [...vote, candidate]);
-  };
+  }
 
-  const removeCandidateFromVote = (id: string) => {
+  function removeCandidateFromVote(id: string) {
     const newVote = vote.filter((c) => c.id !== id);
     updateVote(contest.id, newVote);
     setDeselectedCandidate(id);
-  };
+  }
 
   const handleUpdateSelection: EventTargetFunction = (event) => {
     const candidateId = (event.currentTarget as HTMLInputElement).dataset
@@ -190,33 +192,33 @@ const CandidateContest = ({
     }
   };
 
-  const handleChangeVoteAlert = (candidate?: Candidate) => {
+  function handleChangeVoteAlert(candidate?: Candidate) {
     setAttemptedOvervoteCandidate(candidate);
-  };
+  }
 
-  const closeAttemptedVoteAlert = () => {
+  function closeAttemptedVoteAlert() {
     setAttemptedOvervoteCandidate(undefined);
-  };
+  }
 
-  const clearCandidateIdPendingRemoval = () => {
+  function clearCandidateIdPendingRemoval() {
     setCandidatePendingRemoval(undefined);
-  };
+  }
 
-  const confirmRemovePendingWriteInCandidate = () => {
+  function confirmRemovePendingWriteInCandidate() {
     assert(candidatePendingRemoval);
     removeCandidateFromVote(candidatePendingRemoval.id);
     clearCandidateIdPendingRemoval();
-  };
+  }
 
-  const toggleWriteInCandidateModal = (newValue: boolean) => {
+  function toggleWriteInCandidateModal(newValue: boolean) {
     setWriteInCandidateModalIsOpen(newValue);
-  };
+  }
 
-  const initWriteInCandidate = () => {
+  function initWriteInCandidate() {
     toggleWriteInCandidateModal(true);
-  };
+  }
 
-  const addWriteInCandidate = () => {
+  function addWriteInCandidate() {
     const normalizedCandidateName = normalizeCandidateName(
       writeInCandidateName
     );
@@ -230,12 +232,12 @@ const CandidateContest = ({
     ]);
     setWriteInCandidateName('');
     toggleWriteInCandidateModal(false);
-  };
+  }
 
-  const cancelWriteInCandidateModal = () => {
+  function cancelWriteInCandidateModal() {
     setWriteInCandidateName('');
     toggleWriteInCandidateModal(false);
-  };
+  }
 
   const onKeyboardInput: EventTargetFunction = (event) => {
     const { key } = (event.target as HTMLElement).dataset;
@@ -252,9 +254,12 @@ const CandidateContest = ({
     });
   };
 
-  const keyDisabled = (key: string) =>
-    writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
-    key !== '⌫ delete';
+  function keyDisabled(key: string) {
+    return (
+      writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
+      key !== '⌫ delete'
+    );
+  }
 
   const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
     event
@@ -281,12 +286,12 @@ const CandidateContest = ({
     sc.scrollTo({ behavior: 'smooth', left: 0, top });
   };
 
-  const handleDisabledAddWriteInClick = () => {
+  function handleDisabledAddWriteInClick() {
     handleChangeVoteAlert({
       id: 'write-in',
       name: 'a write-in candidate',
     });
-  };
+  }
 
   const hasReachedMaxSelections = contest.seats === vote.length;
 
@@ -331,9 +336,9 @@ const CandidateContest = ({
                 {contest.candidates.map((candidate) => {
                   const isChecked = !!findCandidateById(vote, candidate.id);
                   const isDisabled = hasReachedMaxSelections && !isChecked;
-                  const handleDisabledClick = () => {
+                  function handleDisabledClick() {
                     handleChangeVoteAlert(candidate);
-                  };
+                  }
                   const party =
                     candidate.partyId &&
                     findPartyById(parties, candidate.partyId);
@@ -545,6 +550,6 @@ const CandidateContest = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default CandidateContest;

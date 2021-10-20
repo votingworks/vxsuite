@@ -4,7 +4,7 @@ import Screen from '../components/Screen';
 import Main, { MainChild } from '../components/Main';
 import StatusFooter from '../components/StatusFooter';
 
-export const InvalidCardScreen = (): JSX.Element => {
+export function InvalidCardScreen(): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -21,4 +21,4 @@ export const InvalidCardScreen = (): JSX.Element => {
       <StatusFooter />
     </Screen>
   );
-};
+}

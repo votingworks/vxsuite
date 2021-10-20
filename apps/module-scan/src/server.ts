@@ -703,10 +703,10 @@ export async function start({
       : new FujitsuScanner({ mode: ScannerMode.Gray });
   }
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined;
-  const workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> => {
+  function workerPoolProvider(): WorkerPool<workers.Input, workers.Output> {
     workerPool ??= childProcessPool(workers.workerPath, 2 /* front and back */);
     return workerPool;
-  };
+  }
   const resolvedImporter =
     importer ??
     new Importer({

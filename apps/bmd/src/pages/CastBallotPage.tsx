@@ -40,56 +40,60 @@ interface Props {
   showPostVotingInstructions: PostVotingInstructions;
 }
 
-const CastBallotPage = ({
+function CastBallotPage({
   hidePostVotingInstructions,
   showPostVotingInstructions,
-}: Props): JSX.Element => (
-  <Screen white>
-    <Main>
-      <MainChild centerVertical maxWidth={false}>
-        <Prose textCenter id="audiofocus" style={{ maxWidth: '65%' }}>
-          <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
-          <p>Your official ballot is printing. To finish voting you need to…</p>
-          <Instructions>
-            <li>
-              <SingleGraphic
-                aria-hidden
-                alt="Verify Your Printed Ballot"
-                src="/images/instructions-1-verify.svg"
-                style={{ left: '-0.75em' }}
-              />
-              <p>1. Review the votes on your printed ballot.</p>
-            </li>
-            <li>
-              <SingleGraphic
-                aria-hidden
-                alt="Cast Your Ballot"
-                src="/images/instructions-2-cast.svg"
-              />
-              <p>2. Place your ballot in the ballot box.</p>
-            </li>
-            {showPostVotingInstructions === 'card' && (
+}: Props): JSX.Element {
+  return (
+    <Screen white>
+      <Main>
+        <MainChild centerVertical maxWidth={false}>
+          <Prose textCenter id="audiofocus" style={{ maxWidth: '65%' }}>
+            <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
+            <p>
+              Your official ballot is printing. To finish voting you need to…
+            </p>
+            <Instructions>
               <li>
                 <SingleGraphic
                   aria-hidden
-                  alt="Return Voter Card"
-                  src="/images/instructions-3-return-card.svg"
-                  style={{ left: '0.5em' }}
+                  alt="Verify Your Printed Ballot"
+                  src="/images/instructions-1-verify.svg"
+                  style={{ left: '-0.75em' }}
                 />
-                <p>3. Return the card to a poll worker.</p>
+                <p>1. Review the votes on your printed ballot.</p>
               </li>
-            )}
-          </Instructions>
-          <h3>
-            <strong>Need help?</strong> Ask a poll worker.
-          </h3>
-        </Prose>
-        <Done>
-          <Button onPress={hidePostVotingInstructions}>Done</Button>
-        </Done>
-      </MainChild>
-    </Main>
-  </Screen>
-);
+              <li>
+                <SingleGraphic
+                  aria-hidden
+                  alt="Cast Your Ballot"
+                  src="/images/instructions-2-cast.svg"
+                />
+                <p>2. Place your ballot in the ballot box.</p>
+              </li>
+              {showPostVotingInstructions === 'card' && (
+                <li>
+                  <SingleGraphic
+                    aria-hidden
+                    alt="Return Voter Card"
+                    src="/images/instructions-3-return-card.svg"
+                    style={{ left: '0.5em' }}
+                  />
+                  <p>3. Return the card to a poll worker.</p>
+                </li>
+              )}
+            </Instructions>
+            <h3>
+              <strong>Need help?</strong> Ask a poll worker.
+            </h3>
+          </Prose>
+          <Done>
+            <Button onPress={hidePostVotingInstructions}>Done</Button>
+          </Done>
+        </MainChild>
+      </Main>
+    </Screen>
+  );
+}
 
 export default CastBallotPage;

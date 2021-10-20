@@ -12,11 +12,11 @@ interface Props {
   showNoChargerWarning: boolean;
 }
 
-const InsertBallotScreen = ({
+function InsertBallotScreen({
   isLiveMode,
   scannedBallotCount,
   showNoChargerWarning,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   return (
     <CenteredScreen>
       <TestMode isLiveMode={isLiveMode} />
@@ -43,11 +43,11 @@ const InsertBallotScreen = ({
       </Absolute>
     </CenteredScreen>
   );
-};
+}
 export default InsertBallotScreen;
 
 /* istanbul ignore next */
-export const ZeroBallotsScannedTestPreview = (): JSX.Element => {
+export function ZeroBallotsScannedTestPreview(): JSX.Element {
   return (
     <InsertBallotScreen
       isLiveMode={false}
@@ -55,10 +55,10 @@ export const ZeroBallotsScannedTestPreview = (): JSX.Element => {
       showNoChargerWarning={false}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const ManyBallotsScannedLivePreview = (): JSX.Element => {
+export function ManyBallotsScannedLivePreview(): JSX.Element {
   return (
     <InsertBallotScreen
       scannedBallotCount={1234}
@@ -66,10 +66,10 @@ export const ManyBallotsScannedLivePreview = (): JSX.Element => {
       showNoChargerWarning={false}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const NoPowerConnectedTestPreview = (): JSX.Element => {
+export function NoPowerConnectedTestPreview(): JSX.Element {
   return (
     <InsertBallotScreen
       isLiveMode={false}
@@ -77,4 +77,4 @@ export const NoPowerConnectedTestPreview = (): JSX.Element => {
       showNoChargerWarning
     />
   );
-};
+}

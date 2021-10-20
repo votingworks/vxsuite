@@ -35,7 +35,7 @@ export interface Props {
   storage: Storage;
 }
 
-const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
+function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   const [isEncodingCard, setIsEncodingCard] = useState(false);
   const [isWritableCard, setIsWritableCard] = useState(false);
   const [isCardPresent, setIsCardPresent] = useState(false);
@@ -96,25 +96,29 @@ const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
   );
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  const getPartyNameById = (partyId: string) => {
+  function getPartyNameById(partyId: string) {
     const party = election?.parties.find((p) => p.id === partyId);
     return party?.name ?? '';
-  };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  const getPartyAdjectiveById = (partyId: string) => {
+  function getPartyAdjectiveById(partyId: string) {
     const partyName = getPartyNameById(partyId);
     return (partyName === 'Democrat' && 'Democratic') || partyName;
-  };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  const getPrecinctNameByPrecinctId = (precinctId: string): string => {
+  function getPrecinctNameByPrecinctId(precinctId: string): string {
     const precinct = election?.precincts.find((p) => p.id === precinctId);
     return precinct?.name ?? '';
-  };
+  }
 
-  const getBallotStylesByPrecinctId = (id?: string): BallotStyle[] =>
-    election?.ballotStyles.filter((b) => !id || b.precincts.includes(id)) ?? [];
+  function getBallotStylesByPrecinctId(id?: string): BallotStyle[] {
+    return (
+      election?.ballotStyles.filter((b) => !id || b.precincts.includes(id)) ??
+      []
+    );
+  }
 
   const makeCancelable = useCancelablePromise();
   const [smartcard] = useSmartcard({ card, hardware });
@@ -258,6 +262,6 @@ const AppRoot = ({ card, hardware, storage }: Props): JSX.Element => {
     );
   }
   return <LoadElectionScreen />;
-};
+}
 
 export default AppRoot;

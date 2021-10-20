@@ -11,14 +11,14 @@ export interface Props {
   onClose: () => void;
 }
 
-const RemoveElectionModal = ({ onClose }: Props): JSX.Element => {
+function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const history = useHistory();
   const { saveElection } = useContext(AppContext);
 
-  const unconfigureElection = async () => {
+  async function unconfigureElection() {
     await saveElection(undefined);
     history.push(routerPaths.root);
-  };
+  }
 
   return (
     <Modal
@@ -40,6 +40,6 @@ const RemoveElectionModal = ({ onClose }: Props): JSX.Element => {
       }
     />
   );
-};
+}
 
 export default RemoveElectionModal;

@@ -24,7 +24,7 @@ import { MachineLockedScreen } from '../screens/MachineLockedScreen';
 import { InvalidCardScreen } from '../screens/InvalidCardScreen';
 import { UnlockMachineScreen } from '../screens/UnlockMachineScreen';
 
-const ElectionManager = (): JSX.Element => {
+function ElectionManager(): JSX.Element {
   const {
     electionDefinition,
     currentUserSession,
@@ -164,6 +164,6 @@ const ElectionManager = (): JSX.Element => {
       <Redirect to={routerPaths.ballotsList} />
     </Switch>
   );
-};
+}
 
 export default ElectionManager;

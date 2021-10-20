@@ -10,9 +10,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void;
 }
 
-const WrongPrecinctScreen = ({
+function WrongPrecinctScreen({
   useEffectToggleLargeDisplay,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
   useEffect(triggerAudioFocus, []);
@@ -30,6 +30,6 @@ const WrongPrecinctScreen = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default WrongPrecinctScreen;

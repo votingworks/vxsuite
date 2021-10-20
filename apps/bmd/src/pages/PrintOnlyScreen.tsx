@@ -47,7 +47,7 @@ interface Props {
 
 export const printingMessageTimeoutSeconds = 5;
 
-const PrintOnlyScreen = ({
+function PrintOnlyScreen({
   ballotStyleId,
   ballotsPrintedCount,
   electionDefinition,
@@ -60,7 +60,7 @@ const PrintOnlyScreen = ({
   showNoChargerAttachedWarning,
   updateTally,
   votes,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const printerTimer = useRef(0);
   const [okToPrint, setOkToPrint] = useState(true);
   const [isPrinted, updateIsPrinted] = useState(false);
@@ -116,7 +116,7 @@ const PrintOnlyScreen = ({
     };
   }, []);
 
-  const renderContent = () => {
+  function renderContent() {
     if (isVoterCardPresent && isCardVotesEmpty) {
       return (
         <React.Fragment>
@@ -183,7 +183,7 @@ const PrintOnlyScreen = ({
         </p>
       </React.Fragment>
     );
-  };
+  }
 
   return (
     <React.Fragment>
@@ -228,6 +228,6 @@ const PrintOnlyScreen = ({
         ))}
     </React.Fragment>
   );
-};
+}
 
 export default PrintOnlyScreen;

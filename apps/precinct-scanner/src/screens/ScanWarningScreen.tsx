@@ -31,11 +31,11 @@ interface OvervoteWarningScreenProps {
   acceptBallot: () => Promise<void>;
 }
 
-const OvervoteWarningScreen = ({
+function OvervoteWarningScreen({
   electionDefinition,
   overvotes,
   acceptBallot,
-}: OvervoteWarningScreenProps): JSX.Element => {
+}: OvervoteWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -103,7 +103,7 @@ const OvervoteWarningScreen = ({
       )}
     </CenteredScreen>
   );
-};
+}
 
 interface UndervoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
@@ -111,11 +111,11 @@ interface UndervoteWarningScreenProps {
   acceptBallot: () => Promise<void>;
 }
 
-const UndervoteWarningScreen = ({
+function UndervoteWarningScreen({
   electionDefinition,
   undervotes,
   acceptBallot,
-}: UndervoteWarningScreenProps): JSX.Element => {
+}: UndervoteWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -200,15 +200,15 @@ const UndervoteWarningScreen = ({
       )}
     </CenteredScreen>
   );
-};
+}
 
 interface BlankBallotWarningScreenProps {
   acceptBallot: () => Promise<void>;
 }
 
-const BlankBallotWarningScreen = ({
+function BlankBallotWarningScreen({
   acceptBallot,
-}: BlankBallotWarningScreenProps): JSX.Element => {
+}: BlankBallotWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -263,15 +263,15 @@ const BlankBallotWarningScreen = ({
       )}
     </CenteredScreen>
   );
-};
+}
 
 interface OtherReasonWarningScreenProps {
   acceptBallot: () => Promise<void>;
 }
 
-const OtherReasonWarningScreen = ({
+function OtherReasonWarningScreen({
   acceptBallot,
-}: OtherReasonWarningScreenProps): JSX.Element => {
+}: OtherReasonWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   const openConfirmTabulateModal = useCallback(
     () => setConfirmTabulate(true),
@@ -326,12 +326,12 @@ const OtherReasonWarningScreen = ({
       )}
     </CenteredScreen>
   );
-};
+}
 
-const ScanWarningScreen = ({
+function ScanWarningScreen({
   acceptBallot,
   adjudicationReasonInfo,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -374,12 +374,12 @@ const ScanWarningScreen = ({
   }
 
   return <OtherReasonWarningScreen acceptBallot={acceptBallot} />;
-};
+}
 
 export default ScanWarningScreen;
 
 /* istanbul ignore next */
-export const OvervotePreview = (): JSX.Element => {
+export function OvervotePreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -410,10 +410,10 @@ export const OvervotePreview = (): JSX.Element => {
       ]}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const UndervoteNoVotesPreview = (): JSX.Element => {
+export function UndervoteNoVotesPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -436,10 +436,10 @@ export const UndervoteNoVotesPreview = (): JSX.Element => {
       ]}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const UndervoteBy1Preview = (): JSX.Element => {
+export function UndervoteBy1Preview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -464,10 +464,10 @@ export const UndervoteBy1Preview = (): JSX.Element => {
       ]}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const UndervoteByNPreview = (): JSX.Element => {
+export function UndervoteByNPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -493,10 +493,10 @@ export const UndervoteByNPreview = (): JSX.Element => {
       ]}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const MultipleUndervotesPreview = (): JSX.Element => {
+export function MultipleUndervotesPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -517,20 +517,20 @@ export const MultipleUndervotesPreview = (): JSX.Element => {
       }))}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const BlankBallotPreview = (): JSX.Element => {
+export function BlankBallotPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const UninterpretableBallotPreview = (): JSX.Element => {
+export function UninterpretableBallotPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       acceptBallot={() => Promise.resolve()}
@@ -539,4 +539,4 @@ export const UninterpretableBallotPreview = (): JSX.Element => {
       ]}
     />
   );
-};
+}

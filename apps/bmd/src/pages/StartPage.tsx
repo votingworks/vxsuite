@@ -21,7 +21,7 @@ const SidebarSpacer = styled.div`
 
 type Props = RouteComponentProps<Record<string, string | undefined>>;
 
-const StartPage = ({ history }: Props): JSX.Element => {
+function StartPage({ history }: Props): JSX.Element {
   const {
     ballotStyleId,
     contests,
@@ -51,10 +51,10 @@ const StartPage = ({ history }: Props): JSX.Element => {
     ballotStyleId,
   });
 
-  const onStart = () => {
+  function onStart() {
     forceSaveVote();
     history.push('/contests/0');
-  };
+  }
 
   useEffect(() => {
     audioFocus.current?.click();
@@ -120,6 +120,6 @@ const StartPage = ({ history }: Props): JSX.Element => {
       </Sidebar>
     </Screen>
   );
-};
+}
 
 export default withRouter(StartPage);

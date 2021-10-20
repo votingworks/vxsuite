@@ -12,11 +12,11 @@ interface Props {
   isTestMode: boolean;
 }
 
-const ScanErrorScreen = ({
+function ScanErrorScreen({
   dismissError,
   rejectionReason,
   isTestMode,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   let errorInformation = '';
   if (rejectionReason && rejectionReason !== RejectedScanningReason.Unknown) {
     switch (rejectionReason) {
@@ -60,66 +60,66 @@ const ScanErrorScreen = ({
       )}
     </CenteredScreen>
   );
-};
+}
 
 export default ScanErrorScreen;
 
 /* istanbul ignore next */
-export const UnreadablePreview = (): JSX.Element => {
+export function UnreadablePreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
       rejectionReason={RejectedScanningReason.Unreadable}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const InvalidElectionHashPreview = (): JSX.Element => {
+export function InvalidElectionHashPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
       rejectionReason={RejectedScanningReason.InvalidElectionHash}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const InvalidTestModeBallotPreview = (): JSX.Element => {
+export function InvalidTestModeBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
       rejectionReason={RejectedScanningReason.InvalidTestMode}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const InvalidLiveModeBallotPreview = (): JSX.Element => {
+export function InvalidLiveModeBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode
       rejectionReason={RejectedScanningReason.InvalidTestMode}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const InvalidPrecinctPreview = (): JSX.Element => {
+export function InvalidPrecinctPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
       rejectionReason={RejectedScanningReason.InvalidPrecinct}
     />
   );
-};
+}
 
 /* istanbul ignore next */
-export const UnknownErrorPreview = (): JSX.Element => {
+export function UnknownErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
       rejectionReason={RejectedScanningReason.Unknown}
     />
   );
-};
+}

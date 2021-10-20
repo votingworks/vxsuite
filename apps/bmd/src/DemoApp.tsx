@@ -73,20 +73,20 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
 }
 
 /* istanbul ignore next */
-const DemoApp = ({
+function DemoApp({
   card = getSampleCard(),
   storage = getDemoStorage(),
   machineConfig = getSampleMachineConfigProvider(),
   hardware,
   ...rest
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = React.useState(hardware);
   React.useEffect(() => {
-    const updateHardware = async () => {
+    async function updateHardware() {
       if (internalHardware === undefined) {
         setInternalHardware(await MemoryHardware.buildDemo());
       }
-    };
+    }
     void updateHardware();
   }, [internalHardware]);
   if (internalHardware === undefined) {
@@ -101,6 +101,6 @@ const DemoApp = ({
       {...rest}
     />
   );
-};
+}
 
 export default DemoApp;

@@ -9,33 +9,38 @@ import { strict as assert } from 'assert';
 /**
  * Returns current UTC unix timestamp (epoch) in seconds
  */
-const utcTimestamp = (): number => Math.round(Date.now() / 1000);
+function utcTimestamp(): number {
+  return Math.round(Date.now() / 1000);
+}
 
-export const makeAdminCard = (
+export function makeAdminCard(
   electionHash: string,
   pin?: string
-): AdminCardData => ({
-  t: 'admin',
-  h: electionHash,
-  p: pin,
-});
+): AdminCardData {
+  return {
+    t: 'admin',
+    h: electionHash,
+    p: pin,
+  };
+}
 
-export const makePollWorkerCard = (
-  electionHash: string
-): PollworkerCardData => ({
-  t: 'pollworker',
-  h: electionHash,
-});
+export function makePollWorkerCard(electionHash: string): PollworkerCardData {
+  return {
+    t: 'pollworker',
+    h: electionHash,
+  };
+}
 
-export const makeInvalidPollWorkerCard = (): PollworkerCardData =>
-  makePollWorkerCard(
+export function makeInvalidPollWorkerCard(): PollworkerCardData {
+  return makePollWorkerCard(
     'd34db33f' // wrong election
   );
+}
 
-export const makeVoterCard = (
+export function makeVoterCard(
   election: Election,
   cardData: Partial<VoterCardData> = {}
-): VoterCardData => {
+): VoterCardData {
   const ballotStyle = cardData.bs
     ? election.ballotStyles.find(({ id }) => id === cardData.bs)
     : election.ballotStyles[0];
@@ -56,14 +61,16 @@ export const makeVoterCard = (
     bs: ballotStyle.id,
     ...cardData,
   };
-};
+}
 
-export const makeVoidedVoterCard = (election: Election): VoterCardData =>
-  makeVoterCard(election, {
+export function makeVoidedVoterCard(election: Election): VoterCardData {
+  return makeVoterCard(election, {
     uz: utcTimestamp(),
   });
+}
 
-export const makeUsedVoterCard = (election: Election): VoterCardData =>
-  makeVoterCard(election, {
+export function makeUsedVoterCard(election: Election): VoterCardData {
+  return makeVoterCard(election, {
     bp: utcTimestamp(),
   });
+}

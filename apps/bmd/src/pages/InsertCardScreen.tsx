@@ -28,7 +28,7 @@ interface Props {
   machineConfig: MachineConfig;
 }
 
-const InsertCardScreen = ({
+function InsertCardScreen({
   appPrecinct,
   electionDefinition,
   showNoChargerAttachedWarning,
@@ -36,7 +36,7 @@ const InsertCardScreen = ({
   isPollsOpen,
   showNoAccessibleControllerWarning,
   machineConfig,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   useEffect(triggerAudioFocus, []);
   return (
     <Screen flexDirection="row-reverse" white>
@@ -88,6 +88,6 @@ const InsertCardScreen = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default InsertCardScreen;

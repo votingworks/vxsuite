@@ -22,7 +22,7 @@ import LinkButton from '../components/LinkButton';
 type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 
-const PrintedBallotsReportScreen = (): JSX.Element => {
+function PrintedBallotsReportScreen(): JSX.Element {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   );
@@ -199,6 +199,6 @@ const PrintedBallotsReportScreen = (): JSX.Element => {
       </div>
     </React.Fragment>
   );
-};
+}
 
 export default PrintedBallotsReportScreen;

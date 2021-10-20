@@ -189,7 +189,7 @@ type AppAction =
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> };
 
-const appReducer = (state: State, action: AppAction): State => {
+function appReducer(state: State, action: AppAction): State {
   debug(
     '%cReducer "%s"',
     'color: green',
@@ -309,15 +309,15 @@ const appReducer = (state: State, action: AppAction): State => {
     default:
       throwIllegalValue(action);
   }
-};
+}
 
-const AppRoot = ({
+function AppRoot({
   hardware,
   card,
   printer,
   storage,
   machineConfig: machineConfigProvider,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
     electionDefinition,
@@ -400,7 +400,7 @@ const AppRoot = ({
 
   // Handle Machine Config
   useEffect(() => {
-    const setMachineConfig = async () => {
+    async function setMachineConfig() {
       try {
         const newMachineConfig = await machineConfigProvider.get();
         dispatchAppState({
@@ -410,7 +410,7 @@ const AppRoot = ({
       } catch {
         // Do nothing if machineConfig fails. Default values will be used.
       }
-    };
+    }
     void setMachineConfig();
   }, [machineConfigProvider]);
 
@@ -670,7 +670,7 @@ const AppRoot = ({
 
   // Initialize app state
   useEffect(() => {
-    const initializeScanner = async () => {
+    async function initializeScanner() {
       try {
         await refreshConfig();
       } catch (e) {
@@ -681,9 +681,9 @@ const AppRoot = ({
         endBallotStatusPolling();
         window.setTimeout(initializeScanner, 1000);
       }
-    };
+    }
 
-    const updateStateFromStorage = async () => {
+    async function updateStateFromStorage() {
       const storedAppState: Partial<State> =
         ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
         {};
@@ -694,7 +694,7 @@ const AppRoot = ({
         type: 'initializeAppState',
         isPollsOpen: storedIsPollsOpen,
       });
-    };
+    }
 
     void initializeScanner();
     void updateStateFromStorage();
@@ -719,23 +719,23 @@ const AppRoot = ({
   );
 
   useEffect(() => {
-    const storeAppState = async () => {
+    async function storeAppState() {
       await storage.set(stateStorageKey, {
         isPollsOpen,
       });
-    };
+    }
 
     void storeAppState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPollsOpen]);
 
-  const dismissError = () => {
+  function dismissError() {
     /* istanbul ignore next */
     if (timeoutToInsertScreen) {
       window.clearTimeout(timeoutToInsertScreen);
     }
     dispatchAppState({ type: 'readyToInsertBallot' });
-  };
+  }
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />;
@@ -896,6 +896,6 @@ const AppRoot = ({
       {voterScreen}
     </AppContext.Provider>
   );
-};
+}
 
 export default AppRoot;

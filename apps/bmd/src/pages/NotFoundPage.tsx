@@ -7,13 +7,13 @@ import BallotContext from '../contexts/ballotContext';
 import Prose from '../components/Prose';
 import Screen from '../components/Screen';
 
-const NotFoundPage = ({
+function NotFoundPage({
   location: { pathname },
-}: RouteComponentProps): JSX.Element => {
+}: RouteComponentProps): JSX.Element {
   const { resetBallot } = useContext(BallotContext);
-  const requestResetBallot = () => {
+  function requestResetBallot() {
     resetBallot();
-  };
+  }
   return (
     <Screen>
       <Main>
@@ -31,6 +31,6 @@ const NotFoundPage = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default NotFoundPage;

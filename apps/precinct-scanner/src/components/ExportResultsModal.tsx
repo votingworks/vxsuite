@@ -41,19 +41,19 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportResultsModal = ({
+function ExportResultsModal({
   onClose,
   usbDrive,
   scannedBallotCount,
   isTestMode,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
   const { electionDefinition, machineConfig } = useContext(AppContext);
   assert(electionDefinition);
 
-  const exportResults = async (openDialog: boolean) => {
+  async function exportResults(openDialog: boolean) {
     setCurrentState(ModalState.SAVING);
 
     try {
@@ -121,7 +121,7 @@ const ExportResultsModal = ({
       setErrorMessage(`Failed to save results. ${error.message}`);
       setCurrentState(ModalState.ERROR);
     }
-  };
+  }
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -276,6 +276,6 @@ const ExportResultsModal = ({
     default:
       throwIllegalValue(usbDrive.status);
   }
-};
+}
 
 export default ExportResultsModal;

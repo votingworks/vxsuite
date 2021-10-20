@@ -1,4 +1,5 @@
 import { DateTime, Duration } from 'luxon';
+import { find } from './find';
 
 export const AMERICA_TIMEZONES = [
   'Pacific/Honolulu',
@@ -25,20 +26,21 @@ function* getShortMonthNames(): Generator<string> {
 }
 export const MONTHS_SHORT = [...getShortMonthNames()];
 
-export const formatTimeZoneName = (date: DateTime): string =>
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  new Intl.DateTimeFormat(undefined, {
-    timeZoneName: 'long',
-    timeZone: date.zoneName,
-  })
-    .formatToParts(date.toJSDate())
-    .find((part) => part.type === 'timeZoneName')!.value;
+export function formatTimeZoneName(date: DateTime): string {
+  return find(
+    new Intl.DateTimeFormat(undefined, {
+      timeZoneName: 'long',
+      timeZone: date.zoneName,
+    }).formatToParts(date.toJSDate()),
+    (part) => part.type === 'timeZoneName'
+  ).value;
+}
 
-export const formatFullDateTimeZone = (
+export function formatFullDateTimeZone(
   date: DateTime,
   { includeTimezone = false } = {}
-): string | undefined =>
-  new Intl.DateTimeFormat(undefined, {
+): string | undefined {
+  return new Intl.DateTimeFormat(undefined, {
     timeZone: date.zoneName,
     weekday: 'short',
     month: 'short',
@@ -48,14 +50,16 @@ export const formatFullDateTimeZone = (
     minute: 'numeric',
     timeZoneName: includeTimezone ? 'short' : undefined,
   }).format(date.toJSDate());
+}
 
-export const formatLongDate = (date: DateTime, timeZone?: string): string =>
-  new Intl.DateTimeFormat(undefined, {
+export function formatLongDate(date: DateTime, timeZone?: string): string {
+  return new Intl.DateTimeFormat(undefined, {
     timeZone,
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   }).format(date.toJSDate());
+}
 
 /**
  * Get days in given month and year.

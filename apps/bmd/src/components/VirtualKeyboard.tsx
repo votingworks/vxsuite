@@ -104,30 +104,32 @@ const US_ENGLISH_KEYMAP: KeyMap = {
   ],
 };
 
-const VirtualKeyboard = ({
+function VirtualKeyboard({
   onKeyPress,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
-}: Props): JSX.Element => (
-  <Keyboard data-testid="virtual-keyboard">
-    {keyMap.rows.map((row) => {
-      return (
-        <div key={`row-${row.map((key) => key.label).join()}`}>
-          {row.map(({ label, ariaLabel }) => (
-            <Button
-              key={label}
-              data-key={label}
-              aria-label={ariaLabel ?? label.toLowerCase()}
-              onPress={onKeyPress}
-              disabled={keyDisabled?.(label)}
-            >
-              {label}
-            </Button>
-          ))}
-        </div>
-      );
-    })}
-  </Keyboard>
-);
+}: Props): JSX.Element {
+  return (
+    <Keyboard data-testid="virtual-keyboard">
+      {keyMap.rows.map((row) => {
+        return (
+          <div key={`row-${row.map((key) => key.label).join()}`}>
+            {row.map(({ label, ariaLabel }) => (
+              <Button
+                key={label}
+                data-key={label}
+                aria-label={ariaLabel ?? label.toLowerCase()}
+                onPress={onKeyPress}
+                disabled={keyDisabled?.(label)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        );
+      })}
+    </Keyboard>
+  );
+}
 
 export default VirtualKeyboard;

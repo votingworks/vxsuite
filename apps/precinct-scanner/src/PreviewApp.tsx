@@ -23,7 +23,7 @@ import * as SetupPowerPage from './screens/SetupPowerPage';
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen';
 import * as UnlockAdminScreen from './screens/UnlockAdminScreen';
 
-const PreviewApp = (): JSX.Element => {
+function PreviewApp(): JSX.Element {
   return (
     <PreviewDashboard
       electionDefinitions={[
@@ -48,6 +48,6 @@ const PreviewApp = (): JSX.Element => {
       ]}
     />
   );
-};
+}
 
 export default PreviewApp;

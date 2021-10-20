@@ -13,7 +13,7 @@ const StatusBar = styled.div`
   color: #ffffff;
 `;
 
-const StatusFooter = (): JSX.Element => {
+function StatusFooter(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   if (electionDefinition === undefined) {
     return <React.Fragment />;
@@ -35,6 +35,6 @@ const StatusFooter = (): JSX.Element => {
       </Text>
     </StatusBar>
   );
-};
+}
 
 export default StatusFooter;

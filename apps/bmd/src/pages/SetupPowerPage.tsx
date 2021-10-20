@@ -10,9 +10,7 @@ interface Props {
   useEffectToggleLargeDisplay: () => void;
 }
 
-const SetupPowerPage = ({
-  useEffectToggleLargeDisplay,
-}: Props): JSX.Element => {
+function SetupPowerPage({ useEffectToggleLargeDisplay }: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
 
@@ -33,6 +31,6 @@ const SetupPowerPage = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default SetupPowerPage;

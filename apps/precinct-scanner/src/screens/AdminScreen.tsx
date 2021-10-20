@@ -32,7 +32,7 @@ interface Props {
   usbDrive: UsbDrive;
 }
 
-const AdminScreen = ({
+function AdminScreen({
   scannedBallotCount,
   isTestMode,
   updateAppPrecinctId,
@@ -40,7 +40,7 @@ const AdminScreen = ({
   unconfigure,
   calibrate,
   usbDrive,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { electionDefinition, currentPrecinctId } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -92,16 +92,16 @@ const AdminScreen = ({
     await updateAppPrecinctId(event.currentTarget.value);
   };
 
-  const handleTogglingLiveMode = async () => {
+  async function handleTogglingLiveMode() {
     setIsLoading(true);
     await toggleLiveMode();
     setIsLoading(false);
-  };
+  }
 
-  const handleUnconfigure = async () => {
+  async function handleUnconfigure() {
     setIsLoading(true);
     await unconfigure();
-  };
+  }
 
   return (
     <CenteredScreen infoBarMode="admin">
@@ -242,7 +242,7 @@ const AdminScreen = ({
       )}
     </CenteredScreen>
   );
-};
+}
 
 export default AdminScreen;
 

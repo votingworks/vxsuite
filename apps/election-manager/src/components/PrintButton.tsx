@@ -20,7 +20,7 @@ interface PrintButtonProps extends StyledButtonProps {
   confirmModal?: ConfirmModal;
 }
 
-const PrintButton = ({
+function PrintButton({
   title,
   afterPrint,
   children,
@@ -28,13 +28,13 @@ const PrintButton = ({
   sides,
   confirmModal,
   ...rest
-}: React.PropsWithChildren<PrintButtonProps>): JSX.Element => {
+}: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
   const { printer } = useContext(AppContext);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [showPrintingError, setShowPrintingError] = useState(false);
 
-  const print = async () => {
+  async function print() {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
       if (!printers.some((p) => p.connected)) {
@@ -57,24 +57,24 @@ const PrintButton = ({
     }
 
     afterPrint?.();
-  };
+  }
 
-  const donePrintingError = () => {
+  function donePrintingError() {
     setShowPrintingError(false);
-  };
+  }
 
-  const initConfirmModal = () => {
+  function initConfirmModal() {
     setIsConfirming(true);
-  };
+  }
 
-  const cancelPrint = () => {
+  function cancelPrint() {
     setIsConfirming(false);
-  };
+  }
 
-  const confirmPrint = async () => {
+  async function confirmPrint() {
     setIsConfirming(false);
     await print();
-  };
+  }
 
   return (
     <React.Fragment>
@@ -115,6 +115,6 @@ const PrintButton = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default PrintButton;

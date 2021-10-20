@@ -38,14 +38,14 @@ enum ModalState {
   INIT = 'init',
 }
 
-const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
+function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
-  const exportBackup = async (openDialog: boolean) => {
+  async function exportBackup(openDialog: boolean) {
     setCurrentState(ModalState.SAVING);
 
     let result: Result<void, DownloadError>;
@@ -95,7 +95,7 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
       }
       setCurrentState(ModalState.ERROR);
     }
-  };
+  }
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -247,6 +247,6 @@ const ExportBackupModal = ({ onClose, usbDrive }: Props): JSX.Element => {
     default:
       throwIllegalValue(usbDrive.status);
   }
-};
+}
 
 export default ExportBackupModal;

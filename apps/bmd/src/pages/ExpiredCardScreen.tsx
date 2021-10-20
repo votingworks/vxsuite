@@ -10,9 +10,9 @@ interface Props {
   useEffectToggleLargeDisplay: () => void;
 }
 
-const ExpiredCardScreen = ({
+function ExpiredCardScreen({
   useEffectToggleLargeDisplay,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
   useEffect(triggerAudioFocus, []);
@@ -29,6 +29,6 @@ const ExpiredCardScreen = ({
       </Main>
     </Screen>
   );
-};
+}
 
 export default ExpiredCardScreen;

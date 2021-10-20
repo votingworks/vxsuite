@@ -11,18 +11,18 @@ import AppRoot, { Props as AppRootProps } from './AppRoot';
 
 export type Props = Partial<AppRootProps>;
 
-const App = ({
+function App({
   hardware,
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   const makeCancelable = useCancelablePromise();
   useEffect(() => {
-    const updateHardware = async () => {
+    async function updateHardware() {
       const newInternalHardware = await makeCancelable(getHardware());
       setInternalHardware((prev) => prev ?? newInternalHardware);
-    };
+    }
     void updateHardware();
   }, [makeCancelable]);
 
@@ -31,6 +31,6 @@ const App = ({
   }
 
   return <AppRoot card={card} hardware={internalHardware} storage={storage} />;
-};
+}
 
 export default App;

@@ -27,13 +27,13 @@ export interface Props {
   value: DateTime;
 }
 
-const PickDateTimeModal = ({
+function PickDateTimeModal({
   disabled = false,
   onCancel,
   onSave,
   saveLabel,
   value: currentValue,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [newValue, setNewValue] = useState(currentValue);
   const systemMeridian = newValue.hour < 12 ? 'AM' : 'PM';
 
@@ -87,9 +87,9 @@ const PickDateTimeModal = ({
     },
     [newValue, setNewValue]
   );
-  const saveDateAndZone = async () => {
+  async function saveDateAndZone() {
     onSave(newValue);
-  };
+  }
 
   return (
     <Modal
@@ -266,6 +266,6 @@ const PickDateTimeModal = ({
       }
     />
   );
-};
+}
 
 export default PickDateTimeModal;

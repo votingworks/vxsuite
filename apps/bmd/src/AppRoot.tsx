@@ -257,7 +257,7 @@ type AppAction =
       tallyOnCard?: PrecinctScannerCardTally;
     };
 
-const appReducer = (state: State, action: AppAction): State => {
+function appReducer(state: State, action: AppAction): State {
   const resetTally = {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
   };
@@ -459,9 +459,9 @@ const appReducer = (state: State, action: AppAction): State => {
     default:
       throwIllegalValue(action);
   }
-};
+}
 
-const AppRoot = ({
+function AppRoot({
   card,
   hardware,
   history,
@@ -469,7 +469,7 @@ const AppRoot = ({
   printer,
   screenReader,
   storage,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
@@ -538,9 +538,9 @@ const AppRoot = ({
 
   // Handle Storing Election Locally
   useEffect(() => {
-    const storeElection = async (electionDefinition: ElectionDefinition) => {
+    async function storeElection(electionDefinition: ElectionDefinition) {
       await storage.set(electionStorageKey, electionDefinition);
-    };
+    }
     if (optionalElectionDefinition) {
       void storeElection(optionalElectionDefinition);
     }
@@ -548,7 +548,7 @@ const AppRoot = ({
 
   // Handle Vote Updated (and store votes locally in !production)
   useEffect(() => {
-    const storeVotes = async (votesToStore: VotesDict) => {
+    async function storeVotes(votesToStore: VotesDict) {
       const storedVotes =
         (await storage.get(votesStorageKey)) || blankBallotVotes;
       if (JSON.stringify(storedVotes) !== JSON.stringify(votesToStore)) {
@@ -559,7 +559,7 @@ const AppRoot = ({
 
         dispatchAppState({ type: 'updateLastVoteUpdateAt', date: Date.now() });
       }
-    };
+    }
     if (votes) {
       void storeVotes(votes);
     }
@@ -578,10 +578,10 @@ const AppRoot = ({
     [storage, history]
   );
 
-  const hidePostVotingInstructions = () => {
+  function hidePostVotingInstructions() {
     clearTimeout(PostVotingInstructionsTimeout.current);
     dispatchAppState({ type: 'resetBallot' });
-  };
+  }
 
   // Hide Verify and Cast Instructions
   useEffect(() => {
@@ -715,6 +715,12 @@ const AppRoot = ({
     history.push('/');
   }, [history]);
 
+  const fetchBallotData = useCallback(async () => {
+    const longValue = await card.readLongUint8Array();
+    assert(longValue && optionalElectionDefinition);
+    return decodeBallot(optionalElectionDefinition.election, longValue);
+  }, [card, optionalElectionDefinition]);
+
   const processCard = useCallback(
     async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
       const parseShortValueResult = safeParseJSON(
@@ -746,12 +752,6 @@ const AppRoot = ({
           });
           const newIsVoterCardValid =
             Boolean(cardBallotStyle) && Boolean(cardPrecinct);
-
-          const fetchBallotData = async () => {
-            const longValue = await card.readLongUint8Array();
-            assert(longValue);
-            return decodeBallot(optionalElectionDefinition.election, longValue);
-          };
 
           const ballot: Partial<CompletedBallot> =
             (longValueExists &&
@@ -809,7 +809,7 @@ const AppRoot = ({
           throwIllegalValue(cardData);
       }
     },
-    [card, optionalElectionDefinition]
+    [card, fetchBallotData, optionalElectionDefinition]
   );
 
   const cardShortValueReadInterval = useInterval(async () => {
@@ -1088,7 +1088,7 @@ const AppRoot = ({
 
   // Handle Machine Config
   useEffect(() => {
-    const setMachineConfig = async () => {
+    async function setMachineConfig() {
       try {
         const newMachineConfig = await machineConfigProvider.get();
         dispatchAppState({
@@ -1098,7 +1098,7 @@ const AppRoot = ({
       } catch {
         // Do nothing if machineConfig fails. Default values will be used.
       }
-    };
+    }
     void setMachineConfig();
   }, [machineConfigProvider]);
 
@@ -1116,19 +1116,22 @@ const AppRoot = ({
 
   // Bootstraps the AppRoot Component
   useEffect(() => {
-    const updateStorage = async () => {
+    async function updateStorage() {
       // TODO: validate this with zod schema
-      const retrieveVotes = async () =>
-        (await storage.get(votesStorageKey)) as VotesDict | undefined;
+      async function retrieveVotes() {
+        return (await storage.get(votesStorageKey)) as VotesDict | undefined;
+      }
       // TODO: validate this with zod schema
       const storedElectionDefinition = (await storage.get(
         electionStorageKey
       )) as ElectionDefinition | undefined;
-      const retrieveBallotActivation = async (): Promise<SerializableActivationData> =>
-        // TODO: validate this with zod schema
-        ((await storage.get(activationStorageKey)) as
-          | SerializableActivationData
-          | undefined) || (({} as unknown) as SerializableActivationData);
+      async function retrieveBallotActivation(): Promise<SerializableActivationData> {
+        return (
+          ((await storage.get(activationStorageKey)) as
+            | SerializableActivationData
+            | undefined) || (({} as unknown) as SerializableActivationData)
+        );
+      }
 
       const storedAppState: Partial<State> =
         // TODO: validate this with zod schema
@@ -1160,7 +1163,7 @@ const AppRoot = ({
           votes: await retrieveVotes(),
         },
       });
-    };
+    }
     void updateStorage();
     startCardShortValueReadPolling();
     startLongValueWritePolling();
@@ -1180,12 +1183,13 @@ const AppRoot = ({
 
   // Handle Ballot Activation (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
-    const updateStorage = async () =>
-      await storage.set(activationStorageKey, {
+    async function updateStorage() {
+      return await storage.set(activationStorageKey, {
         ballotStyleId,
         isCardlessVoter,
         precinctId,
       });
+    }
     if (precinctId && ballotStyleId) {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
@@ -1196,7 +1200,7 @@ const AppRoot = ({
 
   // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
-    const storeAppState = async () => {
+    async function storeAppState() {
       if (initializedFromStorage) {
         await storage.set(stateStorageKey, {
           appPrecinct,
@@ -1205,7 +1209,7 @@ const AppRoot = ({
           isPollsOpen,
         });
       }
-    };
+    }
 
     void storeAppState();
   }, [
@@ -1424,6 +1428,6 @@ const AppRoot = ({
     );
   }
   return <UnconfiguredScreen />;
-};
+}
 
 export default AppRoot;

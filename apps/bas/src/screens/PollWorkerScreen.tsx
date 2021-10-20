@@ -10,7 +10,7 @@ interface Props {
   lockScreen: () => void;
 }
 
-const PollWorkerScreen = ({ lockScreen }: Props): JSX.Element => {
+function PollWorkerScreen({ lockScreen }: Props): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -28,6 +28,6 @@ const PollWorkerScreen = ({ lockScreen }: Props): JSX.Element => {
       </MainNav>
     </Screen>
   );
-};
+}
 
 export default PollWorkerScreen;

@@ -11,7 +11,7 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 interface Props {
   mode?: InfoBarMode;
 }
-const ElectionInfoBar = ({ mode = 'voter' }: Props): JSX.Element => {
+function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
   );
@@ -66,6 +66,6 @@ const ElectionInfoBar = ({ mode = 'voter' }: Props): JSX.Element => {
       </Prose>
     </Bar>
   );
-};
+}
 
 export default ElectionInfoBar;

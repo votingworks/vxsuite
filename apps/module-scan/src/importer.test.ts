@@ -328,7 +328,7 @@ test('scanning pauses on adjudication then continues', async () => {
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
   };
-  const mockGetNextAdjudicationSheet = async (): Promise<BallotSheetInfo> => {
+  async function mockGetNextAdjudicationSheet(): Promise<BallotSheetInfo> {
     return {
       id: 'mock-sheet-id',
       front: {
@@ -340,7 +340,7 @@ test('scanning pauses on adjudication then continues', async () => {
         interpretation: { type: 'BlankPage' },
       },
     };
-  };
+  }
 
   const importer = new Importer({
     workspace,

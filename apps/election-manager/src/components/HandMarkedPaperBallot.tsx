@@ -55,10 +55,11 @@ function hasVote(vote: Vote | undefined, optionId: string): boolean {
   );
 }
 
-const localeDateLong = (dateString: string, locale: string) =>
-  moment(new Date(dateString)).locale(locale).format('LL');
+function localeDateLong(dateString: string, locale: string) {
+  return moment(new Date(dateString)).locale(locale).format('LL');
+}
 
-const dualPhraseWithBreak = (t1: string, t2?: string) => {
+function dualPhraseWithBreak(t1: string, t2?: string) {
   if (!t2 || t1 === t2) {
     return t1;
   }
@@ -69,16 +70,16 @@ const dualPhraseWithBreak = (t1: string, t2?: string) => {
       {t2}
     </React.Fragment>
   );
-};
+}
 
-const dualPhraseWithSlash = (
+function dualPhraseWithSlash(
   t1: string,
   t2?: string,
   {
     separator = ' / ',
     normal = false,
   }: { separator?: string; normal?: boolean } = {}
-) => {
+) {
   if (!t2 || t1 === t2) {
     return t1;
   }
@@ -94,32 +95,34 @@ const dualPhraseWithSlash = (
     );
   }
   return `${t1}${separator}${t2}`;
-};
+}
 
-const dualLanguageComposer = (
+function dualLanguageComposer(
   t: TFunction,
   locales: BallotLocale,
   separator?: string
-) => (key: string, options?: StringMap) => {
-  const enTranslation = t(key, {
-    ...options,
-    lng: locales.primary,
-  });
-  if (!locales.secondary) {
-    return enTranslation;
-  }
-  const dualTranslation = t(key, {
-    ...options,
-    lng: locales.secondary,
-  });
-  if (separator === 'break') {
-    return dualPhraseWithBreak(enTranslation, dualTranslation);
-  }
-  return dualPhraseWithSlash(enTranslation, dualTranslation, {
-    separator,
-    normal: true,
-  });
-};
+) {
+  return (key: string, options?: StringMap) => {
+    const enTranslation = t(key, {
+      ...options,
+      lng: locales.primary,
+    });
+    if (!locales.secondary) {
+      return enTranslation;
+    }
+    const dualTranslation = t(key, {
+      ...options,
+      lng: locales.secondary,
+    });
+    if (separator === 'break') {
+      return dualPhraseWithBreak(enTranslation, dualTranslation);
+    }
+    return dualPhraseWithSlash(enTranslation, dualTranslation, {
+      separator,
+      normal: true,
+    });
+  };
+}
 
 const qrCodeTargetClassName = 'qr-code-target';
 
@@ -406,22 +409,24 @@ interface ContestProps {
   children: React.ReactNode;
   density?: number;
 }
-export const Contest = ({
+export function Contest({
   section,
   title,
   children,
   density,
-}: ContestProps): JSX.Element => (
-  <StyledContest density={density}>
-    <Prose density={density}>
-      <Text small bold>
-        {section}
-      </Text>
-      <h3>{title}</h3>
-      {children}
-    </Prose>
-  </StyledContest>
-);
+}: ContestProps): JSX.Element {
+  return (
+    <StyledContest density={density}>
+      <Prose density={density}>
+        <Text small bold>
+          {section}
+        </Text>
+        <h3>{title}</h3>
+        {children}
+      </Prose>
+    </StyledContest>
+  );
+}
 const StyledColumnFooter = styled.div`
   page-break-inside: avoid;
 `;
@@ -445,13 +450,13 @@ export interface CandidateContestChoicesProps {
   density?: number;
 }
 
-export const CandidateContestChoices = ({
+export function CandidateContestChoices({
   contest,
   density,
   locales,
   parties,
   vote,
-}: CandidateContestChoicesProps): JSX.Element => {
+}: CandidateContestChoicesProps): JSX.Element {
   const { t } = useTranslation();
   const writeInCandidates = vote?.filter((c) => c.isWriteIn);
   const remainingChoices = [...Array.from({ length: contest.seats }).keys()];
@@ -500,7 +505,7 @@ export const CandidateContestChoices = ({
         ))}
     </React.Fragment>
   );
-};
+}
 
 export interface HandMarkedPaperBallotProps {
   ballotStyleId: string;
@@ -516,7 +521,7 @@ export interface HandMarkedPaperBallotProps {
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
 }
 
-const HandMarkedPaperBallot = ({
+function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   electionHash,
@@ -528,7 +533,7 @@ const HandMarkedPaperBallot = ({
   ballotId,
   votes,
   onRendered,
-}: HandMarkedPaperBallotProps): JSX.Element => {
+}: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
   assert.notEqual(
     locales.primary,
@@ -1132,6 +1137,6 @@ const HandMarkedPaperBallot = ({
       </Content>
     </Ballot>
   );
-};
+}
 
 export default HandMarkedPaperBallot;

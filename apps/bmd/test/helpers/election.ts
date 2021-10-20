@@ -72,17 +72,17 @@ export const voterContests = getContests({
   election,
 });
 
-export const setElectionInStorage = async (
+export async function setElectionInStorage(
   storage: Storage,
   newElectionDefinition = electionDefinition
-): Promise<void> => {
+): Promise<void> {
   await storage.set(electionStorageKey, newElectionDefinition);
-};
+}
 
-export const setStateInStorage = async (
+export async function setStateInStorage(
   storage: Storage,
   state: Partial<State> = {}
-): Promise<void> => {
+): Promise<void> {
   const storedState: Partial<State> = {
     appPrecinct: {
       kind: PrecinctSelectionKind.SinglePrecinct,
@@ -94,4 +94,4 @@ export const setStateInStorage = async (
     ...state,
   };
   await storage.set(stateStorageKey, storedState);
-};
+}

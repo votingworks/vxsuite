@@ -21,7 +21,7 @@ export interface Props extends RouteComponentProps {
   screenReader: ScreenReader;
 }
 
-const FocusManager = ({
+function FocusManager({
   onKeyPress,
   onClick,
   onFocus,
@@ -31,10 +31,10 @@ const FocusManager = ({
   children,
   screenReader,
   location,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const screen = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const onPageLoad = () => {
+    function onPageLoad() {
       void screenReader.onPageLoad();
 
       // can't seem to find a better way than this, unfortunately.
@@ -48,7 +48,7 @@ const FocusManager = ({
         elementToFocus?.focus();
         elementToFocus?.click();
       }, 150);
-    };
+    }
     onPageLoad();
   }, [location.pathname, screenReader]);
 
@@ -66,6 +66,6 @@ const FocusManager = ({
       {children}
     </StyledFocusManager>
   );
-};
+}
 
 export default withRouter(FocusManager);

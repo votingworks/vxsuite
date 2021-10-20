@@ -27,21 +27,21 @@ const defaultStorage = window.kiosk
   ? new KioskStorage(window.kiosk)
   : new LocalStorage();
 
-const App = ({
+function App({
   hardware,
   card = new WebServiceCard(),
   storage = defaultStorage,
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   const makeCancelable = useCancelablePromise();
 
   useEffect(() => {
-    const updateHardware = async () => {
+    async function updateHardware() {
       const newHardware = await makeCancelable(getHardware());
       setInternalHardware((prev) => prev ?? newHardware);
-    };
+    }
     void updateHardware();
   }, [makeCancelable]);
 
@@ -66,6 +66,6 @@ const App = ({
       />
     </BrowserRouter>
   );
-};
+}
 
 export default App;

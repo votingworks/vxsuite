@@ -22,20 +22,20 @@ export interface Props {
   storage?: AppRootProps['storage'];
 }
 
-const App = ({
+function App({
   hardware,
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
-    const updateHardware = async () => {
+    async function updateHardware() {
       if (internalHardware === undefined) {
         setInternalHardware(await getHardware());
       }
-    };
+    }
     void updateHardware();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardware]);
@@ -60,6 +60,6 @@ const App = ({
       />
     </BrowserRouter>
   );
-};
+}
 
 export default App;

@@ -16,11 +16,11 @@ interface LoadingProps {
   as?: keyof JSX.IntrinsicElements;
 }
 
-export const Loading = ({
+export function Loading({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
-}: LoadingProps): JSX.Element => {
+}: LoadingProps): JSX.Element {
   const content = (
     <Prose>
       {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}
@@ -33,4 +33,4 @@ export const Loading = ({
     return <Fullscreen>{content}</Fullscreen>;
   }
   return content;
-};
+}

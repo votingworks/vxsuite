@@ -10,7 +10,7 @@ interface Props {
   scannedBallotCount: number;
 }
 
-const ScanSuccessScreen = ({ scannedBallotCount }: Props): JSX.Element => {
+function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
     <CenteredScreen>
       <CircleCheck />
@@ -32,11 +32,11 @@ const ScanSuccessScreen = ({ scannedBallotCount }: Props): JSX.Element => {
       </Absolute>
     </CenteredScreen>
   );
-};
+}
 
 export default ScanSuccessScreen;
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
+export function DefaultPreview(): JSX.Element {
   return <ScanSuccessScreen scannedBallotCount={1} />;
-};
+}

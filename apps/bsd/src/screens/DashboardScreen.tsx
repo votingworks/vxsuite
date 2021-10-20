@@ -20,14 +20,16 @@ const Scanning = styled.em`
   color: rgb(71, 167, 75);
 `;
 
-const z2 = (number: number) => number.toString().padStart(2, '0');
+function z2(number: number) {
+  return number.toString().padStart(2, '0');
+}
 
-const shortDateTime = (iso8601Timestamp: string) => {
+function shortDateTime(iso8601Timestamp: string) {
   const d = new Date(iso8601Timestamp);
   return `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(
     d.getDate()
   )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
-};
+}
 
 interface Props {
   isScanning: boolean;
@@ -35,11 +37,11 @@ interface Props {
   deleteBatch(batchId: string): Promise<void>;
 }
 
-const DashboardScreen = ({
+function DashboardScreen({
   isScanning,
   status,
   deleteBatch,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { batches } = status;
   const batchCount = batches.length;
   const ballotCount = batches.reduce((result, b) => result + b.count, 0);
@@ -180,6 +182,6 @@ const DashboardScreen = ({
       )}
     </React.Fragment>
   );
-};
+}
 
 export default DashboardScreen;

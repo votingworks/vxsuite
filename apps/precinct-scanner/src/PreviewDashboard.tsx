@@ -69,10 +69,10 @@ const ConfigBox = styled.div`
   width: auto;
 `;
 
-const PreviewDashboard = ({
+function PreviewDashboard({
   modules,
   electionDefinitions: initialElectionDefinitions,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const previewables = modules.map(getPreviews);
   const [electionDefinition, setElectionDefinition] = useState(
     initialElectionDefinitions[0]
@@ -185,6 +185,6 @@ const PreviewDashboard = ({
       </BrowserRouter>
     </AppContext.Provider>
   );
-};
+}
 
 export default PreviewDashboard;

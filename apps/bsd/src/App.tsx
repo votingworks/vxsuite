@@ -11,14 +11,14 @@ export interface Props {
   hardware?: AppRootProps['hardware'];
 }
 
-const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
+function App({ hardware, card = new WebServiceCard() }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
-    const updateHardware = async () => {
+    async function updateHardware() {
       if (internalHardware === undefined) {
         setInternalHardware(await getHardware());
       }
-    };
+    }
     void updateHardware();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardware]);
@@ -33,6 +33,6 @@ const App = ({ hardware, card = new WebServiceCard() }: Props): JSX.Element => {
       </Route>
     </BrowserRouter>
   );
-};
+}
 
 export default App;

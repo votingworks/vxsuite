@@ -13,19 +13,19 @@ import RemoveCardScreen from '../pages/RemoveCardScreen';
 import CastBallotPage from '../pages/CastBallotPage';
 import { IDLE_TIMEOUT_SECONDS } from '../config/globals';
 
-const Ballot = (): JSX.Element => {
+function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
 
-  const onActive = () => {
+  function onActive() {
     // Delay to avoid passing tap to next screen
     window.setTimeout(() => {
       setIsIdle(false);
     }, 200);
-  };
+  }
 
-  const onIdle = () => {
+  function onIdle() {
     setIsIdle(true);
-  };
+  }
 
   return (
     <IdleTimer
@@ -51,6 +51,6 @@ const Ballot = (): JSX.Element => {
       )}
     </IdleTimer>
   );
-};
+}
 
 export default Ballot;

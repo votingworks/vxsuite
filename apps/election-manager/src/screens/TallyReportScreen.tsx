@@ -58,7 +58,7 @@ const TallyReportPreview = styled(TallyReport)`
   }
 `;
 
-const TallyReportScreen = (): JSX.Element => {
+function TallyReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -114,7 +114,7 @@ const TallyReportScreen = (): JSX.Element => {
 
   let fileSuffix = precinctName;
   let batchLabel = '';
-  const reportDisplayTitle = () => {
+  function reportDisplayTitle() {
     if (precinctName) {
       return `${statusPrefix} Precinct Tally Report for ${precinctName}`;
     }
@@ -151,7 +151,7 @@ const TallyReportScreen = (): JSX.Element => {
       return `${statusPrefix} ${label} Ballot Tally Report`;
     }
     return `${statusPrefix} ${election.title} Tally Report`;
-  };
+  }
 
   const defaultReportFilename = generateDefaultReportFilename(
     'tabulation-report',
@@ -159,9 +159,9 @@ const TallyReportScreen = (): JSX.Element => {
     fileSuffix
   );
 
-  const toggleReportPreview = () => {
+  function toggleReportPreview() {
     setShowPreview((s) => !s);
-  };
+  }
 
   const generatedAtTime = new Date();
 
@@ -407,6 +407,6 @@ const TallyReportScreen = (): JSX.Element => {
       </TallyReport>
     </React.Fragment>
   );
-};
+}
 
 export default TallyReportScreen;

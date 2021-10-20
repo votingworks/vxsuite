@@ -26,11 +26,11 @@ interface Props {
   unconfigure(): Promise<void>;
 }
 
-const BriefElectionDefinitionInfo = ({
+function BriefElectionDefinitionInfo({
   electionDefinition,
 }: {
   electionDefinition: ElectionDefinition;
-}) => {
+}) {
   const { election, electionHash } = electionDefinition;
   const displayElectionHash = electionHash.slice(0, 10);
   return (
@@ -49,9 +49,9 @@ const BriefElectionDefinitionInfo = ({
       </li>
     </ul>
   );
-};
+}
 
-const ReplaceElectionScreen = ({
+function ReplaceElectionScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -59,7 +59,7 @@ const ReplaceElectionScreen = ({
   machineConfig,
   screenReader,
   unconfigure,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const [
     cardElectionDefinition,
@@ -150,6 +150,6 @@ const ReplaceElectionScreen = ({
       </Sidebar>
     </Screen>
   );
-};
+}
 
 export default ReplaceElectionScreen;

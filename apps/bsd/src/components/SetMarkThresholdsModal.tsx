@@ -41,12 +41,12 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   definite: 0.25,
 };
 
-const SetMarkThresholdsModal = ({
+function SetMarkThresholdsModal({
   onClose,
   markThresholds,
   markThresholdOverrides,
   setMarkThresholdOverrides,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [currentState, setCurrentState] = useState<ModalState>(
     markThresholdOverrides === undefined
       ? ModalState.CONFIRM_INTENT
@@ -65,7 +65,7 @@ const SetMarkThresholdsModal = ({
     defaultMarginalThreshold.toString()
   );
 
-  const overrideThresholds = async (definite: string, marginal: string) => {
+  async function overrideThresholds(definite: string, marginal: string) {
     setCurrentState(ModalState.SAVING);
     try {
       const definiteFloat = parseFloat(definite);
@@ -89,9 +89,9 @@ const SetMarkThresholdsModal = ({
       setCurrentState(ModalState.ERROR);
       setErrorMessage(`Error setting thresholds: ${error.message}`);
     }
-  };
+  }
 
-  const resetThresholds = async () => {
+  async function resetThresholds() {
     setCurrentState(ModalState.SAVING);
     try {
       await setMarkThresholdOverrides(undefined);
@@ -100,7 +100,7 @@ const SetMarkThresholdsModal = ({
       setCurrentState(ModalState.ERROR);
       setErrorMessage(`Error setting thresholds: ${error.message}`);
     }
-  };
+  }
 
   switch (currentState) {
     case ModalState.SAVING:
@@ -237,6 +237,6 @@ const SetMarkThresholdsModal = ({
     default:
       throwIllegalValue(currentState);
   }
-};
+}
 
 export default SetMarkThresholdsModal;

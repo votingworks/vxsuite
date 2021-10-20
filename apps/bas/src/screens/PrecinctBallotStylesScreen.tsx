@@ -27,7 +27,7 @@ interface Props {
   showPrecincts: () => void;
 }
 
-const PrecinctBallotStylesScreen = ({
+function PrecinctBallotStylesScreen({
   isSinglePrecinctMode,
   lockScreen,
   partyId,
@@ -35,7 +35,7 @@ const PrecinctBallotStylesScreen = ({
   precinctName,
   programCard,
   showPrecincts,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const ballotStyles = partyId
     ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
     : precinctBallotStyles;
@@ -82,6 +82,6 @@ const PrecinctBallotStylesScreen = ({
       </MainNav>
     </Screen>
   );
-};
+}
 
 export default PrecinctBallotStylesScreen;

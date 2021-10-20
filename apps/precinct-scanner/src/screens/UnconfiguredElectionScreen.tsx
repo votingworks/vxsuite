@@ -21,10 +21,10 @@ interface Props {
   ) => Promise<void>;
 }
 
-const UnconfiguredElectionScreen = ({
+function UnconfiguredElectionScreen({
   usbDriveStatus,
   setElectionDefinition,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false);
 
@@ -42,7 +42,7 @@ const UnconfiguredElectionScreen = ({
   const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
   useEffect(() => {
-    const attemptToLoadBallotPackageFromUSB = async () => {
+    async function attemptToLoadBallotPackageFromUSB() {
       if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
         setErrorMessage('');
         setIsLoadingBallotPackage(false);
@@ -115,7 +115,7 @@ const UnconfiguredElectionScreen = ({
         }
         setIsLoadingBallotPackage(false);
       }
-    };
+    }
 
     // function handles its own errors, so no `.catch` needed
     void attemptToLoadBallotPackageFromUSB();
@@ -193,16 +193,16 @@ const UnconfiguredElectionScreen = ({
   }
 
   return <CenteredScreen infoBar={false}>{content}</CenteredScreen>;
-};
+}
 
 export default UnconfiguredElectionScreen;
 
 /* istanbul ignore next */
-export const DefaultPreview = (): JSX.Element => {
+export function DefaultPreview(): JSX.Element {
   return (
     <UnconfiguredElectionScreen
       usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
       setElectionDefinition={() => Promise.resolve()}
     />
   );
-};
+}

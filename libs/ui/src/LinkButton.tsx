@@ -12,7 +12,7 @@ export interface LinkButtonProps
   to?: string;
 }
 
-const LinkButton = (props: LinkButtonProps): JSX.Element => {
+function LinkButton(props: LinkButtonProps): JSX.Element {
   const {
     goBack,
     history,
@@ -41,6 +41,6 @@ const LinkButton = (props: LinkButtonProps): JSX.Element => {
       onPress={handleOnPress}
     />
   );
-};
+}
 
 export default withRouter(LinkButton);

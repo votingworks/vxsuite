@@ -16,7 +16,7 @@ interface Props {
   lockScreen: () => void;
 }
 
-const InsertCardScreen = ({ lockScreen }: Props): JSX.Element => {
+function InsertCardScreen({ lockScreen }: Props): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -37,6 +37,6 @@ const InsertCardScreen = ({ lockScreen }: Props): JSX.Element => {
       </MainNav>
     </Screen>
   );
-};
+}
 
 export default InsertCardScreen;

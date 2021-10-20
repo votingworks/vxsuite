@@ -56,7 +56,7 @@ beforeEach(() => {
   });
 });
 
-const authenticateWithAdminCard = async (card: MemoryCard) => {
+async function authenticateWithAdminCard(card: MemoryCard) {
   // Machine should be locked
   await screen.findByText('Machine Locked');
   card.insertCard({
@@ -73,7 +73,7 @@ const authenticateWithAdminCard = async (card: MemoryCard) => {
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
   await act(async () => await sleep(100));
-};
+}
 
 test('renders without crashing', async () => {
   const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;

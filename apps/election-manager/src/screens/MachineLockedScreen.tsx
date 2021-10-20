@@ -11,7 +11,7 @@ const LockedImage = styled.img`
   height: 20vw;
 `;
 
-export const MachineLockedScreen = (): JSX.Element => {
+export function MachineLockedScreen(): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -26,4 +26,4 @@ export const MachineLockedScreen = (): JSX.Element => {
       <StatusFooter />
     </Screen>
   );
-};
+}

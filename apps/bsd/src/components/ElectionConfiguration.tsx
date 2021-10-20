@@ -44,10 +44,10 @@ export interface Props {
   ): Promise<void>;
 }
 
-const ElectionConfiguration = ({
+function ElectionConfiguration({
   acceptAutomaticallyChosenFile: acceptAutomaticallyChosenFileFromProps,
   acceptManuallyChosenFile: acceptManuallyChosenFileFromProps,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const [foundFilenames, setFoundFilenames] = useState<
     KioskBrowser.FileSystemEntry[]
   >([]);
@@ -55,23 +55,23 @@ const ElectionConfiguration = ({
   const [errorMessage, setErrorMessage] = useState('');
   const { usbDriveStatus, usbDriveEject, lockMachine } = useContext(AppContext);
 
-  const acceptAutomaticallyChosenFile = async (
+  async function acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
-  ) => {
+  ) {
     try {
       await acceptAutomaticallyChosenFileFromProps(file);
     } catch (error) {
       setErrorMessage(error.message);
     }
-  };
+  }
 
-  const acceptManuallyChosenFile = async (file: File) => {
+  async function acceptManuallyChosenFile(file: File) {
     try {
       await acceptManuallyChosenFileFromProps(file);
     } catch (error) {
       setErrorMessage(error.message);
     }
-  };
+  }
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true);
@@ -106,13 +106,13 @@ const ElectionConfiguration = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDriveStatus]);
 
-  const handleFileInput = async (event: React.FormEvent<HTMLInputElement>) => {
+  async function handleFileInput(event: React.FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const file = input.files && input.files[0];
     if (file) {
       await acceptManuallyChosenFile(file);
     }
-  };
+  }
 
   const mainNav = (
     <MainNav isTestMode={false}>
@@ -318,6 +318,6 @@ const ElectionConfiguration = ({
       {mainNav}
     </Screen>
   );
-};
+}
 
 export default ElectionConfiguration;

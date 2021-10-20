@@ -47,13 +47,13 @@ export function normalizeWriteInId(candidateId: string): string {
   return candidateId;
 }
 
-export const buildVoteFromCvr = ({
+export function buildVoteFromCvr({
   election,
   cvr,
 }: {
   election: Election;
   cvr: CastVoteRecord;
-}): VotesDict => {
+}): VotesDict {
   const vote: VotesDict = {};
   const mutableCVR = { ...cvr };
 
@@ -94,7 +94,7 @@ export const buildVoteFromCvr = ({
   }
 
   return vote;
-};
+}
 
 /**
  * Gets all the vote options a voter can make for a given yes/no contest.

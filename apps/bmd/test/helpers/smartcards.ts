@@ -129,31 +129,36 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
   }
 );
 
-export const makeAlternateNewVoterCard = (): VoterCardData =>
-  makeVoterCard(election, {
+export function makeAlternateNewVoterCard(): VoterCardData {
+  return makeVoterCard(election, {
     pr: altPrecinctId,
     bs: altBallotStyleId,
   });
+}
 
-export const makeOtherElectionVoterCard = (
+export function makeOtherElectionVoterCard(
   e = electionWithMsEitherNeither
-): VoterCardData => makeVoterCard(e);
+): VoterCardData {
+  return makeVoterCard(e);
+}
 
-export const makeExpiredVoterCard = (e = election): VoterCardData =>
-  makeVoterCard(e, {
+export function makeExpiredVoterCard(e = election): VoterCardData {
+  return makeVoterCard(e, {
     c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
   });
+}
 
-export const makeUsedVoterCard = (e = election): VoterCardData =>
-  makeUsedVoterCardForElection(e);
+export function makeUsedVoterCard(e = election): VoterCardData {
+  return makeUsedVoterCardForElection(e);
+}
 
-export const advanceTimers = (seconds = 0): void => {
+export function advanceTimers(seconds = 0): void {
   testUtils.advanceTimers(seconds || GLOBALS.CARD_POLLING_INTERVAL / 1000);
-};
+}
 
-export const advanceTimersAndPromises = async (seconds = 0): Promise<void> => {
+export async function advanceTimersAndPromises(seconds = 0): Promise<void> {
   advanceTimers(seconds);
   await waitFor(() => {
     // Wait for promises.
   });
-};
+}

@@ -15,10 +15,10 @@ import { throwIllegalValue } from './throwIllegalValue';
 /**
  * A compressed tally
  */
-export const compressTally = (
+export function compressTally(
   election: Election,
   tally: Tally
-): CompressedTally => {
+): CompressedTally {
   // eslint-disable-next-line array-callback-return
   return election.contests.map((contest) => {
     switch (contest.type) {
@@ -69,12 +69,12 @@ export const compressTally = (
         throwIllegalValue(contest, 'type');
     }
   });
-};
+}
 
-const getContestTalliesForCompressedContest = (
+function getContestTalliesForCompressedContest(
   contest: AnyContest,
   compressedContest: number[]
-): ContestTally[] => {
+): ContestTally[] {
   switch (contest.type) {
     case 'yesno': {
       const [undervotes, overvotes, ballots, yes, no] = compressedContest;
@@ -207,14 +207,14 @@ const getContestTalliesForCompressedContest = (
     default:
       throwIllegalValue(contest, 'type');
   }
-};
+}
 
-export const readCompressedTally = (
+export function readCompressedTally(
   election: Election,
   serializedTally: CompressedTally,
   totalBallotCount: number,
   ballotCountsByVotingMethod: Dictionary<number>
-): Tally => {
+): Tally {
   const contestTallies: Dictionary<ContestTally> = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
     const serializedContestTally = serializedTally[contestIdx];
@@ -233,4 +233,4 @@ export const readCompressedTally = (
     contestTallies,
     ballotCountsByVotingMethod,
   };
-};
+}

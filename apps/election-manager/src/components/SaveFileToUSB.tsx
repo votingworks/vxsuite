@@ -45,13 +45,13 @@ enum ModalState {
   INIT = 'init',
 }
 
-const SaveFileToUSB = ({
+function SaveFileToUSB({
   onClose,
   generateFileContent,
   defaultFilename,
   fileType,
   promptToEjectUSB = false,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { usbDriveStatus, usbDriveEject, isOfficialResults } = useContext(
     AppContext
   );
@@ -61,7 +61,7 @@ const SaveFileToUSB = ({
 
   const [savedFilename, setSavedFilename] = useState('');
 
-  const exportResults = async (openFileDialog: boolean) => {
+  async function exportResults(openFileDialog: boolean) {
     setCurrentState(ModalState.SAVING);
 
     try {
@@ -97,7 +97,7 @@ const SaveFileToUSB = ({
       setErrorMessage(error.message);
       setCurrentState(ModalState.ERROR);
     }
-  };
+  }
 
   let title = ''; // Will be used in headings like Save Title
   let fileName = ''; // Will be used in sentence like "Would you like to save the title?"
@@ -268,6 +268,6 @@ const SaveFileToUSB = ({
       // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
       throwIllegalValue(usbDriveStatus);
   }
-};
+}
 
 export default SaveFileToUSB;

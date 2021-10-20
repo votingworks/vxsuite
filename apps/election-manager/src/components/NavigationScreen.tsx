@@ -17,14 +17,17 @@ interface Props {
   mainChildFlex?: boolean;
 }
 
-const NavigationScreen = ({
+function NavigationScreen({
   children,
   mainChildCenter = false,
   mainChildFlex = false,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const location = useLocation();
-  const isActiveSection = (path: string) =>
-    new RegExp(`^${path}`).test(location.pathname) ? 'active-section' : '';
+  function isActiveSection(path: string) {
+    return new RegExp(`^${path}`).test(location.pathname)
+      ? 'active-section'
+      : '';
+  }
 
   const {
     electionDefinition,
@@ -91,6 +94,6 @@ const NavigationScreen = ({
       <StatusFooter />
     </Screen>
   );
-};
+}
 
 export default NavigationScreen;
