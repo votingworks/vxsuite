@@ -58,7 +58,7 @@ interface Key {
 }
 
 interface KeyMap {
-  rows: Key[][];
+  rows: Array<Key[]>;
 }
 
 const US_ENGLISH_KEYMAP: KeyMap = {

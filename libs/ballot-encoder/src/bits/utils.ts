@@ -65,8 +65,8 @@ export function sizeof(number: number): number {
 /**
  * Groups `array` into arrays of size `count`.
  */
-export function inGroupsOf<T>(count: number, array: T[]): T[][] {
-  const result: T[][] = [];
+export function inGroupsOf<T>(count: number, array: T[]): Array<T[]> {
+  const result: Array<T[]> = [];
 
   for (let i = 0; i < array.length; i += count) {
     result.push(array.slice(i, i + count));

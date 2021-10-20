@@ -195,12 +195,12 @@ interface GenerateTestDeckParams {
 export function generateTestDeckBallots({
   election,
   precinctId,
-}: GenerateTestDeckParams): Dictionary<string | VotesDict>[] {
+}: GenerateTestDeckParams): Array<Dictionary<string | VotesDict>> {
   const precincts: string[] = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id);
 
-  const ballots: Dictionary<string | VotesDict>[] = [];
+  const ballots: Array<Dictionary<string | VotesDict>> = [];
 
   for (const currentPrecinctId of precincts) {
     const precinct = find(

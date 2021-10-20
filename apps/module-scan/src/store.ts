@@ -1019,7 +1019,7 @@ export default class Store {
   }
 
   async getHmpbTemplates(): Promise<
-    [Buffer, SerializableBallotPageLayout[]][]
+    Array<[Buffer, SerializableBallotPageLayout[]]>
   > {
     const rows = await this.dbAllAsync<
       { id: string; pdf: Buffer; layoutsJSON: string; metadataJSON: string },
@@ -1035,7 +1035,7 @@ export default class Store {
         order by created_at asc
       `
     );
-    const results: [Buffer, SerializableBallotPageLayout[]][] = [];
+    const results: Array<[Buffer, SerializableBallotPageLayout[]]> = [];
 
     for (const { id, pdf, metadataJSON, layoutsJSON } of rows) {
       const metadata: BallotMetadata = JSON.parse(metadataJSON);
@@ -1100,7 +1100,7 @@ export default class Store {
 
   async getContestIdsForMetadata(
     metadata: BallotPageMetadata
-  ): Promise<AnyContest['id'][]> {
+  ): Promise<Array<AnyContest['id']>> {
     const electionDefinition = await this.getElectionDefinition();
 
     if (!electionDefinition) {

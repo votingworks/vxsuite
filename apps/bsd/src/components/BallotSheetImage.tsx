@@ -5,7 +5,7 @@ import React, { useCallback, useRef, useState } from 'react';
 export interface Props {
   imageURL: string;
   layout?: SerializableBallotPageLayout;
-  contestIds?: readonly Contest['id'][];
+  contestIds?: ReadonlyArray<Contest['id']>;
   styleForContest?(contestId: Contest['id']): React.CSSProperties;
   onMouseEnterContest?(contestId: Contest['id']): void;
   onMouseLeaveContest?(contestId: Contest['id']): void;

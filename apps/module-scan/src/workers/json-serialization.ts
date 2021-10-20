@@ -19,7 +19,7 @@ export interface SerializedArray {
   __dataType__: 'Array';
   // TODO: replace `unknown` with `SerializedMessage` after upgrading
   // to TS 4.1+, which has support for circular type references.
-  value: Array<unknown>;
+  value: unknown[];
 }
 
 export interface SerializedObject {

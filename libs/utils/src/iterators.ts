@@ -54,8 +54,12 @@ export function zip<T, U, V, W, X>(
  *
  * @throws if not all iterables are the same length
  */
-export function zip(...iterables: Iterable<unknown>[]): Generator<unknown[]>;
-export function* zip(...iterables: Iterable<unknown>[]): Generator<unknown[]> {
+export function zip(
+  ...iterables: Array<Iterable<unknown>>
+): Generator<unknown[]>;
+export function* zip(
+  ...iterables: Array<Iterable<unknown>>
+): Generator<unknown[]> {
   const iterators = iterables.map((iterable) => iterable[Symbol.iterator]());
 
   while (true) {
@@ -118,9 +122,11 @@ export function zipMin<T, U, V, W, X>(
 /**
  * Yields tuples of `iterables.length` length from each iterable.
  */
-export function zipMin(...iterables: Iterable<unknown>[]): Generator<unknown[]>;
+export function zipMin(
+  ...iterables: Array<Iterable<unknown>>
+): Generator<unknown[]>;
 export function* zipMin(
-  ...iterables: Iterable<unknown>[]
+  ...iterables: Array<Iterable<unknown>>
 ): Generator<unknown[]> {
   const iterators = iterables.map((iterable) => iterable[Symbol.iterator]());
 

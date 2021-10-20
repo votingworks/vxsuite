@@ -129,8 +129,8 @@ export function buildCastVoteRecordVotesEntries(
   contests: Contests,
   votes: VotesDict,
   markAdjudications?: MarkAdjudications
-): Dictionary<ContestOption['id'][]> {
-  const result: Dictionary<ContestOption['id'][]> = {};
+): Dictionary<Array<ContestOption['id']>> {
+  const result: Dictionary<Array<ContestOption['id']>> = {};
 
   for (const contest of contests) {
     const resolvedOptionIds: ContestOptionPair[] = [];

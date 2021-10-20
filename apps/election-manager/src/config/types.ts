@@ -121,7 +121,7 @@ export interface CastVoteRecord
 
 export type CastVoteRecordFileMode = 'test' | 'live';
 
-export type CastVoteRecordLists = ReadonlyArray<ReadonlyArray<CastVoteRecord>>;
+export type CastVoteRecordLists = ReadonlyArray<readonly CastVoteRecord[]>;
 
 export interface CastVoteRecordFile {
   readonly name: string;

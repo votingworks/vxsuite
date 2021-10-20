@@ -227,7 +227,7 @@ export async function run(
     }
   }
 
-  const results: { input: Input; interpreted: Interpreted }[] = [];
+  const results: Array<{ input: Input; interpreted: Interpreted }> = [];
 
   for (const ballotInput of ballotInputs) {
     results.push({
@@ -315,7 +315,7 @@ export async function run(
                     .join(', ') ?? ''
                 );
               }
-              const yesnos = vote as ('yes' | 'no')[] | undefined;
+              const yesnos = vote as Array<'yes' | 'no'> | undefined;
               return (
                 yesnos
                   ?.map((v) =>

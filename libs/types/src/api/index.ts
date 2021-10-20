@@ -15,7 +15,7 @@ export const OkResponseSchema: z.ZodSchema<OkResponse> = z.object({
 
 export interface ErrorsResponse {
   status: 'error';
-  errors: { type: string; message: string }[];
+  errors: Array<{ type: string; message: string }>;
 }
 
 export const ErrorsResponseSchema: z.ZodSchema<ErrorsResponse> = z.object({

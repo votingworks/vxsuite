@@ -372,10 +372,9 @@ interface ContestAdjudicationProps {
   imageURL: string;
   contest: CandidateContest;
   layout: BallotPageContestLayout;
-  writeInsForContest: readonly (
-    | WriteInAdjudicationReasonInfo
-    | UnmarkedWriteInAdjudicationReasonInfo
-  )[];
+  writeInsForContest: ReadonlyArray<
+    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
+  >;
   onChange?(adjudication: WriteInMarkAdjudication): void;
   adjudications: readonly WriteInMarkAdjudication[];
   writeInPresets: CandidateNamesByContestId;
@@ -428,7 +427,7 @@ function WriteInAdjudicationByContest({
   imageURL: string;
   interpretation: InterpretedHmpbPage;
   layout: SerializableBallotPageLayout;
-  contestIds: readonly Contest['id'][];
+  contestIds: ReadonlyArray<Contest['id']>;
   adjudications: readonly WriteInMarkAdjudication[];
   onContestChange?(contestId?: Contest['id']): void;
   onAdjudicationChanged?(adjudication: WriteInMarkAdjudication): void;
@@ -552,7 +551,7 @@ export interface Props {
   imageURL: string;
   interpretation: InterpretedHmpbPage;
   layout: SerializableBallotPageLayout;
-  contestIds: readonly Contest['id'][];
+  contestIds: ReadonlyArray<Contest['id']>;
   onAdjudicationComplete?(
     sheetId: string,
     side: Side,

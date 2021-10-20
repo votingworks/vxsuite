@@ -176,7 +176,7 @@ export function arbitraryCandidateContest({
 }: {
   id?: fc.Arbitrary<CandidateContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
-  partyIds?: fc.Arbitrary<Party['id'][]>;
+  partyIds?: fc.Arbitrary<Array<Party['id']>>;
 } = {}): fc.Arbitrary<CandidateContest> {
   return fc.record({
     type: fc.constant('candidate'),
@@ -225,7 +225,9 @@ export function arbitraryMsEitherNeitherContest({
 
 export function arbitraryContests({
   partyIds,
-}: { partyIds?: fc.Arbitrary<Party['id'][]> } = {}): fc.Arbitrary<Contests> {
+}: {
+  partyIds?: fc.Arbitrary<Array<Party['id']>>;
+} = {}): fc.Arbitrary<Contests> {
   return fc
     .tuple(
       fc.array(arbitraryCandidateContest({ partyIds })),
@@ -265,8 +267,8 @@ export function arbitraryBallotStyle({
   precinctIds = fc.array(arbitraryId()),
 }: {
   id?: fc.Arbitrary<BallotStyle['id']>;
-  districtIds?: fc.Arbitrary<District['id'][]>;
-  precinctIds?: fc.Arbitrary<Precinct['id'][]>;
+  districtIds?: fc.Arbitrary<Array<District['id']>>;
+  precinctIds?: fc.Arbitrary<Array<Precinct['id']>>;
 } = {}): fc.Arbitrary<BallotStyle> {
   return fc.record({
     id,

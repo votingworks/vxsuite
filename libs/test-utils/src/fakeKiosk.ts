@@ -46,7 +46,7 @@ export function fakeKiosk({
   printers = [{}],
 }: {
   battery?: Partial<KioskBrowser.BatteryInfo>;
-  printers?: Partial<KioskBrowser.PrinterInfo>[];
+  printers?: Array<Partial<KioskBrowser.PrinterInfo>>;
 } = {}): jest.Mocked<KioskBrowser.Kiosk> & {
   devices: BehaviorSubject<Set<KioskBrowser.Device>>;
   printers: BehaviorSubject<Set<KioskBrowser.PrinterInfo>>;

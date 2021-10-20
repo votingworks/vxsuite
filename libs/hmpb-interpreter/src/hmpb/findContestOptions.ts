@@ -10,11 +10,11 @@ import {
  * option target bounds.
  */
 export default function findContestOptions(
-  contests: readonly {
+  contests: ReadonlyArray<{
     bounds: Rect;
     corners: Corners;
     targets: readonly TargetShape[];
-  }[],
+  }>,
   { topMarginPercent = 3 } = {}
 ): readonly BallotPageContestLayout[] {
   return contests.map(({ bounds, corners, targets }) =>

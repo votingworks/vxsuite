@@ -691,7 +691,7 @@ export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkA
 export interface OvervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Overvote;
   contestId: Contest['id'];
-  optionIds: readonly ContestOption['id'][];
+  optionIds: ReadonlyArray<ContestOption['id']>;
   optionIndexes: readonly number[];
   expected: number;
 }
@@ -708,7 +708,7 @@ export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicat
 export interface UndervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Undervote;
   contestId: Contest['id'];
-  optionIds: readonly ContestOption['id'][];
+  optionIds: ReadonlyArray<ContestOption['id']>;
   optionIndexes: readonly number[];
   expected: number;
 }
@@ -1215,7 +1215,7 @@ export function getEitherNeitherContests(
 
 export function expandEitherNeitherContests(
   contests: Contests
-): Exclude<AnyContest, MsEitherNeitherContest>[] {
+): Array<Exclude<AnyContest, MsEitherNeitherContest>> {
   return contests.flatMap((contest) =>
     contest.type !== 'ms-either-neither'
       ? [contest]

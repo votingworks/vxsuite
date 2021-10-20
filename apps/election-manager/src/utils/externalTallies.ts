@@ -40,7 +40,7 @@ export function convertExternalTalliesToStorageString(
 export function convertStorageStringToExternalTallies(
   inputString: string
 ): FullElectionExternalTally[] {
-  const parsedJSON = JSON.parse(inputString) as Record<string, unknown>[];
+  const parsedJSON = JSON.parse(inputString) as Array<Record<string, unknown>>;
   return parsedJSON.map((data) => {
     const {
       overallTally,
@@ -56,7 +56,7 @@ export function convertStorageStringToExternalTallies(
       source,
       inputSourceName,
       resultsByCategory: new Map(
-        resultsByCategory as readonly (readonly [unknown, unknown])[]
+        resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
       ),
       timestampCreated: new Date(timestampCreated as number),
     } as FullElectionExternalTally;
@@ -81,7 +81,7 @@ export function getTotalNumberOfBallots(
   // Break the sets of contest IDs into disjoint sets, so contests that are never seen on the same ballot style.
   for (const contest of election.contests) {
     const combinedSetForContest = new Set<string>();
-    const newListOfContestIdSets: Set<string>[] = [];
+    const newListOfContestIdSets: Array<Set<string>> = [];
     for (const contestIdSet of contestIdSets) {
       if (contestIdSet.has(contest.id)) {
         for (const id of contestIdSet) combinedSetForContest.add(id);

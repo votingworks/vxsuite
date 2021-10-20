@@ -231,11 +231,11 @@ export default function* findContests(
 
 export interface BallotLayoutCorrespondence {
   corresponds: boolean;
-  mismatchedContests: {
+  mismatchedContests: Array<{
     template: BallotPageContestLayout;
     ballot: BallotPageContestLayout;
     definition: AnyContest;
-  }[];
+  }>;
 }
 
 export function findBallotLayoutCorrespondence(

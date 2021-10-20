@@ -87,7 +87,7 @@ export default async function main(
     const dir = dirname(path);
     const ext = extname(path);
     const base = basename(path, ext);
-    const queue: { pdf: Buffer; base: string }[] = [];
+    const queue: Array<{ pdf: Buffer; base: string }> = [];
 
     if (ext === '.pdf') {
       queue.push({ pdf: await fs.readFile(path), base });

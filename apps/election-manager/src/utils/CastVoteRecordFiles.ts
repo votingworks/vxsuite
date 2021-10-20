@@ -54,7 +54,7 @@ function mapAdd<K, V>(
 }
 
 function mixedTestModeCVRs(
-  castVoteRecords: ReadonlyArray<ReadonlyArray<CastVoteRecord>>
+  castVoteRecords: ReadonlyArray<readonly CastVoteRecord[]>
 ) {
   let liveSeen = false;
   let testSeen = false;
@@ -114,7 +114,7 @@ export default class CastVoteRecordFiles {
     private readonly duplicateFilenames: ReadonlySet<string>,
     private readonly parseFailedErrors: ReadonlyMap<string, string>,
     private readonly allCastVoteRecords: ReadonlyArray<
-      ReadonlyArray<CastVoteRecord>
+      readonly CastVoteRecord[]
     >
   ) {}
 
