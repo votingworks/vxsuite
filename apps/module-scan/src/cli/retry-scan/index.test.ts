@@ -139,7 +139,7 @@ test('query with sheet ids', () => {
   `);
 });
 
-test('full rescan', async () => {
+(process.env.CI ? test.skip : test)('full rescan', async () => {
   const inputWorkspace = await createWorkspace(dirSync().name);
   const { store } = inputWorkspace;
 
@@ -220,83 +220,91 @@ test('full rescan', async () => {
   );
 });
 
-test('writing output to another database', async () => {
-  const inputWorkspace = await createWorkspace(dirSync().name);
-  const outputWorkspace = await createWorkspace(dirSync().name);
-  const inputDb = inputWorkspace.store;
+(process.env.CI ? test.skip : test)(
+  'writing output to another database',
+  async () => {
+    const inputWorkspace = await createWorkspace(dirSync().name);
+    const outputWorkspace = await createWorkspace(dirSync().name);
+    const inputDb = inputWorkspace.store;
 
-  await inputDb.setElection({
-    election: fixtures.election,
-    electionData: JSON.stringify(fixtures.election),
-    electionHash: '02f807b005e006da160b',
-  });
+    await inputDb.setElection({
+      election: fixtures.election,
+      electionData: JSON.stringify(fixtures.election),
+      electionHash: '02f807b005e006da160b',
+    });
 
-  const batchId = await inputDb.addBatch();
-  await inputDb.addSheet('a-test-sheet-id', batchId, [
-    {
-      interpretation: {
-        type: 'UnreadablePage',
-        reason: 'just because, okay?',
+    const batchId = await inputDb.addBatch();
+    await inputDb.addSheet('a-test-sheet-id', batchId, [
+      {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'just because, okay?',
+        },
+        originalFilename: fixtures.blankPage1,
+        normalizedFilename: fixtures.blankPage1,
       },
-      originalFilename: fixtures.blankPage1,
-      normalizedFilename: fixtures.blankPage1,
-    },
-    {
-      interpretation: {
-        type: 'UnreadablePage',
-        reason: 'just because, okay?',
+      {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'just because, okay?',
+        },
+        originalFilename: fixtures.blankPage2,
+        normalizedFilename: fixtures.blankPage2,
       },
-      originalFilename: fixtures.blankPage2,
-      normalizedFilename: fixtures.blankPage2,
-    },
-  ]);
+    ]);
 
-  const pageInterpreted = jest.fn();
-  await retryScan(
-    parseOptions([
-      '--input-workspace',
-      inputWorkspace.path,
-      '--output-workspace',
-      outputWorkspace.path,
-      '--all',
-    ]),
-    { pageInterpreted }
-  );
+    const pageInterpreted = jest.fn();
+    await retryScan(
+      parseOptions([
+        '--input-workspace',
+        inputWorkspace.path,
+        '--output-workspace',
+        outputWorkspace.path,
+        '--all',
+      ]),
+      { pageInterpreted }
+    );
 
-  expect(pageInterpreted).toHaveBeenCalledTimes(2);
-  expect(pageInterpreted).toHaveBeenNthCalledWith(
-    1,
-    'a-test-sheet-id',
-    expect.any(String), // 'front' | 'back'
-    expect.objectContaining({
-      interpretation: { type: 'UnreadablePage', reason: 'just because, okay?' },
-    }),
-    expect.objectContaining({
-      interpretation: expect.objectContaining({
-        type: 'UninterpretedHmpbPage',
+    expect(pageInterpreted).toHaveBeenCalledTimes(2);
+    expect(pageInterpreted).toHaveBeenNthCalledWith(
+      1,
+      'a-test-sheet-id',
+      expect.any(String), // 'front' | 'back'
+      expect.objectContaining({
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'just because, okay?',
+        },
       }),
-    })
-  );
-  expect(pageInterpreted).toHaveBeenNthCalledWith(
-    2,
-    'a-test-sheet-id',
-    expect.any(String), // 'front' | 'back'
-    expect.objectContaining({
-      interpretation: { type: 'UnreadablePage', reason: 'just because, okay?' },
-    }),
-    expect.objectContaining({
-      interpretation: expect.objectContaining({
-        type: 'UninterpretedHmpbPage',
+      expect.objectContaining({
+        interpretation: expect.objectContaining({
+          type: 'UninterpretedHmpbPage',
+        }),
+      })
+    );
+    expect(pageInterpreted).toHaveBeenNthCalledWith(
+      2,
+      'a-test-sheet-id',
+      expect.any(String), // 'front' | 'back'
+      expect.objectContaining({
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'just because, okay?',
+        },
       }),
-    })
-  );
+      expect.objectContaining({
+        interpretation: expect.objectContaining({
+          type: 'UninterpretedHmpbPage',
+        }),
+      })
+    );
 
-  const outputDb = outputWorkspace.store;
-  expect(
-    await outputDb.dbAllAsync(
-      'select id, front_interpretation_json, back_interpretation_json from sheets'
-    )
-  ).toMatchInlineSnapshot(`
+    const outputDb = outputWorkspace.store;
+    expect(
+      await outputDb.dbAllAsync(
+        'select id, front_interpretation_json, back_interpretation_json from sheets'
+      )
+    ).toMatchInlineSnapshot(`
     Array [
       Object {
         "back_interpretation_json": "{\\"type\\":\\"UninterpretedHmpbPage\\",\\"metadata\\":{\\"electionHash\\":\\"02f807b005e006da160b\\",\\"precinctId\\":\\"6538\\",\\"ballotStyleId\\":\\"1\\",\\"locales\\":{\\"primary\\":\\"en-US\\"},\\"pageNumber\\":2,\\"isTestMode\\":false,\\"ballotType\\":0}}",
@@ -305,4 +313,5 @@ test('writing output to another database', async () => {
       },
     ]
   `);
-});
+  }
+);
