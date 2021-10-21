@@ -683,8 +683,8 @@ export default class Store {
           id: string;
           frontInterpretationJSON: string;
           backInterpretationJSON: string;
-          frontFinishedAdjudicationAt?: string;
-          backFinishedAdjudicationAt?: string;
+          frontFinishedAdjudicationAt: string | null;
+          backFinishedAdjudicationAt: string | null;
         }
       | undefined;
 
@@ -699,14 +699,14 @@ export default class Store {
             url: `/scan/hmpb/ballot/${row.id}/front/image/normalized`,
           },
           interpretation: JSON.parse(row.frontInterpretationJSON),
-          adjudicationFinishedAt: row.frontFinishedAdjudicationAt,
+          adjudicationFinishedAt: row.frontFinishedAdjudicationAt ?? undefined,
         },
         back: {
           image: {
             url: `/scan/hmpb/ballot/${row.id}/back/image/normalized`,
           },
           interpretation: JSON.parse(row.backInterpretationJSON),
-          adjudicationFinishedAt: row.backFinishedAdjudicationAt,
+          adjudicationFinishedAt: row.backFinishedAdjudicationAt ?? undefined,
         },
       };
     }
@@ -910,11 +910,11 @@ export default class Store {
     } of (await this.dbAllAsync(sql)) as Array<{
       id: string;
       batchId: string;
-      batchLabel?: string;
+      batchLabel: string | null;
       frontInterpretationJSON: string;
       backInterpretationJSON: string;
-      frontAdjudicationJSON?: string;
-      backAdjudicationJSON?: string;
+      frontAdjudicationJSON: string | null;
+      backAdjudicationJSON: string | null;
     }>) {
       const frontInterpretation: PageInterpretation = JSON.parse(
         frontInterpretationJSON
