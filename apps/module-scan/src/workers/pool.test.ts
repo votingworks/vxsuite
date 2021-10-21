@@ -2,17 +2,18 @@
 import { EventEmitter } from 'events';
 import { makeMockWorkerOps } from '../../test/util/mocks';
 import { workerPath } from './echo';
-import { childProcessPool, WorkerPool, workerThreadPool } from './pool';
+import { childProcessPool, WorkerPool } from './pool';
+import { WorkerOps } from './pool/types';
 
 test('starts new workers when starting the pool', () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 3);
   pool.start();
   expect(ops.start).toHaveBeenCalledTimes(3);
 });
 
 test('stops returned workers when stopping the pool', () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const w1 = new EventEmitter();
   const w2 = new EventEmitter();
   const w3 = new EventEmitter();
@@ -30,19 +31,19 @@ test('stops returned workers when stopping the pool', () => {
 });
 
 test('cannot call a worker without starting first', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 3);
   await expect(() => pool.call(1)).rejects.toThrowError('not yet started');
 });
 
 test('cannot callAll without starting first', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 3);
   await expect(() => pool.callAll(1)).rejects.toThrowError('not yet started');
 });
 
 test('cannot claim specific worker without starting first', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 3);
   const worker = new EventEmitter();
   await expect(() => pool['claimWorker'](worker, 'test')).rejects.toThrowError(
@@ -51,7 +52,7 @@ test('cannot claim specific worker without starting first', async () => {
 });
 
 test('cannot claim an unowned worker', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 1);
   const worker = new EventEmitter();
   const anotherWorker = new EventEmitter();
@@ -63,14 +64,14 @@ test('cannot claim an unowned worker', async () => {
 });
 
 test('cannot start workers again after starting once', () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 3);
   pool.start();
   expect(() => pool.start()).toThrowError('already started');
 });
 
 test('calling stop again does nothing', () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const pool = new WorkerPool(ops, 3);
   pool.start();
   pool.stop();
@@ -78,7 +79,7 @@ test('calling stop again does nothing', () => {
 });
 
 test('call sends a message to a worker', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
 
@@ -98,7 +99,7 @@ test('call sends a message to a worker', async () => {
 });
 
 test('call gets the next available worker and sends a message to it', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
 
@@ -126,7 +127,7 @@ test('call gets the next available worker and sends a message to it', async () =
 });
 
 test('callAll sends a message to all workers', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const w1 = new EventEmitter();
   const w2 = new EventEmitter();
   ops.start.mockReturnValueOnce(w1).mockReturnValueOnce(w2);
@@ -152,7 +153,7 @@ test('callAll sends a message to all workers', async () => {
 });
 
 test('callAll sends a message to all workers, even if they are busy at first', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const w1 = new EventEmitter();
   const w2 = new EventEmitter();
   ops.start.mockReturnValueOnce(w1).mockReturnValueOnce(w2);
@@ -188,7 +189,7 @@ test('callAll sends a message to all workers, even if they are busy at first', a
 });
 
 test('releasing a worker before starting is not allowed', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
 
@@ -199,7 +200,7 @@ test('releasing a worker before starting is not allowed', async () => {
 });
 
 test('releasing a non-claimed worker is not allowed', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
 
@@ -211,7 +212,7 @@ test('releasing a non-claimed worker is not allowed', async () => {
 });
 
 test('releasing a non-owned worker is not allowed', async () => {
-  const ops = makeMockWorkerOps<number>();
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   const anotherWorker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
@@ -224,7 +225,7 @@ test('releasing a non-owned worker is not allowed', async () => {
 });
 
 test('child process workers work', async () => {
-  const pool = childProcessPool<string, string>(workerPath, 1);
+  const pool = childProcessPool(workerPath, 1);
   pool.start();
   try {
     expect(await pool.call('hello child process')).toEqual(
@@ -236,10 +237,7 @@ test('child process workers work', async () => {
 });
 
 test('child process workers can send objects', async () => {
-  const pool = childProcessPool<
-    Record<string, unknown>,
-    Record<string, unknown>
-  >(workerPath, 1);
+  const pool = childProcessPool(workerPath, 1);
   pool.start();
   try {
     expect(await pool.call({ a: 1, b: { c: 2 } })).toEqual({
@@ -252,7 +250,7 @@ test('child process workers can send objects', async () => {
 });
 
 test('child process workers can send arrays', async () => {
-  const pool = childProcessPool<unknown[], unknown[]>(workerPath, 1);
+  const pool = childProcessPool(workerPath, 1);
   pool.start();
   try {
     expect(await pool.call([1, '2', null, undefined])).toEqual([
@@ -267,7 +265,7 @@ test('child process workers can send arrays', async () => {
 });
 
 test('child process workers can send Buffers', async () => {
-  const pool = childProcessPool<Buffer, Buffer>(workerPath, 1);
+  const pool = childProcessPool(workerPath, 1);
   pool.start();
   try {
     expect(await pool.call(Buffer.of(1, 2, 3))).toEqual(Buffer.of(1, 2, 3));
@@ -277,7 +275,7 @@ test('child process workers can send Buffers', async () => {
 });
 
 test('child process workers can send Uint8Arrays', async () => {
-  const pool = childProcessPool<Uint8Array, Uint8Array>(workerPath, 1);
+  const pool = childProcessPool(workerPath, 1);
   pool.start();
   try {
     expect(await pool.call(Uint8Array.of(1, 2, 3))).toEqual(
@@ -289,7 +287,7 @@ test('child process workers can send Uint8Arrays', async () => {
 });
 
 test('child process workers cannot send functions', async () => {
-  const pool = childProcessPool<unknown, unknown>(workerPath, 1);
+  const pool = childProcessPool(workerPath, 1);
   pool.start();
   try {
     await expect(
@@ -302,18 +300,6 @@ test('child process workers cannot send functions', async () => {
       })
     ).rejects.toThrow(
       `cannot serialize function in message at key path 'a.fn'`
-    );
-  } finally {
-    pool.stop();
-  }
-});
-
-test('worker thread workers work', async () => {
-  const pool = workerThreadPool<string, string>(workerPath, 1);
-  pool.start();
-  try {
-    expect(await pool.call('hello worker thread')).toEqual(
-      'hello worker thread'
     );
   } finally {
     pool.stop();

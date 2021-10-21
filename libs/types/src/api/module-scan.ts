@@ -617,8 +617,8 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: SerializableBallotPageLayoutSchema.optional(),
     }),
     definitions: z.object({
-      front: z.object({ contestIds: z.array(Id) }),
-      back: z.object({ contestIds: z.array(Id) }),
+      front: z.object({ contestIds: z.array(Id) }).optional(),
+      back: z.object({ contestIds: z.array(Id) }).optional(),
     }),
   }
 );

@@ -1,7 +1,7 @@
-export async function fetchJSON<Res>(
+export async function fetchJSON(
   input: RequestInfo,
   init?: RequestInit
-): Promise<Res> {
+): Promise<unknown> {
   const response = await fetch(input, {
     ...init,
     headers: {
@@ -14,7 +14,5 @@ export async function fetchJSON<Res>(
     throw new Error('fetch response is not ok');
   }
 
-  const json: Res = await response.json();
-
-  return json;
+  return await response.json();
 }

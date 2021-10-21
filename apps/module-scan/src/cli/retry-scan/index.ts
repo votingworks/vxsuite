@@ -6,7 +6,7 @@ import { dirSync } from 'tmp';
 import { createWorkspace } from '../../util/workspace';
 import * as workers from '../../workers/combined';
 import { InterpretOutput } from '../../workers/interpret';
-import { childProcessPool } from '../../workers/pool';
+import { childProcessPool, WorkerPool } from '../../workers/pool';
 import * as qrcodeWorker from '../../workers/qrcode';
 import { Options } from './options';
 
@@ -104,18 +104,18 @@ export async function retryScan(
 
   listeners?.sheetsLoading?.();
   const [sql, params] = queryFromOptions(options);
-  const sheets = await input.store.dbAllAsync<
-    {
-      id: string;
-      frontOriginalFilename: string;
-      backOriginalFilename: string;
-      frontNormalizedFilename: string;
-      backNormalizedFilename: string;
-      frontInterpretationJSON: string;
-      backInterpretationJSON: string;
-    },
-    typeof params
-  >(sql, ...params);
+  const sheets = (await input.store.dbAllAsync<typeof params>(
+    sql,
+    ...params
+  )) as Array<{
+    id: string;
+    frontOriginalFilename: string;
+    backOriginalFilename: string;
+    frontNormalizedFilename: string;
+    backNormalizedFilename: string;
+    frontInterpretationJSON: string;
+    backInterpretationJSON: string;
+  }>;
   const electionDefinition = await input.store.getElectionDefinition();
   if (!electionDefinition) {
     throw new Error('no configured election');
@@ -124,10 +124,10 @@ export async function retryScan(
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition.election);
 
   listeners?.interpreterLoading?.();
-  const pool = childProcessPool<workers.Input, workers.Output>(
+  const pool = childProcessPool(
     workers.workerPath,
     cpus().length - 1
-  );
+  ) as WorkerPool<workers.Input, workers.Output>;
   pool.start();
 
   await pool.callAll({

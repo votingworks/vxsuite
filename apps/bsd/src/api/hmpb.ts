@@ -1,11 +1,14 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, safeParse } from '@votingworks/types';
 import { EventEmitter } from 'events';
 import {
   fetchJSON,
   BallotPackage,
   BallotPackageEntry,
 } from '@votingworks/utils';
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
+import {
+  GetNextReviewSheetResponse,
+  GetNextReviewSheetResponseSchema,
+} from '@votingworks/types/api/module-scan';
 import { setElection } from './config';
 
 export interface AddTemplatesEvents extends EventEmitter {
@@ -94,9 +97,10 @@ export async function fetchNextBallotSheetToReview(): Promise<
   GetNextReviewSheetResponse | undefined
 > {
   try {
-    return await fetchJSON<GetNextReviewSheetResponse>(
-      '/scan/hmpb/review/next-sheet'
-    );
+    return safeParse(
+      GetNextReviewSheetResponseSchema,
+      await fetchJSON('/scan/hmpb/review/next-sheet')
+    ).unsafeUnwrap();
   } catch {
     return undefined;
   }

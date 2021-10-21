@@ -704,7 +704,10 @@ export async function start({
   }
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined;
   function workerPoolProvider(): WorkerPool<workers.Input, workers.Output> {
-    workerPool ??= childProcessPool(workers.workerPath, 2 /* front and back */);
+    workerPool ??= childProcessPool(
+      workers.workerPath,
+      2 /* front and back */
+    ) as WorkerPool<workers.Input, workers.Output>;
     return workerPool;
   }
   const resolvedImporter =

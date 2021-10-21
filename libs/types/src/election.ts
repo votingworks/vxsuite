@@ -12,6 +12,7 @@ import {
   Result,
   safeParse,
   safeParseJSON,
+  WriteInId,
 } from './generic';
 import {
   Offset,
@@ -732,7 +733,7 @@ export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicatio
   {
     type: z.literal(AdjudicationReason.WriteIn),
     contestId: Id,
-    optionId: Id,
+    optionId: WriteInId,
     optionIndex: z.number().nonnegative(),
   }
 );
@@ -747,7 +748,7 @@ export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWr
   {
     type: z.literal(AdjudicationReason.UnmarkedWriteIn),
     contestId: Id,
-    optionId: Id,
+    optionId: WriteInId,
     optionIndex: z.number().nonnegative(),
   }
 );

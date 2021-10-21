@@ -3,11 +3,13 @@ import {
   BallotStyle,
   ContestTallyMeta,
   Dictionary,
+  MachineId,
   Optional,
   Precinct,
   VotingMethod,
 } from '@votingworks/types';
 import { BallotStyleData } from '@votingworks/utils';
+import { z } from 'zod';
 
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
@@ -142,3 +144,9 @@ export interface MachineConfig {
   codeVersion: string;
   bypassAuthentication: boolean;
 }
+
+export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
+  machineId: MachineId,
+  codeVersion: z.string().nonempty(),
+  bypassAuthentication: z.boolean(),
+});

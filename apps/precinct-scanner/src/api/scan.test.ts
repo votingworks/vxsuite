@@ -99,11 +99,21 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
   fetchMock.postOnce('scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
   });
-  fetchMock.get('/scan/status', {
-    scanner: ScannerStatus.ReadyToScan,
-    batches: [{ id: 'test-batch', count: 1 }],
-    adjudication: { adjudicated: 0, remaining: 1 },
-  });
+  fetchMock.get(
+    '/scan/status',
+    typedAs<GetScanStatusResponse>({
+      scanner: ScannerStatus.ReadyToScan,
+      batches: [
+        {
+          id: 'test-batch',
+          count: 1,
+          label: 'Test Batch',
+          startedAt: DateTime.now().toISO(),
+        },
+      ],
+      adjudication: { adjudicated: 0, remaining: 1 },
+    })
+  );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
     typedAs<GetNextReviewSheetResponse>({

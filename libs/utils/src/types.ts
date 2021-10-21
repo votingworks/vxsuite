@@ -100,12 +100,24 @@ export interface Storage {
 export interface CardAbsentAPI {
   present: false;
 }
+export const CardAbsentAPISchema: z.ZodSchema<CardAbsentAPI> = z.object({
+  present: z.literal(false),
+});
 export interface CardPresentAPI {
   present: true;
   shortValue?: string;
   longValueExists?: boolean;
 }
+export const CardPresentAPISchema: z.ZodSchema<CardPresentAPI> = z.object({
+  present: z.literal(true),
+  shortValue: z.string().optional(),
+  longValueExists: z.boolean().optional(),
+});
 export type CardAPI = CardAbsentAPI | CardPresentAPI;
+export const CardAPISchema: z.ZodSchema<CardAPI> = z.union([
+  CardAbsentAPISchema,
+  CardPresentAPISchema,
+]);
 
 /**
  * Defines the API for accessing a smart card reader.

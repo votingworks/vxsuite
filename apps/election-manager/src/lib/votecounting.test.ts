@@ -1,7 +1,6 @@
 import {
   Election,
   FullElectionTally,
-  Tally,
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
@@ -14,10 +13,7 @@ import {
   multiPartyPrimaryElection,
 } from '@votingworks/fixtures';
 
-import {
-  computeTallyWithPrecomputedCategories,
-  filterTalliesByParams,
-} from '@votingworks/utils/src';
+import { filterTalliesByParams } from '@votingworks/utils/src';
 import {
   parseCVRs,
   computeFullElectionTally,

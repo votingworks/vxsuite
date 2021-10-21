@@ -4,6 +4,7 @@ import {
   CandidateVote,
   Contests,
   ElectionDefinition,
+  MachineId,
   MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
@@ -12,6 +13,7 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
+import { z } from 'zod';
 
 // App
 export const VxPrintOnly = {
@@ -34,6 +36,11 @@ export type AppMode =
   | typeof VxPrintOnly
   | typeof VxMarkPlusVxPrint;
 export type AppModeNames = AppMode['name'];
+export const AppModeNamesSchema: z.ZodSchema<AppModeNames> = z.union([
+  z.literal(VxPrintOnly.name),
+  z.literal(VxMarkOnly.name),
+  z.literal(VxMarkPlusVxPrint.name),
+]);
 
 export interface MachineConfig {
   machineId: string;
@@ -46,6 +53,13 @@ export interface MachineConfigResponse {
   appModeName: AppModeNames;
   codeVersion: string;
 }
+export const MachineConfigResponseSchema: z.ZodSchema<MachineConfigResponse> = z.object(
+  {
+    machineId: MachineId,
+    appModeName: AppModeNamesSchema,
+    codeVersion: z.string().nonempty(),
+  }
+);
 
 export function getAppMode(name: AppModeNames): AppMode {
   switch (name) {
