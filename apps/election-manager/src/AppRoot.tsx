@@ -3,7 +3,12 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import 'normalize.css';
 import { sha256 } from 'js-sha256';
-
+import {
+  Logger,
+  LogSource,
+  LogEventId,
+  LogDispositionStandardTypes,
+} from '@votingworks/logging';
 import {
   ElectionDefinition,
   parseElection,
@@ -80,6 +85,7 @@ function AppRoot({
   hardware,
   machineConfigProvider,
 }: Props): JSX.Element {
+  const logger = new Logger(LogSource.VxAdminApp, window.kiosk);
   const printBallotRef = useRef<HTMLDivElement>(null);
 
   const getElectionDefinition = useCallback(async (): Promise<
@@ -310,6 +316,13 @@ function AppRoot({
 
   const saveElection: SaveElection = useCallback(
     async (electionJSON) => {
+      const previousElection = electionDefinition;
+      if (previousElection) {
+        void logger.log(LogEventId.ElectionUnconfigured, 'admin', {
+          disposition: LogDispositionStandardTypes.Success,
+          previousElectionHash: previousElection.electionHash,
+        });
+      }
       // we set a new election definition, reset everything
       await storage.clear();
       setIsOfficialResults(false);
@@ -322,6 +335,9 @@ function AppRoot({
         const electionData = electionJSON;
         const electionHash = sha256(electionData);
         const election = safeParseElection(electionData).unsafeUnwrap();
+        // Temporarily bootstrap an authenticated user session. This will be removed
+        // once we have a full story for how to bootstrap the auth process.
+        bootstrapAuthenticatedAdminSession();
 
         setElectionDefinition({
           electionData,
@@ -331,9 +347,6 @@ function AppRoot({
 
         const newConfiguredAt = new Date().toISOString();
         setConfiguredAt(newConfiguredAt);
-        // Temporarily bootstrap an authenticated user session. This will be removed
-        // once we have a full story for how to bootstrap the auth process.
-        bootstrapAuthenticatedAdminSession();
 
         await storage.set(configuredAtStorageKey, newConfiguredAt);
         await storage.set(electionDefinitionStorageKey, {
@@ -341,10 +354,15 @@ function AppRoot({
           electionData,
           electionHash,
         });
+        await logger.log(LogEventId.ElectionConfigured, 'admin', {
+          disposition: LogDispositionStandardTypes.Success,
+          newElectionHash: electionHash,
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      electionDefinition,
       storage,
       setIsOfficialResults,
       setCastVoteRecordFiles,

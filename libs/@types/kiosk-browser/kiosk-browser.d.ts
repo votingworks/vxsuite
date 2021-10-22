@@ -1,7 +1,7 @@
 declare namespace KioskBrowser {
   export interface BatteryInfo {
-    discharging: boolean
-    level: number // Number between 0–1
+    discharging: boolean;
+    level: number; // Number between 0–1
   }
 
   export type PrintSides =
@@ -22,57 +22,57 @@ declare namespace KioskBrowser {
      * that a right-side up portrait sheet flipped over on the short edge remains
      * right-side up, i.e. a bound-at-the-top ring binder.
      */
-    | 'two-sided-short-edge'
+    | 'two-sided-short-edge';
 
   export interface PrintOptions {
-    deviceName?: string
-    paperSource?: string
-    copies?: number
-    sides?: PrintSides
+    deviceName?: string;
+    paperSource?: string;
+    copies?: number;
+    sides?: PrintSides;
   }
 
   export interface PrinterInfo {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
-    description: string
-    isDefault: boolean
-    name: string
-    status: number
+    description: string;
+    isDefault: boolean;
+    name: string;
+    status: number;
     // Added via kiosk-browser
-    connected: boolean
-    options?: { [key: string]: string }
+    connected: boolean;
+    options?: { [key: string]: string };
   }
 
   export interface Device {
-    locationId: number
-    vendorId: number
-    productId: number
-    deviceName: string
-    manufacturer: string
-    serialNumber: string
-    deviceAddress: number
+    locationId: number;
+    vendorId: number;
+    productId: number;
+    deviceName: string;
+    manufacturer: string;
+    serialNumber: string;
+    deviceAddress: number;
   }
 
   export interface UsbDrive {
-    deviceName: string
-    mountPoint?: string
+    deviceName: string;
+    mountPoint?: string;
   }
 
   export interface SaveAsOptions {
-    title?: string
-    defaultPath?: string
-    buttonLabel?: string
-    filters?: FileFilter[]
+    title?: string;
+    defaultPath?: string;
+    buttonLabel?: string;
+    filters?: FileFilter[];
   }
 
   export interface MakeDirectoryOptions {
-    recursive?: boolean
-    mode?: number
+    recursive?: boolean;
+    mode?: number;
   }
 
   export interface FileFilter {
     // Docs: http://electronjs.org/docs/api/structures/file-filter
-    extensions: string[]
-    name: string
+    extensions: string[];
+    name: string;
   }
 
   export enum FileSystemEntryType {
@@ -86,13 +86,13 @@ declare namespace KioskBrowser {
   }
 
   export interface FileSystemEntry {
-    readonly name: string
-    readonly path: string
-    readonly type: FileSystemEntryType
-    readonly size: number
-    readonly mtime: Date
-    readonly atime: Date
-    readonly ctime: Date
+    readonly name: string;
+    readonly path: string;
+    readonly type: FileSystemEntryType;
+    readonly size: number;
+    readonly mtime: Date;
+    readonly atime: Date;
+    readonly ctime: Date;
   }
 
   export interface FileWriter {
@@ -100,106 +100,107 @@ declare namespace KioskBrowser {
      * Writes a chunk to the file. May be called multiple times. Data will be
      * written in the order of calls to `write`.
      */
-    write(data: Uint8Array | string): Promise<void>
+    write(data: Uint8Array | string): Promise<void>;
 
     /**
      * Finishes writing to the file and closes it. Subsequent calls to `write`
      * will fail. Resolves when the file is successfully closed.
      */
-    end(): Promise<void>
+    end(): Promise<void>;
 
-    filename: string
+    filename: string;
   }
 
   export interface SetClockParams {
-    isoDatetime: string
-    IANAZone: string
+    isoDatetime: string;
+    IANAZone: string;
   }
 
   export interface TotpInfo {
-    isoDatetime: string
-    code: string
+    isoDatetime: string;
+    code: string;
   }
 
   export interface SignParams {
-    signatureType: string
-    payload: string
+    signatureType: string;
+    payload: string;
   }
-  
+
   export interface Kiosk {
-    print(options?: PrintOptions): Promise<void>
-    getPrinterInfo(): Promise<PrinterInfo[]>
+    print(options?: PrintOptions): Promise<void>;
+    getPrinterInfo(): Promise<PrinterInfo[]>;
 
     /**
      * Prints the current page to PDF and resolves with the PDF file bytes.
      */
-    printToPDF(): Promise<Uint8Array>
+    printToPDF(): Promise<Uint8Array>;
+    log(message: string): Promise<void>;
 
-    getBatteryInfo(): Promise<BatteryInfo>
-    devices: import('rxjs').Observable<Iterable<Device>>
-    printers: import('rxjs').Observable<Iterable<PrinterInfo>>
-    quit(): void
+    getBatteryInfo(): Promise<BatteryInfo>;
+    devices: import('rxjs').Observable<Iterable<Device>>;
+    printers: import('rxjs').Observable<Iterable<PrinterInfo>>;
+    quit(): void;
 
     /**
      * Opens a Save Dialog to allow the user to choose a destination for a file.
      * Once chosen, resolves with a handle to the file to write data to it.
      */
-    saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>
+    saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>;
 
     /**
      * Writes a file to a specified file path
      */
-    writeFile(path: string): Promise<FileWriter>
-    writeFile(path: string, content: Uint8Array | string): Promise<void>
+    writeFile(path: string): Promise<FileWriter>;
+    writeFile(path: string, content: Uint8Array | string): Promise<void>;
 
     /*
      * Creates a directory at the specified path.
      */
-    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>
+    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
 
     // USB sticks
-    getUsbDrives(): Promise<UsbDrive[]>
-    mountUsbDrive(device: string): Promise<void>
-    unmountUsbDrive(device: string): Promise<void>
+    getUsbDrives(): Promise<UsbDrive[]>;
+    mountUsbDrive(device: string): Promise<void>;
+    unmountUsbDrive(device: string): Promise<void>;
 
     /**
      * Writes a file to a specified file path
      */
-    writeFile(path: string): Promise<FileWriter>
-    writeFile(path: string, content: Uint8Array | string): Promise<void>
+    writeFile(path: string): Promise<FileWriter>;
+    writeFile(path: string, content: Uint8Array | string): Promise<void>;
 
     /**
      * Creates a directory at the specified path.
      */
-    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>
+    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
 
     /**
      * Reads the list of files at a specified directory path
      */
-    getFileSystemEntries(path: string): Promise<FileSystemEntry[]>
+    getFileSystemEntries(path: string): Promise<FileSystemEntry[]>;
 
     /**
      * Reads a file from a specified path
      */
-    readFile(path: string): Promise<Uint8Array>
-    readFile(path: string, encoding: string): Promise<string>
+    readFile(path: string): Promise<Uint8Array>;
+    readFile(path: string, encoding: string): Promise<string>;
 
     // storage
     storage: {
-      set(key: string, value: unknown): Promise<void>
-      get(key: string): Promise<unknown | undefined>
-      remove(key: string): Promise<void>
-      clear(): Promise<void>
-    }
+      set(key: string, value: unknown): Promise<void>;
+      get(key: string): Promise<unknown | undefined>;
+      remove(key: string): Promise<void>;
+      clear(): Promise<void>;
+    };
 
-    setClock(params: SetClockParams): Promise<void>
+    setClock(params: SetClockParams): Promise<void>;
 
     totp: {
-      get(): Promise<TotpInfo|undefined>
-    }
+      get(): Promise<TotpInfo | undefined>;
+    };
 
-    sign(params: SignParams): Promise<string>
+    sign(params: SignParams): Promise<string>;
   }
 }
 
-declare var kiosk: KioskBrowser.Kiosk | undefined
+declare var kiosk: KioskBrowser.Kiosk | undefined;

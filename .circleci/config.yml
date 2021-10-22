@@ -153,6 +153,24 @@ jobs:
           command: |
             pnpm --dir libs/fixtures test
 
+  test-logging:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging test
+
   test-hmpb-interpreter:
     executor: nodejs
     resource_class: xlarge
@@ -407,6 +425,7 @@ workflows:
       - test-hmpb-interpreter
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
+      - test-logging
       - test-lsd
       - test-module-converter-ms-sems
       - test-module-scan

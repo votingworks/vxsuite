@@ -1,0 +1,68 @@
+{
+  "name": "@votingworks/logging",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Utilities and definitions for logging in votingworks components",
+  "license": "GPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "main": "build/index.js",
+  "types": "build/index.d.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:watch": "TZ=UTC jest --watch",
+    "test:coverage": "TZ=UTC jest --coverage",
+    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@types/kiosk-browser": "workspace:*",
+    "@types/node": "^12.20.11",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "debug": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.6",
+    "@types/jest": "^26.0.23",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint": "^7.26.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-vx": "workspace:*",
+    "fast-check": "^2.18.0",
+    "fetch-mock": "^9.9.0",
+    "is-ci-cli": "^2.2.0",
+    "jest": "^26.6.3",
+    "jest-watch-typeahead": "^0.6.4",
+    "lint-staged": "^11.0.0",
+    "mockdate": "^3.0.2",
+    "prettier": "^2.3.0",
+    "sort-package-json": "^1.50.0",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.3.5"
+  }
+}

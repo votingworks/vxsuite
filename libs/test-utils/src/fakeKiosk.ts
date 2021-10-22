@@ -78,5 +78,6 @@ export function fakeKiosk({
       get: jest.fn(),
     },
     sign: jest.fn(),
+    log: jest.fn(),
   };
 }

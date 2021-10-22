@@ -40,6 +40,9 @@
       "path": "libs/ui"
     },
     {
+      "path": "libs/logging"
+    },
+    {
       "path": "apps/precinct-scanner"
     },
     {
