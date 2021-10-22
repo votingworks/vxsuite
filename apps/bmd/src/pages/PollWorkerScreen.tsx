@@ -326,6 +326,10 @@ function PollWorkerScreen({
     );
   }
 
+  function reload() {
+    window.location.reload();
+  }
+
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
@@ -405,6 +409,8 @@ function PollWorkerScreen({
                     : `Open Polls for ${precinctName}`}
                 </Button>
               </p>
+              <h1>Advanced</h1>
+              <Button onPress={reload}>Reset Accessible Controller</Button>
             </Prose>
           </MainChild>
         </Main>
@@ -481,6 +487,7 @@ function PollWorkerScreen({
         )}
         {isConfirmingPrecinctScannerPrint && !precinctScannerTallyInformation && (
           <Modal
+            ariaHideApp={false}
             content={
               <Prose textCenter id="modalaudiofocus">
                 <Loading />
