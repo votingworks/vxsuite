@@ -14,11 +14,13 @@ import gtsUseOptionals from './gts-use-optionals';
 import noArraySortMutation from './no-array-sort-mutation';
 import noAssertStringOrNumber from './no-assert-truthiness';
 import noFloatingVoids from './no-floating-results';
+import gtsIdentifiersUseAllowedCharacters from './gts-identifiers-use-allowed-characters';
 
 export default {
   'gts-array-type-style': gtsArrayTypeStyle,
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
   'gts-func-style': gtsFuncStyle,
+  'gts-identifiers-use-allowed-character': gtsIdentifiersUseAllowedCharacters,
   'gts-no-array-constructor': gtsNoArrayConstructor,
   'gts-no-dollar-sign-names': gtsNoDollarSignNames,
   'gts-no-foreach': gtsNoForeach,
