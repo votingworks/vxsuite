@@ -45,7 +45,7 @@ class Card:
         self.long_value = None
         self.short_value_length = 0
         self.long_value_length = 0
-        self.read_raw_first_chunk()
+        self.read_metadata()
 
     def __initial_bytes(self, writable, short_length, long_length):
         initial_bytes = b'VX.' + bytes(VERSION) + bytes(writable)
@@ -54,6 +54,29 @@ class Card:
 
     def _sleep(self, seconds: int):  # pragma: no cover
         time.sleep(seconds)
+
+    # data in bytes
+    def _write_raw_data(self, data):
+        offset_into_bytes = 0
+        chunk_num = 0
+
+        while offset_into_bytes < len(data):
+            result = self.write_chunk(
+                chunk_num, data[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
+            chunk_num += 1
+            offset_into_bytes += self.CHUNK_SIZE
+
+    def _read_raw_data(self, read_length):
+        return_bytes = b''
+        chunk_num = 0
+
+        while len(return_bytes) < read_length:
+            return_bytes += bytes(self.read_chunk(chunk_num))
+            if return_bytes == b'':
+                return return_bytes
+            chunk_num += 1
+
+        return return_bytes[:read_length]
 
     # override the write protection bit. Typically used
     # right before a call to write_short_value or write_short_and_long_values
@@ -70,7 +93,8 @@ class Card:
         full_bytes = self.__initial_bytes(
             WRITE_PROTECTED if write_protect else WRITABLE, len(short_value_bytes), 0)
         full_bytes += short_value_bytes
-        self.write_chunk(0, full_bytes)
+
+        self._write_raw_data(full_bytes)
         self._sleep(1)
 
     def write_long_value(self, long_value_bytes):
@@ -95,67 +119,54 @@ class Card:
         full_bytes = self.__initial_bytes(write_protect, len(
             short_value_bytes), len(long_value))
         full_bytes += short_value_bytes
-        full_bytes += hashlib.sha256(long_value).digest()
+        digest = hashlib.sha256(long_value).digest()
+        full_bytes += digest
         full_bytes += long_value
 
-        offset_into_bytes = 0
-        chunk_num = 0
-
-        while offset_into_bytes < len(full_bytes):
-            result = self.write_chunk(
-                chunk_num, full_bytes[offset_into_bytes:offset_into_bytes+self.CHUNK_SIZE])
-            chunk_num += 1
-            offset_into_bytes += self.CHUNK_SIZE
+        self._write_raw_data(full_bytes)
 
         # wait a little bit
         self._sleep(2)
+        self.read_metadata()
 
-    def read_raw_first_chunk(self):
-        data = self.read_chunk(0)
+    def read_metadata(self):
+        metadata = self._read_raw_data(8)
 
         # the right card by prefix?
-        if bytes(data[:4]) != b'VX.' + bytes(VERSION):
+        if metadata[:4] != b'VX.' + bytes(VERSION):
             return None
 
-        self.write_enabled = ([data[4]] == WRITABLE)
-        self.short_value_length = data[5]
-        self.long_value_length = data[6]*256 + data[7]
-        self.short_value = bytes(data[8:8+self.short_value_length])
-        self.long_value_hash = bytes(data[8 +
-                                    self.short_value_length:8+self.short_value_length+32])
-
-        return bytes(data)
+        self.write_enabled = ([metadata[4]] == WRITABLE)
+        self.short_value_length = metadata[5]
+        self.long_value_length = metadata[6]*256 + metadata[7]
 
     def read_short_value(self):
-        self.read_raw_first_chunk()
-        if self.short_value:
-            return bytes(self.short_value)
-        else:
+        self.read_metadata()
+        if self.short_value_length == 0:
             return b''
 
-    def read_long_value(self):
-        full_bytes = self.read_raw_first_chunk()
+        length_to_read = 8 + self.short_value_length
+        data = self._read_raw_data(length_to_read)
+        self.short_value = data[8:]
+        return self.short_value
 
+    def read_long_value(self):
         if self.long_value_length == 0:
             return b''
 
         total_expected_length = 8 + self.short_value_length + 32 + self.long_value_length
 
-        read_so_far = len(full_bytes)
-        chunk_num = 1
-        while read_so_far < total_expected_length:
-            full_bytes += bytes(self.read_chunk(chunk_num))
-            read_so_far += self.CHUNK_SIZE
-            chunk_num += 1
+        data = self._read_raw_data(total_expected_length)
 
-        raw_content = full_bytes[8 +
-                                 self.short_value_length + 32:total_expected_length]
+        expected_long_value_hash = data[8+self.short_value_length:8+self.short_value_length+32]
+        
+        raw_content = data[8 + self.short_value_length + 32:total_expected_length]
         actual_long_value_hash = hashlib.sha256(raw_content).digest()
 
-        if actual_long_value_hash != self.long_value_hash:
+        if actual_long_value_hash != expected_long_value_hash:
             logging.error(
                 'mismatched hash while reading long value\nexpected: %s\nfound: %s',
-                self.long_value_hash,
+                expected_long_value_hash,
                 actual_long_value_hash
             )
             return b''
@@ -212,7 +223,7 @@ class CardAT24C(Card):
 
     # we're using a generic protocol (i2c) which needs metadata about the card
     # card type (1 byte), page size (1byte), address size (1byte), and capacity (4 bytes)
-    CARD_IDENTITY = [0x18, 64, 2, 0x00, 0x00, 0x80, 0x00]
+    CARD_IDENTITY = [0x18, 64, 2, 0x00, 0x00, 0x20, 0x00]
     INIT_APDU = [0xFF, 0x30, 0x00, 0x04] + \
         [1 + len(CARD_IDENTITY)] + [0x01] + CARD_IDENTITY
 
@@ -224,7 +235,7 @@ class CardAT24C(Card):
     INITIAL_OFFSET = 0x20
 
     MAX_LENGTH = 8000
-    CHUNK_SIZE = 250
+    CHUNK_SIZE = 64
 
     # This is the identifier for the card
     ATR = b';\x04I2C.'
