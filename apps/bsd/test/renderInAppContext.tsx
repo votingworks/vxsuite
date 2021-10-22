@@ -31,7 +31,7 @@ export default function renderInAppContext(
     usbDriveEject = jest.fn(),
     storage = new MemoryStorage(),
     lockMachine = jest.fn(),
-  } = {} as RenderInAppContextParams
+  }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(
     <AppContext.Provider

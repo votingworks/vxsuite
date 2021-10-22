@@ -1,9 +1,4 @@
-import {
-  Election,
-  FullElectionTally,
-  TallyCategory,
-  VotingMethod,
-} from '@votingworks/types';
+import { Election, FullElectionTally, TallyCategory } from '@votingworks/types';
 import {
   electionSample,
   electionSample2WithDataFiles,
@@ -704,55 +699,6 @@ test('parsing CVRs with different batch labels in the same id does not error', (
 
 describe('filterTalliesByParams in a primary election', () => {
   let electionTally: FullElectionTally;
-
-  const expectedPartyInformation = [
-    {
-      partyId: '0',
-      contestIds: [
-        'governor-contest-liberty',
-        'mayor-contest-liberty',
-        'assistant-mayor-contest-liberty',
-        'chief-pokemon-liberty',
-        'schoolboard-liberty',
-      ],
-      numBallots: 1710,
-      ballotCountsByVotingMethod: {
-        [VotingMethod.Absentee]: 342,
-        [VotingMethod.Precinct]: 0,
-        [VotingMethod.Unknown]: 1368,
-      },
-    },
-    {
-      partyId: '3',
-      contestIds: [
-        'governor-contest-constitution',
-        'mayor-contest-constitution',
-        'chief-pokemon-constitution',
-        'schoolboard-constitution',
-      ],
-      numBallots: 2100,
-      ballotCountsByVotingMethod: {
-        [VotingMethod.Absentee]: 93,
-        [VotingMethod.Precinct]: 292,
-        [VotingMethod.Unknown]: 1715,
-      },
-    },
-    {
-      partyId: '4',
-      contestIds: [
-        'governor-contest-federalist',
-        'mayor-contest-federalist',
-        'chief-pokemon-federalist',
-        'schoolboard-federalist',
-      ],
-      numBallots: 720,
-      ballotCountsByVotingMethod: {
-        [VotingMethod.Absentee]: 33,
-        [VotingMethod.Precinct]: 18,
-        [VotingMethod.Unknown]: 669,
-      },
-    },
-  ];
 
   beforeEach(async () => {
     // get the CVRs

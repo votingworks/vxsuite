@@ -59,8 +59,10 @@ export default class BitReader {
    */
   readUint({ max }: { max: number }): number;
   readUint({ size }: { size: number }): number;
-  readUint({ max, size }: { max?: number; size?: number }): number {
-    const sizeofUint = this.sizeofUint({ max, size });
+  readUint(options: { max: number } | { size: number }): number {
+    const sizeofUint =
+      // this is kinda ridiculous, but makes TS happy
+      'max' in options ? this.sizeofUint(options) : this.sizeofUint(options);
 
     // Optimize for the case of reading a byte straight from the underlying buffer.
     if (sizeofUint === Uint8Size && this.cursor.isByteStart) {
@@ -146,15 +148,21 @@ export default class BitReader {
   skipUint(expected: number[], { size }: { size: number }): boolean;
   skipUint(
     expected: number | number[],
-    { max, size }: { max?: number; size?: number }
+    options: { max: number } | { size: number }
   ): boolean {
     const originalCursor = this.cursor.copy();
     const uints = Array.isArray(expected) ? expected : [expected];
-    const options = { max, size } as { size: number } & { max: number };
-    const sizeofUint = this.sizeofUint(options);
+    const sizeofUint =
+      // this is kinda ridiculous, but makes TS happy
+      'max' in options ? this.sizeofUint(options) : this.sizeofUint(options);
 
     for (const uint of uints) {
-      if (!this.canRead(sizeofUint) || uint !== this.readUint(options)) {
+      if (
+        !this.canRead(sizeofUint) ||
+        uint !==
+          // this is kinda ridiculous, but makes TS happy
+          ('max' in options ? this.readUint(options) : this.readUint(options))
+      ) {
         this.cursor = originalCursor;
         return false;
       }
@@ -165,7 +173,6 @@ export default class BitReader {
 
   private sizeofUint({ max }: { max: number }): number;
   private sizeofUint({ size }: { size: number }): number;
-  private sizeofUint({ max, size }: { max?: number; size?: number }): number;
   private sizeofUint({ max, size }: { max?: number; size?: number }): number {
     if (typeof max !== 'undefined' && typeof size !== 'undefined') {
       throw new Error("cannot specify both 'max' and 'size' options");

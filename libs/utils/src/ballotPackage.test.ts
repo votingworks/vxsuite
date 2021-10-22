@@ -50,7 +50,7 @@ test('readBallotPackageFromFilePointer finds all expected ballots', async () => 
     name: fileName,
     path: pathToFile,
     size: 0,
-  } as KioskBrowser.FileSystemEntry);
+  } as unknown as KioskBrowser.FileSystemEntry);
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
   const precinctIds = election.precincts.map(({ id }) => id);
   expect(election.title).toEqual('General Election');
@@ -133,7 +133,7 @@ test('readBallotPackageFromFilePointer throws when given an invalid zip file', a
       name: 'file-name',
       path: 'path',
       size: 0,
-    } as KioskBrowser.FileSystemEntry)
+    } as unknown as KioskBrowser.FileSystemEntry)
   ).rejects.toThrowError();
 });
 
@@ -146,7 +146,7 @@ test('readBallotPackageFromFile throws when the file cannot be read', async () =
 test('readBallotPackageFromFilePointer throws when the file cannot be read', async () => {
   await expect(
     ballotPackageUtils.readBallotPackageFromFilePointer(
-      {} as KioskBrowser.FileSystemEntry
+      {} as unknown as KioskBrowser.FileSystemEntry
     )
   ).rejects.toThrowError();
 });

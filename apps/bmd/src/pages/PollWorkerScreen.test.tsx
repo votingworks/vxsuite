@@ -3,7 +3,12 @@ import {
   asElectionDefinition,
   electionMinimalExhaustiveSampleDefintion,
 } from '@votingworks/fixtures';
-import { CompressedTally, Dictionary, Election } from '@votingworks/types';
+import {
+  CompressedTally,
+  Dictionary,
+  Election,
+  safeParseElection,
+} from '@votingworks/types';
 
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import {
@@ -19,12 +24,16 @@ import {
 
 import { render } from '../../test/testUtils';
 
-import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
+import electionSampleWithSealUntyped from '../data/electionSampleWithSeal.json';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
 import PollWorkerScreen from './PollWorkerScreen';
 import fakePrinter from '../../test/helpers/fakePrinter';
 import fakeMachineConfig from '../../test/helpers/fakeMachineConfig';
+
+const electionSampleWithSeal = safeParseElection(
+  electionSampleWithSealUntyped
+).unsafeUnwrap();
 
 jest.useFakeTimers();
 
@@ -64,7 +73,7 @@ function expectContestResultsInReport(
 }
 
 test('renders PollWorkerScreen', async () => {
-  const election = electionSampleWithSeal as Election;
+  const election = electionSampleWithSeal;
   render(
     <PollWorkerScreen
       activateCardlessVoterSession={jest.fn()}
@@ -90,10 +99,10 @@ test('renders PollWorkerScreen', async () => {
 });
 
 test('switching out of test mode on election day', async () => {
-  const election = {
+  const election: Election = {
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
-  } as Election;
+  };
   const enableLiveMode = jest.fn();
   render(
     <PollWorkerScreen
@@ -122,10 +131,10 @@ test('switching out of test mode on election day', async () => {
 });
 
 test('keeping test mode on election day', async () => {
-  const election = {
+  const election: Election = {
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
-  } as Election;
+  };
   const enableLiveMode = jest.fn();
   render(
     <PollWorkerScreen
@@ -154,7 +163,7 @@ test('keeping test mode on election day', async () => {
 });
 
 test('live mode on election day', async () => {
-  const election = electionSampleWithSeal as Election;
+  const election = electionSampleWithSeal;
   const enableLiveMode = jest.fn();
   render(
     <PollWorkerScreen
@@ -181,7 +190,7 @@ test('live mode on election day', async () => {
 });
 
 test('printing precinct scanner report works as expected with all precinct data for general election', async () => {
-  const election = electionSampleWithSeal as Election;
+  const election = electionSampleWithSeal;
   const clearTallies = jest.fn();
   const printFn = jest.fn();
 
@@ -254,7 +263,7 @@ test('printing precinct scanner report works as expected with all precinct data 
 });
 
 test('printing precinct scanner report works as expected with single precinct data for general election', async () => {
-  const election = electionSampleWithSeal as Election;
+  const election = electionSampleWithSeal;
   const clearTallies = jest.fn();
   const printFn = jest.fn();
 
@@ -341,7 +350,7 @@ test('printing precinct scanner report works as expected with single precinct da
 });
 
 test('printing precinct scanner report works as expected with all precinct specific data for general election', async () => {
-  const election = electionSampleWithSeal as Election;
+  const election = electionSampleWithSeal;
   const clearTallies = jest.fn();
   const printFn = jest.fn();
 

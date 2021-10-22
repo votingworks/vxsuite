@@ -305,9 +305,9 @@ test('loads prexisting manual data to edit', async () => {
       'county-commissioners': ({
         ...talliesByPrecinct['23']?.contestTallies['county-commissioners'],
         tallies: {
-          argent: { tally: 80 } as ContestOptionTally,
-          '__write-in': { tally: 60 } as ContestOptionTally,
-          witherspoonsmithson: { tally: 40 } as ContestOptionTally,
+          argent: ({ tally: 80 } as unknown) as ContestOptionTally,
+          '__write-in': ({ tally: 60 } as unknown) as ContestOptionTally,
+          witherspoonsmithson: ({ tally: 40 } as unknown) as ContestOptionTally,
         },
         metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
       } as unknown) as ContestTally,
@@ -330,8 +330,8 @@ test('loads prexisting manual data to edit', async () => {
           'primary-constitution-head-of-party'
         ],
         tallies: {
-          alice: { tally: 25 } as ContestOptionTally,
-          bob: { tally: 5 } as ContestOptionTally,
+          alice: ({ tally: 25 } as unknown) as ContestOptionTally,
+          bob: ({ tally: 5 } as unknown) as ContestOptionTally,
         },
         metadata: { undervotes: 4, overvotes: 6, ballots: 50 },
       } as unknown) as ContestTally,
@@ -357,7 +357,7 @@ test('loads prexisting manual data to edit', async () => {
     overallTally: getEmptyExternalTally(),
     resultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: 'Doesnt matter',
+    inputSourceName: `Doesn't matter`,
     source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };

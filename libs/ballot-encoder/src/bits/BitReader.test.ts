@@ -45,16 +45,16 @@ test('can read uints with various options', () => {
 
 test('cannot read a uint specifying both `max` and `size` options', () => {
   expect(() => {
-    // coerce TypeScript into allowing a bad `options` value
-    const options = { max: 1, size: 2 } as { max: number };
+    // @ts-expect-error - coerce TypeScript into allowing a bad `options` value
+    const options: { max: number } = { max: 1, size: 2 };
     new BitReader(Uint8Array.of()).readUint(options);
   }).toThrowError("cannot specify both 'max' and 'size' options");
 });
 
 test('cannot read a uint with both `max` and `size` options undefined', () => {
   expect(() => {
-    // coerce TypeScript into allowing a bad `options` value
-    const options = {} as { max: number };
+    // @ts-expect-error - coerce TypeScript into allowing a bad `options` value
+    const options: { max: number } = {};
     new BitReader(Uint8Array.of()).readUint(options);
   }).toThrowError();
 });

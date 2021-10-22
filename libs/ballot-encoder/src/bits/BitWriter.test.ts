@@ -83,7 +83,8 @@ test('can write a non-aligned utf-8 string after writing a bit', () => {
 
 test('cannot write a uint with both `max` and `size` options', () => {
   expect(() => {
-    const options = { max: 1, size: 2 } as { max: number };
+    // @ts-expect-error - intentional error to check assertion
+    const options: { max: number } = { max: 1, size: 2 };
     new BitWriter().writeUint(0, options);
   }).toThrowError("cannot specify both 'max' and 'size' options");
 });
@@ -96,7 +97,8 @@ test('cannot write a uint greater than the `max` option', () => {
 
 test('cannot write a uint without `max` or `size`', () => {
   expect(() => {
-    const options = {} as { max: number };
+    // @ts-expect-error - intentional error to check assertion
+    const options: { max: number } = {};
     new BitWriter().writeUint(1, options);
   }).toThrowError();
 });

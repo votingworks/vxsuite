@@ -50,7 +50,7 @@ export function convertStorageStringToExternalTallies(
       inputSourceName,
       timestampCreated,
     } = data;
-    return {
+    return ({
       overallTally,
       votingMethod,
       source,
@@ -59,7 +59,7 @@ export function convertStorageStringToExternalTallies(
         resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
       ),
       timestampCreated: new Date(timestampCreated as number),
-    } as FullElectionExternalTally;
+    } as unknown) as FullElectionExternalTally;
   });
 }
 
