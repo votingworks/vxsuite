@@ -3,12 +3,7 @@ import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import {
-  BallotType,
-  AdjudicationReason,
-  WriteInAdjudicationReasonInfo,
-  UnmarkedWriteInAdjudicationReasonInfo,
-} from '@votingworks/types';
+import { BallotType, AdjudicationReason } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
 import BallotEjectScreen from './BallotEjectScreen';
@@ -575,7 +570,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
   for (const writeInReason of [
     AdjudicationReason.WriteIn,
     AdjudicationReason.UnmarkedWriteIn,
-  ]) {
+  ] as const) {
     fetchMock.getOnce(
       '/scan/hmpb/review/next-sheet',
       typedAs<GetNextReviewSheetResponse>({
@@ -632,9 +627,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
                     contestId: 'county-commissioners',
                     optionIndex: 0,
                     optionId: '__write-in-0',
-                  } as
-                    | WriteInAdjudicationReasonInfo
-                    | UnmarkedWriteInAdjudicationReasonInfo,
+                  },
                 ],
                 ignoredReasonInfos: [],
                 enabledReasons: [AdjudicationReason.BlankBallot, writeInReason],

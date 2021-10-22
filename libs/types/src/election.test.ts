@@ -13,12 +13,13 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
   isVotePresent,
-  Party,
+  PartySchema,
   validateVotes,
   vote,
   withLocale,
   YesNoContest,
 } from './election';
+import { safeParse } from './generic';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -280,13 +281,13 @@ test('pulls translation keys from nested objects', () => {
       {
         ...election,
         parties: [
-          {
+          safeParse(PartySchema, {
             id: 'FED',
             name: 'Federalist',
             abbrev: 'FED',
             fullName: 'Federalist',
             _lang: { 'es-US': { name: 'Federalista' } },
-          } as Party,
+          }).unsafeUnwrap(),
         ],
         _lang: { 'es-US': {} },
       },

@@ -107,7 +107,7 @@ export default function renderInAppContext(
       bypassAuthentication: false,
     },
     hasCardReaderAttached = true,
-  } = {} as RenderInAppContextParams
+  }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(
     <AppContext.Provider
