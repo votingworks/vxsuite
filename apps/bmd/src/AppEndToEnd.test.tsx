@@ -140,6 +140,9 @@ it('VxMark+Print end-to-end flow', async () => {
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
   screen.getByText('Close Polls for Center Springfield');
+  // Force refresh
+  fireEvent.click(screen.getByText('Reset Accessible Controller'));
+  await screen.findByText('Close Polls for Center Springfield');
 
   // Remove card
   card.removeCard();
