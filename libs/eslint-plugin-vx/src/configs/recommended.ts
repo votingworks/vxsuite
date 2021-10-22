@@ -42,6 +42,7 @@ export = {
     'vx/gts-no-dollar-sign-names': 'error',
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
+    'vx/gts-no-object-literal-type-assertions': 'error',
     'vx/gts-no-private-fields': 'error',
     'vx/gts-no-public-modifier': 'error',
     'vx/gts-no-return-type-only-generics': 'error',
