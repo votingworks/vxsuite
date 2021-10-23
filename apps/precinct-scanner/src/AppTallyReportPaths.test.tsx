@@ -29,6 +29,8 @@ import {
 } from '@votingworks/utils';
 import {
   CompressedTally,
+  ContestId,
+  ContestIdSchema,
   Dictionary,
   err,
   PrecinctSelectionKind,
@@ -86,7 +88,7 @@ function expectBallotCountsInReport(
 
 function expectContestResultsInReport(
   container: HTMLElement,
-  contestId: string,
+  contestId: ContestId,
   ballotsCast: number,
   undervotes: number,
   overvotes: number,
@@ -299,7 +301,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     1,
     0,
     0,
@@ -307,7 +309,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     1,
     1,
     0,
@@ -315,7 +317,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     1,
     0,
     0,
@@ -323,7 +325,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     1,
     1,
     0,
@@ -342,7 +344,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct1FishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     0,
     0,
     0,
@@ -350,7 +352,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct1FishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     0,
     0,
     0,
@@ -362,10 +364,17 @@ test('expected tally reports for a primary election with all precincts with CVRs
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct1FishReports[0], 'fishing', 0, 0, 0, {
-    yes: 0,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    precinct1FishReports[0],
+    ContestIdSchema.parse('fishing'),
+    0,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 0,
+    }
+  );
   // Check that the expected results are on the tally report for Precinct 2 Mammal Party
   const precinct2MammalReports = await screen.getAllByTestId(
     'tally-report-0-precinct-2'
@@ -379,7 +388,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     1,
     0,
     1,
@@ -387,7 +396,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     1,
     2,
     0,
@@ -395,7 +404,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     1,
     0,
     0,
@@ -403,7 +412,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     1,
     0,
     0,
@@ -422,7 +431,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct2FishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     1,
     0,
     0,
@@ -430,7 +439,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   expectContestResultsInReport(
     precinct2FishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     1,
     0,
     0,
@@ -442,10 +451,17 @@ test('expected tally reports for a primary election with all precincts with CVRs
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct2FishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    precinct2FishReports[0],
+    ContestIdSchema.parse('fishing'),
+    1,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 1,
+    }
+  );
 
   // Save the tally to card and get the expected tallies
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
@@ -683,7 +699,7 @@ test('expected tally reports for a primary election with a single precincts with
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     2,
     0,
     1,
@@ -691,7 +707,7 @@ test('expected tally reports for a primary election with a single precincts with
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     2,
     3,
     0,
@@ -699,7 +715,7 @@ test('expected tally reports for a primary election with a single precincts with
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     2,
     0,
     0,
@@ -707,7 +723,7 @@ test('expected tally reports for a primary election with a single precincts with
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     2,
     1,
     0,
@@ -726,7 +742,7 @@ test('expected tally reports for a primary election with a single precincts with
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct1FishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     1,
     0,
     0,
@@ -734,7 +750,7 @@ test('expected tally reports for a primary election with a single precincts with
   );
   expectContestResultsInReport(
     precinct1FishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     1,
     0,
     0,
@@ -746,10 +762,17 @@ test('expected tally reports for a primary election with a single precincts with
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct1FishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    precinct1FishReports[0],
+    ContestIdSchema.parse('fishing'),
+    1,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 1,
+    }
+  );
 
   // Save the tally to card and get the expected tallies
   fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
@@ -953,7 +976,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   expectBallotCountsInReport(centerSpringfieldReports[0], 1, 0, 1);
   expectContestResultsInReport(
     centerSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     1,
     0,
     0,
@@ -966,10 +989,17 @@ test('expected tally reports for a general election with all precincts with CVRs
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(centerSpringfieldReports[0], 'prop-1', 1, 0, 0, {
-    yes: 1,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    centerSpringfieldReports[0],
+    ContestIdSchema.parse('prop-1'),
+    1,
+    0,
+    0,
+    {
+      yes: 1,
+      no: 0,
+    }
+  );
 
   // Check that the expected results are on the tally report for South Springfield
   const southSpringfieldReports = await screen.getAllByTestId(
@@ -979,7 +1009,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   expectBallotCountsInReport(southSpringfieldReports[0], 0, 0, 0);
   expectContestResultsInReport(
     southSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     0,
     0,
     0,
@@ -992,10 +1022,17 @@ test('expected tally reports for a general election with all precincts with CVRs
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(southSpringfieldReports[0], 'prop-1', 0, 0, 0, {
-    yes: 0,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    southSpringfieldReports[0],
+    ContestIdSchema.parse('prop-1'),
+    0,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 0,
+    }
+  );
 
   // Check that the expected results are on the tally report for North Springfield
   const northSpringfieldReports = await screen.getAllByTestId(
@@ -1005,7 +1042,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   expectBallotCountsInReport(northSpringfieldReports[0], 0, 1, 1);
   expectContestResultsInReport(
     northSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     1,
     0,
     0,
@@ -1018,10 +1055,17 @@ test('expected tally reports for a general election with all precincts with CVRs
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(northSpringfieldReports[0], 'prop-1', 1, 1, 0, {
-    yes: 0,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    northSpringfieldReports[0],
+    ContestIdSchema.parse('prop-1'),
+    1,
+    1,
+    0,
+    {
+      yes: 0,
+      no: 0,
+    }
+  );
 
   // Save the tally to card and get the expected tallies
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
@@ -1219,7 +1263,7 @@ test('expected tally reports for a general election with a single precincts with
   expectBallotCountsInReport(centerSpringfieldReports[0], 1, 1, 2);
   expectContestResultsInReport(
     centerSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     2,
     0,
     0,
@@ -1232,10 +1276,17 @@ test('expected tally reports for a general election with a single precincts with
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(centerSpringfieldReports[0], 'prop-1', 2, 1, 0, {
-    yes: 1,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    centerSpringfieldReports[0],
+    ContestIdSchema.parse('prop-1'),
+    2,
+    1,
+    0,
+    {
+      yes: 1,
+      no: 0,
+    }
+  );
 
   // Save the tally to card and get the expected tallies
   fireEvent.click(

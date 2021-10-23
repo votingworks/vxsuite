@@ -1,4 +1,4 @@
-import { Election, safeParseElection } from '../src/election';
+import { ContestIdSchema, Election, safeParseElection } from '../src/election';
 
 export const electionData = `
 {
@@ -84,8 +84,16 @@ export const primaryElection: Election = {
     })),
   ],
   contests: [
-    ...election.contests.map((c) => ({ ...c, id: `${c.id}D`, partyId: 'DEM' })),
-    ...election.contests.map((c) => ({ ...c, id: `${c.id}R`, partyId: 'REP' })),
+    ...election.contests.map((c) => ({
+      ...c,
+      id: ContestIdSchema.parse(`${c.id}D`),
+      partyId: 'DEM',
+    })),
+    ...election.contests.map((c) => ({
+      ...c,
+      id: ContestIdSchema.parse(`${c.id}R`),
+      partyId: 'REP',
+    })),
   ],
   parties: [
     { id: 'DEM', name: 'Democrat', abbrev: 'D', fullName: 'Democratic Party' },
@@ -103,12 +111,12 @@ export const electionWithMsEitherNeither: Election = {
     ...election.contests,
     {
       type: 'ms-either-neither',
-      id: 'MSC',
+      id: ContestIdSchema.parse('MSC'),
       title: 'MSC',
       description: 'MSC',
       section: 'SECTION',
       districtId: 'D',
-      eitherNeitherContestId: 'MSEN',
+      eitherNeitherContestId: ContestIdSchema.parse('MSEN'),
       eitherNeitherLabel: 'EITHER NEITHER',
       eitherOption: {
         id: 'EO',
@@ -118,7 +126,7 @@ export const electionWithMsEitherNeither: Election = {
         id: 'NO',
         label: 'NEITHER OPTION',
       },
-      pickOneContestId: 'MSPO',
+      pickOneContestId: ContestIdSchema.parse('MSPO'),
       pickOneLabel: 'PICK ONE',
       firstOption: {
         id: 'FO',

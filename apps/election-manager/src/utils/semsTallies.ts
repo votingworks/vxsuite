@@ -16,6 +16,8 @@ import {
   FullElectionExternalTally,
   VotingMethod,
   YesNoVoteOption,
+  ContestId,
+  ContestIdSchema,
 } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/utils';
@@ -38,7 +40,7 @@ const writeInCandidate: Candidate = {
 export interface SEMSFileRow {
   countyId: string;
   precinctId: string;
-  contestId: string;
+  contestId: ContestId;
   contestTitle: string;
   partyId: string;
   partyName: string;
@@ -51,8 +53,8 @@ export interface SEMSFileRow {
 
 // TODO(caro) revisit how to count the total number of ballots for multi seat contests
 // The number of total ballots is undervotes + overvotes + (othervotes / numseats)
-// That formula assumes all votes voted for the maxiumum number of seats allowed which is
-// probably not true in practice. This is irreleveant with the number of seats is 1.
+// That formula assumes all votes voted for the maximum number of seats allowed which is
+// probably not true in practice. This is irrelevant with the number of seats is 1.
 export function getContestTallyForCandidateContest(
   contest: CandidateContest,
   rows: SEMSFileRow[]
@@ -180,7 +182,7 @@ function parseFileContentRows(fileContent: string): SEMSFileRow[] {
       parsedRows.push({
         countyId: entries[0],
         precinctId: entries[1],
-        contestId: entries[2],
+        contestId: ContestIdSchema.parse(entries[2]),
         contestTitle: entries[3],
         partyId: entries[4],
         partyName: entries[5],

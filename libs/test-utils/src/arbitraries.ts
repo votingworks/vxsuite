@@ -11,6 +11,7 @@ import {
   Candidate,
   CandidateContest,
   CastVoteRecord,
+  ContestId,
   Contests,
   County,
   District,
@@ -56,6 +57,10 @@ export function arbitraryId(): fc.Arbitrary<z.TypeOf<typeof Id>> {
       // make sure IDs don't start with underscore
       .map((value) => (value.startsWith('_') ? `0${value}` : value))
   );
+}
+
+export function arbitraryContestId(): fc.Arbitrary<ContestId> {
+  return arbitraryId() as fc.Arbitrary<ContestId>;
 }
 
 export function arbitraryDateTime({
@@ -120,7 +125,7 @@ export function arbitraryYesNoOption({
  * Builds values for yes/no contests.
  */
 export function arbitraryYesNoContest({
-  id = arbitraryId(),
+  id = arbitraryContestId(),
   districtId = arbitraryId(),
   partyId = arbitraryOptional(arbitraryId()),
 }: {
@@ -170,7 +175,7 @@ export function arbitraryCandidate({
  * Builds values for candidate contest.
  */
 export function arbitraryCandidateContest({
-  id = arbitraryId(),
+  id = arbitraryContestId(),
   districtId = arbitraryId(),
   partyIds = fc.array(arbitraryId(), { minLength: 1 }),
 }: {
@@ -207,16 +212,16 @@ export function arbitraryMsEitherNeitherContest({
 } = {}): fc.Arbitrary<MsEitherNeitherContest> {
   return fc.record({
     type: fc.constant('ms-either-neither'),
-    id: arbitraryId(),
+    id: arbitraryContestId(),
     title: fc.string({ minLength: 1 }),
     section: fc.string({ minLength: 1 }),
     description: fc.string({ minLength: 1 }),
     districtId,
-    eitherNeitherContestId: arbitraryId(),
+    eitherNeitherContestId: arbitraryContestId(),
     eitherNeitherLabel: fc.string({ minLength: 1 }),
     eitherOption: arbitraryYesNoOption(),
     neitherOption: arbitraryYesNoOption(),
-    pickOneContestId: arbitraryId(),
+    pickOneContestId: arbitraryContestId(),
     firstOption: arbitraryYesNoOption(),
     secondOption: arbitraryYesNoOption(),
     pickOneLabel: fc.string({ minLength: 1 }),

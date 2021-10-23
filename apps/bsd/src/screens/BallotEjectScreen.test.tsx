@@ -3,7 +3,11 @@ import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { BallotType, AdjudicationReason } from '@votingworks/types';
+import {
+  BallotType,
+  AdjudicationReason,
+  ContestIdSchema,
+} from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
 import BallotEjectScreen from './BallotEjectScreen';
@@ -73,7 +77,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
               enabledReasonInfos: [
                 {
                   type: AdjudicationReason.Overvote,
-                  contestId: '1',
+                  contestId: ContestIdSchema.parse('1'),
                   optionIds: ['1', '2'],
                   optionIndexes: [0, 1],
                   expected: 1,
@@ -172,7 +176,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
               enabledReasonInfos: [
                 {
                   type: AdjudicationReason.Undervote,
-                  contestId: '1',
+                  contestId: ContestIdSchema.parse('1'),
                   optionIds: [],
                   optionIndexes: [],
                   expected: 1,
@@ -271,7 +275,7 @@ test('says the ballot sheet is blank if it is', async () => {
               enabledReasonInfos: [
                 {
                   type: AdjudicationReason.Undervote,
-                  contestId: '1',
+                  contestId: ContestIdSchema.parse('1'),
                   expected: 1,
                   optionIds: [],
                   optionIndexes: [],
@@ -624,7 +628,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
                 enabledReasonInfos: [
                   {
                     type: writeInReason,
-                    contestId: 'county-commissioners',
+                    contestId: ContestIdSchema.parse('county-commissioners'),
                     optionIndex: 0,
                     optionId: '__write-in-0',
                   },
@@ -698,7 +702,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
             contestIds: [],
           },
           back: {
-            contestIds: ['county-commissioners'],
+            contestIds: [ContestIdSchema.parse('county-commissioners')],
           },
         },
       })
@@ -735,7 +739,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
       frontMarkAdjudications: [],
       backMarkAdjudications: [
         {
-          contestId: 'county-commissioners',
+          contestId: ContestIdSchema.parse('county-commissioners'),
           isMarked: true,
           name: 'Lizard People',
           optionId: '__write-in-0',

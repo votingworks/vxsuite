@@ -2,6 +2,7 @@ import {
   BallotStyle,
   CandidateContest,
   CandidateVote,
+  ContestId,
   Contests,
   ElectionDefinition,
   MachineId,
@@ -105,7 +106,7 @@ export type PrecinctSelection =
 
 // Ballot
 export type UpdateVoteFunction = (
-  contestId: string,
+  contestId: ContestId,
   vote: OptionalVote
 ) => void;
 export type MarkVoterCardFunction = () => Promise<boolean>;

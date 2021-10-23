@@ -3,6 +3,7 @@ import { metadataFromBytes } from '@votingworks/hmpb-interpreter';
 import {
   AdjudicationReason,
   BlankPage,
+  ContestIdSchema,
   Election,
   InterpretedBmdPage,
   InterpretedHmpbPage,
@@ -3091,7 +3092,7 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
           y: 645,
         },
         contest: {
-          id: 'contest-id',
+          id: ContestIdSchema.parse('contest-id'),
           type: 'candidate',
           candidates: [],
           seats: 1,
@@ -3166,7 +3167,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
       enabledReasonInfos: [
         {
           type: AdjudicationReason.Overvote,
-          contestId: '42',
+          contestId: ContestIdSchema.parse('42'),
           optionIds: ['27', '28'],
           optionIndexes: [0, 1],
           expected: 1,

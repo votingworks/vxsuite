@@ -17,6 +17,7 @@ import {
   BallotSheetInfo,
   BallotSheetInfoSchema,
   Contest,
+  ContestIdSchema,
   ElectionDefinition,
   ElectionDefinitionSchema,
   MarkThresholds,
@@ -617,8 +618,8 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: SerializableBallotPageLayoutSchema.optional(),
     }),
     definitions: z.object({
-      front: z.object({ contestIds: z.array(Id) }).optional(),
-      back: z.object({ contestIds: z.array(Id) }).optional(),
+      front: z.object({ contestIds: z.array(ContestIdSchema) }).optional(),
+      back: z.object({ contestIds: z.array(ContestIdSchema) }).optional(),
     }),
   }
 );

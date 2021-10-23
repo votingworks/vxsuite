@@ -11,6 +11,7 @@ import {
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
+  ContestIdSchema,
 } from '@votingworks/types';
 import { buildCandidateTallies } from '../../test/util/buildCandidateTallies';
 
@@ -23,10 +24,10 @@ import {
   parseSEMSFileAndValidateForElection,
 } from './semsTallies';
 
-const mockSemsRow = {
+const mockSemsRow: SEMSFileRow = {
   countyId: '',
   precinctId: '',
-  contestId: '',
+  contestId: ContestIdSchema.parse(''),
   contestTitle: '',
   partyId: '',
   partyName: '',
@@ -55,49 +56,49 @@ describe('getContestTallyForCandidateContest', () => {
     const rows: SEMSFileRow[] = [
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'barchi-hallaren',
         numberOfVotes: 0,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'cramer-vuocolo',
         numberOfVotes: 1,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'court-blumhardt',
         numberOfVotes: 2,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'boone-lian',
         numberOfVotes: 3,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'hildebrand-garritty',
         numberOfVotes: 4,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'patterson-lariviere',
         numberOfVotes: 5,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: '1', // overvotes
         numberOfVotes: 11,
       },
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: '2', // undervotes
         numberOfVotes: 7,
       },
@@ -188,7 +189,7 @@ describe('getContestTallyForCandidateContest', () => {
     const rows: SEMSFileRow[] = [
       {
         ...mockSemsRow,
-        contestId: 'president',
+        contestId: ContestIdSchema.parse('president'),
         candidateId: 'eevee',
         numberOfVotes: 314,
       },

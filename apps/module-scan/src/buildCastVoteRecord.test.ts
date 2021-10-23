@@ -4,6 +4,7 @@ import {
   AnyContest,
   BallotType,
   CandidateContest,
+  ContestIdSchema,
   getBallotStyle,
   getContests,
   MsEitherNeitherContest,
@@ -584,7 +585,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
             enabledReasonInfos: [
               {
                 type: AdjudicationReason.Overvote,
-                contestId: 'initiative-65',
+                contestId: ContestIdSchema.parse('initiative-65'),
                 expected: 1,
                 optionIds: ['yes', 'no'],
                 optionIndexes: [0, 1],
@@ -599,7 +600,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
         markAdjudications: [
           {
             type: AdjudicationReason.Overvote,
-            contestId: 'initiative-65',
+            contestId: ContestIdSchema.parse('initiative-65'),
             optionId: 'no',
             isMarked: false,
           },
@@ -943,7 +944,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
         markAdjudications: [
           {
             type: AdjudicationReason.UninterpretableBallot,
-            contestId: 'initiative-65',
+            contestId: ContestIdSchema.parse('initiative-65'),
             optionId: 'no',
             isMarked: true,
           },
@@ -1006,7 +1007,7 @@ test('generates a CVR from an adjudicated write-in', () => {
             enabledReasonInfos: [
               {
                 type: AdjudicationReason.WriteIn,
-                contestId: '2',
+                contestId: ContestIdSchema.parse('2'),
                 optionId: '__write-in-0',
                 optionIndex: 3,
               },
@@ -1029,7 +1030,7 @@ test('generates a CVR from an adjudicated write-in', () => {
         markAdjudications: [
           {
             type: AdjudicationReason.WriteIn,
-            contestId: '2',
+            contestId: ContestIdSchema.parse('2'),
             optionId: '__write-in-0',
             isMarked: true,
             name: 'Pikachu',
@@ -1116,7 +1117,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
             enabledReasonInfos: [
               {
                 type: AdjudicationReason.UnmarkedWriteIn,
-                contestId: '2',
+                contestId: ContestIdSchema.parse('2'),
                 optionId: '__write-in-0',
                 optionIndex: 3,
               },
@@ -1133,7 +1134,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
         markAdjudications: [
           {
             type: AdjudicationReason.UnmarkedWriteIn,
-            contestId: '2',
+            contestId: ContestIdSchema.parse('2'),
             optionId: '__write-in-0',
             isMarked: true,
             name: 'Pikachu',

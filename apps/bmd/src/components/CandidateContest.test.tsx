@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import {
   CandidateContest as CandidateContestInterface,
+  ContestIdSchema,
   Parties,
 } from '@votingworks/types';
 
@@ -24,7 +25,7 @@ const contest: CandidateContestInterface = {
     partyId: `party-${i % 2}`,
   })),
   districtId: '7',
-  id: 'contest-id',
+  id: ContestIdSchema.parse('contest-id'),
   seats: 1,
   section: 'City',
   title: 'Mayor',

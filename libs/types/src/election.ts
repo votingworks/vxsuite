@@ -7,6 +7,7 @@ import {
   HexString,
   Id,
   ISO8601Date,
+  NewType,
   ok,
   Optional,
   Result,
@@ -67,6 +68,8 @@ export type OptionalCandidate = Optional<Candidate>;
 export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> = CandidateSchema.optional();
 
 // Contests
+export type ContestId = NewType<string, 'ContestId'>;
+export const ContestIdSchema = (Id as unknown) as z.ZodSchema<ContestId>;
 export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-neither';
 export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('candidate'),
@@ -74,7 +77,7 @@ export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('ms-either-neither'),
 ]);
 export interface Contest {
-  readonly id: string;
+  readonly id: ContestId;
   readonly districtId: string;
   readonly partyId?: string;
   readonly section: string;
@@ -83,7 +86,7 @@ export interface Contest {
 }
 const ContestInternalSchema = z.object({
   _lang: TranslationsSchema.optional(),
-  id: Id,
+  id: ContestIdSchema,
   districtId: Id,
   partyId: Id.optional(),
   section: z.string().nonempty(),
@@ -142,8 +145,8 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> = ContestInternalSche
 
 export interface MsEitherNeitherContest extends Contest {
   readonly type: 'ms-either-neither';
-  readonly eitherNeitherContestId: string;
-  readonly pickOneContestId: string;
+  readonly eitherNeitherContestId: ContestId;
+  readonly pickOneContestId: ContestId;
   readonly description: string;
   readonly eitherNeitherLabel: string;
   readonly pickOneLabel: string;
@@ -155,8 +158,8 @@ export interface MsEitherNeitherContest extends Contest {
 export const MsEitherNeitherContestSchema: z.ZodSchema<MsEitherNeitherContest> = ContestInternalSchema.merge(
   z.object({
     type: z.literal('ms-either-neither'),
-    eitherNeitherContestId: Id,
-    pickOneContestId: Id,
+    eitherNeitherContestId: ContestIdSchema,
+    pickOneContestId: ContestIdSchema,
     description: z.string().nonempty(),
     eitherNeitherLabel: z.string().nonempty(),
     pickOneLabel: z.string().nonempty(),
@@ -608,7 +611,7 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
   {
     type: z.literal('candidate'),
     id: Id,
-    contestId: Id,
+    contestId: ContestIdSchema,
     name: z.string(),
     isWriteIn: z.boolean(),
     optionIndex: z.number().nonnegative(),
@@ -626,7 +629,7 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> = z.objec
   {
     type: z.literal('yesno'),
     id: z.union([z.literal('yes'), z.literal('no')]),
-    contestId: Id,
+    contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
   }
@@ -649,7 +652,7 @@ export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherCont
   {
     type: z.literal('ms-either-neither'),
     id: Id,
-    contestId: Id,
+    contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
   }
@@ -683,7 +686,7 @@ export interface MarginalMarkAdjudicationReasonInfo {
 export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.MarginalMark),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: Id,
     optionIndex: z.number(),
   }
@@ -699,7 +702,7 @@ export interface OvervoteAdjudicationReasonInfo {
 export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.Overvote),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionIds: z.array(Id),
     optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
@@ -716,7 +719,7 @@ export interface UndervoteAdjudicationReasonInfo {
 export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.Undervote),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionIds: z.array(Id),
     optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
@@ -732,7 +735,7 @@ export interface WriteInAdjudicationReasonInfo {
 export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.WriteIn),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: WriteInId,
     optionIndex: z.number().nonnegative(),
   }
@@ -747,7 +750,7 @@ export interface UnmarkedWriteInAdjudicationReasonInfo {
 export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWriteInAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.UnmarkedWriteIn),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: WriteInId,
     optionIndex: z.number().nonnegative(),
   }
@@ -1282,7 +1285,7 @@ export function findContest({
   contestId,
 }: {
   contests: Contests;
-  contestId: string;
+  contestId: ContestId;
 }): AnyContest | undefined {
   return contests.find((c) =>
     c.type === 'ms-either-neither'
@@ -1308,7 +1311,8 @@ export function validateVotes({
 }): void {
   const contests = getContests({ election, ballotStyle });
 
-  for (const contestId of Object.getOwnPropertyNames(votes)) {
+  for (const unparsedContestId of Object.getOwnPropertyNames(votes)) {
+    const contestId = ContestIdSchema.parse(unparsedContestId);
     const contest = findContest({ contests, contestId });
 
     if (!contest) {
@@ -1411,39 +1415,43 @@ export function vote(
     [key: string]: Vote | string | readonly string[] | Candidate;
   }
 ): VotesDict {
-  return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
-    const contest = findContest({ contests, contestId });
+  return Object.getOwnPropertyNames(shorthand).reduce(
+    (result, unparsedContestId) => {
+      const contestId = ContestIdSchema.parse(unparsedContestId);
+      const contest = findContest({ contests, contestId });
 
-    if (!contest) {
-      throw new Error(`unknown contest ${contestId}`);
-    }
+      if (!contest) {
+        throw new Error(`unknown contest ${contestId}`);
+      }
 
-    const choice = shorthand[contestId];
+      const choice = shorthand[contestId];
 
-    if (contest.type !== 'candidate') {
-      return { ...result, [contestId]: choice };
-    }
-    if (Array.isArray(choice) && typeof choice[0] === 'string') {
+      if (contest.type !== 'candidate') {
+        return { ...result, [contestId]: choice };
+      }
+      if (Array.isArray(choice) && typeof choice[0] === 'string') {
+        return {
+          ...result,
+          [contestId]: contest.candidates.filter((c) =>
+            (choice as readonly string[]).includes(c.id)
+          ),
+        };
+      }
+
+      if (typeof choice === 'string') {
+        return {
+          ...result,
+          [contestId]: [contest.candidates.find((c) => c.id === choice)],
+        };
+      }
+
       return {
         ...result,
-        [contestId]: contest.candidates.filter((c) =>
-          (choice as readonly string[]).includes(c.id)
-        ),
+        [contestId]: Array.isArray(choice) ? choice : [choice],
       };
-    }
-
-    if (typeof choice === 'string') {
-      return {
-        ...result,
-        [contestId]: [contest.candidates.find((c) => c.id === choice)],
-      };
-    }
-
-    return {
-      ...result,
-      [contestId]: Array.isArray(choice) ? choice : [choice],
-    };
-  }, {});
+    },
+    {}
+  );
 }
 
 export function isVotePresent(v?: Vote): boolean {

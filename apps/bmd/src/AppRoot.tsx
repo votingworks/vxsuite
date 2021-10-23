@@ -3,6 +3,7 @@ import makeDebug from 'debug';
 import {
   BallotType,
   CompletedBallot,
+  ContestId,
   ElectionDefinition,
   OptionalElectionDefinition,
   OptionalVote,
@@ -230,7 +231,7 @@ type AppAction =
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateLastVoteUpdateAt'; date: number }
   | { type: 'unconfigure' }
-  | { type: 'updateVote'; contestId: string; vote: OptionalVote }
+  | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
   | { type: 'resetBallot'; showPostVotingInstructions?: PostVotingInstructions }
   | { type: 'setUserSettings'; userSettings: PartialUserSettings }
@@ -602,7 +603,7 @@ function AppRoot({
     history.push('/');
   }, [storage, history]);
 
-  const updateVote = useCallback((contestId: string, vote: OptionalVote) => {
+  const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
   }, []);
 

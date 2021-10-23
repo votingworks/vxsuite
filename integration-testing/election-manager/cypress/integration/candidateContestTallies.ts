@@ -3,9 +3,11 @@ import {
   generateCVR,
   generateFileContentFromCVRs,
 } from '@votingworks/test-utils';
+import { ContestIdSchema } from '@votingworks/types';
 import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
+  ExpectedContestResults,
 } from '../support/assertions';
 
 describe('Election Manager can create SEMS tallies', () => {
@@ -81,9 +83,9 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('5'));
 
     // Check that the internal tally reports have the correct tallies
-    const expectedFullResults = [
+    const expectedFullResults: ExpectedContestResults[] = [
       {
-        contestId: 'governor-contest-liberty',
+        contestId: ContestIdSchema.parse('governor-contest-liberty'),
         metadata: { ballots: 5, undervotes: 1, overvotes: 1 },
         votesByOptionId: {
           'aaron-aligator': 2,
@@ -92,7 +94,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       },
       {
-        contestId: 'schoolboard-liberty',
+        contestId: ContestIdSchema.parse('schoolboard-liberty'),
         metadata: { ballots: 5, undervotes: 3, overvotes: 4 },
         votesByOptionId: {
           'amber-brkich': 2,
@@ -104,9 +106,9 @@ describe('Election Manager can create SEMS tallies', () => {
       },
     ];
 
-    const expectedEmptyResults = [
+    const expectedEmptyResults: ExpectedContestResults[] = [
       {
-        contestId: 'governor-contest-liberty',
+        contestId: ContestIdSchema.parse('governor-contest-liberty'),
         metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
         votesByOptionId: {
           'aaron-aligator': 0,
@@ -115,7 +117,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       },
       {
-        contestId: 'schoolboard-liberty',
+        contestId: ContestIdSchema.parse('schoolboard-liberty'),
         metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
         votesByOptionId: {
           'amber-brkich': 0,
@@ -184,55 +186,55 @@ describe('Election Manager can create SEMS tallies', () => {
         assertExpectedResultsMatchSEMsFile(
           [
             {
-              contestId: 'governor-contest-liberty',
+              contestId: ContestIdSchema.parse('governor-contest-liberty'),
               precinctId: 'precinct-2',
               candidateId: 'aaron-aligator',
               numberOfVotes: 2,
             },
             {
-              contestId: 'governor-contest-liberty',
+              contestId: ContestIdSchema.parse('governor-contest-liberty'),
               precinctId: 'precinct-2',
               candidateId: 'peter-pigeon',
               numberOfVotes: 1,
             },
             {
-              contestId: 'governor-contest-liberty',
+              contestId: ContestIdSchema.parse('governor-contest-liberty'),
               precinctId: 'precinct-2',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: 'governor-contest-liberty',
+              contestId: ContestIdSchema.parse('governor-contest-liberty'),
               precinctId: 'precinct-2',
               candidateId: '1', // overvotes
               numberOfVotes: 1,
             },
             {
-              contestId: 'schoolboard-liberty',
+              contestId: ContestIdSchema.parse('schoolboard-liberty'),
               precinctId: 'precinct-2',
               candidateId: '2', // undervotes
               numberOfVotes: 3,
             },
             {
-              contestId: 'schoolboard-liberty',
+              contestId: ContestIdSchema.parse('schoolboard-liberty'),
               precinctId: 'precinct-2',
               candidateId: '1', // overvotes
               numberOfVotes: 4,
             },
             {
-              contestId: 'schoolboard-liberty',
+              contestId: ContestIdSchema.parse('schoolboard-liberty'),
               precinctId: 'precinct-2',
               candidateId: 'amber-brkich',
               numberOfVotes: 2,
             },
             {
-              contestId: 'schoolboard-liberty',
+              contestId: ContestIdSchema.parse('schoolboard-liberty'),
               precinctId: 'precinct-2',
               candidateId: 'chris-daugherty',
               numberOfVotes: 1,
             },
             {
-              contestId: 'chief-pokemon-liberty',
+              contestId: ContestIdSchema.parse('chief-pokemon-liberty'),
               precinctId: 'precinct-2',
               candidateId: '2', // undervotes
               numberOfVotes: 5,

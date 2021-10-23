@@ -168,6 +168,9 @@ export function safeParseJSON<T>(
   return parser ? safeParse(parser, parsed) : ok(parsed);
 }
 
+declare const Unique: unique symbol;
+export type NewType<T, Tag> = T & { readonly [Unique]: Tag };
+
 export const Id = z
   .string()
   .nonempty()

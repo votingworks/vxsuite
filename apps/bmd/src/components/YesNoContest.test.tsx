@@ -1,6 +1,9 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
+import {
+  ContestIdSchema,
+  YesNoContest as YesNoContestInterface,
+} from '@votingworks/types';
 
 import YesNoContest from './YesNoContest';
 
@@ -8,7 +11,7 @@ const contest: YesNoContestInterface = {
   description:
     'Institute a garbage collection program that collects garbage on weekdays across the county.',
   districtId: 'district-id',
-  id: 'contest-id',
+  id: ContestIdSchema.parse('contest-id'),
   section: 'County',
   shortTitle: 'Prop 1',
   title: 'Prop 1: Garbage Collection Program',

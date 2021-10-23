@@ -12,6 +12,7 @@ import {
   OptionalFullElectionExternalTally,
   TallyCategory,
   VotingMethod,
+  ContestId,
 } from '@votingworks/types';
 import { throwIllegalValue, combineContestTallies } from '@votingworks/utils';
 
@@ -80,8 +81,8 @@ export function getTotalNumberOfBallots(
 
   // Break the sets of contest IDs into disjoint sets, so contests that are never seen on the same ballot style.
   for (const contest of election.contests) {
-    const combinedSetForContest = new Set<string>();
-    const newListOfContestIdSets: Array<Set<string>> = [];
+    const combinedSetForContest = new Set<ContestId>();
+    const newListOfContestIdSets: Array<Set<ContestId>> = [];
     for (const contestIdSet of contestIdSets) {
       if (contestIdSet.has(contest.id)) {
         for (const id of contestIdSet) combinedSetForContest.add(id);

@@ -1,5 +1,9 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { AdjudicationReason, CastVoteRecord } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  CastVoteRecord,
+  ContestIdSchema,
+} from '@votingworks/types';
 import { ScanContinueRequest } from '@votingworks/types/api/module-scan';
 import { BallotPackageManifest, typedAs } from '@votingworks/utils';
 import { EventEmitter } from 'events';
@@ -261,7 +265,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         frontMarkAdjudications: [
           {
             type: AdjudicationReason.UninterpretableBallot,
-            contestId: 'city-mayor',
+            contestId: ContestIdSchema.parse('city-mayor'),
             optionId: 'seldon',
             isMarked: true,
           },
@@ -269,13 +273,13 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         backMarkAdjudications: [
           {
             type: AdjudicationReason.UninterpretableBallot,
-            contestId: 'question-a',
+            contestId: ContestIdSchema.parse('question-a'),
             optionId: 'no',
             isMarked: true,
           },
           {
             type: AdjudicationReason.UninterpretableBallot,
-            contestId: 'question-b',
+            contestId: ContestIdSchema.parse('question-b'),
             optionId: 'yes',
             isMarked: true,
           },

@@ -3,6 +3,7 @@ import {
   AdjudicationReason,
   Candidate,
   Contest,
+  ContestIdSchema,
   ContestOption,
   HMPBBallotPageMetadata,
   HMPBBallotPageMetadataSchema,
@@ -116,7 +117,7 @@ export interface UninterpretableBallotMarkAdjudication {
 export const UninterpretableBallotMarkAdjudicationSchema: z.ZodSchema<UninterpretableBallotMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.UninterpretableBallot),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: Id,
     isMarked: z.boolean(),
   }
@@ -131,7 +132,7 @@ export interface OvervoteMarkAdjudication {
 export const OvervoteMarkAdjudicationSchema: z.ZodSchema<OvervoteMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.Overvote),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: Id,
     isMarked: z.boolean(),
   }
@@ -146,7 +147,7 @@ export interface UndervoteMarkAdjudication {
 export const UndervoteMarkAdjudicationSchema: z.ZodSchema<UndervoteMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.Undervote),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: Id,
     isMarked: z.boolean(),
   }
@@ -161,7 +162,7 @@ export interface MarginalMarkAdjudication {
 export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.MarginalMark),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: Id,
     isMarked: z.boolean(),
   }
@@ -183,7 +184,7 @@ export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudic
       z.literal(AdjudicationReason.UnmarkedWriteIn),
     ]),
     isMarked: z.literal(true),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: WriteInId,
     name: z.string(),
   }
@@ -204,7 +205,7 @@ export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjud
       z.literal(AdjudicationReason.UnmarkedWriteIn),
     ]),
     isMarked: z.literal(false),
-    contestId: Id,
+    contestId: ContestIdSchema,
     optionId: WriteInId,
   }
 );

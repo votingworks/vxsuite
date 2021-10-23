@@ -21,6 +21,7 @@ import {
   FullElectionTally,
   BatchTally,
   Party,
+  ContestIdSchema,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { find } from './find';
@@ -431,7 +432,7 @@ export function filterContestTalliesByPartyId(
 
   const filteredContestTallies: Dictionary<ContestTally> = {};
   for (const contestId in contestTallies) {
-    if (contestIds.includes(contestId))
+    if (contestIds.includes(ContestIdSchema.parse(contestId)))
       filteredContestTallies[contestId] = contestTallies[contestId];
   }
   return filteredContestTallies;

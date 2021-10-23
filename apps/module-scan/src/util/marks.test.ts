@@ -1,4 +1,4 @@
-import { BallotMark, MarkStatus } from '@votingworks/types';
+import { BallotMark, ContestIdSchema, MarkStatus } from '@votingworks/types';
 import { changesFromMarks, mergeChanges } from './marks';
 
 test('returns an empty object when no changes are given', () => {
@@ -83,13 +83,13 @@ test('changesFromMarks works with ms-either-neither', () => {
       type: 'ms-either-neither',
       bounds: { x: 50, y: 50, width: 50, height: 50 },
       contest: {
-        id: 'either-neither-1',
+        id: ContestIdSchema.parse('either-neither-1'),
         section: 'State',
         districtId: '1',
         type: 'ms-either-neither',
         title: 'Ballot Measure 1',
-        eitherNeitherContestId: 'either-neither-id',
-        pickOneContestId: 'pick-one-id',
+        eitherNeitherContestId: ContestIdSchema.parse('either-neither-id'),
+        pickOneContestId: ContestIdSchema.parse('pick-one-id'),
         description: 'Blah blah',
         eitherNeitherLabel: 'VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH',
         pickOneLabel: 'AND VOTE FOR ONE',

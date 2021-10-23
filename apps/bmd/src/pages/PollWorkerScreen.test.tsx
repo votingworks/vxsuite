@@ -5,6 +5,8 @@ import {
 } from '@votingworks/fixtures';
 import {
   CompressedTally,
+  ContestId,
+  ContestIdSchema,
   Dictionary,
   Election,
   safeParseElection,
@@ -51,7 +53,7 @@ function expectBallotCountsInReport(
 
 function expectContestResultsInReport(
   container: HTMLElement,
-  contestId: string,
+  contestId: ContestId,
   ballotsCast: number,
   undervotes: number,
   overvotes: number,
@@ -247,14 +249,21 @@ test('printing precinct scanner report works as expected with all precinct data 
   );
   expect(allPrecinctsReports).toHaveLength(2);
   expectBallotCountsInReport(allPrecinctsReports[0], 20, 5, 25);
-  expectContestResultsInReport(allPrecinctsReports[0], 'president', 34, 6, 0, {
-    'barchi-hallaren': 6,
-    'cramer-vuocolo': 5,
-    'court-blumhardt': 6,
-    'boone-lian': 5,
-    'hildebrand-garritty': 3,
-    'patterson-lariviere': 0,
-  });
+  expectContestResultsInReport(
+    allPrecinctsReports[0],
+    ContestIdSchema.parse('president'),
+    34,
+    6,
+    0,
+    {
+      'barchi-hallaren': 6,
+      'cramer-vuocolo': 5,
+      'court-blumhardt': 6,
+      'boone-lian': 5,
+      'hildebrand-garritty': 3,
+      'patterson-lariviere': 0,
+    }
+  );
   const senatorContest = screen.getAllByTestId('results-table-senator')[0];
   within(senatorContest).getByText(/0 ballots/);
   within(senatorContest).getByText(/0 undervotes/);
@@ -329,7 +338,7 @@ test('printing precinct scanner report works as expected with single precinct da
   expectBallotCountsInReport(centerSpringfieldReports[0], 20, 5, 25);
   expectContestResultsInReport(
     centerSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     34,
     6,
     0,
@@ -427,7 +436,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectBallotCountsInReport(centerSpringfieldReports[0], 10, 0, 10);
   expectContestResultsInReport(
     centerSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     10,
     1,
     1,
@@ -448,7 +457,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectBallotCountsInReport(northSpringfieldReports[0], 10, 5, 15);
   expectContestResultsInReport(
     northSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     15,
     2,
     3,
@@ -469,7 +478,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectBallotCountsInReport(southSpringfieldReports[0], 0, 0, 0);
   expectContestResultsInReport(
     southSpringfieldReports[0],
-    'president',
+    ContestIdSchema.parse('president'),
     0,
     0,
     0,
@@ -585,7 +594,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     1,
     0,
     0,
@@ -593,7 +602,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     1,
     1,
     0,
@@ -601,7 +610,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     1,
     0,
     0,
@@ -609,14 +618,14 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     1,
     1,
     0,
     { yes: 0, no: 0 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = await screen.getAllByTestId(
+  const precinct1FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-1'
   );
   expect(precinct1FishReports).toHaveLength(2);
@@ -628,7 +637,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct1FishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     0,
     0,
     0,
@@ -636,7 +645,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct1FishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     0,
     0,
     0,
@@ -648,12 +657,19 @@ test('printing precinct scanner report works as expected with all precinct speci
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct1FishReports[0], 'fishing', 0, 0, 0, {
-    yes: 0,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    precinct1FishReports[0],
+    ContestIdSchema.parse('fishing'),
+    0,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 0,
+    }
+  );
   // Check that the expected results are on the tally report for Precinct 2 Mammal Party
-  const precinct2MammalReports = await screen.getAllByTestId(
+  const precinct2MammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-2'
   );
   expect(precinct2MammalReports).toHaveLength(2);
@@ -665,7 +681,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     1,
     0,
     1,
@@ -673,7 +689,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     1,
     2,
     0,
@@ -681,7 +697,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     1,
     0,
     0,
@@ -689,14 +705,14 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     1,
     0,
     0,
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 2 Fish Party
-  const precinct2FishReports = await screen.getAllByTestId(
+  const precinct2FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-2'
   );
   expect(precinct2FishReports).toHaveLength(2);
@@ -708,7 +724,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   ).toHaveLength(0);
   expectContestResultsInReport(
     precinct2FishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     1,
     0,
     0,
@@ -716,7 +732,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
   expectContestResultsInReport(
     precinct2FishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     1,
     0,
     0,
@@ -728,10 +744,17 @@ test('printing precinct scanner report works as expected with all precinct speci
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct2FishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    precinct2FishReports[0],
+    ContestIdSchema.parse('fishing'),
+    1,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 1,
+    }
+  );
 });
 
 test('printing precinct scanner report works as expected with all precinct combined data for primary election', async () => {
@@ -816,7 +839,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   ).toHaveLength(0);
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     2,
     0,
     1,
@@ -824,7 +847,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     2,
     3,
     0,
@@ -832,7 +855,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     2,
     0,
     0,
@@ -840,7 +863,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     2,
     1,
     0,
@@ -859,7 +882,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   ).toHaveLength(0);
   expectContestResultsInReport(
     allPrecinctFishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     1,
     0,
     0,
@@ -867,7 +890,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   );
   expectContestResultsInReport(
     allPrecinctFishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     1,
     0,
     0,
@@ -879,10 +902,17 @@ test('printing precinct scanner report works as expected with all precinct combi
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(allPrecinctFishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    allPrecinctFishReports[0],
+    ContestIdSchema.parse('fishing'),
+    1,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 1,
+    }
+  );
 });
 
 test('printing precinct scanner report works as expected with a single precinct for primary election', async () => {
@@ -966,7 +996,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   ).toHaveLength(0);
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'best-animal-mammal',
+    ContestIdSchema.parse('best-animal-mammal'),
     2,
     0,
     1,
@@ -974,7 +1004,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'zoo-council-mammal',
+    ContestIdSchema.parse('zoo-council-mammal'),
     2,
     3,
     0,
@@ -982,7 +1012,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'new-zoo-either',
+    ContestIdSchema.parse('new-zoo-either'),
     2,
     0,
     0,
@@ -990,7 +1020,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
-    'new-zoo-pick',
+    ContestIdSchema.parse('new-zoo-pick'),
     2,
     1,
     0,
@@ -1009,7 +1039,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   ).toHaveLength(0);
   expectContestResultsInReport(
     allPrecinctFishReports[0],
-    'best-animal-fish',
+    ContestIdSchema.parse('best-animal-fish'),
     1,
     0,
     0,
@@ -1017,7 +1047,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   );
   expectContestResultsInReport(
     allPrecinctFishReports[0],
-    'aquarium-council-fish',
+    ContestIdSchema.parse('aquarium-council-fish'),
     1,
     0,
     0,
@@ -1029,8 +1059,15 @@ test('printing precinct scanner report works as expected with a single precinct 
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(allPrecinctFishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    allPrecinctFishReports[0],
+    ContestIdSchema.parse('fishing'),
+    1,
+    0,
+    0,
+    {
+      yes: 0,
+      no: 1,
+    }
+  );
 });

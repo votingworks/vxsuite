@@ -1,3 +1,4 @@
+import { ContestId } from '@votingworks/types';
 import {
   BallotScreenProps,
   PartyReportScreenProps,

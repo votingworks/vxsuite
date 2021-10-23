@@ -3,6 +3,7 @@ import {
   generateCVR,
   generateFileContentFromCVRs,
 } from '@votingworks/test-utils';
+import { ContestIdSchema } from '@votingworks/types';
 import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
@@ -127,7 +128,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 8, undervotes: 2, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -135,7 +136,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 8, undervotes: 2, overvotes: 2 },
           votesByOptionId: {
             yes: 2,
@@ -143,7 +144,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 8, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 3,
@@ -151,7 +152,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 8, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 3,
@@ -166,7 +167,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 0 },
           votesByOptionId: {
             yes: 1,
@@ -174,7 +175,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 2,
@@ -182,7 +183,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 2,
@@ -190,7 +191,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 2,
@@ -205,7 +206,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 0,
@@ -213,7 +214,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 0,
@@ -221,7 +222,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -229,7 +230,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -244,7 +245,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 0,
@@ -252,7 +253,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 0,
@@ -260,7 +261,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 0,
@@ -268,7 +269,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 0,
@@ -283,7 +284,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 1,
@@ -291,7 +292,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 0 },
           votesByOptionId: {
             yes: 1,
@@ -299,7 +300,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 2,
@@ -307,7 +308,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 2,
@@ -322,7 +323,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 4, undervotes: 2, overvotes: 1 },
           votesByOptionId: {
             yes: 0,
@@ -330,7 +331,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 2 },
           votesByOptionId: {
             yes: 1,
@@ -338,7 +339,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 1,
@@ -346,7 +347,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -361,7 +362,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 4, undervotes: 2, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -369,7 +370,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 4, undervotes: 2, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -377,7 +378,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 2,
@@ -385,7 +386,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -400,7 +401,7 @@ describe('Election Manager can create SEMS tallies', () => {
     assertExpectedResultsMatchTallyReport(
       [
         {
-          contestId: '750000017',
+          contestId: ContestIdSchema.parse('750000017'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 0,
@@ -408,7 +409,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000018',
+          contestId: ContestIdSchema.parse('750000018'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -416,7 +417,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000015',
+          contestId: ContestIdSchema.parse('750000015'),
           metadata: { ballots: 4, undervotes: 1, overvotes: 1 },
           votesByOptionId: {
             yes: 1,
@@ -424,7 +425,7 @@ describe('Election Manager can create SEMS tallies', () => {
           },
         },
         {
-          contestId: '750000016',
+          contestId: ContestIdSchema.parse('750000016'),
           metadata: { ballots: 4, undervotes: 0, overvotes: 0 },
           votesByOptionId: {
             yes: 2,
@@ -445,277 +446,277 @@ describe('Election Manager can create SEMS tallies', () => {
         assertExpectedResultsMatchSEMsFile(
           [
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6522',
               candidateId: '750000094',
               numberOfVotes: 1,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6522',
               candidateId: '750000095',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6522',
               candidateId: '1', // overvotes
               numberOfVotes: 0,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6522',
               candidateId: '750000092',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6522',
               candidateId: '750000093',
               numberOfVotes: 0,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6522',
               candidateId: '1', // overvotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6522',
               candidateId: '750000088',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6522',
               candidateId: '750000089',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6522',
               candidateId: '1', // overvotes
               numberOfVotes: 0,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 0,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6522',
               candidateId: '750000090',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6522',
               candidateId: '750000091',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6522',
               candidateId: '1', // overvotes
               numberOfVotes: 0,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 0,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6538',
               candidateId: '750000094',
               numberOfVotes: 0,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6538',
               candidateId: '750000095',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6538',
               candidateId: '1', // overvotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000017',
+              contestId: ContestIdSchema.parse('750000017'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6538',
               candidateId: '750000092',
               numberOfVotes: 0,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6538',
               candidateId: '750000093',
               numberOfVotes: 2,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6538',
               candidateId: '1', // overvotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000018',
+              contestId: ContestIdSchema.parse('750000018'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6538',
               candidateId: '750000088',
               numberOfVotes: 1,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6538',
               candidateId: '750000089',
               numberOfVotes: 1,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6538',
               candidateId: '1', // overvotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000015',
+              contestId: ContestIdSchema.parse('750000015'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6538',
               candidateId: '750000090',
               numberOfVotes: 1,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6538',
               candidateId: '750000091',
               numberOfVotes: 1,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6538',
               candidateId: '1', // overvotes
               numberOfVotes: 1,
             },
             {
-              contestId: '750000016',
+              contestId: ContestIdSchema.parse('750000016'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 1,
             },
             {
-              contestId: '775020870',
+              contestId: ContestIdSchema.parse('775020870'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020870',
+              contestId: ContestIdSchema.parse('775020870'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020872',
+              contestId: ContestIdSchema.parse('775020872'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020872',
+              contestId: ContestIdSchema.parse('775020872'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020876',
+              contestId: ContestIdSchema.parse('775020876'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020876',
+              contestId: ContestIdSchema.parse('775020876'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020877',
+              contestId: ContestIdSchema.parse('775020877'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020877',
+              contestId: ContestIdSchema.parse('775020877'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020903',
+              contestId: ContestIdSchema.parse('775020903'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020903',
+              contestId: ContestIdSchema.parse('775020903'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020904',
+              contestId: ContestIdSchema.parse('775020904'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020904',
+              contestId: ContestIdSchema.parse('775020904'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020899',
+              contestId: ContestIdSchema.parse('775020899'),
               precinctId: '6538',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
             },
             {
-              contestId: '775020899',
+              contestId: ContestIdSchema.parse('775020899'),
               precinctId: '6522',
               candidateId: '2', // undervotes
               numberOfVotes: 4,
