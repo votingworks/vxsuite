@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   BallotStyle,
   ElectionSchema,
+  PartyId,
+  PrecinctId,
   safeParseElection,
   VoterCardData,
 } from '@votingworks/types';
@@ -96,19 +98,19 @@ function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   );
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  function getPartyNameById(partyId: string) {
+  function getPartyNameById(partyId: PartyId) {
     const party = election?.parties.find((p) => p.id === partyId);
     return party?.name ?? '';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  function getPartyAdjectiveById(partyId: string) {
+  function getPartyAdjectiveById(partyId: PartyId) {
     const partyName = getPartyNameById(partyId);
     return (partyName === 'Democrat' && 'Democratic') || partyName;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  function getPrecinctNameByPrecinctId(precinctId: string): string {
+  function getPrecinctNameByPrecinctId(precinctId: PrecinctId): string {
     const precinct = election?.precincts.find((p) => p.id === precinctId);
     return precinct?.name ?? '';
   }

@@ -8,8 +8,9 @@ import {
   HMPBBallotPageMetadataSchema,
   TargetShape,
   TargetShapeSchema,
+  WriteInIdSchema,
 } from './election';
-import { Id, WriteInId } from './generic';
+import { IdSchema } from './generic';
 import {
   Corners,
   CornersSchema,
@@ -116,8 +117,8 @@ export interface UninterpretableBallotMarkAdjudication {
 export const UninterpretableBallotMarkAdjudicationSchema: z.ZodSchema<UninterpretableBallotMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.UninterpretableBallot),
-    contestId: Id,
-    optionId: Id,
+    contestId: IdSchema,
+    optionId: IdSchema,
     isMarked: z.boolean(),
   }
 );
@@ -131,8 +132,8 @@ export interface OvervoteMarkAdjudication {
 export const OvervoteMarkAdjudicationSchema: z.ZodSchema<OvervoteMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.Overvote),
-    contestId: Id,
-    optionId: Id,
+    contestId: IdSchema,
+    optionId: IdSchema,
     isMarked: z.boolean(),
   }
 );
@@ -146,8 +147,8 @@ export interface UndervoteMarkAdjudication {
 export const UndervoteMarkAdjudicationSchema: z.ZodSchema<UndervoteMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.Undervote),
-    contestId: Id,
-    optionId: Id,
+    contestId: IdSchema,
+    optionId: IdSchema,
     isMarked: z.boolean(),
   }
 );
@@ -161,8 +162,8 @@ export interface MarginalMarkAdjudication {
 export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudication> = z.object(
   {
     type: z.literal(AdjudicationReason.MarginalMark),
-    contestId: Id,
-    optionId: Id,
+    contestId: IdSchema,
+    optionId: IdSchema,
     isMarked: z.boolean(),
   }
 );
@@ -183,8 +184,8 @@ export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudic
       z.literal(AdjudicationReason.UnmarkedWriteIn),
     ]),
     isMarked: z.literal(true),
-    contestId: Id,
-    optionId: WriteInId,
+    contestId: IdSchema,
+    optionId: WriteInIdSchema,
     name: z.string(),
   }
 );
@@ -204,8 +205,8 @@ export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjud
       z.literal(AdjudicationReason.UnmarkedWriteIn),
     ]),
     isMarked: z.literal(false),
-    contestId: Id,
-    optionId: WriteInId,
+    contestId: IdSchema,
+    optionId: WriteInIdSchema,
   }
 );
 

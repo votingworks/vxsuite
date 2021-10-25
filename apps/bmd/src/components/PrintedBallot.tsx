@@ -6,9 +6,11 @@ import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import {
+  BallotStyleId,
   BallotType,
   CandidateVote,
   ElectionDefinition,
+  PrecinctId,
   VotesDict,
   YesNoVote,
   getBallotStyle,
@@ -207,10 +209,10 @@ function MsEitherNeitherContestResult({
 }
 
 interface Props {
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
-  precinctId: string;
+  precinctId: PrecinctId;
   votes: VotesDict;
 }
 

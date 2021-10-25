@@ -9,6 +9,7 @@ import {
   YesNoContest,
   AnyContest,
   MsEitherNeitherContest,
+  ContestId,
 } from '@votingworks/types';
 
 import readFileAsync from '../lib/readFileAsync';
@@ -194,7 +195,7 @@ function DefinitionContestsScreen({
   const { electionDefinition, saveElection } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
-  const { contestId } = useParams<{ contestId: string }>();
+  const { contestId } = useParams<{ contestId: ContestId }>();
   const contestIndex = election.contests.findIndex((c) => c.id === contestId);
   const contest = election.contests[contestIndex];
 

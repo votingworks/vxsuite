@@ -1,3 +1,4 @@
+import { ContestId } from '@votingworks/types';
 import {
   BallotScreenProps,
   PartyReportScreenProps,
@@ -12,7 +13,7 @@ const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
   definitionEditor: '/definition/editor',
-  definitionContest: ({ contestId }: { contestId: string }): string =>
+  definitionContest: ({ contestId }: { contestId: ContestId }): string =>
     `/definition/contests/${contestId}`,
   smartcards: '/cards',
   ballotsList: '/ballots',

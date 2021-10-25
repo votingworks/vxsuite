@@ -2,7 +2,12 @@ import { strict as assert } from 'assert';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { VotesDict, ElectionDefinition } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  PrecinctId,
+  VotesDict,
+} from '@votingworks/types';
 import { Loading, Main, MainChild } from '@votingworks/ui';
 
 import PrintedBallot from '../components/PrintedBallot';
@@ -31,13 +36,13 @@ const TopRightContent = styled.div`
 `;
 
 interface Props {
-  ballotStyleId?: string;
+  ballotStyleId?: BallotStyleId;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   isVoterCardPresent: boolean;
   markVoterCardPrinted: MarkVoterCardFunction;
-  precinctId?: string;
+  precinctId?: PrecinctId;
   printer: Printer;
   useEffectToggleLargeDisplay: () => void;
   showNoChargerAttachedWarning: boolean;

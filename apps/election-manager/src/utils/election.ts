@@ -12,6 +12,9 @@ import {
   ContestVoteOption,
   writeInCandidate,
   YesNoVoteOption,
+  PartyId,
+  BallotStyleId,
+  PrecinctId,
 } from '@votingworks/types';
 import { BallotStyleData, find } from '@votingworks/utils';
 import { strict as assert } from 'assert';
@@ -22,7 +25,7 @@ import sortBy from './sortBy';
 
 export function getDistrictIdsForPartyId(
   election: Election,
-  partyId: string
+  partyId: PartyId
 ): string[] {
   return election.ballotStyles
     .filter((bs) => bs.partyId === partyId)
@@ -129,10 +132,10 @@ export function getBallotPath({
   isLiveMode,
   isAbsentee,
 }: {
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   election: Election;
   electionHash: string;
-  precinctId: string;
+  precinctId: PrecinctId;
   locales: BallotLocale;
   isLiveMode: boolean;
   isAbsentee: boolean;
@@ -163,7 +166,7 @@ export function getAllPossibleCandidatesForCandidateContest(
 
 export function getContestsForPrecinct(
   election: Election,
-  precinctId: string
+  precinctId: PrecinctId
 ): AnyContest[] {
   const precinct = election.precincts.find((p) => p.id === precinctId);
   if (precinct === undefined) {
@@ -183,7 +186,7 @@ export function getContestsForPrecinct(
 
 interface GenerateTestDeckParams {
   election: Election;
-  precinctId?: string;
+  precinctId?: PrecinctId;
 }
 
 export function generateTestDeckBallots({

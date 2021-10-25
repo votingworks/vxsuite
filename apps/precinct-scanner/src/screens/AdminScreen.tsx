@@ -1,4 +1,8 @@
-import { Precinct, SelectChangeEventFunction } from '@votingworks/types';
+import {
+  Precinct,
+  PrecinctId,
+  SelectChangeEventFunction,
+} from '@votingworks/types';
 import {
   Button,
   Loading,
@@ -25,7 +29,7 @@ import AppContext from '../contexts/AppContext';
 interface Props {
   scannedBallotCount: number;
   isTestMode: boolean;
-  updateAppPrecinctId(appPrecinctId: string): Promise<void>;
+  updateAppPrecinctId(appPrecinctId: PrecinctId): Promise<void>;
   toggleLiveMode(): Promise<void>;
   unconfigure(): Promise<void>;
   calibrate(): Promise<boolean>;

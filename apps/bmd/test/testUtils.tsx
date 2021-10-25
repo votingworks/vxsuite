@@ -3,9 +3,11 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import { render as testRender } from '@testing-library/react';
 import {
+  BallotStyleId,
   Contests,
   ElectionDefinition,
   parseElection,
+  PrecinctId,
   VotesDict,
 } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
@@ -55,7 +57,7 @@ export function render(
     votes = {},
   }: {
     route?: string;
-    ballotStyleId?: string;
+    ballotStyleId?: BallotStyleId;
     electionDefinition?: ElectionDefinition;
     contests?: Contests;
     markVoterCardVoided?: MarkVoterCardFunction;
@@ -64,7 +66,7 @@ export function render(
     isCardlessVoter?: boolean;
     isLiveMode?: boolean;
     machineConfig?: MachineConfig;
-    precinctId?: string;
+    precinctId?: PrecinctId;
     printer?: Printer;
     resetBallot?(): void;
     setUserSettings?(): void;

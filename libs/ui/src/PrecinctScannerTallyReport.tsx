@@ -3,6 +3,7 @@ import {
   Tally,
   PrecinctSelection,
   PrecinctSelectionKind,
+  PartyId,
 } from '@votingworks/types';
 import React from 'react';
 import { DateTime } from 'luxon';
@@ -22,7 +23,7 @@ import { TallyReportSummary } from './TallyReportSummary';
 interface Props {
   reportSavedTime: number;
   electionDefinition: ElectionDefinition;
-  partyId?: string;
+  partyId?: PartyId;
   precinctSelection: PrecinctSelection;
   reportPurpose: string;
   isPollsOpen: boolean;

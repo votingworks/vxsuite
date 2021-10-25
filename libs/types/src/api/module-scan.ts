@@ -23,7 +23,7 @@ import {
   MarkThresholdsSchema,
   Precinct,
 } from '../election';
-import { HexString, Id } from '../generic';
+import { HexString, IdSchema } from '../generic';
 
 export type Side = 'front' | 'back';
 export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
@@ -50,7 +50,7 @@ export interface BatchInfo {
 }
 
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
-  id: Id,
+  id: IdSchema,
   label: z.string(),
   startedAt: ISO8601TimestampSchema,
   endedAt: z.optional(ISO8601TimestampSchema),
@@ -218,7 +218,7 @@ export type GetCurrentPrecinctConfigResponse = OkResponse<{
 export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> = z.object(
   {
     status: z.literal('ok'),
-    precinctId: z.optional(Id),
+    precinctId: z.optional(IdSchema),
   }
 );
 
@@ -236,7 +236,7 @@ export interface PutCurrentPrecinctConfigRequest {
  */
 export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> = z.object(
   {
-    precinctId: z.optional(Id),
+    precinctId: z.optional(IdSchema),
   }
 );
 
@@ -617,8 +617,8 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: SerializableBallotPageLayoutSchema.optional(),
     }),
     definitions: z.object({
-      front: z.object({ contestIds: z.array(Id) }).optional(),
-      back: z.object({ contestIds: z.array(Id) }).optional(),
+      front: z.object({ contestIds: z.array(IdSchema) }).optional(),
+      back: z.object({ contestIds: z.array(IdSchema) }).optional(),
     }),
   }
 );

@@ -1,7 +1,9 @@
 import {
   BallotStyle,
+  BallotStyleId,
   CandidateContest,
   CandidateVote,
+  ContestId,
   Contests,
   ElectionDefinition,
   MachineId,
@@ -10,6 +12,7 @@ import {
   OptionalYesNoVote,
   Parties,
   Precinct,
+  PrecinctId,
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
@@ -89,9 +92,9 @@ export interface ActivationData {
 }
 
 export interface SerializableActivationData {
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   isCardlessVoter: boolean;
-  precinctId: string;
+  precinctId: PrecinctId;
 }
 
 export enum PrecinctSelectionKind {
@@ -105,20 +108,20 @@ export type PrecinctSelection =
 
 // Ballot
 export type UpdateVoteFunction = (
-  contestId: string,
+  contestId: ContestId,
   vote: OptionalVote
 ) => void;
 export type MarkVoterCardFunction = () => Promise<boolean>;
 export interface BallotContextInterface {
   machineConfig: MachineConfig;
-  ballotStyleId?: string;
+  ballotStyleId?: BallotStyleId;
   contests: Contests;
   readonly electionDefinition?: ElectionDefinition;
   isCardlessVoter: boolean;
   isLiveMode: boolean;
   markVoterCardPrinted: MarkVoterCardFunction;
   markVoterCardVoided: MarkVoterCardFunction;
-  precinctId?: string;
+  precinctId?: PrecinctId;
   printer: Printer;
   resetBallot: (instructions?: PostVotingInstructions) => void;
   setUserSettings: SetUserSettings;

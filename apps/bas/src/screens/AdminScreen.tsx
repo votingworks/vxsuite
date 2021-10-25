@@ -2,7 +2,12 @@ import React from 'react';
 import pluralize from 'pluralize';
 import { DateTime } from 'luxon';
 
-import { BallotStyle, OptionalElection } from '@votingworks/types';
+import {
+  BallotStyle,
+  OptionalElection,
+  PartyId,
+  PrecinctId,
+} from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
 import { compareName } from '../utils/sort';
@@ -17,11 +22,11 @@ import Text from '../components/Text';
 interface Props {
   election: OptionalElection;
   fetchElection: () => void;
-  getBallotStylesByPrecinctId: (id?: string) => BallotStyle[];
+  getBallotStylesByPrecinctId: (id?: PrecinctId) => BallotStyle[];
   isLoadingElection: boolean;
-  partyId?: string;
+  partyId?: PartyId;
   partyName?: string;
-  precinctId?: string;
+  precinctId?: PrecinctId;
   precinctName?: string;
   setParty: (id: string) => void;
   setPrecinct: (id: string) => void;

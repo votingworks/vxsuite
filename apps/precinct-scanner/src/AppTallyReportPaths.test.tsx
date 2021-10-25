@@ -29,6 +29,7 @@ import {
 } from '@votingworks/utils';
 import {
   CompressedTally,
+  ContestId,
   Dictionary,
   err,
   PrecinctSelectionKind,
@@ -86,7 +87,7 @@ function expectBallotCountsInReport(
 
 function expectContestResultsInReport(
   container: HTMLElement,
-  contestId: string,
+  contestId: ContestId,
   ballotsCast: number,
   undervotes: number,
   overvotes: number,

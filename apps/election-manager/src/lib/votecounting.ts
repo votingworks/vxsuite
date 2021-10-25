@@ -16,6 +16,8 @@ import {
   VotingMethod,
   BatchTally,
   writeInCandidate,
+  PrecinctId,
+  PartyId,
 } from '@votingworks/types';
 import {
   computeTallyWithPrecomputedCategories,
@@ -219,7 +221,7 @@ export function* parseCVRs(
 export interface GetContestTallyMetaParams {
   election: Election;
   castVoteRecords: CastVoteRecord[];
-  precinctId?: string;
+  precinctId?: PrecinctId;
   scannerId?: string;
 }
 
@@ -304,9 +306,9 @@ export function filterTalliesByParamsAndBatchId(
     partyId,
     votingMethod,
   }: {
-    precinctId?: string;
+    precinctId?: PrecinctId;
     scannerId?: string;
-    partyId?: string;
+    partyId?: PartyId;
     votingMethod?: VotingMethod;
   }
 ): BatchTally {
