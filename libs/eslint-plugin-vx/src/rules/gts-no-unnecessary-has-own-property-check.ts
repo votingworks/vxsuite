@@ -1,5 +1,5 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils'
-import { createRule } from '../util'
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-no-unnecessary-has-own-property-check',
@@ -22,14 +22,14 @@ export default createRule({
   defaultOptions: [],
 
   create(context) {
-    const forOfBlockIf = `ForOfStatement > BlockStatement > IfStatement.body > .test`
-    const forOfIf = `ForOfStatement > IfStatement.body > .test`
-    const unaryNegation = `[type=UnaryExpression][operator="!"] > .argument`
+    const forOfBlockIf = `ForOfStatement > BlockStatement > IfStatement.body > .test`;
+    const forOfIf = `ForOfStatement > IfStatement.body > .test`;
+    const unaryNegation = `[type=UnaryExpression][operator="!"] > .argument`;
     const hasOwnPropertyCall =
-      '[type=CallExpression] > MemberExpression.callee > Identifier.property[name=hasOwnProperty]'
+      '[type=CallExpression] > MemberExpression.callee > Identifier.property[name=hasOwnProperty]';
     const hasOwnPropertyPrototypeCall =
       '[type=CallExpression] > MemberExpression.callee > MemberExpression.object[object.object.name="Object"][object.property.name="prototype"]' +
-      ' > Identifier.property[name=hasOwnProperty]'
+      ' > Identifier.property[name=hasOwnProperty]';
 
     return Object.fromEntries(
       [
@@ -49,6 +49,6 @@ export default createRule({
             messageId: 'noUnnecessaryHasOwnPropertyCheck',
           }),
       ])
-    )
+    );
   },
-})
+});

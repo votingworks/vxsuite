@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-no-unnecessary-has-own-property-check'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-no-unnecessary-has-own-property-check';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
   valid: [
@@ -42,7 +42,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
             o[k] = 1
         }
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -51,7 +51,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
           if (o.hasOwnProperty(k))
             o[k] = 1
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -61,7 +61,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
             continue
         }
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -70,7 +70,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
           if (!o.hasOwnProperty(k))
             continue
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -80,7 +80,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
             o[k] = 1
         }
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -89,7 +89,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
           if (Object.prototype.hasOwnProperty.call(o, k))
             o[k] = 1
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -99,7 +99,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
             continue
         }
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
     {
       code: `
@@ -108,7 +108,7 @@ ruleTester.run('gts-unnecessary-has-own-property-check', rule, {
           if (!Object.prototype.hasOwnProperty.call(o, k))
             continue
       `,
-      errors: [{ messageId: 'unnecessaryHasOwnPropertyCheck', line: 4 }],
+      errors: [{ messageId: 'noUnnecessaryHasOwnPropertyCheck', line: 4 }],
     },
   ],
-})
+});
