@@ -1,6 +1,6 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils'
-import { strict as assert } from 'assert'
-import { createRule } from '../util'
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { strict as assert } from 'assert';
+import { createRule } from '../util';
 
 export default createRule({
   name: 'gts-no-for-in-loop',
@@ -23,7 +23,7 @@ export default createRule({
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode()
+    const sourceCode = context.getSourceCode();
     return {
       ForInStatement: (node: TSESTree.ForInStatement) => {
         context.report({
@@ -33,8 +33,8 @@ export default createRule({
             const inToken = sourceCode.getFirstTokenBetween(
               node.left,
               node.right
-            )
-            assert(inToken?.value === 'in')
+            );
+            assert(inToken?.value === 'in');
 
             return [
               fixer.replaceTextRange(
@@ -42,10 +42,10 @@ export default createRule({
                 'of Object.keys('
               ),
               fixer.insertTextAfter(node.right, ')'),
-            ]
+            ];
           },
-        })
+        });
       },
-    }
+    };
   },
-})
+});

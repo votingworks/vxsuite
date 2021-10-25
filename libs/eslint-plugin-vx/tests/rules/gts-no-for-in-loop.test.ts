@@ -1,6 +1,6 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils'
-import { join } from 'path'
-import rule from '../../src/rules/gts-no-for-in-loop'
+import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { join } from 'path';
+import rule from '../../src/rules/gts-no-for-in-loop';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new ESLintUtils.RuleTester({
     project: './tsconfig.json',
   },
   parser: '@typescript-eslint/parser',
-})
+});
 
 ruleTester.run('gts-no-for-in-loop', rule, {
   valid: [
@@ -40,4 +40,4 @@ ruleTester.run('gts-no-for-in-loop', rule, {
       errors: [{ messageId: 'noForInLoop', line: 2 }],
     },
   ],
-})
+});
