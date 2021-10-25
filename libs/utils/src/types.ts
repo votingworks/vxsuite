@@ -195,7 +195,7 @@ export interface Hardware {
 }
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {
-  sides: Exclude<KioskBrowser.PrintOptions['sides'], undefined>;
+  sides: KioskBrowser.PrintSides;
 }
 export interface Printer {
   print(options: PrintOptions): Promise<void>;
