@@ -77,10 +77,8 @@ function element(
     children = rest.slice(1) as Node[];
   }
 
-  for (const key in attributes) {
-    if (Object.prototype.hasOwnProperty.call(attributes, key)) {
-      result.setAttribute(key, attributes[key]);
-    }
+  for (const key of Object.keys(attributes)) {
+    result.setAttribute(key, attributes[key]);
   }
 
   result.append(...children);

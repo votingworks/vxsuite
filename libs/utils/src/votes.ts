@@ -430,7 +430,7 @@ export function filterContestTalliesByPartyId(
   ).map((contest) => contest.id);
 
   const filteredContestTallies: Dictionary<ContestTally> = {};
-  for (const contestId in contestTallies) {
+  for (const contestId of Object.keys(contestTallies)) {
     if (contestIds.includes(contestId))
       filteredContestTallies[contestId] = contestTallies[contestId];
   }

@@ -12,11 +12,8 @@ export default class MemoryStorage implements Storage {
    */
   constructor(initial?: Record<string, unknown>) {
     if (initial) {
-      for (const key in initial) {
-        /* istanbul ignore else */
-        if (Object.prototype.hasOwnProperty.call(initial, key)) {
-          void this.set(key, initial[key]);
-        }
+      for (const key of Object.keys(initial)) {
+        void this.set(key, initial[key]);
       }
     }
   }

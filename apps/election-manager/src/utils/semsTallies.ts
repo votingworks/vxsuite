@@ -302,58 +302,45 @@ export function convertSEMSFileToExternalTally(
   const contestTalliesByPrecinct: Dictionary<ExternalTally> = {};
   const parsedRowsByPrecinct = _.groupBy(parsedRows, 'precinctId');
 
-  for (const precinctId in parsedRowsByPrecinct) {
-    if (
-      Object.prototype.hasOwnProperty.call(parsedRowsByPrecinct, precinctId)
-    ) {
-      if (!election.precincts.find((p) => p.id === precinctId)) {
+  for (const precinctId of Object.keys(parsedRowsByPrecinct)) {
+    if (!election.precincts.find((p) => p.id === precinctId)) {
+      throw new Error(`Imported file has unexpected PrecinctId: ${precinctId}`);
+    }
+    const rowsForPrecinct = parsedRowsByPrecinct[precinctId];
+
+    const contestTallies: Dictionary<ContestTally> = {};
+    const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId');
+    for (const contestId of Object.keys(rowsForPrecinctAndContest)) {
+      if (!(contestId in contestsById)) {
         throw new Error(
-          `Imported file has unexpected PrecinctId: ${precinctId}`
+          `Imported file has unexpected PrecinctId: ${contestId}`
         );
       }
-      const rowsForPrecinct = parsedRowsByPrecinct[precinctId];
+      const electionContest = contestsById[contestId];
+      assert(electionContest);
 
-      const contestTallies: Dictionary<ContestTally> = {};
-      const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId');
-      for (const contestId in rowsForPrecinctAndContest) {
-        if (
-          Object.prototype.hasOwnProperty.call(
-            rowsForPrecinctAndContest,
-            contestId
-          )
-        ) {
-          if (!(contestId in contestsById)) {
-            throw new Error(
-              `Imported file has unexpected PrecinctId: ${contestId}`
-            );
-          }
-          const electionContest = contestsById[contestId];
-          assert(electionContest);
-
-          if (electionContest.type === 'candidate') {
-            const contestTally = getContestTallyForCandidateContest(
-              electionContest as CandidateContest,
-              rowsForPrecinctAndContest[contestId]
-            );
-            contestTallies[contestId] = contestTally;
-          } else if (electionContest.type === 'yesno') {
-            const contestTally = getContestTallyForYesNoContest(
-              electionContest as YesNoContest,
-              rowsForPrecinctAndContest[contestId]
-            );
-            contestTallies[contestId] = contestTally;
-          }
-        }
+      if (electionContest.type === 'candidate') {
+        const contestTally = getContestTallyForCandidateContest(
+          electionContest as CandidateContest,
+          rowsForPrecinctAndContest[contestId]
+        );
+        contestTallies[contestId] = contestTally;
+      } else if (electionContest.type === 'yesno') {
+        const contestTally = getContestTallyForYesNoContest(
+          electionContest as YesNoContest,
+          rowsForPrecinctAndContest[contestId]
+        );
+        contestTallies[contestId] = contestTally;
       }
-      const numBallotsInPrecinct = getTotalNumberOfBallots(
-        contestTallies,
-        election
-      );
-      contestTalliesByPrecinct[precinctId] = {
-        contestTallies,
-        numberOfBallotsCounted: numBallotsInPrecinct,
-      };
     }
+    const numBallotsInPrecinct = getTotalNumberOfBallots(
+      contestTallies,
+      election
+    );
+    contestTalliesByPrecinct[precinctId] = {
+      contestTallies,
+      numberOfBallotsCounted: numBallotsInPrecinct,
+    };
   }
 
   return convertTalliesByPrecinctToFullExternalTally(
