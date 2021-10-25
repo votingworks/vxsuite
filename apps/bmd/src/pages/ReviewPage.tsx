@@ -312,7 +312,7 @@ function ReviewPage(): JSX.Element {
 
   const updateContestChoicesScrollStates = useCallback(() => {
     const target = scrollContainer.current;
-    /* istanbul ignore next - `target` should aways exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
+    /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
     if (!target) {
       return;
     }
