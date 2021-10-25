@@ -15,6 +15,7 @@ import {
   Tally,
   TallyCategory,
   VotingMethod,
+  writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
@@ -27,7 +28,6 @@ import { find } from './find';
 import {
   getSingleYesNoVote,
   normalizeWriteInId,
-  writeInCandidate,
   buildVoteFromCvr,
   getContestVoteOptionsForYesNoContest,
   getContestVoteOptionsForCandidateContest,

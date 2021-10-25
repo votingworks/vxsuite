@@ -2,7 +2,6 @@ import { strict as assert } from 'assert';
 import _ from 'lodash';
 
 import {
-  Candidate,
   CandidateContest,
   Contest,
   Dictionary,
@@ -15,6 +14,7 @@ import {
   ExternalTallySourceType,
   FullElectionExternalTally,
   VotingMethod,
+  writeInCandidate,
   YesNoVoteOption,
 } from '@votingworks/types';
 
@@ -28,12 +28,6 @@ import {
 const WriteInCandidateId = '0';
 const OvervoteCandidateId = '1';
 const UndervoteCandidateId = '2';
-
-const writeInCandidate: Candidate = {
-  id: '__write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-};
 
 export interface SEMSFileRow {
   countyId: string;

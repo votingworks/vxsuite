@@ -10,6 +10,7 @@ import {
   Party,
   VotesDict,
   ContestVoteOption,
+  writeInCandidate,
   YesNoVoteOption,
 } from '@votingworks/types';
 import { BallotStyleData, find } from '@votingworks/utils';
@@ -18,13 +19,6 @@ import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
 
 import sortBy from './sortBy';
-
-// the generic write-in candidate to keep count
-export const writeInCandidate: Candidate = {
-  id: '__write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-};
 
 export function getDistrictIdsForPartyId(
   election: Election,

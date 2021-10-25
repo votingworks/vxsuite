@@ -21,6 +21,7 @@ import {
   FullElectionTally,
   BatchTally,
   Party,
+  writeInCandidate,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { find } from './find';
@@ -34,12 +35,6 @@ export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   }
   return undefined;
 }
-
-export const writeInCandidate: Candidate = {
-  id: '__write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-};
 
 export function normalizeWriteInId(candidateId: string): string {
   if (

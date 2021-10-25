@@ -15,6 +15,7 @@ import {
   TallyCategory,
   VotingMethod,
   BatchTally,
+  writeInCandidate,
 } from '@votingworks/types';
 import {
   computeTallyWithPrecomputedCategories,
@@ -27,8 +28,6 @@ import {
 import { strict as assert } from 'assert';
 
 import { CastVoteRecord, CastVoteRecordLists } from '../config/types';
-
-import { writeInCandidate } from '../utils/election';
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord;

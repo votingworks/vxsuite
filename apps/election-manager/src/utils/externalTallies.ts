@@ -12,6 +12,7 @@ import {
   OptionalFullElectionExternalTally,
   TallyCategory,
   VotingMethod,
+  writeInCandidate,
 } from '@votingworks/types';
 import { throwIllegalValue, combineContestTallies } from '@votingworks/utils';
 
@@ -20,7 +21,6 @@ import { strict as assert } from 'assert';
 import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
-  writeInCandidate,
 } from './election';
 
 export function convertExternalTalliesToStorageString(
