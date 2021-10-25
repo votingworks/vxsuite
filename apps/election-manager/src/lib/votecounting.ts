@@ -22,6 +22,7 @@ import {
   filterTalliesByParams,
   find,
   getEmptyTally,
+  normalizeWriteInId,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/utils';
@@ -33,19 +34,6 @@ export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord;
   errors: string[];
   lineNumber: number;
-}
-
-export function normalizeWriteInId(candidateId: string): string {
-  if (
-    candidateId.startsWith('__writein') ||
-    candidateId.startsWith('__write-in') ||
-    candidateId.startsWith('writein') ||
-    candidateId.startsWith('write-in')
-  ) {
-    return writeInCandidate.id;
-  }
-
-  return candidateId;
 }
 
 // CVRs are newline-separated JSON objects
