@@ -99,49 +99,46 @@ export function* parseCVRs(
         );
       }
 
-      for (const contestId in votes as VotesDict) {
-        if (Object.prototype.hasOwnProperty.call(votes, contestId)) {
-          // let's ignore any fields that start with '_' for some level of
-          // forwards-compatibility
-          if (!contestId.startsWith('_')) {
-            if (!ballotStyleContests.has(`${_ballotStyleId}/${contestId}`)) {
-              errors.push(
-                `Contest '${contestId}' in CVR is not in the election definition or is not a valid contest for ballot style '${_ballotStyleId}'`
-              );
-            } else {
-              const selectedChoices = votes[contestId] as string[];
-              const contest = find(
-                expandEitherNeitherContests(election.contests),
-                (c) => c.id === contestId
-              );
-              for (const selectedChoice of selectedChoices) {
-                switch (contest.type) {
-                  case 'candidate': {
-                    const isValidCandidate = contest.candidates
-                      .map((c) => c.id)
-                      .includes(selectedChoice);
-                    const isValidWriteInCandidate =
-                      contest.allowWriteIns &&
-                      normalizeWriteInId(selectedChoice) ===
-                        writeInCandidate.id;
-                    if (!(isValidCandidate || isValidWriteInCandidate)) {
-                      errors.push(
-                        `Candidate ID '${selectedChoice}' in CVR is not a valid candidate choice for contest: '${contestId}'`
-                      );
-                    }
-                    break;
+      for (const contestId of Object.keys(votes as VotesDict)) {
+        // let's ignore any fields that start with '_' for some level of
+        // forwards-compatibility
+        if (!contestId.startsWith('_')) {
+          if (!ballotStyleContests.has(`${_ballotStyleId}/${contestId}`)) {
+            errors.push(
+              `Contest '${contestId}' in CVR is not in the election definition or is not a valid contest for ballot style '${_ballotStyleId}'`
+            );
+          } else {
+            const selectedChoices = votes[contestId] as string[];
+            const contest = find(
+              expandEitherNeitherContests(election.contests),
+              (c) => c.id === contestId
+            );
+            for (const selectedChoice of selectedChoices) {
+              switch (contest.type) {
+                case 'candidate': {
+                  const isValidCandidate = contest.candidates
+                    .map((c) => c.id)
+                    .includes(selectedChoice);
+                  const isValidWriteInCandidate =
+                    contest.allowWriteIns &&
+                    normalizeWriteInId(selectedChoice) === writeInCandidate.id;
+                  if (!(isValidCandidate || isValidWriteInCandidate)) {
+                    errors.push(
+                      `Candidate ID '${selectedChoice}' in CVR is not a valid candidate choice for contest: '${contestId}'`
+                    );
                   }
-                  case 'yesno': {
-                    if (!['yes', 'no', ''].includes(selectedChoice)) {
-                      errors.push(
-                        `Choice '${selectedChoice}' in CVR is not a valid contest choice for yes no contest: ${contestId}`
-                      );
-                    }
-                    break;
-                  }
-                  default:
-                    throwIllegalValue(contest, 'type');
+                  break;
                 }
+                case 'yesno': {
+                  if (!['yes', 'no', ''].includes(selectedChoice)) {
+                    errors.push(
+                      `Choice '${selectedChoice}' in CVR is not a valid contest choice for yes no contest: ${contestId}`
+                    );
+                  }
+                  break;
+                }
+                default:
+                  throwIllegalValue(contest, 'type');
               }
             }
           }
@@ -448,33 +445,31 @@ export function getOvervotePairTallies({
     const safeCVR = processCastVoteRecord({ election, castVoteRecord: cvr });
     if (!safeCVR) continue;
 
-    for (const contestId in safeCVR) {
-      if (Object.prototype.hasOwnProperty.call(safeCVR, contestId)) {
-        const contestOvervotePairTallies = overvotePairTallies[contestId];
-        if (!contestOvervotePairTallies) continue;
+    for (const contestId of Object.keys(safeCVR)) {
+      const contestOvervotePairTallies = overvotePairTallies[contestId];
+      if (!contestOvervotePairTallies) continue;
 
-        const candidateContest = contestOvervotePairTallies.contest as CandidateContest;
-        const selected = safeCVR[contestId] as string[];
+      const candidateContest = contestOvervotePairTallies.contest as CandidateContest;
+      const selected = safeCVR[contestId] as string[];
 
-        if (!selected || selected.length <= candidateContest.seats) continue;
+      if (!selected || selected.length <= candidateContest.seats) continue;
 
-        const candidates = candidateContest.candidates.filter((c) =>
-          selected.includes(c.id)
+      const candidates = candidateContest.candidates.filter((c) =>
+        selected.includes(c.id)
+      );
+      const overvotePairs = makePairs(candidates);
+
+      for (const pair of overvotePairs) {
+        let pairTally = findOvervotePairTally(
+          contestOvervotePairTallies.tallies,
+          pair
         );
-        const overvotePairs = makePairs(candidates);
-
-        for (const pair of overvotePairs) {
-          let pairTally = findOvervotePairTally(
-            contestOvervotePairTallies.tallies,
-            pair
-          );
-          if (!pairTally) {
-            pairTally = { candidates: pair, tally: 0 };
-            contestOvervotePairTallies.tallies.push(pairTally);
-          }
-
-          pairTally.tally += 1;
+        if (!pairTally) {
+          pairTally = { candidates: pair, tally: 0 };
+          contestOvervotePairTallies.tallies.push(pairTally);
         }
+
+        pairTally.tally += 1;
       }
     }
   }
