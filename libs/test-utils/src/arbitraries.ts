@@ -8,18 +8,26 @@ import {
   BallotLayout,
   BallotPaperSize,
   BallotStyle,
+  BallotStyleId,
   Candidate,
   CandidateContest,
+  CandidateId,
   CastVoteRecord,
+  ContestId,
   Contests,
   County,
+  CountyId,
   District,
+  DistrictId,
   Election,
   ElectionDefinition,
   Id,
+  IdSchema,
   MsEitherNeitherContest,
   Party,
+  PartyId,
   Precinct,
+  PrecinctId,
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
@@ -38,16 +46,14 @@ export function arbitraryOptional<T>(
   return fc.oneof(fc.constant(undefined), arbitrary);
 }
 
-function hasUniqueIds<T extends { id: z.TypeOf<typeof Id> }>(
-  values: readonly T[]
-): boolean {
+function hasUniqueIds<T extends { id: Id }>(values: readonly T[]): boolean {
   return new Set(values.map(({ id }) => id)).size === values.length;
 }
 
 /**
  * Builds values suitable for use as IDs.
  */
-export function arbitraryId(): fc.Arbitrary<z.TypeOf<typeof Id>> {
+export function arbitraryId(): fc.Arbitrary<Id> {
   return (
     fc
       .stringOf(fc.constantFrom(...'0123456789abcdefghijklmnopqrstuvwxyz-_'), {
@@ -56,6 +62,34 @@ export function arbitraryId(): fc.Arbitrary<z.TypeOf<typeof Id>> {
       // make sure IDs don't start with underscore
       .map((value) => (value.startsWith('_') ? `0${value}` : value))
   );
+}
+
+export function arbitraryBallotStyleId(): fc.Arbitrary<BallotStyleId> {
+  return arbitraryId();
+}
+
+export function arbitraryCandidateId(): fc.Arbitrary<CandidateId> {
+  return arbitraryId();
+}
+
+export function arbitraryContestId(): fc.Arbitrary<ContestId> {
+  return arbitraryId();
+}
+
+export function arbitraryCountyId(): fc.Arbitrary<CountyId> {
+  return arbitraryId();
+}
+
+export function arbitraryDistrictId(): fc.Arbitrary<DistrictId> {
+  return arbitraryId();
+}
+
+export function arbitraryPartyId(): fc.Arbitrary<PartyId> {
+  return arbitraryId();
+}
+
+export function arbitraryPrecinctId(): fc.Arbitrary<PrecinctId> {
+  return arbitraryId();
 }
 
 export function arbitraryDateTime({
@@ -120,9 +154,9 @@ export function arbitraryYesNoOption({
  * Builds values for yes/no contests.
  */
 export function arbitraryYesNoContest({
-  id = arbitraryId(),
-  districtId = arbitraryId(),
-  partyId = arbitraryOptional(arbitraryId()),
+  id = arbitraryContestId(),
+  districtId = arbitraryDistrictId(),
+  partyId = arbitraryOptional(arbitraryPartyId()),
 }: {
   id?: fc.Arbitrary<YesNoContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
@@ -152,7 +186,7 @@ export function arbitraryYesNoContest({
  * Builds candidate values for candidate contests.
  */
 export function arbitraryCandidate({
-  id = arbitraryId(),
+  id = arbitraryCandidateId(),
   partyId = fc.constant(undefined),
 }: {
   id?: fc.Arbitrary<Candidate['id']>;
@@ -170,9 +204,9 @@ export function arbitraryCandidate({
  * Builds values for candidate contest.
  */
 export function arbitraryCandidateContest({
-  id = arbitraryId(),
-  districtId = arbitraryId(),
-  partyIds = fc.array(arbitraryId(), { minLength: 1 }),
+  id = arbitraryContestId(),
+  districtId = arbitraryDistrictId(),
+  partyIds = fc.array(arbitraryPartyId(), { minLength: 1 }),
 }: {
   id?: fc.Arbitrary<CandidateContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
@@ -201,22 +235,22 @@ export function arbitraryCandidateContest({
 }
 
 export function arbitraryMsEitherNeitherContest({
-  districtId = arbitraryId(),
+  districtId = arbitraryDistrictId(),
 }: {
   districtId?: fc.Arbitrary<District['id']>;
 } = {}): fc.Arbitrary<MsEitherNeitherContest> {
   return fc.record({
     type: fc.constant('ms-either-neither'),
-    id: arbitraryId(),
+    id: arbitraryContestId(),
     title: fc.string({ minLength: 1 }),
     section: fc.string({ minLength: 1 }),
     description: fc.string({ minLength: 1 }),
     districtId,
-    eitherNeitherContestId: arbitraryId(),
+    eitherNeitherContestId: arbitraryContestId(),
     eitherNeitherLabel: fc.string({ minLength: 1 }),
     eitherOption: arbitraryYesNoOption(),
     neitherOption: arbitraryYesNoOption(),
-    pickOneContestId: arbitraryId(),
+    pickOneContestId: arbitraryContestId(),
     firstOption: arbitraryYesNoOption(),
     secondOption: arbitraryYesNoOption(),
     pickOneLabel: fc.string({ minLength: 1 }),
@@ -244,7 +278,7 @@ export function arbitraryContests({
 }
 
 export function arbitraryDistrict({
-  id = arbitraryId(),
+  id = arbitraryDistrictId(),
 }: { id?: fc.Arbitrary<District['id']> } = {}): fc.Arbitrary<District> {
   return fc.record({
     id,
@@ -253,7 +287,7 @@ export function arbitraryDistrict({
 }
 
 export function arbitraryPrecinct({
-  id = arbitraryId(),
+  id = arbitraryPrecinctId(),
 }: { id?: fc.Arbitrary<Precinct['id']> } = {}): fc.Arbitrary<Precinct> {
   return fc.record({
     id,
@@ -262,9 +296,9 @@ export function arbitraryPrecinct({
 }
 
 export function arbitraryBallotStyle({
-  id = arbitraryId(),
-  districtIds = fc.array(arbitraryId()),
-  precinctIds = fc.array(arbitraryId()),
+  id = arbitraryBallotStyleId(),
+  districtIds = fc.array(arbitraryDistrictId()),
+  precinctIds = fc.array(arbitraryPrecinctId()),
 }: {
   id?: fc.Arbitrary<BallotStyle['id']>;
   districtIds?: fc.Arbitrary<Array<District['id']>>;
@@ -278,13 +312,13 @@ export function arbitraryBallotStyle({
 }
 
 export function arbitraryCounty({
-  id = arbitraryId(),
+  id = arbitraryCountyId(),
 }: { id?: fc.Arbitrary<County['id']> } = {}): fc.Arbitrary<County> {
   return fc.record({ id, name: fc.string({ minLength: 1 }) });
 }
 
 export function arbitraryParty({
-  id = arbitraryId(),
+  id = arbitraryPartyId(),
 }: { id?: fc.Arbitrary<Party['id']> } = {}): fc.Arbitrary<Party> {
   return fc
     .record({

@@ -2,11 +2,13 @@ import yargs from 'yargs/yargs';
 import * as fs from 'fs';
 import {
   BallotLocale,
+  BallotStyleId,
   Candidate,
   CandidateContest,
   Dictionary,
   Election,
   parseElection,
+  PrecinctId,
 } from '@votingworks/types';
 
 /**
@@ -20,9 +22,9 @@ interface CastVoteRecord
   extends Dictionary<
     string | string[] | boolean | number | number[] | BallotLocale
   > {
-  readonly _precinctId: string;
+  readonly _precinctId: PrecinctId;
   readonly _ballotId: string;
-  readonly _ballotStyleId: string;
+  readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: string;
   readonly _testBallot: boolean;
   readonly _scannerId: string;

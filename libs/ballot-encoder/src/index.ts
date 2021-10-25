@@ -1,6 +1,7 @@
 import {
   AnyContest,
   BallotLocale,
+  BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
   Candidate,
@@ -14,6 +15,7 @@ import {
   HMPBBallotPageMetadata,
   isVotePresent,
   Optional,
+  PrecinctId,
   validateVotes,
   VotesDict,
   YesNoVote,
@@ -72,12 +74,12 @@ export function detect(data: Uint8Array): boolean {
 
 export interface BallotConfig {
   ballotId?: string;
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   isTestMode: boolean;
   locales?: BallotLocale;
   pageNumber?: number;
-  precinctId: string;
+  precinctId: PrecinctId;
 }
 
 export function encodeBallotConfigInto(

@@ -11,10 +11,10 @@ import {
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
+  writeInCandidate,
 } from '@votingworks/types';
 import { buildCandidateTallies } from '../../test/util/buildCandidateTallies';
 
-import { writeInCandidate } from './election';
 import {
   getContestTallyForCandidateContest,
   getContestTallyForYesNoContest,

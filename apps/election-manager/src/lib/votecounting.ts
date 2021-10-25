@@ -15,12 +15,16 @@ import {
   TallyCategory,
   VotingMethod,
   BatchTally,
+  writeInCandidate,
+  PrecinctId,
+  PartyId,
 } from '@votingworks/types';
 import {
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
   find,
   getEmptyTally,
+  normalizeWriteInId,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/utils';
@@ -28,25 +32,10 @@ import { strict as assert } from 'assert';
 
 import { CastVoteRecord, CastVoteRecordLists } from '../config/types';
 
-import { writeInCandidate } from '../utils/election';
-
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord;
   errors: string[];
   lineNumber: number;
-}
-
-export function normalizeWriteInId(candidateId: string): string {
-  if (
-    candidateId.startsWith('__writein') ||
-    candidateId.startsWith('__write-in') ||
-    candidateId.startsWith('writein') ||
-    candidateId.startsWith('write-in')
-  ) {
-    return writeInCandidate.id;
-  }
-
-  return candidateId;
 }
 
 // CVRs are newline-separated JSON objects
@@ -229,7 +218,7 @@ export function* parseCVRs(
 export interface GetContestTallyMetaParams {
   election: Election;
   castVoteRecords: CastVoteRecord[];
-  precinctId?: string;
+  precinctId?: PrecinctId;
   scannerId?: string;
 }
 
@@ -314,9 +303,9 @@ export function filterTalliesByParamsAndBatchId(
     partyId,
     votingMethod,
   }: {
-    precinctId?: string;
+    precinctId?: PrecinctId;
     scannerId?: string;
-    partyId?: string;
+    partyId?: PartyId;
     votingMethod?: VotingMethod;
   }
 ): BatchTally {

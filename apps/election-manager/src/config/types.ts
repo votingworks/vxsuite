@@ -1,11 +1,14 @@
 import {
   BallotLocale,
   BallotStyle,
+  BallotStyleId,
   ContestTallyMeta,
   Dictionary,
   MachineId,
   Optional,
+  PartyId,
   Precinct,
+  PrecinctId,
   VotingMethod,
 } from '@votingworks/types';
 import { BallotStyleData } from '@votingworks/utils';
@@ -57,12 +60,12 @@ export interface Printer {
 
 // Router Props
 export interface BallotScreenProps {
-  ballotStyleId: string;
-  precinctId: string;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
   localeCode?: string;
 }
 export interface PrecinctReportScreenProps {
-  precinctId: string;
+  precinctId: PrecinctId;
 }
 export interface ScannerReportScreenProps {
   scannerId: string;
@@ -71,13 +74,13 @@ export interface BatchReportScreenProps {
   batchId: string;
 }
 export interface PartyReportScreenProps {
-  partyId: string;
+  partyId: PartyId;
 }
 export interface VotingMethodReportScreenProps {
   votingMethod: string;
 }
 export interface ManualDataPrecinctScreenProps {
-  precinctId: string;
+  precinctId: PrecinctId;
 }
 
 // Tallies
@@ -108,9 +111,9 @@ export interface CastVoteRecord
   extends Dictionary<
     string | string[] | boolean | number | number[] | BallotLocale
   > {
-  readonly _precinctId: string;
+  readonly _precinctId: PrecinctId;
   readonly _ballotId: string;
-  readonly _ballotStyleId: string;
+  readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: 'absentee' | 'provisional' | 'standard';
   readonly _batchId: string;
   readonly _batchLabel: string;
@@ -129,7 +132,7 @@ export interface CastVoteRecordFile {
   readonly name: string;
   readonly count: number;
   readonly scannerIds: readonly string[];
-  readonly precinctIds: readonly string[];
+  readonly precinctIds: readonly PrecinctId[];
   readonly exportTimestamp: Date;
 }
 export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>;

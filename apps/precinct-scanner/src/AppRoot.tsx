@@ -12,6 +12,7 @@ import {
   OptionalElectionDefinition,
   Provider,
   CastVoteRecord,
+  PrecinctId,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -101,7 +102,7 @@ interface SharedState {
   ballotState: BallotState;
   timeoutToInsertScreen?: number;
   isStatusPollingEnabled: boolean;
-  currentPrecinctId?: string;
+  currentPrecinctId?: PrecinctId;
   isPollsOpen: boolean;
 }
 
@@ -159,7 +160,7 @@ type AppAction =
       type: 'refreshConfigFromScanner';
       electionDefinition: OptionalElectionDefinition;
       isTestMode: boolean;
-      currentPrecinctId?: string;
+      currentPrecinctId?: PrecinctId;
     }
   | {
       type: 'ballotScanning';
@@ -185,7 +186,7 @@ type AppAction =
     }
   | { type: 'disableStatusPolling' }
   | { type: 'enableStatusPolling' }
-  | { type: 'updatePrecinctId'; precinctId?: string }
+  | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> };
@@ -716,7 +717,7 @@ function AppRoot({
   ]);
 
   const updatePrecinctId = useCallback(
-    async (precinctId: string) => {
+    async (precinctId: PrecinctId) => {
       dispatchAppState({ type: 'updatePrecinctId', precinctId });
       await config.setCurrentPrecinctId(precinctId);
     },

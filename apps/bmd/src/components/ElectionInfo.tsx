@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
+  BallotStyleId,
   ElectionDefinition,
   getPartyPrimaryAdjectiveFromBallotStyle,
 } from '@votingworks/types';
@@ -40,7 +41,7 @@ const HorizontalContainer = styled.div`
 
 interface Props {
   precinctSelection?: PrecinctSelection;
-  ballotStyleId?: string;
+  ballotStyleId?: BallotStyleId;
   electionDefinition: ElectionDefinition;
   horizontal?: boolean;
 }

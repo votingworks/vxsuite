@@ -9,6 +9,8 @@ import {
   writeInCandidate,
   CompressedTally,
   VotingMethod,
+  PartyId,
+  PrecinctId,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { BallotCountDetails } from '.';
@@ -18,8 +20,8 @@ import { filterContestTalliesByPartyId } from './votes';
 const ALL_PRECINCTS = '__ALL_PRECINCTS';
 
 export function getTallyIdentifier(
-  partyId?: string,
-  precinctId: string = ALL_PRECINCTS
+  partyId?: PartyId,
+  precinctId: PrecinctId = ALL_PRECINCTS
 ): string {
   return `${partyId},${precinctId}`;
 }
@@ -225,7 +227,7 @@ export function readCompressedTally(
   election: Election,
   serializedTally: CompressedTally,
   ballotCounts: BallotCountDetails,
-  partyId?: string
+  partyId?: PartyId
 ): Tally {
   let contestTallies: Dictionary<ContestTally> = {};
   for (const [contestIdx, contest] of election.contests.entries()) {

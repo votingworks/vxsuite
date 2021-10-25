@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { BallotStyleId } from '@votingworks/types';
 
 import Prose from '../components/Prose';
 import Main, { MainChild } from '../components/Main';
@@ -13,7 +14,7 @@ const RemoveCardImage = styled.img`
 `;
 
 interface Props {
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   lockScreen: () => void;
   precinctName: string;
 }

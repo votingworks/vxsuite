@@ -4,6 +4,7 @@ import { join } from 'path';
 import { pathExists } from 'fs-extra';
 import { tmpNameSync } from 'tmp';
 import { BallotMetadata, BallotType } from '@votingworks/types';
+import { asElectionDefinition } from '@votingworks/fixtures';
 import { loadImageData } from '../util/images';
 import Store from '../store';
 import {
@@ -74,11 +75,7 @@ test('generates one image per PDF page per DB', async () => {
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
   const store = await Store.fileStore(tmpDbPath);
-  await store.setElection({
-    election,
-    electionData: JSON.stringify(election),
-    electionHash: '',
-  });
+  await store.setElection(asElectionDefinition(election));
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     ballotType: BallotType.Standard,

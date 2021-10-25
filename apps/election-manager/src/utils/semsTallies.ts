@@ -2,7 +2,6 @@ import { strict as assert } from 'assert';
 import _ from 'lodash';
 
 import {
-  Candidate,
   CandidateContest,
   Contest,
   Dictionary,
@@ -15,7 +14,13 @@ import {
   ExternalTallySourceType,
   FullElectionExternalTally,
   VotingMethod,
+  writeInCandidate,
   YesNoVoteOption,
+  CountyId,
+  PrecinctId,
+  ContestId,
+  PartyId,
+  CandidateId,
 } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/utils';
@@ -29,22 +34,16 @@ const WriteInCandidateId = '0';
 const OvervoteCandidateId = '1';
 const UndervoteCandidateId = '2';
 
-const writeInCandidate: Candidate = {
-  id: '__write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-};
-
 export interface SEMSFileRow {
-  countyId: string;
-  precinctId: string;
-  contestId: string;
+  countyId: CountyId;
+  precinctId: PrecinctId;
+  contestId: ContestId;
   contestTitle: string;
-  partyId: string;
+  partyId: PartyId;
   partyName: string;
-  candidateId: string;
+  candidateId: CandidateId;
   candidateName: string;
-  candidatePartyId: string;
+  candidatePartyId: PartyId;
   candidatePartyName: string;
   numberOfVotes: number;
 }

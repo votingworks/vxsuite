@@ -7,6 +7,7 @@ import {
   Election,
   expandEitherNeitherContests,
   ExternalTally,
+  PrecinctId,
   Tally,
 } from '@votingworks/types';
 import {
@@ -48,7 +49,7 @@ interface Props {
   election: Election;
   electionTally: Tally;
   externalTallies: ExternalTally[];
-  precinctId?: string;
+  precinctId?: PrecinctId;
 }
 
 export function ContestTally({

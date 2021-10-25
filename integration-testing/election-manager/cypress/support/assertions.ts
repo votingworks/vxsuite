@@ -1,9 +1,9 @@
-import { Dictionary } from '@votingworks/types'
+import { CandidateId, ContestId, Dictionary, PrecinctId } from '@votingworks/types'
 
 export interface SingleSEMsResultInfo {
-  precinctId: string
-  contestId: string
-  candidateId: string
+  precinctId: PrecinctId
+  contestId: ContestId
+  candidateId: CandidateId
   numberOfVotes: number
 }
 
@@ -39,7 +39,7 @@ export function assertExpectedResultsMatchSEMsFile(
 }
 
 export interface ExpectedContestResults {
-  contestId: string
+  contestId: ContestId
   metadata: { ballots: number; undervotes: number; overvotes: number }
   votesByOptionId: Dictionary<number>
 }

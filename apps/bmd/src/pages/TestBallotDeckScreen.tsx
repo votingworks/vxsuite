@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import pluralize from 'pluralize';
 
-import { VotesDict, Election, ElectionDefinition } from '@votingworks/types';
+import {
+  BallotStyleId,
+  Election,
+  ElectionDefinition,
+  PrecinctId,
+  VotesDict,
+} from '@votingworks/types';
 import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui';
 import { find, throwIllegalValue, Printer } from '@votingworks/utils';
 
@@ -21,14 +27,14 @@ import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 interface Ballot {
   ballotId?: string;
-  precinctId: string;
-  ballotStyleId: string;
+  precinctId: PrecinctId;
+  ballotStyleId: BallotStyleId;
   votes: VotesDict;
 }
 
 interface GenerateTestDeckParams {
   election: Election;
-  precinctId?: string;
+  precinctId?: PrecinctId;
 }
 
 function generateTestDeckBallots({

@@ -1,7 +1,12 @@
 import { strict as assert } from 'assert';
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Election, getPrecinctById, VotesDict } from '@votingworks/types';
+import {
+  Election,
+  getPrecinctById,
+  PrecinctId,
+  VotesDict,
+} from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
 import routerPaths from '../routerPaths';
 
@@ -24,7 +29,7 @@ import { generateTestDeckBallots } from '../utils/election';
 interface TestDeckBallotsParams {
   election: Election;
   electionHash: string;
-  precinctId: string;
+  precinctId: PrecinctId;
   onAllRendered: (numBallots: number) => void;
 }
 

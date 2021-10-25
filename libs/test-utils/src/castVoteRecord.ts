@@ -1,16 +1,18 @@
 import {
+  BallotStyleId,
   CastVoteRecord,
   Dictionary,
   Election,
   expandEitherNeitherContests,
   getBallotStyle,
   getContests,
+  PrecinctId,
 } from '@votingworks/types';
 
 export interface CastVoteRecordOptions {
-  readonly precinctId?: string;
+  readonly precinctId?: PrecinctId;
   readonly ballotId?: string;
-  readonly ballotStyleId?: string;
+  readonly ballotStyleId?: BallotStyleId;
   readonly ballotType?: 'absentee' | 'provisional' | 'standard';
   readonly testBallot?: boolean;
   readonly scannerId?: string;

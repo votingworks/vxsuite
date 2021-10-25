@@ -30,6 +30,9 @@ import {
   getPrecinctById,
   withLocale,
   safeParseElection,
+  ContestOption,
+  BallotStyleId,
+  PrecinctId,
 } from '@votingworks/types';
 
 import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -47,7 +50,10 @@ import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize';
 import { getBallotLayoutDensity } from '../utils/getBallotLayoutDensity';
 
-function hasVote(vote: Vote | undefined, optionId: string): boolean {
+function hasVote(
+  vote: Vote | undefined,
+  optionId: ContestOption['id']
+): boolean {
   return (
     vote?.some((choice: Candidate | string) =>
       typeof choice === 'string' ? choice === optionId : choice.id === optionId
@@ -508,13 +514,13 @@ export function CandidateContestChoices({
 }
 
 export interface HandMarkedPaperBallotProps {
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   election: Election;
   electionHash: string;
   isLiveMode?: boolean;
   isAbsentee?: boolean;
   isSampleBallot?: boolean;
-  precinctId: string;
+  precinctId: PrecinctId;
   locales: BallotLocale;
   ballotId?: string;
   votes?: VotesDict;

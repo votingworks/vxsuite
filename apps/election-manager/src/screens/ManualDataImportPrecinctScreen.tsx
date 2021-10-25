@@ -14,6 +14,7 @@ import {
   ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
+  ContestId,
 } from '@votingworks/types';
 
 import { Table, TD } from '@votingworks/ui';
@@ -259,7 +260,7 @@ function ManualDataImportPrecinctScreen(): JSX.Element {
   }
 
   function getValueForInput(
-    contestId: string,
+    contestId: ContestId,
     dataKey: string
   ): number | EmptyValue {
     const contestTally = currentPrecinctTally.contestTallies[contestId];
@@ -277,7 +278,7 @@ function ManualDataImportPrecinctScreen(): JSX.Element {
   }
 
   function updateContestData(
-    contestId: string,
+    contestId: ContestId,
     dataKey: string,
     event: React.FormEvent<HTMLInputElement>
   ) {

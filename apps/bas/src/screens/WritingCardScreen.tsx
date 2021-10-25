@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BallotStyleId } from '@votingworks/types';
 
 import Prose from '../components/Prose';
 import Main, { MainChild } from '../components/Main';
@@ -7,7 +8,7 @@ import Screen from '../components/Screen';
 
 interface Props {
   precinctName: string;
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
 }
 
 function WritingCardScreen({

@@ -1,5 +1,5 @@
 import {
-  Id,
+  IdSchema,
   safeParse,
   safeParseElection,
   safeParseElectionDefinition,
@@ -20,7 +20,7 @@ import {
 test('arbitraryId', () => {
   fc.assert(
     fc.property(arbitraryId(), (id) => {
-      safeParse(Id, id).unsafeUnwrap();
+      safeParse(IdSchema, id).unsafeUnwrap();
     })
   );
 });

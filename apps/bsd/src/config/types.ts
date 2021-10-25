@@ -1,8 +1,10 @@
 import {
+  BallotStyleId,
   Dictionary,
   ElectionDefinition,
   MachineId,
   MarkInfo,
+  PrecinctId,
   SerializableBallotPageLayout,
 } from '@votingworks/types';
 import { z } from 'zod';
@@ -11,13 +13,13 @@ export interface MachineConfig {
   machineId: string;
   bypassAuthentication: boolean;
 }
-export const MachingConfigSchema: z.ZodSchema<MachineConfig> = z.object({
+export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
   machineId: MachineId,
   bypassAuthentication: z.boolean(),
 });
 
 export type MachineConfigResponse = MachineConfig;
-export const MachineConfigResponseSchema = MachingConfigSchema;
+export const MachineConfigResponseSchema = MachineConfigSchema;
 
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
@@ -31,8 +33,8 @@ export type SetElectionDefinition = (value?: ElectionDefinition) => void;
 // Scanner Types
 export interface CastVoteRecord
   extends Dictionary<string | string[] | boolean> {
-  _precinctId: string;
-  _ballotStyleId: string;
+  _precinctId: PrecinctId;
+  _ballotStyleId: BallotStyleId;
   _ballotType: 'absentee' | 'provisional' | 'standard';
   _ballotId: string;
   _testBallot: boolean;

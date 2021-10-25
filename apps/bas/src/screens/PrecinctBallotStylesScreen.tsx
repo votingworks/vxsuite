@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { BallotStyle } from '@votingworks/types';
+import { BallotStyle, PartyId } from '@votingworks/types';
 
 import { EventTargetFunction } from '../config/types';
 
@@ -20,7 +20,7 @@ const ButtonContainer = styled.div`
 interface Props {
   isSinglePrecinctMode: boolean;
   lockScreen: () => void;
-  partyId?: string;
+  partyId?: PartyId;
   precinctBallotStyles: readonly BallotStyle[];
   precinctName: string;
   programCard: EventTargetFunction;

@@ -12,6 +12,9 @@ import {
   OptionalFullElectionExternalTally,
   TallyCategory,
   VotingMethod,
+  writeInCandidate,
+  PartyId,
+  PrecinctId,
 } from '@votingworks/types';
 import { throwIllegalValue, combineContestTallies } from '@votingworks/utils';
 
@@ -20,7 +23,6 @@ import { strict as assert } from 'assert';
 import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
-  writeInCandidate,
 } from './election';
 
 export function convertExternalTalliesToStorageString(
@@ -134,7 +136,7 @@ export function getPrecinctIdsInExternalTally(
 
 function filterTallyForPartyId(
   tally: ExternalTally,
-  partyId: string,
+  partyId: PartyId,
   election: Election
 ) {
   // Filter contests by party and recompute the number of ballots based on those contests.
@@ -170,8 +172,8 @@ export function filterExternalTalliesByParams(
     votingMethod,
     batchId,
   }: {
-    precinctId?: string;
-    partyId?: string;
+    precinctId?: PrecinctId;
+    partyId?: PartyId;
     scannerId?: string;
     votingMethod?: VotingMethod;
     batchId?: string;

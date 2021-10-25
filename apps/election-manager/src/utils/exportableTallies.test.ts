@@ -8,10 +8,10 @@ import {
   YesNoContest,
   ContestTally,
   VotingMethod,
+  writeInCandidate,
 } from '@votingworks/types';
 import { CastVoteRecord, ExportableTallies } from '../config/types';
 import { computeFullElectionTally, parseCVRs } from '../lib/votecounting';
-import { writeInCandidate } from './election';
 import {
   getCombinedExportableContestTally,
   getExportableTallies,

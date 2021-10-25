@@ -5,6 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   CompressedTally,
+  ContestId,
   Dictionary,
   Election,
   safeParseElection,
@@ -51,7 +52,7 @@ function expectBallotCountsInReport(
 
 function expectContestResultsInReport(
   container: HTMLElement,
-  contestId: string,
+  contestId: ContestId,
   ballotsCast: number,
   undervotes: number,
   overvotes: number,

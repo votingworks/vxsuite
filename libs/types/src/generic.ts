@@ -168,20 +168,14 @@ export function safeParseJSON<T>(
   return parser ? safeParse(parser, parsed) : ok(parsed);
 }
 
-export const Id = z
+export type Id = string;
+export const IdSchema = z
   .string()
   .nonempty()
   .refine((id) => !id.startsWith('_'), 'IDs may not start with an underscore')
   .refine(
     (id) => /^[-_a-z\d]+$/i.test(id),
     'IDs may only contain letters, numbers, dashes, and underscores'
-  );
-export const WriteInId = z
-  .string()
-  .nonempty()
-  .refine(
-    (id) => id.startsWith('__write-in'),
-    'Write-In IDs must start with __write-in'
   );
 export const HexString: z.ZodSchema<string> = z
   .string()

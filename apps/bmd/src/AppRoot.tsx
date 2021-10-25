@@ -17,6 +17,9 @@ import {
   AnyCardDataSchema,
   VoterCardDataSchema,
   VoterCardData,
+  ContestId,
+  PrecinctId,
+  BallotStyleId,
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 import 'normalize.css';
@@ -96,8 +99,8 @@ interface CardState {
 }
 
 interface UserState {
-  ballotStyleId?: string;
-  precinctId?: string;
+  ballotStyleId?: BallotStyleId;
+  precinctId?: PrecinctId;
   shortValue?: string;
   userSettings: UserSettings;
   votes?: VotesDict;
@@ -230,7 +233,7 @@ type AppAction =
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateLastVoteUpdateAt'; date: number }
   | { type: 'unconfigure' }
-  | { type: 'updateVote'; contestId: string; vote: OptionalVote }
+  | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
   | { type: 'resetBallot'; showPostVotingInstructions?: PostVotingInstructions }
   | { type: 'setUserSettings'; userSettings: PartialUserSettings }
@@ -247,8 +250,8 @@ type AppAction =
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | {
       type: 'activateCardlessBallot';
-      precinctId: string;
-      ballotStyleId?: string;
+      precinctId: PrecinctId;
+      ballotStyleId?: BallotStyleId;
     }
   | { type: 'resetCardlessBallot' }
   | { type: 'maintainCardlessBallot' }
@@ -602,7 +605,7 @@ function AppRoot({
     history.push('/');
   }, [storage, history]);
 
-  const updateVote = useCallback((contestId: string, vote: OptionalVote) => {
+  const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
   }, []);
 
@@ -699,7 +702,7 @@ function AppRoot({
   }, [getElectionDefinitionFromCard, updateElectionDefinition]);
 
   const activateCardlessBallot = useCallback(
-    (sessionPrecinctId: string, sessionBallotStyleId?: string) => {
+    (sessionPrecinctId: PrecinctId, sessionBallotStyleId?: BallotStyleId) => {
       dispatchAppState({
         type: 'activateCardlessBallot',
         precinctId: sessionPrecinctId,

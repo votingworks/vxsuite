@@ -2,9 +2,11 @@ import { DateTime } from 'luxon';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import {
+  BallotStyleId,
   CompressedTally,
   ElectionDefinition,
   getPartyIdsInBallotStyles,
+  PrecinctId,
   Tally,
 } from '@votingworks/types';
 import {
@@ -49,13 +51,13 @@ import triggerAudioFocus from '../utils/triggerAudioFocus';
 
 interface Props {
   activateCardlessVoterSession: (
-    precinctId: string,
-    ballotStyleId?: string
+    precinctId: PrecinctId,
+    ballotStyleId?: BallotStyleId
   ) => void;
   resetCardlessVoterSession: () => void;
   appPrecinct: PrecinctSelection;
-  cardlessVoterSessionPrecinctId?: string;
-  cardlessVoterSessionBallotStyleId?: string;
+  cardlessVoterSessionPrecinctId?: PrecinctId;
+  cardlessVoterSessionBallotStyleId?: BallotStyleId;
   electionDefinition: ElectionDefinition;
   enableLiveMode: () => void;
   hasVotes: boolean;
