@@ -2,10 +2,11 @@ import { TSESLint } from '@typescript-eslint/experimental-utils';
 import gtsArrayTypeStyle from './gts-array-type-style';
 import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only';
 import gtsFuncStyle from './gts-func-style';
+import gtsIdentifiersUseAllowedCharacters from './gts-identifiers-use-allowed-characters';
 import gtsNoArrayConstructor from './gts-no-array-constructor';
 import gtsNoDollarSignNames from './gts-no-dollar-sign-names';
-import gtsNoForeach from './gts-no-foreach';
 import gtsNoForInLoop from './gts-no-for-in-loop';
+import gtsNoForeach from './gts-no-foreach';
 import gtsNoImportExportType from './gts-no-import-export-type';
 import gtsNoObjectLiteralTypeAssertions from './gts-no-object-literal-type-assertions';
 import gtsNoPrivateFields from './gts-no-private-fields';
@@ -13,11 +14,11 @@ import gtsNoPublicModifier from './gts-no-public-modifier';
 import gtsNoReturnTypeOnlyGenerics from './gts-no-return-type-only-generics';
 import gtsNoUnnecessaryHasOwnPropertyCheck from './gts-no-unnecessary-has-own-property-check';
 import gtsParameterProperties from './gts-parameter-properties';
+import gtsSafeNumberParse from './gts-safe-number-parse';
 import gtsUseOptionals from './gts-use-optionals';
 import noArraySortMutation from './no-array-sort-mutation';
 import noAssertStringOrNumber from './no-assert-truthiness';
 import noFloatingVoids from './no-floating-results';
-import gtsIdentifiersUseAllowedCharacters from './gts-identifiers-use-allowed-characters';
 
 const rules: Record<
   string,
@@ -39,6 +40,7 @@ const rules: Record<
   'gts-no-unnecessary-has-own-property-check':
     gtsNoUnnecessaryHasOwnPropertyCheck,
   'gts-parameter-properties': gtsParameterProperties,
+  'gts-safe-number-parse': gtsSafeNumberParse,
   'gts-use-optionals': gtsUseOptionals,
   'no-array-sort-mutation': noArraySortMutation,
   'no-assert-truthiness': noAssertStringOrNumber,
