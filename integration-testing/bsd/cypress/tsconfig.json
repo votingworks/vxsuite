@@ -23,6 +23,6 @@
   ],
   "references": [
     { "path": "../../../libs/fixtures" },
-    { "path": "../../../libs/eslint-plugin-vx" }
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }
   ]
 }

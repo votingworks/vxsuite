@@ -18,6 +18,7 @@
   "include": ["src", "test"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/test-utils" },
     { "path": "../../libs/types" },
     { "path": "../../libs/ui" },
