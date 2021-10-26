@@ -840,8 +840,10 @@ export default class Store {
     return batchInfo.map((info) => ({
       id: info.id,
       label: info.label,
+      // eslint-disable-next-line vx/gts-safe-number-parse
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:
+        // eslint-disable-next-line vx/gts-safe-number-parse
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
         undefined,
       error: info.error || undefined,

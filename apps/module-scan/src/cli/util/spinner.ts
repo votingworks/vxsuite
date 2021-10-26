@@ -45,6 +45,7 @@ export function durationProvider({
       return (): void => clearInterval(timer);
     },
 
+    // eslint-disable-next-line vx/gts-safe-number-parse
     toString: (duration = +new Date() - +start): string => {
       if (duration >= minDisplayDuration) {
         const parts: string[] = [];

@@ -187,6 +187,7 @@ function parseFileContentRows(fileContent: string): SEMSFileRow[] {
         candidateName: entries[7],
         candidatePartyId: entries[8],
         candidatePartyName: entries[9],
+        // eslint-disable-next-line vx/gts-safe-number-parse
         numberOfVotes: parseInt(entries[10], 10),
       });
     }

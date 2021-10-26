@@ -31,6 +31,7 @@ function PickDateTimeModal({
 
   const updateTimePart: SelectChangeEventFunction = (event) => {
     const { name, value: stringValue } = event.currentTarget;
+    // eslint-disable-next-line vx/gts-safe-number-parse
     const partValue = parseInt(stringValue, 10);
     let { hour } = newValue;
     if (name === 'hour') {

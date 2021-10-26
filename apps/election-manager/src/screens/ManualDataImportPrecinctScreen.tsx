@@ -285,6 +285,7 @@ function ManualDataImportPrecinctScreen(): JSX.Element {
     const contestTally = currentPrecinctTally.contestTallies[contestId];
     assert(contestTally);
     const stringValue = event.currentTarget.value;
+    // eslint-disable-next-line vx/gts-safe-number-parse
     let numericalValue = parseInt(stringValue, 10);
     if (stringValue === '') {
       numericalValue = 0;

@@ -139,6 +139,7 @@ export function parseCVRFileInfoFromFilename(
   if (ballotSegments.length !== 2 || ballotSegments[1] !== 'ballots') {
     return;
   }
+  // eslint-disable-next-line vx/gts-safe-number-parse
   const numberOfBallots = Number(ballotSegments[0]);
 
   const parsedTime = moment(postTestPrefixSegments[2], TIME_FORMAT_STRING);

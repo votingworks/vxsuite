@@ -46,6 +46,9 @@ function ContestPage({
   );
   ok(precinctId, 'precinctId is required to render ContestPage');
   const { election } = electionDefinition;
+  // This overly-aggressive directive is because BMD's react-scripts can't load
+  // our custom ESLint config properly. We need to update to react-scripts@4.
+  // eslint-disable-next-line
   const currentContestIndex = parseInt(contestNumber, 10);
   const contest = contests[currentContestIndex];
 

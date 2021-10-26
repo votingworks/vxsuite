@@ -50,6 +50,7 @@ export = {
     'vx/gts-no-return-type-only-generics': 'error',
     'vx/gts-no-unnecessary-has-own-property-check': 'warn',
     'vx/gts-parameter-properties': 'error',
+    'vx/gts-safe-number-parse': 'error',
     'vx/gts-use-optionals': 'error',
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',

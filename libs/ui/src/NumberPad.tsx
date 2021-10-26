@@ -28,6 +28,7 @@ export function NumberPad({
   const onKeyPress: React.KeyboardEventHandler = useCallback(
     (event) => {
       if (DIGITS.includes(event.key)) {
+        // eslint-disable-next-line vx/gts-safe-number-parse
         onButtonPress(Number(event.key));
       } else if (event.key === 'x') {
         onClear();

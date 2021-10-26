@@ -68,12 +68,14 @@ function SetMarkThresholdsModal({
   async function overrideThresholds(definite: string, marginal: string) {
     setCurrentState(ModalState.SAVING);
     try {
+      // eslint-disable-next-line vx/gts-safe-number-parse
       const definiteFloat = parseFloat(definite);
       if (Number.isNaN(definiteFloat) || definiteFloat > 1) {
         throw new Error(
           `Inputted definite threshold invalid: ${definite}. Please enter a number from 0 to 1.`
         );
       }
+      // eslint-disable-next-line vx/gts-safe-number-parse
       const marginalFloat = parseFloat(marginal);
       if (Number.isNaN(marginalFloat) || marginalFloat > 1) {
         throw new Error(
