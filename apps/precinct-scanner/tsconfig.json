@@ -19,6 +19,7 @@
   "exclude": ["src/setupProxy.js"],
   "references": [
     { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/hmpb-interpreter" },
     { "path": "../../libs/fixtures" },
     { "path": "../../libs/test-utils" },

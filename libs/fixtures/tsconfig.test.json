@@ -1,5 +1,14 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "src/data/*.json", "src/data/**/*.json", "scripts/**/*.ts"],
-  "exclude": []
+  "include": [
+    "src",
+    "src/data/*.json",
+    "src/data/**/*.json",
+    "scripts/**/*.ts"
+  ],
+  "exclude": [],
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../types" }
+  ]
 }

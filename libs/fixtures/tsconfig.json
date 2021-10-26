@@ -53,5 +53,8 @@
   },
   "include": ["src", "src/data/*.json", "src/data/**/*.json"],
   "exclude": ["**/*.test.ts"],
-  "references": [{ "path": "../types" }]
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../types" }
+  ]
 }
