@@ -44,10 +44,12 @@ export function parseOptions(args: readonly string[]): Options {
       i += 1;
       const value = args[i];
       if (/^\d+$/.test(value)) {
+        // eslint-disable-next-line vx/gts-safe-number-parse
         minLength = parseInt(value, 10);
       } else {
         const match = /^(\d+)%([wh])$/.exec(value);
         if (match) {
+          // eslint-disable-next-line vx/gts-safe-number-parse
           const percent = parseInt(match[1], 10);
           minLength =
             match[2] === 'w' ? { width: percent } : { height: percent };
@@ -59,8 +61,10 @@ export function parseOptions(args: readonly string[]): Options {
       i += 1;
       const value = args[i];
       if (value.endsWith('%')) {
+        // eslint-disable-next-line vx/gts-safe-number-parse
         scale = parseFloat(value.slice(0, -1)) / 100;
       } else {
+        // eslint-disable-next-line vx/gts-safe-number-parse
         scale = parseFloat(value);
       }
 
@@ -73,7 +77,9 @@ export function parseOptions(args: readonly string[]): Options {
       const match = /^(\d+)x(\d+)$/.exec(value);
       if (match) {
         size = {
+          // eslint-disable-next-line vx/gts-safe-number-parse
           width: parseInt(match[1], 10),
+          // eslint-disable-next-line vx/gts-safe-number-parse
           height: parseInt(match[2], 10),
         };
       } else {

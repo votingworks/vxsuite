@@ -74,6 +74,7 @@ function UnconfiguredElectionScreen({
 
         // Get the most recently-created ballot package.
         const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
+          // eslint-disable-next-line vx/gts-safe-number-parse
           [...ballotPackages].sort((a, b) => +b.ctime - +a.ctime)[0]
         );
         addTemplates(ballotPackage)

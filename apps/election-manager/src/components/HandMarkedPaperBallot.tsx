@@ -223,6 +223,7 @@ class PostRenderBallotProcessor extends Handler {
           precinctId,
           locales,
           isTestMode,
+          // eslint-disable-next-line vx/gts-safe-number-parse
           pageNumber: parseInt(pageNumber, 10),
           ballotType,
           ballotId,

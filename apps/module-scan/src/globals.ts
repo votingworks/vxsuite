@@ -31,6 +31,7 @@ export const { MOCK_SCANNER_FILES } = process.env;
 /**
  * Default port for the module-scan API.
  */
+// eslint-disable-next-line vx/gts-safe-number-parse
 export const MODULE_SCAN_PORT = Number(process.env.PORT || 3002);
 
 /**

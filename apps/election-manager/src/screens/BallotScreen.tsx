@@ -116,6 +116,7 @@ function BallotScreen(): JSX.Element {
   const [ballotCopies, setBallotCopies] = useState(1);
   const updateBallotCopies: InputEventFunction = (event) => {
     const { value } = event.currentTarget;
+    // eslint-disable-next-line vx/gts-safe-number-parse
     const copies = value ? parseInt(value, 10) : 1;
     setBallotCopies(copies < 1 ? 1 : copies);
   };
@@ -160,6 +161,7 @@ function BallotScreen(): JSX.Element {
     if (ballotPreviewRef?.current && printBallotRef?.current) {
       ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML;
     }
+    // eslint-disable-next-line vx/gts-safe-number-parse
     const pagedJsPageCount = Number(
       (ballotPreviewRef.current?.getElementsByClassName(
         'pagedjs_pages'

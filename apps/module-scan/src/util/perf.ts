@@ -8,13 +8,16 @@ export function formatDurationNs(nanoseconds: bigint): string {
   }
 
   if (nanoseconds < 1_000_000) {
+    // eslint-disable-next-line vx/gts-safe-number-parse
     return `${Number(nanoseconds / BigInt(10)) / 100}µs`;
   }
 
   if (nanoseconds < 1_000_000_000) {
+    // eslint-disable-next-line vx/gts-safe-number-parse
     return `${Number(nanoseconds / BigInt(10_000)) / 100}ms`;
   }
 
+  // eslint-disable-next-line vx/gts-safe-number-parse
   return `${Number(nanoseconds / BigInt(10_000_000)) / 100}s`;
 }
 

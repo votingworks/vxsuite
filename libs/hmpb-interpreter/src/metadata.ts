@@ -45,6 +45,7 @@ export function decodeSearchParams(
   const [typeTestMode] = type.split('', 2);
   const [pageInfoNumber] = pageInfo.split('-', 2);
   const isTestMode = typeTestMode === 't';
+  // eslint-disable-next-line vx/gts-safe-number-parse
   const pageNumber = parseInt(pageInfoNumber, 10);
 
   return {

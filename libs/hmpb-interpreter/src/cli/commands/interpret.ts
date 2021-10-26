@@ -115,6 +115,7 @@ export async function parseOptions({
         i += 1;
         const thresholdString = args[i];
         markScoreVoteThreshold =
+          // eslint-disable-next-line vx/gts-safe-number-parse
           parseFloat(thresholdString) *
           (thresholdString.endsWith('%') ? 0.01 : 1);
         if (Number.isNaN(markScoreVoteThreshold)) {

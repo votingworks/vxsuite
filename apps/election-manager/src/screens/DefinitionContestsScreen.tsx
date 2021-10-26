@@ -217,6 +217,7 @@ function DefinitionContestsScreen({
     const { name, value: targetValue, type } = event.currentTarget;
     let value: string | number = targetValue;
     if (type === 'number') {
+      // eslint-disable-next-line vx/gts-safe-number-parse
       value = parseInt(value, 10);
     }
     if (name === 'seats' && value < 1) {
@@ -240,9 +241,11 @@ function DefinitionContestsScreen({
     const { name, value: targetValue, type } = event.currentTarget;
     let value: string | number = targetValue;
     if (type === 'number') {
+      // eslint-disable-next-line vx/gts-safe-number-parse
       value = parseInt(value, 10);
     }
     const nameParts = name.split('.');
+    // eslint-disable-next-line vx/gts-safe-number-parse
     const candidateIndex = parseInt(nameParts[0], 10);
     const candidateKey = nameParts[1];
     const candidateContest = contest as CandidateContest;

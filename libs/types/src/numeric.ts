@@ -28,6 +28,7 @@ function doParse(
   schema: z.ZodSchema<number>,
   valueToParse: unknown
 ): Result<number, z.ZodError> {
+  // eslint-disable-next-line vx/gts-safe-number-parse
   return safeParse(schema, Number(valueToParse));
 }
 

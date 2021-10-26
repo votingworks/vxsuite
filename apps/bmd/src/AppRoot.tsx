@@ -743,6 +743,9 @@ function AppRoot({
         case 'voter': {
           assert(optionalElectionDefinition);
           const cardIsVoterCardVoided = Boolean(cardData.uz);
+          // This overly-aggressive directive is because BMD's react-scripts can't load
+          // our custom ESLint config properly. We need to update to react-scripts@4.
+          // eslint-disable-next-line
           const cardBallotPrintedTime = cardData.bp ? Number(cardData.bp) : 0;
           const cardIsVoterCardPrinted = Boolean(cardBallotPrintedTime);
           const cardBallotStyle = getBallotStyle({
