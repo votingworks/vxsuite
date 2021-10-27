@@ -349,9 +349,8 @@ function ReviewPage(): JSX.Element {
     };
   }, [updateContestChoicesScrollStates]);
 
-  const scrollContestChoices: EventTargetFunction /* istanbul ignore next: Tested by Cypress */ = (
-    event
-  ) => {
+  /* istanbul ignore next: Tested by Cypress */
+  const scrollContestChoices: EventTargetFunction = (event) => {
     const direction = (event.target as HTMLElement).dataset
       .direction as ScrollDirections;
     const sc = scrollContainer.current;
@@ -461,32 +460,34 @@ function ReviewPage(): JSX.Element {
               ))}
             </ScrollableContentWrapper>
           </ScrollContainer>
-          {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-            <ScrollControls aria-hidden>
-              <Button
-                className="scroll-up"
-                large
-                primary
-                aria-hidden
-                data-direction="up"
-                disabled={isScrollAtTop}
-                onPress={scrollContestChoices}
-              >
-                <span>See More</span>
-              </Button>
-              <Button
-                className="scroll-down"
-                large
-                primary
-                aria-hidden
-                data-direction="down"
-                disabled={isScrollAtBottom}
-                onPress={scrollContestChoices}
-              >
-                <span>See More</span>
-              </Button>
-            </ScrollControls>
-          )}
+          {
+            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
+              <ScrollControls aria-hidden>
+                <Button
+                  className="scroll-up"
+                  large
+                  primary
+                  aria-hidden
+                  data-direction="up"
+                  disabled={isScrollAtTop}
+                  onPress={scrollContestChoices}
+                >
+                  <span>See More</span>
+                </Button>
+                <Button
+                  className="scroll-down"
+                  large
+                  primary
+                  aria-hidden
+                  data-direction="down"
+                  disabled={isScrollAtBottom}
+                  onPress={scrollContestChoices}
+                >
+                  <span>See More</span>
+                </Button>
+              </ScrollControls>
+            )
+          }
         </VariableContentContainer>
       </Main>
       <Sidebar
