@@ -8,6 +8,7 @@ import {
   safeParseJSON,
 } from '@votingworks/types';
 import { Card, Hardware, isCardReader } from '@votingworks/utils';
+import { strict as assert } from 'assert';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { map } from 'rxjs/operators';
 import useInterval from 'use-interval';
@@ -35,7 +36,6 @@ export type UseSmartcardResult = [
 ];
 
 interface State {
-  readonly isWriting: boolean;
   readonly lastCardDataString?: string;
   readonly longValueExists?: boolean;
   readonly isCardPresent: boolean;
@@ -44,7 +44,6 @@ interface State {
 }
 
 const initialState: State = {
-  isWriting: false,
   isCardPresent: false,
   hasCardReaderAttached: false,
 };
@@ -79,13 +78,13 @@ export function useSmartcard({
       cardData,
       hasCardReaderAttached,
       isCardPresent,
-      isWriting,
       lastCardDataString,
       longValueExists,
     },
     setState,
   ] = useState(initialState);
   const isReading = useRef(false);
+  const isWriting = useRef(false);
   const makeCancelable = useCancelablePromise();
 
   const set = useCallback(
@@ -115,23 +114,29 @@ export function useSmartcard({
 
   const writeShortValue = useCallback(
     async (value: string): Promise<Result<void, Error>> => {
+      if (isWriting.current) {
+        return err(new Error('already writing'));
+      }
+      isWriting.current = true;
       try {
-        set({ isWriting: true });
         await makeCancelable(card.writeShortValue(value));
         return ok();
       } catch (error) {
         return err(error);
       } finally {
-        setState((prev) => ({ ...prev, isWriting: false }));
+        isWriting.current = false;
       }
     },
-    [set, makeCancelable, card]
+    [makeCancelable, card]
   );
 
   const writeLongValue = useCallback(
     async (value: unknown | Uint8Array): Promise<Result<void, Error>> => {
+      if (isWriting.current) {
+        return err(new Error('already writing'));
+      }
+      isWriting.current = true;
       try {
-        set({ isWriting: true });
         if (value instanceof Uint8Array) {
           await makeCancelable(card.writeLongUint8Array(value));
         } else {
@@ -141,10 +146,10 @@ export function useSmartcard({
       } catch (error) {
         return err(error);
       } finally {
-        set({ isWriting: false });
+        isWriting.current = false;
       }
     },
-    [set, makeCancelable, card]
+    [makeCancelable, card]
   );
 
   useEffect(() => {
@@ -160,7 +165,7 @@ export function useSmartcard({
 
   useInterval(
     async () => {
-      if (isReading.current || isWriting || !hasCardReaderAttached) {
+      if (isReading.current || isWriting.current || !hasCardReaderAttached) {
         return;
       }
 

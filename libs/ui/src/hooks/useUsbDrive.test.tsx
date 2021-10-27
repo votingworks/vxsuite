@@ -26,7 +26,7 @@ async function waitForIOFlush(): Promise<void> {
 
 beforeEach(() => {
   delete window.kiosk;
-  jest.useFakeTimers();
+  jest.useFakeTimers('legacy');
 });
 
 test('returns undefined status at first', async () => {

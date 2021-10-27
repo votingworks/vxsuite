@@ -2,8 +2,10 @@ import MockDate from 'mockdate';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { useNow } from './useNow';
 
-MockDate.set('2021-03-31T00:00:00Z');
-jest.useFakeTimers();
+beforeEach(() => {
+  MockDate.set('2021-03-31T00:00:00Z');
+  jest.useFakeTimers('legacy');
+});
 
 test('returns the current date', () => {
   const { result } = renderHook(() => useNow());

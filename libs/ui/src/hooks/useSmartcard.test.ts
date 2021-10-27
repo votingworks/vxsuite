@@ -13,7 +13,7 @@ import { MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { CARD_POLLING_INTERVAL, useSmartcard } from './useSmartcard';
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  jest.useFakeTimers('legacy');
 });
 
 test('no card reader attached', async () => {
@@ -141,7 +141,9 @@ test('writing short value succeeds', async () => {
   {
     const [smartcard] = result.current;
     await act(async () => {
-      await smartcard?.writeShortValue(JSON.stringify(voterCard));
+      (
+        await smartcard!.writeShortValue(JSON.stringify(voterCard))
+      ).unsafeUnwrap();
     });
   }
 
@@ -188,6 +190,47 @@ test('writing short value fails', async () => {
         )
       )?.err()?.message
     ).toEqual('oh no');
+  });
+});
+
+test('writing concurrently fails', async () => {
+  const card = new MemoryCard();
+  const hardware = new MemoryHardware();
+
+  await hardware.setCardReaderConnected(true);
+  card.insertCard();
+
+  const { result } = renderHook(() => useSmartcard({ card, hardware }));
+  await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
+
+  jest.spyOn(card, 'writeShortValue').mockResolvedValue();
+  jest.spyOn(card, 'writeLongUint8Array').mockResolvedValue();
+
+  const [smartcard] = result.current;
+  await act(async () => {
+    const [write1Result, write2Result] = await Promise.all([
+      smartcard!.writeShortValue('123'),
+      smartcard!.writeShortValue('456'),
+    ]);
+
+    write1Result.unsafeUnwrap();
+    write2Result.unsafeUnwrapErr();
+
+    expect(card.writeShortValue).toHaveBeenCalledWith('123');
+  });
+
+  await act(async () => {
+    const [write1Result, write2Result] = await Promise.all([
+      smartcard!.writeLongValue(Uint8Array.of(1, 2, 3)),
+      smartcard!.writeLongValue(Uint8Array.of(4, 5, 6)),
+    ]);
+
+    write1Result.unsafeUnwrap();
+    write2Result.unsafeUnwrapErr();
+
+    expect(card.writeLongUint8Array).toHaveBeenCalledWith(
+      Uint8Array.of(1, 2, 3)
+    );
   });
 });
 

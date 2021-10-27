@@ -46,7 +46,7 @@
     "react-router-dom": "^5.2.0",
     "rxjs": "6.6.6",
     "styled-components": "^5.2.3",
-    "use-interval": "^1.3.0",
+    "use-interval": "^1.4.0",
     "zod": "3.2.0"
   },
   "devDependencies": {
@@ -81,7 +81,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.2.0",
-    "jest": "26",
+    "jest": "^27.3.1",
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^11.0.0",
     "mockdate": "^3.0.5",
@@ -93,7 +93,7 @@
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.9.0",
-    "ts-jest": "26",
+    "ts-jest": "^27.0.7",
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
