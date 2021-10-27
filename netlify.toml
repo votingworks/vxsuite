@@ -1,0 +1,8 @@
+[build.environment]
+	NPM_FLAGS="--version" # this effectively disables the default `npm i` that Netlify runs
+	
+[build]
+	base="apps/election-manager"
+	command="npm i pnpm@5 && pnpm install --prefer-frozen-lockfile && pnpm build"
+	build="build"
+
