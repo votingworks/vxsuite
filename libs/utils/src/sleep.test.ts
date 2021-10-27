@@ -1,6 +1,8 @@
 import { sleep } from './sleep';
 
-jest.useFakeTimers();
+beforeEach(() => {
+  jest.useFakeTimers();
+});
 
 test('sleep', async () => {
   const sleepPromise = sleep(10);
