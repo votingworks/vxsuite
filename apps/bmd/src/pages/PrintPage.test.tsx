@@ -16,8 +16,9 @@ import PrintPage from './PrintPage';
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random');
-const randomBase64Mock = mockOf(randomBase64);
-randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
+beforeEach(() => {
+  mockOf(randomBase64).mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
+});
 
 it('renders PrintPage without votes', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {

@@ -28,6 +28,11 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
 jest.setTimeout(10_000);
 
+beforeEach(() => {
+  jest.useFakeTimers();
+  window.location.href = '/';
+});
+
 const election = parseElection(electionSample);
 const electionDefinition = asElectionDefinition(parseElection(electionSample));
 
@@ -150,12 +155,6 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   expect(
     contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
   ).toBe(`• ${measure420Contest.secondOption.label}`);
-});
-
-jest.useFakeTimers();
-
-beforeEach(() => {
-  window.location.href = '/';
 });
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {

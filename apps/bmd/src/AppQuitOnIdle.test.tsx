@@ -15,9 +15,8 @@ import {
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
 });

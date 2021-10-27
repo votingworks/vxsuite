@@ -35,9 +35,8 @@ import { VxPrintOnly } from './config/types';
 
 beforeEach(() => {
   window.location.href = '/';
+  jest.useFakeTimers();
 });
-
-jest.useFakeTimers();
 
 jest.setTimeout(12000);
 

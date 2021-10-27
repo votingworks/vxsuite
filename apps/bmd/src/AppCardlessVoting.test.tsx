@@ -24,10 +24,10 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxMarkPlusVxPrint } from './config/types';
 
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 
-jest.useFakeTimers();
 jest.setTimeout(15000);
 
 test('Cardless Voting Flow', async () => {

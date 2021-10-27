@@ -29,9 +29,8 @@ import utcTimestamp from './utils/utcTimestamp';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxPrintOnly } from './config/types';
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 

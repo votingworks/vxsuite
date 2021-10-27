@@ -24,9 +24,8 @@ import {
 
 MockDate.set('2020-10-31T00:00:00.000Z');
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
 });

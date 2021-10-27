@@ -27,12 +27,11 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 jest.setTimeout(10_000);
 
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 
 it('VxMarkOnly flow', async () => {
-  jest.useFakeTimers();
-
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
   const adminCard = makeAdminCard(electionDefinition.electionHash);

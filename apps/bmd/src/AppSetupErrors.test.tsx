@@ -22,9 +22,8 @@ import {
 } from './config/globals';
 import { VxPrintOnly } from './config/types';
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 

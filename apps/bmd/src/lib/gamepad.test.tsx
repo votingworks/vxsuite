@@ -21,12 +21,11 @@ import { getActiveElement, handleGamepadButtonDown } from './gamepad';
 import { fakeMachineConfigProvider } from '../../test/helpers/fakeMachineConfig';
 
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 
 it('gamepad controls work', async () => {
-  jest.useFakeTimers();
-
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
   const storage = new MemoryStorage();

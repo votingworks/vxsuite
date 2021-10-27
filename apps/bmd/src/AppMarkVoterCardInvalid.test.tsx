@@ -26,10 +26,9 @@ import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxMarkPlusVxPrint } from './config/types';
 
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
-
-jest.useFakeTimers();
 
 const idleScreenCopy =
   'This voting station has been inactive for more than 5 minutes.';

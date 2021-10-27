@@ -33,9 +33,8 @@ const electionWithNoPartyCandidateContests: Election = {
   }),
 };
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 
