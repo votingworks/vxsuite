@@ -7,11 +7,9 @@ import React from 'react';
 import AppContext from '../contexts/AppContext';
 import AdminScreen from './AdminScreen';
 
-MockDate.set('2020-10-31T00:00:00.000Z');
-
-jest.useFakeTimers();
-
 beforeEach(() => {
+  MockDate.set('2020-10-31T00:00:00.000Z');
+  jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
 });

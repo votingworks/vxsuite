@@ -1,7 +1,9 @@
 import ora from 'ora';
 import Spinner, { countProvider, durationProvider } from './spinner';
 
-jest.useFakeTimers();
+beforeEach(() => {
+  jest.useFakeTimers();
+});
 
 test('durationProvider counts up starting from 3s', () => {
   const duration = durationProvider();

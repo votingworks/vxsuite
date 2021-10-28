@@ -24,7 +24,9 @@ import {
   getEmptyExternalTally,
 } from '../utils/externalTallies';
 
-jest.useFakeTimers();
+beforeEach(() => {
+  jest.useFakeTimers();
+});
 
 test('can toggle ballot types for data', async () => {
   const saveExternalTallies = jest.fn();
