@@ -3,8 +3,8 @@ import json, hashlib, secrets, time, sys
 from smartcards.core import CardInterface
 
 # generate random bytes for short value and long value
-short_bytes = secrets.token_bytes(30)
-long_bytes = secrets.token_bytes(50)
+short_bytes = secrets.token_bytes(61)
+long_bytes = secrets.token_bytes(3500)
 
 # get the card reader and card in the reader to register
 time.sleep(2)
