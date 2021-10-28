@@ -1,4 +1,4 @@
-import BitCursor from './BitCursor';
+import { BitCursor } from './BitCursor';
 import { Encoding, UTF8Encoding } from './encoding';
 import { Uint1, Uint8, Uint8Size } from './types';
 import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils';
@@ -7,7 +7,7 @@ import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils';
  * Writes structured data into a `Uint8Array`. Data is written in little-endian
  * order.
  */
-export default class BitWriter {
+export class BitWriter {
   private data = new Uint8Array();
   private cursor = new BitCursor();
   private nextByte: Uint8 = 0b00000000;

@@ -1,7 +1,7 @@
 import { Uint8Size, Uint8, Uint1, Uint8Index } from './types';
 import { makeMasks } from './utils';
 
-export default class BitCursor {
+export class BitCursor {
   private offset = 0;
 
   next(): this {

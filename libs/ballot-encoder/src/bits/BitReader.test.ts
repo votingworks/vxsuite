@@ -1,4 +1,4 @@
-import BitReader from './BitReader';
+import { BitReader } from './BitReader';
 
 test('reads bits in little-endian order', () => {
   const reader = new BitReader(Uint8Array.of(0b11010000));
