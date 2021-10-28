@@ -21,7 +21,7 @@ import { PassThrough } from 'stream';
 import { createHash } from 'crypto';
 import { createImageData } from 'canvas';
 import { main } from '.';
-import lsd from '..';
+import { lsd } from '..';
 import { readGrayscaleImage } from '../util/images';
 
 jest.mock('fs');
