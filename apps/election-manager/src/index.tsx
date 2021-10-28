@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom';
 import './i18n';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import DemoApp from './DemoApp';
+
+const isDemoApp =
+  window.location.hash === '#demo' ||
+  window.location.hostname.endsWith('votingworks.app');
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <React.StrictMode>{isDemoApp ? <DemoApp /> : <App />}</React.StrictMode>,
   document.getElementById('root')
 );
 
