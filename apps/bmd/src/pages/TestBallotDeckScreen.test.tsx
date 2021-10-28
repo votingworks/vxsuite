@@ -7,7 +7,12 @@ import {
 import React from 'react';
 import { fireEvent, waitFor, act, screen } from '@testing-library/react';
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { fakeKiosk, fakePrinterInfo, mockOf } from '@votingworks/test-utils';
+import {
+  advanceTimersAndPromises,
+  fakeKiosk,
+  fakePrinterInfo,
+  mockOf,
+} from '@votingworks/test-utils';
 import electionSample from '../data/electionSample.json';
 import { render } from '../../test/testUtils';
 import { randomBase64 } from '../utils/random';
@@ -72,7 +77,6 @@ it('renders test decks appropriately', async () => {
     jest.advanceTimersByTime(66000);
   });
   expect(screen.queryAllByText('Printing Ballots…').length).toBe(0);
-  jest.useRealTimers();
 });
 
 it('shows printer not connected when appropriate', async () => {
@@ -98,6 +102,7 @@ it('shows printer not connected when appropriate', async () => {
   fireEvent.click(screen.getByText('All Precincts'));
 
   fireEvent.click(screen.getByText('Print 63 ballots'));
+  await advanceTimersAndPromises();
 
   expect(kiosk.getPrinterInfo).toHaveBeenCalled();
 
