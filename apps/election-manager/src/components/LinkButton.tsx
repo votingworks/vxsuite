@@ -1,13 +1,11 @@
 import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { EventTargetFunction } from '../config/types';
 
 import Button, { ButtonInterface } from './Button';
 
 interface Props
   extends ButtonInterface,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    RouteComponentProps<{}>,
     React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
   goBack?: boolean;
   onPress?: EventTargetFunction;
@@ -15,18 +13,15 @@ interface Props
   to?: string;
 }
 
-function LinkButton(props: Props) {
+export default function LinkButton(props: Props): JSX.Element {
   const {
     goBack,
-    history,
-    location, // eslint-disable-line @typescript-eslint/no-unused-vars
-    match, // eslint-disable-line @typescript-eslint/no-unused-vars
     onPress,
-    staticContext, // eslint-disable-line @typescript-eslint/no-unused-vars
     to,
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
   } = props;
+  const history = useHistory();
   const handleOnPress: EventTargetFunction = (event) => {
     /* istanbul ignore else */
     if (onPress) {
@@ -45,5 +40,3 @@ function LinkButton(props: Props) {
     />
   );
 }
-
-export default withRouter(LinkButton);

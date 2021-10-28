@@ -1,25 +1,20 @@
 import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { EventTargetFunction } from '@votingworks/types';
 import { Button, ButtonProps } from './Button';
 
-export interface LinkButtonProps
-  extends Omit<ButtonProps, 'onPress'>,
-    RouteComponentProps<Record<string, string | undefined>> {
+export interface LinkButtonProps extends Omit<ButtonProps, 'onPress'> {
   goBack?: boolean;
   onPress?: EventTargetFunction;
   primary?: boolean;
   to?: string;
 }
 
-function LinkButton(props: LinkButtonProps): JSX.Element {
+export default function LinkButton(props: LinkButtonProps): JSX.Element {
+  const history = useHistory();
   const {
     goBack,
-    history,
-    location, // eslint-disable-line @typescript-eslint/no-unused-vars
-    match, // eslint-disable-line @typescript-eslint/no-unused-vars
     onPress,
-    staticContext, // eslint-disable-line @typescript-eslint/no-unused-vars
     to,
     // ⬆ filtering out props which are not intrinsic to `<button>` element.
     ...rest
@@ -42,5 +37,3 @@ function LinkButton(props: LinkButtonProps): JSX.Element {
     />
   );
 }
-
-export default withRouter(LinkButton);
