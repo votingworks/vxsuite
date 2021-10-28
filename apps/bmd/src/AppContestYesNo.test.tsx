@@ -17,9 +17,8 @@ import {
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 

@@ -34,10 +34,12 @@ const candidate0 = contest.candidates[0];
 const candidate1 = contest.candidates[1];
 const candidate2 = contest.candidates[2];
 
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
 describe('supports single-seat contest', () => {
   it('allows any candidate to be selected when no candidate is selected', () => {
-    jest.useFakeTimers();
-
     const updateVote = jest.fn();
     const { container } = render(
       <CandidateContest
@@ -64,8 +66,6 @@ describe('supports single-seat contest', () => {
   });
 
   it("doesn't allow other candidates to be selected when a candidate is selected", async () => {
-    jest.useFakeTimers();
-
     const updateVote = jest.fn();
     const { container } = render(
       <CandidateContest
@@ -143,8 +143,6 @@ describe('supports write-in candidates', () => {
   }
 
   it('updates votes when a write-in candidate is selected', () => {
-    jest.useFakeTimers();
-
     const updateVote = jest.fn();
     render(
       <CandidateContest
@@ -172,8 +170,6 @@ describe('supports write-in candidates', () => {
   });
 
   it('displays warning if write-in candidate name is too long', () => {
-    jest.useFakeTimers();
-
     const updateVote = jest.fn();
     render(
       <CandidateContest
@@ -198,8 +194,6 @@ describe('supports write-in candidates', () => {
   });
 
   it('prevents writing more than the allowed number of characters', () => {
-    jest.useFakeTimers();
-
     const updateVote = jest.fn();
     render(
       <CandidateContest

@@ -13,10 +13,10 @@ import App from './App';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 
-jest.useFakeTimers();
 jest.setTimeout(15000);
 
 test('replacing a loaded election with one from a card', async () => {

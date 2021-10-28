@@ -4,7 +4,6 @@ import 'jest-styled-components';
 import crypto from 'crypto';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'util';
-import { mockOf } from '@votingworks/test-utils';
 
 // globalThis.crypto is not defined in JSDOM
 Object.defineProperty(globalThis, 'crypto', {
@@ -15,14 +14,13 @@ Object.defineProperty(globalThis, 'crypto', {
   },
 });
 
-// react-gamepad calls this function which does not exist in JSDOM
-globalThis.navigator.getGamepads = jest.fn(() => []);
-
-globalThis.print = jest.fn(() => {
-  throw new Error('globalThis.print() should never be called');
+beforeEach(() => {
+  // react-gamepad calls this function which does not exist in JSDOM
+  globalThis.navigator.getGamepads = jest.fn(() => []);
+  globalThis.print = jest.fn(() => {
+    throw new Error('globalThis.print() should never be called');
+  });
 });
-
-const printMock = mockOf(globalThis.print);
 
 function makeSpeechSynthesisDouble(): typeof speechSynthesis {
   return {
@@ -58,7 +56,6 @@ beforeEach(() => {
 
 afterEach(() => {
   fetchMock.restore();
-  printMock.mockClear();
 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;

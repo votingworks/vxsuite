@@ -28,9 +28,8 @@ import { VxMarkPlusVxPrint } from './config/types';
 import fakePrinter from '../test/helpers/fakePrinter';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 

@@ -18,8 +18,11 @@ import fakePrinter from '../../test/helpers/fakePrinter';
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random');
-const randomBase64Mock = mockOf(randomBase64);
-randomBase64Mock.mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
+
+beforeEach(() => {
+  jest.useFakeTimers();
+  mockOf(randomBase64).mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
+});
 
 it('renders test decks appropriately', async () => {
   const printer = fakePrinter();
@@ -58,7 +61,6 @@ it('renders test decks appropriately', async () => {
     .fn()
     .mockResolvedValue([fakePrinterInfo({ connected: true })]);
 
-  jest.useFakeTimers();
   fireEvent.click(screen.getByText('Print 63 ballots'));
 
   await waitFor(() => {

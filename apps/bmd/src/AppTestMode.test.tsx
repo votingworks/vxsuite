@@ -11,9 +11,8 @@ import {
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-jest.useFakeTimers();
-
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 

@@ -36,7 +36,9 @@ const electionSampleWithSeal = safeParseElection(
   electionSampleWithSealUntyped
 ).unsafeUnwrap();
 
-jest.useFakeTimers();
+beforeEach(() => {
+  jest.useFakeTimers();
+});
 
 function expectBallotCountsInReport(
   container: HTMLElement,

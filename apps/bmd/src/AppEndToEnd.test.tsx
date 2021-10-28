@@ -42,10 +42,10 @@ import { VxMarkPlusVxPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 
 beforeEach(() => {
+  jest.useFakeTimers();
   window.location.href = '/';
 });
 
-jest.useFakeTimers();
 jest.setTimeout(15000);
 
 it('VxMark+Print end-to-end flow', async () => {
