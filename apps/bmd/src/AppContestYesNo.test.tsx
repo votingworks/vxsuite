@@ -39,6 +39,7 @@ it('Single Seat Contest', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();

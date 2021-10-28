@@ -27,6 +27,7 @@ describe('loads election', () => {
         machineConfig={fakeMachineConfigProvider()}
         card={new MemoryCard()}
         hardware={hardware}
+        reload={jest.fn()}
       />
     );
 
@@ -49,6 +50,7 @@ describe('loads election', () => {
         storage={storage}
         machineConfig={machineConfig}
         hardware={hardware}
+        reload={jest.fn()}
       />
     );
 
@@ -61,7 +63,7 @@ describe('loads election', () => {
 
   it('demo app loads election and activates ballot', async () => {
     const storage = getDemoStorage();
-    render(<DemoApp storage={storage} />);
+    render(<DemoApp storage={storage} reload={jest.fn()} />);
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();

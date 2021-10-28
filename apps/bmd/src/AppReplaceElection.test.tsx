@@ -35,6 +35,7 @@ test('replacing a loaded election with one from a card', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
 

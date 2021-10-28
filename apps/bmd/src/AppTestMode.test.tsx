@@ -31,6 +31,7 @@ it('Displays testing message if not live mode', async () => {
       storage={storage}
       machineConfig={machineConfig}
       hardware={hardware}
+      reload={jest.fn()}
     />
   );
 

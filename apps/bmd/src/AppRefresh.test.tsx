@@ -42,6 +42,7 @@ it('Refresh window and expect to be on same contest', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
@@ -79,6 +80,7 @@ it('Refresh window and expect to be on same contest', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   ));
 

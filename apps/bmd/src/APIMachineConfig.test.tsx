@@ -28,7 +28,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
     })
   );
 
-  render(<App storage={new MemoryStorage()} />);
+  render(<App storage={new MemoryStorage()} reload={jest.fn()} />);
   await advanceTimersAndPromises();
 
   expect(fetchMock.called('/machine-config')).toBe(true);
@@ -40,7 +40,13 @@ test('machineConfig fetch fails', async () => {
   };
 
   // Render app which gets machineConfig in componentDidMount
-  render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />);
+  render(
+    <App
+      storage={new MemoryStorage()}
+      machineConfig={machineConfig}
+      reload={jest.fn()}
+    />
+  );
   await advanceTimersAndPromises();
 
   // No expect?
@@ -56,7 +62,13 @@ test('machineId is empty', async () => {
   };
 
   // Render app which gets machineConfig in componentDidMount
-  render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />);
+  render(
+    <App
+      storage={new MemoryStorage()}
+      machineConfig={machineConfig}
+      reload={jest.fn()}
+    />
+  );
   await advanceTimersAndPromises();
 
   // No expect?
@@ -73,7 +85,13 @@ test('machineConfig is empty', async () => {
   };
 
   // Render app which gets machineConfig in componentDidMount
-  render(<App storage={new MemoryStorage()} machineConfig={machineConfig} />);
+  render(
+    <App
+      storage={new MemoryStorage()}
+      machineConfig={machineConfig}
+      reload={jest.fn()}
+    />
+  );
   await advanceTimersAndPromises();
 
   // No expect?
