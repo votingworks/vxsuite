@@ -68,6 +68,7 @@ interface Props {
   togglePollsOpen: () => void;
   tallyOnCard?: PrecinctScannerCardTally;
   clearTalliesOnCard: () => Promise<void>;
+  reload: () => void;
 }
 
 interface DerivedTallyInformationFromCard {
@@ -97,6 +98,7 @@ function PollWorkerScreen({
   hasVotes,
   tallyOnCard,
   clearTalliesOnCard,
+  reload,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
@@ -326,10 +328,6 @@ function PollWorkerScreen({
         </Main>
       </Screen>
     );
-  }
-
-  function reload() {
-    window.location.reload();
   }
 
   return (

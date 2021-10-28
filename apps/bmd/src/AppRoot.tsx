@@ -149,6 +149,7 @@ export interface Props extends RouteComponentProps {
   printer: Printer;
   storage: Storage;
   screenReader: ScreenReader;
+  reload: VoidFunction;
 }
 
 export const electionStorageKey = 'electionDefinition';
@@ -472,6 +473,7 @@ function AppRoot({
   printer,
   screenReader,
   storage,
+  reload,
 }: Props): JSX.Element {
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
@@ -1309,6 +1311,7 @@ function AppRoot({
           tallyOnCard={tallyOnCard}
           clearTalliesOnCard={clearTalliesOnCard}
           hasVotes={!!votes}
+          reload={reload}
         />
       );
     }

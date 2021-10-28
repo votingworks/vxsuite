@@ -44,6 +44,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
 

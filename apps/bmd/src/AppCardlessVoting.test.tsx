@@ -49,6 +49,7 @@ test('Cardless Voting Flow', async () => {
       machineConfig={machineConfig}
       printer={printer}
       storage={storage}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
@@ -222,6 +223,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
       printer={printer}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
@@ -299,6 +301,7 @@ test('poll worker must select a precinct first', async () => {
       machineConfig={machineConfig}
       printer={printer}
       storage={storage}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();

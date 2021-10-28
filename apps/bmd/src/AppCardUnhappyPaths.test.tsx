@@ -53,6 +53,7 @@ test('Display App Card Unhappy Paths', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
@@ -167,6 +168,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
@@ -203,6 +205,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();

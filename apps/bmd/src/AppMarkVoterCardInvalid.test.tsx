@@ -49,6 +49,7 @@ describe('Mark Card Void when voter is idle too long', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
     // Initialize app
@@ -122,6 +123,7 @@ describe('Mark Card Void when voter is idle too long', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
     // Initialize app
@@ -193,6 +195,7 @@ describe('Mark Card Void when voter is idle too long', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
     // Initialize app

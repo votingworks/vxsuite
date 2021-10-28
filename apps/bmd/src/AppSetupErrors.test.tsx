@@ -48,6 +48,7 @@ describe('Displays setup warning messages and errors screens', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
     const accessibleControllerWarningText =
@@ -91,6 +92,7 @@ describe('Displays setup warning messages and errors screens', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
 
@@ -128,6 +130,7 @@ describe('Displays setup warning messages and errors screens', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
 
@@ -167,6 +170,7 @@ describe('Displays setup warning messages and errors screens', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
 
@@ -210,6 +214,7 @@ describe('Displays setup warning messages and errors screens', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
 
@@ -249,6 +254,7 @@ describe('Displays setup warning messages and errors screens', () => {
         hardware={hardware}
         storage={storage}
         machineConfig={machineConfig}
+        reload={jest.fn()}
       />
     );
     const getByTextWithMarkup = withMarkup(screen.getByText);

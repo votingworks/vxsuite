@@ -174,6 +174,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
       hardware={hardware}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();

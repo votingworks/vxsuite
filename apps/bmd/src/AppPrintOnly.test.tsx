@@ -56,6 +56,7 @@ test('VxPrintOnly flow', async () => {
       storage={storage}
       printer={printer}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
@@ -391,6 +392,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
       storage={storage}
       printer={printer}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
 
@@ -491,6 +493,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
       storage={storage}
       printer={printer}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();

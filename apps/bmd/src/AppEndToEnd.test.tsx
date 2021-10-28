@@ -59,6 +59,7 @@ it('VxMark+Print end-to-end flow', async () => {
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array');
+  const reload = jest.fn();
   render(
     <App
       card={card}
@@ -66,6 +67,7 @@ it('VxMark+Print end-to-end flow', async () => {
       machineConfig={machineConfig}
       printer={printer}
       storage={storage}
+      reload={reload}
     />
   );
   await advanceTimersAndPromises();
@@ -142,6 +144,7 @@ it('VxMark+Print end-to-end flow', async () => {
   screen.getByText('Close Polls for Center Springfield');
   // Force refresh
   fireEvent.click(screen.getByText('Reset Accessible Controller'));
+  expect(reload).toHaveBeenCalledTimes(1);
   await screen.findByText('Close Polls for Center Springfield');
 
   // Remove card

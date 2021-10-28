@@ -95,6 +95,7 @@ test('renders PollWorkerScreen', async () => {
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      reload={jest.fn()}
     />
   );
 
@@ -125,6 +126,7 @@ test('switching out of test mode on election day', async () => {
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      reload={jest.fn()}
     />
   );
 
@@ -157,6 +159,7 @@ test('keeping test mode on election day', async () => {
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      reload={jest.fn()}
     />
   );
 
@@ -186,6 +189,7 @@ test('live mode on election day', async () => {
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
       clearTalliesOnCard={jest.fn()}
+      reload={jest.fn()}
     />
   );
 
@@ -235,6 +239,7 @@ test('printing precinct scanner report works as expected with all precinct data 
       togglePollsOpen={jest.fn()}
       tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
+      reload={jest.fn()}
     />
   );
 
@@ -315,6 +320,7 @@ test('printing precinct scanner report works as expected with single precinct da
       togglePollsOpen={jest.fn()}
       tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
+      reload={jest.fn()}
     />
   );
 
@@ -413,6 +419,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       togglePollsOpen={jest.fn()}
       tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
+      reload={jest.fn()}
     />
   );
 
@@ -564,6 +571,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       togglePollsOpen={jest.fn()}
       tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
+      reload={jest.fn()}
     />
   );
 
@@ -795,6 +803,7 @@ test('printing precinct scanner report works as expected with all precinct combi
       togglePollsOpen={jest.fn()}
       tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
+      reload={jest.fn()}
     />
   );
 
@@ -945,6 +954,7 @@ test('printing precinct scanner report works as expected with a single precinct 
       togglePollsOpen={jest.fn()}
       tallyOnCard={tallyOnCard}
       clearTalliesOnCard={clearTallies}
+      reload={jest.fn()}
     />
   );
 

@@ -35,6 +35,7 @@ export interface Props {
   printer?: AppRootProps['printer'];
   machineConfig?: AppRootProps['machineConfig'];
   screenReader?: ScreenReader;
+  reload?: VoidFunction;
 }
 
 function App({
@@ -47,6 +48,7 @@ function App({
   printer = getPrinter(),
   hardware,
   machineConfig = machineConfigProvider,
+  reload = () => window.location.reload(),
 }: Props): JSX.Element {
   screenReader.mute();
   const [internalHardware, setInternalHardware] = useState(hardware);
@@ -144,6 +146,7 @@ function App({
               storage={storage}
               machineConfig={machineConfig}
               screenReader={screenReader}
+              reload={reload}
               {...props}
             />
           )}

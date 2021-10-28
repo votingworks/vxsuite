@@ -54,6 +54,7 @@ it('Single Seat Contest with Write In', async () => {
       printer={printer}
       storage={storage}
       machineConfig={machineConfig}
+      reload={jest.fn()}
     />
   );
   await advanceTimersAndPromises();
