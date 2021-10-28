@@ -30,4 +30,4 @@ export async function detect(
   };
 }
 
-export default withCropping(detect);
+export const jsqr = withCropping(detect);

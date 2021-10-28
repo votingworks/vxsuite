@@ -88,7 +88,7 @@ export function fromBytes(
 export async function detect(
   election: Election,
   imageData: ImageData,
-  { detectQRCode = qrcode.default }: DetectOptions = {}
+  { detectQRCode = qrcode.detect }: DetectOptions = {}
 ): Promise<DetectResult> {
   const result = await detectQRCode(imageData);
 
