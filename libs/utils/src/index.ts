@@ -11,6 +11,7 @@ export * from './filenames';
 export * from './iterators';
 export * from './Hardware';
 export * from './Printer';
+export * from './rotation';
 export * from './sleep';
 export * from './Storage';
 export * from './tallies';

@@ -12,6 +12,7 @@ import {
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
+  getPrecinctIndexById,
   isVotePresent,
   PartySchema,
   validateVotes,
@@ -190,6 +191,13 @@ test('getPrecinctById', () => {
     getPrecinctById({ election, precinctId: election.precincts[0].id })
   ).toBe(election.precincts[0]);
   expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined();
+});
+
+test('getPrecinctIndexById', () => {
+  expect(
+    getPrecinctIndexById({ election, precinctId: election.precincts[0].id })
+  ).toBe(0);
+  expect(getPrecinctIndexById({ election, precinctId: '' })).toBe(-1);
 });
 
 test('isVotePresent', () => {

@@ -5,12 +5,12 @@ import {
   CandidateVote,
   ContestId,
   Contests,
+  Election,
   ElectionDefinition,
   MachineId,
   MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
-  Parties,
   Precinct,
   PrecinctId,
   VotesDict,
@@ -135,7 +135,8 @@ export interface BallotContextInterface {
 // Review and Printed Ballot
 export interface CandidateContestResultInterface {
   contest: CandidateContest;
-  parties: Parties;
+  election: Election;
+  precinctId: PrecinctId;
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {

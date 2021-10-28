@@ -18,6 +18,7 @@ import { electionSample2CVRStandard1 } from './data/electionSample2/cvrFiles/sta
 import { electionSample2CVRStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
 import electionSample2Untyped from './data/electionSample2/election.json';
 import electionSampleLongContentUntyped from './data/electionSampleLongContent.json';
+import electionSampleRotationUntyped from './data/electionSampleRotation.json';
 import { msEitherNeitherElectionCVRData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
 import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json';
 import { msEitherNeitherElectionSEMSData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
@@ -39,6 +40,7 @@ export const electionSample2 = (electionSample2Untyped as unknown) as Election;
 export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) as Election;
 export const multiPartyPrimaryElection = (multiPartyPrimaryElectionUntyped as unknown) as Election;
 export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election;
+export const electionSampleRotation = (electionSampleRotationUntyped as unknown) as Election;
 export const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election;
 export const electionMinimalExhaustiveSample = (electionMinimalExhaustiveSampleUntyped as unknown) as Election;
 
@@ -52,6 +54,9 @@ export const multiPartyPrimaryElectionDefinition = asElectionDefinition(
 );
 export const electionSampleLongContentDefinition = asElectionDefinition(
   electionSampleLongContent
+);
+export const electionSampleRotationDefinition = asElectionDefinition(
+  electionSampleRotation
 );
 export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
   electionWithMsEitherNeither

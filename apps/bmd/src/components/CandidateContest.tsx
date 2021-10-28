@@ -14,8 +14,10 @@ import {
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Parties,
+  getPrecinctIndexById,
 } from '@votingworks/types';
 import { Button, Main } from '@votingworks/ui';
+import { getContestCandidatesInRotatedOrder } from '@votingworks/utils';
 
 import { findPartyById } from '../utils/find';
 import { stripQuotes } from '../utils/stripQuotes';
@@ -99,7 +101,19 @@ export function CandidateContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { userSettings } = useContext(BallotContext);
+  const { electionDefinition, precinctId, userSettings } = useContext(
+    BallotContext
+  );
+  assert(userSettings, 'userSettings is required to render CandidateContest');
+  assert(
+    electionDefinition,
+    'electionDefinition is required to render CandidateContest'
+  );
+  assert(
+    typeof precinctId === 'string',
+    'precinctId is required to render ContestPage'
+  );
+  const { election } = electionDefinition;
   const scrollContainer = useRef<HTMLDivElement>(null);
 
   const [
@@ -293,6 +307,11 @@ export function CandidateContest({
   }
 
   const hasReachedMaxSelections = contest.seats === vote.length;
+  const precinctIndex = getPrecinctIndexById({ election, precinctId });
+  const rotatedCandidates = getContestCandidatesInRotatedOrder({
+    contest,
+    precinctIndex,
+  });
 
   return (
     <React.Fragment>
@@ -332,7 +351,7 @@ export function CandidateContest({
           >
             <ScrollableContentWrapper isScrollable={isScrollable}>
               <ChoicesGrid>
-                {contest.candidates.map((candidate) => {
+                {rotatedCandidates.map((candidate) => {
                   const isChecked = !!findCandidateById(vote, candidate.id);
                   const isDisabled = hasReachedMaxSelections && !isChecked;
                   function handleDisabledClick() {

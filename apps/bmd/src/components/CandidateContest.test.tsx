@@ -1,38 +1,30 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 
 import {
   CandidateContest as CandidateContestInterface,
-  Parties,
+  parseElection,
 } from '@votingworks/types';
+import { asElectionDefinition, electionSample } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
+import { render as renderWithBallotContext } from '../../test/testUtils';
 import { CandidateContest } from './CandidateContest';
 
-const parties: Parties = [0, 1].map((i) => ({
-  abbrev: `${i}`,
-  id: `party-${i}`,
-  name: `Party ${i}`,
-  fullName: `Party ${i}`,
-}));
+const electionDefinition = asElectionDefinition(parseElection(electionSample));
+const precinctId = electionDefinition.election.precincts[0].id;
 
-const contest: CandidateContestInterface = {
-  allowWriteIns: false,
-  candidates: [0, 1, 2].map((i) => ({
-    id: `name-${i}`,
-    name: `Name ${i}`,
-    partyId: `party-${i % 2}`,
-  })),
-  districtId: '7',
-  id: 'contest-id',
-  seats: 1,
-  section: 'City',
-  title: 'Mayor',
-  type: 'candidate',
-};
-const candidate0 = contest.candidates[0];
-const candidate1 = contest.candidates[1];
-const candidate2 = contest.candidates[2];
+const candidateContest = electionDefinition.election.contests.find(
+  (c) => c.type === 'candidate'
+)! as CandidateContestInterface;
+
+const candidateContestWithMultipleSeats = electionDefinition.election.contests.find(
+  (c) => c.type === 'candidate' && c.seats > 1
+)! as CandidateContestInterface;
+
+const candidateContestWithWriteIns = electionDefinition.election.contests.find(
+  (c) => c.type === 'candidate' && c.allowWriteIns
+)! as CandidateContestInterface;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -41,23 +33,32 @@ beforeEach(() => {
 describe('supports single-seat contest', () => {
   it('allows any candidate to be selected when no candidate is selected', () => {
     const updateVote = jest.fn();
-    const { container } = render(
+    renderWithBallotContext(
       <CandidateContest
-        contest={contest}
-        parties={parties}
+        contest={candidateContest}
+        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
-      />
+      />,
+      {
+        electionDefinition,
+        precinctId,
+      }
     );
-    expect(container).toMatchSnapshot();
 
-    fireEvent.click(screen.getByText(candidate0.name).closest('button')!);
+    fireEvent.click(
+      screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByText(candidate1.name).closest('button')!);
+    fireEvent.click(
+      screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
-    fireEvent.click(screen.getByText(candidate2.name).closest('button')!);
+    fireEvent.click(
+      screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(3);
 
     act(() => {
@@ -67,27 +68,37 @@ describe('supports single-seat contest', () => {
 
   it("doesn't allow other candidates to be selected when a candidate is selected", async () => {
     const updateVote = jest.fn();
-    const { container } = render(
+    renderWithBallotContext(
       <CandidateContest
-        contest={contest}
-        parties={parties}
-        vote={[candidate0]}
+        contest={candidateContest}
+        parties={electionSample.parties}
+        vote={[candidateContest.candidates[0]]}
         updateVote={updateVote}
-      />
+      />,
+      {
+        electionDefinition,
+        precinctId,
+      }
     );
-    expect(container).toMatchSnapshot();
 
     expect(
-      screen.getByText(candidate0.name).closest('button')!.dataset.selected
+      screen.getByText(candidateContest.candidates[0].name).closest('button')!
+        .dataset.selected
     ).toBe('true');
 
-    fireEvent.click(screen.getByText(candidate1.name).closest('button')!);
+    fireEvent.click(
+      screen.getByText(candidateContest.candidates[1].name).closest('button')!
+    );
     expect(updateVote).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(candidate2.name).closest('button')!);
+    fireEvent.click(
+      screen.getByText(candidateContest.candidates[2].name).closest('button')!
+    );
     expect(updateVote).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(candidate0.name).closest('button')!);
+    fireEvent.click(
+      screen.getByText(candidateContest.candidates[0].name).closest('button')!
+    );
     expect(updateVote).toHaveBeenCalled();
 
     act(() => {
@@ -99,33 +110,54 @@ describe('supports single-seat contest', () => {
 describe('supports multi-seat contests', () => {
   it('allows a second candidate to be selected when one is selected', () => {
     const updateVote = jest.fn();
-    const { container } = render(
+    renderWithBallotContext(
       <CandidateContest
-        contest={{ ...contest, seats: 2 }}
-        parties={parties}
-        vote={[candidate0]}
+        contest={candidateContestWithMultipleSeats}
+        parties={electionSample.parties}
+        vote={[candidateContestWithMultipleSeats.candidates[0]]}
         updateVote={updateVote}
-      />
+      />,
+      {
+        electionDefinition,
+        precinctId,
+      }
     );
-    expect(container).toMatchSnapshot();
 
     expect(
-      screen.getByText(candidate0.name).closest('button')!.dataset.selected
+      screen
+        .getByText(candidateContestWithMultipleSeats.candidates[0].name)
+        .closest('button')!.dataset.selected
     ).toBe('true');
     expect(
-      screen.getByText(candidate1.name).closest('button')!.dataset.selected
+      screen
+        .getByText(candidateContestWithMultipleSeats.candidates[1].name)
+        .closest('button')!.dataset.selected
     ).toBe('false');
     expect(
-      screen.getByText(candidate2.name).closest('button')!.dataset.selected
+      screen
+        .getByText(candidateContestWithMultipleSeats.candidates[2].name)
+        .closest('button')!.dataset.selected
     ).toBe('false');
 
-    fireEvent.click(screen.getByText(candidate1.name).closest('button')!);
+    fireEvent.click(
+      screen
+        .getByText(candidateContestWithMultipleSeats.candidates[1].name)
+        .closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByText(candidate2.name).closest('button')!);
+    fireEvent.click(
+      screen
+        .getByText(candidateContestWithMultipleSeats.candidates[2].name)
+        .closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
-    fireEvent.click(screen.getByText(candidate0.name).closest('button')!);
+    fireEvent.click(
+      screen
+        .getByText(candidateContestWithMultipleSeats.candidates[0].name)
+        .closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(3);
 
     act(() => {
@@ -144,13 +176,17 @@ describe('supports write-in candidates', () => {
 
   it('updates votes when a write-in candidate is selected', () => {
     const updateVote = jest.fn();
-    render(
+    renderWithBallotContext(
       <CandidateContest
-        contest={{ ...contest, allowWriteIns: true }}
-        parties={parties}
+        contest={candidateContestWithWriteIns}
+        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
-      />
+      />,
+      {
+        electionDefinition,
+        precinctId,
+      }
     );
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
@@ -160,7 +196,7 @@ describe('supports write-in candidates', () => {
     fireEvent.click(screen.getByText('Accept'));
     expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 
-    expect(updateVote).toHaveBeenCalledWith(contest.id, [
+    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       { id: 'write-in__lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
     ]);
 
@@ -171,13 +207,17 @@ describe('supports write-in candidates', () => {
 
   it('displays warning if write-in candidate name is too long', () => {
     const updateVote = jest.fn();
-    render(
+    renderWithBallotContext(
       <CandidateContest
-        contest={{ ...contest, allowWriteIns: true }}
-        parties={parties}
+        contest={candidateContestWithWriteIns}
+        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
-      />
+      />,
+      {
+        electionDefinition,
+        precinctId,
+      }
     );
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
@@ -195,13 +235,17 @@ describe('supports write-in candidates', () => {
 
   it('prevents writing more than the allowed number of characters', () => {
     const updateVote = jest.fn();
-    render(
+    renderWithBallotContext(
       <CandidateContest
-        contest={{ ...contest, allowWriteIns: true }}
-        parties={parties}
+        contest={candidateContestWithWriteIns}
+        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
-      />
+      />,
+      {
+        electionDefinition,
+        precinctId,
+      }
     );
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
@@ -218,7 +262,7 @@ describe('supports write-in candidates', () => {
     fireEvent.click(screen.getByText('Accept'));
     expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 
-    expect(updateVote).toHaveBeenCalledWith(contest.id, [
+    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       {
         id: 'write-in__jacobJohansonJingleheimmerSchmidttT',
         isWriteIn: true,
