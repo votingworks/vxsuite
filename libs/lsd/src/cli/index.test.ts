@@ -36,7 +36,7 @@ jest.mock('../util/images', () => ({
 
 jest.mock('..', () => ({
   __esModule: true,
-  default: jest.fn().mockReturnValue([]),
+  lsd: jest.fn().mockReturnValue([]),
 }));
 
 const lsdMock = lsd as jest.MockedFunction<typeof lsd>;
