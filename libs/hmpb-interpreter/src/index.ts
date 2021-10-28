@@ -1,4 +1,4 @@
-export { default as Interpreter } from './Interpreter';
+export { Interpreter } from './Interpreter';
 export {
   fromBytes as metadataFromBytes,
   fromString as metadataFromString,

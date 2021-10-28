@@ -9,7 +9,7 @@ import {
  * Finds contest choice areas based on the contest box bounds and the contest
  * option target bounds.
  */
-export default function findContestOptions(
+export function findContestOptions(
   contests: ReadonlyArray<{
     bounds: Rect;
     corners: Corners;

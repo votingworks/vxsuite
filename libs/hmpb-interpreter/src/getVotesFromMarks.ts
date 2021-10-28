@@ -9,7 +9,7 @@ const debug = makeDebug('hmpb-interpreter:getVotesFromMarks');
  * a score of 0 means nothing is filled in and a score of 1 means everything is
  * filled in.
  */
-export default function getVotesFromMarks(
+export function getVotesFromMarks(
   marks: readonly BallotMark[],
   { markScoreVoteThreshold }: { markScoreVoteThreshold: number }
 ): VotesDict {

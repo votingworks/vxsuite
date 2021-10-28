@@ -7,7 +7,7 @@ import { findShape, Shape } from './shapes';
 
 const debug = makeDebug('hmpb-interpreter:findTargets');
 
-export default function* findTargets(
+export function* findTargets(
   ballotImage: ImageData,
   bounds: Rect,
   {

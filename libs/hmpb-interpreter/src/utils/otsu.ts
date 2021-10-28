@@ -24,10 +24,7 @@ const UINT8_MAX = (1 << 8) - 1;
  *
  * @see https://en.wikipedia.org/wiki/Otsu%27s_method
  */
-export default function otsu(
-  data: Uint8Array | Uint8ClampedArray,
-  step = 1
-): number {
+export function otsu(data: Uint8Array | Uint8ClampedArray, step = 1): number {
   const numPixels = data.length / step;
 
   // Calculate histogram

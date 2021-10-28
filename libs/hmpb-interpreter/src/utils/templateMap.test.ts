@@ -1,6 +1,6 @@
 import { BallotType, BallotPageLayout } from '@votingworks/types';
 import { createImageData } from './canvas';
-import templateMap, { TemplateMapKey } from './templateMap';
+import { templateMap, TemplateMapKey } from './templateMap';
 
 test('no locale info', () => {
   const map = templateMap();

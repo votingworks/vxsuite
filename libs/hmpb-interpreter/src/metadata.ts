@@ -6,7 +6,7 @@ import {
   Election,
 } from '@votingworks/types';
 import { DetectQRCode } from './types';
-import defined from './utils/defined';
+import { defined } from './utils/defined';
 import * as qrcode from './utils/qrcode';
 
 export interface DetectOptions {

@@ -25,7 +25,7 @@ import {
  * └───────────────────┘  └───────────────────┘  └───────────────────┘
  * ```
  */
-export default function diff(
+export function diff(
   base: ImageData,
   compare: ImageData,
   baseBounds: Rect = { x: 0, y: 0, width: base.width, height: base.height },

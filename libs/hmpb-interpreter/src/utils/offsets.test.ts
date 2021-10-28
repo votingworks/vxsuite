@@ -1,4 +1,4 @@
-import offsets from './offsets';
+import { offsets } from './offsets';
 
 function take<T>(count: number, iterable: Iterable<T>): T[] {
   const result: T[] = [];

@@ -1,4 +1,4 @@
-import KeyedMap from './KeyedMap';
+import { KeyedMap } from './KeyedMap';
 
 test('empty map', () => {
   const map = new KeyedMap((key) => key);

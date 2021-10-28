@@ -2,7 +2,7 @@ import { Point, Rect } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import chalk from 'chalk';
 import { GlobalOptions, OptionParseError } from '..';
-import findContests, { ContestShape } from '../../hmpb/findContests';
+import { findContests, ContestShape } from '../../hmpb/findContests';
 import { binarize, RGBA } from '../../utils/binarize';
 import { createImageData } from '../../utils/canvas';
 import { vh } from '../../utils/flip';

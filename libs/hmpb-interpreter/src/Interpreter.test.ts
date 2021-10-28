@@ -7,7 +7,7 @@ import * as oaklawn from '../test/fixtures/election-4e31cb17d8-ballot-style-77-p
 import * as hamilton from '../test/fixtures/election-5c6e578acf-state-of-hamilton-2020';
 import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020';
 import * as choctaw2019 from '../test/fixtures/election-98f5203139-choctaw-general-2019';
-import Interpreter from './Interpreter';
+import { Interpreter } from './Interpreter';
 import { DetectQRCodeResult } from './types';
 
 test('interpret three-column template with instructions', async () => {

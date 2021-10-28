@@ -5,7 +5,7 @@ import { getImageChannelCount } from './imageFormatUtils';
 /**
  * Outline pixels of a certain color with the same color.
  */
-export default function outline(
+export function outline(
   { data: src, width, height }: ImageData,
   { color = PIXEL_BLACK } = {}
 ): ImageData {
