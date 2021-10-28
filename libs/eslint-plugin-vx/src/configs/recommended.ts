@@ -40,6 +40,8 @@ export = {
     'vx/gts-func-style': 'error',
     'vx/gts-identifiers-use-allowed-character': 'error',
     'vx/gts-no-array-constructor': 'error',
+    // TODO: enable this everywhere
+    'vx/gts-no-default-exports': 'off',
     'vx/gts-no-dollar-sign-names': 'error',
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-for-in-loop': 'error',
