@@ -89,6 +89,7 @@
     "@types/styled-components": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "@votingworks/qrcode.react": "^1.0.2",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
