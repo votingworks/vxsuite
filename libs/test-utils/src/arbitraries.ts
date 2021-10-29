@@ -22,7 +22,6 @@ import {
   Election,
   ElectionDefinition,
   Id,
-  IdSchema,
   MsEitherNeitherContest,
   Party,
   PartyId,
@@ -32,10 +31,6 @@ import {
   YesNoOption,
 } from '@votingworks/types';
 import { createHash } from 'crypto';
-
-// We're only importing this for the types and we can't use `import type`.
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { z } from 'zod';
 
 /**
  * Wraps another arbitrary, making the value possibly missing.
