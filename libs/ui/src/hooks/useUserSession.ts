@@ -1,12 +1,28 @@
-import { ElectionDefinition, Optional, UserSession } from '@votingworks/types';
+import {
+  CardDataTypes,
+  ElectionDefinition,
+  Optional,
+  UserSession,
+} from '@votingworks/types';
+import {
+  LogDispositionStandardTypes,
+  LogEventId,
+  Logger,
+} from '@votingworks/logging';
 import { useCallback, useEffect, useState } from 'react';
+import deepEqual from 'deep-eql';
+import { strict as assert } from 'assert';
+import { throwIllegalValue } from '@votingworks/utils';
 import { Smartcard } from '..';
+import { usePrevious } from './usePrevious';
 
 export interface UseUserSessionProps {
   smartcard?: Smartcard;
   electionDefinition?: ElectionDefinition;
   persistAuthentication: boolean; // Persist an authenticated admin session when the admin card is removed.
   bypassAuthentication?: boolean; // Always maintain an authenticated admin session for apps persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
+  validUserTypes: CardDataTypes[]; // List of user types that can authenticate into the given app.
+  logger: Logger;
 }
 
 export interface UseUserSessionResult {
@@ -33,10 +49,125 @@ export function useUserSession({
   electionDefinition,
   persistAuthentication,
   bypassAuthentication = false,
+  logger,
+  validUserTypes,
 }: UseUserSessionProps): UseUserSessionResult {
   const [currentUserSession, setCurrentUserSession] = useState<
     Optional<UserSession>
   >();
+  const previousUserSession = usePrevious(currentUserSession);
+  // Admins must be able to authenticate into all apps.
+  assert(validUserTypes.includes('admin'));
+
+  // Handle logging when the current user session is updated
+  useEffect(() => {
+    async function logUserSessionUpdate() {
+      const previousUserName = previousUserSession?.type ?? 'unknown';
+      if (!currentUserSession) {
+        await logger.log(LogEventId.UserLoggedOut, previousUserName, {
+          disposition: LogDispositionStandardTypes.Success,
+        });
+        return;
+      }
+      switch (currentUserSession.type) {
+        case 'admin':
+          if (currentUserSession.authenticated) {
+            await logger.log(LogEventId.UserSessionActivationAttempt, 'admin', {
+              disposition: LogDispositionStandardTypes.Success,
+              message: 'Authenticated admin session initiated.',
+            });
+          } else {
+            await logger.log(LogEventId.AdminCardInserted, previousUserName, {
+              disposition: LogDispositionStandardTypes.NotApplicable,
+            });
+          }
+          return;
+        case 'pollworker':
+          if (currentUserSession.authenticated) {
+            await logger.log(
+              LogEventId.UserSessionActivationAttempt,
+              'pollworker',
+              {
+                disposition: LogDispositionStandardTypes.Success,
+                message:
+                  'Pollworker card with the expected election was inserted and a pollworker session was successfully authenticated.',
+              }
+            );
+          } else {
+            await logger.log(
+              LogEventId.UserSessionActivationAttempt,
+              previousUserName,
+              {
+                disposition: LogDispositionStandardTypes.Failure,
+                message:
+                  'Pollworker card inserted with an unexpected election configuration, no pollworker session was authenticated.',
+                result: 'Invalid card message displayed to the user.',
+                attemptedUserRole: 'pollworker',
+              }
+            );
+          }
+          return;
+        case 'voter':
+          /* istanbul ignore else - not possible to hit this yet but there for completeness */
+          if (currentUserSession.authenticated) {
+            await logger.log(LogEventId.UserSessionActivationAttempt, 'voter', {
+              disposition: LogDispositionStandardTypes.Success,
+              message:
+                'Voter card  was inserted and a voter session was successfully authenticated.',
+            });
+          } else {
+            await logger.log(
+              LogEventId.UserSessionActivationAttempt,
+              previousUserName,
+              {
+                disposition: LogDispositionStandardTypes.Failure,
+                message:
+                  'Voter card inserted with an unexpected configuration, no voter session was authenticated.',
+                result: 'Invalid card message displayed to the user.',
+                attemptedUserRole: 'voter',
+              }
+            );
+          }
+          return;
+        case 'unknown': {
+          if (currentUserSession.attemptedUserType) {
+            await logger.log(
+              LogEventId.UserSessionActivationAttempt,
+              'unknown',
+              {
+                disposition: LogDispositionStandardTypes.Failure,
+                message: `Smartcard inserted with invalid user type: ${
+                  currentUserSession.attemptedUserType
+                }. Only the following users may have access in this application: ${validUserTypes.join(
+                  ', '
+                )}`,
+                result: 'Invalid card message shown to the user.',
+                attemptedUserRole: currentUserSession.attemptedUserType,
+              }
+            );
+          } else {
+            await logger.log(
+              LogEventId.UserSessionActivationAttempt,
+              'unknown',
+              {
+                disposition: LogDispositionStandardTypes.Failure,
+                message: 'Smartcard inserted with unrecognized user type.',
+                result: 'Invalid card message shown to the user.',
+                attemptedUserRole: 'unknown',
+              }
+            );
+          }
+          return;
+        }
+        /* istanbul ignore next - compile time check for completeness */
+        default:
+          throwIllegalValue(currentUserSession, 'type');
+      }
+    }
+    if (!deepEqual(currentUserSession, previousUserSession)) {
+      void logUserSessionUpdate();
+    }
+  }, [currentUserSession, previousUserSession, logger, validUserTypes]);
 
   useEffect(() => {
     void (() => {
@@ -55,13 +186,18 @@ export function useUserSession({
             return prev;
           }
           if (smartcard.data?.t) {
-            if (smartcard.data.t === 'pollworker') {
+            if (
+              smartcard.data.t === 'pollworker' &&
+              validUserTypes.includes('pollworker')
+            ) {
+              const electionHashMatches =
+                (electionDefinition &&
+                  smartcard.data.h === electionDefinition.electionHash) ??
+                false;
               return {
                 type: smartcard.data.t,
-                authenticated:
-                  (electionDefinition &&
-                    smartcard.data.h === electionDefinition.electionHash) ??
-                  false,
+                authenticated: electionHashMatches,
+                isElectionHashValid: electionHashMatches,
               };
             }
             if (smartcard.data.t === 'admin') {
@@ -71,26 +207,34 @@ export function useUserSession({
                 type: smartcard.data.t,
                 authenticated:
                   bypassAuthentication ||
-                  previousIsAuthenticatedAdmin ||
-                  adminCardHasNoPin,
+                  adminCardHasNoPin ||
+                  previousIsAuthenticatedAdmin,
+              };
+            }
+            if (
+              smartcard.data.t === 'voter' &&
+              validUserTypes.includes('voter')
+            ) {
+              return {
+                type: smartcard.data.t,
+                authenticated: true,
               };
             }
             return {
-              type: smartcard.data.t,
-              authenticated: true,
+              type: 'unknown',
+              authenticated: false,
+              attemptedUserType: smartcard.data.t,
             };
           }
           // Invalid card type
           return {
-            type: 'invalid',
+            type: 'unknown',
             authenticated: false,
           };
         }
         if (prev && (!persistAuthentication || !previousIsAuthenticatedAdmin)) {
-          // If a card is removed when there is not an authenticated session, clear the session.
           return undefined;
         }
-
         return prev;
       });
     })();
@@ -99,6 +243,8 @@ export function useUserSession({
     persistAuthentication,
     smartcard,
     electionDefinition,
+    logger,
+    validUserTypes,
   ]);
 
   const attemptToAuthenticateAdminUser = useCallback(
@@ -114,21 +260,49 @@ export function useUserSession({
         }
       }
       if (isAdminCard) {
+        if (passcodeMatches) {
+          void logger.log(LogEventId.AdminAuthenticationTwoFactor, 'admin', {
+            disposition: LogDispositionStandardTypes.Success,
+            message:
+              'Admin user successfully authenticated with the correct passcode.',
+          });
+        } else {
+          void logger.log(LogEventId.AdminAuthenticationTwoFactor, 'unknown', {
+            disposition: LogDispositionStandardTypes.Failure,
+            message:
+              'Admin user authentication attempt failed due to invalid passcode entered.',
+            result: 'User session not authenticated, user asked to try again.',
+          });
+        }
         setCurrentUserSession({
           type: 'admin',
           authenticated: passcodeMatches,
         });
+      } else {
+        void logger.log(
+          LogEventId.AdminAuthenticationTwoFactor,
+          currentUserSession?.type ?? 'unknown',
+          {
+            disposition: LogDispositionStandardTypes.Failure,
+            message:
+              'Admin user authentication attempt failed as the current smartcard is not an admin card.',
+            result: 'User session not authenticated, user asked to try again.',
+          }
+        );
       }
       return isAdminCard && passcodeMatches;
     },
-    [smartcard]
+    [smartcard, logger, currentUserSession]
   );
 
   const lockMachine = useCallback(() => {
-    if (!bypassAuthentication) {
+    if (!bypassAuthentication && currentUserSession) {
+      void logger.log(LogEventId.MachineLocked, currentUserSession.type, {
+        disposition: LogDispositionStandardTypes.Success,
+      });
       setCurrentUserSession(undefined);
     }
-  }, [bypassAuthentication]);
+  }, [bypassAuthentication, currentUserSession, logger]);
 
   const bootstrapAuthenticatedAdminSession = useCallback(() => {
     setCurrentUserSession({ type: 'admin', authenticated: true });

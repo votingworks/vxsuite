@@ -73,6 +73,7 @@
     "@types/react-modal": "^3.10.6",
     "@types/styled-components": "^5.1.7",
     "@votingworks/hmpb-interpreter": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",

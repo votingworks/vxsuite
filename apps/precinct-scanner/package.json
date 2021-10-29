@@ -85,6 +85,7 @@
     "@types/styled-components": "^5.1.9",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb-interpreter": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "@votingworks/qrcode.react": "^1.0.2",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",

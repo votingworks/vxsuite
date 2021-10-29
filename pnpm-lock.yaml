@@ -141,7 +141,7 @@ importers:
       dompurify: 2.2.6
       fetch-mock: 9.11.0
       history: 4.10.1
-      http-proxy-middleware: 1.0.6_debug@4.3.2
+      http-proxy-middleware: 1.0.6
       lodash.camelcase: 4.3.0
       luxon: 1.26.0
       mockdate: 3.0.2
@@ -308,6 +308,7 @@ importers:
       '@types/react-modal': 3.10.6
       '@types/styled-components': 5.1.7
       '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
       '@votingworks/utils': link:../../libs/utils
@@ -397,6 +398,7 @@ importers:
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/ui': workspace:*
@@ -486,7 +488,7 @@ importers:
       dompurify: 2.2.6
       fetch-mock: 9.11.0
       history: 4.10.1
-      http-proxy-middleware: 1.0.6_debug@4.3.2
+      http-proxy-middleware: 1.0.6
       i18next: 19.8.4
       js-file-download: 0.4.12
       js-sha256: 0.9.0
@@ -807,6 +809,7 @@ importers:
       '@types/styled-components': 5.1.9
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/logging': link:../../libs/logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
@@ -814,7 +817,7 @@ importers:
       base64-js: 1.5.1
       debug: 4.3.1
       fetch-mock: 9.11.0
-      http-proxy-middleware: 1.0.6_debug@4.3.1
+      http-proxy-middleware: 1.0.6
       i18next: 19.8.4
       jest-fetch-mock: 3.0.3
       js-file-download: 0.4.12
@@ -891,6 +894,7 @@ importers:
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/fixtures': workspace:*
       '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -1625,10 +1629,12 @@ importers:
   libs/ui:
     dependencies:
       '@types/react-router-dom': 5.1.7
+      '@votingworks/logging': link:../logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       debug: 4.3.2
+      deep-eql: 4.0.0
       luxon: 1.26.0
       pluralize: 8.0.0
       react-dom: 17.0.1_react@17.0.1
@@ -1643,6 +1649,7 @@ importers:
       '@testing-library/react-hooks': 6.0.0_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
       '@types/debug': 4.1.7
+      '@types/deep-eql': link:../@types/deep-eql
       '@types/jest': 26.0.23
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/luxon': 1.27.1
@@ -1689,6 +1696,7 @@ importers:
       '@testing-library/react-hooks': ^6.0.0
       '@testing-library/user-event': ^13.2.1
       '@types/debug': ^4.1.7
+      '@types/deep-eql': workspace:*
       '@types/jest': ^26.0.23
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
@@ -1700,11 +1708,13 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.29.3
       '@typescript-eslint/parser': ^4.29.3
       '@votingworks/fixtures': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       debug: ^4.3.2
+      deep-eql: ^4.0.0
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
       eslint-config-prettier: ^8.3.0
@@ -14431,22 +14441,9 @@ packages:
         optional: true
     resolution:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
-  /follow-redirects/1.14.1_debug@4.3.1:
-    dependencies:
-      debug: 4.3.1
-    dev: false
-    engines:
-      node: '>=4.0'
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    resolution:
-      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
-      debug: 4.3.2
+      debug: 4.3.2_supports-color@6.1.0
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -15320,34 +15317,6 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
-  /http-proxy-middleware/1.0.6_debug@4.3.1:
-    dependencies:
-      '@types/http-proxy': 1.17.6
-      http-proxy: 1.18.1_debug@4.3.1
-      is-glob: 4.0.1
-      lodash: 4.17.21
-      micromatch: 4.0.4
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
-    resolution:
-      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
-  /http-proxy-middleware/1.0.6_debug@4.3.2:
-    dependencies:
-      '@types/http-proxy': 1.17.6
-      http-proxy: 1.18.1_debug@4.3.2
-      is-glob: 4.0.1
-      lodash: 4.17.21
-      micromatch: 4.0.4
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
-    resolution:
-      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
@@ -15356,18 +15325,6 @@ packages:
     dev: false
     engines:
       node: '>=8.0.0'
-    resolution:
-      integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==
-  /http-proxy/1.18.1_debug@4.3.1:
-    dependencies:
-      eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.1
-      requires-port: 1.0.0
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
     resolution:
       integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==
   /http-proxy/1.18.1_debug@4.3.2:

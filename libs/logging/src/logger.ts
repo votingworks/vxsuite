@@ -10,6 +10,7 @@ import {
 } from './types';
 
 const debug = makeDebug('logger');
+makeDebug.enable('logger');
 
 interface LogData extends Dictionary<string> {
   message?: string;

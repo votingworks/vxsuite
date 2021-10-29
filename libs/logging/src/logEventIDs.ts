@@ -16,6 +16,12 @@ export enum LogEventId {
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
+  // Authentication related logs
+  AdminAuthenticationTwoFactor = 'admin-authentication-2fac',
+  MachineLocked = 'machine-locked',
+  AdminCardInserted = 'admin-card-inserted',
+  UserSessionActivationAttempt = 'user-session-activation',
+  UserLoggedOut = 'user-logged-out',
 }
 
 export interface LogDetails {
@@ -68,6 +74,44 @@ const MachineShutdownCompleteEvent: LogDetails = {
     'The machine has completed all the steps to shutdown and will now power down or reboot.',
 };
 
+const AdminAuthenticationTwoFactorEvent: LogDetails = {
+  eventId: LogEventId.AdminAuthenticationTwoFactor,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Attempt to authenticate an admin user session with a passcode.',
+};
+
+const AdminCardInsertedEvent: LogDetails = {
+  eventId: LogEventId.AdminCardInserted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Admin smartcard inserted, the user will be prompted for passcode to complete authentication.',
+  defaultMessage:
+    'Admin smartcard inserted, the user will be prompted for passcode to complete authentication.',
+};
+
+const MachineLockedEvent: LogDetails = {
+  eventId: LogEventId.MachineLocked,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The current user was logged out and the machine was locked.',
+  defaultMessage: 'The current user was logged out and the machine was locked.',
+};
+
+const UserSessionActivationAttemptEvent: LogDetails = {
+  eventId: LogEventId.UserSessionActivationAttempt,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user attempted to authenticate as a new user role, disposition and message clarify the user roles and success/failure.',
+};
+
+const UserLoggedOutEvent: LogDetails = {
+  eventId: LogEventId.UserLoggedOut,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User logged out of the current session.',
+  defaultMessage: 'User logged out of the current session.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -82,6 +126,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return MachineShutdownInitEvent;
     case LogEventId.MachineShutdownComplete:
       return MachineShutdownCompleteEvent;
+    case LogEventId.AdminAuthenticationTwoFactor:
+      return AdminAuthenticationTwoFactorEvent;
+    case LogEventId.MachineLocked:
+      return MachineLockedEvent;
+    case LogEventId.AdminCardInserted:
+      return AdminCardInsertedEvent;
+    case LogEventId.UserSessionActivationAttempt:
+      return UserSessionActivationAttemptEvent;
+    case LogEventId.UserLoggedOut:
+      return UserLoggedOutEvent;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);
