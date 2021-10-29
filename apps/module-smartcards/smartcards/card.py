@@ -35,6 +35,13 @@ WRITABLE = [0x00]
 WRITE_PROTECTED = [0x01]
 VERSION = [0x02]
 
+PREFIX_LENGTH = 3
+VERSION_LENGTH = 1
+WRITE_PROTECTION_LENGTH = 1
+SHORT_VALUE_LENGTH_LENGTH = 1
+LONG_VALUE_LENGTH_LENGTH = 2
+METADATA_LENGTH = PREFIX_LENGTH + VERSION_LENGTH + WRITE_PROTECTION_LENGTH + SHORT_VALUE_LENGTH_LENGTH + LONG_VALUE_LENGTH_LENGTH
+LONG_VALUE_HASH_LENGTH = 32
 
 class Card:
     def __init__(self, pyscard_card, pyscard_connection):
@@ -145,22 +152,24 @@ class Card:
         if self.short_value_length == 0:
             return b''
 
-        length_to_read = 8 + self.short_value_length
+        length_to_read = METADATA_LENGTH + self.short_value_length
         data = self._read_raw_data(length_to_read)
-        self.short_value = data[8:]
+        self.short_value = data[METADATA_LENGTH:]
         return self.short_value
 
     def read_long_value(self):
         if self.long_value_length == 0:
             return b''
 
-        total_expected_length = 8 + self.short_value_length + 32 + self.long_value_length
+        start_of_long_value_hash = METADATA_LENGTH + self.short_value_length
+        start_of_long_value = start_of_long_value_hash + LONG_VALUE_HASH_LENGTH
+        total_expected_length = start_of_long_value + self.long_value_length
 
         data = self._read_raw_data(total_expected_length)
 
-        expected_long_value_hash = data[8+self.short_value_length:8+self.short_value_length+32]
+        expected_long_value_hash = data[start_of_long_value_hash:start_of_long_value]
         
-        raw_content = data[8 + self.short_value_length + 32:total_expected_length]
+        raw_content = data[start_of_long_value:total_expected_length]
         actual_long_value_hash = hashlib.sha256(raw_content).digest()
 
         if actual_long_value_hash != expected_long_value_hash:
