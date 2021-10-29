@@ -1,10 +1,10 @@
 import { PrinterStatus } from '../types';
-import MemoryHardware from './MemoryHardware';
+import { MemoryHardware } from './MemoryHardware';
 
 /**
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
-export default class KioskHardware extends MemoryHardware {
+export class KioskHardware extends MemoryHardware {
   constructor(private kiosk: KioskBrowser.Kiosk) {
     super();
   }

@@ -1,5 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils';
-import KioskStorage from './KioskStorage';
+import { KioskStorage } from './KioskStorage';
 
 it('can remove a value', async () => {
   const kiosk = fakeKiosk();

@@ -1,6 +1,6 @@
 import { fakeDevice, fakeKiosk } from '@votingworks/test-utils';
 import { getHardware } from '.';
-import KioskHardware from './KioskHardware';
+import { KioskHardware } from './KioskHardware';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,

@@ -13,7 +13,7 @@ import { Card, CardAPI, CardAPISchema } from '../types';
 /**
  * Implements the `Card` API by accessing it through a web service.
  */
-export default class WebServiceCard implements Card {
+export class WebServiceCard implements Card {
   /**
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.

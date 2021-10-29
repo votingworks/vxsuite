@@ -5,7 +5,7 @@ import { Card, CardAPI } from '../types';
 /**
  * Implements the `Card` API with an in-memory implementation.
  */
-export default class MemoryCard implements Card {
+export class MemoryCard implements Card {
   private present = false;
 
   private shortValue?: string;

@@ -1,5 +1,5 @@
 import { fakeDevice } from '@votingworks/test-utils';
-import MemoryHardware from './MemoryHardware';
+import { MemoryHardware } from './MemoryHardware';
 import { OmniKeyCardReaderDeviceName } from './utils';
 
 it('has a standard config with all the typical hardware', async (done) => {

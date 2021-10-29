@@ -1,4 +1,4 @@
-import MemoryStorage from './MemoryStorage';
+import { MemoryStorage } from './MemoryStorage';
 
 it('can be initialized with data', async () => {
   const storage = new MemoryStorage({

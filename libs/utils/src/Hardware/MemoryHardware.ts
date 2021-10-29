@@ -15,7 +15,7 @@ import {
 /**
  * Implements the `Hardware` API with an in-memory implementation.
  */
-export default class MemoryHardware implements Hardware {
+export class MemoryHardware implements Hardware {
   private batteryStatus: KioskBrowser.BatteryInfo = {
     discharging: false,
     level: 0.8,
