@@ -1,8 +1,6 @@
 import * as jsfeat from 'jsfeat';
 
-export default function readGrayscaleImage(
-  imageData: ImageData
-): jsfeat.matrix_t {
+export function readGrayscaleImage(imageData: ImageData): jsfeat.matrix_t {
   const mat = new jsfeat.matrix_t(
     imageData.width,
     imageData.height,

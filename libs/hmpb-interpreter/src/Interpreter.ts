@@ -30,26 +30,27 @@ import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
-import getVotesFromMarks from './getVotesFromMarks';
-import findContestOptions from './hmpb/findContestOptions';
-import findContests, {
+import { getVotesFromMarks } from './getVotesFromMarks';
+import { findContestOptions } from './hmpb/findContestOptions';
+import {
+  findContests,
   ContestShape,
   findBallotLayoutCorrespondence,
 } from './hmpb/findContests';
-import findTargets from './hmpb/findTargets';
+import { findTargets } from './hmpb/findTargets';
 import { detect } from './metadata';
 import { DetectQRCode, FindMarksResult, Interpreted } from './types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize';
-import crop from './utils/crop';
-import defined from './utils/defined';
+import { crop } from './utils/crop';
+import { defined } from './utils/defined';
 import { vh as flipVH } from './utils/flip';
 import { rectCorners } from './utils/geometry';
-import diff, { countPixels } from './utils/jsfeat/diff';
-import matToImageData from './utils/jsfeat/matToImageData';
-import readGrayscaleImage from './utils/jsfeat/readGrayscaleImage';
-import KeyedMap from './utils/KeyedMap';
-import offsets from './utils/offsets';
-import outline from './utils/outline';
+import { diff, countPixels } from './utils/jsfeat/diff';
+import { matToImageData } from './utils/jsfeat/matToImageData';
+import { readGrayscaleImage } from './utils/jsfeat/readGrayscaleImage';
+import { KeyedMap } from './utils/KeyedMap';
+import { offsets } from './utils/offsets';
+import { outline } from './utils/outline';
 
 const debug = makeDebug('hmpb-interpreter:Interpreter');
 
@@ -84,7 +85,7 @@ type TemplateKey = Pick<
  * console.log(await interpreter.interpretBallot(ballotPage1))
  * ```
  */
-export default class Interpreter {
+export class Interpreter {
   private templates = new KeyedMap<
     [
       BallotLocales | undefined,

@@ -6,7 +6,7 @@ import {
   Election,
 } from '@votingworks/types';
 import { DetectQRCode } from './types';
-import defined from './utils/defined';
+import { defined } from './utils/defined';
 import * as qrcode from './utils/qrcode';
 
 export interface DetectOptions {
@@ -88,7 +88,7 @@ export function fromBytes(
 export async function detect(
   election: Election,
   imageData: ImageData,
-  { detectQRCode = qrcode.default }: DetectOptions = {}
+  { detectQRCode = qrcode.detect }: DetectOptions = {}
 ): Promise<DetectResult> {
   const result = await detectQRCode(imageData);
 

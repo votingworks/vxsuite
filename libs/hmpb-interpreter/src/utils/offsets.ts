@@ -1,6 +1,6 @@
 import { Offset } from '@votingworks/types';
 
-export default function* offsets(): Generator<Offset> {
+export function* offsets(): Generator<Offset> {
   let x = 0;
   let y = 0;
   for (;;) {

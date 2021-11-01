@@ -69,4 +69,4 @@ export function fromRGBA(
   }
 }
 
-export default makeInPlaceImageTransform(fromGray, fromRGBA);
+export const grayscale = makeInPlaceImageTransform(fromGray, fromRGBA);

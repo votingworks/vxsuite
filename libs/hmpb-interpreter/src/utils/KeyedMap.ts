@@ -1,4 +1,4 @@
-export default class KeyedMap<Key, Value, ResolvedKey = string> {
+export class KeyedMap<Key, Value, ResolvedKey = string> {
   private map = new Map<ResolvedKey, Value>();
 
   constructor(private resolveKey: (key: Key) => ResolvedKey) {}

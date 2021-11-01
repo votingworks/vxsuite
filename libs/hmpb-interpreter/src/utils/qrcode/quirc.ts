@@ -25,4 +25,4 @@ export async function detect(
   return undefined;
 }
 
-export default withCropping(detect);
+export const quirc = withCropping(detect);

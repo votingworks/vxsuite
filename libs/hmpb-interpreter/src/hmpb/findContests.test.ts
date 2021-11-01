@@ -2,7 +2,7 @@ import {
   filledInPage2_05,
   filledInPage2_07,
 } from '../../test/fixtures/choctaw-county-2020-general-election';
-import findContests from './findContests';
+import { findContests } from './findContests';
 
 test('repairs contests with small gaps', async () => {
   expect([

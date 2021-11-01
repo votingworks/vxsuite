@@ -134,7 +134,7 @@ export async function parseOptions(args: readonly string[]): Promise<Options> {
   }
 }
 
-export default async function main(
+export async function main(
   args: typeof process.argv,
   stdin: NodeJS.ReadableStream,
   stdout: NodeJS.WritableStream,

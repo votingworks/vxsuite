@@ -1,8 +1,8 @@
 import { croppedQRCode } from '../../../test/fixtures';
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
 import { createImageData } from '../canvas';
-import crop from '../crop';
-import diff, { countPixels, ratio } from './diff';
+import { crop } from '../crop';
+import { diff, countPixels, ratio } from './diff';
 
 const imageData4x4: Readonly<ImageData> = createImageData(
   Uint8ClampedArray.of(

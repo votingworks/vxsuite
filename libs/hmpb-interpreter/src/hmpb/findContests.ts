@@ -103,7 +103,7 @@ function findTopBorderInset(
   return y - consecutiveWhitePixels;
 }
 
-export default function* findContests(
+export function* findContests(
   ballotImage: ImageData,
   {
     inset = Math.round(0.035 * ballotImage.width),

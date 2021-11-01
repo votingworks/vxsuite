@@ -3,7 +3,7 @@ import {
   BallotPageLayout,
   BallotPageMetadata,
 } from '@votingworks/types';
-import KeyedMap from './KeyedMap';
+import { KeyedMap } from './KeyedMap';
 
 export type TemplateMapKey = [
   locales: BallotLocales | undefined,
@@ -16,7 +16,7 @@ export type TemplateMap = KeyedMap<
   BallotPageLayout | undefined
 >;
 
-export default function templateMap(): TemplateMap {
+export function templateMap(): TemplateMap {
   return new KeyedMap(([locales, ballotStyleId, precinctId, pageNumber]) =>
     [
       locales?.primary,

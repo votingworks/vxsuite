@@ -1,5 +1,5 @@
 import { DetectQRCode, DetectQRCodeResult } from '../../types';
-import crop from '../crop';
+import { crop } from '../crop';
 import { flipRectVH } from '../geometry';
 
 /**

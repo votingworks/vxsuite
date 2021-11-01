@@ -1,7 +1,7 @@
 import { Rect } from '@votingworks/types';
 import { randomImage, randomInset } from '../../test/utils';
 import { createImageData } from './canvas';
-import crop from './crop';
+import { crop } from './crop';
 
 /**
  * A slow-but-accurate implementation of `crop` to compare against.
