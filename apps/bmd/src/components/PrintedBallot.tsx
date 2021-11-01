@@ -216,7 +216,7 @@ interface Props {
   votes: VotesDict;
 }
 
-export function PrintBallot({
+export function PrintedBallot({
   ballotStyleId,
   electionDefinition,
   isLiveMode,
