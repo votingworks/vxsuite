@@ -30,7 +30,7 @@ const NumberPadWrapper = styled.div`
   }
 `;
 
-export function DefinitionScreen(): JSX.Element {
+export function SmartcardsScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { electionData, electionHash } = electionDefinition;

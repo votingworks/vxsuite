@@ -40,7 +40,7 @@ const Contest = styled.div`
   }
 `;
 
-export function PairsReportScreen(): JSX.Element {
+export function OvervoteCombinationReportScreen(): JSX.Element {
   const {
     castVoteRecordFiles,
     electionDefinition,
