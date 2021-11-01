@@ -1,17 +1,17 @@
 import * as fs from 'fs';
 import * as fixtures from '.';
-import multiPartiPrimaryElectionCVRData from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
-import multiPartiPrimaryElectionSEMSData from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
-import simplePrimaryElectionCVRData from './data/electionPrimary/cvrFiles/standard.txt';
-import electionSample2CVRSmall1 from './data/electionSample2/cvrFiles/small1.txt';
-import electionSample2CVRSmall2 from './data/electionSample2/cvrFiles/small2.txt';
-import electionSample2CVRSmall3 from './data/electionSample2/cvrFiles/small3.txt';
-import electionSample2CVRStandard1 from './data/electionSample2/cvrFiles/standard.txt';
-import electionSample2CVRStandard2 from './data/electionSample2/cvrFiles/standard2.txt';
-import msEitherNeitherElectionCVRData from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
-import msEitherNeitherElectionSEMSData from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
-import electionMinimalExhaustiveCVRData from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
-import electionMinimalExhaustiveSEMSData from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
+import { multiPartiPrimaryElectionCVRData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
+import { multiPartiPrimaryElectionSEMSData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
+import { simplePrimaryElectionCVRData } from './data/electionPrimary/cvrFiles/standard.txt';
+import { electionSample2CVRSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
+import { electionSample2CVRSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
+import { electionSample2CVRSmall3 } from './data/electionSample2/cvrFiles/small3.txt';
+import { electionSample2CVRStandard1 } from './data/electionSample2/cvrFiles/standard.txt';
+import { electionSample2CVRStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
+import { msEitherNeitherElectionCVRData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
+import { msEitherNeitherElectionSEMSData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
+import { electionMinimalExhaustiveCVRData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
+import { electionMinimalExhaustiveSEMSData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
 
 test('has various election definitions', () => {
   expect(
