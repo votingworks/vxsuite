@@ -5,9 +5,9 @@ import { err, ok } from '@votingworks/types';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
 import { mocked } from 'ts-jest/utils';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 import { download, DownloadErrorKind } from '../utils/download';
-import ExportBackupModal from './ExportBackupModal';
+import { ExportBackupModal } from './ExportBackupModal';
 
 jest.mock('../utils/download');
 

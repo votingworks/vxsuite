@@ -4,8 +4,8 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import AppContext from '../contexts/AppContext';
-import AdminScreen from './AdminScreen';
+import { AppContext } from '../contexts/AppContext';
+import { AdminScreen } from './AdminScreen';
 
 beforeEach(() => {
   MockDate.set('2020-10-31T00:00:00.000Z');

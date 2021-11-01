@@ -18,6 +18,4 @@ const appContext: AppContextInterface = {
   },
 };
 
-const AppContext = createContext(appContext);
-
-export default AppContext;
+export const AppContext = createContext(appContext);

@@ -21,7 +21,7 @@ interface Props {
   ) => Promise<void>;
 }
 
-function UnconfiguredElectionScreen({
+export function UnconfiguredElectionScreen({
   usbDriveStatus,
   setElectionDefinition,
 }: Props): JSX.Element {
@@ -195,8 +195,6 @@ function UnconfiguredElectionScreen({
 
   return <CenteredScreen infoBar={false}>{content}</CenteredScreen>;
 }
-
-export default UnconfiguredElectionScreen;
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {

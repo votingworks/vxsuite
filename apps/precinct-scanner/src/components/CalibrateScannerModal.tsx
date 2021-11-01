@@ -1,8 +1,8 @@
 import { ScannerStatus } from '@votingworks/types/api/module-scan';
 import { Button, Prose, useCancelablePromise } from '@votingworks/ui';
 import React, { useCallback, useState } from 'react';
-import usePrecinctScanner from '../hooks/usePrecinctScanner';
-import Modal from './Modal';
+import { usePrecinctScanner } from '../hooks/usePrecinctScanner';
+import { Modal } from './Modal';
 
 export interface Props {
   onCalibrate(): Promise<boolean>;
@@ -13,7 +13,10 @@ function noop() {
   // noop
 }
 
-function CalibrateScannerModal({ onCancel, onCalibrate }: Props): JSX.Element {
+export function CalibrateScannerModal({
+  onCancel,
+  onCalibrate,
+}: Props): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const [calibrationSuccess, setCalibrationSuccess] = useState<boolean>();
   const [isCalibrating, setIsCalibrating] = useState(false);
@@ -117,5 +120,3 @@ function CalibrateScannerModal({ onCancel, onCalibrate }: Props): JSX.Element {
     />
   );
 }
-
-export default CalibrateScannerModal;

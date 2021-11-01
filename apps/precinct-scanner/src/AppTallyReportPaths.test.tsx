@@ -35,7 +35,7 @@ import {
   PrecinctSelectionKind,
   VotingMethod,
 } from '@votingworks/types';
-import App from './App';
+import { App } from './App';
 import { stateStorageKey } from './AppRoot';
 
 beforeEach(() => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import ScanErrorScreen from './ScanErrorScreen';
+import { ScanErrorScreen } from './ScanErrorScreen';
 import { RejectedScanningReason } from '../config/types';
 
 test('render correct test ballot error screen when we are in test mode', async () => {

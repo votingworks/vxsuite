@@ -9,7 +9,7 @@ import {
   getDaysInMonth,
   MONTHS_SHORT,
 } from '@votingworks/utils';
-import Modal from './Modal';
+import { Modal } from './Modal';
 
 export interface Props {
   disabled?: boolean;
@@ -19,7 +19,7 @@ export interface Props {
   value: DateTime;
 }
 
-function PickDateTimeModal({
+export function PickDateTimeModal({
   disabled = false,
   onCancel,
   onSave,
@@ -258,5 +258,3 @@ function PickDateTimeModal({
     />
   );
 }
-
-export default PickDateTimeModal;

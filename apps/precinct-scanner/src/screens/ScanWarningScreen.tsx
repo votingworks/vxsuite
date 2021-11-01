@@ -15,9 +15,9 @@ import { Absolute } from '../components/Absolute';
 import { Bar } from '../components/Bar';
 import { ExclamationTriangle } from '../components/Graphics';
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
-import Modal from '../components/Modal';
+import { Modal } from '../components/Modal';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 import { toSentence } from '../utils/toSentence';
 
 export interface Props {
@@ -328,7 +328,7 @@ function OtherReasonWarningScreen({
   );
 }
 
-function ScanWarningScreen({
+export function ScanWarningScreen({
   acceptBallot,
   adjudicationReasonInfo,
 }: Props): JSX.Element {
@@ -375,8 +375,6 @@ function ScanWarningScreen({
 
   return <OtherReasonWarningScreen acceptBallot={acceptBallot} />;
 }
-
-export default ScanWarningScreen;
 
 /* istanbul ignore next */
 export function OvervotePreview(): JSX.Element {

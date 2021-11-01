@@ -4,8 +4,8 @@ import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import { NullPrinter, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import AppContext from '../contexts/AppContext';
-import PollWorkerScreen from './PollWorkerScreen';
+import { AppContext } from '../contexts/AppContext';
+import { PollWorkerScreen } from './PollWorkerScreen';
 
 MockDate.set('2020-10-31T00:00:00.000Z');
 

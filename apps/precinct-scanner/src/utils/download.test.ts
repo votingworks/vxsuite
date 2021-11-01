@@ -1,6 +1,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
-import fakeFileWriter from '../../test/helpers/fakeFileWriter';
+import { fakeFileWriter } from '../../test/helpers/fakeFileWriter';
 import {
   download,
   DownloadErrorKind,

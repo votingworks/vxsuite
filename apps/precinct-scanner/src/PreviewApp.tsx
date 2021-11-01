@@ -8,7 +8,7 @@ import {
   primaryElectionSampleDefinition,
 } from '@votingworks/fixtures';
 import React from 'react';
-import PreviewDashboard from './PreviewDashboard';
+import { PreviewDashboard } from './PreviewDashboard';
 import * as AdminScreen from './screens/AdminScreen';
 import * as InsertBallotScreen from './screens/InsertBallotScreen';
 import * as InvalidCardScreen from './screens/InvalidCardScreen';
@@ -23,7 +23,7 @@ import * as SetupPowerPage from './screens/SetupPowerPage';
 import * as UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen';
 import * as UnlockAdminScreen from './screens/UnlockAdminScreen';
 
-function PreviewApp(): JSX.Element {
+export function PreviewApp(): JSX.Element {
   return (
     <PreviewDashboard
       electionDefinitions={[
@@ -49,5 +49,3 @@ function PreviewApp(): JSX.Element {
     />
   );
 }
-
-export default PreviewApp;

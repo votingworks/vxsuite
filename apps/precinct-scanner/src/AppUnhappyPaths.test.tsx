@@ -29,7 +29,7 @@ import {
   typedAs,
 } from '@votingworks/utils';
 import { interpretedHmpb } from '../test/fixtures';
-import App from './App';
+import { App } from './App';
 import { stateStorageKey } from './AppRoot';
 
 const getMachineConfigBody = {

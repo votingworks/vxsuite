@@ -32,8 +32,8 @@ import {
   PrecinctScannerCardTallySchema,
 } from '@votingworks/utils';
 
-import UnconfiguredElectionScreen from './screens/UnconfiguredElectionScreen';
-import LoadingConfigurationScreen from './screens/LoadingConfigurationScreen';
+import { UnconfiguredElectionScreen } from './screens/UnconfiguredElectionScreen';
+import { LoadingConfigurationScreen } from './screens/LoadingConfigurationScreen';
 import {
   BallotState,
   ScanningResultType,
@@ -50,19 +50,19 @@ import {
 import * as config from './api/config';
 import * as scan from './api/scan';
 
-import usePrecinctScanner from './hooks/usePrecinctScanner';
-import AdminScreen from './screens/AdminScreen';
-import InvalidCardScreen from './screens/InvalidCardScreen';
-import PollsClosedScreen from './screens/PollsClosedScreen';
-import PollWorkerScreen from './screens/PollWorkerScreen';
-import InsertBallotScreen from './screens/InsertBallotScreen';
-import ScanErrorScreen from './screens/ScanErrorScreen';
-import ScanSuccessScreen from './screens/ScanSuccessScreen';
-import ScanWarningScreen from './screens/ScanWarningScreen';
-import ScanProcessingScreen from './screens/ScanProcessingScreen';
-import AppContext from './contexts/AppContext';
-import SetupPowerPage from './screens/SetupPowerPage';
-import UnlockAdminScreen from './screens/UnlockAdminScreen';
+import { usePrecinctScanner } from './hooks/usePrecinctScanner';
+import { AdminScreen } from './screens/AdminScreen';
+import { InvalidCardScreen } from './screens/InvalidCardScreen';
+import { PollsClosedScreen } from './screens/PollsClosedScreen';
+import { PollWorkerScreen } from './screens/PollWorkerScreen';
+import { InsertBallotScreen } from './screens/InsertBallotScreen';
+import { ScanErrorScreen } from './screens/ScanErrorScreen';
+import { ScanSuccessScreen } from './screens/ScanSuccessScreen';
+import { ScanWarningScreen } from './screens/ScanWarningScreen';
+import { ScanProcessingScreen } from './screens/ScanProcessingScreen';
+import { AppContext } from './contexts/AppContext';
+import { SetupPowerPage } from './screens/SetupPowerPage';
+import { UnlockAdminScreen } from './screens/UnlockAdminScreen';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -313,7 +313,7 @@ function appReducer(state: State, action: AppAction): State {
   }
 }
 
-function AppRoot({
+export function AppRoot({
   hardware,
   card,
   printer,
@@ -903,5 +903,3 @@ function AppRoot({
     </AppContext.Provider>
   );
 }
-
-export default AppRoot;

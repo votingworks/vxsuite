@@ -1,7 +1,7 @@
 import { typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { MachineConfig, MachineConfigResponse } from '../config/types';
-import machineConfigProvider from './machineConfig';
+import { machineConfigProvider } from './machineConfig';
 
 test('successful fetch from /machine-config', async () => {
   fetchMock.get(

@@ -8,7 +8,7 @@ interface Props {
   showNoChargerWarning: boolean;
 }
 
-function PollsClosedScreen({
+export function PollsClosedScreen({
   isLiveMode,
   showNoChargerWarning,
 }: Props): JSX.Element {
@@ -29,8 +29,6 @@ function PollsClosedScreen({
     </CenteredScreen>
   );
 }
-
-export default PollsClosedScreen;
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Screen, Main, MainChild, Prose, fontSizeTheme } from '@votingworks/ui';
-import ElectionInfoBar, { InfoBarMode } from './ElectionInfoBar';
+import { ElectionInfoBar, InfoBarMode } from './ElectionInfoBar';
 
 interface CenteredScreenProps {
   children: React.ReactNode;

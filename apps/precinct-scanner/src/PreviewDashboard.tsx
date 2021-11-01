@@ -8,7 +8,7 @@ import { Select } from '@votingworks/ui';
 import React, { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import AppContext from './contexts/AppContext';
+import { AppContext } from './contexts/AppContext';
 
 export interface PreviewableModule {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,7 +69,7 @@ const ConfigBox = styled.div`
   width: auto;
 `;
 
-function PreviewDashboard({
+export function PreviewDashboard({
   modules,
   electionDefinitions: initialElectionDefinitions,
 }: Props): JSX.Element {
@@ -186,5 +186,3 @@ function PreviewDashboard({
     </AppContext.Provider>
   );
 }
-
-export default PreviewDashboard;

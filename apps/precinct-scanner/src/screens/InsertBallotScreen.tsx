@@ -12,7 +12,7 @@ interface Props {
   showNoChargerWarning: boolean;
 }
 
-function InsertBallotScreen({
+export function InsertBallotScreen({
   isLiveMode,
   scannedBallotCount,
   showNoChargerWarning,
@@ -44,7 +44,6 @@ function InsertBallotScreen({
     </CenteredScreen>
   );
 }
-export default InsertBallotScreen;
 
 /* istanbul ignore next */
 export function ZeroBallotsScannedTestPreview(): JSX.Element {
