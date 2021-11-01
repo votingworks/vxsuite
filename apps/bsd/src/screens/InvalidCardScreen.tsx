@@ -1,8 +1,8 @@
 import { fontSizeTheme, Prose } from '@votingworks/ui';
 import React from 'react';
-import Screen from '../components/Screen';
-import Main, { MainChild } from '../components/Main';
-import StatusFooter from '../components/StatusFooter';
+import { Screen } from '../components/Screen';
+import { Main, MainChild } from '../components/Main';
+import { StatusFooter } from '../components/StatusFooter';
 
 export function InvalidCardScreen(): JSX.Element {
   return (

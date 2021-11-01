@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import Text from './Text';
-import AppContext from '../contexts/AppContext';
+import { Text } from './Text';
+import { AppContext } from '../contexts/AppContext';
 
 const StatusBar = styled.div`
   display: flex;
@@ -13,7 +13,7 @@ const StatusBar = styled.div`
   padding: 0.375rem 1rem;
 `;
 
-function StatusFooter(): JSX.Element {
+export function StatusFooter(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   const electionDate =
     electionDefinition &&
@@ -40,5 +40,3 @@ function StatusFooter(): JSX.Element {
     </StatusBar>
   );
 }
-
-export default StatusFooter;

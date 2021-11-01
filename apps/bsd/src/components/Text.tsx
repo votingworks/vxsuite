@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import GLOBALS from '../config/globals';
+import { GLOBALS } from '../config/globals';
 
 interface Props {
   bold?: boolean;
@@ -40,7 +40,7 @@ const iconStyles = css<Props>`
   }
 `;
 
-const Text = styled('p')<Props>`
+export const Text = styled('p')<Props>`
   margin-right: ${({ narrow }) => (narrow ? 'auto' : undefined)};
   margin-left: ${({ narrow }) => (narrow ? 'auto' : undefined)};
   max-width: ${({ narrow }) => (narrow ? '33ch' : undefined)};
@@ -85,5 +85,3 @@ export function TextWithLineBreaks({ text }: { text: string }): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default Text;

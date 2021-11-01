@@ -32,31 +32,31 @@ import {
   useUserSession,
 } from '@votingworks/ui';
 import { MachineConfig } from './config/types';
-import AppContext from './contexts/AppContext';
+import { AppContext } from './contexts/AppContext';
 
-import Button from './components/Button';
-import Main, { MainChild } from './components/Main';
-import Screen from './components/Screen';
-import Prose from './components/Prose';
-import Text from './components/Text';
-import ScanButton from './components/ScanButton';
-import useInterval from './hooks/useInterval';
+import { Button } from './components/Button';
+import { Main, MainChild } from './components/Main';
+import { Screen } from './components/Screen';
+import { Prose } from './components/Prose';
+import { Text } from './components/Text';
+import { ScanButton } from './components/ScanButton';
+import { useInterval } from './hooks/useInterval';
 
-import LoadElectionScreen from './screens/LoadElectionScreen';
-import DashboardScreen from './screens/DashboardScreen';
-import BallotEjectScreen from './screens/BallotEjectScreen';
-import AdvancedOptionsScreen from './screens/AdvancedOptionsScreen';
+import { LoadElectionScreen } from './screens/LoadElectionScreen';
+import { DashboardScreen } from './screens/DashboardScreen';
+import { BallotEjectScreen } from './screens/BallotEjectScreen';
+import { AdvancedOptionsScreen } from './screens/AdvancedOptionsScreen';
 
 import 'normalize.css';
 import './App.css';
-import download from './util/download';
+import { download } from './util/download';
 import * as config from './api/config';
-import LinkButton from './components/LinkButton';
-import MainNav from './components/MainNav';
-import StatusFooter from './components/StatusFooter';
+import { LinkButton } from './components/LinkButton';
+import { MainNav } from './components/MainNav';
+import { StatusFooter } from './components/StatusFooter';
 
-import ExportResultsModal from './components/ExportResultsModal';
-import machineConfigProvider from './util/machineConfig';
+import { ExportResultsModal } from './components/ExportResultsModal';
+import { machineConfigProvider } from './util/machineConfig';
 import { MachineLockedScreen } from './screens/MachineLockedScreen';
 import { InvalidCardScreen } from './screens/InvalidCardScreen';
 import { UnlockMachineScreen } from './screens/UnlockMachineScreen';
@@ -73,7 +73,7 @@ export interface AppRootProps {
   hardware: Hardware;
 }
 
-function App({ card, hardware }: AppRootProps): JSX.Element {
+export function App({ card, hardware }: AppRootProps): JSX.Element {
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [
@@ -543,5 +543,3 @@ function App({ card, hardware }: AppRootProps): JSX.Element {
     </Screen>
   );
 }
-
-export default App;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { fakeKiosk, fakeDevice } from '@votingworks/test-utils';
-import ScanButton, { FUJITSU_VENDOR_ID } from './ScanButton';
+import { ScanButton, FUJITSU_VENDOR_ID } from './ScanButton';
 
 beforeEach(() => {
   delete window.kiosk;

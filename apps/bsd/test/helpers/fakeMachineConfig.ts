@@ -1,7 +1,7 @@
 import { Provider } from '@votingworks/types';
 import { MachineConfig } from '../../src/config/types';
 
-export default function fakeMachineConfig({
+export function fakeMachineConfig({
   machineId = '0000',
   bypassAuthentication = true,
 }: Partial<MachineConfig> = {}): MachineConfig {

@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
-import ToggleTestModeButton from './ToggleTestModeButton';
+import { ToggleTestModeButton } from './ToggleTestModeButton';
 
 test('shows a button to toggle to live mode when in test mode', async () => {
   const { getByText } = render(

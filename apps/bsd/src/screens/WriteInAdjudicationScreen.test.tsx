@@ -12,8 +12,9 @@ import {
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/utils';
 import React from 'react';
-import renderInAppContext from '../../test/renderInAppContext';
-import WriteInAdjudicationScreen, {
+import { renderInAppContext } from '../../test/renderInAppContext';
+import {
+  WriteInAdjudicationScreen,
   Props as WriteInAdjudicationScreenProps,
 } from './WriteInAdjudicationScreen';
 

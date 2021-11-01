@@ -45,7 +45,7 @@ interface Props {
   isTestMode?: boolean;
 }
 
-function MainNav({ children, isTestMode = false }: Props): JSX.Element {
+export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
   return (
     <Nav>
       <StyledNav>
@@ -63,5 +63,3 @@ function MainNav({ children, isTestMode = false }: Props): JSX.Element {
     </Nav>
   );
 }
-
-export default MainNav;

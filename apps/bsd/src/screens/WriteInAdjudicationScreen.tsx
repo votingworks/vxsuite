@@ -37,14 +37,14 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import { z } from 'zod';
-import BallotSheetImage from '../components/BallotSheetImage';
-import Button from '../components/Button';
-import CroppedImage from '../components/CroppedImage';
-import Main from '../components/Main';
-import MainNav from '../components/MainNav';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import AppContext from '../contexts/AppContext';
+import { BallotSheetImage } from '../components/BallotSheetImage';
+import { Button } from '../components/Button';
+import { CroppedImage } from '../components/CroppedImage';
+import { Main } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { AppContext } from '../contexts/AppContext';
 
 type CandidateNameList = readonly string[];
 const CandidateNameListSchema: z.ZodSchema<CandidateNameList> = z.array(
@@ -559,7 +559,7 @@ export interface Props {
   ): Promise<void>;
 }
 
-export default function WriteInAdjudicationScreen({
+export function WriteInAdjudicationScreen({
   sheetId,
   side,
   imageURL,

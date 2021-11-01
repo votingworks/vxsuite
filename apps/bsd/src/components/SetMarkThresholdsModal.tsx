@@ -5,13 +5,13 @@ import styled from 'styled-components';
 import { MarkThresholds } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/utils';
-import Modal from './Modal';
-import Button from './Button';
-import Prose from './Prose';
-import LinkButton from './LinkButton';
-import Loading from './Loading';
-import TextInput from './TextInput';
-import Text from './Text';
+import { Modal } from './Modal';
+import { Button } from './Button';
+import { Prose } from './Prose';
+import { LinkButton } from './LinkButton';
+import { Loading } from './Loading';
+import { TextInput } from './TextInput';
+import { Text } from './Text';
 
 export interface Props {
   onClose: () => void;
@@ -41,7 +41,7 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   definite: 0.25,
 };
 
-function SetMarkThresholdsModal({
+export function SetMarkThresholdsModal({
   onClose,
   markThresholds,
   markThresholdOverrides,
@@ -240,5 +240,3 @@ function SetMarkThresholdsModal({
       throwIllegalValue(currentState);
   }
 }
-
-export default SetMarkThresholdsModal;

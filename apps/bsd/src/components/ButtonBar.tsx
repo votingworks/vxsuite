@@ -8,7 +8,7 @@ interface Props {
   centerOnlyChild?: boolean;
 }
 
-const ButtonBar = styled('nav')<Props>`
+export const ButtonBar = styled('nav')<Props>`
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -50,5 +50,3 @@ const ButtonBar = styled('nav')<Props>`
     display: none;
   }
 `;
-
-export default ButtonBar;

@@ -6,8 +6,8 @@ import { act } from 'react-dom/test-utils';
 import { BallotType, AdjudicationReason } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
-import BallotEjectScreen from './BallotEjectScreen';
-import renderInAppContext from '../../test/renderInAppContext';
+import { BallotEjectScreen } from './BallotEjectScreen';
+import { renderInAppContext } from '../../test/renderInAppContext';
 
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(

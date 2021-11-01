@@ -6,7 +6,7 @@ interface Props {
   isUnknown?: boolean;
 }
 
-const Checkbox = styled.span<Props>`
+export const Checkbox = styled.span<Props>`
   position: relative;
   top: 1px;
   display: inline-block;
@@ -31,5 +31,3 @@ const Checkbox = styled.span<Props>`
       isRemoved ? '✕' : isSelected ? '✓' : isUnknown ? '?' : undefined}';
   }
 `;
-
-export default Checkbox;

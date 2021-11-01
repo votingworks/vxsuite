@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Table = styled.table`
+export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -35,5 +35,3 @@ export const TD = styled.td<TableData>`
   text-align: ${({ textAlign }) => textAlign};
   white-space: ${({ nowrap = false }) => (nowrap ? 'nowrap' : undefined)};
 `;
-
-export default Table;

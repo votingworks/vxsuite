@@ -1,4 +1,4 @@
-import relativeRect from './relativeRect';
+import { relativeRect } from './relativeRect';
 
 test('ratio rect', () => {
   const scaleRect = relativeRect(40, 80);

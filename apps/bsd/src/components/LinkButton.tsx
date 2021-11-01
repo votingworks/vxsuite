@@ -2,7 +2,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { EventTargetFunction } from '../config/types';
 
-import Button, { ButtonInterface } from './Button';
+import { Button, ButtonInterface } from './Button';
 
 interface Props
   extends ButtonInterface,
@@ -15,7 +15,7 @@ interface Props {
   to?: string;
 }
 
-export default function LinkButton(props: Props): JSX.Element {
+export function LinkButton(props: Props): JSX.Element {
   const history = useHistory();
   const {
     goBack,

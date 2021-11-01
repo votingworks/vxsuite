@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
-import Button from './Button';
-import Modal from './Modal';
-import Prose from './Prose';
+import { Button } from './Button';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
 
 export interface Props {
   isTestMode: boolean;
@@ -12,7 +12,7 @@ export interface Props {
 /**
  * Presents a button to toggle between test & live modes with a confirmation.
  */
-function ToggleTestModeButton({
+export function ToggleTestModeButton({
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
@@ -86,5 +86,3 @@ function ToggleTestModeButton({
     </React.Fragment>
   );
 }
-
-export default ToggleTestModeButton;

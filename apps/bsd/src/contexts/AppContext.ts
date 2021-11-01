@@ -23,6 +23,4 @@ const appContext: AppContextInterface = {
   lockMachine: () => undefined,
 };
 
-const AppContext = createContext(appContext);
-
-export default AppContext;
+export const AppContext = createContext(appContext);

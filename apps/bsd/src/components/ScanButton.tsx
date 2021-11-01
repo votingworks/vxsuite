@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Button from './Button';
+import { Button } from './Button';
 
 export interface Props {
   onPress(): void;
@@ -8,7 +8,7 @@ export interface Props {
 
 export const FUJITSU_VENDOR_ID = 0x4c5;
 
-function ScanButton({ onPress, disabled }: Props): JSX.Element {
+export function ScanButton({ onPress, disabled }: Props): JSX.Element {
   const [isScannerConnected, setIsScannerConnected] = useState(!window.kiosk);
 
   useEffect(() => {
@@ -31,5 +31,3 @@ function ScanButton({ onPress, disabled }: Props): JSX.Element {
     </Button>
   );
 }
-
-export default ScanButton;

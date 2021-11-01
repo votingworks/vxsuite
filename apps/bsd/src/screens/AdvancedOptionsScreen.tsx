@@ -1,15 +1,15 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
-import Button from '../components/Button';
-import LinkButton from '../components/LinkButton';
-import Main, { MainChild } from '../components/Main';
-import MainNav from '../components/MainNav';
-import Modal from '../components/Modal';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import ToggleTestModeButton from '../components/ToggleTestModeButton';
-import SetMarkThresholdsModal from '../components/SetMarkThresholdsModal';
-import AppContext from '../contexts/AppContext';
+import { Button } from '../components/Button';
+import { LinkButton } from '../components/LinkButton';
+import { Main, MainChild } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Modal } from '../components/Modal';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { ToggleTestModeButton } from '../components/ToggleTestModeButton';
+import { SetMarkThresholdsModal } from '../components/SetMarkThresholdsModal';
+import { AppContext } from '../contexts/AppContext';
 
 interface Props {
   unconfigureServer: () => Promise<void>;
@@ -24,7 +24,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
 }
 
-function AdvancedOptionsScreen({
+export function AdvancedOptionsScreen({
   unconfigureServer,
   zeroData,
   backup,
@@ -208,5 +208,3 @@ function AdvancedOptionsScreen({
     </React.Fragment>
   );
 }
-
-export default AdvancedOptionsScreen;

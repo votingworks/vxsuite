@@ -6,17 +6,19 @@ import React, { useState } from 'react';
 import { BallotPackage, ballotPackageUtils } from '@votingworks/utils';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
-import ElectionConfiguration from '../components/ElectionConfiguration';
-import Main, { MainChild } from '../components/Main';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { ElectionConfiguration } from '../components/ElectionConfiguration';
+import { Main, MainChild } from '../components/Main';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 import { SetElectionDefinition } from '../config/types';
 
 interface Props {
   setElectionDefinition: SetElectionDefinition;
 }
 
-function LoadElectionScreen({ setElectionDefinition }: Props): JSX.Element {
+export function LoadElectionScreen({
+  setElectionDefinition,
+}: Props): JSX.Element {
   const [
     currentUploadingBallotIndex,
     setCurrentUploadingBallotIndex,
@@ -150,5 +152,3 @@ function LoadElectionScreen({ setElectionDefinition }: Props): JSX.Element {
     />
   );
 }
-
-export default LoadElectionScreen;

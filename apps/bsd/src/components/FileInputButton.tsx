@@ -37,7 +37,7 @@ interface Props {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function FileInputButton({
+export function FileInputButton({
   accept = '*/*',
   buttonProps,
   children,
@@ -65,5 +65,3 @@ function FileInputButton({
     </React.Fragment>
   );
 }
-
-export default FileInputButton;
