@@ -12,11 +12,11 @@ import { asElectionDefinition } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import electionSample from './data/electionSample.json';
 
-import App from './App';
-import PrintPage from './pages/PrintPage';
+import { App } from './App';
+import { PrintPage } from './pages/PrintPage';
 
 import { render as renderWithBallotContext } from '../test/testUtils';
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import {

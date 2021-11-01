@@ -1,7 +1,7 @@
 import { Provider } from '@votingworks/types';
 import { VxMarkOnly, MachineConfig } from '../../src/config/types';
 
-export default function fakeMachineConfig({
+export function fakeMachineConfig({
   appMode = VxMarkOnly,
   machineId = '000',
   codeVersion = 'test',

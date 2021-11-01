@@ -28,9 +28,9 @@ import { render } from '../../test/testUtils';
 import electionSampleWithSealUntyped from '../data/electionSampleWithSeal.json';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
-import PollWorkerScreen from './PollWorkerScreen';
-import fakePrinter from '../../test/helpers/fakePrinter';
-import fakeMachineConfig from '../../test/helpers/fakeMachineConfig';
+import { PollWorkerScreen } from './PollWorkerScreen';
+import { fakePrinter } from '../../test/helpers/fakePrinter';
+import { fakeMachineConfig } from '../../test/helpers/fakeMachineConfig';
 
 const electionSampleWithSeal = safeParseElection(
   electionSampleWithSealUntyped

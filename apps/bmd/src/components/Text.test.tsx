@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import Text, { TextWithLineBreaks } from './Text';
+import { Text, TextWithLineBreaks } from './Text';
 
 it('outputs paragraph tag', async () => {
   const text = 'paragraph';

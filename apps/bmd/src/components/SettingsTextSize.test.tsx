@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
-import SettingsTextSize from './SettingsTextSize';
+import { SettingsTextSize } from './SettingsTextSize';
 import { UserSettings } from '../config/types';
 
 const userSettings: UserSettings = {

@@ -6,7 +6,7 @@ interface Props {
   textCenter?: boolean;
 }
 
-const Prose = styled('div')<Props>`
+export const Prose = styled('div')<Props>`
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
 
   /* width: 100%; */
@@ -73,5 +73,3 @@ const Prose = styled('div')<Props>`
     margin: 1rem 0;
   }
 `;
-
-export default Prose;

@@ -1,4 +1,4 @@
-export default function fakeVoice(
+export function fakeVoice(
   props: Partial<SpeechSynthesisVoice> = {}
 ): SpeechSynthesisVoice {
   return {

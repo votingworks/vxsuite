@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 
-function UnconfiguredScreen(): JSX.Element {
+export function UnconfiguredScreen(): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -19,5 +19,3 @@ function UnconfiguredScreen(): JSX.Element {
     </Screen>
   );
 }
-
-export default UnconfiguredScreen;

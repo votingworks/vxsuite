@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import Prose from './Prose';
-import Text from './Text';
+import { Prose } from './Prose';
+import { Text } from './Text';
 
 interface Props {
   appName?: string;
@@ -39,7 +39,7 @@ const Footer = styled.div`
   margin: 1rem;
 `;
 
-function Sidebar({
+export function Sidebar({
   appName,
   centerContent,
   footer,
@@ -71,5 +71,3 @@ function Sidebar({
     </StyledSidebar>
   );
 }
-
-export default Sidebar;

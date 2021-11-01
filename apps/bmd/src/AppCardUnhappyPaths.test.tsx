@@ -12,7 +12,7 @@ import {
 } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App';
+import { App } from './App';
 
 import { CARD_EXPIRATION_SECONDS } from './config/globals';
 import {
@@ -25,7 +25,7 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import utcTimestamp from './utils/utcTimestamp';
+import { utcTimestamp } from './utils/utcTimestamp';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxPrintOnly } from './config/types';
 

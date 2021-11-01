@@ -18,7 +18,7 @@ import {
 import { Button, Main } from '@votingworks/ui';
 
 import { findPartyById } from '../utils/find';
-import stripQuotes from '../utils/stripQuotes';
+import { stripQuotes } from '../utils/stripQuotes';
 
 import {
   EventTargetFunction,
@@ -26,15 +26,15 @@ import {
   UpdateVoteFunction,
 } from '../config/types';
 
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
 import { Blink } from './Animations';
 import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import ChoiceButton from './ChoiceButton';
-import Modal from './Modal';
-import Prose from './Prose';
-import Text from './Text';
-import VirtualKeyboard from './VirtualKeyboard';
+import { ChoiceButton } from './ChoiceButton';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
+import { Text } from './Text';
+import { VirtualKeyboard } from './VirtualKeyboard';
 import {
   ContentHeader,
   ContestSection,
@@ -93,7 +93,7 @@ function normalizeCandidateName(name: string) {
   return name.trim().replace(/\t+/g, ' ').replace(/\s+/g, ' ');
 }
 
-function CandidateContest({
+export function CandidateContest({
   contest,
   parties,
   vote,
@@ -552,5 +552,3 @@ function CandidateContest({
     </React.Fragment>
   );
 }
-
-export default CandidateContest;

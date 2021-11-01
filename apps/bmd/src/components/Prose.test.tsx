@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import Prose from './Prose';
+import { Prose } from './Prose';
 
 const proseContent = (
   <React.Fragment>

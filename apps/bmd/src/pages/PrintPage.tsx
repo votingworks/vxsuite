@@ -4,11 +4,11 @@ import styled from 'styled-components';
 
 import { ProgressEllipsis, Main, MainChild } from '@votingworks/ui';
 
-import PrintedBallot from '../components/PrintedBallot';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { PrintedBallot } from '../components/PrintedBallot';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
 export const printingMessageTimeoutSeconds = 5;
 
@@ -17,7 +17,7 @@ const Graphic = styled.img`
   height: 40vw;
 `;
 
-function PrintPage(): JSX.Element {
+export function PrintPage(): JSX.Element {
   const {
     ballotStyleId,
     electionDefinition,
@@ -101,5 +101,3 @@ function PrintPage(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default PrintPage;

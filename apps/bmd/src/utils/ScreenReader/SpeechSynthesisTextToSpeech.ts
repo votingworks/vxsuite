@@ -1,6 +1,6 @@
 import { SpeakOptions, TextToSpeech, VoiceSelector } from '../../config/types';
 
-export default class SpeechSynthesisTextToSpeech implements TextToSpeech {
+export class SpeechSynthesisTextToSpeech implements TextToSpeech {
   private muted = false;
 
   constructor(private getVoice?: VoiceSelector) {

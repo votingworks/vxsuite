@@ -1,4 +1,4 @@
-import numberWithCommas from './numberWithCommas';
+import { numberWithCommas } from './numberWithCommas';
 
 test('leaves single-digit values alone', () => {
   for (let i = 0; i <= 9; i += 1) {

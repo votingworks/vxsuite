@@ -6,7 +6,7 @@ import { render } from '../../test/testUtils';
 
 import electionSample from '../data/electionSample.json';
 
-import ContestPage from './ContestPage';
+import { ContestPage } from './ContestPage';
 
 const firstContestTitle = electionSample.contests[0].title;
 

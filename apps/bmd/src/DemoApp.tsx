@@ -9,8 +9,8 @@ import {
   MemoryStorage,
   MemoryHardware,
 } from '@votingworks/utils';
-import App, { Props } from './App';
-import utcTimestamp from './utils/utcTimestamp';
+import { App, Props } from './App';
+import { utcTimestamp } from './utils/utcTimestamp';
 import {
   MachineConfig,
   PrecinctSelectionKind,
@@ -73,7 +73,7 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
 }
 
 /* istanbul ignore next */
-function DemoApp({
+export function DemoApp({
   card = getSampleCard(),
   storage = getDemoStorage(),
   machineConfig = getSampleMachineConfigProvider(),
@@ -102,5 +102,3 @@ function DemoApp({
     />
   );
 }
-
-export default DemoApp;

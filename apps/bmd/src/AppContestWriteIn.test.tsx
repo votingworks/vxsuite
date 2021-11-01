@@ -10,9 +10,9 @@ import {
 import { electionSample } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import App from './App';
+import { App } from './App';
 
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 
 import {
   advanceTimers,
@@ -25,7 +25,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { VxMarkPlusVxPrint } from './config/types';
-import fakePrinter from '../test/helpers/fakePrinter';
+import { fakePrinter } from '../test/helpers/fakePrinter';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
 beforeEach(() => {

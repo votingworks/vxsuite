@@ -9,7 +9,7 @@ import {
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { render } from '../test/testUtils';
-import App from './App';
+import { App } from './App';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 beforeEach(() => {

@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 
 import { act } from 'react-dom/test-utils';
-import CandidateContest from './CandidateContest';
+import { CandidateContest } from './CandidateContest';
 
 const parties: Parties = [0, 1].map((i) => ({
   abbrev: `${i}`,

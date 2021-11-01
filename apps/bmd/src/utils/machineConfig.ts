@@ -6,7 +6,7 @@ import {
   MachineConfigResponseSchema,
 } from '../config/types';
 
-const machineConfigProvider: Provider<MachineConfig> = {
+export const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
     const { appModeName, machineId, codeVersion } = safeParse(
       MachineConfigResponseSchema,
@@ -20,5 +20,3 @@ const machineConfigProvider: Provider<MachineConfig> = {
     };
   },
 };
-
-export default machineConfigProvider;

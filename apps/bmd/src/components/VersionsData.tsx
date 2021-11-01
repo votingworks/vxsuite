@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { MachineConfig } from '../config/types';
-import Prose from './Prose';
-import Text from './Text';
+import { Prose } from './Prose';
+import { Text } from './Text';
 
 const HorizontalVersions = styled(Prose)`
   display: flex;
@@ -21,7 +21,7 @@ interface Props {
   electionHash?: string;
 }
 
-function VersionsData({
+export function VersionsData({
   machineConfig: { machineId, codeVersion },
   electionHash,
 }: Props): JSX.Element {
@@ -50,5 +50,3 @@ function VersionsData({
   }
   return <HorizontalVersions compact>{content}</HorizontalVersions>;
 }
-
-export default VersionsData;

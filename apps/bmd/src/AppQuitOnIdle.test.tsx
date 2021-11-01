@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App';
+import { App } from './App';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 

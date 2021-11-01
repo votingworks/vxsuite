@@ -7,16 +7,16 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { render } from '../../test/testUtils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
-import fakePrinter from '../../test/helpers/fakePrinter';
+import { fakePrinter } from '../../test/helpers/fakePrinter';
 import { advanceTimers } from '../../test/helpers/smartcards';
 
-import AdminScreen from './AdminScreen';
+import { AdminScreen } from './AdminScreen';
 import {
   VxPrintOnly,
   VxMarkOnly,
   PrecinctSelectionKind,
 } from '../config/types';
-import fakeMachineConfig from '../../test/helpers/fakeMachineConfig';
+import { fakeMachineConfig } from '../../test/helpers/fakeMachineConfig';
 import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,

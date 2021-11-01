@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 import { Button, Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 import { PostVotingInstructions } from '../config/types';
 
 const SingleGraphic = styled.img`
@@ -40,7 +40,7 @@ interface Props {
   showPostVotingInstructions: PostVotingInstructions;
 }
 
-function CastBallotPage({
+export function CastBallotPage({
   hidePostVotingInstructions,
   showPostVotingInstructions,
 }: Props): JSX.Element {
@@ -95,5 +95,3 @@ function CastBallotPage({
     </Screen>
   );
 }
-
-export default CastBallotPage;

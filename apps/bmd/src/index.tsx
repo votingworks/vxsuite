@@ -1,15 +1,15 @@
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import DemoApp from './DemoApp';
+import { App } from './App';
+import { DemoApp } from './DemoApp';
 
 import * as serviceWorker from './serviceWorker';
 import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
 } from './utils/ScreenReader';
-import memoize from './utils/memoize';
+import { memoize } from './utils/memoize';
 import { getUSEnglishVoice } from './utils/voices';
 
 const isDemoApp =

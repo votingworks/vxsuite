@@ -3,15 +3,15 @@ import styled from 'styled-components';
 import { ElectionDefinition } from '@votingworks/types';
 import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import Sidebar from '../components/Sidebar';
-import TestMode from '../components/TestMode';
-import Text from '../components/Text';
-import ElectionInfo from '../components/ElectionInfo';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { Sidebar } from '../components/Sidebar';
+import { TestMode } from '../components/TestMode';
+import { Text } from '../components/Text';
+import { ElectionInfo } from '../components/ElectionInfo';
 import { MachineConfig, PrecinctSelection } from '../config/types';
-import VersionsData from '../components/VersionsData';
-import triggerAudioFocus from '../utils/triggerAudioFocus';
+import { VersionsData } from '../components/VersionsData';
+import { triggerAudioFocus } from '../utils/triggerAudioFocus';
 
 const InsertCardImage = styled.img`
   margin: 0 auto -1rem;
@@ -28,7 +28,7 @@ interface Props {
   machineConfig: MachineConfig;
 }
 
-function InsertCardScreen({
+export function InsertCardScreen({
   appPrecinct,
   electionDefinition,
   showNoChargerAttachedWarning,
@@ -89,5 +89,3 @@ function InsertCardScreen({
     </Screen>
   );
 }
-
-export default InsertCardScreen;

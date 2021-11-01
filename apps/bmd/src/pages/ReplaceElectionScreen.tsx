@@ -4,12 +4,12 @@ import { formatLongDate } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';
-import ElectionInfo from '../components/ElectionInfo';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import Sidebar from '../components/Sidebar';
-import Text from '../components/Text';
-import VersionsData from '../components/VersionsData';
+import { ElectionInfo } from '../components/ElectionInfo';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { Sidebar } from '../components/Sidebar';
+import { Text } from '../components/Text';
+import { VersionsData } from '../components/VersionsData';
 import {
   MachineConfig,
   PrecinctSelection,
@@ -51,7 +51,7 @@ function BriefElectionDefinitionInfo({
   );
 }
 
-function ReplaceElectionScreen({
+export function ReplaceElectionScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -151,5 +151,3 @@ function ReplaceElectionScreen({
     </Screen>
   );
 }
-
-export default ReplaceElectionScreen;

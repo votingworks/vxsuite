@@ -4,7 +4,7 @@ import { fireEvent, screen } from '@testing-library/react';
 
 import { render } from '../../test/testUtils';
 
-import NotFoundPage from './NotFoundPage';
+import { NotFoundPage } from './NotFoundPage';
 
 it('renders NotFoundPage', () => {
   const resetBallot = jest.fn();

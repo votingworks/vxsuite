@@ -21,7 +21,7 @@ export interface Props {
   screenReader: ScreenReader;
 }
 
-export default function FocusManager({
+export function FocusManager({
   onKeyPress,
   onClick,
   onFocus,

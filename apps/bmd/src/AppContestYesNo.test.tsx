@@ -4,9 +4,9 @@ import { electionSample } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App';
+import { App } from './App';
 
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 

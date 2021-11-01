@@ -2,14 +2,16 @@ import React, { useEffect } from 'react';
 
 import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 
 interface Props {
   useEffectToggleLargeDisplay: () => void;
 }
 
-function SetupPrinterPage({ useEffectToggleLargeDisplay }: Props): JSX.Element {
+export function SetupPrinterPage({
+  useEffectToggleLargeDisplay,
+}: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
 
@@ -26,5 +28,3 @@ function SetupPrinterPage({ useEffectToggleLargeDisplay }: Props): JSX.Element {
     </Screen>
   );
 }
-
-export default SetupPrinterPage;

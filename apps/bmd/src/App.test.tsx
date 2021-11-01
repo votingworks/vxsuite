@@ -9,7 +9,7 @@ import {
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/testUtils';
-import App from './App';
+import { App } from './App';
 import { PrecinctSelectionKind, VxMarkPlusVxPrint } from './config/types';
 import { electionSampleDefinition } from './data';
 

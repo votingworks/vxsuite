@@ -17,12 +17,12 @@ import {
   PrecinctSelection,
 } from '../config/types';
 
-import ElectionInfo from '../components/ElectionInfo';
-import PrintedBallot from '../components/PrintedBallot';
-import Prose from '../components/Prose';
-import Sidebar from '../components/Sidebar';
-import Screen from '../components/Screen';
-import Modal from '../components/Modal';
+import { ElectionInfo } from '../components/ElectionInfo';
+import { PrintedBallot } from '../components/PrintedBallot';
+import { Prose } from '../components/Prose';
+import { Sidebar } from '../components/Sidebar';
+import { Screen } from '../components/Screen';
+import { Modal } from '../components/Modal';
 import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 interface Ballot {
@@ -121,7 +121,7 @@ interface Props {
 
 const initialPrecinct: Precinct = { id: '', name: '' };
 
-function TestBallotDeckScreen({
+export function TestBallotDeckScreen({
   appPrecinct,
   electionDefinition,
   hideTestDeck,
@@ -285,5 +285,3 @@ function TestBallotDeckScreen({
     </React.Fragment>
   );
 }
-
-export default TestBallotDeckScreen;

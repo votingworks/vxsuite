@@ -3,7 +3,7 @@ import { ScreenReader, SpeakOptions, TextToSpeech } from '../../config/types';
 /**
  * Implements `ScreenReader` using the ARIA DOM attributes.
  */
-export default class AriaScreenReader implements ScreenReader {
+export class AriaScreenReader implements ScreenReader {
   /**
    * @param tts A text-to-speech engine to use to speak aloud.
    */

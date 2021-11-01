@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '../../test/testUtils';
 
-import FocusManager from './FocusManager';
+import { FocusManager } from './FocusManager';
 import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,

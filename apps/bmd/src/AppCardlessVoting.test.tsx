@@ -6,7 +6,7 @@ import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
 
-import App from './App';
+import { App } from './App';
 
 import {
   setElectionInStorage,
@@ -15,11 +15,11 @@ import {
   voterContests,
 } from '../test/helpers/election';
 
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-import fakePrinter from '../test/helpers/fakePrinter';
+import { fakePrinter } from '../test/helpers/fakePrinter';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxMarkPlusVxPrint } from './config/types';
 

@@ -1,4 +1,4 @@
-import memoize from './memoize';
+import { memoize } from './memoize';
 
 it('calls the underlying function as long as it returns undefined', () => {
   const fn = jest.fn();

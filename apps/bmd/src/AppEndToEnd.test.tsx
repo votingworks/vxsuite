@@ -19,9 +19,9 @@ import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
 
-import App from './App';
+import { App } from './App';
 
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 
 import {
   advanceTimersAndPromises,
@@ -36,7 +36,7 @@ import {
   measure420Contest,
   voterContests,
 } from '../test/helpers/election';
-import fakePrinter from '../test/helpers/fakePrinter';
+import { fakePrinter } from '../test/helpers/fakePrinter';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxMarkPlusVxPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';

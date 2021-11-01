@@ -52,7 +52,7 @@ const StyledChoiceButton = styled('button').attrs((props) => ({
   }
 `;
 
-function ChoiceButton({ choice, ...rest }: Props): JSX.Element {
+export function ChoiceButton({ choice, ...rest }: Props): JSX.Element {
   return (
     <Button
       {...rest}
@@ -62,5 +62,3 @@ function ChoiceButton({ choice, ...rest }: Props): JSX.Element {
     />
   );
 }
-
-export default ChoiceButton;

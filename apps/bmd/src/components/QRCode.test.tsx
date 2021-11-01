@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import QRCode from './QRCode';
+import { QRCode } from './QRCode';
 
 it('renders QRCode', async () => {
   const { container } = render(<QRCode value="VX.21.5" />);

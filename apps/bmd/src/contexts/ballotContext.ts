@@ -25,6 +25,4 @@ const ballot: BallotContextInterface = {
   votes: {},
 };
 
-const BallotContext = createContext(ballot);
-
-export default BallotContext;
+export const BallotContext = createContext(ballot);

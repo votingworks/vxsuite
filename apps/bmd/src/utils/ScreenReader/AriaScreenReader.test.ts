@@ -1,6 +1,6 @@
 import { text, element as h } from '../../../test/helpers/domBuilders';
-import fakeTTS from '../../../test/helpers/fakeTTS';
-import AriaScreenReader from './AriaScreenReader';
+import { fakeTTS } from '../../../test/helpers/fakeTTS';
+import { AriaScreenReader } from './AriaScreenReader';
 
 it('requires a text-to-speech engine', () => {
   expect(() => new AriaScreenReader(fakeTTS())).not.toThrowError();

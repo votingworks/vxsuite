@@ -14,7 +14,7 @@ import {
 import { BallotType } from '@votingworks/types';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App';
+import { App } from './App';
 
 import {
   advanceTimersAndPromises,
@@ -26,10 +26,10 @@ import {
   makeAlternateNewVoterCard,
 } from '../test/helpers/smartcards';
 
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 
 import * as GLOBALS from './config/globals';
-import fakePrinter from '../test/helpers/fakePrinter';
+import { fakePrinter } from '../test/helpers/fakePrinter';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import { VxPrintOnly } from './config/types';
 

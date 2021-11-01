@@ -5,7 +5,7 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
 import { electionSampleDefinition } from './data';
 
-import App from './App';
+import { App } from './App';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
@@ -14,7 +14,7 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 import {
   HARDWARE_POLLING_INTERVAL,

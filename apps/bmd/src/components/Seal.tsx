@@ -16,7 +16,7 @@ interface Props {
   sealURL?: string;
 }
 
-function Seal({ seal, sealURL }: Props): JSX.Element {
+export function Seal({ seal, sealURL }: Props): JSX.Element {
   return (
     <SealContainer
       aria-hidden
@@ -27,5 +27,3 @@ function Seal({ seal, sealURL }: Props): JSX.Element {
     </SealContainer>
   );
 }
-
-export default Seal;

@@ -2,15 +2,17 @@ import React, { useEffect } from 'react';
 
 import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 import { NoWrap } from '../components/Text';
 
 interface Props {
   useEffectToggleLargeDisplay: () => void;
 }
 
-function SetupPowerPage({ useEffectToggleLargeDisplay }: Props): JSX.Element {
+export function SetupPowerPage({
+  useEffectToggleLargeDisplay,
+}: Props): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(useEffectToggleLargeDisplay, []);
 
@@ -32,5 +34,3 @@ function SetupPowerPage({ useEffectToggleLargeDisplay }: Props): JSX.Element {
     </Screen>
   );
 }
-
-export default SetupPowerPage;

@@ -1,5 +1,5 @@
-import fakeVoice from '../../../test/helpers/fakeVoice';
-import SpeechSynthesisTextToSpeech from './SpeechSynthesisTextToSpeech';
+import { fakeVoice } from '../../../test/helpers/fakeVoice';
+import { SpeechSynthesisTextToSpeech } from './SpeechSynthesisTextToSpeech';
 
 it('speaks an utterance when given text to speak', async () => {
   const tts = new SpeechSynthesisTextToSpeech();
