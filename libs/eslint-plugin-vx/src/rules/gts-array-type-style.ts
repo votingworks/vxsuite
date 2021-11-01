@@ -61,7 +61,7 @@ export default createRule({
         }
       },
       TSArrayType: (node: TSESTree.TSArrayType) => {
-        if (!isSimpleType(node.elementType))
+        if (!isSimpleType(node.elementType)) {
           context.report({
             messageId: 'useLongArrayType',
             node,
@@ -71,17 +71,19 @@ export default createRule({
               if (
                 node.parent?.type === AST_NODE_TYPES.TSTypeOperator &&
                 node.parent.operator === 'readonly'
-              )
+              ) {
                 return [
                   fixer.replaceText(
                     node.parent,
                     `ReadonlyArray<${text.slice(0, -2)}>`
                   ),
                 ];
+              }
 
               return [fixer.replaceText(node, `Array<${text.slice(0, -2)}>`)];
             },
           });
+        }
       },
     };
   },

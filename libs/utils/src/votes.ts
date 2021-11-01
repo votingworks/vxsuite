@@ -429,8 +429,9 @@ export function filterContestTalliesByPartyId(
 
   const filteredContestTallies: Dictionary<ContestTally> = {};
   for (const contestId of Object.keys(contestTallies)) {
-    if (contestIds.includes(contestId))
+    if (contestIds.includes(contestId)) {
       filteredContestTallies[contestId] = contestTallies[contestId];
+    }
   }
   return filteredContestTallies;
 }
