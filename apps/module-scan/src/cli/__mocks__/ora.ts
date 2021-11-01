@@ -1,6 +1,8 @@
 import { Ora } from 'ora';
 
-export function ora(): Ora {
+// This is emulating an existing 3rd party API, so we need to follow suit.
+// eslint-disable-next-line vx/gts-no-default-exports
+export default function ora(): Ora {
   return {
     clear: jest.fn().mockReturnThis(),
     color: 'black',

@@ -67,7 +67,7 @@ export async function main(
   }
 
   // Defer loading the heavy dependencies until we're sure we need them.
-  const { default: pdfToImages } = await import('../util/pdfToImages');
+  const { pdfToImages } = await import('../util/pdfToImages');
   const { writeImageData } = await import('../util/images');
 
   async function* renderPages(
