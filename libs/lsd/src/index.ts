@@ -31,7 +31,7 @@ export interface LineSegment {
   width: number;
 }
 
-export default function lsd(imageData: ImageData): LineSegment[] {
+export function lsd(imageData: ImageData): LineSegment[] {
   const { data, width, height } = imageData;
   const channels = imageData.data.length / imageData.width / imageData.height;
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import lsd from '.';
+import { lsd } from '.';
 
 /**
  * Create a simple image: left half black, right half gray.

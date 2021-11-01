@@ -18,7 +18,7 @@
 import { createCanvas } from 'canvas';
 import chalk from 'chalk';
 import { createWriteStream } from 'fs';
-import lsd, { LineSegment } from '..';
+import { lsd, LineSegment } from '..';
 import { distance, Size } from '../util/geometry';
 import { readGrayscaleImage } from '../util/images';
 import { adjacentFile } from '../util/path';
