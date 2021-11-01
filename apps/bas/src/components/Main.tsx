@@ -5,7 +5,7 @@ interface Props {
   noOverflow?: boolean;
 }
 
-const Main = styled('main')<Props>`
+export const Main = styled('main')<Props>`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -43,5 +43,3 @@ export const MainChild = styled('div')<ChildProps>`
     max-width: 100%;
   }
 `;
-
-export default Main;

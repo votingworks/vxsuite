@@ -1,11 +1,11 @@
 import React from 'react';
 
-import Prose from '../components/Prose';
-import Main, { MainChild } from '../components/Main';
-import MainNav from '../components/MainNav';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Main, MainChild } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Screen } from '../components/Screen';
 
-function LoadElectionScreen(): JSX.Element {
+export function LoadElectionScreen(): JSX.Element {
   return (
     <Screen>
       <Main>
@@ -20,5 +20,3 @@ function LoadElectionScreen(): JSX.Element {
     </Screen>
   );
 }
-
-export default LoadElectionScreen;

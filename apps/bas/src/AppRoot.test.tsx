@@ -1,7 +1,7 @@
 import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AppRoot from './AppRoot';
+import { AppRoot } from './AppRoot';
 
 it('renders without crashing', () => {
   const card = new MemoryCard();

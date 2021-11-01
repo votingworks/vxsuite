@@ -3,14 +3,14 @@ import { Precinct } from '@votingworks/types';
 
 import { EventTargetFunction } from '../config/types';
 
-import Button from '../components/Button';
-import ButtonList from '../components/ButtonList';
-import Heading from '../components/Heading';
-import Main, { MainChild } from '../components/Main';
-import MainNav from '../components/MainNav';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import Text from '../components/Text';
+import { Button } from '../components/Button';
+import { ButtonList } from '../components/ButtonList';
+import { Heading } from '../components/Heading';
+import { Main, MainChild } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { Text } from '../components/Text';
 
 interface Props {
   countyName: string;
@@ -19,7 +19,7 @@ interface Props {
   updatePrecinct: EventTargetFunction;
 }
 
-function PrecinctsScreen({
+export function PrecinctsScreen({
   countyName,
   lockScreen,
   precincts,
@@ -61,5 +61,3 @@ function PrecinctsScreen({
     </Screen>
   );
 }
-
-export default PrecinctsScreen;

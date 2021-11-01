@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { BallotStyleId } from '@votingworks/types';
 
-import Prose from '../components/Prose';
-import Main, { MainChild } from '../components/Main';
-import MainNav from '../components/MainNav';
-import Screen from '../components/Screen';
-import Button from '../components/Button';
+import { Prose } from '../components/Prose';
+import { Main, MainChild } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Screen } from '../components/Screen';
+import { Button } from '../components/Button';
 
 const RemoveCardImage = styled.img`
   margin: 0 auto -1.75rem;
@@ -19,7 +19,7 @@ interface Props {
   precinctName: string;
 }
 
-function RemoveCardScreen({
+export function RemoveCardScreen({
   ballotStyleId,
   lockScreen,
   precinctName,
@@ -48,5 +48,3 @@ function RemoveCardScreen({
     </Screen>
   );
 }
-
-export default RemoveCardScreen;
