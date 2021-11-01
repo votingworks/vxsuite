@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { ScreenReader } from '../utils/ScreenReader';
 
@@ -10,7 +10,7 @@ const StyledFocusManager = styled.div`
   }
 `;
 
-export interface Props extends RouteComponentProps {
+export interface Props {
   children: React.ReactNode;
   onClick?: React.DOMAttributes<HTMLElement>['onClick'];
   onClickCapture?: React.DOMAttributes<HTMLElement>['onClickCapture'];
@@ -21,7 +21,7 @@ export interface Props extends RouteComponentProps {
   screenReader: ScreenReader;
 }
 
-function FocusManager({
+export default function FocusManager({
   onKeyPress,
   onClick,
   onFocus,
@@ -30,8 +30,8 @@ function FocusManager({
   onFocusCapture,
   children,
   screenReader,
-  location,
 }: Props): JSX.Element {
+  const location = useLocation();
   const screen = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function onPageLoad() {
@@ -67,5 +67,3 @@ function FocusManager({
     </StyledFocusManager>
   );
 }
-
-export default withRouter(FocusManager);

@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
 import { LinkButton, Main, MainChild } from '@votingworks/ui';
 
@@ -19,9 +19,8 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `;
 
-type Props = RouteComponentProps<Record<string, string | undefined>>;
-
-function StartPage({ history }: Props): JSX.Element {
+export default function StartPage(): JSX.Element {
+  const history = useHistory();
   const {
     ballotStyleId,
     contests,
@@ -121,5 +120,3 @@ function StartPage({ history }: Props): JSX.Element {
     </Screen>
   );
 }
-
-export default withRouter(StartPage);
