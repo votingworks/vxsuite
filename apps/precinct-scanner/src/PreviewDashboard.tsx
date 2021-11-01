@@ -5,16 +5,14 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { Select } from '@votingworks/ui';
+import { strict as assert } from 'assert';
 import React, { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from './contexts/AppContext';
 
 export interface PreviewableModule {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  default: React.FC<any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: React.FC<any>;
+  [key: string]: unknown;
 }
 
 export interface PreviewableComponent {
@@ -41,20 +39,47 @@ function getPreviewURL(preview: ComponentPreview): string {
   return `/preview/${preview.componentId}/${preview.previewId}`;
 }
 
-export function getPreviews(mod: PreviewableModule): PreviewableComponent {
-  const componentId = mod.default.name;
-  const previews = Object.keys(mod)
-    .filter((key) => key.endsWith(PREVIEW_COMPONENT_SUFFIX))
-    .map((previewId) => ({
-      componentId,
-      componentName: asTitle(componentId),
-      previewId,
-      previewName: asTitle(
-        previewId.slice(0, -PREVIEW_COMPONENT_SUFFIX.length)
-      ),
-      previewComponent: mod[previewId],
-    }));
-  return { componentId, componentName: asTitle(componentId), previews };
+function extractComponents(mod: PreviewableModule): Array<React.FC<unknown>> {
+  return Object.entries(mod).flatMap<React.FC<unknown>>(
+    ([exportName, exportValue]) =>
+      typeof exportValue === 'function' &&
+      exportValue.name === exportName &&
+      /^[A-Z][a-zA-Z0-9]+$/.test(exportName)
+        ? (exportValue as React.FC<unknown>)
+        : []
+  );
+}
+
+export function getPreviews(
+  mod: PreviewableModule
+): PreviewableComponent | undefined {
+  const components = extractComponents(mod);
+  const previewComponents = components.filter((component) =>
+    component.name.endsWith(PREVIEW_COMPONENT_SUFFIX)
+  );
+  const nonPreviewComponents = components.filter(
+    (component) => !component.name.endsWith(PREVIEW_COMPONENT_SUFFIX)
+  );
+
+  if (nonPreviewComponents.length === 0 || previewComponents.length === 0) {
+    return;
+  }
+
+  assert.equal(nonPreviewComponents.length, 1);
+  const [previewableComponent] = nonPreviewComponents;
+  const componentId = previewableComponent.name;
+  const componentName = asTitle(previewableComponent.name);
+  const previews = previewComponents.map((previewComponent) => ({
+    componentId,
+    componentName,
+    previewId: previewComponent.name,
+    previewName: asTitle(
+      previewComponent.name.slice(0, -PREVIEW_COMPONENT_SUFFIX.length)
+    ),
+    previewComponent,
+  }));
+
+  return { componentId, componentName, previews };
 }
 
 export interface Props {
@@ -73,7 +98,7 @@ export function PreviewDashboard({
   modules,
   electionDefinitions: initialElectionDefinitions,
 }: Props): JSX.Element {
-  const previewables = modules.map(getPreviews);
+  const previewables = modules.flatMap((mod) => getPreviews(mod) ?? []);
   const [electionDefinition, setElectionDefinition] = useState(
     initialElectionDefinitions[0]
   );
