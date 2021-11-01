@@ -1,16 +1,16 @@
-import MultiMap from './MultiMap';
+import { MultiMap } from './MultiMap';
 
 test('can have multiple string keys', () => {
   const map = new MultiMap<[string, string], unknown>();
   const value = { foo: 'bar' };
   map.set(['a', 'b'], value);
-  const values = map.get(['a', 'b']);
-  expect([...values!][0]).toBe(value);
+  const values = map.get(['a', 'b'])!;
+  expect([...values][0]).toBe(value);
   expect(map.get(['a', ''])).toBeUndefined();
   expect(map.get(['b', 'a'])).toBeUndefined();
 });
 
-test('can have mutiple values', () => {
+test('can have multiple values', () => {
   const map = new MultiMap<[string], number>();
   map.set(['a'], 1).set(['a'], 2).set(['a'], 3);
   expect(map.get(['a'])).toEqual(new Set([1, 2, 3]));

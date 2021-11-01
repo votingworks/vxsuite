@@ -11,7 +11,7 @@ import { dirSync } from 'tmp';
 import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
-import Importer from './importer';
+import { Importer } from './importer';
 import { buildApp } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 

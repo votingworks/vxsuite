@@ -14,7 +14,7 @@ import {
 } from '.';
 import { streamExecFile } from '../exec';
 import { SheetOf } from '../types';
-import StreamLines from '../util/StreamLines';
+import { StreamLines } from '../util/StreamLines';
 
 const debug = makeDebug('module-scan:scanner');
 

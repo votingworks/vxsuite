@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs-extra';
 import { join } from 'path';
 import { fileSync } from 'tmp';
-import LoopScanner, { parseBatchesFromEnv } from './LoopScanner';
+import { LoopScanner, parseBatchesFromEnv } from './LoopScanner';
 
 function readFiles(paths: readonly string[]): string[] {
   return paths.map((path) => readFileSync(path, 'utf8'));

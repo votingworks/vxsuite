@@ -20,7 +20,7 @@ interface LineEmitter {
  *   .end()
  * console.log(lines) // ['Hello World\n', '- anonymous']
  */
-export default class Lines extends EventEmitter implements LineEmitter {
+export class Lines extends EventEmitter implements LineEmitter {
   private buffer = '';
 
   constructor(private readonly terminator = '\n') {

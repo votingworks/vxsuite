@@ -10,7 +10,7 @@ import { getMarkStatus } from '../types';
 /**
  * state of the mark for a given contest and option
  */
-export default function optionMarkStatus({
+export function optionMarkStatus({
   markThresholds,
   marks,
   contestId,

@@ -1,4 +1,4 @@
-import Lines from './Lines';
+import { Lines } from './Lines';
 
 test('emits nothing with no input', () => {
   const onLine = jest.fn();

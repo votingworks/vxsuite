@@ -18,7 +18,7 @@ import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
 import { election } from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
-import Importer from './importer';
+import { Importer } from './importer';
 import { buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 

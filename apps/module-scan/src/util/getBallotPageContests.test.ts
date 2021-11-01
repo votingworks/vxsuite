@@ -6,7 +6,7 @@ import {
   SerializableBallotPageLayout,
 } from '@votingworks/types';
 import { election } from '../../test/fixtures/state-of-hamilton';
-import getBallotPageContests from './getBallotPageContests';
+import { getBallotPageContests } from './getBallotPageContests';
 
 function metadataForPage(pageNumber: number): BallotPageMetadata {
   return {

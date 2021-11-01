@@ -4,7 +4,7 @@ import { cpus } from 'os';
 import { ChildProcessWorkerOps } from './ChildProcessWorkerOps';
 import { InlineWorkerOps } from './InlineWorkerOps';
 import { WorkerOps } from './types';
-import WorkerPool from './WorkerPool';
+import { WorkerPool } from './WorkerPool';
 
 export { WorkerOps, WorkerPool };
 

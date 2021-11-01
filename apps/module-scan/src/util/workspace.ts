@@ -1,6 +1,6 @@
 import { ensureDir } from 'fs-extra';
 import { join, resolve } from 'path';
-import Store from '../store';
+import { Store } from '../store';
 
 export interface Workspace {
   readonly path: string;

@@ -3,7 +3,7 @@ import { strict as assert } from 'assert';
 /**
  * Maps composite keys to multiple values.
  */
-export default class MultiMap<K extends string[] = string[], V = unknown> {
+export class MultiMap<K extends string[] = string[], V = unknown> {
   private valueMap = new Map<string, Set<V>>();
   private keyMap = new Map<string, K>();
 

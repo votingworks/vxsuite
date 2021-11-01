@@ -6,12 +6,12 @@ import { tmpNameSync } from 'tmp';
 import { BallotMetadata, BallotType } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { loadImageData } from '../util/images';
-import Store from '../store';
+import { Store } from '../store';
 import {
   election,
   ballotPdf,
 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
-import main from './render-pages';
+import { main } from './render-pages';
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream;

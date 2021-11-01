@@ -6,7 +6,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 
-import optionMarkStatus from './optionMarkStatus';
+import { optionMarkStatus } from './optionMarkStatus';
 
 import { election } from '../../test/fixtures/state-of-hamilton';
 import { election as eitherNeitherElection } from '../../test/fixtures/choctaw-mock-general-election-2020';

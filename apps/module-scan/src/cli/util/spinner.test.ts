@@ -1,5 +1,5 @@
 import ora from 'ora';
-import Spinner, { countProvider, durationProvider } from './spinner';
+import { Spinner, countProvider, durationProvider } from './spinner';
 
 beforeEach(() => {
   jest.useFakeTimers();

@@ -7,7 +7,6 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 
-const execFilePromise = promisify(execFile);
-export default execFilePromise;
+export const execFilePromise = promisify(execFile);
 
 export { execFile as streamExecFile };

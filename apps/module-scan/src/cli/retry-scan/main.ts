@@ -4,8 +4,9 @@ import deepEqual from 'deep-eql';
 import diff from 'jest-diff';
 import ora, { Ora } from 'ora';
 import { PageScan, retryScan } from '.';
-import MultiMap from '../../util/MultiMap';
-import Spinner, {
+import { MultiMap } from '../../util/MultiMap';
+import {
+  Spinner,
   countProvider,
   CountProvider,
   durationProvider,
@@ -52,7 +53,7 @@ export function printHelp(out: NodeJS.WritableStream): void {
 /**
  * Run the retry-scan CLI.
  */
-export default async function main(
+export async function main(
   args: readonly string[],
   {
     stdout = process.stdout,

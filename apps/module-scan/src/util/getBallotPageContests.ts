@@ -11,7 +11,7 @@ import {
 /**
  * Gets the contests that appear on a given paper ballot page.
  */
-export default function getBallotPageContests(
+export function getBallotPageContests(
   election: Election,
   metadata: BallotPageMetadata,
   layouts: readonly SerializableBallotPageLayout[]

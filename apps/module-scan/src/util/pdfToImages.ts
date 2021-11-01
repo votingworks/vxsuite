@@ -4,7 +4,7 @@ import { getDocument } from 'pdfjs-dist';
 /**
  * Renders PDF pages as images.
  */
-export default async function* pdfToImages(
+export async function* pdfToImages(
   pdfBytes: Buffer,
   { scale = 1 } = {}
 ): AsyncGenerator<{ pageNumber: number; pageCount: number; page: ImageData }> {

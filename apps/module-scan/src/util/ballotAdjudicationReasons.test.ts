@@ -10,7 +10,8 @@ import {
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020';
-import ballotAdjudicationReasons, {
+import {
+  ballotAdjudicationReasons,
   adjudicationReasonDescription,
 } from './ballotAdjudicationReasons';
 

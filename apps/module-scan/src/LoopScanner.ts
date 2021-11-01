@@ -83,7 +83,7 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
  * Provides mock scanning services by copying the same set of images over and
  * over again on demand.
  */
-export default class LoopScanner implements Scanner {
+export class LoopScanner implements Scanner {
   private nextBatchIndex = 0;
 
   /**

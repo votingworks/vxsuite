@@ -1,1 +1,1 @@
-export default class HmpbInterpretationError extends Error {}
+export class HmpbInterpretationError extends Error {}
