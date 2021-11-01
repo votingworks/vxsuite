@@ -1,4 +1,4 @@
-import BitCursor from './BitCursor';
+import { BitCursor } from './BitCursor';
 
 test('starts with bit offset 0', () => {
   expect(new BitCursor().bitOffset).toBe(0);

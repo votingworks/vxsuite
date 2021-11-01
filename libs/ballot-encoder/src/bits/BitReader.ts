@@ -1,4 +1,4 @@
-import BitCursor from './BitCursor';
+import { BitCursor } from './BitCursor';
 import { Uint1, Uint8, Uint8Size } from './types';
 import { sizeof, makeMasks, toUint8 } from './utils';
 import { UTF8Encoding, Encoding } from './encoding';
@@ -7,7 +7,7 @@ import { UTF8Encoding, Encoding } from './encoding';
  * Reads structured data from a `Uint8Array`. Data is read in little-endian
  * order.
  */
-export default class BitReader {
+export class BitReader {
   private cursor = new BitCursor();
 
   /**

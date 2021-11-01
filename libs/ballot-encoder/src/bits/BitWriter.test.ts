@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import BitWriter from './BitWriter';
+import { BitWriter } from './BitWriter';
 import { CustomEncoding } from './encoding';
 
 test('can write a bit', () => {
