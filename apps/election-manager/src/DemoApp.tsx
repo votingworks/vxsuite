@@ -7,7 +7,7 @@ import {
   Storage,
 } from '@votingworks/utils';
 import * as React from 'react';
-import App, { Props } from './App';
+import { App, Props } from './App';
 import { AppStorage } from './AppRoot';
 import { MachineConfig } from './config/types';
 
@@ -31,7 +31,7 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
   };
 }
 
-function DemoApp({
+export function DemoApp({
   card = new MemoryCard(),
   storage = getDemoStorage(),
   machineConfig = getSampleMachineConfigProvider(),
@@ -60,5 +60,3 @@ function DemoApp({
     />
   );
 }
-
-export default DemoApp;

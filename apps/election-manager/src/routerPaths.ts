@@ -9,7 +9,7 @@ import {
   BatchReportScreenProps,
 } from './config/types';
 
-const routerPaths = {
+export const routerPaths = {
   root: '/',
   electionDefinition: '/definition',
   definitionEditor: '/definition/editor',
@@ -53,5 +53,3 @@ const routerPaths = {
     `/tally/test-ballot-deck/${precinctId}`,
   overvoteCombinationReport: '/tally/pairs',
 };
-
-export default routerPaths;

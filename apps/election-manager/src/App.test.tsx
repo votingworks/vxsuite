@@ -36,14 +36,14 @@ import {
   externalVoteTalliesFileStorageKey,
 } from './AppRoot';
 
-import CastVoteRecordFiles from './utils/CastVoteRecordFiles';
+import { CastVoteRecordFiles } from './utils/CastVoteRecordFiles';
 
-import App from './App';
+import { App } from './App';
 
-import fakeFileWriter from '../test/helpers/fakeFileWriter';
-import fakePrinter from '../test/helpers/fakePrinter';
+import { fakeFileWriter } from '../test/helpers/fakeFileWriter';
+import { fakePrinter } from '../test/helpers/fakePrinter';
 import { eitherNeitherElectionDefinition } from '../test/renderInAppContext';
-import hasTextAcrossElements from '../test/util/hasTextAcrossElements';
+import { hasTextAcrossElements } from '../test/util/hasTextAcrossElements';
 
 import { convertSEMSFileToExternalTally } from './utils/semsTallies';
 import {

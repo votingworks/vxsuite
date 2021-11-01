@@ -3,24 +3,24 @@ import React, { useContext, useEffect, useState } from 'react';
 import { format } from '@votingworks/utils';
 import { strict as assert } from 'assert';
 import { VotingMethod } from '@votingworks/types';
-import AppContext from '../contexts/AppContext';
-import readFileAsync from '../lib/readFileAsync';
+import { AppContext } from '../contexts/AppContext';
+import { readFileAsync } from '../lib/readFileAsync';
 import {
   convertSEMSFileToExternalTally,
   parseSEMSFileAndValidateForElection,
 } from '../utils/semsTallies';
-import LinkButton from './LinkButton';
-import Loading from './Loading';
-import Modal from './Modal';
-import Prose from './Prose';
-import Button, { SegmentedButton } from './Button';
+import { LinkButton } from './LinkButton';
+import { Loading } from './Loading';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
+import { Button, SegmentedButton } from './Button';
 
 export interface Props {
   onClose: () => void;
   selectedFile?: File;
 }
 
-function ImportExternalResultsModal({
+export function ImportExternalResultsModal({
   onClose,
   selectedFile,
 }: Props): JSX.Element {
@@ -163,5 +163,3 @@ function ImportExternalResultsModal({
     />
   );
 }
-
-export default ImportExternalResultsModal;

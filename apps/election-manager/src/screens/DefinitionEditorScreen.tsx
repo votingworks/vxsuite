@@ -6,15 +6,15 @@ import fileDownload from 'js-file-download';
 import dashify from 'dashify';
 
 import { safeParseElection } from '@votingworks/types';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import Button from '../components/Button';
-import Textarea from '../components/Textarea';
-import ButtonBar from '../components/ButtonBar';
-import Prose from '../components/Prose';
-import NavigationScreen from '../components/NavigationScreen';
+import { Button } from '../components/Button';
+import { Textarea } from '../components/Textarea';
+import { ButtonBar } from '../components/ButtonBar';
+import { Prose } from '../components/Prose';
+import { NavigationScreen } from '../components/NavigationScreen';
 import { TextareaEventFunction } from '../config/types';
-import RemoveElectionModal from '../components/RemoveElectionModal';
+import { RemoveElectionModal } from '../components/RemoveElectionModal';
 
 const Header = styled.div`
   margin-bottom: 1rem;
@@ -30,7 +30,7 @@ const FlexTextareaWrapper = styled.div`
     font-family: monospace;
   }
 `;
-function DefinitionEditorScreen({
+export function DefinitionEditorScreen({
   allowEditing,
 }: {
   allowEditing: boolean;
@@ -142,5 +142,3 @@ function DefinitionEditorScreen({
     </React.Fragment>
   );
 }
-
-export default DefinitionEditorScreen;

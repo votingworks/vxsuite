@@ -6,12 +6,12 @@ import { usbstick, throwIllegalValue } from '@votingworks/utils';
 
 import { USBControllerButton } from '@votingworks/ui';
 import assert from 'assert';
-import AppContext from '../contexts/AppContext';
-import Modal from './Modal';
-import Button from './Button';
-import Prose from './Prose';
-import LinkButton from './LinkButton';
-import Loading from './Loading';
+import { AppContext } from '../contexts/AppContext';
+import { Modal } from './Modal';
+import { Button } from './Button';
+import { Prose } from './Prose';
+import { LinkButton } from './LinkButton';
+import { Loading } from './Loading';
 import { MainChild } from './Main';
 
 const { UsbDriveStatus } = usbstick;
@@ -45,7 +45,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-function SaveFileToUSB({
+export function SaveFileToUSB({
   onClose,
   generateFileContent,
   defaultFilename,
@@ -269,5 +269,3 @@ function SaveFileToUSB({
       throwIllegalValue(usbDriveStatus);
   }
 }
-
-export default SaveFileToUSB;

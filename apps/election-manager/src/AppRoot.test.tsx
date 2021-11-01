@@ -12,7 +12,7 @@ import {
   MemoryStorage,
   NullPrinter,
 } from '@votingworks/utils';
-import AppRoot from './AppRoot';
+import { AppRoot } from './AppRoot';
 import { fakeMachineConfigProvider } from '../test/helpers/fakeMachineConfig';
 
 beforeEach(() => {

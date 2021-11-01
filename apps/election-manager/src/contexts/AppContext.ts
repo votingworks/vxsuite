@@ -14,7 +14,8 @@ import {
   ResultsFileType,
   MachineConfig,
 } from '../config/types';
-import CastVoteRecordFiles, {
+import {
+  CastVoteRecordFiles,
   SaveCastVoteRecordFiles,
 } from '../utils/CastVoteRecordFiles';
 import { getEmptyFullElectionTally } from '../lib/votecounting';
@@ -88,6 +89,4 @@ const appContext: AppContextInterface = {
   hasCardReaderAttached: true,
 };
 
-const AppContext = createContext(appContext);
-
-export default AppContext;
+export const AppContext = createContext(appContext);

@@ -30,20 +30,20 @@ import {
   BatchReportScreenProps,
   VotingMethodReportScreenProps,
 } from '../config/types';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton';
-import Button from '../components/Button';
-import NavigationScreen from '../components/NavigationScreen';
-import Prose from '../components/Prose';
-import LinkButton from '../components/LinkButton';
+import { PrintButton } from '../components/PrintButton';
+import { Button } from '../components/Button';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { Prose } from '../components/Prose';
+import { LinkButton } from '../components/LinkButton';
 
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 import { filterExternalTalliesByParams } from '../utils/externalTallies';
 
-import Text from '../components/Text';
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
+import { Text } from '../components/Text';
+import { SaveFileToUSB, FileType } from '../components/SaveFileToUSB';
 
 const TallyReportPreview = styled(TallyReport)`
   section {
@@ -55,7 +55,7 @@ const TallyReportPreview = styled(TallyReport)`
   }
 `;
 
-function TallyReportScreen(): JSX.Element {
+export function TallyReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -405,5 +405,3 @@ function TallyReportScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default TallyReportScreen;

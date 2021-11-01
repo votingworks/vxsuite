@@ -16,8 +16,8 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
-import ManualDataImportIndexScreen from './ManualDataImportIndexScreen';
-import renderInAppContext from '../../test/renderInAppContext';
+import { ManualDataImportIndexScreen } from './ManualDataImportIndexScreen';
+import { renderInAppContext } from '../../test/renderInAppContext';
 import { ResultsFileType } from '../config/types';
 import {
   getEmptyExternalTalliesByPrecinct,

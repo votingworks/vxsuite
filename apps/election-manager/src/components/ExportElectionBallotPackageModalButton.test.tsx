@@ -2,9 +2,9 @@ import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
-import renderInAppContext from '../../test/renderInAppContext';
-import ExportElectionBallotPackageModalButton from './ExportElectionBallotPackageModalButton';
-import fakeFileWriter from '../../test/helpers/fakeFileWriter';
+import { renderInAppContext } from '../../test/renderInAppContext';
+import { ExportElectionBallotPackageModalButton } from './ExportElectionBallotPackageModalButton';
+import { fakeFileWriter } from '../../test/helpers/fakeFileWriter';
 
 const { UsbDriveStatus } = usbstick;
 

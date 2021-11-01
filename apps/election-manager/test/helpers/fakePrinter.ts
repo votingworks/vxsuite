@@ -1,6 +1,6 @@
 import { Printer } from '@votingworks/utils';
 
-export default function fakePrinter({
+export function fakePrinter({
   print = async () => {
     // do nothing
   },

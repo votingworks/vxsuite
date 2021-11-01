@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 
-import Button, { StyledButtonProps } from './Button';
-import Modal from './Modal';
-import Loading from './Loading';
-import Prose from './Prose';
+import { Button, StyledButtonProps } from './Button';
+import { Modal } from './Modal';
+import { Loading } from './Loading';
+import { Prose } from './Prose';
 import { PrintOptions } from '../config/types';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
 interface ConfirmModal {
   content: React.ReactNode;
@@ -20,7 +20,7 @@ interface PrintButtonProps extends StyledButtonProps {
   confirmModal?: ConfirmModal;
 }
 
-function PrintButton({
+export function PrintButton({
   title,
   afterPrint,
   children,
@@ -116,5 +116,3 @@ function PrintButton({
     </React.Fragment>
   );
 }
-
-export default PrintButton;

@@ -2,14 +2,14 @@ import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { Button, USBControllerButton } from '@votingworks/ui';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths';
-import Screen from './Screen';
-import Main, { MainChild } from './Main';
-import Navigation from './Navigation';
-import LinkButton from './LinkButton';
-import StatusFooter from './StatusFooter';
+import { routerPaths } from '../routerPaths';
+import { Screen } from './Screen';
+import { Main, MainChild } from './Main';
+import { Navigation } from './Navigation';
+import { LinkButton } from './LinkButton';
+import { StatusFooter } from './StatusFooter';
 
 interface Props {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ interface Props {
   mainChildFlex?: boolean;
 }
 
-function NavigationScreen({
+export function NavigationScreen({
   children,
   mainChildCenter = false,
   mainChildFlex = false,
@@ -95,5 +95,3 @@ function NavigationScreen({
     </Screen>
   );
 }
-
-export default NavigationScreen;

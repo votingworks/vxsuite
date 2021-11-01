@@ -4,8 +4,8 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 
-import SaveFileToUSB, { FileType } from './SaveFileToUSB';
-import renderInAppContext from '../../test/renderInAppContext';
+import { SaveFileToUSB, FileType } from './SaveFileToUSB';
+import { renderInAppContext } from '../../test/renderInAppContext';
 
 const { UsbDriveStatus } = usbstick;
 

@@ -115,7 +115,7 @@ export function generateHeaderRowForBatchResultsCSV(
  * Columns for every possible contest selection in every contest.
  * | Batch ID | Batch Name | Tabulator | Number Of Ballots | Contest 1 - Ballots Cast | Contest 1 - Undervotes | Contest 1 - Overvotes | Contest 1 - Selection Option 1 | ... | Contest N - Selection Option M |
  */
-export default function generateBatchTallyResultsCSV(
+export function generateBatchTallyResultsCSV(
   fullElectionTally: FullElectionTally,
   election: Election
 ): string {

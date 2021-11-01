@@ -1,7 +1,7 @@
 import { electionSample } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import * as workflow from './ExportElectionBallotPackageWorkflow';
-import DownloadableArchive from '../utils/DownloadableArchive';
+import { DownloadableArchive } from '../utils/DownloadableArchive';
 
 beforeEach(() => {
   window.kiosk = fakeKiosk();

@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import renderInAppContext from '../../test/renderInAppContext';
+import { renderInAppContext } from '../../test/renderInAppContext';
 import { UnlockMachineScreen } from './UnlockMachineScreen';
 
 test('authentication', async () => {

@@ -70,7 +70,7 @@ const SecondaryNav = styled.div`
   }
 `;
 
-function Navigation({ primaryNav, secondaryNav }: Props): JSX.Element {
+export function Navigation({ primaryNav, secondaryNav }: Props): JSX.Element {
   return (
     <NavBar>
       <Brand>
@@ -84,5 +84,3 @@ function Navigation({ primaryNav, secondaryNav }: Props): JSX.Element {
     </NavBar>
   );
 }
-
-export default Navigation;

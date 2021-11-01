@@ -1,6 +1,6 @@
 export type Chunk = Parameters<KioskBrowser.FileWriter['write']>[0];
 
-export default function fakeFileWriter(): jest.Mocked<
+export function fakeFileWriter(): jest.Mocked<
   KioskBrowser.FileWriter & { chunks: readonly Chunk[] }
 > {
   const chunks: Chunk[] = [];

@@ -12,26 +12,26 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import readFileAsync from '../lib/readFileAsync';
+import { readFileAsync } from '../lib/readFileAsync';
 import {
   EventTargetFunction,
   InputEventFunction,
   TextareaEventFunction,
 } from '../config/types';
 
-import NavigationScreen from '../components/NavigationScreen';
-import AppContext from '../contexts/AppContext';
-import Button, { SegmentedButton } from '../components/Button';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { AppContext } from '../contexts/AppContext';
+import { Button, SegmentedButton } from '../components/Button';
 import {
   CandidateContestChoices,
   Contest,
 } from '../components/HandMarkedPaperBallot';
-import Prose from '../components/Prose';
-import Text from '../components/Text';
-import TextInput from '../components/TextInput';
+import { Prose } from '../components/Prose';
+import { Text } from '../components/Text';
+import { TextInput } from '../components/TextInput';
 import { TextareaAutosize } from '../components/Textarea';
-import BubbleMark from '../components/BubbleMark';
-import FileInputButton from '../components/FileInputButton';
+import { BubbleMark } from '../components/BubbleMark';
+import { FileInputButton } from '../components/FileInputButton';
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
@@ -187,7 +187,7 @@ function ToggleField({
   );
 }
 
-function DefinitionContestsScreen({
+export function DefinitionContestsScreen({
   allowEditing,
 }: {
   allowEditing: boolean;
@@ -591,5 +591,3 @@ ${fileContent}`;
     </NavigationScreen>
   );
 }
-
-export default DefinitionContestsScreen;

@@ -7,22 +7,22 @@ import { Dictionary } from '@votingworks/types';
 import { format, find } from '@votingworks/utils';
 import { Table, TD, LogoMark } from '@votingworks/ui';
 import { PrintableBallotType } from '../config/types';
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton';
-import Prose from '../components/Prose';
-import Text from '../components/Text';
+import { PrintButton } from '../components/PrintButton';
+import { Prose } from '../components/Prose';
+import { Text } from '../components/Text';
 
-import NavigationScreen from '../components/NavigationScreen';
+import { NavigationScreen } from '../components/NavigationScreen';
 
-import LinkButton from '../components/LinkButton';
+import { LinkButton } from '../components/LinkButton';
 
 type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 
-function PrintedBallotsReportScreen(): JSX.Element {
+export function PrintedBallotsReportScreen(): JSX.Element {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   );
@@ -200,5 +200,3 @@ function PrintedBallotsReportScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default PrintedBallotsReportScreen;

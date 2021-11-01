@@ -6,20 +6,20 @@ import moment from 'moment';
 
 import { find } from '@votingworks/utils';
 import { Table, TD } from '@votingworks/ui';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths';
-import Button, { SegmentedButton } from '../components/Button';
-import LinkButton from '../components/LinkButton';
+import { routerPaths } from '../routerPaths';
+import { Button, SegmentedButton } from '../components/Button';
+import { LinkButton } from '../components/LinkButton';
 import { NoWrap } from '../components/Text';
-import Prose from '../components/Prose';
+import { Prose } from '../components/Prose';
 import {
   getBallotStylesData,
   sortBallotStyleDataByPrecinct,
   sortBallotStyleDataByStyle,
 } from '../utils/election';
-import NavigationScreen from '../components/NavigationScreen';
-import ExportElectionBallotPackageModalButton from '../components/ExportElectionBallotPackageModalButton';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { ExportElectionBallotPackageModalButton } from '../components/ExportElectionBallotPackageModalButton';
 
 const Header = styled.div`
   display: flex;
@@ -28,7 +28,7 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `;
 
-function BallotListScreen(): JSX.Element {
+export function BallotListScreen(): JSX.Element {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   );
@@ -128,5 +128,3 @@ function BallotListScreen(): JSX.Element {
     </NavigationScreen>
   );
 }
-
-export default BallotListScreen;

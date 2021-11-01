@@ -2,11 +2,11 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
 import { strict as assert } from 'assert';
-import SaveFileToUSB, { FileType } from './SaveFileToUSB';
-import AppContext from '../contexts/AppContext';
-import generateBatchTallyResultsCSV from '../utils/generateBatchTallyResultsCSV';
+import { SaveFileToUSB, FileType } from './SaveFileToUSB';
+import { AppContext } from '../contexts/AppContext';
+import { generateBatchTallyResultsCSV } from '../utils/generateBatchTallyResultsCSV';
 
-function ExportBatchTallyResultsButton(): JSX.Element {
+export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const {
     fullElectionTally,
@@ -39,5 +39,3 @@ function ExportBatchTallyResultsButton(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default ExportBatchTallyResultsButton;

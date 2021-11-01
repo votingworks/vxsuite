@@ -32,13 +32,14 @@ import {
   getEmptyFullElectionTally,
 } from './lib/votecounting';
 
-import AppContext from './contexts/AppContext';
+import { AppContext } from './contexts/AppContext';
 
-import CastVoteRecordFiles, {
+import {
+  CastVoteRecordFiles,
   SaveCastVoteRecordFiles,
 } from './utils/CastVoteRecordFiles';
 
-import ElectionManager from './components/ElectionManager';
+import { ElectionManager } from './components/ElectionManager';
 import {
   SaveElection,
   PrintedBallot,
@@ -78,7 +79,7 @@ export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
-function AppRoot({
+export function AppRoot({
   storage,
   printer,
   card,
@@ -448,5 +449,3 @@ function AppRoot({
     </AppContext.Provider>
   );
 }
-
-export default AppRoot;

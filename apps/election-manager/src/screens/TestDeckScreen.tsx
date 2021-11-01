@@ -17,22 +17,22 @@ import {
   LogoMark,
 } from '@votingworks/ui';
 import { tallyVotesByContest, filterTalliesByParty } from '@votingworks/utils';
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import PrintButton from '../components/PrintButton';
-import ButtonList from '../components/ButtonList';
-import Prose from '../components/Prose';
-import Button from '../components/Button';
+import { PrintButton } from '../components/PrintButton';
+import { ButtonList } from '../components/ButtonList';
+import { Prose } from '../components/Prose';
+import { Button } from '../components/Button';
 
-import NavigationScreen from '../components/NavigationScreen';
-import LinkButton from '../components/LinkButton';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { LinkButton } from '../components/LinkButton';
 import { PrecinctReportScreenProps } from '../config/types';
 
 import { generateTestDeckBallots } from '../utils/election';
 
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
+import { SaveFileToUSB, FileType } from '../components/SaveFileToUSB';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPDF,
@@ -43,7 +43,7 @@ const allPrecincts: Precinct = {
   name: 'All Precincts',
 };
 
-function TestDeckScreen(): JSX.Element {
+export function TestDeckScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -214,5 +214,3 @@ function TestDeckScreen(): JSX.Element {
     </NavigationScreen>
   );
 }
-
-export default TestDeckScreen;

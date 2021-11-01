@@ -9,10 +9,10 @@ import {
 } from '@votingworks/ui';
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import Screen from '../components/Screen';
-import StatusFooter from '../components/StatusFooter';
+import { Screen } from '../components/Screen';
+import { StatusFooter } from '../components/StatusFooter';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
 const NumberPadWrapper = styled.div`
   display: flex;

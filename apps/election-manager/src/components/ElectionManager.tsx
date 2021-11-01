@@ -2,29 +2,29 @@ import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import { SetupCardReaderPage } from '@votingworks/ui';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths';
-import DefinitionScreen from '../screens/DefinitionScreen';
-import BallotListScreen from '../screens/BallotListScreen';
-import BallotScreen from '../screens/BallotScreen';
-import PrintTestDeckScreen from '../screens/PrintTestDeckScreen';
-import UnconfiguredScreen from '../screens/UnconfiguredScreen';
-import TestDeckScreen from '../screens/TestDeckScreen';
-import TallyScreen from '../screens/TallyScreen';
-import TallyReportScreen from '../screens/TallyReportScreen';
-import OvervoteCombinationReportScreen from '../screens/OvervoteCombinationReportScreen';
-import DefinitionEditorScreen from '../screens/DefinitionEditorScreen';
-import DefinitionContestsScreen from '../screens/DefinitionContestsScreen';
-import PrintedBallotsReportScreen from '../screens/PrintedBallotsReportScreen';
-import ManualDataImportIndexScreen from '../screens/ManualDataImportIndexScreen';
-import ManualDataImportPrecinctScreen from '../screens/ManualDataImportPrecinctScreen';
-import SmartcardsScreen from '../screens/SmartcardsScreen';
+import { routerPaths } from '../routerPaths';
+import { DefinitionScreen } from '../screens/DefinitionScreen';
+import { BallotListScreen } from '../screens/BallotListScreen';
+import { BallotScreen } from '../screens/BallotScreen';
+import { PrintTestDeckScreen } from '../screens/PrintTestDeckScreen';
+import { UnconfiguredScreen } from '../screens/UnconfiguredScreen';
+import { TestDeckScreen } from '../screens/TestDeckScreen';
+import { TallyScreen } from '../screens/TallyScreen';
+import { TallyReportScreen } from '../screens/TallyReportScreen';
+import { OvervoteCombinationReportScreen } from '../screens/OvervoteCombinationReportScreen';
+import { DefinitionEditorScreen } from '../screens/DefinitionEditorScreen';
+import { DefinitionContestsScreen } from '../screens/DefinitionContestsScreen';
+import { PrintedBallotsReportScreen } from '../screens/PrintedBallotsReportScreen';
+import { ManualDataImportIndexScreen } from '../screens/ManualDataImportIndexScreen';
+import { ManualDataImportPrecinctScreen } from '../screens/ManualDataImportPrecinctScreen';
+import { SmartcardsScreen } from '../screens/SmartcardsScreen';
 import { MachineLockedScreen } from '../screens/MachineLockedScreen';
 import { InvalidCardScreen } from '../screens/InvalidCardScreen';
 import { UnlockMachineScreen } from '../screens/UnlockMachineScreen';
 
-function ElectionManager(): JSX.Element {
+export function ElectionManager(): JSX.Element {
   const {
     electionDefinition,
     currentUserSession,
@@ -165,5 +165,3 @@ function ElectionManager(): JSX.Element {
     </Switch>
   );
 }
-
-export default ElectionManager;

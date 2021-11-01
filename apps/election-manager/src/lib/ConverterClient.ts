@@ -8,7 +8,7 @@ export interface VxFiles {
   outputFiles: VxFile[];
 }
 
-export default class ConverterClient {
+export class ConverterClient {
   constructor(private readonly target: string) {}
 
   async setInputFile(name: string, content: File): Promise<void> {

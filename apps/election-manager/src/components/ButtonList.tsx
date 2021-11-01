@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const ButtonList = styled.div`
+export const ButtonList = styled.div`
   column-gap: 1rem;
   @media (min-width: 1024px) {
     columns: 2;
@@ -13,5 +13,3 @@ const ButtonList = styled.div`
     overflow: hidden;
   }
 `;
-
-export default ButtonList;

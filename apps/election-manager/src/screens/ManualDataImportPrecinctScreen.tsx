@@ -20,21 +20,21 @@ import {
 import { Table, TD } from '@votingworks/ui';
 
 import { ManualDataPrecinctScreenProps } from '../config/types';
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import Prose from '../components/Prose';
-import Button from '../components/Button';
-import LinkButton from '../components/LinkButton';
+import { Prose } from '../components/Prose';
+import { Button } from '../components/Button';
+import { LinkButton } from '../components/LinkButton';
 
-import NavigationScreen from '../components/NavigationScreen';
+import { NavigationScreen } from '../components/NavigationScreen';
 import {
   getContestsForPrecinct,
   getAllPossibleCandidatesForCandidateContest,
 } from '../utils/election';
-import TextInput from '../components/TextInput';
-import Text from '../components/Text';
+import { TextInput } from '../components/TextInput';
+import { Text } from '../components/Text';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,
@@ -135,7 +135,7 @@ export function getExpectedNumberOfBallotsForContestTally(
   );
 }
 
-function ManualDataImportPrecinctScreen(): JSX.Element {
+export function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
@@ -489,5 +489,3 @@ function ManualDataImportPrecinctScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default ManualDataImportPrecinctScreen;

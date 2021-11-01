@@ -34,7 +34,7 @@ const Content = styled.span`
   flex-direction: column;
 `;
 
-function BubbleMark({ checked = false, children }: Props): JSX.Element {
+export function BubbleMark({ checked = false, children }: Props): JSX.Element {
   return (
     <Container>
       <Bubble checked={checked} data-mark />
@@ -42,5 +42,3 @@ function BubbleMark({ checked = false, children }: Props): JSX.Element {
     </Container>
   );
 }
-
-export default BubbleMark;

@@ -36,16 +36,16 @@ import {
 } from '@votingworks/types';
 
 import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import findPartyById from '../utils/findPartyById';
+import { findPartyById } from '../utils/findPartyById';
 
-import BubbleMark from './BubbleMark';
-import WriteInLine from './WriteInLine';
-import QRCode from './QRCode';
-import Prose from './Prose';
-import Text from './Text';
-import HorizontalRule from './HorizontalRule';
+import { BubbleMark } from './BubbleMark';
+import { WriteInLine } from './WriteInLine';
+import { QRCode } from './QRCode';
+import { Prose } from './Prose';
+import { Text } from './Text';
+import { HorizontalRule } from './HorizontalRule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize';
 import { getBallotLayoutDensity } from '../utils/getBallotLayoutDensity';
@@ -528,7 +528,7 @@ export interface HandMarkedPaperBallotProps {
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
 }
 
-function HandMarkedPaperBallot({
+export function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   electionHash,
@@ -1145,5 +1145,3 @@ function HandMarkedPaperBallot({
     </Ballot>
   );
 }
-
-export default HandMarkedPaperBallot;

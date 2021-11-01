@@ -1,5 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
-import CastVoteRecordFiles from './CastVoteRecordFiles';
+import { CastVoteRecordFiles } from './CastVoteRecordFiles';
 import { CastVoteRecord } from '../config/types';
 
 const TEST_DATE = new Date(2020, 3, 14, 1, 59, 26);

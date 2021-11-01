@@ -1,8 +1,8 @@
 import { fontSizeTheme, Main, MainChild, Prose } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
-import Screen from '../components/Screen';
-import StatusFooter from '../components/StatusFooter';
+import { Screen } from '../components/Screen';
+import { StatusFooter } from '../components/StatusFooter';
 
 const LockedImage = styled.img`
   margin-right: auto;

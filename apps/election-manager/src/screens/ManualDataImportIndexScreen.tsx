@@ -10,21 +10,21 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import { ResultsFileType } from '../config/types';
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import Prose from '../components/Prose';
+import { Prose } from '../components/Prose';
 
-import NavigationScreen from '../components/NavigationScreen';
-import Button, { SegmentedButton } from '../components/Button';
-import Text from '../components/Text';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { Button, SegmentedButton } from '../components/Button';
+import { Text } from '../components/Text';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
 } from '../utils/externalTallies';
-import LinkButton from '../components/LinkButton';
+import { LinkButton } from '../components/LinkButton';
 import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal';
 
 const MANUAL_DATA_NAME = 'Manually Added Data';
@@ -42,7 +42,7 @@ const PrecinctRowText = styled(Text)`
   }
 `;
 
-function ManualDataImportIndexScreen(): JSX.Element {
+export function ManualDataImportIndexScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
@@ -213,5 +213,3 @@ function ManualDataImportIndexScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default ManualDataImportIndexScreen;
