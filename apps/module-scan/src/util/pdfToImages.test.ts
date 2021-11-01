@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import pdfToImages from './pdfToImages';
+import { pdfToImages } from './pdfToImages';
 
 async function asyncIterableToArray<T>(
   iterable: AsyncIterable<T>

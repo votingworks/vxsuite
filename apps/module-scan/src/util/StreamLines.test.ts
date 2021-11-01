@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { Readable } from 'stream';
-import StreamLines from './StreamLines';
+import { StreamLines } from './StreamLines';
 
 test('streams lines from an input stream', async () => {
   const onLine = jest.fn();

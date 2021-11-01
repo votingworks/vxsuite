@@ -4,7 +4,7 @@ import { WritableStream } from 'memory-streams';
 import { mocked } from 'ts-jest/utils';
 import { countProvider } from '../util/spinner';
 import { retryScan } from './index';
-import main, { printHelp } from './main';
+import { main, printHelp } from './main';
 
 jest.mock('../util/spinner');
 jest.mock('./index');

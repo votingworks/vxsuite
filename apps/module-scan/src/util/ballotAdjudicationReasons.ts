@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import { strict as assert } from 'assert';
-import allContestOptions from './allContestOptions';
+import { allContestOptions } from './allContestOptions';
 
 export interface Options {
   optionMarkStatus: (
@@ -22,7 +22,7 @@ export interface Options {
  * Callers must provide a function that can get the mark status for any contest
  * option in the contests given.
  */
-export default function* ballotAdjudicationReasons(
+export function* ballotAdjudicationReasons(
   contests: Contests | undefined,
   { optionMarkStatus }: Options
 ): Generator<AdjudicationReasonInfo> {

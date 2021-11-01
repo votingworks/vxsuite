@@ -67,7 +67,7 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
  */
-export default class Store {
+export class Store {
   private db?: sqlite3.Database;
 
   /**

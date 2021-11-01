@@ -1,6 +1,6 @@
 import { Ora } from 'ora';
 
-export default function ora(): Ora {
+export function ora(): Ora {
   return {
     clear: jest.fn().mockReturnThis(),
     color: 'black',

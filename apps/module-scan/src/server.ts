@@ -52,14 +52,14 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
-import backup from './backup';
+import { backup } from './backup';
 import {
   MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
   MODULE_SCAN_PORT,
   MODULE_SCAN_WORKSPACE,
   VX_MACHINE_TYPE,
 } from './globals';
-import Importer from './importer';
+import { Importer } from './importer';
 import {
   FujitsuScanner,
   PlustekScanner,
@@ -68,7 +68,7 @@ import {
   ScannerMode,
   withReconnect,
 } from './scanners';
-import Store from './store';
+import { Store } from './store';
 import { BallotConfig } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';

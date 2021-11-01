@@ -5,7 +5,7 @@ export interface TextProvider<P extends unknown[] = []> {
   toString(...props: P): string;
 }
 
-export default class Spinner {
+export class Spinner {
   private readonly parts: readonly TextProvider[];
   private readonly deinits: ReadonlyArray<() => void>;
 

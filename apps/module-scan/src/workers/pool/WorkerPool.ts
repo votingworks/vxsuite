@@ -8,7 +8,7 @@ import { WorkerOps } from './types';
 
 const debug = makeDebug('module-scan:pool');
 
-export default class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
+export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
   private workers?: Set<W>;
   private claimedWorkers?: Set<W>;
   private outstandingClaims: Array<Deferred<W>> = [];

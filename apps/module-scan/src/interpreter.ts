@@ -31,11 +31,12 @@ import {
 } from '@votingworks/types';
 import makeDebug from 'debug';
 import { BallotPageQrcode, SheetOf } from './types';
-import ballotAdjudicationReasons, {
+import {
+  ballotAdjudicationReasons,
   adjudicationReasonDescription,
 } from './util/ballotAdjudicationReasons';
 import { loadImageData } from './util/images';
-import optionMarkStatus from './util/optionMarkStatus';
+import { optionMarkStatus } from './util/optionMarkStatus';
 import { time } from './util/perf';
 import { detectQRCode } from './util/qrcode';
 import * as qrcodeWorker from './workers/qrcode';
@@ -153,7 +154,7 @@ export interface InterpreterOptions {
   adjudicationReasons: readonly AdjudicationReason[];
 }
 
-export default class Interpreter {
+export class Interpreter {
   private hmpbInterpreter?: HMPBInterpreter;
   private election: Election;
   private electionHash?: string;

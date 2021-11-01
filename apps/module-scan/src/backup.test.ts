@@ -8,8 +8,8 @@ import ZipStream from 'zip-stream';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotType } from '@votingworks/types';
 import { election } from '../test/fixtures/2020-choctaw';
-import backup, { Backup } from './backup';
-import Store from './store';
+import { backup, Backup } from './backup';
+import { Store } from './store';
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
   return new Promise((resolve, reject) => {

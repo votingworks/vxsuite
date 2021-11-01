@@ -17,9 +17,9 @@ import { v4 as uuid } from 'uuid';
 import { BatchControl, Scanner } from './scanners';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
-import HmpbInterpretationError from './util/HmpbInterpretationError';
+import { HmpbInterpretationError } from './util/HmpbInterpretationError';
 import { writeImageData } from './util/images';
-import pdfToImages from './util/pdfToImages';
+import { pdfToImages } from './util/pdfToImages';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,
@@ -65,7 +65,7 @@ export async function saveImages(
 /**
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
-export default class Importer {
+export class Importer {
   private workspace: Workspace;
   private scanner: Scanner;
   private sheetGenerator?: BatchControl;

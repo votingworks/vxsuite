@@ -4,7 +4,7 @@ import { throwIllegalValue } from '@votingworks/utils';
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
-export default function* allContestOptions(
+export function* allContestOptions(
   contest: AnyContest,
   writeInOptionIds?: readonly string[]
 ): Generator<ContestOption> {

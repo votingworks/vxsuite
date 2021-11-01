@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { ScannerImageFormat } from '../scanners';
-import Store from '../store';
+import { Store } from '../store';
 
 export function printHelp(out: typeof process.stdout): void {
   out.write(
@@ -28,7 +28,7 @@ export function printHelp(out: typeof process.stdout): void {
   out.write('📝 ballots-5-District-5-TEST-p2.png\n');
 }
 
-export default async function main(
+export async function main(
   args: readonly string[],
   { stdout = process.stdout, stderr = process.stderr } = {}
 ): Promise<number> {

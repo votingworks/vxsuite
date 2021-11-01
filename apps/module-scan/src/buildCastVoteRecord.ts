@@ -24,7 +24,7 @@ import {
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
   SheetOf,
 } from './types';
-import allContestOptions from './util/allContestOptions';
+import { allContestOptions } from './util/allContestOptions';
 import {
   describeValidationError,
   validateSheetInterpretation,

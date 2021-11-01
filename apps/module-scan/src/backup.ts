@@ -5,7 +5,7 @@ import { basename } from 'path';
 import { Database } from 'sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import Store from './store';
+import { Store } from './store';
 
 const debug = makeDebug('module-scan:backup');
 
@@ -170,7 +170,7 @@ export class Backup {
 /**
  * Backs up the store and all referenced files into a zip archive.
  */
-export default function backup(store: Store): NodeJS.ReadableStream {
+export function backup(store: Store): NodeJS.ReadableStream {
   const zip = new ZipStream();
 
   process.nextTick(() => {
