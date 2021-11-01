@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import './Modal.css';
 
-import ButtonBar from './ButtonBar';
+import { ButtonBar } from './ButtonBar';
 
 interface ModalContentInterface {
   centerContent?: boolean;
@@ -33,7 +33,7 @@ interface Props {
   onOverlayClick?: () => void;
 }
 
-function Modal({
+export function Modal({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
@@ -73,5 +73,3 @@ function Modal({
     </ReactModal>
   );
 }
-
-export default Modal;

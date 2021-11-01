@@ -1,5 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
-import getAllBallotConfigs from './getAllBallotConfigs';
+import { getAllBallotConfigs } from './getAllBallotConfigs';
 import { DEFAULT_LOCALE } from '../config/globals';
 
 test('builds a list of configs for single-language ballots', () => {

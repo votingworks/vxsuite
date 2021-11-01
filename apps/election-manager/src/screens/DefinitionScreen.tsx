@@ -5,15 +5,15 @@ import styled from 'styled-components';
 
 import { format } from '@votingworks/utils';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 
-import NavigationScreen from '../components/NavigationScreen';
-import LinkButton from '../components/LinkButton';
-import Prose from '../components/Prose';
-import Text from '../components/Text';
-import RemoveElectionModal from '../components/RemoveElectionModal';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { LinkButton } from '../components/LinkButton';
+import { Prose } from '../components/Prose';
+import { Text } from '../components/Text';
+import { RemoveElectionModal } from '../components/RemoveElectionModal';
 
 const ButtonListItem = styled.span`
   display: block;
@@ -25,7 +25,7 @@ interface ContestSection {
   contests: Contest[];
 }
 
-function DefinitionScreen(): JSX.Element {
+export function DefinitionScreen(): JSX.Element {
   const { electionDefinition, configuredAt } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -117,5 +117,3 @@ function DefinitionScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default DefinitionScreen;

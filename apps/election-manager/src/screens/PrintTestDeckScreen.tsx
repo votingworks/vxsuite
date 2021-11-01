@@ -8,21 +8,21 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
-import routerPaths from '../routerPaths';
+import { routerPaths } from '../routerPaths';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import Button from '../components/Button';
-import ButtonList from '../components/ButtonList';
-import Prose from '../components/Prose';
-import Modal from '../components/Modal';
-import Loading from '../components/Loading';
+import { Button } from '../components/Button';
+import { ButtonList } from '../components/ButtonList';
+import { Prose } from '../components/Prose';
+import { Modal } from '../components/Modal';
+import { Loading } from '../components/Loading';
 
-import NavigationScreen from '../components/NavigationScreen';
-import LinkButton from '../components/LinkButton';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { LinkButton } from '../components/LinkButton';
 import { PrecinctReportScreenProps } from '../config/types';
 
-import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot';
+import { HandMarkedPaperBallot } from '../components/HandMarkedPaperBallot';
 
 import { generateTestDeckBallots } from '../utils/election';
 
@@ -71,7 +71,7 @@ function TestDeckBallots({
 
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
-function PrintTestDeckScreen(): JSX.Element {
+export function PrintTestDeckScreen(): JSX.Element {
   const { electionDefinition, printer } = useContext(AppContext);
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
@@ -229,5 +229,3 @@ function PrintTestDeckScreen(): JSX.Element {
     </NavigationScreen>
   );
 }
-
-export default PrintTestDeckScreen;

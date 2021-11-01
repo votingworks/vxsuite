@@ -1,4 +1,4 @@
-export default function readFileAsync(file: File): Promise<string> {
+export function readFileAsync(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

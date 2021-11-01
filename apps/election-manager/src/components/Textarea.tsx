@@ -21,8 +21,6 @@ export const TextareaAutosize = styled(ReactTextareaAutosize)<Props>`
   ${styles}/* stylelint-disable-line value-keyword-case */
 `;
 
-const Textarea = styled.textarea<Props>`
+export const Textarea = styled.textarea<Props>`
   ${styles}/* stylelint-disable-line value-keyword-case */
 `;
-
-export default Textarea;

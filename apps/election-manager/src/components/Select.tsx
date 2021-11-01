@@ -5,7 +5,7 @@ interface Props {
   fullWidth?: boolean;
 }
 
-const Select = styled.select<Props>`
+export const Select = styled.select<Props>`
   display: block;
   margin: 0;
   border: none;
@@ -23,5 +23,3 @@ const Select = styled.select<Props>`
     color: rgb(170, 170, 170);
   }
 `;
-
-export default Select;

@@ -3,8 +3,8 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Route } from 'react-router-dom';
 
-import PrintTestDeckScreen from './PrintTestDeckScreen';
-import renderInAppContext from '../../test/renderInAppContext';
+import { PrintTestDeckScreen } from './PrintTestDeckScreen';
+import { renderInAppContext } from '../../test/renderInAppContext';
 
 jest.mock('../components/HandMarkedPaperBallot');
 

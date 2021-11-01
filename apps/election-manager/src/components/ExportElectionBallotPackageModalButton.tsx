@@ -15,13 +15,13 @@ import { strict as assert } from 'assert';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
 
-import AppContext from '../contexts/AppContext';
-import HandMarkedPaperBallot from './HandMarkedPaperBallot';
-import Modal from './Modal';
-import Button from './Button';
-import Prose from './Prose';
-import LinkButton from './LinkButton';
-import Loading from './Loading';
+import { AppContext } from '../contexts/AppContext';
+import { HandMarkedPaperBallot } from './HandMarkedPaperBallot';
+import { Modal } from './Modal';
+import { Button } from './Button';
+import { Prose } from './Prose';
+import { LinkButton } from './LinkButton';
+import { Loading } from './Loading';
 import { Monospace } from './Text';
 
 import * as workflow from '../workflows/ExportElectionBallotPackageWorkflow';
@@ -33,7 +33,7 @@ const USBImage = styled.img`
   height: 200px;
 `;
 
-function ExportElectionBallotPackageModalButton(): JSX.Element {
+export function ExportElectionBallotPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
     AppContext
   );
@@ -357,5 +357,3 @@ function ExportElectionBallotPackageModalButton(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default ExportElectionBallotPackageModalButton;

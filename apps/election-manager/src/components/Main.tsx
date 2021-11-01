@@ -5,7 +5,7 @@ interface Props {
   noOverflow?: boolean;
 }
 
-const Main = styled('main')<Props>`
+export const Main = styled('main')<Props>`
   display: flex;
   flex-direction: column;
   overflow: ${({ noOverflow = false }) => (noOverflow ? undefined : 'auto')};
@@ -32,5 +32,3 @@ export const MainChild = styled('div')<ChildProps>`
     centerHorizontal = center,
   }) => `${centerVertical ? 'auto' : '0'} ${centerHorizontal ? 'auto' : '0'}`};
 `;
-
-export default Main;

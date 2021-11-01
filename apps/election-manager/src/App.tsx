@@ -12,7 +12,7 @@ import {
   WebServiceCard,
 } from '@votingworks/utils';
 
-import AppRoot, { Props as AppRootProps } from './AppRoot';
+import { AppRoot, Props as AppRootProps } from './AppRoot';
 import { machineConfigProvider } from './utils/machineConfig';
 
 export interface Props {
@@ -27,7 +27,7 @@ const defaultStorage = window.kiosk
   ? new KioskStorage(window.kiosk)
   : new LocalStorage();
 
-function App({
+export function App({
   hardware,
   card = new WebServiceCard(),
   storage = defaultStorage,
@@ -67,5 +67,3 @@ function App({
     </BrowserRouter>
   );
 }
-
-export default App;

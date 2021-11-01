@@ -1,7 +1,7 @@
 import React from 'react';
 import { HandMarkedPaperBallotProps } from '../HandMarkedPaperBallot';
 
-function HandMarkedPaperBallot({
+export function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   precinctId,
@@ -20,5 +20,3 @@ function HandMarkedPaperBallot({
     </div>
   );
 }
-
-export default HandMarkedPaperBallot;

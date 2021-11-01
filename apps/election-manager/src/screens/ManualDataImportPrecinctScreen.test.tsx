@@ -14,12 +14,12 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
-import renderInAppContext from '../../test/renderInAppContext';
+import { renderInAppContext } from '../../test/renderInAppContext';
 import {
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
 } from '../utils/externalTallies';
-import ManualDataImportPrecinctScreen from './ManualDataImportPrecinctScreen';
+import { ManualDataImportPrecinctScreen } from './ManualDataImportPrecinctScreen';
 
 test('displays error screen for invalid precinct', async () => {
   const { getByText } = renderInAppContext(

@@ -10,7 +10,7 @@ const ResponsiveSvgWrapper = styled.div`
   }
 `;
 
-function QRCode({
+export function QRCode({
   level = 'H',
   renderAs = 'svg',
   value,
@@ -21,5 +21,3 @@ function QRCode({
     </ResponsiveSvgWrapper>
   );
 }
-
-export default QRCode;

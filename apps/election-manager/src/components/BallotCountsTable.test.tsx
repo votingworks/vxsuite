@@ -17,11 +17,11 @@ import {
 } from '@votingworks/types';
 
 import { strict as assert } from 'assert';
-import renderInAppContext from '../../test/renderInAppContext';
+import { renderInAppContext } from '../../test/renderInAppContext';
 
-import BallotCountsTable from './BallotCountsTable';
-import fakeTally from '../../test/helpers/fakeTally';
-import fakeExternalTally from '../../test/helpers/fakeExternalTally';
+import { BallotCountsTable } from './BallotCountsTable';
+import { fakeTally } from '../../test/helpers/fakeTally';
+import { fakeExternalTally } from '../../test/helpers/fakeExternalTally';
 
 describe('Ballot Counts by Precinct', () => {
   const resultsByPrecinct: Dictionary<Tally> = {

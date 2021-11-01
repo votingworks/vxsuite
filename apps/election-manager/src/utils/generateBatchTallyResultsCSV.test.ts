@@ -8,7 +8,8 @@ import {
 } from '@votingworks/test-utils';
 import { computeFullElectionTally } from '../lib/votecounting';
 import { parseCVRsAndAssertSuccess } from '../lib/votecounting.test';
-import generateBatchTallyResultsCSV, {
+import {
+  generateBatchTallyResultsCSV,
   generateHeaderRowForBatchResultsCSV,
   generateRowsForBatchTallyResultsCSV,
 } from './generateBatchTallyResultsCSV';

@@ -6,7 +6,7 @@ interface Props {
   padded?: boolean;
 }
 
-const ButtonBar = styled('nav')<Props>`
+export const ButtonBar = styled('nav')<Props>`
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: center;
@@ -24,5 +24,3 @@ const ButtonBar = styled('nav')<Props>`
     order: ${({ primaryRight = false }) => (primaryRight ? 2 : undefined)};
   }
 `;
-
-export default ButtonBar;

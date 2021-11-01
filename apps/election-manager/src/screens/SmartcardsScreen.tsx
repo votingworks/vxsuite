@@ -4,13 +4,13 @@ import React, { useCallback, useContext, useState } from 'react';
 import { NumberPad, useCancelablePromise } from '@votingworks/ui';
 import styled from 'styled-components';
 import { sleep } from '@votingworks/utils';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import NavigationScreen from '../components/NavigationScreen';
-import Prose from '../components/Prose';
-import Button from '../components/Button';
-import Modal from '../components/Modal';
-import Loading from '../components/Loading';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { Prose } from '../components/Prose';
+import { Button } from '../components/Button';
+import { Modal } from '../components/Modal';
+import { Loading } from '../components/Loading';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
 
 export const Passcode = styled.div`
@@ -30,7 +30,7 @@ const NumberPadWrapper = styled.div`
   }
 `;
 
-function DefinitionScreen(): JSX.Element {
+export function SmartcardsScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { electionData, electionHash } = electionDefinition;
@@ -206,5 +206,3 @@ function DefinitionScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default DefinitionScreen;

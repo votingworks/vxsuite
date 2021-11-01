@@ -3,7 +3,7 @@ import { DEFAULT_LOCALE } from '../config/globals';
 import { BallotConfig } from '../config/types';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 
-export default function getAllBallotConfigs(
+export function getAllBallotConfigs(
   election: Election,
   electionHash: string,
   localeCodes: readonly string[]

@@ -9,7 +9,7 @@ import {
   CastVoteRecordLists,
   CastVoteRecordFileMode,
 } from '../config/types';
-import readFileAsync from '../lib/readFileAsync';
+import { readFileAsync } from '../lib/readFileAsync';
 import { parseCVRs } from '../lib/votecounting';
 
 /**
@@ -91,7 +91,7 @@ function mixedTestModeCVRs(
  * cvrFiles.errorFile                       // 'badfile.txt'
  * cvrFiles.castVoteRecords                 // […]
  */
-export default class CastVoteRecordFiles {
+export class CastVoteRecordFiles {
   /**
    * This is your starting point for working with this class as the constructor
    * is private. Build new instances from this starting point.

@@ -17,29 +17,29 @@ import { Table, TD } from '@votingworks/ui';
 import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 
-import AppContext from '../contexts/AppContext';
-import ConverterClient from '../lib/ConverterClient';
+import { AppContext } from '../contexts/AppContext';
+import { ConverterClient } from '../lib/ConverterClient';
 import { getPrecinctIdsInExternalTally } from '../utils/externalTallies';
 
-import Button from '../components/Button';
-import Text from '../components/Text';
-import Loading from '../components/Loading';
-import NavigationScreen from '../components/NavigationScreen';
-import routerPaths from '../routerPaths';
-import LinkButton from '../components/LinkButton';
-import HorizontalRule from '../components/HorizontalRule';
-import Prose from '../components/Prose';
-import ImportCVRFilesModal from '../components/ImportCVRFilesModal';
-import BallotCountsTable from '../components/BallotCountsTable';
-import Modal from '../components/Modal';
-import FileInputButton from '../components/FileInputButton';
+import { Button } from '../components/Button';
+import { Text } from '../components/Text';
+import { Loading } from '../components/Loading';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { routerPaths } from '../routerPaths';
+import { LinkButton } from '../components/LinkButton';
+import { HorizontalRule } from '../components/HorizontalRule';
+import { Prose } from '../components/Prose';
+import { ImportCVRFilesModal } from '../components/ImportCVRFilesModal';
+import { BallotCountsTable } from '../components/BallotCountsTable';
+import { Modal } from '../components/Modal';
+import { FileInputButton } from '../components/FileInputButton';
 import { ConfirmRemovingFileModal } from '../components/ConfirmRemovingFileModal';
 import { TIME_FORMAT } from '../config/globals';
 import { getPartiesWithPrimaryElections } from '../utils/election';
-import ImportExternalResultsModal from '../components/ImportExternalResultsModal';
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
+import { ImportExternalResultsModal } from '../components/ImportExternalResultsModal';
+import { SaveFileToUSB, FileType } from '../components/SaveFileToUSB';
 
-function TallyScreen(): JSX.Element {
+export function TallyScreen(): JSX.Element {
   const {
     castVoteRecordFiles,
     electionDefinition,
@@ -471,5 +471,3 @@ function TallyScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default TallyScreen;

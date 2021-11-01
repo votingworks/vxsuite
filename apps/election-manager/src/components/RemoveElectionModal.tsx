@@ -1,17 +1,17 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import AppContext from '../contexts/AppContext';
-import routerPaths from '../routerPaths';
-import Modal from './Modal';
-import Prose from './Prose';
-import Button from './Button';
+import { AppContext } from '../contexts/AppContext';
+import { routerPaths } from '../routerPaths';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
+import { Button } from './Button';
 
 export interface Props {
   onClose: () => void;
 }
 
-function RemoveElectionModal({ onClose }: Props): JSX.Element {
+export function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const history = useHistory();
   const { saveElection } = useContext(AppContext);
 
@@ -41,5 +41,3 @@ function RemoveElectionModal({ onClose }: Props): JSX.Element {
     />
   );
 }
-
-export default RemoveElectionModal;

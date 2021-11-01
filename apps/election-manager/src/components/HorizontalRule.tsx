@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const HorizontalRule = styled.p`
+export const HorizontalRule = styled.p`
   display: flex;
   align-items: center;
   margin: ${({ children }) => (children ? '-0.5rem 0' : undefined)};
@@ -17,5 +17,3 @@ const HorizontalRule = styled.p`
     margin-left: ${({ children }) => (children ? '0.5rem' : undefined)};
   }
 `;
-
-export default HorizontalRule;

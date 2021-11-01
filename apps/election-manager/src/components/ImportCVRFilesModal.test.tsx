@@ -7,11 +7,12 @@ import {
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { usbstick } from '@votingworks/utils';
-import ImportCVRFilesModal from './ImportCVRFilesModal';
-import renderInAppContext, {
+import { ImportCVRFilesModal } from './ImportCVRFilesModal';
+import {
+  renderInAppContext,
   eitherNeitherElectionDefinition,
 } from '../../test/renderInAppContext';
-import CastVoteRecordFiles from '../utils/CastVoteRecordFiles';
+import { CastVoteRecordFiles } from '../utils/CastVoteRecordFiles';
 import { CastVoteRecord } from '../config/types';
 import * as GLOBALS from '../config/globals';
 

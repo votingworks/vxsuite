@@ -11,17 +11,17 @@ import {
 
 import { getPartiesWithPrimaryElections } from '../utils/election';
 
-import AppContext from '../contexts/AppContext';
-import Loading from './Loading';
-import ExportBatchTallyResultsButton from './ExportBatchTallyResultsButton';
-import LinkButton from './LinkButton';
-import routerPaths from '../routerPaths';
+import { AppContext } from '../contexts/AppContext';
+import { Loading } from './Loading';
+import { ExportBatchTallyResultsButton } from './ExportBatchTallyResultsButton';
+import { LinkButton } from './LinkButton';
+import { routerPaths } from '../routerPaths';
 
 export interface Props {
   breakdownCategory: TallyCategory;
 }
 
-function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
+export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
   const {
     electionDefinition,
     isTabulationRunning,
@@ -427,5 +427,3 @@ function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
       throwIllegalValue(breakdownCategory);
   }
 }
-
-export default BallotCountsTable;

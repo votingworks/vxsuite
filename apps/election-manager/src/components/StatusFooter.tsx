@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import Text from './Text';
-import AppContext from '../contexts/AppContext';
+import { Text } from './Text';
+import { AppContext } from '../contexts/AppContext';
 
 const StatusBar = styled.div`
   display: flex;
@@ -13,7 +13,7 @@ const StatusBar = styled.div`
   color: #ffffff;
 `;
 
-function StatusFooter(): JSX.Element {
+export function StatusFooter(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   if (electionDefinition === undefined) {
     return <React.Fragment />;
@@ -36,5 +36,3 @@ function StatusFooter(): JSX.Element {
     </StatusBar>
   );
 }
-
-export default StatusFooter;

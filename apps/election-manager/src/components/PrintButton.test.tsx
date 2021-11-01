@@ -2,9 +2,9 @@ import React from 'react';
 import { act, fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 
-import PrintButton from './PrintButton';
-import fakePrinter from '../../test/helpers/fakePrinter';
-import renderInAppContext from '../../test/renderInAppContext';
+import { PrintButton } from './PrintButton';
+import { fakePrinter } from '../../test/helpers/fakePrinter';
+import { renderInAppContext } from '../../test/renderInAppContext';
 
 beforeAll(() => {
   window.kiosk = fakeKiosk();

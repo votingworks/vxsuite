@@ -4,12 +4,12 @@ import pluralize from 'pluralize';
 import { throwIllegalValue } from '@votingworks/utils';
 import { strict as assert } from 'assert';
 import { ExternalTallySourceType } from '@votingworks/types';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 import { ResultsFileType } from '../config/types';
 
-import Button from './Button';
-import Prose from './Prose';
-import Modal from './Modal';
+import { Button } from './Button';
+import { Prose } from './Prose';
+import { Modal } from './Modal';
 
 export interface Props {
   onConfirm: (fileType: ResultsFileType) => void;

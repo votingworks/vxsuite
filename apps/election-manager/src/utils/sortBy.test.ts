@@ -1,4 +1,4 @@
-import sortBy from './sortBy';
+import { sortBy } from './sortBy';
 
 test('returns a copy with the same order given no comparators', () => {
   expect(sortBy([1, 2, 3])).toEqual([1, 2, 3]);

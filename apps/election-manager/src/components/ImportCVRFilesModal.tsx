@@ -11,13 +11,13 @@ import {
 } from '@votingworks/utils';
 import { strict as assert } from 'assert';
 import { Table, TD } from '@votingworks/ui';
-import AppContext from '../contexts/AppContext';
-import Modal from './Modal';
-import Prose from './Prose';
-import LinkButton from './LinkButton';
-import Loading from './Loading';
+import { AppContext } from '../contexts/AppContext';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
+import { LinkButton } from './LinkButton';
+import { Loading } from './Loading';
 import { InputEventFunction } from '../config/types';
-import FileInputButton from './FileInputButton';
+import { FileInputButton } from './FileInputButton';
 import { MainChild } from './Main';
 import { CHECK_ICON, TIME_FORMAT } from '../config/globals';
 
@@ -67,7 +67,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
 }
 
-function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
+export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,
@@ -395,5 +395,3 @@ function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
   // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
   throwBadStatus(usbDriveStatus);
 }
-
-export default ImportCVRFilesModal;

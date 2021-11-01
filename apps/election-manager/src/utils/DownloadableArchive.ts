@@ -7,7 +7,7 @@ import path from 'path';
  * the page is running inside `kiosk-browser` and that it is configured such
  * that the executing host is allowed to use the `saveAs` API.
  */
-export default class DownloadableArchive {
+export class DownloadableArchive {
   private zip?: ZipStream;
   private endPromise?: Promise<void>;
 

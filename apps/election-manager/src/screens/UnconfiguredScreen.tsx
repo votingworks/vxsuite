@@ -3,23 +3,23 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { parseElection } from '@votingworks/types';
 
-import ConverterClient, { VxFile } from '../lib/ConverterClient';
-import readFileAsync from '../lib/readFileAsync';
+import { ConverterClient, VxFile } from '../lib/ConverterClient';
+import { readFileAsync } from '../lib/readFileAsync';
 
 import { InputEventFunction } from '../config/types';
 
 import defaultElection from '../data/defaultElection.json';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import Button from '../components/Button';
-import routerPaths from '../routerPaths';
-import FileInputButton from '../components/FileInputButton';
-import HorizontalRule from '../components/HorizontalRule';
-import Prose from '../components/Prose';
-import Loading from '../components/Loading';
-import NavigationScreen from '../components/NavigationScreen';
-import Modal from '../components/Modal';
+import { Button } from '../components/Button';
+import { routerPaths } from '../routerPaths';
+import { FileInputButton } from '../components/FileInputButton';
+import { HorizontalRule } from '../components/HorizontalRule';
+import { Prose } from '../components/Prose';
+import { Loading } from '../components/Loading';
+import { NavigationScreen } from '../components/NavigationScreen';
+import { Modal } from '../components/Modal';
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -50,7 +50,7 @@ function someFilesExist(files: VxFile[]) {
 
 const newElection = JSON.stringify(defaultElection);
 
-function UnconfiguredScreen(): JSX.Element {
+export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
 
@@ -313,5 +313,3 @@ function UnconfiguredScreen(): JSX.Element {
     </NavigationScreen>
   );
 }
-
-export default UnconfiguredScreen;

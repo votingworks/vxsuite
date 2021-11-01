@@ -22,22 +22,22 @@ import {
   InputEventFunction,
   PrintableBallotType,
 } from '../config/types';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
-import Button, { SegmentedButton } from '../components/Button';
-import PrintButton from '../components/PrintButton';
-import HandMarkedPaperBallot from '../components/HandMarkedPaperBallot';
+import { Button, SegmentedButton } from '../components/Button';
+import { PrintButton } from '../components/PrintButton';
+import { HandMarkedPaperBallot } from '../components/HandMarkedPaperBallot';
 import { Monospace } from '../components/Text';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
-import NavigationScreen from '../components/NavigationScreen';
+import { NavigationScreen } from '../components/NavigationScreen';
 import { DEFAULT_LOCALE } from '../config/globals';
-import routerPaths from '../routerPaths';
-import TextInput from '../components/TextInput';
-import LinkButton from '../components/LinkButton';
-import Prose from '../components/Prose';
+import { routerPaths } from '../routerPaths';
+import { TextInput } from '../components/TextInput';
+import { LinkButton } from '../components/LinkButton';
+import { Prose } from '../components/Prose';
 import { getBallotLayoutPageSize } from '../utils/getBallotLayoutPageSize';
 import { generateFileContentToSaveAsPDF } from '../utils/saveAsPDF';
-import SaveFileToUSB, { FileType } from '../components/SaveFileToUSB';
+import { SaveFileToUSB, FileType } from '../components/SaveFileToUSB';
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -74,7 +74,7 @@ const BallotPreview = styled.div`
   }
 `;
 
-function BallotScreen(): JSX.Element {
+export function BallotScreen(): JSX.Element {
   const history = useHistory();
   const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
@@ -344,5 +344,3 @@ function BallotScreen(): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default BallotScreen;

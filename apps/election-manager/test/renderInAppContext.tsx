@@ -14,7 +14,7 @@ import {
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 
-import AppContext from '../src/contexts/AppContext';
+import { AppContext } from '../src/contexts/AppContext';
 import {
   SaveElection,
   PrintedBallot,
@@ -22,7 +22,8 @@ import {
   ExportableTallies,
   MachineConfig,
 } from '../src/config/types';
-import CastVoteRecordFiles, {
+import {
+  CastVoteRecordFiles,
   SaveCastVoteRecordFiles,
 } from '../src/utils/CastVoteRecordFiles';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
@@ -71,7 +72,7 @@ interface RenderInAppContextParams {
   hasCardReaderAttached?: boolean;
 }
 
-export default function renderInAppContext(
+export function renderInAppContext(
   component: React.ReactNode,
   {
     route = '/',
