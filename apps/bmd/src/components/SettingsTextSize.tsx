@@ -49,7 +49,7 @@ interface Props {
   setUserSettings: SetUserSettings;
 }
 
-function SettingsTextSize({
+export function SettingsTextSize({
   userSettings,
   setUserSettings,
 }: Props): JSX.Element {
@@ -87,5 +87,3 @@ function SettingsTextSize({
     </Container>
   );
 }
-
-export default SettingsTextSize;

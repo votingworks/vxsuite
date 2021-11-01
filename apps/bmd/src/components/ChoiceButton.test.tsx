@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import ChoiceButton from './ChoiceButton';
+import { ChoiceButton } from './ChoiceButton';
 
 const onPress = jest.fn();
 

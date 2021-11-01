@@ -10,12 +10,12 @@ import {
 } from '@votingworks/types';
 import { Loading, Main, MainChild } from '@votingworks/ui';
 
-import PrintedBallot from '../components/PrintedBallot';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { PrintedBallot } from '../components/PrintedBallot';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 import { MarkVoterCardFunction, Printer } from '../config/types';
 
-import Text from '../components/Text';
+import { Text } from '../components/Text';
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
@@ -52,7 +52,7 @@ interface Props {
 
 export const printingMessageTimeoutSeconds = 5;
 
-function PrintOnlyScreen({
+export function PrintOnlyScreen({
   ballotStyleId,
   ballotsPrintedCount,
   electionDefinition,
@@ -234,5 +234,3 @@ function PrintOnlyScreen({
     </React.Fragment>
   );
 }
-
-export default PrintOnlyScreen;

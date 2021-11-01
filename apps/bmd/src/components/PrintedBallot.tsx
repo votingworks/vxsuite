@@ -25,9 +25,9 @@ import * as GLOBALS from '../config/globals';
 import { randomBase64 } from '../utils/random';
 import { findPartyById } from '../utils/find';
 
-import QRCode from './QRCode';
-import Prose from './Prose';
-import Text, { NoWrap } from './Text';
+import { QRCode } from './QRCode';
+import { Prose } from './Prose';
+import { Text, NoWrap } from './Text';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
@@ -216,7 +216,7 @@ interface Props {
   votes: VotesDict;
 }
 
-function PrintBallot({
+export function PrintedBallot({
   ballotStyleId,
   electionDefinition,
   isLiveMode,
@@ -337,5 +337,3 @@ function PrintBallot({
     </Ballot>
   );
 }
-
-export default PrintBallot;

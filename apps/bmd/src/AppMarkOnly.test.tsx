@@ -8,9 +8,9 @@ import {
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { electionSampleDefinition } from './data';
 
-import App from './App';
+import { App } from './App';
 
-import withMarkup from '../test/helpers/withMarkup';
+import { withMarkup } from '../test/helpers/withMarkup';
 
 import {
   advanceTimersAndPromises,

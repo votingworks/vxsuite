@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import App from '../App';
+import { App } from '../App';
 
 import { advanceTimersAndPromises } from '../../test/helpers/smartcards';
 

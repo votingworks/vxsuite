@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import IdleTimer from 'react-idle-timer';
 
-import ContestPage from '../pages/ContestPage';
-import IdlePage from '../pages/IdlePage';
-import NotFoundPage from '../pages/NotFoundPage';
-import PrintPage from '../pages/PrintPage';
-import ReviewPage from '../pages/ReviewPage';
-import SaveCardScreen from '../pages/SaveCardScreen';
-import StartPage from '../pages/StartPage';
-import RemoveCardScreen from '../pages/RemoveCardScreen';
-import CastBallotPage from '../pages/CastBallotPage';
+import { ContestPage } from '../pages/ContestPage';
+import { IdlePage } from '../pages/IdlePage';
+import { NotFoundPage } from '../pages/NotFoundPage';
+import { PrintPage } from '../pages/PrintPage';
+import { ReviewPage } from '../pages/ReviewPage';
+import { SaveCardScreen } from '../pages/SaveCardScreen';
+import { StartPage } from '../pages/StartPage';
+import { RemoveCardScreen } from '../pages/RemoveCardScreen';
+import { CastBallotPage } from '../pages/CastBallotPage';
 import { IDLE_TIMEOUT_SECONDS } from '../config/globals';
 
-function Ballot(): JSX.Element {
+export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
 
   function onActive() {
@@ -52,5 +52,3 @@ function Ballot(): JSX.Element {
     </IdleTimer>
   );
 }
-
-export default Ballot;

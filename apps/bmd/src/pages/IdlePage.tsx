@@ -9,15 +9,15 @@ import {
   IDLE_TIMEOUT_SECONDS,
 } from '../config/globals';
 
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 import { EventTargetFunction } from '../config/types';
 
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS;
 
-function IdlePage(): JSX.Element {
+export function IdlePage(): JSX.Element {
   const { markVoterCardVoided, resetBallot } = useContext(BallotContext);
   const [countdown, setCountdown] = useState(timeoutSeconds);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,5 +68,3 @@ function IdlePage(): JSX.Element {
     </Screen>
   );
 }
-
-export default IdlePage;

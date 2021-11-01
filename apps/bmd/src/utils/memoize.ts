@@ -5,7 +5,7 @@
  * arguments. The underlying function will be called until it returns a
  * non-undefined value.
  */
-export default function memoize<R, F extends () => R>(fn: F): () => R {
+export function memoize<R, F extends () => R>(fn: F): () => R {
   let returnValue: R;
 
   return () => {

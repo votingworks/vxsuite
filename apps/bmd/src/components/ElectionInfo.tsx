@@ -9,9 +9,9 @@ import {
 } from '@votingworks/types';
 import { formatLongDate } from '@votingworks/utils';
 
-import Seal from './Seal';
-import Prose from './Prose';
-import Text, { NoWrap } from './Text';
+import { Seal } from './Seal';
+import { Prose } from './Prose';
+import { Text, NoWrap } from './Text';
 import { PrecinctSelection } from '../config/types';
 import { precinctSelectionName } from '../utils/precinctSelection';
 
@@ -46,7 +46,7 @@ interface Props {
   horizontal?: boolean;
 }
 
-function ElectionInfo({
+export function ElectionInfo({
   precinctSelection,
   ballotStyleId,
   electionDefinition,
@@ -107,5 +107,3 @@ function ElectionInfo({
     </VerticalContainer>
   );
 }
-
-export default ElectionInfo;

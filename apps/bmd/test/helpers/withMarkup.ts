@@ -8,7 +8,7 @@ function hasText(text: string, node: HTMLElement) {
   return node.textContent === text;
 }
 
-function withMarkup<T>(query: Query<T>) {
+export function withMarkup<T>(query: Query<T>) {
   return (text: string): T =>
     query((content: string, node: Nullish<Element>) => {
       if (!node || !(node instanceof HTMLElement)) return false;
@@ -18,5 +18,3 @@ function withMarkup<T>(query: Query<T>) {
       return hasText(text, node) && childrenDontHaveText;
     });
 }
-
-export default withMarkup;

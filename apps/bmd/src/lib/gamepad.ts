@@ -1,5 +1,5 @@
 import { Button } from 'react-gamepad';
-import mod from '../utils/mod';
+import { mod } from '../utils/mod';
 
 export function getActiveElement(): HTMLElement {
   return document.activeElement as HTMLElement;

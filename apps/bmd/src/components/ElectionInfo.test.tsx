@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import ElectionInfo from './ElectionInfo';
+import { ElectionInfo } from './ElectionInfo';
 import { electionSampleWithSealDefinition as electionDefinition } from '../data';
 import { PrecinctSelectionKind } from '../config/types';
 

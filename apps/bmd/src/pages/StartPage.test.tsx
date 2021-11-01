@@ -9,7 +9,7 @@ import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
 import electionSampleNoSeal from '../data/electionSampleNoSeal.json';
 import electionPrimarySample from '../data/electionPrimarySample.json';
 
-import StartPage from './StartPage';
+import { StartPage } from './StartPage';
 
 it('renders StartPage', async () => {
   const electionDefinition = asElectionDefinition(

@@ -3,10 +3,10 @@ import { Redirect } from 'react-router-dom';
 
 import { Loading, Main, MainChild, ProgressBar } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
 
-function SaveCardScreen(): JSX.Element {
+export function SaveCardScreen(): JSX.Element {
   const saveDelay = 2500;
   const [progress, setProgress] = useState(0);
   const [done, setDone] = useState(false);
@@ -38,5 +38,3 @@ function SaveCardScreen(): JSX.Element {
     </Screen>
   );
 }
-
-export default SaveCardScreen;

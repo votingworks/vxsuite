@@ -16,10 +16,10 @@ import {
 import electionSample from '../data/electionSample.json';
 import { render } from '../../test/testUtils';
 import { randomBase64 } from '../utils/random';
-import TestBallotDeckScreen from './TestBallotDeckScreen';
-import fakeMachineConfig from '../../test/helpers/fakeMachineConfig';
+import { TestBallotDeckScreen } from './TestBallotDeckScreen';
+import { fakeMachineConfig } from '../../test/helpers/fakeMachineConfig';
 import { PrecinctSelectionKind, VxPrintOnly } from '../config/types';
-import fakePrinter from '../../test/helpers/fakePrinter';
+import { fakePrinter } from '../../test/helpers/fakePrinter';
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random');

@@ -104,7 +104,7 @@ const US_ENGLISH_KEYMAP: KeyMap = {
   ],
 };
 
-function VirtualKeyboard({
+export function VirtualKeyboard({
   onKeyPress,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
@@ -131,5 +131,3 @@ function VirtualKeyboard({
     </Keyboard>
   );
 }
-
-export default VirtualKeyboard;

@@ -44,7 +44,7 @@ import {
 } from '@votingworks/utils';
 
 import { SetupCardReaderPage } from '@votingworks/ui';
-import Ballot from './components/Ballot';
+import { Ballot } from './components/Ballot';
 import * as GLOBALS from './config/globals';
 import {
   MarkVoterCardFunction,
@@ -58,26 +58,26 @@ import {
   PrecinctSelectionKind,
   Printer,
 } from './config/types';
-import BallotContext from './contexts/ballotContext';
+import { BallotContext } from './contexts/ballotContext';
 import {
   handleGamepadButtonDown,
   handleGamepadKeyboardEvent,
 } from './lib/gamepad';
-import CastBallotPage from './pages/CastBallotPage';
-import AdminScreen from './pages/AdminScreen';
-import ExpiredCardScreen from './pages/ExpiredCardScreen';
-import InsertCardScreen from './pages/InsertCardScreen';
-import PollWorkerScreen from './pages/PollWorkerScreen';
-import PrintOnlyScreen from './pages/PrintOnlyScreen';
-import SetupPrinterPage from './pages/SetupPrinterPage';
-import SetupPowerPage from './pages/SetupPowerPage';
-import UnconfiguredScreen from './pages/UnconfiguredScreen';
-import UsedCardScreen from './pages/UsedCardScreen';
-import WrongElectionScreen from './pages/WrongElectionScreen';
-import WrongPrecinctScreen from './pages/WrongPrecinctScreen';
-import utcTimestamp from './utils/utcTimestamp';
+import { CastBallotPage } from './pages/CastBallotPage';
+import { AdminScreen } from './pages/AdminScreen';
+import { ExpiredCardScreen } from './pages/ExpiredCardScreen';
+import { InsertCardScreen } from './pages/InsertCardScreen';
+import { PollWorkerScreen } from './pages/PollWorkerScreen';
+import { PrintOnlyScreen } from './pages/PrintOnlyScreen';
+import { SetupPrinterPage } from './pages/SetupPrinterPage';
+import { SetupPowerPage } from './pages/SetupPowerPage';
+import { UnconfiguredScreen } from './pages/UnconfiguredScreen';
+import { UsedCardScreen } from './pages/UsedCardScreen';
+import { WrongElectionScreen } from './pages/WrongElectionScreen';
+import { WrongPrecinctScreen } from './pages/WrongPrecinctScreen';
+import { utcTimestamp } from './utils/utcTimestamp';
 import { ScreenReader } from './utils/ScreenReader';
-import ReplaceElectionScreen from './pages/ReplaceElectionScreen';
+import { ReplaceElectionScreen } from './pages/ReplaceElectionScreen';
 
 const debug = makeDebug('bmd:AppRoot');
 
@@ -465,7 +465,7 @@ function appReducer(state: State, action: AppAction): State {
   }
 }
 
-function AppRoot({
+export function AppRoot({
   card,
   hardware,
   history,
@@ -1438,5 +1438,3 @@ function AppRoot({
   }
   return <UnconfiguredScreen />;
 }
-
-export default AppRoot;

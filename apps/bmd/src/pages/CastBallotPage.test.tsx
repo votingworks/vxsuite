@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 
 import { render } from '../../test/testUtils';
 
-import CastBallotPage from './CastBallotPage';
+import { CastBallotPage } from './CastBallotPage';
 
 it('renders CastBallotPage', () => {
   const { container } = render(<Route path="/" component={CastBallotPage} />, {

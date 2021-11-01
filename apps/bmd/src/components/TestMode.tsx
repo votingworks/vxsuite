@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Text from './Text';
+import { Text } from './Text';
 
 const TestingModeContainer = styled(Text)`
   border: 0.5rem solid;
@@ -12,7 +12,7 @@ interface Props {
   isLiveMode: boolean;
 }
 
-function TestMode({ isLiveMode }: Props): JSX.Element {
+export function TestMode({ isLiveMode }: Props): JSX.Element {
   return isLiveMode ? (
     <React.Fragment />
   ) : (
@@ -21,5 +21,3 @@ function TestMode({ isLiveMode }: Props): JSX.Element {
     </TestingModeContainer>
   );
 }
-
-export default TestMode;

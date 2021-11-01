@@ -5,21 +5,21 @@ import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
 import { LinkButton, Main, MainChild } from '@votingworks/ui';
 
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
 import { Wobble } from '../components/Animations';
-import ElectionInfo from '../components/ElectionInfo';
-import Prose from '../components/Prose';
-import Sidebar from '../components/Sidebar';
-import Screen from '../components/Screen';
-import SettingsTextSize from '../components/SettingsTextSize';
+import { ElectionInfo } from '../components/ElectionInfo';
+import { Prose } from '../components/Prose';
+import { Sidebar } from '../components/Sidebar';
+import { Screen } from '../components/Screen';
+import { SettingsTextSize } from '../components/SettingsTextSize';
 import { PrecinctSelectionKind } from '../config/types';
 
 const SidebarSpacer = styled.div`
   height: 90px;
 `;
 
-export default function StartPage(): JSX.Element {
+export function StartPage(): JSX.Element {
   const history = useHistory();
   const {
     ballotStyleId,

@@ -2,11 +2,11 @@ import { electionSample2Definition } from '@votingworks/fixtures';
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { electionDefinition } from '../../test/helpers/election';
-import fakeMachineConfig from '../../test/helpers/fakeMachineConfig';
+import { fakeMachineConfig } from '../../test/helpers/fakeMachineConfig';
 import { render } from '../../test/testUtils';
-import ReplaceElectionScreen from './ReplaceElectionScreen';
+import { ReplaceElectionScreen } from './ReplaceElectionScreen';
 import { AriaScreenReader } from '../utils/ScreenReader';
-import fakeTTS from '../../test/helpers/fakeTTS';
+import { fakeTTS } from '../../test/helpers/fakeTTS';
 
 const screenReader = new AriaScreenReader(fakeTTS());
 

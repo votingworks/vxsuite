@@ -33,7 +33,7 @@ interface Props {
   ariaHideApp?: boolean;
 }
 
-function Modal({
+export function Modal({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
@@ -74,5 +74,3 @@ function Modal({
     </ReactModal>
   );
 }
-
-export default Modal;

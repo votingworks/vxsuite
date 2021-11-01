@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import React from 'react';
 import fc from 'fast-check';
 import { arbitraryDateTime } from '@votingworks/test-utils';
-import PickDateTimeModal, { MAX_YEAR, MIN_YEAR } from './PickDateTimeModal';
+import { PickDateTimeModal, MAX_YEAR, MIN_YEAR } from './PickDateTimeModal';
 
 function getSelect(testId: string): HTMLSelectElement {
   return screen.getByTestId(testId) as HTMLSelectElement;

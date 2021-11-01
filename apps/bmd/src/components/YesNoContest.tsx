@@ -22,13 +22,13 @@ import {
   UpdateVoteFunction,
 } from '../config/types';
 
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
 import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
-import ChoiceButton from './ChoiceButton';
-import Modal from './Modal';
-import Prose from './Prose';
-import Text, { TextWithLineBreaks } from './Text';
+import { ChoiceButton } from './ChoiceButton';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
+import { Text, TextWithLineBreaks } from './Text';
 import {
   ContentHeader,
   ContestFooter,
@@ -46,7 +46,11 @@ interface Props {
   updateVote: UpdateVoteFunction;
 }
 
-function YesNoContest({ contest, vote, updateVote }: Props): JSX.Element {
+export function YesNoContest({
+  contest,
+  vote,
+  updateVote,
+}: Props): JSX.Element {
   const { userSettings } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
@@ -278,5 +282,3 @@ function YesNoContest({ contest, vote, updateVote }: Props): JSX.Element {
     </React.Fragment>
   );
 }
-
-export default YesNoContest;

@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 
-import YesNoContest from './YesNoContest';
+import { YesNoContest } from './YesNoContest';
 
 const contest: YesNoContestInterface = {
   description:

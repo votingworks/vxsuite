@@ -23,9 +23,9 @@ import {
 
 import { FONT_SIZES } from '../config/globals';
 
-import ChoiceButton from './ChoiceButton';
-import Prose from './Prose';
-import Text, { TextWithLineBreaks } from './Text';
+import { ChoiceButton } from './ChoiceButton';
+import { Prose } from './Prose';
+import { Text, TextWithLineBreaks } from './Text';
 import {
   ContentHeader,
   ContestSection,
@@ -34,7 +34,7 @@ import {
   ScrollContainer,
   ScrollableContentWrapper,
 } from './ContestScreenLayout';
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
 const ChoicesGrid = styled.div`
   display: grid;
@@ -70,7 +70,7 @@ interface Props {
   updateVote: UpdateVoteFunction;
 }
 
-function MsEitherNeitherContest({
+export function MsEitherNeitherContest({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
@@ -422,5 +422,3 @@ function MsEitherNeitherContest({
     </React.Fragment>
   );
 }
-
-export default MsEitherNeitherContest;

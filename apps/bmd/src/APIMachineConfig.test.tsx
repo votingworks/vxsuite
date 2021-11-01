@@ -4,7 +4,7 @@ import { render } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { Provider } from '@votingworks/types';
 import { MemoryStorage, typedAs } from '@votingworks/utils';
-import App from './App';
+import { App } from './App';
 
 import {
   VxMarkOnly,

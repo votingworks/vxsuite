@@ -12,7 +12,7 @@ import {
   getPrinter,
   isAccessibleController,
 } from '@votingworks/utils';
-import memoize from './utils/memoize';
+import { memoize } from './utils/memoize';
 import {
   ScreenReader,
   AriaScreenReader,
@@ -20,9 +20,9 @@ import {
 } from './utils/ScreenReader';
 import { getUSEnglishVoice } from './utils/voices';
 
-import AppRoot, { Props as AppRootProps } from './AppRoot';
-import FocusManager from './components/FocusManager';
-import machineConfigProvider from './utils/machineConfig';
+import { AppRoot, Props as AppRootProps } from './AppRoot';
+import { FocusManager } from './components/FocusManager';
+import { machineConfigProvider } from './utils/machineConfig';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -38,7 +38,7 @@ export interface Props {
   reload?: VoidFunction;
 }
 
-function App({
+export function App({
   screenReader = new AriaScreenReader(
     new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice))
   ),
@@ -155,5 +155,3 @@ function App({
     </BrowserRouter>
   );
 }
-
-export default App;

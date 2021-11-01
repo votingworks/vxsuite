@@ -34,9 +34,7 @@ const arrowRightStyles = css<Props>`
   }
 `;
 
-const TextIcon = styled.span<Props>`
+export const TextIcon = styled.span<Props>`
   ${({ arrowLeft }) => arrowLeft && arrowLeftStyles}
   ${({ arrowRight }) => arrowRight && arrowRightStyles}
 `;
-
-export default TextIcon;

@@ -27,9 +27,9 @@ import {
   VxMarkOnly,
 } from '../src/config/types';
 
-import BallotContext from '../src/contexts/ballotContext';
-import fakePrinter from './helpers/fakePrinter';
-import fakeMachineConfig from './helpers/fakeMachineConfig';
+import { BallotContext } from '../src/contexts/ballotContext';
+import { fakePrinter } from './helpers/fakePrinter';
+import { fakeMachineConfig } from './helpers/fakeMachineConfig';
 
 export function render(
   component: React.ReactNode,

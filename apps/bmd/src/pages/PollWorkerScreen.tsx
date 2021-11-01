@@ -39,15 +39,15 @@ import {
   Printer,
 } from '../config/types';
 
-import Modal from '../components/Modal';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import Text from '../components/Text';
-import Sidebar from '../components/Sidebar';
-import ElectionInfo from '../components/ElectionInfo';
+import { Modal } from '../components/Modal';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { Text } from '../components/Text';
+import { Sidebar } from '../components/Sidebar';
+import { ElectionInfo } from '../components/ElectionInfo';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
-import VersionsData from '../components/VersionsData';
-import triggerAudioFocus from '../utils/triggerAudioFocus';
+import { VersionsData } from '../components/VersionsData';
+import { triggerAudioFocus } from '../utils/triggerAudioFocus';
 
 interface Props {
   activateCardlessVoterSession: (
@@ -77,7 +77,7 @@ interface DerivedTallyInformationFromCard {
   precinctList: PrecinctSelection[];
 }
 
-function PollWorkerScreen({
+export function PollWorkerScreen({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
@@ -585,5 +585,3 @@ function PollWorkerScreen({
     </React.Fragment>
   );
 }
-
-export default PollWorkerScreen;

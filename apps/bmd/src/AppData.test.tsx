@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App';
-import DemoApp, { getDemoStorage } from './DemoApp';
+import { App } from './App';
+import { DemoApp, getDemoStorage } from './DemoApp';
 import { activationStorageKey, electionStorageKey } from './AppRoot';
 
 import {

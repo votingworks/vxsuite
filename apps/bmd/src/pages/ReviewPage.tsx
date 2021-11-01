@@ -28,14 +28,14 @@ import {
   YesNoContestResultInterface,
 } from '../config/types';
 
-import Prose from '../components/Prose';
-import Text, { NoWrap } from '../components/Text';
+import { Prose } from '../components/Prose';
+import { Text, NoWrap } from '../components/Text';
 import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
-import BallotContext from '../contexts/ballotContext';
-import Screen from '../components/Screen';
-import Sidebar from '../components/Sidebar';
-import ElectionInfo from '../components/ElectionInfo';
-import SettingsTextSize from '../components/SettingsTextSize';
+import { BallotContext } from '../contexts/ballotContext';
+import { Screen } from '../components/Screen';
+import { Sidebar } from '../components/Sidebar';
+import { ElectionInfo } from '../components/ElectionInfo';
+import { SettingsTextSize } from '../components/SettingsTextSize';
 
 const ContentHeader = styled.div`
   margin: 0 auto;
@@ -293,7 +293,7 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `;
 
-function ReviewPage(): JSX.Element {
+export function ReviewPage(): JSX.Element {
   const {
     userSettings,
     contests,
@@ -528,5 +528,3 @@ function ReviewPage(): JSX.Element {
     </Screen>
   );
 }
-
-export default ReviewPage;

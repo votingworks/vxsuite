@@ -4,27 +4,27 @@ import { RouteComponentProps } from 'react-router-dom';
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
 import { LinkButton } from '@votingworks/ui';
 
-import ordinal from '../utils/ordinal';
+import { ordinal } from '../utils/ordinal';
 
-import BallotContext from '../contexts/ballotContext';
+import { BallotContext } from '../contexts/ballotContext';
 
-import CandidateContest from '../components/CandidateContest';
-import ElectionInfo from '../components/ElectionInfo';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import Sidebar from '../components/Sidebar';
-import Text from '../components/Text';
-import YesNoContest from '../components/YesNoContest';
-import SettingsTextSize from '../components/SettingsTextSize';
-import TextIcon from '../components/TextIcon';
-import MsEitherNeitherContest from '../components/MsEitherNeitherContest';
+import { CandidateContest } from '../components/CandidateContest';
+import { ElectionInfo } from '../components/ElectionInfo';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { Sidebar } from '../components/Sidebar';
+import { Text } from '../components/Text';
+import { YesNoContest } from '../components/YesNoContest';
+import { SettingsTextSize } from '../components/SettingsTextSize';
+import { TextIcon } from '../components/TextIcon';
+import { MsEitherNeitherContest } from '../components/MsEitherNeitherContest';
 import { PrecinctSelectionKind } from '../config/types';
 
 interface ContestParams {
   contestNumber: string;
 }
 
-function ContestPage({
+export function ContestPage({
   match: {
     params: { contestNumber },
   },
@@ -183,5 +183,3 @@ function ContestPage({
     </Screen>
   );
 }
-
-export default ContestPage;

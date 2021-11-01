@@ -5,7 +5,7 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { Election } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
-import App from './App';
+import { App } from './App';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 

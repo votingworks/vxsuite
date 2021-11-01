@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import { typedAs } from '@votingworks/utils';
-import machineConfigProvider from './machineConfig';
+import { machineConfigProvider } from './machineConfig';
 import {
   MachineConfig,
   MachineConfigResponse,

@@ -7,7 +7,7 @@ import {
 import { makePollWorkerCard, makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import App from './App';
+import { App } from './App';
 
 import {
   advanceTimers,

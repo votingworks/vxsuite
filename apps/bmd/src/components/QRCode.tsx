@@ -14,12 +14,10 @@ interface Props {
   value: string | Uint8Array;
 }
 
-function QRCode({ value }: Props): JSX.Element {
+export function QRCode({ value }: Props): JSX.Element {
   return (
     <ResponsiveSvgWrapper>
       <QRCodeReact renderAs="svg" value={value} level="H" />
     </ResponsiveSvgWrapper>
   );
 }
-
-export default QRCode;

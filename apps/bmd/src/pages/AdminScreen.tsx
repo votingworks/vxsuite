@@ -18,16 +18,16 @@ import {
   SelectChangeEventFunction,
 } from '../config/types';
 
-import TestBallotDeckScreen from './TestBallotDeckScreen';
+import { TestBallotDeckScreen } from './TestBallotDeckScreen';
 
-import Prose from '../components/Prose';
-import Text from '../components/Text';
-import Sidebar from '../components/Sidebar';
-import ElectionInfo from '../components/ElectionInfo';
-import Screen from '../components/Screen';
-import Select from '../components/Select';
-import VersionsData from '../components/VersionsData';
-import PickDateTimeModal from '../components/PickDateTimeModal';
+import { Prose } from '../components/Prose';
+import { Text } from '../components/Text';
+import { Sidebar } from '../components/Sidebar';
+import { ElectionInfo } from '../components/ElectionInfo';
+import { Screen } from '../components/Screen';
+import { Select } from '../components/Select';
+import { VersionsData } from '../components/VersionsData';
+import { PickDateTimeModal } from '../components/PickDateTimeModal';
 import { AllPrecinctsDisplayName } from '../utils/precinctSelection';
 
 interface Props {
@@ -46,7 +46,7 @@ interface Props {
 
 const ALL_PRECINCTS_OPTION_VALUE = '_ALL';
 
-function AdminScreen({
+export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -289,5 +289,3 @@ function AdminScreen({
     </Screen>
   );
 }
-
-export default AdminScreen;

@@ -12,7 +12,7 @@ import { render } from '../../test/testUtils';
 import electionSampleNoSeal from '../data/electionSampleNoSeal.json';
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
 import { randomBase64 } from '../utils/random';
-import PrintPage from './PrintPage';
+import { PrintPage } from './PrintPage';
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random');

@@ -12,9 +12,9 @@ import {
   MONTHS_SHORT,
 } from '@votingworks/utils';
 import { SelectChangeEventFunction } from '../config/types';
-import Modal from './Modal';
-import Prose from './Prose';
-import Select from './Select';
+import { Modal } from './Modal';
+import { Prose } from './Prose';
+import { Select } from './Select';
 
 export const MIN_YEAR = 2020;
 export const MAX_YEAR = 2030;
@@ -27,7 +27,7 @@ export interface Props {
   value: DateTime;
 }
 
-function PickDateTimeModal({
+export function PickDateTimeModal({
   disabled = false,
   onCancel,
   onSave,
@@ -270,5 +270,3 @@ function PickDateTimeModal({
     />
   );
 }
-
-export default PickDateTimeModal;

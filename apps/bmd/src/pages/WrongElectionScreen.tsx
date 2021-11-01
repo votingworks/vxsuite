@@ -2,16 +2,16 @@ import React, { useEffect } from 'react';
 
 import { Main, MainChild } from '@votingworks/ui';
 
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import triggerAudioFocus from '../utils/triggerAudioFocus';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { triggerAudioFocus } from '../utils/triggerAudioFocus';
 
 interface Props {
   useEffectToggleLargeDisplay: () => void;
   isVoterCard: boolean;
 }
 
-function WrongElectionScreen({
+export function WrongElectionScreen({
   useEffectToggleLargeDisplay,
   isVoterCard,
 }: Props): JSX.Element {
@@ -35,5 +35,3 @@ function WrongElectionScreen({
     </Screen>
   );
 }
-
-export default WrongElectionScreen;

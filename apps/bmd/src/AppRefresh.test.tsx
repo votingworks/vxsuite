@@ -4,7 +4,7 @@ import { advanceBy } from 'jest-date-mock';
 
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { makeVoterCard } from '@votingworks/test-utils';
-import App from './App';
+import { App } from './App';
 
 import {
   advanceTimers,

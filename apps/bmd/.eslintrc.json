@@ -1,5 +1,8 @@
 {
   "extends": ["plugin:vx/react"],
+  "rules": {
+    "vx/gts-no-default-exports": "error"
+  },
   "overrides": [
     {
       "files": "cypress/**/*",
