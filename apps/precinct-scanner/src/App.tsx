@@ -10,9 +10,9 @@ import {
   getHardware,
   getPrinter,
 } from '@votingworks/utils';
-import AppRoot, { Props as AppRootProps } from './AppRoot';
+import { AppRoot, Props as AppRootProps } from './AppRoot';
 
-import machineConfigProvider from './utils/machineConfig';
+import { machineConfigProvider } from './utils/machineConfig';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
@@ -22,7 +22,7 @@ export interface Props {
   storage?: AppRootProps['storage'];
 }
 
-function App({
+export function App({
   hardware,
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
@@ -61,5 +61,3 @@ function App({
     </BrowserRouter>
   );
 }
-
-export default App;

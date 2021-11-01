@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import ElectionInfoBar from './ElectionInfoBar';
-import AppContext from '../contexts/AppContext';
+import { ElectionInfoBar } from './ElectionInfoBar';
+import { AppContext } from '../contexts/AppContext';
 
 test('Renders ElectionInfoBar', async () => {
   const { container } = render(

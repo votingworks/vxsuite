@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import UnlockAdminScreen from './UnlockAdminScreen';
+import { UnlockAdminScreen } from './UnlockAdminScreen';
 
 test('authentication', async () => {
   const attemptToAuthenticateUser = jest.fn();

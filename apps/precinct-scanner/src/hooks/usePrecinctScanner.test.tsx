@@ -7,7 +7,7 @@ import { sleep } from '@votingworks/utils';
 import React from 'react';
 import fetchMock, { MockResponseFunction } from 'fetch-mock';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
-import usePrecinctScanner from './usePrecinctScanner';
+import { usePrecinctScanner } from './usePrecinctScanner';
 
 const scanStatusWaitingForPaperResponse: GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },

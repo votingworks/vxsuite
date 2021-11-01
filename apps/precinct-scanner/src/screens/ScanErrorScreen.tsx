@@ -12,7 +12,7 @@ interface Props {
   isTestMode: boolean;
 }
 
-function ScanErrorScreen({
+export function ScanErrorScreen({
   dismissError,
   rejectionReason,
   isTestMode,
@@ -61,8 +61,6 @@ function ScanErrorScreen({
     </CenteredScreen>
   );
 }
-
-export default ScanErrorScreen;
 
 /* istanbul ignore next */
 export function UnreadablePreview(): JSX.Element {

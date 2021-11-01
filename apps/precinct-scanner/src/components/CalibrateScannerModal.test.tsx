@@ -3,8 +3,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { mocked } from 'ts-jest/utils';
 import { ScannerStatus } from '@votingworks/types/api/module-scan';
 import { deferred } from '@votingworks/utils';
-import CalibrateScannerModal from './CalibrateScannerModal';
-import usePrecinctScanner from '../hooks/usePrecinctScanner';
+import { CalibrateScannerModal } from './CalibrateScannerModal';
+import { usePrecinctScanner } from '../hooks/usePrecinctScanner';
 
 jest.mock('../hooks/usePrecinctScanner');
 

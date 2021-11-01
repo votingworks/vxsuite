@@ -41,7 +41,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { DateTime } from 'luxon';
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
-import App from './App';
+import { App } from './App';
 import { interpretedHmpb } from '../test/fixtures';
 
 import { stateStorageKey } from './AppRoot';

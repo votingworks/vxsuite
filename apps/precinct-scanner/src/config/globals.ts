@@ -1,6 +1,6 @@
 export const PRECINCT_SCANNER_FOLDER = 'ballot-packages';
 
-export const FONT_SIZES = [22, 28, 36, 60];
+export const FONT_SIZES = [18, 24, 28, 32];
 export const DEFAULT_FONT_SIZE = 1;
 export const LARGE_DISPLAY_FONT_SIZE = 3;
 export const DEFAULT_LOCALE = 'en-US';
@@ -15,12 +15,9 @@ export const STATUS_POLLING_EXTRA_CHECKS = 2;
 export const HARDWARE_POLLING_INTERVAL = 3000;
 export const LOW_BATTERY_THRESHOLD = 0.25;
 
-export default {
-  CHECK_ICON: '✓',
-  FONT_SIZES: [18, 24, 28, 32],
-  TEXT_SIZE: 1,
-  YES_NO_VOTES: {
-    no: 'No',
-    yes: 'Yes',
-  },
+export const CHECK_ICON = '✓';
+export const TEXT_SIZE = 1;
+export const YES_NO_VOTES = {
+  no: 'No',
+  yes: 'Yes',
 };

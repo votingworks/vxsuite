@@ -16,9 +16,9 @@ import { strict as assert } from 'assert';
 import path from 'path';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 import { download, DownloadError, DownloadErrorKind } from '../utils/download';
-import Modal from './Modal';
+import { Modal } from './Modal';
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -38,7 +38,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
+export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -251,5 +251,3 @@ function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
       throwIllegalValue(usbDrive.status);
   }
 }
-
-export default ExportBackupModal;

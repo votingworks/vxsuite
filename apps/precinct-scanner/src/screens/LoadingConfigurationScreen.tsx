@@ -2,7 +2,7 @@ import React from 'react';
 import { CenteredLargeProse, CenteredScreen } from '../components/Layout';
 import { IndeterminateProgressBar } from '../components/Graphics';
 
-function LoadingConfigurationScreen(): JSX.Element {
+export function LoadingConfigurationScreen(): JSX.Element {
   return (
     <CenteredScreen infoBar={false}>
       <IndeterminateProgressBar />
@@ -12,8 +12,6 @@ function LoadingConfigurationScreen(): JSX.Element {
     </CenteredScreen>
   );
 }
-
-export default LoadingConfigurationScreen;
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {

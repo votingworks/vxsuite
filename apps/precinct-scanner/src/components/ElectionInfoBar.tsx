@@ -4,14 +4,14 @@ import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui';
 import { getPrecinctById } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { Bar, BarSpacer } from './Bar';
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
 interface Props {
   mode?: InfoBarMode;
 }
-function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
+export function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
   const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
     AppContext
   );
@@ -67,5 +67,3 @@ function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
     </Bar>
   );
 }
-
-export default ElectionInfoBar;

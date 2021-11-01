@@ -4,7 +4,7 @@ import { Main, MainChild, Prose, NoWrap } from '@votingworks/ui';
 
 import { CenteredScreen } from '../components/Layout';
 
-function SetupPowerPage(): JSX.Element {
+export function SetupPowerPage(): JSX.Element {
   return (
     <CenteredScreen>
       <Main padded>
@@ -23,8 +23,6 @@ function SetupPowerPage(): JSX.Element {
     </CenteredScreen>
   );
 }
-
-export default SetupPowerPage;
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {

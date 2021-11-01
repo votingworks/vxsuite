@@ -18,13 +18,13 @@ import { DateTime } from 'luxon';
 import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/Absolute';
 import { Bar } from '../components/Bar';
-import CalibrateScannerModal from '../components/CalibrateScannerModal';
-import ExportBackupModal from '../components/ExportBackupModal';
-import ExportResultsModal from '../components/ExportResultsModal';
+import { CalibrateScannerModal } from '../components/CalibrateScannerModal';
+import { ExportBackupModal } from '../components/ExportBackupModal';
+import { ExportResultsModal } from '../components/ExportResultsModal';
 import { CenteredScreen } from '../components/Layout';
-import Modal from '../components/Modal';
-import PickDateTimeModal from '../components/PickDateTimeModal';
-import AppContext from '../contexts/AppContext';
+import { Modal } from '../components/Modal';
+import { PickDateTimeModal } from '../components/PickDateTimeModal';
+import { AppContext } from '../contexts/AppContext';
 
 interface Props {
   scannedBallotCount: number;
@@ -36,7 +36,7 @@ interface Props {
   usbDrive: UsbDrive;
 }
 
-function AdminScreen({
+export function AdminScreen({
   scannedBallotCount,
   isTestMode,
   updateAppPrecinctId,
@@ -248,38 +248,33 @@ function AdminScreen({
   );
 }
 
-export default AdminScreen;
-
 /* istanbul ignore next */
-export const DefaultPreview: React.FC =
-  process.env.NODE_ENV === 'development'
-    ? () => {
-        const { machineConfig, electionDefinition } = useContext(AppContext);
-        const [isTestMode, setIsTestMode] = useState(false);
-        const [precinctId, setPrecinctId] = useState<Precinct['id']>();
-        return (
-          <AppContext.Provider
-            value={{
-              machineConfig,
-              electionDefinition,
-              currentPrecinctId: precinctId,
-            }}
-          >
-            <AdminScreen
-              calibrate={() => Promise.resolve(true)}
-              isTestMode={isTestMode}
-              toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
-              scannedBallotCount={1234}
-              unconfigure={() => Promise.resolve()}
-              updateAppPrecinctId={async (newPrecinctId) =>
-                setPrecinctId(newPrecinctId)
-              }
-              usbDrive={{
-                status: usbstick.UsbDriveStatus.notavailable,
-                eject: () => Promise.resolve(),
-              }}
-            />
-          </AppContext.Provider>
-        );
-      }
-    : () => null;
+export function DefaultPreview(): JSX.Element {
+  const { machineConfig, electionDefinition } = useContext(AppContext);
+  const [isTestMode, setIsTestMode] = useState(false);
+  const [precinctId, setPrecinctId] = useState<Precinct['id']>();
+  return (
+    <AppContext.Provider
+      value={{
+        machineConfig,
+        electionDefinition,
+        currentPrecinctId: precinctId,
+      }}
+    >
+      <AdminScreen
+        calibrate={() => Promise.resolve(true)}
+        isTestMode={isTestMode}
+        toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
+        scannedBallotCount={1234}
+        unconfigure={() => Promise.resolve()}
+        updateAppPrecinctId={async (newPrecinctId) =>
+          setPrecinctId(newPrecinctId)
+        }
+        usbDrive={{
+          status: usbstick.UsbDriveStatus.notavailable,
+          eject: () => Promise.resolve(),
+        }}
+      />
+    </AppContext.Provider>
+  );
+}

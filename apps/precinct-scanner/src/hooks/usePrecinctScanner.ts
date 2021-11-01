@@ -8,7 +8,7 @@ export interface PrecinctScanner {
   status: ScannerStatusDetails;
 }
 
-export default function usePrecinctScanner(
+export function usePrecinctScanner(
   interval: number | false = POLLING_INTERVAL_FOR_SCANNER_STATUS_MS
 ): PrecinctScanner | undefined {
   const [lastStatusString, setLastStatusString] = useState<string>();

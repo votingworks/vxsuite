@@ -42,10 +42,10 @@ import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
 import { CenteredScreen } from '../components/Layout';
 import { Absolute } from '../components/Absolute';
 import { Bar } from '../components/Bar';
-import ExportResultsModal from '../components/ExportResultsModal';
-import Modal from '../components/Modal';
+import { ExportResultsModal } from '../components/ExportResultsModal';
+import { Modal } from '../components/Modal';
 
-import AppContext from '../contexts/AppContext';
+import { AppContext } from '../contexts/AppContext';
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
 const reportPurposes = ['Publicly Posted', 'Officially Filed'];
@@ -62,7 +62,7 @@ interface Props {
   usbDrive: UsbDrive;
 }
 
-function PollWorkerScreen({
+export function PollWorkerScreen({
   scannedBallotCount,
   isPollsOpen,
   togglePollsOpen,
@@ -491,5 +491,3 @@ function PollWorkerScreen({
     </React.Fragment>
   );
 }
-
-export default PollWorkerScreen;

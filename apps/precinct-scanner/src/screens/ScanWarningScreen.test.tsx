@@ -4,8 +4,8 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
 import { integers, take } from '@votingworks/utils';
 import React from 'react';
-import AppContext from '../contexts/AppContext';
-import ScanWarningScreen from './ScanWarningScreen';
+import { AppContext } from '../contexts/AppContext';
+import { ScanWarningScreen } from './ScanWarningScreen';
 
 test('overvote', async () => {
   const acceptBallot = jest.fn();

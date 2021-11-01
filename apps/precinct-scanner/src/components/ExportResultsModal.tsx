@@ -18,8 +18,8 @@ import {
   usbstick,
 } from '@votingworks/utils';
 import { strict as assert } from 'assert';
-import AppContext from '../contexts/AppContext';
-import Modal from './Modal';
+import { AppContext } from '../contexts/AppContext';
+import { Modal } from './Modal';
 
 const USBImage = styled.img`
   margin-right: auto;
@@ -41,7 +41,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-function ExportResultsModal({
+export function ExportResultsModal({
   onClose,
   usbDrive,
   scannedBallotCount,
@@ -286,5 +286,3 @@ function ExportResultsModal({
       throwIllegalValue(usbDrive.status);
   }
 }
-
-export default ExportResultsModal;
