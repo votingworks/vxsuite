@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import ButtonBar from './ButtonBar';
+import { ButtonBar } from './ButtonBar';
 
 const Brand = styled.div`
   margin: 0.45rem 0.25rem;
@@ -19,7 +19,7 @@ interface Props {
   title?: string;
 }
 
-function MainNav({ children, title }: Props): JSX.Element {
+export function MainNav({ children, title }: Props): JSX.Element {
   return (
     <ButtonBar secondary naturalOrder separatePrimaryButton>
       <Brand>VxEncode{title && <span> / {title}</span>}</Brand>
@@ -27,5 +27,3 @@ function MainNav({ children, title }: Props): JSX.Element {
     </ButtonBar>
   );
 }
-
-export default MainNav;

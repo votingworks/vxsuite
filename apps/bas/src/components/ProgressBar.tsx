@@ -5,7 +5,7 @@ interface Props {
   duration?: number; // milliseconds
 }
 
-const ProgressBar = styled.span<Props>`
+export const ProgressBar = styled.span<Props>`
   display: block;
   margin: 0 auto;
   border: 0.4rem solid #000000;
@@ -23,5 +23,3 @@ const ProgressBar = styled.span<Props>`
     transition: width ${({ duration = 1500 }) => duration}ms ease-out;
   }
 `;
-
-export default ProgressBar;

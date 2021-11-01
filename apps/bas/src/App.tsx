@@ -7,11 +7,11 @@ import {
 } from '@votingworks/utils';
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import AppRoot, { Props as AppRootProps } from './AppRoot';
+import { AppRoot, Props as AppRootProps } from './AppRoot';
 
 export type Props = Partial<AppRootProps>;
 
-function App({
+export function App({
   hardware,
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
@@ -32,5 +32,3 @@ function App({
 
   return <AppRoot card={card} hardware={internalHardware} storage={storage} />;
 }
-
-export default App;

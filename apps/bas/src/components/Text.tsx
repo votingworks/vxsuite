@@ -40,7 +40,7 @@ const iconStyles = css<Props>`
   }
 `;
 
-const Text = styled('p')<Props>`
+export const Text = styled('p')<Props>`
   margin-right: ${({ narrow }) => (narrow ? 'auto' : undefined)};
   margin-left: ${({ narrow }) => (narrow ? 'auto' : undefined)};
   max-width: ${({ narrow }) => (narrow ? '33ch' : undefined)};
@@ -87,5 +87,3 @@ export function TextWithLineBreaks({ text }: { text: string }): JSX.Element {
 export const NoWrap = styled.span`
   white-space: nowrap;
 `;
-
-export default Text;

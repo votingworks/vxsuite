@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { BallotStyleId } from '@votingworks/types';
 
-import Prose from '../components/Prose';
-import Main, { MainChild } from '../components/Main';
-import ProgressBar from '../components/ProgressBar';
-import Screen from '../components/Screen';
+import { Prose } from '../components/Prose';
+import { Main, MainChild } from '../components/Main';
+import { ProgressBar } from '../components/ProgressBar';
+import { Screen } from '../components/Screen';
 
 interface Props {
   precinctName: string;
   ballotStyleId: BallotStyleId;
 }
 
-function WritingCardScreen({
+export function WritingCardScreen({
   ballotStyleId,
   precinctName,
 }: Props): JSX.Element {
@@ -41,5 +41,3 @@ function WritingCardScreen({
     </Screen>
   );
 }
-
-export default WritingCardScreen;

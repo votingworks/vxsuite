@@ -17,16 +17,16 @@ import { Card, Hardware, sleep, Storage } from '@votingworks/utils';
 import { z } from 'zod';
 import { EventTargetFunction } from './config/types';
 
-import AdminScreen from './screens/AdminScreen';
-import InsertCardScreen from './screens/InsertCardScreen';
-import LoadElectionScreen from './screens/LoadElectionScreen';
-import LockedScreen from './screens/LockedScreen';
-import NonWritableCardScreen from './screens/NonWritableCardScreen';
-import PollWorkerScreen from './screens/PollWorkerScreen';
-import PrecinctBallotStylesScreen from './screens/PrecinctBallotStylesScreen';
-import PrecinctsScreen from './screens/PrecinctsScreen';
-import RemoveCardScreen from './screens/RemoveCardScreen';
-import WritingCardScreen from './screens/WritingCardScreen';
+import { AdminScreen } from './screens/AdminScreen';
+import { InsertCardScreen } from './screens/InsertCardScreen';
+import { LoadElectionScreen } from './screens/LoadElectionScreen';
+import { LockedScreen } from './screens/LockedScreen';
+import { NonWritableCardScreen } from './screens/NonWritableCardScreen';
+import { PollWorkerScreen } from './screens/PollWorkerScreen';
+import { PrecinctBallotStylesScreen } from './screens/PrecinctBallotStylesScreen';
+import { PrecinctsScreen } from './screens/PrecinctsScreen';
+import { RemoveCardScreen } from './screens/RemoveCardScreen';
+import { WritingCardScreen } from './screens/WritingCardScreen';
 
 import 'normalize.css';
 import './App.css';
@@ -37,7 +37,7 @@ export interface Props {
   storage: Storage;
 }
 
-function AppRoot({ card, hardware, storage }: Props): JSX.Element {
+export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   const [isEncodingCard, setIsEncodingCard] = useState(false);
   const [isWritableCard, setIsWritableCard] = useState(false);
   const [isCardPresent, setIsCardPresent] = useState(false);
@@ -265,5 +265,3 @@ function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   }
   return <LoadElectionScreen />;
 }
-
-export default AppRoot;

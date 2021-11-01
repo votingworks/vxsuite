@@ -4,7 +4,7 @@ interface Props {
   columns?: number;
 }
 
-const ButtonList = styled.div<Props>`
+export const ButtonList = styled.div<Props>`
   columns: ${({ columns = 1 }) => columns};
   column-gap: 1rem;
   & > button {
@@ -14,5 +14,3 @@ const ButtonList = styled.div<Props>`
     font-size: 1.5rem;
   }
 `;
-
-export default ButtonList;

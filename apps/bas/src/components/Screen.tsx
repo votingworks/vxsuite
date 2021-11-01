@@ -4,7 +4,7 @@ interface Props {
   white?: boolean;
 }
 
-const Screen = styled.div<Props>`
+export const Screen = styled.div<Props>`
   display: flex;
   flex-direction: column;
   background-color: ${({ white = true }) => (white ? 'white' : undefined)};
@@ -13,5 +13,3 @@ const Screen = styled.div<Props>`
     display: none;
   }
 `;
-
-export default Screen;

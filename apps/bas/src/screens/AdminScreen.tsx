@@ -11,13 +11,13 @@ import {
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
 import { compareName } from '../utils/sort';
-import Button from '../components/Button';
-import Prose from '../components/Prose';
-import Main, { MainChild } from '../components/Main';
-import MainNav from '../components/MainNav';
-import Screen from '../components/Screen';
-import Select from '../components/Select';
-import Text from '../components/Text';
+import { Button } from '../components/Button';
+import { Prose } from '../components/Prose';
+import { Main, MainChild } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Screen } from '../components/Screen';
+import { Select } from '../components/Select';
+import { Text } from '../components/Text';
 
 interface Props {
   election: OptionalElection;
@@ -36,7 +36,7 @@ interface Props {
   precinctBallotStyles: BallotStyle[];
 }
 
-function AdminScreen({
+export function AdminScreen({
   election,
   fetchElection,
   getBallotStylesByPrecinctId,
@@ -170,5 +170,3 @@ function AdminScreen({
     </Screen>
   );
 }
-
-export default AdminScreen;
