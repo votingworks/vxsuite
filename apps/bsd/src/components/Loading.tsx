@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { ProgressEllipsis } from '@votingworks/ui';
-import Prose from './Prose';
+import { Prose } from './Prose';
 
 const Fullscreen = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ interface Props {
   as?: keyof JSX.IntrinsicElements;
 }
 
-function Loading({
+export function Loading({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
@@ -36,5 +36,3 @@ function Loading({
   }
   return content;
 }
-
-export default Loading;

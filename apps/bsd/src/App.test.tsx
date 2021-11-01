@@ -23,8 +23,8 @@ import {
   ScanBatchResponse,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan';
-import App from './App';
-import hasTextAcrossElements from '../test/util/hasTextAcrossElements';
+import { App } from './App';
+import { hasTextAcrossElements } from '../test/util/hasTextAcrossElements';
 import { MachineConfigResponse } from './config/types';
 
 jest.mock('js-file-download');

@@ -12,15 +12,15 @@ import { strict as assert } from 'assert';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
-import BallotSheetImage from '../components/BallotSheetImage';
-import Button from '../components/Button';
-import Main from '../components/Main';
-import MainNav from '../components/MainNav';
-import Prose from '../components/Prose';
-import Screen from '../components/Screen';
-import StatusFooter from '../components/StatusFooter';
-import Text from '../components/Text';
-import WriteInAdjudicationScreen from './WriteInAdjudicationScreen';
+import { BallotSheetImage } from '../components/BallotSheetImage';
+import { Button } from '../components/Button';
+import { Main } from '../components/Main';
+import { MainNav } from '../components/MainNav';
+import { Prose } from '../components/Prose';
+import { Screen } from '../components/Screen';
+import { StatusFooter } from '../components/StatusFooter';
+import { Text } from '../components/Text';
+import { WriteInAdjudicationScreen } from './WriteInAdjudicationScreen';
 
 const EjectReason = styled.div`
   font-size: 3em;
@@ -71,7 +71,7 @@ function doNothing() {
   console.log('disabled'); // eslint-disable-line no-console
 }
 
-function BallotEjectScreen({
+export function BallotEjectScreen({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element {
@@ -476,4 +476,3 @@ function BallotEjectScreen({
     </Screen>
   );
 }
-export default BallotEjectScreen;

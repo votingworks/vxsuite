@@ -6,8 +6,8 @@ import {
 import React from 'react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
-import ElectionConfiguration from './ElectionConfiguration';
-import renderInAppContext from '../../test/renderInAppContext';
+import { ElectionConfiguration } from './ElectionConfiguration';
+import { renderInAppContext } from '../../test/renderInAppContext';
 
 const { UsbDriveStatus } = usbstick;
 

@@ -5,7 +5,7 @@ import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
-import AppContext from '../src/contexts/AppContext';
+import { AppContext } from '../src/contexts/AppContext';
 
 interface RenderInAppContextParams {
   route?: string;
@@ -19,7 +19,7 @@ interface RenderInAppContextParams {
   bypassAuthentication?: boolean;
 }
 
-export default function renderInAppContext(
+export function renderInAppContext(
   component: React.ReactNode,
   {
     route = '/',

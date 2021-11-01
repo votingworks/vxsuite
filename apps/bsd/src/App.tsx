@@ -4,14 +4,17 @@ import { BrowserRouter, Route } from 'react-router-dom';
 
 import './App.css';
 
-import AppRoot, { AppRootProps } from './AppRoot';
+import { AppRoot, AppRootProps } from './AppRoot';
 
 export interface Props {
   card?: AppRootProps['card'];
   hardware?: AppRootProps['hardware'];
 }
 
-function App({ hardware, card = new WebServiceCard() }: Props): JSX.Element {
+export function App({
+  hardware,
+  card = new WebServiceCard(),
+}: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
     async function updateHardware() {
@@ -34,5 +37,3 @@ function App({ hardware, card = new WebServiceCard() }: Props): JSX.Element {
     </BrowserRouter>
   );
 }
-
-export default App;

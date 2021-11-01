@@ -10,7 +10,7 @@ import { electionSample } from '@votingworks/fixtures';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 
-import SetMarkThresholdsModal from './SetMarkThresholdsModal';
+import { SetMarkThresholdsModal } from './SetMarkThresholdsModal';
 
 test('renders warning message before allowing overrides to be set', () => {
   const closeFn = jest.fn();

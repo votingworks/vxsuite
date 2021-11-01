@@ -73,7 +73,7 @@ export interface Props extends StyledButtonProps {
   ref?: React.Ref<HTMLButtonElement>;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, Props>(
+export const Button = React.forwardRef<HTMLButtonElement, Props>(
   ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
     const [startCoordinates, setStartCoordinates] = useState([0, 0]);
 
@@ -134,5 +134,3 @@ export const SegmentedButton = styled.span`
 export const LabelButton = styled.label`
   ${buttonStyles}/* stylelint-disable-line value-keyword-case */
 `;
-
-export default Button;

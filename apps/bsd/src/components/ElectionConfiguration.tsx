@@ -10,17 +10,17 @@ import {
   ElectionData,
 } from '@votingworks/utils';
 import { USBControllerButton } from '@votingworks/ui';
-import Prose from './Prose';
-import Main, { MainChild } from './Main';
-import MainNav from './MainNav';
-import Screen from './Screen';
-import Text from './Text';
-import Loading from './Loading';
-import FileInputButton from './FileInputButton';
-import AppContext from '../contexts/AppContext';
+import { Prose } from './Prose';
+import { Main, MainChild } from './Main';
+import { MainNav } from './MainNav';
+import { Screen } from './Screen';
+import { Text } from './Text';
+import { Loading } from './Loading';
+import { FileInputButton } from './FileInputButton';
+import { AppContext } from '../contexts/AppContext';
 
-import Button from './Button';
-import Table, { TD } from './Table';
+import { Button } from './Button';
+import { Table, TD } from './Table';
 
 const Image = styled.img`
   float: right;
@@ -44,7 +44,7 @@ export interface Props {
   ): Promise<void>;
 }
 
-function ElectionConfiguration({
+export function ElectionConfiguration({
   acceptAutomaticallyChosenFile: acceptAutomaticallyChosenFileFromProps,
   acceptManuallyChosenFile: acceptManuallyChosenFileFromProps,
 }: Props): JSX.Element {
@@ -319,5 +319,3 @@ function ElectionConfiguration({
     </Screen>
   );
 }
-
-export default ElectionConfiguration;

@@ -7,7 +7,7 @@ import {
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
-import DashboardScreen from './DashboardScreen';
+import { DashboardScreen } from './DashboardScreen';
 
 const noneLeftAdjudicationStatus = {
   adjudicated: 0,

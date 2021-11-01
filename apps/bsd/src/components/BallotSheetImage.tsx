@@ -11,7 +11,7 @@ export interface Props {
   onMouseLeaveContest?(contestId: Contest['id']): void;
 }
 
-export default function BallotSheetImage({
+export function BallotSheetImage({
   imageURL,
   layout,
   contestIds,

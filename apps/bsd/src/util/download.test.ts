@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import { fakeKiosk } from '@votingworks/test-utils';
-import download from './download';
+import { download } from './download';
 
 let oldLocation: typeof window.location;
 

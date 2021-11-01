@@ -2,7 +2,7 @@ import { Provider, safeParse } from '@votingworks/types';
 import { fetchJSON } from '@votingworks/utils';
 import { MachineConfigResponseSchema } from '../config/types';
 
-const machineConfigProvider: Provider<{
+export const machineConfigProvider: Provider<{
   machineId: string;
   bypassAuthentication: boolean;
 }> = {
@@ -18,5 +18,3 @@ const machineConfigProvider: Provider<{
     };
   },
 };
-
-export default machineConfigProvider;

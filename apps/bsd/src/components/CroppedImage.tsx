@@ -8,12 +8,7 @@ export interface Props {
   style?: React.CSSProperties;
 }
 
-export default function CroppedImage({
-  src,
-  alt,
-  crop,
-  style,
-}: Props): JSX.Element {
+export function CroppedImage({ src, alt, crop, style }: Props): JSX.Element {
   const [dataURL, setDataURL] = useState<string>();
 
   useEffect(() => {

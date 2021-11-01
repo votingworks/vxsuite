@@ -1,7 +1,7 @@
 // This is a "polyfill" for the css psudo-class :focus-visible
 // https://caniuse.com/#feat=css-focus-visible
 
-function focusVisible(): void {
+export function focusVisible(): void {
   // Let the document know when the mouse is being used
   document.body.addEventListener('mousedown', () => {
     document.body.classList.remove('using-keyboard');
@@ -14,5 +14,3 @@ function focusVisible(): void {
     }
   });
 }
-
-export default focusVisible;

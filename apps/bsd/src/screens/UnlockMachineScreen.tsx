@@ -1,10 +1,10 @@
 import { fontSizeTheme, Prose, Text, NumberPad } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import Screen from '../components/Screen';
-import Main, { MainChild } from '../components/Main';
-import StatusFooter from '../components/StatusFooter';
-import GLOBALS from '../config/globals';
+import { Screen } from '../components/Screen';
+import { Main, MainChild } from '../components/Main';
+import { StatusFooter } from '../components/StatusFooter';
+import * as GLOBALS from '../config/globals';
 
 const NumberPadWrapper = styled.div`
   display: flex;

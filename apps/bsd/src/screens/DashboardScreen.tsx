@@ -7,11 +7,11 @@ import {
   GetScanStatusResponse,
 } from '@votingworks/types/api/module-scan';
 
-import Prose from '../components/Prose';
-import Table, { TD } from '../components/Table';
-import Button from '../components/Button';
-import Modal from '../components/Modal';
-import Text from '../components/Text';
+import { Prose } from '../components/Prose';
+import { Table, TD } from '../components/Table';
+import { Button } from '../components/Button';
+import { Modal } from '../components/Modal';
+import { Text } from '../components/Text';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
@@ -37,7 +37,7 @@ interface Props {
   deleteBatch(batchId: string): Promise<void>;
 }
 
-function DashboardScreen({
+export function DashboardScreen({
   isScanning,
   status,
   deleteBatch,
@@ -183,5 +183,3 @@ function DashboardScreen({
     </React.Fragment>
   );
 }
-
-export default DashboardScreen;

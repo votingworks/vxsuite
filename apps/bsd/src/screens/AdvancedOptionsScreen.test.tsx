@@ -4,7 +4,7 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { act } from 'react-dom/test-utils';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import AdvancedOptionsScreen from './AdvancedOptionsScreen';
+import { AdvancedOptionsScreen } from './AdvancedOptionsScreen';
 
 test('clicking "Export Backup…" shows progress', async () => {
   const backup = jest.fn();

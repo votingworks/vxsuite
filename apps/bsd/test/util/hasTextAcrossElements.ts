@@ -1,6 +1,6 @@
 import { Matcher, Nullish } from '@testing-library/react';
 
-export default function hasTextAcrossElements(text: string): Matcher {
+export function hasTextAcrossElements(text: string): Matcher {
   return (content: string, node: Nullish<Element>) => {
     function hasText(n: Element) {
       return n.textContent === text;

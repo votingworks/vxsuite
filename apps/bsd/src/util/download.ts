@@ -75,7 +75,7 @@ async function kioskDownload(
  * Download a file from a URL. The server is expected to return a response with
  * `Content-Disposition: attachment`.
  */
-export default async function download(
+export async function download(
   url: string,
   options: Options = {}
 ): Promise<void> {
