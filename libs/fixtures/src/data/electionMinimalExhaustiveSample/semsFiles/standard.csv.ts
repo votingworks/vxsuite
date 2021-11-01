@@ -1,4 +1,4 @@
-export default `"sample-county","precinct-1","aquarium-council-fish","Zoo Council","1","F","0","Write-in","0","NP","252",
+export const electionMinimalExhaustiveSEMSData = `"sample-county","precinct-1","aquarium-council-fish","Zoo Council","1","F","0","Write-in","0","NP","252",
 "sample-county","precinct-1","aquarium-council-fish","Zoo Council","1","F","1","Times Over Voted","0","NP","150",
 "sample-county","precinct-1","aquarium-council-fish","Zoo Council","1","F","2","Times Under Voted","0","NP","163",
 "sample-county","precinct-1","aquarium-council-fish","Zoo Council","1","F","manta-ray","Manta Ray","1","F","264",
