@@ -73,7 +73,7 @@ export interface AppRootProps {
   hardware: Hardware;
 }
 
-export function App({ card, hardware }: AppRootProps): JSX.Element {
+export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [
