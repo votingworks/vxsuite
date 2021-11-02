@@ -16,6 +16,7 @@ import gtsNoReturnTypeOnlyGenerics from './gts-no-return-type-only-generics';
 import gtsNoUnnecessaryHasOwnPropertyCheck from './gts-no-unnecessary-has-own-property-check';
 import gtsParameterProperties from './gts-parameter-properties';
 import gtsSafeNumberParse from './gts-safe-number-parse';
+import gtsSpreadLikeTypes from './gts-spread-like-types';
 import gtsUseOptionals from './gts-use-optionals';
 import noArraySortMutation from './no-array-sort-mutation';
 import noAssertStringOrNumber from './no-assert-truthiness';
@@ -43,6 +44,7 @@ const rules: Record<
     gtsNoUnnecessaryHasOwnPropertyCheck,
   'gts-parameter-properties': gtsParameterProperties,
   'gts-safe-number-parse': gtsSafeNumberParse,
+  'gts-spread-like-types': gtsSpreadLikeTypes,
   'gts-use-optionals': gtsUseOptionals,
   'no-array-sort-mutation': noArraySortMutation,
   'no-assert-truthiness': noAssertStringOrNumber,

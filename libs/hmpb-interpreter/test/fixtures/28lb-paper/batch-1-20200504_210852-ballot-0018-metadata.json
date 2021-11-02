@@ -1,4 +1,6 @@
 {
+  "ballotType": 0,
+  "electionHash": "abcdefg",
   "ballotStyleId": "77",
   "precinctId": "42",
   "pageNumber": 1,

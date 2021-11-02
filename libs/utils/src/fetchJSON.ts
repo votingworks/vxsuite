@@ -3,7 +3,7 @@ export async function fetchJSON(
   init?: RequestInit
 ): Promise<unknown> {
   const response = await fetch(input, {
-    ...init,
+    ...(init ?? {}),
     headers: {
       Accept: 'application/json',
       ...(init?.headers ?? {}),

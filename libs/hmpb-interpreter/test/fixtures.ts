@@ -1,4 +1,8 @@
-import { BallotPageMetadata } from '@votingworks/types';
+import {
+  BallotPageMetadata,
+  BallotPageMetadataSchema,
+  safeParseJSON,
+} from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { Input } from '../src';
@@ -33,9 +37,10 @@ export class Fixture implements Input {
     overrides: Partial<BallotPageMetadata> = {}
   ): Promise<BallotPageMetadata> {
     return {
-      ...JSON.parse(
-        await fs.readFile(adjacentMetadataFile(this.filePath()), 'utf8')
-      ),
+      ...safeParseJSON(
+        await fs.readFile(adjacentMetadataFile(this.filePath()), 'utf8'),
+        BallotPageMetadataSchema
+      ).unsafeUnwrap(),
       ...overrides,
     };
   }

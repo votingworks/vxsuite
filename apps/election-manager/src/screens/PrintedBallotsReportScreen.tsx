@@ -69,7 +69,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
     (accumulatedCounts, { precinctId, ballotStyleId, numCopies }) => ({
       ...accumulatedCounts,
       [precinctId]: {
-        ...accumulatedCounts[precinctId],
+        ...(accumulatedCounts[precinctId] ?? {}),
         [ballotStyleId]:
           (accumulatedCounts[precinctId]?.[ballotStyleId] ?? 0) + numCopies,
       },
@@ -81,9 +81,9 @@ export function PrintedBallotsReportScreen(): JSX.Element {
     (accumulatedCounts, { precinctId, ballotStyleId, numCopies, type }) => ({
       ...accumulatedCounts,
       [type]: {
-        ...accumulatedCounts[type],
+        ...(accumulatedCounts[type] ?? {}),
         [precinctId]: {
-          ...accumulatedCounts[type]?.[precinctId],
+          ...(accumulatedCounts[type]?.[precinctId] ?? {}),
           [ballotStyleId]:
             (accumulatedCounts[type]?.[precinctId]?.[ballotStyleId] ?? 0) +
             numCopies,
