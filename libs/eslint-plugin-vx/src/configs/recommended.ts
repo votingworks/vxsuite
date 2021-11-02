@@ -110,6 +110,7 @@ export = {
       },
     ],
     'no-void': 'off', // allow silencing `no-floating-promises` with `void`
+    'nonblock-statement-body-position': ['error', 'beside'],
 
     // replace some built-in rules that don't play well with TypeScript
     '@typescript-eslint/no-shadow': 'error',
