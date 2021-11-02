@@ -1,4 +1,6 @@
 {
+  "ballotType": 0,
+  "electionHash": "a92ddeefed53ce89dc2be541596a1b395fbb39d38f3cdfcc688509b2b56096b2",
   "ballotStyleId": "12",
   "isTestMode": false,
   "locales": {

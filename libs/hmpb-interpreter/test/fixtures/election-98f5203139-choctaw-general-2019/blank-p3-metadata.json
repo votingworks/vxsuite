@@ -1,4 +1,6 @@
 {
+  "ballotType": 0,
+  "electionHash": "0428fbdfff6eee2364599b650f150e029267109898db7d61db9e3c48209aa72d",
   "locales": {
     "primary": "en-US"
   },
