@@ -1,5 +1,11 @@
 import { strict as assert } from 'assert';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import 'normalize.css';
 import { sha256 } from 'js-sha256';
@@ -16,6 +22,7 @@ import {
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
+  CardDataTypes,
 } from '@votingworks/types';
 
 import {
@@ -79,6 +86,8 @@ export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
+const VALID_USERS: CardDataTypes[] = ['admin'];
+
 export function AppRoot({
   storage,
   printer,
@@ -86,7 +95,10 @@ export function AppRoot({
   hardware,
   machineConfigProvider,
 }: Props): JSX.Element {
-  const logger = new Logger(LogSource.VxAdminApp, window.kiosk);
+  const logger = useMemo(
+    () => new Logger(LogSource.VxAdminApp, window.kiosk),
+    []
+  );
   const printBallotRef = useRef<HTMLDivElement>(null);
 
   const getElectionDefinition = useCallback(async (): Promise<
@@ -182,7 +194,9 @@ export function AppRoot({
     smartcard,
     electionDefinition,
     persistAuthentication: true,
+    logger,
     bypassAuthentication: machineConfig.bypassAuthentication,
+    validUserTypes: VALID_USERS,
   });
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined

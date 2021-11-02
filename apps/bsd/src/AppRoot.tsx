@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
+  CardDataTypes,
   ElectionDefinition,
   MarkThresholds,
   Optional,
@@ -31,6 +32,7 @@ import {
   SetupCardReaderPage,
   useUserSession,
 } from '@votingworks/ui';
+import { Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
 import { AppContext } from './contexts/AppContext';
 
@@ -67,6 +69,7 @@ const Buttons = styled.div`
     margin-right: 10px;
   }
 `;
+const VALID_USERS: CardDataTypes[] = ['admin'];
 
 export interface AppRootProps {
   card: Card;
@@ -74,6 +77,10 @@ export interface AppRootProps {
 }
 
 export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
+  const logger = useMemo(
+    () => new Logger(LogSource.VxBatchScanApp, window.kiosk),
+    []
+  );
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [
@@ -106,6 +113,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     electionDefinition,
     persistAuthentication: true,
     bypassAuthentication: machineConfig.bypassAuthentication,
+    logger,
+    validUserTypes: VALID_USERS,
   });
   const [isExportingCVRs, setIsExportingCVRs] = useState(false);
 

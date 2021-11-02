@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 import { ScannerStatus } from '@votingworks/types/api/module-scan';
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { map } from 'rxjs/operators';
 import useInterval from '@rooks/use-interval';
@@ -13,6 +13,7 @@ import {
   Provider,
   CastVoteRecord,
   PrecinctId,
+  CardDataTypes,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -31,6 +32,7 @@ import {
   Printer,
   PrecinctScannerCardTallySchema,
 } from '@votingworks/utils';
+import { Logger, LogSource } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/UnconfiguredElectionScreen';
 import { LoadingConfigurationScreen } from './screens/LoadingConfigurationScreen';
@@ -71,6 +73,7 @@ export interface AppStorage {
 }
 
 export const stateStorageKey = 'state';
+const VALID_USERS: CardDataTypes[] = ['admin', 'pollworker'];
 
 export interface Props extends RouteComponentProps {
   hardware: Hardware;
@@ -338,6 +341,10 @@ export function AppRoot({
     hasChargerAttached,
   } = appState;
 
+  const logger = useMemo(
+    () => new Logger(LogSource.VxPrecinctScanApp, window.kiosk),
+    []
+  );
   const usbDrive = useUsbDrive();
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
@@ -349,6 +356,8 @@ export function AppRoot({
       electionDefinition,
       persistAuthentication: false,
       bypassAuthentication: machineConfig.bypassAuthentication,
+      logger,
+      validUserTypes: VALID_USERS,
     }
   );
   const hasCardInserted = currentUserSession?.type;
@@ -821,7 +830,7 @@ export function AppRoot({
 
   if (
     currentUserSession?.type === 'voter' ||
-    currentUserSession?.type === 'invalid' ||
+    currentUserSession?.type === 'unknown' ||
     currentUserSession?.authenticated === false
   ) {
     return <InvalidCardScreen />;

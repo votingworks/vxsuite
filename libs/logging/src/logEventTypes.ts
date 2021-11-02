@@ -10,6 +10,7 @@ import { throwIllegalValue } from '@votingworks/utils';
 
 export enum LogEventType {
   UserAction = 'user-action',
+  ApplicationStatus = 'application-status',
   SystemAction = 'system-action',
   SystemStatus = 'system-status',
 }
@@ -37,6 +38,12 @@ const SystemStatusEventDocumentation: LogEventTypeDocumentation = {
     'A log that results from the system updating on the status of a process it is running, i.e. completion of machine shutdown or boot.',
 };
 
+const ApplicationStatusEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Status update or message that the application took without user action.',
+};
+
 export function getDocumentationForEventType(
   eventType: LogEventType
 ): LogEventTypeDocumentation {
@@ -47,6 +54,8 @@ export function getDocumentationForEventType(
       return SystemActionEventDocumentation;
     case LogEventType.SystemStatus:
       return SystemStatusEventDocumentation;
+    case LogEventType.ApplicationStatus:
+      return ApplicationStatusEventDocumentation;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventType);

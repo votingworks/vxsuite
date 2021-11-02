@@ -7,11 +7,13 @@ export enum LogDispositionStandardTypes {
   NotApplicable = 'na',
 }
 
-export type LoggingUserRole = CardDataTypes | 'vx-employee' | 'system';
+export type LoggingUserRole = CardDataTypes | 'vx-staff' | 'system' | 'unknown';
 export type LogDisposition = LogDispositionStandardTypes | string;
 export enum LogSource {
   System = 'system',
   VxAdminApp = 'vx-admin',
+  VxBatchScanApp = 'vx-batch-scan',
+  VxPrecinctScanApp = 'vx-precinct-scan',
 }
 
 export interface LogLine extends Dictionary<string> {

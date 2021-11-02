@@ -308,6 +308,7 @@ importers:
       '@types/react-modal': 3.10.6
       '@types/styled-components': 5.1.7
       '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
       '@votingworks/utils': link:../../libs/utils
@@ -397,6 +398,7 @@ importers:
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/ui': workspace:*
@@ -807,6 +809,7 @@ importers:
       '@types/styled-components': 5.1.9
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/logging': link:../../libs/logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
@@ -891,6 +894,7 @@ importers:
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/fixtures': workspace:*
       '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -1651,10 +1655,12 @@ importers:
   libs/ui:
     dependencies:
       '@types/react-router-dom': 5.1.7
+      '@votingworks/logging': link:../logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       debug: 4.3.2
+      deep-eql: 4.0.0
       luxon: 1.26.0
       pluralize: 8.0.0
       react-dom: 17.0.1_react@17.0.1
@@ -1669,6 +1675,7 @@ importers:
       '@testing-library/react-hooks': 6.0.0_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
       '@types/debug': 4.1.7
+      '@types/deep-eql': link:../@types/deep-eql
       '@types/jest': 26.0.23
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/luxon': 1.27.1
@@ -1715,6 +1722,7 @@ importers:
       '@testing-library/react-hooks': ^6.0.0
       '@testing-library/user-event': ^13.2.1
       '@types/debug': ^4.1.7
+      '@types/deep-eql': workspace:*
       '@types/jest': ^26.0.23
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
@@ -1726,11 +1734,13 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.29.3
       '@typescript-eslint/parser': ^4.29.3
       '@votingworks/fixtures': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       debug: ^4.3.2
+      deep-eql: ^4.0.0
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
       eslint-config-prettier: ^8.3.0
