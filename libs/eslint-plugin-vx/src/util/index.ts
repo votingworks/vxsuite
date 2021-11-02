@@ -3,6 +3,7 @@ import {
   ESLintUtils,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
+import * as ts from 'typescript';
 
 export const createRule = ESLintUtils.RuleCreator(
   (name) =>
@@ -41,4 +42,25 @@ export function isBindingName(
   node: TSESTree.Node
 ): node is TSESTree.BindingName {
   return BINDING_NAME_TYPES.has(node.type);
+}
+
+export type CollectionType = 'array' | 'set' | 'map';
+
+/**
+ * Determines whether `node` is an array or set or map by checking its static
+ * type as determined by TypeScript.
+ */
+export function getCollectionType(
+  checker: ts.TypeChecker,
+  node: ts.Node
+): CollectionType | undefined {
+  const type = checker.getTypeAtLocation(node);
+  const typeName = type.getSymbol()?.getName();
+  return typeName === 'Array' || typeName === 'ReadonlyArray'
+    ? 'array'
+    : typeName === 'Set' || typeName === 'ReadonlySet'
+    ? 'set'
+    : typeName === 'Map' || typeName === 'ReadonlyMap'
+    ? 'map'
+    : undefined;
 }
