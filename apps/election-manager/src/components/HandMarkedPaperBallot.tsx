@@ -108,7 +108,7 @@ function dualLanguageComposer(
   locales: BallotLocale,
   separator?: string
 ) {
-  return (key: string, options?: StringMap) => {
+  return (key: string, options: StringMap = {}) => {
     const enTranslation = t(key, {
       ...options,
       lng: locales.primary,

@@ -70,7 +70,7 @@ function Stack({
   as = 'div',
   children,
   flexDirection,
-  style,
+  style = {},
 }: {
   as?: string;
   children: React.ReactNode;

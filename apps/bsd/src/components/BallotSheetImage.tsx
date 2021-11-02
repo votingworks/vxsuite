@@ -94,7 +94,7 @@ export function BallotSheetImage({
                 top: `${scaleY(contestLayout.bounds.y)}px`,
                 width: `${scaleX(contestLayout.bounds.width)}px`,
                 height: `${scaleY(contestLayout.bounds.height)}px`,
-                ...styleForContest?.(contestId),
+                ...(styleForContest?.(contestId) ?? {}),
               }}
             />
           )

@@ -65,7 +65,7 @@ export function useAutocomplete<Option>({
 
   const getInputProps: Autocomplete['getInputProps'] = useCallback(
     (inputProps) => ({
-      ...inputProps,
+      ...(inputProps ?? {}),
 
       autoComplete: 'off',
 

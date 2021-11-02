@@ -29,7 +29,7 @@ export function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
         })
       : undefined;
   return (
-    <Bar theme={{ ...contrastTheme.dark }}>
+    <Bar theme={{ ...(contrastTheme.dark ?? {}) }}>
       <Prose maxWidth={false} compact>
         <NoWrap as="strong">{electionDefinition.election.title}</NoWrap> —{' '}
         <NoWrap>{electionDate}</NoWrap>

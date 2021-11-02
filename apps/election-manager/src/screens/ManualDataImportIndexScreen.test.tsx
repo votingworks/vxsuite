@@ -127,9 +127,10 @@ test('loads prexisting manual data to edit', async () => {
   talliesByPrecinct['23'] = {
     numberOfBallotsCounted: 100,
     contestTallies: {
-      ...talliesByPrecinct['23']?.contestTallies,
+      ...(talliesByPrecinct['23']?.contestTallies ?? {}),
       'county-commissioners': ({
-        ...talliesByPrecinct['23']?.contestTallies['county-commissioners'],
+        ...(talliesByPrecinct['23']?.contestTallies['county-commissioners'] ??
+          {}),
         tallies: {
           argent: ({ tally: 80 } as unknown) as ContestOptionTally,
           '__write-in': ({ tally: 60 } as unknown) as ContestOptionTally,
@@ -138,7 +139,9 @@ test('loads prexisting manual data to edit', async () => {
         metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
       } as unknown) as ContestTally,
       'judicial-robert-demergue': ({
-        ...talliesByPrecinct['23']?.contestTallies['judicial-robert-demergue'],
+        ...(talliesByPrecinct['23']?.contestTallies[
+          'judicial-robert-demergue'
+        ] ?? {}),
         tallies: {
           yes: { option: ['yes'], tally: 40 },
           no: { option: ['no'], tally: 30 },
@@ -150,11 +153,11 @@ test('loads prexisting manual data to edit', async () => {
   talliesByPrecinct['20'] = {
     numberOfBallotsCounted: 50,
     contestTallies: {
-      ...talliesByPrecinct['20']?.contestTallies,
+      ...(talliesByPrecinct['20']?.contestTallies ?? {}),
       'primary-constitution-head-of-party': ({
-        ...talliesByPrecinct['20']?.contestTallies[
+        ...(talliesByPrecinct['20']?.contestTallies[
           'primary-constitution-head-of-party'
-        ],
+        ] ?? {}),
         tallies: {
           alice: ({ tally: 25 } as unknown) as ContestOptionTally,
           bob: ({ tally: 5 } as unknown) as ContestOptionTally,
@@ -166,9 +169,11 @@ test('loads prexisting manual data to edit', async () => {
   talliesByPrecinct['21'] = {
     numberOfBallotsCounted: 7,
     contestTallies: {
-      ...talliesByPrecinct['21']?.contestTallies,
+      ...(talliesByPrecinct['21']?.contestTallies ?? {}),
       'judicial-robert-demergue': ({
-        ...talliesByPrecinct['21']?.contestTallies['judicial-robert-demergue'],
+        ...(talliesByPrecinct['21']?.contestTallies[
+          'judicial-robert-demergue'
+        ] ?? {}),
         tallies: {
           yes: { option: ['yes'], tally: 4 },
           no: { option: ['no'], tally: 3 },

@@ -22,8 +22,8 @@ export function mergeChanges(
       const contestOptions: MarksByOptionId = result[contestId] ?? {};
 
       for (const optionId of Object.keys({
-        ...original[contestId],
-        ...change[contestId],
+        ...(original[contestId] ?? {}),
+        ...(change[contestId] ?? {}),
       })) {
         const changeMark = change[contestId]?.[optionId];
         const originalMark = original[contestId]?.[optionId];
@@ -63,7 +63,7 @@ export function changesFromMarks(
     }
 
     result[mark.contest.id] = {
-      ...result[mark.contest.id],
+      ...(result[mark.contest.id] ?? {}),
       // mark.option.id works for both candidate and ms-either-neither marks
       [mark.type === 'yesno' ? mark.option : mark.option.id]: getMarkStatus(
         mark,

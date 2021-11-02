@@ -325,7 +325,7 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         votes: {
-          ...state.votes,
+          ...(state.votes ?? {}),
           [action.contestId]: action.vote,
         },
       };
