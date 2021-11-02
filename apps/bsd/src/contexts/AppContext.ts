@@ -1,16 +1,18 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { LoggingUserRole } from '@votingworks/logging/src';
+import { ElectionDefinition, UserSession } from '@votingworks/types';
 import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createContext } from 'react';
 import { MachineConfig } from '../config/types';
 
 interface AppContextInterface {
   usbDriveStatus: usbstick.UsbDriveStatus;
-  usbDriveEject: () => void;
+  usbDriveEject: (currentUser: LoggingUserRole) => void;
   machineConfig: MachineConfig;
   electionDefinition?: ElectionDefinition;
   electionHash?: string;
   storage: Storage;
   lockMachine: () => void;
+  currentUserSession?: UserSession;
 }
 
 const appContext: AppContextInterface = {
@@ -21,6 +23,7 @@ const appContext: AppContextInterface = {
   electionHash: undefined,
   storage: new MemoryStorage(),
   lockMachine: () => undefined,
+  currentUserSession: undefined,
 };
 
 export const AppContext = createContext(appContext);

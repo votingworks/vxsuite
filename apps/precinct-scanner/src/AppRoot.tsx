@@ -345,7 +345,7 @@ export function AppRoot({
     () => new Logger(LogSource.VxPrecinctScanApp, window.kiosk),
     []
   );
-  const usbDrive = useUsbDrive();
+  const usbDrive = useUsbDrive({ logger });
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
@@ -780,6 +780,7 @@ export function AppRoot({
           electionDefinition,
           currentPrecinctId,
           machineConfig,
+          currentUserSession,
         }}
       >
         {currentUserSession.authenticated ? (
@@ -811,6 +812,7 @@ export function AppRoot({
           electionDefinition,
           currentPrecinctId,
           machineConfig,
+          currentUserSession,
         }}
       >
         <PollWorkerScreen
@@ -906,6 +908,7 @@ export function AppRoot({
         electionDefinition,
         machineConfig,
         currentPrecinctId,
+        currentUserSession,
       }}
     >
       {voterScreen}

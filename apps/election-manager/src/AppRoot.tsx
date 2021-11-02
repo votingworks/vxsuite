@@ -181,7 +181,7 @@ export function AppRoot({
     })();
   }, [machineConfigProvider]);
 
-  const usbDrive = useUsbDrive();
+  const usbDrive = useUsbDrive({ logger });
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
   const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware });

@@ -11,6 +11,7 @@ import {
   usbstick,
 } from '@votingworks/utils';
 import { USBControllerButton } from '@votingworks/ui';
+import { strict as assert } from 'assert';
 import { AppContext } from '../contexts/AppContext';
 import { Modal } from './Modal';
 import { Button } from './Button';
@@ -51,9 +52,13 @@ export function ExportResultsModal({
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { machineConfig, usbDriveEject, usbDriveStatus } = useContext(
-    AppContext
-  );
+  const {
+    machineConfig,
+    usbDriveEject,
+    usbDriveStatus,
+    currentUserSession,
+  } = useContext(AppContext);
+  assert(currentUserSession); // TODO(auth) should this check that the current user is an admin
 
   async function exportResults(openDialog: boolean) {
     setCurrentState(ModalState.SAVING);
@@ -177,7 +182,7 @@ export function ExportResultsModal({
               small={false}
               primary
               usbDriveStatus={usbDriveStatus}
-              usbDriveEject={usbDriveEject}
+              usbDriveEject={() => usbDriveEject(currentUserSession.type)}
             />
           </React.Fragment>
         }

@@ -162,6 +162,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         usbDriveEject: jest.fn(),
         storage: new MemoryStorage(),
         lockMachine: jest.fn(),
+        currentUserSession: { type: 'admin', authenticated: true },
       }}
     >
       <Router history={history}>
