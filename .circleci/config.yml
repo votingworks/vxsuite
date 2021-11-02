@@ -373,6 +373,24 @@ jobs:
           command: |
             pnpm --dir libs/test-utils test
 
+  test-codemods:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir codemods build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir codemods lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir codemods test
+
   test-integration-testing-bsd:
     docker:
       - image: circleci/python:3.7.7-node-browsers
