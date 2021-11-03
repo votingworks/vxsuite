@@ -101,7 +101,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     bypassAuthentication: false,
   });
 
-  const usbDrive = useUsbDrive();
+  const usbDrive = useUsbDrive({ logger });
 
   const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware });
   const {
@@ -329,6 +329,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           machineConfig,
           storage,
           lockMachine,
+          currentUserSession,
         }}
       >
         <MachineLockedScreen />
@@ -346,6 +347,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           machineConfig,
           storage,
           lockMachine,
+          currentUserSession,
         }}
       >
         <InvalidCardScreen />
@@ -363,6 +365,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           machineConfig,
           storage,
           lockMachine,
+          currentUserSession,
         }}
       >
         <UnlockMachineScreen
@@ -383,6 +386,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             electionDefinition,
             storage,
             lockMachine,
+            currentUserSession,
           }}
         >
           <Screen>
@@ -403,7 +407,9 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                     small={false}
                     primary
                     usbDriveStatus={displayUsbStatus}
-                    usbDriveEject={usbDrive.eject}
+                    usbDriveEject={() =>
+                      usbDrive.eject(currentUserSession.type)
+                    }
                   />
                 </Buttons>
               </MainChild>
@@ -427,6 +433,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             machineConfig,
             storage,
             lockMachine,
+            currentUserSession,
           }}
         >
           <BallotEjectScreen
@@ -455,6 +462,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           machineConfig,
           storage,
           lockMachine,
+          currentUserSession,
         }}
       >
         <Switch>
@@ -486,7 +494,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
               <MainNav isTestMode={isTestMode}>
                 <USBControllerButton
                   usbDriveStatus={displayUsbStatus}
-                  usbDriveEject={usbDrive.eject}
+                  usbDriveEject={() => usbDrive.eject(currentUserSession.type)}
                 />
                 <Button small onPress={lockMachine}>
                   Lock Machine
@@ -535,6 +543,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           electionDefinition,
           storage,
           lockMachine,
+          currentUserSession,
         }}
       >
         <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />

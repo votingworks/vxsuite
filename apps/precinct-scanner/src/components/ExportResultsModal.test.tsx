@@ -9,6 +9,7 @@ import { usbstick } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import { UserSession } from '@votingworks/types';
 import { ExportResultsModal } from './ExportResultsModal';
 import { fakeFileWriter } from '../../test/helpers/fakeFileWriter';
 import { AppContext } from '../contexts/AppContext';
@@ -16,6 +17,7 @@ import { AppContext } from '../contexts/AppContext';
 const { UsbDriveStatus } = usbstick;
 
 const machineConfig = { machineId: '0003', codeVersion: 'TEST' };
+const currentUserSession: UserSession = { type: 'admin', authenticated: true };
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
@@ -24,7 +26,11 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     const closeFn = jest.fn();
     const { getByText, unmount } = render(
       <AppContext.Provider
-        value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+        value={{
+          electionDefinition: electionSampleDefinition,
+          machineConfig,
+          currentUserSession,
+        }}
       >
         <ExportResultsModal
           onClose={closeFn}
@@ -50,7 +56,11 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = render(
       <AppContext.Provider
-        value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+        value={{
+          electionDefinition: electionSampleDefinition,
+          machineConfig,
+          currentUserSession,
+        }}
       >
         <ExportResultsModal
           onClose={closeFn}
@@ -88,7 +98,11 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   const closeFn = jest.fn();
   const { getByText, getByAltText } = render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig,
+        currentUserSession,
+      }}
     >
       <ExportResultsModal
         onClose={closeFn}
@@ -128,7 +142,11 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   const ejectFn = jest.fn();
   const { getByText, rerender } = render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig,
+        currentUserSession,
+      }}
     >
       <ExportResultsModal
         onClose={closeFn}
@@ -173,7 +191,11 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 
   rerender(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig,
+        currentUserSession,
+      }}
     >
       <ExportResultsModal
         onClose={closeFn}
@@ -200,7 +222,11 @@ test('render export modal with errors when appropriate', async () => {
   const closeFn = jest.fn();
   const { getByText } = render(
     <AppContext.Provider
-      value={{ electionDefinition: electionSampleDefinition, machineConfig }}
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig,
+        currentUserSession,
+      }}
     >
       <ExportResultsModal
         onClose={closeFn}

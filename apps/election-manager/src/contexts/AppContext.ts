@@ -6,6 +6,7 @@ import {
   UserSession,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
+import { LoggingUserRole } from '@votingworks/logging/src';
 import {
   SaveElection,
   PrintedBallot,
@@ -36,7 +37,7 @@ export interface AppContextInterface {
   saveIsOfficialResults: () => Promise<void>;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
-  usbDriveEject: () => Promise<void>;
+  usbDriveEject: (currentUser: LoggingUserRole) => Promise<void>;
   addPrintedBallot: (printedBallot: PrintedBallot) => void;
   printedBallots: PrintedBallot[];
   fullElectionTally: FullElectionTally;

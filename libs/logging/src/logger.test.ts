@@ -94,3 +94,10 @@ test('logs unknown disposition as expected', async () => {
     the: 'wolves',
   });
 });
+
+test('logging from a client side app without sending window.kiosk does NOT log to console', async () => {
+  console.log = jest.fn();
+  const logger = new Logger(LogSource.VxAdminApp);
+  await logger.log(LogEventId.AdminCardInserted, 'admin');
+  expect(console.log).not.toHaveBeenCalled();
+});

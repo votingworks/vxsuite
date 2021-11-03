@@ -35,8 +35,10 @@ export function NavigationScreen({
     usbDriveStatus,
     lockMachine,
     machineConfig,
+    currentUserSession,
   } = useContext(AppContext);
   const election = electionDefinition?.election;
+  const currentUser = currentUserSession?.type ?? 'unknown';
 
   return (
     <Screen>
@@ -80,7 +82,7 @@ export function NavigationScreen({
               </Button>
             )}
             <USBControllerButton
-              usbDriveEject={usbDriveEject}
+              usbDriveEject={() => usbDriveEject(currentUser)}
               usbDriveStatus={usbDriveStatus}
             />
           </React.Fragment>

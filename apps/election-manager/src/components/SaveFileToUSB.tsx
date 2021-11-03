@@ -52,9 +52,13 @@ export function SaveFileToUSB({
   fileType,
   promptToEjectUSB = false,
 }: Props): JSX.Element {
-  const { usbDriveStatus, usbDriveEject, isOfficialResults } = useContext(
-    AppContext
-  );
+  const {
+    usbDriveStatus,
+    usbDriveEject,
+    isOfficialResults,
+    currentUserSession,
+  } = useContext(AppContext);
+  assert(currentUserSession); // TODO(auth) should this check for a specific user type
 
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
@@ -153,7 +157,7 @@ export function SaveFileToUSB({
             small={false}
             primary
             usbDriveStatus={usbDriveStatus}
-            usbDriveEject={usbDriveEject}
+            usbDriveEject={() => usbDriveEject(currentUserSession.type)}
           />
         </React.Fragment>
       );

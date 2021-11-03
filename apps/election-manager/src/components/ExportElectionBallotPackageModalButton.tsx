@@ -34,10 +34,14 @@ const USBImage = styled.img`
 `;
 
 export function ExportElectionBallotPackageModalButton(): JSX.Element {
-  const { electionDefinition, usbDriveStatus, usbDriveEject } = useContext(
-    AppContext
-  );
+  const {
+    electionDefinition,
+    usbDriveStatus,
+    usbDriveEject,
+    currentUserSession,
+  } = useContext(AppContext);
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth) should this make sure we have an admin
   const { election, electionData, electionHash } = electionDefinition;
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
 
@@ -306,7 +310,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             <USBControllerButton
               primary
               small={false}
-              usbDriveEject={usbDriveEject}
+              usbDriveEject={() => usbDriveEject(currentUserSession.type)}
               usbDriveStatus={usbDriveStatus}
             />
           </React.Fragment>

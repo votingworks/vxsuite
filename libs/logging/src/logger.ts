@@ -1,16 +1,16 @@
 import makeDebug from 'debug';
 import { Dictionary } from '@votingworks/types';
-import { getDetailsForEventId, LogLine } from '.';
-import { LogEventId } from './logEventIDs';
 import {
+  CLIENT_SIDE_LOG_SOURCES,
+  LogLine,
   LogDisposition,
   LogDispositionStandardTypes,
   LoggingUserRole,
   LogSource,
 } from './types';
+import { LogEventId, getDetailsForEventId } from './logEventIDs';
 
 const debug = makeDebug('logger');
-makeDebug.enable('logger');
 
 interface LogData extends Dictionary<string> {
   message?: string;
@@ -43,14 +43,16 @@ export class Logger {
       disposition,
       ...additionalData,
     };
-    if (this.kiosk) {
+    if (CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
       debug(logLine); // for internal debugging use log to the console
-      await this.kiosk.log(
-        JSON.stringify({
-          timeLogInitiated: Date.now().toString(),
-          ...logLine,
-        })
-      );
+      if (this.kiosk) {
+        await this.kiosk.log(
+          JSON.stringify({
+            timeLogInitiated: Date.now().toString(),
+            ...logLine,
+          })
+        );
+      }
     } else {
       // eslint-disable-next-line no-console
       console.log(logLine);

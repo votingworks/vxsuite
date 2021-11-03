@@ -42,8 +42,9 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition } = useContext(AppContext);
+  const { electionDefinition, currentUserSession } = useContext(AppContext);
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth) should assert this is an admin or pollworker?
 
   const exportBackup = useCallback(
     async (openDialog: boolean) => {
@@ -149,7 +150,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
               small={false}
               primary
               usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
-              usbDriveEject={usbDrive.eject}
+              usbDriveEject={() => usbDrive.eject(currentUserSession.type)}
             />
           </React.Fragment>
         }

@@ -53,7 +53,13 @@ export function ElectionConfiguration({
   >([]);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const { usbDriveStatus, usbDriveEject, lockMachine } = useContext(AppContext);
+  const {
+    usbDriveStatus,
+    usbDriveEject,
+    lockMachine,
+    currentUserSession,
+  } = useContext(AppContext);
+  assert(currentUserSession); // TODO(auth) should this assert that the user is an admin
 
   async function acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
@@ -120,7 +126,7 @@ export function ElectionConfiguration({
         Lock Machine
       </Button>
       <USBControllerButton
-        usbDriveEject={usbDriveEject}
+        usbDriveEject={() => usbDriveEject(currentUserSession.type)}
         usbDriveStatus={usbDriveStatus}
       />
     </MainNav>

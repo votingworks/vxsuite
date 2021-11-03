@@ -13,6 +13,7 @@ export enum LogEventType {
   ApplicationStatus = 'application-status',
   SystemAction = 'system-action',
   SystemStatus = 'system-status',
+  ApplicationAction = 'application-action',
 }
 
 export interface LogEventTypeDocumentation {
@@ -44,6 +45,12 @@ const ApplicationStatusEventDocumentation: LogEventTypeDocumentation = {
     'Status update or message that the application took without user action.',
 };
 
+const ApplicationActionEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'Action taken by the votingworks application automatically when a certain condition is met. Example: When a new USB drive is detected, the application will automatically mount it.',
+};
+
 export function getDocumentationForEventType(
   eventType: LogEventType
 ): LogEventTypeDocumentation {
@@ -56,6 +63,8 @@ export function getDocumentationForEventType(
       return SystemStatusEventDocumentation;
     case LogEventType.ApplicationStatus:
       return ApplicationStatusEventDocumentation;
+    case LogEventType.ApplicationAction:
+      return ApplicationActionEventDocumentation;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventType);

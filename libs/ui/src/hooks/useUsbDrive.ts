@@ -2,6 +2,7 @@ import useInterval from 'use-interval';
 import { usbstick } from '@votingworks/utils';
 import { useCallback, useState } from 'react';
 import makeDebug from 'debug';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useCancelablePromise } from './useCancelablePromise';
 
 const debug = makeDebug('ui:useUsbDrive');
@@ -9,7 +10,11 @@ const { UsbDriveStatus } = usbstick;
 
 export interface UsbDrive {
   status?: usbstick.UsbDriveStatus;
-  eject(): Promise<void>;
+  eject(currentUser: string): Promise<void>;
+}
+
+export interface UsbDriveProps {
+  logger: Logger;
 }
 
 export const POLLING_INTERVAL_FOR_USB = 100;
@@ -19,7 +24,7 @@ export const POLLING_INTERVAL_FOR_USB = 100;
  *
  * @example
  *
- * const usbDrive = useUsbDrive()
+ * const usbDrive = useUsbDrive({ logger })
  * return (
  *   <USBControllerButton
  *     usbDriveStatus={usbDrive.status ?? UsbDriveStatus.absent}
@@ -27,23 +32,38 @@ export const POLLING_INTERVAL_FOR_USB = 100;
  *   />
  * )
  */
-export function useUsbDrive(): UsbDrive {
+export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
   const [isMountingOrUnmounting, setIsMountingOrUnmounting] = useState(false);
   const [status, setStatus] = useState<usbstick.UsbDriveStatus>();
   const [recentlyEjected, setRecentlyEjected] = useState(false);
   const makeCancelable = useCancelablePromise();
 
-  const eject = useCallback(async () => {
-    debug('eject requested, updating state');
-    setIsMountingOrUnmounting(true);
-    setStatus(UsbDriveStatus.ejecting);
-    try {
-      await makeCancelable(usbstick.doUnmount());
-      setRecentlyEjected(true);
-    } finally {
-      setIsMountingOrUnmounting(false);
-    }
-  }, [makeCancelable]);
+  const eject = useCallback(
+    async (currentUser: LoggingUserRole) => {
+      debug('eject requested, updating state');
+      setIsMountingOrUnmounting(true);
+      setStatus(UsbDriveStatus.ejecting);
+      await logger.log(LogEventId.USBDriveEjectInit, currentUser);
+      try {
+        await makeCancelable(usbstick.doUnmount());
+        setRecentlyEjected(true);
+        await logger.log(LogEventId.USBDriveEjected, currentUser, {
+          disposition: 'success',
+          message: 'USB Drive successfully ejected.',
+        });
+      } catch (error) {
+        await logger.log(LogEventId.USBDriveEjected, currentUser, {
+          disposition: 'failure',
+          message: 'USB Drive failed when attempting to eject.',
+          error: error.message,
+          result: 'USB drive not ejected.',
+        });
+      } finally {
+        await setIsMountingOrUnmounting(false);
+      }
+    },
+    [makeCancelable, logger]
+  );
 
   useInterval(
     async () => {
@@ -58,6 +78,12 @@ export function useUsbDrive(): UsbDrive {
 
       debug('USB drive status changed from %s to %s', status, newStatus);
       setStatus(newStatus);
+      await logger.log(LogEventId.USBDriveStatusUpdate, 'system', {
+        disposition: 'na',
+        message: `USB Drive status updated from ${status} to ${newStatus}`,
+        previousStatus: status,
+        newStatus,
+      });
       if (
         status === UsbDriveStatus.present &&
         newStatus === UsbDriveStatus.absent
@@ -70,8 +96,20 @@ export function useUsbDrive(): UsbDrive {
       ) {
         try {
           debug('USB drive found, mounting');
+          await logger.log(LogEventId.USBDriveMountInit, 'system');
           setIsMountingOrUnmounting(true);
           await makeCancelable(usbstick.doMount());
+          await logger.log(LogEventId.USBDriveMounted, 'system', {
+            disposition: 'success',
+            message: 'USB Drive successfully mounted',
+          });
+        } catch (error) {
+          await logger.log(LogEventId.USBDriveMounted, 'system', {
+            disposition: 'failure',
+            message: 'USB Drive failed mounting.',
+            error: error.message,
+            result: 'USB drive not mounted.',
+          });
         } finally {
           setIsMountingOrUnmounting(false);
         }

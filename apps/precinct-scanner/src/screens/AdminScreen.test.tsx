@@ -24,6 +24,7 @@ test('renders date and time settings modal', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        currentUserSession: { type: 'admin', authenticated: true },
       }}
     >
       <AdminScreen
@@ -168,6 +169,7 @@ test('setting and un-setting the precinct', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        currentUserSession: { type: 'admin', authenticated: true },
       }}
     >
       <AdminScreen
@@ -204,6 +206,7 @@ test('export from admin screen', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        currentUserSession: { type: 'admin', authenticated: true },
       }}
     >
       <AdminScreen
