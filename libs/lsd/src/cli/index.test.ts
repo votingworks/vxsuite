@@ -15,6 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// Jest writes out ESC into the inline snapshots for ANSI terminal style.
+/* eslint-disable vx/gts-unicode-escapes */
+
 import { WritableStream } from 'memory-streams';
 import * as fs from 'fs';
 import { PassThrough } from 'stream';
