@@ -9,7 +9,7 @@ import { AppContext } from '../src/contexts/AppContext';
 
 interface RenderInAppContextParams {
   route?: string;
-  history?: MemoryHistory<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  history?: MemoryHistory;
   electionDefinition?: ElectionDefinition;
   machineId?: string;
   usbDriveStatus?: usbstick.UsbDriveStatus;

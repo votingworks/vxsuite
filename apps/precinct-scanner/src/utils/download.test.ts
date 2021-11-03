@@ -161,8 +161,9 @@ test('download with kiosk-browser with a target directory', async () => {
   const fileWriter = fakeFileWriter();
   // `writeFile` is overloaded in such a way to have different return types,
   // which confuses TS. There's no good way around this that I can find.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  kiosk.writeFile.mockResolvedValueOnce(fileWriter as any);
+  kiosk.writeFile.mockResolvedValueOnce(
+    (fileWriter as unknown) as ReturnType<KioskBrowser.Kiosk['writeFile']>
+  );
   const result = await download('/file.txt', { into: '/some/directory' });
   result.unsafeUnwrap();
   expect(kiosk.makeDirectory).toHaveBeenCalledWith('/some/directory', {

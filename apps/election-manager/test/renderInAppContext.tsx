@@ -36,7 +36,7 @@ export const eitherNeitherElectionDefinition = {
 
 interface RenderInAppContextParams {
   route?: string;
-  history?: MemoryHistory<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  history?: MemoryHistory;
   castVoteRecordFiles?: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
   configuredAt?: ISO8601Timestamp;

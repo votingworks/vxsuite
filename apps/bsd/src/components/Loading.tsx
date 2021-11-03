@@ -24,9 +24,7 @@ export function Loading({
 }: Props): JSX.Element {
   const content = (
     <Prose>
-      {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <ProgressEllipsis as={as as any} aria-label={`${children}.`}>
+      <ProgressEllipsis as={as} aria-label={`${children}.`}>
         {children}
       </ProgressEllipsis>
     </Prose>

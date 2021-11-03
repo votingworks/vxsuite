@@ -78,9 +78,9 @@ test('machineId is empty', async () => {
 
 test('machineConfig is empty', async () => {
   const machineConfig: Provider<MachineConfig> = {
-    async get() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return undefined as any;
+    async get(): Promise<MachineConfig> {
+      // @ts-expect-error - we're mocking an API failure
+      return undefined;
     },
   };
 
