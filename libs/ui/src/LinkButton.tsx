@@ -10,7 +10,7 @@ export interface LinkButtonProps extends Omit<ButtonProps, 'onPress'> {
   to?: string;
 }
 
-export default function LinkButton(props: LinkButtonProps): JSX.Element {
+export function LinkButton(props: LinkButtonProps): JSX.Element {
   const history = useHistory();
   const {
     goBack,

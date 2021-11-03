@@ -2,7 +2,7 @@ import React from 'react';
 import { StaticRouter } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import LinkButton from './LinkButton';
+import { LinkButton } from './LinkButton';
 
 test('navigates to page', () => {
   const { container } = render(

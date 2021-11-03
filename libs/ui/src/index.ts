@@ -13,7 +13,7 @@ export * from './hooks/useUsbDrive';
 export * from './hooks/useUserSession';
 export * from './HorizontalRule';
 export * from './InputGroup';
-export { default as LinkButton, LinkButtonProps } from './LinkButton';
+export { LinkButton, LinkButtonProps } from './LinkButton';
 export * from './Loading';
 export * from './LogoMark';
 export * from './Main';
