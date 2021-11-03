@@ -2,5 +2,8 @@
   "parserOptions": {
     "project": "./tsconfig.test.json"
   },
-  "extends": ["plugin:vx/recommended"]
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    "vx/gts-no-default-exports": "error"
+  }
 }
