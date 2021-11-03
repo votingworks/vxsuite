@@ -64,6 +64,7 @@ export = {
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-non-null-assertion': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+    '@typescript-eslint/no-unused-vars': 'error',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     // be stricter than eslint-config-airbnb which allows `== null`

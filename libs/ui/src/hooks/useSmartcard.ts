@@ -8,7 +8,6 @@ import {
   safeParseJSON,
 } from '@votingworks/types';
 import { Card, Hardware, isCardReader } from '@votingworks/utils';
-import { strict as assert } from 'assert';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { map } from 'rxjs/operators';
 import useInterval from 'use-interval';

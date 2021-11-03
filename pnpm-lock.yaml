@@ -1571,7 +1571,6 @@ importers:
       sort-package-json: 1.50.0
       ts-jest: 26.5.6_jest@26.6.3+typescript@4.3.5
       typescript: 4.3.5
-      zod: 3.2.0
     specifiers:
       '@testing-library/react': ^11.2.6
       '@types/jest': ^26.0.21
@@ -1603,7 +1602,6 @@ importers:
       ts-jest: '26'
       typescript: ^4.3.5
       zip-stream: ^4.1.0
-      zod: 3.2.0
   libs/types:
     dependencies:
       '@antongolub/iso8601': 1.2.1
@@ -26792,6 +26790,7 @@ packages:
     resolution:
       integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==
   /zod/3.2.0:
+    dev: false
     resolution:
       integrity: sha512-yvcO3FZ8URR+LliMGqaW7tlVOOTzmup3vzKEe9Ds7twyJtdhvYa7dIYr0FbD1wVfWC1OuS83vZfHtCKslPuRhA==
   /zwitch/1.0.5:
