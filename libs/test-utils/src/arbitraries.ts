@@ -411,7 +411,7 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> 
 
 /**
  * Builds valid cast-vote records. To build multiple for a single election,
- * you may find it easier to use {@see arbitraryCastVoteRecords}.
+ * you may find it easier to use {@link arbitraryCastVoteRecords}.
  */
 export function arbitraryCastVoteRecord({
   election = arbitraryElection(),
