@@ -4,7 +4,7 @@ import { Storage } from '../types';
 /**
  * Implements the storage API using `localStorage` as the backing store.
  */
-export default class LocalStorage implements Storage {
+export class LocalStorage implements Storage {
   /**
    * Gets an object from storage by key.
    */

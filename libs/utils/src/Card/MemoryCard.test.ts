@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import MemoryCard from './MemoryCard';
+import { MemoryCard } from './MemoryCard';
 
 const ABSchema = z.object({ a: z.number(), b: z.number() });
 

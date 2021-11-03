@@ -1,5 +1,5 @@
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
-import KioskHardware from './KioskHardware';
+import { KioskHardware } from './KioskHardware';
 
 it('reads battery status from kiosk', async () => {
   const kiosk = fakeKiosk();

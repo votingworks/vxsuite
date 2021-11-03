@@ -4,7 +4,7 @@ import { Storage } from '../types';
 /**
  * Implements the storage API using Kiosk Storage as the backing store.
  */
-export default class KioskStorage implements Storage {
+export class KioskStorage implements Storage {
   constructor(readonly kiosk: KioskBrowser.Kiosk) {
     assert(kiosk);
   }

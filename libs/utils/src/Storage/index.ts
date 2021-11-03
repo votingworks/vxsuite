@@ -1,5 +1,3 @@
-import KioskStorage from './KioskStorage';
-import LocalStorage from './LocalStorage';
-import MemoryStorage from './MemoryStorage';
-
-export { KioskStorage, LocalStorage, MemoryStorage };
+export * from './KioskStorage';
+export * from './LocalStorage';
+export * from './MemoryStorage';

@@ -4,7 +4,7 @@ import { Storage } from '../types';
  * Implements the storage API for storing objects in memory. Data stored in
  * this object only lasts as long as the program runs.
  */
-export default class MemoryStorage implements Storage {
+export class MemoryStorage implements Storage {
   private data = new Map<string, string>();
 
   /**

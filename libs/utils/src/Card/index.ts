@@ -1,4 +1,2 @@
-import MemoryCard from './MemoryCard';
-import WebServiceCard from './WebServiceCard';
-
-export { MemoryCard, WebServiceCard };
+export * from './MemoryCard';
+export * from './WebServiceCard';

@@ -1,4 +1,4 @@
-import LocalStorage from './LocalStorage';
+import { LocalStorage } from './LocalStorage';
 
 beforeEach(() => {
   window.localStorage.clear();
