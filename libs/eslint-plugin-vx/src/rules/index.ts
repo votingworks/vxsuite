@@ -9,6 +9,7 @@ import gtsNoDollarSignNames from './gts-no-dollar-sign-names';
 import gtsNoForInLoop from './gts-no-for-in-loop';
 import gtsNoForeach from './gts-no-foreach';
 import gtsNoImportExportType from './gts-no-import-export-type';
+import gtsNoJsdocOverride from './gts-no-jsdoc-override';
 import gtsNoObjectLiteralTypeAssertions from './gts-no-object-literal-type-assertions';
 import gtsNoPrivateFields from './gts-no-private-fields';
 import gtsNoPublicModifier from './gts-no-public-modifier';
@@ -37,6 +38,7 @@ const rules: Record<
   'gts-no-foreach': gtsNoForeach,
   'gts-no-for-in-loop': gtsNoForInLoop,
   'gts-no-import-export-type': gtsNoImportExportType,
+  'gts-no-jsdoc-override': gtsNoJsdocOverride,
   'gts-no-object-literal-type-assertions': gtsNoObjectLiteralTypeAssertions,
   'gts-no-private-fields': gtsNoPrivateFields,
   'gts-no-public-modifier': gtsNoPublicModifier,
