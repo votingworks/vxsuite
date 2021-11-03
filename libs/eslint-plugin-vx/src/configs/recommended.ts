@@ -48,6 +48,7 @@ export = {
     'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
     'vx/gts-no-object-literal-type-assertions': 'error',
     'vx/gts-no-private-fields': 'error',
+    'vx/gts-no-public-class-fields': 'error',
     'vx/gts-no-public-modifier': 'error',
     'vx/gts-no-return-type-only-generics': 'error',
     'vx/gts-no-unnecessary-has-own-property-check': 'warn',

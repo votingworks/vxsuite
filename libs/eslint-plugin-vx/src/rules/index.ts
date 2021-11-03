@@ -11,6 +11,7 @@ import gtsNoForeach from './gts-no-foreach';
 import gtsNoImportExportType from './gts-no-import-export-type';
 import gtsNoObjectLiteralTypeAssertions from './gts-no-object-literal-type-assertions';
 import gtsNoPrivateFields from './gts-no-private-fields';
+import gtsNoPublicClassFields from './gts-no-public-class-fields';
 import gtsNoPublicModifier from './gts-no-public-modifier';
 import gtsNoReturnTypeOnlyGenerics from './gts-no-return-type-only-generics';
 import gtsNoUnnecessaryHasOwnPropertyCheck from './gts-no-unnecessary-has-own-property-check';
@@ -39,6 +40,7 @@ const rules: Record<
   'gts-no-import-export-type': gtsNoImportExportType,
   'gts-no-object-literal-type-assertions': gtsNoObjectLiteralTypeAssertions,
   'gts-no-private-fields': gtsNoPrivateFields,
+  'gts-no-public-class-fields': gtsNoPublicClassFields,
   'gts-no-public-modifier': gtsNoPublicModifier,
   'gts-no-return-type-only-generics': gtsNoReturnTypeOnlyGenerics,
   'gts-no-unnecessary-has-own-property-check':
