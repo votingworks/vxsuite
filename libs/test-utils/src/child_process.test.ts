@@ -50,11 +50,11 @@ test('fakeWritable', async () => {
 
   writable.write(Buffer.of(1, 2, 3));
   expect(writable.toBuffer()).toEqual(Buffer.of(1, 2, 3));
-  expect(writable.toString()).toEqual('\x01\x02\x03');
+  expect(writable.toString()).toEqual('\x01\x02\x03'); // mirrors `Buffer.of(1, 2, 3)`
 
   writable.write('hi!', 'ascii');
   expect(writable.toBuffer()).toEqual(Buffer.of(1, 2, 3, 104, 105, 33));
-  expect(writable.toString()).toEqual('\x01\x02\x03hi!');
+  expect(writable.toString()).toEqual('\x01\x02\x03hi!'); // mirrors `Buffer.of(1, 2, 3, 104, 105, 33)`
 
   {
     const writeCallback = jest.fn();
