@@ -8,7 +8,7 @@ import { sizeof } from './utils';
  * @see `BitReader#readString`
  */
 export interface Encoding {
-  readonly bitsPerElement: number;
+  getBitsPerElement(): number;
   encode(string: string): Uint8Array;
   decode(data: Uint8Array): string;
 }
@@ -17,7 +17,9 @@ export interface Encoding {
  * Default encoding to use for `BitReader` and `BitWriter`.
  */
 export const UTF8Encoding: Encoding = {
-  bitsPerElement: Uint8Size,
+  getBitsPerElement(): number {
+    return Uint8Size;
+  },
 
   /**
    * Encodes a string as UTF-8 code points.
@@ -49,14 +51,18 @@ export class CustomEncoding implements Encoding {
    * The maximum character code representable by this class.
    */
   static MAX_CODE = (1 << (Uint8Array.BYTES_PER_ELEMENT * Uint8Size)) - 1;
-  readonly bitsPerElement: number;
+  private readonly bitsPerElement: number;
 
   /**
    * @param chars a string of representable characters without duplicates
    */
-  constructor(readonly chars: string) {
+  constructor(private readonly chars: string) {
     CustomEncoding.validateChars(chars);
     this.bitsPerElement = sizeof(chars.length - 1);
+  }
+
+  getChars(): string {
+    return this.chars;
   }
 
   private static validateChars(chars: string): void {
@@ -78,6 +84,10 @@ export class CustomEncoding implements Encoding {
         );
       }
     }
+  }
+
+  getBitsPerElement(): number {
+    return this.bitsPerElement;
   }
 
   /**

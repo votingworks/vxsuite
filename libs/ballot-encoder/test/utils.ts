@@ -3,8 +3,8 @@ import { WriteInEncoding } from '../src';
 import { BitReader, BitWriter, toUint8, Uint1, Uint8 } from '../src/bits';
 
 export const writeInChar = fc
-  .integer(0, WriteInEncoding.chars.length)
-  .map((index) => WriteInEncoding.chars[index] ?? '');
+  .integer(0, WriteInEncoding.getChars().length)
+  .map((index) => WriteInEncoding.getChars()[index] ?? '');
 
 export interface BooleanWritable {
   readonly type: 'boolean';

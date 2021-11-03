@@ -186,7 +186,7 @@ export class BitWriter {
 
     // write content
     for (const code of codes) {
-      this.writeUint(code, { size: encoding.bitsPerElement });
+      this.writeUint(code, { size: encoding.getBitsPerElement() });
     }
 
     return this;

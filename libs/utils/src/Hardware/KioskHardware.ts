@@ -5,7 +5,7 @@ import { MemoryHardware } from './MemoryHardware';
  * Implements the `Hardware` API by accessing it through the kiosk.
  */
 export class KioskHardware extends MemoryHardware {
-  constructor(private kiosk: KioskBrowser.Kiosk) {
+  constructor(private readonly kiosk: KioskBrowser.Kiosk) {
     super();
   }
 
@@ -33,11 +33,13 @@ export class KioskHardware extends MemoryHardware {
    * first subscriber receives a new set (e.g. {mouse, keyboard, flash drive}).
    * New subscribers immediately receive the same current set.
    */
-  devices = this.kiosk.devices;
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly devices = this.kiosk.devices;
 
   /**
    * Gets an observable that yields the current set of printers as printers are
    * configured or devices are added or removed.
    */
-  printers = this.kiosk.printers;
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly printers = this.kiosk.printers;
 }

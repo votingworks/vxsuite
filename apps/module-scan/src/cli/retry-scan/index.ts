@@ -132,12 +132,14 @@ export async function retryScan(
 
   await pool.callAll({
     action: 'configure',
-    dbPath: input.store.dbPath,
+    dbPath: input.store.getDbPath(),
   });
   listeners?.interpreterLoaded?.();
 
   function absolutify(path: string): string {
-    return isAbsolute(path) ? path : resolve(input.store.dbPath, '..', path);
+    return isAbsolute(path)
+      ? path
+      : resolve(input.store.getDbPath(), '..', path);
   }
 
   await Promise.all(
@@ -195,7 +197,7 @@ export async function retryScan(
           ].map(async ([scan, qrcode], i) => {
             const imagePath = isAbsolute(scan.originalFilename)
               ? scan.originalFilename
-              : resolve(input.store.dbPath, '..', scan.originalFilename);
+              : resolve(input.store.getDbPath(), '..', scan.originalFilename);
             const rescan = (await pool.call({
               action: 'interpret',
               sheetId: id,

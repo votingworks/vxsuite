@@ -11,7 +11,7 @@ export class DownloadableArchive {
   private zip?: ZipStream;
   private endPromise?: Promise<void>;
 
-  constructor(private kiosk = window.kiosk) {}
+  constructor(private readonly kiosk = window.kiosk) {}
 
   private getKiosk(): KioskBrowser.Kiosk {
     assert(this.kiosk);

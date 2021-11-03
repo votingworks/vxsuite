@@ -13,7 +13,7 @@ export class BitReader {
   /**
    * @param data a buffer to read data from
    */
-  constructor(private data: Uint8Array) {}
+  constructor(private readonly data: Uint8Array) {}
 
   /**
    * Reads a Uint1 and moves the internal cursor forward one bit.
@@ -131,7 +131,7 @@ export class BitReader {
     const codes = new Uint8Array(lengthToRead);
 
     for (let i = 0; i < lengthToRead; i += 1) {
-      codes.set([this.readUint({ size: encoding.bitsPerElement })], i);
+      codes.set([this.readUint({ size: encoding.getBitsPerElement() })], i);
     }
 
     return encoding.decode(codes);

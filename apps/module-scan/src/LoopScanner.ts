@@ -89,7 +89,7 @@ export class LoopScanner implements Scanner {
   /**
    * @param batches lists of front/back pairs of sheets to scan
    */
-  constructor(private batches: readonly Batch[]) {}
+  constructor(private readonly batches: readonly Batch[]) {}
 
   async getStatus(): Promise<ScannerStatus> {
     return ScannerStatus.Unknown;

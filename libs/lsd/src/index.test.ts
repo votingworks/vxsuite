@@ -50,9 +50,7 @@ test('simple image', () => {
 });
 
 // `global.gc` is only defined when `--expose-gc` is provided to `node`.
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const gctest = global.gc ? test : test.skip;
+const gctest = (global as { gc?: VoidFunction }).gc ? test : test.skip;
 
 gctest('garbage collection reclaims buffer', () => {
   const iterations = 20;

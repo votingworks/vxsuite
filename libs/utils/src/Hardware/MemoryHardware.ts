@@ -158,7 +158,9 @@ export class MemoryHardware implements Hardware {
   /**
    * Subscribe to USB device updates.
    */
-  devices: Observable<Iterable<KioskBrowser.Device>> = this.devicesSubject;
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly devices: Observable<Iterable<KioskBrowser.Device>> =
+    this.devicesSubject;
 
   private printersSubject = new BehaviorSubject<
     Iterable<KioskBrowser.PrinterInfo>
@@ -167,7 +169,8 @@ export class MemoryHardware implements Hardware {
   /**
    * Subscribe to printer updates.
    */
-  printers: Observable<Iterable<KioskBrowser.PrinterInfo>> =
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly printers: Observable<Iterable<KioskBrowser.PrinterInfo>> =
     this.printersSubject;
 
   /**

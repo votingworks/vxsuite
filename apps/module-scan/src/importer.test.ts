@@ -178,7 +178,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
   await importer.restoreConfig();
   expect(workerCall).toHaveBeenCalledWith({
     action: 'configure',
-    dbPath: workspace.store.dbPath,
+    dbPath: workspace.store.getDbPath(),
   });
   await importer.unconfigure();
 });
@@ -307,7 +307,7 @@ test('manually importing files', async () => {
 
   expect(workerCall).toHaveBeenNthCalledWith(1, {
     action: 'configure',
-    dbPath: workspace.store.dbPath,
+    dbPath: workspace.store.getDbPath(),
   });
 
   expect((await workspace.store.getBallotFilenames(sheetId, 'front'))!).toEqual(
