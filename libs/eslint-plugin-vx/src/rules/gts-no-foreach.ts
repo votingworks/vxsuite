@@ -4,7 +4,6 @@ import {
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
-import * as ts from 'typescript';
 import {
   CollectionType,
   createRule,
