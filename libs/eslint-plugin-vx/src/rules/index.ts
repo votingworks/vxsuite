@@ -3,6 +3,7 @@ import gtsArrayTypeStyle from './gts-array-type-style';
 import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-only';
 import gtsFuncStyle from './gts-func-style';
 import gtsIdentifiersUseAllowedCharacters from './gts-identifiers-use-allowed-characters';
+import gtsJsdoc from './gts-jsdoc';
 import gtsNoArrayConstructor from './gts-no-array-constructor';
 import gtsNoConstEnum from './gts-no-const-enum';
 import gtsNoDefaultExports from './gts-no-default-exports';
@@ -10,7 +11,6 @@ import gtsNoDollarSignNames from './gts-no-dollar-sign-names';
 import gtsNoForInLoop from './gts-no-for-in-loop';
 import gtsNoForeach from './gts-no-foreach';
 import gtsNoImportExportType from './gts-no-import-export-type';
-import gtsNoJsdocOverride from './gts-no-jsdoc-override';
 import gtsNoObjectLiteralTypeAssertions from './gts-no-object-literal-type-assertions';
 import gtsNoPrivateFields from './gts-no-private-fields';
 import gtsNoPublicClassFields from './gts-no-public-class-fields';
@@ -35,6 +35,7 @@ const rules: Record<
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
   'gts-func-style': gtsFuncStyle,
   'gts-identifiers-use-allowed-character': gtsIdentifiersUseAllowedCharacters,
+  'gts-jsdoc': gtsJsdoc,
   'gts-no-array-constructor': gtsNoArrayConstructor,
   'gts-no-const-enum': gtsNoConstEnum,
   'gts-no-default-exports': gtsNoDefaultExports,
@@ -42,7 +43,6 @@ const rules: Record<
   'gts-no-foreach': gtsNoForeach,
   'gts-no-for-in-loop': gtsNoForInLoop,
   'gts-no-import-export-type': gtsNoImportExportType,
-  'gts-no-jsdoc-override': gtsNoJsdocOverride,
   'gts-no-object-literal-type-assertions': gtsNoObjectLiteralTypeAssertions,
   'gts-no-private-fields': gtsNoPrivateFields,
   'gts-no-public-class-fields': gtsNoPublicClassFields,

@@ -149,7 +149,7 @@ export function* enumerateNonPrintableCharacters(
 /**
  * Determines whether `char` is non-printable.
  *
- * @see {enumerateNonPrintableCharacters}
+ * @see {@link enumerateNonPrintableCharacters}
  */
 export function isNonPrintableCharacter(char: string): boolean {
   return !enumerateNonPrintableCharacters(char).next().done;

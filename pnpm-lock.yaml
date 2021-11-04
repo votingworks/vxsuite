@@ -1180,6 +1180,7 @@ importers:
     dependencies:
       '@typescript-eslint/eslint-plugin': 4.30.0_942c48837be95e76bb4156c78358cdbe
       '@typescript-eslint/experimental-utils': 4.30.0_eslint@7.27.0+typescript@4.2.3
+      comment-parser: 1.2.4
       eslint-config-airbnb: 18.2.1_74ade7420e0f78ce33d23941f9379dba
       eslint-config-airbnb-base: 14.2.1_2bfbb5f9d15cdc8811f4d55173efe733
       eslint-import-resolver-node: 0.3.6
@@ -1210,6 +1211,7 @@ importers:
       '@typescript-eslint/experimental-utils': ^4.30.0
       '@typescript-eslint/parser': ^4.26.0
       '@votingworks/types': workspace:*
+      comment-parser: ^1.2.4
       eslint: ^7.27.0
       eslint-config-airbnb: ^18.2.1
       eslint-config-airbnb-base: ^14.2.1
@@ -10666,6 +10668,12 @@ packages:
       node: '>= 10'
     resolution:
       integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
+  /comment-parser/1.2.4:
+    dev: false
+    engines:
+      node: '>= 12.0.0'
+    resolution:
+      integrity: sha512-pm0b+qv+CkWNriSTMsfnjChF9kH0kxz55y44Wo5le9qLxMj5xDQAaEd9ZN1ovSuk9CsrncWaFwgpOMg7ClJwkw==
   /common-tags/1.8.0:
     engines:
       node: '>=4.0.0'
