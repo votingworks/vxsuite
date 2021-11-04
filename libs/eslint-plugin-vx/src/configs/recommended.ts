@@ -47,6 +47,7 @@ export = {
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-for-in-loop': 'error',
     'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
+    'vx/gts-no-jsdoc-override': 'error',
     'vx/gts-no-object-literal-type-assertions': 'error',
     'vx/gts-no-private-fields': 'error',
     'vx/gts-no-public-class-fields': 'error',
