@@ -99,6 +99,7 @@ export function AppRoot({
     () => new Logger(LogSource.VxAdminApp, window.kiosk),
     []
   );
+
   const printBallotRef = useRef<HTMLDivElement>(null);
 
   const getElectionDefinition = useCallback(async (): Promise<

@@ -31,6 +31,8 @@ export enum LogEventId {
   USBDriveEjected = 'usb-drive-eject-complete',
   USBDriveMountInit = 'usb-drive-mount-init',
   USBDriveMounted = 'usb-drive-mount-complete',
+  // App Startup
+  ApplicationStartup = 'application-startup',
 }
 
 export interface LogDetails {
@@ -167,6 +169,13 @@ const USBDeviceChangeDetected: LogDetails = {
     'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
 };
 
+const ApplicationStartup: LogDetails = {
+  eventId: LogEventId.ApplicationStartup,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Application finished starting up, success or failure indicated by disposition.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -203,6 +212,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return USBDriveMounted;
     case LogEventId.USBDeviceChangeDetected:
       return USBDeviceChangeDetected;
+    case LogEventId.ApplicationStartup:
+      return ApplicationStartup;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);
