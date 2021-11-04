@@ -4,6 +4,7 @@ import gtsDirectModuleExportAccessOnly from './gts-direct-module-export-access-o
 import gtsFuncStyle from './gts-func-style';
 import gtsIdentifiersUseAllowedCharacters from './gts-identifiers-use-allowed-characters';
 import gtsNoArrayConstructor from './gts-no-array-constructor';
+import gtsNoConstEnum from './gts-no-const-enum';
 import gtsNoDefaultExports from './gts-no-default-exports';
 import gtsNoDollarSignNames from './gts-no-dollar-sign-names';
 import gtsNoForInLoop from './gts-no-for-in-loop';
@@ -33,6 +34,7 @@ const rules: Record<
   'gts-func-style': gtsFuncStyle,
   'gts-identifiers-use-allowed-character': gtsIdentifiersUseAllowedCharacters,
   'gts-no-array-constructor': gtsNoArrayConstructor,
+  'gts-no-const-enum': gtsNoConstEnum,
   'gts-no-default-exports': gtsNoDefaultExports,
   'gts-no-dollar-sign-names': gtsNoDollarSignNames,
   'gts-no-foreach': gtsNoForeach,
