@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Returns a properly-typed mock for an already-mocked function.
  *
@@ -14,4 +15,3 @@ export function mockOf<T extends (...args: any[]) => any>(
 ): jest.MockedFunction<T> {
   return fn as jest.MockedFunction<T>;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
