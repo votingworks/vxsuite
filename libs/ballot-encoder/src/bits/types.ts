@@ -1,5 +1,16 @@
+/**
+ * Possible indexes for a bit offset in a `Uint8` value.
+ */
 export type Uint8Index = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/**
+ * Possible indexes for a bit offset in a `Uint1` value.
+ */
 export type Uint1 = 0 | 1;
+
+/**
+ * Possible values for a `Uint8` value.
+ */
 export type Uint8 =
   | 0
   | 1
@@ -258,4 +269,7 @@ export type Uint8 =
   | 254
   | 255;
 
+/**
+ * Number of bits in a `Uint8` value.
+ */
 export const Uint8Size = 8;

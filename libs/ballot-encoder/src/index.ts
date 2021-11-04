@@ -30,30 +30,58 @@ import {
   Uint8Size,
 } from './bits';
 
+/**
+ * Maximum number of characters in a write-in.
+ */
 export const MAXIMUM_WRITE_IN_LENGTH = 40;
+
+/**
+ * Maximum number of pages in a hand-marked paper ballot.
+ */
 export const MAXIMUM_PAGE_NUMBERS = 30;
+
+/**
+ * Exact length of the SHA256 hash of the election definition.
+ */
 export const ELECTION_HASH_LENGTH = 20;
 
-// pad this locale array so the same code can later be upgraded
-// to support other languages without breaking previously printed ballots
+/**
+ * Which locales we support as ISO 639-1 codes.
+ *
+ * Pad this locale array so the same code can later be upgraded to support other
+ * languages without breaking previously printed ballots.
+ */
 export const SUPPORTED_LOCALES = ['en-US', 'es-US'].concat(
   Array.from({ length: 250 })
 );
 
 // TODO: include "magic number" and encoding version
 
+/**
+ * Encoding for write-ins, defines the characters allowed in a write-in. Should
+ * match the values present on BMD's `{@link VirtualKeyboard}`.
+ */
 export const WriteInEncoding = new CustomEncoding(
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,'
 );
 
+/**
+ * Encoding for hexidecimal string values, e.g. the election hash.
+ */
 export const HexEncoding = new CustomEncoding('0123456789abcdef');
 
+/**
+ * The bytes we expect a BMD ballot to start with.
+ */
 export const Prelude: readonly Uint8[] = [
   /* V */ 86,
   /* X */ 88,
   /* version = */ 2,
 ];
 
+/**
+ * The bytes we expect a hand-marked paper ballot to start with.
+ */
 export const HmpbPrelude: readonly Uint8[] = [
   /* V */ 86,
   /* P = Paper */ 80,
@@ -72,6 +100,9 @@ export function detect(data: Uint8Array): boolean {
   );
 }
 
+/**
+ * Data needed to uniquely identify a ballot page, possibly including an ID.
+ */
 export interface BallotConfig {
   ballotId?: string;
   ballotStyleId: BallotStyleId;
@@ -82,6 +113,9 @@ export interface BallotConfig {
   precinctId: PrecinctId;
 }
 
+/**
+ * Encodes a {@link BallotConfig} into the given bit writer.
+ */
 export function encodeBallotConfigInto(
   election: Election,
   {
@@ -159,6 +193,10 @@ export function encodeBallotConfigInto(
   return bits;
 }
 
+/**
+ * Decodes a {@link BallotConfig} from a bit reader, skipping locales and page
+ * number.
+ */
 export function decodeBallotConfigFromReader(
   election: Election,
   {
@@ -167,21 +205,34 @@ export function decodeBallotConfigFromReader(
   }: { readLocales: false; readPageNumber: false },
   bits: BitReader
 ): BallotConfig & { locales: undefined; pageNumber: undefined };
+/**
+ * Decodes a {@link BallotConfig} from a bit reader, skipping locales.
+ */
 export function decodeBallotConfigFromReader(
   election: Election,
   { readLocales, readPageNumber }: { readLocales: false; readPageNumber: true },
   bits: BitReader
 ): BallotConfig & { locales: undefined; pageNumber: number };
+/**
+ * Decodes a {@link BallotConfig} from a bit reader, skipping page number.
+ */
 export function decodeBallotConfigFromReader(
   election: Election,
   { readLocales, readPageNumber }: { readLocales: true; readPageNumber: false },
   bits: BitReader
 ): BallotConfig & { locales: BallotLocale; pageNumber: undefined };
+/**
+ * Decodes a {@link BallotConfig} from a bit reader.
+ */
 export function decodeBallotConfigFromReader(
   election: Election,
   { readLocales, readPageNumber }: { readLocales: true; readPageNumber: true },
   bits: BitReader
 ): BallotConfig & { locales: BallotLocale; pageNumber: number };
+/**
+ * Decodes a {@link BallotConfig} from a bit reader, possibly skipping locales
+ * and page number.
+ */
 export function decodeBallotConfigFromReader(
   election: Election,
   {
@@ -364,6 +415,9 @@ function encodeBallotVotesInto(
   return bits;
 }
 
+/**
+ * Encodes a completed ballot, including metadata and votes, into a bit writer.
+ */
 export function encodeBallotInto(
   election: Election,
   {
@@ -410,6 +464,9 @@ export function encodeBallotInto(
     .with(() => encodeBallotVotesInto(contests, votes, bits));
 }
 
+/**
+ * Encodes a completed ballot, including metadata and votes, as a byte array.
+ */
 export function encodeBallot(
   election: Election,
   ballot: CompletedBallot
@@ -515,6 +572,9 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   return votes;
 }
 
+/**
+ * Decodes a completed ballot, including metadata and votes, from a bit reader.
+ */
 export function decodeBallotFromReader(
   election: Election,
   bits: BitReader
@@ -563,6 +623,9 @@ export function decodeBallotFromReader(
   };
 }
 
+/**
+ * Decodes a completed ballot, including metadata and votes, from a byte array.
+ */
 export function decodeBallot(
   election: Election,
   data: Uint8Array
@@ -570,13 +633,9 @@ export function decodeBallot(
   return decodeBallotFromReader(election, new BitReader(data));
 }
 
-export interface HmpbBallotPageMetadataCheckData {
-  electionHash: string;
-  precinctCount: number;
-  ballotStyleCount: number;
-  contestCount: number;
-}
-
+/**
+ * Encodes a hand-marked paper ballot's metadata into a bit writer.
+ */
 export function encodeHmpbBallotPageMetadataInto(
   election: Election,
   {
@@ -615,6 +674,9 @@ export function encodeHmpbBallotPageMetadataInto(
   );
 }
 
+/**
+ * Encodes hand-marked paper ballot page metadata as a byte array.
+ */
 export function encodeHmpbBallotPageMetadata(
   election: Election,
   metadata: HmpbBallotPageMetadata
@@ -668,6 +730,9 @@ export function decodeElectionHash(data: Uint8Array): string | undefined {
   return decodeElectionHashFromReader(new BitReader(data));
 }
 
+/**
+ * Decodes a hand-marked paper ballot page's metadata from a bit reader.
+ */
 export function decodeHmpbBallotPageMetadataFromReader(
   election: Election,
   bits: BitReader
@@ -705,6 +770,9 @@ export function decodeHmpbBallotPageMetadataFromReader(
   };
 }
 
+/**
+ * Decodes a hand-marked paper ballot page's metadata from a byte array.
+ */
 export function decodeHmpbBallotPageMetadata(
   election: Election,
   data: Uint8Array

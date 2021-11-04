@@ -1,6 +1,19 @@
 import { Uint8Size, Uint8, Uint1, Uint8Index } from './types';
 import { makeMasks } from './utils';
 
+/**
+ * Represents a cursor for the bit offset into a byte array.
+ *
+ * @example
+ *
+ *   const cursor = new BitCursor();
+ *   cursor.byteOffset;         // 0
+ *   cursor.bitOffset;          // 0
+ *   cursor.isByteStart;        // true
+ *   cursor.next().isByteStart; // false
+ *   cursor.byteOffset;         // 0
+ *   cursor.bitOffset;          // 1
+ */
 export class BitCursor {
   private offset = 0;
 

@@ -6,6 +6,10 @@ const LogoMarkStyled = styled.img`
   margin: 0 0 1em 2em;
   height: 0.25in;
 `;
+
+/**
+ * VotingWorks logo graphic.
+ */
 export function LogoMark(): JSX.Element {
   return (
     <LogoMarkStyled
