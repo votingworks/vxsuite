@@ -54,6 +54,7 @@ export = {
     'vx/gts-parameter-properties': 'error',
     'vx/gts-safe-number-parse': 'error',
     'vx/gts-spread-like-types': 'error',
+    'vx/gts-type-parameters': 'error',
     'vx/gts-unicode-escapes': 'error',
     'vx/gts-use-optionals': 'error',
     'vx/no-array-sort-mutation': 'error',

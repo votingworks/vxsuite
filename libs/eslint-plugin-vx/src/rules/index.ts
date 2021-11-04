@@ -17,6 +17,7 @@ import gtsNoUnnecessaryHasOwnPropertyCheck from './gts-no-unnecessary-has-own-pr
 import gtsParameterProperties from './gts-parameter-properties';
 import gtsSafeNumberParse from './gts-safe-number-parse';
 import gtsSpreadLikeTypes from './gts-spread-like-types';
+import gtsTypeParameters from './gts-type-parameters';
 import gtsUnicodeEscapes from './gts-unicode-escapes';
 import gtsUseOptionals from './gts-use-optionals';
 import noArraySortMutation from './no-array-sort-mutation';
@@ -46,6 +47,7 @@ const rules: Record<
   'gts-parameter-properties': gtsParameterProperties,
   'gts-safe-number-parse': gtsSafeNumberParse,
   'gts-spread-like-types': gtsSpreadLikeTypes,
+  'gts-type-parameters': gtsTypeParameters,
   'gts-unicode-escapes': gtsUnicodeEscapes,
   'gts-use-optionals': gtsUseOptionals,
   'no-array-sort-mutation': noArraySortMutation,
