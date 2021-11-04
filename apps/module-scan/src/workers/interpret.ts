@@ -41,7 +41,7 @@ export let interpreter: Interpreter | undefined;
 export async function configure(store: Store): Promise<void> {
   interpreter = undefined;
 
-  debug('configuring from %s', store.dbPath);
+  debug('configuring from %s', store.getDbPath());
   const electionDefinition = await store.getElectionDefinition();
 
   if (!electionDefinition) {

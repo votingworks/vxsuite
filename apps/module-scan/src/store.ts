@@ -73,7 +73,11 @@ export class Store {
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
    */
-  private constructor(readonly dbPath: string) {}
+  private constructor(private readonly dbPath: string) {}
+
+  getDbPath(): string {
+    return this.dbPath;
+  }
 
   /**
    * Gets the sha256 digest of the current schema file.
@@ -254,12 +258,12 @@ export class Store {
     return new Promise((resolve) => {
       db.close(async () => {
         try {
-          debug('deleting the database file at %s', this.dbPath);
-          await fs.unlink(this.dbPath);
+          debug('deleting the database file at %s', this.getDbPath());
+          await fs.unlink(this.getDbPath());
         } catch (error) {
           debug(
             'failed to delete database file %s: %s',
-            this.dbPath,
+            this.getDbPath(),
             error.message
           );
         }
@@ -270,9 +274,9 @@ export class Store {
   }
 
   async dbConnect(): Promise<sqlite3.Database> {
-    debug('connecting to the database at %s', this.dbPath);
+    debug('connecting to the database at %s', this.getDbPath());
     this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const db = new sqlite3.Database(this.dbPath, (err: unknown) => {
+      const db = new sqlite3.Database(this.getDbPath(), (err: unknown) => {
         if (err) {
           reject(err);
         } else {
@@ -292,7 +296,7 @@ export class Store {
    * Creates the database including its tables.
    */
   async dbCreate(): Promise<sqlite3.Database> {
-    debug('creating the database at %s', this.dbPath);
+    debug('creating the database at %s', this.getDbPath());
     const db = await this.dbConnect();
     await this.dbExecAsync(await fs.readFile(SchemaPath, 'utf-8'));
     return db;
@@ -656,8 +660,8 @@ export class Store {
     }
 
     return {
-      original: normalizeAndJoin(dirname(this.dbPath), row.original),
-      normalized: normalizeAndJoin(dirname(this.dbPath), row.normalized),
+      original: normalizeAndJoin(dirname(this.getDbPath()), row.original),
+      normalized: normalizeAndJoin(dirname(this.getDbPath()), row.normalized),
     };
   }
 

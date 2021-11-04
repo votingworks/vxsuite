@@ -7,7 +7,7 @@ export class AriaScreenReader implements ScreenReader {
   /**
    * @param tts A text-to-speech engine to use to speak aloud.
    */
-  constructor(private tts: TextToSpeech) {}
+  constructor(private readonly tts: TextToSpeech) {}
 
   /**
    * Call this with an event target when a focus event occurs. Resolves when speaking is done.

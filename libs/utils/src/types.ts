@@ -186,12 +186,12 @@ export interface Hardware {
   /**
    * Subscribe to USB device updates.
    */
-  devices: Observable<Iterable<KioskBrowser.Device>>;
+  readonly devices: Observable<Iterable<KioskBrowser.Device>>;
 
   /**
    * Subscribe to USB device updates.
    */
-  printers: Observable<Iterable<KioskBrowser.PrinterInfo>>;
+  readonly printers: Observable<Iterable<KioskBrowser.PrinterInfo>>;
 }
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {

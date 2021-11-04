@@ -1,7 +1,7 @@
 export class KeyedMap<Key, Value, ResolvedKey = string> {
   private map = new Map<ResolvedKey, Value>();
 
-  constructor(private resolveKey: (key: Key) => ResolvedKey) {}
+  constructor(private readonly resolveKey: (key: Key) => ResolvedKey) {}
 
   has(key: Key): boolean {
     return this.map.has(this.resolveKey(key));

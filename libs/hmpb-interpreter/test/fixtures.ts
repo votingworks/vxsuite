@@ -15,7 +15,7 @@ export function adjacentMetadataFile(imagePath: string): string {
 }
 
 export class Fixture implements Input {
-  constructor(private basePath: string) {}
+  constructor(private readonly basePath: string) {}
 
   id(): string {
     return this.filePath();

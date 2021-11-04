@@ -49,6 +49,7 @@ export = {
     'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
     'vx/gts-no-object-literal-type-assertions': 'error',
     'vx/gts-no-private-fields': 'error',
+    'vx/gts-no-public-class-fields': 'error',
     'vx/gts-no-public-modifier': 'error',
     'vx/gts-no-return-type-only-generics': 'error',
     'vx/gts-no-unnecessary-has-own-property-check': 'warn',
@@ -68,6 +69,7 @@ export = {
     '@typescript-eslint/no-non-null-assertion': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/prefer-readonly': 'error',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     // be stricter than eslint-config-airbnb which allows `== null`

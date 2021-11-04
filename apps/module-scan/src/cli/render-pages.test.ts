@@ -149,8 +149,8 @@ test('fails when a DB has no election', async () => {
   await fs.mkdir(tmpDir);
   const store = await Store.fileStore(join(tmpDir, 'ballots.db'));
 
-  expect(await main([store.dbPath], { stdout, stderr })).toEqual(1);
+  expect(await main([store.getDbPath()], { stdout, stderr })).toEqual(1);
   expect(stderr.toString()).toEqual(
-    `✘ ${store.dbPath} has no election definition\n`
+    `✘ ${store.getDbPath()} has no election definition\n`
   );
 });

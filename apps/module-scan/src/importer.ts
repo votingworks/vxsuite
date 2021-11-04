@@ -99,7 +99,7 @@ export class Importer {
       this.workerPool.start();
       await this.workerPool.callAll({
         action: 'configure',
-        dbPath: this.workspace.store.dbPath,
+        dbPath: this.workspace.store.getDbPath(),
       });
       this.interpreterReady = true;
     }
