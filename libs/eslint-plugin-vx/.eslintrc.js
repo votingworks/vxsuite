@@ -7,6 +7,7 @@ module.exports = {
       'error',
       { allowedNames: Object.keys(AST_NODE_TYPES) },
     ],
-    'vx/gts-jsdoc': 'off'
+    'vx/gts-jsdoc': 'off',
+    'vx/gts-no-default-exports': 'off',
   },
 };

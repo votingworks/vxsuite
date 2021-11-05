@@ -43,8 +43,7 @@ export = {
     'vx/gts-module-snake-case': 'error',
     'vx/gts-no-array-constructor': 'error',
     'vx/gts-no-const-enum': 'error',
-    // TODO: enable this everywhere
-    'vx/gts-no-default-exports': 'off',
+    'vx/gts-no-default-exports': 'error',
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-for-in-loop': 'error',
     'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
