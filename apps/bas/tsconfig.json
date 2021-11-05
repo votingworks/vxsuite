@@ -19,6 +19,7 @@
   "include": ["src"],
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/logging" },
     { "path": "../../libs/types" },
     { "path": "../../libs/ui" },
     { "path": "../../libs/utils" }

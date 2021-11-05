@@ -10,6 +10,8 @@ import {
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
+  FujitsuScannerVendorId,
+  FujitsuFi7160ScannerProductId,
 } from './utils';
 
 /**
@@ -53,14 +55,26 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
+  private batchScanner: Readonly<KioskBrowser.Device> = {
+    deviceAddress: 0,
+    deviceName: 'Scanner',
+    locationId: 0,
+    manufacturer: 'Fujitsu',
+    vendorId: FujitsuScannerVendorId,
+    productId: FujitsuFi7160ScannerProductId,
+    serialNumber: '',
+  };
+
   static async build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
+    connectBatchScanner = false,
   }: {
     connectPrinter?: boolean;
     connectAccessibleController?: boolean;
     connectCardReader?: boolean;
+    connectBatchScanner?: boolean;
   } = {}): Promise<MemoryHardware> {
     const newMemoryHardware = new MemoryHardware();
     await newMemoryHardware.setPrinterConnected(connectPrinter);
@@ -68,6 +82,7 @@ export class MemoryHardware implements Hardware {
       connectAccessibleController
     );
     await newMemoryHardware.setCardReaderConnected(connectCardReader);
+    await newMemoryHardware.setBatchScannerConnected(connectBatchScanner);
     return newMemoryHardware;
   }
 
@@ -76,6 +91,7 @@ export class MemoryHardware implements Hardware {
       connectPrinter: true,
       connectAccessibleController: true,
       connectCardReader: true,
+      connectBatchScanner: true,
     });
   }
 
@@ -84,6 +100,7 @@ export class MemoryHardware implements Hardware {
       connectPrinter: true,
       connectAccessibleController: false,
       connectCardReader: true,
+      connectBatchScanner: true,
     });
   }
 
@@ -92,6 +109,13 @@ export class MemoryHardware implements Hardware {
    */
   async setAccessibleControllerConnected(connected: boolean): Promise<void> {
     this.setDeviceConnected(this.accessibleController, connected);
+  }
+
+  /**
+   * Sets Batch Scanner connected
+   */
+  async setBatchScannerConnected(connected: boolean): Promise<void> {
+    this.setDeviceConnected(this.batchScanner, connected);
   }
 
   /**
@@ -151,6 +175,13 @@ export class MemoryHardware implements Hardware {
         status: 0,
       },
     ]);
+  }
+
+  /**
+   * Detaches all printers
+   */
+  async detachAllPrinters(): Promise<void> {
+    this.printersSubject.next([]);
   }
 
   private devicesSubject = new BehaviorSubject(this.connectedDevices);

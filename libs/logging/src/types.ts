@@ -15,6 +15,8 @@ export enum LogSource {
   VxAdminServer = 'vx-admin-server',
   VxBatchScanApp = 'vx-batch-scan',
   VxPrecinctScanApp = 'vx-precinct-scan',
+  VxBallotMarkingDeviceApp = 'vx-ballot-marking-device',
+  VxBallotActivationApp = 'vx-ballot-activation',
 }
 // The following log sources are client side apps and always expect to log through window.kiosk
 // In various tests window.kiosk may not be defined and we don't want to fallback to logging with console.log
@@ -23,6 +25,8 @@ export const CLIENT_SIDE_LOG_SOURCES = [
   LogSource.VxAdminApp,
   LogSource.VxBatchScanApp,
   LogSource.VxPrecinctScanApp,
+  LogSource.VxBallotMarkingDeviceApp,
+  LogSource.VxBallotActivationApp,
 ];
 
 export interface LogLine extends Dictionary<string> {

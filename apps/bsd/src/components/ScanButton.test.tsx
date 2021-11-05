@@ -1,51 +1,35 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
-import { fakeKiosk, fakeDevice } from '@votingworks/test-utils';
-import { ScanButton, FUJITSU_VENDOR_ID } from './ScanButton';
+import { render, screen } from '@testing-library/react';
+import { fakeKiosk } from '@votingworks/test-utils';
+import { ScanButton } from './ScanButton';
 
-beforeEach(() => {
-  delete window.kiosk;
-});
-
-test('is enabled by default outside kiosk browser', async () => {
-  render(<ScanButton onPress={jest.fn()} />);
+test('is enabled by default when scanner attached', async () => {
+  render(<ScanButton onPress={jest.fn()} isScannerAttached />);
   const button = (await screen.findByText(
     'Scan New Batch'
   )) as HTMLButtonElement;
   expect(button.disabled).toBeFalsy();
 });
 
-test('is disabled by default inside kiosk browser', async () => {
+test('is disabled when scanner not attached', async () => {
   window.kiosk = fakeKiosk();
-  render(<ScanButton onPress={jest.fn()} />);
+  render(<ScanButton onPress={jest.fn()} isScannerAttached={false} />);
   const button = (await screen.findByText('No Scanner')) as HTMLButtonElement;
+  expect(button.disabled).toBeTruthy();
+});
+
+test('is disabled when disabled set to true', async () => {
+  window.kiosk = fakeKiosk();
+  render(<ScanButton onPress={jest.fn()} disabled isScannerAttached />);
+  const button = (await screen.findByText(
+    'Scan New Batch'
+  )) as HTMLButtonElement;
   expect(button.disabled).toBeTruthy();
 });
 
 test('calls onPress when clicked', async () => {
   const onPress = jest.fn();
-  render(<ScanButton onPress={onPress} />);
+  render(<ScanButton onPress={onPress} isScannerAttached />);
   (await screen.findByText('Scan New Batch')).click();
   expect(onPress).toHaveBeenCalledTimes(1);
-});
-
-test('reacts to hardware changes in kiosk browser', async () => {
-  const kiosk = fakeKiosk();
-  window.kiosk = kiosk;
-
-  render(<ScanButton onPress={jest.fn()} />);
-
-  act(() => {
-    // "plug in" a Fujitsu device
-    kiosk.devices.next(new Set([fakeDevice({ vendorId: FUJITSU_VENDOR_ID })]));
-  });
-
-  await screen.findByText('Scan New Batch');
-
-  act(() => {
-    // "unplug" all devices
-    kiosk.devices.next(new Set());
-  });
-
-  await screen.findByText('No Scanner');
 });

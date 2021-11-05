@@ -7,9 +7,8 @@ import {
   Result,
   safeParseJSON,
 } from '@votingworks/types';
-import { Card, Hardware, isCardReader } from '@votingworks/utils';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { map } from 'rxjs/operators';
+import { Card } from '@votingworks/utils';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './useCancelablePromise';
 
@@ -17,7 +16,7 @@ export const CARD_POLLING_INTERVAL = 100;
 
 export interface UseSmartcardProps {
   card: Card;
-  hardware: Hardware;
+  hasCardReaderAttached: boolean;
 }
 
 export interface Smartcard {
@@ -29,22 +28,15 @@ export interface Smartcard {
   writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>;
 }
 
-export type UseSmartcardResult = [
-  smartcard: Smartcard | undefined,
-  hasCardReader: boolean
-];
-
 interface State {
   readonly lastCardDataString?: string;
   readonly longValueExists?: boolean;
   readonly isCardPresent: boolean;
   readonly cardData?: AnyCardData;
-  readonly hasCardReaderAttached: boolean;
 }
 
 const initialState: State = {
   isCardPresent: false,
-  hasCardReaderAttached: false,
 };
 
 /**
@@ -52,9 +44,10 @@ const initialState: State = {
  *
  * @example
  *
- * const [smartcard, hasCardReader] = useSmartcard({ card, hardware })
+ * const { hasCardReaderAttached } = useSmartcard({ hardware, logger })
+ * const smartcard = useSmartcard({ card, hasCardReaderAttached })
  * useEffect(() => {
- *    if (!hasCardReader) {
+ *    if (!hasCardReaderAttached) {
  *      console.log('No card reader')
  *    } else if (smartcard.data) {
  *      console.log(
@@ -66,20 +59,14 @@ const initialState: State = {
  *    } else {
  *      console.log('No smartcard')
  *    }
- * }, [smartcard, hasCardReader])
+ * }, [smartcard, hasCardReaderAttached])
  */
 export function useSmartcard({
   card,
-  hardware,
-}: UseSmartcardProps): UseSmartcardResult {
+  hasCardReaderAttached,
+}: UseSmartcardProps): Optional<Smartcard> {
   const [
-    {
-      cardData,
-      hasCardReaderAttached,
-      isCardPresent,
-      lastCardDataString,
-      longValueExists,
-    },
+    { cardData, isCardPresent, lastCardDataString, longValueExists },
     setState,
   ] = useState(initialState);
   const isReading = useRef(false);
@@ -151,17 +138,6 @@ export function useSmartcard({
     [makeCancelable, card]
   );
 
-  useEffect(() => {
-    const hardwareStatusSubscription = hardware.devices
-      .pipe(map((devices) => Array.from(devices)))
-      .subscribe(async (devices) => {
-        set({ hasCardReaderAttached: devices.some(isCardReader) });
-      });
-    return () => {
-      hardwareStatusSubscription.unsubscribe();
-    };
-  }, [hardware, set]);
-
   useInterval(
     async () => {
       if (isReading.current || isWriting.current || !hasCardReaderAttached) {
@@ -206,8 +182,8 @@ export function useSmartcard({
     true
   );
 
-  const result = useMemo<UseSmartcardResult>(
-    () => [
+  const result = useMemo<Optional<Smartcard>>(
+    () =>
       isCardPresent
         ? {
             data: cardData,
@@ -218,8 +194,6 @@ export function useSmartcard({
             writeLongValue,
           }
         : undefined,
-      hasCardReaderAttached,
-    ],
     [
       isCardPresent,
       cardData,
@@ -228,7 +202,6 @@ export function useSmartcard({
       readLongString,
       writeShortValue,
       writeLongValue,
-      hasCardReaderAttached,
     ]
   );
 

@@ -13,6 +13,7 @@ it('has a standard config with all the typical hardware', async (done) => {
         OmniKeyCardReaderDeviceName,
         'USB Advanced Audio Device',
         'HL-L5100DN_series',
+        'Scanner',
       ])
     );
 
@@ -145,6 +146,16 @@ it('reports printer status as not connected if there are no connected printers',
   const hardware = await MemoryHardware.build();
   await hardware.setPrinterConnected(false);
   expect(await hardware.readPrinterStatus()).toEqual({ connected: false });
+});
+
+it('can remove printers', async (done) => {
+  const hardware = await MemoryHardware.build();
+  await hardware.setPrinterConnected(true);
+  await hardware.detachAllPrinters();
+  hardware.printers.subscribe((printers) => {
+    expect(Array.from(printers)).toEqual([]);
+    done();
+  });
 });
 
 it('can set and read battery level', async () => {

@@ -33,6 +33,12 @@ export enum LogEventId {
   USBDriveMounted = 'usb-drive-mount-complete',
   // App Startup
   ApplicationStartup = 'application-startup',
+  // External Device Related Logs
+  PrinterConfigurationAdded = 'printer-config-added',
+  PrinterConfigurationRemoved = 'printer-config-removed',
+  PrinterConnectionUpdate = 'printer-connection-update',
+  DeviceAttached = 'device-attached',
+  DeviceUnattached = 'device-unattached',
 }
 
 export interface LogDetails {
@@ -176,6 +182,39 @@ const ApplicationStartup: LogDetails = {
     'Application finished starting up, success or failure indicated by disposition.',
 };
 
+const PrinterConfigurationAdded: LogDetails = {
+  eventId: LogEventId.PrinterConfigurationAdded,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Application saw a printer configuration added to the system, current connection status of that printer is logged.',
+};
+
+const PrinterConfigurationRemoved: LogDetails = {
+  eventId: LogEventId.PrinterConfigurationRemoved,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Application saw a printer configuration removed from the system.',
+};
+
+const PrinterConnectionUpdate: LogDetails = {
+  eventId: LogEventId.PrinterConnectionUpdate,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Application saw a change to the connection status of a given configured printer.',
+};
+
+const DeviceAttached: LogDetails = {
+  eventId: LogEventId.DeviceAttached,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Application saw a device attached to the system.',
+};
+
+const DeviceUnattached: LogDetails = {
+  eventId: LogEventId.DeviceUnattached,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Application saw a device unattached from the system.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -214,6 +253,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return USBDeviceChangeDetected;
     case LogEventId.ApplicationStartup:
       return ApplicationStartup;
+    case LogEventId.PrinterConfigurationAdded:
+      return PrinterConfigurationAdded;
+    case LogEventId.PrinterConfigurationRemoved:
+      return PrinterConfigurationRemoved;
+    case LogEventId.PrinterConnectionUpdate:
+      return PrinterConnectionUpdate;
+    case LogEventId.DeviceAttached:
+      return DeviceAttached;
+    case LogEventId.DeviceUnattached:
+      return DeviceUnattached;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

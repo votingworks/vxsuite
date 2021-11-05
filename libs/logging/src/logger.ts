@@ -12,7 +12,7 @@ import { LogEventId, getDetailsForEventId } from './logEventIDs';
 
 const debug = makeDebug('logger');
 
-interface LogData extends Dictionary<string> {
+interface LogData extends Dictionary<string | boolean | number> {
   message?: string;
   disposition?: LogDisposition;
 }

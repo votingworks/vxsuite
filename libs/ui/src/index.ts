@@ -5,6 +5,7 @@ export * from './ButtonList';
 export * from './ContestTally';
 export * from './hooks/useAutocomplete';
 export * from './hooks/useCancelablePromise';
+export * from './hooks/useHardware';
 export * from './hooks/useNow';
 export * from './hooks/usePrevious';
 export * from './hooks/useSmartcard';

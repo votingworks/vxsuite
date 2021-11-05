@@ -31,6 +31,7 @@ import {
   useSmartcard,
   SetupCardReaderPage,
   useUserSession,
+  useHardware,
 } from '@votingworks/ui';
 import { Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
@@ -103,7 +104,11 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const usbDrive = useUsbDrive({ logger });
 
-  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware });
+  const { hasCardReaderAttached, hasBatchScannerAttached } = useHardware({
+    hardware,
+    logger,
+  });
+  const smartcard = useSmartcard({ card, hasCardReaderAttached });
   const {
     currentUserSession,
     attemptToAuthenticateAdminUser,
@@ -512,7 +517,11 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                 >
                   Export
                 </Button>
-                <ScanButton onPress={scanBatch} disabled={isScanning} />
+                <ScanButton
+                  onPress={scanBatch}
+                  disabled={isScanning}
+                  isScannerAttached={hasBatchScannerAttached}
+                />
               </MainNav>
               <StatusFooter />
             </Screen>

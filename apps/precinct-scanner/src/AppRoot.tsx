@@ -2,7 +2,6 @@ import { strict as assert } from 'assert';
 import { ScannerStatus } from '@votingworks/types/api/module-scan';
 import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { map } from 'rxjs/operators';
 import useInterval from '@rooks/use-interval';
 import 'normalize.css';
 import makeDebug from 'debug';
@@ -21,6 +20,7 @@ import {
   useUsbDrive,
   SetupCardReaderPage,
   useUserSession,
+  useHardware,
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
@@ -84,7 +84,6 @@ export interface Props extends RouteComponentProps {
 }
 
 interface HardwareState {
-  hasPrinterAttached: boolean;
   hasChargerAttached: boolean;
   hasLowBattery: boolean;
   adminCardElectionHash: string;
@@ -115,7 +114,6 @@ export interface State
     ScanInformationState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
-  hasPrinterAttached: true,
   hasChargerAttached: true,
   hasLowBattery: false,
   adminCardElectionHash: '',
@@ -336,7 +334,6 @@ export function AppRoot({
     currentPrecinctId,
     isPollsOpen,
     machineConfig,
-    hasPrinterAttached,
     hasLowBattery,
     hasChargerAttached,
   } = appState;
@@ -349,7 +346,14 @@ export function AppRoot({
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
-  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware });
+  const { hasCardReaderAttached, hasPrinterAttached } = useHardware({
+    hardware,
+    logger,
+  });
+  const smartcard = useSmartcard({
+    card,
+    hasCardReaderAttached,
+  });
   const { currentUserSession, attemptToAuthenticateAdminUser } = useUserSession(
     {
       smartcard,
@@ -387,27 +391,6 @@ export function AppRoot({
       TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
     );
   }, [dispatchAppState]);
-
-  // Handle hardware observer subscription
-  useEffect(() => {
-    const printerStatusSubscription = hardware.printers
-      .pipe(map((printers) => Array.from(printers)))
-      .subscribe(async (printers) => {
-        const newHasPrinterAttached = printers.some(
-          ({ connected }) => connected
-        );
-        dispatchAppState({
-          type: 'updateHardwareState',
-          hardwareState: {
-            hasPrinterAttached: newHasPrinterAttached,
-          },
-        });
-      });
-    return () => {
-      printerStatusSubscription.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Handle Machine Config
   useEffect(() => {

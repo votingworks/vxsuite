@@ -23,19 +23,22 @@ import {
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 import 'normalize.css';
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useMemo,
+} from 'react';
 import Gamepad from 'react-gamepad';
 import { RouteComponentProps } from 'react-router-dom';
 import './App.css';
 import IdleTimer from 'react-idle-timer';
-import { map } from 'rxjs/operators';
 import useInterval from '@rooks/use-interval';
 import {
   Card,
   Storage,
   Hardware,
-  isAccessibleController,
-  isCardReader,
   PrecinctScannerCardTally,
   CardAPI,
   CardPresentAPI,
@@ -43,7 +46,9 @@ import {
   throwIllegalValue,
 } from '@votingworks/utils';
 
-import { SetupCardReaderPage } from '@votingworks/ui';
+import { Logger, LogSource } from '@votingworks/logging';
+
+import { SetupCardReaderPage, useHardware, usePrevious } from '@votingworks/ui';
 import { Ballot } from './components/Ballot';
 import * as GLOBALS from './config/globals';
 import {
@@ -107,11 +112,8 @@ interface UserState {
 }
 
 interface HardwareState {
-  hasAccessibleControllerAttached: boolean;
-  hasCardReaderAttached: boolean;
   hasChargerAttached: boolean;
   hasLowBattery: boolean;
-  hasPrinterAttached: boolean;
   machineConfig: Readonly<MachineConfig>;
 }
 
@@ -183,11 +185,8 @@ const initialVoterState: Readonly<UserState> = {
 };
 
 const initialHardwareState: Readonly<HardwareState> = {
-  hasAccessibleControllerAttached: false,
-  hasCardReaderAttached: true,
   hasChargerAttached: true,
   hasLowBattery: false,
-  hasPrinterAttached: true,
   machineConfig: { appMode: VxMarkOnly, machineId: '0000', codeVersion: 'dev' },
 };
 
@@ -498,11 +497,8 @@ export function AppRoot({
     lastCardDataString,
     machineConfig,
     pauseProcessingUntilNoCardPresent,
-    hasAccessibleControllerAttached,
-    hasCardReaderAttached,
     hasChargerAttached,
     hasLowBattery,
-    hasPrinterAttached,
     precinctId,
     shortValue,
     showPostVotingInstructions,
@@ -514,6 +510,17 @@ export function AppRoot({
 
   const { appMode } = machineConfig;
   const { textSize: userSettingsTextSize } = userSettings;
+  const logger = useMemo(
+    () => new Logger(LogSource.VxBallotMarkingDeviceApp, window.kiosk),
+    []
+  );
+
+  const {
+    hasCardReaderAttached,
+    hasAccessibleControllerAttached,
+    hasPrinterAttached,
+  } = useHardware({ hardware, logger });
+  const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
   const ballotStyle =
     optionalElectionDefinition?.election && ballotStyleId
@@ -1049,49 +1056,21 @@ export function AppRoot({
 
   // Handle Hardware Observer Subscription
   useEffect(() => {
-    const hardwareStatusSubscription = hardware.devices
-      .pipe(map((devices) => Array.from(devices)))
-      .subscribe(async (devices) => {
-        const newHasAccessibleControllerAttached = devices.some(
-          isAccessibleController
-        );
-        const newHasCardReaderAttached = devices.some(isCardReader);
-        dispatchAppState({
-          type: 'updateHardwareState',
-          hardwareState: {
-            hasAccessibleControllerAttached: newHasAccessibleControllerAttached,
-            hasCardReaderAttached: newHasCardReaderAttached,
-          },
-        });
-      });
-    const printerStatusSubscription = hardware.printers
-      .pipe(map((printers) => Array.from(printers)))
-      .subscribe(async (printers) => {
-        const newHasPrinterAttached = printers.some(
-          ({ connected }) => connected
-        );
-        if (!newHasPrinterAttached) {
-          await resetBallot();
-          // stop+start forces a last-card-value cache flush
-          stopCardShortValueReadPolling();
-          startCardShortValueReadPolling();
-        }
-        dispatchAppState({
-          type: 'updateHardwareState',
-          hardwareState: {
-            hasPrinterAttached: newHasPrinterAttached,
-          },
-        });
-      });
-    return () => {
-      hardwareStatusSubscription.unsubscribe();
-      printerStatusSubscription.unsubscribe();
-    };
+    async function resetBallotOnPrinterDetach() {
+      if (previousHasPrinterAttached && !hasPrinterAttached) {
+        await resetBallot();
+        // stop+start forces a last-card-value cache flush
+        stopCardShortValueReadPolling();
+        startCardShortValueReadPolling();
+      }
+    }
+    void resetBallotOnPrinterDetach();
   }, [
-    hardware,
-    resetBallot,
-    startCardShortValueReadPolling,
+    previousHasPrinterAttached,
+    hasPrinterAttached,
     stopCardShortValueReadPolling,
+    startCardShortValueReadPolling,
+    resetBallot,
   ]);
 
   // Handle Machine Config
