@@ -59,30 +59,51 @@ export function arbitraryId(): fc.Arbitrary<Id> {
   );
 }
 
+/**
+ * Builds values suitable for ballot style IDs.
+ */
 export function arbitraryBallotStyleId(): fc.Arbitrary<BallotStyleId> {
   return arbitraryId();
 }
 
+/**
+ * Builds values suitable for candidate IDs.
+ */
 export function arbitraryCandidateId(): fc.Arbitrary<CandidateId> {
   return arbitraryId();
 }
 
+/**
+ * Builds values suitable for contest IDs.
+ */
 export function arbitraryContestId(): fc.Arbitrary<ContestId> {
   return arbitraryId();
 }
 
+/**
+ * Builds values suitable for county IDs.
+ */
 export function arbitraryCountyId(): fc.Arbitrary<CountyId> {
   return arbitraryId();
 }
 
+/**
+ * Builds values suitable for district IDs.
+ */
 export function arbitraryDistrictId(): fc.Arbitrary<DistrictId> {
   return arbitraryId();
 }
 
+/**
+ * Builds values suitable for party IDs.
+ */
 export function arbitraryPartyId(): fc.Arbitrary<PartyId> {
   return arbitraryId();
 }
 
+/**
+ * Builds values suitable for precinct IDs.
+ */
 export function arbitraryPrecinctId(): fc.Arbitrary<PrecinctId> {
   return arbitraryId();
 }

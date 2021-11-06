@@ -1,5 +1,6 @@
 import {
   AnyContest,
+  BallotId,
   BallotLocale,
   BallotStyleId,
   BallotType,
@@ -104,7 +105,7 @@ export function detect(data: Uint8Array): boolean {
  * Data needed to uniquely identify a ballot page, possibly including an ID.
  */
 export interface BallotConfig {
-  ballotId?: string;
+  ballotId?: BallotId;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   isTestMode: boolean;

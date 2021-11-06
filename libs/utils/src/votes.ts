@@ -10,7 +10,6 @@ import {
   expandEitherNeitherContests,
   getDistrictIdsForPartyId,
   getEitherNeitherContests,
-  Id,
   Tally,
   VotesDict,
   VotingMethod,
@@ -25,6 +24,7 @@ import {
   writeInCandidate,
   PartyId,
   PrecinctId,
+  CandidateId,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { find } from './find';
@@ -39,7 +39,7 @@ export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   return undefined;
 }
 
-export function normalizeWriteInId(candidateId: Id): string {
+export function normalizeWriteInId(candidateId: CandidateId): string {
   if (
     candidateId.startsWith('__writein') ||
     candidateId.startsWith('__write-in') ||
