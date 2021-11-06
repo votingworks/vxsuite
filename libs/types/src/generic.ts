@@ -168,6 +168,23 @@ export function safeParseJson<T>(
   return parser ? safeParse(parser, parsed) : ok(parsed);
 }
 
+/**
+ * Parse `value` using `parser` or throw an exception if parsing fails.
+ */
+export function unsafeParse<T>(parser: z.ZodType<T>, value: unknown): T {
+  return safeParse(parser, value).unsafeUnwrap();
+}
+
+/**
+ * Parser `value` using `parser` or return `undefined` if parsing fails.
+ */
+export function maybeParse<T>(
+  parser: z.ZodType<T>,
+  value: unknown
+): T | undefined {
+  return safeParse(parser, value).ok();
+}
+
 export type Id = string;
 export const IdSchema = z
   .string()
