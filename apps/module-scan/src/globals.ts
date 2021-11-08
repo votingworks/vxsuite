@@ -1,4 +1,4 @@
-import { safeParse } from '@votingworks/types';
+import { unsafeParse } from '@votingworks/types';
 import { join } from 'path';
 import { z } from 'zod';
 
@@ -37,10 +37,10 @@ export const MODULE_SCAN_PORT = Number(process.env.PORT || 3002);
 /**
  * Which machine type is this?
  */
-export const VX_MACHINE_TYPE = safeParse(
+export const VX_MACHINE_TYPE = unsafeParse(
   MachineTypeSchema,
   process.env.VX_MACHINE_TYPE ?? 'bsd'
-).unsafeUnwrap();
+);
 
 export enum ScannerLocation {
   Central = 'Central',
@@ -60,10 +60,10 @@ export const VX_MACHINE_ID = process.env.VX_MACHINE_ID ?? '000';
 /**
  * Which node environment is this?
  */
-export const NODE_ENV = safeParse(
+export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
   process.env.NODE_ENV ?? 'development'
-).unsafeUnwrap();
+);
 
 /**
  * Where should the database and image files etc go?

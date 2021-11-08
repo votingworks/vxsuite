@@ -20,7 +20,7 @@ import {
   withLocale,
   YesNoContest,
 } from './election';
-import { safeParse } from './generic';
+import { unsafeParse } from './generic';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -289,13 +289,13 @@ test('pulls translation keys from nested objects', () => {
       {
         ...election,
         parties: [
-          safeParse(PartySchema, {
+          unsafeParse(PartySchema, {
             id: 'FED',
             name: 'Federalist',
             abbrev: 'FED',
             fullName: 'Federalist',
             _lang: { 'es-US': { name: 'Federalista' } },
-          }).unsafeUnwrap(),
+          }),
         ],
         _lang: { 'es-US': {} },
       },

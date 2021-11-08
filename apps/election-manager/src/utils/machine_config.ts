@@ -1,13 +1,13 @@
-import { Provider, safeParse } from '@votingworks/types';
+import { Provider, unsafeParse } from '@votingworks/types';
 import { fetchJson } from '@votingworks/utils';
 import { MachineConfig, MachineConfigSchema } from '../config/types';
 
 export const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { machineId, codeVersion, bypassAuthentication } = safeParse(
+    const { machineId, codeVersion, bypassAuthentication } = unsafeParse(
       MachineConfigSchema,
       await fetchJson('/machine-config')
-    ).unsafeUnwrap();
+    );
 
     return {
       machineId,
