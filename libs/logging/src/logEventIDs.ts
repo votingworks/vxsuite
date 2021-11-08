@@ -10,12 +10,15 @@ import { LogEventType } from './logEventTypes';
  */
 
 export enum LogEventId {
+  // Election configuration logs
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
+  // System level logs
   MachineBootInit = 'machine-boot-init',
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
+  USBDeviceChangeDetected = 'usb-device-change-detected',
   // Authentication related logs
   AdminAuthenticationTwoFactor = 'admin-authentication-2fac',
   MachineLocked = 'machine-locked',
@@ -157,6 +160,13 @@ const USBDriveMounted: LogDetails = {
     'USB Drive mount has completed. Success or failure is indicated by the disposition.',
 };
 
+const USBDeviceChangeDetected: LogDetails = {
+  eventId: LogEventId.USBDeviceChangeDetected,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -191,6 +201,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return USBDriveMountInit;
     case LogEventId.USBDriveMounted:
       return USBDriveMounted;
+    case LogEventId.USBDeviceChangeDetected:
+      return USBDeviceChangeDetected;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);
