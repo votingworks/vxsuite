@@ -6,13 +6,13 @@ import {
   ISO8601TimestampSchema,
   OkResponse,
   OkResponseSchema,
-} from '.';
+} from '..';
 import {
   MarkAdjudications,
   MarkAdjudicationsSchema,
   SerializableBallotPageLayout,
   SerializableBallotPageLayoutSchema,
-} from '../hmpb';
+} from '../../hmpb';
 import {
   BallotSheetInfo,
   BallotSheetInfoSchema,
@@ -22,8 +22,8 @@ import {
   MarkThresholds,
   MarkThresholdsSchema,
   Precinct,
-} from '../election';
-import { HexString, IdSchema } from '../generic';
+} from '../../election';
+import { HexString, IdSchema } from '../../generic';
 
 export type Side = 'front' | 'back';
 export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
