@@ -12,6 +12,7 @@ export type LogDisposition = LogDispositionStandardTypes | string;
 export enum LogSource {
   System = 'system',
   VxAdminApp = 'vx-admin',
+  VxAdminServer = 'vx-admin-server',
   VxBatchScanApp = 'vx-batch-scan',
   VxPrecinctScanApp = 'vx-precinct-scan',
 }
