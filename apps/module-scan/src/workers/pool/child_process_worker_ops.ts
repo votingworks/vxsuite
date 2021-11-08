@@ -7,7 +7,7 @@ export class ChildProcessWorkerOps<I> implements WorkerOps<I, ChildProcess> {
   constructor(private readonly main: string) {}
 
   start(): ChildProcess {
-    return fork(join(__dirname, '../child-process-worker.js'), [this.main]);
+    return fork(join(__dirname, '../child_process_worker.js'), [this.main]);
   }
 
   stop(worker: ChildProcess): void {

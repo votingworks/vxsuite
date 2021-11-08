@@ -14,7 +14,7 @@ import {
 /**
  * Script to generate a cast vote record file for a given election.
  * Run from the command-line with:
- * pnpx ts-node generateSampleCVRFile.ts --help
+ * pnpx ts-node generate_sample_cvr_file.ts --help
  * To see more information and all possible arguments.
  */
 

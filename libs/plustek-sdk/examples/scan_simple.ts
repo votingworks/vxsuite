@@ -3,11 +3,11 @@
  * 
  * Run it:
  * 
- *   pnpx ts-node -T examples/scan-simple.ts
+ *   pnpx ts-node -T examples/scan_simple.ts
  * 
  * With debugging:
  * 
- *   DEBUG=* pnpx ts-node -T examples/scan-simple.ts
+ *   DEBUG=* pnpx ts-node -T examples/scan_simple.ts
  */
 
 import makeDebug from 'debug'

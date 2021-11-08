@@ -66,7 +66,7 @@
       "!src/config/*",
       "!src/**/*.d.ts",
       "!src/index.tsx",
-      "!src/contexts/ballotContext.ts",
+      "!src/contexts/ballot_context.ts",
       "!src/serviceWorker.ts"
     ],
     "coverageThreshold": {
