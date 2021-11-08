@@ -164,7 +164,7 @@ const USBDeviceChangeDetected: LogDetails = {
   eventId: LogEventId.USBDeviceChangeDetected,
   eventType: LogEventType.SystemStatus,
   documentationMessage:
-    'A message from the machine kernel about an externally connected USB device, usually when a new device is connected or disconnected.',
+    'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
 };
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
