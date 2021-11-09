@@ -17,8 +17,13 @@ import {
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
+  getPrecinctIndexById,
 } from '@votingworks/types';
-import { formatLongDate, getSingleYesNoVote } from '@votingworks/utils';
+import {
+  formatLongDate,
+  getSingleYesNoVote,
+  getContestVoteInRotatedOrder,
+} from '@votingworks/utils';
 
 import * as GLOBALS from '../config/globals';
 
@@ -130,21 +135,29 @@ function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
 
 function CandidateContestResult({
   contest,
-  parties,
+  election,
+  precinctId,
   vote = [],
 }: CandidateContestResultInterface): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
+  const precinctIndex = getPrecinctIndexById({ election, precinctId });
+  const sortedVotes = getContestVoteInRotatedOrder({
+    contest,
+    vote,
+    precinctIndex,
+  });
+
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map((candidate) => (
+      {sortedVotes.map((candidate) => (
         <Text key={candidate.id} wordBreak>
           <Text bold as="span">
             {candidate.name}
           </Text>{' '}
           {candidate.partyId &&
-            `/ ${findPartyById(parties, candidate.partyId)?.name}`}
+            `/ ${findPartyById(election.parties, candidate.partyId)?.name}`}
           {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}
@@ -226,7 +239,7 @@ export function PrintedBallot({
   const ballotId = randomBase64(10);
   const {
     election,
-    election: { county, date, seal, sealURL, state, parties, title },
+    election: { county, date, seal, sealURL, state, title },
     electionHash,
   } = electionDefinition;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
@@ -308,7 +321,8 @@ export function PrintedBallot({
                 {contest.type === 'candidate' && (
                   <CandidateContestResult
                     contest={contest}
-                    parties={parties}
+                    election={election}
+                    precinctId={precinctId}
                     vote={votes[contest.id] as CandidateVote}
                   />
                 )}

@@ -12,10 +12,14 @@ import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
+  getPrecinctIndexById,
 } from '@votingworks/types';
 import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils';
+import {
+  getSingleYesNoVote,
+  getContestVoteInRotatedOrder,
+} from '@votingworks/utils';
 import { findPartyById } from '../utils/find';
 import {
   CandidateContestResultInterface,
@@ -207,17 +211,26 @@ function NoSelection(): JSX.Element {
 
 function CandidateContestResult({
   contest,
-  parties,
   vote = [],
+  election,
+  precinctId,
 }: CandidateContestResultInterface): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
+  const precinctIndex = getPrecinctIndexById({ election, precinctId });
+  const sortedVotes = getContestVoteInRotatedOrder({
+    contest,
+    vote,
+    precinctIndex,
+  });
+
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
     <React.Fragment>
-      {vote.map((candidate, index, array) => {
+      {sortedVotes.map((candidate, index, array) => {
         const party =
-          candidate.partyId && findPartyById(parties, candidate.partyId);
+          candidate.partyId &&
+          findPartyById(election.parties, candidate.partyId);
         return (
           <Text
             key={candidate.id}
@@ -382,7 +395,6 @@ export function ReviewPage(): JSX.Element {
     'precinctId is required to render ReviewPage'
   );
   const { election } = electionDefinition;
-  const { parties } = election;
 
   return (
     <Screen>
@@ -427,7 +439,8 @@ export function ReviewPage(): JSX.Element {
                     {contest.type === 'candidate' && (
                       <CandidateContestResult
                         contest={contest}
-                        parties={parties}
+                        election={election}
+                        precinctId={precinctId}
                         vote={votes[contest.id] as CandidateVote}
                       />
                     )}

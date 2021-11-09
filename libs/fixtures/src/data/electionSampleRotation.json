@@ -1,0 +1,173 @@
+{
+  "title": "General Election",
+  "state": "State of Hamilton",
+  "county": {
+    "id": "franklin",
+    "name": "Franklin County"
+  },
+  "date": "2020-11-03T00:00:00-10:00",
+  "districts": [
+    {
+      "id": "district-1",
+      "name": "District 1"
+    },
+    {
+      "id": "district-2",
+      "name": "District 2"
+    },
+    {
+      "id": "district-3",
+      "name": "District 3"
+    },
+    {
+      "id": "7",
+      "name": "District 7"
+    }
+  ],
+  "parties": [
+    {
+      "id": "0",
+      "name": "Federalist",
+      "fullName": "Federalist Party",
+      "abbrev": "F"
+    },
+    {
+      "id": "1",
+      "name": "People's",
+      "fullName": "People's Party",
+      "abbrev": "P"
+    },
+    {
+      "id": "2",
+      "name": "Liberty",
+      "fullName": "Liberty Party",
+      "abbrev": "Li"
+    },
+    {
+      "id": "3",
+      "name": "Constitution",
+      "fullName": "Constitution Party",
+      "abbrev": "C"
+    },
+    {
+      "id": "4",
+      "name": "Whig",
+      "fullName": "Whig Party",
+      "abbrev": "W"
+    },
+    {
+      "id": "5",
+      "name": "Labor",
+      "fullName": "Labor Party",
+      "abbrev": "La"
+    },
+    {
+      "id": "6",
+      "name": "Independent",
+      "fullName": "Independent Party",
+      "abbrev": "I"
+    }
+  ],
+  "contests": [
+    {
+      "id": "city-mayor",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "City of Springfield",
+      "title": "Mayor",
+      "seats": 1,
+      "rotation": {
+        "type": "candidateShiftByPrecinctIndex"
+      },
+      "candidates": [
+        {
+          "id": "white",
+          "name": "Orville White 1",
+          "partyId": "1"
+        },
+        {
+          "id": "seldon",
+          "name": "Gregory Seldon 2",
+          "partyId": "2"
+        },
+        {
+          "id": "marracini",
+          "name": "Amanda Marracini 3",
+          "partyId": "5"
+        },
+        {
+          "id": "schreiner",
+          "name": "Martin Schreiner 4",
+          "partyId": "6"
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "county-commissioners",
+      "districtId": "district-1",
+      "type": "candidate",
+      "section": "Franklin County",
+      "title": "County Commissioners",
+      "seats": 4,
+      "rotation": {
+        "type": "candidateShiftByPrecinctIndex"
+      },
+      "candidates": [
+        {
+          "id": "argent",
+          "name": "Camille Argent 1",
+          "partyId": "0"
+        },
+        {
+          "id": "witherspoonsmithson",
+          "name": "Chloe Witherspoon-Smithson 2",
+          "partyId": "0"
+        },
+        {
+          "id": "bainbridge",
+          "name": "Clayton Bainbridge 3",
+          "partyId": "0"
+        },
+        {
+          "id": "hennessey",
+          "name": "Charlene Hennessey 4",
+          "partyId": "1"
+        },
+        {
+          "id": "savoy",
+          "name": "Eric Savoy 5",
+          "partyId": "1"
+        },
+        {
+          "id": "tawa",
+          "name": "Susan Tawa 6",
+          "partyId": "1"
+        }
+      ],
+      "allowWriteIns": true
+    }
+  ],
+  "precincts": [
+    {
+      "id": "23",
+      "name": "Center Springfield"
+    },
+    {
+      "id": "21",
+      "name": "North Springfield"
+    },
+    {
+      "id": "20",
+      "name": "South Springfield"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "12",
+      "precincts": ["23", "21", "20"],
+      "districts": ["district-1"]
+    }
+  ],
+  "sealURL": "/seals/Sample-Seal.svg"
+}

@@ -135,6 +135,13 @@ export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('yesno'),
   z.literal('ms-either-neither'),
 ]);
+export type RotationType = 'candidateShiftByPrecinctIndex';
+export interface Rotation {
+  readonly type: RotationType;
+}
+export const RotationSchema: z.ZodSchema<Rotation> = z.object({
+  type: z.literal('candidateShiftByPrecinctIndex'),
+});
 export type ContestId = string;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 export interface Contest {
@@ -160,6 +167,7 @@ export interface CandidateContest extends Contest {
   readonly seats: number;
   readonly candidates: readonly Candidate[];
   readonly allowWriteIns: boolean;
+  readonly rotation?: Rotation;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> = ContestInternalSchema.merge(
   z.object({
@@ -167,6 +175,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = ContestInte
     seats: z.number().int().positive(),
     candidates: z.array(CandidateSchema),
     allowWriteIns: z.boolean(),
+    rotation: RotationSchema.optional(),
   })
 ).superRefine((contest, ctx) => {
   for (const [index, id] of findDuplicateIds(contest.candidates)) {
@@ -1276,9 +1285,22 @@ export function getPrecinctById({
   precinctId,
 }: {
   election: Election;
-  precinctId: Id;
+  precinctId: PrecinctId;
 }): Precinct | undefined {
   return election.precincts.find((p) => p.id === precinctId);
+}
+
+/**
+ * Retrieves a precinct index by precinct id.
+ */
+export function getPrecinctIndexById({
+  election,
+  precinctId,
+}: {
+  election: Election;
+  precinctId: PrecinctId;
+}): number {
+  return election.precincts.findIndex((p) => p.id === precinctId);
 }
 
 /**
