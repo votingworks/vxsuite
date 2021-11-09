@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-export const skewedQRCodeBallotPage = join(
+export const skewedQrCodeBallotPage = join(
   __dirname,
   'skewed-qr-code-ballot-page.png'
 );

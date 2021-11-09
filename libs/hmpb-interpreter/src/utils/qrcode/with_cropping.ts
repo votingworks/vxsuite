@@ -1,16 +1,16 @@
-import { DetectQRCode, DetectQRCodeResult } from '../../types';
+import { DetectQrCode, DetectQrCodeResult } from '../../types';
 import { crop } from '../crop';
-import { flipRectVH } from '../geometry';
+import { flipRectVerticalAndHorizontal } from '../geometry';
 
 /**
  * Makes a new QR code detector from an existing one that works by cropping the
  * bottom-right and top-left corners of the image before passing it on.
  */
 export function withCropping(
-  decode: DetectQRCode,
+  decode: DetectQrCode,
   { widthFraction = 1 / 4, heightFraction = 1 / 5 } = {}
-): DetectQRCode {
-  return async (imageData): Promise<DetectQRCodeResult | undefined> => {
+): DetectQrCode {
+  return async (imageData): Promise<DetectQrCodeResult | undefined> => {
     const width = Math.floor(imageData.width * widthFraction);
     const height = Math.floor(imageData.height * heightFraction);
     const searchBounds = {
@@ -35,7 +35,7 @@ export function withCropping(
     {
       const cropped = crop(
         imageData,
-        flipRectVH(
+        flipRectVerticalAndHorizontal(
           { x: 0, y: 0, width: imageData.width, height: imageData.height },
           searchBounds
         )

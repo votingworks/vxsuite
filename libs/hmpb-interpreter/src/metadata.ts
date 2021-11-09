@@ -1,16 +1,16 @@
-import { decodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { decodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import {
   BallotLocales,
   BallotPageMetadata,
   BallotType,
   Election,
 } from '@votingworks/types';
-import { DetectQRCode } from './types';
+import { DetectQrCode } from './types';
 import { defined } from './utils/defined';
 import * as qrcode from './utils/qrcode';
 
 export interface DetectOptions {
-  detectQRCode?: DetectQRCode;
+  detectQrCode?: DetectQrCode;
 }
 
 export interface DetectResult {
@@ -79,7 +79,7 @@ export function fromBytes(
   data: Buffer
 ): BallotPageMetadata {
   if (data[0] === 'V'.charCodeAt(0) && data[1] === 'P'.charCodeAt(0)) {
-    return decodeHMPBBallotPageMetadata(election, data);
+    return decodeHmpbBallotPageMetadata(election, data);
   }
 
   return fromString(election, new TextDecoder().decode(data));
@@ -88,9 +88,9 @@ export function fromBytes(
 export async function detect(
   election: Election,
   imageData: ImageData,
-  { detectQRCode = qrcode.detect }: DetectOptions = {}
+  { detectQrCode = qrcode.detect }: DetectOptions = {}
 ): Promise<DetectResult> {
-  const result = await detectQRCode(imageData);
+  const result = await detectQrCode(imageData);
 
   if (!result) {
     throw new MetadataDecodeError('Expected QR code not found.');

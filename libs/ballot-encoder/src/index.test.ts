@@ -8,7 +8,7 @@ import {
   Candidate,
   CompletedBallot,
   getContests,
-  HMPBBallotPageMetadata,
+  HmpbBallotPageMetadata,
   isVotePresent,
   Vote,
   vote,
@@ -18,13 +18,13 @@ import { BitWriter, toUint8 } from './bits';
 import {
   decodeBallot,
   decodeElectionHash,
-  decodeHMPBBallotPageMetadata,
+  decodeHmpbBallotPageMetadata,
   detect,
-  detectHMPBBallotPageMetadata,
+  detectHmpbBallotPageMetadata,
   ELECTION_HASH_LENGTH,
   encodeBallot,
   encodeBallotInto,
-  encodeHMPBBallotPageMetadata,
+  encodeHmpbBallotPageMetadata,
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
   Prelude,
@@ -932,7 +932,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
 
 test('encode and decode HMPB ballot page metadata', () => {
   const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: election.ballotStyles[0]!.id,
@@ -944,18 +944,18 @@ test('encode and decode HMPB ballot page metadata', () => {
     ballotType: BallotType.Standard,
   };
 
-  const encoded = encodeHMPBBallotPageMetadata(election, ballotMetadata);
-  const decoded = decodeHMPBBallotPageMetadata(election, encoded);
+  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
+  const decoded = decodeHmpbBallotPageMetadata(election, encoded);
   expect(decoded).toEqual(ballotMetadata);
 
   // corrupt the first byte and expect it to fail
   encoded[0] = 42;
-  expect(() => decodeHMPBBallotPageMetadata(election, encoded)).toThrowError();
+  expect(() => decodeHmpbBallotPageMetadata(election, encoded)).toThrowError();
 });
 
 test('encode and decode HMPB ballot page metadata with ballot ID', () => {
   const { election, electionHash } = electionWithMsEitherNeitherDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[2]!.precincts[1]!,
     ballotStyleId: election.ballotStyles[2]!.id,
@@ -969,14 +969,14 @@ test('encode and decode HMPB ballot page metadata with ballot ID', () => {
     ballotId: 'foobar',
   };
 
-  const encoded = encodeHMPBBallotPageMetadata(election, ballotMetadata);
-  const decoded = decodeHMPBBallotPageMetadata(election, encoded);
+  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
+  const decoded = decodeHmpbBallotPageMetadata(election, encoded);
   expect(decoded).toEqual(ballotMetadata);
 });
 
 test('encode HMPB ballot page metadata with bad precinct fails', () => {
   const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: 'SanDimas', // not an actual precinct ID
     ballotStyleId: election.ballotStyles[0]!.id,
@@ -989,13 +989,13 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
   };
 
   expect(() =>
-    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+    encodeHmpbBallotPageMetadata(election, ballotMetadata)
   ).toThrowError('precinct ID not found: SanDimas');
 });
 
 test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: '42', // not a good ballot style
@@ -1008,13 +1008,13 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   };
 
   expect(() =>
-    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+    encodeHmpbBallotPageMetadata(election, ballotMetadata)
   ).toThrowError('ballot style ID not found: 42');
 });
 
 test('encode HMPB ballot page metadata with bad primary locale', () => {
   const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: election.ballotStyles[0]!.id,
@@ -1027,13 +1027,13 @@ test('encode HMPB ballot page metadata with bad primary locale', () => {
   };
 
   expect(() =>
-    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+    encodeHmpbBallotPageMetadata(election, ballotMetadata)
   ).toThrowError('primary locale not found: fr-CA');
 });
 
 test('encode HMPB ballot page metadata with bad secondary locale', () => {
   const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: election.ballotStyles[0]!.id,
@@ -1047,7 +1047,7 @@ test('encode HMPB ballot page metadata with bad secondary locale', () => {
   };
 
   expect(() =>
-    encodeHMPBBallotPageMetadata(election, ballotMetadata)
+    encodeHmpbBallotPageMetadata(election, ballotMetadata)
   ).toThrowError('secondary locale not found: fr-CA');
 });
 
@@ -1056,7 +1056,7 @@ test('detect HMPB ballot page metadata', () => {
   const ballotStyle = election.ballotStyles[0]!;
   const ballotStyleId = ballotStyle.id;
   const precinctId = ballotStyle.precincts[0]!;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId,
     ballotStyleId: ballotStyle.id,
@@ -1069,21 +1069,21 @@ test('detect HMPB ballot page metadata', () => {
   };
 
   // empty
-  expect(detectHMPBBallotPageMetadata(Uint8Array.of())).toBe(false);
+  expect(detectHmpbBallotPageMetadata(Uint8Array.of())).toBe(false);
 
   // gibberish
-  expect(detectHMPBBallotPageMetadata(Uint8Array.of(1, 2, 3))).toBe(false);
+  expect(detectHmpbBallotPageMetadata(Uint8Array.of(1, 2, 3))).toBe(false);
 
   // HMPB
   expect(
-    detectHMPBBallotPageMetadata(
-      encodeHMPBBallotPageMetadata(election, ballotMetadata)
+    detectHmpbBallotPageMetadata(
+      encodeHmpbBallotPageMetadata(election, ballotMetadata)
     )
   ).toBe(true);
 
   // BMD
   expect(
-    detectHMPBBallotPageMetadata(
+    detectHmpbBallotPageMetadata(
       encodeBallot(election, {
         electionHash,
         ballotId: '',
@@ -1099,7 +1099,7 @@ test('detect HMPB ballot page metadata', () => {
 
 test('decode election hash from HMPB metadata', () => {
   const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HMPBBallotPageMetadata = {
+  const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: election.ballotStyles[0]!.id,
@@ -1110,7 +1110,7 @@ test('decode election hash from HMPB metadata', () => {
   };
 
   expect(
-    decodeElectionHash(encodeHMPBBallotPageMetadata(election, ballotMetadata))
+    decodeElectionHash(encodeHmpbBallotPageMetadata(election, ballotMetadata))
   ).toEqual(electionHash);
 });
 

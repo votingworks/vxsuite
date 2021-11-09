@@ -112,17 +112,22 @@ async function main(): Promise<number> {
         const callExpression = statement
           .asKind(ts.SyntaxKind.ExpressionStatement)
           ?.getChildrenOfKind(ts.SyntaxKind.CallExpression)[0];
-          if (!callExpression) {
-            continue;
-          }
+        if (!callExpression) {
+          continue;
+        }
 
-        const callee = callExpression.getExpression().asKind(ts.SyntaxKind.PropertyAccessExpression);
+        const callee = callExpression
+          .getExpression()
+          .asKind(ts.SyntaxKind.PropertyAccessExpression);
         if (!callee) {
           continue;
         }
 
-        if (callee.getExpression().asKind(ts.SyntaxKind.Identifier)?.getText() !== 'jest' ||
-        callee.getName() !== 'mock') {
+        if (
+          callee.getExpression().asKind(ts.SyntaxKind.Identifier)?.getText() !==
+            'jest' ||
+          callee.getName() !== 'mock'
+        ) {
           continue;
         }
 
@@ -143,9 +148,12 @@ async function main(): Promise<number> {
 
         const mockedPathDirname = dirname(mockedPath);
         const mockedPathBasename = basename(mockedPath);
-        const snakeCaseMockedPathBasename = convertFilenameToSnakeCase(mockedPathBasename);
+        const snakeCaseMockedPathBasename =
+          convertFilenameToSnakeCase(mockedPathBasename);
         // NOTE: don't use `join` because it normalizes the path, removing the leading `./`
-        arg.setLiteralValue(`${mockedPathDirname}/${snakeCaseMockedPathBasename}`);
+        arg.setLiteralValue(
+          `${mockedPathDirname}/${snakeCaseMockedPathBasename}`
+        );
       }
     }
 

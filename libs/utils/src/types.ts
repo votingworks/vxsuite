@@ -97,26 +97,26 @@ export interface Storage {
   clear(): Promise<void>;
 }
 
-export interface CardAbsentAPI {
+export interface CardAbsentApi {
   present: false;
 }
-export const CardAbsentAPISchema: z.ZodSchema<CardAbsentAPI> = z.object({
+export const CardAbsentApiSchema: z.ZodSchema<CardAbsentApi> = z.object({
   present: z.literal(false),
 });
-export interface CardPresentAPI {
+export interface CardPresentApi {
   present: true;
   shortValue?: string;
   longValueExists?: boolean;
 }
-export const CardPresentAPISchema: z.ZodSchema<CardPresentAPI> = z.object({
+export const CardPresentApiSchema: z.ZodSchema<CardPresentApi> = z.object({
   present: z.literal(true),
   shortValue: z.string().optional(),
   longValueExists: z.boolean().optional(),
 });
-export type CardAPI = CardAbsentAPI | CardPresentAPI;
-export const CardAPISchema: z.ZodSchema<CardAPI> = z.union([
-  CardAbsentAPISchema,
-  CardPresentAPISchema,
+export type CardApi = CardAbsentApi | CardPresentApi;
+export const CardApiSchema: z.ZodSchema<CardApi> = z.union([
+  CardAbsentApiSchema,
+  CardPresentApiSchema,
 ]);
 
 /**
@@ -127,7 +127,7 @@ export interface Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  readStatus(): Promise<CardAPI>;
+  readStatus(): Promise<CardApi>;
 
   /**
    * Reads the long value as an object, or `undefined` if there is no long

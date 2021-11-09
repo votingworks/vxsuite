@@ -10,7 +10,7 @@ import { LoggingUserRole } from '@votingworks/logging/src';
 import {
   SaveElection,
   PrintedBallot,
-  ISO8601Timestamp,
+  Iso8601Timestamp,
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
@@ -25,7 +25,7 @@ import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
-  configuredAt: ISO8601Timestamp;
+  configuredAt: Iso8601Timestamp;
   isOfficialResults: boolean;
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;

@@ -7,7 +7,7 @@ import {
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { usbstick } from '@votingworks/utils';
-import { ImportCVRFilesModal } from './import_cvrfiles_modal';
+import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
   renderInAppContext,
   eitherNeitherElectionDefinition,
@@ -32,7 +32,7 @@ test('No USB screen shows when there is no USB drive', async () => {
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
     const { unmount, getByText } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       { usbDriveStatus: usbStatus }
     );
     getByText('No USB Drive Detected');
@@ -49,7 +49,7 @@ test('Loading screen show while usb is mounting or ejecting', async () => {
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
     const { unmount, getByText } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       { usbDriveStatus: usbStatus }
     );
     getByText('Loading');
@@ -70,12 +70,12 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
-    const saveCVR = jest.fn();
+    const saveCvr = jest.fn();
     const { getByText, getByTestId } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCvr,
       }
     );
     await waitFor(() =>
@@ -92,12 +92,12 @@ describe('Screens display properly when USB is mounted', () => {
       target: { files: [new File([''], 'file.jsonl')] },
     });
     await waitFor(() => expect(closeFn).toHaveBeenCalledTimes(2));
-    expect(saveCVR).toHaveBeenCalledTimes(1);
+    expect(saveCvr).toHaveBeenCalledTimes(1);
   });
 
   test('Import CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn();
-    const saveCVR = jest.fn();
+    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -119,10 +119,10 @@ describe('Screens display properly when USB is mounted', () => {
       .fn()
       .mockResolvedValue(fileEntries);
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCvr,
       }
     );
     await waitFor(() => getByText('Import CVR Files'));
@@ -154,7 +154,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Select'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCVR).toHaveBeenCalledTimes(1);
+      expect(saveCvr).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
         1,
@@ -168,7 +168,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Can import a test CVR when both live and test CVRs are loaded', async () => {
     const closeFn = jest.fn();
-    const saveCVR = jest.fn();
+    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -190,10 +190,10 @@ describe('Screens display properly when USB is mounted', () => {
       .fn()
       .mockResolvedValue(fileEntries);
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCvr,
       }
     );
     await waitFor(() => getByText('Import CVR Files'));
@@ -210,7 +210,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[1], 'Select'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCVR).toHaveBeenCalledTimes(1);
+      expect(saveCvr).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
         1,
@@ -225,7 +225,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Import CVR files screen locks to test mode when test files have been imported', async () => {
     const closeFn = jest.fn();
-    const saveCVR = jest.fn();
+    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -262,11 +262,11 @@ describe('Screens display properly when USB is mounted', () => {
       eitherNeitherElectionDefinition.election
     );
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCvr,
       }
     );
     await waitFor(() => getByText('Import Test Mode CVR Files'));
@@ -295,7 +295,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[1], 'Select'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCVR).toHaveBeenCalledTimes(1);
+      expect(saveCvr).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
         1,
@@ -312,7 +312,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Import CVR files screen locks to live mode when live files have been imported', async () => {
     const closeFn = jest.fn();
-    const saveCVR = jest.fn();
+    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -349,11 +349,11 @@ describe('Screens display properly when USB is mounted', () => {
       eitherNeitherElectionDefinition.election
     );
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCvr,
       }
     );
     await waitFor(() => getByText('Import Live Mode CVR Files'));
@@ -372,7 +372,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Select'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCVR).toHaveBeenCalledTimes(1);
+      expect(saveCvr).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
       expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
         1,
@@ -385,7 +385,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Shows previously imported files when all files have already been imported', async () => {
     const closeFn = jest.fn();
-    const saveCVR = jest.fn();
+    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -412,11 +412,11 @@ describe('Screens display properly when USB is mounted', () => {
       eitherNeitherElectionDefinition.election
     );
     const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCVRFilesModal onClose={closeFn} />,
+      <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCVR,
+        saveCastVoteRecordFiles: saveCvr,
       }
     );
     await waitFor(() => getByText('Import Live Mode CVR Files'));

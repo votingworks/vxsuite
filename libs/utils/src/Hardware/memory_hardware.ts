@@ -3,8 +3,8 @@ import { Hardware, PrinterStatus } from '../types';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
-  BrotherHLL5100DNProductId,
-  BrotherHLL5100DNVendorId,
+  BrotherHll5100DnProductId,
+  BrotherHll5100DnVendorId,
   isPrinter,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
@@ -40,8 +40,8 @@ export class MemoryHardware implements Hardware {
     deviceName: 'HL-L5100DN_series',
     locationId: 0,
     manufacturer: 'Brother',
-    productId: BrotherHLL5100DNProductId,
-    vendorId: BrotherHLL5100DNVendorId,
+    productId: BrotherHll5100DnProductId,
+    vendorId: BrotherHll5100DnVendorId,
     serialNumber: '',
   };
 

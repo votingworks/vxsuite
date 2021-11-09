@@ -30,7 +30,7 @@ import {
   validateSheetInterpretation,
 } from './validation';
 
-export function getCVRBallotType(
+export function getCvrBallotType(
   ballotType: BallotType
 ): CastVoteRecord['_ballotType'] {
   switch (ballotType) {
@@ -57,7 +57,7 @@ export function buildCastVoteRecordMetadataEntries(
   return {
     _ballotId: ballotId,
     _ballotStyleId: metadata.ballotStyleId,
-    _ballotType: getCVRBallotType(metadata.ballotType),
+    _ballotType: getCvrBallotType(metadata.ballotType),
     _batchId: batchId,
     _batchLabel: batchLabel,
     _precinctId: metadata.precinctId,

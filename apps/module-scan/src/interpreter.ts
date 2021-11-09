@@ -10,8 +10,8 @@ import {
   ELECTION_HASH_LENGTH,
 } from '@votingworks/ballot-encoder';
 import {
-  DetectQRCodeResult,
-  Interpreter as HMPBInterpreter,
+  DetectQrCodeResult,
+  Interpreter as HmpbInterpreter,
   metadataFromBytes,
 } from '@votingworks/hmpb-interpreter';
 import {
@@ -38,7 +38,7 @@ import {
 import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
-import { detectQRCode } from './util/qrcode';
+import { detectQrCode } from './util/qrcode';
 import * as qrcodeWorker from './workers/qrcode';
 
 const debug = makeDebug('module-scan:interpreter');
@@ -155,7 +155,7 @@ export interface InterpreterOptions {
 }
 
 export class Interpreter {
-  private hmpbInterpreter?: HMPBInterpreter;
+  private hmpbInterpreter?: HmpbInterpreter;
   private election: Election;
   private electionHash?: string;
   private testMode: boolean;
@@ -457,7 +457,7 @@ export class Interpreter {
     };
   }
 
-  private getHmpbInterpreter(): HMPBInterpreter {
+  private getHmpbInterpreter(): HmpbInterpreter {
     if (!this.hmpbInterpreter) {
       if (typeof this.testMode === 'undefined') {
         throw new Error(
@@ -465,13 +465,13 @@ export class Interpreter {
         );
       }
 
-      this.hmpbInterpreter = new HMPBInterpreter({
+      this.hmpbInterpreter = new HmpbInterpreter({
         election: this.election,
         testMode: this.testMode,
-        detectQRCode: async (
+        detectQrCode: async (
           imageData
-        ): Promise<DetectQRCodeResult | undefined> => {
-          const result = await detectQRCode(imageData);
+        ): Promise<DetectQrCodeResult | undefined> => {
+          const result = await detectQrCode(imageData);
 
           if (result) {
             return {

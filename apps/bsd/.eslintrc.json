@@ -1,6 +1,12 @@
 {
   "extends": ["plugin:vx/react"],
   "rules": {
+    "vx/gts-identifiers": [
+      "error",
+      {
+        "allowedNames": ["HStack", "VStack", "setXScaleValue", "setYScaleValue"]
+      }
+    ],
     "vx/gts-no-default-exports": "error"
   }
 }

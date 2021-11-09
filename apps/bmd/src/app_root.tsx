@@ -13,7 +13,7 @@ import {
   getPrecinctById,
   safeParseElectionDefinition,
   Optional,
-  safeParseJSON,
+  safeParseJson,
   AnyCardDataSchema,
   VoterCardDataSchema,
   VoterCardData,
@@ -40,8 +40,8 @@ import {
   Storage,
   Hardware,
   PrecinctScannerCardTally,
-  CardAPI,
-  CardPresentAPI,
+  CardApi,
+  CardPresentApi,
   PrecinctScannerCardTallySchema,
   throwIllegalValue,
 } from '@votingworks/utils';
@@ -537,7 +537,7 @@ export function AppRoot({
         })
       : [];
 
-  const readCard = useCallback(async (): Promise<CardAPI> => {
+  const readCard = useCallback(async (): Promise<CardApi> => {
     return await card.readStatus();
   }, [card]);
 
@@ -734,8 +734,8 @@ export function AppRoot({
   }, [card, optionalElectionDefinition]);
 
   const processCard = useCallback(
-    async ({ longValueExists, shortValue: cardShortValue }: CardPresentAPI) => {
-      const parseShortValueResult = safeParseJSON(
+    async ({ longValueExists, shortValue: cardShortValue }: CardPresentApi) => {
+      const parseShortValueResult = safeParseJson(
         /* istanbul ignore next */
         cardShortValue ?? '',
         AnyCardDataSchema
@@ -936,7 +936,7 @@ export function AppRoot({
 
     await clearLongValue();
 
-    const currentVoterCardData = safeParseJSON(
+    const currentVoterCardData = safeParseJson(
       /* istanbul ignore next */
       shortValue ?? '',
       VoterCardDataSchema
@@ -949,7 +949,7 @@ export function AppRoot({
 
     const updatedCard = await readCard();
     const updatedShortValue = updatedCard.present
-      ? safeParseJSON(
+      ? safeParseJson(
           /* istanbul ignore next */
           updatedCard.shortValue ?? '',
           VoterCardDataSchema
@@ -985,7 +985,7 @@ export function AppRoot({
 
     await clearLongValue();
 
-    const currentVoterCardData = safeParseJSON(
+    const currentVoterCardData = safeParseJson(
       /* istanbul ignore next */
       shortValue ?? '',
       VoterCardDataSchema
@@ -1001,7 +1001,7 @@ export function AppRoot({
     startCardShortValueReadPolling();
 
     const updatedShortValue = updatedCard.present
-      ? safeParseJSON(
+      ? safeParseJson(
           /* istanbul ignore next */
           updatedCard.shortValue ?? '',
           VoterCardDataSchema

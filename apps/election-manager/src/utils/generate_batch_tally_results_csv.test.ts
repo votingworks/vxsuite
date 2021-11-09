@@ -3,15 +3,15 @@ import {
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures';
 import {
-  generateCVR,
-  generateFileContentFromCVRs,
+  generateCvr,
+  generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
 import { computeFullElectionTally } from '../lib/votecounting';
-import { parseCVRsAndAssertSuccess } from '../lib/votecounting.test';
+import { parseCvrsAndAssertSuccess } from '../lib/votecounting.test';
 import {
-  generateBatchTallyResultsCSV,
-  generateHeaderRowForBatchResultsCSV,
-  generateRowsForBatchTallyResultsCSV,
+  generateBatchTallyResultsCsv,
+  generateHeaderRowForBatchResultsCsv,
+  generateRowsForBatchTallyResultsCsv,
 } from './generate_batch_tally_results_csv';
 
 describe('generateBatchTallyResultsCSV', () => {
@@ -19,8 +19,8 @@ describe('generateBatchTallyResultsCSV', () => {
     const {
       election,
     } = electionMultiPartyPrimaryWithDataFiles.electionDefinition;
-    const cvrsFileContent = generateFileContentFromCVRs([
-      generateCVR(
+    const cvrsFileContent = generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           'governor-contest-liberty': ['aaron-aligator'],
@@ -28,7 +28,7 @@ describe('generateBatchTallyResultsCSV', () => {
         },
         { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '2L' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'governor-contest-liberty': ['peter-pigeon'],
@@ -36,7 +36,7 @@ describe('generateBatchTallyResultsCSV', () => {
         },
         { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '2L' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'governor-contest-liberty': [],
@@ -45,12 +45,12 @@ describe('generateBatchTallyResultsCSV', () => {
         { batchId: 'batch-2', batchLabel: 'Batch 2', ballotStyleId: '2L' }
       ),
     ]);
-    const castVoteRecords = parseCVRsAndAssertSuccess(
+    const castVoteRecords = parseCvrsAndAssertSuccess(
       cvrsFileContent,
       election
     );
     const fullTally = computeFullElectionTally(election, [castVoteRecords]);
-    const headerRow = generateHeaderRowForBatchResultsCSV(election);
+    const headerRow = generateHeaderRowForBatchResultsCsv(election);
     expect(headerRow).toContain(
       'Batch ID,Batch Name,Tabulator,Number of Ballots'
     );
@@ -62,7 +62,7 @@ describe('generateBatchTallyResultsCSV', () => {
       'batch-2,Batch 2,scanner-1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
     ];
     let i = 0;
-    for (const resultDataRow of generateRowsForBatchTallyResultsCSV(
+    for (const resultDataRow of generateRowsForBatchTallyResultsCsv(
       fullTally,
       election
     )) {
@@ -75,8 +75,8 @@ describe('generateBatchTallyResultsCSV', () => {
     const {
       election,
     } = electionWithMsEitherNeitherWithDataFiles.electionDefinition;
-    const cvrsFileContent = generateFileContentFromCVRs([
-      generateCVR(
+    const cvrsFileContent = generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           '750000017': ['yes'],
@@ -86,7 +86,7 @@ describe('generateBatchTallyResultsCSV', () => {
         },
         { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '5' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           '750000017': ['no'],
@@ -96,7 +96,7 @@ describe('generateBatchTallyResultsCSV', () => {
         },
         { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '5' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           '750000017': ['no', 'yes'],
@@ -107,7 +107,7 @@ describe('generateBatchTallyResultsCSV', () => {
         { batchId: 'batch-2', batchLabel: 'Batch 2', ballotStyleId: '4' }
       ),
     ]);
-    const castVoteRecords = parseCVRsAndAssertSuccess(
+    const castVoteRecords = parseCvrsAndAssertSuccess(
       cvrsFileContent,
       election
     );
@@ -116,8 +116,8 @@ describe('generateBatchTallyResultsCSV', () => {
       'batch-1,Batch 1,scanner-1,2,2,2,0,0,0,0,0,2,2,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,2,0,0,1,1,2,1,1,0,0,2,0,0,1,1,2,0,0,0,2',
       'batch-2,Batch 2,scanner-1,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,0,0,0,1,0,0,1,0',
     ];
-    const headerRow = generateHeaderRowForBatchResultsCSV(election);
-    const generatedRows = generateRowsForBatchTallyResultsCSV(
+    const headerRow = generateHeaderRowForBatchResultsCsv(election);
+    const generatedRows = generateRowsForBatchTallyResultsCsv(
       fullTally,
       election
     );
@@ -144,12 +144,12 @@ describe('generateBatchTallyResultsCSV', () => {
       csvData,
     } = electionMultiPartyPrimaryWithDataFiles;
     const { election } = electionDefinition;
-    const castVoteRecords = parseCVRsAndAssertSuccess(cvrData, election);
+    const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
     const fullTally = computeFullElectionTally(election, [castVoteRecords]);
-    const generatedCSVFileContent = generateBatchTallyResultsCSV(
+    const generatedCsvFileContent = generateBatchTallyResultsCsv(
       fullTally,
       election
     );
-    expect(generatedCSVFileContent).toEqual(csvData);
+    expect(generatedCsvFileContent).toEqual(csvData);
   });
 });

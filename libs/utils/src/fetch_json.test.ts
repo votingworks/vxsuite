@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock';
-import { fetchJSON } from './fetch_json';
+import { fetchJson } from './fetch_json';
 
 test('passes the URL through as-is to fetch', async () => {
   fetchMock.getOnce((url) => {
@@ -7,7 +7,7 @@ test('passes the URL through as-is to fetch', async () => {
     return true;
   }, {});
 
-  await fetchJSON('/example');
+  await fetchJson('/example');
 });
 
 test('adds "Accept: application/json" by default', async () => {
@@ -17,7 +17,7 @@ test('adds "Accept: application/json" by default', async () => {
     return true;
   }, {});
 
-  await fetchJSON('/example');
+  await fetchJson('/example');
 });
 
 test('allows overriding Accept header', async () => {
@@ -27,7 +27,7 @@ test('allows overriding Accept header', async () => {
     return true;
   }, {});
 
-  await fetchJSON('/example', { headers: { Accept: 'x-custom-json' } });
+  await fetchJson('/example', { headers: { Accept: 'x-custom-json' } });
 });
 
 test('preserves custom headers', async () => {
@@ -39,17 +39,17 @@ test('preserves custom headers', async () => {
     return true;
   }, {});
 
-  await fetchJSON('/example', { headers: { 'X-Custom': '123' } });
+  await fetchJson('/example', { headers: { 'X-Custom': '123' } });
 });
 
 test('throws on non-ok response', async () => {
   fetchMock.getOnce('/example', { status: 400 });
-  await expect(fetchJSON('/example')).rejects.toThrowError(
+  await expect(fetchJson('/example')).rejects.toThrowError(
     'fetch response is not ok'
   );
 });
 
 test('interprets the response as JSON', async () => {
   fetchMock.getOnce('/example', '{ "status": "ok" }');
-  expect(await fetchJSON('/example')).toEqual({ status: 'ok' });
+  expect(await fetchJson('/example')).toEqual({ status: 'ok' });
 });

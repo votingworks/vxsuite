@@ -23,7 +23,7 @@ export type ElectionData = {
   timestamp: Date;
 };
 
-export type CVRFileData = {
+export type CvrFileData = {
   machineId: string;
   numberOfBallots: number;
   isTestModeResults: boolean;
@@ -113,9 +113,9 @@ export function generateFilenameForScanningResults(
 }
 
 /* Extract information about a CVR file from the filename */
-export function parseCVRFileInfoFromFilename(
+export function parseCvrFileInfoFromFilename(
   filename: string
-): CVRFileData | undefined {
+): CvrFileData | undefined {
   const segments = filename.split(SECTION_SEPARATOR);
   const isTestModeResults = segments.length === 4 && segments[0] === 'TEST';
 

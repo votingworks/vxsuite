@@ -65,7 +65,7 @@ export function UnconfiguredScreen(): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
   const [client] = useState(new ConverterClient('election'));
-  const [isConvertSEMS, setIsConvertSEMS] = useState(false);
+  const [isConvertSems, setIsConvertSems] = useState(false);
 
   async function createNewElection() {
     await saveElection(newElection);
@@ -73,12 +73,12 @@ export function UnconfiguredScreen(): JSX.Element {
   }
 
   const saveElectionAndShowSuccess = useCallback(
-    (electionJSON: string) => {
-      parseElection(JSON.parse(electionJSON));
+    (electionJson: string) => {
+      parseElection(JSON.parse(electionJson));
       setShowSuccess(true);
       setTimeout(async () => {
         setShowSuccess(false);
-        await saveElection(electionJSON);
+        await saveElection(electionJson);
       }, 3000);
     },
     [saveElection, setShowSuccess]
@@ -116,8 +116,8 @@ export function UnconfiguredScreen(): JSX.Element {
       try {
         const blob = await client.getOutputFile(electionFileName);
         await resetServerFiles();
-        const electionJSON = await new Response(blob).text();
-        saveElectionAndShowSuccess(electionJSON);
+        const electionJson = await new Response(blob).text();
+        saveElectionAndShowSuccess(electionJson);
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
@@ -192,7 +192,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   async function resetUploadFilesAndGoBack() {
     await resetUploadFiles();
-    setIsConvertSEMS(false);
+    setIsConvertSems(false);
   }
 
   useEffect(() => {
@@ -228,7 +228,7 @@ export function UnconfiguredScreen(): JSX.Element {
     );
   }
 
-  if (isConvertSEMS && inputConversionFiles.length > 0) {
+  if (isConvertSems && inputConversionFiles.length > 0) {
     return (
       <NavigationScreen mainChildCenter>
         <Prose textCenter>
@@ -302,8 +302,8 @@ export function UnconfiguredScreen(): JSX.Element {
         {inputConversionFiles.length > 0 && (
           <React.Fragment>
             <HorizontalRule>or</HorizontalRule>
-            {!isConvertSEMS && (
-              <Button onPress={() => setIsConvertSEMS(true)}>
+            {!isConvertSems && (
+              <Button onPress={() => setIsConvertSems(true)}>
                 Convert from SEMS files
               </Button>
             )}

@@ -5,7 +5,7 @@ import {
   ok,
   Optional,
   Result,
-  safeParseJSON,
+  safeParseJson,
 } from '@votingworks/types';
 import { Card } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -170,7 +170,7 @@ export function useSmartcard({
           longValueExists: insertedCard.present && insertedCard.longValueExists,
           cardData:
             insertedCard.present && insertedCard.shortValue
-              ? safeParseJSON(insertedCard.shortValue, AnyCardDataSchema).ok()
+              ? safeParseJson(insertedCard.shortValue, AnyCardDataSchema).ok()
               : undefined,
           lastCardDataString: currentCardDataString,
         });

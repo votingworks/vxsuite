@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
 import { usbstick } from '@votingworks/utils';
-import { USBControllerButton } from './usbcontroller_button';
+import { UsbControllerButton } from './usbcontroller_button';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -17,7 +17,7 @@ afterAll(() => {
 
 test('shows nothing if USB not available', () => {
   const { container } = render(
-    <USBControllerButton
+    <UsbControllerButton
       usbDriveStatus={UsbDriveStatus.notavailable}
       usbDriveEject={jest.fn()}
     />
@@ -29,7 +29,7 @@ test('shows nothing if USB not available', () => {
 test('shows No USB if usb available but absent', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <USBControllerButton
+    <UsbControllerButton
       usbDriveStatus={UsbDriveStatus.absent}
       usbDriveEject={eject}
     />
@@ -43,7 +43,7 @@ test('shows No USB if usb available but absent', () => {
 test('shows eject if mounted', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <USBControllerButton
+    <UsbControllerButton
       usbDriveStatus={UsbDriveStatus.mounted}
       usbDriveEject={eject}
     />
@@ -57,7 +57,7 @@ test('shows eject if mounted', () => {
 test('shows ejected if recently ejected', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <USBControllerButton
+    <UsbControllerButton
       usbDriveStatus={UsbDriveStatus.recentlyEjected}
       usbDriveEject={eject}
     />
@@ -71,7 +71,7 @@ test('shows ejected if recently ejected', () => {
 test('shows connecting while mounting', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <USBControllerButton
+    <UsbControllerButton
       usbDriveStatus={UsbDriveStatus.present}
       usbDriveEject={eject}
     />
@@ -85,7 +85,7 @@ test('shows connecting while mounting', () => {
 test('shows ejecting while ejecting', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <USBControllerButton
+    <UsbControllerButton
       usbDriveStatus={UsbDriveStatus.ejecting}
       usbDriveEject={eject}
     />

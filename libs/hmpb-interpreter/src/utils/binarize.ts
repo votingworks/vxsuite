@@ -1,5 +1,5 @@
 import { grayscale } from './grayscale';
-import { getImageChannelCount, isRGBA } from './image_format_utils';
+import { getImageChannelCount, isRgba } from './image_format_utils';
 import { otsu } from './otsu';
 
 export type RGBA = [number, number, number, number];
@@ -29,7 +29,7 @@ export function binarize(
   const effectiveThreshold =
     threshold ?? otsu(dstImageData.data, getImageChannelCount(dstImageData));
 
-  if (isRGBA(dstImageData)) {
+  if (isRgba(dstImageData)) {
     const dst32 = new Int32Array(dst.buffer);
     const whiteU32 =
       PIXEL_WHITE | (PIXEL_WHITE << 8) | (PIXEL_WHITE << 16) | (0xff << 24);

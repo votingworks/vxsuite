@@ -32,10 +32,10 @@ import { PrecinctReportScreenProps } from '../config/types';
 
 import { generateTestDeckBallots } from '../utils/election';
 
-import { SaveFileToUSB, FileType } from '../components/save_file_to_usb';
+import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import {
   generateDefaultReportFilename,
-  generateFileContentToSaveAsPDF,
+  generateFileContentToSaveAsPdf,
 } from '../utils/save_as_pdf';
 
 const allPrecincts: Precinct = {
@@ -127,9 +127,9 @@ export function TestDeckScreen(): JSX.Element {
           </Prose>
         </NavigationScreen>
         {isSaveModalOpen && (
-          <SaveFileToUSB
+          <SaveFileToUsb
             onClose={() => setIsSaveModalOpen(false)}
-            generateFileContent={generateFileContentToSaveAsPDF}
+            generateFileContent={generateFileContentToSaveAsPdf}
             defaultFilename={defaultReportFilename}
             fileType={FileType.TestDeckTallyReport}
           />

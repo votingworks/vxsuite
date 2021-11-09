@@ -4,7 +4,7 @@ import {
   Optional,
   Precinct,
   safeParse,
-  safeParseJSON,
+  safeParseJson,
 } from '@votingworks/types';
 import {
   GetCurrentPrecinctResponseSchema,
@@ -18,21 +18,21 @@ import {
   PutCurrentPrecinctConfigRequest,
 } from '@votingworks/types/api/module-scan';
 import { ErrorsResponse, OkResponse } from '@votingworks/types/src/api';
-import { fetchJSON } from '@votingworks/utils';
+import { fetchJson } from '@votingworks/utils';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
   value: Body
 ): Promise<void> {
-  const isJSON =
+  const isJson =
     typeof value !== 'string' &&
     !(value instanceof ArrayBuffer) &&
     !(value instanceof Uint8Array);
   const response = await fetch(url, {
     method: 'PATCH',
-    body: isJSON ? JSON.stringify(value) : (value as BodyInit),
+    body: isJson ? JSON.stringify(value) : (value as BodyInit),
     headers: {
-      'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
+      'Content-Type': isJson ? 'application/json' : 'application/octet-stream',
     },
   });
   const body: OkResponse | ErrorsResponse = await response.json();
@@ -46,15 +46,15 @@ async function put<Body extends string | ArrayBuffer | unknown>(
   url: string,
   value: Body
 ): Promise<void> {
-  const isJSON =
+  const isJson =
     typeof value !== 'string' &&
     !(value instanceof ArrayBuffer) &&
     !(value instanceof Uint8Array);
   const response = await fetch(url, {
     method: 'PUT',
-    body: isJSON ? JSON.stringify(value) : (value as BodyInit),
+    body: isJson ? JSON.stringify(value) : (value as BodyInit),
     headers: {
-      'Content-Type': isJSON ? 'application/json' : 'application/octet-stream',
+      'Content-Type': isJson ? 'application/json' : 'application/octet-stream',
     },
   });
   const body: OkResponse | ErrorsResponse = await response.json();
@@ -90,7 +90,7 @@ export async function getElectionDefinition(): Promise<
   ElectionDefinition | undefined
 > {
   return (
-    (safeParseJSON(
+    (safeParseJson(
       await (
         await fetch('/config/election', {
           headers: { Accept: 'application/json' },
@@ -113,7 +113,7 @@ export async function setElection(electionData?: string): Promise<void> {
 }
 
 export async function getTestMode(): Promise<boolean> {
-  return safeParseJSON(
+  return safeParseJson(
     await (await fetch('/config/testMode')).text(),
     GetTestModeConfigResponseSchema
   ).unsafeUnwrap().testMode;
@@ -128,7 +128,7 @@ export async function getMarkThresholdOverrides(): Promise<
 > {
   const { markThresholdOverrides } = safeParse(
     GetMarkThresholdOverridesConfigResponseSchema,
-    await fetchJSON('/config/markThresholdOverrides')
+    await fetchJson('/config/markThresholdOverrides')
   ).unsafeUnwrap();
   return markThresholdOverrides;
 }
@@ -149,7 +149,7 @@ export async function setMarkThresholdOverrides(
 export async function getCurrentPrecinctId(): Promise<
   Optional<Precinct['id']>
 > {
-  return safeParseJSON(
+  return safeParseJson(
     await (
       await fetch('/config/precinct', {
         headers: { Accept: 'application/json' },

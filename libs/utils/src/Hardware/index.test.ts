@@ -4,7 +4,7 @@ import {
   getHardware,
   isFujitsuScanner,
   PlustekScannerVendorId,
-  PlustekVTM300ScannerProductId,
+  PlustekVtm300ScannerProductId,
 } from '.';
 import { KioskHardware } from './kiosk_hardware';
 import {
@@ -12,7 +12,7 @@ import {
   AccessibleControllerVendorId,
   isAccessibleController,
   isCardReader,
-  isPlustekVTM300Scanner,
+  isPlustekVtm300Scanner,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
@@ -101,16 +101,16 @@ it('isFujitsuScanner matches a device with the right vendor and product id', () 
   ).toBe(true);
 });
 
-it('isPlustekVTM300Scanner does not match just any device', () => {
-  expect(isPlustekVTM300Scanner(fakeDevice())).toBe(false);
+it('isPlustekVtm300Scanner does not match just any device', () => {
+  expect(isPlustekVtm300Scanner(fakeDevice())).toBe(false);
 });
 
 it('isFujitsuScanner matches a device with the right vendor and product id', () => {
   expect(
-    isPlustekVTM300Scanner(
+    isPlustekVtm300Scanner(
       fakeDevice({
         vendorId: PlustekScannerVendorId,
-        productId: PlustekVTM300ScannerProductId,
+        productId: PlustekVtm300ScannerProductId,
       })
     )
   ).toBe(true);

@@ -9,7 +9,7 @@ import {
   Loading,
   PrecinctScannerPollsReport,
   PrecinctScannerTallyReport,
-  PrecinctScannerTallyQRCode,
+  PrecinctScannerTallyQrCode,
   PrintableContainer,
   TallyReport,
   UsbDrive,
@@ -55,7 +55,7 @@ interface Props {
   isPollsOpen: boolean;
   isLiveMode: boolean;
   togglePollsOpen: () => void;
-  getCVRsFromExport: () => Promise<CastVoteRecord[]>;
+  getCvrsFromExport: () => Promise<CastVoteRecord[]>;
   saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<boolean>;
   printer: Printer;
   hasPrinterAttached: boolean;
@@ -66,7 +66,7 @@ export function PollWorkerScreen({
   scannedBallotCount,
   isPollsOpen,
   togglePollsOpen,
-  getCVRsFromExport,
+  getCvrsFromExport,
   saveTallyToCard,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
@@ -120,7 +120,7 @@ export function PollWorkerScreen({
 
   useEffect(() => {
     async function calculateTally() {
-      const castVoteRecords = await getCVRsFromExport();
+      const castVoteRecords = await getCvrsFromExport();
       const tally = computeTallyWithPrecomputedCategories(
         election,
         new Set(castVoteRecords),
@@ -158,7 +158,7 @@ export function PollWorkerScreen({
     void calculateTally();
   }, [
     election,
-    getCVRsFromExport,
+    getCvrsFromExport,
     scannedBallotCount,
     precinctSelection,
     parties,
@@ -473,7 +473,7 @@ export function PollWorkerScreen({
                     })
                   )}
                   {currentCompressedTally && scannedBallotCount > 0 && (
-                    <PrecinctScannerTallyQRCode
+                    <PrecinctScannerTallyQrCode
                       electionDefinition={electionDefinition}
                       signingMachineId={machineConfig.machineId}
                       compressedTally={currentCompressedTally}

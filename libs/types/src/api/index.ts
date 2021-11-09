@@ -1,9 +1,9 @@
 import * as z from 'zod';
-import { ISO8601Date } from '../generic';
+import { Iso8601Date } from '../generic';
 
-export type ISO8601Timestamp = string;
+export type Iso8601Timestamp = string;
 
-export const ISO8601TimestampSchema = ISO8601Date;
+export const Iso8601TimestampSchema = Iso8601Date;
 
 export type OkResponse<Props = Record<string, unknown>> = {
   status: 'ok';

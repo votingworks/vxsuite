@@ -45,7 +45,7 @@ import { fakePrinter } from '../test/helpers/fake_printer';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
 
-import { convertSEMSFileToExternalTally } from './utils/sems_tallies';
+import { convertSemsFileToExternalTally } from './utils/sems_tallies';
 import {
   convertExternalTalliesToStorageString,
   convertTalliesByPrecinctToFullExternalTally,
@@ -522,7 +522,7 @@ test('tabulating CVRs with SEMS file', async () => {
   );
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
 
-  const semsFileStorageString = convertSEMSFileToExternalTally(
+  const semsFileStorageString = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
@@ -631,7 +631,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   );
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
 
-  const semsFileStorageString = convertSEMSFileToExternalTally(
+  const semsFileStorageString = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
@@ -809,7 +809,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   );
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
 
-  const semsFileTally = convertSEMSFileToExternalTally(
+  const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
@@ -871,7 +871,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   );
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
 
-  const semsFileTally = convertSEMSFileToExternalTally(
+  const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,

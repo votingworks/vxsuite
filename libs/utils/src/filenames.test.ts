@@ -8,9 +8,9 @@ import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   generateFilenameForBallotExportPackage,
-  parseCVRFileInfoFromFilename,
+  parseCvrFileInfoFromFilename,
   generateFinalExportDefaultFilename,
-  CVRFileData,
+  CvrFileData,
   ElectionData,
   generateFilenameForBallotExportPackageFromElectionData,
   generateBatchResultsDefaultFilename,
@@ -274,10 +274,10 @@ describe('generateFinalExportDefaultFilename', () => {
   });
 });
 
-describe('parseCVRFileInfoFromFilename', () => {
+describe('parseCvrFileInfoFromFilename', () => {
   test('parses a basic name not in test mode properly', () => {
     const name = 'machine_5__1_ballots__2020-12-08_10-42-02.jsonl';
-    const results = parseCVRFileInfoFromFilename(name);
+    const results = parseCvrFileInfoFromFilename(name);
     expect(results).toEqual({
       isTestModeResults: false,
       machineId: '5',
@@ -288,7 +288,7 @@ describe('parseCVRFileInfoFromFilename', () => {
 
   test('parses a basic name in test mode properly', () => {
     const name = 'TEST__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl';
-    const results = parseCVRFileInfoFromFilename(name);
+    const results = parseCvrFileInfoFromFilename(name);
     expect(results).toEqual({
       isTestModeResults: true,
       machineId: '0002',
@@ -298,7 +298,7 @@ describe('parseCVRFileInfoFromFilename', () => {
   });
 
   test('returns illegal date when the timestamp cant be parsed', () => {
-    const results = parseCVRFileInfoFromFilename(
+    const results = parseCvrFileInfoFromFilename(
       'TEST__machine_0002__54_ballots__notatimestamp.jsonl'
     );
     expect(results!.toString()).toEqual(
@@ -312,7 +312,7 @@ describe('parseCVRFileInfoFromFilename', () => {
   });
 
   test('parses as much of the date as possible', () => {
-    const results = parseCVRFileInfoFromFilename(
+    const results = parseCvrFileInfoFromFilename(
       'TEST__machine_0002__54_ballots__2020-12-08.jsonl'
     );
     expect(results).toEqual({
@@ -325,43 +325,43 @@ describe('parseCVRFileInfoFromFilename', () => {
 
   test('fails when the format of the filename is unexpected', () => {
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'INVALID__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         '__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'machine_0002__54_ballots__2020-12-08__10-42-02.jsonl'
       )
     ).toBeUndefined();
 
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'TEST__something__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'TEST__unicorn_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'TEST__machine_0002__54_puppies__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'TEST__machine_0002__54__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCVRFileInfoFromFilename(
+      parseCvrFileInfoFromFilename(
         'TEST__0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
@@ -375,7 +375,7 @@ describe('parseCVRFileInfoFromFilename', () => {
       true,
       time
     );
-    expect(parseCVRFileInfoFromFilename(generatedName)).toEqual({
+    expect(parseCvrFileInfoFromFilename(generatedName)).toEqual({
       machineId: 'machine',
       numberOfBallots: 1234,
       isTestModeResults: true,
@@ -387,7 +387,7 @@ describe('parseCVRFileInfoFromFilename', () => {
       false,
       time
     );
-    expect(parseCVRFileInfoFromFilename(generatedName2)).toEqual({
+    expect(parseCvrFileInfoFromFilename(generatedName2)).toEqual({
       machineId: '0004',
       numberOfBallots: 0,
       isTestModeResults: false,
@@ -396,7 +396,7 @@ describe('parseCVRFileInfoFromFilename', () => {
   });
 });
 
-function arbitraryMachineID(): fc.Arbitrary<string> {
+function arbitraryMachineId(): fc.Arbitrary<string> {
   return fc.stringOf(
     fc.constantFrom(...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'),
     { minLength: 1 }
@@ -416,9 +416,9 @@ function arbitraryTimestampDate(): fc.Arbitrary<Date> {
   );
 }
 
-function arbitraryCVRFileData(): fc.Arbitrary<CVRFileData> {
+function arbitraryCvrFileData(): fc.Arbitrary<CvrFileData> {
   return fc.record({
-    machineId: arbitraryMachineID(),
+    machineId: arbitraryMachineId(),
     numberOfBallots: fc.nat(),
     isTestModeResults: fc.boolean(),
     timestamp: arbitraryTimestampDate(),
@@ -427,9 +427,9 @@ function arbitraryCVRFileData(): fc.Arbitrary<CVRFileData> {
 
 test('generate/parse CVR file fuzzing', () => {
   fc.assert(
-    fc.property(arbitraryCVRFileData(), (cvrFileData) => {
+    fc.property(arbitraryCvrFileData(), (cvrFileData) => {
       expect(
-        parseCVRFileInfoFromFilename(
+        parseCvrFileInfoFromFilename(
           generateFilenameForScanningResults(
             cvrFileData.machineId,
             cvrFileData.numberOfBallots,

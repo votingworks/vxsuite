@@ -1,8 +1,8 @@
 import { strict as assert } from 'assert';
 import React, { useLayoutEffect, useRef, useContext } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDom from 'react-dom';
 import styled from 'styled-components';
-import DOMPurify from 'dompurify';
+import DomPurify from 'dompurify';
 import moment from 'moment';
 import 'moment/min/locales';
 import { fromByteArray } from 'base64-js';
@@ -18,7 +18,7 @@ import {
   CandidateVote,
   Dictionary,
   Election,
-  HMPBBallotPageMetadata,
+  HmpbBallotPageMetadata,
   OptionalElection,
   Parties,
   Vote,
@@ -35,14 +35,14 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { AppContext } from '../contexts/app_context';
 
 import { findPartyById } from '../utils/find_party_by_id';
 
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
-import { QRCode } from './qrcode';
+import { QrCode } from './qrcode';
 import { Prose } from './prose';
 import { Text } from './text';
 import { HorizontalRule } from './horizontal_rule';
@@ -139,19 +139,19 @@ const BlankPageContent = styled.div`
   height: 100%;
 `;
 
-type HMPBBallotMetadata = Omit<HMPBBallotPageMetadata, 'pageNumber'>;
+type HmpbBallotMetadata = Omit<HmpbBallotPageMetadata, 'pageNumber'>;
 
-interface HMPBBallotMetadataRender extends HMPBBallotMetadata {
+interface HmpbBallotMetadataRender extends HmpbBallotMetadata {
   readonly isSampleBallot: boolean;
 }
 
-interface PagedJSPage {
+interface PagedJsPage {
   element: HTMLElement;
   id: string;
   pagesArea: HTMLElement;
 }
 class PostRenderBallotProcessor extends Handler {
-  afterRendered(pages: PagedJSPage[]) {
+  afterRendered(pages: PagedJsPage[]) {
     // Insert blank page if ballot page count is odd.
     if (pages.length % 2) {
       const pagedjsPages = pages[0].pagesArea;
@@ -175,7 +175,7 @@ class PostRenderBallotProcessor extends Handler {
           `${pages.length + 1}`
         );
         newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`);
-        ReactDOM.render(
+        ReactDom.render(
           <BlankPageContent>
             <Prose>
               <p>This ballot page is intentionally blank.</p>
@@ -213,11 +213,11 @@ class PostRenderBallotProcessor extends Handler {
           locales,
           ballotType,
           ballotId,
-        }: HMPBBallotMetadataRender = JSON.parse(
+        }: HmpbBallotMetadataRender = JSON.parse(
           qrCodeTarget.dataset.metadata ?? ''
         );
 
-        const encoded = encodeHMPBBallotPageMetadata(election, {
+        const encoded = encodeHmpbBallotPageMetadata(election, {
           electionHash: electionHash.substring(0, 20),
           ballotStyleId,
           precinctId,
@@ -230,8 +230,8 @@ class PostRenderBallotProcessor extends Handler {
         });
 
         if (!isSampleBallot) {
-          ReactDOM.render(
-            <QRCode level="L" value={fromByteArray(encoded)} />,
+          ReactDom.render(
+            <QrCode level="L" value={fromByteArray(encoded)} />,
             qrCodeTarget
           );
         }
@@ -347,7 +347,7 @@ const PageFooterRow = styled.div`
     margin-left: 0.05in;
   }
 `;
-const PageFooterQRCode = styled.div<{ isSampleBallot: boolean }>`
+const PageFooterQrCode = styled.div<{ isSampleBallot: boolean }>`
   margin-left: 0.15in;
   border: ${({ isSampleBallot }) =>
     isSampleBallot ? '1px solid #000000' : undefined};
@@ -550,7 +550,15 @@ export function HandMarkedPaperBallot({
 
   const { t, i18n } = useTranslation();
   const { printBallotRef } = useContext(AppContext);
-  const { county, date, seal, sealURL, state, parties, title } = election;
+  const {
+    county,
+    date,
+    seal,
+    sealURL: sealUrl,
+    state,
+    parties,
+    title,
+  } = election;
   const localeElection: OptionalElection = locales.secondary
     ? withLocale(election, locales.secondary)
     : undefined;
@@ -765,12 +773,12 @@ export function HandMarkedPaperBallot({
               </div>
             </PageFooterRow>
           </PageFooterMain>
-          <PageFooterQRCode
+          <PageFooterQrCode
             className={qrCodeTargetClassName}
             isSampleBallot={isSampleBallot}
             data-election={JSON.stringify(election)}
             data-metadata={JSON.stringify(
-              ((): HMPBBallotMetadataRender => ({
+              ((): HmpbBallotMetadataRender => ({
                 electionHash,
                 ballotStyleId,
                 precinctId,
@@ -809,12 +817,12 @@ export function HandMarkedPaperBallot({
                   className="seal"
                   // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(seal),
+                    __html: DomPurify.sanitize(seal),
                   }}
                 />
-              ) : sealURL ? (
+              ) : sealUrl ? (
                 <div className="seal">
-                  <SealImage src={sealURL} alt="" />
+                  <SealImage src={sealUrl} alt="" />
                 </div>
               ) : (
                 <React.Fragment />
@@ -1028,7 +1036,7 @@ export function HandMarkedPaperBallot({
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DomPurify.sanitize(contest.description),
                       }}
                     />
                     {localeContestsById && (
@@ -1036,7 +1044,7 @@ export function HandMarkedPaperBallot({
                         small
                         preLine
                         dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(
+                          __html: DomPurify.sanitize(
                             (localeContestsById[contest.id] as YesNoContest)
                               .description
                           ),
@@ -1069,7 +1077,7 @@ export function HandMarkedPaperBallot({
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DomPurify.sanitize(contest.description),
                       }}
                     />
                     {localeContestsById && (
@@ -1077,7 +1085,7 @@ export function HandMarkedPaperBallot({
                         small
                         preLine
                         dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(
+                          __html: DomPurify.sanitize(
                             (localeContestsById[contest.id] as YesNoContest)
                               .description
                           ),

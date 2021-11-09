@@ -28,16 +28,16 @@ export function isCardReader(device: KioskBrowser.Device): boolean {
   );
 }
 
-export const BrotherHLL5100DNVendorId = 0x04f9;
-export const BrotherHLL5100DNProductId = 0x007f;
+export const BrotherHll5100DnVendorId = 0x04f9;
+export const BrotherHll5100DnProductId = 0x007f;
 
 /**
  * Determines whether a device is a supported printer.
  */
 export function isPrinter(device: KioskBrowser.Device): boolean {
   return (
-    device.vendorId === BrotherHLL5100DNVendorId &&
-    device.productId === BrotherHLL5100DNProductId
+    device.vendorId === BrotherHll5100DnVendorId &&
+    device.productId === BrotherHll5100DnProductId
   );
 }
 
@@ -48,10 +48,10 @@ export function isFujitsuScanner(device: KioskBrowser.Device): boolean {
 }
 
 export const PlustekScannerVendorId = 0x7b3;
-export const PlustekVTM300ScannerProductId = 0xe37;
-export function isPlustekVTM300Scanner(device: KioskBrowser.Device): boolean {
+export const PlustekVtm300ScannerProductId = 0xe37;
+export function isPlustekVtm300Scanner(device: KioskBrowser.Device): boolean {
   return (
     device.vendorId === PlustekScannerVendorId &&
-    device.productId === PlustekVTM300ScannerProductId
+    device.productId === PlustekVtm300ScannerProductId
   );
 }

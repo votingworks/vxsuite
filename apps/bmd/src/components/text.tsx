@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import DOMPurify from 'dompurify';
+import DomPurify from 'dompurify';
 
 import * as GLOBALS from '../config/globals';
 
@@ -86,7 +86,7 @@ export function TextWithLineBreaks({
               <span
                 // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(y),
+                  __html: DomPurify.sanitize(y),
                 }}
               />
               {i !== arr.length - 1 && <br />}

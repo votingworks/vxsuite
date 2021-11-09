@@ -1,5 +1,5 @@
 import { createImageData } from './canvas';
-import { fromGray, fromRGBA } from './grayscale';
+import { fromGray, fromRgba } from './grayscale';
 
 test('fromGray with grayscale image', () => {
   const imageData = createImageData(Uint8ClampedArray.of(127), 1, 1);
@@ -31,7 +31,7 @@ test('fromRGBA with grayscale image', () => {
     1
   );
 
-  fromRGBA(imageData);
+  fromRgba(imageData);
   expect(imageData).toEqual({
     data: Uint8ClampedArray.of(127, 127, 127, 255),
     width: 1,
@@ -47,14 +47,14 @@ test('fromRGBA with grayscale image copied', () => {
     src.height
   );
 
-  fromRGBA(src, dst);
+  fromRgba(src, dst);
   expect(dst).toEqual(src);
 });
 
 test('fromRGBA with color image', () => {
   const imageData = createImageData(Uint8ClampedArray.of(255, 0, 0, 255), 1, 1);
 
-  fromRGBA(imageData);
+  fromRgba(imageData);
   expect(imageData).toEqual({
     data: Uint8ClampedArray.of(53, 53, 53, 255),
     width: 1,
@@ -70,7 +70,7 @@ test('fromRGBA with color image copied RGBA image', () => {
     src.height
   );
 
-  fromRGBA(src, dst);
+  fromRgba(src, dst);
   expect(dst).toEqual({
     data: Uint8ClampedArray.of(53, 53, 53, 255),
     width: 1,
@@ -86,7 +86,7 @@ test('fromRGBA with color image copied to single-channel image', () => {
     src.height
   );
 
-  fromRGBA(src, dst);
+  fromRgba(src, dst);
   expect(dst).toEqual({
     data: Uint8ClampedArray.of(53),
     width: 1,

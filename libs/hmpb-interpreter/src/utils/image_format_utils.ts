@@ -62,11 +62,11 @@ export function isGrayscale(imageData: ImageData): boolean {
   return getImageChannelCount(imageData) === 1;
 }
 
-export function isRGBA(imageData: ImageData): boolean {
+export function isRgba(imageData: ImageData): boolean {
   return getImageChannelCount(imageData) === 4;
 }
 
-export function assertRGBAImage(imageData: ImageData): void {
+export function assertRgbaImage(imageData: ImageData): void {
   assert.equal(
     imageData.data.length,
     imageData.width * imageData.height * 4,
@@ -82,8 +82,8 @@ export function assertGrayscaleImage(imageData: ImageData): void {
   );
 }
 
-export function assertRGBAOrGrayscaleImage(imageData: ImageData): void {
-  if (!isRGBA(imageData) && !isGrayscale(imageData)) {
+export function assertRgbaOrGrayscaleImage(imageData: ImageData): void {
+  if (!isRgba(imageData) && !isGrayscale(imageData)) {
     assert.fail('expected 1-channel grayscale or 4-channel RGBA image');
   }
 }

@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
 import { Election } from '@votingworks/types';
-import { parseCVRFileInfoFromFilename } from '@votingworks/utils';
+import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import {
   CastVoteRecord,
   CastVoteRecordFile,
@@ -10,7 +10,7 @@ import {
   CastVoteRecordFileMode,
 } from '../config/types';
 import { readFileAsync } from '../lib/read_file_async';
-import { parseCVRs } from '../lib/votecounting';
+import { parseCvrs } from '../lib/votecounting';
 
 /**
  * Adds elements to a set by creating a new set with the contents of the
@@ -53,7 +53,7 @@ function mapAdd<K, V>(
   return result;
 }
 
-function mixedTestModeCVRs(
+function mixedTestModeCvrs(
   castVoteRecords: ReadonlyArray<readonly CastVoteRecord[]>
 ) {
   let liveSeen = false;
@@ -121,14 +121,14 @@ export class CastVoteRecordFiles {
   /**
    * Import from exported localStorage string
    */
-  static import(stringifiedCVRFiles: string): CastVoteRecordFiles {
+  static import(stringifiedCvrFiles: string): CastVoteRecordFiles {
     const {
       signatures,
       files,
       duplicateFilenames,
       parseFailedErrors,
       allCastVoteRecords,
-    } = JSON.parse(stringifiedCVRFiles);
+    } = JSON.parse(stringifiedCvrFiles);
     return new CastVoteRecordFiles(
       new Set(signatures),
       new Set(files),
@@ -196,7 +196,7 @@ export class CastVoteRecordFiles {
     try {
       assert(window.kiosk);
       const fileContent = await window.kiosk.readFile(file.path, 'utf-8');
-      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name);
+      const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
       return await this.addFromFileContent(
         fileContent,
         file.name,
@@ -221,7 +221,7 @@ export class CastVoteRecordFiles {
   async add(file: File, election: Election): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsync(file);
-      const parsedFileInfo = parseCVRFileInfoFromFilename(file.name);
+      const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
       return await this.addFromFileContent(
         fileContent,
         file.name,
@@ -260,7 +260,7 @@ export class CastVoteRecordFiles {
 
       const fileCastVoteRecords: CastVoteRecord[] = [];
 
-      for (const { cvr, errors, lineNumber } of parseCVRs(
+      for (const { cvr, errors, lineNumber } of parseCvrs(
         fileContent,
         election
       )) {
@@ -284,7 +284,7 @@ export class CastVoteRecordFiles {
         fileCastVoteRecords,
       ];
 
-      if (mixedTestModeCVRs(newCastVoteRecords)) {
+      if (mixedTestModeCvrs(newCastVoteRecords)) {
         throw new Error(
           'These CVRs cannot be tabulated together because they mix live and test ballots'
         );

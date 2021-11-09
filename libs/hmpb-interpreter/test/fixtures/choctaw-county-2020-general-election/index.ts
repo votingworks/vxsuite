@@ -1,9 +1,9 @@
 import { parseElection } from '@votingworks/types';
 import { join } from 'path';
 import { Fixture } from '../../fixtures';
-import electionJSON from './election.json';
+import electionJson from './election.json';
 
-export const election = parseElection(electionJSON);
+export const election = parseElection(electionJson);
 export const filledInPage1_01 = new Fixture(
   join(__dirname, 'filled-in-p1-01.png')
 );

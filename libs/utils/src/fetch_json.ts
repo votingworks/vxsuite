@@ -1,4 +1,4 @@
-export async function fetchJSON(
+export async function fetchJson(
   input: RequestInfo,
   init?: RequestInit
 ): Promise<unknown> {

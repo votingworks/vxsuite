@@ -9,7 +9,7 @@ export interface Props {
 }
 
 export function CroppedImage({ src, alt, crop, style }: Props): JSX.Element {
-  const [dataURL, setDataURL] = useState<string>();
+  const [dataUrl, setDataUrl] = useState<string>();
 
   useEffect(() => {
     const image = new Image();
@@ -22,10 +22,10 @@ export function CroppedImage({ src, alt, crop, style }: Props): JSX.Element {
 
       if (context) {
         context.drawImage(image, -crop.x, -crop.y);
-        setDataURL(canvas.toDataURL());
+        setDataUrl(canvas.toDataURL());
       }
     };
   }, [crop.height, crop.width, crop.x, crop.y, src]);
 
-  return <img src={dataURL} alt={alt} style={style} />;
+  return <img src={dataUrl} alt={alt} style={style} />;
 }

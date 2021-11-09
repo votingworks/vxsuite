@@ -155,9 +155,9 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
   const fixtures = general2020Fixtures;
   const { qrcode } = (
     await getBallotImageData(
-      await readFile(fixtures.skewedQRCodeBallotPage),
-      fixtures.skewedQRCodeBallotPage,
-      await detectQrcodeInFilePath(fixtures.skewedQRCodeBallotPage)
+      await readFile(fixtures.skewedQrCodeBallotPage),
+      fixtures.skewedQrCodeBallotPage,
+      await detectQrcodeInFilePath(fixtures.skewedQrCodeBallotPage)
     )
   ).unsafeUnwrap();
 

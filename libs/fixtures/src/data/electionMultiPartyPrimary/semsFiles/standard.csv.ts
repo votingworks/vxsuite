@@ -1,4 +1,4 @@
-export const multiPartiPrimaryElectionSEMSData = `"sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","0","Write-in","0","NP","30",
+export const multiPartiPrimaryElectionSemsData = `"sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","0","Write-in","0","NP","30",
 "sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","1","Times Over Voted","0","NP","30",
 "sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","2","Times Under Voted","0","NP","30",
 "sample-county","precinct-1","assistant-mayor-contest-liberty","Assistant Mayor","0","Li","jenna-morasca","Jenna Morasca","0","Li","30",

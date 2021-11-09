@@ -3,7 +3,7 @@ import { Rect, Size } from '@votingworks/types';
 import { crop } from '@votingworks/hmpb-interpreter/build/src/utils/crop';
 import { detect as qrdetect } from '@votingworks/qrdetect';
 import makeDebug from 'debug';
-import jsQR from 'jsqr';
+import jsQr from 'jsqr';
 import { decode as quircDecode, QRCode } from 'node-quirc';
 import { time } from './perf';
 
@@ -80,13 +80,13 @@ export function* getSearchAreas(
   };
 }
 
-export async function detectQRCode(
+export async function detectQrCode(
   imageData: ImageData
 ): Promise<
   { data: Buffer; position: 'top' | 'bottom'; detector: string } | undefined
 > {
   debug(
-    'detectQRCode: checking %dˣ%d image',
+    'detectQrCode: checking %dˣ%d image',
     imageData.width,
     imageData.height
   );
@@ -109,13 +109,13 @@ export async function detectQRCode(
     {
       name: 'jsQR',
       detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> => {
-        const result = jsQR(data, width, height);
+        const result = jsQr(data, width, height);
         return result ? [Buffer.from(result.binaryData)] : [];
       },
     },
   ];
 
-  const timer = time('detectQRCode');
+  const timer = time('detectQrCode');
   try {
     for (const detector of detectors) {
       for (const { position, bounds } of getSearchAreas(imageData)) {

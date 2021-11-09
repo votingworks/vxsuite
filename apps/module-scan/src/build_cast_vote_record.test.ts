@@ -13,7 +13,7 @@ import {
 import { election } from '../test/fixtures/2020-choctaw';
 import {
   buildCastVoteRecord,
-  getCVRBallotType,
+  getCvrBallotType,
   getOptionIdsForContestVote,
   getWriteInOptionIdsForContestVote,
 } from './build_cast_vote_record';
@@ -29,11 +29,11 @@ const msEitherNeitherContest = electionWithMsEitherNeither.contests.find(
     contest.type === 'ms-either-neither'
 )!;
 
-test('getCVRBallotType', () => {
-  expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee');
-  expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional');
-  expect(getCVRBallotType(BallotType.Standard)).toEqual('standard');
-  expect(() => getCVRBallotType(-1)).toThrowError('Illegal Value: -1');
+test('getCvrBallotType', () => {
+  expect(getCvrBallotType(BallotType.Absentee)).toEqual('absentee');
+  expect(getCvrBallotType(BallotType.Provisional)).toEqual('provisional');
+  expect(getCvrBallotType(BallotType.Standard)).toEqual('standard');
+  expect(() => getCvrBallotType(-1)).toThrowError('Illegal Value: -1');
 });
 
 test('getWriteInOptionIdsForContestVote', () => {

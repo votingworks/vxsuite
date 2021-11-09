@@ -1,18 +1,18 @@
 /* eslint-disable no-underscore-dangle */
 import { createHash } from 'crypto';
 import * as z from 'zod';
-import { ISO8601Timestamp, ISO8601TimestampSchema } from './api';
+import { Iso8601Timestamp, Iso8601TimestampSchema } from './api';
 import {
   Dictionary,
   HexString,
   Id,
   IdSchema,
-  ISO8601Date,
+  Iso8601Date,
   ok,
   Optional,
   Result,
   safeParse,
-  safeParseJSON,
+  safeParseJson,
 } from './generic';
 import {
   Offset,
@@ -407,6 +407,9 @@ export interface Election {
   readonly precinctScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly precincts: readonly Precinct[];
   readonly seal?: string;
+  // TODO: Rename to `sealUrl` per GTS naming standard.
+  // For backward-compatibility, we're keeping this invalid name for now.
+  // eslint-disable-next-line vx/gts-identifiers
   readonly sealURL?: string;
   readonly state: string;
   readonly title: string;
@@ -427,7 +430,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       .optional(),
     contests: ContestsSchema,
     county: CountySchema,
-    date: ISO8601Date,
+    date: Iso8601Date,
     districts: DistrictsSchema,
     markThresholds: z.lazy(() => MarkThresholdsSchema).optional(),
     parties: PartiesSchema,
@@ -436,6 +439,9 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       .optional(),
     precincts: PrecinctsSchema,
     seal: z.string().nonempty().optional(),
+    // TODO: Rename to `sealUrl` per GTS naming standard.
+    // For backward-compatibility, we're keeping this invalid name for now.
+    // eslint-disable-next-line vx/gts-identifiers
     sealURL: z.string().nonempty().optional(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),
@@ -812,7 +818,7 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
   ]
 );
 
-export interface HMPBBallotPageMetadata {
+export interface HmpbBallotPageMetadata {
   electionHash: string; // a hexadecimal string
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
@@ -822,7 +828,7 @@ export interface HMPBBallotPageMetadata {
   ballotType: BallotType;
   ballotId?: string;
 }
-export const HMPBBallotPageMetadataSchema: z.ZodSchema<HMPBBallotPageMetadata> = z.object(
+export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> = z.object(
   {
     electionHash: HexString,
     precinctId: IdSchema,
@@ -836,7 +842,7 @@ export const HMPBBallotPageMetadataSchema: z.ZodSchema<HMPBBallotPageMetadata> =
 );
 
 export type BallotMetadata = Omit<
-  HMPBBallotPageMetadata,
+  HmpbBallotPageMetadata,
   'pageNumber' | 'ballotId'
 >;
 export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
@@ -1003,7 +1009,7 @@ export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> = z.objec
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage';
   ballotId?: string;
-  metadata: HMPBBallotPageMetadata;
+  metadata: HmpbBallotPageMetadata;
   markInfo: MarkInfo;
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
@@ -1012,7 +1018,7 @@ export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> = z.obj
   {
     type: z.literal('InterpretedHmpbPage'),
     ballotId: z.string().optional(),
-    metadata: HMPBBallotPageMetadataSchema,
+    metadata: HmpbBallotPageMetadataSchema,
     markInfo: MarkInfoSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
@@ -1034,34 +1040,34 @@ export const InvalidElectionHashPageSchema: z.ZodSchema<InvalidElectionHashPage>
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage';
-  metadata: BallotMetadata | HMPBBallotPageMetadata;
+  metadata: BallotMetadata | HmpbBallotPageMetadata;
 }
 export const InvalidTestModePageSchema: z.ZodSchema<InvalidTestModePage> = z.object(
   {
     type: z.literal('InvalidTestModePage'),
-    metadata: z.union([BallotMetadataSchema, HMPBBallotPageMetadataSchema]),
+    metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
   }
 );
 
 export interface InvalidPrecinctPage {
   type: 'InvalidPrecinctPage';
-  metadata: BallotMetadata | HMPBBallotPageMetadata;
+  metadata: BallotMetadata | HmpbBallotPageMetadata;
 }
 export const InvalidPrecinctPageSchema: z.ZodSchema<InvalidPrecinctPage> = z.object(
   {
     type: z.literal('InvalidPrecinctPage'),
-    metadata: z.union([BallotMetadataSchema, HMPBBallotPageMetadataSchema]),
+    metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
   }
 );
 
 export interface UninterpretedHmpbPage {
   type: 'UninterpretedHmpbPage';
-  metadata: HMPBBallotPageMetadata;
+  metadata: HmpbBallotPageMetadata;
 }
 export const UninterpretedHmpbPageSchema: z.ZodSchema<UninterpretedHmpbPage> = z.object(
   {
     type: z.literal('UninterpretedHmpbPage'),
-    metadata: HMPBBallotPageMetadataSchema,
+    metadata: HmpbBallotPageMetadataSchema,
   }
 );
 
@@ -1106,12 +1112,12 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> = z.union
 export interface BallotPageInfo {
   image: ImageInfo;
   interpretation: PageInterpretation;
-  adjudicationFinishedAt?: ISO8601Timestamp;
+  adjudicationFinishedAt?: Iso8601Timestamp;
 }
 export const BallotPageInfoSchema: z.ZodSchema<BallotPageInfo> = z.object({
   image: ImageInfoSchema,
   interpretation: PageInterpretationSchema,
-  adjudicationFinishedAt: ISO8601TimestampSchema.optional(),
+  adjudicationFinishedAt: Iso8601TimestampSchema.optional(),
 });
 
 export interface BallotSheetInfo {
@@ -1567,7 +1573,7 @@ export function withLocale(election: Election, locale: string): Election {
 
 /**
  * Parses `value` as an `Election` encoded as a JSON string. Equivalent to
- * `safeParseJSON(Election, value)`.
+ * `safeParseJson(Election, value)`.
  */
 export function safeParseElection(
   value: string
@@ -1581,7 +1587,7 @@ export function safeParseElection(
   value: unknown
 ): Result<Election, z.ZodError | SyntaxError> {
   if (typeof value === 'string') {
-    return safeParseJSON(value, ElectionSchema);
+    return safeParseJson(value, ElectionSchema);
   }
   return safeParse(ElectionSchema, value);
 }

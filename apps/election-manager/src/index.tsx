@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDom from 'react-dom';
 import './i18n';
 import { App } from './app';
 import * as serviceWorker from './serviceWorker';
@@ -9,7 +9,7 @@ const isDemoApp =
   window.location.hash === '#demo' ||
   window.location.hostname.endsWith('votingworks.app');
 
-ReactDOM.render(
+ReactDom.render(
   <React.StrictMode>{isDemoApp ? <DemoApp /> : <App />}</React.StrictMode>,
   document.getElementById('root')
 );

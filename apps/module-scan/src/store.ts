@@ -19,7 +19,7 @@ import {
   Optional,
   PageInterpretation,
   Precinct,
-  safeParseJSON,
+  safeParseJson,
   SerializableBallotPageLayout,
 } from '@votingworks/types';
 import {
@@ -483,7 +483,7 @@ export class Store {
       return defaultValue;
     }
 
-    const result = safeParseJSON(row.value, schema);
+    const result = safeParseJson(row.value, schema);
 
     if (result.isErr()) {
       debug('failed to validate stored config %s: %s', key, result.err());
@@ -670,8 +670,8 @@ export class Store {
       `
       select
         id,
-        front_interpretation_json as frontInterpretationJSON,
-        back_interpretation_json as backInterpretationJSON,
+        front_interpretation_json as frontInterpretationJson,
+        back_interpretation_json as backInterpretationJson,
         front_finished_adjudication_at as frontFinishedAdjudicationAt,
         back_finished_adjudication_at as backFinishedAdjudicationAt
       from sheets
@@ -685,8 +685,8 @@ export class Store {
     )) as
       | {
           id: string;
-          frontInterpretationJSON: string;
-          backInterpretationJSON: string;
+          frontInterpretationJson: string;
+          backInterpretationJson: string;
           frontFinishedAdjudicationAt: string | null;
           backFinishedAdjudicationAt: string | null;
         }
@@ -702,14 +702,14 @@ export class Store {
           image: {
             url: `/scan/hmpb/ballot/${row.id}/front/image/normalized`,
           },
-          interpretation: JSON.parse(row.frontInterpretationJSON),
+          interpretation: JSON.parse(row.frontInterpretationJson),
           adjudicationFinishedAt: row.frontFinishedAdjudicationAt ?? undefined,
         },
         back: {
           image: {
             url: `/scan/hmpb/ballot/${row.id}/back/image/normalized`,
           },
-          interpretation: JSON.parse(row.backInterpretationJSON),
+          interpretation: JSON.parse(row.backInterpretationJson),
           adjudicationFinishedAt: row.backFinishedAdjudicationAt ?? undefined,
         },
       };
@@ -882,7 +882,7 @@ export class Store {
   /**
    * Exports all CVR JSON data to a stream.
    */
-  async exportCVRs(writeStream: Writable): Promise<void> {
+  async exportCvrs(writeStream: Writable): Promise<void> {
     const electionDefinition = await this.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -894,10 +894,10 @@ export class Store {
         sheets.id as id,
         batches.id as batchId,
         batches.label as batchLabel,
-        front_interpretation_json as frontInterpretationJSON,
-        back_interpretation_json as backInterpretationJSON,
-        front_adjudication_json as frontAdjudicationJSON,
-        back_adjudication_json as backAdjudicationJSON
+        front_interpretation_json as frontInterpretationJson,
+        back_interpretation_json as backInterpretationJson,
+        front_adjudication_json as frontAdjudicationJson,
+        back_adjudication_json as backAdjudicationJson
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
@@ -909,30 +909,30 @@ export class Store {
       id,
       batchId,
       batchLabel,
-      frontInterpretationJSON,
-      backInterpretationJSON,
-      frontAdjudicationJSON,
-      backAdjudicationJSON,
+      frontInterpretationJson,
+      backInterpretationJson,
+      frontAdjudicationJson,
+      backAdjudicationJson,
     } of (await this.dbAllAsync(sql)) as Array<{
       id: string;
       batchId: string;
       batchLabel: string | null;
-      frontInterpretationJSON: string;
-      backInterpretationJSON: string;
-      frontAdjudicationJSON: string | null;
-      backAdjudicationJSON: string | null;
+      frontInterpretationJson: string;
+      backInterpretationJson: string;
+      frontAdjudicationJson: string | null;
+      backAdjudicationJson: string | null;
     }>) {
       const frontInterpretation: PageInterpretation = JSON.parse(
-        frontInterpretationJSON
+        frontInterpretationJson
       );
       const backInterpretation: PageInterpretation = JSON.parse(
-        backInterpretationJSON
+        backInterpretationJson
       );
-      const frontAdjudications = frontAdjudicationJSON
-        ? safeParseJSON(frontAdjudicationJSON, MarkAdjudicationsSchema).ok()
+      const frontAdjudications = frontAdjudicationJson
+        ? safeParseJson(frontAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
-      const backAdjudications = backAdjudicationJSON
-        ? safeParseJSON(backAdjudicationJSON, MarkAdjudicationsSchema).ok()
+      const backAdjudications = backAdjudicationJson
+        ? safeParseJson(backAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
       const cvr = buildCastVoteRecord(
         id,
@@ -1028,23 +1028,23 @@ export class Store {
         select
           id,
           pdf,
-          metadata_json as metadataJSON,
-          layouts_json as layoutsJSON
+          metadata_json as metadataJson,
+          layouts_json as layoutsJson
         from hmpb_templates
         order by created_at asc
       `
     )) as Array<{
       id: string;
       pdf: Buffer;
-      layoutsJSON: string;
-      metadataJSON: string;
+      layoutsJson: string;
+      metadataJson: string;
     }>;
     const results: Array<[Buffer, SerializableBallotPageLayout[]]> = [];
 
-    for (const { id, pdf, metadataJSON, layoutsJSON } of rows) {
-      const metadata: BallotMetadata = JSON.parse(metadataJSON);
+    for (const { id, pdf, metadataJson, layoutsJson } of rows) {
+      const metadata: BallotMetadata = JSON.parse(metadataJson);
       debug('loading stored HMPB template id=%s: %O', id, metadata);
-      const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJSON);
+      const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJson);
       results.push([
         pdf,
         layouts.map((layout, i) => ({
@@ -1069,13 +1069,13 @@ export class Store {
     const rows = (await this.dbAllAsync(
       `
         select
-          layouts_json as layoutsJSON,
-          metadata_json as metadataJSON
+          layouts_json as layoutsJson,
+          metadata_json as metadataJson
         from hmpb_templates
       `
     )) as Array<{
-      layoutsJSON: string;
-      metadataJSON: string;
+      layoutsJson: string;
+      metadataJson: string;
     }>;
 
     for (const row of rows) {
@@ -1084,7 +1084,7 @@ export class Store {
         ballotStyleId,
         precinctId,
         isTestMode,
-      }: BallotMetadata = JSON.parse(row.metadataJSON);
+      }: BallotMetadata = JSON.parse(row.metadataJson);
 
       if (
         metadata.locales.primary === locales.primary &&
@@ -1093,7 +1093,7 @@ export class Store {
         metadata.precinctId === precinctId &&
         metadata.isTestMode === isTestMode
       ) {
-        return JSON.parse(row.layoutsJSON);
+        return JSON.parse(row.layoutsJson);
       }
     }
 

@@ -6,9 +6,9 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
 import { ReplaceElectionScreen } from './replace_election_screen';
 import { AriaScreenReader } from '../utils/ScreenReader';
-import { fakeTTS } from '../../test/helpers/fake_tts';
+import { fakeTts } from '../../test/helpers/fake_tts';
 
-const screenReader = new AriaScreenReader(fakeTTS());
+const screenReader = new AriaScreenReader(fakeTts());
 
 test('reads election definition from card', async () => {
   const getElectionDefinitionFromCard = jest

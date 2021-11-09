@@ -53,6 +53,8 @@ export function fakeKiosk({
 } {
   return {
     print: jest.fn().mockResolvedValue(undefined),
+    // TODO: Rename to `printToPdf` in kiosk-browser, then update here.
+    // eslint-disable-next-line vx/gts-identifiers
     printToPDF: jest.fn().mockResolvedValue(Buffer.of()),
     getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
     getPrinterInfo: jest.fn().mockResolvedValue(printers.map(fakePrinterInfo)),

@@ -1,7 +1,7 @@
 import { electionMultiPartyPrimaryWithDataFiles } from '@votingworks/fixtures';
 import {
-  generateCVR,
-  generateFileContentFromCVRs,
+  generateCvr,
+  generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
 import {
   assertExpectedResultsMatchSEMsFile,
@@ -13,8 +13,8 @@ describe('Election Manager can create SEMS tallies', () => {
     const { electionDefinition } = electionMultiPartyPrimaryWithDataFiles;
     const { election } = electionDefinition;
     // Generate a CVR file with votes in the president contest.
-    const fakeCVRFileContents = generateFileContentFromCVRs([
-      generateCVR(
+    const fakeCvrFileContents = generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           'governor-contest-liberty': ['aaron-aligator'],
@@ -22,7 +22,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'governor-contest-liberty': ['peter-pigeon'],
@@ -30,7 +30,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'governor-contest-liberty': ['aaron-aligator', 'peter-pigeon'],
@@ -42,7 +42,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'governor-contest-liberty': ['aaron-aligator'],
@@ -55,7 +55,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: 'precinct-2', ballotStyleId: '2L' }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'governor-contest-liberty': [],
@@ -73,7 +73,7 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({
-      fileContent: new Blob([fakeCVRFileContents]),
+      fileContent: new Blob([fakeCvrFileContents]),
       fileName: 'cvrFile.jsonl',
       mimeType: 'application/json',
       encoding: 'utf-8',

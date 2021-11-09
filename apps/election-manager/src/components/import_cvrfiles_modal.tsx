@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import {
   generateElectionBasedSubfolderName,
-  parseCVRFileInfoFromFilename,
+  parseCvrFileInfoFromFilename,
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils';
@@ -23,18 +23,18 @@ import { CHECK_ICON, TIME_FORMAT } from '../config/globals';
 
 const { UsbDriveStatus } = usbstick;
 
-const CVRFileTable = styled(Table)`
+const CvrFileTable = styled(Table)`
   margin-top: 20px;
 `;
 
-const CheckTD = styled(TD)`
+const CheckTd = styled(TD)`
   line-height: 1rem;
   color: rgb(71, 167, 75);
   font-size: 1.5rem;
   font-weight: 700;
 `;
 
-const USBImage = styled.img`
+const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
@@ -67,7 +67,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
 }
 
-export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
+export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   const {
     usbDriveStatus,
     saveCastVoteRecordFiles,
@@ -234,7 +234,7 @@ export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
           <Prose>
             <h1>No USB Drive Detected</h1>
             <p>
-              <USBImage src="usb-drive.svg" alt="Insert USB Image" />
+              <UsbImage src="usb-drive.svg" alt="Insert USB Image" />
               Please insert a USB drive in order to import CVR files from the
               scanner.
             </p>
@@ -262,7 +262,7 @@ export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
     // Parse information from the filenames and sort by exported timestamp
     const parsedFileInformation = foundFiles
       .flatMap((fileEntry) => {
-        const parsedInfo = parseCVRFileInfoFromFilename(fileEntry.name);
+        const parsedInfo = parseCvrFileInfoFromFilename(fileEntry.name);
 
         if (!parsedInfo) {
           return [];
@@ -310,9 +310,9 @@ export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
           <td>
             <LabelText>{isTestModeResults ? 'Test' : 'Live'}</LabelText>
           </td>
-          <CheckTD narrow textAlign="center">
+          <CheckTd narrow textAlign="center">
             {isImported ? CHECK_ICON : ''}
-          </CheckTD>
+          </CheckTd>
           <TD textAlign="right">
             <LinkButton
               onPress={() => importSelectedFile(fileEntry)}
@@ -361,7 +361,7 @@ export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
               <p>{instructionalText}</p>
             </Prose>
             {fileTableRows.length > 0 && (
-              <CVRFileTable>
+              <CvrFileTable>
                 <thead>
                   <tr>
                     <th>Exported At</th>
@@ -373,7 +373,7 @@ export function ImportCVRFilesModal({ onClose }: Props): JSX.Element {
                   </tr>
                 </thead>
                 <tbody>{fileTableRows}</tbody>
-              </CVRFileTable>
+              </CvrFileTable>
             )}
           </MainChild>
         }

@@ -3,7 +3,7 @@ import { CastVoteRecord } from './cast_vote_record';
 import { Contest, Candidate } from './election';
 import { Dictionary, Optional } from './generic';
 
-export type YesNoVoteID = 'yes' | 'no';
+export type YesNoVoteId = 'yes' | 'no';
 export type YesNoVoteOption = ['yes'] | ['no'] | [];
 export type ContestVoteOption = Candidate | YesNoVoteOption;
 

@@ -4,7 +4,7 @@ import {
   electionWithMsEitherNeither,
 } from '../test/election';
 import * as t from './election';
-import { safeParse, safeParseJSON } from './generic';
+import { safeParse, safeParseJson } from './generic';
 
 test('parseElection', () => {
   expect(() => t.parseElection({})).toThrowError();
@@ -28,7 +28,7 @@ test('parsing invalid JSON', () => {
 });
 
 test('parsing JSON without a schema', () => {
-  expect(safeParseJSON('{}').unsafeUnwrap()).toEqual({});
+  expect(safeParseJson('{}').unsafeUnwrap()).toEqual({});
 });
 
 test('parsing gives specific errors for nested objects', () => {

@@ -27,7 +27,7 @@ export type ButtonEventFunction = (
 ) => void | Promise<void>;
 
 // Election
-export type SaveElection = (electionJSON?: string) => Promise<void>;
+export type SaveElection = (electionJson?: string) => Promise<void>;
 
 export interface BallotConfig extends BallotStyleData {
   filename: string;
@@ -47,7 +47,7 @@ export interface PrintedBallot {
   precinctId: Precinct['id'];
   locales: BallotLocale;
   numCopies: number;
-  printedAt: ISO8601Timestamp;
+  printedAt: Iso8601Timestamp;
   type: PrintableBallotType;
 }
 
@@ -140,7 +140,7 @@ export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>;
 export type VoteCounts = Dictionary<Dictionary<number>>;
 export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>;
 
-export type ISO8601Timestamp = string;
+export type Iso8601Timestamp = string;
 
 export interface MachineConfig {
   machineId: string;

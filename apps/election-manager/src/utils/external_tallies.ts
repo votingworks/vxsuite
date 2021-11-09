@@ -42,8 +42,8 @@ export function convertExternalTalliesToStorageString(
 export function convertStorageStringToExternalTallies(
   inputString: string
 ): FullElectionExternalTally[] {
-  const parsedJSON = JSON.parse(inputString) as Array<Record<string, unknown>>;
-  return parsedJSON.map((data) => {
+  const parsedJson = JSON.parse(inputString) as Array<Record<string, unknown>>;
+  return parsedJson.map((data) => {
     const {
       overallTally,
       resultsByCategory,

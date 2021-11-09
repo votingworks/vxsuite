@@ -53,7 +53,7 @@ export function ElectionInfo({
   horizontal = false,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
-  const { title: t, state, county, date, seal, sealURL } = election;
+  const { title: t, state, county, date, seal, sealURL: sealUrl } = election;
   const precinctName =
     precinctSelection &&
     precinctSelectionName(election.precincts, precinctSelection);
@@ -68,7 +68,7 @@ export function ElectionInfo({
     return (
       <CenterinBlock aria-hidden data-testid="election-info">
         <HorizontalContainer>
-          <Seal seal={seal} sealURL={sealURL} />
+          <Seal seal={seal} sealUrl={sealUrl} />
           <Prose compact>
             <h5 aria-label={`${title}.`}>{title}</h5>
             <Text small>
@@ -92,7 +92,7 @@ export function ElectionInfo({
   }
   return (
     <VerticalContainer aria-hidden>
-      <Seal seal={seal} sealURL={sealURL} />
+      <Seal seal={seal} sealUrl={sealUrl} />
       <Prose textCenter>
         <h1 aria-label={`${title}.`}>{title}</h1>
         <p>

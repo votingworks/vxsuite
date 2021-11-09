@@ -169,7 +169,7 @@ function getVoteConfigurationsForCandidateOptions(
  * @param testMode Generate CVRs for test ballots or live ballots
  * @returns Array of generated CastVoteRecords
  */
-function* generateCVRs(
+function* generateCvrs(
   election: Election,
   scannerNames: readonly string[],
   testMode: boolean
@@ -249,7 +249,7 @@ function* generateCVRs(
   }
 }
 
-interface GenerateCVRFileArguments {
+interface GenerateCvrFileArguments {
   electionPath?: string;
   outputPath?: string;
   numBallots?: number;
@@ -259,7 +259,7 @@ interface GenerateCVRFileArguments {
   [x: string]: unknown;
 }
 
-const args: GenerateCVRFileArguments = yargs(process.argv.slice(2)).options({
+const args: GenerateCvrFileArguments = yargs(process.argv.slice(2)).options({
   electionPath: {
     type: 'string',
     alias: 'e',
@@ -285,7 +285,7 @@ const args: GenerateCVRFileArguments = yargs(process.argv.slice(2)).options({
     type: 'array',
     description: 'Creates ballots for each scanner name specified.',
   },
-}).argv as GenerateCVRFileArguments;
+}).argv as GenerateCvrFileArguments;
 
 if (args.electionPath === undefined) {
   process.stderr.write(
@@ -302,7 +302,7 @@ const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
 const electionRawData = fs.readFileSync(args.electionPath, 'utf8');
 const election = parseElection(JSON.parse(electionRawData));
 
-const castVoteRecords = [...generateCVRs(election, scannerNames, testMode)];
+const castVoteRecords = [...generateCvrs(election, scannerNames, testMode)];
 
 // Modify results to match the desired number of ballots
 if (numBallots !== undefined && numBallots < castVoteRecords.length) {

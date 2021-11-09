@@ -229,7 +229,7 @@ export function BallotEjectScreen({
   for (const reviewPageInfo of [
     {
       side: 'front' as Side,
-      imageURL: reviewInfo.interpreted.front.image.url,
+      imageUrl: reviewInfo.interpreted.front.image.url,
       interpretation: reviewInfo.interpreted.front.interpretation,
       layout: reviewInfo.layouts.front,
       contestIds: reviewInfo.definitions.front?.contestIds,
@@ -238,7 +238,7 @@ export function BallotEjectScreen({
     },
     {
       side: 'back' as Side,
-      imageURL: reviewInfo.interpreted.back.image.url,
+      imageUrl: reviewInfo.interpreted.back.image.url,
       interpretation: reviewInfo.interpreted.back.interpretation,
       layout: reviewInfo.layouts.back,
       contestIds: reviewInfo.definitions.back?.contestIds,
@@ -283,7 +283,7 @@ export function BallotEjectScreen({
               <WriteInAdjudicationScreen
                 sheetId={reviewInfo.interpreted.id}
                 side={reviewPageInfo.side}
-                imageURL={reviewPageInfo.imageURL}
+                imageUrl={reviewPageInfo.imageUrl}
                 interpretation={reviewPageInfo.interpretation}
                 layout={reviewPageInfo.layout}
                 contestIds={reviewPageInfo.contestIds}
@@ -458,13 +458,13 @@ export function BallotEjectScreen({
           </Prose>
           <RectoVerso>
             <BallotSheetImage
-              imageURL={reviewInfo.interpreted.front.image.url}
+              imageUrl={reviewInfo.interpreted.front.image.url}
               layout={reviewInfo.layouts.front}
               contestIds={reviewInfo.definitions.front?.contestIds}
               styleForContest={styleForContest}
             />
             <BallotSheetImage
-              imageURL={reviewInfo.interpreted.back.image.url}
+              imageUrl={reviewInfo.interpreted.back.image.url}
               layout={reviewInfo.layouts.back}
               contestIds={reviewInfo.definitions.back?.contestIds}
               styleForContest={styleForContest}

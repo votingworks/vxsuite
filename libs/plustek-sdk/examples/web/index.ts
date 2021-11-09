@@ -10,7 +10,7 @@
  *   DEBUG=* pnpx ts-node -T examples/web
  */
 
-import { safeParseJSON } from '@votingworks/types'
+import { safeParseJson } from '@votingworks/types'
 import { deferred } from '@votingworks/utils'
 import { createHash } from 'crypto'
 import makeDebug from 'debug'
@@ -144,7 +144,7 @@ async function main(args: readonly string[]): Promise<number> {
             } else {
               const body = await readRequestBody(req)
               debug('PUT /mock body=%s', body)
-              const parseResult = safeParseJSON(body, LoadRequestSchema)
+              const parseResult = safeParseJson(body, LoadRequestSchema)
 
               if (parseResult.isErr()) {
                 res.writeHead(400).end(`${parseResult.err()}`)

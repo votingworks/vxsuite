@@ -16,7 +16,7 @@ export interface Encoding {
 /**
  * Default encoding to use for `BitReader` and `BitWriter`.
  */
-export const UTF8Encoding: Encoding = {
+export const Utf8Encoding: Encoding = {
   getBitsPerElement(): number {
     return Uint8Size;
   },

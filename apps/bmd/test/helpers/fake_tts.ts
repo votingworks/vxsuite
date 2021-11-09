@@ -3,7 +3,7 @@ import { TextToSpeech } from '../../src/config/types';
 /**
  * Builds a fake `TextToSpeech` instance with mock functions.
  */
-export function fakeTTS(): jest.Mocked<TextToSpeech> {
+export function fakeTts(): jest.Mocked<TextToSpeech> {
   let isMuted = true;
 
   return {

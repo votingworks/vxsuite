@@ -1,6 +1,6 @@
 import makeDebug from 'debug';
-import jsQR from 'jsqr';
-import { DetectQRCodeResult } from '../../types';
+import jsQr from 'jsqr';
+import { DetectQrCodeResult } from '../../types';
 import { withCropping } from './with_cropping';
 
 const debug = makeDebug('hmpb-interpreter:jsqr');
@@ -10,11 +10,11 @@ const debug = makeDebug('hmpb-interpreter:jsqr');
  */
 export async function detect(
   imageData: ImageData
-): Promise<DetectQRCodeResult | undefined> {
+): Promise<DetectQrCodeResult | undefined> {
   debug('detecting QR code in %d×%d image', imageData.width, imageData.height);
 
   const { data, width, height } = imageData;
-  const qrcode = jsQR(data, width, height);
+  const qrcode = jsQr(data, width, height);
 
   if (!qrcode) {
     return undefined;

@@ -1,12 +1,12 @@
 import { BallotType } from '@votingworks/types';
-import { croppedQRCode } from '../test/fixtures';
+import { croppedQrCode } from '../test/fixtures';
 import {
-  election as urlQRCodeElection,
-  blankPage1 as urlQRCodePage1,
+  election as urlQrCodeElection,
+  blankPage1 as urlQrCodePage1,
 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import {
-  election as binaryQRCodeElection,
-  blankPage1 as binaryQRCodePage1,
+  election as binaryQrCodeElection,
+  blankPage1 as binaryQrCodePage1,
 } from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { decodeSearchParams, detect } from './metadata';
@@ -38,7 +38,7 @@ test('read base64-encoded binary metadata from QR code image', async () => {
 
 test('read binary metadata from QR code image', async () => {
   expect(
-    await detect(binaryQRCodeElection, await binaryQRCodePage1.imageData())
+    await detect(binaryQrCodeElection, await binaryQrCodePage1.imageData())
   ).toEqual({
     metadata: {
       locales: { primary: 'en-US', secondary: undefined },
@@ -116,13 +116,13 @@ describe('old-style URL-based metadata', () => {
 
   test('cropped QR code', async () => {
     await expect(
-      detect(urlQRCodeElection, await croppedQRCode.imageData())
+      detect(urlQrCodeElection, await croppedQrCode.imageData())
     ).rejects.toThrow('Expected QR code not found.');
   });
 
   test('ballot', async () => {
     expect(
-      await detect(urlQRCodeElection, await urlQRCodePage1.imageData())
+      await detect(urlQrCodeElection, await urlQrCodePage1.imageData())
     ).toEqual({
       metadata: {
         locales: { primary: 'en-US' },
@@ -139,8 +139,8 @@ describe('old-style URL-based metadata', () => {
 
   test('alternate QR code reader', async () => {
     expect(
-      await detect(urlQRCodeElection, await urlQRCodePage1.imageData(), {
-        detectQRCode: jsqr,
+      await detect(urlQrCodeElection, await urlQrCodePage1.imageData(), {
+        detectQrCode: jsqr,
       })
     ).toEqual({
       metadata: {
@@ -158,8 +158,8 @@ describe('old-style URL-based metadata', () => {
 
   test('custom QR code reader', async () => {
     expect(
-      await detect(urlQRCodeElection, await urlQRCodePage1.imageData(), {
-        detectQRCode: async () => ({
+      await detect(urlQrCodeElection, await urlQrCodePage1.imageData(), {
+        detectQrCode: async () => ({
           data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
         }),
       })
@@ -180,8 +180,8 @@ describe('old-style URL-based metadata', () => {
   test('upside-down ballot images', async () => {
     expect(
       await detect(
-        urlQRCodeElection,
-        await urlQRCodePage1.imageData({ flipped: true })
+        urlQrCodeElection,
+        await urlQrCodePage1.imageData({ flipped: true })
       )
     ).toEqual({
       metadata: {

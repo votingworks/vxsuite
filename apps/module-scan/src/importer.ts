@@ -592,7 +592,7 @@ export class Importer {
     }
 
     const outputStream = new streams.WritableStream();
-    await this.workspace.store.exportCVRs(outputStream);
+    await this.workspace.store.exportCvrs(outputStream);
     return outputStream.toString();
   }
 

@@ -1,7 +1,7 @@
 import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 import {
-  generateCVR,
-  generateFileContentFromCVRs,
+  generateCvr,
+  generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
 import {
   assertExpectedResultsMatchSEMsFile,
@@ -11,8 +11,8 @@ import {
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for yes no and either neither contests compute end to end as expected', () => {
     // Generate a CVR file with votes in the president contest.
-    const fakeCVRFileContents = generateFileContentFromCVRs([
-      generateCVR(
+    const fakeCvrFileContents = generateFileContentFromCvrs([
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': ['yes'],
@@ -22,7 +22,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: '6522', ballotStyleId: '5', ballotType: 'absentee' }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': ['no'],
@@ -37,7 +37,7 @@ describe('Election Manager can create SEMS tallies', () => {
           scannerId: 'scanner-2',
         }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': ['no'],
@@ -47,7 +47,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: '6522', ballotStyleId: '5', scannerId: 'scanner-2' }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': [],
@@ -57,7 +57,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: '6522', ballotStyleId: '5' }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': ['no'],
@@ -72,7 +72,7 @@ describe('Election Manager can create SEMS tallies', () => {
           scannerId: 'scanner-2',
         }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': ['no'],
@@ -87,7 +87,7 @@ describe('Election Manager can create SEMS tallies', () => {
           scannerId: 'scanner-2',
         }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': [],
@@ -97,7 +97,7 @@ describe('Election Manager can create SEMS tallies', () => {
         },
         { precinctId: '6538', ballotStyleId: '4' }
       ),
-      generateCVR(
+      generateCvr(
         electionWithMsEitherNeither,
         {
           '750000017': ['yes', 'no'],
@@ -115,7 +115,7 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({
-      fileContent: new Blob([fakeCVRFileContents]),
+      fileContent: new Blob([fakeCvrFileContents]),
       fileName: 'cvrFile.jsonl',
       mimeType: 'text/plain',
       encoding: 'utf-8',

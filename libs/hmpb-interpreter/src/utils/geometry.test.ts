@@ -1,7 +1,7 @@
 import { randomInt } from '../../test/utils';
 import {
   angleBetweenPoints,
-  flipRectVH,
+  flipRectVerticalAndHorizontal,
   poly4Area,
   rectCenter,
   rectCorners,
@@ -85,7 +85,7 @@ test('roundPoint', () => {
 
 test('flipRectVH anchored top-left', () => {
   expect(
-    flipRectVH(
+    flipRectVerticalAndHorizontal(
       { x: 0, y: 0, width: 10, height: 15 },
       { x: 0, y: 0, width: 2, height: 3 }
     )
@@ -101,7 +101,12 @@ test('flipRectVH identity', () => {
   const outer = { x: 5, y: 10, width: 15, height: 20 };
   const inner = { x: 8, y: 13, width: 2, height: 3 };
 
-  expect(flipRectVH(outer, flipRectVH(outer, inner))).toEqual(inner);
+  expect(
+    flipRectVerticalAndHorizontal(
+      outer,
+      flipRectVerticalAndHorizontal(outer, inner)
+    )
+  ).toEqual(inner);
 });
 
 test('angleBetweenPoints', () => {

@@ -20,7 +20,7 @@ export interface CastVoteRecordOptions {
   readonly batchLabel?: string;
 }
 
-export function generateCVR(
+export function generateCvr(
   election: Election,
   votes: Dictionary<string[]>,
   options: CastVoteRecordOptions
@@ -61,7 +61,7 @@ export function generateCVR(
   };
 }
 
-export function generateFileContentFromCVRs(cvrs: CastVoteRecord[]): string {
+export function generateFileContentFromCvrs(cvrs: CastVoteRecord[]): string {
   let fileContent = '';
   for (const cvr of cvrs) {
     fileContent += `${JSON.stringify(cvr)}\n`;

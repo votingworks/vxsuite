@@ -24,7 +24,7 @@
 # and leaving out the count, and then we'll use group by and joins to get the full rows
 #
 #
-# python makeSEMSResults county_id election.json cvrs.txt sems_results.csv
+# python makeSemsResults county_id election.json cvrs.txt sems_results.csv
 #
 
 import csv, io, json, sqlite3, sys

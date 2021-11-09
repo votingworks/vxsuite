@@ -20,7 +20,7 @@ const isLocalhost = Boolean(
     )
 );
 
-async function registerValidSW(swUrl: string, config?: Config) {
+async function registerValidServiceWorker(swUrl: string, config?: Config) {
   try {
     const registration = await navigator.serviceWorker.register(swUrl);
     registration.onupdatefound = () => {
@@ -74,7 +74,7 @@ async function checkValidServiceWorker(swUrl: string, config?: Config) {
       window.location.reload();
     } else {
       // Service worker found. Proceed as normal.
-      await registerValidSW(swUrl, config);
+      await registerValidServiceWorker(swUrl, config);
     }
   } catch {
     /* eslint-disable-next-line no-console */
@@ -120,7 +120,7 @@ export function register(config?: Config): void {
         );
       } else {
         // Is not localhost. Just register service worker
-        await registerValidSW(swUrl, config);
+        await registerValidServiceWorker(swUrl, config);
       }
     });
   }

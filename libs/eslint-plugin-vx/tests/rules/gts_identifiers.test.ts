@@ -13,41 +13,64 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run('gts-identifiers', rule, {
   valid: [
-    { code: `abc` },
-    { code: `'$abc'` },
+    `let abc`,
+    `'$abc'`,
     {
-      code: `$0`,
-      options: [{ allowedNames: ['$0'] }],
+      code: `let $0, setXOffset`,
+      options: [{ allowedNames: ['$0', '/setX.*/'] }],
     },
-    { code: `const abc = 12` },
-    { code: `const a_b_c = 12` },
-    { code: `function ab_() {}` },
+    `const abc = 12`,
+    `const a_b_c = 12`,
+    `function ab_() {}`,
+    `function loadHttpUrl() {}`,
+    `new XMLHttpRequest()`,
+    `function BallotSheetImage() {}`,
+    `const ONE = 1`,
+    `import { TSESTree } from '@typescript-eslint/experimental-utils'`,
+    `interface A { imageUrl: string }`,
+    `interface A { [keyNAME: string]: string }`,
   ],
   invalid: [
     {
-      code: '$abc',
-      errors: [{ messageId: 'noDollarSign', line: 1 }],
-    },
-    {
-      code: '$abc()',
+      code: 'let $abc',
       errors: [{ messageId: 'noDollarSign', line: 1 }],
     },
     {
       // Do we ever want to specifically allow jQuery?
       code: `const $button = $('.button')`,
-      errors: [
-        { messageId: 'noDollarSign', line: 1 },
-        { messageId: 'noDollarSign', line: 1 },
-      ],
+      errors: [{ messageId: 'noDollarSign', line: 1 }],
     },
     {
       // Do we ever want to specifically allow RxJS?
-      code: 'device$.subscribe()',
+      code: 'let device$',
       errors: [{ messageId: 'noDollarSign', line: 1 }],
     },
     {
       code: 'const illegalnÀme = 12',
       errors: [{ messageId: 'identifiersAllowedCharacters', line: 1 }],
+    },
+    {
+      code: `function loadHTTPURL() {}`,
+      errors: [
+        {
+          messageId: 'noAbbreviations',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'useCamelCase',
+              output: 'function loadHttpurl() {}',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `let a = { imageURL: '/logo.png' }`,
+      errors: [{ messageId: 'noAbbreviations', line: 1 }],
+    },
+    {
+      code: `interface A { imageURL: string }`,
+      errors: [{ messageId: 'noAbbreviations', line: 1 }],
     },
   ],
 });

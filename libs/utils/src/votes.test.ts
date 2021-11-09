@@ -34,13 +34,13 @@ import {
   tallyVotesByContest,
   filterTalliesByParams,
   computeTallyWithPrecomputedCategories,
-  getPartyIdForCVR,
+  getPartyIdForCvr,
 } from './votes';
 
 const multiPartyPrimaryElection =
   electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
 
-export function parseCVRs(cvrsFileContents: string): CastVoteRecord[] {
+export function parseCvrs(cvrsFileContents: string): CastVoteRecord[] {
   const lines = cvrsFileContents.split('\n');
   return lines.flatMap((line) =>
     line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
@@ -268,7 +268,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
 
     // get the CVRs
     const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
-    const castVoteRecords = parseCVRs(cvrsFileContents);
+    const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
     electionTally = computeTallyWithPrecomputedCategories(
@@ -331,7 +331,7 @@ describe('filterTalliesByParams in a typical election', () => {
 
     // get the CVRs
     const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
-    const castVoteRecords = parseCVRs(cvrsFileContents);
+    const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
     electionTally = computeTallyWithPrecomputedCategories(
@@ -613,7 +613,7 @@ describe('filterTalliesByParams in a primary election', () => {
   beforeEach(async () => {
     // get the CVRs
     const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
-    const castVoteRecords = parseCVRs(cvrsFileContents);
+    const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
     electionTally = computeTallyWithPrecomputedCategories(
@@ -847,23 +847,23 @@ describe('filterTalliesByParams in a primary election', () => {
     );
 
     // All three scanners have identical copies of results, but the CVRs are different due to the scanner and ballot ids
-    const scanner1ResultsWithoutCVRs = {
+    const scanner1ResultsWithoutCvrs = {
       numberOfBallotsCounted: filteredResultsScanner1.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner1.contestTallies,
     };
-    const scanner2ResultsWithoutCVRs = {
+    const scanner2ResultsWithoutCvrs = {
       numberOfBallotsCounted: filteredResultsScanner2.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner2.contestTallies,
     };
-    const scanner3ResultsWithoutCVRs = {
+    const scanner3ResultsWithoutCvrs = {
       numberOfBallotsCounted: filteredResultsScanner3.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner3.contestTallies,
     };
-    expect(scanner1ResultsWithoutCVRs).toStrictEqual(
-      scanner2ResultsWithoutCVRs
+    expect(scanner1ResultsWithoutCvrs).toStrictEqual(
+      scanner2ResultsWithoutCvrs
     );
-    expect(scanner1ResultsWithoutCVRs).toStrictEqual(
-      scanner3ResultsWithoutCVRs
+    expect(scanner1ResultsWithoutCvrs).toStrictEqual(
+      scanner3ResultsWithoutCvrs
     );
 
     // Verify the data of scanner 1s results
@@ -999,7 +999,7 @@ describe('filterTalliesByParty', () => {
 
     // get the CVRs
     const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
-    const castVoteRecords = parseCVRs(cvrsFileContents);
+    const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
     const electionTally = calculateTallyForCastVoteRecords(
@@ -1017,7 +1017,7 @@ describe('filterTalliesByParty', () => {
       electionMultiPartyPrimaryWithDataFiles.electionDefinition;
     // get the CVRs
     const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
-    const castVoteRecords = parseCVRs(cvrsFileContents);
+    const castVoteRecords = parseCvrs(cvrsFileContents);
 
     const party = election.parties.find((p) => p.id === '0');
     assert(party);
@@ -1071,7 +1071,7 @@ describe('filterTalliesByParty', () => {
   });
 });
 
-test('getPartyIdForCVR', () => {
+test('getPartyIdForCvr', () => {
   const { election } =
     electionMultiPartyPrimaryWithDataFiles.electionDefinition;
   const cvr: CastVoteRecord = {
@@ -1084,8 +1084,8 @@ test('getPartyIdForCVR', () => {
     _scannerId: 'scanner',
     _testBallot: false,
   };
-  expect(getPartyIdForCVR(cvr, election)).toBe('0');
+  expect(getPartyIdForCvr(cvr, election)).toBe('0');
   expect(
-    getPartyIdForCVR({ ...cvr, _ballotStyleId: 'notaballotstyle' }, election)
+    getPartyIdForCvr({ ...cvr, _ballotStyleId: 'notaballotstyle' }, election)
   ).toBe(undefined);
 });

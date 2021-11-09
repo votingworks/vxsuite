@@ -1,6 +1,6 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotType, Election } from '@votingworks/types';
-import { encodeBallot, encodeHMPBBallotPageMetadata } from '.';
+import { encodeBallot, encodeHmpbBallotPageMetadata } from '.';
 
 const election: Election = {
   title: 'Election',
@@ -42,7 +42,7 @@ test('BMD: smallest possible encoded ballot', () => {
 
 test('HMPB: smallest possible encoded metadata', () => {
   expect(
-    encodeHMPBBallotPageMetadata(election, {
+    encodeHmpbBallotPageMetadata(election, {
       electionHash: electionHash.slice(0, 20),
       ballotId: '',
       ballotStyleId: 'style1',

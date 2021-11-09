@@ -62,6 +62,8 @@ export function AdminScreen({
       try {
         await window.kiosk?.setClock({
           isoDatetime: date.toISO(),
+          // TODO: Rename to `ianaZone` in kiosk-browser and update here.
+          // eslint-disable-next-line vx/gts-identifiers
           IANAZone: date.zoneName,
         });
         setIsSystemDateModalActive(false);

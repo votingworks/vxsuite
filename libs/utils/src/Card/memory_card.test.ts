@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { MemoryCard } from './memory_card';
 
-const ABSchema = z.object({ a: z.number(), b: z.number() });
+const AbSchema = z.object({ a: z.number(), b: z.number() });
 
 it('defaults to no card', async () => {
   expect(await new MemoryCard().readStatus()).toEqual({
@@ -24,7 +24,7 @@ it('can round-trip an object long value', async () => {
   const card = new MemoryCard().insertCard();
 
   await card.writeLongObject({ a: 1, b: 2 });
-  expect((await card.readLongObject(ABSchema)).ok()).toEqual({ a: 1, b: 2 });
+  expect((await card.readLongObject(AbSchema)).ok()).toEqual({ a: 1, b: 2 });
 });
 
 it('can read a string long value', async () => {
@@ -60,7 +60,7 @@ it('can set a short and long value using #insertCard', async () => {
     })
   );
 
-  expect((await card.readLongObject(ABSchema)).ok()).toEqual({ a: 1, b: 2 });
+  expect((await card.readLongObject(AbSchema)).ok()).toEqual({ a: 1, b: 2 });
 });
 
 it('can remove a card using #removeCard', async () => {
@@ -87,7 +87,7 @@ it('fails to write a long value when there is no card', async () => {
 
 it('gets undefined when reading an object when no long value is set', async () => {
   expect(
-    (await new MemoryCard().insertCard().readLongObject(ABSchema)).ok()
+    (await new MemoryCard().insertCard().readLongObject(AbSchema)).ok()
   ).toBeUndefined();
 });
 

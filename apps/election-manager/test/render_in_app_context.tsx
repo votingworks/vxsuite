@@ -18,7 +18,7 @@ import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
   PrintedBallot,
-  ISO8601Timestamp,
+  Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
 } from '../src/config/types';
@@ -39,7 +39,7 @@ interface RenderInAppContextParams {
   history?: MemoryHistory;
   castVoteRecordFiles?: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
-  configuredAt?: ISO8601Timestamp;
+  configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
   printBallotRef?: RefObject<HTMLElement>;

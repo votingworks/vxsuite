@@ -5,7 +5,7 @@ import {
 } from '@votingworks/types';
 import {
   encodeBallot,
-  encodeHMPBBallotPageMetadata,
+  encodeHmpbBallotPageMetadata,
 } from '@votingworks/ballot-encoder';
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { BallotPageQrcode } from '../types';
@@ -43,11 +43,11 @@ test('normalizing sheet metadata', () => {
     position: 'top',
   };
   const frontHmpbQrcode: BallotPageQrcode = {
-    data: encodeHMPBBallotPageMetadata(election, frontHmpbMetadata),
+    data: encodeHmpbBallotPageMetadata(election, frontHmpbMetadata),
     position: 'bottom',
   };
   const backHmpbQrcode: BallotPageQrcode = {
-    data: encodeHMPBBallotPageMetadata(election, backHmpbMetadata),
+    data: encodeHmpbBallotPageMetadata(election, backHmpbMetadata),
     position: 'bottom',
   };
 

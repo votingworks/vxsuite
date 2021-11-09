@@ -1,4 +1,4 @@
-import QRCodeReact from '@votingworks/qrcode.react';
+import QrCodeReact from '@votingworks/qrcode.react';
 import { CompressedTally, ElectionDefinition } from '@votingworks/types';
 import React, { useState, useEffect } from 'react';
 import { DateTime } from 'luxon';
@@ -15,7 +15,7 @@ interface Props {
   compressedTally: CompressedTally;
 }
 
-export function PrecinctScannerTallyQRCode({
+export function PrecinctScannerTallyQrCode({
   reportSavedTime,
   electionDefinition,
   signingMachineId,
@@ -79,7 +79,7 @@ export function PrecinctScannerTallyQRCode({
           This QR code contains the tally, authenticated with a digital
           signature. Scan the QR code and follow the URL for details.
         </p>
-        <QRCodeReact renderAs="svg" value={resultsReportingUrl} level="H" />
+        <QrCodeReact renderAs="svg" value={resultsReportingUrl} level="H" />
       </Prose>
     </ReportSection>
   ) : (

@@ -647,7 +647,7 @@ export function AppRoot({
   const scanner = usePrecinctScanner();
   const scannedBallotCount = scanner?.status.ballotCount ?? 0;
 
-  const getCVRsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
+  const getCvrsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
     if (electionDefinition) {
       return await scan.getExport();
     }
@@ -803,7 +803,7 @@ export function AppRoot({
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
           saveTallyToCard={saveTallyToCard}
-          getCVRsFromExport={getCVRsFromExport}
+          getCvrsFromExport={getCvrsFromExport}
           printer={printer}
           hasPrinterAttached={hasPrinterAttached}
           isLiveMode={!isTestMode}

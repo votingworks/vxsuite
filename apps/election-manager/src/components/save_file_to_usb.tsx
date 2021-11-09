@@ -4,7 +4,7 @@ import path from 'path';
 import fileDownload from 'js-file-download';
 import { usbstick, throwIllegalValue } from '@votingworks/utils';
 
-import { USBControllerButton } from '@votingworks/ui';
+import { UsbControllerButton } from '@votingworks/ui';
 import assert from 'assert';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
@@ -16,7 +16,7 @@ import { MainChild } from './main';
 
 const { UsbDriveStatus } = usbstick;
 
-const USBImage = styled.img`
+const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
@@ -27,7 +27,7 @@ export enum FileType {
   TestDeckTallyReport = 'TestDeckTallyReport',
   Ballot = 'Ballot',
   Results = 'Results',
-  BatchResultsCSV = 'BatchResultsCSV',
+  BatchResultsCsv = 'BatchResultsCSV',
 }
 
 export interface Props {
@@ -35,7 +35,7 @@ export interface Props {
   generateFileContent: () => Promise<Uint8Array | string>;
   defaultFilename: string;
   fileType: FileType;
-  promptToEjectUSB?: boolean;
+  promptToEjectUsb?: boolean;
 }
 
 enum ModalState {
@@ -45,12 +45,12 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function SaveFileToUSB({
+export function SaveFileToUsb({
   onClose,
   generateFileContent,
   defaultFilename,
   fileType,
-  promptToEjectUSB = false,
+  promptToEjectUsb = false,
 }: Props): JSX.Element {
   const {
     usbDriveStatus,
@@ -122,7 +122,7 @@ export function SaveFileToUSB({
       title = 'Results';
       fileName = 'election results';
       break;
-    case FileType.BatchResultsCSV:
+    case FileType.BatchResultsCsv:
       title = 'Batch Results';
       fileName = 'election batch results';
       break;
@@ -149,11 +149,11 @@ export function SaveFileToUSB({
 
   if (currentState === ModalState.DONE) {
     let actions = <LinkButton onPress={onClose}>Close</LinkButton>;
-    if (promptToEjectUSB && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
+    if (promptToEjectUsb && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
       actions = (
         <React.Fragment>
           <LinkButton onPress={onClose}>Close</LinkButton>
-          <USBControllerButton
+          <UsbControllerButton
             small={false}
             primary
             usbDriveStatus={usbDriveStatus}
@@ -167,7 +167,7 @@ export function SaveFileToUSB({
         content={
           <Prose>
             <h1>{title} Saved</h1>
-            {promptToEjectUSB && <p>You may now eject the USB drive.</p>}
+            {promptToEjectUsb && <p>You may now eject the USB drive.</p>}
             <p>
               {fileName.charAt(0).toUpperCase() + fileName.slice(1)}{' '}
               successfully saved{' '}
@@ -206,7 +206,7 @@ export function SaveFileToUSB({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage src="/usb-drive.svg" alt="Insert USB Image" />
+                <UsbImage src="/usb-drive.svg" alt="Insert USB Image" />
                 Please insert a USB drive where you would like the save the{' '}
                 {fileName}.
               </p>

@@ -18,7 +18,7 @@ import {
   MainChild,
   PrecinctScannerTallyReport,
   PrecinctScannerPollsReport,
-  PrecinctScannerTallyQRCode,
+  PrecinctScannerTallyQrCode,
   PrintableContainer,
   TallyReport,
 } from '@votingworks/ui';
@@ -565,7 +565,7 @@ export function PollWorkerScreen({
                       })
                   )}
                   {tallyOnCard.totalBallotsScanned > 0 && (
-                    <PrecinctScannerTallyQRCode
+                    <PrecinctScannerTallyQrCode
                       electionDefinition={electionDefinition}
                       signingMachineId={machineConfig.machineId}
                       compressedTally={

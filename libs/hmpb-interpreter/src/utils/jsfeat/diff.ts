@@ -4,7 +4,7 @@ import {
   assertImageChannelsMatch,
   assertSizesMatch,
   getImageChannelCount,
-  isRGBA,
+  isRgba,
 } from '../image_format_utils';
 
 /**
@@ -46,7 +46,7 @@ export function diff(
   const { width: dstWidth, height: dstHeight } = baseBounds;
   let dst: Uint8ClampedArray;
 
-  if (isRGBA(base)) {
+  if (isRgba(base)) {
     dst = new Uint8ClampedArray(dstWidth * dstHeight * 4);
 
     for (let y = 0; y < dstHeight; y += 1) {

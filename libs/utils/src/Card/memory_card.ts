@@ -1,6 +1,6 @@
-import { ok, Optional, Result, safeParseJSON } from '@votingworks/types';
+import { ok, Optional, Result, safeParseJson } from '@votingworks/types';
 import { z } from 'zod';
-import { Card, CardAPI } from '../types';
+import { Card, CardApi } from '../types';
 
 /**
  * Implements the `Card` API with an in-memory implementation.
@@ -16,7 +16,7 @@ export class MemoryCard implements Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  async readStatus(): Promise<CardAPI> {
+  async readStatus(): Promise<CardApi> {
     const { present, shortValue } = this;
 
     if (present) {
@@ -44,8 +44,8 @@ export class MemoryCard implements Card {
       return ok(undefined);
     }
 
-    const longValueJSON = new TextDecoder().decode(longValue);
-    return safeParseJSON(longValueJSON, schema);
+    const longValueJson = new TextDecoder().decode(longValue);
+    return safeParseJson(longValueJson, schema);
   }
 
   /**

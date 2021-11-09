@@ -36,8 +36,8 @@ import { TextInput } from '../components/text_input';
 import { LinkButton } from '../components/link_button';
 import { Prose } from '../components/prose';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
-import { generateFileContentToSaveAsPDF } from '../utils/save_as_pdf';
-import { SaveFileToUSB, FileType } from '../components/save_file_to_usb';
+import { generateFileContentToSaveAsPdf } from '../utils/save_as_pdf';
+import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 
 const BallotCopiesInput = styled(TextInput)`
   width: 4em;
@@ -323,9 +323,9 @@ export function BallotScreen(): JSX.Element {
         </BallotPreview>
       </NavigationScreen>
       {isSaveModalOpen && (
-        <SaveFileToUSB
+        <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={generateFileContentToSaveAsPDF}
+          generateFileContent={generateFileContentToSaveAsPdf}
           defaultFilename={filename}
           fileType={FileType.Ballot}
         />

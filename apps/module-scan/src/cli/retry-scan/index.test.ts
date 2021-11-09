@@ -16,8 +16,8 @@ test('--all query', () => {
           back_original_filename as backOriginalFilename,
           front_normalized_filename as frontNormalizedFilename,
           back_normalized_filename as backNormalizedFilename,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
         from sheets
         
         ",
@@ -37,8 +37,8 @@ test('--unreadable query', () => {
           back_original_filename as backOriginalFilename,
           front_normalized_filename as frontNormalizedFilename,
           back_normalized_filename as backNormalizedFilename,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
         from sheets
         where json_extract(front_interpretation_json, '$.type') = 'UnreadablePage' or
           json_extract(back_interpretation_json, '$.type') = 'UnreadablePage'
@@ -59,8 +59,8 @@ test('--uninterpreted query', () => {
           back_original_filename as backOriginalFilename,
           front_normalized_filename as frontNormalizedFilename,
           back_normalized_filename as backNormalizedFilename,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
         from sheets
         where json_extract(front_interpretation_json, '$.type') = 'UninterpretedHmpbPage' or
           json_extract(back_interpretation_json, '$.type') = 'UninterpretedHmpbPage'
@@ -81,8 +81,8 @@ test('--uninterpreted & --unreadable query', () => {
           back_original_filename as backOriginalFilename,
           front_normalized_filename as frontNormalizedFilename,
           back_normalized_filename as backNormalizedFilename,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
         from sheets
         where json_extract(front_interpretation_json, '$.type') = 'UnreadablePage' or
           json_extract(back_interpretation_json, '$.type') = 'UnreadablePage' or json_extract(front_interpretation_json, '$.type') = 'UninterpretedHmpbPage' or
@@ -104,8 +104,8 @@ test('--no-unreadable query', () => {
           back_original_filename as backOriginalFilename,
           front_normalized_filename as frontNormalizedFilename,
           back_normalized_filename as backNormalizedFilename,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
         from sheets
         where json_extract(front_interpretation_json, '$.type') != 'UnreadablePage' and
           json_extract(back_interpretation_json, '$.type') != 'UnreadablePage'
@@ -126,8 +126,8 @@ test('query with sheet ids', () => {
           back_original_filename as backOriginalFilename,
           front_normalized_filename as frontNormalizedFilename,
           back_normalized_filename as backNormalizedFilename,
-          front_interpretation_json as frontInterpretationJSON,
-          back_interpretation_json as backInterpretationJSON
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
         from sheets
         where id = ? or id = ?
         ",

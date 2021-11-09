@@ -2,14 +2,14 @@ import { fromByteArray, toByteArray } from 'base64-js';
 import fetchMock, { MockRequest } from 'fetch-mock';
 import { z } from 'zod';
 import { WebServiceCard } from '.';
-import { CardPresentAPI, typedAs } from '../types';
+import { CardPresentApi, typedAs } from '../types';
 
-const ABSchema = z.object({ a: z.number(), b: z.number() });
+const AbSchema = z.object({ a: z.number(), b: z.number() });
 
 it('fetches card status and short value from /card/read', async () => {
   fetchMock.get(
     '/card/read',
-    typedAs<CardPresentAPI>({
+    typedAs<CardPresentApi>({
       present: true,
       shortValue: 'abc',
       longValueExists: true,
@@ -17,7 +17,7 @@ it('fetches card status and short value from /card/read', async () => {
   );
 
   expect(await new WebServiceCard().readStatus()).toEqual(
-    typedAs<CardPresentAPI>({
+    typedAs<CardPresentApi>({
       present: true,
       shortValue: 'abc',
       longValueExists: true,
@@ -30,7 +30,7 @@ it('reads objects from /card/read_long', async () => {
     longValue: JSON.stringify({ a: 1, b: 2 }),
   });
 
-  expect((await new WebServiceCard().readLongObject(ABSchema)).ok()).toEqual({
+  expect((await new WebServiceCard().readLongObject(AbSchema)).ok()).toEqual({
     a: 1,
     b: 2,
   });
@@ -107,7 +107,7 @@ it('gets undefined when reading object value if long value is not set', async ()
   fetchMock.get('/card/read_long', {});
 
   expect(
-    (await new WebServiceCard().readLongObject(ABSchema)).ok()
+    (await new WebServiceCard().readLongObject(AbSchema)).ok()
   ).toBeUndefined();
 });
 

@@ -9,7 +9,7 @@ import {
 } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
-import { USBControllerButton } from '../usbcontroller_button';
+import { UsbControllerButton } from '../usbcontroller_button';
 import { POLLING_INTERVAL_FOR_USB, useUsbDrive } from './use_usb_drive';
 
 const { UsbDriveStatus } = usbstick;
@@ -21,7 +21,7 @@ async function waitForStatusUpdate(): Promise<void> {
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_USB / 1000);
 }
 
-async function waitForIOFlush(): Promise<void> {
+async function waitForIoFlush(): Promise<void> {
   await advanceTimersAndPromises(usbstick.FLUSH_IO_DELAY_MS / 1000);
 }
 
@@ -47,7 +47,7 @@ test('returns notavailable if no kiosk', async () => {
   expect(result.current.status).toEqual(usbstick.UsbDriveStatus.notavailable);
   expect(logSpy).toHaveBeenCalled();
   expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: undefined,
@@ -66,7 +66,7 @@ test('returns the status after the first tick', async () => {
   expect(result.current.status).toEqual(usbstick.UsbDriveStatus.mounted);
   expect(logSpy).toHaveBeenCalled();
   expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: undefined,
@@ -79,7 +79,7 @@ test('full lifecycle with USBControllerButton', async () => {
   function ThisTestComponent() {
     const usbDrive = useUsbDrive({ logger: fakeLogger });
     return (
-      <USBControllerButton
+      <UsbControllerButton
         usbDriveStatus={usbDrive.status ?? UsbDriveStatus.absent}
         usbDriveEject={() => usbDrive.eject('admin')}
       />
@@ -96,7 +96,7 @@ test('full lifecycle with USBControllerButton', async () => {
   screen.getByText('No USB');
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: undefined,
@@ -116,7 +116,7 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(logSpy).toHaveBeenCalledTimes(5);
   expect(logSpy).toHaveBeenNthCalledWith(
     3,
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: 'absent',
@@ -125,12 +125,12 @@ test('full lifecycle with USBControllerButton', async () => {
   );
   expect(logSpy).toHaveBeenNthCalledWith(
     4,
-    LogEventId.USBDriveMountInit,
+    LogEventId.UsbDriveMountInit,
     'system'
   );
   expect(logSpy).toHaveBeenNthCalledWith(
     5,
-    LogEventId.USBDriveMounted,
+    LogEventId.UsbDriveMounted,
     'system',
     expect.objectContaining({
       disposition: 'success',
@@ -144,7 +144,7 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(logSpy).toHaveBeenCalledTimes(6);
   expect(logSpy).toHaveBeenNthCalledWith(
     6,
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: 'present',
@@ -158,7 +158,7 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(logSpy).toHaveBeenCalledTimes(7);
   expect(logSpy).toHaveBeenNthCalledWith(
     7,
-    LogEventId.USBDriveEjectInit,
+    LogEventId.UsbDriveEjectInit,
     'admin'
   );
   await advanceTimersAndPromises();
@@ -171,20 +171,20 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
   await waitForStatusUpdate();
   await advanceTimersAndPromises();
-  await waitForIOFlush();
+  await waitForIoFlush();
 
   await waitForStatusUpdate();
   screen.getByText('Ejected');
   expect(logSpy).toHaveBeenCalledTimes(9);
   expect(logSpy).toHaveBeenNthCalledWith(
     8,
-    LogEventId.USBDriveEjected,
+    LogEventId.UsbDriveEjected,
     'admin',
     expect.objectContaining({ disposition: 'success' })
   );
   expect(logSpy).toHaveBeenNthCalledWith(
     9,
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: 'ejecting',
@@ -199,7 +199,7 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(logSpy).toHaveBeenCalledTimes(10);
   expect(logSpy).toHaveBeenNthCalledWith(
     10,
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({
       previousStatus: 'present',
@@ -226,24 +226,24 @@ test('usb drive gets mounted from undefined state', async () => {
   expect(logSpy).toHaveBeenCalledTimes(5);
   expect(logSpy).toHaveBeenNthCalledWith(
     2,
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({ previousStatus: undefined, newStatus: 'present' })
   );
   expect(logSpy).toHaveBeenNthCalledWith(
     3,
-    LogEventId.USBDriveMountInit,
+    LogEventId.UsbDriveMountInit,
     'system'
   );
   expect(logSpy).toHaveBeenNthCalledWith(
     4,
-    LogEventId.USBDriveMounted,
+    LogEventId.UsbDriveMounted,
     'system',
     expect.objectContaining({ disposition: 'success' })
   );
   expect(logSpy).toHaveBeenNthCalledWith(
     5,
-    LogEventId.USBDriveStatusUpdate,
+    LogEventId.UsbDriveStatusUpdate,
     'system',
     expect.objectContaining({ previousStatus: 'present', newStatus: 'mounted' })
   );
@@ -265,7 +265,7 @@ test('error in mounting gets logged as expected', async () => {
 
   await waitForStatusUpdate();
   expect(logSpy).toHaveBeenCalledWith(
-    LogEventId.USBDriveMounted,
+    LogEventId.UsbDriveMounted,
     'system',
     expect.objectContaining({
       disposition: 'failure',
@@ -278,7 +278,7 @@ test('error in unmounting gets logged as expected', async () => {
   function ThisTestComponent() {
     const usbDrive = useUsbDrive({ logger: fakeLogger });
     return (
-      <USBControllerButton
+      <UsbControllerButton
         usbDriveStatus={usbDrive.status ?? UsbDriveStatus.absent}
         usbDriveEject={() => usbDrive.eject('pollworker')}
       />
@@ -306,7 +306,7 @@ test('error in unmounting gets logged as expected', async () => {
   await waitForStatusUpdate();
 
   expect(logSpy).toHaveBeenCalledWith(
-    LogEventId.USBDriveEjected,
+    LogEventId.UsbDriveEjected,
     'pollworker',
     expect.objectContaining({
       disposition: 'failure',

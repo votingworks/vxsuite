@@ -12,7 +12,7 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  HMPBBallotPageMetadata,
+  HmpbBallotPageMetadata,
   isVotePresent,
   Optional,
   PrecinctId,
@@ -54,7 +54,7 @@ export const Prelude: readonly Uint8[] = [
   /* version = */ 2,
 ];
 
-export const HMPBPrelude: readonly Uint8[] = [
+export const HmpbPrelude: readonly Uint8[] = [
   /* V */ 86,
   /* P = Paper */ 80,
   /* version = */ 1,
@@ -570,14 +570,14 @@ export function decodeBallot(
   return decodeBallotFromReader(election, new BitReader(data));
 }
 
-export interface HMPBBallotPageMetadataCheckData {
+export interface HmpbBallotPageMetadataCheckData {
   electionHash: string;
   precinctCount: number;
   ballotStyleCount: number;
   contestCount: number;
 }
 
-export function encodeHMPBBallotPageMetadataInto(
+export function encodeHmpbBallotPageMetadataInto(
   election: Election,
   {
     ballotId,
@@ -588,12 +588,12 @@ export function encodeHMPBBallotPageMetadataInto(
     locales,
     pageNumber,
     precinctId,
-  }: HMPBBallotPageMetadata,
+  }: HmpbBallotPageMetadata,
   bits: BitWriter
 ): BitWriter {
   return (
     bits
-      .writeUint8(...HMPBPrelude)
+      .writeUint8(...HmpbPrelude)
       // TODO: specify the length so we don't have to write a length-prefixed
       // string, saving us a byte in the QR code.
       .writeString(electionHash, { encoding: HexEncoding })
@@ -615,11 +615,11 @@ export function encodeHMPBBallotPageMetadataInto(
   );
 }
 
-export function encodeHMPBBallotPageMetadata(
+export function encodeHmpbBallotPageMetadata(
   election: Election,
-  metadata: HMPBBallotPageMetadata
+  metadata: HmpbBallotPageMetadata
 ): Uint8Array {
-  return encodeHMPBBallotPageMetadataInto(
+  return encodeHmpbBallotPageMetadataInto(
     election,
     metadata,
     new BitWriter()
@@ -630,17 +630,17 @@ export function encodeHMPBBallotPageMetadata(
  * Reads the HMPB prelude bytes from `bits`. When detected, the cursor of `bits`
  * will be updated to skip the prelude bytes.
  */
-export function detectHMPBBallotPageMetadataFromReader(
+export function detectHmpbBallotPageMetadataFromReader(
   bits: BitReader
 ): boolean {
-  return bits.skipUint8(...HMPBPrelude);
+  return bits.skipUint8(...HmpbPrelude);
 }
 
 /**
  * Reads the HMPB prelude bytes from `data`, returning true when they are found.
  */
-export function detectHMPBBallotPageMetadata(data: Uint8Array): boolean {
-  return detectHMPBBallotPageMetadataFromReader(new BitReader(data));
+export function detectHmpbBallotPageMetadata(data: Uint8Array): boolean {
+  return detectHmpbBallotPageMetadataFromReader(new BitReader(data));
 }
 
 /**
@@ -649,7 +649,7 @@ export function detectHMPBBallotPageMetadata(data: Uint8Array): boolean {
 export function decodeElectionHashFromReader(
   bits: BitReader
 ): string | undefined {
-  if (bits.skipUint8(...HMPBPrelude)) {
+  if (bits.skipUint8(...HmpbPrelude)) {
     return bits.readString({ encoding: HexEncoding });
   }
 
@@ -668,11 +668,11 @@ export function decodeElectionHash(data: Uint8Array): string | undefined {
   return decodeElectionHashFromReader(new BitReader(data));
 }
 
-export function decodeHMPBBallotPageMetadataFromReader(
+export function decodeHmpbBallotPageMetadataFromReader(
   election: Election,
   bits: BitReader
-): HMPBBallotPageMetadata {
-  if (!detectHMPBBallotPageMetadataFromReader(bits)) {
+): HmpbBallotPageMetadata {
+  if (!detectHmpbBallotPageMetadataFromReader(bits)) {
     throw new Error(
       "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
     );
@@ -705,9 +705,9 @@ export function decodeHMPBBallotPageMetadataFromReader(
   };
 }
 
-export function decodeHMPBBallotPageMetadata(
+export function decodeHmpbBallotPageMetadata(
   election: Election,
   data: Uint8Array
-): HMPBBallotPageMetadata {
-  return decodeHMPBBallotPageMetadataFromReader(election, new BitReader(data));
+): HmpbBallotPageMetadata {
+  return decodeHmpbBallotPageMetadataFromReader(election, new BitReader(data));
 }

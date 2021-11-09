@@ -203,15 +203,15 @@ function WriteInLabel({
 }
 
 function WriteInImage({
-  imageURL,
+  imageUrl,
   bounds,
 }: {
-  imageURL: string;
+  imageUrl: string;
   bounds: Rect;
 }) {
   return (
     <CroppedImage
-      src={imageURL}
+      src={imageUrl}
       alt="write-in area"
       crop={{
         x: bounds.x,
@@ -228,7 +228,7 @@ function WriteInImage({
 }
 
 interface ContestOptionAdjudicationProps {
-  imageURL: string;
+  imageUrl: string;
   contest: CandidateContest;
   writeIn:
     | WriteInAdjudicationReasonInfo
@@ -241,7 +241,7 @@ interface ContestOptionAdjudicationProps {
 }
 
 function ContestOptionAdjudication({
-  imageURL,
+  imageUrl,
   contest,
   writeIn,
   layout,
@@ -330,7 +330,7 @@ function ContestOptionAdjudication({
   return (
     <WriteInAdjudicationBox key={writeIn.optionId}>
       <HStack>
-        <WriteInImage imageURL={imageURL} bounds={bounds} />
+        <WriteInImage imageUrl={imageUrl} bounds={bounds} />
         <Spacer />
         <VStack>
           <VStack as="label">
@@ -369,7 +369,7 @@ function ContestOptionAdjudication({
 }
 
 interface ContestAdjudicationProps {
-  imageURL: string;
+  imageUrl: string;
   contest: CandidateContest;
   layout: BallotPageContestLayout;
   writeInsForContest: ReadonlyArray<
@@ -381,7 +381,7 @@ interface ContestAdjudicationProps {
 }
 
 function ContestAdjudication({
-  imageURL,
+  imageUrl,
   contest,
   layout,
   writeInsForContest,
@@ -399,7 +399,7 @@ function ContestAdjudication({
           key={writeIn.optionId}
           adjudications={adjudications}
           contest={contest}
-          imageURL={imageURL}
+          imageUrl={imageUrl}
           layout={layout}
           writeIn={writeIn}
           onChange={onChange}
@@ -413,7 +413,7 @@ function ContestAdjudication({
 
 function WriteInAdjudicationByContest({
   electionDefinition,
-  imageURL,
+  imageUrl,
   interpretation,
   layout,
   contestIds,
@@ -424,7 +424,7 @@ function WriteInAdjudicationByContest({
   writeInPresets,
 }: {
   electionDefinition: ElectionDefinition;
-  imageURL: string;
+  imageUrl: string;
   interpretation: InterpretedHmpbPage;
   layout: SerializableBallotPageLayout;
   contestIds: ReadonlyArray<Contest['id']>;
@@ -516,7 +516,7 @@ function WriteInAdjudicationByContest({
       </p>
       <ContestAdjudication
         key={selectedContestId}
-        imageURL={imageURL}
+        imageUrl={imageUrl}
         contest={contest}
         writeInsForContest={writeInsForContest}
         layout={contestLayout}
@@ -548,7 +548,7 @@ function WriteInAdjudicationByContest({
 export interface Props {
   sheetId: string;
   side: Side;
-  imageURL: string;
+  imageUrl: string;
   interpretation: InterpretedHmpbPage;
   layout: SerializableBallotPageLayout;
   contestIds: ReadonlyArray<Contest['id']>;
@@ -562,7 +562,7 @@ export interface Props {
 export function WriteInAdjudicationScreen({
   sheetId,
   side,
-  imageURL,
+  imageUrl,
   interpretation,
   layout,
   contestIds,
@@ -654,7 +654,7 @@ export function WriteInAdjudicationScreen({
             <Header>Write-In Adjudication</Header>
             <WriteInAdjudicationByContest
               electionDefinition={electionDefinition}
-              imageURL={imageURL}
+              imageUrl={imageUrl}
               interpretation={interpretation}
               layout={layout}
               contestIds={contestIds}
@@ -666,7 +666,7 @@ export function WriteInAdjudicationScreen({
             />
           </Prose>
           <BallotSheetImage
-            imageURL={imageURL}
+            imageUrl={imageUrl}
             layout={layout}
             contestIds={contestIds}
             styleForContest={styleForContest}

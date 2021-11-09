@@ -13,16 +13,16 @@ const SealImage = styled.img`
 
 interface Props {
   seal?: string;
-  sealURL?: string;
+  sealUrl?: string;
 }
 
-export function Seal({ seal, sealURL }: Props): JSX.Element {
+export function Seal({ seal, sealUrl }: Props): JSX.Element {
   return (
     <SealContainer
       aria-hidden
       dangerouslySetInnerHTML={seal ? { __html: seal } : undefined}
     >
-      {(!seal && sealURL && <SealImage alt="state seal" src={sealURL} />) ||
+      {(!seal && sealUrl && <SealImage alt="state seal" src={sealUrl} />) ||
         undefined}
     </SealContainer>
   );
