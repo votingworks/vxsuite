@@ -1,6 +1,6 @@
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 import { join } from 'path';
-import rule from '../../src/rules/gts_no_dollar_sign_names';
+import rule from '../../src/rules/gts_identifiers';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -11,7 +11,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   parser: '@typescript-eslint/parser',
 });
 
-ruleTester.run('gts-no-dollar-sign-names', rule, {
+ruleTester.run('gts-identifiers', rule, {
   valid: [
     { code: `abc` },
     { code: `'$abc'` },
@@ -19,6 +19,9 @@ ruleTester.run('gts-no-dollar-sign-names', rule, {
       code: `$0`,
       options: [{ allowedNames: ['$0'] }],
     },
+    { code: `const abc = 12` },
+    { code: `const a_b_c = 12` },
+    { code: `function ab_() {}` },
   ],
   invalid: [
     {
@@ -41,6 +44,10 @@ ruleTester.run('gts-no-dollar-sign-names', rule, {
       // Do we ever want to specifically allow RxJS?
       code: 'device$.subscribe()',
       errors: [{ messageId: 'noDollarSign', line: 1 }],
+    },
+    {
+      code: 'const illegalnÀme = 12',
+      errors: [{ messageId: 'identifiersAllowedCharacters', line: 1 }],
     },
   ],
 });

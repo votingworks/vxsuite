@@ -14,19 +14,19 @@ export default createRule({
     },
     fixable: 'code',
     messages: {
-      noJSDocOverride:
+      noJsDocOverride:
         'Do not use `@override`; if applicable, use the TypeScript `override` keyword.',
-      noJSDocImplements:
+      noJsDocImplements:
         'Do not use `@implements`; if applicable, use the TypeScript `implements` keyword.',
-      noJSDocExtends:
+      noJsDocExtends:
         'Do not use `@extends`; if applicable, use the TypeScript `extends` keyword.',
-      noJSDocEnum:
+      noJsDocEnum:
         'Do not use `@enum`; if applicable, use the TypeScript `enum` keyword.',
-      noJSDocPrivate:
+      noJsDocPrivate:
         'Do not use `@private`; if applicable, use the TypeScript `private` keyword.',
-      noJSDocProtected:
+      noJsDocProtected:
         'Do not use `@protected`; if applicable, use the TypeScript `protected` keyword.',
-      noJSDocType: 'Do not duplicate types in `{{tag}}` tag.',
+      noJsDocType: 'Do not duplicate types in `{{tag}}` tag.',
     },
     schema: [],
     type: 'problem',
@@ -51,42 +51,42 @@ export default createRule({
                 case 'override':
                   context.report({
                     node: comment,
-                    messageId: 'noJSDocOverride',
+                    messageId: 'noJsDocOverride',
                   });
                   break;
 
                 case 'extends':
                   context.report({
                     node: comment,
-                    messageId: 'noJSDocExtends',
+                    messageId: 'noJsDocExtends',
                   });
                   break;
 
                 case 'implements':
                   context.report({
                     node: comment,
-                    messageId: 'noJSDocImplements',
+                    messageId: 'noJsDocImplements',
                   });
                   break;
 
                 case 'enum':
                   context.report({
                     node: comment,
-                    messageId: 'noJSDocEnum',
+                    messageId: 'noJsDocEnum',
                   });
                   break;
 
                 case 'private':
                   context.report({
                     node: comment,
-                    messageId: 'noJSDocPrivate',
+                    messageId: 'noJsDocPrivate',
                   });
                   break;
 
                 case 'protected':
                   context.report({
                     node: comment,
-                    messageId: 'noJSDocProtected',
+                    messageId: 'noJsDocProtected',
                   });
                   break;
 
@@ -98,7 +98,7 @@ export default createRule({
               if (tag.type && tag.tag !== 'see') {
                 context.report({
                   node: comment,
-                  messageId: 'noJSDocType',
+                  messageId: 'noJsDocType',
                   data: { tag: `@${tag.tag}` },
                 });
               }

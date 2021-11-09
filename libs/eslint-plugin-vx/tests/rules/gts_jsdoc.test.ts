@@ -35,31 +35,31 @@ ruleTester.run('gts-jsdoc', rule, {
   invalid: [
     {
       code: '/** @override */',
-      errors: [{ messageId: 'noJSDocOverride', line: 1 }],
+      errors: [{ messageId: 'noJsDocOverride', line: 1 }],
     },
     {
       code: '/** @implements */',
-      errors: [{ messageId: 'noJSDocImplements', line: 1 }],
+      errors: [{ messageId: 'noJsDocImplements', line: 1 }],
     },
     {
       code: '/** @extends */',
-      errors: [{ messageId: 'noJSDocExtends', line: 1 }],
+      errors: [{ messageId: 'noJsDocExtends', line: 1 }],
     },
     {
       code: '/** @enum */',
-      errors: [{ messageId: 'noJSDocEnum', line: 1 }],
+      errors: [{ messageId: 'noJsDocEnum', line: 1 }],
     },
     {
       code: '/** @private */',
-      errors: [{ messageId: 'noJSDocPrivate', line: 1 }],
+      errors: [{ messageId: 'noJsDocPrivate', line: 1 }],
     },
     {
       code: '/** @protected */',
-      errors: [{ messageId: 'noJSDocProtected', line: 1 }],
+      errors: [{ messageId: 'noJsDocProtected', line: 1 }],
     },
     {
       code: '/** @type {number} */',
-      errors: [{ messageId: 'noJSDocType', line: 1 }],
+      errors: [{ messageId: 'noJsDocType', line: 1 }],
     },
     {
       code: `
@@ -73,9 +73,9 @@ ruleTester.run('gts-jsdoc', rule, {
         }
       `,
       errors: [
-        { messageId: 'noJSDocType' },
-        { messageId: 'noJSDocType' },
-        { messageId: 'noJSDocType' },
+        { messageId: 'noJsDocType' },
+        { messageId: 'noJsDocType' },
+        { messageId: 'noJsDocType' },
       ],
     },
   ],
