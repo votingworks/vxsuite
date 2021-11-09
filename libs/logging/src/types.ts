@@ -14,9 +14,14 @@ export enum LogSource {
   VxAdminApp = 'vx-admin',
   VxAdminServer = 'vx-admin-server',
   VxBatchScanApp = 'vx-batch-scan',
+  VxBatchScanSever = 'vx-batch-scan-server',
   VxPrecinctScanApp = 'vx-precinct-scan',
+  VxPrecinctScanServer = 'vx-precinct-scan-server',
   VxBallotMarkingDeviceApp = 'vx-ballot-marking-device',
+  VxBallotMarkingDeviceServer = 'vx-ballot-marking-device-server',
   VxBallotActivationApp = 'vx-ballot-activation',
+  VxBallotActivationServer = 'vx-ballot-activation-server',
+  VxScanService = 'vx-scan-service',
 }
 // The following log sources are client side apps and always expect to log through window.kiosk
 // In various tests window.kiosk may not be defined and we don't want to fallback to logging with console.log

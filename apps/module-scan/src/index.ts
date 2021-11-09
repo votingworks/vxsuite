@@ -1,6 +1,7 @@
 // Import the rest of our application.
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import { ok, Result } from '@votingworks/types';
+import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import {
   MOCK_SCANNER_FILES,
   MOCK_SCANNER_HTTP,
@@ -11,6 +12,8 @@ import {
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { plustekMockServer, PlustekScanner, Scanner } from './scanners';
 import * as server from './server';
+
+const logger = new Logger(LogSource.VxScanService);
 
 async function getScanner(): Promise<Scanner | undefined> {
   if (VX_MACHINE_TYPE === 'precinct-scanner') {
@@ -60,7 +63,10 @@ async function main(): Promise<number> {
 if (require.main === module) {
   void main()
     .catch((error) => {
-      process.stderr.write(`CRASH: ${error}\n`);
+      void logger.log(LogEventId.ApplicationStartup, 'system', {
+        message: `Error in starting Scan Service: ${error}`,
+        disposition: 'failure',
+      });
       return 1;
     })
     .then((code) => {

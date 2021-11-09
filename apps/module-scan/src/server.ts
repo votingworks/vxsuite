@@ -10,6 +10,7 @@ import {
   safeParseElectionDefinition,
   SerializableBallotPageLayout,
 } from '@votingworks/types';
+import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import {
   AddTemplatesRequest,
   AddTemplatesResponse,
@@ -647,7 +648,8 @@ export interface StartOptions {
   scanner: Scanner;
   importer: Importer;
   app: Application;
-  log(message: string): void;
+  log(message: string): void; // TODO(caro) Remove once all logging is moved over to logger
+  logger: Logger;
   workspace: Workspace;
   machineType: 'bsd' | 'precinct-scanner';
 }
@@ -662,6 +664,7 @@ export async function start({
   app,
   log = (message: string) =>
     process.stdout.write(message.endsWith('\n') ? message : `${message}\n`),
+  logger = new Logger(LogSource.VxScanService),
   workspace,
   machineType = VX_MACHINE_TYPE,
 }: Partial<StartOptions> = {}): Promise<void> {
@@ -721,8 +724,11 @@ export async function start({
     app ??
     buildApp({ importer: resolvedImporter, store: resolvedWorkspace.store });
 
-  resolvedApp.listen(port, () => {
-    log(`Listening at http://localhost:${port}/`);
+  resolvedApp.listen(port, async () => {
+    await logger.log(LogEventId.ApplicationStartup, 'system', {
+      message: `Scan Service running at http://localhost:${port}/`,
+      disposition: 'success',
+    });
 
     if (importer instanceof Importer) {
       log(`Scanning ballots into ${workspace?.ballotImagesPath}`);
