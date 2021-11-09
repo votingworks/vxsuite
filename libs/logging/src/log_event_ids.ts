@@ -39,6 +39,18 @@ export enum LogEventId {
   PrinterConnectionUpdate = 'printer-connection-update',
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
+  // Storage logs
+  LoadFromStorage = 'load-from-storage',
+  SaveToStorage = 'save-to-storage',
+  FileSaved = 'file-saved',
+  // VxAdmin specific user action logs
+  ExportBallotPackageInit = 'export-ballot-package-init',
+  ExportBallotPackageComplete = 'export-ballot-package-complete',
+  BallotPrinted = 'ballot-printed',
+  PrintedBallotReportPrinted = 'printed-ballot-report-printed',
+  SmartcardProgramInit = 'smartcard-program-init',
+  SmartcardProgrammed = 'smartcard-programmed',
+  SmartcardProgrammedOverrideWriteProtection = 'smartcard-programmed-override-write-protection',
 }
 
 export interface LogDetails {
@@ -215,6 +227,70 @@ const DeviceUnattached: LogDetails = {
   documentationMessage: 'Application saw a device unattached from the system.',
 };
 
+const LoadFromStorage: LogDetails = {
+  eventId: LogEventId.LoadFromStorage,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'A piece of information (current election, imported CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.',
+};
+const SaveToStorage: LogDetails = {
+  eventId: LogEventId.SaveToStorage,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A piece of information is saved to storage, usually resulting from a user action for example a user importing CVR files results in those files being saved to storage.',
+};
+
+const ExportBallotPackageInit: LogDetails = {
+  eventId: LogEventId.ExportBallotPackageInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Exporting the ballot package is initiated.',
+  defaultMessage: 'User initiated exporting the ballot package...',
+};
+const ExportBallotPackageComplete: LogDetails = {
+  eventId: LogEventId.ExportBallotPackageComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Exporting the ballot package completed, success or failure is indicated by the disposition.',
+};
+
+const BallotPrinted: LogDetails = {
+  eventId: LogEventId.BallotPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'One or more copies of a ballot were printed. Success or failure indicated by the disposition. Precinct, ballot style, ballot type, number of copies and other details included in log data.',
+};
+const PrintedBallotReportPrinted: LogDetails = {
+  eventId: LogEventId.PrintedBallotReportPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Report of all printed ballots was printed. Success or failure indicated by the disposition.',
+};
+
+const FileSaved: LogDetails = {
+  eventId: LogEventId.FileSaved,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.',
+};
+
+const SmartcardProgramInit: LogDetails = {
+  eventId: LogEventId.SmartcardProgramInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A write to smartcard is being initiated.',
+};
+const SmartcardProgrammed: LogDetails = {
+  eventId: LogEventId.SmartcardProgrammed,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Smartcard is programmed for a new user type. User type is indicated by the programmedUser key. Success or failure is indicated by the disposition.',
+};
+const SmartcardProgrammedOverrideWriteProtection: LogDetails = {
+  eventId: LogEventId.SmartcardProgrammedOverrideWriteProtection,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Smartcard is programmed to override a flag protecting writes on the card. By default admin cards can not be written unless write protection is first overridden.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -263,6 +339,26 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DeviceAttached;
     case LogEventId.DeviceUnattached:
       return DeviceUnattached;
+    case LogEventId.SaveToStorage:
+      return SaveToStorage;
+    case LogEventId.LoadFromStorage:
+      return LoadFromStorage;
+    case LogEventId.ExportBallotPackageInit:
+      return ExportBallotPackageInit;
+    case LogEventId.ExportBallotPackageComplete:
+      return ExportBallotPackageComplete;
+    case LogEventId.BallotPrinted:
+      return BallotPrinted;
+    case LogEventId.PrintedBallotReportPrinted:
+      return PrintedBallotReportPrinted;
+    case LogEventId.FileSaved:
+      return FileSaved;
+    case LogEventId.SmartcardProgrammed:
+      return SmartcardProgrammed;
+    case LogEventId.SmartcardProgrammedOverrideWriteProtection:
+      return SmartcardProgrammedOverrideWriteProtection;
+    case LogEventId.SmartcardProgramInit:
+      return SmartcardProgramInit;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

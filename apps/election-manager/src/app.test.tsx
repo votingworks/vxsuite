@@ -29,6 +29,7 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 
+import { LogEventId } from '@votingworks/logging/src';
 import {
   configuredAtStorageKey,
   cvrsStorageKey,
@@ -140,6 +141,9 @@ test('create election works', async () => {
   fireEvent.click(getByText('Create New Election Definition'));
 
   await screen.findByText('Ballots');
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.ElectionConfigured)
+  );
 
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
@@ -158,6 +162,9 @@ test('create election works', async () => {
   fireEvent.click(getByText('Remove Election Definition'));
 
   await screen.findByText('Configure Election Manager');
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.ElectionUnconfigured)
+  );
 });
 
 test('authentication works', async () => {
@@ -191,6 +198,9 @@ test('authentication works', async () => {
   // Insert an admin card and enter the wrong code.
   card.insertCard(adminCard);
   await advanceTimersAndPromises(1);
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.AdminCardInserted)
+  );
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -199,6 +209,9 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   await screen.findByText('Invalid code. Please try again.');
+  expect(window.kiosk!.log).toHaveBeenLastCalledWith(
+    expect.stringMatching(/"admin-authentication-2fac".*disposition":"failure"/)
+  );
 
   // Remove card and insert a pollworker card.
   card.removeCard();
@@ -223,6 +236,14 @@ test('authentication works', async () => {
 
   // Machine should be unlocked
   await screen.findByText('Definition');
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringMatching(/"admin-authentication-2fac".*disposition":"success"/)
+  );
+  expect(window.kiosk!.log).toHaveBeenLastCalledWith(
+    expect.stringMatching(
+      /"user-session-activation".*"user":"admin".*disposition":"success"/
+    )
+  );
 
   // The card can be removed and the screen will stay unlocked
   card.removeCard();
@@ -245,6 +266,9 @@ test('authentication works', async () => {
   // Lock the machine
   fireEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('Machine Locked');
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.MachineLocked)
+  );
 });
 
 test('printing ballots, print report, and test decks', async () => {
@@ -284,11 +308,19 @@ test('printing ballots, print report, and test decks', async () => {
   // go print some ballots
   fireEvent.click(getByText('Export Ballot Package'));
   fireEvent.click(getByText('Export'));
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.ExportBallotPackageInit)
+  );
 
   jest.useRealTimers();
 
   // we're not mocking the filestream yet
   await screen.findByText(/Download Failed/);
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringMatching(
+      /"export-ballot-package-complete".*disposition":"failure"/
+    )
+  );
   expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
   expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
   fireEvent.click(getByText('Close'));
@@ -300,6 +332,11 @@ test('printing ballots, print report, and test decks', async () => {
   await screen.findByText(/Generating Ballot/);
   expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(2);
   expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1); // Since we recreated the jest function to mock the response this will be 1
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringMatching(
+      /"export-ballot-package-complete".*disposition":"success"/
+    )
+  );
 
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
@@ -313,6 +350,9 @@ test('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Yes, Print'));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(1);
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.BallotPrinted)
+  );
   fireEvent.click(getByText('Print 1 Official', { exact: false }));
   fireEvent.click(getByText('Yes, Print'));
   await waitFor(() => getByText('Printing'));
@@ -341,6 +381,9 @@ test('printing ballots, print report, and test decks', async () => {
 
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(4);
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.PrintedBallotReportPrinted)
+  );
 
   fireEvent.click(getByText('Tally'));
   fireEvent.click(getByText('Print Test Decks'));

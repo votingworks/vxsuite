@@ -1,4 +1,4 @@
-import { LoggingUserRole } from '@votingworks/logging/src';
+import { LoggingUserRole } from '@votingworks/logging';
 import { ElectionDefinition, UserSession } from '@votingworks/types';
 import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createContext } from 'react';

@@ -15,6 +15,7 @@ interface ConfirmModal {
 interface PrintButtonProps extends StyledButtonProps {
   title?: string;
   afterPrint?: () => void;
+  afterPrintError?: (errorMessage: string) => void;
   copies?: number;
   sides: PrintOptions['sides'];
   confirmModal?: ConfirmModal;
@@ -23,6 +24,7 @@ interface PrintButtonProps extends StyledButtonProps {
 export function PrintButton({
   title,
   afterPrint,
+  afterPrintError,
   children,
   copies,
   sides,
@@ -39,6 +41,7 @@ export function PrintButton({
       const printers = await window.kiosk.getPrinterInfo();
       if (!printers.some((p) => p.connected)) {
         setShowPrintingError(true);
+        afterPrintError?.('No printer connected.');
         return;
       }
     }

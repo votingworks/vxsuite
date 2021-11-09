@@ -13,6 +13,7 @@ import {
   UserSession,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
+import { Logger, LogSource } from '@votingworks/logging';
 
 import { AppContext } from '../src/contexts/app_context';
 import {
@@ -70,6 +71,7 @@ interface RenderInAppContextParams {
   lockMachine?: () => undefined;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
+  logger?: Logger;
 }
 
 export function renderInAppContext(
@@ -108,6 +110,7 @@ export function renderInAppContext(
       bypassAuthentication: false,
     },
     hasCardReaderAttached = true,
+    logger = new Logger(LogSource.VxAdminApp),
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(
@@ -140,6 +143,7 @@ export function renderInAppContext(
         lockMachine,
         machineConfig,
         hasCardReaderAttached,
+        logger,
       }}
     >
       <Router history={history}>{component}</Router>

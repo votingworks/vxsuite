@@ -12,6 +12,7 @@ import {
 } from '@votingworks/utils';
 import { UsbControllerButton } from '@votingworks/ui';
 import { strict as assert } from 'assert';
+import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
 
@@ -39,6 +40,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     usbDriveStatus,
     usbDriveEject,
     currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
   assert(currentUserSession); // TODO(auth) should this make sure we have an admin
@@ -66,6 +68,14 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'ArchiveEnd': {
           await state.archive.end();
           setState(workflow.next);
+          await logger.log(
+            LogEventId.ExportBallotPackageComplete,
+            currentUserSession.type,
+            {
+              disposition: 'success',
+              message: 'Finished successfully exporting ballot package.',
+            }
+          );
           break;
         }
 
@@ -74,7 +84,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           break;
       }
     })();
-  }, [state, election, electionData, electionHash]);
+  }, [state, election, electionData, electionHash, logger, currentUserSession]);
 
   /**
    * Callback from `HandMarkedPaperBallot` to let us know the preview has been
@@ -123,12 +133,13 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   // Callback to open the file dialog.
   async function saveFileCallback(openDialog: boolean) {
-    if (state.type !== 'ArchiveBegin') {
-      throw new Error(
-        `unexpected state '${state.type}' found during saveFileCallback`
-      );
-    }
+    assert(state.type === 'ArchiveBegin');
+    assert(currentUserSession); // TODO(auth) check proper file permissions
     try {
+      await logger.log(
+        LogEventId.ExportBallotPackageInit,
+        currentUserSession.type
+      );
       const usbPath = await usbstick.getDevicePath();
       const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER);
       const pathToFile = join(pathToFolder ?? '.', defaultFileName);
@@ -148,6 +159,15 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       setState(workflow.next);
     } catch (error) {
       setState(workflow.error(state, error));
+      await logger.log(
+        LogEventId.ExportBallotPackageComplete,
+        currentUserSession.type,
+        {
+          disposition: 'failure',
+          message: `Error exporting ballot package: ${error}`,
+          result: 'Ballot package not exported, error shown to user.',
+        }
+      );
     }
   }
 

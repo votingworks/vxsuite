@@ -4,6 +4,7 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
@@ -74,6 +75,8 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText, queryAllByText } = renderInAppContext(
     <SaveFileToUsb
@@ -84,6 +87,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
+      logger,
     }
   );
   getByText('Save Ballot');
@@ -109,6 +113,15 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   // Does not show eject usb by default
   expect(queryAllByText('You may now eject the USB drive.')).toHaveLength(0);
   expect(queryAllByText('Eject USB')).toHaveLength(0);
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'admin',
+    expect.objectContaining({
+      disposition: 'success',
+      filename: 'this-is-a-file-name.pdf',
+      fileType: FileType.Ballot,
+    })
+  );
 });
 
 test('renders save screen when usb is mounted with results filetype and prompts to eject usb', async () => {
@@ -120,6 +133,8 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText } = renderInAppContext(
     <SaveFileToUsb
@@ -131,6 +146,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
+      logger,
     }
   );
   getByText('Save Results');
@@ -155,11 +171,22 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   expect(closeFn).toHaveBeenCalled();
   getByText('You may now eject the USB drive.');
   getByText('Eject USB');
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'admin',
+    expect.objectContaining({
+      disposition: 'success',
+      filename: 'this-is-a-file-name.pdf',
+      fileType: FileType.Results,
+    })
+  );
 });
 
 test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const fileContentFn = jest
     .fn()
@@ -175,6 +202,7 @@ test('render export modal with errors when appropriate', async () => {
     />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
+      logger,
     }
   );
   getByText('Save Unofficial Tally Report');
@@ -186,4 +214,13 @@ test('render export modal with errors when appropriate', async () => {
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'admin',
+    expect.objectContaining({
+      disposition: 'failure',
+      fileType: FileType.TallyReport,
+      message: 'Error saving tally report: this-is-an-error',
+    })
+  );
 });
