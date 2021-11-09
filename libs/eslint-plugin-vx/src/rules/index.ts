@@ -4,6 +4,7 @@ import gtsDirectModuleExportAccessOnly from './gts_direct_module_export_access_o
 import gtsFuncStyle from './gts_func_style';
 import gtsIdentifiersUseAllowedCharacters from './gts_identifiers_use_allowed_characters';
 import gtsJsdoc from './gts_jsdoc';
+import gtsModuleSnakeCase from './gts_module_snake_case';
 import gtsNoArrayConstructor from './gts_no_array_constructor';
 import gtsNoConstEnum from './gts_no_const_enum';
 import gtsNoDefaultExports from './gts_no_default_exports';
@@ -36,6 +37,7 @@ const rules: Record<
   'gts-func-style': gtsFuncStyle,
   'gts-identifiers-use-allowed-character': gtsIdentifiersUseAllowedCharacters,
   'gts-jsdoc': gtsJsdoc,
+  'gts-module-snake-case': gtsModuleSnakeCase,
   'gts-no-array-constructor': gtsNoArrayConstructor,
   'gts-no-const-enum': gtsNoConstEnum,
   'gts-no-default-exports': gtsNoDefaultExports,
