@@ -4,7 +4,7 @@ import {
   assertSizesMatch,
   isRGBA,
   makeInPlaceImageTransform,
-} from './imageFormatUtils';
+} from './image_format_utils';
 
 /**
  * Copies a grayscale image to a destination.

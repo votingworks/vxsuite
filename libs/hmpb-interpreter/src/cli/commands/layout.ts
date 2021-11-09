@@ -2,11 +2,11 @@ import { Point, Rect } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import chalk from 'chalk';
 import { GlobalOptions, OptionParseError } from '..';
-import { findContests, ContestShape } from '../../hmpb/findContests';
+import { findContests, ContestShape } from '../../hmpb/find_contests';
 import { binarize, RGBA } from '../../utils/binarize';
 import { createImageData } from '../../utils/canvas';
 import { vh } from '../../utils/flip';
-import { getImageChannelCount } from '../../utils/imageFormatUtils';
+import { getImageChannelCount } from '../../utils/image_format_utils';
 import { loadImageData, writeImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
 

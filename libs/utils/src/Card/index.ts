@@ -1,2 +1,2 @@
-export * from './MemoryCard';
-export * from './WebServiceCard';
+export * from './memory_card';
+export * from './web_service_card';

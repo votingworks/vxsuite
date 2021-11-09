@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './i18n';
-import { App } from './App';
+import { App } from './app';
 import * as serviceWorker from './serviceWorker';
-import { DemoApp } from './DemoApp';
+import { DemoApp } from './demo_app';
 
 const isDemoApp =
   window.location.hash === '#demo' ||

@@ -3,7 +3,7 @@ import { err, ok, Result } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { ScannerError } from './errors';
-import { PaperStatus } from './paper-status';
+import { PaperStatus } from './paper_status';
 import {
   AcceptResult,
   CalibrateResult,

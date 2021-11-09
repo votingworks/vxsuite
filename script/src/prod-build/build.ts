@@ -1,9 +1,9 @@
 import { join } from 'path'
 import { WORKSPACE_ROOT } from './globals'
-import { execSync } from './utils/execSync'
-import { existsSync } from './utils/existsSync'
+import { execSync } from './utils/exec_sync'
+import { existsSync } from './utils/exists_sync'
 import { mkdirp } from './utils/mkdirp'
-import { relativePath } from './utils/relativePath'
+import { relativePath } from './utils/relative_path'
 
 export function inBuildDir(path: string, buildRoot: string): string {
   return join(buildRoot, relativePath(path, { from: WORKSPACE_ROOT }))

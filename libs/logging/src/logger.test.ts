@@ -2,7 +2,7 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import MockDate from 'mockdate';
 import { LogEventType } from '.';
-import { LogEventId } from './logEventIDs';
+import { LogEventId } from './log_event_ids';
 import { Logger } from './logger';
 import { LogDispositionStandardTypes, LogSource } from './types';
 

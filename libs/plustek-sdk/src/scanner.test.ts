@@ -5,7 +5,7 @@ import * as cp from 'child_process';
 import { mocked } from 'ts-jest/utils';
 import { DEFAULT_CONFIG } from './config';
 import { ScannerError } from './errors';
-import { PaperStatus } from './paper-status';
+import { PaperStatus } from './paper_status';
 import * as plustekctlModule from './plustekctl';
 import {
   ClientDisconnectedError,

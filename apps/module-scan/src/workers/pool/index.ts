@@ -1,10 +1,10 @@
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { cpus } from 'os';
-import { ChildProcessWorkerOps } from './ChildProcessWorkerOps';
-import { InlineWorkerOps } from './InlineWorkerOps';
+import { ChildProcessWorkerOps } from './child_process_worker_ops';
+import { InlineWorkerOps } from './inline_worker_ops';
 import { WorkerOps } from './types';
-import { WorkerPool } from './WorkerPool';
+import { WorkerPool } from './worker_pool';
 
 export { WorkerOps, WorkerPool };
 

@@ -8,7 +8,7 @@ import {
   MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
   VX_MACHINE_TYPE,
 } from './globals';
-import { LoopScanner, parseBatchesFromEnv } from './LoopScanner';
+import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { plustekMockServer, PlustekScanner, Scanner } from './scanners';
 import * as server from './server';
 

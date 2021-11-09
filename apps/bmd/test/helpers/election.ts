@@ -13,7 +13,7 @@ import {
 } from '@votingworks/types';
 import { Storage } from '@votingworks/utils';
 
-import { electionStorageKey, stateStorageKey, State } from '../../src/AppRoot';
+import { electionStorageKey, stateStorageKey, State } from '../../src/app_root';
 import { PrecinctSelectionKind } from '../../src/config/types';
 
 const electionSampleData = fs.readFileSync(

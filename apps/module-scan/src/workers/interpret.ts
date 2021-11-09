@@ -7,7 +7,7 @@ import { ScannerLocation, SCANNER_LOCATION } from '../globals';
 import { saveImages } from '../importer';
 import { Interpreter, InterpretFileResult } from '../interpreter';
 import { Store } from '../store';
-import { pdfToImages } from '../util/pdfToImages';
+import { pdfToImages } from '../util/pdf_to_images';
 import * as qrcodeWorker from './qrcode';
 
 const debug = makeDebug('module-scan:worker:interpret');

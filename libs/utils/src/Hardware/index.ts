@@ -1,9 +1,9 @@
 import { Hardware } from '../types';
-import { KioskHardware } from './KioskHardware';
-import { MemoryHardware } from './MemoryHardware';
+import { KioskHardware } from './kiosk_hardware';
+import { MemoryHardware } from './memory_hardware';
 
-export * from './KioskHardware';
-export * from './MemoryHardware';
+export * from './kiosk_hardware';
+export * from './memory_hardware';
 export * from './utils';
 
 /**

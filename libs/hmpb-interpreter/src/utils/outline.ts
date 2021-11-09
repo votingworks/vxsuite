@@ -1,6 +1,6 @@
 import { PIXEL_BLACK } from './binarize';
 import { createImageData } from './canvas';
-import { getImageChannelCount } from './imageFormatUtils';
+import { getImageChannelCount } from './image_format_utils';
 
 /**
  * Outline pixels of a certain color with the same color.

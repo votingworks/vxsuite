@@ -1,6 +1,6 @@
 import { ScannerError } from './errors';
 import { Errors, MockScannerClient } from './mocks';
-import { PaperStatus } from './paper-status';
+import { PaperStatus } from './paper_status';
 import { ClientDisconnectedError } from './scanner';
 
 const files: readonly string[] = ['/tmp/a.jpg', '/tmp/b.jpg'];

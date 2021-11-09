@@ -21,7 +21,7 @@ import { strict as assert } from 'assert';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
 
-import { sortBy } from './sortBy';
+import { sortBy } from './sort_by';
 
 export function getDistrictIdsForPartyId(
   election: Election,

@@ -6,7 +6,7 @@ import makeDebug from 'debug';
 import { createInterface } from 'readline';
 import { Config, DEFAULT_CONFIG } from './config';
 import { parseScannerError, ScannerError } from './errors';
-import { PaperStatus, PaperStatusSchema } from './paper-status';
+import { PaperStatus, PaperStatusSchema } from './paper_status';
 import { findBinaryPath } from './plustekctl';
 import { dir as createTempDir, file as createTempFile } from './util/temp';
 

@@ -17,9 +17,9 @@ import { v4 as uuid } from 'uuid';
 import { BatchControl, Scanner } from './scanners';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
-import { HmpbInterpretationError } from './util/HmpbInterpretationError';
+import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
 import { writeImageData } from './util/images';
-import { pdfToImages } from './util/pdfToImages';
+import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,

@@ -34,9 +34,9 @@ import { BallotPageQrcode, SheetOf } from './types';
 import {
   ballotAdjudicationReasons,
   adjudicationReasonDescription,
-} from './util/ballotAdjudicationReasons';
+} from './util/ballot_adjudication_reasons';
 import { loadImageData } from './util/images';
-import { optionMarkStatus } from './util/optionMarkStatus';
+import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
 import { detectQRCode } from './util/qrcode';
 import * as qrcodeWorker from './workers/qrcode';
