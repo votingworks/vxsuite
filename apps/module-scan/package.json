@@ -39,6 +39,7 @@
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb-interpreter": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "@votingworks/plustek-sdk": "workspace:*",
     "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/types": "workspace:*",

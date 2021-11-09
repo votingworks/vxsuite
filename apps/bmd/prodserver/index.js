@@ -7,10 +7,12 @@
 
 const express = require('express')
 const path = require('path')
+const { Logger, LogSource, LogEventId } = require('@votingworks/logging')
 
 const proxy = require('./setupProxy')
 const app = express()
 const port = 3000
+const logger = new Logger(LogSource.VxBallotMarkingDeviceServer)
 
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
@@ -23,4 +25,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'))
 })
 
-app.listen(port, () => console.log(`BMD running at http://localhost:${port}/`))
+app.listen(port, () => {
+  logger.log(LogEventId.ApplicationStartup, 'system', {
+    message: `Ballot Marking Device running at http://localhost:${port}/`,
+    disposition: 'success',
+  })
+}).on('error', error => {
+  logger.log(LogEventId.ApplicationStartup, 'system', {
+    message: `Error in starting Ballot Marking Device: ${error.message}`,
+    disposition: 'failure',
+  })
+})
