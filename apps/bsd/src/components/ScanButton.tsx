@@ -1,33 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from './Button';
 
 export interface Props {
   onPress(): void;
   disabled?: boolean;
+  isScannerAttached: boolean;
 }
 
-export const FUJITSU_VENDOR_ID = 0x4c5;
-
-export function ScanButton({ onPress, disabled }: Props): JSX.Element {
-  const [isScannerConnected, setIsScannerConnected] = useState(!window.kiosk);
-
-  useEffect(() => {
-    const subscription = window.kiosk?.devices.subscribe((devices) => {
-      setIsScannerConnected(
-        [...devices].some((device) => device.vendorId === FUJITSU_VENDOR_ID)
-      );
-    });
-    return () => subscription?.unsubscribe();
-  });
-
+export function ScanButton({
+  onPress,
+  disabled,
+  isScannerAttached,
+}: Props): JSX.Element {
   return (
     <Button
       small
-      disabled={disabled || !isScannerConnected}
+      disabled={disabled || !isScannerAttached}
       primary
       onPress={onPress}
     >
-      {isScannerConnected ? 'Scan New Batch' : 'No Scanner'}
+      {isScannerAttached ? 'Scan New Batch' : 'No Scanner'}
     </Button>
   );
 }

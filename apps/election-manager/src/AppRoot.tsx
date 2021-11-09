@@ -33,7 +33,12 @@ import {
   Card,
   Hardware,
 } from '@votingworks/utils';
-import { useSmartcard, useUsbDrive, useUserSession } from '@votingworks/ui';
+import {
+  useSmartcard,
+  useUsbDrive,
+  useUserSession,
+  useHardware,
+} from '@votingworks/ui';
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -101,6 +106,8 @@ export function AppRoot({
   );
 
   const printBallotRef = useRef<HTMLDivElement>(null);
+
+  const { hasCardReaderAttached } = useHardware({ hardware, logger });
 
   const getElectionDefinition = useCallback(async (): Promise<
     ElectionDefinition | undefined
@@ -185,7 +192,7 @@ export function AppRoot({
   const usbDrive = useUsbDrive({ logger });
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
-  const [smartcard, hasCardReaderAttached] = useSmartcard({ card, hardware });
+  const smartcard = useSmartcard({ card, hasCardReaderAttached });
   const {
     currentUserSession,
     attemptToAuthenticateAdminUser,

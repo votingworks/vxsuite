@@ -22,6 +22,7 @@ importers:
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
       '@types/styled-components': 5.1.7
+      '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
       '@votingworks/utils': link:../../libs/utils
@@ -74,6 +75,7 @@ importers:
       '@types/styled-components': ^5.1.7
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
+      '@votingworks/logging': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/ui': workspace:*
       '@votingworks/utils': workspace:*
@@ -131,6 +133,7 @@ importers:
       '@types/styled-components': 5.1.7
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
       '@votingworks/fixtures': link:../../libs/fixtures
+      '@votingworks/logging': link:../../libs/logging
       '@votingworks/qrcode.react': 1.0.1_react@17.0.1
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
@@ -230,6 +233,7 @@ importers:
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/fixtures': workspace:*
+      '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.1
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*

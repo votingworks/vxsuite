@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   BallotStyle,
   ElectionSchema,
@@ -7,8 +7,10 @@ import {
   safeParseElection,
   VoterCardData,
 } from '@votingworks/types';
+import { Logger, LogSource } from '@votingworks/logging';
 import {
   useCancelablePromise,
+  useHardware,
   useSmartcard,
   useStoredState,
 } from '@votingworks/ui';
@@ -64,6 +66,12 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   );
   const [ballotStyleId, setBallotStyleId] = useState<string>();
   const [partyId, setPartyId] = useStoredState(storage, 'partyId', z.string());
+
+  const logger = useMemo(
+    () => new Logger(LogSource.VxBallotActivationApp, window.kiosk),
+    []
+  );
+  const { hasCardReaderAttached } = useHardware({ hardware, logger });
 
   const unconfigure = useCallback(() => {
     setElection(undefined);
@@ -123,7 +131,7 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   }
 
   const makeCancelable = useCancelablePromise();
-  const [smartcard] = useSmartcard({ card, hardware });
+  const smartcard = useSmartcard({ card, hasCardReaderAttached });
 
   const fetchElection = useCallback(async () => {
     setIsLoadingElection(true);

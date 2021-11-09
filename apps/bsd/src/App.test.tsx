@@ -332,6 +332,7 @@ test('configuring election from usb ballot package works end to end', async () =
 test('authentication works', async () => {
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
+  await hardware.setBatchScannerConnected(false);
   const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
