@@ -1,12 +1,12 @@
 /* istanbul ignore file */
-export * from './ballotPackage';
+export * from './ballot_package';
 export * from './Card';
-export * from './compressedTallies';
+export * from './compressed_tallies';
 export * from './date';
 export * from './deferred';
 export * from './find';
 export * as format from './format';
-export * from './fetchJSON';
+export * from './fetch_json';
 export * from './filenames';
 export * from './iterators';
 export * from './Hardware';
@@ -15,7 +15,7 @@ export * from './rotation';
 export * from './sleep';
 export * from './Storage';
 export * from './tallies';
-export * from './throwIllegalValue';
+export * from './throw_illegal_value';
 export * from './types';
 export * from './votes';
 export * as usbstick from './usbstick';

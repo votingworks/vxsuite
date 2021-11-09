@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import { table } from 'table';
 import { GlobalOptions, OptionParseError } from '..';
 import { Interpreter } from '../..';
-import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../Interpreter';
+import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../interpreter';
 import { Input, Interpreted } from '../../types';
 import { loadImageData } from '../../utils/images';
 

@@ -3,7 +3,7 @@ import {
   assertRGBAImage,
   assertSizesMatch,
   makeInPlaceImageTransform,
-} from './imageFormatUtils';
+} from './image_format_utils';
 
 export function vhRGBA(
   srcImageData: ImageData,

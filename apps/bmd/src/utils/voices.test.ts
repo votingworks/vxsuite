@@ -1,5 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
-import { fakeVoice } from '../../test/helpers/fakeVoice';
+import { fakeVoice } from '../../test/helpers/fake_voice';
 import { getUSEnglishVoice } from './voices';
 
 describe('getUSEnglishVoice', () => {

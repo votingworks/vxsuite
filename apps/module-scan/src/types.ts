@@ -36,7 +36,7 @@ export interface BallotConfig extends BallotStyleData {
   isLiveMode: boolean;
 }
 
-export * from './types/ballot-review';
+export * from './types/ballot_review';
 
 export function getMarkStatus(
   mark: BallotTargetMark,

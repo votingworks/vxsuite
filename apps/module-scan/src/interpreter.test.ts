@@ -21,7 +21,7 @@ import {
   getBallotImageData,
   sheetRequiresAdjudication,
 } from './interpreter';
-import { pdfToImages } from './util/pdfToImages';
+import { pdfToImages } from './util/pdf_to_images';
 import { detectQrcodeInFilePath } from './workers/qrcode';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');

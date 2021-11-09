@@ -6,7 +6,7 @@ import {
   PlustekScannerVendorId,
   PlustekVTM300ScannerProductId,
 } from '.';
-import { KioskHardware } from './KioskHardware';
+import { KioskHardware } from './kiosk_hardware';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,

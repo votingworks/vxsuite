@@ -59,7 +59,7 @@
       "!src/config/*",
       "!src/**/*.d.ts",
       "!src/index.tsx",
-      "!src/DemoApp.tsx",
+      "!src/demo_app.tsx",
       "!src/serviceWorker.ts"
     ],
     "coverageThreshold": {

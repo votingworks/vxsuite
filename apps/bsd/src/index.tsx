@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { App } from './App';
-import { focusVisible } from './util/focusVisible';
+import { App } from './app';
+import { focusVisible } from './util/focus_visible';
 
 import * as serviceWorker from './serviceWorker';
 

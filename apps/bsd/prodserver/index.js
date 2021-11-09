@@ -8,7 +8,7 @@
 const express = require('express')
 const path = require('path')
 
-const proxy = require('./setupProxy')
+const proxy = require('./setup_proxy')
 const app = express()
 const port = 3000
 

@@ -1,5 +1,5 @@
 import { grayscale } from './grayscale';
-import { getImageChannelCount, isRGBA } from './imageFormatUtils';
+import { getImageChannelCount, isRGBA } from './image_format_utils';
 import { otsu } from './otsu';
 
 export type RGBA = [number, number, number, number];

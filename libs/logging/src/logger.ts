@@ -8,7 +8,7 @@ import {
   LoggingUserRole,
   LogSource,
 } from './types';
-import { LogEventId, getDetailsForEventId } from './logEventIDs';
+import { LogEventId, getDetailsForEventId } from './log_event_ids';
 
 const debug = makeDebug('logger');
 

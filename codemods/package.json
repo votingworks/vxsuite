@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@babel/core": "^7.16.0",
-    "@babel/types": "^7.15.0"
+    "@babel/types": "^7.15.0",
+    "ts-morph": "^12.2.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.16",

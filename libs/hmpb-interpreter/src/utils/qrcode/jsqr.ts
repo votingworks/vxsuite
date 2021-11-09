@@ -1,7 +1,7 @@
 import makeDebug from 'debug';
 import jsQR from 'jsqr';
 import { DetectQRCodeResult } from '../../types';
-import { withCropping } from './withCropping';
+import { withCropping } from './with_cropping';
 
 const debug = makeDebug('hmpb-interpreter:jsqr');
 

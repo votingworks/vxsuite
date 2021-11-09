@@ -12,7 +12,7 @@ import { promises as fs } from 'fs';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { election } from '../test/fixtures/state-of-hamilton';
-import { zeroRect } from '../test/fixtures/zeroRect';
+import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 import { PageInterpretationWithFiles, SheetOf } from './types';
 

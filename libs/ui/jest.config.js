@@ -5,7 +5,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   collectCoverageFrom: [ 
     ...shared.collectCoverageFrom,
-    '!src/ContestTally.tsx',
-    '!src/PrecinctScannerPollsReport.tsx',
+    '!src/contest_tally.tsx',
+    '!src/precinct_scanner_polls_report.tsx',
    ]
 }

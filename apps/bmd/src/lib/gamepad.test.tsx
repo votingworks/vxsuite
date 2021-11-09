@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import { App } from '../App';
+import { App } from '../app';
 
 import { advanceTimersAndPromises } from '../../test/helpers/smartcards';
 
@@ -18,7 +18,7 @@ import {
 } from '../../test/helpers/election';
 
 import { getActiveElement, handleGamepadButtonDown } from './gamepad';
-import { fakeMachineConfigProvider } from '../../test/helpers/fakeMachineConfig';
+import { fakeMachineConfigProvider } from '../../test/helpers/fake_machine_config';
 
 beforeEach(() => {
   jest.useFakeTimers();

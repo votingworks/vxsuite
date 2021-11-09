@@ -38,7 +38,7 @@ import { Writable } from 'stream';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import { buildCastVoteRecord } from './buildCastVoteRecord';
+import { buildCastVoteRecord } from './build_cast_vote_record';
 import { sheetRequiresAdjudication } from './interpreter';
 import { PageInterpretationWithFiles, SheetOf } from './types';
 import { normalizeAndJoin } from './util/path';

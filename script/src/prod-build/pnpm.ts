@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs'
 import { PNPM_LOGLEVEL } from './globals'
-import { execSync } from './utils/execSync'
+import { execSync } from './utils/exec_sync'
 
 export function removeDependencies(
   pkgRoot: string,

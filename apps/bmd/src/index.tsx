@@ -1,8 +1,8 @@
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { App } from './App';
-import { DemoApp } from './DemoApp';
+import { App } from './app';
+import { DemoApp } from './demo_app';
 
 import * as serviceWorker from './serviceWorker';
 import {

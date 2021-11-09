@@ -4,7 +4,7 @@ import deepEqual from 'deep-eql';
 import diff from 'jest-diff';
 import ora, { Ora } from 'ora';
 import { PageScan, retryScan } from '.';
-import { MultiMap } from '../../util/MultiMap';
+import { MultiMap } from '../../util/multi_map';
 import {
   Spinner,
   countProvider,
