@@ -3,12 +3,12 @@ import {
   Optional,
   Result,
   safeParse,
-  safeParseJSON,
+  safeParseJson,
 } from '@votingworks/types';
 import { fromByteArray, toByteArray } from 'base64-js';
 import { z } from 'zod';
-import { fetchJSON } from '../fetch_json';
-import { Card, CardAPI, CardAPISchema } from '../types';
+import { fetchJson } from '../fetch_json';
+import { Card, CardApi, CardApiSchema } from '../types';
 
 /**
  * Implements the `Card` API by accessing it through a web service.
@@ -18,10 +18,10 @@ export class WebServiceCard implements Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  async readStatus(): Promise<CardAPI> {
+  async readStatus(): Promise<CardApi> {
     return safeParse(
-      CardAPISchema,
-      await fetchJSON('/card/read')
+      CardApiSchema,
+      await fetchJson('/card/read')
     ).unsafeUnwrap();
   }
 
@@ -34,7 +34,7 @@ export class WebServiceCard implements Card {
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
     const response = await fetch('/card/read_long');
     const { longValue } = await response.json();
-    return longValue ? safeParseJSON(longValue, schema) : ok(undefined);
+    return longValue ? safeParseJson(longValue, schema) : ok(undefined);
   }
 
   /**

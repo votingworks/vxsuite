@@ -37,11 +37,11 @@ export interface Input {
   metadata?: () => Promise<BallotPageMetadata | undefined>;
 }
 
-export interface DetectQRCodeResult {
+export interface DetectQrCodeResult {
   data: Buffer;
   rightSideUp?: boolean;
 }
 
-export interface DetectQRCode {
-  (imageData: ImageData): Promise<DetectQRCodeResult | undefined>;
+export interface DetectQrCode {
+  (imageData: ImageData): Promise<DetectQrCodeResult | undefined>;
 }

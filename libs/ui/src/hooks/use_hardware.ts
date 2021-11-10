@@ -3,7 +3,7 @@ import {
   isCardReader,
   Hardware,
   isAccessibleController,
-  isPlustekVTM300Scanner,
+  isPlustekVtm300Scanner,
   isFujitsuScanner,
 } from '@votingworks/utils';
 import { map } from 'rxjs/operators';
@@ -33,7 +33,7 @@ function getDeviceName(device: KioskBrowser.Device) {
   if (isFujitsuScanner(device)) {
     return `Fujitsu Scanner (${device.deviceName})`;
   }
-  if (isPlustekVTM300Scanner(device)) {
+  if (isPlustekVtm300Scanner(device)) {
     return `Plustek Scanner (${device.deviceName})`;
   }
   return `Device (${device.deviceName})`;
@@ -70,7 +70,7 @@ export function useHardware({
         setHasAccessibleControllerAttached(
           devices.some(isAccessibleController)
         );
-        setHasPlustekScannerAttached(devices.some(isPlustekVTM300Scanner));
+        setHasPlustekScannerAttached(devices.some(isPlustekVtm300Scanner));
         setHasFujitsuScannerAttached(devices.some(isFujitsuScanner));
         setAllDevices(devices);
       });

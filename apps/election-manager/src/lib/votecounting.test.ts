@@ -10,7 +10,7 @@ import {
 
 import { filterTalliesByParams } from '@votingworks/utils/src';
 import {
-  parseCVRs,
+  parseCvrs,
   computeFullElectionTally,
   getOvervotePairTallies,
   filterTalliesByParamsAndBatchId,
@@ -20,11 +20,11 @@ import { CastVoteRecord } from '../config/types';
 const electionSample2 =
   electionSample2WithDataFiles.electionDefinition.election;
 
-export function parseCVRsAndAssertSuccess(
+export function parseCvrsAndAssertSuccess(
   cvrsFileContents: string,
   election: Election
 ): CastVoteRecord[] {
-  return [...parseCVRs(cvrsFileContents, election)].map(({ cvr, errors }) => {
+  return [...parseCvrs(cvrsFileContents, election)].map(({ cvr, errors }) => {
     expect({ cvr, errors }).toEqual({ cvr, errors: [] });
     return cvr;
   });
@@ -36,7 +36,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 
   // get the CVRs
   const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
-  const castVoteRecords = parseCVRsAndAssertSuccess(cvrsFileContents, election);
+  const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   // tabulate it
   const fullTally = computeFullElectionTally(election, [castVoteRecords]);
@@ -101,7 +101,7 @@ test('computeFullTally with no results should produce empty tally objects with c
 
 test('undervotes counted in n of m contest properly', () => {
   // Create mock CVR data
-  const mockCVR: CastVoteRecord = {
+  const mockCvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12D',
     _ballotType: 'standard',
@@ -115,7 +115,7 @@ test('undervotes counted in n of m contest properly', () => {
 
   // tabulate it
   let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCVR],
+    [mockCvr],
   ])!;
 
   // The county commissioners race has 4 seats. Each vote less than 4 should be counted
@@ -126,7 +126,7 @@ test('undervotes counted in n of m contest properly', () => {
   ).toBe(4);
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
-    [{ ...mockCVR, 'county-commissioners': ['argent'] }],
+    [{ ...mockCvr, 'county-commissioners': ['argent'] }],
   ])!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -134,7 +134,7 @@ test('undervotes counted in n of m contest properly', () => {
   ).toBe(3);
 
   electionTally = computeFullElectionTally(primaryElectionSample, [
-    [{ ...mockCVR, 'county-commissioners': ['argent', 'bainbridge'] }],
+    [{ ...mockCvr, 'county-commissioners': ['argent', 'bainbridge'] }],
   ])!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
@@ -144,7 +144,7 @@ test('undervotes counted in n of m contest properly', () => {
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [
       {
-        ...mockCVR,
+        ...mockCvr,
         'county-commissioners': ['argent', 'bainbridge', 'hennessey'],
       },
     ],
@@ -157,7 +157,7 @@ test('undervotes counted in n of m contest properly', () => {
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [
       {
-        ...mockCVR,
+        ...mockCvr,
         'county-commissioners': ['argent', 'bainbridge', 'hennessey', 'savoy'],
       },
     ],
@@ -170,7 +170,7 @@ test('undervotes counted in n of m contest properly', () => {
 
 test('overvotes counted in n of m contest properly', () => {
   // Create mock CVR data
-  const mockCVR: CastVoteRecord = {
+  const mockCvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12D',
     _ballotType: 'standard',
@@ -189,7 +189,7 @@ test('overvotes counted in n of m contest properly', () => {
 
   // tabulate it
   let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCVR],
+    [mockCvr],
   ])!;
 
   expect(
@@ -200,7 +200,7 @@ test('overvotes counted in n of m contest properly', () => {
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [
       {
-        ...mockCVR,
+        ...mockCvr,
         'county-commissioners': [
           'argent',
           'witherspoonsmithson',
@@ -221,7 +221,7 @@ test('overvotes counted in n of m contest properly', () => {
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [
       {
-        ...mockCVR,
+        ...mockCvr,
         'county-commissioners': [
           'argent',
           'witherspoonsmithson',
@@ -242,7 +242,7 @@ test('overvotes counted in n of m contest properly', () => {
 
 test('overvotes counted in single seat contest properly', () => {
   // Create mock CVR data
-  const mockCVR: CastVoteRecord = {
+  const mockCvr: CastVoteRecord = {
     _ballotId: 'abc',
     _ballotStyleId: '12D',
     _ballotType: 'standard',
@@ -256,7 +256,7 @@ test('overvotes counted in single seat contest properly', () => {
 
   // tabulate it
   let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCVR],
+    [mockCvr],
   ])!;
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
@@ -266,7 +266,7 @@ test('overvotes counted in single seat contest properly', () => {
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [
       {
-        ...mockCVR,
+        ...mockCvr,
         'lieutenant-governor': ['norberg', 'parks'],
       },
     ],
@@ -282,7 +282,7 @@ test('overvotes counted in single seat contest properly', () => {
   electionTally = computeFullElectionTally(primaryElectionSample, [
     [
       {
-        ...mockCVR,
+        ...mockCvr,
         'lieutenant-governor': [
           'norberg',
           'parks',
@@ -306,7 +306,7 @@ test('overvote report', async () => {
 
   // get the CVRs
   const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
-  const castVoteRecords = parseCVRsAndAssertSuccess(cvrsFileContents, election);
+  const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   const pairTallies = getOvervotePairTallies({ election, castVoteRecords });
   expect(pairTallies).toMatchSnapshot();
@@ -323,7 +323,7 @@ test('parsing CVRs flags when a precinct ID in a CVR is not present in the elect
     _batchId: '1',
     _batchLabel: 'Batch 1',
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: ["Precinct 'not real' in CVR is not in the election definition"],
@@ -344,7 +344,7 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
     _batchId: '1',
     _batchLabel: 'Batch 1',
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: ["Ballot style '123' in CVR is not in the election definition"],
@@ -365,7 +365,7 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
     _batchLabel: 'Batch 1',
     'not a contest': [],
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -389,7 +389,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     _batchLabel: 'Batch 1',
     'county-commissioners': ['write-in-1', 'not-a-candidate'], // Candidate contest with write ins allowed
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -416,7 +416,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     '750000018': ['not-a-choice', 'no'], // Yes No Contest
   };
   expect([
-    ...parseCVRs(JSON.stringify(cvr2), electionWithMsEitherNeither),
+    ...parseCvrs(JSON.stringify(cvr2), electionWithMsEitherNeither),
   ]).toEqual([
     {
       cvr: cvr2,
@@ -442,7 +442,7 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
     // @ts-expect-error - string instead of a boolean
     _testBallot: 'false',
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -466,7 +466,7 @@ test('parsing CVRs flags when page number is set but not a number', () => {
     // @ts-expect-error - string instead of a number
     _pageNumber: '99',
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -490,7 +490,7 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
     // @ts-expect-error - number instead of an array
     _pageNumbers: 99,
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -514,7 +514,7 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
     _batchId: '1',
     _batchLabel: 'Batch 1',
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -537,7 +537,7 @@ test('parsing CVRs flags with _pageNumbers set properly works', () => {
     _testBallot: false,
     _pageNumbers: [1, 2],
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [],
@@ -558,7 +558,7 @@ test('parsing CVRs flags when ballot ID is not a string', () => {
     _batchLabel: 'Batch 1',
     _testBallot: false,
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -581,7 +581,7 @@ test('parsing CVRs flags when scanner ID is not a string', () => {
     _batchLabel: 'Batch 1',
     _testBallot: false,
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -604,7 +604,7 @@ test('parsing CVRs flags when batch ID is not a string', () => {
     _batchLabel: 'Batch 1',
     _testBallot: false,
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -627,7 +627,7 @@ test('parsing CVRs flags when batch label is not a string', () => {
     _batchLabel: false,
     _testBallot: false,
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [
@@ -648,7 +648,7 @@ test('parsing CVRs flags when locale is not well formed', () => {
     _scannerId: 'scanner-1',
     _testBallot: false,
   };
-  expect([...parseCVRs(JSON.stringify(cvr), electionSample)]).toEqual([
+  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
     {
       cvr,
       errors: [],
@@ -679,7 +679,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
     _testBallot: false,
   };
   expect([
-    ...parseCVRs(
+    ...parseCvrs(
       `${JSON.stringify(cvr1)}\n${JSON.stringify(cvr2)}`,
       electionSample
     ),
@@ -703,7 +703,7 @@ describe('filterTalliesByParams in a primary election', () => {
   beforeEach(async () => {
     // get the CVRs
     const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
-    const castVoteRecords = parseCVRsAndAssertSuccess(
+    const castVoteRecords = parseCvrsAndAssertSuccess(
       cvrsFileContents,
       electionMultiPartyPrimaryWithDataFiles.electionDefinition.election
     );

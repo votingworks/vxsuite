@@ -18,7 +18,7 @@ export enum LogEventId {
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
-  USBDeviceChangeDetected = 'usb-device-change-detected',
+  UsbDeviceChangeDetected = 'usb-device-change-detected',
   // Authentication related logs
   AdminAuthenticationTwoFactor = 'admin-authentication-2fac',
   MachineLocked = 'machine-locked',
@@ -26,11 +26,11 @@ export enum LogEventId {
   UserSessionActivationAttempt = 'user-session-activation',
   UserLoggedOut = 'user-logged-out',
   // USB related logs
-  USBDriveStatusUpdate = 'usb-drive-status-update',
-  USBDriveEjectInit = 'usb-drive-eject-init',
-  USBDriveEjected = 'usb-drive-eject-complete',
-  USBDriveMountInit = 'usb-drive-mount-init',
-  USBDriveMounted = 'usb-drive-mount-complete',
+  UsbDriveStatusUpdate = 'usb-drive-status-update',
+  UsbDriveEjectInit = 'usb-drive-eject-init',
+  UsbDriveEjected = 'usb-drive-eject-complete',
+  UsbDriveMountInit = 'usb-drive-mount-init',
+  UsbDriveMounted = 'usb-drive-mount-complete',
   // App Startup
   ApplicationStartup = 'application-startup',
   // External Device Related Logs
@@ -129,8 +129,8 @@ const UserLoggedOutEvent: LogDetails = {
   defaultMessage: 'User logged out of the current session.',
 };
 
-const USBDriveEjectInit: LogDetails = {
-  eventId: LogEventId.USBDriveEjectInit,
+const UsbDriveEjectInit: LogDetails = {
+  eventId: LogEventId.UsbDriveEjectInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'A request to eject the current USB drive was given by the user, the usb drive will now be ejected.',
@@ -138,22 +138,22 @@ const USBDriveEjectInit: LogDetails = {
     'The current USB drive was requested to eject, application will now eject...',
 };
 
-const USBDriveEjected: LogDetails = {
-  eventId: LogEventId.USBDriveEjected,
+const UsbDriveEjected: LogDetails = {
+  eventId: LogEventId.UsbDriveEjected,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'The current USB drive finished attempting to ejected. Success or failure indicated by disposition.',
 };
 
-const USBDriveStatusUpdate: LogDetails = {
-  eventId: LogEventId.USBDriveStatusUpdate,
+const UsbDriveStatusUpdate: LogDetails = {
+  eventId: LogEventId.UsbDriveStatusUpdate,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'USB Drive detected a status update. Potential USB statuses are: notavailable - No USB Drive detection is available, absent - No USB identified, present - USB identified but not mounted, mounted - USB mounted on device, ejecting - USB in the process of ejecting. ',
 };
 
-const USBDriveMountInit: LogDetails = {
-  eventId: LogEventId.USBDriveMountInit,
+const UsbDriveMountInit: LogDetails = {
+  eventId: LogEventId.UsbDriveMountInit,
   eventType: LogEventType.ApplicationAction,
   documentationMessage:
     'The USB Drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
@@ -161,15 +161,15 @@ const USBDriveMountInit: LogDetails = {
     'The USB Drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
 };
 
-const USBDriveMounted: LogDetails = {
-  eventId: LogEventId.USBDriveMounted,
+const UsbDriveMounted: LogDetails = {
+  eventId: LogEventId.UsbDriveMounted,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'USB Drive mount has completed. Success or failure is indicated by the disposition.',
 };
 
-const USBDeviceChangeDetected: LogDetails = {
-  eventId: LogEventId.USBDeviceChangeDetected,
+const UsbDeviceChangeDetected: LogDetails = {
+  eventId: LogEventId.UsbDeviceChangeDetected,
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
@@ -239,18 +239,18 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return UserSessionActivationAttemptEvent;
     case LogEventId.UserLoggedOut:
       return UserLoggedOutEvent;
-    case LogEventId.USBDriveEjectInit:
-      return USBDriveEjectInit;
-    case LogEventId.USBDriveEjected:
-      return USBDriveEjected;
-    case LogEventId.USBDriveStatusUpdate:
-      return USBDriveStatusUpdate;
-    case LogEventId.USBDriveMountInit:
-      return USBDriveMountInit;
-    case LogEventId.USBDriveMounted:
-      return USBDriveMounted;
-    case LogEventId.USBDeviceChangeDetected:
-      return USBDeviceChangeDetected;
+    case LogEventId.UsbDriveEjectInit:
+      return UsbDriveEjectInit;
+    case LogEventId.UsbDriveEjected:
+      return UsbDriveEjected;
+    case LogEventId.UsbDriveStatusUpdate:
+      return UsbDriveStatusUpdate;
+    case LogEventId.UsbDriveMountInit:
+      return UsbDriveMountInit;
+    case LogEventId.UsbDriveMounted:
+      return UsbDriveMounted;
+    case LogEventId.UsbDeviceChangeDetected:
+      return UsbDeviceChangeDetected;
     case LogEventId.ApplicationStartup:
       return ApplicationStartup;
     case LogEventId.PrinterConfigurationAdded:

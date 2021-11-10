@@ -1,5 +1,5 @@
 import { BitCursor } from './bit_cursor';
-import { Encoding, UTF8Encoding } from './encoding';
+import { Encoding, Utf8Encoding } from './encoding';
 import { Uint1, Uint8, Uint8Size } from './types';
 import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils';
 
@@ -156,7 +156,7 @@ export class BitWriter {
   writeString(
     string: string,
     {
-      encoding = UTF8Encoding,
+      encoding = Utf8Encoding,
       maxLength = 2 ** Uint8Size - 1,
       includeLength = true,
       length,

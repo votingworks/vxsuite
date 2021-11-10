@@ -1,4 +1,4 @@
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import {
   asElectionDefinition,
   electionSample as election,
@@ -253,7 +253,7 @@ test('manually importing files', async () => {
           return {
             blank: false,
             qrcode: {
-              data: encodeHMPBBallotPageMetadata(election, frontMetadata),
+              data: encodeHmpbBallotPageMetadata(election, frontMetadata),
               position: 'bottom',
             },
           };
@@ -263,7 +263,7 @@ test('manually importing files', async () => {
           return {
             blank: false,
             qrcode: {
-              data: encodeHMPBBallotPageMetadata(election, backMetadata),
+              data: encodeHmpbBallotPageMetadata(election, backMetadata),
               position: 'bottom',
             },
           };
@@ -504,7 +504,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
           qrcode:
             input.imagePath === frontImagePath
               ? {
-                  data: encodeHMPBBallotPageMetadata(election, frontMetadata),
+                  data: encodeHmpbBallotPageMetadata(election, frontMetadata),
                   position: 'bottom',
                 }
               : // assume back fails to find QR code, then infers it
@@ -630,7 +630,7 @@ test('rejects pages that do not match the current precinct', async () => {
           qrcode:
             input.imagePath === frontImagePath
               ? {
-                  data: encodeHMPBBallotPageMetadata(election, frontMetadata),
+                  data: encodeHmpbBallotPageMetadata(election, frontMetadata),
                   position: 'bottom',
                 }
               : // assume back fails to find QR code, then infers it
@@ -760,7 +760,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
           qrcode:
             input.imagePath === frontImagePath
               ? {
-                  data: encodeHMPBBallotPageMetadata(election, frontMetadata),
+                  data: encodeHmpbBallotPageMetadata(election, frontMetadata),
                   position: 'bottom',
                 }
               : // assume back fails to find QR code, then infers it

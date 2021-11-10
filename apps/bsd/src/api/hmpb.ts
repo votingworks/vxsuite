@@ -1,7 +1,7 @@
 import { ElectionDefinition, safeParse } from '@votingworks/types';
 import { EventEmitter } from 'events';
 import {
-  fetchJSON,
+  fetchJson,
   BallotPackage,
   BallotPackageEntry,
 } from '@votingworks/utils';
@@ -99,7 +99,7 @@ export async function fetchNextBallotSheetToReview(): Promise<
   try {
     return safeParse(
       GetNextReviewSheetResponseSchema,
-      await fetchJSON('/scan/hmpb/review/next-sheet')
+      await fetchJson('/scan/hmpb/review/next-sheet')
     ).unsafeUnwrap();
   } catch {
     return undefined;

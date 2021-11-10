@@ -1,12 +1,12 @@
 import { mockOf } from '@votingworks/test-utils';
 import { fakeVoice } from '../../test/helpers/fake_voice';
-import { getUSEnglishVoice } from './voices';
+import { getUsEnglishVoice } from './voices';
 
 describe('getUSEnglishVoice', () => {
   it('returns nothing given no voices', () => {
     mockOf(speechSynthesis.getVoices).mockReturnValue([]);
 
-    expect(getUSEnglishVoice()).toBeUndefined();
+    expect(getUsEnglishVoice()).toBeUndefined();
   });
 
   it('never returns non-local voices', () => {
@@ -14,7 +14,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ localService: false, name: 'Google US English' }),
     ]);
 
-    expect(getUSEnglishVoice()).toBeUndefined();
+    expect(getUsEnglishVoice()).toBeUndefined();
   });
 
   it.each([
@@ -33,7 +33,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name }),
     ]);
 
-    expect(getUSEnglishVoice()?.name).toBe(name);
+    expect(getUsEnglishVoice()?.name).toBe(name);
   });
 
   it('prefers US English to UK English', () => {
@@ -42,7 +42,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'Google US English' }),
     ]);
 
-    expect(getUSEnglishVoice()?.name).toBe('Google US English');
+    expect(getUsEnglishVoice()?.name).toBe('Google US English');
   });
 
   it('prefers en-US over en', () => {
@@ -51,7 +51,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ lang: 'en-US' }),
     ]);
 
-    expect(getUSEnglishVoice()?.lang).toBe('en-US');
+    expect(getUsEnglishVoice()?.lang).toBe('en-US');
   });
 
   it('prefers en over en-GB', () => {
@@ -60,7 +60,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ lang: 'en' }),
     ]);
 
-    expect(getUSEnglishVoice()?.lang).toBe('en');
+    expect(getUsEnglishVoice()?.lang).toBe('en');
   });
 
   it('falls back to the default if there is one', () => {
@@ -70,7 +70,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'Google 普通话（中国大陆）', default: false }),
     ]);
 
-    expect(getUSEnglishVoice()?.default).toBe(true);
+    expect(getUsEnglishVoice()?.default).toBe(true);
   });
 
   it('falls back to the first one if none match or are the default', () => {
@@ -79,6 +79,6 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'Google 普通话（中国大陆）', default: false }),
     ]);
 
-    expect(getUSEnglishVoice()?.lang).toBe('af');
+    expect(getUsEnglishVoice()?.lang).toBe('af');
   });
 });

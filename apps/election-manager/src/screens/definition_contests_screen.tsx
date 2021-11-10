@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import DOMPurify from 'dompurify';
+import DomPurify from 'dompurify';
 import {
   Election,
   CandidateContest,
@@ -344,7 +344,7 @@ ${fileContent}`;
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DomPurify.sanitize(contest.description),
                       }}
                     />
                     {['Yes', 'No'].map((answer) => (
@@ -362,7 +362,7 @@ ${fileContent}`;
                       small
                       preLine
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(contest.description),
+                        __html: DomPurify.sanitize(contest.description),
                       }}
                     />
                     <p>{contest.eitherNeitherLabel}</p>

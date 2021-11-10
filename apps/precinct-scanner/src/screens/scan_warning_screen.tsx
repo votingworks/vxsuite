@@ -465,6 +465,7 @@ export function UndervoteBy1Preview(): JSX.Element {
 }
 
 /* istanbul ignore next */
+// eslint-disable-next-line vx/gts-identifiers
 export function UndervoteByNPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);

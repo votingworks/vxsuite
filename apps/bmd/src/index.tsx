@@ -1,6 +1,6 @@
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDom from 'react-dom';
 import { App } from './app';
 import { DemoApp } from './demo_app';
 
@@ -10,7 +10,7 @@ import {
   SpeechSynthesisTextToSpeech,
 } from './utils/ScreenReader';
 import { memoize } from './utils/memoize';
-import { getUSEnglishVoice } from './utils/voices';
+import { getUsEnglishVoice } from './utils/voices';
 
 const isDemoApp =
   window.location.hash === '#demo' ||
@@ -20,7 +20,7 @@ const isDemoApp =
 // since we don't really care about page URLs anyway?
 const readerEnabled =
   new URLSearchParams(window.location.search).get('reader') === 'on';
-const tts = new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice));
+const tts = new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice));
 const screenReader = new AriaScreenReader(tts);
 
 if (readerEnabled) {
@@ -29,7 +29,7 @@ if (readerEnabled) {
   tts.mute();
 }
 
-ReactDOM.render(
+ReactDom.render(
   isDemoApp ? (
     <DemoApp screenReader={screenReader} />
   ) : (

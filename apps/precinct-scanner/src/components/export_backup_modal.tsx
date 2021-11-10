@@ -3,7 +3,7 @@ import {
   Button,
   Loading,
   Prose,
-  USBControllerButton,
+  UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
 import {
@@ -20,7 +20,7 @@ import { AppContext } from '../contexts/app_context';
 import { download, DownloadError, DownloadErrorKind } from '../utils/download';
 import { Modal } from './modal';
 
-const USBImage = styled.img`
+const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
@@ -146,7 +146,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
         actions={
           <React.Fragment>
             <Button onPress={onClose}>Cancel</Button>
-            <USBControllerButton
+            <UsbControllerButton
               small={false}
               primary
               usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
@@ -180,7 +180,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage
+                <UsbImage
                   src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
                   onDoubleClick={() => exportBackup(true)}
                   alt="Insert USB Image"
@@ -224,7 +224,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           content={
             <Prose>
               <h1>Export Backup</h1>
-              <USBImage
+              <UsbImage
                 src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
                 onDoubleClick={() => exportBackup(true)}
                 alt="Insert USB Image"

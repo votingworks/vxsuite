@@ -1,5 +1,5 @@
 import makeDebug from 'debug';
-import { DetectQRCodeResult } from '../../types';
+import { DetectQrCodeResult } from '../../types';
 import { withCropping } from './with_cropping';
 
 const debug = makeDebug('hmpb-interpreter:quirc');
@@ -9,7 +9,7 @@ const debug = makeDebug('hmpb-interpreter:quirc');
  */
 export async function detect(
   imageData: ImageData
-): Promise<DetectQRCodeResult | undefined> {
+): Promise<DetectQrCodeResult | undefined> {
   debug('detecting QR code in %d×%d image', imageData.width, imageData.height);
 
   const quirc = await import('node-quirc');

@@ -117,7 +117,7 @@ export async function createClient(
   let interpreting = false;
   let quitting = false;
   let currentEventHandler: ((event: PlustekEvent) => void) | undefined;
-  let currentIPCPromise = Promise.resolve();
+  let currentIpcPromise = Promise.resolve();
 
   /* istanbul ignore next */
   createInterface(plustekctl.stderr).on('line', (line) => {
@@ -173,7 +173,7 @@ export async function createClient(
     }
   });
 
-  async function doIPC<T>(
+  async function doIpc<T>(
     method: string,
     handlers: IpcHandlers<T>
   ): Promise<T> {
@@ -181,9 +181,9 @@ export async function createClient(
     const { promise, resolve } = deferred<T>();
 
     // Build an IPC queue
-    const previousIPCPromise = currentIPCPromise;
-    currentIPCPromise = promise.then();
-    await previousIPCPromise;
+    const previousIpcPromise = currentIpcPromise;
+    currentIpcPromise = promise.then();
+    await previousIpcPromise;
 
     if (!connected) {
       handlers.error(new ClientDisconnectedError(), resolve);
@@ -254,7 +254,7 @@ export async function createClient(
   }
 
   const getPaperStatus: ScannerClient['getPaperStatus'] = () =>
-    doIPC('get-paper-status', {
+    doIpc('get-paper-status', {
       data: (data, resolve) => resolve(safeParse(PaperStatusSchema, data)),
       error: (error, resolve) => resolve(err(error)),
       else: (line, resolve) =>
@@ -298,7 +298,7 @@ export async function createClient(
       for (let attempt = 0; ; attempt += 1) {
         clientDebug('scan attempt #%d starting', attempt);
         const files: string[] = [];
-        const resultPromise = doIPC<ScanResult>('scan', {
+        const resultPromise = doIpc<ScanResult>('scan', {
           data: (data, resolve) => {
             const match = data.match(/^file=(.+)$/);
 
@@ -350,7 +350,7 @@ export async function createClient(
     },
 
     accept: () =>
-      doIPC('accept', {
+      doIpc('accept', {
         ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
@@ -360,7 +360,7 @@ export async function createClient(
       }),
 
     reject: ({ hold }) =>
-      doIPC(hold ? 'reject-hold' : 'reject', {
+      doIpc(hold ? 'reject-hold' : 'reject', {
         ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
@@ -370,7 +370,7 @@ export async function createClient(
       }),
 
     calibrate: () =>
-      doIPC('calibrate', {
+      doIpc('calibrate', {
         ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>
@@ -381,7 +381,7 @@ export async function createClient(
 
     close: () => {
       quitting = true;
-      return doIPC('quit', {
+      return doIpc('quit', {
         ok: (resolve) => resolve(ok()),
         error: (error, resolve) => resolve(err(error)),
         else: (line, resolve) =>

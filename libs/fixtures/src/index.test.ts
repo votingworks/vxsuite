@@ -1,17 +1,17 @@
 import * as fs from 'fs';
 import * as fixtures from '.';
-import { multiPartiPrimaryElectionCVRData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
-import { multiPartiPrimaryElectionSEMSData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
-import { simplePrimaryElectionCVRData } from './data/electionPrimary/cvrFiles/standard.txt';
-import { electionSample2CVRSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
-import { electionSample2CVRSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
-import { electionSample2CVRSmall3 } from './data/electionSample2/cvrFiles/small3.txt';
-import { electionSample2CVRStandard1 } from './data/electionSample2/cvrFiles/standard.txt';
-import { electionSample2CVRStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
-import { msEitherNeitherElectionCVRData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
-import { msEitherNeitherElectionSEMSData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
-import { electionMinimalExhaustiveCVRData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
-import { electionMinimalExhaustiveSEMSData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
+import { multiPartiPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
+import { multiPartiPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
+import { simplePrimaryElectionCvrData } from './data/electionPrimary/cvrFiles/standard.txt';
+import { electionSample2CvrSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
+import { electionSample2CvrSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
+import { electionSample2CvrSmall3 } from './data/electionSample2/cvrFiles/small3.txt';
+import { electionSample2CvrStandard1 } from './data/electionSample2/cvrFiles/standard.txt';
+import { electionSample2CvrStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
+import { msEitherNeitherElectionCvrData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
+import { msEitherNeitherElectionSemsData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
+import { electionMinimalExhaustiveCvrData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
+import { electionMinimalExhaustiveSemsData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
 
 test('has various election definitions', () => {
   expect(
@@ -50,56 +50,56 @@ const testcases = [
   {
     originalFile:
       './src/data/electionMultiPartyPrimary/semsFiles/standard.original.csv',
-    typescriptContent: multiPartiPrimaryElectionSEMSData,
+    typescriptContent: multiPartiPrimaryElectionSemsData,
   },
   {
     originalFile:
       './src/data/electionMultiPartyPrimary/cvrFiles/standard.original.jsonl',
-    typescriptContent: multiPartiPrimaryElectionCVRData,
+    typescriptContent: multiPartiPrimaryElectionCvrData,
   },
   {
     originalFile: './src/data/electionPrimary/cvrFiles/standard.original.txt',
-    typescriptContent: simplePrimaryElectionCVRData,
+    typescriptContent: simplePrimaryElectionCvrData,
   },
   {
     originalFile: './src/data/electionSample2/cvrFiles/small1.original.txt',
-    typescriptContent: electionSample2CVRSmall1,
+    typescriptContent: electionSample2CvrSmall1,
   },
   {
     originalFile: './src/data/electionSample2/cvrFiles/small2.original.txt',
-    typescriptContent: electionSample2CVRSmall2,
+    typescriptContent: electionSample2CvrSmall2,
   },
   {
     originalFile: './src/data/electionSample2/cvrFiles/small3.original.txt',
-    typescriptContent: electionSample2CVRSmall3,
+    typescriptContent: electionSample2CvrSmall3,
   },
   {
     originalFile: './src/data/electionSample2/cvrFiles/standard.original.txt',
-    typescriptContent: electionSample2CVRStandard1,
+    typescriptContent: electionSample2CvrStandard1,
   },
   {
     originalFile: './src/data/electionSample2/cvrFiles/standard2.original.txt',
-    typescriptContent: electionSample2CVRStandard2,
+    typescriptContent: electionSample2CvrStandard2,
   },
   {
     originalFile:
       './src/data/electionWithMsEitherNeither/semsFiles/standard.original.csv',
-    typescriptContent: msEitherNeitherElectionSEMSData,
+    typescriptContent: msEitherNeitherElectionSemsData,
   },
   {
     originalFile:
       './src/data/electionWithMsEitherNeither/cvrFiles/standard.original.jsonl',
-    typescriptContent: msEitherNeitherElectionCVRData,
+    typescriptContent: msEitherNeitherElectionCvrData,
   },
   {
     originalFile:
       './src/data/electionMinimalExhaustiveSample/cvrFiles/standard.original.jsonl',
-    typescriptContent: electionMinimalExhaustiveCVRData,
+    typescriptContent: electionMinimalExhaustiveCvrData,
   },
   {
     originalFile:
       './src/data/electionMinimalExhaustiveSample/semsFiles/standard.original.csv',
-    typescriptContent: electionMinimalExhaustiveSEMSData,
+    typescriptContent: electionMinimalExhaustiveSemsData,
   },
 ];
 for (const { originalFile, typescriptContent } of testcases) {

@@ -39,7 +39,7 @@ export interface ParseCastVoteRecordResult {
 }
 
 // CVRs are newline-separated JSON objects
-export function* parseCVRs(
+export function* parseCvrs(
   castVoteRecordsString: string,
   election: Election
 ): Generator<ParseCastVoteRecordResult> {
@@ -228,18 +228,18 @@ export function getContestTallyMeta({
   precinctId,
   scannerId,
 }: GetContestTallyMetaParams): ContestTallyMetaDictionary {
-  const filteredCVRs = castVoteRecords
+  const filteredCvrs = castVoteRecords
     .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
     .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId);
 
   return expandEitherNeitherContests(
     election.contests
   ).reduce<ContestTallyMetaDictionary>((dictionary, contest) => {
-    const contestCVRs = filteredCVRs.filter(
+    const contestCvrs = filteredCvrs.filter(
       (cvr) => cvr[contest.id] !== undefined
     );
 
-    const contestVotes = contestCVRs.map(
+    const contestVotes = contestCvrs.map(
       (cvr) => (cvr[contest.id] as unknown) as Vote
     );
     const overvotes = contestVotes.filter((vote) => {
@@ -261,7 +261,7 @@ export function getContestTallyMeta({
     return {
       ...dictionary,
       [contest.id]: {
-        ballots: contestCVRs.length,
+        ballots: contestCvrs.length,
         overvotes: overvotes.length,
         undervotes: numberOfUndervotes,
       },
@@ -392,7 +392,7 @@ function processCastVoteRecord({
   const contestIds = expandEitherNeitherContests(
     getContests({ ballotStyle, election })
   ).map((contest) => contest.id);
-  const newCVR: CastVoteRecord = {
+  const newCvr: CastVoteRecord = {
     _precinctId: castVoteRecord._precinctId,
     _ballotStyleId: castVoteRecord._ballotStyleId,
     _ballotType: castVoteRecord._ballotType,
@@ -406,9 +406,9 @@ function processCastVoteRecord({
     _locales: castVoteRecord._locales,
   };
   for (const key of contestIds) {
-    if (castVoteRecord[key]) newCVR[key] = castVoteRecord[key];
+    if (castVoteRecord[key]) newCvr[key] = castVoteRecord[key];
   }
-  return newCVR;
+  return newCvr;
 }
 
 interface FullTallyParams {
@@ -431,15 +431,15 @@ export function getOvervotePairTallies({
     );
 
   for (const cvr of castVoteRecords) {
-    const safeCVR = processCastVoteRecord({ election, castVoteRecord: cvr });
-    if (!safeCVR) continue;
+    const safeCvr = processCastVoteRecord({ election, castVoteRecord: cvr });
+    if (!safeCvr) continue;
 
-    for (const contestId of Object.keys(safeCVR)) {
+    for (const contestId of Object.keys(safeCvr)) {
       const contestOvervotePairTallies = overvotePairTallies[contestId];
       if (!contestOvervotePairTallies) continue;
 
       const candidateContest = contestOvervotePairTallies.contest as CandidateContest;
-      const selected = safeCVR[contestId] as string[];
+      const selected = safeCvr[contestId] as string[];
 
       if (!selected || selected.length <= candidateContest.seats) continue;
 

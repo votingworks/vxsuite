@@ -63,10 +63,10 @@ export function LoadElectionScreen({
   }
 
   async function onManualFileImport(file: File) {
-    const isElectionJSON = file.name.endsWith('.json');
+    const isElectionJson = file.name.endsWith('.json');
     const reader = new FileReader();
 
-    if (isElectionJSON) {
+    if (isElectionJson) {
       await new Promise<void>((resolve, reject) => {
         reader.onload = async () => {
           const electionData = reader.result as string;

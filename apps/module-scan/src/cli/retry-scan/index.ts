@@ -53,8 +53,8 @@ export function queryFromOptions(options: Options): [string, string[]] {
       back_original_filename as backOriginalFilename,
       front_normalized_filename as frontNormalizedFilename,
       back_normalized_filename as backNormalizedFilename,
-      front_interpretation_json as frontInterpretationJSON,
-      back_interpretation_json as backInterpretationJSON
+      front_interpretation_json as frontInterpretationJson,
+      back_interpretation_json as backInterpretationJson
     from sheets
     ${conditions.length > 0 ? `where ${conditions.join(' or ')}` : ''}
     `,
@@ -113,8 +113,8 @@ export async function retryScan(
     backOriginalFilename: string;
     frontNormalizedFilename: string;
     backNormalizedFilename: string;
-    frontInterpretationJSON: string;
-    backInterpretationJSON: string;
+    frontInterpretationJson: string;
+    backInterpretationJson: string;
   }>;
   const electionDefinition = await input.store.getElectionDefinition();
   if (!electionDefinition) {
@@ -150,14 +150,14 @@ export async function retryScan(
         backOriginalFilename,
         frontNormalizedFilename,
         backNormalizedFilename,
-        frontInterpretationJSON,
-        backInterpretationJSON,
+        frontInterpretationJson,
+        backInterpretationJson,
       }) => {
         const frontInterpretation: PageInterpretation = JSON.parse(
-          frontInterpretationJSON
+          frontInterpretationJson
         );
         const backInterpretation: PageInterpretation = JSON.parse(
-          backInterpretationJSON
+          backInterpretationJson
         );
         const originalScans: [PageScan, PageScan] = [
           {

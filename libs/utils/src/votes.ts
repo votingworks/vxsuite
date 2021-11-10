@@ -16,7 +16,7 @@ import {
   VotingMethod,
   YesNoContest,
   YesNoVote,
-  YesNoVoteID,
+  YesNoVoteId,
   YesOrNo,
   TallyCategory,
   FullElectionTally,
@@ -60,34 +60,34 @@ export function buildVoteFromCvr({
   cvr: CastVoteRecord;
 }): VotesDict {
   const vote: VotesDict = {};
-  const mutableCVR = { ...cvr };
+  const mutableCvr = { ...cvr };
 
   // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
   // is there -- we don't want to count this as a ballot in this contest.
   for (const c of getEitherNeitherContests(election.contests)) {
-    const hasEitherNeither = mutableCVR[c.eitherNeitherContestId] !== undefined;
-    const hasPickOne = mutableCVR[c.pickOneContestId] !== undefined;
+    const hasEitherNeither = mutableCvr[c.eitherNeitherContestId] !== undefined;
+    const hasPickOne = mutableCvr[c.pickOneContestId] !== undefined;
 
     if (!(hasEitherNeither && hasPickOne)) {
-      mutableCVR[c.eitherNeitherContestId] = undefined;
-      mutableCVR[c.pickOneContestId] = undefined;
+      mutableCvr[c.eitherNeitherContestId] = undefined;
+      mutableCvr[c.pickOneContestId] = undefined;
     }
   }
 
   for (const contest of expandEitherNeitherContests(election.contests)) {
-    if (!mutableCVR[contest.id]) {
+    if (!mutableCvr[contest.id]) {
       continue;
     }
 
     if (contest.type === 'yesno') {
       // the CVR is encoded the same way
-      vote[contest.id] = mutableCVR[contest.id] as unknown as YesNoVote;
+      vote[contest.id] = mutableCvr[contest.id] as unknown as YesNoVote;
       continue;
     }
 
     /* istanbul ignore else */
     if (contest.type === 'candidate') {
-      vote[contest.id] = (mutableCVR[contest.id] as string[])
+      vote[contest.id] = (mutableCvr[contest.id] as string[])
         .map((candidateId) => normalizeWriteInId(candidateId))
         .map((candidateId) =>
           find(
@@ -106,7 +106,7 @@ export function buildVoteFromCvr({
  */
 export function getContestVoteOptionsForYesNoContest(
   contest: YesNoContest
-): readonly YesNoVoteID[] {
+): readonly YesNoVoteId[] {
   assert.equal(contest.type, 'yesno');
   return ['yes', 'no'];
 }
@@ -269,7 +269,7 @@ interface BatchInfo {
   readonly scannerIds: Set<string>;
 }
 
-export function getPartyIdForCVR(
+export function getPartyIdForCvr(
   CVR: CastVoteRecord,
   election: Election
 ): string | undefined {
@@ -375,7 +375,7 @@ export function computeTallyWithPrecomputedCategories(
           dictionaryKey = CVR._scannerId;
           break;
         case TallyCategory.Party:
-          dictionaryKey = getPartyIdForCVR(CVR, election);
+          dictionaryKey = getPartyIdForCvr(CVR, election);
           break;
         case TallyCategory.VotingMethod:
           dictionaryKey = getVotingMethodForCastVoteRecord(CVR);
@@ -395,11 +395,11 @@ export function computeTallyWithPrecomputedCategories(
     }
     const tallyResults: Dictionary<Tally> = {};
     for (const key of Object.keys(cvrFiles)) {
-      const CVRs = cvrFiles[key];
-      assert(CVRs);
+      const cvrs = cvrFiles[key];
+      assert(cvrs);
       tallyResults[key] = calculateTallyForCastVoteRecords(
         election,
-        CVRs,
+        cvrs,
         tallyCategory === TallyCategory.Party ? key : undefined
       );
     }
@@ -566,10 +566,10 @@ export function filterTalliesByParams(
               votingMethodTally.castVoteRecords.has(CVR)
             ) {
               const vote = buildVoteFromCvr({ election, cvr: CVR });
-              const votingMethodForCVR = getVotingMethodForCastVoteRecord(CVR);
+              const votingMethodForCvr = getVotingMethodForCastVoteRecord(CVR);
               /* istanbul ignore next */
-              const count = ballotCountsByVotingMethod[votingMethodForCVR] ?? 0;
-              ballotCountsByVotingMethod[votingMethodForCVR] = count + 1;
+              const count = ballotCountsByVotingMethod[votingMethodForCvr] ?? 0;
+              ballotCountsByVotingMethod[votingMethodForCvr] = count + 1;
               cvrFiles.add(CVR);
               allVotes.push(vote);
             }

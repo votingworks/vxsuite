@@ -311,7 +311,7 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       '6522': singleVotes,
       '6524': singleVotes,
     });
-    const fullTallySEMS: FullElectionExternalTally = {
+    const fullTallySems: FullElectionExternalTally = {
       overallTally: doubleVotes,
       resultsByCategory,
       votingMethod: VotingMethod.Absentee,
@@ -321,12 +321,12 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
     }; // Have information both in the main tally and results by category
 
     const storageString = convertExternalTalliesToStorageString([
-      fullTallySEMS,
+      fullTallySems,
     ]);
     const recreatedTallies = convertStorageStringToExternalTallies(
       storageString
     );
-    expect(recreatedTallies).toStrictEqual([fullTallySEMS]);
+    expect(recreatedTallies).toStrictEqual([fullTallySems]);
 
     // Test with multiple external tallies.
     const fullTallyManual: FullElectionExternalTally = {
@@ -339,13 +339,13 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
     };
 
     const storageString2 = convertExternalTalliesToStorageString([
-      fullTallySEMS,
+      fullTallySems,
       fullTallyManual,
     ]);
     const recreatedTallies2 = convertStorageStringToExternalTallies(
       storageString2
     );
-    expect(recreatedTallies2).toStrictEqual([fullTallySEMS, fullTallyManual]);
+    expect(recreatedTallies2).toStrictEqual([fullTallySems, fullTallyManual]);
   });
 });
 
@@ -415,7 +415,7 @@ describe('filterExternalTalliesByParams', () => {
     '6524': singleVotesEitherNeither,
     '6529': emptyVotesEitherNeither,
   });
-  const sharedFullTallySEMS: FullElectionExternalTally = {
+  const sharedFullTallySems: FullElectionExternalTally = {
     overallTally: doubleVotesEitherNeither,
     resultsByCategory: sharedResultsByCategory,
     votingMethod: VotingMethod.Absentee,
@@ -431,7 +431,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns undefined when filtering by an unsupported parameter', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { scannerId: '1' }
       )
@@ -441,7 +441,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns an empty tally when filtering for a different voting method', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { votingMethod: VotingMethod.Precinct }
       )
@@ -451,7 +451,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns the current tally when filtering for a matching voting method', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { votingMethod: VotingMethod.Absentee }
       )
@@ -461,7 +461,7 @@ describe('filterExternalTalliesByParams', () => {
   it('filters by precinct as expected', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { precinctId: '6524' }
       )
@@ -469,7 +469,7 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { precinctId: '6524', votingMethod: VotingMethod.Absentee }
       )
@@ -477,7 +477,7 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { precinctId: '6524', votingMethod: VotingMethod.Precinct }
       )
@@ -485,21 +485,21 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { precinctId: '6529' }
       )
     ).toStrictEqual(emptyVotesEitherNeither);
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { precinctId: '6529', votingMethod: VotingMethod.Absentee }
       )
     ).toStrictEqual(emptyVotesEitherNeither);
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySEMS,
+        sharedFullTallySems,
         electionWithMsEitherNeither,
         { precinctId: '6537' }
       )
@@ -517,7 +517,7 @@ describe('filterExternalTalliesByParams', () => {
         'governor-contest-federalist',
       ]
     );
-    const fullTallySEMS: FullElectionExternalTally = {
+    const fullTallySems: FullElectionExternalTally = {
       overallTally: singleVotesPrimary,
       resultsByCategory: new Map(),
       votingMethod: VotingMethod.Absentee,
@@ -526,7 +526,7 @@ describe('filterExternalTalliesByParams', () => {
       timestampCreated: new Date(1989, 11, 13),
     };
     const libertyResults = filterExternalTalliesByParams(
-      fullTallySEMS,
+      fullTallySems,
       multiPartyPrimaryElection,
       {
         partyId: '0', // Liberty
@@ -548,7 +548,7 @@ describe('filterExternalTalliesByParams', () => {
     );
 
     const constitutionResults = filterExternalTalliesByParams(
-      fullTallySEMS,
+      fullTallySems,
       multiPartyPrimaryElection,
       {
         partyId: '3', // Constitution
@@ -569,7 +569,7 @@ describe('filterExternalTalliesByParams', () => {
       'governor-contest-federalist'
     );
     const federalistResults = filterExternalTalliesByParams(
-      fullTallySEMS,
+      fullTallySems,
       multiPartyPrimaryElection,
       {
         partyId: '4', // Federalist
@@ -592,13 +592,13 @@ describe('filterExternalTalliesByParams', () => {
 
     // Filtering by voting method with party works as expected
     expect(
-      filterExternalTalliesByParams(fullTallySEMS, multiPartyPrimaryElection, {
+      filterExternalTalliesByParams(fullTallySems, multiPartyPrimaryElection, {
         partyId: '4', // Federalist
         votingMethod: VotingMethod.Precinct,
       })
     ).toStrictEqual(getEmptyExternalTally());
     expect(
-      filterExternalTalliesByParams(fullTallySEMS, multiPartyPrimaryElection, {
+      filterExternalTalliesByParams(fullTallySems, multiPartyPrimaryElection, {
         partyId: '4', // Federalist
         votingMethod: VotingMethod.Absentee,
       })

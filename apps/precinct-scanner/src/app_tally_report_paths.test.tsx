@@ -9,8 +9,8 @@ import {
   fakeKiosk,
   advanceTimersAndPromises,
   makePollWorkerCard,
-  generateFileContentFromCVRs,
-  generateCVR,
+  generateFileContentFromCvrs,
+  generateCvr,
   getZeroCompressedTally,
 } from '@votingworks/test-utils';
 import {
@@ -209,8 +209,8 @@ test('expected tally reports for a primary election with all precincts with CVRs
   // Insert a pollworker card
   fetchMock.post(
     '/scan/export',
-    generateFileContentFromCVRs([
-      generateCVR(
+    generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           'best-animal-mammal': ['otter'],
@@ -224,7 +224,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
           ballotType: VotingMethod.Precinct,
         }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'best-animal-mammal': ['otter', 'horse'],
@@ -238,7 +238,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
           ballotType: VotingMethod.Absentee,
         }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'best-animal-fish': ['seahorse'],
@@ -593,8 +593,8 @@ test('expected tally reports for a primary election with a single precincts with
   // Insert a pollworker card
   fetchMock.post(
     '/scan/export',
-    generateFileContentFromCVRs([
-      generateCVR(
+    generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           'best-animal-mammal': ['otter'],
@@ -608,7 +608,7 @@ test('expected tally reports for a primary election with a single precincts with
           ballotType: VotingMethod.Precinct,
         }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'best-animal-mammal': ['otter', 'horse'],
@@ -622,7 +622,7 @@ test('expected tally reports for a primary election with a single precincts with
           ballotType: VotingMethod.Absentee,
         }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           'best-animal-fish': ['seahorse'],
@@ -889,8 +889,8 @@ test('expected tally reports for a general election with all precincts with CVRs
   // Insert a pollworker card
   fetchMock.post(
     '/scan/export',
-    generateFileContentFromCVRs([
-      generateCVR(
+    generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           president: ['jackie-chan'],
@@ -902,7 +902,7 @@ test('expected tally reports for a general election with all precincts with CVRs
           ballotType: VotingMethod.Precinct,
         }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           president: ['marie-curie'],
@@ -1155,8 +1155,8 @@ test('expected tally reports for a general election with a single precincts with
   // Insert a pollworker card
   fetchMock.post(
     '/scan/export',
-    generateFileContentFromCVRs([
-      generateCVR(
+    generateFileContentFromCvrs([
+      generateCvr(
         election,
         {
           president: ['jackie-chan'],
@@ -1168,7 +1168,7 @@ test('expected tally reports for a general election with a single precincts with
           ballotType: VotingMethod.Precinct,
         }
       ),
-      generateCVR(
+      generateCvr(
         election,
         {
           president: ['marie-curie'],

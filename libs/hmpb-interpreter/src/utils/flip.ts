@@ -1,16 +1,16 @@
 import {
   assertGrayscaleImage,
-  assertRGBAImage,
+  assertRgbaImage,
   assertSizesMatch,
   makeInPlaceImageTransform,
 } from './image_format_utils';
 
-export function vhRGBA(
+export function vhRgba(
   srcImageData: ImageData,
   dstImageData = srcImageData
 ): void {
-  assertRGBAImage(srcImageData);
-  assertRGBAImage(dstImageData);
+  assertRgbaImage(srcImageData);
+  assertRgbaImage(dstImageData);
   assertSizesMatch(srcImageData, dstImageData);
 
   const { data: src } = srcImageData;
@@ -97,4 +97,4 @@ export function vhGray(
 /**
  * Flips an image vertically and horizontally, equivalent to a 180° rotation.
  */
-export const vh = makeInPlaceImageTransform(vhGray, vhRGBA);
+export const vh = makeInPlaceImageTransform(vhGray, vhRgba);

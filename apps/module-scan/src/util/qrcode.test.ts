@@ -1,13 +1,13 @@
 import { join } from 'path';
-import { hardQRCodePage1 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import { hardQrCodePage1 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { loadImageData } from './images';
-import { detectQRCode } from './qrcode';
+import { detectQrCode } from './qrcode';
 
 test('falls back to jsQR if the other QR code readers cannot read them', async () => {
   const imageData = await loadImageData(
     join(__dirname, '../../test/fixtures/jsqr-only-qrcode.png')
   );
-  expect(await detectQRCode(imageData)).toMatchInlineSnapshot(`
+  expect(await detectQrCode(imageData)).toMatchInlineSnapshot(`
     Object {
       "data": Object {
         "data": Array [
@@ -42,8 +42,8 @@ test('falls back to jsQR if the other QR code readers cannot read them', async (
 });
 
 test('decodes QR codes with qrdetect (zbar) by default', async () => {
-  const imageData = await loadImageData(hardQRCodePage1);
-  expect(await detectQRCode(imageData)).toMatchInlineSnapshot(`
+  const imageData = await loadImageData(hardQrCodePage1);
+  expect(await detectQrCode(imageData)).toMatchInlineSnapshot(`
     Object {
       "data": Object {
         "data": Array [

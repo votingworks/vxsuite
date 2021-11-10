@@ -1,4 +1,4 @@
-import { encodeHMPBBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { metadataFromBytes } from '@votingworks/hmpb-interpreter';
 import { BallotPageMetadata, Election } from '@votingworks/types';
 import { BallotPageQrcode, SheetOf } from '../types';
@@ -36,7 +36,7 @@ export function normalizeSheetMetadata(
 
     if (presentMetadata) {
       const inferredQrcode: BallotPageQrcode = {
-        data: encodeHMPBBallotPageMetadata(election, {
+        data: encodeHmpbBallotPageMetadata(election, {
           ...presentMetadata,
           pageNumber:
             presentMetadata.pageNumber % 2 === 0

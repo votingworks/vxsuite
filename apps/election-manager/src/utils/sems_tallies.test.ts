@@ -18,9 +18,9 @@ import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 import {
   getContestTallyForCandidateContest,
   getContestTallyForYesNoContest,
-  SEMSFileRow,
-  convertSEMSFileToExternalTally,
-  parseSEMSFileAndValidateForElection,
+  SemsFileRow,
+  convertSemsFileToExternalTally,
+  parseSemsFileAndValidateForElection,
 } from './sems_tallies';
 
 const mockSemsRow = {
@@ -42,9 +42,9 @@ const multiPartyPrimaryElection =
 const electionWithMsEitherNeither =
   electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
 
-const eitherNeitherSEMSContent =
+const eitherNeitherSemsContent =
   electionWithMsEitherNeitherWithDataFiles.semsData;
-const primarySEMSContent = electionMultiPartyPrimaryWithDataFiles.semsData;
+const primarySemsContent = electionMultiPartyPrimaryWithDataFiles.semsData;
 
 const presidentcontest = electionSample.contests.find(
   (c) => c.id === 'president'
@@ -52,7 +52,7 @@ const presidentcontest = electionSample.contests.find(
 
 describe('getContestTallyForCandidateContest', () => {
   it('computes ContestTally properly for file rows', () => {
-    const rows: SEMSFileRow[] = [
+    const rows: SemsFileRow[] = [
       {
         ...mockSemsRow,
         contestId: 'president',
@@ -115,7 +115,7 @@ describe('getContestTallyForCandidateContest', () => {
     const contest = electionSample.contests.find(
       (c) => c.id === 'county-commissioners'
     ) as CandidateContest;
-    const rows: SEMSFileRow[] = [
+    const rows: SemsFileRow[] = [
       {
         ...mockSemsRow,
         contestId: contest.id,
@@ -185,7 +185,7 @@ describe('getContestTallyForCandidateContest', () => {
   });
 
   it('throws an error when given an unknown candidate id', () => {
-    const rows: SEMSFileRow[] = [
+    const rows: SemsFileRow[] = [
       {
         ...mockSemsRow,
         contestId: 'president',
@@ -206,7 +206,7 @@ describe('getContestTallyForYesNoContest', () => {
     (c) => c.id === '750000018'
   )! as YesNoContest;
   it('computes ContestTally properly for file rows', () => {
-    const rows: SEMSFileRow[] = [
+    const rows: SemsFileRow[] = [
       {
         ...mockSemsRow,
         contestId: yesnocontest.id,
@@ -243,7 +243,7 @@ describe('getContestTallyForYesNoContest', () => {
   });
 
   it('throws an error on an unexpected contest option id', () => {
-    const rows: SEMSFileRow[] = [
+    const rows: SemsFileRow[] = [
       {
         ...mockSemsRow,
         contestId: yesnocontest.id,
@@ -259,10 +259,10 @@ describe('getContestTallyForYesNoContest', () => {
   });
 });
 
-describe('convertSEMSFileToExternalTally', () => {
+describe('convertSemsFileToExternalTally', () => {
   it('computes tallies properly on either neither general election', async () => {
-    const convertedTally = convertSEMSFileToExternalTally(
-      eitherNeitherSEMSContent,
+    const convertedTally = convertSemsFileToExternalTally(
+      eitherNeitherSemsContent,
       electionWithMsEitherNeither,
       VotingMethod.Precinct,
       'file-name',
@@ -372,8 +372,8 @@ describe('convertSEMSFileToExternalTally', () => {
   });
 
   it('converts primary election sems file properly', async () => {
-    const convertedTally = convertSEMSFileToExternalTally(
-      primarySEMSContent,
+    const convertedTally = convertSemsFileToExternalTally(
+      primarySemsContent,
       multiPartyPrimaryElection,
       VotingMethod.Absentee,
       'file-name',
@@ -487,12 +487,12 @@ describe('convertSEMSFileToExternalTally', () => {
   });
 });
 
-describe('parseSEMSFileAndValidateForElection', () => {
+describe('parseSemsFileAndValidateForElection', () => {
   it('returns error for a bad precinct id', () => {
     const csvRowRaw =
       '"10","not-a-precinct-id","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw,
         electionWithMsEitherNeither
       )
@@ -505,7 +505,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw =
       '"10","6522","not-a-contest-id","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw,
         electionWithMsEitherNeither
       )
@@ -518,7 +518,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw =
       '"10","6522","750000015","Ballot Measure 1","0","NP","not-a-choice","Something","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw,
         electionWithMsEitherNeither
       )
@@ -531,7 +531,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw =
       '"10","6522","775020876","President","0","NP","not-a-choice","Something","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw,
         electionWithMsEitherNeither
       )
@@ -545,7 +545,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw =
       '"10","23","president","President","0","NP","0","Write In Votes","0","NP","3",';
     expect(
-      parseSEMSFileAndValidateForElection(csvRowRaw, electionSample)
+      parseSemsFileAndValidateForElection(csvRowRaw, electionSample)
     ).toEqual([
       'Candidate ID 0 is not a valid candidate ID for the contest: president.',
     ]);
@@ -554,14 +554,14 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw2 =
       '"10","23","president","President","0","NP","0","Write In Votes","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(csvRowRaw2, electionSample)
+      parseSemsFileAndValidateForElection(csvRowRaw2, electionSample)
     ).toEqual([]);
 
     // Write in candidate row for a contest with write ins allowed
     const csvRowRaw3 =
       '"10","23","county-commissioners","County Commissioners","0","NP","0","Write In Votes","0","NP","3",';
     expect(
-      parseSEMSFileAndValidateForElection(csvRowRaw3, electionSample)
+      parseSemsFileAndValidateForElection(csvRowRaw3, electionSample)
     ).toEqual([]);
   });
 
@@ -570,7 +570,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw =
       '"10","6522","750000017","Ballot Measure 2","0","NP","0","Write In Votes","0","NP","3",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw,
         electionWithMsEitherNeither
       )
@@ -582,7 +582,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw2 =
       '"10","6522","750000017","Ballot Measure 2","0","NP","0","Write In Votes","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw2,
         electionWithMsEitherNeither
       )
@@ -594,7 +594,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw2 =
       '"10","23","judicial-robert-demergue","Judicial Robert Demergue","0","NP","1","Over Votes","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(csvRowRaw2, electionSample)
+      parseSemsFileAndValidateForElection(csvRowRaw2, electionSample)
     ).toEqual([
       'Election definition not configured to handle SEMs data formats, IDs must be specified on the yes no contest: judicial-robert-demergue.',
     ]);
@@ -602,15 +602,15 @@ describe('parseSEMSFileAndValidateForElection', () => {
 
   it('returns no errors for valid file', () => {
     expect(
-      parseSEMSFileAndValidateForElection(
-        eitherNeitherSEMSContent,
+      parseSemsFileAndValidateForElection(
+        eitherNeitherSemsContent,
         electionWithMsEitherNeither
       )
     ).toEqual([]);
 
     expect(
-      parseSEMSFileAndValidateForElection(
-        primarySEMSContent,
+      parseSemsFileAndValidateForElection(
+        primarySemsContent,
         multiPartyPrimaryElection
       )
     ).toEqual([]);
@@ -618,8 +618,8 @@ describe('parseSEMSFileAndValidateForElection', () => {
 
   it('returns all errors when there are many', () => {
     expect(
-      parseSEMSFileAndValidateForElection(
-        eitherNeitherSEMSContent,
+      parseSemsFileAndValidateForElection(
+        eitherNeitherSemsContent,
         multiPartyPrimaryElection
       )
     ).toHaveLength(1114);
@@ -627,13 +627,13 @@ describe('parseSEMSFileAndValidateForElection', () => {
 
   it('returns error when no valid CSV data is found', () => {
     expect(
-      parseSEMSFileAndValidateForElection('', multiPartyPrimaryElection)
+      parseSemsFileAndValidateForElection('', multiPartyPrimaryElection)
     ).toEqual([
       'No valid CSV data found in imported file. Please check file contents.',
     ]);
 
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         JSON.stringify({ this: { is: ['a', 'random', 'json', 'blob'] } }),
         multiPartyPrimaryElection
       )
@@ -646,7 +646,7 @@ describe('parseSEMSFileAndValidateForElection', () => {
     const csvRowRaw2 =
       '"10","6522","750000017","Ballot ,Measure 2","0","NP","0","Write In Votes","0","NP","0",';
     expect(
-      parseSEMSFileAndValidateForElection(
+      parseSemsFileAndValidateForElection(
         csvRowRaw2,
         electionWithMsEitherNeither
       )

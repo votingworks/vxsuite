@@ -132,13 +132,13 @@ export function arbitraryDateTime({
 export function arbitraryYesNoOption({
   id,
 }: { id?: fc.Arbitrary<YesNoOption['id']> } = {}): fc.Arbitrary<YesNoOption> {
-  return (id ?? fc.constantFrom('yes', 'no')).chain((yesNoID) =>
+  return (id ?? fc.constantFrom('yes', 'no')).chain((yesNoId) =>
     fc.record({
-      id: fc.constant(yesNoID),
+      id: fc.constant(yesNoId),
       label:
-        yesNoID === 'yes'
+        yesNoId === 'yes'
           ? fc.constantFrom('Yes', 'Yep', 'Uh-huh')
-          : yesNoID === 'no'
+          : yesNoId === 'no'
           ? fc.constantFrom('No', 'Nope', 'Nuh-uh')
           : fc.string({ minLength: 1 }),
     })

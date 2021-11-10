@@ -1,4 +1,4 @@
-import { DetectQRCodeResult } from '../../types';
+import { DetectQrCodeResult } from '../../types';
 import { jsqr } from './jsqr';
 import { quirc } from './quirc';
 
@@ -9,6 +9,6 @@ export { jsqr, quirc };
  */
 export async function detect(
   imageData: ImageData
-): Promise<DetectQRCodeResult | undefined> {
+): Promise<DetectQrCodeResult | undefined> {
   return (await quirc(imageData)) ?? (await jsqr(imageData));
 }

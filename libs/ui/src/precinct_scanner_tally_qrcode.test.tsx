@@ -11,7 +11,7 @@ import {
 } from '@votingworks/utils';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 
-import { PrecinctScannerTallyQRCode } from './precinct_scanner_tally_qrcode';
+import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
 
 afterEach(() => {
   window.kiosk = undefined;
@@ -44,7 +44,7 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
 
   await act(async () => {
     render(
-      <PrecinctScannerTallyQRCode
+      <PrecinctScannerTallyQrCode
         reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         reportPurpose="Testing"
@@ -72,7 +72,7 @@ test('renders with results reporting when there are CVRs and polls are closed', 
 
   await act(async () => {
     render(
-      <PrecinctScannerTallyQRCode
+      <PrecinctScannerTallyQrCode
         reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         reportPurpose="Testing"
@@ -103,19 +103,19 @@ test('renders with results reporting when there are CVRs and polls are closed in
   mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
   window.kiosk = mockKiosk;
 
-  const testCVR = {
+  const testCvr = {
     ...cvr,
     _testBallot: true,
   };
   const tally = calculateTallyForCastVoteRecords(
     electionSample,
-    new Set([testCVR])
+    new Set([testCvr])
   );
   const compressedTally = compressTally(electionSample, tally);
 
   await act(async () => {
     render(
-      <PrecinctScannerTallyQRCode
+      <PrecinctScannerTallyQrCode
         reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         reportPurpose="Testing"
@@ -151,7 +151,7 @@ test('renders with unsigned results reporting when there is no kiosk', async () 
 
   await act(async () => {
     render(
-      <PrecinctScannerTallyQRCode
+      <PrecinctScannerTallyQrCode
         reportSavedTime={time}
         electionDefinition={electionSampleDefinition}
         reportPurpose="Testing"

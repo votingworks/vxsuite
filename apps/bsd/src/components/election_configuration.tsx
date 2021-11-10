@@ -9,7 +9,7 @@ import {
   usbstick,
   ElectionData,
 } from '@votingworks/utils';
-import { USBControllerButton } from '@votingworks/ui';
+import { UsbControllerButton } from '@votingworks/ui';
 import { Prose } from './prose';
 import { Main, MainChild } from './main';
 import { MainNav } from './main_nav';
@@ -125,7 +125,7 @@ export function ElectionConfiguration({
       <Button small onPress={lockMachine}>
         Lock Machine
       </Button>
-      <USBControllerButton
+      <UsbControllerButton
         usbDriveEject={() => usbDriveEject(currentUserSession.type)}
         usbDriveStatus={usbDriveStatus}
       />

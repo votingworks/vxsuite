@@ -4,7 +4,7 @@ import { VoiceSelector } from '../config/types';
  * Get a voice suitable for use with `speechSynthesis` APIs to be spoken to US
  * English speakers.
  */
-export const getUSEnglishVoice: VoiceSelector = () => {
+export const getUsEnglishVoice: VoiceSelector = () => {
   // Only use local voices.
   const voices = speechSynthesis
     .getVoices()

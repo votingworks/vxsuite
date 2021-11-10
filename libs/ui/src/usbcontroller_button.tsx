@@ -16,7 +16,7 @@ interface Props {
   small?: boolean;
 }
 
-export function USBControllerButton({
+export function UsbControllerButton({
   usbDriveStatus,
   usbDriveEject,
   primary = false,

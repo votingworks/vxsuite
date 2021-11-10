@@ -2,13 +2,12 @@ import { TSESLint } from '@typescript-eslint/experimental-utils';
 import gtsArrayTypeStyle from './gts_array_type_style';
 import gtsDirectModuleExportAccessOnly from './gts_direct_module_export_access_only';
 import gtsFuncStyle from './gts_func_style';
-import gtsIdentifiersUseAllowedCharacters from './gts_identifiers_use_allowed_characters';
+import gtsIdentifiers from './gts_identifiers';
 import gtsJsdoc from './gts_jsdoc';
 import gtsModuleSnakeCase from './gts_module_snake_case';
 import gtsNoArrayConstructor from './gts_no_array_constructor';
 import gtsNoConstEnum from './gts_no_const_enum';
 import gtsNoDefaultExports from './gts_no_default_exports';
-import gtsNoDollarSignNames from './gts_no_dollar_sign_names';
 import gtsNoForInLoop from './gts_no_for_in_loop';
 import gtsNoForeach from './gts_no_foreach';
 import gtsNoImportExportType from './gts_no_import_export_type';
@@ -35,13 +34,12 @@ const rules: Record<
   'gts-array-type-style': gtsArrayTypeStyle,
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
   'gts-func-style': gtsFuncStyle,
-  'gts-identifiers-use-allowed-character': gtsIdentifiersUseAllowedCharacters,
+  'gts-identifiers': gtsIdentifiers,
   'gts-jsdoc': gtsJsdoc,
   'gts-module-snake-case': gtsModuleSnakeCase,
   'gts-no-array-constructor': gtsNoArrayConstructor,
   'gts-no-const-enum': gtsNoConstEnum,
   'gts-no-default-exports': gtsNoDefaultExports,
-  'gts-no-dollar-sign-names': gtsNoDollarSignNames,
   'gts-no-foreach': gtsNoForeach,
   'gts-no-for-in-loop': gtsNoForInLoop,
   'gts-no-import-export-type': gtsNoImportExportType,

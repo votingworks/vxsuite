@@ -43,16 +43,16 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
       debug('eject requested, updating state');
       setIsMountingOrUnmounting(true);
       setStatus(UsbDriveStatus.ejecting);
-      await logger.log(LogEventId.USBDriveEjectInit, currentUser);
+      await logger.log(LogEventId.UsbDriveEjectInit, currentUser);
       try {
         await makeCancelable(usbstick.doUnmount());
         setRecentlyEjected(true);
-        await logger.log(LogEventId.USBDriveEjected, currentUser, {
+        await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'success',
           message: 'USB Drive successfully ejected.',
         });
       } catch (error) {
-        await logger.log(LogEventId.USBDriveEjected, currentUser, {
+        await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'failure',
           message: 'USB Drive failed when attempting to eject.',
           error: error.message,
@@ -78,7 +78,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
 
       debug('USB drive status changed from %s to %s', status, newStatus);
       setStatus(newStatus);
-      await logger.log(LogEventId.USBDriveStatusUpdate, 'system', {
+      await logger.log(LogEventId.UsbDriveStatusUpdate, 'system', {
         disposition: 'na',
         message: `USB Drive status updated from ${status} to ${newStatus}`,
         previousStatus: status,
@@ -96,15 +96,15 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
       ) {
         try {
           debug('USB drive found, mounting');
-          await logger.log(LogEventId.USBDriveMountInit, 'system');
+          await logger.log(LogEventId.UsbDriveMountInit, 'system');
           setIsMountingOrUnmounting(true);
           await makeCancelable(usbstick.doMount());
-          await logger.log(LogEventId.USBDriveMounted, 'system', {
+          await logger.log(LogEventId.UsbDriveMounted, 'system', {
             disposition: 'success',
             message: 'USB Drive successfully mounted',
           });
         } catch (error) {
-          await logger.log(LogEventId.USBDriveMounted, 'system', {
+          await logger.log(LogEventId.UsbDriveMounted, 'system', {
             disposition: 'failure',
             message: 'USB Drive failed mounting.',
             error: error.message,

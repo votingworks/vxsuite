@@ -1,4 +1,4 @@
-import { croppedQRCode } from '../../../test/fixtures';
+import { croppedQrCode } from '../../../test/fixtures';
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
 import { createImageData } from '../canvas';
 import { crop } from '../crop';
@@ -105,7 +105,7 @@ test('images have diff percentage as ratio of black diff pixels to total pixels'
 });
 
 test('comparing part of an image to all of another', async () => {
-  const base = await croppedQRCode.imageData();
+  const base = await croppedQrCode.imageData();
   const compareBounds = { x: 150, y: 80, width: 150, height: 80 };
   const compare = crop(base, compareBounds);
   const diffImage = diff(base, compare, compareBounds, {

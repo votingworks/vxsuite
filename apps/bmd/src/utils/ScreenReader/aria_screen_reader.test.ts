@@ -1,13 +1,13 @@
 import { text, element as h } from '../../../test/helpers/dom_builders';
-import { fakeTTS } from '../../../test/helpers/fake_tts';
+import { fakeTts } from '../../../test/helpers/fake_tts';
 import { AriaScreenReader } from './aria_screen_reader';
 
 it('requires a text-to-speech engine', () => {
-  expect(() => new AriaScreenReader(fakeTTS())).not.toThrowError();
+  expect(() => new AriaScreenReader(fakeTts())).not.toThrowError();
 });
 
 it('can speak specified text', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speak('Hello world.');
@@ -15,7 +15,7 @@ it('can speak specified text', async () => {
 });
 
 it('passes options through from #speak', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speak('Hello world.', { now: true });
@@ -23,7 +23,7 @@ it('passes options through from #speak', async () => {
 });
 
 it('speaks text nodes by reading their content', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(text('hello'));
@@ -31,7 +31,7 @@ it('speaks text nodes by reading their content', async () => {
 });
 
 it('does not speak empty text nodes', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
   const node = text('');
 
@@ -45,7 +45,7 @@ it('does not speak empty text nodes', async () => {
 });
 
 it('speaks inline elements by joining their children together', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(
@@ -63,7 +63,7 @@ it('speaks inline elements by joining their children together', async () => {
 });
 
 it('describes text broken into multiple text nodes correctly', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(
@@ -90,7 +90,7 @@ it('describes text broken into multiple text nodes correctly', async () => {
 });
 
 it('terminates block elements with a period', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(h('div', text('General Election')));
@@ -101,7 +101,7 @@ it('terminates block elements with a period', async () => {
 });
 
 it('does not speak nodes with empty descriptions', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(text(''));
@@ -109,7 +109,7 @@ it('does not speak nodes with empty descriptions', async () => {
 });
 
 it('speaks aria-label instead of text content if present', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(
@@ -122,7 +122,7 @@ it('speaks aria-label instead of text content if present', async () => {
 });
 
 it('speaks a description of an aria-labeledby element if present', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
   const field = h(
     'span',
@@ -141,7 +141,7 @@ it('speaks a description of an aria-labeledby element if present', async () => {
 });
 
 it('ignores an aria-labeledby attribute if the element exists but has no description', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
   const field = h(
     'span',
@@ -160,7 +160,7 @@ it('ignores an aria-labeledby attribute if the element exists but has no descrip
 });
 
 it('ignores an aria-labeledby attribute if no such element exists', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(
@@ -177,7 +177,7 @@ it('ignores an aria-labeledby attribute if no such element exists', async () => 
 });
 
 it('enabling the screen reader unmutes and then announces it', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.enable();
@@ -193,7 +193,7 @@ it('enabling the screen reader unmutes and then announces it', async () => {
 });
 
 it('disabling the screen reader announces it and then mutes the tts', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.disable();
@@ -209,7 +209,7 @@ it('disabling the screen reader announces it and then mutes the tts', async () =
 });
 
 it('toggling enabled/disabled mutes or unmutes the tts', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   expect(tts.isMuted()).toBe(true);
@@ -225,7 +225,7 @@ it('toggling enabled/disabled mutes or unmutes the tts', async () => {
 });
 
 it('toggle can explicitly set enabled/disabled', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.toggle(false);
@@ -239,7 +239,7 @@ it('toggle can explicitly set enabled/disabled', async () => {
 });
 
 it('does not describe elements hidden by aria-hidden', () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   expect(
@@ -250,7 +250,7 @@ it('does not describe elements hidden by aria-hidden', () => {
 });
 
 it('does not describe elements hidden by display:none', () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   expect(
@@ -261,7 +261,7 @@ it('does not describe elements hidden by display:none', () => {
 });
 
 it('does not describe elements hidden by visibility:hidden', () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   expect(
@@ -272,14 +272,14 @@ it('does not describe elements hidden by visibility:hidden', () => {
 });
 
 it('does not describe document fragments', () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   expect(asr.describe(document.createDocumentFragment())).toBe(undefined);
 });
 
 it('describes event targets if present', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakEventTarget(h('button', text('Next')));
@@ -287,7 +287,7 @@ it('describes event targets if present', async () => {
 });
 
 it('speaks event targets immediately rather than queueing speech', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakEventTarget(h('button', text('Next')));
@@ -295,7 +295,7 @@ it('speaks event targets immediately rather than queueing speech', async () => {
 });
 
 it('does nothing if there is no event target', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakEventTarget(undefined);
@@ -303,7 +303,7 @@ it('does nothing if there is no event target', async () => {
 });
 
 it('speaks focus event targets immediately', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.onFocus(h('button', text('Next')));
@@ -311,7 +311,7 @@ it('speaks focus event targets immediately', async () => {
 });
 
 it('speaks click event targets immediately', async () => {
-  const tts = fakeTTS();
+  const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.onClick(h('button', text('Next')));

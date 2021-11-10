@@ -35,7 +35,7 @@ function asTitle(id: string): string {
   return id.split(/(?=[A-Z\d]+)/).join(' ');
 }
 
-function getPreviewURL(preview: ComponentPreview): string {
+function getPreviewUrl(preview: ComponentPreview): string {
   return `/preview/${preview.componentId}/${preview.previewId}`;
 }
 
@@ -155,7 +155,7 @@ export function PreviewDashboard({
                   <ul style={{ marginTop: '0' }}>
                     {previews.map((preview) => (
                       <li key={preview.previewName}>
-                        <Link to={getPreviewURL(preview)}>
+                        <Link to={getPreviewUrl(preview)}>
                           {preview.previewName}
                         </Link>
                       </li>
@@ -202,7 +202,7 @@ export function PreviewDashboard({
           previewable.previews.map((preview) => (
             <Route
               key={preview.previewName}
-              path={getPreviewURL(preview)}
+              path={getPreviewUrl(preview)}
               component={preview.previewComponent}
             />
           ))

@@ -304,8 +304,8 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Admin card with no PIN does NOT require authentication screen.
-  const noPINAdminCard = makeAdminCard(electionSampleDefinition.electionHash);
-  card.insertCard(noPINAdminCard, electionSampleDefinition.electionData);
+  const noPinAdminCard = makeAdminCard(electionSampleDefinition.electionHash);
+  card.insertCard(noPinAdminCard, electionSampleDefinition.electionData);
   await advanceTimersAndPromises(1);
   await screen.findByText('Administrator Settings');
   card.removeCard();

@@ -81,7 +81,7 @@ async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
   return string;
 }
 
-async function readJSONEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
+async function readJsonEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
   return JSON.parse(await readTextEntry(zipfile, entry));
 }
 
@@ -139,7 +139,7 @@ test('has election.json', async () => {
   const electionEntry = entries.find(
     ({ fileName }) => fileName === 'election.json'
   )!;
-  expect(await readJSONEntry(zipfile, electionEntry)).toEqual(election);
+  expect(await readJsonEntry(zipfile, electionEntry)).toEqual(election);
 });
 
 test('has ballots.db', async () => {

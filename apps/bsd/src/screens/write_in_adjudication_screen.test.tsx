@@ -8,7 +8,7 @@ import {
   Contest,
   ContestOption,
   getContests,
-  HMPBBallotPageMetadata,
+  HmpbBallotPageMetadata,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/utils';
 import React from 'react';
@@ -39,7 +39,7 @@ function renderWriteInAdjudicationScreen(
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
   );
   const optionId: ContestOption['id'] = '__write-in-0';
-  const metadata: HMPBBallotPageMetadata = {
+  const metadata: HmpbBallotPageMetadata = {
     ballotStyleId: ballotStyle.id,
     precinctId,
     ballotType: BallotType.Standard,
@@ -60,7 +60,7 @@ function renderWriteInAdjudicationScreen(
     <WriteInAdjudicationScreen
       sheetId="test-sheet"
       side="front"
-      imageURL="/test-sheet/front.jpg"
+      imageUrl="/test-sheet/front.jpg"
       interpretation={{
         type: 'InterpretedHmpbPage',
         markInfo: {

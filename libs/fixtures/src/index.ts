@@ -5,26 +5,26 @@ import { sha256 } from 'js-sha256';
 // with that election. When adding new data files, make sure to add new tests in index.test.ts to make sure the
 // raw file and the ts extension stay in sync.
 import { multiPartiPrimaryElectionCSVData } from './data/electionMultiPartyPrimary/csvFiles/batch_results.csv';
-import { multiPartiPrimaryElectionCVRData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
+import { multiPartiPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
 import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimary/electionMultiPartyPrimarySample.json';
-import { multiPartiPrimaryElectionSEMSData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
-import { simplePrimaryElectionCVRData } from './data/electionPrimary/cvrFiles/standard.txt';
+import { multiPartiPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
+import { simplePrimaryElectionCvrData } from './data/electionPrimary/cvrFiles/standard.txt';
 import primaryElectionSampleUntyped from './data/electionPrimary/electionPrimarySample.json';
 import electionSampleUntyped from './data/electionSample.json';
-import { electionSample2CVRSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
-import { electionSample2CVRSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
-import { electionSample2CVRSmall3 } from './data/electionSample2/cvrFiles/small3.txt';
-import { electionSample2CVRStandard1 } from './data/electionSample2/cvrFiles/standard.txt';
-import { electionSample2CVRStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
+import { electionSample2CvrSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
+import { electionSample2CvrSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
+import { electionSample2CvrSmall3 } from './data/electionSample2/cvrFiles/small3.txt';
+import { electionSample2CvrStandard1 } from './data/electionSample2/cvrFiles/standard.txt';
+import { electionSample2CvrStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
 import electionSample2Untyped from './data/electionSample2/election.json';
 import electionSampleLongContentUntyped from './data/electionSampleLongContent.json';
 import electionSampleRotationUntyped from './data/electionSampleRotation.json';
-import { msEitherNeitherElectionCVRData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
+import { msEitherNeitherElectionCvrData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
 import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json';
-import { msEitherNeitherElectionSEMSData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
+import { msEitherNeitherElectionSemsData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
 import electionMinimalExhaustiveSampleUntyped from './data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json';
-import { electionMinimalExhaustiveCVRData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
-import { electionMinimalExhaustiveSEMSData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
+import { electionMinimalExhaustiveCvrData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
+import { electionMinimalExhaustiveSemsData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
@@ -71,33 +71,33 @@ export const electionWithMsEitherNeitherRawData = JSON.stringify(
 
 export const electionMultiPartyPrimaryWithDataFiles = {
   electionDefinition: multiPartyPrimaryElectionDefinition,
-  semsData: multiPartiPrimaryElectionSEMSData,
-  cvrData: multiPartiPrimaryElectionCVRData,
+  semsData: multiPartiPrimaryElectionSemsData,
+  cvrData: multiPartiPrimaryElectionCvrData,
   csvData: multiPartiPrimaryElectionCSVData,
 };
 
 export const electionSimplePrimaryWithDataFiles = {
   electionDefinition: primaryElectionSampleDefinition,
-  cvrData: simplePrimaryElectionCVRData,
+  cvrData: simplePrimaryElectionCvrData,
 };
 
 export const electionSample2WithDataFiles = {
   electionDefinition: electionSample2Definition,
-  cvrDataSmall1: electionSample2CVRSmall1,
-  cvrDataSmall2: electionSample2CVRSmall2,
-  cvrDataSmall3: electionSample2CVRSmall3,
-  cvrDataStandard1: electionSample2CVRStandard1,
-  cvrDataStandard2: electionSample2CVRStandard2,
+  cvrDataSmall1: electionSample2CvrSmall1,
+  cvrDataSmall2: electionSample2CvrSmall2,
+  cvrDataSmall3: electionSample2CvrSmall3,
+  cvrDataStandard1: electionSample2CvrStandard1,
+  cvrDataStandard2: electionSample2CvrStandard2,
 };
 
 export const electionWithMsEitherNeitherWithDataFiles = {
   electionDefinition: electionWithMsEitherNeitherDefinition,
-  semsData: msEitherNeitherElectionSEMSData,
-  cvrData: msEitherNeitherElectionCVRData,
+  semsData: msEitherNeitherElectionSemsData,
+  cvrData: msEitherNeitherElectionCvrData,
 };
 
 export const electionMinimalExhaustiveSampleWithDataFiles = {
   electionDefinition: electionMinimalExhaustiveSampleDefintion,
-  semsData: electionMinimalExhaustiveSEMSData,
-  cvrData: electionMinimalExhaustiveCVRData,
+  semsData: electionMinimalExhaustiveSemsData,
+  cvrData: electionMinimalExhaustiveCvrData,
 };

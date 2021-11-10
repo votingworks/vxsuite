@@ -9,7 +9,7 @@ import {
 
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 
-export function* generateRowsForBatchTallyResultsCSV(
+export function* generateRowsForBatchTallyResultsCsv(
   fullElectionTally: FullElectionTally,
   election: Election
 ): Generator<string> {
@@ -65,7 +65,7 @@ export function* generateRowsForBatchTallyResultsCSV(
   }
 }
 
-export function generateHeaderRowForBatchResultsCSV(
+export function generateHeaderRowForBatchResultsCsv(
   election: Election
 ): string {
   const contestSelectionHeaders: string[] = [];
@@ -115,16 +115,16 @@ export function generateHeaderRowForBatchResultsCSV(
  * Columns for every possible contest selection in every contest.
  * | Batch ID | Batch Name | Tabulator | Number Of Ballots | Contest 1 - Ballots Cast | Contest 1 - Undervotes | Contest 1 - Overvotes | Contest 1 - Selection Option 1 | ... | Contest N - Selection Option M |
  */
-export function generateBatchTallyResultsCSV(
+export function generateBatchTallyResultsCsv(
   fullElectionTally: FullElectionTally,
   election: Election
 ): string {
-  let finalDataString = generateHeaderRowForBatchResultsCSV(election);
-  for (const rowCSVString of generateRowsForBatchTallyResultsCSV(
+  let finalDataString = generateHeaderRowForBatchResultsCsv(election);
+  for (const rowCsvString of generateRowsForBatchTallyResultsCsv(
     fullElectionTally,
     election
   )) {
-    finalDataString += `\n${rowCSVString}`;
+    finalDataString += `\n${rowCsvString}`;
   }
 
   return finalDataString;

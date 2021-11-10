@@ -10,7 +10,7 @@ import {
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils';
-import { USBControllerButton } from '@votingworks/ui';
+import { UsbControllerButton } from '@votingworks/ui';
 import { strict as assert } from 'assert';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
@@ -23,7 +23,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
 }
 
-const USBImage = styled.img`
+const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
@@ -178,7 +178,7 @@ export function ExportResultsModal({
         actions={
           <React.Fragment>
             <LinkButton onPress={onClose}>Cancel</LinkButton>
-            <USBControllerButton
+            <UsbControllerButton
               small={false}
               primary
               usbDriveStatus={usbDriveStatus}
@@ -210,7 +210,7 @@ export function ExportResultsModal({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage
+                <UsbImage
                   src="usb-stick.svg"
                   alt="Insert USB Image"
                   onDoubleClick={() => exportResults(true)}
@@ -255,7 +255,7 @@ export function ExportResultsModal({
           content={
             <Prose>
               <h1>Export Results</h1>
-              <USBImage
+              <UsbImage
                 src="usb-stick.svg"
                 alt="Insert USB Image"
                 onDoubleClick={() => exportResults(true)}

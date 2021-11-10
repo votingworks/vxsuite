@@ -3,7 +3,7 @@ import { zip } from '@votingworks/utils';
 import React, { useCallback, useRef, useState } from 'react';
 
 export interface Props {
-  imageURL: string;
+  imageUrl: string;
   layout?: SerializableBallotPageLayout;
   contestIds?: ReadonlyArray<Contest['id']>;
   styleForContest?(contestId: Contest['id']): React.CSSProperties;
@@ -12,7 +12,7 @@ export interface Props {
 }
 
 export function BallotSheetImage({
-  imageURL,
+  imageUrl,
   layout,
   contestIds,
   styleForContest,
@@ -74,7 +74,7 @@ export function BallotSheetImage({
     <div style={{ position: 'relative' }}>
       <img
         ref={imageRef}
-        src={imageURL}
+        src={imageUrl}
         alt="front"
         onLoad={recalculateScale}
         style={{ maxWidth: '100%', maxHeight: '87vh' }}

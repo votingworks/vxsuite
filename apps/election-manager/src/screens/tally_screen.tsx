@@ -29,7 +29,7 @@ import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
 import { HorizontalRule } from '../components/horizontal_rule';
 import { Prose } from '../components/prose';
-import { ImportCVRFilesModal } from '../components/import_cvrfiles_modal';
+import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { BallotCountsTable } from '../components/ballot_counts_table';
 import { Modal } from '../components/modal';
 import { FileInputButton } from '../components/file_input_button';
@@ -37,7 +37,7 @@ import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_mo
 import { TIME_FORMAT } from '../config/globals';
 import { getPartiesWithPrimaryElections } from '../utils/election';
 import { ImportExternalResultsModal } from '../components/import_external_results_modal';
-import { SaveFileToUSB, FileType } from '../components/save_file_to_usb';
+import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 
 export function TallyScreen(): JSX.Element {
   const {
@@ -59,7 +59,7 @@ export function TallyScreen(): JSX.Element {
     confirmingRemoveFileType,
     setConfirmingRemoveFileType,
   ] = useState<ResultsFileType>();
-  const [isImportCVRModalOpen, setIsImportCVRModalOpen] = useState(false);
+  const [isImportCvrModalOpen, setIsImportCvrModalOpen] = useState(false);
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
     false
   );
@@ -105,7 +105,7 @@ export function TallyScreen(): JSX.Element {
     castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
   const hasAnyFiles =
     hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0;
-  const hasExternalSEMSFile = fullElectionExternalTallies.some(
+  const hasExternalSemsFile = fullElectionExternalTallies.some(
     (t) => t.source === ExternalTallySourceType.SEMS
   );
   const hasExternalManualData = fullElectionExternalTallies.some(
@@ -120,7 +120,7 @@ export function TallyScreen(): JSX.Element {
     setExternalResultsSelectedFile,
   ] = useState<File>();
 
-  const importExternalSEMSFile: InputEventFunction = async (event) => {
+  const importExternalSemsFile: InputEventFunction = async (event) => {
     const input = event.currentTarget;
     const files = Array.from(input.files || []);
     if (files.length === 1) {
@@ -220,7 +220,7 @@ export function TallyScreen(): JSX.Element {
     0
   );
 
-  const generateSEMSResults = useCallback(async (): Promise<string> => {
+  const generateSemsResults = useCallback(async (): Promise<string> => {
     const exportableTallies = generateExportableTallies();
     // process on the server
     const client = new ConverterClient('tallies');
@@ -322,17 +322,17 @@ export function TallyScreen(): JSX.Element {
         </Table>
         <p>
           <Button
-            onPress={() => setIsImportCVRModalOpen(true)}
+            onPress={() => setIsImportCvrModalOpen(true)}
             disabled={isOfficialResults}
           >
             Import CVR Files
           </Button>{' '}
           <FileInputButton
             innerRef={externalFileInput}
-            onChange={importExternalSEMSFile}
+            onChange={importExternalSemsFile}
             accept="*"
             data-testid="import-sems-button"
-            disabled={hasExternalSEMSFile || isOfficialResults}
+            disabled={hasExternalSemsFile || isOfficialResults}
           >
             Import External Results File
           </FileInputButton>{' '}
@@ -374,7 +374,7 @@ export function TallyScreen(): JSX.Element {
             </Button>{' '}
             <Button
               danger
-              disabled={!hasExternalSEMSFile}
+              disabled={!hasExternalSemsFile}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
             >
               Remove External Results File…
@@ -453,19 +453,19 @@ export function TallyScreen(): JSX.Element {
         />
       )}
 
-      {isImportCVRModalOpen && (
-        <ImportCVRFilesModal onClose={() => setIsImportCVRModalOpen(false)} />
+      {isImportCvrModalOpen && (
+        <ImportCvrFilesModal onClose={() => setIsImportCvrModalOpen(false)} />
       )}
       {isExportResultsModalOpen && (
-        <SaveFileToUSB
+        <SaveFileToUsb
           onClose={() => setIsExportResultsModalOpen(false)}
-          generateFileContent={generateSEMSResults}
+          generateFileContent={generateSemsResults}
           defaultFilename={generateFinalExportDefaultFilename(
             isTestMode,
             electionDefinition.election
           )}
           fileType={FileType.Results}
-          promptToEjectUSB
+          promptToEjectUsb
         />
       )}
     </React.Fragment>

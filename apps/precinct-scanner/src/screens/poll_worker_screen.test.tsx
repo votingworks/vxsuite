@@ -37,7 +37,7 @@ function renderScreen({
         scannedBallotCount={scannedBallotCount}
         isPollsOpen={isPollsOpen}
         togglePollsOpen={jest.fn()}
-        getCVRsFromExport={jest.fn().mockResolvedValue([])}
+        getCvrsFromExport={jest.fn().mockResolvedValue([])}
         saveTallyToCard={jest.fn()}
         isLiveMode
         hasPrinterAttached={false}

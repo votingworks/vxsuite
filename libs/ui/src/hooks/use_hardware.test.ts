@@ -9,7 +9,7 @@ import {
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
   PlustekScannerVendorId,
-  PlustekVTM300ScannerProductId,
+  PlustekVtm300ScannerProductId,
 } from '@votingworks/utils';
 import { useHardware } from './use_hardware';
 
@@ -208,7 +208,7 @@ test('can connect fujitsu scanner as expected', async () => {
 
 test('can connect plustek scanner as expected', async () => {
   const plustekDevice: KioskBrowser.Device = {
-    productId: PlustekVTM300ScannerProductId,
+    productId: PlustekVtm300ScannerProductId,
     vendorId: PlustekScannerVendorId,
     locationId: 0,
     deviceAddress: 0,
@@ -236,7 +236,7 @@ test('can connect plustek scanner as expected', async () => {
       message: expect.stringContaining(
         'New Plustek Scanner (Sheetfed Scanner)'
       ),
-      productId: PlustekVTM300ScannerProductId,
+      productId: PlustekVtm300ScannerProductId,
       vendorId: PlustekScannerVendorId,
     })
   );
@@ -254,7 +254,7 @@ test('can connect plustek scanner as expected', async () => {
     'system',
     expect.objectContaining({
       message: expect.stringContaining('Plustek Scanner (Sheetfed Scanner)'),
-      productId: PlustekVTM300ScannerProductId,
+      productId: PlustekVtm300ScannerProductId,
       vendorId: PlustekScannerVendorId,
     })
   );

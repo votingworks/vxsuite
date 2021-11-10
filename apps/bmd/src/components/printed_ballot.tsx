@@ -30,7 +30,7 @@ import * as GLOBALS from '../config/globals';
 import { randomBase64 } from '../utils/random';
 import { findPartyById } from '../utils/find';
 
-import { QRCode } from './qrcode';
+import { QrCode } from './qrcode';
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';
 import {
@@ -71,7 +71,7 @@ const Header = styled.div`
     max-width: 100%;
   }
 `;
-const QRCodeContainer = styled.div`
+const QrCodeContainer = styled.div`
   display: flex;
   flex: 3;
   flex-direction: row;
@@ -239,7 +239,7 @@ export function PrintedBallot({
   const ballotId = randomBase64(10);
   const {
     election,
-    election: { county, date, seal, sealURL, state, title },
+    election: { county, date, seal, sealURL: sealUrl, state, title },
     electionHash,
   } = electionDefinition;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
@@ -270,10 +270,10 @@ export function PrintedBallot({
             // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
             dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
           />
-        ) : sealURL ? (
+        ) : sealUrl ? (
           <div id="printedBallotSealContainer" className="seal">
             <SealImage
-              src={sealURL}
+              src={sealUrl}
               alt=""
               data-testid="printed-ballot-seal-image"
             />
@@ -292,8 +292,8 @@ export function PrintedBallot({
             {county.name}, {state}
           </p>
         </Prose>
-        <QRCodeContainer>
-          <QRCode value={fromByteArray(encodedBallot)} />
+        <QrCodeContainer>
+          <QrCode value={fromByteArray(encodedBallot)} />
           <div>
             <div>
               <div>
@@ -310,7 +310,7 @@ export function PrintedBallot({
               </div>
             </div>
           </div>
-        </QRCodeContainer>
+        </QrCodeContainer>
       </Header>
       <Content>
         <BallotSelections>

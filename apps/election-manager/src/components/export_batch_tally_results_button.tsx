@@ -2,9 +2,9 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
 import { strict as assert } from 'assert';
-import { SaveFileToUSB, FileType } from './save_file_to_usb';
+import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
-import { generateBatchTallyResultsCSV } from '../utils/generate_batch_tally_results_csv';
+import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -27,13 +27,13 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
         Export Batch Results as CSV
       </Button>
       {isSaveModalOpen && (
-        <SaveFileToUSB
+        <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={async () =>
-            generateBatchTallyResultsCSV(fullElectionTally, election)
+            generateBatchTallyResultsCsv(fullElectionTally, election)
           }
           defaultFilename={defaultFilename}
-          fileType={FileType.BatchResultsCSV}
+          fileType={FileType.BatchResultsCsv}
         />
       )}
     </React.Fragment>

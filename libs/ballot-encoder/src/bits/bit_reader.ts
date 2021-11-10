@@ -1,7 +1,7 @@
 import { BitCursor } from './bit_cursor';
 import { Uint1, Uint8, Uint8Size } from './types';
 import { sizeof, makeMasks, toUint8 } from './utils';
-import { UTF8Encoding, Encoding } from './encoding';
+import { Utf8Encoding, Encoding } from './encoding';
 
 /**
  * Reads structured data from a `Uint8Array`. Data is read in little-endian
@@ -119,7 +119,7 @@ export class BitReader {
 
   readString(options: { encoding?: Encoding; length?: number }): string;
   readString({
-    encoding = UTF8Encoding,
+    encoding = Utf8Encoding,
     maxLength = (1 << Uint8Size) - 1,
     length,
   }: {

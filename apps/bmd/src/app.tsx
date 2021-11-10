@@ -18,7 +18,7 @@ import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
 } from './utils/ScreenReader';
-import { getUSEnglishVoice } from './utils/voices';
+import { getUsEnglishVoice } from './utils/voices';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
@@ -40,7 +40,7 @@ export interface Props {
 
 export function App({
   screenReader = new AriaScreenReader(
-    new SpeechSynthesisTextToSpeech(memoize(getUSEnglishVoice))
+    new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
   ),
 
   card = new WebServiceCard(),

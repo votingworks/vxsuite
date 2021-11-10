@@ -5,7 +5,7 @@ import { BallotPageQrcode, SheetOf } from '../types';
 import { loadImageData } from '../util/images';
 import { stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';
-import { detectQRCode } from '../util/qrcode';
+import { detectQrCode } from '../util/qrcode';
 
 const debug = makeDebug('module-scan:workers:qrcode');
 
@@ -69,7 +69,7 @@ export async function detectQrcodeInFilePath(
     return { blank: true };
   }
 
-  const result = await detectQRCode(imageData);
+  const result = await detectQrCode(imageData);
   const output: Output = {
     blank: false,
     qrcode: result

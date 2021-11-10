@@ -1,4 +1,4 @@
-import { croppedQRCode } from '../../test/fixtures';
+import { croppedQrCode } from '../../test/fixtures';
 import { binarize, RGBA_BLACK, RGBA_WHITE } from './binarize';
 import { createImageData } from './canvas';
 
@@ -56,7 +56,7 @@ test('threshold', () => {
 });
 
 test('idempotence', async () => {
-  const binarized = await croppedQRCode.imageData();
+  const binarized = await croppedQrCode.imageData();
   binarize(binarized);
 
   const rebinarized = createImageData(binarized.width, binarized.height);

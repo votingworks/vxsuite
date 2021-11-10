@@ -20,7 +20,7 @@ import {
 } from '@votingworks/ui';
 import {
   generateDefaultReportFilename,
-  generateFileContentToSaveAsPDF,
+  generateFileContentToSaveAsPdf,
 } from '../utils/save_as_pdf';
 
 import {
@@ -43,7 +43,7 @@ import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
 
 import { Text } from '../components/text';
-import { SaveFileToUSB, FileType } from '../components/save_file_to_usb';
+import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 
 const TallyReportPreview = styled(TallyReport)`
   section {
@@ -209,9 +209,9 @@ export function TallyReportScreen(): JSX.Element {
         {showPreview && <TallyReportPreview ref={previewReportRef} />}
       </NavigationScreen>
       {isSaveModalOpen && (
-        <SaveFileToUSB
+        <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={generateFileContentToSaveAsPDF}
+          generateFileContent={generateFileContentToSaveAsPdf}
           defaultFilename={defaultReportFilename}
           fileType={FileType.TallyReport}
         />

@@ -7,7 +7,7 @@ import {
   Button,
   Prose,
   Loading,
-  USBControllerButton,
+  UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
 import {
@@ -21,7 +21,7 @@ import { strict as assert } from 'assert';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
 
-const USBImage = styled.img`
+const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
@@ -183,7 +183,7 @@ export function ExportResultsModal({
         actions={
           <React.Fragment>
             <Button onPress={onClose}>Cancel</Button>
-            <USBControllerButton
+            <UsbControllerButton
               small={false}
               primary
               usbDriveStatus={
@@ -218,7 +218,7 @@ export function ExportResultsModal({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage
+                <UsbImage
                   src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
                   alt="Insert USB Image"
                 />
@@ -262,7 +262,7 @@ export function ExportResultsModal({
           content={
             <Prose>
               <h1>Export Results</h1>
-              <USBImage
+              <UsbImage
                 src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
                 alt="Insert USB Image"
               />

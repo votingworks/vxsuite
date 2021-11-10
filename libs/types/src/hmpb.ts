@@ -4,8 +4,8 @@ import {
   Candidate,
   Contest,
   ContestOption,
-  HMPBBallotPageMetadata,
-  HMPBBallotPageMetadataSchema,
+  HmpbBallotPageMetadata,
+  HmpbBallotPageMetadataSchema,
   TargetShape,
   TargetShapeSchema,
   WriteInIdSchema,
@@ -21,8 +21,8 @@ import {
 } from './geometry';
 import { ImageData, ImageDataSchema } from './image';
 
-export type BallotPageMetadata = HMPBBallotPageMetadata;
-export const BallotPageMetadataSchema = HMPBBallotPageMetadataSchema;
+export type BallotPageMetadata = HmpbBallotPageMetadata;
+export const BallotPageMetadataSchema = HmpbBallotPageMetadataSchema;
 
 export interface BallotImage {
   imageData: ImageData;

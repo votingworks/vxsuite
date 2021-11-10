@@ -10,7 +10,7 @@ import {
   usbstick,
   throwIllegalValue,
 } from '@votingworks/utils';
-import { USBControllerButton } from '@votingworks/ui';
+import { UsbControllerButton } from '@votingworks/ui';
 import { strict as assert } from 'assert';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
@@ -27,7 +27,7 @@ import { Monospace } from './text';
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
 
 const { UsbDriveStatus } = usbstick;
-const USBImage = styled.img`
+const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;
@@ -175,7 +175,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <USBImage
+                <UsbImage
                   src="usb-drive.svg"
                   alt="Insert USB Image"
                   // hidden feature to export with file dialog by double-clicking
@@ -210,7 +210,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             <Prose>
               <h1>Export Ballot Package</h1>
               <p>
-                <USBImage src="usb-drive.svg" alt="Insert USB Image" />A zip
+                <UsbImage src="usb-drive.svg" alt="Insert USB Image" />A zip
                 archive will automatically be saved to the default location on
                 the mounted USB drive. Optionally, you may pick a custom export
                 location.
@@ -307,7 +307,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         actions = (
           <React.Fragment>
             <LinkButton onPress={closeModal}>Close</LinkButton>
-            <USBControllerButton
+            <UsbControllerButton
               primary
               small={false}
               usbDriveEject={() => usbDriveEject(currentUserSession.type)}

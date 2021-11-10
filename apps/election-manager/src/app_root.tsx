@@ -55,7 +55,7 @@ import { ElectionManager } from './components/election_manager';
 import {
   SaveElection,
   PrintedBallot,
-  ISO8601Timestamp,
+  Iso8601Timestamp,
   CastVoteRecordLists,
   ExportableTallies,
   ResultsFileType,
@@ -72,7 +72,7 @@ export interface AppStorage {
   cvrFiles?: string;
   isOfficialResults?: boolean;
   printedBallots?: PrintedBallot[];
-  configuredAt?: ISO8601Timestamp;
+  configuredAt?: Iso8601Timestamp;
   externalVoteTallies?: string;
 }
 
@@ -124,7 +124,7 @@ export function AppRoot({
     }
   }, [storage]);
 
-  const getCVRFiles = useCallback(
+  const getCvrFiles = useCallback(
     async (): Promise<string | undefined> =>
       // TODO: validate this with zod schema
       (await storage.get(cvrsStorageKey)) as string | undefined,
@@ -149,7 +149,7 @@ export function AppRoot({
     electionDefinition,
     setElectionDefinition,
   ] = useState<ElectionDefinition>();
-  const [configuredAt, setConfiguredAt] = useState<ISO8601Timestamp>('');
+  const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>('');
 
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
     CastVoteRecordFiles.empty
@@ -253,9 +253,9 @@ export function AppRoot({
         }
 
         if (castVoteRecordFiles === CastVoteRecordFiles.empty) {
-          const storageCVRFiles = await getCVRFiles();
-          if (storageCVRFiles) {
-            setCastVoteRecordFiles(CastVoteRecordFiles.import(storageCVRFiles));
+          const storageCvrFiles = await getCvrFiles();
+          if (storageCvrFiles) {
+            setCastVoteRecordFiles(CastVoteRecordFiles.import(storageCvrFiles));
             setIsOfficialResults((await getIsOfficialResults()) || false);
           }
         }
@@ -264,10 +264,10 @@ export function AppRoot({
           fullElectionExternalTallies.length === 0 &&
           storageElectionDefinition
         ) {
-          const storageExternalTalliesJSON = await getExternalElectionTallies();
-          if (storageExternalTalliesJSON) {
+          const storageExternalTalliesJson = await getExternalElectionTallies();
+          if (storageExternalTalliesJson) {
             const importedData = convertStorageStringToExternalTallies(
-              storageExternalTalliesJSON
+              storageExternalTalliesJson
             );
             setFullElectionExternalTallies(importedData);
           }
@@ -278,7 +278,7 @@ export function AppRoot({
     castVoteRecordFiles,
     electionDefinition,
     fullElectionExternalTallies.length,
-    getCVRFiles,
+    getCvrFiles,
     getElectionDefinition,
     getExternalElectionTallies,
     getIsOfficialResults,
@@ -321,24 +321,24 @@ export function AppRoot({
   }
 
   const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = async (
-    newCVRFiles = CastVoteRecordFiles.empty
+    newCvrFiles = CastVoteRecordFiles.empty
   ) => {
-    setCastVoteRecordFiles(newCVRFiles);
-    if (newCVRFiles === CastVoteRecordFiles.empty) {
+    setCastVoteRecordFiles(newCvrFiles);
+    if (newCvrFiles === CastVoteRecordFiles.empty) {
       setIsOfficialResults(false);
     }
 
-    if (newCVRFiles === CastVoteRecordFiles.empty) {
+    if (newCvrFiles === CastVoteRecordFiles.empty) {
       await storage.remove(cvrsStorageKey);
       await storage.remove(isOfficialResultsKey);
       setIsOfficialResults(false);
     } else {
-      await storage.set(cvrsStorageKey, newCVRFiles.export());
+      await storage.set(cvrsStorageKey, newCvrFiles.export());
     }
   };
 
   const saveElection: SaveElection = useCallback(
-    async (electionJSON) => {
+    async (electionJson) => {
       const previousElection = electionDefinition;
       if (previousElection) {
         void logger.log(LogEventId.ElectionUnconfigured, 'admin', {
@@ -354,8 +354,8 @@ export function AppRoot({
       setPrintedBallots([]);
       setElectionDefinition(undefined);
 
-      if (electionJSON) {
-        const electionData = electionJSON;
+      if (electionJson) {
+        const electionData = electionJson;
         const electionHash = sha256(electionData);
         const election = safeParseElection(electionData).unsafeUnwrap();
         // Temporarily bootstrap an authenticated user session. This will be removed

@@ -60,6 +60,7 @@ export default createRule({
           });
         }
       },
+
       TSArrayType: (node: TSESTree.TSArrayType) => {
         if (!isSimpleType(node.elementType)) {
           context.report({

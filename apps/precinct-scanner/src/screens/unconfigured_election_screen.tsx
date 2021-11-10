@@ -42,7 +42,7 @@ export function UnconfiguredElectionScreen({
   const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
   useEffect(() => {
-    async function attemptToLoadBallotPackageFromUSB() {
+    async function attemptToLoadBallotPackageFromUsb() {
       if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
         setErrorMessage('');
         setIsLoadingBallotPackage(false);
@@ -119,7 +119,7 @@ export function UnconfiguredElectionScreen({
     }
 
     // function handles its own errors, so no `.catch` needed
-    void attemptToLoadBallotPackageFromUSB();
+    void attemptToLoadBallotPackageFromUsb();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDriveStatus]);
 

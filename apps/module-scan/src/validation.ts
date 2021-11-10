@@ -4,7 +4,7 @@ import {
   BallotType,
   ElectionDefinition,
   err,
-  HMPBBallotPageMetadata,
+  HmpbBallotPageMetadata,
   ok,
   PageInterpretation,
   Precinct,
@@ -31,7 +31,7 @@ export enum ValidationErrorType {
 export type ValidationError =
   | {
       type: ValidationErrorType.NonConsecutivePages;
-      pageNumbers: SheetOf<HMPBBallotPageMetadata['pageNumber']>;
+      pageNumbers: SheetOf<HmpbBallotPageMetadata['pageNumber']>;
     }
   | {
       type: ValidationErrorType.InvalidFrontBackPageTypes;

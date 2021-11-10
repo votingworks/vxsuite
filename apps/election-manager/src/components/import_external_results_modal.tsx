@@ -6,8 +6,8 @@ import { VotingMethod } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { readFileAsync } from '../lib/read_file_async';
 import {
-  convertSEMSFileToExternalTally,
-  parseSEMSFileAndValidateForElection,
+  convertSemsFileToExternalTally,
+  parseSemsFileAndValidateForElection,
 } from '../utils/sems_tallies';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
@@ -46,7 +46,7 @@ export function ImportExternalResultsModal({
     // Compute the tallies to see if there are any errors, if so display
     // an error modal.
     try {
-      const fileErrors = parseSEMSFileAndValidateForElection(
+      const fileErrors = parseSemsFileAndValidateForElection(
         fileContent,
         election
       );
@@ -57,7 +57,7 @@ export function ImportExternalResultsModal({
         setIsImportingFile(false);
         return;
       }
-      const tally = convertSEMSFileToExternalTally(
+      const tally = convertSemsFileToExternalTally(
         fileContent,
         election,
         ballotType, // We are not storing this tally, the ballot type here is not accurate yet but is thrown away
@@ -83,7 +83,7 @@ export function ImportExternalResultsModal({
     if (selectedFile !== undefined) {
       setIsTabulationRunning(true);
       const fileContent = await readFileAsync(selectedFile);
-      const tally = convertSEMSFileToExternalTally(
+      const tally = convertSemsFileToExternalTally(
         fileContent,
         election,
         ballotType,

@@ -2,8 +2,8 @@ import * as z from 'zod';
 import {
   ErrorsResponse,
   ErrorsResponseSchema,
-  ISO8601Timestamp,
-  ISO8601TimestampSchema,
+  Iso8601Timestamp,
+  Iso8601TimestampSchema,
   OkResponse,
   OkResponseSchema,
 } from '..';
@@ -43,8 +43,8 @@ export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> = z.objec
 export interface BatchInfo {
   id: string;
   label: string;
-  startedAt: ISO8601Timestamp;
-  endedAt?: ISO8601Timestamp;
+  startedAt: Iso8601Timestamp;
+  endedAt?: Iso8601Timestamp;
   error?: string;
   count: number;
 }
@@ -52,8 +52,8 @@ export interface BatchInfo {
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   id: IdSchema,
   label: z.string(),
-  startedAt: ISO8601TimestampSchema,
-  endedAt: z.optional(ISO8601TimestampSchema),
+  startedAt: Iso8601TimestampSchema,
+  endedAt: z.optional(Iso8601TimestampSchema),
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
 });

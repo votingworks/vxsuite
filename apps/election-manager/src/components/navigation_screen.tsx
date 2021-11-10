@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { Button, USBControllerButton } from '@votingworks/ui';
+import { Button, UsbControllerButton } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -81,7 +81,7 @@ export function NavigationScreen({
                 Lock Machine
               </Button>
             )}
-            <USBControllerButton
+            <UsbControllerButton
               usbDriveEject={() => usbDriveEject(currentUser)}
               usbDriveStatus={usbDriveStatus}
             />

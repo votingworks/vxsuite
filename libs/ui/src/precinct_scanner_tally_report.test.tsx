@@ -112,7 +112,7 @@ test('renders as expected for a single precinct in a general election', async ()
   ).getByText(/0 ballots cast/);
 });
 
-const primaryCVR: CastVoteRecord = {
+const primaryCvr: CastVoteRecord = {
   _precinctId: 'precinct-1',
   _ballotId: 'test-123',
   _ballotStyleId: '1M',
@@ -130,7 +130,7 @@ const primaryCVR: CastVoteRecord = {
 test('renders as expected for all precincts in a primary election', async () => {
   const tally = calculateTallyForCastVoteRecords(
     electionMinimalExhaustiveSampleDefintion.election,
-    new Set([primaryCVR]),
+    new Set([primaryCvr]),
     '0'
   );
   render(
@@ -186,7 +186,7 @@ test('renders as expected for all precincts in a primary election', async () => 
   within(screen.getByTestId('new-zoo-pick-no')).getByText('1');
 });
 
-const primaryCVR2: CastVoteRecord = {
+const primaryCvr2: CastVoteRecord = {
   _precinctId: 'precinct-1',
   _ballotId: 'test-123',
   _ballotStyleId: '1F',
@@ -203,7 +203,7 @@ const primaryCVR2: CastVoteRecord = {
 test('renders as expected for a single precincts in a primary election', async () => {
   const tally = calculateTallyForCastVoteRecords(
     electionMinimalExhaustiveSampleDefintion.election,
-    new Set([primaryCVR2]),
+    new Set([primaryCvr2]),
     '1'
   );
   render(

@@ -4,7 +4,7 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 
-import { SaveFileToUSB, FileType } from './save_file_to_usb';
+import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 const { UsbDriveStatus } = usbstick;
@@ -16,7 +16,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     for (const fileType of Object.values(FileType)) {
       const closeFn = jest.fn();
       const { getByText, unmount } = renderInAppContext(
-        <SaveFileToUSB
+        <SaveFileToUsb
           onClose={closeFn}
           generateFileContent={jest.fn()}
           defaultFilename="file"
@@ -42,7 +42,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
-      <SaveFileToUSB
+      <SaveFileToUsb
         onClose={closeFn}
         generateFileContent={jest.fn()}
         defaultFilename="file"
@@ -76,7 +76,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
   const { getByText, queryAllByText } = renderInAppContext(
-    <SaveFileToUSB
+    <SaveFileToUsb
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="this-is-a-file-name.pdf"
@@ -122,12 +122,12 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
   const { getByText } = renderInAppContext(
-    <SaveFileToUSB
+    <SaveFileToUsb
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="this-is-a-file-name.pdf"
       fileType={FileType.Results}
-      promptToEjectUSB
+      promptToEjectUsb
     />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
@@ -167,7 +167,7 @@ test('render export modal with errors when appropriate', async () => {
 
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
-    <SaveFileToUSB
+    <SaveFileToUsb
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="this-is-a-file-name.pdf"

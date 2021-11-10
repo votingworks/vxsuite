@@ -5,7 +5,7 @@ import {
   ElectionDefinition,
   MarkThresholds,
   Optional,
-  safeParseJSON,
+  safeParseJson,
 } from '@votingworks/types';
 import styled from 'styled-components';
 
@@ -27,7 +27,7 @@ import {
 } from '@votingworks/utils';
 import {
   useUsbDrive,
-  USBControllerButton,
+  UsbControllerButton,
   useSmartcard,
   SetupCardReaderPage,
   useUserSession,
@@ -121,7 +121,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     logger,
     validUserTypes: VALID_USERS,
   });
-  const [isExportingCVRs, setIsExportingCVRs] = useState(false);
+  const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
   const [markThresholds, setMarkThresholds] = useState<
     Optional<MarkThresholds>
@@ -173,7 +173,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const updateStatus = useCallback(async () => {
     try {
       const body = await (await fetch('/scan/status')).text();
-      const newStatus = safeParseJSON(
+      const newStatus = safeParseJson(
         body,
         GetScanStatusResponseSchema
       ).unsafeUnwrap();
@@ -206,7 +206,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
     try {
-      const result = safeParseJSON(
+      const result = safeParseJson(
         await (
           await fetch('/scan/scanBatch', {
             method: 'post',
@@ -227,7 +227,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const continueScanning = useCallback(async (request: ScanContinueRequest) => {
     setIsScanning(true);
     try {
-      safeParseJSON(
+      safeParseJson(
         await (
           await fetch('/scan/scanContinue', {
             method: 'post',
@@ -246,7 +246,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const zeroData = useCallback(async () => {
     try {
-      safeParseJSON(
+      safeParseJson(
         await (
           await fetch('/scan/zero', {
             method: 'post',
@@ -408,7 +408,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                   <Button onPress={() => setElectionJustLoaded(false)}>
                     Close
                   </Button>
-                  <USBControllerButton
+                  <UsbControllerButton
                     small={false}
                     primary
                     usbDriveStatus={displayUsbStatus}
@@ -497,7 +497,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                 </MainChild>
               </Main>
               <MainNav isTestMode={isTestMode}>
-                <USBControllerButton
+                <UsbControllerButton
                   usbDriveStatus={displayUsbStatus}
                   usbDriveEject={() => usbDrive.eject(currentUserSession.type)}
                 />
@@ -509,7 +509,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                 </LinkButton>
                 <Button
                   small
-                  onPress={() => setIsExportingCVRs(true)}
+                  onPress={() => setIsExportingCvrs(true)}
                   disabled={
                     adjudication.remaining > 0 || status.batches.length === 0
                   }
@@ -525,9 +525,9 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
               </MainNav>
               <StatusFooter />
             </Screen>
-            {isExportingCVRs && (
+            {isExportingCvrs && (
               <ExportResultsModal
-                onClose={() => setIsExportingCVRs(false)}
+                onClose={() => setIsExportingCvrs(false)}
                 electionDefinition={electionDefinition}
                 isTestMode={isTestMode}
                 numberOfBallots={status.batches.reduce(

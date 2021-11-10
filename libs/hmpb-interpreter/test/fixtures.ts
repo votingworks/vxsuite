@@ -1,7 +1,7 @@
 import {
   BallotPageMetadata,
   BallotPageMetadataSchema,
-  safeParseJSON,
+  safeParseJson,
 } from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -37,7 +37,7 @@ export class Fixture implements Input {
     overrides: Partial<BallotPageMetadata> = {}
   ): Promise<BallotPageMetadata> {
     return {
-      ...safeParseJSON(
+      ...safeParseJson(
         await fs.readFile(adjacentMetadataFile(this.filePath()), 'utf8'),
         BallotPageMetadataSchema
       ).unsafeUnwrap(),
@@ -46,6 +46,6 @@ export class Fixture implements Input {
   }
 }
 
-export const croppedQRCode = new Fixture(
+export const croppedQrCode = new Fixture(
   join(__dirname, 'fixtures/croppedQRCode.jpg')
 );

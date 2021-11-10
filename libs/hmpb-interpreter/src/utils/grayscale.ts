@@ -1,8 +1,8 @@
 import {
   assertGrayscaleImage,
-  assertRGBAImage,
+  assertRgbaImage,
   assertSizesMatch,
-  isRGBA,
+  isRgba,
   makeInPlaceImageTransform,
 } from './image_format_utils';
 
@@ -31,16 +31,16 @@ export function fromGray(
  * Operates on the image in-place by default, or a different destination image
  * may be provided.
  */
-export function fromRGBA(
+export function fromRgba(
   srcImageData: ImageData,
   dstImageData = srcImageData
 ): void {
-  assertRGBAImage(srcImageData);
+  assertRgbaImage(srcImageData);
   assertSizesMatch(srcImageData, dstImageData);
 
   const src32 = new Int32Array(srcImageData.data.buffer);
 
-  if (isRGBA(dstImageData)) {
+  if (isRgba(dstImageData)) {
     const dst32 = new Int32Array(dstImageData.data.buffer);
     for (let offset = 0, size = src32.length; offset < size; offset += 1) {
       const px = src32[offset];
@@ -69,4 +69,4 @@ export function fromRGBA(
   }
 }
 
-export const grayscale = makeInPlaceImageTransform(fromGray, fromRGBA);
+export const grayscale = makeInPlaceImageTransform(fromGray, fromRgba);

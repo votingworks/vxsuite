@@ -34,7 +34,7 @@ const WriteInCandidateId = '0';
 const OvervoteCandidateId = '1';
 const UndervoteCandidateId = '2';
 
-export interface SEMSFileRow {
+export interface SemsFileRow {
   countyId: CountyId;
   precinctId: PrecinctId;
   contestId: ContestId;
@@ -54,7 +54,7 @@ export interface SEMSFileRow {
 // probably not true in practice. This is irreleveant with the number of seats is 1.
 export function getContestTallyForCandidateContest(
   contest: CandidateContest,
-  rows: SEMSFileRow[]
+  rows: SemsFileRow[]
 ): ContestTally {
   const tallies: Dictionary<ContestOptionTally> = {};
   let undervotes = 0;
@@ -116,7 +116,7 @@ export function getContestTallyForCandidateContest(
 
 export function getContestTallyForYesNoContest(
   contest: YesNoContest,
-  rows: SEMSFileRow[]
+  rows: SemsFileRow[]
 ): ContestTally {
   const tallies: Dictionary<ContestOptionTally> = {};
   let undervotes = 0;
@@ -169,8 +169,8 @@ function sanitizeItem(item: string): string {
   return item.replace(/['"`]/g, '').trim();
 }
 
-function parseFileContentRows(fileContent: string): SEMSFileRow[] {
-  const parsedRows: SEMSFileRow[] = [];
+function parseFileContentRows(fileContent: string): SemsFileRow[] {
+  const parsedRows: SemsFileRow[] = [];
   for (const row of fileContent.split('\n')) {
     const entries = row
       .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
@@ -195,7 +195,7 @@ function parseFileContentRows(fileContent: string): SEMSFileRow[] {
   return parsedRows;
 }
 
-export function parseSEMSFileAndValidateForElection(
+export function parseSemsFileAndValidateForElection(
   fileContent: string,
   election: Election
 ): string[] {
@@ -285,7 +285,7 @@ export function parseSEMSFileAndValidateForElection(
   return errors;
 }
 
-export function convertSEMSFileToExternalTally(
+export function convertSemsFileToExternalTally(
   fileContent: string,
   election: Election,
   votingMethodForFile: VotingMethod,

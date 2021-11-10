@@ -1,4 +1,4 @@
-export const msEitherNeitherElectionSEMSData = `"10","6522","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",
+export const msEitherNeitherElectionSemsData = `"10","6522","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",
 "10","6522","750000015","Ballot Measure 1","0","NP","2","Times Blank Voted","0","NP","1",
 "10","6522","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","7",
 "10","6522","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","11",

@@ -94,18 +94,18 @@ export async function parseOptions({
       case '-e':
       case '--election': {
         i += 1;
-        const electionJSONFile = args[i];
+        const electionJsonFile = args[i];
 
-        if (!electionJSONFile || electionJSONFile.startsWith('-')) {
+        if (!electionJsonFile || electionJsonFile.startsWith('-')) {
           throw new OptionParseError(
             `Expected election definition file after ${arg}, but got ${
-              electionJSONFile || 'nothing'
+              electionJsonFile || 'nothing'
             }.`
           );
         }
 
         election = parseElection(
-          JSON.parse(await fs.readFile(electionJSONFile, 'utf8'))
+          JSON.parse(await fs.readFile(electionJsonFile, 'utf8'))
         );
         break;
       }

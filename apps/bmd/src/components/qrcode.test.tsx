@@ -1,10 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import { QRCode } from './qrcode';
+import { QrCode } from './qrcode';
 
 it('renders QRCode', async () => {
-  const { container } = render(<QRCode value="VX.21.5" />);
+  const { container } = render(<QrCode value="VX.21.5" />);
   expect(container.firstChild).toMatchSnapshot();
   expect(container.querySelector('path[fill="#000000"]')!)
     .toMatchInlineSnapshot(`

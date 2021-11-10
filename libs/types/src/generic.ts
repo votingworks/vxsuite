@@ -122,7 +122,7 @@ export function err<T, E>(error: E): Result<T, E> {
 
 /**
  * Parse `value` using `parser`. Note that this takes an object that is already
- * supposed to be of type `T`, not a JSON string. For that, use `safeParseJSON`.
+ * supposed to be of type `T`, not a JSON string. For that, use `safeParseJson`.
  *
  * @returns `Ok` when the parse succeeded, `Err` otherwise.
  */
@@ -146,15 +146,15 @@ export function safeParse<T>(
  * argument to automatically validate the resulting value after deserializing
  * the JSON.
  */
-export function safeParseJSON(text: string): Result<unknown, SyntaxError>;
+export function safeParseJson(text: string): Result<unknown, SyntaxError>;
 /**
  * Parse JSON and then validate the result with `parser`.
  */
-export function safeParseJSON<T>(
+export function safeParseJson<T>(
   text: string,
   parser: z.ZodType<T>
 ): Result<T, z.ZodError | SyntaxError>;
-export function safeParseJSON<T>(
+export function safeParseJson<T>(
   text: string,
   parser?: z.ZodType<T>
 ): Result<T | unknown, z.ZodError | SyntaxError> {
@@ -184,7 +184,7 @@ export const HexString: z.ZodSchema<string> = z
     (hex) => /^[0-9a-f]*$/i.test(hex),
     'hex strings must contain only 0-9 and a-f'
   );
-export const ISO8601Date = z
+export const Iso8601Date = z
   .string()
   .refine(check8601, 'dates must be in ISO8601 format');
 export const MachineId = z

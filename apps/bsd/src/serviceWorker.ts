@@ -10,7 +10,10 @@
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
 
-async function registerValidSW(swUrl: string, config?: Config): Promise<void> {
+async function registerValidServiceWorker(
+  swUrl: string,
+  config?: Config
+): Promise<void> {
   let registration: ServiceWorkerRegistration;
 
   try {
@@ -68,7 +71,7 @@ async function checkValidServiceWorker(swUrl: string, config?: Config) {
       window.location.reload();
     } else {
       // Service worker found. Proceed as normal.
-      await registerValidSW(swUrl, config);
+      await registerValidServiceWorker(swUrl, config);
     }
   } catch {
     /* eslint-disable-next-line no-console */
@@ -124,7 +127,7 @@ export function register(config?: Config): void {
         );
       } else {
         // Is not localhost. Just register service worker
-        await registerValidSW(swUrl, config);
+        await registerValidServiceWorker(swUrl, config);
       }
     });
   }

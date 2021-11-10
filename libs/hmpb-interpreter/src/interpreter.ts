@@ -39,7 +39,7 @@ import {
 } from './hmpb/find_contests';
 import { findTargets } from './hmpb/find_targets';
 import { detect } from './metadata';
-import { DetectQRCode, FindMarksResult, Interpreted } from './types';
+import { DetectQrCode, FindMarksResult, Interpreted } from './types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize';
 import { crop } from './utils/crop';
 import { defined } from './utils/defined';
@@ -56,12 +56,12 @@ const debug = makeDebug('hmpb-interpreter:Interpreter');
 
 export interface Options {
   readonly election: Election;
-  readonly detectQRCode?: DetectQRCode;
+  readonly detectQrCode?: DetectQrCode;
   readonly markScoreVoteThreshold?: number;
   readonly testMode?: boolean;
 
   /** @deprecated */
-  decodeQRCode?: DetectQRCode;
+  decodeQrCode?: DetectQrCode;
 }
 
 export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.12;
@@ -105,7 +105,7 @@ export class Interpreter {
   );
   private readonly election: Election;
   private readonly testMode: boolean;
-  private readonly detectQRCode?: DetectQRCode;
+  private readonly detectQrCode?: DetectQrCode;
   private readonly markScoreVoteThreshold: number;
 
   constructor(election: Election);
@@ -113,8 +113,8 @@ export class Interpreter {
   constructor(optionsOrElection: Options | Election) {
     if ('election' in optionsOrElection) {
       this.election = optionsOrElection.election;
-      this.detectQRCode =
-        optionsOrElection.detectQRCode ?? optionsOrElection.decodeQRCode;
+      this.detectQrCode =
+        optionsOrElection.detectQrCode ?? optionsOrElection.decodeQrCode;
       this.markScoreVoteThreshold =
         optionsOrElection.markScoreVoteThreshold ??
         this.election.markThresholds?.definite ??
@@ -441,7 +441,7 @@ export class Interpreter {
     }
 
     const detectResult = await detect(this.election, imageData, {
-      detectQRCode: this.detectQRCode,
+      detectQrCode: this.detectQrCode,
     });
 
     if (detectResult.flipped) {

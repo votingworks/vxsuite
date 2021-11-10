@@ -91,7 +91,15 @@ export function PrecinctScannerPollsReport({
   precinctSelection,
   reportPurpose,
 }: Props): JSX.Element {
-  const { title, date, county, precincts, state, seal, sealURL } = election;
+  const {
+    title,
+    date,
+    county,
+    precincts,
+    state,
+    seal,
+    sealURL: sealUrl,
+  } = election;
   const precinctName =
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
       ? 'All Precincts'
@@ -110,7 +118,7 @@ export function PrecinctScannerPollsReport({
       <Header>
         {
           /* istanbul ignore next */
-          seal && !sealURL ? (
+          seal && !sealUrl ? (
             <div
               className="seal"
               // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
@@ -123,9 +131,9 @@ export function PrecinctScannerPollsReport({
         }
         {
           /* istanbul ignore next */
-          sealURL && !seal ? (
+          sealUrl && !seal ? (
             <div className="seal">
-              <SealImage src={sealURL} alt="" />
+              <SealImage src={sealUrl} alt="" />
             </div>
           ) : (
             <React.Fragment />
