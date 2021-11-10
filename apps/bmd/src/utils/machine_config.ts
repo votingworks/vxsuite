@@ -1,4 +1,4 @@
-import { Provider, safeParse } from '@votingworks/types';
+import { Provider, unsafeParse } from '@votingworks/types';
 import { fetchJson } from '@votingworks/utils';
 import {
   getAppMode,
@@ -8,10 +8,10 @@ import {
 
 export const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { appModeName, machineId, codeVersion } = safeParse(
+    const { appModeName, machineId, codeVersion } = unsafeParse(
       MachineConfigResponseSchema,
       await fetchJson('/machine-config')
-    ).unsafeUnwrap();
+    );
 
     return {
       appMode: getAppMode(appModeName),

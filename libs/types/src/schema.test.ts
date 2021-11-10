@@ -4,7 +4,7 @@ import {
   electionWithMsEitherNeither,
 } from '../test/election';
 import * as t from './election';
-import { safeParse, safeParseJson } from './generic';
+import { safeParse, safeParseJson, unsafeParse } from './generic';
 
 test('parseElection', () => {
   expect(() => t.parseElection({})).toThrowError();
@@ -775,10 +775,10 @@ test('validates uniqueness of candidate ids within a contest', () => {
 });
 
 test('validates admin cards have hex-encoded hashes', () => {
-  safeParse(t.AdminCardDataSchema, {
+  unsafeParse(t.AdminCardDataSchema, {
     t: 'admin',
     h: 'd34db33f',
-  }).unsafeUnwrap();
+  });
   expect(
     safeParse(t.AdminCardDataSchema, {
       t: 'admin',

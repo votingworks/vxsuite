@@ -1,8 +1,8 @@
 import {
   AdjudicationReasonInfo,
   CastVoteRecord,
-  safeParse,
   safeParseJson,
+  unsafeParse,
 } from '@votingworks/types';
 import {
   CalibrateResponseSchema,
@@ -28,10 +28,10 @@ export interface ScannerStatusDetails {
 }
 
 export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
-  const { scanner, batches, adjudication } = safeParse(
+  const { scanner, batches, adjudication } = unsafeParse(
     GetScanStatusResponseSchema,
     await fetchJson('/scan/status')
-  ).unsafeUnwrap();
+  );
   const ballotCount =
     batches &&
     batches
@@ -56,10 +56,10 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
   const { batchId } = result;
 
   for (;;) {
-    const status = safeParse(
+    const status = unsafeParse(
       GetScanStatusResponseSchema,
       await fetchJson('/scan/status')
-    ).unsafeUnwrap();
+    );
     const batch = status.batches.find(({ id }) => id === batchId);
 
     if (!batch) {
@@ -79,10 +79,10 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 
     const adjudicationReasons: AdjudicationReasonInfo[] = [];
     if (status.adjudication.remaining > 0) {
-      const sheetInfo = safeParse(
+      const sheetInfo = unsafeParse(
         GetNextReviewSheetResponseSchema,
         await fetchJson('/scan/hmpb/review/next-sheet')
-      ).unsafeUnwrap();
+      );
 
       for (const { interpretation } of [
         sheetInfo.interpreted.front,

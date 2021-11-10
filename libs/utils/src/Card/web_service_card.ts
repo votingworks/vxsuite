@@ -2,8 +2,8 @@ import {
   ok,
   Optional,
   Result,
-  safeParse,
   safeParseJson,
+  unsafeParse,
 } from '@votingworks/types';
 import { fromByteArray, toByteArray } from 'base64-js';
 import { z } from 'zod';
@@ -19,10 +19,7 @@ export class WebServiceCard implements Card {
    * what its short value is and whether it has a long value.
    */
   async readStatus(): Promise<CardApi> {
-    return safeParse(
-      CardApiSchema,
-      await fetchJson('/card/read')
-    ).unsafeUnwrap();
+    return unsafeParse(CardApiSchema, await fetchJson('/card/read'));
   }
 
   /**

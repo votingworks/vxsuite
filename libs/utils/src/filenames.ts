@@ -4,7 +4,7 @@ import {
   Election,
   ElectionDefinition,
   MachineId,
-  safeParse,
+  maybeParse,
 } from '@votingworks/types';
 
 const SECTION_SEPARATOR = '__';
@@ -104,7 +104,7 @@ export function generateFilenameForScanningResults(
   time: Date = new Date()
 ): string {
   const machineString = `machine${SUBSECTION_SEPARATOR}${
-    safeParse(MachineId, machineId).ok() ?? sanitizeString(machineId)
+    maybeParse(MachineId, machineId) ?? sanitizeString(machineId)
   }`;
   const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`;
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);

@@ -1,15 +1,15 @@
-import { safeParse } from '..';
+import { safeParse, unsafeParse } from '..';
 import { ErrorsResponseSchema, OkResponseSchema } from '.';
 
 test('OkResponse', () => {
-  safeParse(OkResponseSchema, { status: 'ok' }).unsafeUnwrap();
+  unsafeParse(OkResponseSchema, { status: 'ok' });
   safeParse(OkResponseSchema, {}).unsafeUnwrapErr();
 });
 
 test('ErrorsResponse', () => {
-  safeParse(ErrorsResponseSchema, {
+  unsafeParse(ErrorsResponseSchema, {
     status: 'error',
     errors: [],
-  }).unsafeUnwrap();
+  });
   safeParse(ErrorsResponseSchema, { status: 'ok' }).unsafeUnwrapErr();
 });

@@ -1,4 +1,4 @@
-import { Optional, safeParse } from '@votingworks/types';
+import { Optional, unsafeParse } from '@votingworks/types';
 import { Storage } from '@votingworks/utils';
 import {
   Dispatch,
@@ -42,9 +42,7 @@ export function useStoredState<S>(
     void (async () => {
       const valueItem = await makeCancelable(storage.get(key));
       setInnerValue((prev) =>
-        typeof valueItem !== 'undefined'
-          ? safeParse(schema, valueItem).unsafeUnwrap()
-          : prev
+        typeof valueItem !== 'undefined' ? unsafeParse(schema, valueItem) : prev
       );
     })();
   }, [key, makeCancelable, schema, storage]);

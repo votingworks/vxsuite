@@ -1,4 +1,5 @@
-import { err, ok } from './generic';
+import { z } from 'zod';
+import { err, maybeParse, ok, unsafeParse } from './generic';
 
 test('ok is Ok', () => {
   expect(ok(0).isOk()).toBe(true);
@@ -52,4 +53,14 @@ test('err unsafeUnwrap', () => {
 
 test('err unsafeUnwrapErr', () => {
   expect(err('error').unsafeUnwrapErr()).toBe('error');
+});
+
+test('unsafeParse', () => {
+  expect(unsafeParse(z.string(), 'hello world!')).toEqual('hello world!');
+  expect(() => unsafeParse(z.string(), 99)).toThrowError();
+});
+
+test('maybeParse', () => {
+  expect(maybeParse(z.string(), 'hello world!')).toEqual('hello world!');
+  expect(maybeParse(z.string(), 99)).toBeUndefined();
 });

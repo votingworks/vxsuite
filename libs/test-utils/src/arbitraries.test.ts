@@ -1,8 +1,8 @@
 import {
   IdSchema,
-  safeParse,
   safeParseElection,
   safeParseElectionDefinition,
+  unsafeParse,
   YesNoOptionSchema,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
@@ -20,7 +20,7 @@ import {
 test('arbitraryId', () => {
   fc.assert(
     fc.property(arbitraryId(), (id) => {
-      safeParse(IdSchema, id).unsafeUnwrap();
+      unsafeParse(IdSchema, id);
     })
   );
 });
@@ -41,7 +41,7 @@ test('arbitraryDateTime', () => {
 test('arbitraryYesNoOption', () => {
   fc.assert(
     fc.property(arbitraryYesNoOption(), (option) => {
-      safeParse(YesNoOptionSchema, option).unsafeUnwrap();
+      unsafeParse(YesNoOptionSchema, option);
     })
   );
 
