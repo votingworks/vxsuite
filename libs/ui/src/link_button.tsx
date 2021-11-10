@@ -3,6 +3,9 @@ import { useHistory } from 'react-router-dom';
 import { EventTargetFunction } from '@votingworks/types';
 import { Button, ButtonProps } from './button';
 
+/**
+ * Props for {@link LinkButton}.
+ */
 export interface LinkButtonProps extends Omit<ButtonProps, 'onPress'> {
   goBack?: boolean;
   onPress?: EventTargetFunction;
@@ -10,6 +13,9 @@ export interface LinkButtonProps extends Omit<ButtonProps, 'onPress'> {
   to?: string;
 }
 
+/**
+ * Renders a button that updates navigation, or calls `onPress`.
+ */
 export function LinkButton(props: LinkButtonProps): JSX.Element {
   const history = useHistory();
   const {

@@ -6,6 +6,7 @@
     "no-bitwise": "off",
 
     "vx/gts-identifiers": ["error", { "allowedNames": ["$0", "/.*(X|Y)Offset/"] }],
+    "vx/gts-jsdoc": "off",
     "vx/gts-no-default-exports": "error"
   }
 }

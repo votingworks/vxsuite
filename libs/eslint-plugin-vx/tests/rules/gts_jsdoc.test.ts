@@ -31,6 +31,36 @@ ruleTester.run('gts-jsdoc', rule, {
       // ignore line comments @override @implements @extends @enum
     `,
     `/** @see {@link foo} */`,
+    `
+      /** The loneliest number. */
+      export const ONE = 1;
+    `,
+    `
+      /** The loneliest number. */
+      export default 1;
+    `,
+    `
+      /** The loneliest number. */
+      const ONE = 1;
+      export default ONE;
+    `,
+    `
+      /** The loneliest number. */
+      export const ONE = 1,
+      /** The loneliest number since the number one. */
+                   TWO = 2;
+    `,
+    `
+      /** The loneliest number. */
+      export function ONE() { return 1; };
+    `,
+    `
+      /** The loneliest number. */
+      const one = 1;
+      /** The loneliest number since the number one. */
+      const two = 2;
+      export { one as ONE, two as TWO };
+    `,
   ],
   invalid: [
     {
@@ -76,6 +106,32 @@ ruleTester.run('gts-jsdoc', rule, {
         { messageId: 'noJsDocType' },
         { messageId: 'noJsDocType' },
         { messageId: 'noJsDocType' },
+      ],
+    },
+    {
+      code: `export const ONE = 1;`,
+      errors: [{ messageId: 'moduleExportRequiresJsDoc', line: 1 }],
+    },
+    {
+      code: `export const ONE = 1, TWO = 2;`,
+      errors: [
+        { messageId: 'moduleExportRequiresJsDoc', line: 1 },
+        { messageId: 'moduleExportRequiresJsDoc', line: 1 },
+      ],
+    },
+    {
+      code: `export function ONE() { return 1; }`,
+      errors: [{ messageId: 'moduleExportRequiresJsDoc', line: 1 }],
+    },
+    {
+      code: `
+        const ONE = 1;
+        const TWO = 2;
+        export { ONE, TWO };
+      `,
+      errors: [
+        { messageId: 'moduleExportRequiresJsDoc', line: 2 },
+        { messageId: 'moduleExportRequiresJsDoc', line: 3 },
       ],
     },
   ],

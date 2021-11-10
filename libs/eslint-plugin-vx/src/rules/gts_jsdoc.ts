@@ -1,6 +1,16 @@
-import { AST_TOKEN_TYPES } from '@typescript-eslint/experimental-utils';
+import {
+  AST_NODE_TYPES,
+  AST_TOKEN_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
 import { parse } from 'comment-parser';
 import { createRule } from '../util';
+
+function isJsDocComment(comment: TSESTree.Comment): boolean {
+  return (
+    comment.type === AST_TOKEN_TYPES.Block && comment.value.startsWith('*')
+  );
+}
 
 export default createRule({
   name: 'gts-jsdoc',
@@ -14,6 +24,8 @@ export default createRule({
     },
     fixable: 'code',
     messages: {
+      moduleExportRequiresJsDoc:
+        'Document module exports with JSDoc comments, i.e. /** … */.',
       noJsDocOverride:
         'Do not use `@override`; if applicable, use the TypeScript `override` keyword.',
       noJsDocImplements:
@@ -36,7 +48,63 @@ export default createRule({
   create(context) {
     const sourceCode = context.getSourceCode();
 
+    function hasJsDocComment(node: TSESTree.Node): boolean {
+      if (
+        node.type === AST_NODE_TYPES.VariableDeclarator &&
+        node.parent?.type === AST_NODE_TYPES.VariableDeclaration &&
+        node.parent.declarations[0] === node
+      ) {
+        return hasJsDocComment(node.parent);
+      }
+
+      if (
+        node.parent?.type === AST_NODE_TYPES.ExportNamedDeclaration ||
+        node.parent?.type === AST_NODE_TYPES.ExportDefaultDeclaration
+      ) {
+        return hasJsDocComment(node.parent);
+      }
+
+      const comments = sourceCode.getCommentsBefore(node);
+      return comments.some(isJsDocComment);
+    }
+
+    function checkHasJsDoc(node: TSESTree.Node): void {
+      if (node.type === AST_NODE_TYPES.Identifier) {
+        const scope = context.getScope();
+        const variable = scope.set.get(node.name);
+
+        if (variable) {
+          for (const def of variable.defs) {
+            checkHasJsDoc(def.node);
+          }
+        }
+      } else if (!hasJsDocComment(node)) {
+        context.report({
+          node,
+          messageId: 'moduleExportRequiresJsDoc',
+        });
+      }
+    }
+
     return {
+      ExportDefaultDeclaration(node: TSESTree.ExportDefaultDeclaration): void {
+        checkHasJsDoc(node.declaration);
+      },
+
+      ExportNamedDeclaration(node: TSESTree.ExportNamedDeclaration): void {
+        if (node.declaration?.type === AST_NODE_TYPES.VariableDeclaration) {
+          for (const declarator of node.declaration.declarations) {
+            checkHasJsDoc(declarator);
+          }
+        } else if (node.declaration) {
+          checkHasJsDoc(node.declaration);
+        } else {
+          for (const specifier of node.specifiers) {
+            checkHasJsDoc(specifier.local);
+          }
+        }
+      },
+
       Program(): void {
         for (const comment of sourceCode.getAllComments()) {
           if (comment.type === AST_TOKEN_TYPES.Line) {

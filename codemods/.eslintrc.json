@@ -1,3 +1,6 @@
 {
-  "extends": ["plugin:vx/recommended"]
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    "vx/gts-jsdoc": "off"
+  }
 }
