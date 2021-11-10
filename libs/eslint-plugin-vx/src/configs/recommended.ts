@@ -40,6 +40,7 @@ export = {
     'vx/gts-func-style': 'error',
     'vx/gts-jsdoc': 'error',
     'vx/gts-identifiers-use-allowed-character': 'error',
+    'vx/gts-module-snake-case': 'error',
     'vx/gts-no-array-constructor': 'error',
     'vx/gts-no-const-enum': 'error',
     // TODO: enable this everywhere

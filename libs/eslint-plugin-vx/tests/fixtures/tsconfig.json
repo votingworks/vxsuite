@@ -9,7 +9,11 @@
     "experimentalDecorators": true
   },
   "include": [
+    "camelCase.ts",
     "file.ts",
-    "react.tsx"
+    "kebab-case.ts",
+    "react.tsx",
+    "snake_case.ts",
+    "TitleCase.tsx"
   ]
 }
