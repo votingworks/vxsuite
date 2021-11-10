@@ -186,7 +186,7 @@ export function maybeParse<T>(
 }
 
 export type Id = string;
-export const IdSchema = z
+export const IdSchema: z.ZodSchema<Id> = z
   .string()
   .nonempty()
   .refine((id) => !id.startsWith('_'), 'IDs may not start with an underscore')

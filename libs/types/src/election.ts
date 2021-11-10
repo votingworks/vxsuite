@@ -97,15 +97,16 @@ export const DistrictsSchema = z
   });
 
 // Candidates
-export type WriteInId = string;
-export const WriteInIdSchema = z
+export type WriteInId = Id;
+export const WriteInIdSchema: z.ZodSchema<WriteInId> = z
   .string()
   .nonempty()
   .refine(
     (id) => id.startsWith('__write-in'),
     'Write-In IDs must start with __write-in'
   );
-export type CandidateId = string;
+export type CandidateId = Id;
+export const CandidateIdSchema: z.ZodSchema<CandidateId> = IdSchema;
 export interface Candidate {
   readonly id: CandidateId;
   readonly name: string;
@@ -114,7 +115,7 @@ export interface Candidate {
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   _lang: TranslationsSchema.optional(),
-  id: IdSchema,
+  id: CandidateIdSchema,
   name: z.string().nonempty(),
   partyId: PartyIdSchema.optional(),
   isWriteIn: z.boolean().optional(),
@@ -142,12 +143,12 @@ export interface Rotation {
 export const RotationSchema: z.ZodSchema<Rotation> = z.object({
   type: z.literal('candidateShiftByPrecinctIndex'),
 });
-export type ContestId = string;
+export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 export interface Contest {
   readonly id: ContestId;
-  readonly districtId: Id;
-  readonly partyId?: Id;
+  readonly districtId: DistrictId;
+  readonly partyId?: PartyId;
   readonly section: string;
   readonly title: string;
   readonly type: ContestTypes;
@@ -155,8 +156,8 @@ export interface Contest {
 const ContestInternalSchema = z.object({
   _lang: TranslationsSchema.optional(),
   id: ContestIdSchema,
-  districtId: IdSchema,
-  partyId: IdSchema.optional(),
+  districtId: DistrictIdSchema,
+  partyId: PartyIdSchema.optional(),
   section: z.string().nonempty(),
   title: z.string().nonempty(),
   type: ContestTypesSchema,
@@ -187,12 +188,14 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = ContestInte
   }
 });
 
+export type YesNoOptionId = Id;
+export const YesNoOptionIdSchema: z.ZodSchema<YesNoOptionId> = IdSchema;
 export interface YesNoOption {
-  readonly id: Id;
+  readonly id: YesNoOptionId;
   readonly label: string;
 }
 export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
-  id: IdSchema,
+  id: YesNoOptionIdSchema,
   label: z.string().nonempty(),
 });
 
@@ -228,8 +231,8 @@ export interface MsEitherNeitherContest extends Contest {
 export const MsEitherNeitherContestSchema: z.ZodSchema<MsEitherNeitherContest> = ContestInternalSchema.merge(
   z.object({
     type: z.literal('ms-either-neither'),
-    eitherNeitherContestId: IdSchema,
-    pickOneContestId: IdSchema,
+    eitherNeitherContestId: ContestIdSchema,
+    pickOneContestId: ContestIdSchema,
     description: z.string().nonempty(),
     eitherNeitherLabel: z.string().nonempty(),
     pickOneLabel: z.string().nonempty(),
@@ -264,34 +267,6 @@ export const ContestsSchema = z
   });
 
 // Election
-export type BallotStyleId = Id;
-export const BallotStyleIdSchema: z.ZodSchema<BallotStyleId> = IdSchema;
-export interface BallotStyle {
-  readonly id: BallotStyleId;
-  readonly precincts: readonly PrecinctId[];
-  readonly districts: readonly DistrictId[];
-  readonly partyId?: PartyId;
-}
-export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
-  _lang: TranslationsSchema.optional(),
-  id: IdSchema,
-  precincts: z.array(IdSchema),
-  districts: z.array(IdSchema),
-  partyId: IdSchema.optional(),
-});
-export const BallotStylesSchema = z
-  .array(BallotStyleSchema)
-  .nonempty()
-  .superRefine((ballotStyles, ctx) => {
-    for (const [index, id] of findDuplicateIds(ballotStyles)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: [index, 'id'],
-        message: `Duplicate ballot style '${id}' found.`,
-      });
-    }
-  });
-
 export type PrecinctId = Id;
 export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = IdSchema;
 export interface Precinct {
@@ -312,6 +287,34 @@ export const PrecinctsSchema = z
         code: z.ZodIssueCode.custom,
         path: [index, 'id'],
         message: `Duplicate precinct '${id}' found.`,
+      });
+    }
+  });
+
+export type BallotStyleId = Id;
+export const BallotStyleIdSchema: z.ZodSchema<BallotStyleId> = IdSchema;
+export interface BallotStyle {
+  readonly id: BallotStyleId;
+  readonly precincts: readonly PrecinctId[];
+  readonly districts: readonly DistrictId[];
+  readonly partyId?: PartyId;
+}
+export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
+  _lang: TranslationsSchema.optional(),
+  id: BallotStyleIdSchema,
+  precincts: z.array(PrecinctIdSchema),
+  districts: z.array(DistrictIdSchema),
+  partyId: PartyIdSchema.optional(),
+});
+export const BallotStylesSchema = z
+  .array(BallotStyleSchema)
+  .nonempty()
+  .superRefine((ballotStyles, ctx) => {
+    for (const [index, id] of findDuplicateIds(ballotStyles)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [index, 'id'],
+        message: `Duplicate ballot style '${id}' found.`,
       });
     }
   });
@@ -643,17 +646,24 @@ export interface CandidateContestOption {
 export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> = z.object(
   {
     type: z.literal('candidate'),
-    id: IdSchema,
-    contestId: IdSchema,
+    id: CandidateIdSchema,
+    contestId: ContestIdSchema,
     name: z.string(),
     isWriteIn: z.boolean(),
     optionIndex: z.number().nonnegative(),
   }
 );
 
+export type YesNoContestOptionId = Exclude<
+  YesNoVote[0] | YesNoVote[1],
+  undefined
+>;
+export const YesNoContestOptionIdSchema: z.ZodSchema<YesNoContestOptionId> = z.union(
+  [z.literal('yes'), z.literal('no')]
+);
 export interface YesNoContestOption {
   type: YesNoContest['type'];
-  id: Exclude<YesNoVote[0] | YesNoVote[1], undefined>;
+  id: YesNoContestOptionId;
   contestId: YesNoContest['id'];
   name: string;
   optionIndex: number;
@@ -662,19 +672,22 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> = z.objec
   {
     type: z.literal('yesno'),
     id: z.union([z.literal('yes'), z.literal('no')]),
-    contestId: IdSchema,
+    contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
   }
 );
 
+export type MsEitherNeitherContestOptionId =
+  | MsEitherNeitherContest['eitherOption']['id']
+  | MsEitherNeitherContest['neitherOption']['id']
+  | MsEitherNeitherContest['firstOption']['id']
+  | MsEitherNeitherContest['secondOption']['id'];
+export const MsEitherNeitherContestOptionIdSchema: z.ZodSchema<MsEitherNeitherContestOptionId> = YesNoOptionIdSchema;
+
 export interface MsEitherNeitherContestOption {
   type: MsEitherNeitherContest['type'];
-  id:
-    | MsEitherNeitherContest['eitherOption']['id']
-    | MsEitherNeitherContest['neitherOption']['id']
-    | MsEitherNeitherContest['firstOption']['id']
-    | MsEitherNeitherContest['secondOption']['id'];
+  id: MsEitherNeitherContestOptionId;
   contestId:
     | MsEitherNeitherContest['eitherNeitherContestId']
     | MsEitherNeitherContest['pickOneContestId'];
@@ -684,8 +697,8 @@ export interface MsEitherNeitherContestOption {
 export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherContestOption> = z.object(
   {
     type: z.literal('ms-either-neither'),
-    id: IdSchema,
-    contestId: IdSchema,
+    id: MsEitherNeitherContestOptionIdSchema,
+    contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
   }
@@ -701,6 +714,14 @@ export const ContestOption: z.ZodSchema<ContestOption> = z.union([
   MsEitherNeitherContestOptionSchema,
 ]);
 
+export type ContestOptionId = ContestOption['id'];
+export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
+  CandidateIdSchema,
+  WriteInIdSchema,
+  YesNoContestOptionIdSchema,
+  YesNoOptionIdSchema,
+]);
+
 export interface UninterpretableBallotAdjudicationReasonInfo {
   type: AdjudicationReason.UninterpretableBallot;
 }
@@ -713,14 +734,14 @@ export const UninterpretableBallotAdjudicationReasonInfoSchema: z.ZodSchema<Unin
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;
   contestId: ContestId;
-  optionId: ContestOption['id'];
+  optionId: ContestOptionId;
   optionIndex: number;
 }
 export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.MarginalMark),
-    contestId: IdSchema,
-    optionId: IdSchema,
+    contestId: ContestIdSchema,
+    optionId: ContestOptionIdSchema,
     optionIndex: z.number(),
   }
 );
@@ -735,8 +756,8 @@ export interface OvervoteAdjudicationReasonInfo {
 export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.Overvote),
-    contestId: IdSchema,
-    optionIds: z.array(IdSchema),
+    contestId: ContestIdSchema,
+    optionIds: z.array(ContestOptionIdSchema),
     optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
   }
@@ -752,8 +773,8 @@ export interface UndervoteAdjudicationReasonInfo {
 export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.Undervote),
-    contestId: IdSchema,
-    optionIds: z.array(IdSchema),
+    contestId: ContestIdSchema,
+    optionIds: z.array(ContestOptionIdSchema),
     optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
   }
@@ -762,13 +783,13 @@ export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudic
 export interface WriteInAdjudicationReasonInfo {
   type: AdjudicationReason.WriteIn;
   contestId: ContestId;
-  optionId: ContestOption['id'];
+  optionId: ContestOptionId;
   optionIndex: number;
 }
 export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.WriteIn),
-    contestId: IdSchema,
+    contestId: ContestIdSchema,
     optionId: WriteInIdSchema,
     optionIndex: z.number().nonnegative(),
   }
@@ -777,13 +798,13 @@ export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicatio
 export interface UnmarkedWriteInAdjudicationReasonInfo {
   type: AdjudicationReason.UnmarkedWriteIn;
   contestId: ContestId;
-  optionId: ContestOption['id'];
+  optionId: ContestOptionId;
   optionIndex: number;
 }
 export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWriteInAdjudicationReasonInfo> = z.object(
   {
     type: z.literal(AdjudicationReason.UnmarkedWriteIn),
-    contestId: IdSchema,
+    contestId: ContestIdSchema,
     optionId: WriteInIdSchema,
     optionIndex: z.number().nonnegative(),
   }
@@ -818,6 +839,9 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
   ]
 );
 
+export type BallotId = Id;
+export const BallotIdSchema: z.ZodSchema<BallotId> = IdSchema;
+
 export interface HmpbBallotPageMetadata {
   electionHash: string; // a hexadecimal string
   precinctId: PrecinctId;
@@ -826,18 +850,18 @@ export interface HmpbBallotPageMetadata {
   pageNumber: number;
   isTestMode: boolean;
   ballotType: BallotType;
-  ballotId?: string;
+  ballotId?: BallotId;
 }
 export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> = z.object(
   {
     electionHash: HexString,
-    precinctId: IdSchema,
-    ballotStyleId: IdSchema,
+    precinctId: PrecinctIdSchema,
+    ballotStyleId: BallotStyleIdSchema,
     locales: BallotLocaleSchema,
     pageNumber: z.number(),
     isTestMode: z.boolean(),
     ballotType: BallotTypeSchema,
-    ballotId: z.string().optional(),
+    ballotId: BallotIdSchema.optional(),
   }
 );
 
@@ -847,8 +871,8 @@ export type BallotMetadata = Omit<
 >;
 export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
   electionHash: HexString,
-  precinctId: IdSchema,
-  ballotStyleId: IdSchema,
+  precinctId: PrecinctIdSchema,
+  ballotStyleId: BallotStyleIdSchema,
   locales: BallotLocaleSchema,
   isTestMode: z.boolean(),
   ballotType: BallotTypeSchema,
@@ -993,7 +1017,7 @@ export const BlankPageSchema: z.ZodSchema<BlankPage> = z.object({
 
 export interface InterpretedBmdPage {
   type: 'InterpretedBmdPage';
-  ballotId: Id;
+  ballotId: BallotId;
   metadata: BallotMetadata;
   votes: VotesDict;
 }
@@ -1137,7 +1161,7 @@ export interface CompletedBallot {
   readonly electionHash: string;
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
-  readonly ballotId: Id;
+  readonly ballotId: BallotId;
   readonly votes: VotesDict;
   readonly isTestMode: boolean;
   readonly ballotType: BallotType;
@@ -1316,7 +1340,7 @@ export function getBallotStyle({
   ballotStyleId,
   election,
 }: {
-  ballotStyleId: Id;
+  ballotStyleId: BallotStyleId;
   election: Election;
 }): BallotStyle | undefined {
   return election.ballotStyles.find((bs) => bs.id === ballotStyleId);
@@ -1331,7 +1355,7 @@ export function findContest({
   contestId,
 }: {
   contests: Contests;
-  contestId: Id;
+  contestId: ContestId;
 }): AnyContest | undefined {
   return contests.find((c) =>
     c.type === 'ms-either-neither'
@@ -1381,7 +1405,7 @@ export function getPartyPrimaryAdjectiveFromBallotStyle({
   ballotStyleId,
   election,
 }: {
-  ballotStyleId: Id;
+  ballotStyleId: BallotStyleId;
   election: Election;
 }): string {
   const parts = /(\d+)(\w+)/i.exec(ballotStyleId);
@@ -1399,7 +1423,7 @@ export function getPartyFullNameFromBallotStyle({
   ballotStyleId,
   election,
 }: {
-  ballotStyleId: Id;
+  ballotStyleId: BallotStyleId;
   election: Election;
 }): string {
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -1409,7 +1433,7 @@ export function getPartyFullNameFromBallotStyle({
 
 export function getDistrictIdsForPartyId(
   election: Election,
-  partyId: Id
+  partyId: PartyId
 ): string[] {
   return election.ballotStyles
     .filter((bs) => bs.partyId === partyId)
@@ -1423,7 +1447,7 @@ export function getDistrictIdsForPartyId(
  */
 export function getPartyIdsInBallotStyles(
   election: Election
-): Array<string | undefined> {
+): Array<PartyId | undefined> {
   return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
 }
 
