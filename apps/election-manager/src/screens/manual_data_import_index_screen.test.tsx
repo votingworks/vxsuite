@@ -11,6 +11,7 @@ import { fireEvent, within } from '@testing-library/react';
 import {
   ContestOptionTally,
   ContestTally,
+  ExternalTally,
   ExternalTallySourceType,
   FullElectionExternalTally,
   TallyCategory,
@@ -182,7 +183,7 @@ test('loads prexisting manual data to edit', async () => {
       } as unknown) as ContestTally,
     },
   };
-  const overallTally = {
+  const overallTally: ExternalTally = {
     ...getEmptyExternalTally(),
     numberOfBallotsCounted: 100,
   };

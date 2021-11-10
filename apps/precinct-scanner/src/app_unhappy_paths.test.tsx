@@ -31,8 +31,9 @@ import {
 import { interpretedHmpb } from '../test/fixtures';
 import { App } from './app';
 import { stateStorageKey } from './app_root';
+import { MachineConfigResponse } from './config/types';
 
-const getMachineConfigBody = {
+const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
   codeVersion: '3.14',
 };

@@ -49,11 +49,11 @@ export function PrintedBallotsReportScreen(): JSX.Element {
 
   const zeroCounts = election.precincts.reduce<PrintCounts>(
     (counts, { id: precinctId }) => {
-      const newCounts = { ...counts };
+      const newCounts: PrintCounts = { ...counts };
       newCounts[precinctId] = election.ballotStyles
         .filter((bs) => bs.precincts.includes(precinctId))
         .reduce<Dictionary<number>>((bsCounts, { id: ballotStyleId }) => {
-          const newBsCounts = { ...bsCounts };
+          const newBsCounts: Dictionary<number> = { ...bsCounts };
           newBsCounts[ballotStyleId] = 0;
           return newBsCounts;
         }, {});
@@ -62,13 +62,15 @@ export function PrintedBallotsReportScreen(): JSX.Element {
     {}
   );
 
-  const zeroCountsByType = Object.values(
+  const zeroCountsByType: PrintCountsByType = Object.values(
     PrintableBallotType
-  ).reduce<PrintCountsByType>((counts, ballotType) => {
-    const newCounts = { ...counts };
-    newCounts[ballotType] = _.cloneDeep(zeroCounts);
-    return newCounts;
-  }, {});
+  ).reduce(
+    (counts, ballotType) => ({
+      ...counts,
+      [ballotType]: _.cloneDeep(zeroCounts),
+    }),
+    {}
+  );
 
   const counts: PrintCounts = printedBallots.reduce(
     (accumulatedCounts, { precinctId, ballotStyleId, numCopies }) => ({

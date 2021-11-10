@@ -248,7 +248,7 @@ test('refuses to tabulate both live and test CVRs', async () => {
     _batchLabel: 'Batch 1',
   };
 
-  const otherCvr = {
+  const otherCvr: CastVoteRecord = {
     ...cvr,
     _testBallot: true,
   };

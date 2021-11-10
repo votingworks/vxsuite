@@ -12,6 +12,7 @@ import {
   isVotePresent,
   Vote,
   vote,
+  VotesDict,
 } from '@votingworks/types';
 import '../test/expect';
 import { BitWriter, toUint8 } from './bits';
@@ -501,7 +502,7 @@ it('throws on trying to encode a ballot style', () => {
   const ballotStyleId = `${ballotStyle.id}-CORRUPTED`;
   const precinctId = precinct.id;
   const ballotId = 'abcde';
-  const votes = {};
+  const votes: VotesDict = {};
   const ballot: CompletedBallot = {
     electionHash,
     ballotId,

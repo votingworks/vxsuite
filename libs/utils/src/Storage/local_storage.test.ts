@@ -44,7 +44,7 @@ it('can clear all values', async () => {
 
 it('serializes values as they are put in storage', async () => {
   const storage = new LocalStorage();
-  const object = { b: 1 };
+  const object: { b: number } = { b: 1 };
 
   await storage.set('a', object);
   object.b = 2;

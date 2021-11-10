@@ -184,7 +184,7 @@ class PostRenderBallotProcessor extends Handler {
           newLastPageElement.getElementsByClassName('pagedjs_page_content')[0]
         );
 
-        const newPage = {
+        const newPage: PagedJsPage = {
           ...pages[pages.length - 1],
           element: newLastPageElement,
         };

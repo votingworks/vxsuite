@@ -10,7 +10,11 @@ import {
   VotingMethod,
   writeInCandidate,
 } from '@votingworks/types';
-import { CastVoteRecord, ExportableTallies } from '../config/types';
+import {
+  CastVoteRecord,
+  ExportableContestTally,
+  ExportableTallies,
+} from '../config/types';
 import { computeFullElectionTally, parseCvrs } from '../lib/votecounting';
 import {
   getCombinedExportableContestTally,
@@ -85,7 +89,7 @@ function assertTalliesAreIdenticalMultiples(
 
 describe('getCombinedExportableContestTally', () => {
   it('combines yes no contests as expected', () => {
-    const emptyExportable = {
+    const emptyExportable: ExportableContestTally = {
       tallies: {},
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     };
@@ -138,7 +142,7 @@ describe('getCombinedExportableContestTally', () => {
   });
 
   it('combines candidate contests as expected', () => {
-    const emptyExportable = {
+    const emptyExportable: ExportableContestTally = {
       tallies: {},
       metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
     };

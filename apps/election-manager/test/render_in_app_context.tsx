@@ -1,16 +1,18 @@
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React, { RefObject } from 'react';
 import { Router } from 'react-router-dom';
-import { sha256 } from 'js-sha256';
 import { render as testRender, RenderResult } from '@testing-library/react';
 
-import { electionWithMsEitherNeitherRawData } from '@votingworks/fixtures';
 import {
-  Election,
+  asElectionDefinition,
+  electionWithMsEitherNeitherRawData,
+} from '@votingworks/fixtures';
+import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
   UserSession,
+  parseElection,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
@@ -29,11 +31,9 @@ import {
 } from '../src/utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 
-export const eitherNeitherElectionDefinition = {
-  election: JSON.parse(electionWithMsEitherNeitherRawData) as Election,
-  electionData: electionWithMsEitherNeitherRawData,
-  electionHash: sha256(electionWithMsEitherNeitherRawData),
-};
+export const eitherNeitherElectionDefinition = asElectionDefinition(
+  parseElection(electionWithMsEitherNeitherRawData)
+);
 
 interface RenderInAppContextParams {
   route?: string;

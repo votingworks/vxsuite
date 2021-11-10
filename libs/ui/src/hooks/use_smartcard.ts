@@ -156,11 +156,10 @@ export function useSmartcard({
         // TODO: embed a card dip UUID in the card data string so even an unlikely
         // identical card swap within 200ms is always detected.
         // https://github.com/votingworks/module-smartcards/issues/59
-        const cardCopy = {
+        const currentCardDataString = JSON.stringify({
           ...insertedCard,
           longValueExists: undefined, // override longValueExists (see above comment)
-        };
-        const currentCardDataString = JSON.stringify(cardCopy);
+        });
         if (currentCardDataString === lastCardDataString) {
           return;
         }

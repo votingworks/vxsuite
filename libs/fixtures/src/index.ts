@@ -71,33 +71,33 @@ export const electionWithMsEitherNeitherRawData = JSON.stringify(
 
 export const electionMultiPartyPrimaryWithDataFiles = {
   electionDefinition: multiPartyPrimaryElectionDefinition,
-  semsData: multiPartyPrimaryElectionSemsData,
-  cvrData: multiPartyPrimaryElectionCvrData,
-  csvData: multiPartyPrimaryElectionCSVData,
-};
+  semsData: multiPartyPrimaryElectionSemsData as string,
+  cvrData: multiPartyPrimaryElectionCvrData as string,
+  csvData: multiPartyPrimaryElectionCSVData as string,
+} as const;
 
 export const electionSimplePrimaryWithDataFiles = {
   electionDefinition: primaryElectionSampleDefinition,
   cvrData: simplePrimaryElectionCvrData,
-};
+} as const;
 
 export const electionSample2WithDataFiles = {
   electionDefinition: electionSample2Definition,
-  cvrDataSmall1: electionSample2CvrSmall1,
-  cvrDataSmall2: electionSample2CvrSmall2,
-  cvrDataSmall3: electionSample2CvrSmall3,
-  cvrDataStandard1: electionSample2CvrStandard1,
-  cvrDataStandard2: electionSample2CvrStandard2,
-};
+  cvrDataSmall1: electionSample2CvrSmall1 as string,
+  cvrDataSmall2: electionSample2CvrSmall2 as string,
+  cvrDataSmall3: electionSample2CvrSmall3 as string,
+  cvrDataStandard1: electionSample2CvrStandard1 as string,
+  cvrDataStandard2: electionSample2CvrStandard2 as string,
+} as const;
 
 export const electionWithMsEitherNeitherWithDataFiles = {
   electionDefinition: electionWithMsEitherNeitherDefinition,
-  semsData: msEitherNeitherElectionSemsData,
-  cvrData: msEitherNeitherElectionCvrData,
-};
+  semsData: msEitherNeitherElectionSemsData as string,
+  cvrData: msEitherNeitherElectionCvrData as string,
+} as const;
 
 export const electionMinimalExhaustiveSampleWithDataFiles = {
   electionDefinition: electionMinimalExhaustiveSampleDefintion,
-  semsData: electionMinimalExhaustiveSemsData,
-  cvrData: electionMinimalExhaustiveCvrData,
-};
+  semsData: electionMinimalExhaustiveSemsData as string,
+  cvrData: electionMinimalExhaustiveCvrData as string,
+} as const;

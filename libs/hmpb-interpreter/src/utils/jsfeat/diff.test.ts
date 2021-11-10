@@ -1,3 +1,4 @@
+import { Rect } from '@votingworks/types';
 import { croppedQrCode } from '../../../test/fixtures';
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
 import { createImageData } from '../canvas';
@@ -38,12 +39,12 @@ test('images have no diff with themselves', () => {
 });
 
 test('images have black pixels where compare is black and base is not', () => {
-  const base = {
+  const base: ImageData = {
     data: Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_WHITE),
     width: 2,
     height: 1,
   };
-  const compare = {
+  const compare: ImageData = {
     data: Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_BLACK),
     width: 2,
     height: 1,
@@ -53,12 +54,12 @@ test('images have black pixels where compare is black and base is not', () => {
 });
 
 test('bounds may specify a subset of the images to compare', () => {
-  const base = {
+  const base: ImageData = {
     data: Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_WHITE),
     width: 2,
     height: 1,
   };
-  const compare = {
+  const compare: ImageData = {
     data: Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_BLACK),
     width: 2,
     height: 1,
@@ -75,7 +76,7 @@ test('bounds may specify a subset of the images to compare', () => {
 });
 
 test('images have no percentage diff with themselves', () => {
-  const imageData = {
+  const imageData: ImageData = {
     data: Uint8ClampedArray.of(
       PIXEL_BLACK,
       PIXEL_BLACK,
@@ -90,12 +91,12 @@ test('images have no percentage diff with themselves', () => {
 });
 
 test('images have diff percentage as ratio of black diff pixels to total pixels', () => {
-  const base = {
+  const base: ImageData = {
     data: Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_WHITE),
     width: 2,
     height: 1,
   };
-  const compare = {
+  const compare: ImageData = {
     data: Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_BLACK),
     width: 2,
     height: 1,
@@ -106,7 +107,7 @@ test('images have diff percentage as ratio of black diff pixels to total pixels'
 
 test('comparing part of an image to all of another', async () => {
   const base = await croppedQrCode.imageData();
-  const compareBounds = { x: 150, y: 80, width: 150, height: 80 };
+  const compareBounds: Rect = { x: 150, y: 80, width: 150, height: 80 };
   const compare = crop(base, compareBounds);
   const diffImage = diff(base, compare, compareBounds, {
     ...compareBounds,

@@ -189,7 +189,7 @@ function* generateCvrs(
             _ballotStyleId: ballotStyle.id,
             _testBallot: testMode,
             _scannerId: scanner,
-          };
+          } as const;
 
           // For each contest determine all possible contest choices.
           const candidateOptionsForContest = new Map<string, Array<string[]>>();

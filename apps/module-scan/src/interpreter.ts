@@ -66,7 +66,11 @@ export async function getBallotImageData(
   detectQrcodeResult: qrcodeWorker.Output
 ): Promise<Result<BallotImageData, PageInterpretation>> {
   const { data, width, height } = await loadImageData(file);
-  const image = { data: Uint8ClampedArray.from(data), width, height };
+  const image: ImageData = {
+    data: Uint8ClampedArray.from(data),
+    width,
+    height,
+  };
 
   if (!detectQrcodeResult.blank && detectQrcodeResult.qrcode) {
     return ok({ file, image, qrcode: detectQrcodeResult.qrcode });

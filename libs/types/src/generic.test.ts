@@ -10,7 +10,7 @@ test('ok is not Err', () => {
 });
 
 test('ok has contained value', () => {
-  const value = {};
+  const value: unknown = {};
   expect(ok(value).ok()).toBe(value);
 });
 
@@ -39,7 +39,7 @@ test('err is not Ok', () => {
 });
 
 test('err has contained error', () => {
-  const error = {};
+  const error: unknown = {};
   expect(err(error).err()).toBe(error);
 });
 

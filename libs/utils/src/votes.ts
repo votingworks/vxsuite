@@ -25,6 +25,7 @@ import {
   PartyId,
   PrecinctId,
   CandidateId,
+  ContestTallyMeta,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { find } from './find';
@@ -60,7 +61,7 @@ export function buildVoteFromCvr({
   cvr: CastVoteRecord;
 }): VotesDict {
   const vote: VotesDict = {};
-  const mutableCvr = { ...cvr };
+  const mutableCvr: CastVoteRecord = { ...cvr };
 
   // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
   // is there -- we don't want to count this as a ballot in this contest.
@@ -213,7 +214,7 @@ export function tallyVotesByContest({
           }
         }
       }
-      const metadataForContest = {
+      const metadataForContest: ContestTallyMeta = {
         undervotes: numberOfUndervotes,
         overvotes: numberOfOvervotes,
         ballots: numberOfVotes,

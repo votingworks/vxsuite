@@ -17,7 +17,3 @@ export const LOW_BATTERY_THRESHOLD = 0.25;
 
 export const CHECK_ICON = '✓';
 export const TEXT_SIZE = 1;
-export const YES_NO_VOTES = {
-  no: 'No',
-  yes: 'Yes',
-};

@@ -158,7 +158,7 @@ export const electionStorageKey = 'electionDefinition';
 export const stateStorageKey = 'state';
 export const activationStorageKey = 'activation';
 export const votesStorageKey = 'votes';
-export const blankBallotVotes = {};
+export const blankBallotVotes: VotesDict = {};
 
 const initialCardState: Readonly<CardState> = {
   adminCardElectionHash: undefined,
@@ -261,7 +261,7 @@ type AppAction =
     };
 
 function appReducer(state: State, action: AppAction): State {
-  const resetTally = {
+  const resetTally: Partial<State> = {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
   };
   switch (action.type) {
@@ -846,11 +846,10 @@ export function AppRoot({
     // TODO: embed a card dip UUID in the card data string so even an unlikely
     // identical card swap within 200ms is always detected.
     // https://github.com/votingworks/module-smartcards/issues/59
-    const cardCopy = {
+    const currentCardDataString = JSON.stringify({
       ...insertedCard,
       longValueExists: undefined, // override longValueExists (see above comment)
-    };
-    const currentCardDataString = JSON.stringify(cardCopy);
+    });
     if (currentCardDataString === lastCardDataString) {
       return;
     }

@@ -340,7 +340,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         ballots: expectedNumberOfBallots,
       },
     };
-    const newContestTallies = {
+    const newContestTallies: Dictionary<TempContestTally> = {
       ...currentPrecinctTally.contestTallies,
       [contestId]: newContestTally,
     };

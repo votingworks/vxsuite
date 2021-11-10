@@ -3,6 +3,7 @@ import {
   MarkStatus,
   MarkThresholds,
   MsEitherNeitherContest,
+  TargetShape,
   YesNoContest,
 } from '@votingworks/types';
 
@@ -16,7 +17,7 @@ const markThresholds: MarkThresholds = {
   marginal: 0.17,
   writeInText: 0.01,
 };
-const defaultShape = {
+const defaultShape: TargetShape = {
   bounds: { x: 0, y: 0, width: 10, height: 10 },
   inner: { x: 0, y: 0, width: 10, height: 10 },
 };

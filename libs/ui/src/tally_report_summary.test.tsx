@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, getByText as domGetByText } from '@testing-library/react';
 
-import { VotingMethod } from '@votingworks/types';
+import { Tally, VotingMethod } from '@votingworks/types';
 import { TallyReportSummary } from './tally_report_summary';
 
 test('Renders with data source table and voting method table when all data provided', () => {
-  const ballotCounts = {
+  const ballotCounts: Tally['ballotCountsByVotingMethod'] = {
     [VotingMethod.Absentee]: 1200,
     [VotingMethod.Precinct]: 1045,
     [VotingMethod.Unknown]: 12,
@@ -32,7 +32,7 @@ test('Renders with data source table and voting method table when all data provi
 });
 
 test('Hides the other row in the voting method table when empty', () => {
-  const ballotCounts = {
+  const ballotCounts: Tally['ballotCountsByVotingMethod'] = {
     [VotingMethod.Absentee]: 1200,
     [VotingMethod.Precinct]: 1045,
     [VotingMethod.Unknown]: 0,
@@ -47,7 +47,7 @@ test('Hides the other row in the voting method table when empty', () => {
 
   unmount();
 
-  const ballotCounts2 = {
+  const ballotCounts2: Tally['ballotCountsByVotingMethod'] = {
     [VotingMethod.Absentee]: 1200,
     [VotingMethod.Precinct]: 1045,
   };

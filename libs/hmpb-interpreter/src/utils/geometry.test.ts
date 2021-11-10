@@ -1,3 +1,4 @@
+import { Rect } from '@votingworks/types';
 import { randomInt } from '../../test/utils';
 import {
   angleBetweenPoints,
@@ -98,8 +99,8 @@ test('flipRectVH anchored top-left', () => {
 });
 
 test('flipRectVH identity', () => {
-  const outer = { x: 5, y: 10, width: 15, height: 20 };
-  const inner = { x: 8, y: 13, width: 2, height: 3 };
+  const outer: Rect = { x: 5, y: 10, width: 15, height: 20 };
+  const inner: Rect = { x: 8, y: 13, width: 2, height: 3 };
 
   expect(
     flipRectVerticalAndHorizontal(

@@ -10,7 +10,7 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import { CardDataTypes, Optional } from '@votingworks/types';
+import { CardDataTypes, Optional, UserSession } from '@votingworks/types';
 import { Smartcard, useUserSession } from '..';
 
 function fakeSmartcard(props: Partial<Smartcard> = {}): Smartcard {
@@ -24,7 +24,10 @@ function fakeSmartcard(props: Partial<Smartcard> = {}): Smartcard {
 }
 
 test('bypass and persist authentication flow', () => {
-  const authenticatedAdmin = { type: 'admin', authenticated: true };
+  const authenticatedAdmin: UserSession = {
+    type: 'admin',
+    authenticated: true,
+  };
   // start out with smartcard as undefined, aka there is no card in the card reader.
   let smartcard: Optional<Smartcard>;
   const fakeLogger = new Logger(LogSource.VxBatchScanApp);

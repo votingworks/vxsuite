@@ -206,4 +206,4 @@ async function readBallotPackageFromFilePointer(
 export const ballotPackageUtils = {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
-};
+} as const;

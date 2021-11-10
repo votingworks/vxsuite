@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import { Election } from '@votingworks/types';
+import { CandidateContest, Election } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { App } from './app';
@@ -19,7 +19,7 @@ const electionWithNoPartyCandidateContests: Election = {
   ...election,
   contests: election.contests.map((contest) => {
     if (contest.type === 'candidate') {
-      const noPartyCandidateContest = {
+      const noPartyCandidateContest: CandidateContest = {
         ...contest,
         candidates: contest.candidates.map((candidate) => ({
           ...candidate,

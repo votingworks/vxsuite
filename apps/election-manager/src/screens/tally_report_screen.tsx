@@ -8,6 +8,7 @@ import {
   ExternalTally,
   VotingMethod,
   getLabelForVotingMethod,
+  Tally,
 } from '@votingworks/types';
 import {
   ContestTally,
@@ -229,7 +230,7 @@ export function TallyReportScreen(): JSX.Element {
               election,
               { precinctId, scannerId, partyId, votingMethod, batchId }
             );
-            const ballotCountsByVotingMethod = {
+            const ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'] = {
               ...tallyForReport.ballotCountsByVotingMethod,
             };
             let reportBallotCount = tallyForReport.numberOfBallotsCounted;
