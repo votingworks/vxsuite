@@ -1,5 +1,6 @@
 import { TSESLint } from '@typescript-eslint/experimental-utils';
 import gtsArrayTypeStyle from './gts_array_type_style';
+import gtsConstants from './gts_constants';
 import gtsDirectModuleExportAccessOnly from './gts_direct_module_export_access_only';
 import gtsFuncStyle from './gts_func_style';
 import gtsIdentifiers from './gts_identifiers';
@@ -32,6 +33,7 @@ const rules: Record<
   TSESLint.RuleModule<string, readonly unknown[], TSESLint.RuleListener>
 > = {
   'gts-array-type-style': gtsArrayTypeStyle,
+  'gts-constants': gtsConstants,
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
   'gts-func-style': gtsFuncStyle,
   'gts-identifiers': gtsIdentifiers,
