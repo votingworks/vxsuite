@@ -63,6 +63,7 @@ export = {
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
 
+    '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
     '@typescript-eslint/no-array-constructor': 'off',
     '@typescript-eslint/no-extra-semi': 'off',
     '@typescript-eslint/no-floating-promises': 'error',
