@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as fixtures from '.';
-import { multiPartiPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
-import { multiPartiPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
+import { multiPartyPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
+import { multiPartyPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
 import { simplePrimaryElectionCvrData } from './data/electionPrimary/cvrFiles/standard.txt';
 import { electionSample2CvrSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
 import { electionSample2CvrSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
@@ -50,12 +50,12 @@ const testcases = [
   {
     originalFile:
       './src/data/electionMultiPartyPrimary/semsFiles/standard.original.csv',
-    typescriptContent: multiPartiPrimaryElectionSemsData,
+    typescriptContent: multiPartyPrimaryElectionSemsData,
   },
   {
     originalFile:
       './src/data/electionMultiPartyPrimary/cvrFiles/standard.original.jsonl',
-    typescriptContent: multiPartiPrimaryElectionCvrData,
+    typescriptContent: multiPartyPrimaryElectionCvrData,
   },
   {
     originalFile: './src/data/electionPrimary/cvrFiles/standard.original.txt',
