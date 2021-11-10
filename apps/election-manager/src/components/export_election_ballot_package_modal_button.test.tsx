@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
@@ -67,6 +68,8 @@ test('Modal renders insert usb screen appropriately', async () => {
 });
 
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
   const {
     getByText,
     queryAllByText,
@@ -74,6 +77,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
     queryAllByTestId,
   } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
     usbDriveStatus: UsbDriveStatus.mounted,
+    logger,
   });
   fireEvent.click(getByText('Export Ballot Package'));
   await waitFor(() =>
@@ -95,6 +99,15 @@ test('Modal renders export confirmation screen when usb detected and manual link
   await waitFor(() => {
     expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
   });
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.ExportBallotPackageInit,
+    'admin'
+  );
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.ExportBallotPackageComplete,
+    'admin',
+    expect.objectContaining({ disposition: 'success' })
+  );
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
@@ -121,11 +134,14 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
 });
 
 test('Modal renders error message appropriately', async () => {
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
   window.kiosk!.saveAs = jest.fn().mockResolvedValue(undefined);
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
+      logger,
     }
   );
   fireEvent.click(getByText('Export Ballot Package'));
@@ -142,6 +158,15 @@ test('Modal renders error message appropriately', async () => {
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.ExportBallotPackageInit,
+    'admin'
+  );
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.ExportBallotPackageComplete,
+    'admin',
+    expect.objectContaining({ disposition: 'failure' })
+  );
 });
 
 test('Modal renders renders loading message while rendering ballots appropriately', async () => {

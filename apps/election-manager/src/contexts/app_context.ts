@@ -6,7 +6,7 @@ import {
   UserSession,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
-import { LoggingUserRole } from '@votingworks/logging/src';
+import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
 import {
   SaveElection,
   PrintedBallot,
@@ -54,6 +54,7 @@ export interface AppContextInterface {
   lockMachine: () => void;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
+  logger: Logger;
 }
 
 const appContext: AppContextInterface = {
@@ -88,6 +89,7 @@ const appContext: AppContextInterface = {
     bypassAuthentication: false,
   },
   hasCardReaderAttached: true,
+  logger: new Logger(LogSource.VxAdminApp),
 };
 
 export const AppContext = createContext(appContext);

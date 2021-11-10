@@ -6,6 +6,7 @@ import { usbstick, throwIllegalValue } from '@votingworks/utils';
 
 import { UsbControllerButton } from '@votingworks/ui';
 import assert from 'assert';
+import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
 import { Button } from './button';
@@ -57,6 +58,7 @@ export function SaveFileToUsb({
     usbDriveEject,
     isOfficialResults,
     currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(currentUserSession); // TODO(auth) should this check for a specific user type
 
@@ -64,44 +66,6 @@ export function SaveFileToUsb({
   const [errorMessage, setErrorMessage] = useState('');
 
   const [savedFilename, setSavedFilename] = useState('');
-
-  async function exportResults(openFileDialog: boolean) {
-    setCurrentState(ModalState.SAVING);
-
-    try {
-      const results = await generateFileContent();
-      if (!window.kiosk) {
-        fileDownload(results, defaultFilename, 'text/csv');
-      } else {
-        const usbPath = await usbstick.getDevicePath();
-        if (openFileDialog) {
-          const fileWriter = await window.kiosk.saveAs({
-            defaultPath: defaultFilename,
-          });
-
-          if (!fileWriter) {
-            throw new Error('could not begin download; no file was chosen');
-          }
-
-          await fileWriter.write(results);
-          setSavedFilename(fileWriter.filename);
-          await fileWriter.end();
-        } else {
-          assert(typeof usbPath !== 'undefined');
-          const pathToFile = path.join(usbPath, defaultFilename);
-          assert(window.kiosk);
-          await window.kiosk.writeFile(pathToFile, results);
-          setSavedFilename(defaultFilename);
-        }
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setCurrentState(ModalState.DONE);
-    } catch (error) {
-      setErrorMessage(error.message);
-      setCurrentState(ModalState.ERROR);
-    }
-  }
 
   let title = ''; // Will be used in headings like Save Title
   let fileName = ''; // Will be used in sentence like "Would you like to save the title?"
@@ -128,6 +92,59 @@ export function SaveFileToUsb({
       break;
     default:
       throwIllegalValue(fileType);
+  }
+
+  async function exportResults(openFileDialog: boolean) {
+    assert(currentUserSession); // TODO(auth) should this check for a specific user type
+    setCurrentState(ModalState.SAVING);
+
+    try {
+      const results = await generateFileContent();
+      let filenameLocation = '';
+      if (!window.kiosk) {
+        fileDownload(results, defaultFilename, 'text/csv');
+      } else {
+        const usbPath = await usbstick.getDevicePath();
+        if (openFileDialog) {
+          const fileWriter = await window.kiosk.saveAs({
+            defaultPath: defaultFilename,
+          });
+
+          if (!fileWriter) {
+            throw new Error('could not begin download; no file was chosen');
+          }
+
+          await fileWriter.write(results);
+          filenameLocation = fileWriter.filename;
+          await fileWriter.end();
+        } else {
+          assert(typeof usbPath !== 'undefined');
+          const pathToFile = path.join(usbPath, defaultFilename);
+          assert(window.kiosk);
+          await window.kiosk.writeFile(pathToFile, results);
+          filenameLocation = defaultFilename;
+        }
+      }
+
+      setSavedFilename(filenameLocation);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await logger.log(LogEventId.FileSaved, currentUserSession.type, {
+        disposition: 'success',
+        message: `Successfully saved ${fileName} to ${filenameLocation} on the usb drive.`,
+        fileType,
+        filename: filenameLocation,
+      });
+      setCurrentState(ModalState.DONE);
+    } catch (error) {
+      setErrorMessage(error.message);
+      await logger.log(LogEventId.FileSaved, currentUserSession.type, {
+        disposition: 'failure',
+        message: `Error saving ${fileName}: ${error.message}`,
+        result: 'File not saved, error message shown to user.',
+        fileType,
+      });
+      setCurrentState(ModalState.ERROR);
+    }
   }
 
   if (currentState === ModalState.ERROR) {

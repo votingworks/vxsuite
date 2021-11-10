@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Dictionary } from '@votingworks/types';
 import { format, find } from '@votingworks/utils';
 import { Table, TD, LogoMark } from '@votingworks/ui';
+import { LogEventId } from '@votingworks/logging';
 import { PrintableBallotType } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -23,9 +24,13 @@ type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 
 export function PrintedBallotsReportScreen(): JSX.Element {
-  const { electionDefinition, printedBallots, configuredAt } = useContext(
-    AppContext
-  );
+  const {
+    electionDefinition,
+    printedBallots,
+    configuredAt,
+    logger,
+    currentUserSession,
+  } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
@@ -96,6 +101,32 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
   const generatedAt = format.localeLongDateAndTime(new Date());
 
+  function logAfterPrint() {
+    assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
+    void logger.log(
+      LogEventId.PrintedBallotReportPrinted,
+      currentUserSession.type,
+      {
+        message: 'Printed ballot report successfully printed.',
+        disposition: 'success',
+      }
+    );
+  }
+
+  function logAfterPrintError(errorMessage: string) {
+    assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
+    void logger.log(
+      LogEventId.PrintedBallotReportPrinted,
+      currentUserSession.type,
+      {
+        message: `Error printing Printed ballot Report: ${errorMessage}`,
+        disposition: 'failure',
+        result:
+          'Printed Ballot Report not printed, error message shown to user.',
+      }
+    );
+  }
+
   const reportContent = (
     <Prose maxWidth={false}>
       <h1>Printed Ballots Report</h1>
@@ -124,7 +155,12 @@ export function PrintedBallotsReportScreen(): JSX.Element {
       </p>
 
       <p className="no-print">
-        <PrintButton primary sides="one-sided">
+        <PrintButton
+          primary
+          sides="one-sided"
+          afterPrint={logAfterPrint}
+          afterPrintError={logAfterPrintError}
+        >
           Print Report
         </PrintButton>
       </p>

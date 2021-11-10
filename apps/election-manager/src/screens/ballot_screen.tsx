@@ -17,6 +17,7 @@ import {
 } from '@votingworks/types';
 import pluralize from 'pluralize';
 
+import { LogEventId } from '@votingworks/logging';
 import {
   BallotScreenProps,
   InputEventFunction,
@@ -82,9 +83,13 @@ export function BallotScreen(): JSX.Element {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>();
-  const { addPrintedBallot, electionDefinition, printBallotRef } = useContext(
-    AppContext
-  );
+  const {
+    addPrintedBallot,
+    electionDefinition,
+    printBallotRef,
+    logger,
+    currentUserSession,
+  } = useContext(AppContext);
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
@@ -143,6 +148,10 @@ export function BallotScreen(): JSX.Element {
   });
 
   function afterPrint(numCopies: number) {
+    assert(currentUserSession); // TODO(auth) check permissions for viewing ballots
+    const type = isAbsentee
+      ? PrintableBallotType.Absentee
+      : PrintableBallotType.Precinct;
     if (isLiveMode) {
       addPrintedBallot({
         ballotStyleId,
@@ -150,11 +159,29 @@ export function BallotScreen(): JSX.Element {
         locales,
         numCopies,
         printedAt: new Date().toISOString(),
-        type: isAbsentee
-          ? PrintableBallotType.Absentee
-          : PrintableBallotType.Precinct,
+        type,
       });
     }
+    void logger.log(LogEventId.BallotPrinted, currentUserSession.type, {
+      message: `${numCopies} ${
+        isLiveMode ? 'Live mode' : 'Test mode'
+      } ${type} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
+      disposition: 'success',
+      isLiveMode,
+      ballotStyleId,
+      precinctId,
+      locales: getHumanBallotLanguageFormat(locales),
+      numCopies,
+      type,
+    });
+  }
+
+  function afterPrintError(errorMessage: string) {
+    assert(currentUserSession); // TODO(auth) check permissions for viewing ballots
+    void logger.log(LogEventId.BallotPrinted, currentUserSession.type, {
+      message: `Error attempting to print ballot: ${errorMessage}`,
+      disposition: 'failure',
+    });
   }
 
   const onRendered = useCallback(() => {
@@ -254,6 +281,7 @@ export function BallotScreen(): JSX.Element {
               primary
               title={filename}
               afterPrint={() => afterPrint(ballotCopies)}
+              afterPrintError={afterPrintError}
               confirmModal={{
                 content: (
                   <div>

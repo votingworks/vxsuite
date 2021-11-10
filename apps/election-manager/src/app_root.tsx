@@ -156,41 +156,11 @@ export function AppRoot({
   );
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
   const [isOfficialResults, setIsOfficialResults] = useState(false);
-
-  async function saveIsOfficialResults() {
-    setIsOfficialResults(true);
-    await storage.set(isOfficialResultsKey, true);
-  }
-
-  const [fullElectionTally, setFullElectionTally] = useState(
-    getEmptyFullElectionTally()
-  );
-
-  const [
-    fullElectionExternalTallies,
-    setFullElectionExternalTallies,
-  ] = useState<FullElectionExternalTally[]>([]);
-
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
     bypassAuthentication: false,
     codeVersion: '',
   });
-
-  // Handle Machine Config
-  useEffect(() => {
-    void (async () => {
-      try {
-        const newMachineConfig = await machineConfigProvider.get();
-        setMachineConfig(newMachineConfig);
-      } catch {
-        // Do nothing if machineConfig fails. Default values will be used.
-      }
-    })();
-  }, [machineConfigProvider]);
-
-  const usbDrive = useUsbDrive({ logger });
-  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
   const smartcard = useSmartcard({ card, hasCardReaderAttached });
   const {
@@ -206,6 +176,84 @@ export function AppRoot({
     bypassAuthentication: machineConfig.bypassAuthentication,
     validUserTypes: VALID_USERS,
   });
+
+  const currentUserType = useMemo(() => currentUserSession?.type ?? 'unknown', [
+    currentUserSession,
+  ]);
+  async function setStorageKeyAndLog(
+    storageKey: string,
+    value: unknown,
+    logDescription: string
+  ) {
+    try {
+      await storage.set(storageKey, value);
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `${logDescription} successfully saved to storage.`,
+        storageKey,
+        disposition: 'success',
+      });
+    } catch (error) {
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `Failed to save ${logDescription} to storage.`,
+        storageKey,
+        error: error.message,
+        disposition: 'failure',
+      });
+    }
+  }
+  async function removeStorageKeyAndLog(
+    storageKey: string,
+    logDescription: string
+  ) {
+    try {
+      await storage.remove(storageKey);
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `${logDescription} successfully cleared in storage.`,
+        storageKey,
+        disposition: 'success',
+      });
+    } catch (error) {
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `Failed to clear ${logDescription} in storage.`,
+        storageKey,
+        error: error.message,
+        disposition: 'failure',
+      });
+    }
+  }
+
+  async function saveIsOfficialResults() {
+    setIsOfficialResults(true);
+    await setStorageKeyAndLog(
+      isOfficialResultsKey,
+      true,
+      'isOfficialResults flag'
+    );
+  }
+
+  const [fullElectionTally, setFullElectionTally] = useState(
+    getEmptyFullElectionTally()
+  );
+
+  const [
+    fullElectionExternalTallies,
+    setFullElectionExternalTallies,
+  ] = useState<FullElectionExternalTally[]>([]);
+
+  // Handle Machine Config
+  useEffect(() => {
+    void (async () => {
+      try {
+        const newMachineConfig = await machineConfigProvider.get();
+        setMachineConfig(newMachineConfig);
+      } catch {
+        // Do nothing if machineConfig fails. Default values will be used.
+      }
+    })();
+  }, [machineConfigProvider]);
+
+  const usbDrive = useUsbDrive({ logger });
+  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
   const [printedBallots, setPrintedBallots] = useState<
     PrintedBallot[] | undefined
   >(undefined);
@@ -220,7 +268,11 @@ export function AppRoot({
   }, [storage]);
 
   async function savePrintedBallots(printedBallotsToStore: PrintedBallot[]) {
-    return await storage.set(printedBallotsStorageKey, printedBallotsToStore);
+    await setStorageKeyAndLog(
+      printedBallotsStorageKey,
+      printedBallotsToStore,
+      'Printed ballot information'
+    );
   }
 
   async function addPrintedBallot(printedBallot: PrintedBallot) {
@@ -243,20 +295,36 @@ export function AppRoot({
       if (!electionDefinition) {
         const storageElectionDefinition = await getElectionDefinition();
         if (storageElectionDefinition) {
-          setElectionDefinition(storageElectionDefinition);
-          setConfiguredAt(
-            // TODO: validate this with zod schema
+          const configuredAtTime = // TODO: validate this with zod schema
             ((await storage.get(configuredAtStorageKey)) as
               | string
-              | undefined) || ''
-          );
+              | undefined) || '';
+          setElectionDefinition(storageElectionDefinition);
+          setConfiguredAt(configuredAtTime);
+          await logger.log(LogEventId.LoadFromStorage, 'system', {
+            message:
+              'Election definition automatically loaded into application from storage.',
+            disposition: 'success',
+            electionHash: storageElectionDefinition.electionHash,
+            electionConfiguredAt: configuredAtTime,
+          });
         }
 
         if (castVoteRecordFiles === CastVoteRecordFiles.empty) {
           const storageCvrFiles = await getCvrFiles();
           if (storageCvrFiles) {
-            setCastVoteRecordFiles(CastVoteRecordFiles.import(storageCvrFiles));
-            setIsOfficialResults((await getIsOfficialResults()) || false);
+            const cvrs = CastVoteRecordFiles.import(storageCvrFiles);
+            const newIsOfficialResults =
+              (await getIsOfficialResults()) || false;
+            setCastVoteRecordFiles(cvrs);
+            setIsOfficialResults(newIsOfficialResults);
+            await logger.log(LogEventId.LoadFromStorage, 'system', {
+              message:
+                'Cast vote records automatically loaded into application from local storage.',
+              disposition: 'success',
+              numberOfCvrs: cvrs.fileList.length,
+              isOfficialResults: newIsOfficialResults,
+            });
           }
         }
 
@@ -270,6 +338,14 @@ export function AppRoot({
               storageExternalTalliesJson
             );
             setFullElectionExternalTallies(importedData);
+            await logger.log(LogEventId.LoadFromStorage, 'system', {
+              message:
+                'External file format vote tally data automatically loaded into application from local storage.',
+              disposition: 'success',
+              importedTallyFileNames: importedData
+                .map((d) => d.inputSourceName)
+                .join(', '),
+            });
           }
         }
       }
@@ -283,6 +359,7 @@ export function AppRoot({
     getExternalElectionTallies,
     getIsOfficialResults,
     storage,
+    logger,
   ]);
 
   const computeVoteCounts = useCallback(
@@ -311,12 +388,16 @@ export function AppRoot({
   ) {
     setFullElectionExternalTallies(externalTallies);
     if (externalTallies.length > 0) {
-      await storage.set(
+      await setStorageKeyAndLog(
         externalVoteTalliesFileStorageKey,
-        convertExternalTalliesToStorageString(externalTallies)
+        convertExternalTalliesToStorageString(externalTallies),
+        'Imported tally data from external file formats'
       );
     } else {
-      await storage.remove(externalVoteTalliesFileStorageKey);
+      await removeStorageKeyAndLog(
+        externalVoteTalliesFileStorageKey,
+        'Imported tally data from external files'
+      );
     }
   }
 
@@ -329,11 +410,18 @@ export function AppRoot({
     }
 
     if (newCvrFiles === CastVoteRecordFiles.empty) {
-      await storage.remove(cvrsStorageKey);
-      await storage.remove(isOfficialResultsKey);
+      await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
+      await removeStorageKeyAndLog(
+        isOfficialResultsKey,
+        'isOfficialResults flag'
+      );
       setIsOfficialResults(false);
     } else {
-      await storage.set(cvrsStorageKey, newCvrFiles.export());
+      await setStorageKeyAndLog(
+        cvrsStorageKey,
+        newCvrFiles.export(),
+        'Cast vote records'
+      );
     }
   };
 
@@ -347,7 +435,20 @@ export function AppRoot({
         });
       }
       // we set a new election definition, reset everything
-      await storage.clear();
+      try {
+        await storage.clear();
+        await logger.log(LogEventId.SaveToStorage, currentUserType, {
+          message:
+            'All current data in storage, including election definition, cast vote records, tallies, and printed ballot information cleared.',
+          disposition: 'success',
+        });
+      } catch (error) {
+        await logger.log(LogEventId.SaveToStorage, currentUserType, {
+          message: 'Failed clearing all current data in storage.',
+          disposition: 'failure',
+          error: error.message,
+        });
+      }
       setIsOfficialResults(false);
       setCastVoteRecordFiles(CastVoteRecordFiles.empty);
       setFullElectionExternalTallies([]);
@@ -371,16 +472,28 @@ export function AppRoot({
         const newConfiguredAt = new Date().toISOString();
         setConfiguredAt(newConfiguredAt);
 
-        await storage.set(configuredAtStorageKey, newConfiguredAt);
-        await storage.set(electionDefinitionStorageKey, {
-          election,
-          electionData,
-          electionHash,
-        });
-        await logger.log(LogEventId.ElectionConfigured, 'admin', {
-          disposition: LogDispositionStandardTypes.Success,
-          newElectionHash: electionHash,
-        });
+        await setStorageKeyAndLog(
+          configuredAtStorageKey,
+          newConfiguredAt,
+          'Election configured at time'
+        );
+        await setStorageKeyAndLog(
+          electionDefinitionStorageKey,
+          {
+            election,
+            electionData,
+            electionHash,
+          },
+          'Election Definition'
+        );
+        await logger.log(
+          LogEventId.ElectionConfigured,
+          currentUserSession?.type ?? 'unknown',
+          {
+            disposition: LogDispositionStandardTypes.Success,
+            newElectionHash: electionHash,
+          }
+        );
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -464,6 +577,7 @@ export function AppRoot({
         lockMachine,
         machineConfig,
         hasCardReaderAttached,
+        logger,
       }}
     >
       <ElectionManager />
