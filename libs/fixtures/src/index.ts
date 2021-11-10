@@ -4,10 +4,10 @@ import { sha256 } from 'js-sha256';
 // Objects with election information grouped with any other data files that may be useful for testing
 // with that election. When adding new data files, make sure to add new tests in index.test.ts to make sure the
 // raw file and the ts extension stay in sync.
-import { multiPartiPrimaryElectionCSVData } from './data/electionMultiPartyPrimary/csvFiles/batch_results.csv';
-import { multiPartiPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
+import { multiPartyPrimaryElectionCSVData } from './data/electionMultiPartyPrimary/csvFiles/batch_results.csv';
+import { multiPartyPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
 import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimary/electionMultiPartyPrimarySample.json';
-import { multiPartiPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
+import { multiPartyPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
 import { simplePrimaryElectionCvrData } from './data/electionPrimary/cvrFiles/standard.txt';
 import primaryElectionSampleUntyped from './data/electionPrimary/electionPrimarySample.json';
 import electionSampleUntyped from './data/electionSample.json';
@@ -71,9 +71,9 @@ export const electionWithMsEitherNeitherRawData = JSON.stringify(
 
 export const electionMultiPartyPrimaryWithDataFiles = {
   electionDefinition: multiPartyPrimaryElectionDefinition,
-  semsData: multiPartiPrimaryElectionSemsData,
-  cvrData: multiPartiPrimaryElectionCvrData,
-  csvData: multiPartiPrimaryElectionCSVData,
+  semsData: multiPartyPrimaryElectionSemsData,
+  cvrData: multiPartyPrimaryElectionCvrData,
+  csvData: multiPartyPrimaryElectionCSVData,
 };
 
 export const electionSimplePrimaryWithDataFiles = {

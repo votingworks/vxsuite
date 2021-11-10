@@ -20,14 +20,14 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.get('[data-testid="manual-export"]').click();
     cy.contains('Results Saved');
     cy.task('readMostRecentFile', 'cypress/downloads').then((fileContent) => {
-      const recievedLines = (fileContent as string).split('\r\n');
+      const receivedLines = (fileContent as string).split('\r\n');
       for (const [
         i,
         expectedLine,
       ] of electionMultiPartyPrimaryWithDataFiles.semsData
         .split('\n')
         .entries()) {
-        expect(recievedLines[i].replace('\n', ': ')).to.eqls(expectedLine);
+        expect(receivedLines[i].replace('\n', ': ')).to.eqls(expectedLine);
       }
     });
   });
