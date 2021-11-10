@@ -177,16 +177,57 @@ export function AppRoot({
     validUserTypes: VALID_USERS,
   });
 
+  const currentUserType = useMemo(() => currentUserSession?.type ?? 'unknown', [
+    currentUserSession,
+  ]);
+  async function setStorageKeyAndLog(
+    storageKey: string,
+    value: unknown,
+    logDescription: string
+  ) {
+    try {
+      await storage.set(storageKey, value);
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `${logDescription} successfully saved to storage.`,
+        storageKey,
+        disposition: 'success',
+      });
+    } catch (error) {
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `Failed to save ${logDescription} to storage.`,
+        storageKey,
+        error: error.message,
+        disposition: 'failure',
+      });
+    }
+  }
+  async function removeStorageKeyAndLog(
+    storageKey: string,
+    logDescription: string
+  ) {
+    try {
+      await storage.remove(storageKey);
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `${logDescription} successfully cleared in storage.`,
+        storageKey,
+        disposition: 'success',
+      });
+    } catch (error) {
+      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        message: `Failed to clear ${logDescription} in storage.`,
+        storageKey,
+        error: error.message,
+        disposition: 'failure',
+      });
+    }
+  }
+
   async function saveIsOfficialResults() {
     setIsOfficialResults(true);
-    await storage.set(isOfficialResultsKey, true);
-    await logger.log(
-      LogEventId.SaveToStorage,
-      currentUserSession?.type ?? 'unknown',
-      {
-        message: 'isOfficialResults flag saved to storage.',
-        disposition: 'success',
-      }
+    await setStorageKeyAndLog(
+      isOfficialResultsKey,
+      true,
+      'isOfficialResults flag'
     );
   }
 
@@ -227,14 +268,10 @@ export function AppRoot({
   }, [storage]);
 
   async function savePrintedBallots(printedBallotsToStore: PrintedBallot[]) {
-    await storage.set(printedBallotsStorageKey, printedBallotsToStore);
-    await logger.log(
-      LogEventId.SaveToStorage,
-      currentUserSession?.type ?? 'unknown',
-      {
-        message: 'Printed ballot information saved to storage.',
-        disposition: 'success',
-      }
+    await setStorageKeyAndLog(
+      printedBallotsStorageKey,
+      printedBallotsToStore,
+      'Printed ballot information'
     );
   }
 
@@ -351,28 +388,15 @@ export function AppRoot({
   ) {
     setFullElectionExternalTallies(externalTallies);
     if (externalTallies.length > 0) {
-      await storage.set(
+      await setStorageKeyAndLog(
         externalVoteTalliesFileStorageKey,
-        convertExternalTalliesToStorageString(externalTallies)
-      );
-      await logger.log(
-        LogEventId.SaveToStorage,
-        currentUserSession?.type ?? 'unknown',
-        {
-          message:
-            'Imported tally data from external file formats saved to storage.',
-          disposition: 'success',
-        }
+        convertExternalTalliesToStorageString(externalTallies),
+        'Imported tally data from external file formats'
       );
     } else {
-      await storage.remove(externalVoteTalliesFileStorageKey);
-      await logger.log(
-        LogEventId.SaveToStorage,
-        currentUserSession?.type ?? 'unknown',
-        {
-          message: 'Imported tally data from external file cleared in storage.',
-          disposition: 'success',
-        }
+      await removeStorageKeyAndLog(
+        externalVoteTalliesFileStorageKey,
+        'Imported tally data from external files'
       );
     }
   }
@@ -386,27 +410,17 @@ export function AppRoot({
     }
 
     if (newCvrFiles === CastVoteRecordFiles.empty) {
-      await storage.remove(cvrsStorageKey);
-      await storage.remove(isOfficialResultsKey);
-      await logger.log(
-        LogEventId.SaveToStorage,
-        currentUserSession?.type ?? 'unknown',
-        {
-          message:
-            'Cast vote records and isOfficialResults flag cleared from storage.',
-          disposition: 'success',
-        }
+      await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
+      await removeStorageKeyAndLog(
+        isOfficialResultsKey,
+        'isOfficialResults flag'
       );
       setIsOfficialResults(false);
     } else {
-      await storage.set(cvrsStorageKey, newCvrFiles.export());
-      await logger.log(
-        LogEventId.SaveToStorage,
-        currentUserSession?.type ?? 'unknown',
-        {
-          message: 'Cast vote records saved to storage.',
-          disposition: 'success',
-        }
+      await setStorageKeyAndLog(
+        cvrsStorageKey,
+        newCvrFiles.export(),
+        'Cast vote records'
       );
     }
   };
@@ -421,16 +435,20 @@ export function AppRoot({
         });
       }
       // we set a new election definition, reset everything
-      await storage.clear();
-      await logger.log(
-        LogEventId.SaveToStorage,
-        currentUserSession?.type ?? 'unknown',
-        {
+      try {
+        await storage.clear();
+        await logger.log(LogEventId.SaveToStorage, currentUserType, {
           message:
             'All current data in storage, including election definition, cast vote records, tallies, and printed ballot information cleared.',
           disposition: 'success',
-        }
-      );
+        });
+      } catch (error) {
+        await logger.log(LogEventId.SaveToStorage, currentUserType, {
+          message: 'Failed clearing all current data in storage.',
+          disposition: 'failure',
+          error: error.message,
+        });
+      }
       setIsOfficialResults(false);
       setCastVoteRecordFiles(CastVoteRecordFiles.empty);
       setFullElectionExternalTallies([]);
@@ -454,26 +472,26 @@ export function AppRoot({
         const newConfiguredAt = new Date().toISOString();
         setConfiguredAt(newConfiguredAt);
 
-        await storage.set(configuredAtStorageKey, newConfiguredAt);
-        await storage.set(electionDefinitionStorageKey, {
-          election,
-          electionData,
-          electionHash,
-        });
+        await setStorageKeyAndLog(
+          configuredAtStorageKey,
+          newConfiguredAt,
+          'Election configured at time'
+        );
+        await setStorageKeyAndLog(
+          electionDefinitionStorageKey,
+          {
+            election,
+            electionData,
+            electionHash,
+          },
+          'Election Definition'
+        );
         await logger.log(
           LogEventId.ElectionConfigured,
           currentUserSession?.type ?? 'unknown',
           {
             disposition: LogDispositionStandardTypes.Success,
             newElectionHash: electionHash,
-          }
-        );
-        await logger.log(
-          LogEventId.SaveToStorage,
-          currentUserSession?.type ?? 'unknown',
-          {
-            message: 'Election definition saved in storage.',
-            disposition: 'success',
           }
         );
       }

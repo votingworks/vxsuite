@@ -29,7 +29,7 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 
-import { LogEventId } from '@votingworks/logging/src';
+import { LogEventId } from '@votingworks/logging';
 import {
   configuredAtStorageKey,
   cvrsStorageKey,
