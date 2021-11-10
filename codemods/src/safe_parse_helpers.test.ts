@@ -2,7 +2,7 @@ import { NodePath, parseSync, transformSync } from '@babel/core';
 import generate from '@babel/generator';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
-import plugin, { addSpecifierToImport } from './safeParseHelpers';
+import plugin, { addSpecifierToImport } from './safe_parse_helpers';
 
 function check(input: string, output: string): void {
   expect(
