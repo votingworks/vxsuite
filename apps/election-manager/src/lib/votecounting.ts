@@ -168,7 +168,7 @@ export function* parseCvrs(
         );
       }
 
-      if (typeof _ballotId !== 'string') {
+      if (_ballotId && typeof _ballotId !== 'string') {
         errors.push(
           `Ballot ID in CVR must be a string, got '${_ballotId}' (${typeof _ballotId}, not string)`
         );

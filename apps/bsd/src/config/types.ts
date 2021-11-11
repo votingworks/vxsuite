@@ -1,4 +1,5 @@
 import {
+  BallotId,
   BallotStyleId,
   Dictionary,
   ElectionDefinition,
@@ -36,7 +37,7 @@ export interface CastVoteRecord
   _precinctId: PrecinctId;
   _ballotStyleId: BallotStyleId;
   _ballotType: 'absentee' | 'provisional' | 'standard';
-  _ballotId: string;
+  _ballotId: BallotId;
   _testBallot: boolean;
   _scannerId: string;
 }

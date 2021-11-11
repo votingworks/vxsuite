@@ -1,15 +1,17 @@
 import {
+  BallotIdSchema,
   BallotType,
   BlankPage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   UnreadablePage,
+  unsafeParse,
 } from '@votingworks/types';
 import { Castability, checkSheetCastability } from './castability';
 
 const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   type: 'InterpretedBmdPage',
-  ballotId: 'abc',
+  ballotId: unsafeParse(BallotIdSchema, 'abc'),
   metadata: {
     ballotStyleId: '1',
     precinctId: '6522',
@@ -25,7 +27,7 @@ const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
 
 const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
   type: 'InterpretedHmpbPage',
-  ballotId: 'abcdefg',
+  ballotId: unsafeParse(BallotIdSchema, 'abcdefg'),
   metadata: {
     locales: { primary: 'en-US' },
     electionHash: '',

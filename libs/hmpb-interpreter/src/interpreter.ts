@@ -1,5 +1,6 @@
 import {
   BallotCandidateTargetMark,
+  BallotIdSchema,
   BallotLocales,
   BallotMark,
   BallotMsEitherNeitherTargetMark,
@@ -21,6 +22,7 @@ import {
   Rect,
   Size,
   TargetShape,
+  unsafeParse,
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
@@ -416,7 +418,7 @@ export class Interpreter {
   ): CompletedBallot {
     return {
       electionHash: metadata.electionHash,
-      ballotId: uuid(),
+      ballotId: unsafeParse(BallotIdSchema, uuid()),
       ballotStyleId: metadata.ballotStyleId,
       ballotType: BallotType.Standard,
       isTestMode: metadata.isTestMode,

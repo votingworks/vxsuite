@@ -90,7 +90,6 @@ test('successful rescan with one non-type change', async () => {
   const frontScan = {
     interpretation: {
       type: 'InterpretedBmdPage',
-      ballotId: '',
       metadata: {
         ballotStyleId: '1',
         precinctId: '2',
@@ -137,7 +136,6 @@ test('successful rescan with one non-type change', async () => {
     + Re-scanned
 
       Object {
-        \\"ballotId\\": \\"\\",
         \\"metadata\\": Object {
           \\"ballotStyleId\\": \\"1\\",
           \\"ballotType\\": 0,

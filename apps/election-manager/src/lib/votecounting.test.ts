@@ -1,4 +1,10 @@
-import { Election, FullElectionTally, TallyCategory } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  Election,
+  FullElectionTally,
+  TallyCategory,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   electionSample,
   electionSample2WithDataFiles,
@@ -102,7 +108,7 @@ test('computeFullTally with no results should produce empty tally objects with c
 test('undervotes counted in n of m contest properly', () => {
   // Create mock CVR data
   const mockCvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12D',
     _ballotType: 'standard',
     _precinctId: '21',
@@ -171,7 +177,7 @@ test('undervotes counted in n of m contest properly', () => {
 test('overvotes counted in n of m contest properly', () => {
   // Create mock CVR data
   const mockCvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12D',
     _ballotType: 'standard',
     _precinctId: '21',
@@ -243,7 +249,7 @@ test('overvotes counted in n of m contest properly', () => {
 test('overvotes counted in single seat contest properly', () => {
   // Create mock CVR data
   const mockCvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12D',
     _ballotType: 'standard',
     _precinctId: '21',
@@ -317,7 +323,7 @@ test('parsing CVRs flags when a precinct ID in a CVR is not present in the elect
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: 'not real',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _batchId: '1',
@@ -337,7 +343,7 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
     _ballotStyleId: '123',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _locales: { primary: 'en-US', secondary: 'es-US' },
@@ -358,7 +364,7 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _batchId: '1',
@@ -381,7 +387,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     president: ['write-in-1', 'not-a-candidate'], // Candidate contest with no write ins allowed
@@ -406,7 +412,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
     _ballotStyleId: '4',
     _ballotType: 'standard',
     _precinctId: '6538',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _batchId: '1',
@@ -435,7 +441,7 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
@@ -458,7 +464,7 @@ test('parsing CVRs flags when page number is set but not a number', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _batchId: '1',
@@ -482,7 +488,7 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _batchId: '1',
@@ -506,7 +512,7 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
     _pageNumber: 1,
@@ -530,7 +536,7 @@ test('parsing CVRs flags with _pageNumbers set properly works', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
@@ -574,7 +580,7 @@ test('parsing CVRs flags when scanner ID is not a string', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     // @ts-expect-error - false instead of a string
     _scannerId: false,
     _batchId: '1',
@@ -597,7 +603,7 @@ test('parsing CVRs flags when batch ID is not a string', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     // @ts-expect-error - false instead of a string
     _batchId: false,
@@ -620,7 +626,7 @@ test('parsing CVRs flags when batch label is not a string', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
     // @ts-expect-error - false instead of a string
@@ -644,7 +650,7 @@ test('parsing CVRs flags when locale is not well formed', () => {
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
   };
@@ -662,7 +668,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',
@@ -672,7 +678,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
     _batchLabel: 'Batch 1',

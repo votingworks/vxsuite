@@ -2,6 +2,7 @@ import { electionSample } from '@votingworks/fixtures';
 import { metadataFromBytes } from '@votingworks/hmpb-interpreter';
 import {
   AdjudicationReason,
+  BallotIdSchema,
   BlankPage,
   Election,
   InterpretedBmdPage,
@@ -9,6 +10,7 @@ import {
   PageInterpretation,
   UninterpretedHmpbPage,
   UnreadablePage,
+  unsafeParse,
 } from '@votingworks/types';
 import { readFile } from 'fs-extra';
 import { join } from 'path';
@@ -74,7 +76,7 @@ test('extracts votes encoded in a QR code', async () => {
     ).interpretation
   ).toMatchInlineSnapshot(`
     Object {
-      "ballotId": "",
+      "ballotId": undefined,
       "metadata": Object {
         "ballotStyleId": "12",
         "ballotType": 0,
@@ -3266,7 +3268,7 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
 test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
   const bmd: InterpretedBmdPage = {
     type: 'InterpretedBmdPage',
-    ballotId: '42',
+    ballotId: unsafeParse(BallotIdSchema, '42'),
     metadata: {
       electionHash: '41',
       precinctId: '12',

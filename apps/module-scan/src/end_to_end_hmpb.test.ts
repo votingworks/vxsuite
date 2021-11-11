@@ -156,9 +156,8 @@ test('going through the whole process works', async () => {
     expect(cvrs).toHaveLength(1);
     const [cvr] = cvrs;
     expect(
-      typedAs<CastVoteRecord>({ ...cvr, _ballotId: '', _batchId: '' })
+      typedAs<CastVoteRecord>({ ...cvr, _ballotId: undefined, _batchId: '' })
     ).toMatchObject({
-      _ballotId: '',
       _ballotStyleId: '12',
       _ballotType: 'standard',
       _locales: {

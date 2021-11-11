@@ -1,4 +1,5 @@
 import {
+  BallotId,
   BallotLocale,
   BallotStyle,
   BallotStyleId,
@@ -112,7 +113,7 @@ export interface CastVoteRecord
     string | string[] | boolean | number | number[] | BallotLocale
   > {
   readonly _precinctId: PrecinctId;
-  readonly _ballotId: string;
+  readonly _ballotId: BallotId;
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: 'absentee' | 'provisional' | 'standard';
   readonly _batchId: string;

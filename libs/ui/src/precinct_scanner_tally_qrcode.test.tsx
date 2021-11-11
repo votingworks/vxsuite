@@ -4,7 +4,11 @@ import {
   electionSample,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { CastVoteRecord } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  CastVoteRecord,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   calculateTallyForCastVoteRecords,
   compressTally,
@@ -21,7 +25,7 @@ const time = new Date(2021, 8, 19, 11, 5).getTime();
 
 const cvr: CastVoteRecord = {
   _precinctId: electionSample.precincts[0].id,
-  _ballotId: 'test-123',
+  _ballotId: unsafeParse(BallotIdSchema, 'test-123'),
   _ballotStyleId: electionSample.ballotStyles[0].id,
   _batchId: 'batch-1',
   _batchLabel: 'batch-1',
