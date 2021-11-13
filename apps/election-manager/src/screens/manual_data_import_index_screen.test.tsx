@@ -6,7 +6,7 @@ import {
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
-import { fireEvent, within } from '@testing-library/react';
+import { fireEvent, waitFor, within } from '@testing-library/react';
 
 import {
   ContestOptionTally,
@@ -57,7 +57,7 @@ test('can toggle ballot types for data', async () => {
   expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled();
   getByText('Edit Absentee Results for Precinct 5');
 
-  expect(saveExternalTallies).toHaveBeenCalled();
+  await waitFor(() => expect(saveExternalTallies).toHaveBeenCalled());
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
       source: ExternalTallySourceType.Manual,
@@ -66,7 +66,7 @@ test('can toggle ballot types for data', async () => {
   ]);
 
   fireEvent.click(getByTestId('ballottype-precinct'));
-  expect(saveExternalTallies).toHaveBeenCalledTimes(2);
+  await waitFor(() => expect(saveExternalTallies).toHaveBeenCalledTimes(2));
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
       source: ExternalTallySourceType.Manual,

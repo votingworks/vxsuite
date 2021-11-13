@@ -16,6 +16,7 @@ import {
   TallyReportMetadata,
   LogoMark,
 } from '@votingworks/ui';
+import { LogEventId } from '@votingworks/logging';
 import { tallyVotesByContest, filterTalliesByParty } from '@votingworks/utils';
 import { routerPaths } from '../router_paths';
 
@@ -44,8 +45,12 @@ const allPrecincts: Precinct = {
 };
 
 export function TestDeckScreen(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
+  const { electionDefinition, logger, currentUserSession } = useContext(
+    AppContext
+  );
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth)
+  const currentUserType = currentUserSession.type;
   const { election } = electionDefinition;
   const {
     precinctId: precinctIdFromParams = '',
@@ -89,6 +94,22 @@ export function TestDeckScreen(): JSX.Element {
 
   const generatedAtTime = new Date();
 
+  async function afterPrint() {
+    await logger.log(LogEventId.TestDeckTallyReportPrinted, currentUserType, {
+      disposition: 'success',
+      message: 'Test deck tally report printed.',
+    });
+  }
+
+  async function afterPrintError(errorMessage: string) {
+    await logger.log(LogEventId.TestDeckTallyReportPrinted, currentUserType, {
+      disposition: 'failure',
+      message: `Failed to print test deck tally report: ${errorMessage}.`,
+      error: errorMessage,
+      result: 'User shown error, asked to try again.',
+    });
+  }
+
   if (precinct?.name) {
     return (
       <React.Fragment>
@@ -108,7 +129,12 @@ export function TestDeckScreen(): JSX.Element {
               election={election}
             />
             <p>
-              <PrintButton primary sides="one-sided">
+              <PrintButton
+                afterPrint={afterPrint}
+                afterPrintError={afterPrintError}
+                primary
+                sides="one-sided"
+              >
                 Print Results Report
               </PrintButton>
             </p>

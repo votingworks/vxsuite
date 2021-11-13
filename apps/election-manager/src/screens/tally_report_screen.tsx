@@ -1,9 +1,10 @@
 import { strict as assert } from 'assert';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { useParams } from 'react-router-dom';
 import { find, filterTalliesByParams } from '@votingworks/utils';
+import { LogEventId } from '@votingworks/logging';
 import {
   ExternalTally,
   VotingMethod,
@@ -77,19 +78,12 @@ export function TallyReportScreen(): JSX.Element {
     fullElectionTally,
     fullElectionExternalTallies,
     isTabulationRunning,
+    currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-
-  if (isTabulationRunning) {
-    return (
-      <NavigationScreen mainChildCenter>
-        <Prose textCenter>
-          <h1>Building Tabulation Report...</h1>
-          <p>This may take a few seconds.</p>
-        </Prose>
-      </NavigationScreen>
-    );
-  }
+  assert(currentUserSession); // TODO(auth) check permissions for viewing tally reports.
+  const currentUserType = currentUserSession.type;
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
@@ -110,16 +104,35 @@ export function TallyReportScreen(): JSX.Element {
       find(election.precincts, (p) => p.id === precinctIdFromProps).name) ||
     undefined;
 
-  let fileSuffix = precinctName;
-  let batchLabel = '';
-  function reportDisplayTitle() {
-    if (precinctName) {
-      return `${statusPrefix} Precinct Tally Report for ${precinctName}`;
-    }
+  const fileSuffix = useMemo(() => {
     if (scannerId) {
-      fileSuffix = `scanner-${scannerId}`;
-      return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`;
+      return `scanner-${scannerId}`;
     }
+    if (batchId) {
+      return `batch-${batchId}`;
+    }
+    if (precinctIdFromProps === 'all') {
+      return 'all-precincts';
+    }
+    if (partyIdFromProps) {
+      const party = find(election.parties, (p) => p.id === partyIdFromProps);
+      return party.fullName;
+    }
+    if (votingMethod) {
+      const label = getLabelForVotingMethod(votingMethod);
+      return `${label}-ballots`;
+    }
+    return precinctName;
+  }, [
+    batchId,
+    scannerId,
+    precinctIdFromProps,
+    votingMethod,
+    partyIdFromProps,
+    election.parties,
+    precinctName,
+  ]);
+  const batchLabel = useMemo(() => {
     if (batchId) {
       assert(fullElectionTally);
       const batchTally = filterTalliesByParamsAndBatchId(
@@ -128,27 +141,83 @@ export function TallyReportScreen(): JSX.Element {
         batchId,
         {}
       );
-      fileSuffix = `batch-${batchId}`;
-      batchLabel = `${
-        batchTally.batchLabel
-      } (Scanner: ${batchTally.scannerIds.join(', ')})`;
+      return `${batchTally.batchLabel} (Scanner: ${batchTally.scannerIds.join(
+        ', '
+      )})`;
+    }
+    return '';
+  }, [batchId, fullElectionTally, election]);
+  const reportDisplayTitle = useMemo(() => {
+    if (precinctName) {
+      return `${statusPrefix} Precinct Tally Report for ${precinctName}`;
+    }
+    if (scannerId) {
+      return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`;
+    }
+    if (batchId) {
       return `${statusPrefix} Batch Tally Report for ${batchLabel}`;
     }
     if (precinctIdFromProps === 'all') {
-      fileSuffix = 'all-precincts';
       return `${statusPrefix} ${election.title} Tally Reports for All Precincts`;
     }
     if (partyIdFromProps) {
       const party = find(election.parties, (p) => p.id === partyIdFromProps);
-      fileSuffix = party.fullName;
       return `${statusPrefix} Tally Report for ${party.fullName}`;
     }
     if (votingMethod) {
       const label = getLabelForVotingMethod(votingMethod);
-      fileSuffix = `${label}-ballots`;
       return `${statusPrefix} ${label} Ballot Tally Report`;
     }
     return `${statusPrefix} ${election.title} Tally Report`;
+  }, [
+    batchId,
+    scannerId,
+    precinctIdFromProps,
+    votingMethod,
+    partyIdFromProps,
+    batchLabel,
+    statusPrefix,
+    election,
+    precinctName,
+  ]);
+
+  useEffect(() => {
+    if (showPreview) {
+      void logger.log(LogEventId.TallyReportPreviewed, currentUserType, {
+        message: `User previewed a ${reportDisplayTitle} to view.`,
+        disposition: 'success',
+        tallyReportTitle: reportDisplayTitle,
+      });
+    }
+  }, [showPreview, logger, reportDisplayTitle, currentUserType]);
+
+  function afterPrint() {
+    void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
+      message: `User printed ${reportDisplayTitle}`,
+      disposition: 'success',
+      tallyReportTitle: reportDisplayTitle,
+    });
+  }
+
+  function afterPrintError(errorMessage: string) {
+    void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
+      message: `Error in attempting to print ${reportDisplayTitle}: ${errorMessage}`,
+      disposition: 'failure',
+      tallyReportTitle: reportDisplayTitle,
+      errorMessage,
+      result: 'User shown error.',
+    });
+  }
+
+  if (isTabulationRunning) {
+    return (
+      <NavigationScreen mainChildCenter>
+        <Prose textCenter>
+          <h1>Building Tabulation Report...</h1>
+          <p>This may take a few seconds.</p>
+        </Prose>
+      </NavigationScreen>
+    );
   }
 
   const defaultReportFilename = generateDefaultReportFilename(
@@ -174,13 +243,18 @@ export function TallyReportScreen(): JSX.Element {
     <React.Fragment>
       <NavigationScreen>
         <Prose>
-          <h1>{reportDisplayTitle()}</h1>
+          <h1>{reportDisplayTitle}</h1>
           <TallyReportMetadata
             generatedAtTime={generatedAtTime}
             election={election}
           />
           <p>
-            <PrintButton primary sides="one-sided">
+            <PrintButton
+              afterPrint={afterPrint}
+              afterPrintError={afterPrintError}
+              primary
+              sides="one-sided"
+            >
               Print Report
             </PrintButton>{' '}
             <Button onPress={toggleReportPreview}>
