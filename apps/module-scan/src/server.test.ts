@@ -1,4 +1,5 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { Logger, LogSource } from '@votingworks/logging/build';
 import * as plusteksdk from '@votingworks/plustek-sdk';
 import { BallotType, ok } from '@votingworks/types';
 import {
@@ -538,9 +539,11 @@ test('start reloads configuration from the store', async () => {
     onListening?.();
     return (undefined as unknown) as Server;
   });
+  const fakeLogger = new Logger(LogSource.VxScanService);
+  jest.spyOn(fakeLogger, 'log').mockResolvedValue();
 
   // start up the server
-  await start({ importer, app, log: jest.fn(), workspace });
+  await start({ importer, app, log: jest.fn(), workspace, logger: fakeLogger });
 
   // did we load everything from the store?
   expect(importer.restoreConfig).toHaveBeenCalled();
@@ -562,12 +565,15 @@ test('start as precinct-scanner rejects a held sheet at startup', async () => {
   (await mockClient.simulateLoadSheet(['a.jpg', 'b.jpg'])).unsafeUnwrap();
   (await mockClient.scan()).unsafeUnwrap();
   mocked(plusteksdk.createClient).mockResolvedValueOnce(ok(mockClient));
+  const fakeLogger = new Logger(LogSource.VxScanService);
+  jest.spyOn(fakeLogger, 'log').mockResolvedValue();
 
   // start up the server
   await start({
     importer,
     app,
     log: jest.fn(),
+    logger: fakeLogger,
     workspace,
     machineType: 'precinct-scanner',
   });
