@@ -16,19 +16,19 @@ export const BALLOT_PACKAGE_FOLDER = 'ballot-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
 
-export type ElectionData = {
+export interface ElectionData {
   electionCounty: string;
   electionName: string;
   electionHash: string;
   timestamp: Date;
-};
+}
 
-export type CvrFileData = {
+export interface CvrFileData {
   machineId: string;
   numberOfBallots: number;
   isTestModeResults: boolean;
   timestamp: Date;
-};
+}
 
 function sanitizeString(
   input: string,
