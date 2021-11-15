@@ -62,6 +62,7 @@ export = {
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
+    'vx/no-import-workspace-subfolders': 'error',
 
     '@typescript-eslint/no-array-constructor': 'off',
     '@typescript-eslint/no-extra-semi': 'off',

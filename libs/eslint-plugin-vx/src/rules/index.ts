@@ -26,6 +26,7 @@ import gtsUseOptionals from './gts_use_optionals';
 import noArraySortMutation from './no_array_sort_mutation';
 import noAssertStringOrNumber from './no_assert_truthiness';
 import noFloatingVoids from './no_floating_results';
+import noImportSubfolders from './no_import_workspace_subfolders';
 
 const rules: Record<
   string,
@@ -59,6 +60,7 @@ const rules: Record<
   'no-array-sort-mutation': noArraySortMutation,
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-floating-results': noFloatingVoids,
+  'no-import-workspace-subfolders': noImportSubfolders,
 };
 
 export default rules;
