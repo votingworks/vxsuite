@@ -61,9 +61,6 @@ export interface Options {
   readonly detectQrCode?: DetectQrCode;
   readonly markScoreVoteThreshold?: number;
   readonly testMode?: boolean;
-
-  /** @deprecated */
-  decodeQrCode?: DetectQrCode;
 }
 
 export const DEFAULT_MARK_SCORE_VOTE_THRESHOLD = 0.12;
@@ -115,8 +112,7 @@ export class Interpreter {
   constructor(optionsOrElection: Options | Election) {
     if ('election' in optionsOrElection) {
       this.election = optionsOrElection.election;
-      this.detectQrCode =
-        optionsOrElection.detectQrCode ?? optionsOrElection.decodeQrCode;
+      this.detectQrCode = optionsOrElection.detectQrCode;
       this.markScoreVoteThreshold =
         optionsOrElection.markScoreVoteThreshold ??
         this.election.markThresholds?.definite ??
