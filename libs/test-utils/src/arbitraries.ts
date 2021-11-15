@@ -106,7 +106,7 @@ export function arbitraryDistrictId(): fc.Arbitrary<DistrictId> {
  * Builds values suitable for party IDs.
  */
 export function arbitraryPartyId(): fc.Arbitrary<PartyId> {
-  return arbitraryId();
+  return arbitraryId() as fc.Arbitrary<PartyId>;
 }
 
 /**

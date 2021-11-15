@@ -6,7 +6,9 @@ import {
   BallotStyle,
   OptionalElection,
   PartyId,
+  PartyIdSchema,
   PrecinctId,
+  unsafeParse,
 } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
@@ -28,7 +30,7 @@ interface Props {
   partyName?: string;
   precinctId?: PrecinctId;
   precinctName?: string;
-  setParty: (id: string) => void;
+  setParty: (id?: PartyId) => void;
   setPrecinct: (id: string) => void;
   unconfigure: () => void;
   isSinglePrecinctMode: boolean;
@@ -55,7 +57,7 @@ export function AdminScreen({
   const precincts = election ? [...election.precincts].sort(compareName) : [];
   const parties = election ? [...election.parties].sort(compareName) : [];
   function onChangeParty(event: React.FormEvent<HTMLSelectElement>) {
-    setParty(event.currentTarget.value);
+    setParty(unsafeParse(PartyIdSchema, event.currentTarget.value));
   }
   function onChangePrecinct(event: React.FormEvent<HTMLSelectElement>) {
     const { value } = event.currentTarget;
@@ -64,7 +66,7 @@ export function AdminScreen({
   }
   function reset() {
     setPrecinct('');
-    setParty('');
+    setParty(undefined);
     setIsSinglePrecinctMode(false);
   }
   const ballotStyles = partyId

@@ -1,4 +1,9 @@
-import { DistrictIdSchema, Election, safeParseElection } from '../src/election';
+import {
+  DistrictIdSchema,
+  Election,
+  PartyIdSchema,
+  safeParseElection,
+} from '../src/election';
 import { unsafeParse } from '../src/generic';
 
 export const electionData = `
@@ -70,28 +75,43 @@ export const electionData = `
 export const election: Election = safeParseElection(
   electionData
 ).unsafeUnwrap();
+const democraticPartyId = unsafeParse(PartyIdSchema, 'DEM');
+const republicanPartyId = unsafeParse(PartyIdSchema, 'REP');
 export const primaryElection: Election = {
   ...election,
   ballotStyles: [
     ...election.ballotStyles.map((bs) => ({
       ...bs,
       id: `${bs.id}D`,
-      partyId: 'DEM',
+      partyId: democraticPartyId,
     })),
     ...election.ballotStyles.map((bs) => ({
       ...bs,
       id: `${bs.id}R`,
-      partyId: 'REP',
+      partyId: republicanPartyId,
     })),
   ],
   contests: [
-    ...election.contests.map((c) => ({ ...c, id: `${c.id}D`, partyId: 'DEM' })),
-    ...election.contests.map((c) => ({ ...c, id: `${c.id}R`, partyId: 'REP' })),
+    ...election.contests.map((c) => ({
+      ...c,
+      id: `${c.id}D`,
+      partyId: democraticPartyId,
+    })),
+    ...election.contests.map((c) => ({
+      ...c,
+      id: `${c.id}R`,
+      partyId: republicanPartyId,
+    })),
   ],
   parties: [
-    { id: 'DEM', name: 'Democrat', abbrev: 'D', fullName: 'Democratic Party' },
     {
-      id: 'REP',
+      id: democraticPartyId,
+      name: 'Democrat',
+      abbrev: 'D',
+      fullName: 'Democratic Party',
+    },
+    {
+      id: republicanPartyId,
       name: 'Republican',
       abbrev: 'R',
       fullName: 'Republican Party',
