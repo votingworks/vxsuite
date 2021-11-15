@@ -1,3 +1,4 @@
+import { Rect } from '@votingworks/types';
 import { DetectQrCode, DetectQrCodeResult } from '../../types';
 import { crop } from '../crop';
 import { flipRectVerticalAndHorizontal } from '../geometry';
@@ -13,7 +14,7 @@ export function withCropping(
   return async (imageData): Promise<DetectQrCodeResult | undefined> => {
     const width = Math.floor(imageData.width * widthFraction);
     const height = Math.floor(imageData.height * heightFraction);
-    const searchBounds = {
+    const searchBounds: Rect = {
       x: imageData.width - width,
       y: imageData.height - height,
       width,

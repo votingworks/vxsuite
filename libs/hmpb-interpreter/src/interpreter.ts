@@ -836,7 +836,7 @@ export class Interpreter {
     { leftSideOnly }: { leftSideOnly: boolean }
   ): ImageData {
     const ballotMat = readGrayscaleImage(ballot.ballotImage.imageData);
-    const templateSize = {
+    const templateSize: Size = {
       width: template.ballotImage.imageData.width,
       height: template.ballotImage.imageData.height,
     };

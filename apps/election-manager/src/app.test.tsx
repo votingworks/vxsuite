@@ -24,8 +24,10 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import {
+  AdminCardData,
   ElectionDefinition,
   ExternalTallySourceType,
+  PollworkerCardData,
   VotingMethod,
 } from '@votingworks/types';
 
@@ -177,12 +179,12 @@ test('authentication works', async () => {
   render(<App card={card} hardware={hardware} storage={storage} />);
 
   await screen.findByText('Machine Locked');
-  const adminCard = {
+  const adminCard: AdminCardData = {
     t: 'admin',
     h: eitherNeitherElectionDefinition.electionHash,
     p: '123456',
   };
-  const pollWorkerCard = {
+  const pollWorkerCard: PollworkerCardData = {
     t: 'pollworker',
     h: eitherNeitherElectionDefinition.electionHash,
   };

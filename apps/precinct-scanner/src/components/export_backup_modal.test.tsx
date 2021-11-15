@@ -5,6 +5,7 @@ import { err, ok, UserSession } from '@votingworks/types';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
 import { mocked } from 'ts-jest/utils';
+import { MachineConfig } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 import { download, DownloadErrorKind } from '../utils/download';
 import { ExportBackupModal } from './export_backup_modal';
@@ -13,7 +14,10 @@ jest.mock('../utils/download');
 
 const { UsbDriveStatus } = usbstick;
 
-const machineConfig = { machineId: '0003', codeVersion: 'TEST' };
+const machineConfig: MachineConfig = {
+  machineId: '0003',
+  codeVersion: 'TEST',
+};
 const currentUserSession: UserSession = { type: 'admin', authenticated: true };
 
 test('renders loading screen when USB drive is mounting or ejecting in export modal', () => {

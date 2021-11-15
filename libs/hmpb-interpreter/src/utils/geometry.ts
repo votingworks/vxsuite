@@ -30,7 +30,7 @@ export function rectCenter(
   { x, y, width, height }: Rect,
   { round = false } = {}
 ): Point {
-  const center = { x: x + (width - 1) / 2, y: y + (height - 1) / 2 };
+  const center: Point = { x: x + (width - 1) / 2, y: y + (height - 1) / 2 };
   const result = round ? roundPoint(center) : center;
   return result;
 }

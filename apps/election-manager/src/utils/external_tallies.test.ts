@@ -675,7 +675,7 @@ describe('convertTalliesByPrecinctToFullExternalTally', () => {
       2,
       contestIds
     );
-    const resultsByPrecinct = {
+    const resultsByPrecinct: Dictionary<ExternalTally> = {
       'precinct-1': singleVotesPrimary,
       'precinct-2': singleVotesPrimary,
       'precinct-3': doubleVotesPrimary,

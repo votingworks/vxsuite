@@ -55,7 +55,7 @@ export function getContestOptionsForContest(
   throw new Error(`Unexpected contest type: ${contest.type}`);
 }
 
-const sortOptions = {
+const sortOptions: Intl.CollatorOptions = {
   ignorePunctuation: true,
   numeric: true,
 };

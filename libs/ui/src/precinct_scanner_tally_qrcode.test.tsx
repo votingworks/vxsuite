@@ -103,7 +103,7 @@ test('renders with results reporting when there are CVRs and polls are closed in
   mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
   window.kiosk = mockKiosk;
 
-  const testCvr = {
+  const testCvr: CastVoteRecord = {
     ...cvr,
     _testBallot: true,
   };

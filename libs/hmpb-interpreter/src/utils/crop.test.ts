@@ -37,7 +37,7 @@ function cropReferenceImplementation(
 }
 
 test('crop center (gray)', () => {
-  const imageData = {
+  const imageData: ImageData = {
     data: Uint8ClampedArray.of(0, 0, 0, 0, 1, 0, 0, 0, 0),
     width: 3,
     height: 3,
@@ -54,7 +54,7 @@ test('crop center (gray)', () => {
 });
 
 test('crop center (rgba)', () => {
-  const imageData = {
+  const imageData: ImageData = {
     data: Uint8ClampedArray.of(0, 0, 0, 255, 1, 0, 0, 255),
     width: 2,
     height: 1,

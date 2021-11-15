@@ -233,7 +233,7 @@ export function PollWorkerScreen({
     }
     assert(currentCompressedTally);
 
-    const fullTallyInformation = {
+    const fullTallyInformation: PrecinctScannerCardTally = {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: scannedBallotCount,
       isLiveMode,

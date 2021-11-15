@@ -4,6 +4,7 @@ import {
   ContestOptionTally,
   Dictionary,
   expandEitherNeitherContests,
+  Tally,
   VotingMethod,
   writeInCandidate,
 } from '@votingworks/types';
@@ -25,7 +26,7 @@ describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
-    const emptyTally = {
+    const emptyTally: Tally = {
       numberOfBallotsCounted: 0,
       castVoteRecords: new Set<CastVoteRecord>(),
       contestTallies: {},
@@ -74,7 +75,7 @@ describe('compressTally', () => {
       option: writeInCandidate,
       tally: 5,
     };
-    const tallyWithPresidentTallies = {
+    const tallyWithPresidentTallies: Tally = {
       ...emptyTally,
       contestTallies: {
         ...emptyTally.contestTallies,
@@ -113,7 +114,7 @@ describe('compressTally', () => {
       yes: { option: ['yes'], tally: 7 },
       no: { option: ['no'], tally: 9 },
     };
-    const tallyWithYesNoTallies = {
+    const tallyWithYesNoTallies: Tally = {
       ...emptyTally,
       contestTallies: {
         ...emptyTally.contestTallies,
@@ -162,7 +163,7 @@ describe('compressTally', () => {
       yes: { option: ['yes'], tally: 3 },
       no: { option: ['no'], tally: 1 },
     };
-    const tallyWithEitherNeitherTallies = {
+    const tallyWithEitherNeitherTallies: Tally = {
       ...emptyTally,
       contestTallies: {
         ...emptyTally.contestTallies,
@@ -237,7 +238,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === '775020876'
     );
     assert(presidentContest?.type === 'candidate');
-    const votingMethodData = {
+    const votingMethodData: Tally['ballotCountsByVotingMethod'] = {
       [VotingMethod.Absentee]: 5,
       [VotingMethod.Precinct]: 15,
     };
@@ -286,7 +287,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === 'president'
     );
     assert(presidentContest?.type === 'candidate');
-    const votingMethodData = {
+    const votingMethodData: Tally['ballotCountsByVotingMethod'] = {
       [VotingMethod.Absentee]: 5,
       [VotingMethod.Precinct]: 15,
     };
@@ -357,7 +358,7 @@ describe('readCompressTally', () => {
     compressedTally[yesNoContestIdx] = [6, 4, 20, 3, 7];
     const yesNoContest = electionEitherNeither.contests[yesNoContestIdx];
     assert(yesNoContest?.type === 'yesno');
-    const votingMethodData = {
+    const votingMethodData: Tally['ballotCountsByVotingMethod'] = {
       [VotingMethod.Absentee]: 15,
       [VotingMethod.Precinct]: 5,
     };
@@ -398,7 +399,7 @@ describe('readCompressTally', () => {
     ]);
     assert(eitherNeither?.type === 'yesno');
     assert(pickOne?.type === 'yesno');
-    const votingMethodData = {
+    const votingMethodData: Tally['ballotCountsByVotingMethod'] = {
       [VotingMethod.Absentee]: 8,
       [VotingMethod.Precinct]: 7,
     };

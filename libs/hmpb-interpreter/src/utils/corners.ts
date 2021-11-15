@@ -76,7 +76,7 @@ function findTopLeftCorner(
     return topLeft;
   }
 
-  const bestPoint = {
+  const bestPoint: Point = {
     x: Math.min(...bestPoints.map(({ x }) => x)),
     y: Math.min(...bestPoints.map(({ y }) => y)),
   };
@@ -154,7 +154,7 @@ function findTopRightCorner(
     return topRight;
   }
 
-  const bestPoint = {
+  const bestPoint: Point = {
     x: Math.max(...bestPoints.map(({ x }) => x)),
     y: Math.min(...bestPoints.map(({ y }) => y)),
   };
@@ -229,7 +229,7 @@ function findBottomLeftCorner(
     return bottomLeft;
   }
 
-  const bestPoint = {
+  const bestPoint: Point = {
     x: Math.min(...bestPoints.map(({ x }) => x)),
     y: Math.max(...bestPoints.map(({ y }) => y)),
   };
@@ -305,7 +305,7 @@ function findBottomRightCorner(
     return bottomRight;
   }
 
-  const bestPoint = {
+  const bestPoint: Point = {
     x: Math.max(...bestPoints.map(({ x }) => x)),
     y: Math.max(...bestPoints.map(({ y }) => y)),
   };

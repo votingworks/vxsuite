@@ -21,6 +21,7 @@ import {
   ScannerStatus,
 } from '@votingworks/types/api/module-scan';
 import {
+  BallotCountDetails,
   MemoryCard,
   MemoryHardware,
   MemoryStorage,
@@ -37,13 +38,14 @@ import {
 } from '@votingworks/types';
 import { App } from './app';
 import { stateStorageKey } from './app_root';
+import { MachineConfigResponse } from './config/types';
 
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
 });
 
-const getMachineConfigBody = {
+const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
   codeVersion: '3.14',
 };
@@ -485,7 +487,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       [0, 0, 1, 0, 1], // fishing ban yes no
     ],
   };
-  const expectedBallotCounts = {
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
     '0,__ALL_PRECINCTS': [1, 1],
     '0,precinct-1': [1, 0],
     '0,precinct-2': [0, 1],
@@ -771,10 +773,10 @@ test('expected tally reports for a primary election with a single precincts with
     [2, 0, 0, 0, 0, 1, 1, 0, 2], // new zoo either neither
     [0, 0, 1, 0, 1], // fishing ban yes no
   ];
-  const expectedTalliesByPrecinct = {
+  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': expectedCombinedTally,
   };
-  const expectedBallotCounts = {
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
     '0,__ALL_PRECINCTS': [1, 1],
     '0,precinct-1': [1, 1],
     '1,__ALL_PRECINCTS': [1, 0],
@@ -1045,12 +1047,12 @@ test('expected tally reports for a general election with all precincts with CVRs
   const expectedTallyNorth = election.contests.map(() => expect.anything());
   expectedTallyNorth[0] = [0, 0, 1, 1, 0, 0, 0, 0, 0]; // president
   expectedTallyNorth[index102] = [1, 0, 1, 0, 0]; // measure 102
-  const expectedTalliesByPrecinct = {
+  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
     '23': expectedTallyCenter,
     '20': getZeroCompressedTally(election),
     '21': expectedTallyNorth,
   };
-  const expectedBallotCounts = {
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
     'undefined,__ALL_PRECINCTS': [1, 1],
     'undefined,23': [1, 0],
     'undefined,21': [0, 1],
@@ -1255,10 +1257,10 @@ test('expected tally reports for a general election with a single precincts with
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
   const index102 = election.contests.findIndex((c) => c.id === 'prop-1');
   expectedCombinedTally[index102] = [1, 0, 2, 1, 0]; // measure 102
-  const expectedTalliesByPrecinct = {
+  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
     '23': expectedCombinedTally,
   };
-  const expectedBallotCounts = {
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
     'undefined,__ALL_PRECINCTS': [1, 1],
     'undefined,23': [1, 1],
   };

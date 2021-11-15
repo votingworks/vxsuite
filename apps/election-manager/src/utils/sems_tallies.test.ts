@@ -23,7 +23,7 @@ import {
   parseSemsFileAndValidateForElection,
 } from './sems_tallies';
 
-const mockSemsRow = {
+const mockSemsRow: SemsFileRow = {
   countyId: '',
   precinctId: '',
   contestId: '',

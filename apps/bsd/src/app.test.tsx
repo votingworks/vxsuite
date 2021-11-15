@@ -23,6 +23,7 @@ import {
   ScanBatchResponse,
   ScannerStatus,
 } from '@votingworks/types/api/module-scan';
+import { AdminCardData, PollworkerCardData } from '@votingworks/types';
 import { App } from './app';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
 import { MachineConfigResponse } from './config/types';
@@ -352,12 +353,12 @@ test('authentication works', async () => {
   render(<App card={card} hardware={hardware} />);
 
   await screen.findByText('Machine Locked');
-  const adminCard = {
+  const adminCard: AdminCardData = {
     t: 'admin',
     h: electionSampleDefinition.electionHash,
     p: '123456',
   };
-  const pollWorkerCard = {
+  const pollWorkerCard: PollworkerCardData = {
     t: 'pollworker',
     h: electionSampleDefinition.electionHash,
   };

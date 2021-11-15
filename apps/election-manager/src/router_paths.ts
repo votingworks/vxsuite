@@ -52,4 +52,4 @@ export const routerPaths = {
   testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/tally/test-ballot-deck/${precinctId}`,
   overvoteCombinationReport: '/tally/pairs',
-};
+} as const;

@@ -6,7 +6,7 @@ import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
 export default createRule({
-  name: 'gts-no-object-literal-type-assertions',
+  name: 'gts-object-literal-types',
   meta: {
     docs: {
       description:
@@ -19,6 +19,8 @@ export default createRule({
     messages: {
       noObjectLiteralTypeAssertions:
         'Do not use type assertions on object literals; prefer type assertions instead',
+      useTypeAnnotation:
+        'Type literal must be declared with a type annotation or `as const`.',
       convertToTypeAnnotation: 'Convert to type annotation',
       useTypedAs: 'Use `typedAs` helper for an inline type annotation',
       removeTypeAssertion: 'Remove type assertion',
@@ -40,6 +42,22 @@ export default createRule({
       ReportSuggestionArray extends ReadonlyArray<infer T> ? T[] : never;
 
     return {
+      VariableDeclarator(node: TSESTree.VariableDeclarator): void {
+        if (
+          node.id.type !== AST_NODE_TYPES.Identifier ||
+          node.id.typeAnnotation
+        ) {
+          return;
+        }
+
+        if (node.init?.type === AST_NODE_TYPES.ObjectExpression) {
+          context.report({
+            node,
+            messageId: 'useTypeAnnotation',
+          });
+        }
+      },
+
       TSAsExpression(node: TSESTree.TSAsExpression): void {
         if (
           node.expression.type !== AST_NODE_TYPES.ObjectExpression ||

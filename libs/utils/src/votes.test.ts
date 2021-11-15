@@ -11,7 +11,9 @@ import {
   CastVoteRecord,
   Election,
   FullElectionTally,
+  Id,
   Party,
+  PrecinctId,
   Tally,
   TallyCategory,
   VotingMethod,
@@ -348,36 +350,51 @@ describe('filterTalliesByParams in a typical election', () => {
   });
 
   it('can filter by precinct', () => {
-    const expectedPrecinctResults = {
-      '23': {
-        totalBallots: 2475,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 176,
-          [VotingMethod.Precinct]: 119,
-          [VotingMethod.Unknown]: 2180,
+    const expectedPrecinctResults = new Map<
+      PrecinctId,
+      {
+        totalBallots: Tally['numberOfBallotsCounted'];
+        ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'];
+      }
+    >([
+      [
+        '23',
+        {
+          totalBallots: 2475,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 176,
+            [VotingMethod.Precinct]: 119,
+            [VotingMethod.Unknown]: 2180,
+          },
         },
-      },
-      '20': {
-        totalBallots: 2478,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 174,
-          [VotingMethod.Precinct]: 124,
-          [VotingMethod.Unknown]: 2180,
+      ],
+      [
+        '20',
+        {
+          totalBallots: 2478,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 174,
+            [VotingMethod.Precinct]: 124,
+            [VotingMethod.Unknown]: 2180,
+          },
         },
-      },
-      '21': {
-        totalBallots: 5048,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 322,
-          [VotingMethod.Precinct]: 231,
-          [VotingMethod.Unknown]: 4495,
+      ],
+      [
+        '21',
+        {
+          totalBallots: 5048,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 322,
+            [VotingMethod.Precinct]: 231,
+            [VotingMethod.Unknown]: 4495,
+          },
         },
-      },
-    };
+      ],
+    ]);
     for (const [
       precinctId,
       { totalBallots, ballotCountsByVotingMethod },
-    ] of Object.entries(expectedPrecinctResults)) {
+    ] of expectedPrecinctResults) {
       const filteredResults = filterTalliesByParams(electionTally, election, {
         precinctId,
       });
@@ -385,7 +402,9 @@ describe('filterTalliesByParams in a typical election', () => {
       expect(filteredResults.ballotCountsByVotingMethod).toMatchObject(
         ballotCountsByVotingMethod
       );
-      expect(filteredResults.contestTallies).toMatchSnapshot();
+      expect(filteredResults.contestTallies).toMatchSnapshot(
+        `filterTalliesByParams[precinctId=${precinctId}]`
+      );
     }
     expect(
       filterTalliesByParams(electionTally, election, {
@@ -395,97 +414,135 @@ describe('filterTalliesByParams in a typical election', () => {
   });
 
   it('can filter by scanner', () => {
-    const expectedScannerResults = {
-      'scanner-1': {
-        totalBallots: 1008,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 64,
-          [VotingMethod.Precinct]: 65,
-          [VotingMethod.Unknown]: 879,
+    const expectedScannerResults = new Map<
+      Id,
+      {
+        totalBallots: Tally['numberOfBallotsCounted'];
+        ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'];
+      }
+    >([
+      [
+        'scanner-1',
+        {
+          totalBallots: 1008,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 64,
+            [VotingMethod.Precinct]: 65,
+            [VotingMethod.Unknown]: 879,
+          },
         },
-      },
-      'scanner-10': {
-        totalBallots: 1022,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 68,
-          [VotingMethod.Precinct]: 53,
-          [VotingMethod.Unknown]: 901,
+      ],
+      [
+        'scanner-10',
+        {
+          totalBallots: 1022,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 68,
+            [VotingMethod.Precinct]: 53,
+            [VotingMethod.Unknown]: 901,
+          },
         },
-      },
-      'scanner-2': {
-        totalBallots: 1015,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 73,
-          [VotingMethod.Precinct]: 44,
-          [VotingMethod.Unknown]: 898,
+      ],
+      [
+        'scanner-2',
+        {
+          totalBallots: 1015,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 73,
+            [VotingMethod.Precinct]: 44,
+            [VotingMethod.Unknown]: 898,
+          },
         },
-      },
-      'scanner-3': {
-        totalBallots: 1029,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 67,
-          [VotingMethod.Precinct]: 46,
-          [VotingMethod.Unknown]: 916,
+      ],
+      [
+        'scanner-3',
+        {
+          totalBallots: 1029,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 67,
+            [VotingMethod.Precinct]: 46,
+            [VotingMethod.Unknown]: 916,
+          },
         },
-      },
-      'scanner-4': {
-        totalBallots: 1039,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 63,
-          [VotingMethod.Precinct]: 53,
-          [VotingMethod.Unknown]: 923,
+      ],
+      [
+        'scanner-4',
+        {
+          totalBallots: 1039,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 63,
+            [VotingMethod.Precinct]: 53,
+            [VotingMethod.Unknown]: 923,
+          },
         },
-      },
-      'scanner-5': {
-        totalBallots: 962,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 58,
-          [VotingMethod.Precinct]: 46,
-          [VotingMethod.Unknown]: 858,
+      ],
+      [
+        'scanner-5',
+        {
+          totalBallots: 962,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 58,
+            [VotingMethod.Precinct]: 46,
+            [VotingMethod.Unknown]: 858,
+          },
         },
-      },
-      'scanner-6': {
-        totalBallots: 973,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 74,
-          [VotingMethod.Precinct]: 37,
-          [VotingMethod.Unknown]: 862,
+      ],
+      [
+        'scanner-6',
+        {
+          totalBallots: 973,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 74,
+            [VotingMethod.Precinct]: 37,
+            [VotingMethod.Unknown]: 862,
+          },
         },
-      },
-      'scanner-7': {
-        totalBallots: 938,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 54,
-          [VotingMethod.Precinct]: 44,
-          [VotingMethod.Unknown]: 840,
+      ],
+      [
+        'scanner-7',
+        {
+          totalBallots: 938,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 54,
+            [VotingMethod.Precinct]: 44,
+            [VotingMethod.Unknown]: 840,
+          },
         },
-      },
-      'scanner-8': {
-        totalBallots: 977,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 80,
-          [VotingMethod.Precinct]: 45,
-          [VotingMethod.Unknown]: 852,
+      ],
+      [
+        'scanner-8',
+        {
+          totalBallots: 977,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 80,
+            [VotingMethod.Precinct]: 45,
+            [VotingMethod.Unknown]: 852,
+          },
         },
-      },
-      'scanner-9': {
-        totalBallots: 1038,
-        ballotCountsByVotingMethod: {
-          [VotingMethod.Absentee]: 71,
-          [VotingMethod.Precinct]: 41,
-          [VotingMethod.Unknown]: 926,
+      ],
+      [
+        'scanner-9',
+        {
+          totalBallots: 1038,
+          ballotCountsByVotingMethod: {
+            [VotingMethod.Absentee]: 71,
+            [VotingMethod.Precinct]: 41,
+            [VotingMethod.Unknown]: 926,
+          },
         },
-      },
-    };
+      ],
+    ]);
     for (const [
       scannerId,
       { totalBallots, ballotCountsByVotingMethod },
-    ] of Object.entries(expectedScannerResults)) {
+    ] of expectedScannerResults) {
       const filteredResults = filterTalliesByParams(electionTally, election, {
         scannerId,
       });
       expect(filteredResults.numberOfBallotsCounted).toBe(totalBallots);
-      expect(filteredResults.contestTallies).toMatchSnapshot();
+      expect(filteredResults.contestTallies).toMatchSnapshot(
+        `filterTalliesByParams[scannerId=${scannerId}]`
+      );
       expect(filteredResults.ballotCountsByVotingMethod).toMatchObject(
         ballotCountsByVotingMethod
       );
@@ -498,12 +555,16 @@ describe('filterTalliesByParams in a typical election', () => {
   });
 
   test('can filtere by precinct and scanner', () => {
+    const precinctId: PrecinctId = '23';
+    const scannerId: Id = 'scanner-5';
     const filteredResults = filterTalliesByParams(electionTally, election, {
-      precinctId: '23',
-      scannerId: 'scanner-5',
+      precinctId,
+      scannerId,
     });
     expect(filteredResults.numberOfBallotsCounted).toBe(227);
-    expect(filteredResults.contestTallies).toMatchSnapshot();
+    expect(filteredResults.contestTallies).toMatchSnapshot(
+      `filterTalliesByParams[precinctId=${precinctId},scannerId=${scannerId}]`
+    );
     expect(filteredResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 18,
       [VotingMethod.Precinct]: 6,
@@ -658,7 +719,7 @@ describe('filterTalliesByParams in a primary election', () => {
             metadata: c!.metadata,
           };
         })
-      ).toMatchSnapshot();
+      ).toMatchSnapshot(`filterTalliesByParams[partyId=${testcase.partyId}]`);
     }
 
     // Check that filtering for a party that has no ballot styles returns an empty tally
@@ -850,15 +911,15 @@ describe('filterTalliesByParams in a primary election', () => {
     const scanner1ResultsWithoutCvrs = {
       numberOfBallotsCounted: filteredResultsScanner1.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner1.contestTallies,
-    };
+    } as const;
     const scanner2ResultsWithoutCvrs = {
       numberOfBallotsCounted: filteredResultsScanner2.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner2.contestTallies,
-    };
+    } as const;
     const scanner3ResultsWithoutCvrs = {
       numberOfBallotsCounted: filteredResultsScanner3.numberOfBallotsCounted,
       contestTallies: filteredResultsScanner3.contestTallies,
-    };
+    } as const;
     expect(scanner1ResultsWithoutCvrs).toStrictEqual(
       scanner2ResultsWithoutCvrs
     );
@@ -1051,7 +1112,9 @@ describe('filterTalliesByParty', () => {
       electionTally.ballotCountsByVotingMethod
     );
 
-    const expectedCounts = { [VotingMethod.Precinct]: 314 };
+    const expectedCounts: Tally['ballotCountsByVotingMethod'] = {
+      [VotingMethod.Precinct]: 314,
+    };
     const filteredTally2 = filterTalliesByParty({
       election,
       electionTally,

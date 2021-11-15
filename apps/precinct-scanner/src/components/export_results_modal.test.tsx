@@ -13,10 +13,11 @@ import { UserSession } from '@votingworks/types';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { AppContext } from '../contexts/app_context';
+import { MachineConfig } from '../config/types';
 
 const { UsbDriveStatus } = usbstick;
 
-const machineConfig = { machineId: '0003', codeVersion: 'TEST' };
+const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
 const currentUserSession: UserSession = { type: 'admin', authenticated: true };
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {

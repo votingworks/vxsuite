@@ -3,6 +3,7 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import {
   parseBallotExportPackageInfoFromFilename,
   generateElectionBasedSubfolderName,
@@ -103,7 +104,7 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
 
 describe('generateElectionBasedSubfolderName', () => {
   test('generates basic election subfolder name as expected', () => {
-    const mockElection = {
+    const mockElection: Election = {
       ...electionSampleDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
@@ -114,7 +115,7 @@ describe('generateElectionBasedSubfolderName', () => {
   });
 
   test('generates election subfolder name as expected when election county and title have weird characters', () => {
-    const mockElection = {
+    const mockElection: Election = {
       ...electionSampleDefinition.election,
       county: { name: '-K(ing&COUN-----TY**', id: '' },
       title: 'General-Election@@',
@@ -125,7 +126,7 @@ describe('generateElectionBasedSubfolderName', () => {
   });
 
   test('generates election subfolder name as expected when election hash length varies', () => {
-    const mockElection = {
+    const mockElection: Election = {
       ...electionSampleDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
@@ -177,7 +178,7 @@ describe('generateFilenameForScanningResults', () => {
 });
 
 test('generates ballot export package names as expected with simple inputs', () => {
-  const mockElection = {
+  const mockElection: ElectionDefinition = {
     election: {
       ...electionWithMsEitherNeitherDefinition.election,
       county: { name: 'King County', id: '' },
@@ -193,7 +194,7 @@ test('generates ballot export package names as expected with simple inputs', () 
 });
 
 test('generates ballot export package names as expected when election information has weird characters', () => {
-  const mockElection = {
+  const mockElection: ElectionDefinition = {
     election: {
       ...electionWithMsEitherNeitherDefinition.election,
       county: { name: 'King County!!', id: '' },
@@ -212,7 +213,7 @@ test('generates ballot export package names as expected when election informatio
 });
 
 test('generates ballot export package name with truncated election hash', () => {
-  const mockElection = {
+  const mockElection: ElectionDefinition = {
     election: {
       ...electionWithMsEitherNeitherDefinition.election,
       county: { name: 'King County', id: '' },
@@ -228,7 +229,7 @@ test('generates ballot export package name with truncated election hash', () => 
 });
 
 test('generates ballot export package name with zero padded time pieces', () => {
-  const mockElection = {
+  const mockElection: ElectionDefinition = {
     election: {
       ...electionWithMsEitherNeitherDefinition.election,
       county: { name: 'King County', id: '' },
@@ -245,7 +246,7 @@ test('generates ballot export package name with zero padded time pieces', () => 
 
 describe('generateFinalExportDefaultFilename', () => {
   test('generates the correct filename for test mode', () => {
-    const mockElection = {
+    const mockElection: Election = {
       ...electionWithMsEitherNeitherDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
@@ -258,7 +259,7 @@ describe('generateFinalExportDefaultFilename', () => {
 
   test('generates the correct filename for live mode', () => {
     const time = new Date(2019, 2, 1, 1, 9, 2);
-    const mockElection = {
+    const mockElection: Election = {
       ...electionWithMsEitherNeitherDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',

@@ -12,12 +12,12 @@ import gtsNoDefaultExports from './gts_no_default_exports';
 import gtsNoForInLoop from './gts_no_for_in_loop';
 import gtsNoForeach from './gts_no_foreach';
 import gtsNoImportExportType from './gts_no_import_export_type';
-import gtsNoObjectLiteralTypeAssertions from './gts_no_object_literal_type_assertions';
 import gtsNoPrivateFields from './gts_no_private_fields';
 import gtsNoPublicClassFields from './gts_no_public_class_fields';
 import gtsNoPublicModifier from './gts_no_public_modifier';
 import gtsNoReturnTypeOnlyGenerics from './gts_no_return_type_only_generics';
 import gtsNoUnnecessaryHasOwnPropertyCheck from './gts_no_unnecessary_has_own_property_check';
+import gtsObjectLiteralTypes from './gts_object_literal_types';
 import gtsParameterProperties from './gts_parameter_properties';
 import gtsSafeNumberParse from './gts_safe_number_parse';
 import gtsSpreadLikeTypes from './gts_spread_like_types';
@@ -45,13 +45,13 @@ const rules: Record<
   'gts-no-foreach': gtsNoForeach,
   'gts-no-for-in-loop': gtsNoForInLoop,
   'gts-no-import-export-type': gtsNoImportExportType,
-  'gts-no-object-literal-type-assertions': gtsNoObjectLiteralTypeAssertions,
   'gts-no-private-fields': gtsNoPrivateFields,
   'gts-no-public-class-fields': gtsNoPublicClassFields,
   'gts-no-public-modifier': gtsNoPublicModifier,
   'gts-no-return-type-only-generics': gtsNoReturnTypeOnlyGenerics,
   'gts-no-unnecessary-has-own-property-check':
     gtsNoUnnecessaryHasOwnPropertyCheck,
+  'gts-object-literal-types': gtsObjectLiteralTypes,
   'gts-parameter-properties': gtsParameterProperties,
   'gts-safe-number-parse': gtsSafeNumberParse,
   'gts-spread-like-types': gtsSpreadLikeTypes,

@@ -14,6 +14,8 @@ import {
   Tally,
   TallyCategory,
   VotingMethod,
+  FullElectionTally,
+  FullElectionExternalTally,
 } from '@votingworks/types';
 
 import { strict as assert } from 'assert';
@@ -61,13 +63,13 @@ describe('Ballot Counts by Precinct', () => {
     externalResultsByPrecinct
   );
 
-  const fullElectionTally = {
+  const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
   };
-  const fullElectionExternalTally = {
+  const fullElectionExternalTally: FullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
     }),
@@ -189,13 +191,13 @@ describe('Ballot Counts by Scanner', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Scanner, resultsByScanner);
 
-  const fullElectionTally = {
+  const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
   };
-  const fullElectionExternalTally = {
+  const fullElectionExternalTally: FullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
     }),
@@ -328,14 +330,14 @@ describe('Ballots Counts by Party', () => {
   const externalResultsByCategory = new Map();
   externalResultsByCategory.set(TallyCategory.Party, externalResultsByParty);
 
-  const fullElectionTally = {
+  const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
     resultsByCategory,
   };
 
-  const fullElectionExternalTally = {
+  const fullElectionExternalTally: FullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: 54,
     }),
@@ -489,7 +491,7 @@ describe('Ballots Counts by VotingMethod', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.VotingMethod, resultsByVotingMethod);
 
-  const fullElectionTally = {
+  const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 77,
     }),
@@ -498,7 +500,7 @@ describe('Ballots Counts by VotingMethod', () => {
 
   const numExternalBallots = 54;
 
-  const fullElectionExternalTally = {
+  const fullElectionExternalTally: FullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: numExternalBallots,
     }),
@@ -645,7 +647,7 @@ describe('Ballots Counts by Batch', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Batch, resultsByBatch);
 
-  const fullElectionTally = {
+  const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
       numberOfBallotsCounted: 122,
     }),
@@ -654,7 +656,7 @@ describe('Ballots Counts by Batch', () => {
 
   const numExternalBallots = 54;
 
-  const fullElectionExternalTally = {
+  const fullElectionExternalTally: FullElectionExternalTally = {
     overallTally: fakeExternalTally({
       numberOfBallotsCounted: numExternalBallots,
     }),

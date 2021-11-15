@@ -20,7 +20,7 @@ it('can clear all values', async () => {
 it('can set a value', async () => {
   const kiosk = fakeKiosk();
   const storage = new KioskStorage(kiosk);
-  const object = { b: 1 };
+  const object = { b: 1 } as const;
 
   await storage.set('a', object);
   expect(kiosk.storage.set).toHaveBeenCalledWith('a', object);

@@ -49,6 +49,7 @@ import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
 } from './config/globals';
+import { MachineConfigResponse } from './config/types';
 
 jest.setTimeout(20000);
 
@@ -57,7 +58,7 @@ beforeEach(() => {
   fetchMock.reset();
 });
 
-const getMachineConfigBody = {
+const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
   codeVersion: '3.14',
 };

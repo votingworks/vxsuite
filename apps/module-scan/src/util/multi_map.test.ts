@@ -2,7 +2,7 @@ import { MultiMap } from './multi_map';
 
 test('can have multiple string keys', () => {
   const map = new MultiMap<[string, string], unknown>();
-  const value = { foo: 'bar' };
+  const value: unknown = { foo: 'bar' };
   map.set(['a', 'b'], value);
   const values = map.get(['a', 'b'])!;
   expect([...values][0]).toBe(value);

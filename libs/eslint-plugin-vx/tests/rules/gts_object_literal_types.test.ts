@@ -1,6 +1,6 @@
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
 import { join } from 'path';
-import rule from '../../src/rules/gts_no_object_literal_type_assertions';
+import rule from '../../src/rules/gts_object_literal_types';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
@@ -11,12 +11,24 @@ const ruleTester = new ESLintUtils.RuleTester({
   parser: '@typescript-eslint/parser',
 });
 
-ruleTester.run('gts-no-object-literal-type-assertions', rule, {
+ruleTester.run('gts-object-literal-types', rule, {
   valid: [
     `const a: A = {}`,
     `const a = 1 as number`,
     `const a = {} as unknown as A`,
     `const a = {} as const`,
+    `
+      const foo: Foo = {
+        a: 123,
+        b: 'abc',
+      };
+    `,
+    `
+      const foo = {
+        a: 123,
+        b: 'abc',
+      } as const;
+    `,
   ],
   invalid: [
     {
@@ -119,6 +131,24 @@ ruleTester.run('gts-no-object-literal-type-assertions', rule, {
           ],
         },
       ],
+    },
+    {
+      code: `
+        const badFoo = {
+          a: 123,
+          b: 'abc',
+        };
+      `,
+      errors: [{ messageId: 'useTypeAnnotation', line: 2 }],
+    },
+    {
+      code: `
+        const badFoo = {
+          a: 123,
+          b: 'abc',
+        } as Foo;
+      `,
+      errors: [{ messageId: 'noObjectLiteralTypeAssertions', line: 2 }],
     },
   ],
 });
