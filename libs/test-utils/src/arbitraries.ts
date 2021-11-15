@@ -5,6 +5,7 @@
 import fc from 'fast-check';
 import { DateTime } from 'luxon';
 import {
+  BallotId,
   BallotLayout,
   BallotPaperSize,
   BallotStyle,
@@ -57,6 +58,13 @@ export function arbitraryId(): fc.Arbitrary<Id> {
       // make sure IDs don't start with underscore
       .map((value) => (value.startsWith('_') ? `0${value}` : value))
   );
+}
+
+/**
+ * Builds values suitable for ballot style IDs.
+ */
+export function arbitraryBallotId(): fc.Arbitrary<BallotId> {
+  return arbitraryId() as fc.Arbitrary<BallotId>;
 }
 
 /**
@@ -444,7 +452,7 @@ export function arbitraryCastVoteRecord({
   return election.chain((e) =>
     fc.record({
       _precinctId: fc.constantFrom(...e.precincts.map(({ id }) => id)),
-      _ballotId: arbitraryId(),
+      _ballotId: arbitraryOptional(arbitraryBallotId()),
       _ballotStyleId: fc.constantFrom(...e.ballotStyles.map(({ id }) => id)),
       _ballotType: fc.constantFrom('absentee', 'provisional', 'standard'),
       _batchId: arbitraryId(),

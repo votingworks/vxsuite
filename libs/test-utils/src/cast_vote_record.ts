@@ -1,4 +1,5 @@
 import {
+  BallotId,
   BallotStyleId,
   CastVoteRecord,
   Dictionary,
@@ -11,7 +12,7 @@ import {
 
 export interface CastVoteRecordOptions {
   readonly precinctId?: PrecinctId;
-  readonly ballotId?: string;
+  readonly ballotId?: BallotId;
   readonly ballotStyleId?: BallotStyleId;
   readonly ballotType?: 'absentee' | 'provisional' | 'standard';
   readonly testBallot?: boolean;
@@ -28,7 +29,7 @@ export function generateCvr(
   // If precinctId or ballotStyleId are not provided default to the first in the election
   const precinctId = options.precinctId ?? election.precincts[0].id;
   const ballotStyleId = options.ballotStyleId ?? election.ballotStyles[0].id;
-  const ballotId = options.ballotId ?? '';
+  const { ballotId } = options;
   const ballotType = options.ballotType ?? 'standard';
   const testBallot = !!options.testBallot; // default to false
   const scannerId = options.scannerId ?? 'scanner-1';

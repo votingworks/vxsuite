@@ -30,7 +30,6 @@ test('BMD: smallest possible encoded ballot', () => {
   expect(
     encodeBallot(election, {
       electionHash,
-      ballotId: '',
       ballotStyleId: election.ballotStyles[0]!.id,
       precinctId: election.precincts[0]!.id,
       ballotType: BallotType.Standard,
@@ -44,7 +43,6 @@ test('HMPB: smallest possible encoded metadata', () => {
   expect(
     encodeHmpbBallotPageMetadata(election, {
       electionHash: electionHash.slice(0, 20),
-      ballotId: '',
       ballotStyleId: 'style1',
       precinctId: 'precinct1',
       ballotType: BallotType.Standard,

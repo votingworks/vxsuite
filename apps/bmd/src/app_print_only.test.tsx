@@ -11,7 +11,7 @@ import {
   makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
-import { BallotType } from '@votingworks/types';
+import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
 import { App } from './app';
@@ -219,7 +219,7 @@ test('VxPrintOnly flow', async () => {
     makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
-      ballotId: 'test-ballot-id',
+      ballotId: unsafeParse(BallotIdSchema, 'test-ballot-id'),
       ballotStyleId: election.ballotStyles[0].id,
       precinctId: election.precincts[0].id,
       votes: sampleVotes1,
@@ -255,7 +255,7 @@ test('VxPrintOnly flow', async () => {
     makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
-      ballotId: 'test-ballot-id',
+      ballotId: unsafeParse(BallotIdSchema, 'test-ballot-id'),
       ballotStyleId: election.ballotStyles[0].id,
       precinctId: election.precincts[0].id,
       votes: sampleVotes2,
@@ -288,7 +288,7 @@ test('VxPrintOnly flow', async () => {
     makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
-      ballotId: 'test-ballot-id',
+      ballotId: unsafeParse(BallotIdSchema, 'test-ballot-id'),
       ballotStyleId: election.ballotStyles[0].id,
       precinctId: election.precincts[0].id,
       votes: sampleVotes3,
@@ -319,7 +319,7 @@ test('VxPrintOnly flow', async () => {
     makeVoterCard(electionSample),
     encodeBallot(election, {
       electionHash,
-      ballotId: 'test-ballot-id',
+      ballotId: unsafeParse(BallotIdSchema, 'test-ballot-id'),
       ballotStyleId: election.ballotStyles[0].id,
       precinctId: election.precincts[0].id,
       votes: {},

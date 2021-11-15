@@ -899,7 +899,6 @@ export function AppRoot({
       const { election, electionHash } = appState.electionDefinition;
       const ballot: CompletedBallot = {
         electionHash,
-        ballotId: '',
         ballotStyleId: appState.ballotStyleId,
         precinctId: appState.precinctId,
         votes: appState.votes ?? blankBallotVotes,

@@ -254,7 +254,6 @@ export function PrintedBallot({
   const encodedBallot = encodeBallot(election, {
     electionHash,
     precinctId,
-    ballotId: '',
     ballotStyleId,
     votes,
     isTestMode: !isLiveMode,

@@ -33,6 +33,7 @@ import {
   ContestOption,
   BallotStyleId,
   PrecinctId,
+  BallotId,
 } from '@votingworks/types';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -523,7 +524,7 @@ export interface HandMarkedPaperBallotProps {
   isSampleBallot?: boolean;
   precinctId: PrecinctId;
   locales: BallotLocale;
-  ballotId?: string;
+  ballotId?: BallotId;
   votes?: VotesDict;
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
 }

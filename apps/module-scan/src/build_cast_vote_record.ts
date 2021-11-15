@@ -1,6 +1,7 @@
 import {
   AdjudicationReason,
   AnyContest,
+  BallotId,
   BallotMetadata,
   BallotType,
   CandidateVote,
@@ -49,7 +50,7 @@ export function getCvrBallotType(
 }
 
 export function buildCastVoteRecordMetadataEntries(
-  ballotId: string,
+  ballotId: BallotId,
   batchId: string,
   batchLabel: string,
   metadata: BallotMetadata
@@ -204,7 +205,7 @@ export function getContestsForBallotStyle(
 }
 
 export function buildCastVoteRecordFromBmdPage(
-  ballotId: string,
+  ballotId: BallotId,
   batchId: string,
   batchLabel: string,
   election: Election,
@@ -229,7 +230,7 @@ export function buildCastVoteRecordFromBmdPage(
 
 function buildCastVoteRecordFromHmpbPage(
   sheetId: string,
-  ballotId: string,
+  ballotId: BallotId,
   batchId: string,
   batchLabel: string,
   election: Election,
@@ -287,7 +288,7 @@ export function buildCastVoteRecord(
   sheetId: string,
   batchId: string,
   batchLabel: string,
-  ballotId: string,
+  ballotId: BallotId,
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>
 ): CastVoteRecord | undefined {

@@ -4,6 +4,7 @@
 
 import {
   AnyContest,
+  BallotIdSchema,
   BallotMetadata,
   BallotPageMetadata,
   BallotPaperSize,
@@ -21,6 +22,7 @@ import {
   Precinct,
   safeParseJson,
   SerializableBallotPageLayout,
+  unsafeParse,
 } from '@votingworks/types';
 import {
   AdjudicationStatus,
@@ -639,7 +641,7 @@ export class Store {
   }
 
   async getBallotFilenames(
-    ballotId: string,
+    sheetId: string,
     side: Side
   ): Promise<{ original: string; normalized: string } | undefined> {
     const row = (await this.dbGetAsync<[string]>(
@@ -652,7 +654,7 @@ export class Store {
       where
         id = ?
     `,
-      ballotId
+      sheetId
     )) as { original: string; normalized: string } | undefined;
 
     if (!row) {
@@ -938,11 +940,11 @@ export class Store {
         id,
         batchId,
         batchLabel || '',
-        frontInterpretation.type === 'InterpretedBmdPage'
-          ? frontInterpretation.ballotId
-          : backInterpretation.type === 'InterpretedBmdPage'
-          ? backInterpretation.ballotId
-          : id,
+        (frontInterpretation.type === 'InterpretedBmdPage' &&
+          frontInterpretation.ballotId) ||
+          (backInterpretation.type === 'InterpretedBmdPage' &&
+            backInterpretation.ballotId) ||
+          unsafeParse(BallotIdSchema, id),
         electionDefinition.election,
         [
           {

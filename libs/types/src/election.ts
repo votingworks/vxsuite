@@ -8,6 +8,7 @@ import {
   Id,
   IdSchema,
   Iso8601Date,
+  NewType,
   ok,
   Optional,
   Result,
@@ -839,8 +840,14 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
   ]
 );
 
-export type BallotId = Id;
-export const BallotIdSchema: z.ZodSchema<BallotId> = IdSchema;
+export type BallotId = NewType<string, 'BallotId'>;
+export const BallotIdSchema = (z
+  .string()
+  .nonempty()
+  .refine(
+    (ballotId) => !ballotId.startsWith('_'),
+    'Ballot IDs must not start with an underscore'
+  ) as unknown) as z.ZodSchema<BallotId>;
 
 export interface HmpbBallotPageMetadata {
   electionHash: string; // a hexadecimal string
@@ -1017,14 +1024,14 @@ export const BlankPageSchema: z.ZodSchema<BlankPage> = z.object({
 
 export interface InterpretedBmdPage {
   type: 'InterpretedBmdPage';
-  ballotId: BallotId;
+  ballotId?: BallotId;
   metadata: BallotMetadata;
   votes: VotesDict;
 }
 export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> = z.object(
   {
     type: z.literal('InterpretedBmdPage'),
-    ballotId: IdSchema,
+    ballotId: BallotIdSchema.optional(),
     metadata: BallotMetadataSchema,
     votes: VotesDictSchema,
   }
@@ -1032,7 +1039,7 @@ export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> = z.objec
 
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage';
-  ballotId?: string;
+  ballotId?: BallotId;
   metadata: HmpbBallotPageMetadata;
   markInfo: MarkInfo;
   votes: VotesDict;
@@ -1041,7 +1048,7 @@ export interface InterpretedHmpbPage {
 export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> = z.object(
   {
     type: z.literal('InterpretedHmpbPage'),
-    ballotId: z.string().optional(),
+    ballotId: BallotIdSchema.optional(),
     metadata: HmpbBallotPageMetadataSchema,
     markInfo: MarkInfoSchema,
     votes: VotesDictSchema,
@@ -1161,7 +1168,7 @@ export interface CompletedBallot {
   readonly electionHash: string;
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
-  readonly ballotId: BallotId;
+  readonly ballotId?: BallotId;
   readonly votes: VotesDict;
   readonly isTestMode: boolean;
   readonly ballotType: BallotType;

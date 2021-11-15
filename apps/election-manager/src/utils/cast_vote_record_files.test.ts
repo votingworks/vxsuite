@@ -1,4 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
+import { BallotIdSchema, unsafeParse } from '@votingworks/types';
 import { CastVoteRecordFiles } from './cast_vote_record_files';
 import { CastVoteRecord } from '../config/types';
 
@@ -36,7 +37,7 @@ test('can add a CVR file by creating a new instance', async () => {
 test('can add multiple CVR files by creating a new instance', async () => {
   const { empty } = CastVoteRecordFiles;
   const cvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
@@ -80,7 +81,7 @@ test('can add multiple CVR files by creating a new instance', async () => {
 test('test ballot cvrs change the file mode appropriately', async () => {
   const { empty } = CastVoteRecordFiles;
   const cvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
@@ -124,7 +125,7 @@ test('test ballot cvrs change the file mode appropriately', async () => {
 test('does not mutate the original when adding a new instance', async () => {
   const { empty } = CastVoteRecordFiles;
   const cvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
@@ -176,7 +177,7 @@ test('records JSON errors', async () => {
 
 test('records CVR data errors', async () => {
   const cvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '9999',
@@ -201,7 +202,7 @@ test('records CVR data errors', async () => {
 
 test('records identical uploaded files', async () => {
   const cvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',
@@ -238,7 +239,7 @@ test('records identical uploaded files', async () => {
 
 test('refuses to tabulate both live and test CVRs', async () => {
   const cvr: CastVoteRecord = {
-    _ballotId: 'abc',
+    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
     _precinctId: '23',

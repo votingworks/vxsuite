@@ -1,6 +1,8 @@
 import yargs from 'yargs/yargs';
 import * as fs from 'fs';
 import {
+  BallotId,
+  BallotIdSchema,
   BallotLocale,
   BallotStyleId,
   Candidate,
@@ -9,6 +11,7 @@ import {
   Election,
   parseElection,
   PrecinctId,
+  unsafeParse,
 } from '@votingworks/types';
 
 /**
@@ -23,7 +26,7 @@ interface CastVoteRecord
     string | string[] | boolean | number | number[] | BallotLocale
   > {
   readonly _precinctId: PrecinctId;
-  readonly _ballotId: string;
+  readonly _ballotId: BallotId;
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: string;
   readonly _testBallot: boolean;
@@ -233,7 +236,7 @@ function* generateCvrs(
           // Add the generated vote combinations as CVRs
           for (const voteConfig of voteConfigurations) {
             yield {
-              _ballotId: `id-${ballotId}`,
+              _ballotId: unsafeParse(BallotIdSchema, `id-${ballotId}`),
               _ballotType: ballotType,
               ...baseRecord,
               ...[...voteConfig.entries()].reduce(
@@ -322,7 +325,7 @@ while (numBallots !== undefined && numBallots > castVoteRecords.length) {
   const i = Math.floor(Math.random() * castVoteRecords.length);
   castVoteRecords.push({
     ...castVoteRecords[i],
-    _ballotId: `id-${ballotId}`,
+    _ballotId: unsafeParse(BallotIdSchema, `id-${ballotId}`),
   });
   ballotId += 1;
 }

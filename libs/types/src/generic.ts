@@ -185,6 +185,35 @@ export function maybeParse<T>(
   return safeParse(parser, value).ok();
 }
 
+declare const Unique: unique symbol;
+
+/**
+ * Builds a nominal type based on `Base` with tag `Tag`. This allows creating a
+ * type that acts as `Base` but is not assignable from `Base`.
+ *
+ * @example
+ *
+ *   type EmailAddress = NewType<string, 'EmailAddress'>;
+ *
+ *   function parseEmailAddress(emailAddress: string): Optional<EmailAddress> {
+ *     if (EMAIL_ADDRESS_PATTERN.test(emailAddress)) {
+ *       return emailAddress as EmailAddress;
+ *     }
+ *     return undefined;
+ *   }
+ *
+ *   declare function sendEmail(to: EmailAddress, subject: string, body: string): Promise<void>;
+ *
+ *   await sendEmail('admin@example.com', 'Hello', 'World');
+ *   //              ^^^^^^^^^^^^^^^^^^^
+ *   // Argument of type 'string' is not assignable to parameter of type 'EmailAddress'.
+ *
+ *   const to = parseEmailAddress('admin@example.com');
+ *   assert(to);
+ *   await sendEmail(to, 'Hello', 'World');
+ */
+export type NewType<Base, Tag> = Base & { readonly [Unique]: Tag };
+
 export type Id = string;
 export const IdSchema: z.ZodSchema<Id> = z
   .string()

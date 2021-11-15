@@ -1,6 +1,7 @@
 import {
   AnyContest,
   BallotId,
+  BallotIdSchema,
   BallotLocale,
   BallotStyleId,
   BallotType,
@@ -17,6 +18,7 @@ import {
   isVotePresent,
   Optional,
   PrecinctId,
+  unsafeParse,
   validateVotes,
   VotesDict,
   YesNoVote,
@@ -282,7 +284,9 @@ export function decodeBallotConfigFromReader(
     : undefined;
   const isTestMode = bits.readBoolean();
   const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
-  const ballotId = bits.readBoolean() ? bits.readString() : undefined;
+  const ballotId = bits.readBoolean()
+    ? unsafeParse(BallotIdSchema, bits.readString())
+    : undefined;
 
   const ballotStyle = ballotStyles[ballotStyleIndex];
   const precinct = precincts[precinctIndex];
@@ -592,7 +596,7 @@ export function decodeBallotFromReader(
   });
 
   const {
-    ballotId = '',
+    ballotId,
     ballotStyleId,
     ballotType,
     isTestMode,
