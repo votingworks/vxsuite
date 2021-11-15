@@ -36,6 +36,7 @@ export = {
   reportUnusedDisableDirectives: true,
   rules: {
     'vx/gts-array-type-style': 'error',
+    'vx/gts-constants': 'error',
     'vx/gts-direct-module-export-access-only': 'error',
     'vx/gts-func-style': 'error',
     'vx/gts-jsdoc': 'error',
