@@ -7,7 +7,6 @@ import {
   Dictionary,
   MachineId,
   Optional,
-  PartyId,
   Precinct,
   PrecinctId,
   VotingMethod,
@@ -75,7 +74,7 @@ export interface BatchReportScreenProps {
   batchId: string;
 }
 export interface PartyReportScreenProps {
-  partyId: PartyId;
+  partyId: string;
 }
 export interface VotingMethodReportScreenProps {
   votingMethod: string;

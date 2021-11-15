@@ -4,7 +4,9 @@ import {
   ContestOptionTally,
   Dictionary,
   expandEitherNeitherContests,
+  PartyIdSchema,
   Tally,
+  unsafeParse,
   VotingMethod,
   writeInCandidate,
 } from '@votingworks/types';
@@ -505,10 +507,11 @@ test('multi party primary tally can compress and be read back and end with the o
     expectedTally.contestTallies
   );
 
+  const party0 = unsafeParse(PartyIdSchema, '0');
   const expectedLibertyTally = calculateTallyForCastVoteRecords(
     electionMultiParty,
     new Set(castVoteRecords),
-    '0'
+    party0
   );
   // can read for a specific party id
   const processedLibertyTally = readCompressedTally(
@@ -520,7 +523,7 @@ test('multi party primary tally can compress and be read back and end with the o
       expectedLibertyTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ??
         0,
     ],
-    '0'
+    party0
   );
   delete expectedLibertyTally.ballotCountsByVotingMethod[VotingMethod.Unknown];
   expect(processedLibertyTally.ballotCountsByVotingMethod).toStrictEqual(
@@ -535,8 +538,10 @@ test('multi party primary tally can compress and be read back and end with the o
 });
 
 describe('getTallyIdentifier', () => {
+  const party1 = unsafeParse(PartyIdSchema, 'party1');
+
   test('returns expected identifier with a party and precinct', () => {
-    expect(getTallyIdentifier('party1', 'precinct1')).toBe('party1,precinct1');
+    expect(getTallyIdentifier(party1, 'precinct1')).toBe('party1,precinct1');
   });
 
   test('returns expected identifier with no party and a precinct', () => {
@@ -546,7 +551,7 @@ describe('getTallyIdentifier', () => {
   });
 
   test('returns expected identifier with a party and no precinct', () => {
-    expect(getTallyIdentifier('party1')).toBe('party1,__ALL_PRECINCTS');
+    expect(getTallyIdentifier(party1)).toBe('party1,__ALL_PRECINCTS');
   });
 
   test('returns expected identifier with no party and no precinct', () => {

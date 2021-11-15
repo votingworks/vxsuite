@@ -9,6 +9,8 @@ import {
   VotingMethod,
   getLabelForVotingMethod,
   Tally,
+  unsafeParse,
+  PartyIdSchema,
 } from '@votingworks/types';
 import {
   ContestTally,
@@ -96,7 +98,7 @@ export function TallyReportScreen(): JSX.Element {
 
   const ballotStylePartyIds =
     partyIdFromProps !== undefined
-      ? [partyIdFromProps]
+      ? [unsafeParse(PartyIdSchema, partyIdFromProps)]
       : Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
 
   const precinctIds =

@@ -12,6 +12,8 @@ import {
   TallyCategory,
   VotingMethod,
   writeInCandidate,
+  unsafeParse,
+  PartyIdSchema,
 } from '@votingworks/types';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 
@@ -22,20 +24,6 @@ import {
   convertSemsFileToExternalTally,
   parseSemsFileAndValidateForElection,
 } from './sems_tallies';
-
-const mockSemsRow: SemsFileRow = {
-  countyId: '',
-  precinctId: '',
-  contestId: '',
-  contestTitle: '',
-  partyId: '',
-  partyName: '',
-  candidateId: '',
-  candidateName: '',
-  candidatePartyId: '',
-  candidatePartyName: '',
-  numberOfVotes: 0,
-};
 
 const multiPartyPrimaryElection =
   electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
@@ -49,6 +37,20 @@ const primarySemsContent = electionMultiPartyPrimaryWithDataFiles.semsData;
 const presidentcontest = electionSample.contests.find(
   (c) => c.id === 'president'
 ) as CandidateContest;
+
+const mockSemsRow: SemsFileRow = {
+  countyId: '',
+  precinctId: '',
+  contestId: '',
+  contestTitle: '',
+  partyId: unsafeParse(PartyIdSchema, 'placeholder-party-id'),
+  partyName: '',
+  candidateId: '',
+  candidateName: '',
+  candidatePartyId: unsafeParse(PartyIdSchema, 'placeholder-party-id'),
+  candidatePartyName: '',
+  numberOfVotes: 0,
+};
 
 describe('getContestTallyForCandidateContest', () => {
   it('computes ContestTally properly for file rows', () => {

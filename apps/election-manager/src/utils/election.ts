@@ -35,7 +35,7 @@ export function getDistrictIdsForPartyId(
 export function getPartiesWithPrimaryElections(election: Election): Party[] {
   const partyIds = election.ballotStyles
     .map((bs) => bs.partyId)
-    .filter((id): id is string => id !== undefined);
+    .filter((id): id is PartyId => id !== undefined);
   return election.parties.filter((party) => partyIds.includes(party.id));
 }
 

@@ -14,6 +14,7 @@ import {
   FullElectionTally,
   Id,
   Party,
+  PartyIdSchema,
   PrecinctId,
   Tally,
   TallyCategory,
@@ -43,6 +44,10 @@ import {
 
 const multiPartyPrimaryElection =
   electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+const party0 = unsafeParse(PartyIdSchema, '0');
+const party2 = unsafeParse(PartyIdSchema, '2');
+const party3 = unsafeParse(PartyIdSchema, '3');
+const party4 = unsafeParse(PartyIdSchema, '4');
 
 export function parseCvrs(cvrsFileContents: string): CastVoteRecord[] {
   const lines = cvrsFileContents.split('\n');
@@ -303,7 +308,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
 
   test('when filtering by party', () => {
     expect(
-      filterTalliesByParams(electionTally, election, { partyId: '0' })
+      filterTalliesByParams(electionTally, election, { partyId: party0 })
     ).toStrictEqual(getEmptyTally());
   });
 
@@ -320,7 +325,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
       precinctId: 'precinct-1',
       scannerId: 'scanner-1',
       votingMethod: VotingMethod.Precinct,
-      partyId: '0',
+      partyId: party0,
       batchId: '1234-1',
     });
     expectAllEmptyTallies(filteredTally);
@@ -626,7 +631,7 @@ describe('filterTalliesByParams in a primary election', () => {
 
   const expectedPartyInformation = [
     {
-      partyId: '0',
+      partyId: party0,
       contestIds: [
         'governor-contest-liberty',
         'mayor-contest-liberty',
@@ -642,7 +647,7 @@ describe('filterTalliesByParams in a primary election', () => {
       },
     },
     {
-      partyId: '3',
+      partyId: party3,
       contestIds: [
         'governor-contest-constitution',
         'mayor-contest-constitution',
@@ -657,7 +662,7 @@ describe('filterTalliesByParams in a primary election', () => {
       },
     },
     {
-      partyId: '4',
+      partyId: party4,
       contestIds: [
         'governor-contest-federalist',
         'mayor-contest-federalist',
@@ -728,7 +733,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResults2 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: '2' }
+      { partyId: party2 }
     );
     expectAllEmptyTallies(filteredResults2);
     expect(filteredResults2.contestTallies).toStrictEqual({});
@@ -822,7 +827,7 @@ describe('filterTalliesByParams in a primary election', () => {
       const filteredResults = filterTalliesByParams(
         electionTally,
         multiPartyPrimaryElection,
-        { partyId: '4', precinctId }
+        { partyId: party4, precinctId }
       );
       expect(Object.keys(filteredResults.contestTallies)).toStrictEqual(
         expectedParty4Info.contestIds
@@ -833,7 +838,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filterParty5Precinct1 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: '4', precinctId: 'precinct-1' }
+      { partyId: party4, precinctId: 'precinct-1' }
     );
     expect(filterParty5Precinct1.numberOfBallotsCounted).toBe(300);
     expect(Object.keys(filterParty5Precinct1.contestTallies)).toStrictEqual(
@@ -857,7 +862,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filterParty5Precinct5 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: '4', precinctId: 'precinct-5' }
+      { partyId: party4, precinctId: 'precinct-5' }
     );
     expect(filterParty5Precinct5.numberOfBallotsCounted).toBe(420);
     expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
@@ -881,7 +886,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filterParty5InvalidPrecinct = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: '4', precinctId: 'not-a-real-precinct' }
+      { partyId: party4, precinctId: 'not-a-real-precinct' }
     );
     expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
       expectedParty4Info.contestIds
@@ -896,17 +901,17 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsScanner1 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { scannerId: 'scanner-1', partyId: '0' }
+      { scannerId: 'scanner-1', partyId: party0 }
     );
     const filteredResultsScanner2 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { scannerId: 'scanner-2', partyId: '0' }
+      { scannerId: 'scanner-2', partyId: party0 }
     );
     const filteredResultsScanner3 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { scannerId: 'scanner-3', partyId: '0' }
+      { scannerId: 'scanner-3', partyId: party0 }
     );
 
     // All three scanners have identical copies of results, but the CVRs are different due to the scanner and ballot ids
@@ -954,7 +959,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsInvalidScanner = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { scannerId: 'not-a-scanner', partyId: '0' }
+      { scannerId: 'not-a-scanner', partyId: party0 }
     );
     expect(
       Object.keys(filteredResultsInvalidScanner.contestTallies)
@@ -966,7 +971,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsLibertyAbsentee = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { votingMethod: VotingMethod.Absentee, partyId: '0' }
+      { votingMethod: VotingMethod.Absentee, partyId: party0 }
     );
     expect(filteredResultsLibertyAbsentee.numberOfBallotsCounted).toBe(342);
     expect(
@@ -980,7 +985,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsLibertyPrecinct = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { votingMethod: VotingMethod.Precinct, partyId: '0' }
+      { votingMethod: VotingMethod.Precinct, partyId: party0 }
     );
     expect(filteredResultsLibertyPrecinct.numberOfBallotsCounted).toBe(0);
     expect(
@@ -994,7 +999,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsConstitutionPrecinct = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { votingMethod: VotingMethod.Precinct, partyId: '3' }
+      { votingMethod: VotingMethod.Precinct, partyId: party3 }
     );
     expect(filteredResultsConstitutionPrecinct.numberOfBallotsCounted).toBe(
       292
@@ -1010,7 +1015,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsConstitutionAbsentee = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { votingMethod: VotingMethod.Absentee, partyId: '3' }
+      { votingMethod: VotingMethod.Absentee, partyId: party3 }
     );
     expect(filteredResultsConstitutionAbsentee.numberOfBallotsCounted).toBe(93);
     expect(
@@ -1024,7 +1029,7 @@ describe('filterTalliesByParams in a primary election', () => {
     const filteredResultsUnknownAbsentee = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { votingMethod: VotingMethod.Unknown, partyId: '0' }
+      { votingMethod: VotingMethod.Unknown, partyId: party0 }
     );
     expect(filteredResultsUnknownAbsentee.numberOfBallotsCounted).toBe(1368);
     expect(
@@ -1040,7 +1045,7 @@ describe('filterTalliesByParams in a primary election', () => {
     expect(
       filterTalliesByParams(electionTally, multiPartyPrimaryElection, {
         precinctId: 'not-a-precinct',
-        partyId: 'not-a-party',
+        partyId: unsafeParse(PartyIdSchema, 'not-a-party'),
         batchId: 'not-a-batch',
         scannerId: 'not-a-scanner',
         votingMethod: VotingMethod.Unknown,
@@ -1095,7 +1100,7 @@ describe('filterTalliesByParty', () => {
     const libertyPartyTally = calculateTallyForCastVoteRecords(
       election,
       new Set(castVoteRecords),
-      '0'
+      party0
     );
 
     const filteredTally = filterTalliesByParty({

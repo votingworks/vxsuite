@@ -3,6 +3,7 @@ import {
   BallotStyle,
   ElectionSchema,
   PartyId,
+  PartyIdSchema,
   PrecinctId,
   safeParseElection,
   VoterCardData,
@@ -65,7 +66,11 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
     z.string()
   );
   const [ballotStyleId, setBallotStyleId] = useState<string>();
-  const [partyId, setPartyId] = useStoredState(storage, 'partyId', z.string());
+  const [partyId, setPartyId] = useStoredState(
+    storage,
+    'partyId',
+    PartyIdSchema
+  );
 
   const logger = useMemo(
     () => new Logger(LogSource.VxBallotActivationApp, window.kiosk),

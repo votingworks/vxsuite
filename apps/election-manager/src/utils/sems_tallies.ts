@@ -21,6 +21,8 @@ import {
   ContestId,
   PartyId,
   CandidateId,
+  unsafeParse,
+  PartyIdSchema,
 } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/utils';
@@ -181,11 +183,11 @@ function parseFileContentRows(fileContent: string): SemsFileRow[] {
         precinctId: entries[1],
         contestId: entries[2],
         contestTitle: entries[3],
-        partyId: entries[4],
+        partyId: unsafeParse(PartyIdSchema, entries[4]),
         partyName: entries[5],
         candidateId: entries[6],
         candidateName: entries[7],
-        candidatePartyId: entries[8],
+        candidatePartyId: unsafeParse(PartyIdSchema, entries[8]),
         candidatePartyName: entries[9],
         // eslint-disable-next-line vx/gts-safe-number-parse
         numberOfVotes: parseInt(entries[10], 10),

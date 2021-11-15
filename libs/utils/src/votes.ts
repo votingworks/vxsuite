@@ -26,6 +26,8 @@ import {
   PrecinctId,
   CandidateId,
   ContestTallyMeta,
+  unsafeParse,
+  PartyIdSchema,
 } from '@votingworks/types';
 import { strict as assert } from 'assert';
 import { find } from './find';
@@ -137,7 +139,7 @@ export function getVotingMethodForCastVoteRecord(
 interface TallyParams {
   election: Election;
   votes: VotesDict[];
-  filterContestsByParty?: string;
+  filterContestsByParty?: PartyId;
 }
 export function tallyVotesByContest({
   election,
@@ -234,7 +236,7 @@ export function tallyVotesByContest({
 export function calculateTallyForCastVoteRecords(
   election: Election,
   castVoteRecords: ReadonlySet<CastVoteRecord>,
-  filterContestsByParty?: string
+  filterContestsByParty?: PartyId
 ): Tally {
   const allVotes: VotesDict[] = [];
   const ballotCountsByVotingMethod: Dictionary<number> = {};
@@ -401,7 +403,9 @@ export function computeTallyWithPrecomputedCategories(
       tallyResults[key] = calculateTallyForCastVoteRecords(
         election,
         cvrs,
-        tallyCategory === TallyCategory.Party ? key : undefined
+        tallyCategory === TallyCategory.Party
+          ? unsafeParse(PartyIdSchema, key)
+          : undefined
       );
     }
     resultsByCategory.set(tallyCategory, tallyResults);

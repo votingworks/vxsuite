@@ -44,8 +44,8 @@ function* findDuplicateIds<T extends { id: unknown }>(
   }
 }
 
-export type PartyId = Id;
-export const PartyIdSchema: z.ZodSchema<PartyId> = IdSchema;
+export type PartyId = NewType<string, 'PartyId'>;
+export const PartyIdSchema = (IdSchema as unknown) as z.ZodSchema<PartyId>;
 export interface Party {
   readonly id: PartyId;
   readonly name: string;

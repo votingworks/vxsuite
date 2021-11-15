@@ -8,6 +8,7 @@ import {
 import {
   BallotIdSchema,
   CastVoteRecord,
+  PartyIdSchema,
   PrecinctSelectionKind,
   unsafeParse,
 } from '@votingworks/types';
@@ -133,10 +134,11 @@ const primaryCvr: CastVoteRecord = {
 };
 
 test('renders as expected for all precincts in a primary election', async () => {
+  const party0 = unsafeParse(PartyIdSchema, '0');
   const tally = calculateTallyForCastVoteRecords(
     electionMinimalExhaustiveSampleDefintion.election,
     new Set([primaryCvr]),
-    '0'
+    party0
   );
   render(
     <PrecinctScannerTallyReport
@@ -148,7 +150,7 @@ test('renders as expected for all precincts in a primary election', async () => 
       reportPurpose="Testing"
       isPollsOpen
       tally={tally}
-      partyId="0"
+      partyId={party0}
     />
   );
   screen.getByText('All Precincts Polls Opened Tally Report');
@@ -206,10 +208,11 @@ const primaryCvr2: CastVoteRecord = {
 };
 
 test('renders as expected for a single precincts in a primary election', async () => {
+  const party1 = unsafeParse(PartyIdSchema, '1');
   const tally = calculateTallyForCastVoteRecords(
     electionMinimalExhaustiveSampleDefintion.election,
     new Set([primaryCvr2]),
-    '1'
+    party1
   );
   render(
     <PrecinctScannerTallyReport
@@ -222,7 +225,7 @@ test('renders as expected for a single precincts in a primary election', async (
       reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}
-      partyId="1"
+      partyId={party1}
     />
   );
   screen.getByText('Precinct 1 Polls Closed Tally Report');
