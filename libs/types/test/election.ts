@@ -1,4 +1,5 @@
-import { Election, safeParseElection } from '../src/election';
+import { DistrictIdSchema, Election, safeParseElection } from '../src/election';
+import { unsafeParse } from '../src/generic';
 
 export const electionData = `
 {
@@ -107,7 +108,7 @@ export const electionWithMsEitherNeither: Election = {
       title: 'MSC',
       description: 'MSC',
       section: 'SECTION',
-      districtId: 'D',
+      districtId: unsafeParse(DistrictIdSchema, 'D'),
       eitherNeitherContestId: 'MSEN',
       eitherNeitherLabel: 'EITHER NEITHER',
       eitherOption: {

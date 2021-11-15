@@ -73,8 +73,8 @@ export const PartiesSchema: z.ZodSchema<Parties> = z
     }
   });
 
-export type DistrictId = Id;
-export const DistrictIdSchema: z.ZodSchema<DistrictId> = IdSchema;
+export type DistrictId = NewType<string, 'DistrictId'>;
+export const DistrictIdSchema = (IdSchema as unknown) as z.ZodSchema<DistrictId>;
 export interface District {
   readonly id: DistrictId;
   readonly name: string;
