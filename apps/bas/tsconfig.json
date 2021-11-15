@@ -1,5 +1,7 @@
 {
   "extends": "../../tsconfig.shared.json",
+  "include": ["src"],
+  "exclude": ["src/setupProxy.js"],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -15,13 +17,11 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "exclude": ["src/setupProxy.js"],
-  "include": ["src"],
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/logging" },
-    { "path": "../../libs/types" },
-    { "path": "../../libs/ui" },
-    { "path": "../../libs/utils" }
+    { "path": "../../libs/logging/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/ui/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" }
   ]
 }

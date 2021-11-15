@@ -6,15 +6,17 @@
   "keywords": [],
   "license": "GPL-3.0",
   "author": "VotingWorks",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build"
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "tsc --build",
-    "build:watch": "tsc --build --watch",
+    "type-check:watch": "tsc --build --watch",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "jest",

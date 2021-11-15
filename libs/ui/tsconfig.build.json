@@ -1,17 +1,13 @@
 {
-  "extends": "../../tsconfig.shared.json",
-  "compilerOptions": {
-    "module": "commonjs",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "react-jsx",
-    "composite": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  },
+  "extends": "./tsconfig.json",
   "include": ["src"],
-  "exclude": [],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "build",
+    "declaration": true
+  },
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/logging/tsconfig.build.json" },

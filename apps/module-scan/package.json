@@ -10,8 +10,10 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "tsc --build",
-    "build:watch": "tsc --build --watch",
+    "type-check:watch": "tsc --build --watch",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "dev": "ts-node --transpile-only --files ./src/index.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint .",
@@ -21,7 +23,6 @@
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",
-    "watch": "tsc --build --watch",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
