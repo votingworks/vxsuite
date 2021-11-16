@@ -9,6 +9,7 @@ import {
   BallotIdSchema,
   CastVoteRecord,
   PartyIdSchema,
+  PrecinctIdSchema,
   PrecinctSelectionKind,
   unsafeParse,
 } from '@votingworks/types';
@@ -119,7 +120,7 @@ test('renders as expected for a single precinct in a general election', async ()
 });
 
 const primaryCvr: CastVoteRecord = {
-  _precinctId: 'precinct-1',
+  _precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
   _ballotId: unsafeParse(BallotIdSchema, 'test-123'),
   _ballotStyleId: '1M',
   _batchId: 'batch-1',
@@ -194,7 +195,7 @@ test('renders as expected for all precincts in a primary election', async () => 
 });
 
 const primaryCvr2: CastVoteRecord = {
-  _precinctId: 'precinct-1',
+  _precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
   _ballotId: unsafeParse(BallotIdSchema, 'test-123'),
   _ballotStyleId: '1F',
   _batchId: 'batch-1',
@@ -220,7 +221,7 @@ test('renders as expected for a single precincts in a primary election', async (
       electionDefinition={electionMinimalExhaustiveSampleDefintion}
       precinctSelection={{
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       }}
       reportPurpose="Testing"
       isPollsOpen={false}

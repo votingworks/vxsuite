@@ -21,9 +21,9 @@ const ALL_PRECINCTS = '__ALL_PRECINCTS';
 
 export function getTallyIdentifier(
   partyId?: PartyId,
-  precinctId: PrecinctId = ALL_PRECINCTS
+  precinctId?: PrecinctId
 ): string {
-  return `${partyId},${precinctId}`;
+  return `${partyId},${precinctId ?? ALL_PRECINCTS}`;
 }
 
 /**

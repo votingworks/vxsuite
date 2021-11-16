@@ -9,6 +9,7 @@ import {
   getContests,
   MsEitherNeitherContest,
   PartyIdSchema,
+  PrecinctIdSchema,
   unsafeParse,
   vote,
   YesNoContest,
@@ -123,7 +124,7 @@ test('generates a CVR from a completed BMD ballot', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -194,7 +195,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -267,7 +268,7 @@ test('generates a CVR from a completed HMPB page', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -364,7 +365,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -462,7 +463,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -559,7 +560,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -671,7 +672,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -726,7 +727,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -780,7 +781,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
 test('fails to generate a CVR from an invalid HMPB sheet with different ballot styles', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -848,7 +849,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
             electionHash: '',
             ballotType: BallotType.Standard,
             ballotStyleId,
-            precinctId: '6522',
+            precinctId: unsafeParse(PrecinctIdSchema, '6522'),
             isTestMode: false,
             pageNumber: 1,
           },
@@ -873,7 +874,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
             electionHash: '',
             ballotType: BallotType.Standard,
             ballotStyleId,
-            precinctId: '6523',
+            precinctId: unsafeParse(PrecinctIdSchema, '6523'),
             isTestMode: false,
             pageNumber: 2,
           },
@@ -889,7 +890,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -985,7 +986,7 @@ test('generates a CVR from an adjudicated write-in', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -1095,7 +1096,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -1213,7 +1214,7 @@ test('fails to generate CVRs from invalid test mode pages', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = unsafeParse(PrecinctIdSchema, '6522');
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 

@@ -4,6 +4,7 @@ import {
   BlankPage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  PrecinctIdSchema,
   UnreadablePage,
   unsafeParse,
 } from '@votingworks/types';
@@ -14,7 +15,7 @@ const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   ballotId: unsafeParse(BallotIdSchema, 'abc'),
   metadata: {
     ballotStyleId: '1',
-    precinctId: '6522',
+    precinctId: unsafeParse(PrecinctIdSchema, '6522'),
     ballotType: BallotType.Standard,
     electionHash: '',
     isTestMode: false,
@@ -33,7 +34,7 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
     electionHash: '',
     ballotType: BallotType.Standard,
     ballotStyleId: '1',
-    precinctId: '6522',
+    precinctId: unsafeParse(PrecinctIdSchema, '6522'),
     isTestMode: false,
     pageNumber: 1,
   },

@@ -3,7 +3,12 @@ import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { BallotType, AdjudicationReason } from '@votingworks/types';
+import {
+  BallotType,
+  AdjudicationReason,
+  unsafeParse,
+  PrecinctIdSchema,
+} from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
 import { BallotEjectScreen } from './ballot_eject_screen';
@@ -61,7 +66,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
             },
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -95,7 +100,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
             },
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -160,7 +165,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
             },
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -194,7 +199,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
             },
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -259,7 +264,7 @@ test('says the ballot sheet is blank if it is', async () => {
             },
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -297,7 +302,7 @@ test('says the ballot sheet is blank if it is', async () => {
             },
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -361,7 +366,7 @@ test('calls out live ballot sheets in test mode', async () => {
             type: 'InvalidTestModePage',
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -376,7 +381,7 @@ test('calls out live ballot sheets in test mode', async () => {
             type: 'InvalidTestModePage',
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -419,7 +424,7 @@ test('calls out test ballot sheets in live mode', async () => {
             type: 'InvalidTestModePage',
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -434,7 +439,7 @@ test('calls out test ballot sheets in live mode', async () => {
             type: 'InvalidTestModePage',
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -519,7 +524,7 @@ test('shows invalid election screen when appropriate', async () => {
             type: 'InvalidPrecinctPage',
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -534,7 +539,7 @@ test('shows invalid election screen when appropriate', async () => {
             type: 'InvalidPrecinctPage',
             metadata: {
               ballotStyleId: '1',
-              precinctId: '1',
+              precinctId: unsafeParse(PrecinctIdSchema, '1'),
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
@@ -586,7 +591,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
               },
               metadata: {
                 ballotStyleId: '1',
-                precinctId: '1',
+                precinctId: unsafeParse(PrecinctIdSchema, '1'),
                 ballotType: BallotType.Standard,
                 electionHash: 'abcde',
                 isTestMode: false,
@@ -612,7 +617,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
               },
               metadata: {
                 ballotStyleId: '1',
-                precinctId: '1',
+                precinctId: unsafeParse(PrecinctIdSchema, '1'),
                 ballotType: BallotType.Standard,
                 electionHash: 'abcde',
                 isTestMode: false,
@@ -641,7 +646,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
             ballotImage: {
               metadata: {
                 ballotStyleId: '1',
-                precinctId: '1',
+                precinctId: unsafeParse(PrecinctIdSchema, '1'),
                 ballotType: BallotType.Standard,
                 electionHash: 'abcde',
                 isTestMode: false,
@@ -659,7 +664,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
             ballotImage: {
               metadata: {
                 ballotStyleId: '1',
-                precinctId: '1',
+                precinctId: unsafeParse(PrecinctIdSchema, '1'),
                 ballotType: BallotType.Standard,
                 electionHash: 'abcde',
                 isTestMode: false,

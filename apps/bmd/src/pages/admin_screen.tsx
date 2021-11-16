@@ -1,7 +1,11 @@
 import { DateTime } from 'luxon';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { ElectionDefinition } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { formatFullDateTimeZone, Printer } from '@votingworks/utils';
 import {
   Button,
@@ -61,14 +65,14 @@ export function AdminScreen({
 }: Props): JSX.Element {
   const election = electionDefinition?.election;
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
-    const precinctId = event.currentTarget.value;
+    const precinctIdSelection = event.currentTarget.value;
 
-    if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
+    if (precinctIdSelection === ALL_PRECINCTS_OPTION_VALUE) {
       updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts });
-    } else if (precinctId) {
+    } else if (precinctIdSelection) {
       updateAppPrecinct({
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId,
+        precinctId: unsafeParse(PrecinctIdSchema, precinctIdSelection),
       });
     }
   };

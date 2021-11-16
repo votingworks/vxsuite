@@ -3,7 +3,12 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { pathExists } from 'fs-extra';
 import { tmpNameSync } from 'tmp';
-import { BallotMetadata, BallotType } from '@votingworks/types';
+import {
+  BallotMetadata,
+  BallotType,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { loadImageData } from '../util/images';
 import { Store } from '../store';
@@ -82,7 +87,7 @@ test('generates one image per PDF page per DB', async () => {
     electionHash: '',
     isTestMode: false,
     locales: { primary: 'en-US' },
-    precinctId: '6538',
+    precinctId: unsafeParse(PrecinctIdSchema, '6538'),
   };
   await store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
     {

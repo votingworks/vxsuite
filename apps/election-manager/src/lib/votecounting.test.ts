@@ -2,6 +2,7 @@ import {
   BallotIdSchema,
   Election,
   FullElectionTally,
+  PrecinctIdSchema,
   TallyCategory,
   unsafeParse,
 } from '@votingworks/types';
@@ -111,7 +112,7 @@ test('undervotes counted in n of m contest properly', () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12D',
     _ballotType: 'standard',
-    _precinctId: '21',
+    _precinctId: unsafeParse(PrecinctIdSchema, '21'),
     _testBallot: false,
     _scannerId: '1',
     _batchId: '1',
@@ -180,7 +181,7 @@ test('overvotes counted in n of m contest properly', () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12D',
     _ballotType: 'standard',
-    _precinctId: '21',
+    _precinctId: unsafeParse(PrecinctIdSchema, '21'),
     _testBallot: false,
     _scannerId: '1',
     _batchId: '1',
@@ -252,7 +253,7 @@ test('overvotes counted in single seat contest properly', () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12D',
     _ballotType: 'standard',
-    _precinctId: '21',
+    _precinctId: unsafeParse(PrecinctIdSchema, '21'),
     _testBallot: false,
     _scannerId: '1',
     _batchId: '1',
@@ -322,7 +323,7 @@ test('parsing CVRs flags when a precinct ID in a CVR is not present in the elect
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: 'not real',
+    _precinctId: unsafeParse(PrecinctIdSchema, 'not real'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -342,7 +343,7 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
   const cvr: CastVoteRecord = {
     _ballotStyleId: '123',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -363,7 +364,7 @@ test('parsing CVRs flags when a contest ID in a CVR is not present in the electi
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -386,7 +387,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -411,7 +412,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
   const cvr2: CastVoteRecord = {
     _ballotStyleId: '4',
     _ballotType: 'standard',
-    _precinctId: '6538',
+    _precinctId: unsafeParse(PrecinctIdSchema, '6538'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -440,7 +441,7 @@ test('parsing CVRs flags when test ballot flag is not a boolean', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
@@ -463,7 +464,7 @@ test('parsing CVRs flags when page number is set but not a number', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -487,7 +488,7 @@ test('parsing CVRs flags when page numbers is set but not an array of numbers', 
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -511,7 +512,7 @@ test('parsing CVRs flags when both _pageNumber and _pageNumbers are set', () => 
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -535,7 +536,7 @@ test('parsing CVRs flags with _pageNumbers set properly works', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
@@ -556,7 +557,7 @@ test('parsing CVRs flags when ballot ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     // @ts-expect-error - number instead of a string
     _ballotId: 44,
     _scannerId: 'scanner-1',
@@ -579,7 +580,7 @@ test('parsing CVRs flags when scanner ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     // @ts-expect-error - false instead of a string
     _scannerId: false,
@@ -602,7 +603,7 @@ test('parsing CVRs flags when batch ID is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     // @ts-expect-error - false instead of a string
@@ -625,7 +626,7 @@ test('parsing CVRs flags when batch label is not a string', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
@@ -649,7 +650,7 @@ test('parsing CVRs flags when locale is not well formed', () => {
   const cvr: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
@@ -667,7 +668,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
   const cvr1: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',
@@ -677,7 +678,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
   const cvr2: CastVoteRecord = {
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _batchId: '1',

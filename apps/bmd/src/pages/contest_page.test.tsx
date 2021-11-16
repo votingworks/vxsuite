@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import { PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
@@ -15,7 +16,7 @@ it('Renders ContestPage', () => {
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
-      precinctId: electionSample.precincts[0].id,
+      precinctId: unsafeParse(PrecinctIdSchema, electionSample.precincts[0].id),
       ballotStyleId: electionSample.ballotStyles[0].id,
     }
   );

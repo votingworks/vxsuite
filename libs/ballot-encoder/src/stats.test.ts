@@ -3,11 +3,13 @@ import {
   BallotType,
   DistrictIdSchema,
   Election,
+  PrecinctIdSchema,
   unsafeParse,
 } from '@votingworks/types';
 import { encodeBallot, encodeHmpbBallotPageMetadata } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
+const precinctId = unsafeParse(PrecinctIdSchema, 'precinct1');
 const election: Election = {
   title: 'Election',
   county: { id: 'nowhere', name: 'Nowhere' },
@@ -15,9 +17,9 @@ const election: Election = {
   date: '1989-06-23T00:00:00Z',
   districts: [{ id: district1Id, name: 'District 1' }],
   parties: [],
-  precincts: [{ id: 'precinct1', name: 'Precinct 1' }],
+  precincts: [{ id: precinctId, name: 'Precinct 1' }],
   ballotStyles: [
-    { id: 'style1', districts: [district1Id], precincts: ['precinct1'] },
+    { id: 'style1', districts: [district1Id], precincts: [precinctId] },
   ],
   contests: [
     {
@@ -50,7 +52,7 @@ test('HMPB: smallest possible encoded metadata', () => {
     encodeHmpbBallotPageMetadata(election, {
       electionHash: electionHash.slice(0, 20),
       ballotStyleId: 'style1',
-      precinctId: 'precinct1',
+      precinctId: unsafeParse(PrecinctIdSchema, 'precinct1'),
       ballotType: BallotType.Standard,
       isTestMode: true,
       locales: { primary: 'en-US' },

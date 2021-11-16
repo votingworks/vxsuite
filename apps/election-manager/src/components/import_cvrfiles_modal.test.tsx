@@ -7,7 +7,11 @@ import {
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { usbstick } from '@votingworks/utils';
-import { BallotIdSchema, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
   renderInAppContext,
@@ -251,7 +255,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotId: unsafeParse(BallotIdSchema, 'abc'),
       _ballotStyleId: '5',
       _ballotType: 'standard',
-      _precinctId: '6522',
+      _precinctId: unsafeParse(PrecinctIdSchema, '6522'),
       _testBallot: true,
       _scannerId: 'abc',
       _batchId: 'batch-1',
@@ -338,7 +342,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotId: unsafeParse(BallotIdSchema, 'abc'),
       _ballotStyleId: '5',
       _ballotType: 'standard',
-      _precinctId: '6522',
+      _precinctId: unsafeParse(PrecinctIdSchema, '6522'),
       _testBallot: false,
       _scannerId: 'abc',
       _batchId: 'batch-1',
@@ -401,7 +405,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotId: unsafeParse(BallotIdSchema, 'abc'),
       _ballotStyleId: '5',
       _ballotType: 'standard',
-      _precinctId: '6522',
+      _precinctId: unsafeParse(PrecinctIdSchema, '6522'),
       _testBallot: false,
       _scannerId: 'abc',
       _batchId: 'batch-1',

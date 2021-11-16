@@ -4,7 +4,9 @@ import {
   BallotMetadata,
   BallotType,
   CandidateContest,
+  PrecinctIdSchema,
   SerializableBallotPageLayout,
+  unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
@@ -82,7 +84,7 @@ test('HMPB template handling', async () => {
     electionHash: '',
     locales: { primary: 'en-US' },
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     isTestMode: false,
     ballotType: BallotType.Standard,
   };
@@ -125,7 +127,7 @@ test('HMPB template handling', async () => {
                 ballotType: BallotType.Standard,
                 locales: { primary: 'en-US' },
                 ballotStyleId: '12',
-                precinctId: '23',
+                precinctId: unsafeParse(PrecinctIdSchema, '23'),
                 isTestMode: false,
                 pageNumber: 1,
               },
@@ -140,7 +142,7 @@ test('HMPB template handling', async () => {
                 ballotType: BallotType.Standard,
                 locales: { primary: 'en-US' },
                 ballotStyleId: '12',
-                precinctId: '23',
+                precinctId: unsafeParse(PrecinctIdSchema, '23'),
                 isTestMode: false,
                 pageNumber: 2,
               },
@@ -212,7 +214,7 @@ test('adjudication', async () => {
   const metadata: BallotMetadata = {
     electionHash: '',
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     isTestMode: false,
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
@@ -312,7 +314,7 @@ test('adjudication', async () => {
         metadata: {
           electionHash: '',
           ballotStyleId: '12',
-          precinctId: '23',
+          precinctId: unsafeParse(PrecinctIdSchema, '23'),
           isTestMode: false,
           pageNumber: 1,
           locales: { primary: 'en-US' },

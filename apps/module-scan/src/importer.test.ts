@@ -7,6 +7,8 @@ import {
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
+  PrecinctIdSchema,
+  unsafeParse,
 } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
 import * as fs from 'fs-extra';
@@ -200,7 +202,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
       ballotType: BallotType.Standard,
       locales: { primary: 'en-US' },
       ballotStyleId: '77',
-      precinctId: '42',
+      precinctId: unsafeParse(PrecinctIdSchema, '42'),
       isTestMode: false,
     })
   ).rejects.toThrowError(

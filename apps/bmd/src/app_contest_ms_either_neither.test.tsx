@@ -6,6 +6,8 @@ import {
   getBallotStyle,
   getContests,
   parseElection,
+  PrecinctIdSchema,
+  unsafeParse,
   vote,
 } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
@@ -39,7 +41,7 @@ const electionDefinition = asElectionDefinition(parseElection(electionSample));
 test('Renders Ballot with EitherNeither: blank', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/print',
     electionDefinition,
     votes: vote(
@@ -67,7 +69,7 @@ test('Renders Ballot with EitherNeither: blank', async () => {
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/print',
     electionDefinition,
     votes: vote(
@@ -98,7 +100,7 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/print',
     electionDefinition,
     votes: vote(
@@ -129,7 +131,7 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/print',
     electionDefinition,
     votes: vote(

@@ -6,7 +6,12 @@ import { fileSync } from 'tmp';
 import { Entry, fromBuffer, ZipFile } from 'yauzl';
 import ZipStream from 'zip-stream';
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  BallotType,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { election } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { Store } from './store';
@@ -298,7 +303,7 @@ test('has cvrs.jsonl', async () => {
         ballotId: unsafeParse(BallotIdSchema, 'abc'),
         metadata: {
           ballotStyleId: '1',
-          precinctId: '6522',
+          precinctId: unsafeParse(PrecinctIdSchema, '6522'),
           ballotType: BallotType.Standard,
           electionHash: '',
           isTestMode: false,

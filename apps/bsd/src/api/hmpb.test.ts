@@ -1,6 +1,7 @@
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
+import { PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import { addTemplates, fetchNextBallotSheetToReview } from './hmpb';
 import * as config from './config';
 
@@ -38,7 +39,7 @@ test('emits an event each time a ballot begins uploading', async () => {
         {
           ballotConfig: {
             ballotStyleId: '5',
-            precinctId: '21',
+            precinctId: unsafeParse(PrecinctIdSchema, '21'),
             isLiveMode: true,
             contestIds: ['a', 'b', 'c'],
             filename: 'ballot-1.pdf',
@@ -49,7 +50,7 @@ test('emits an event each time a ballot begins uploading', async () => {
         {
           ballotConfig: {
             ballotStyleId: '5',
-            precinctId: '21',
+            precinctId: unsafeParse(PrecinctIdSchema, '21'),
             isLiveMode: false,
             contestIds: ['a', 'b', 'c'],
             filename: 'ballot-1-test.pdf',

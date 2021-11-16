@@ -3,10 +3,12 @@ import React, { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   getPrecinctById,
-  Precinct,
   VotesDict,
   Tally,
   VotingMethod,
+  unsafeParse,
+  PrecinctIdSchema,
+  PrecinctId,
 } from '@votingworks/types';
 import {
   ContestTally,
@@ -38,29 +40,30 @@ import {
   generateFileContentToSaveAsPdf,
 } from '../utils/save_as_pdf';
 
-const allPrecincts: Precinct = {
-  id: '',
-  name: 'All Precincts',
-};
+const allPrecinctsLabel = 'All Precincts';
 
 export function TestDeckScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
   const {
-    precinctId: precinctIdFromParams = '',
+    precinctId: precinctIdFromParams,
   } = useParams<PrecinctReportScreenProps>();
-  const precinctId = precinctIdFromParams.trim();
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
-  const precinct =
-    precinctId === 'all'
-      ? allPrecincts
-      : getPrecinctById({ election, precinctId });
+  const precinctId =
+    precinctIdFromParams === 'all'
+      ? unsafeParse(PrecinctIdSchema, precinctIdFromParams)
+      : undefined;
+  const precinctName =
+    precinctIdFromParams === 'all'
+      ? allPrecinctsLabel
+      : getPrecinctById({ election, precinctId: precinctId as PrecinctId })
+          ?.name;
 
   const ballots = generateTestDeckBallots({
     election,
-    precinctId: precinct?.id,
+    precinctId,
   });
 
   const votes: VotesDict[] = ballots.map((b) => b.votes as VotesDict);
@@ -82,14 +85,14 @@ export function TestDeckScreen(): JSX.Element {
   const defaultReportFilename = generateDefaultReportFilename(
     'test-desk-tally-report',
     election,
-    precinct?.name
+    precinctName
   );
 
   const pageTitle = 'Test Ballot Deck Tally';
 
   const generatedAtTime = new Date();
 
-  if (precinct?.name) {
+  if (precinctName) {
     return (
       <React.Fragment>
         <NavigationScreen>
@@ -101,7 +104,7 @@ export function TestDeckScreen(): JSX.Element {
               style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
             >
               {precinctId === 'all' ? '' : 'Precinct'} Tally Report for{' '}
-              <strong>{precinct.name}</strong>
+              <strong>{precinctName}</strong>
             </TallyReportTitle>
             <TallyReportMetadata
               generatedAtTime={generatedAtTime}
@@ -156,7 +159,7 @@ export function TestDeckScreen(): JSX.Element {
                     style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
                   >
                     {precinctId === 'all' ? '' : 'Precinct'} Tally Report for{' '}
-                    <strong>{precinct.name}</strong>
+                    <strong>{precinctName}</strong>
                   </TallyReportTitle>
                   <TallyReportMetadata
                     generatedAtTime={generatedAtTime}

@@ -1,5 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
-import { BallotType } from '@votingworks/types';
+import { BallotType, PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import { WritableStream } from 'memory-streams';
 import { mocked } from 'ts-jest/utils';
 import { countProvider } from '../util/spinner';
@@ -92,7 +92,7 @@ test('successful rescan with one non-type change', async () => {
       type: 'InterpretedBmdPage',
       metadata: {
         ballotStyleId: '1',
-        precinctId: '2',
+        precinctId: unsafeParse(PrecinctIdSchema, '2'),
         ballotType: BallotType.Standard,
         electionHash: '',
         isTestMode: false,

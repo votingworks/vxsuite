@@ -1,7 +1,9 @@
 import {
   Precinct,
   PrecinctId,
+  PrecinctIdSchema,
   SelectChangeEventFunction,
+  unsafeParse,
 } from '@votingworks/types';
 import {
   Button,
@@ -95,7 +97,9 @@ export function AdminScreen({
   );
 
   const changeAppPrecinctId: SelectChangeEventFunction = async (event) => {
-    await updateAppPrecinctId(event.currentTarget.value);
+    await updateAppPrecinctId(
+      unsafeParse(PrecinctIdSchema, event.currentTarget.value)
+    );
   };
 
   async function handleTogglingLiveMode() {

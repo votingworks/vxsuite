@@ -23,6 +23,7 @@ import {
   CandidateId,
   unsafeParse,
   PartyIdSchema,
+  PrecinctIdSchema,
 } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/utils';
@@ -180,7 +181,7 @@ function parseFileContentRows(fileContent: string): SemsFileRow[] {
     if (entries.length >= 11) {
       parsedRows.push({
         countyId: entries[0],
-        precinctId: entries[1],
+        precinctId: unsafeParse(PrecinctIdSchema, entries[1]),
         contestId: entries[2],
         contestTitle: entries[3],
         partyId: unsafeParse(PartyIdSchema, entries[4]),

@@ -3,7 +3,9 @@ import {
   BallotType,
   getBallotStyle,
   getContests,
+  PrecinctIdSchema,
   SerializableBallotPageLayout,
+  unsafeParse,
 } from '@votingworks/types';
 import { election } from '../../test/fixtures/state-of-hamilton';
 import { getBallotPageContests } from './get_ballot_page_contests';
@@ -11,7 +13,7 @@ import { getBallotPageContests } from './get_ballot_page_contests';
 function metadataForPage(pageNumber: number): BallotPageMetadata {
   return {
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     isTestMode: false,
     pageNumber,
     locales: { primary: 'en-US', secondary: 'es-US' },

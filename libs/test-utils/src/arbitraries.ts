@@ -113,7 +113,7 @@ export function arbitraryPartyId(): fc.Arbitrary<PartyId> {
  * Builds values suitable for precinct IDs.
  */
 export function arbitraryPrecinctId(): fc.Arbitrary<PrecinctId> {
-  return arbitraryId();
+  return arbitraryId() as fc.Arbitrary<PrecinctId>;
 }
 
 export function arbitraryDateTime({

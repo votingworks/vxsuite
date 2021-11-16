@@ -15,6 +15,7 @@ import {
   getPrecinctIndexById,
   isVotePresent,
   PartySchema,
+  PrecinctIdSchema,
   validateVotes,
   vote,
   withLocale,
@@ -190,14 +191,24 @@ test('getPrecinctById', () => {
   expect(
     getPrecinctById({ election, precinctId: election.precincts[0].id })
   ).toBe(election.precincts[0]);
-  expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined();
+  expect(
+    getPrecinctById({
+      election,
+      precinctId: unsafeParse(PrecinctIdSchema, 'not-a-precinct'),
+    })
+  ).toBeUndefined();
 });
 
 test('getPrecinctIndexById', () => {
   expect(
     getPrecinctIndexById({ election, precinctId: election.precincts[0].id })
   ).toBe(0);
-  expect(getPrecinctIndexById({ election, precinctId: '' })).toBe(-1);
+  expect(
+    getPrecinctIndexById({
+      election,
+      precinctId: unsafeParse(PrecinctIdSchema, 'not-a-precinct'),
+    })
+  ).toBe(-1);
 });
 
 test('isVotePresent', () => {

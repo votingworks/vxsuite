@@ -5,6 +5,7 @@ import {
   Dictionary,
   expandEitherNeitherContests,
   PartyIdSchema,
+  PrecinctIdSchema,
   Tally,
   unsafeParse,
   VotingMethod,
@@ -539,13 +540,14 @@ test('multi party primary tally can compress and be read back and end with the o
 
 describe('getTallyIdentifier', () => {
   const party1 = unsafeParse(PartyIdSchema, 'party1');
+  const precinct1 = unsafeParse(PrecinctIdSchema, 'precinct1');
 
   test('returns expected identifier with a party and precinct', () => {
-    expect(getTallyIdentifier(party1, 'precinct1')).toBe('party1,precinct1');
+    expect(getTallyIdentifier(party1, precinct1)).toBe('party1,precinct1');
   });
 
   test('returns expected identifier with no party and a precinct', () => {
-    expect(getTallyIdentifier(undefined, 'precinct1')).toBe(
+    expect(getTallyIdentifier(undefined, precinct1)).toBe(
       'undefined,precinct1'
     );
   });

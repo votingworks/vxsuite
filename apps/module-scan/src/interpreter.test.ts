@@ -9,6 +9,7 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
+  PrecinctIdSchema,
   UninterpretedHmpbPage,
   UnreadablePage,
   unsafeParse,
@@ -3078,7 +3079,7 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
       primary: 'en-US',
     },
     pageNumber: 3,
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
   },
   markInfo: {
     ballotSize: {
@@ -3272,7 +3273,7 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
     ballotId: unsafeParse(BallotIdSchema, '42'),
     metadata: {
       electionHash: '41',
-      precinctId: '12',
+      precinctId: unsafeParse(PrecinctIdSchema, '12'),
       ballotStyleId: '1',
       locales: {
         primary: 'en-US',

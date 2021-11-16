@@ -3,6 +3,8 @@ import {
   getBallotStyle,
   getContests,
   parseElection,
+  PrecinctIdSchema,
+  unsafeParse,
   vote,
 } from '@votingworks/types';
 import React from 'react';
@@ -23,7 +25,7 @@ beforeEach(() => {
 it('renders PrintPage without votes', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
-    precinctId: '21',
+    precinctId: unsafeParse(PrecinctIdSchema, '21'),
     route: '/print',
   });
   expect(container.firstChild).toMatchSnapshot();
@@ -32,7 +34,7 @@ it('renders PrintPage without votes', () => {
 it('renders PrintPage with votes', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
-    precinctId: '21',
+    precinctId: unsafeParse(PrecinctIdSchema, '21'),
     route: '/print',
     votes: vote(
       getContests({
@@ -60,7 +62,7 @@ it('renders PrintPage without votes and inline seal', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
-    precinctId: '21',
+    precinctId: unsafeParse(PrecinctIdSchema, '21'),
     route: '/print',
   });
   expect(container.childNodes[1]).toMatchSnapshot();
@@ -73,7 +75,7 @@ it('renders PrintPage without votes and no seal', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
-    precinctId: '21',
+    precinctId: unsafeParse(PrecinctIdSchema, '21'),
     route: '/print',
   });
   expect(container.childNodes[1]).toMatchSnapshot();

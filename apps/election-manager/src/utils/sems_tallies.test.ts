@@ -14,6 +14,7 @@ import {
   writeInCandidate,
   unsafeParse,
   PartyIdSchema,
+  PrecinctIdSchema,
 } from '@votingworks/types';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 
@@ -40,7 +41,7 @@ const presidentcontest = electionSample.contests.find(
 
 const mockSemsRow: SemsFileRow = {
   countyId: '',
-  precinctId: '',
+  precinctId: unsafeParse(PrecinctIdSchema, 'placeholder-precinct-id'),
   contestId: '',
   contestTitle: '',
   partyId: unsafeParse(PartyIdSchema, 'placeholder-party-id'),

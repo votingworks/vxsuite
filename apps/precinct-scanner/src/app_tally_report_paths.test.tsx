@@ -33,7 +33,9 @@ import {
   ContestId,
   Dictionary,
   err,
+  PrecinctIdSchema,
   PrecinctSelectionKind,
+  unsafeParse,
   VotingMethod,
 } from '@votingworks/types';
 import { App } from './app';
@@ -61,12 +63,12 @@ const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse 
 
 const getPrecinctConfigPrecinct1ResponseBody: GetCurrentPrecinctConfigResponse = {
   status: 'ok',
-  precinctId: 'precinct-1',
+  precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
 };
 
 const getPrecinctConfigPrecinct23ResponseBody: GetCurrentPrecinctConfigResponse = {
   status: 'ok',
-  precinctId: '23',
+  precinctId: unsafeParse(PrecinctIdSchema, '23'),
 };
 
 const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
@@ -221,7 +223,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
           'new-zoo-pick': [],
         },
         {
-          precinctId: 'precinct-1',
+          precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
           ballotStyleId: '1M',
           ballotType: VotingMethod.Precinct,
         }
@@ -235,7 +237,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
           'new-zoo-pick': ['no'],
         },
         {
-          precinctId: 'precinct-2',
+          precinctId: unsafeParse(PrecinctIdSchema, 'precinct-2'),
           ballotStyleId: '1M',
           ballotType: VotingMethod.Absentee,
         }
@@ -248,7 +250,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
           fishing: ['no'],
         },
         {
-          precinctId: 'precinct-2',
+          precinctId: unsafeParse(PrecinctIdSchema, 'precinct-2'),
           ballotStyleId: '2F',
           ballotType: VotingMethod.Precinct,
         }
@@ -605,7 +607,7 @@ test('expected tally reports for a primary election with a single precincts with
           'new-zoo-pick': [],
         },
         {
-          precinctId: 'precinct-1',
+          precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
           ballotStyleId: '1M',
           ballotType: VotingMethod.Precinct,
         }
@@ -619,7 +621,7 @@ test('expected tally reports for a primary election with a single precincts with
           'new-zoo-pick': ['no'],
         },
         {
-          precinctId: 'precinct-1',
+          precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
           ballotStyleId: '1M',
           ballotType: VotingMethod.Absentee,
         }
@@ -632,7 +634,7 @@ test('expected tally reports for a primary election with a single precincts with
           fishing: ['no'],
         },
         {
-          precinctId: 'precinct-1',
+          precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
           ballotStyleId: '2F',
           ballotType: VotingMethod.Precinct,
         }
@@ -792,7 +794,7 @@ test('expected tally reports for a primary election with a single precincts with
       timeSaved: expect.anything(),
       precinctSelection: {
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       },
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
@@ -821,7 +823,7 @@ test('expected tally reports for a primary election with a single precincts with
       timeSaved: expect.anything(),
       precinctSelection: {
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       },
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
@@ -840,7 +842,7 @@ test('expected tally reports for a primary election with a single precincts with
       timeSaved: expect.anything(),
       precinctSelection: {
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       },
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,
@@ -899,7 +901,7 @@ test('expected tally reports for a general election with all precincts with CVRs
           'prop-1': ['yes'],
         },
         {
-          precinctId: '23',
+          precinctId: unsafeParse(PrecinctIdSchema, '23'),
           ballotStyleId: '12',
           ballotType: VotingMethod.Precinct,
         }
@@ -911,7 +913,7 @@ test('expected tally reports for a general election with all precincts with CVRs
           'prop-1': [],
         },
         {
-          precinctId: '21',
+          precinctId: unsafeParse(PrecinctIdSchema, '21'),
           ballotStyleId: '12',
           ballotType: VotingMethod.Absentee,
         }
@@ -1165,7 +1167,7 @@ test('expected tally reports for a general election with a single precincts with
           'prop-1': ['yes'],
         },
         {
-          precinctId: '23',
+          precinctId: unsafeParse(PrecinctIdSchema, '23'),
           ballotStyleId: '12',
           ballotType: VotingMethod.Precinct,
         }
@@ -1177,7 +1179,7 @@ test('expected tally reports for a general election with a single precincts with
           'prop-1': [],
         },
         {
-          precinctId: '23',
+          precinctId: unsafeParse(PrecinctIdSchema, '23'),
           ballotStyleId: '12',
           ballotType: VotingMethod.Absentee,
         }
@@ -1274,7 +1276,7 @@ test('expected tally reports for a general election with a single precincts with
       timeSaved: expect.anything(),
       precinctSelection: {
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
+        precinctId: unsafeParse(PrecinctIdSchema, '23'),
       },
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
@@ -1302,7 +1304,7 @@ test('expected tally reports for a general election with a single precincts with
       timeSaved: expect.anything(),
       precinctSelection: {
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
+        precinctId: unsafeParse(PrecinctIdSchema, '23'),
       },
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
@@ -1321,7 +1323,7 @@ test('expected tally reports for a general election with a single precincts with
       timeSaved: expect.anything(),
       precinctSelection: {
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
+        precinctId: unsafeParse(PrecinctIdSchema, '23'),
       },
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,

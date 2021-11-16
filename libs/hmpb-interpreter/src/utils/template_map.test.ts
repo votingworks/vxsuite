@@ -1,6 +1,13 @@
-import { BallotType, BallotPageLayout } from '@votingworks/types';
+import {
+  BallotType,
+  BallotPageLayout,
+  unsafeParse,
+  PrecinctIdSchema,
+} from '@votingworks/types';
 import { createImageData } from './canvas';
 import { templateMap, TemplateMapKey } from './template_map';
+
+const precinct2 = unsafeParse(PrecinctIdSchema, '2');
 
 test('no locale info', () => {
   const map = templateMap();
@@ -14,15 +21,15 @@ test('no locale info', () => {
         isTestMode: false,
         locales: { primary: '' },
         pageNumber: 1,
-        precinctId: '2',
+        precinctId: precinct2,
       },
     },
     contests: [],
   };
-  const key: TemplateMapKey = [undefined, '1', '2', 1];
+  const key: TemplateMapKey = [undefined, '1', precinct2, 1];
   map.set(key, layout);
   expect(map.get(key)).toBe(layout);
-  expect(map.get([{ primary: 'en-US' }, '1', '2', 1])).toBeUndefined();
+  expect(map.get([{ primary: 'en-US' }, '1', precinct2, 1])).toBeUndefined();
 });
 
 test('with primary-only locale info', () => {
@@ -37,15 +44,15 @@ test('with primary-only locale info', () => {
         isTestMode: false,
         locales: { primary: 'en-US' },
         pageNumber: 1,
-        precinctId: '2',
+        precinctId: precinct2,
       },
     },
     contests: [],
   };
-  const key: TemplateMapKey = [{ primary: 'en-US' }, '1', '2', 1];
+  const key: TemplateMapKey = [{ primary: 'en-US' }, '1', precinct2, 1];
   map.set(key, layout);
   expect(map.get(key)).toBe(layout);
-  expect(map.get([undefined, '1', '2', 1])).toBeUndefined();
+  expect(map.get([undefined, '1', precinct2, 1])).toBeUndefined();
 });
 
 test('with primary+secondary locale info', () => {
@@ -60,7 +67,7 @@ test('with primary+secondary locale info', () => {
         isTestMode: false,
         locales: { primary: 'en-US', secondary: 'es-US' },
         pageNumber: 1,
-        precinctId: '2',
+        precinctId: precinct2,
       },
     },
     contests: [],
@@ -68,10 +75,10 @@ test('with primary+secondary locale info', () => {
   const key: TemplateMapKey = [
     { primary: 'en-US', secondary: 'es-US' },
     '1',
-    '2',
+    precinct2,
     1,
   ];
   map.set(key, layout);
   expect(map.get(key)).toBe(layout);
-  expect(map.get([{ primary: 'en-US' }, '1', '2', 1])).toBeUndefined();
+  expect(map.get([{ primary: 'en-US' }, '1', precinct2, 1])).toBeUndefined();
 });

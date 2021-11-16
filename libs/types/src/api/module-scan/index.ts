@@ -22,6 +22,7 @@ import {
   MarkThresholds,
   MarkThresholdsSchema,
   Precinct,
+  PrecinctIdSchema,
 } from '../../election';
 import { HexString, IdSchema } from '../../generic';
 
@@ -218,7 +219,7 @@ export type GetCurrentPrecinctConfigResponse = OkResponse<{
 export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> = z.object(
   {
     status: z.literal('ok'),
-    precinctId: z.optional(IdSchema),
+    precinctId: z.optional(PrecinctIdSchema),
   }
 );
 
@@ -236,7 +237,7 @@ export interface PutCurrentPrecinctConfigRequest {
  */
 export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> = z.object(
   {
-    precinctId: z.optional(IdSchema),
+    precinctId: z.optional(PrecinctIdSchema),
   }
 );
 

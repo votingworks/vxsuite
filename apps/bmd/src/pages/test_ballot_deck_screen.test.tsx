@@ -1,6 +1,8 @@
 import {
   // electionSample,
   parseElection,
+  PrecinctIdSchema,
+  unsafeParse,
 } from '@votingworks/types';
 // TODO: Tally: Use electionSample from @votingworks/fixtures once published.
 
@@ -35,7 +37,7 @@ it('renders test decks appropriately', async () => {
     <TestBallotDeckScreen
       appPrecinct={{
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
+        precinctId: unsafeParse(PrecinctIdSchema, '23'),
       }}
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       hideTestDeck={jest.fn()}
@@ -84,7 +86,7 @@ it('shows printer not connected when appropriate', async () => {
     <TestBallotDeckScreen
       appPrecinct={{
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
+        precinctId: unsafeParse(PrecinctIdSchema, '23'),
       }}
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       machineConfig={fakeMachineConfig({

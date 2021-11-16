@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { Precinct } from './election';
-import { IdSchema } from './generic';
+import { Precinct, PrecinctIdSchema } from './election';
 
 export enum PrecinctSelectionKind {
   SinglePrecinct = 'SinglePrecinct',
@@ -17,6 +16,6 @@ export const PrecinctSelectionSchema: z.ZodSchema<PrecinctSelection> = z.union([
   z.object({ kind: z.literal(PrecinctSelectionKind.AllPrecincts) }),
   z.object({
     kind: z.literal(PrecinctSelectionKind.SinglePrecinct),
-    precinctId: IdSchema,
+    precinctId: PrecinctIdSchema,
   }),
 ]);

@@ -1,6 +1,11 @@
 import * as React from 'react';
 
-import { Provider, VoterCardData } from '@votingworks/types';
+import {
+  PrecinctIdSchema,
+  Provider,
+  unsafeParse,
+  VoterCardData,
+} from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   Card,
@@ -20,8 +25,8 @@ import {
 import { State } from './app_root';
 
 const ballotStyleId = '12';
-const precinctId = '23';
-const appPrecinctId = '23';
+const precinctId = unsafeParse(PrecinctIdSchema, '23');
+const appPrecinctId = unsafeParse(PrecinctIdSchema, '23');
 
 export function getSampleCard(): Card {
   const voterCardData: VoterCardData = {

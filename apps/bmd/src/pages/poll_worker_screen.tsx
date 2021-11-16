@@ -2,11 +2,13 @@ import { DateTime } from 'luxon';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import {
+  assertTypeOf,
   BallotStyleId,
   CompressedTally,
   ElectionDefinition,
   getPartyIdsInBallotStyles,
   PrecinctId,
+  PrecinctIdSchema,
   Tally,
 } from '@votingworks/types';
 import {
@@ -151,12 +153,13 @@ export function PollWorkerScreen({
             TallySourceMachineType.PRECINCT_SCANNER
       );
       const newSubTallies = new Map<string, Tally>();
-      const precinctList = [];
+      const precinctList: PrecinctSelection[] = [];
       // Read the tally for each precinct and each party
       if (tallyOnCard.talliesByPrecinct) {
         for (const [precinctId, compressedTally] of Object.entries(
           tallyOnCard.talliesByPrecinct
         )) {
+          assertTypeOf(PrecinctIdSchema, precinctId);
           assert(compressedTally);
           precinctList.push({
             kind: PrecinctSelectionKind.SinglePrecinct,

@@ -268,8 +268,8 @@ export const ContestsSchema = z
   });
 
 // Election
-export type PrecinctId = Id;
-export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = IdSchema;
+export type PrecinctId = NewType<string, 'PrecinctId'>;
+export const PrecinctIdSchema = (IdSchema as unknown) as z.ZodSchema<PrecinctId>;
 export interface Precinct {
   readonly id: PrecinctId;
   readonly name: string;

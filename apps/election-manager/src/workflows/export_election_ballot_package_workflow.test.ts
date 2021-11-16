@@ -1,5 +1,6 @@
 import { electionSample } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
+import { PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import * as workflow from './export_election_ballot_package_workflow';
 import { DownloadableArchive } from '../utils/downloadable_archive';
 
@@ -27,7 +28,7 @@ test('makes the first ballot config the current one moving from ArchiveBegin to 
       ballotConfigs: [
         {
           ballotStyleId: '77',
-          precinctId: '42',
+          precinctId: unsafeParse(PrecinctIdSchema, '42'),
           contestIds: [],
           filename: 'live/ballot.pdf',
           isLiveMode: true,
@@ -43,7 +44,7 @@ test('makes the first ballot config the current one moving from ArchiveBegin to 
       remainingBallotConfigs: [],
       currentBallotConfig: {
         ballotStyleId: '77',
-        precinctId: '42',
+        precinctId: unsafeParse(PrecinctIdSchema, '42'),
         contestIds: [],
         filename: 'live/ballot.pdf',
         isLiveMode: true,
@@ -63,7 +64,7 @@ test('advances to the next ballot config if there is one', () => {
       archive: new DownloadableArchive(),
       currentBallotConfig: {
         ballotStyleId: '77',
-        precinctId: '42',
+        precinctId: unsafeParse(PrecinctIdSchema, '42'),
         contestIds: [],
         filename: 'test/ballot.pdf',
         isLiveMode: false,
@@ -73,7 +74,7 @@ test('advances to the next ballot config if there is one', () => {
       remainingBallotConfigs: [
         {
           ballotStyleId: '77',
-          precinctId: '42',
+          precinctId: unsafeParse(PrecinctIdSchema, '42'),
           contestIds: [],
           filename: 'live/ballot.pdf',
           isLiveMode: true,
@@ -89,7 +90,7 @@ test('advances to the next ballot config if there is one', () => {
       remainingBallotConfigs: [],
       currentBallotConfig: {
         ballotStyleId: '77',
-        precinctId: '42',
+        precinctId: unsafeParse(PrecinctIdSchema, '42'),
         contestIds: [],
         filename: 'live/ballot.pdf',
         isLiveMode: true,
@@ -110,7 +111,7 @@ test('advances to ArchiveEnd if there are no more ballot configs', () => {
       archive: new DownloadableArchive(),
       currentBallotConfig: {
         ballotStyleId: '77',
-        precinctId: '42',
+        precinctId: unsafeParse(PrecinctIdSchema, '42'),
         contestIds: [],
         filename: 'test/ballot.pdf',
         isLiveMode: false,
@@ -153,7 +154,7 @@ test('advances to Failed on render error', () => {
         archive: new DownloadableArchive(),
         currentBallotConfig: {
           ballotStyleId: '77',
-          precinctId: '42',
+          precinctId: unsafeParse(PrecinctIdSchema, '42'),
           contestIds: [],
           filename: 'test/ballot.pdf',
           isLiveMode: false,

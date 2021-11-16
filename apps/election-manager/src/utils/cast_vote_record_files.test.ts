@@ -1,5 +1,9 @@
 import { electionSample } from '@votingworks/fixtures';
-import { BallotIdSchema, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { CastVoteRecordFiles } from './cast_vote_record_files';
 import { CastVoteRecord } from '../config/types';
 
@@ -40,7 +44,7 @@ test('can add multiple CVR files by creating a new instance', async () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _testBallot: false,
     _scannerId: 'abc',
     _batchId: 'batch-1',
@@ -84,7 +88,7 @@ test('test ballot cvrs change the file mode appropriately', async () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _testBallot: true,
     _scannerId: 'abc',
     _batchId: 'batch-1',
@@ -128,7 +132,7 @@ test('does not mutate the original when adding a new instance', async () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _testBallot: false,
     _scannerId: 'abc',
     _batchId: 'batch-1',
@@ -180,7 +184,7 @@ test('records CVR data errors', async () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '9999',
+    _precinctId: unsafeParse(PrecinctIdSchema, '9999'),
     _testBallot: false,
     _scannerId: 'abc',
     _batchId: 'batch-1',
@@ -205,7 +209,7 @@ test('records identical uploaded files', async () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _testBallot: false,
     _scannerId: 'abc',
     _batchId: 'batch-1',
@@ -242,7 +246,7 @@ test('refuses to tabulate both live and test CVRs', async () => {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',
     _ballotType: 'standard',
-    _precinctId: '23',
+    _precinctId: unsafeParse(PrecinctIdSchema, '23'),
     _testBallot: false,
     _scannerId: 'abc',
     _batchId: 'batch-1',

@@ -16,6 +16,7 @@ import {
   Party,
   PartyIdSchema,
   PrecinctId,
+  PrecinctIdSchema,
   Tally,
   TallyCategory,
   unsafeParse,
@@ -126,7 +127,7 @@ test('buildVoteFromCvr', () => {
     '775020876': ['775031989'],
     '775020877': ['775031985'],
     '775020902': ['775032019'],
-    _precinctId: '6525',
+    _precinctId: unsafeParse(PrecinctIdSchema, '6525'),
     _ballotType: 'absentee',
     _ballotStyleId: '1',
     _ballotId: unsafeParse(BallotIdSchema, 'b75FfAaktS5jbityDpkFag=='),
@@ -201,7 +202,7 @@ test('buildVoteFromCvr', () => {
     '775020876': ['775031989'],
     '775020877': ['775031985'],
     '775020902': ['775032019'],
-    _precinctId: '6525',
+    _precinctId: unsafeParse(PrecinctIdSchema, '6525'),
     _ballotType: 'absentee',
     _ballotStyleId: '1',
     _ballotId: unsafeParse(BallotIdSchema, 'b75FfAaktS5jbityDpkFag=='),
@@ -301,7 +302,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
   test('when filtering by precinct', () => {
     expect(
       filterTalliesByParams(electionTally, election, {
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       })
     ).toStrictEqual(getEmptyTally());
   });
@@ -322,7 +323,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
 
   test('when filtering by everything', () => {
     const filteredTally = filterTalliesByParams(electionTally, election, {
-      precinctId: 'precinct-1',
+      precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       scannerId: 'scanner-1',
       votingMethod: VotingMethod.Precinct,
       partyId: party0,
@@ -357,6 +358,9 @@ describe('filterTalliesByParams in a typical election', () => {
   });
 
   it('can filter by precinct', () => {
+    const precinct20 = unsafeParse(PrecinctIdSchema, '20');
+    const precinct21 = unsafeParse(PrecinctIdSchema, '21');
+    const precinct23 = unsafeParse(PrecinctIdSchema, '23');
     const expectedPrecinctResults = new Map<
       PrecinctId,
       {
@@ -365,7 +369,7 @@ describe('filterTalliesByParams in a typical election', () => {
       }
     >([
       [
-        '23',
+        precinct23,
         {
           totalBallots: 2475,
           ballotCountsByVotingMethod: {
@@ -376,7 +380,7 @@ describe('filterTalliesByParams in a typical election', () => {
         },
       ],
       [
-        '20',
+        precinct20,
         {
           totalBallots: 2478,
           ballotCountsByVotingMethod: {
@@ -387,7 +391,7 @@ describe('filterTalliesByParams in a typical election', () => {
         },
       ],
       [
-        '21',
+        precinct21,
         {
           totalBallots: 5048,
           ballotCountsByVotingMethod: {
@@ -415,7 +419,7 @@ describe('filterTalliesByParams in a typical election', () => {
     }
     expect(
       filterTalliesByParams(electionTally, election, {
-        precinctId: 'not-a-precinct',
+        precinctId: unsafeParse(PrecinctIdSchema, 'not-a-precinct'),
       })
     ).toStrictEqual(getEmptyTally());
   });
@@ -562,7 +566,7 @@ describe('filterTalliesByParams in a typical election', () => {
   });
 
   test('can filtere by precinct and scanner', () => {
-    const precinctId: PrecinctId = '23';
+    const precinctId = unsafeParse(PrecinctIdSchema, '23');
     const scannerId: Id = 'scanner-5';
     const filteredResults = filterTalliesByParams(electionTally, election, {
       precinctId,
@@ -613,7 +617,7 @@ describe('filterTalliesByParams in a typical election', () => {
 
   test('can filter by voting method precinct and scanner', () => {
     const filteredResults = filterTalliesByParams(electionTally, election, {
-      precinctId: '23',
+      precinctId: unsafeParse(PrecinctIdSchema, '23'),
       scannerId: 'scanner-5',
       votingMethod: VotingMethod.Absentee,
     });
@@ -806,7 +810,10 @@ describe('filterTalliesByParams in a primary election', () => {
     const precinctAndBatch = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { batchId: '1234-3', precinctId: 'precinct-1' }
+      {
+        batchId: '1234-3',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
+      }
     );
     expect(precinctAndBatch.numberOfBallotsCounted).toBe(290);
     expect(precinctAndBatch.ballotCountsByVotingMethod).toStrictEqual({
@@ -822,7 +829,9 @@ describe('filterTalliesByParams in a primary election', () => {
       (p) => p.partyId === '4'
     )!;
 
-    const emptyPrecincts = ['precinct-2', 'precinct-3', 'precinct-4'];
+    const emptyPrecincts = ['precinct-2', 'precinct-3', 'precinct-4'].map(
+      (precinctId) => unsafeParse(PrecinctIdSchema, precinctId)
+    );
     for (const precinctId of emptyPrecincts) {
       const filteredResults = filterTalliesByParams(
         electionTally,
@@ -838,7 +847,10 @@ describe('filterTalliesByParams in a primary election', () => {
     const filterParty5Precinct1 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: party4, precinctId: 'precinct-1' }
+      {
+        partyId: party4,
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
+      }
     );
     expect(filterParty5Precinct1.numberOfBallotsCounted).toBe(300);
     expect(Object.keys(filterParty5Precinct1.contestTallies)).toStrictEqual(
@@ -862,7 +874,10 @@ describe('filterTalliesByParams in a primary election', () => {
     const filterParty5Precinct5 = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: party4, precinctId: 'precinct-5' }
+      {
+        partyId: party4,
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-5'),
+      }
     );
     expect(filterParty5Precinct5.numberOfBallotsCounted).toBe(420);
     expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
@@ -886,7 +901,10 @@ describe('filterTalliesByParams in a primary election', () => {
     const filterParty5InvalidPrecinct = filterTalliesByParams(
       electionTally,
       multiPartyPrimaryElection,
-      { partyId: party4, precinctId: 'not-a-real-precinct' }
+      {
+        partyId: party4,
+        precinctId: unsafeParse(PrecinctIdSchema, 'not-a-real-precinct'),
+      }
     );
     expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
       expectedParty4Info.contestIds
@@ -1044,7 +1062,7 @@ describe('filterTalliesByParams in a primary election', () => {
   test('can filter by non-present values', () => {
     expect(
       filterTalliesByParams(electionTally, multiPartyPrimaryElection, {
-        precinctId: 'not-a-precinct',
+        precinctId: unsafeParse(PrecinctIdSchema, 'not-a-precinct'),
         partyId: unsafeParse(PartyIdSchema, 'not-a-party'),
         batchId: 'not-a-batch',
         scannerId: 'not-a-scanner',
@@ -1146,7 +1164,7 @@ test('getPartyIdForCvr', () => {
     electionMultiPartyPrimaryWithDataFiles.electionDefinition;
   const cvr: CastVoteRecord = {
     _ballotStyleId: '1L',
-    _precinctId: 'precinct-1',
+    _precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
     _batchId: 'batch',
     _ballotId: unsafeParse(BallotIdSchema, '1'),
     _ballotType: VotingMethod.Precinct,

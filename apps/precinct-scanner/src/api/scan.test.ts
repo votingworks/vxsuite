@@ -2,7 +2,12 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures';
-import { AdjudicationReason, BallotType } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  BallotType,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -129,7 +134,7 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
               isTestMode: true,
               locales: { primary: 'en-US' },
               pageNumber: 1,
-              precinctId: '23',
+              precinctId: unsafeParse(PrecinctIdSchema, '23'),
             },
           },
           image: { url: '/not/real.jpg' },
@@ -187,7 +192,7 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
               isTestMode: true,
               locales: { primary: 'en-US' },
               pageNumber: 1,
-              precinctId: '23',
+              precinctId: unsafeParse(PrecinctIdSchema, '23'),
             },
           },
           image: { url: '/not/real.jpg' },

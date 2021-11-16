@@ -20,6 +20,8 @@ import {
   ContestId,
   PrecinctId,
   BallotStyleId,
+  unsafeParse,
+  PrecinctIdSchema,
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 import 'normalize.css';
@@ -763,7 +765,7 @@ export function AppRoot({
           });
           const cardPrecinct = getPrecinctById({
             election: optionalElectionDefinition.election,
-            precinctId: cardData.pr,
+            precinctId: unsafeParse(PrecinctIdSchema, cardData.pr),
           });
           const newIsVoterCardValid =
             Boolean(cardBallotStyle) && Boolean(cardPrecinct);

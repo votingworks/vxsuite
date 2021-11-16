@@ -8,7 +8,9 @@ import {
   ContestId,
   Dictionary,
   Election,
+  PrecinctIdSchema,
   safeParseElection,
+  unsafeParse,
 } from '@votingworks/types';
 
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
@@ -286,7 +288,7 @@ test('printing precinct scanner report works as expected with single precinct da
     timeSaved: new Date('2020-10-31').getTime(),
     precinctSelection: {
       kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: '23',
+      precinctId: unsafeParse(PrecinctIdSchema, '23'),
     },
     isLiveMode: false,
     isPollsOpen: false,
@@ -383,7 +385,7 @@ test('printing precinct scanner report works as expected with all precinct speci
     timeSaved: new Date('2020-10-31').getTime(),
     precinctSelection: {
       kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: '23',
+      precinctId: unsafeParse(PrecinctIdSchema, '23'),
     },
     isLiveMode: false,
     isPollsOpen: false,
@@ -553,7 +555,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       resetCardlessVoterSession={jest.fn()}
       appPrecinct={{
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       }}
       electionDefinition={electionMinimalExhaustiveSampleDefintion}
       enableLiveMode={jest.fn()}
@@ -785,7 +787,7 @@ test('printing precinct scanner report works as expected with all precinct combi
       resetCardlessVoterSession={jest.fn()}
       appPrecinct={{
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       }}
       electionDefinition={electionMinimalExhaustiveSampleDefintion}
       enableLiveMode={jest.fn()}
@@ -918,7 +920,7 @@ test('printing precinct scanner report works as expected with a single precinct 
     timeSaved: new Date('2020-10-31').getTime(),
     precinctSelection: {
       kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: 'precinct-1',
+      precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
     },
     isLiveMode: false,
     isPollsOpen: false,
@@ -936,7 +938,7 @@ test('printing precinct scanner report works as expected with a single precinct 
       resetCardlessVoterSession={jest.fn()}
       appPrecinct={{
         kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
       }}
       electionDefinition={electionMinimalExhaustiveSampleDefintion}
       enableLiveMode={jest.fn()}

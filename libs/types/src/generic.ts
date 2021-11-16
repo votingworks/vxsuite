@@ -185,6 +185,24 @@ export function maybeParse<T>(
   return safeParse(parser, value).ok();
 }
 
+/**
+ * Asserts that `value` is parsable by `parser`. This is primarily useful for
+ * helping TypeScript narrow the type of a value you're sure matches `parser`'s
+ * type.
+ *
+ * @example
+ *
+ *   const { precinctId } = element.dataset;
+ *   assertTypeOf(PrecinctIdSchema, precinctId);
+ *   doSomethingWithPrecinctId(precinctId);
+ */
+export function assertTypeOf<T>(
+  parser: z.ZodType<T>,
+  value: unknown
+): asserts value is T {
+  unsafeParse(parser, value);
+}
+
 declare const Unique: unique symbol;
 
 /**

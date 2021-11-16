@@ -1,4 +1,5 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import {
   GetTestModeConfigResponse,
   PatchElectionConfigResponse,
@@ -72,7 +73,7 @@ test('PATCH /config/testMode', async () => {
 
 test('setCurrentPrecinctId updates', async () => {
   fetchMock.putOnce('/config/precinct', JSON.stringify({ status: 'ok' }));
-  await config.setCurrentPrecinctId('23');
+  await config.setCurrentPrecinctId(unsafeParse(PrecinctIdSchema, '23'));
 
   expect(fetchMock.calls('/config/precinct', { method: 'PUT' })).toHaveLength(
     1
@@ -91,7 +92,7 @@ test('setCurrentPrecinctId deletes', async () => {
 test('setCurrentPrecinctId fails', async () => {
   fetchMock.putOnce('/config/precinct', JSON.stringify({ status: 'error' }));
   await expect(
-    config.setCurrentPrecinctId('23')
+    config.setCurrentPrecinctId(unsafeParse(PrecinctIdSchema, '23'))
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"PUT /config/precinct failed: undefined"'
   );

@@ -11,6 +11,7 @@ import {
   getContests,
   HmpbBallotPageMetadata,
   isVotePresent,
+  PrecinctIdSchema,
   unsafeParse,
   Vote,
   vote,
@@ -979,7 +980,7 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
   const { election, electionHash } = electionDefinition;
   const ballotMetadata: HmpbBallotPageMetadata = {
     electionHash,
-    precinctId: 'SanDimas', // not an actual precinct ID
+    precinctId: unsafeParse(PrecinctIdSchema, 'SanDimas'), // not an actual precinct ID
     ballotStyleId: election.ballotStyles[0]!.id,
     locales: {
       primary: 'en-US',

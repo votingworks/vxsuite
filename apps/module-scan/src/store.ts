@@ -19,7 +19,8 @@ import {
   MarkThresholdsSchema,
   Optional,
   PageInterpretation,
-  Precinct,
+  PrecinctId,
+  PrecinctIdSchema,
   safeParseJson,
   SerializableBallotPageLayout,
   unsafeParse,
@@ -432,17 +433,15 @@ export class Store {
    * `undefined`, ballots from all precincts will be accepted (this is the
    * default).
    */
-  async getCurrentPrecinctId(): Promise<Optional<Precinct['id']>> {
-    return this.getConfig(ConfigKey.CurrentPrecinctId, z.string());
+  async getCurrentPrecinctId(): Promise<Optional<PrecinctId>> {
+    return this.getConfig(ConfigKey.CurrentPrecinctId, PrecinctIdSchema);
   }
 
   /**
    * Sets the current precinct `module-scan` is accepting ballots for. Set to
    * `undefined` to accept from all precincts (this is the default).
    */
-  async setCurrentPrecinctId(
-    currentPrecinctId?: Precinct['id']
-  ): Promise<void> {
+  async setCurrentPrecinctId(currentPrecinctId?: PrecinctId): Promise<void> {
     await this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId);
   }
 

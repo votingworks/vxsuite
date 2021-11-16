@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import { SetupCardReaderPage } from '@votingworks/ui';
+import { PrecinctId } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -77,14 +78,16 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route
         path={routerPaths.manualDataImportForPrecinct({
-          precinctId: ':precinctId',
+          precinctId: ':precinctId' as PrecinctId,
         })}
       >
         <ManualDataImportPrecinctScreen />
       </Route>
       <Route
         path={[
-          routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
+          routerPaths.printOneTestDeck({
+            precinctId: ':precinctId' as PrecinctId,
+          }),
           routerPaths.printTestDecks,
         ]}
       >
@@ -92,7 +95,9 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route
         path={[
-          routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
+          routerPaths.testDeckResultsReport({
+            precinctId: ':precinctId' as PrecinctId,
+          }),
           routerPaths.testDecksTally,
         ]}
       >
@@ -102,12 +107,12 @@ export function ElectionManager(): JSX.Element {
         path={[
           routerPaths.ballotsViewLanguage({
             ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
+            precinctId: ':precinctId' as PrecinctId,
             localeCode: ':localeCode',
           }),
           routerPaths.ballotsView({
             ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
+            precinctId: ':precinctId' as PrecinctId,
           }),
         ]}
       >
@@ -118,7 +123,9 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route
         path={[
-          routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' }),
+          routerPaths.tallyPrecinctReport({
+            precinctId: ':precinctId' as PrecinctId,
+          }),
           routerPaths.tallyFullReport,
         ]}
       >

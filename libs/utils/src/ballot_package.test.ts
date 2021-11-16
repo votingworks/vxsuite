@@ -1,5 +1,6 @@
 import { electionSample } from '@votingworks/fixtures';
 import { fakeKiosk, zipFile } from '@votingworks/test-utils';
+import { PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { ballotPackageUtils, BallotPackageManifest } from './ballot_package';
@@ -93,7 +94,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
     ballots: [
       {
         ballotStyleId: '5',
-        precinctId: '21',
+        precinctId: unsafeParse(PrecinctIdSchema, '21'),
         filename: 'test/election-deadbeef-whatever.pdf',
         contestIds: ['1', '2'],
         isLiveMode: false,

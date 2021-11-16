@@ -65,7 +65,7 @@ export interface BallotScreenProps {
   localeCode?: string;
 }
 export interface PrecinctReportScreenProps {
-  precinctId: PrecinctId;
+  precinctId: PrecinctId | 'all';
 }
 export interface ScannerReportScreenProps {
   scannerId: string;

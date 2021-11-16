@@ -5,6 +5,8 @@ import {
   Election,
   getPrecinctById,
   PrecinctId,
+  PrecinctIdSchema,
+  unsafeParse,
   VotesDict,
 } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
@@ -59,7 +61,7 @@ function TestDeckBallots({
           electionHash={electionHash}
           isLiveMode={false}
           isAbsentee={false}
-          precinctId={ballot.precinctId as string}
+          precinctId={unsafeParse(PrecinctIdSchema, ballot.precinctId)}
           locales={{ primary: 'en-US' }}
           votes={ballot.votes as VotesDict}
           onRendered={() => onRendered()}
@@ -81,7 +83,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const {
     precinctId: precinctIdFromParams = '',
   } = useParams<PrecinctReportScreenProps>();
-  const precinctId = precinctIdFromParams.trim();
+  const precinctId = unsafeParse(PrecinctIdSchema, precinctIdFromParams.trim());
 
   const pageTitle = 'Test Deck';
   const precinctName =
@@ -140,7 +142,10 @@ export function PrintTestDeckScreen(): JSX.Element {
   const currentPrecinct =
     precinctIndex === undefined
       ? undefined
-      : getPrecinctById({ election, precinctId: precinctIds[precinctIndex] });
+      : getPrecinctById({
+          election,
+          precinctId: unsafeParse(PrecinctIdSchema, precinctIds[precinctIndex]),
+        });
 
   if (precinctIds.length > 0) {
     return (
@@ -183,7 +188,10 @@ export function PrintTestDeckScreen(): JSX.Element {
           <TestDeckBallotsMemoized
             election={election}
             electionHash={electionHash}
-            precinctId={precinctIds[precinctIndex]}
+            precinctId={unsafeParse(
+              PrecinctIdSchema,
+              precinctIds[precinctIndex]
+            )}
             onAllRendered={(numBallots) =>
               onAllRendered(precinctIndex, numBallots)
             }

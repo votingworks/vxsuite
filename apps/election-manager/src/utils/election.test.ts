@@ -1,4 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
+import { PrecinctIdSchema, unsafeParse } from '@votingworks/types';
 import { getBallotPath } from './election';
 
 test('getBallotPath allows digits in file names', () => {
@@ -7,7 +8,7 @@ test('getBallotPath allows digits in file names', () => {
       election: electionSample,
       electionHash: 'd34db33f',
       ballotStyleId: '77',
-      precinctId: '21',
+      precinctId: unsafeParse(PrecinctIdSchema, '21'),
       locales: { primary: 'en-US' },
       isLiveMode: true,
       isAbsentee: true,

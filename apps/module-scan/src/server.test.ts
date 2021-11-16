@@ -1,6 +1,11 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import * as plusteksdk from '@votingworks/plustek-sdk';
-import { BallotType, ok } from '@votingworks/types';
+import {
+  BallotType,
+  ok,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -44,7 +49,7 @@ beforeEach(async () => {
       electionHash: '',
       ballotType: BallotType.Standard,
       ballotStyleId: '12',
-      precinctId: '23',
+      precinctId: unsafeParse(PrecinctIdSchema, '23'),
       isTestMode: false,
     },
     [
@@ -56,7 +61,7 @@ beforeEach(async () => {
             electionHash: '',
             ballotType: BallotType.Standard,
             ballotStyleId: '12',
-            precinctId: '23',
+            precinctId: unsafeParse(PrecinctIdSchema, '23'),
             isTestMode: false,
             pageNumber: 1,
           },
@@ -71,7 +76,7 @@ beforeEach(async () => {
             electionHash: '',
             ballotType: BallotType.Standard,
             ballotStyleId: '12',
-            precinctId: '23',
+            precinctId: unsafeParse(PrecinctIdSchema, '23'),
             isTestMode: false,
             pageNumber: 2,
           },
@@ -361,7 +366,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
           electionHash: '',
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
-          precinctId: '23',
+          precinctId: unsafeParse(PrecinctIdSchema, '23'),
           isTestMode: false,
           pageNumber: 1,
         },
@@ -388,7 +393,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
           electionHash: '',
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
-          precinctId: '23',
+          precinctId: unsafeParse(PrecinctIdSchema, '23'),
           isTestMode: false,
           pageNumber: 2,
         },
@@ -499,7 +504,7 @@ test('POST /scan/hmpb/addTemplates', async () => {
           electionHash: '',
           ballotType: BallotType.Standard,
           ballotStyleId: '77',
-          precinctId: '42',
+          precinctId: unsafeParse(PrecinctIdSchema, '42'),
           isTestMode: false,
           pageNumber: 1,
         },
@@ -520,7 +525,7 @@ test('POST /scan/hmpb/addTemplates', async () => {
         new TextEncoder().encode(
           JSON.stringify({
             ballotStyleId: '77',
-            precinctId: '42',
+            precinctId: unsafeParse(PrecinctIdSchema, '42'),
             isTestMode: false,
           })
         )

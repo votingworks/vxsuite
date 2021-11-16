@@ -18,6 +18,7 @@ import {
   VotingMethod,
   unsafeParse,
   PartyIdSchema,
+  PrecinctIdSchema,
 } from '@votingworks/types';
 import { typedAs, combineContestTallies } from '@votingworks/utils';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
@@ -465,7 +466,7 @@ describe('filterExternalTalliesByParams', () => {
       filterExternalTalliesByParams(
         sharedFullTallySems,
         electionWithMsEitherNeither,
-        { precinctId: '6524' }
+        { precinctId: unsafeParse(PrecinctIdSchema, '6524') }
       )
     ).toStrictEqual(singleVotesEitherNeither);
 
@@ -473,7 +474,10 @@ describe('filterExternalTalliesByParams', () => {
       filterExternalTalliesByParams(
         sharedFullTallySems,
         electionWithMsEitherNeither,
-        { precinctId: '6524', votingMethod: VotingMethod.Absentee }
+        {
+          precinctId: unsafeParse(PrecinctIdSchema, '6524'),
+          votingMethod: VotingMethod.Absentee,
+        }
       )
     ).toStrictEqual(singleVotesEitherNeither);
 
@@ -481,7 +485,10 @@ describe('filterExternalTalliesByParams', () => {
       filterExternalTalliesByParams(
         sharedFullTallySems,
         electionWithMsEitherNeither,
-        { precinctId: '6524', votingMethod: VotingMethod.Precinct }
+        {
+          precinctId: unsafeParse(PrecinctIdSchema, '6524'),
+          votingMethod: VotingMethod.Precinct,
+        }
       )
     ).toStrictEqual(getEmptyExternalTally());
 
@@ -489,21 +496,24 @@ describe('filterExternalTalliesByParams', () => {
       filterExternalTalliesByParams(
         sharedFullTallySems,
         electionWithMsEitherNeither,
-        { precinctId: '6529' }
+        { precinctId: unsafeParse(PrecinctIdSchema, '6529') }
       )
     ).toStrictEqual(emptyVotesEitherNeither);
     expect(
       filterExternalTalliesByParams(
         sharedFullTallySems,
         electionWithMsEitherNeither,
-        { precinctId: '6529', votingMethod: VotingMethod.Absentee }
+        {
+          precinctId: unsafeParse(PrecinctIdSchema, '6529'),
+          votingMethod: VotingMethod.Absentee,
+        }
       )
     ).toStrictEqual(emptyVotesEitherNeither);
     expect(
       filterExternalTalliesByParams(
         sharedFullTallySems,
         electionWithMsEitherNeither,
-        { precinctId: '6537' }
+        { precinctId: unsafeParse(PrecinctIdSchema, '6537') }
       )
     ).toStrictEqual(getEmptyExternalTally());
   });
@@ -637,7 +647,7 @@ describe('filterExternalTalliesByParams', () => {
       fullTallyManual,
       multiPartyPrimaryElection,
       {
-        precinctId: 'precinct-1',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-1'),
         partyId: libertyPartyId,
         votingMethod: VotingMethod.Precinct,
       }
@@ -647,7 +657,7 @@ describe('filterExternalTalliesByParams', () => {
       fullTallyManual,
       multiPartyPrimaryElection,
       {
-        precinctId: 'precinct-3',
+        precinctId: unsafeParse(PrecinctIdSchema, 'precinct-3'),
         partyId: libertyPartyId,
         votingMethod: VotingMethod.Precinct,
       }

@@ -2,7 +2,11 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { screen } from '@testing-library/react';
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { parseElection } from '@votingworks/types';
+import {
+  parseElection,
+  PrecinctIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 
 import { render } from '../../test/test_utils';
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
@@ -18,7 +22,7 @@ it('renders StartPage', async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '12D',
     electionDefinition,
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/',
   });
   expect(
@@ -35,7 +39,7 @@ it('renders StartPage with inline SVG', async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/',
   });
   expect(container.firstChild).toMatchSnapshot();
@@ -48,7 +52,7 @@ it('renders StartPage with no seal', async () => {
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',
-    precinctId: '23',
+    precinctId: unsafeParse(PrecinctIdSchema, '23'),
     route: '/',
   });
   expect(container.firstChild).toMatchSnapshot();

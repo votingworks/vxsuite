@@ -4,6 +4,8 @@ import {
   BallotPageMetadata,
   BallotType,
   Election,
+  PrecinctIdSchema,
+  unsafeParse,
 } from '@votingworks/types';
 import { DetectQrCode } from './types';
 import { defined } from './utils/defined';
@@ -24,7 +26,7 @@ export function decodeSearchParams(
   searchParams: URLSearchParams
 ): BallotPageMetadata {
   const type = defined(searchParams.get('t'));
-  const precinctId = defined(searchParams.get('pr'));
+  const precinctId = unsafeParse(PrecinctIdSchema, searchParams.get('pr'));
   const ballotStyleId = defined(searchParams.get('bs'));
   const pageInfo = defined(searchParams.get('p'));
 

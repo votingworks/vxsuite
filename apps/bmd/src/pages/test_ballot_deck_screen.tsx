@@ -6,6 +6,8 @@ import {
   Election,
   ElectionDefinition,
   PrecinctId,
+  PrecinctIdSchema,
+  unsafeParse,
   VotesDict,
 } from '@votingworks/types';
 import { Button, ButtonList, Loading, Main, MainChild } from '@votingworks/ui';
@@ -41,7 +43,7 @@ function generateTestDeckBallots({
   election,
   precinctId,
 }: GenerateTestDeckParams) {
-  const precincts: string[] = precinctId
+  const precincts = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id);
 
@@ -107,7 +109,7 @@ function generateTestDeckBallots({
 
 interface Precinct {
   name: string;
-  id: string;
+  id: PrecinctId;
 }
 
 interface Props {
@@ -119,8 +121,6 @@ interface Props {
   printer: Printer;
 }
 
-const initialPrecinct: Precinct = { id: '', name: '' };
-
 export function TestBallotDeckScreen({
   appPrecinct,
   electionDefinition,
@@ -131,23 +131,24 @@ export function TestBallotDeckScreen({
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const [ballots, setBallots] = useState<Ballot[]>([]);
-  const [precinct, setPrecinct] = useState<Precinct>(initialPrecinct);
+  const [precinct, setPrecinct] = useState<Precinct>();
   const [showPrinterNotConnected, setShowPrinterNotConnected] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
 
   const selectPrecinct: EventTargetFunction = (event) => {
-    const { id = '', name = '' } = (event.target as HTMLElement).dataset;
-    setPrecinct({ name, id });
+    const { id, name } = (event.target as HTMLElement).dataset;
+    const precinctId = unsafeParse(PrecinctIdSchema, id);
+    setPrecinct(id && name ? { name, id: precinctId } : undefined);
     const selectedBallots = generateTestDeckBallots({
       election,
-      precinctId: id,
+      precinctId,
     });
     setBallots(selectedBallots);
   };
 
   function resetDeck() {
     setBallots([]);
-    setPrecinct(initialPrecinct);
+    setPrecinct(undefined);
   }
 
   async function handlePrinting() {
@@ -178,7 +179,7 @@ export function TestBallotDeckScreen({
                 <p>
                   Deck containing{' '}
                   <strong>{pluralize('ballot', ballots.length, true)}</strong>{' '}
-                  for {precinct.name}.
+                  for {precinct?.name}.
                 </p>
                 <p>
                   <Button large primary onPress={handlePrinting}>
