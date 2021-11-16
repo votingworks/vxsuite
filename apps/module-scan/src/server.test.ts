@@ -1,5 +1,5 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import { Logger, LogSource } from '@votingworks/logging/build';
+import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
 import { BallotType, ok } from '@votingworks/types';
 import {
