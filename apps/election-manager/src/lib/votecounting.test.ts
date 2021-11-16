@@ -14,7 +14,7 @@ import {
   multiPartyPrimaryElection,
 } from '@votingworks/fixtures';
 
-import { filterTalliesByParams } from '@votingworks/utils/src';
+import { filterTalliesByParams } from '@votingworks/utils';
 import {
   parseCvrs,
   computeFullElectionTally,
