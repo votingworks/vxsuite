@@ -2,12 +2,7 @@
 
 // @ts-check
 
-const { join } = require('path')
-
-require('ts-node').register({
-  transpileOnly: true,
-  project: join(__dirname, 'tsconfig.json'),
-})
+require('esbuild-runner/register')
 
 require('./src/prod-build').main({
   stdin: process.stdin,
