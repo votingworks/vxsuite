@@ -7,7 +7,7 @@ import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { Store } from './store';
 
-const debug = makeDebug('module-scan:backup');
+const debug = makeDebug('scan:backup');
 
 /**
  * Creates a backup of the database and all scanned files.

@@ -18,7 +18,7 @@ import {
   GetScanStatusResponse,
   GetTestModeConfigResponse,
   ScannerStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import fetchMock from 'fetch-mock';
 import { DateTime } from 'luxon';
 import React from 'react';
@@ -64,7 +64,7 @@ beforeEach(() => {
   fetchMock.reset();
 });
 
-test('when module-scan does not respond shows loading screen', async () => {
+test('when services/scan does not respond shows loading screen', async () => {
   fetchMock.get('/config/election', { status: 404 });
   fetchMock.get('/machine-config', { body: getMachineConfigBody });
 
@@ -74,7 +74,7 @@ test('when module-scan does not respond shows loading screen', async () => {
   await screen.findByText('Loading Configuration…');
 });
 
-test('module-scan fails to unconfigure', async () => {
+test('services/scan fails to unconfigure', async () => {
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -162,7 +162,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   await screen.findByText('Invalid Card, please remove.');
 });
 
-test('error from module-scan in accepting a reviewable ballot', async () => {
+test('error from services/scan in accepting a reviewable ballot', async () => {
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   fetchMock
@@ -276,7 +276,7 @@ test('error from module-scan in accepting a reviewable ballot', async () => {
   await screen.findByText('Insert Your Ballot Below');
 });
 
-test('error from module-scan in ejecting a reviewable ballot', async () => {
+test('error from services/scan in ejecting a reviewable ballot', async () => {
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   fetchMock

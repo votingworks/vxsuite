@@ -20,8 +20,8 @@ export interface UseUserSessionProps {
   smartcard?: Smartcard;
   electionDefinition?: ElectionDefinition;
   persistAuthentication: boolean; // Persist an authenticated admin session when the admin card is removed.
-  bypassAuthentication?: boolean; // Always maintain an authenticated admin session for apps persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
-  validUserTypes: CardDataTypes[]; // List of user types that can authenticate into the given app.
+  bypassAuthentication?: boolean; // Always maintain an authenticated admin session for frontends persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
+  validUserTypes: CardDataTypes[]; // List of user types that can authenticate into the given frontend.
   logger: Logger;
 }
 
@@ -56,7 +56,7 @@ export function useUserSession({
     Optional<UserSession>
   >();
   const previousUserSession = usePrevious(currentUserSession);
-  // Admins must be able to authenticate into all apps.
+  // Admins must be able to authenticate into all frontends.
   assert(validUserTypes.includes('admin'));
 
   // Handle logging when the current user session is updated

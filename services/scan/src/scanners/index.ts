@@ -1,5 +1,5 @@
 import { BallotPaperSize } from '@votingworks/types';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { SheetOf } from '../types';
 
 export * from './fujitsu';

@@ -4,7 +4,7 @@ import { typedAs } from '@votingworks/utils';
 import {
   DeleteElectionConfigResponse,
   PatchElectionConfigResponse,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import * as config from './config';
 
 test('GET /config/election', async () => {

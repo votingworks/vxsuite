@@ -154,8 +154,8 @@
   "vx": {
     "isBundled": true,
     "modules": [
-      "../module-scan",
-      "../module-smartcards"
+      "../../services/scan",
+      "../../services/smartcards"
     ]
   }
 }

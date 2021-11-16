@@ -5,7 +5,7 @@ import pluralize from 'pluralize';
 import {
   BatchInfo,
   GetScanStatusResponse,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';

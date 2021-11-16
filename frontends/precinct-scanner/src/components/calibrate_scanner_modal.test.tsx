@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { mocked } from 'ts-jest/utils';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { deferred } from '@votingworks/utils';
 import { CalibrateScannerModal } from './calibrate_scanner_modal';
 import { usePrecinctScanner } from '../hooks/use_precinct_scanner';

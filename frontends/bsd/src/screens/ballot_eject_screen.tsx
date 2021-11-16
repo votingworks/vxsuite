@@ -7,7 +7,7 @@ import {
   GetNextReviewSheetResponse,
   ScanContinueRequest,
   Side,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { strict as assert } from 'assert';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';

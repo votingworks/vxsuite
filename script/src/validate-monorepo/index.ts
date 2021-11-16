@@ -18,10 +18,11 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
   let tsconfigCount = 0;
   let tsconfigBuildCount = 0;
   let errors = 0;
-  const apps = await readdir(join(__dirname, '../../../apps'));
+  const services = await readdir(join(__dirname, '../../../services'));
+  const frontends = await readdir(join(__dirname, '../../../frontends'));
   const libs = await readdir(join(__dirname, '../../../libs'));
 
-  for (const pkg of [...apps, ...libs]) {
+  for (const pkg of [...services, ...frontends, ...libs]) {
     const packageJsonPath = join(pkg, 'package.json');
     const packageJson = await maybeReadPackageJson(packageJsonPath);
 

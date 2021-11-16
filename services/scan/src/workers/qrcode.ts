@@ -7,7 +7,7 @@ import { stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';
 import { detectQrCode } from '../util/qrcode';
 
-const debug = makeDebug('module-scan:workers:qrcode');
+const debug = makeDebug('scan:workers:qrcode');
 
 export const workerPath = __filename;
 

@@ -61,26 +61,14 @@ Utility functions used across VotingWorks components, including
 notably working with ballot packages, dates, tallies, USB stick
 interfaces.
 
-## Apps
+## Frontends
 
-VotingWorks Apps are standalone programs that run as part of a
-VotingWorks component. They are organized inside the `/apps`
-directory.
+VotingWorks Frontends are standalone user-facing programs that run as part of a
+VotingWorks component. They are organized inside the `/frontends` directory.
 
-There are two kinds of apps: frontends, and modules.
-
-* Frontends correspond to components that are distinct to the user,
-  for example "Precinct Scanner" is one frontend, and "BMD" is
-  another.
+Frontends correspond to components that are distinct to the user, for example
+"Precinct Scanner" is one frontend, and "BMD" is another.
   
-* Modules (we may want to rename this) are services that run as part
-  of individual components and provide functionality that may be used
-  by more than one component. For example, "Module: Scan" is a service
-  that interfaces with our scanning hardware, processes ballots, and
-  produces cast-vote records. "Module: Scan" is used by two frontends:
-  "Precinct Scanner" and "Ballot Scanning Device" (which is our
-  central scanner).
-
 ### Frontend: Ballot Activation System
 
 The vote-card encoding system used in vote-center configurations.
@@ -102,15 +90,23 @@ from all scanners.
 
 The precinct scanner.
 
-### Module: Converter SEMS Ms
+## Services
+
+VotingWorks Services run as part of individual components and provide
+functionality that may be used by more than one component. For example, the
+"Scan" service interfaces with our scanning hardware, processes ballots, and
+produces cast-vote records. "Scan" is used by two frontends: "Precinct Scanner"
+and "Ballot Scanning Device" (which is our central scanner).
+
+### Service: Converter SEMS Ms
 
 The service that converts election definitions and cast-vote records
 to and from Mississippi's State Election Management System.
 
 Used by:
-* Election Manager.
+* Election Manager
 
-### Module: Scan
+### Service: Scan
 
 The service that interfaces with the scanning hardware, interprets
 ballots, and produces cast-vote records.
@@ -119,7 +115,7 @@ Used by:
 * Ballot Scanning Device
 * Precinct Scanner
 
-### Module: Smartcards
+### Service: Smartcards
 
 The service that interfaces with smart cards.
 

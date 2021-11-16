@@ -4,7 +4,7 @@ import {
   ScannerStatus,
   GetScanStatusResponse,
   AdjudicationStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';

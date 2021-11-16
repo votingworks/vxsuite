@@ -180,10 +180,9 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
 
   const initialPrecinctTally =
     talliesByPrecinct[currentPrecinctId] ?? getEmptyExternalTally();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [currentPrecinctTally, setCurrentPrecinctTally] = useState(
-    initialPrecinctTally
-  );
+  const [currentPrecinctTally, setCurrentPrecinctTally] =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useState(initialPrecinctTally);
 
   const ballotType = existingManualData?.votingMethod || VotingMethod.Precinct;
 

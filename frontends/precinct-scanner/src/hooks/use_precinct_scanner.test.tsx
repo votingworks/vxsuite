@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import {
   GetScanStatusResponse,
   ScannerStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { sleep } from '@votingworks/utils';
 import React from 'react';
 import fetchMock, { MockResponseFunction } from 'fetch-mock';

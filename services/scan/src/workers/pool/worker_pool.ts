@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 import * as json from '../json_serialization';
 import { WorkerOps } from './types';
 
-const debug = makeDebug('module-scan:pool');
+const debug = makeDebug('scan:pool');
 
 export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
   private workers?: Set<W>;

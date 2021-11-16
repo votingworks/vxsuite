@@ -1,5 +1,5 @@
 {
-  "name": "bmd",
+  "name": "@votingworks/bmd",
   "version": "0.1.0",
   "private": true,
   "files": [

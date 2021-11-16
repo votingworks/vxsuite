@@ -10,7 +10,7 @@ import { Store } from '../store';
 import { pdfToImages } from '../util/pdf_to_images';
 import * as qrcodeWorker from './qrcode';
 
-const debug = makeDebug('module-scan:worker:interpret');
+const debug = makeDebug('scan:worker:interpret');
 
 export const workerPath = __filename;
 

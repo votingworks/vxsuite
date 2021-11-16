@@ -16,7 +16,7 @@ import {
   PatchMarkThresholdOverridesConfigRequest,
   PatchTestModeConfigRequest,
   PutCurrentPrecinctConfigRequest,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { ErrorsResponse, OkResponse } from '@votingworks/types/src/api';
 import { fetchJson } from '@votingworks/utils';
 

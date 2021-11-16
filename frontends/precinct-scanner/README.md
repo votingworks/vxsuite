@@ -11,7 +11,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run the app like so:
 
 ```sh
-# in apps/precinct-scanner
+# in frontends/precinct-scanner
 pnpm start
 ```
 
@@ -21,11 +21,11 @@ to get to certain states from http://localhost:3000/preview.
 To set the election configuration you will need to load a ballot export zip file
 from [election-manager](../election-manager). It should be on a USB drive
 located in the folder `ballot-packages`. There can only be one election ballot
-package in that forder. You'll need to run the application inside
+package in that folder. You'll need to run the application inside
 [`kiosk-browser`](https://github.com/votingworks/kiosk-browser).
 
 To use a mock scanner, follow the directions from in
-[`module-scan`](../module-scan#Single-sheet-scanner).
+[`services/scan`](../../services/scan#Single-sheet-scanner).
 
 ## Testing
 

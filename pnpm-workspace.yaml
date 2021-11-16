@@ -1,7 +1,10 @@
 packages:
-  # include all the apps and their prodservers
-  - 'apps/*'
-  - 'apps/*/prodserver'
+  # include all the frontends and their prodservers
+  - 'frontends/*'
+  - 'frontends/*/prodserver'
+
+  # include all the services
+  - 'services/*'
 
   # include all the libraries and our custom types
   - 'libs/*'

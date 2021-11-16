@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    // Based on the current version of NodeJS for any backend apps and
-    // Electron/NodeJS for frontend apps.
+    // Based on the current version of NodeJS for any backend services and
+    // Electron/NodeJS for frontends.
     "target": "ES2019",
 
     // Enable all strict mode checks

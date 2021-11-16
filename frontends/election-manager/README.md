@@ -8,7 +8,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run the app like so:
 
 ```sh
-# in apps/election-manager
+# in frontends/election-manager
 pnpm start
 ```
 
@@ -17,9 +17,9 @@ The server will be available at http://localhost:3000/.
 ### Optional prerequisites
 
 - If you want to program smartcards, start
-  [`module-smartcards`](../module-smartcards)
+  [`services/smartcards`](../../services/smartcards)
 - If you will need to convert SEMS files, start
-  [`module-converter-ms-sems`](../module-converter-ms-sems)
+  [`services/converter-ms-sems`](../../services/converter-ms-sems)
 
 ## Testing
 

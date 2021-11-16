@@ -8,7 +8,7 @@ import {
 import {
   GetNextReviewSheetResponse,
   GetNextReviewSheetResponseSchema,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { setElection } from './config';
 
 export interface AddTemplatesEvents extends EventEmitter {

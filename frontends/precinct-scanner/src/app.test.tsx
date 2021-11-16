@@ -10,7 +10,7 @@ import {
   PatchElectionConfigResponse,
   BatchInfo,
   GetNextReviewSheetResponse,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import {
   TallySourceMachineType,
   MemoryCard,

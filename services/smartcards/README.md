@@ -1,14 +1,14 @@
-# SmartCard Module
+# SmartCard Service
 
 This web server component provides a web interface to a connected smartcard.
 
 ## Setup
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the module like so:
+then run the service like so:
 
 ```sh
-# in apps/module-smartcards
+# in services/smartcards
 make build
 make run
 ```

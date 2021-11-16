@@ -7,7 +7,7 @@ import {
   ScanRetryPredicate,
 } from '@votingworks/plustek-sdk';
 import { ok, Provider, Result, safeParse } from '@votingworks/types';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import bodyParser from 'body-parser';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
@@ -15,7 +15,7 @@ import * as z from 'zod';
 import { BatchControl, Scanner, ScanOptions } from '.';
 import { SheetOf } from '../types';
 
-const debug = makeDebug('module-scan:scanner');
+const debug = makeDebug('scan:scanner');
 
 export type ScannerClientProvider = Provider<Result<ScannerClient, Error>>;
 

@@ -1,4 +1,4 @@
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { BatchControl, Scanner } from './scanners';

@@ -67,7 +67,9 @@ export function ElectionConfiguration({
     try {
       await acceptAutomaticallyChosenFileFromProps(file);
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   }
 
@@ -75,7 +77,9 @@ export function ElectionConfiguration({
     try {
       await acceptManuallyChosenFileFromProps(file);
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   }
 
@@ -93,7 +97,7 @@ export function ElectionConfiguration({
       );
       setLoadingFiles(false);
     } catch (err) {
-      if (err.message.includes('ENOENT')) {
+      if (err instanceof Error && err.message.includes('ENOENT')) {
         // The directory on the usb drive was not found. Treat this the same
         // as finding no matching zip files.
         setFoundFilenames([]);
@@ -248,7 +252,7 @@ export function ElectionConfiguration({
               </Text>
               {errorMessage !== '' && (
                 <Text error>
-                  An error occured while importing the election configuration:{' '}
+                  An error occurred while importing the election configuration:{' '}
                   {errorMessage}. Please check the file you are importing and
                   try again.
                 </Text>

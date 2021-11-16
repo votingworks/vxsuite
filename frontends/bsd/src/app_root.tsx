@@ -17,7 +17,7 @@ import {
   ScanContinueRequest,
   ScanContinueResponseSchema,
   ZeroResponseSchema,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import {
   usbstick,
   KioskStorage,

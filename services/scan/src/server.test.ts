@@ -7,7 +7,7 @@ import {
   GetScanStatusResponse,
   ScanContinueRequest,
   ScannerStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { typedAs } from '@votingworks/utils';
 import { Application } from 'express';
 import { promises as fs } from 'fs';

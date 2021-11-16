@@ -7,7 +7,7 @@ import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
   ScannerStatus,
-} from '@votingworks/types/src/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { DateTime } from 'luxon';

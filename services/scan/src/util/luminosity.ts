@@ -1,7 +1,7 @@
 import { otsu } from '@votingworks/hmpb-interpreter';
 import makeDebug from 'debug';
 
-const debug = makeDebug('module-scan:threshold');
+const debug = makeDebug('scan:threshold');
 
 export interface Stats {
   threshold: number;

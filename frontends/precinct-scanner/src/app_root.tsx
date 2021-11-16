@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import useInterval from '@rooks/use-interval';
@@ -547,7 +547,7 @@ export function AppRoot({
           case ScannerStatus.Error:
           case ScannerStatus.Unknown: {
             // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
-            // TODO(531) Bugs in module-scan make this happen at confusing moments, ignore for now.
+            // TODO(531) Bugs in services/scan make this happen at confusing moments, ignore for now.
             debug('got a bad scanner status', scannerState);
             /* dispatchAppState({
             type: 'scannerError',

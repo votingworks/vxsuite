@@ -1,6 +1,6 @@
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
+import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
 import { addTemplates, fetchNextBallotSheetToReview } from './hmpb';
 import * as config from './config';
 

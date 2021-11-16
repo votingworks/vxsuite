@@ -174,7 +174,7 @@ test('shows errors that occur when importing in file list screen', async () => {
       acceptManuallyChosenFile={jest.fn()}
       acceptAutomaticallyChosenFile={jest
         .fn()
-        .mockRejectedValueOnce({ message: 'FAKE-ERROR' })}
+        .mockRejectedValueOnce(new Error('FAKE-ERROR'))}
     />,
     { usbDriveStatus: UsbDriveStatus.mounted }
   );
@@ -187,11 +187,11 @@ test('shows errors that occur when importing in file list screen', async () => {
   expect(queryAllByText('FAKE-ERROR')).toHaveLength(0);
   expect(
     queryAllByText(
-      /An error occured while importing the election configuration/
+      /An error occurred while importing the election configuration/
     )
   ).toHaveLength(0);
 
   fireEvent.click(domGetByText(tableRows[0], 'Select'));
   await waitFor(() => getByText(/FAKE-ERROR/));
-  getByText(/An error occured while importing the election configuration/);
+  getByText(/An error occurred while importing the election configuration/);
 });

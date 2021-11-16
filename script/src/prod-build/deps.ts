@@ -5,7 +5,7 @@ import { relativePath } from './utils/relative_path'
 import { dirname, normalize, join } from 'path'
 
 export enum PackageType {
-  App = 'app',
+  Service = 'service',
   Library = 'lib',
 }
 
@@ -56,9 +56,9 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
         }
       }
 
-      if (pkg.vx?.modules) {
-        for (const mod of pkg.vx.modules) {
-          deps.push(addDependency(normalize(join(path, mod)), PackageType.App))
+      if (pkg.vx?.services) {
+        for (const mod of pkg.vx.services) {
+          deps.push(addDependency(normalize(join(path, mod)), PackageType.Service))
         }
       }
     }

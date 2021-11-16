@@ -7,7 +7,10 @@ import {
   MarkThresholds,
   PageInterpretation,
 } from '@votingworks/types';
-import { ScannerStatus, ScanStatus } from '@votingworks/types/api/module-scan';
+import {
+  ScannerStatus,
+  ScanStatus,
+} from '@votingworks/types/api/services/scan';
 import { sleep } from '@votingworks/utils';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
@@ -30,7 +33,7 @@ import { InterpretOutput } from './workers/interpret';
 import { inlinePool, WorkerPool } from './workers/pool';
 import * as qrcodeWorker from './workers/qrcode';
 
-const debug = makeDebug('module-scan:importer');
+const debug = makeDebug('scan:importer');
 
 export interface Options {
   workspace: Workspace;

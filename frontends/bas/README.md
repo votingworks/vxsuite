@@ -9,7 +9,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run the app like so:
 
 ```sh
-# in apps/bas
+# in frontends/bas
 pnpm start
 ```
 

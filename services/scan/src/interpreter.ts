@@ -41,7 +41,7 @@ import { time } from './util/perf';
 import { detectQrCode } from './util/qrcode';
 import * as qrcodeWorker from './workers/qrcode';
 
-const debug = makeDebug('module-scan:interpreter');
+const debug = makeDebug('scan:interpreter');
 
 export interface InterpretFileParams {
   readonly ballotImagePath: string;

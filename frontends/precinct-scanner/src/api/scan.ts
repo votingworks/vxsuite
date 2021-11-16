@@ -10,7 +10,7 @@ import {
   GetScanStatusResponseSchema,
   ScanContinueRequest,
   ScannerStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { fetchJson } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
@@ -153,7 +153,7 @@ export async function acceptBallotAfterReview(): Promise<boolean> {
 }
 
 export async function endBatch(): Promise<boolean> {
-  // calling scanContinue will "naturally" end the batch because module-scan
+  // calling scanContinue will "naturally" end the batch because services/scan
   // will see there's no more paper
   const body: ScanContinueRequest = {
     forceAccept: false,

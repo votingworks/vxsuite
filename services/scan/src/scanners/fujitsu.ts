@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { deferredQueue, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'path';
@@ -16,7 +16,7 @@ import { streamExecFile } from '../exec';
 import { SheetOf } from '../types';
 import { StreamLines } from '../util/stream_lines';
 
-const debug = makeDebug('module-scan:scanner');
+const debug = makeDebug('scan:scanner');
 
 export interface Options {
   format?: ScannerImageFormat;

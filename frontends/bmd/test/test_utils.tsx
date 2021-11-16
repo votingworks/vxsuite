@@ -103,6 +103,5 @@ export function render(
         <Router history={history}>{component}</Router>
       </BallotContext.Provider>
     ),
-    history,
   };
 }

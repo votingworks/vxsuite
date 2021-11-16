@@ -1,12 +1,12 @@
-describe('BSD and Module-Scan', () => {
+describe('BSD and services/Scan', () => {
   beforeEach(() => {
-    // Unconfigure module-scan
+    // Unconfigure services/scan
     cy.request('DELETE', '/config/election');
     cy.visit('/');
     cy.contains('Load Election Configuration', { timeout: 10000 });
   });
 
-  it('BSD can be configured with module-scan with an election JSON file', () => {
+  it('BSD can be configured with services/scan with an election JSON file', () => {
     cy.visit('/');
     cy.contains('Load Election Configuration');
     cy.get('input[type="file"]').attachFile('election.json');
@@ -14,7 +14,7 @@ describe('BSD and Module-Scan', () => {
     cy.contains('No ballots have been scanned');
   });
 
-  it('BSD can be configured with module-scan with a ZIP ballot package and can configure advanced options', () => {
+  it('BSD can be configured with services/scan with a ZIP ballot package and can configure advanced options', () => {
     cy.visit('/');
     cy.contains('Load Election Configuration');
     cy.get('input[type="file"]').attachFile({

@@ -7,10 +7,10 @@ VxSuite [Ballot Scanning Device (BSD)](../bsd) or the VxSuite
 ## Setup
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the module like so:
+then run the service like so:
 
 ```sh
-# in apps/module-scan
+# in services/scan
 pnpm dev
 ```
 
@@ -71,7 +71,7 @@ VX_MACHINE_TYPE=precinct-scanner MOCK_SCANNER_HTTP=1 pnpm dev
 
 ### Using Fixtures Data
 
-To force `requires_adjudication` of ballots, run this in `module-scan`:
+To force `requires_adjudication` of ballots, run this in `services/scan`:
 
 ```
 sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
@@ -79,13 +79,13 @@ sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
 
 #### Letter-sized ballots
 
-First init `module-smartcards` with:
+First init `services/smartcards` with:
 
 ```
-./mockCardReader.py enable --admin ../module-scan/test/fixtures/2020-choctaw/election.json
+./mockCardReader.py enable --admin ../scan/test/fixtures/2020-choctaw/election.json
 ```
 
-Init `module-scan` with:
+Init `services/scan` with:
 
 ```
 MOCK_SCANNER_FILES=test/fixtures/2020-choctaw/ballot-p1.jpg,test/fixtures/2020-choctaw/ballot-p2.jpg pnpm dev
@@ -93,13 +93,13 @@ MOCK_SCANNER_FILES=test/fixtures/2020-choctaw/ballot-p1.jpg,test/fixtures/2020-c
 
 #### Legal-sized ballots
 
-First init `module-smartcards` with:
+First init `services/smartcards` with:
 
 ```
 ./mockCardReader.py enable --admin ../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/election.json
 ```
 
-Init `module-scan` with:
+Init `services/scan` with:
 
 ```
 MOCK_SCANNER_FILES=../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm dev
@@ -108,12 +108,12 @@ MOCK_SCANNER_FILES=../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020
 ## Switching Workspaces
 
 By default a `ballots.db` file and a `ballot-images` directory will be created
-in a `dev-workspace` folder inside `module-scan` when running this service. To
-choose another location, set `MODULE_SCAN_WORKSPACE` to the path to another
+in a `dev-workspace` folder inside `services/scan` when running this service. To
+choose another location, set `SCAN_WORKSPACE` to the path to another
 folder:
 
 ```sh
-$ MODULE_SCAN_WORKSPACE=/path/to/workspace pnpm dev
+$ SCAN_WORKSPACE=/path/to/workspace pnpm dev
 ```
 
 ## Testing

@@ -1,66 +1,84 @@
 {
   "folders": [
     {
-      "path": "apps/bas"
+      "name": "frontends/bas",
+      "path": "frontends/bas"
     },
     {
-      "path": "apps/bmd"
+      "name": "frontends/bmd",
+      "path": "frontends/bmd"
     },
     {
-      "path": "apps/bsd"
+      "name": "frontends/bsd",
+      "path": "frontends/bsd"
     },
     {
-      "path": "apps/election-manager"
+      "name": "frontends/election-manager",
+      "path": "frontends/election-manager"
     },
     {
-      "path": "apps/module-scan"
+      "name": "frontends/precinct-scanner",
+      "path": "frontends/precinct-scanner"
     },
     {
-      "path": "apps/module-smartcards"
+      "name": "services/scan",
+      "path": "services/scan"
     },
     {
+      "name": "services/smartcards",
+      "path": "services/smartcards"
+    },
+    {
+      "name": "services/converter-ms-sems",
+      "path": "services/converter-ms-sems"
+    },
+    {
+      "name": "libs/ballot-encoder",
       "path": "libs/ballot-encoder"
     },
     {
+      "name": "libs/hmpb-interpreter",
       "path": "libs/hmpb-interpreter"
     },
     {
-      "path": "libs/lsd"
-    },
-    {
-      "path": "libs/types"
-    },
-    {
-      "path": "libs/fixtures"
-    },
-    {
-      "path": "libs/test-utils"
-    },
-    {
-      "path": "libs/ui"
-    },
-    {
+      "name": "libs/logging",
       "path": "libs/logging"
     },
     {
-      "path": "apps/precinct-scanner"
+      "name": "libs/lsd",
+      "path": "libs/lsd"
     },
     {
+      "name": "libs/types",
+      "path": "libs/types"
+    },
+    {
+      "name": "libs/fixtures",
+      "path": "libs/fixtures"
+    },
+    {
+      "name": "libs/test-utils",
+      "path": "libs/test-utils"
+    },
+    {
+      "name": "libs/ui",
+      "path": "libs/ui"
+    },
+    {
+      "name": "libs/plustek-sdk",
       "path": "libs/plustek-sdk"
     },
     {
+      "name": "libs/utils",
       "path": "libs/utils"
     },
     {
-      "path": "apps/module-converter-ms-sems"
+      "name": "integration-testing/bsd",
+      "path": "integration-testing/bsd"
     },
     {
-      "path": "integration-testing/bsd",
-      "name": "integration-testing/bsd"
-    },
-    {
-      "path": "integration-testing/election-manager",
-      "name": "integration-testing/election-manager"
+      "name": "integration-testing/election-manager",
+      "path": "integration-testing/election-manager"
     }
   ],
   "settings": {
@@ -71,6 +89,7 @@
       "AGPL",
       "castability",
       "cvrs",
+      "frontends",
       "hmpb",
       "jsonl",
       "luxon",

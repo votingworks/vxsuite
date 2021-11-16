@@ -1,5 +1,5 @@
 import { ScannerClient } from '@votingworks/plustek-sdk';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { throwIllegalValue } from '@votingworks/utils';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';

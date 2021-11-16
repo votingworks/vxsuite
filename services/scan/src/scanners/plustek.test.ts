@@ -4,7 +4,7 @@ import {
   ScannerError,
 } from '@votingworks/plustek-sdk';
 import { err, ok } from '@votingworks/types';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import request from 'supertest';
 import { makeMockPlustekClient } from '../../test/util/mocks';
 import { plustekMockServer, PlustekScanner, withReconnect } from './plustek';

@@ -43,12 +43,12 @@ sqlite3 "${BACKUP_DIR}/ballots.db" "
 
 echo
 echo -e "\e[1mSuccess! Your backup has been extracted.\e[0m"
-echo -e "Restart module-scan/bsd to see the changes."
+echo -e "Restart services/scan & bsd to see the changes."
 echo
-echo -e "To run module-scan/bsd with the backup as the workspace, run this and then run module-scan in the same terminal:"
-echo -e "$ \e[4mexport MODULE_SCAN_WORKSPACE='${BACKUP_DIR}'\e[0m"
+echo -e "To run services/scan & bsd with the backup as the workspace, run this and then run services/scan in the same terminal:"
+echo -e "$ \e[4mexport SCAN_WORKSPACE='${BACKUP_DIR}'\e[0m"
 echo
-echo -e "To re-scan the images using the UI, run this then restart module-scan/bsd in the same terminal:"
+echo -e "To re-scan the images using the UI, run this then restart services/scan & bsd in the same terminal:"
 echo -e "$ \e[4mexport MOCK_SCANNER_FILES='@${MANIFEST_FILE}'\e[0m"
 echo
 echo -e "To re-scan the images on the CLI, run this:"

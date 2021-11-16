@@ -18,7 +18,7 @@ import {
   WriteInAdjudicationReasonInfo,
   WriteInMarkAdjudication,
 } from '@votingworks/types';
-import { Side } from '@votingworks/types/api/module-scan';
+import { Side } from '@votingworks/types/api/services/scan';
 import {
   Text,
   useCancelablePromise,

@@ -8,7 +8,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run BMD like so:
 
 ```sh
-# in apps/bmd
+# in frontends/bmd
 # Run VxMark by default
 pnpm start
 

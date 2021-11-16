@@ -1,5 +1,5 @@
 {
-  "name": "module-scan",
+  "name": "@votingworks/scan",
   "version": "0.1.0",
   "private": true,
   "files": [

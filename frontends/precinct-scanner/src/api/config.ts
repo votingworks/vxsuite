@@ -12,7 +12,7 @@ import {
   GetTestModeConfigResponseSchema,
   PatchTestModeConfigRequest,
   PutCurrentPrecinctConfigRequest,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,

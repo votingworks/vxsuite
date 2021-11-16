@@ -5,7 +5,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { BallotType, AdjudicationReason } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/module-scan';
+import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
 import { BallotEjectScreen } from './ballot_eject_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 

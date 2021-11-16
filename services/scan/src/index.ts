@@ -6,7 +6,7 @@ import {
   MOCK_SCANNER_FILES,
   MOCK_SCANNER_HTTP,
   MOCK_SCANNER_PORT,
-  MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
+  SCAN_ALWAYS_HOLD_ON_REJECT,
   VX_MACHINE_TYPE,
 } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
@@ -35,7 +35,7 @@ async function getScanner(): Promise<Scanner | undefined> {
         {
           get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
         },
-        MODULE_SCAN_ALWAYS_HOLD_ON_REJECT
+        SCAN_ALWAYS_HOLD_ON_REJECT
       );
     }
   } else {

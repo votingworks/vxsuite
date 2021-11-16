@@ -28,7 +28,7 @@ import {
   AdjudicationStatus,
   BatchInfo,
   Side,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { strict as assert } from 'assert';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
@@ -45,7 +45,7 @@ import { sheetRequiresAdjudication } from './interpreter';
 import { PageInterpretationWithFiles, SheetOf } from './types';
 import { normalizeAndJoin } from './util/path';
 
-const debug = makeDebug('module-scan:store');
+const debug = makeDebug('scan:store');
 
 export enum ConfigKey {
   Election = 'election',
@@ -428,7 +428,7 @@ export class Store {
   }
 
   /**
-   * Gets the current precinct `module-scan` is accepting ballots for. If set to
+   * Gets the current precinct `scan` is accepting ballots for. If set to
    * `undefined`, ballots from all precincts will be accepted (this is the
    * default).
    */
@@ -437,7 +437,7 @@ export class Store {
   }
 
   /**
-   * Sets the current precinct `module-scan` is accepting ballots for. Set to
+   * Sets the current precinct `scan` is accepting ballots for. Set to
    * `undefined` to accept from all precincts (this is the default).
    */
   async setCurrentPrecinctId(

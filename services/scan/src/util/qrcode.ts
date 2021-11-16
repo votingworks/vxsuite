@@ -7,7 +7,7 @@ import jsQr from 'jsqr';
 import { decode as quircDecode, QRCode } from 'node-quirc';
 import { time } from './perf';
 
-const debug = makeDebug('module-scan:qrcode');
+const debug = makeDebug('scan:qrcode');
 
 function isBase64(string: string): boolean {
   return Buffer.from(string, 'base64').toString('base64') === string;

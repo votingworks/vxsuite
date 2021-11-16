@@ -1,6 +1,6 @@
 # Smart Card Data Format
 
-Via fetches to the API exposed by `module-smartcard`, BMD can read data stored
+Via fetches to the API exposed by `services/smartcard`, BMD can read data stored
 on a memory smart card. This is used for:
 
 - ballot activation: voters have their ballot style encoded on their activation
@@ -9,9 +9,9 @@ on a memory smart card. This is used for:
   election
 
 Because reading from / writing to the smart card can be slow for anything more
-than a few bytes, the `module-smartcard` API exposes a short value that is up to
+than a few bytes, the `services/smartcard` API exposes a short value that is up to
 250 bytes, and a long value that is up to 32,000 bytes. The short value is read
-by defaut, while the long value is only read upon request.
+by default, while the long value is only read upon request.
 
 The short value on the card is always serialized JSON with short field names to
 save space.

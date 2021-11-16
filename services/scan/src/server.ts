@@ -48,16 +48,16 @@ import {
   ScanContinueResponse,
   ZeroRequest,
   ZeroResponse,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
 import { backup } from './backup';
 import {
-  MODULE_SCAN_ALWAYS_HOLD_ON_REJECT,
-  MODULE_SCAN_PORT,
-  MODULE_SCAN_WORKSPACE,
+  SCAN_ALWAYS_HOLD_ON_REJECT,
+  PORT,
+  SCAN_WORKSPACE,
   VX_MACHINE_TYPE,
 } from './globals';
 import { Importer } from './importer';
@@ -658,7 +658,7 @@ export interface StartOptions {
  * Starts the server with all the default options.
  */
 export async function start({
-  port = MODULE_SCAN_PORT,
+  port = PORT,
   scanner,
   importer,
   app,
@@ -673,10 +673,10 @@ export async function start({
   if (workspace) {
     resolvedWorkspace = workspace;
   } else {
-    const workspacePath = MODULE_SCAN_WORKSPACE;
+    const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
       throw new Error(
-        'workspace path could not be determined; pass a workspace or run with MODULE_SCAN_WORKSPACE'
+        'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
       );
     }
     resolvedWorkspace = await createWorkspace(workspacePath);
@@ -701,7 +701,7 @@ export async function start({
     resolvedScanner = usingPrecinctScanner
       ? new PlustekScanner(
           plustekScannerClientProvider,
-          MODULE_SCAN_ALWAYS_HOLD_ON_REJECT
+          SCAN_ALWAYS_HOLD_ON_REJECT
         )
       : new FujitsuScanner({ mode: ScannerMode.Gray });
   }

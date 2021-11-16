@@ -40,7 +40,7 @@
  * Run it like so:
  *
  * ```sh
- * $ pnpx codemod -p codemods/src/react_fc.ts --printer prettier apps/ libs/
+ * $ pnpx codemod -p codemods/src/react_fc.ts --printer prettier frontends/ libs/
  * ```
  */
 

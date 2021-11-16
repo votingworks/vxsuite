@@ -1,6 +1,6 @@
 import makeDebug from 'debug';
 
-const debug = makeDebug('module-scan:perf');
+const debug = makeDebug('scan:perf');
 
 export function formatDurationNs(nanoseconds: bigint): string {
   if (nanoseconds < 1000) {

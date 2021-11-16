@@ -2,7 +2,7 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import {
   GetTestModeConfigResponse,
   PatchElectionConfigResponse,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import fetchMock from 'fetch-mock';
 import * as config from './config';
 

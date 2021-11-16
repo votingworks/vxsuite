@@ -1,5 +1,5 @@
 {
-  "name": "bsd",
+  "name": "@votingworks/bsd",
   "version": "0.1.0",
   "private": true,
   "files": [
@@ -145,8 +145,8 @@
   "vx": {
     "isBundled": true,
     "modules": [
-      "../module-scan",
-      "../module-smartcards"
+      "../../services/scan",
+      "../../services/smartcards"
     ]
   }
 }

@@ -9,370 +9,6 @@ executors:
       - image: circleci/node:12.19
 
 jobs:
-  test-ballot-encoder:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-encoder build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-encoder lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-encoder test
-
-  test-bas:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/bas build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/bas lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/bas test
-
-  test-bmd-main:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/bmd build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/bmd lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/bmd test
-
-  test-bmd-integration:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/bmd build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/bmd lint
-      - run:
-          name: Test
-          command: |
-                  pnpm --dir apps/bmd test:e2e
-
-  test-bsd:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/bsd build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/bsd lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/bsd test
-
-  test-election-manager:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/election-manager build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/election-manager lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/election-manager test
-
-  test-eslint-plugin-vx:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/eslint-plugin-vx build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/eslint-plugin-vx lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/eslint-plugin-vx test
-
-  test-fixtures:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/fixtures build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/fixtures lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/fixtures test
-
-  test-logging:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/logging build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/logging lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/logging test
-
-  test-hmpb-interpreter:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/hmpb-interpreter build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/hmpb-interpreter lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/hmpb-interpreter test
-
-  test-lsd:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/lsd build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/lsd lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/lsd test
-
-  test-module-converter-ms-sems:
-    docker:
-      - image: circleci/python:3.7.7
-    steps:
-      - checkout
-      - run:
-          name: Dependencies
-          command: |
-            sudo apt update -y
-            make -C apps/module-converter-ms-sems install-dependencies
-            make -C apps/module-converter-ms-sems install-dev-dependencies
-      - run:
-          name: Test
-          command: |
-            make -C apps/module-converter-ms-sems coverage
-      # - run:
-      #     name: Typecheck
-      #     command: |
-      #       make -C apps/module-converter-ms-sems typecheck
-
-  test-module-scan:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/module-scan build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/module-scan lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/module-scan test
-
-  test-module-smartcards:
-    docker:
-      - image: circleci/python:3.7.7
-    steps:
-      - checkout
-      - run:
-          name: Dependencies
-          command: |
-            sudo apt update -y
-            make -C apps/module-smartcards install-smartcard
-            make -C apps/module-smartcards build-dev
-      - run:
-          name: Test
-          command: |
-            make -C apps/module-smartcards coverage
-      - run:
-          name: Typecheck
-          command: |
-            make -C apps/module-smartcards typecheck
-
-  test-plustek-sdk:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/plustek-sdk build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/plustek-sdk lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/plustek-sdk test
-
-  test-precinct-scanner:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/precinct-scanner build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/precinct-scanner lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/precinct-scanner test
-
-  test-types:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/types build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/types lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/types test
-
-  test-ui:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ui build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ui lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ui test
-
-  test-utils:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/utils build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/utils lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/utils test
-
-  test-test-utils:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/test-utils build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/test-utils lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/test-utils test
-
   test-codemods:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -390,6 +26,114 @@ jobs:
           name: Test
           command: |
             pnpm --dir codemods test
+
+  test-frontends-bas:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/bas build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/bas lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir frontends/bas test
+
+  test-frontends-bmd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/bmd build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/bmd lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir frontends/bmd test
+
+  test-integration-testing-bmd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/bmd build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/bmd lint
+      - run:
+          name: Test
+          command: |
+                  pnpm --dir frontends/bmd test:e2e
+
+  test-frontends-bsd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/bsd build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/bsd lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir frontends/bsd test
+
+  test-frontends-election-manager:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/election-manager build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/election-manager lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir frontends/election-manager test
+
+  test-frontends-precinct-scanner:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/precinct-scanner build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/precinct-scanner lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir frontends/precinct-scanner test
 
   test-integration-testing-bsd:
     docker:
@@ -429,6 +173,262 @@ jobs:
           command: |
             pnpm --dir integration-testing/election-manager test
 
+  test-libs-ballot-encoder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-encoder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-encoder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-encoder test
+
+  test-libs-eslint-plugin-vx:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/eslint-plugin-vx build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/eslint-plugin-vx lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/eslint-plugin-vx test
+
+  test-libs-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fixtures build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fixtures lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fixtures test
+
+  test-libs-hmpb-interpreter:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/hmpb-interpreter build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/hmpb-interpreter lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/hmpb-interpreter test
+
+  test-libs-logging:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging test
+
+  test-libs-lsd:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/lsd build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/lsd lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/lsd test
+
+  test-libs-plustek-sdk:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/plustek-sdk build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/plustek-sdk lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/plustek-sdk test
+
+  test-libs-test-utils:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-utils test
+
+  test-libs-types:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/types build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/types lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/types test
+
+  test-libs-ui:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ui test
+
+  test-libs-utils:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/utils test
+
+  test-services-converter-ms-sems:
+    docker:
+      - image: circleci/python:3.7.7
+    steps:
+      - checkout
+      - run:
+          name: Dependencies
+          command: |
+            sudo apt update -y
+            make -C services/converter-ms-sems install-dependencies
+            make -C services/converter-ms-sems install-dev-dependencies
+      - run:
+          name: Test
+          command: |
+            make -C services/converter-ms-sems coverage
+      # - run:
+      #     name: Typecheck
+      #     command: |
+      #       make -C services/converter-ms-sems typecheck
+
+  test-services-scan:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir services/scan build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir services/scan lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir services/scan test
+
+  test-services-smartcards:
+    docker:
+      - image: circleci/python:3.7.7
+    steps:
+      - checkout
+      - run:
+          name: Dependencies
+          command: |
+            sudo apt update -y
+            make -C services/smartcards install-smartcard
+            make -C services/smartcards build-dev
+      - run:
+          name: Test
+          command: |
+            make -C services/smartcards coverage
+      - run:
+          name: Typecheck
+          command: |
+            make -C services/smartcards typecheck
+
   validate-monorepo:
     executor: nodejs
     resource_class: xlarge
@@ -442,28 +442,29 @@ jobs:
 workflows:
   test:
     jobs:
-      - test-ballot-encoder
-      - test-bas
-      - test-bmd-main
-      - test-bmd-integration
-      - test-bsd
-      - test-election-manager
-      - test-eslint-plugin-vx
-      - test-fixtures
-      - test-hmpb-interpreter
+      - test-codemods
+      - test-frontends-bas
+      - test-frontends-bmd
+      - test-frontends-bsd
+      - test-frontends-election-manager
+      - test-frontends-precinct-scanner
+      - test-integration-testing-bmd
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
-      - test-logging
-      - test-lsd
-      - test-module-converter-ms-sems
-      - test-module-scan
-      - test-module-smartcards
-      - test-plustek-sdk
-      - test-precinct-scanner
-      - test-test-utils
-      - test-types
-      - test-ui
-      - test-utils
+      - test-libs-ballot-encoder
+      - test-libs-eslint-plugin-vx
+      - test-libs-fixtures
+      - test-libs-hmpb-interpreter
+      - test-libs-logging
+      - test-libs-lsd
+      - test-libs-plustek-sdk
+      - test-libs-test-utils
+      - test-libs-types
+      - test-libs-ui
+      - test-libs-utils
+      - test-services-converter-ms-sems
+      - test-services-scan
+      - test-services-smartcards
       - validate-monorepo
 
 commands:

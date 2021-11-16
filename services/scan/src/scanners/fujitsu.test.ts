@@ -1,5 +1,5 @@
 import { BallotPaperSize } from '@votingworks/types';
-import { ScannerStatus } from '@votingworks/types/api/module-scan';
+import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { ChildProcess } from 'child_process';
 import { FujitsuScanner, ScannerMode } from '.';
 import { makeMockChildProcess } from '../../test/util/mocks';

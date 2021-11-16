@@ -4,7 +4,7 @@
  * Run it like so:
  *
  * ```sh
- * $ pnpx codemod -p codemods/src/safeParseHelpers.ts --printer prettier apps/ libs/
+ * $ pnpx codemod -p codemods/src/safe_parse_helpers.ts --printer prettier frontends/ libs/
  * ```
  */
 import { PluginItem, NodePath } from '@babel/core';

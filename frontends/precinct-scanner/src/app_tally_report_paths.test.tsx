@@ -19,7 +19,7 @@ import {
   GetTestModeConfigResponse,
   PatchTestModeConfigResponse,
   ScannerStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import {
   BallotCountDetails,
   MemoryCard,

@@ -22,7 +22,7 @@ import {
   GetTestModeConfigResponse,
   ScanBatchResponse,
   ScannerStatus,
-} from '@votingworks/types/api/module-scan';
+} from '@votingworks/types/api/services/scan';
 import { AdminCardData, PollworkerCardData } from '@votingworks/types';
 import { App } from './app';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
