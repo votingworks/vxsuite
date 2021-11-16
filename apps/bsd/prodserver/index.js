@@ -9,7 +9,7 @@ const express = require('express')
 const path = require('path')
 const { Logger, LogSource, LogEventId } = require('@votingworks/logging')
 
-const proxy = require('./setup_proxy')
+const proxy = require('./setupProxy')
 const app = express()
 const port = 3000
 const logger = new Logger(LogSource.VxBatchScanSever)
