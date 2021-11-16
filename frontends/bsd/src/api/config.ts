@@ -120,7 +120,13 @@ export async function getTestMode(): Promise<boolean> {
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<PatchTestModeConfigRequest>('/config/testMode', { testMode });
+  await patch<PatchTestModeConfigRequest>('/config/testMode', {
+    testMode,
+  });
+  const newTestMode = await getTestMode();
+  if (newTestMode !== testMode) {
+    throw new Error('Error setting test mode, please try again');
+  }
 }
 
 export async function getMarkThresholdOverrides(): Promise<

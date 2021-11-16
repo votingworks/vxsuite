@@ -64,6 +64,14 @@ export enum LogEventId {
   ConvertingResultsToSemsFormat = 'converting-to-sems',
   TestDeckPrinted = 'test-deck-printed',
   TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
+  // VxBatch specific user action logs
+  TogglingTestMode = 'toggle-test-mode-init',
+  ToggledTestMode = 'toggled-test-mode',
+  ClearingBallotData = 'clear-ballot-data-init',
+  ClearedBallotData = 'clear-ballot-data-complete',
+  OverridingMarkThresholds = 'override-mark-threshold-init',
+  OverrodeMarkThresholds = 'override-mark-thresholds-complete',
+  DownloadedScanImageBackup = 'download-backup-scan-images,',
 }
 
 export interface LogDetails {
@@ -87,7 +95,7 @@ const ElectionUnconfiguredEvent: LogDetails = {
   defaultMessage:
     'Application has been unconfigured from the previous election.',
   documentationMessage:
-    'The user has unconfigured current machine to remove the current election definition.',
+    'The user has unconfigured current machine to remove the current election definition, and all other data.',
 };
 
 const MachineBootInitEvent: LogDetails = {
@@ -382,6 +390,56 @@ const TestDeckTallyReportPrinted: LogDetails = {
     'User printed the test deck tally report. Success or failure indicated by disposition.',
 };
 
+const TogglingTestMode: LogDetails = {
+  eventId: LogEventId.TogglingTestMode,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated toggling between test mode and live mode in the current application.',
+};
+
+const ToggledTestMode: LogDetails = {
+  eventId: LogEventId.ToggledTestMode,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.',
+};
+
+const ClearingBallotData: LogDetails = {
+  eventId: LogEventId.ClearingBallotData,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated clearing ballot data in the current application.',
+  defaultMessage: 'User is clearing ballot data...',
+};
+
+const ClearedBallotData: LogDetails = {
+  eventId: LogEventId.ClearedBallotData,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.',
+};
+
+const OverridingMarkThresholds: LogDetails = {
+  eventId: LogEventId.OverridingMarkThresholds,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated overriding the thresholds of when to count marks seen by the scanning module. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
+  defaultMessage: 'User is overriding mark thresholds...',
+};
+
+const OverrodeMarkThresholds: LogDetails = {
+  eventId: LogEventId.OverrodeMarkThresholds,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
+};
+const DownloadedScanImageBackup: LogDetails = {
+  eventId: LogEventId.DownloadedScanImageBackup,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User downloaded a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -476,6 +534,20 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return TestDeckPrinted;
     case LogEventId.TestDeckTallyReportPrinted:
       return TestDeckTallyReportPrinted;
+    case LogEventId.TogglingTestMode:
+      return TogglingTestMode;
+    case LogEventId.ToggledTestMode:
+      return ToggledTestMode;
+    case LogEventId.ClearingBallotData:
+      return ClearingBallotData;
+    case LogEventId.ClearedBallotData:
+      return ClearedBallotData;
+    case LogEventId.OverridingMarkThresholds:
+      return OverridingMarkThresholds;
+    case LogEventId.OverrodeMarkThresholds:
+      return OverrodeMarkThresholds;
+    case LogEventId.DownloadedScanImageBackup:
+      return DownloadedScanImageBackup;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

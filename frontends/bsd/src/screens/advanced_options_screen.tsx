@@ -1,5 +1,6 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
+import { LogEventId } from '@votingworks/logging';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -36,7 +37,8 @@ export function AdvancedOptionsScreen({
   markThresholds,
   electionDefinition,
 }: Props): JSX.Element {
-  const { lockMachine } = useContext(AppContext);
+  const { lockMachine, logger, currentUserSession } = useContext(AppContext);
+  const currentUserType = currentUserSession?.type ?? 'unknown';
   const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
     false
   );
@@ -58,12 +60,21 @@ export function AdvancedOptionsScreen({
       setBackupError('');
       setIsBackingUp(true);
       await backup();
+      await logger.log(LogEventId.DownloadedScanImageBackup, currentUserType, {
+        disposition: 'success',
+        message: 'User successfully downloaded ballot data backup files.',
+      });
     } catch (error) {
       setBackupError(error.toString());
+      await logger.log(LogEventId.DownloadedScanImageBackup, currentUserType, {
+        disposition: 'failure',
+        message: `Error downloading ballot data backup: ${error.message}`,
+        result: 'No backup downloaded.',
+      });
     } finally {
       setIsBackingUp(false);
     }
-  }, [backup]);
+  }, [backup, logger, currentUserType]);
 
   useEffect(() => {
     if (isFactoryResetting) {

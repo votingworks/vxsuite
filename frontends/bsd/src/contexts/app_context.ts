@@ -1,10 +1,10 @@
-import { LoggingUserRole } from '@votingworks/logging';
+import { LoggingUserRole, LogSource, Logger } from '@votingworks/logging';
 import { ElectionDefinition, UserSession } from '@votingworks/types';
 import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createContext } from 'react';
 import { MachineConfig } from '../config/types';
 
-interface AppContextInterface {
+export interface AppContextInterface {
   usbDriveStatus: usbstick.UsbDriveStatus;
   usbDriveEject: (currentUser: LoggingUserRole) => void;
   machineConfig: MachineConfig;
@@ -13,6 +13,7 @@ interface AppContextInterface {
   storage: Storage;
   lockMachine: () => void;
   currentUserSession?: UserSession;
+  logger: Logger;
 }
 
 const appContext: AppContextInterface = {
@@ -24,6 +25,7 @@ const appContext: AppContextInterface = {
   storage: new MemoryStorage(),
   lockMachine: () => undefined,
   currentUserSession: undefined,
+  logger: new Logger(LogSource.VxBatchScanApp),
 };
 
 export const AppContext = createContext(appContext);
