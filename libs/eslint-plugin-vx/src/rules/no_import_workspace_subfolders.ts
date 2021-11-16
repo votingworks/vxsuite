@@ -8,7 +8,7 @@ export default createRule({
   meta: {
     docs: {
       description:
-        'When import libraries from the VotingWorks workspace, do not include subfolders like /src in the import',
+        'When importing libraries from the VotingWorks workspace, do not include subfolders like /src in the import',
       category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
