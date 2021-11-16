@@ -6,6 +6,7 @@
     "module": "commonjs",
     "allowJs": true,
     "composite": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

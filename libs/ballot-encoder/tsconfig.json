@@ -12,7 +12,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "composite": true
+    "composite": true,
+    "noEmit": true
   },
   "include": ["src", "src/data/*.json", "test"],
   "exclude": [],

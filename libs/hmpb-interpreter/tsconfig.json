@@ -1,5 +1,7 @@
 {
   "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test", "test/fixtures/**/*.json", "__mocks__"],
+  "exclude": [],
   "compilerOptions": {
     "module": "commonjs",
     "lib": ["ES2020"],
@@ -13,7 +15,6 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "test", "test/fixtures/**/*.json", "__mocks__"],
   "references": [
     { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },

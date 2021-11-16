@@ -22,7 +22,7 @@
     "**/*.ts"
   ],
   "references": [
-    { "path": "../../../libs/fixtures" },
-    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }
+    { "path": "../../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" }
   ]
 }
