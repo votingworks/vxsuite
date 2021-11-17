@@ -17,8 +17,16 @@
 
 import { Size } from '../util/geometry';
 
+/**
+ * Describes the length of a line segment for use as a threshold, in practice
+ * acting as a minimum length to keep the line segment. It can either be an
+ * absolute number of pixels or a percentage of the width or height.
+ */
 export type LengthThreshold = number | { width: number } | { height: number };
 
+/**
+ * Options for the `lsd` binary as parsed from command-line arguments.
+ */
 export interface Options {
   background: 'none' | 'white' | 'original';
   format: 'svg' | 'png';
@@ -29,6 +37,10 @@ export interface Options {
   size?: Size;
 }
 
+/**
+ * Converts `args` into `Options` for use in displaying detected line segments
+ * in images. Throws in case of invalid options.
+ */
 export function parseOptions(args: readonly string[]): Options {
   const imagePaths: string[] = [];
   let background: Options['background'] = 'none';

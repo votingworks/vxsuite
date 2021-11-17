@@ -17,6 +17,15 @@
 
 import { join, basename, dirname, extname } from 'path';
 
+/**
+ * Gets the file in the same directory with the same basename plus an optional
+ * suffix and new extension.
+ *
+ * @example
+ *
+ *   adjacentFile('image.png', '-lsd');         // image-lsd.png
+ *   adjacentFile('image.png', '-lsd', '.jpg'); // image-lsd.jpg
+ */
 export function adjacentFile(
   path: string,
   suffix: string,

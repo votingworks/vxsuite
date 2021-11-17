@@ -1,7 +1,6 @@
 {
   "extends": ["plugin:vx/recommended"],
   "rules": {
-    "no-bitwise": "off",
-    "vx/gts-jsdoc": "off"
+    "no-bitwise": "off"
   }
 }

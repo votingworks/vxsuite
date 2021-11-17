@@ -23,6 +23,11 @@ const addon = bindings('lsd') as {
   LSD_RESULT_DIM: number;
 };
 
+/**
+ * Pixel values for a line segment. `(x1, y1)` is the point at the start of the
+ * line segment, `(x2, y2)` is the point at the end of the line segment, and
+ * `width` is the thickness of the line segment.
+ */
 export interface LineSegment {
   x1: number;
   x2: number;
@@ -31,6 +36,9 @@ export interface LineSegment {
   width: number;
 }
 
+/**
+ * JavaScript wrapper for the C addon `lsd` algorithm.
+ */
 export function lsd(imageData: ImageData): LineSegment[] {
   const { data, width, height } = imageData;
   const channels = imageData.data.length / imageData.width / imageData.height;

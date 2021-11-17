@@ -20,6 +20,15 @@ export interface Size {
   height: number;
 }
 
+/**
+ * Gets the Euclidean distance from `(x1, y1)` to `(x2, y2)`.
+ *
+ * @example
+ *
+ *   distance(0, 0, 1, 0);  // 1
+ *   distance(0, 0, 0, 1);  // 1
+ *   distance(0, 0, 1, 1);  // Math.sqrt(2) ≈ 1.414
+ */
 export function distance(
   x1: number,
   y1: number,
@@ -29,10 +38,24 @@ export function distance(
   return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5;
 }
 
+/**
+ * Gets the angle of the line segment from `(x1, y1)` to `(x2, y2)`.
+ *
+ * @example
+ *
+ *   angle(0, 0, 1, 0);  // 0°
+ *   angle(0, 0, 0, 1);  // 90°
+ *   angle(0, 0, -1, 0); // 180°
+ *   angle(0, 0, 0, -1); // -90°
+ */
 export function angle(x1: number, y1: number, x2: number, y2: number): number {
   return Math.atan2(y2 - y1, x2 - x1);
 }
 
+/**
+ * Determines whether two floating point numbers are approximately equal
+ * according to an error factor.
+ */
 export function approximatelyEqual(
   a: number,
   b: number,
