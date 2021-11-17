@@ -1,3 +1,6 @@
+/**
+ * Configuration options to give to the plustek drivers when initializing.
+ */
 export interface Config {
   savepath?: string;
   'filename-format'?: string;
@@ -62,6 +65,9 @@ export interface Config {
   'remove-punchhold'?: boolean;
 }
 
+/**
+ * Default values for initializing the plustek drivers.
+ */
 export const DEFAULT_CONFIG: Readonly<Config> = {
   'filename-format': 'PIC-tick-3',
   'filename-beginindex': 1,
