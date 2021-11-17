@@ -19,6 +19,7 @@ import {
 
 import { Table, TD } from '@votingworks/ui';
 
+import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -140,8 +141,12 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     electionDefinition,
     fullElectionExternalTallies,
     saveExternalTallies,
+    currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth) check permissions for adding manual tally data
+  const currentUserType = currentUserSession.type;
   const { election } = electionDefinition;
   // TODO export the type for this somewhere
   const {
@@ -249,6 +254,12 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       MANUAL_DATA_NAME,
       new Date()
     );
+    await logger.log(LogEventId.ManualTallyDataEdited, currentUserType, {
+      disposition: 'success',
+      message: `Manually entered tally data added or edited for precinct: ${currentPrecinctId}`,
+      numberOfBallotsInPrecinct: currentPrecinctTally.numberOfBallotsCounted,
+      precinctId: currentPrecinctId,
+    });
     // Don't modify any external tallies for non-manual data
     const newTallies = fullElectionExternalTallies.filter(
       (t) => t.source !== ExternalTallySourceType.Manual

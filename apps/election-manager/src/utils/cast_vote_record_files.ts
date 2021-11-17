@@ -47,7 +47,12 @@ function mapAdd<K, V>(
   const result = new Map(map);
 
   for (const value of values) {
-    result.set(keyfn(value), value);
+    const newKey = keyfn(value);
+    // If the key is already in the map, remove it before re-adding it.
+    if (result.has(newKey)) {
+      result.delete(newKey);
+    }
+    result.set(newKey, value);
   }
 
   return result;
@@ -222,12 +227,13 @@ export class CastVoteRecordFiles {
     try {
       const fileContent = await readFileAsync(file);
       const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
-      return await this.addFromFileContent(
+      const result = await this.addFromFileContent(
         fileContent,
         file.name,
         parsedFileInfo?.timestamp || new Date(file.lastModified),
         election
       );
+      return result;
     } catch (error) {
       return new CastVoteRecordFiles(
         this.signatures,

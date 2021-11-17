@@ -9,6 +9,7 @@ import {
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils';
+import { LogEventId } from '@votingworks/logging';
 import { strict as assert } from 'assert';
 import { Table, TD } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
@@ -73,8 +74,12 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     saveCastVoteRecordFiles,
     castVoteRecordFiles,
     electionDefinition,
+    currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth) check permissions for importing cvr
+  const currentUserType = currentUserSession.type;
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [foundFiles, setFoundFiles] = useState<KioskBrowser.FileSystemEntry[]>(
     []
@@ -91,9 +96,33 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
     if (newCastVoteRecordFiles.duplicateFiles.includes(fileEntry.name)) {
       setCurrentState(ModalState.DUPLICATE);
+      await logger.log(LogEventId.CvrImported, currentUserType, {
+        message:
+          'CVR file was not imported as it is a duplicated of a previously imported file.',
+        disposition: 'failure',
+        filename: fileEntry.name,
+        result: 'File not imported, error shown to user.',
+      });
     } else if (newCastVoteRecordFiles.lastError?.filename === fileEntry.name) {
       setCurrentState(ModalState.ERROR);
+      await logger.log(LogEventId.CvrImported, currentUserType, {
+        message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
+        disposition: 'failure',
+        filename: fileEntry.name,
+        error: newCastVoteRecordFiles.lastError.message,
+        result: 'File not imported, error shown to user.',
+      });
     } else {
+      const file = newCastVoteRecordFiles.fileList.find(
+        (f) => f.name === fileEntry.name
+      );
+      assert(file);
+      await logger.log(LogEventId.CvrImported, currentUserType, {
+        message: 'CVR file successfully imported.',
+        disposition: 'success',
+        filename: fileEntry.name,
+        numberOfBallots: file.count,
+      });
       onClose();
     }
   }
@@ -113,12 +142,37 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       await saveCastVoteRecordFiles(newCastVoteRecordFiles);
 
       input.value = '';
+      const filename = files[0].name;
 
-      if (newCastVoteRecordFiles.duplicateFiles.includes(files[0].name)) {
+      if (newCastVoteRecordFiles.duplicateFiles.includes(filename)) {
         setCurrentState(ModalState.DUPLICATE);
+        await logger.log(LogEventId.CvrImported, currentUserSession.type, {
+          message:
+            'CVR file was not imported as it is a duplicated of a previously imported file.',
+          disposition: 'failure',
+          filename,
+          result: 'File not imported, error shown to user.',
+        });
       } else if (newCastVoteRecordFiles.lastError?.filename === files[0].name) {
         setCurrentState(ModalState.ERROR);
+        await logger.log(LogEventId.CvrImported, currentUserSession.type, {
+          message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
+          disposition: 'failure',
+          filename,
+          error: newCastVoteRecordFiles.lastError.message,
+          result: 'File not imported, error shown to user.',
+        });
       } else {
+        const file = newCastVoteRecordFiles.fileList.find(
+          (f) => f.name === filename
+        );
+        assert(file);
+        await logger.log(LogEventId.CvrImported, currentUserSession.type, {
+          message: 'CVR file successfully imported.',
+          disposition: 'success',
+          filename,
+          numberOfBallots: file.count,
+        });
         onClose();
       }
     } else {
@@ -139,16 +193,39 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           generateElectionBasedSubfolderName(election, electionHash)
         )
       );
-      setFoundFiles(
-        files.filter((f) => f.type === 1 && f.name.endsWith('.jsonl'))
+      const newFoundFiles = files.filter(
+        (f) => f.type === 1 && f.name.endsWith('.jsonl')
       );
+      setFoundFiles(newFoundFiles);
+      if (newFoundFiles.length === 0) {
+        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+          message: 'No CVR files automatically found on USB drive',
+          disposition: 'failure',
+          result: 'User allowed to manually select files.',
+        });
+      } else {
+        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+          message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to import.`,
+          disposition: 'success',
+        });
+      }
       setCurrentState(ModalState.INIT);
     } catch (err) {
       if (err.message.includes('ENOENT')) {
         // No files found
         setFoundFiles([]);
         setCurrentState(ModalState.INIT);
+        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+          message: 'No CVR files automatically found on usb drive',
+          disposition: 'failure',
+          result: 'User allowed to manually select files.',
+        });
       } else {
+        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+          message: 'Error searching USB for CVR files.',
+          disposition: 'failure',
+          result: 'Error shown to user.',
+        });
         throw err;
       }
     }

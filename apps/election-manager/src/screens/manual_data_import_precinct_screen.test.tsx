@@ -4,7 +4,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 
 import {
   ContestOptionTally,
@@ -14,6 +14,7 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
+import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   getEmptyExternalTalliesByPrecinct,
@@ -105,6 +106,8 @@ test('displays correct contests for each precinct', async () => {
 
 test('can enter data for candidate contests as expected', async () => {
   const saveExternalTallies = jest.fn();
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log');
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -113,6 +116,7 @@ test('can enter data for candidate contests as expected', async () => {
       route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
+      logger,
     }
   );
   getByText('Manually Entered Precinct Results:');
@@ -155,6 +159,13 @@ test('can enter data for candidate contests as expected', async () => {
   // A contest that does not allow write ins has no write in row.
   expect(queryAllByTestId('president-__write-in').length).toBe(0);
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
+  await waitFor(() =>
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.ManualTallyDataEdited,
+      'admin',
+      expect.objectContaining({ disposition: 'success' })
+    )
+  );
   expect(saveExternalTallies).toHaveBeenCalledTimes(1);
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
@@ -176,6 +187,25 @@ test('can enter data for candidate contests as expected', async () => {
       },
     }),
   ]);
+});
+
+test('can enter data for candidate contest with a write in row as expected', async () => {
+  const saveExternalTallies = jest.fn();
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log');
+  const { getByText, getByTestId } = renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
+    </Route>,
+    {
+      route: '/tally/manual-data-import/precinct/23',
+      saveExternalTallies,
+      electionDefinition: electionSampleDefinition,
+      logger,
+    }
+  );
+  getByText('Manually Entered Precinct Results:');
+  getByText('Center Springfield');
 
   // A contest that allows write ins has a write in row.
   getByTestId('county-commissioners-__write-in');
@@ -192,15 +222,19 @@ test('can enter data for candidate contests as expected', async () => {
     }
   );
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
-  expect(saveExternalTallies).toHaveBeenCalledTimes(2);
-  expect(saveExternalTallies).toHaveBeenNthCalledWith(2, [
+  await waitFor(() =>
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.ManualTallyDataEdited,
+      'admin',
+      expect.objectContaining({ disposition: 'success' })
+    )
+  );
+  expect(saveExternalTallies).toHaveBeenCalledTimes(1);
+  expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({
       overallTally: {
-        numberOfBallotsCounted: 100,
+        numberOfBallotsCounted: 10,
         contestTallies: expect.objectContaining({
-          president: expect.objectContaining({
-            metadata: { ballots: 100, undervotes: 4, overvotes: 6 },
-          }),
           'county-commissioners': expect.objectContaining({
             metadata: { ballots: 10, undervotes: 30, overvotes: 0 },
             tallies: expect.objectContaining({
@@ -215,6 +249,8 @@ test('can enter data for candidate contests as expected', async () => {
 
 test('can enter data for yes no contests as expected', async () => {
   const saveExternalTallies = jest.fn();
+  const logger = new Logger(LogSource.VxAdminApp);
+  const logSpy = jest.spyOn(logger, 'log');
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -223,6 +259,7 @@ test('can enter data for yes no contests as expected', async () => {
       route: '/tally/manual-data-import/precinct/23',
       saveExternalTallies,
       electionDefinition: electionSampleDefinition,
+      logger,
     }
   );
   getByText('Manually Entered Precinct Results:');
@@ -275,6 +312,13 @@ test('can enter data for yes no contests as expected', async () => {
   // A yes no contest does not allow write ins has no write in row.
   expect(queryAllByTestId('president-__write-in').length).toBe(0);
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
+  await waitFor(() =>
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.ManualTallyDataEdited,
+      'admin',
+      expect.objectContaining({ disposition: 'success' })
+    )
+  );
   expect(saveExternalTallies).toHaveBeenCalledTimes(1);
   expect(saveExternalTallies).toHaveBeenCalledWith([
     expect.objectContaining({

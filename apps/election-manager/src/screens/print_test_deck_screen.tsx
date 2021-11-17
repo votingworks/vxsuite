@@ -8,6 +8,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
+import { LogEventId } from '@votingworks/logging';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
@@ -72,8 +73,15 @@ function TestDeckBallots({
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
 export function PrintTestDeckScreen(): JSX.Element {
-  const { electionDefinition, printer } = useContext(AppContext);
+  const {
+    electionDefinition,
+    printer,
+    currentUserSession,
+    logger,
+  } = useContext(AppContext);
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth)
+  const currentUserType = currentUserSession.type;
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [precinctIndex, setPrecinctIndex] = useState<number>();
@@ -113,6 +121,12 @@ export function PrintTestDeckScreen(): JSX.Element {
       } else {
         // eslint-disable-next-line no-alert
         window.alert('please connect the printer.');
+        await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
+          disposition: 'failure',
+          message: `Failed to print test deck: no printer connected.`,
+          result: 'User shown error message, asked to try again.',
+          error: 'No printer connected.',
+        });
       }
     } else {
       setPrecinctIndex(0);
@@ -122,6 +136,11 @@ export function PrintTestDeckScreen(): JSX.Element {
   const onAllRendered = useCallback(
     async (pIndex, numBallots) => {
       await printer.print({ sides: 'two-sided-long-edge' });
+      await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
+        disposition: 'success',
+        message: `Test Deck printed for precinct id: ${precinctIds[pIndex]}`,
+        precinctId: precinctIds[pIndex],
+      });
 
       if (pIndex < precinctIds.length - 1) {
         // wait 5s per ballot printed

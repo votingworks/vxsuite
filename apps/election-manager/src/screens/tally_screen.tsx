@@ -15,6 +15,7 @@ import {
 } from '@votingworks/utils';
 import { Table, TD } from '@votingworks/ui';
 import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
+import { LogEventId } from '@votingworks/logging';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
@@ -49,6 +50,8 @@ export function TallyScreen(): JSX.Element {
     fullElectionExternalTallies,
     generateExportableTallies,
     resetFiles,
+    logger,
+    currentUserSession,
   } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -221,6 +224,11 @@ export function TallyScreen(): JSX.Element {
   );
 
   const generateSemsResults = useCallback(async (): Promise<string> => {
+    assert(currentUserSession);
+    await logger.log(
+      LogEventId.ConvertingResultsToSemsFormat,
+      currentUserSession.type
+    );
     const exportableTallies = generateExportableTallies();
     // process on the server
     const client = new ConverterClient('tallies');
@@ -246,7 +254,12 @@ export function TallyScreen(): JSX.Element {
     // reset files on the server
     await client.reset();
     return await results.text();
-  }, [electionDefinition.electionData, generateExportableTallies]);
+  }, [
+    electionDefinition.electionData,
+    generateExportableTallies,
+    logger,
+    currentUserSession,
+  ]);
 
   return (
     <React.Fragment>

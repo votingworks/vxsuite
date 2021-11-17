@@ -224,6 +224,11 @@ export function AppRoot({
 
   async function saveIsOfficialResults() {
     setIsOfficialResults(true);
+    await logger.log(LogEventId.MarkedTallyResultsOfficial, currentUserType, {
+      message:
+        'User has marked the tally results as official, no more Cvr files can be imported.',
+      disposition: 'success',
+    });
     await setStorageKeyAndLog(
       isOfficialResultsKey,
       true,
@@ -362,8 +367,24 @@ export function AppRoot({
     logger,
   ]);
 
+  useEffect(() => {
+    const totalBallots =
+      fullElectionTally.overallTally.numberOfBallotsCounted +
+      fullElectionExternalTallies.reduce(
+        (previous, tally) =>
+          previous + tally.overallTally.numberOfBallotsCounted,
+        0
+      );
+    void logger.log(LogEventId.RecomputedTally, currentUserType, {
+      message: `Tally recomputed, there are now ${totalBallots} total ballots tallied.`,
+      disposition: 'success',
+      totalBallots,
+    });
+  }, [fullElectionTally, fullElectionExternalTallies, currentUserType, logger]);
+
   const computeVoteCounts = useCallback(
     (castVoteRecords: CastVoteRecordLists) => {
+      void logger.log(LogEventId.RecomputingTally, currentUserType);
       assert(electionDefinition);
       setIsTabulationRunning(true);
       const fullTally = computeFullElectionTally(
@@ -373,7 +394,7 @@ export function AppRoot({
       setFullElectionTally(fullTally);
       setIsTabulationRunning(false);
     },
-    [setFullElectionTally, electionDefinition]
+    [setFullElectionTally, electionDefinition, logger, currentUserType]
   );
 
   useEffect(() => {
@@ -522,12 +543,22 @@ export function AppRoot({
   async function resetFiles(fileType: ResultsFileType) {
     switch (fileType) {
       case ResultsFileType.CastVoteRecord:
+        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+          message: 'User removed all Cast vote record files.',
+          fileType,
+          disposition: 'success',
+        });
         await saveCastVoteRecordFiles();
         break;
       case ResultsFileType.SEMS: {
         const newFiles = fullElectionExternalTallies.filter(
           (tally) => tally.source !== ExternalTallySourceType.SEMS
         );
+        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+          message: 'User removed all SEMS external tally files.',
+          fileType,
+          disposition: 'success',
+        });
         await saveExternalTallies(newFiles);
         break;
       }
@@ -535,10 +566,20 @@ export function AppRoot({
         const newFiles = fullElectionExternalTallies.filter(
           (tally) => tally.source !== ExternalTallySourceType.Manual
         );
+        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+          message: 'User removed all manually entered tally data.',
+          fileType,
+          disposition: 'success',
+        });
         await saveExternalTallies(newFiles);
         break;
       }
       case ResultsFileType.All:
+        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+          message: 'User removed all tally data.',
+          fileType,
+          disposition: 'success',
+        });
         await saveCastVoteRecordFiles();
         await saveExternalTallies([]);
         break;

@@ -51,6 +51,19 @@ export enum LogEventId {
   SmartcardProgramInit = 'smartcard-program-init',
   SmartcardProgrammed = 'smartcard-programmed',
   SmartcardProgrammedOverrideWriteProtection = 'smartcard-programmed-override-write-protection',
+  CvrImported = 'cvr-imported',
+  CvrFilesReadFromUsb = 'cvr-files-read-from-usb',
+  RecomputingTally = 'recomputing-tally',
+  RecomputedTally = 'recomputed-tally',
+  ExternalTallyFileImported = 'external-tally-file-imported',
+  ManualTallyDataEdited = 'manual-tally-data-edited',
+  MarkedTallyResultsOfficial = 'marked-tally-results-official',
+  RemovedTallyFile = 'removed-tally-file',
+  TallyReportPreviewed = 'tally-report-previewed',
+  TallyReportPrinted = 'tally-report-printed',
+  ConvertingResultsToSemsFormat = 'converting-to-sems',
+  TestDeckPrinted = 'test-deck-printed',
+  TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
 }
 
 export interface LogDetails {
@@ -290,6 +303,84 @@ const SmartcardProgrammedOverrideWriteProtection: LogDetails = {
   documentationMessage:
     'Smartcard is programmed to override a flag protecting writes on the card. By default admin cards can not be written unless write protection is first overridden.',
 };
+const CvrImported: LogDetails = {
+  eventId: LogEventId.CvrImported,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User imported CVR to the machine. Success or failure indicated by disposition.',
+};
+const CvrFilesReadFromUsb: LogDetails = {
+  eventId: LogEventId.CvrFilesReadFromUsb,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User opened import CVR modal and usb is searched for possible CVR files to import.',
+};
+const RecomputingTally: LogDetails = {
+  eventId: LogEventId.RecomputingTally,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'New cast vote record files seen, initiating recomputation of tally data.',
+  defaultMessage: 'New cast vote record files seen, recomputing tally data...',
+};
+const RecomputedTally: LogDetails = {
+  eventId: LogEventId.RecomputedTally,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Tally recomputed with new cast vote record files, success or failure indicated by disposition.',
+};
+const ExternalTallyFileImported: LogDetails = {
+  eventId: LogEventId.ExternalTallyFileImported,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User imported external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.',
+};
+const ManualTallyDataEdited: LogDetails = {
+  eventId: LogEventId.ManualTallyDataEdited,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User added or edited manually entered tally data to be included alongside imported Cvr files.',
+};
+const MarkedTallyResultsOfficial: LogDetails = {
+  eventId: LogEventId.MarkedTallyResultsOfficial,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User marked the tally results as official. This disabled importing any more cvr or other tally data files.',
+};
+const RemovedTallyFile: LogDetails = {
+  eventId: LogEventId.RemovedTallyFile,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The user removed Cvr, External Tally data, manually entered tally data, or all tally data. The type of file removed specified by the filetype key.',
+};
+const TallyReportPrinted: LogDetails = {
+  eventId: LogEventId.TallyReportPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Tally Report printed.',
+};
+const TallyReportPreviewed: LogDetails = {
+  eventId: LogEventId.TallyReportPreviewed,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Tally Report previewed and viewed in the app.',
+};
+const ConvertingResultsToSemsFormat: LogDetails = {
+  eventId: LogEventId.ConvertingResultsToSemsFormat,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Initiating conversion of tally results to SEMS file format.',
+  defaultMessage: 'Converting tally results to SEMS file format...',
+};
+const TestDeckPrinted: LogDetails = {
+  eventId: LogEventId.TestDeckPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User printed the test deck. Success or failure indicated by disposition.',
+};
+const TestDeckTallyReportPrinted: LogDetails = {
+  eventId: LogEventId.TestDeckTallyReportPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User printed the test deck tally report. Success or failure indicated by disposition.',
+};
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
@@ -359,6 +450,32 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SmartcardProgrammedOverrideWriteProtection;
     case LogEventId.SmartcardProgramInit:
       return SmartcardProgramInit;
+    case LogEventId.CvrFilesReadFromUsb:
+      return CvrFilesReadFromUsb;
+    case LogEventId.CvrImported:
+      return CvrImported;
+    case LogEventId.RecomputingTally:
+      return RecomputingTally;
+    case LogEventId.RecomputedTally:
+      return RecomputedTally;
+    case LogEventId.ExternalTallyFileImported:
+      return ExternalTallyFileImported;
+    case LogEventId.ManualTallyDataEdited:
+      return ManualTallyDataEdited;
+    case LogEventId.MarkedTallyResultsOfficial:
+      return MarkedTallyResultsOfficial;
+    case LogEventId.RemovedTallyFile:
+      return RemovedTallyFile;
+    case LogEventId.TallyReportPrinted:
+      return TallyReportPrinted;
+    case LogEventId.TallyReportPreviewed:
+      return TallyReportPreviewed;
+    case LogEventId.ConvertingResultsToSemsFormat:
+      return ConvertingResultsToSemsFormat;
+    case LogEventId.TestDeckPrinted:
+      return TestDeckPrinted;
+    case LogEventId.TestDeckTallyReportPrinted:
+      return TestDeckTallyReportPrinted;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

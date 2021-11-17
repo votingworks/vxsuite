@@ -400,6 +400,9 @@ test('printing ballots, print report, and test decks', async () => {
   expect(container).toMatchSnapshot();
 
   expect(printer.print).toHaveBeenCalledTimes(5);
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TestDeckPrinted)
+  );
 
   fireEvent.click(getByText('Tally'));
   fireEvent.click(getByText('View Test Ballot Deck Tally'));
@@ -410,6 +413,9 @@ test('printing ballots, print report, and test decks', async () => {
 
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(6);
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+  );
 });
 
 test('tabulating CVRs', async () => {
@@ -444,6 +450,9 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Mark Tally Results as Official…'));
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   fireEvent.click(getByText('Mark Tally Results as Official'));
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
+  );
 
   fireEvent.click(getByText('View Official Full Election Tally Report'));
 
@@ -453,6 +462,10 @@ test('tabulating CVRs', async () => {
   ).toBe(true);
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
   expect(getByTestId('election-full-tally-report')).toMatchSnapshot();
+  fireEvent.click(getByText('Preview Report'));
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TallyReportPreviewed)
+  );
 
   fireEvent.click(getByText('Tally'));
 
@@ -480,6 +493,9 @@ test('tabulating CVRs', async () => {
       )
     );
   });
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.FileSaved)
+  );
 
   fireEvent.click(getByText('View Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
@@ -534,6 +550,9 @@ test('tabulating CVRs', async () => {
       'test-content'
     );
   });
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.ConvertingResultsToSemsFormat)
+  );
   expect(fetchMock.called('/convert/tallies/files')).toBe(true);
   expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true);
   expect(fetchMock.called('/convert/tallies/process')).toBe(true);
@@ -547,6 +566,9 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Remove All Data'));
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
+  );
+  expect(window.kiosk!.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.RemovedTallyFile)
   );
 
   // When there are no CVRs imported the full tally report is labeled as the zero report
@@ -778,6 +800,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   // Change the manual data to absentee
   fireEvent.click(getByText('Absentee Results'));
 
+  await advanceTimersAndPromises(0);
   // Change to another precinct
   fireEvent.click(getByText('Edit Absentee Results for Panhandle'));
   getByText('Save Absentee Results for Panhandle');

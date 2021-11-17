@@ -9,6 +9,7 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
+import { LogEventId } from '@votingworks/logging';
 import { ResultsFileType } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -48,8 +49,12 @@ export function ManualDataImportIndexScreen(): JSX.Element {
     fullElectionExternalTallies,
     saveExternalTallies,
     resetFiles,
+    currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
+  assert(currentUserSession); // TODO(auth) check permissions for adding manual tally data
+  const currentUserType = currentUserSession.type;
   const { election } = electionDefinition;
   const history = useHistory();
 
@@ -89,6 +94,11 @@ export function ManualDataImportIndexScreen(): JSX.Element {
       MANUAL_DATA_NAME,
       new Date()
     );
+    await logger.log(LogEventId.ManualTallyDataEdited, currentUserType, {
+      disposition: 'success',
+      newBallotType,
+      message: `Ballot type for manually entered tally data changed to ${newBallotType}`,
+    });
     // Don't modify any external tallies for non-manual data
     const newTallies = fullElectionExternalTallies.filter(
       (t) => t.source !== ExternalTallySourceType.Manual
