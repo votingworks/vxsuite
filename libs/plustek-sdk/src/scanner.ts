@@ -14,11 +14,33 @@ const debug = makeDebug('plustek-sdk:scanner');
 
 const CLI_DELIMITER = '<<<>>>';
 
+/**
+ * Base class for errors returned by {@link ScannerClient}.
+ */
 export class ClientError extends Error {}
+
+/**
+ * Error returned when the `plustekctl` binary cannot be found.
+ */
 export class PlustekctlBinaryMissingError extends ClientError {}
+
+/**
+ * Error returned when the connection to `plustekctl` is broken, possibly
+ * because stdout closed or the process exited.
+ */
 export class ClientDisconnectedError extends ClientError {}
+
+/**
+ * Error returned when `plustekctl` responds to a command with an unexpected
+ * value.
+ */
 export class InvalidClientResponseError extends ClientError {}
 
+/**
+ * A collection of callbacks that will be called by {@link ScannerClient} at
+ * various points in its lifecycle. This is similar to using an
+ * {@link EventEmitter}, but more type-safe and intentionally less flexible.
+ */
 export interface ScannerClientCallbacks {
   onConfigResolved?(config: Config): void;
   onError?(error: Error): void;
@@ -28,31 +50,100 @@ export interface ScannerClientCallbacks {
   onDisconnected?(): void;
 }
 
+/**
+ * The return type of {@link ScannerClient.getPaperStatus}.
+ */
 export type GetPaperStatusResult = Result<PaperStatus, ScannerError | Error>;
+
+/**
+ * The return type of {@link ScannerClient.scan}.
+ */
 export type ScanResult = Result<{ files: string[] }, ScannerError | Error>;
+
+/**
+ * The return type of {@link ScannerClient.accept}.
+ */
 export type AcceptResult = Result<void, ScannerError | Error>;
+
+/**
+ * The return type of {@link ScannerClient.reject}.
+ */
 export type RejectResult = Result<void, ScannerError | Error>;
+
+/**
+ * The return type of {@link ScannerClient.calibrate}.
+ */
 export type CalibrateResult = Result<void, ScannerError | Error>;
+
+/**
+ * The return type of {@link ScannerClient.close}.
+ */
 export type CloseResult = Result<void, ScannerError | Error>;
 
+/**
+ * A retry predicate is used by {@link ScannerClient} to determine whether a
+ * {@link ScanResult} should be retried. This is useful if the calling code can
+ * determine whether the error is likely to be transitory.
+ */
 export type ScanRetryPredicate = (result: ScanResult) => boolean;
 
+/**
+ * Provides access to a plustek scanner.
+ */
 export interface ScannerClient {
+  /**
+   * Returns whether this client has been connected and not yet disconnected.
+   */
   isConnected(): boolean;
+
+  /**
+   * Gets the scanner's current paper status.
+   */
   getPaperStatus(): Promise<GetPaperStatusResult>;
+
+  /**
+   * Waits up to `timeout` milliseconds until the paper status becomes `status`,
+   * polling for updates every `interval` milliseconds.
+   *
+   * @returns the last status if it could be retrieved, undefined otherwise
+   */
   waitForStatus(options: {
     status: PaperStatus;
     timeout?: number;
     interval?: number;
   }): Promise<GetPaperStatusResult | undefined>;
+
+  /**
+   * Scans the sheet fed into the scanner if one is present. Optionally provides
+   * callbacks for handling multiple retry attempts.
+   */
   scan(options?: {
     onScanAttemptStart?(attempt: number): void;
     onScanAttemptEnd?(attempt: number, result: ScanResult): void;
     shouldRetry?: ScanRetryPredicate;
   }): Promise<ScanResult>;
+
+  /**
+   * Accepts the sheet fed into the scanner wherever it is held (front or back).
+   */
   accept(): Promise<AcceptResult>;
+
+  /**
+   * Rejects (and optionally holds) the sheet fed into the scanner, wherever it
+   * is held (front or back).
+   */
   reject(options: { hold: boolean }): Promise<RejectResult>;
+
+  /**
+   * Calibrates the scanner. Assumes that a sheet of white paper is being held
+   * by the scanner ready to scan.
+   */
   calibrate(): Promise<CalibrateResult>;
+
+  /**
+   * Disconnects from the scanner. Any further scanner operations after this
+   * will fail and {@link isConnected} will return `false`.
+   */
   close(): Promise<CloseResult>;
 }
 
@@ -69,6 +160,13 @@ function noop() {
 
 type PlustekEvent = { type: 'line'; line: string } | { type: 'exit' };
 
+/**
+ * Creates a client to a plustek scanner using `plustekctl`. A long-lived child
+ * process is created and IPC communication occurs over stdio. Commands are
+ * queued and will be executed in serial, so if you e.g. call
+ * {@link ScannerClient.scan} and then {@link ScannerClient.getPaperStatus},
+ * the `scan` will complete first before issuing the `getPaperStatus` command.
+ */
 export async function createClient(
   config = DEFAULT_CONFIG,
   /* istanbul ignore next */

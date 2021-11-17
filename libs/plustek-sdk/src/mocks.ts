@@ -17,6 +17,9 @@ import {
 
 const debug = makeDebug('plustek-sdk:mock-client');
 
+/**
+ * Possible errors the {@link MockScannerClient} might encounter.
+ */
 export enum Errors {
   DuplicateLoad = 'DuplicateLoad',
   Unresponsive = 'Unresponsive',
@@ -25,6 +28,9 @@ export enum Errors {
   NoPaperToRemove = 'NoPaperToRemove',
 }
 
+/**
+ * Configuration options for {@link MockScannerClient}.
+ */
 export interface Options {
   /**
    * How long does it take to take or release a paper hold forward or backward?

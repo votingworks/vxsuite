@@ -1,6 +1,9 @@
 import { safeParse } from '@votingworks/types';
 import * as z from 'zod';
 
+/**
+ * All possible error codes returned by the plustek drivers.
+ */
 export enum ScannerError {
   /* VTM STATUS */
   VtmScanOvertime = 'PLKSS_ERRCODE_VTM_SCAN_OVERTIME',
@@ -85,8 +88,15 @@ export enum ScannerError {
   Unknown = 'UNKNOWN',
 }
 
+/**
+ * Schema for parsing a {@link ScannerError}.
+ */
 export const ScannerErrorSchema = z.nativeEnum(ScannerError);
 
+/**
+ * Parses an error string as either one of the {@link ScannerError} values, or a
+ * generic error if it doesn't match.
+ */
 export function parseScannerError(error: string): ScannerError | Error {
   const result = safeParse(ScannerErrorSchema, error);
   return result.isErr() ? new Error(error) : result.ok();

@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+/**
+ * Possible paper status values returned by the plustek drivers.
+ */
 export enum PaperStatus {
   NoPaper = 'PAPER_STATUS_NO_PAPER',
   Ready = 'PAPER_STATUS_READY',
@@ -21,4 +24,7 @@ export enum PaperStatus {
   VtmBothSideHavePaper = 'PLKSS_ERRCODE_VTM_BOTH_SIDE_HAVE_PAPER',
 }
 
+/**
+ * Schema for parsing paper status value strings returned from `plustekctl`.
+ */
 export const PaperStatusSchema = z.nativeEnum(PaperStatus);
