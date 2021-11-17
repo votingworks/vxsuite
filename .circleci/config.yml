@@ -429,6 +429,16 @@ jobs:
           command: |
             pnpm --dir integration-testing/election-manager test
 
+  validate-monorepo:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Validate
+          command: |
+            ./script/validate-monorepo
+
 workflows:
   test:
     jobs:
@@ -454,6 +464,7 @@ workflows:
       - test-types
       - test-ui
       - test-utils
+      - validate-monorepo
 
 commands:
   checkout-and-install:

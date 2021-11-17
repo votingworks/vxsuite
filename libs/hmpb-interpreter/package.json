@@ -5,21 +5,21 @@
   "repository": "https://github.com/votingworks/hmpb-interpreter",
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "bin": {
     "hmpb": "bin/hmpb-interpreter.js",
     "hmpb-interpreter": "bin/hmpb-interpreter.js"
   },
   "files": [
-    "build",
-    "!*.test.{js,d.ts}",
-    "!build/test"
+    "build"
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "tsc --build",
-    "build:watch": "tsc --build --watch",
+    "type-check:watch": "tsc --build --watch",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "prepack": "tsc --build",

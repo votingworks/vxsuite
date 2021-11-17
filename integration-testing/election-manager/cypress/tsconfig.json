@@ -19,8 +19,8 @@
   "include": ["**/*.ts"],
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../../libs/fixtures" },
-    { "path": "../../../libs/test-utils" },
-    { "path": "../../../libs/types" }
+    { "path": "../../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../../libs/test-utils/tsconfig.build.json" },
+    { "path": "../../../libs/types/tsconfig.build.json" }
   ]
 }

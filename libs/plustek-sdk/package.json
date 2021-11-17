@@ -6,15 +6,17 @@
   "keywords": [],
   "license": "AGPL",
   "author": "VotingWorks <eng@voting.works>",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build tsconfig.test.json",
-    "build": "tsc --build tsconfig.test.json",
-    "build:watch": "tsc --build --watch tsconfig.test.json",
+    "type-check": "tsc --build",
+    "type-check:watch": "tsc --build --watch",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

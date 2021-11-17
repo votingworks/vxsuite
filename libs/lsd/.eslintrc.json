@@ -1,7 +1,4 @@
 {
-  "parserOptions": {
-    "project": "./tsconfig.test.json"
-  },
   "extends": ["plugin:vx/recommended"],
   "rules": {
     "no-bitwise": "off",

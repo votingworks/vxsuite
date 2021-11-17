@@ -18,13 +18,13 @@
   "include": ["src", "test", "types"],
   "exclude": ["src/setupProxy.js"],
   "references": [
-    { "path": "../../libs/ballot-encoder" },
+    { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/fixtures" },
-    { "path": "../../libs/test-utils" },
-    { "path": "../../libs/types" },
-    { "path": "../../libs/utils" },
-    { "path": "../../libs/logging" },
-    { "path": "../../libs/ui" }
+    { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/test-utils/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" },
+    { "path": "../../libs/logging/tsconfig.build.json" },
+    { "path": "../../libs/ui/tsconfig.build.json" }
   ]
 }

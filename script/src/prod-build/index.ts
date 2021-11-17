@@ -9,7 +9,7 @@ import {
 } from './deps'
 import { BUILD_ROOT, WORKSPACE_ROOT } from './globals'
 import { deleteScript, removeDependencies } from './pnpm'
-import { IO } from './types'
+import { IO } from '../types'
 import { execSync } from './utils/exec_sync'
 import { existsSync } from './utils/exists_sync'
 import { mkdirp } from './utils/mkdirp'

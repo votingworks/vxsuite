@@ -1,12 +1,12 @@
 {
   "extends": "../../tsconfig.shared.json",
+  "include": ["src", "src/data/*.json"],
+  "exclude": [],
   "compilerOptions": {
     "module": "commonjs",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "declaration": true,
-    "rootDir": "src",
-    "outDir": "build",
     "composite": true,
+    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -17,13 +17,10 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src"],
-  "exclude": ["**/*.test.ts"],
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/test-utils" },
-    { "path": "../../libs/types" },
-    { "path": "../../libs/test-utils" },
-    { "path": "../../libs/fixtures" }
+    { "path": "../../libs/test-utils/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/fixtures/tsconfig.build.json" }
   ]
 }

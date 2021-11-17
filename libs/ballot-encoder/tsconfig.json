@@ -2,8 +2,6 @@
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": false,
@@ -14,14 +12,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "outDir": "build",
-    "composite": true
+    "composite": true,
+    "noEmit": true
   },
-  "include": ["src", "src/data/*.json"],
-  "exclude": ["**/*.test.ts", "test"],
+  "include": ["src", "src/data/*.json", "test"],
+  "exclude": [],
   "references": [
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../fixtures" },
-    { "path": "../types" }
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
   ]
 }
