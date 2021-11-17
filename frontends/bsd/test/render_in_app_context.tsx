@@ -1,5 +1,6 @@
 import { render as testRender, RenderResult } from '@testing-library/react';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { LogSource, Logger } from '@votingworks/logging';
 import { ElectionDefinition, UserSession } from '@votingworks/types';
 import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createMemoryHistory, MemoryHistory } from 'history';
@@ -18,6 +19,7 @@ interface RenderInAppContextParams {
   lockMachine?: () => void;
   bypassAuthentication?: boolean;
   currentUserSession?: UserSession;
+  logger?: Logger;
 }
 
 export function renderInAppContext(
@@ -33,6 +35,7 @@ export function renderInAppContext(
     storage = new MemoryStorage(),
     lockMachine = jest.fn(),
     currentUserSession = { type: 'admin', authenticated: true },
+    logger = new Logger(LogSource.VxBatchScanApp),
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(
@@ -45,6 +48,7 @@ export function renderInAppContext(
         storage,
         lockMachine,
         currentUserSession,
+        logger,
       }}
     >
       <Router history={history}>{component}</Router>

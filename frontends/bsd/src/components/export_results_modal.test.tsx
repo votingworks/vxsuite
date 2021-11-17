@@ -8,6 +8,7 @@ import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { MemoryStorage, usbstick } from '@votingworks/utils';
+import { Logger, LogSource } from '@votingworks/logging';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -163,6 +164,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         storage: new MemoryStorage(),
         lockMachine: jest.fn(),
         currentUserSession: { type: 'admin', authenticated: true },
+        logger: new Logger(LogSource.VxBatchScanApp),
       }}
     >
       <Router history={history}>

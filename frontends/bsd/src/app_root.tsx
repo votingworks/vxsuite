@@ -33,9 +33,9 @@ import {
   useUserSession,
   useHardware,
 } from '@votingworks/ui';
-import { Logger, LogSource } from '@votingworks/logging';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
-import { AppContext } from './contexts/app_context';
+import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { Button } from './components/button';
 import { Main, MainChild } from './components/main';
@@ -96,6 +96,10 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
   });
+  const currentNumberOfBallots = status.batches.reduce(
+    (prev, next) => prev + next.count,
+    0
+  );
 
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
@@ -141,6 +145,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     setElectionDefinition(e);
     setElectionJustLoaded(true);
   }
+
+  const currentUserType = currentUserSession?.type ?? 'unknown';
 
   useEffect(() => {
     async function initialize() {
@@ -197,11 +203,21 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     try {
       await config.setElection(undefined);
       await refreshConfig();
+      await logger.log(LogEventId.ElectionUnconfigured, currentUserType, {
+        disposition: 'success',
+        message:
+          'User successfully unconfigured the machine to remove the current election and all current ballot data.',
+      });
       history.replace('/');
     } catch (error) {
       console.log('failed unconfigureServer()', error); // eslint-disable-line no-console
+      await logger.log(LogEventId.ElectionUnconfigured, currentUserType, {
+        disposition: 'failure',
+        message: 'Error in unconfiguring the current election on the machine',
+        result: 'Election not changed.',
+      });
     }
-  }, [history, refreshConfig]);
+  }, [history, refreshConfig, logger, currentUserType]);
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
@@ -246,6 +262,10 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const zeroData = useCallback(async () => {
     try {
+      await logger.log(LogEventId.ClearingBallotData, currentUserType, {
+        message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots.`,
+        currentNumberOfBallots,
+      });
       safeParseJson(
         await (
           await fetch('/scan/zero', {
@@ -255,12 +275,20 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         ZeroResponseSchema
       ).unsafeUnwrap();
       await refreshConfig();
+      await logger.log(LogEventId.ClearedBallotData, currentUserType, {
+        disposition: 'success',
+        message: 'Successfully cleared all ballot data.',
+      });
       history.replace('/');
     } catch (error) {
       console.log('failed zeroData()', error); // eslint-disable-line no-console
+      await logger.log(LogEventId.ClearedBallotData, currentUserType, {
+        disposition: 'failure',
+        message: `Error clearing ballot data: ${error.message}`,
+        result: 'Ballot data not cleared.',
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history]);
+  }, [history, logger, currentUserType, currentNumberOfBallots, refreshConfig]);
 
   const backup = useCallback(async () => {
     await download('/scan/backup');
@@ -269,13 +297,28 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const toggleTestMode = useCallback(async () => {
     try {
       setTogglingTestMode(true);
+      await logger.log(LogEventId.TogglingTestMode, currentUserType, {
+        message: `Toggling to ${isTestMode ? 'Live' : 'Test'} Mode...`,
+      });
       await config.setTestMode(!isTestMode);
       await refreshConfig();
+      await logger.log(LogEventId.ToggledTestMode, currentUserType, {
+        disposition: 'success',
+        message: `Successfully toggled to ${isTestMode ? 'Live' : 'Test'} Mode`,
+      });
       history.replace('/');
+    } catch (error) {
+      await logger.log(LogEventId.ToggledTestMode, currentUserType, {
+        disposition: 'failure',
+        message: `Error toggling to ${isTestMode ? 'Live' : 'Test'} Mode: ${
+          error.message
+        }`,
+        result: 'Mode not changed, user shown error.',
+      });
     } finally {
       setTogglingTestMode(false);
     }
-  }, [history, isTestMode, refreshConfig]);
+  }, [history, isTestMode, refreshConfig, logger, currentUserType]);
 
   const setMarkThresholdOverrides = useCallback(
     async (markThresholdOverrides?: MarkThresholds) => {
@@ -323,20 +366,20 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />;
   }
+  const currentContext: AppContextInterface = {
+    usbDriveStatus: displayUsbStatus,
+    usbDriveEject: usbDrive.eject,
+    electionDefinition,
+    machineConfig,
+    storage,
+    lockMachine,
+    currentUserSession,
+    logger,
+  };
 
   if (!currentUserSession) {
     return (
-      <AppContext.Provider
-        value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
-          electionDefinition,
-          machineConfig,
-          storage,
-          lockMachine,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={currentContext}>
         <MachineLockedScreen />
       </AppContext.Provider>
     );
@@ -344,17 +387,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   if (currentUserSession.type !== 'admin') {
     return (
-      <AppContext.Provider
-        value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
-          electionDefinition,
-          machineConfig,
-          storage,
-          lockMachine,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={currentContext}>
         <InvalidCardScreen />
       </AppContext.Provider>
     );
@@ -362,17 +395,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   if (!currentUserSession.authenticated) {
     return (
-      <AppContext.Provider
-        value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
-          electionDefinition,
-          machineConfig,
-          storage,
-          lockMachine,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={currentContext}>
         <UnlockMachineScreen
           attemptToAuthenticateAdminUser={attemptToAuthenticateAdminUser}
         />
@@ -383,17 +406,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   if (electionDefinition) {
     if (electionJustLoaded) {
       return (
-        <AppContext.Provider
-          value={{
-            usbDriveStatus: displayUsbStatus,
-            usbDriveEject: usbDrive.eject,
-            machineConfig,
-            electionDefinition,
-            storage,
-            lockMachine,
-            currentUserSession,
-          }}
-        >
+        <AppContext.Provider value={currentContext}>
           <Screen>
             <Main>
               <MainChild center padded>
@@ -430,17 +443,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     }
     if (adjudication.remaining > 0 && !isScanning) {
       return (
-        <AppContext.Provider
-          value={{
-            usbDriveStatus: displayUsbStatus,
-            usbDriveEject: usbDrive.eject,
-            electionDefinition,
-            machineConfig,
-            storage,
-            lockMachine,
-            currentUserSession,
-          }}
-        >
+        <AppContext.Provider value={currentContext}>
           <BallotEjectScreen
             continueScanning={continueScanning}
             isTestMode={isTestMode}
@@ -459,17 +462,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     }
 
     return (
-      <AppContext.Provider
-        value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
-          electionDefinition,
-          machineConfig,
-          storage,
-          lockMachine,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={currentContext}>
         <Switch>
           <Route path="/advanced">
             <AdvancedOptionsScreen
@@ -530,10 +523,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                 onClose={() => setIsExportingCvrs(false)}
                 electionDefinition={electionDefinition}
                 isTestMode={isTestMode}
-                numberOfBallots={status.batches.reduce(
-                  (prev, next) => prev + next.count,
-                  0
-                )}
+                numberOfBallots={currentNumberOfBallots}
               />
             )}
           </Route>
@@ -544,17 +534,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   if (isConfigLoaded) {
     return (
-      <AppContext.Provider
-        value={{
-          usbDriveStatus: displayUsbStatus,
-          usbDriveEject: usbDrive.eject,
-          machineConfig,
-          electionDefinition,
-          storage,
-          lockMachine,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={currentContext}>
         <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />
       </AppContext.Provider>
     );
