@@ -18,6 +18,13 @@
 import { loadImage, createCanvas } from 'canvas';
 import { approximatelyEqual, Size } from './geometry';
 
+/**
+ * Reads an image in grayscale from a file and scales or resizes to fit if
+ * desired. If scaling/resizing, returns the scale that ended up being used
+ * when resizing along with the scaled image and the original one. This is
+ * useful if you want to compute something based on the scaled image but
+ * draw an overlay on the original image, as the `lsd` binary does.
+ */
 export async function readGrayscaleImage(
   path: string,
   { scale = 1, size }: { scale?: number; size?: Size } = {}

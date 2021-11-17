@@ -195,6 +195,11 @@ function printHelp(out: NodeJS.WritableStream): void {
   out.write('$ lsd -b original image.png\n');
 }
 
+/**
+ * Runs the line-segment detector on the image at `imagePath` according to
+ * `options`. This function does almost all of the actual work of the `lsd`
+ * binary: read the image, detect line segments, output results for viewing.
+ */
 export async function processFile(
   imagePath: string,
   options: Options
@@ -244,6 +249,10 @@ export async function processFile(
   return outPath;
 }
 
+/**
+ * Entry point for the `lsd` binary, parses options and processes provided
+ * images printing the results to stdout. Called by `bin/lsd.js`.
+ */
 export async function main(
   args: readonly string[],
   stdout: NodeJS.WritableStream = process.stdout
