@@ -1,8 +1,8 @@
-BSD := ../../apps/bsd
-SCAN := ../../apps/module-scan
-SMARTCARDS := ../../apps/module-smartcards
+BSD := ../../frontends/bsd
+SCAN := ../../services/scan
+SMARTCARDS := ../../services/smartcards
 export PIPENV_VENV_IN_PROJECT=1
-export MODULE_SCAN_WORKSPACE=/tmp
+export SCAN_WORKSPACE=/tmp
 export BYPASS_AUTHENTICATION=true
 export MOCK_SCANNER_FILES=test/fixtures/hamilton-seal-049e9e66cd/sample-ballot-undervotes_Page_1.png,test/fixtures/hamilton-seal-049e9e66cd/sample-ballot-undervotes_Page_2.png
 

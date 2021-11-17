@@ -1,6 +1,6 @@
-ELECTION_MANAGER := ../../apps/election-manager
-SMARTCARDS := ../../apps/module-smartcards
-SEMS := ../../apps/module-converter-ms-sems
+ELECTION_MANAGER := ../../frontends/election-manager
+SMARTCARDS := ../../services/smartcards
+SEMS := ../../services/converter-ms-sems
 export PIPENV_VENV_IN_PROJECT=1
 export BYPASS_AUTHENTICATION=true
 

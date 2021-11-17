@@ -14,7 +14,55 @@ importers:
       ora: ^5.2.0
       prettier: ^2.3.2
       sort-package-json: ^1.50.0
-  apps/bas:
+  codemods:
+    dependencies:
+      '@babel/core': 7.16.0
+      '@babel/types': 7.16.0
+      ts-morph: 12.2.0
+    devDependencies:
+      '@babel/generator': 7.16.0
+      '@babel/traverse': 7.16.0
+      '@types/babel__core': 7.1.16
+      '@types/babel__generator': 7.6.3
+      '@types/babel__traverse': 7.14.2
+      '@types/jest': 27.0.2
+      '@types/node': 16.11.6
+      '@typescript-eslint/eslint-plugin': 5.3.0_d773de83a864dc4fb868a604260b2afa
+      '@typescript-eslint/parser': 5.3.0_typescript@4.3.5
+      eslint-config-prettier: 8.3.0
+      eslint-import-resolver-node: 0.3.6
+      eslint-plugin-import: 2.25.2_typescript@4.3.5
+      eslint-plugin-prettier: 4.0.0_17f48bd368adef070d55b664dd7cfbbe
+      eslint-plugin-vx: link:../libs/eslint-plugin-vx
+      is-ci-cli: 2.2.0
+      jest: 27.3.1
+      prettier: 2.4.1
+      ts-jest: 27.0.7_f1e66daec75a7744c4a11c53017c1899
+      typescript: 4.3.5
+    specifiers:
+      '@babel/core': ^7.16.0
+      '@babel/generator': ^7.16.0
+      '@babel/traverse': ^7.16.0
+      '@babel/types': ^7.16.0
+      '@types/babel__core': ^7.1.16
+      '@types/babel__generator': ^7.6.3
+      '@types/babel__traverse': ^7.14.2
+      '@types/jest': ^27.0.2
+      '@types/node': ^16.11.6
+      '@typescript-eslint/eslint-plugin': ^5.3.0
+      '@typescript-eslint/parser': ^5.3.0
+      eslint-config-prettier: ^8.3.0
+      eslint-import-resolver-node: ^0.3.6
+      eslint-plugin-import: ^2.25.2
+      eslint-plugin-prettier: ^4.0.0
+      eslint-plugin-vx: workspace:*
+      is-ci-cli: ^2.2.0
+      jest: ^27.3.1
+      prettier: ^2.4.1
+      ts-jest: ^27.0.7
+      ts-morph: ^12.2.0
+      typescript: ^4.3.5
+  frontends/bas:
     dependencies:
       '@types/jest': 24.0.11
       '@types/node': 11.13.7
@@ -110,14 +158,14 @@ importers:
       stylelint-processor-styled-components: ^1.10.0
       typescript: ^4.3.5
       zod: 3.2.0
-  apps/bas/prodserver:
+  frontends/bas/prodserver:
     dependencies:
       express: 4.17.1
       http-proxy-middleware: 1.0.6
     specifiers:
       express: ^4.17.1
       http-proxy-middleware: 1.0.6
-  apps/bmd:
+  frontends/bmd:
     dependencies:
       '@rooks/use-interval': 4.5.0_react@17.0.1
       '@types/dompurify': 2.2.1
@@ -295,14 +343,14 @@ importers:
       typescript: ^4.3.5
       use-interval: ^1.2.1
       zod: 3.2.0
-  apps/bmd/prodserver:
+  frontends/bmd/prodserver:
     dependencies:
       express: 4.17.1
       http-proxy-middleware: 1.0.6
     specifiers:
       express: ^4.17.1
       http-proxy-middleware: 1.0.6
-  apps/bsd:
+  frontends/bsd:
     dependencies:
       '@types/jest': 24.0.11
       '@types/node': 12.19.3
@@ -454,14 +502,14 @@ importers:
       yauzl: ^2.10.0
       zip-stream: ^3.0.1
       zod: 3.2.0
-  apps/bsd/prodserver:
+  frontends/bsd/prodserver:
     dependencies:
       express: 4.17.1
       http-proxy-middleware: 1.0.6
     specifiers:
       express: ^4.17.1
       http-proxy-middleware: 1.0.6
-  apps/election-manager:
+  frontends/election-manager:
     dependencies:
       '@testing-library/jest-dom': 4.2.4
       '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
@@ -645,162 +693,14 @@ importers:
       use-interval: ^1.2.1
       zip-stream: ^3.0.1
       zod: 3.2.0
-  apps/election-manager/prodserver:
+  frontends/election-manager/prodserver:
     dependencies:
       express: 4.17.1
       http-proxy-middleware: 1.0.6
     specifiers:
       express: ^4.17.1
       http-proxy-middleware: 1.0.6
-  apps/module-scan:
-    dependencies:
-      '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
-      '@votingworks/fixtures': link:../../libs/fixtures
-      '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
-      '@votingworks/logging': link:../../libs/logging
-      '@votingworks/plustek-sdk': link:../../libs/plustek-sdk
-      '@votingworks/qrdetect': 1.0.1
-      '@votingworks/types': link:../../libs/types
-      '@votingworks/utils': link:../../libs/utils
-      base64-js: 1.5.1
-      body-parser: 1.19.0
-      busboy: 0.3.1
-      canvas: 2.6.1
-      chalk: 4.1.0
-      debug: 4.3.1
-      deep-eql: 4.0.0
-      express: 4.17.1
-      fs-extra: 9.0.1
-      got: 11.8.2
-      jest-diff: 26.6.2
-      jsqr: 1.3.1
-      luxon: 1.27.0
-      memory-streams: 0.1.3
-      multer: 1.4.2
-      node-quirc: 2.3.0
-      ora: 5.2.0
-      pdfjs-dist: 2.3.200
-      sqlite3: 4.2.0
-      tmp: 0.2.1
-      uuid: 8.3.2
-      zip-stream: 4.0.4
-      zod: 3.2.0
-    devDependencies:
-      '@types/base64-js': 1.3.0
-      '@types/body-parser': 1.19.0
-      '@types/busboy': 0.2.3
-      '@types/debug': 4.1.5
-      '@types/deep-eql': link:../../libs/@types/deep-eql
-      '@types/express': 4.17.11
-      '@types/fs-extra': 9.0.6
-      '@types/jest': 26.0.20
-      '@types/luxon': 1.26.5
-      '@types/multer': 1.4.5
-      '@types/node': 12.19.14
-      '@types/node-quirc': link:../../libs/@types/node-quirc
-      '@types/pdfjs-dist': 2.1.7
-      '@types/sqlite3': 3.1.6
-      '@types/supertest': 2.0.10
-      '@types/tmp': 0.2.0
-      '@types/uuid': 8.3.0
-      '@types/yauzl': 2.9.1
-      '@types/zip-stream': link:../../libs/@types/zip-stream
-      '@typescript-eslint/eslint-plugin': 4.28.4_852673d3af9c7ab8ae779b8d717157c6
-      '@typescript-eslint/parser': 4.28.4_eslint@7.17.0+typescript@4.3.5
-      eslint: 7.17.0
-      eslint-config-prettier: 8.3.0_eslint@7.17.0
-      eslint-import-resolver-node: 0.3.4
-      eslint-plugin-cypress: 2.11.2_eslint@7.17.0
-      eslint-plugin-import: 2.22.1_eslint@7.17.0+typescript@4.3.5
-      eslint-plugin-jest: 24.1.3_eslint@7.17.0+typescript@4.3.5
-      eslint-plugin-prettier: 3.3.1_7c5f1f59332aa465fcd97b1399d2f1c7
-      eslint-plugin-vx: link:../../libs/eslint-plugin-vx
-      is-ci-cli: 2.1.2
-      jest: 26.6.3_canvas@2.6.1+ts-node@9.1.1
-      jest-watch-typeahead: 0.6.4_jest@26.6.3
-      lint-staged: 10.5.3
-      nock: 13.1.0
-      prettier: 2.2.1
-      sort-package-json: 1.50.0
-      supertest: 6.1.1
-      ts-jest: 26.4.4_jest@26.6.3+typescript@4.3.5
-      ts-node: 9.1.1_typescript@4.3.5
-      typescript: 4.3.5
-      yauzl: 2.10.0
-    specifiers:
-      '@types/base64-js': ^1.3.0
-      '@types/body-parser': ^1.19.0
-      '@types/busboy': ^0.2.3
-      '@types/debug': ^4.1.5
-      '@types/deep-eql': workspace:*
-      '@types/express': ^4.16.1
-      '@types/fs-extra': ^9.0.6
-      '@types/jest': ^26.0.6
-      '@types/luxon': ^1.26.5
-      '@types/multer': ^1.4.3
-      '@types/node': ^12.0.0
-      '@types/node-quirc': workspace:*
-      '@types/pdfjs-dist': ^2.1.3
-      '@types/sqlite3': ^3.1.6
-      '@types/supertest': ^2.0.10
-      '@types/tmp': ^0.2.0
-      '@types/uuid': ^8.3.0
-      '@types/yauzl': ^2.9.1
-      '@types/zip-stream': workspace:*
-      '@typescript-eslint/eslint-plugin': ^4.28.4
-      '@typescript-eslint/parser': ^4.28.4
-      '@votingworks/ballot-encoder': workspace:*
-      '@votingworks/fixtures': workspace:*
-      '@votingworks/hmpb-interpreter': workspace:*
-      '@votingworks/logging': workspace:*
-      '@votingworks/plustek-sdk': workspace:*
-      '@votingworks/qrdetect': ^1.0.1
-      '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
-      base64-js: ^1.5.1
-      body-parser: ^1.19.0
-      busboy: ^0.3.1
-      canvas: ^2.6.1
-      chalk: ^4.1.0
-      debug: ^4.3.1
-      deep-eql: ^4.0.0
-      eslint: ^7.17.0
-      eslint-config-prettier: ^8.3.0
-      eslint-import-resolver-node: ^0.3.4
-      eslint-plugin-cypress: ^2.11.2
-      eslint-plugin-import: ^2.22.1
-      eslint-plugin-jest: ^24.1.3
-      eslint-plugin-prettier: ^3.3.1
-      eslint-plugin-vx: workspace:*
-      express: ^4.17.1
-      fs-extra: ^9.0.1
-      got: ^11.8.2
-      is-ci-cli: ^2.1.2
-      jest: ^26.6.3
-      jest-diff: ^26.6.2
-      jest-watch-typeahead: ^0.6.4
-      jsqr: ^1.3.1
-      lint-staged: ^10.5.3
-      luxon: ^1.27.0
-      memory-streams: ^0.1.3
-      multer: ^1.4.2
-      nock: ^13.1.0
-      node-quirc: ^2.3.0
-      ora: ^5.2.0
-      pdfjs-dist: 2.3.200
-      prettier: ^2.2.1
-      sort-package-json: ^1.50.0
-      sqlite3: ^4.0.8
-      supertest: ^6.0.1
-      tmp: ^0.2.1
-      ts-jest: ^26.4.4
-      ts-node: ^9.1.1
-      typescript: ^4.3.5
-      uuid: ^8.3.2
-      yauzl: ^2.10.0
-      zip-stream: ^4.0.4
-      zod: ^3.2.0
-  apps/precinct-scanner:
+  frontends/precinct-scanner:
     dependencies:
       '@rooks/use-interval': 4.11.2_react@17.0.1
       '@testing-library/jest-dom': 5.12.0
@@ -956,61 +856,13 @@ importers:
       use-interval: ^1.3.0
       web-vitals: ^1.0.1
       zod: 3.2.0
-  apps/precinct-scanner/prodserver:
+  frontends/precinct-scanner/prodserver:
     dependencies:
       express: 4.17.1
       http-proxy-middleware: 1.0.6
     specifiers:
       express: ^4.17.1
       http-proxy-middleware: 1.0.6
-  codemods:
-    dependencies:
-      '@babel/core': 7.16.0
-      '@babel/types': 7.16.0
-      ts-morph: 12.2.0
-    devDependencies:
-      '@babel/generator': 7.16.0
-      '@babel/traverse': 7.16.0
-      '@types/babel__core': 7.1.16
-      '@types/babel__generator': 7.6.3
-      '@types/babel__traverse': 7.14.2
-      '@types/jest': 27.0.2
-      '@types/node': 16.11.6
-      '@typescript-eslint/eslint-plugin': 5.3.0_d773de83a864dc4fb868a604260b2afa
-      '@typescript-eslint/parser': 5.3.0_typescript@4.3.5
-      eslint-config-prettier: 8.3.0
-      eslint-import-resolver-node: 0.3.6
-      eslint-plugin-import: 2.25.2_typescript@4.3.5
-      eslint-plugin-prettier: 4.0.0_17f48bd368adef070d55b664dd7cfbbe
-      eslint-plugin-vx: link:../libs/eslint-plugin-vx
-      is-ci-cli: 2.2.0
-      jest: 27.3.1
-      prettier: 2.4.1
-      ts-jest: 27.0.7_f1e66daec75a7744c4a11c53017c1899
-      typescript: 4.3.5
-    specifiers:
-      '@babel/core': ^7.16.0
-      '@babel/generator': ^7.16.0
-      '@babel/traverse': ^7.16.0
-      '@babel/types': ^7.16.0
-      '@types/babel__core': ^7.1.16
-      '@types/babel__generator': ^7.6.3
-      '@types/babel__traverse': ^7.14.2
-      '@types/jest': ^27.0.2
-      '@types/node': ^16.11.6
-      '@typescript-eslint/eslint-plugin': ^5.3.0
-      '@typescript-eslint/parser': ^5.3.0
-      eslint-config-prettier: ^8.3.0
-      eslint-import-resolver-node: ^0.3.6
-      eslint-plugin-import: ^2.25.2
-      eslint-plugin-prettier: ^4.0.0
-      eslint-plugin-vx: workspace:*
-      is-ci-cli: ^2.2.0
-      jest: ^27.3.1
-      prettier: ^2.4.1
-      ts-jest: ^27.0.7
-      ts-morph: ^12.2.0
-      typescript: ^4.3.5
   integration-testing/bsd:
     devDependencies:
       '@testing-library/cypress': 5.3.1_cypress@7.5.0
@@ -1877,8 +1729,8 @@ importers:
       resolve-from: 5.0.0
     devDependencies:
       '@types/node': 15.12.4
-      esbuild: 0.13.13
-      esbuild-runner: 2.2.1_esbuild@0.13.13
+      esbuild: 0.13.14
+      esbuild-runner: 2.2.1_esbuild@0.13.14
       prettier: 2.3.1
       typescript: 4.3.4
     specifiers:
@@ -1888,6 +1740,154 @@ importers:
       prettier: ^2.3.1
       resolve-from: ^5.0.0
       typescript: ^4.3.4
+  services/scan:
+    dependencies:
+      '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
+      '@votingworks/fixtures': link:../../libs/fixtures
+      '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/logging': link:../../libs/logging
+      '@votingworks/plustek-sdk': link:../../libs/plustek-sdk
+      '@votingworks/qrdetect': 1.0.1
+      '@votingworks/types': link:../../libs/types
+      '@votingworks/utils': link:../../libs/utils
+      base64-js: 1.5.1
+      body-parser: 1.19.0
+      busboy: 0.3.1
+      canvas: 2.6.1
+      chalk: 4.1.0
+      debug: 4.3.1
+      deep-eql: 4.0.0
+      express: 4.17.1
+      fs-extra: 9.0.1
+      got: 11.8.2
+      jest-diff: 26.6.2
+      jsqr: 1.3.1
+      luxon: 1.27.0
+      memory-streams: 0.1.3
+      multer: 1.4.2
+      node-quirc: 2.3.0
+      ora: 5.2.0
+      pdfjs-dist: 2.3.200
+      sqlite3: 4.2.0
+      tmp: 0.2.1
+      uuid: 8.3.2
+      zip-stream: 4.0.4
+      zod: 3.2.0
+    devDependencies:
+      '@types/base64-js': 1.3.0
+      '@types/body-parser': 1.19.0
+      '@types/busboy': 0.2.3
+      '@types/debug': 4.1.5
+      '@types/deep-eql': link:../../libs/@types/deep-eql
+      '@types/express': 4.17.11
+      '@types/fs-extra': 9.0.6
+      '@types/jest': 26.0.20
+      '@types/luxon': 1.26.5
+      '@types/multer': 1.4.5
+      '@types/node': 12.19.14
+      '@types/node-quirc': link:../../libs/@types/node-quirc
+      '@types/pdfjs-dist': 2.1.7
+      '@types/sqlite3': 3.1.6
+      '@types/supertest': 2.0.10
+      '@types/tmp': 0.2.0
+      '@types/uuid': 8.3.0
+      '@types/yauzl': 2.9.1
+      '@types/zip-stream': link:../../libs/@types/zip-stream
+      '@typescript-eslint/eslint-plugin': 4.28.4_852673d3af9c7ab8ae779b8d717157c6
+      '@typescript-eslint/parser': 4.28.4_eslint@7.17.0+typescript@4.3.5
+      eslint: 7.17.0
+      eslint-config-prettier: 8.3.0_eslint@7.17.0
+      eslint-import-resolver-node: 0.3.4
+      eslint-plugin-cypress: 2.11.2_eslint@7.17.0
+      eslint-plugin-import: 2.22.1_eslint@7.17.0+typescript@4.3.5
+      eslint-plugin-jest: 24.1.3_eslint@7.17.0+typescript@4.3.5
+      eslint-plugin-prettier: 3.3.1_7c5f1f59332aa465fcd97b1399d2f1c7
+      eslint-plugin-vx: link:../../libs/eslint-plugin-vx
+      is-ci-cli: 2.1.2
+      jest: 26.6.3_canvas@2.6.1+ts-node@9.1.1
+      jest-watch-typeahead: 0.6.4_jest@26.6.3
+      lint-staged: 10.5.3
+      nock: 13.1.0
+      prettier: 2.2.1
+      sort-package-json: 1.50.0
+      supertest: 6.1.1
+      ts-jest: 26.4.4_jest@26.6.3+typescript@4.3.5
+      ts-node: 9.1.1_typescript@4.3.5
+      typescript: 4.3.5
+      yauzl: 2.10.0
+    specifiers:
+      '@types/base64-js': ^1.3.0
+      '@types/body-parser': ^1.19.0
+      '@types/busboy': ^0.2.3
+      '@types/debug': ^4.1.5
+      '@types/deep-eql': workspace:*
+      '@types/express': ^4.16.1
+      '@types/fs-extra': ^9.0.6
+      '@types/jest': ^26.0.6
+      '@types/luxon': ^1.26.5
+      '@types/multer': ^1.4.3
+      '@types/node': ^12.0.0
+      '@types/node-quirc': workspace:*
+      '@types/pdfjs-dist': ^2.1.3
+      '@types/sqlite3': ^3.1.6
+      '@types/supertest': ^2.0.10
+      '@types/tmp': ^0.2.0
+      '@types/uuid': ^8.3.0
+      '@types/yauzl': ^2.9.1
+      '@types/zip-stream': workspace:*
+      '@typescript-eslint/eslint-plugin': ^4.28.4
+      '@typescript-eslint/parser': ^4.28.4
+      '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/fixtures': workspace:*
+      '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/logging': workspace:*
+      '@votingworks/plustek-sdk': workspace:*
+      '@votingworks/qrdetect': ^1.0.1
+      '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
+      base64-js: ^1.5.1
+      body-parser: ^1.19.0
+      busboy: ^0.3.1
+      canvas: ^2.6.1
+      chalk: ^4.1.0
+      debug: ^4.3.1
+      deep-eql: ^4.0.0
+      eslint: ^7.17.0
+      eslint-config-prettier: ^8.3.0
+      eslint-import-resolver-node: ^0.3.4
+      eslint-plugin-cypress: ^2.11.2
+      eslint-plugin-import: ^2.22.1
+      eslint-plugin-jest: ^24.1.3
+      eslint-plugin-prettier: ^3.3.1
+      eslint-plugin-vx: workspace:*
+      express: ^4.17.1
+      fs-extra: ^9.0.1
+      got: ^11.8.2
+      is-ci-cli: ^2.1.2
+      jest: ^26.6.3
+      jest-diff: ^26.6.2
+      jest-watch-typeahead: ^0.6.4
+      jsqr: ^1.3.1
+      lint-staged: ^10.5.3
+      luxon: ^1.27.0
+      memory-streams: ^0.1.3
+      multer: ^1.4.2
+      nock: ^13.1.0
+      node-quirc: ^2.3.0
+      ora: ^5.2.0
+      pdfjs-dist: 2.3.200
+      prettier: ^2.2.1
+      sort-package-json: ^1.50.0
+      sqlite3: ^4.0.8
+      supertest: ^6.0.1
+      tmp: ^0.2.1
+      ts-jest: ^26.4.4
+      ts-node: ^9.1.1
+      typescript: ^4.3.5
+      uuid: ^8.3.2
+      yauzl: ^2.10.0
+      zip-stream: ^4.0.4
+      zod: ^3.2.0
 lockfileVersion: 5.2
 packages:
   /@antongolub/iso8601/1.2.1:
@@ -9126,7 +9126,7 @@ packages:
       integrity: sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1_debug@4.3.2
     dev: true
     peerDependencies:
       debug: '*'
@@ -12080,7 +12080,7 @@ packages:
     dev: false
     resolution:
       integrity: sha512-NJ6Yn3FuDinBaBRWl/q5X/s4koRHBrgKAu+yGI6JCBeiu3qrcbJhwT2GeR/EXVfylRk8dpQVJoLEFhK+Mu31NA==
-  /esbuild-android-arm64/0.13.13:
+  /esbuild-android-arm64/0.13.14:
     cpu:
       - arm64
     dev: true
@@ -12088,8 +12088,8 @@ packages:
     os:
       - android
     resolution:
-      integrity: sha512-T02aneWWguJrF082jZworjU6vm8f4UQ+IH2K3HREtlqoY9voiJUwHLRL6khRlsNLzVglqgqb7a3HfGx7hAADCQ==
-  /esbuild-darwin-64/0.13.13:
+      integrity: sha512-Q+Xhfp827r+ma8/DJgpMRUbDZfefsk13oePFEXEIJ4gxFbNv5+vyiYXYuKm43/+++EJXpnaYmEnu4hAKbAWYbA==
+  /esbuild-darwin-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12097,8 +12097,8 @@ packages:
     os:
       - darwin
     resolution:
-      integrity: sha512-wkaiGAsN/09X9kDlkxFfbbIgR78SNjMOfUhoel3CqKBDsi9uZhw7HBNHNxTzYUK8X8LAKFpbODgcRB3b/I8gHA==
-  /esbuild-darwin-arm64/0.13.13:
+      integrity: sha512-YmOhRns6QBNSjpVdTahi/yZ8dscx9ai7a6OY6z5ACgOuQuaQ2Qk2qgJ0/siZ6LgD0gJFMV8UINFV5oky5TFNQQ==
+  /esbuild-darwin-arm64/0.13.14:
     cpu:
       - arm64
     dev: true
@@ -12106,8 +12106,8 @@ packages:
     os:
       - darwin
     resolution:
-      integrity: sha512-b02/nNKGSV85Gw9pUCI5B48AYjk0vFggDeom0S6QMP/cEDtjSh1WVfoIFNAaLA0MHWfue8KBwoGVsN7rBshs4g==
-  /esbuild-freebsd-64/0.13.13:
+      integrity: sha512-Lp00VTli2jqZghSa68fx3fEFCPsO1hK59RMo1PRap5RUjhf55OmaZTZYnCDI0FVlCtt+gBwX5qwFt4lc6tI1xg==
+  /esbuild-freebsd-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12115,8 +12115,8 @@ packages:
     os:
       - freebsd
     resolution:
-      integrity: sha512-ALgXYNYDzk9YPVk80A+G4vz2D22Gv4j4y25exDBGgqTcwrVQP8rf/rjwUjHoh9apP76oLbUZTmUmvCMuTI1V9A==
-  /esbuild-freebsd-arm64/0.13.13:
+      integrity: sha512-BKosI3jtvTfnmsCW37B1TyxMUjkRWKqopR0CE9AF2ratdpkxdR24Vpe3gLKNyWiZ7BE96/SO5/YfhbPUzY8wKw==
+  /esbuild-freebsd-arm64/0.13.14:
     cpu:
       - arm64
     dev: true
@@ -12124,8 +12124,8 @@ packages:
     os:
       - freebsd
     resolution:
-      integrity: sha512-uFvkCpsZ1yqWQuonw5T1WZ4j59xP/PCvtu6I4pbLejhNo4nwjW6YalqnBvBSORq5/Ifo9S/wsIlVHzkzEwdtlw==
-  /esbuild-linux-32/0.13.13:
+      integrity: sha512-yd2uh0yf+fWv5114+SYTl4/1oDWtr4nN5Op+PGxAkMqHfYfLjFKpcxwCo/QOS/0NWqPVE8O41IYZlFhbEN2B8Q==
+  /esbuild-linux-32/0.13.14:
     cpu:
       - ia32
     dev: true
@@ -12133,8 +12133,8 @@ packages:
     os:
       - linux
     resolution:
-      integrity: sha512-yxR9BBwEPs9acVEwTrEE2JJNHYVuPQC9YGjRfbNqtyfK/vVBQYuw8JaeRFAvFs3pVJdQD0C2BNP4q9d62SCP4w==
-  /esbuild-linux-64/0.13.13:
+      integrity: sha512-a8rOnS1oWSfkkYWXoD2yXNV4BdbDKA7PNVQ1klqkY9SoSApL7io66w5H44mTLsfyw7G6Z2vLlaLI2nz9MMAowA==
+  /esbuild-linux-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12142,8 +12142,8 @@ packages:
     os:
       - linux
     resolution:
-      integrity: sha512-kzhjlrlJ+6ESRB/n12WTGll94+y+HFeyoWsOrLo/Si0s0f+Vip4b8vlnG0GSiS6JTsWYAtGHReGczFOaETlKIw==
-  /esbuild-linux-arm/0.13.13:
+      integrity: sha512-yPZSoMs9W2MC3Dw+6kflKt5FfQm6Dicex9dGIr1OlHRsn3Hm7yGMUTctlkW53KknnZdOdcdd5upxvbxqymczVQ==
+  /esbuild-linux-arm/0.13.14:
     cpu:
       - arm
     dev: true
@@ -12151,8 +12151,8 @@ packages:
     os:
       - linux
     resolution:
-      integrity: sha512-hXub4pcEds+U1TfvLp1maJ+GHRw7oizvzbGRdUvVDwtITtjq8qpHV5Q5hWNNn6Q+b3b2UxF03JcgnpzCw96nUQ==
-  /esbuild-linux-arm64/0.13.13:
+      integrity: sha512-8chZE4pkKRvJ/M/iwsNQ1KqsRg2RyU5eT/x2flNt/f8F2TVrDreR7I0HEeCR50wLla3B1C3wTIOzQBmjuc6uWg==
+  /esbuild-linux-arm64/0.13.14:
     cpu:
       - arm64
     dev: true
@@ -12160,8 +12160,8 @@ packages:
     os:
       - linux
     resolution:
-      integrity: sha512-KMrEfnVbmmJxT3vfTnPv/AiXpBFbbyExH13BsUGy1HZRPFMi5Gev5gk8kJIZCQSRfNR17aqq8sO5Crm2KpZkng==
-  /esbuild-linux-mips64le/0.13.13:
+      integrity: sha512-Lvo391ln9PzC334e+jJ2S0Rt0cxP47eoH5gFyv/E8HhOnEJTvm7A+RRnMjjHnejELacTTfYgFGQYPjLsi/jObQ==
+  /esbuild-linux-mips64le/0.13.14:
     cpu:
       - mips64el
     dev: true
@@ -12169,8 +12169,8 @@ packages:
     os:
       - linux
     resolution:
-      integrity: sha512-cJT9O1LYljqnnqlHaS0hdG73t7hHzF3zcN0BPsjvBq+5Ad47VJun+/IG4inPhk8ta0aEDK6LdP+F9299xa483w==
-  /esbuild-linux-ppc64le/0.13.13:
+      integrity: sha512-MZhgxbmrWbpY3TOE029O6l5tokG9+Yoj2hW7vdit/d/VnmneqeGrSHADuDL6qXM8L5jaCiaivb4VhsyVCpdAbQ==
+  /esbuild-linux-ppc64le/0.13.14:
     cpu:
       - ppc64
     dev: true
@@ -12178,8 +12178,8 @@ packages:
     os:
       - linux
     resolution:
-      integrity: sha512-+rghW8st6/7O6QJqAjVK3eXzKkZqYAw6LgHv7yTMiJ6ASnNvghSeOcIvXFep3W2oaJc35SgSPf21Ugh0o777qQ==
-  /esbuild-netbsd-64/0.13.13:
+      integrity: sha512-un7KMwS7fX1Un6BjfSZxTT8L5cV/8Uf4SAhM7WYy2XF8o8TI+uRxxD03svZnRNIPsN2J5cl6qV4n7Iwz+yhhVw==
+  /esbuild-netbsd-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12187,8 +12187,8 @@ packages:
     os:
       - netbsd
     resolution:
-      integrity: sha512-A/B7rwmzPdzF8c3mht5TukbnNwY5qMJqes09ou0RSzA5/jm7Jwl/8z853ofujTFOLhkNHUf002EAgokzSgEMpQ==
-  /esbuild-openbsd-64/0.13.13:
+      integrity: sha512-5ekKx/YbOmmlTeNxBjh38Uh5TGn5C4uyqN17i67k18pS3J+U2hTVD7rCxcFcRS1AjNWumkVL3jWqYXadFwMS0Q==
+  /esbuild-openbsd-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12196,10 +12196,10 @@ packages:
     os:
       - openbsd
     resolution:
-      integrity: sha512-szwtuRA4rXKT3BbwoGpsff6G7nGxdKgUbW9LQo6nm0TVCCjDNDC/LXxT994duIW8Tyq04xZzzZSW7x7ttDiw1w==
-  /esbuild-runner/2.2.1_esbuild@0.13.13:
+      integrity: sha512-9bzvwewHjct2Cv5XcVoE1yW5YTW12Sk838EYfA46abgnhxGoFSD1mFcaztp5HHC43AsF+hQxbSFG/RilONARUA==
+  /esbuild-runner/2.2.1_esbuild@0.13.14:
     dependencies:
-      esbuild: 0.13.13
+      esbuild: 0.13.14
       source-map-support: 0.5.19
       tslib: 2.3.1
     dev: true
@@ -12208,7 +12208,7 @@ packages:
       esbuild: '*'
     resolution:
       integrity: sha512-VP0VfJJZiZ3cKzdOH59ZceDxx/GzBKra7tiGM8MfFMLv6CR1/cpsvtQ3IsJI3pz7HyeYxtbPyecj3fHwR+3XcQ==
-  /esbuild-sunos-64/0.13.13:
+  /esbuild-sunos-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12216,8 +12216,8 @@ packages:
     os:
       - sunos
     resolution:
-      integrity: sha512-ihyds9O48tVOYF48iaHYUK/boU5zRaLOXFS+OOL3ceD39AyHo46HVmsJLc7A2ez0AxNZCxuhu+P9OxfPfycTYQ==
-  /esbuild-windows-32/0.13.13:
+      integrity: sha512-mjMrZB76M6FmoiTvj/RGWilrioR7gVwtFBRVugr9qLarXMIU1W/pQx+ieEOtflrW61xo8w1fcxyHsVVGRvoQ0w==
+  /esbuild-windows-32/0.13.14:
     cpu:
       - ia32
     dev: true
@@ -12225,8 +12225,8 @@ packages:
     os:
       - win32
     resolution:
-      integrity: sha512-h2RTYwpG4ldGVJlbmORObmilzL8EECy8BFiF8trWE1ZPHLpECE9//J3Bi+W3eDUuv/TqUbiNpGrq4t/odbayUw==
-  /esbuild-windows-64/0.13.13:
+      integrity: sha512-GZa6mrx2rgfbH/5uHg0Rdw50TuOKbdoKCpEBitzmG5tsXBdce+cOL+iFO5joZc6fDVCLW3Y6tjxmSXRk/v20Hg==
+  /esbuild-windows-64/0.13.14:
     cpu:
       - x64
     dev: true
@@ -12234,8 +12234,8 @@ packages:
     os:
       - win32
     resolution:
-      integrity: sha512-oMrgjP4CjONvDHe7IZXHrMk3wX5Lof/IwFEIbwbhgbXGBaN2dke9PkViTiXC3zGJSGpMvATXVplEhlInJ0drHA==
-  /esbuild-windows-arm64/0.13.13:
+      integrity: sha512-Lsgqah24bT7ClHjLp/Pj3A9wxjhIAJyWQcrOV4jqXAFikmrp2CspA8IkJgw7HFjx6QrJuhpcKVbCAe/xw0i2yw==
+  /esbuild-windows-arm64/0.13.14:
     cpu:
       - arm64
     dev: true
@@ -12243,31 +12243,31 @@ packages:
     os:
       - win32
     resolution:
-      integrity: sha512-6fsDfTuTvltYB5k+QPah/x7LrI2+OLAJLE3bWLDiZI6E8wXMQU+wLqtEO/U/RvJgVY1loPs5eMpUBpVajczh1A==
-  /esbuild/0.13.13:
+      integrity: sha512-KP8FHVlWGhM7nzYtURsGnskXb/cBCPTfj0gOKfjKq2tHtYnhDZywsUG57nk7TKhhK0fL11LcejHG3LRW9RF/9A==
+  /esbuild/0.13.14:
     dev: true
     hasBin: true
     optionalDependencies:
-      esbuild-android-arm64: 0.13.13
-      esbuild-darwin-64: 0.13.13
-      esbuild-darwin-arm64: 0.13.13
-      esbuild-freebsd-64: 0.13.13
-      esbuild-freebsd-arm64: 0.13.13
-      esbuild-linux-32: 0.13.13
-      esbuild-linux-64: 0.13.13
-      esbuild-linux-arm: 0.13.13
-      esbuild-linux-arm64: 0.13.13
-      esbuild-linux-mips64le: 0.13.13
-      esbuild-linux-ppc64le: 0.13.13
-      esbuild-netbsd-64: 0.13.13
-      esbuild-openbsd-64: 0.13.13
-      esbuild-sunos-64: 0.13.13
-      esbuild-windows-32: 0.13.13
-      esbuild-windows-64: 0.13.13
-      esbuild-windows-arm64: 0.13.13
+      esbuild-android-arm64: 0.13.14
+      esbuild-darwin-64: 0.13.14
+      esbuild-darwin-arm64: 0.13.14
+      esbuild-freebsd-64: 0.13.14
+      esbuild-freebsd-arm64: 0.13.14
+      esbuild-linux-32: 0.13.14
+      esbuild-linux-64: 0.13.14
+      esbuild-linux-arm: 0.13.14
+      esbuild-linux-arm64: 0.13.14
+      esbuild-linux-mips64le: 0.13.14
+      esbuild-linux-ppc64le: 0.13.14
+      esbuild-netbsd-64: 0.13.14
+      esbuild-openbsd-64: 0.13.14
+      esbuild-sunos-64: 0.13.14
+      esbuild-windows-32: 0.13.14
+      esbuild-windows-64: 0.13.14
+      esbuild-windows-arm64: 0.13.14
     requiresBuild: true
     resolution:
-      integrity: sha512-Z17A/R6D0b4s3MousytQ/5i7mTCbaF+Ua/yPfoe71vdTv4KBvVAvQ/6ytMngM2DwGJosl8WxaD75NOQl2QF26Q==
+      integrity: sha512-xu4D+1ji9x53ocuomcY+KOrwAnWzhBu/wTEjpdgZ8I1c8i5vboYIeigMdzgY1UowYBKa2vZgVgUB32bu7gkxeg==
   /escalade/3.1.1:
     engines:
       node: '>=6'
@@ -14951,9 +14951,21 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
+  /follow-redirects/1.14.1:
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -14966,7 +14978,6 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
       debug: 4.3.2
-    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -15880,7 +15891,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1
       requires-port: 1.0.0
     dev: false
     engines:

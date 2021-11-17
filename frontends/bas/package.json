@@ -1,0 +1,112 @@
+{
+  "name": "@votingworks/bas",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "build",
+    "Makefile",
+    "prodserver"
+  ],
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "tsc --build && react-scripts build",
+    "build:watch": "tsc --build --watch",
+    "eject": "react-scripts eject",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "lint": "pnpm type-check && eslint . --fix && pnpm stylelint:run",
+    "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
+    "start": "react-scripts start",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
+    "test": "is-ci test:coverage test:watch",
+    "test:watch": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.+(js|jsx|ts|tsx)": [
+      "stylelint --fix",
+      "eslint --quiet --fix"
+    ],
+    "*.css": [
+      "stylelint --config .stylelintrc-css.js --fix"
+    ],
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "dependencies": {
+    "@types/jest": "24.0.11",
+    "@types/node": "11.13.7",
+    "@types/pluralize": "^0.0.29",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/styled-components": "^5.1.7",
+    "@votingworks/logging": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/ui": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "http-proxy-middleware": "1.0.6",
+    "luxon": "^1.27.0",
+    "normalize.css": "^8.0.1",
+    "pluralize": "^8.0.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-scripts": "4.0.1",
+    "styled-components": "^5.2.1",
+    "typescript": "^4.3.5",
+    "zod": "3.2.0"
+  },
+  "devDependencies": {
+    "@types/history": "^4.7.8",
+    "@types/kiosk-browser": "workspace:*",
+    "@types/luxon": "^1.26.5",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "^2.1.2",
+    "lint-staged": "^8.1.5",
+    "prettier": "^2.1.2",
+    "react-refresh": "^0.10.0",
+    "sort-package-json": "^1.50.0",
+    "stylelint": "^13.7.2",
+    "stylelint-config-palantir": "^5.0.0",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.10.0"
+  },
+  "vx": {
+    "isBundled": true,
+    "modules": [
+      "../module-smartcards"
+    ]
+  }
+}

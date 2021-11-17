@@ -38,7 +38,7 @@ ruleTester.run('no-import-workspace-subfolders', rule, {
       code: `import a from '@votingworks/types/something/else'`,
     },
     {
-      code: `import { a } from '@votingworks/types/api/module-scan'`,
+      code: `import { a } from '@votingworks/types/api/services/scan'`,
     },
     {
       code: `import * as a from '@votingworks/types/a/bunch/of/folders'`,

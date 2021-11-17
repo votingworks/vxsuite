@@ -4,7 +4,7 @@ set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-for app in ${DIR}/../apps/*; do
+for app in ${DIR}/../frontends/* ${DIR}/../services/*; do
   if [ -d "${app}" ]; then
     make -C "${app}" install
   fi

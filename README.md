@@ -4,11 +4,11 @@ The VotingWorks in-person voting system.
 
 ## About
 
-Includes software for a [ballot-marking device (BMD)](./apps/bmd), a
-[ballot activation system (BAS)](./apps/bas), a
-[ballot scanning device (BSD)](./apps/bsd), a
-[precinct scanner](./apps/precinct-scanner), and an
-[election manager](./apps/election-manager). See https://voting.works for more
+Includes software for a [ballot-marking device (BMD)](./frontends/bmd), a
+[ballot activation system (BAS)](./frontends/bas), a
+[ballot scanning device (BSD)](./frontends/bsd), a
+[precinct scanner](./frontends/precinct-scanner), and an
+[election manager](./frontends/election-manager). See https://voting.works for more
 information about VotingWorks.
 
 ## Development
@@ -59,8 +59,8 @@ cd vxsuite
 ./script/bootstrap
 
 # try out BMD:
-make -C apps/module-smartcards build run &
-cd apps/bmd
+make -C services/smartcards build run &
+cd frontends/bmd
 pnpm start
 # if it worked, go to http://localhost:3000/
 ```
@@ -361,7 +361,7 @@ export function angleBetweenVectors(v1: Vector, v2: Vector): number {
 }
 ```
 
-#### Logging in apps
+#### Logging in frontends
 
 By default nothing is logged to the terminal. If you run your tests/server/etc
 with `DEBUG` set to the right value, you'll get logging. Example:
