@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MachineId, safeParse } from '.';
 import { err, maybeParse, ok, unsafeParse } from './generic';
 
 test('ok is Ok', () => {
@@ -63,4 +64,15 @@ test('unsafeParse', () => {
 test('maybeParse', () => {
   expect(maybeParse(z.string(), 'hello world!')).toEqual('hello world!');
   expect(maybeParse(z.string(), 99)).toBeUndefined();
+});
+
+test('machine ID schema', () => {
+  // invalid IDs
+  safeParse(MachineId, '').unsafeUnwrapErr();
+  safeParse(MachineId, 'A_B').unsafeUnwrapErr();
+  safeParse(MachineId, 'a-b-0').unsafeUnwrapErr();
+
+  // valid IDs
+  safeParse(MachineId, 'A-B-0').unsafeUnwrap();
+  safeParse(MachineId, '999').unsafeUnwrap();
 });

@@ -1441,7 +1441,7 @@ export function getPartyFullNameFromBallotStyle({
 export function getDistrictIdsForPartyId(
   election: Election,
   partyId: PartyId
-): string[] {
+): DistrictId[] {
   return election.ballotStyles
     .filter((bs) => bs.partyId === partyId)
     .flatMap((bs) => bs.districts);

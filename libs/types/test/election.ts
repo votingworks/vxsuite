@@ -370,7 +370,9 @@ const electionMinimalExhaustiveData = `
       "partyId": "1"
     }
   ],
-  "sealURL": "/seals/Sample-Seal.svg"
+  "sealURL": "/seals/Sample-Seal.svg",
+  "centralScanAdjudicationReasons": ["BlankBallot"],
+  "precinctScanAdjudicationReasons": ["BlankBallot"]
 }`;
 export const electionMinimalExhaustive: Election = safeParseElection(
   electionMinimalExhaustiveData
