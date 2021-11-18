@@ -8,6 +8,7 @@ import {
   getBallotStyle,
   getContests,
   MsEitherNeitherContest,
+  PartyIdSchema,
   unsafeParse,
   vote,
   YesNoContest,
@@ -921,7 +922,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
               {
                 id: '23',
                 name: 'Jimmy Edwards',
-                partyId: '4',
+                partyId: unsafeParse(PartyIdSchema, '4'),
               },
             ],
           },

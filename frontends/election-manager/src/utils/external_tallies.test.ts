@@ -16,6 +16,8 @@ import {
   FullElectionExternalTally,
   TallyCategory,
   VotingMethod,
+  unsafeParse,
+  PartyIdSchema,
 } from '@votingworks/types';
 import { typedAs, combineContestTallies } from '@votingworks/utils';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
@@ -507,6 +509,9 @@ describe('filterExternalTalliesByParams', () => {
   });
 
   it('filters by party as expected', () => {
+    const libertyPartyId = unsafeParse(PartyIdSchema, '0');
+    const constitutionPartyId = unsafeParse(PartyIdSchema, '3');
+    const federalistPartyId = unsafeParse(PartyIdSchema, '4');
     const singleVotesPrimary = buildExternalTally(
       multiPartyPrimaryElection,
       1,
@@ -529,7 +534,7 @@ describe('filterExternalTalliesByParams', () => {
       fullTallySems,
       multiPartyPrimaryElection,
       {
-        partyId: '0', // Liberty
+        partyId: libertyPartyId,
       }
     );
     expect(
@@ -551,7 +556,7 @@ describe('filterExternalTalliesByParams', () => {
       fullTallySems,
       multiPartyPrimaryElection,
       {
-        partyId: '3', // Constitution
+        partyId: constitutionPartyId,
       }
     );
     expect(
@@ -572,7 +577,7 @@ describe('filterExternalTalliesByParams', () => {
       fullTallySems,
       multiPartyPrimaryElection,
       {
-        partyId: '4', // Federalist
+        partyId: federalistPartyId,
       }
     );
     expect(
@@ -593,13 +598,13 @@ describe('filterExternalTalliesByParams', () => {
     // Filtering by voting method with party works as expected
     expect(
       filterExternalTalliesByParams(fullTallySems, multiPartyPrimaryElection, {
-        partyId: '4', // Federalist
+        partyId: federalistPartyId,
         votingMethod: VotingMethod.Precinct,
       })
     ).toStrictEqual(getEmptyExternalTally());
     expect(
       filterExternalTalliesByParams(fullTallySems, multiPartyPrimaryElection, {
-        partyId: '4', // Federalist
+        partyId: federalistPartyId,
         votingMethod: VotingMethod.Absentee,
       })
     ).toStrictEqual(federalistResults);
@@ -633,7 +638,7 @@ describe('filterExternalTalliesByParams', () => {
       multiPartyPrimaryElection,
       {
         precinctId: 'precinct-1',
-        partyId: '0',
+        partyId: libertyPartyId,
         votingMethod: VotingMethod.Precinct,
       }
     );
@@ -643,7 +648,7 @@ describe('filterExternalTalliesByParams', () => {
       multiPartyPrimaryElection,
       {
         precinctId: 'precinct-3',
-        partyId: '0',
+        partyId: libertyPartyId,
         votingMethod: VotingMethod.Precinct,
       }
     );
@@ -653,6 +658,9 @@ describe('filterExternalTalliesByParams', () => {
 
 describe('convertTalliesByPrecinctToFullExternalTally', () => {
   it('combines precincts as expected', () => {
+    const libertyPartyId = unsafeParse(PartyIdSchema, '0');
+    const constitutionPartyId = unsafeParse(PartyIdSchema, '3');
+    const federalistPartyId = unsafeParse(PartyIdSchema, '4');
     // Contests to populate for the purposes of these tests.
     const contestIds = [
       'governor-contest-liberty',
@@ -706,15 +714,27 @@ describe('convertTalliesByPrecinctToFullExternalTally', () => {
     );
     const resultsByParty = results.resultsByCategory.get(TallyCategory.Party);
     expect(resultsByParty).toStrictEqual({
-      '0': filterExternalTalliesByParams(results, multiPartyPrimaryElection, {
-        partyId: '0',
-      }),
-      '3': filterExternalTalliesByParams(results, multiPartyPrimaryElection, {
-        partyId: '3',
-      }),
-      '4': filterExternalTalliesByParams(results, multiPartyPrimaryElection, {
-        partyId: '4',
-      }),
+      [libertyPartyId]: filterExternalTalliesByParams(
+        results,
+        multiPartyPrimaryElection,
+        {
+          partyId: libertyPartyId,
+        }
+      ),
+      [constitutionPartyId]: filterExternalTalliesByParams(
+        results,
+        multiPartyPrimaryElection,
+        {
+          partyId: constitutionPartyId,
+        }
+      ),
+      [federalistPartyId]: filterExternalTalliesByParams(
+        results,
+        multiPartyPrimaryElection,
+        {
+          partyId: federalistPartyId,
+        }
+      ),
     });
   });
 });
