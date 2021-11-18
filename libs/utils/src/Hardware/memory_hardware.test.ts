@@ -2,31 +2,35 @@ import { fakeDevice } from '@votingworks/test-utils';
 import { MemoryHardware } from './memory_hardware';
 import { OmniKeyCardReaderDeviceName } from './utils';
 
-it('has a standard config with all the typical hardware', async (done) => {
+it('has a standard config with all the typical hardware', async () => {
   const hardware = await MemoryHardware.buildStandard();
 
-  hardware.devices.subscribe((devices) => {
-    expect(
-      new Set(Array.from(devices).map((device) => device.deviceName))
-    ).toEqual(
-      new Set([
-        OmniKeyCardReaderDeviceName,
-        'USB Advanced Audio Device',
-        'HL-L5100DN_series',
-        'Scanner',
-      ])
-    );
+  await new Promise<void>((resolve) => {
+    hardware.devices.subscribe((devices) => {
+      expect(
+        new Set(Array.from(devices).map((device) => device.deviceName))
+      ).toEqual(
+        new Set([
+          OmniKeyCardReaderDeviceName,
+          'USB Advanced Audio Device',
+          'HL-L5100DN_series',
+          'Scanner',
+        ])
+      );
 
-    done();
+      resolve();
+    });
   });
 });
 
-it('has no connected devices by default', async (done) => {
+it('has no connected devices by default', async () => {
   const hardware = await MemoryHardware.build();
 
-  hardware.devices.subscribe((devices) => {
-    expect(Array.from(devices)).toEqual([]);
-    done();
+  await new Promise<void>((resolve) => {
+    hardware.devices.subscribe((devices) => {
+      expect(Array.from(devices)).toEqual([]);
+      resolve();
+    });
   });
 });
 
@@ -148,13 +152,15 @@ it('reports printer status as not connected if there are no connected printers',
   expect(await hardware.readPrinterStatus()).toEqual({ connected: false });
 });
 
-it('can remove printers', async (done) => {
+it('can remove printers', async () => {
   const hardware = await MemoryHardware.build();
   await hardware.setPrinterConnected(true);
   await hardware.detachAllPrinters();
-  hardware.printers.subscribe((printers) => {
-    expect(Array.from(printers)).toEqual([]);
-    done();
+  await new Promise<void>((resolve) => {
+    hardware.printers.subscribe((printers) => {
+      expect(Array.from(printers)).toEqual([]);
+      resolve();
+    });
   });
 });
 
