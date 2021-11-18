@@ -99,7 +99,7 @@ export function arbitraryCountyId(): fc.Arbitrary<CountyId> {
  * Builds values suitable for district IDs.
  */
 export function arbitraryDistrictId(): fc.Arbitrary<DistrictId> {
-  return arbitraryId();
+  return arbitraryId() as fc.Arbitrary<DistrictId>;
 }
 
 /**

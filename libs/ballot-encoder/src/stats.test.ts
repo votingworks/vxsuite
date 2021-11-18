@@ -1,23 +1,29 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { BallotType, Election } from '@votingworks/types';
+import {
+  BallotType,
+  DistrictIdSchema,
+  Election,
+  unsafeParse,
+} from '@votingworks/types';
 import { encodeBallot, encodeHmpbBallotPageMetadata } from '.';
 
+const district1Id = unsafeParse(DistrictIdSchema, 'district1');
 const election: Election = {
   title: 'Election',
   county: { id: 'nowhere', name: 'Nowhere' },
   state: 'Nowhere',
   date: '1989-06-23T00:00:00Z',
-  districts: [{ id: 'district1', name: 'District 1' }],
+  districts: [{ id: district1Id, name: 'District 1' }],
   parties: [],
   precincts: [{ id: 'precinct1', name: 'Precinct 1' }],
   ballotStyles: [
-    { id: 'style1', districts: ['district1'], precincts: ['precinct1'] },
+    { id: 'style1', districts: [district1Id], precincts: ['precinct1'] },
   ],
   contests: [
     {
       type: 'yesno',
       id: 'contest1',
-      districtId: 'district1',
+      districtId: district1Id,
       title: 'Ever dance with the devil in the pale moonlight?',
       description: 'See ya round, kid.',
       section: 'DC',
