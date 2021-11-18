@@ -85,5 +85,5 @@ test('can skip uints of arbitrary size', () => {
   expect(bits.skipUint(0b11, { size: 2 })).toBe(false);
   expect(bits.skipUint(0b0011, { size: 4 })).toBe(true);
   expect(bits.skipUint(0b001, { size: 3 })).toBe(false);
-  expect(bits.skipUint([0b0, 0b0], { size: 1 })).toBe(true);
+  expect(bits.skipUint([0b0, 0b0], { max: 1 })).toBe(true);
 });
