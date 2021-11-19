@@ -24,7 +24,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "prepack": "tsc --build",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "REGRESSION_TESTS=1 jest --coverage",
+    "test:ci": "pnpm test:coverage",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "pre-commit": "lint-staged"
