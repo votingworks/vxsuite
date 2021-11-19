@@ -33,7 +33,7 @@ export default createRule({
       const [publicToken, nextToken] = sourceCode.getFirstTokens(node, {
         count: 2,
       });
-      assert.equal(publicToken?.value, 'public' as const);
+      assert(publicToken && publicToken.value === 'public');
       assert(nextToken);
 
       context.report({

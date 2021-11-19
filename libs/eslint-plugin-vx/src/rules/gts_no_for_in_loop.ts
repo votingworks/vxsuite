@@ -34,7 +34,7 @@ export default createRule({
               node.left,
               node.right
             );
-            assert(inToken?.value === 'in');
+            assert(inToken && inToken.value === 'in');
 
             return [
               fixer.replaceTextRange(

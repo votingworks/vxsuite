@@ -42,8 +42,10 @@ export default createRule({
       const [def] = defs;
 
       if (def.node.type === AST_NODE_TYPES.VariableDeclarator) {
-        /* istanbul ignore next - this is for TypeScript type narrowing */
-        assert(def.node.parent?.type === AST_NODE_TYPES.VariableDeclaration);
+        assert(
+          def.node.parent &&
+            def.node.parent.type === AST_NODE_TYPES.VariableDeclaration
+        );
         return def.node.parent.declarations.length === 1
           ? def.node.parent
           : undefined;
@@ -74,7 +76,10 @@ export default createRule({
 
     return {
       ExportSpecifier(node: TSESTree.ExportSpecifier): void {
-        assert(node.parent?.type === AST_NODE_TYPES.ExportNamedDeclaration);
+        assert(
+          node.parent &&
+            node.parent.type === AST_NODE_TYPES.ExportNamedDeclaration
+        );
 
         if (node.local.name === 'default' && node.exported.name !== 'default') {
           context.report({

@@ -69,8 +69,9 @@ export default createRule({
             fix: (fixer) => {
               const text = sourceCode.getText(node);
               assert.equal(text.slice(-2), '[]');
+              assert(node.parent);
               if (
-                node.parent?.type === AST_NODE_TYPES.TSTypeOperator &&
+                node.parent.type === AST_NODE_TYPES.TSTypeOperator &&
                 node.parent.operator === 'readonly'
               ) {
                 return [

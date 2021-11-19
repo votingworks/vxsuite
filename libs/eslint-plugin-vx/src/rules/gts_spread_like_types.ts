@@ -95,6 +95,7 @@ export default createRule({
             break;
           }
 
+          /* istanbul ignore next - this should not be possible */
           default:
             throw new Error(
               `unexpected spread element parent: ${node.parent.type}`

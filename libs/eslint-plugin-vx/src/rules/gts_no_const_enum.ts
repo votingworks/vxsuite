@@ -34,8 +34,8 @@ export default createRule({
               const [constToken, enumToken] = sourceCode.getFirstTokens(node, {
                 count: 2,
               });
-              assert.equal(constToken?.value, 'const');
-              assert.equal(enumToken?.value, 'enum');
+              assert(constToken && constToken.value === 'const');
+              assert(enumToken && enumToken.value === 'enum');
               return fixer.removeRange([
                 constToken.range[0],
                 enumToken.range[0],

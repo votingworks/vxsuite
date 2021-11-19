@@ -1,4 +1,5 @@
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
 const VOTINGWORKS_WORKSPACE_PREFIX = '@votingworks';
@@ -27,9 +28,7 @@ export default createRule({
     return {
       ImportDeclaration(node: TSESTree.ImportDeclaration) {
         const importSource = node.source.value;
-        if (typeof importSource !== 'string') {
-          return;
-        }
+        assert(typeof importSource === 'string');
         if (importSource.startsWith(VOTINGWORKS_WORKSPACE_PREFIX)) {
           const folders = importSource.split('/');
           if (folders.length > 2 && folders[1] !== 'types') {

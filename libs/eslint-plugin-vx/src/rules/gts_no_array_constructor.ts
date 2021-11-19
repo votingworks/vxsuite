@@ -46,14 +46,14 @@ export default createRule({
             const leftParen = sourceCode.getTokenAfter(
               node.typeParameters ?? node.callee
             );
-            assert.equal(leftParen?.value, '(');
+            assert(leftParen && leftParen.value === '(');
 
             const rightParen = sourceCode.getLastToken(node);
-            assert.equal(rightParen?.value, ')');
+            assert(rightParen && rightParen.value === ')');
 
             if (node.type === AST_NODE_TYPES.NewExpression) {
               const newToken = sourceCode.getFirstToken(node);
-              assert.equal(newToken?.value, 'new');
+              assert(newToken && newToken.value === 'new');
               const commentsAfterNew = sourceCode.getCommentsAfter(newToken);
               result.push(
                 // `new Array()` → `Array()`

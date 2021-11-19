@@ -3,6 +3,7 @@ import {
   AST_TOKEN_TYPES,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
+import { strict as assert } from 'assert';
 import { parse } from 'comment-parser';
 import { createRule } from '../util';
 
@@ -49,17 +50,18 @@ export default createRule({
     const sourceCode = context.getSourceCode();
 
     function hasJsDocComment(node: TSESTree.Node): boolean {
+      assert(node.parent);
       if (
         node.type === AST_NODE_TYPES.VariableDeclarator &&
-        node.parent?.type === AST_NODE_TYPES.VariableDeclaration &&
+        node.parent.type === AST_NODE_TYPES.VariableDeclaration &&
         node.parent.declarations[0] === node
       ) {
         return hasJsDocComment(node.parent);
       }
 
       if (
-        node.parent?.type === AST_NODE_TYPES.ExportNamedDeclaration ||
-        node.parent?.type === AST_NODE_TYPES.ExportDefaultDeclaration
+        node.parent.type === AST_NODE_TYPES.ExportNamedDeclaration ||
+        node.parent.type === AST_NODE_TYPES.ExportDefaultDeclaration
       ) {
         return hasJsDocComment(node.parent);
       }

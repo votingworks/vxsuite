@@ -240,6 +240,7 @@ export default createRule({
         }
 
         if (node.type === AST_NODE_TYPES.Program) {
+          /* istanbul ignore next */
           assert.equal(
             forEachStack.length,
             0,

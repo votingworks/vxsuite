@@ -78,11 +78,12 @@ export default createRule({
           const pipeBefore = sourceCode.getTokenBefore(
             undefinedUnionResult.undefinedType
           );
+          assert(pipeBefore);
           const pipeAfter = sourceCode.getTokenAfter(
             undefinedUnionResult.undefinedType
           );
           /* istanbul ignore else */
-          if (pipeBefore?.value === '|') {
+          if (pipeBefore.value === '|') {
             yield fixer.remove(pipeBefore);
           } else if (pipeAfter?.value === '|') {
             yield fixer.remove(pipeAfter);
@@ -92,9 +93,10 @@ export default createRule({
           yield fixer.remove(undefinedUnionResult.undefinedType);
 
           const colonToken = sourceCode.getFirstToken(typeAnnotation);
-          assert.equal(colonToken?.value, ':');
+          assert(colonToken && colonToken.value === ':');
           const questionMarkToken = sourceCode.getTokenBefore(colonToken);
-          if (questionMarkToken?.value !== '?') {
+          assert(questionMarkToken);
+          if (questionMarkToken.value !== '?') {
             yield fixer.insertTextBefore(colonToken, '?');
           }
         };
@@ -112,19 +114,20 @@ export default createRule({
             optionalTypeReferenceResult.optionalType.typeName,
             optionalTypeReferenceResult.wrappedType
           );
-          assert.equal(typeParamStartToken?.value, '<');
+          assert(typeParamStartToken && typeParamStartToken.value === '<');
           yield fixer.remove(typeParamStartToken);
 
           const typeParamEndToken = sourceCode.getLastToken(
             typeAnnotation.typeAnnotation
           );
-          assert.equal(typeParamEndToken?.value, '>');
+          assert(typeParamEndToken && typeParamEndToken.value === '>');
           yield fixer.remove(typeParamEndToken);
 
           const colonToken = sourceCode.getFirstToken(typeAnnotation);
-          assert.equal(colonToken?.value, ':');
+          assert(colonToken && colonToken.value === ':');
           const questionMarkToken = sourceCode.getTokenBefore(colonToken);
-          if (questionMarkToken?.value !== '?') {
+          assert(questionMarkToken);
+          if (questionMarkToken.value !== '?') {
             yield fixer.insertTextBefore(colonToken, '?');
           }
         };

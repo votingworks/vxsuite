@@ -29,6 +29,7 @@ ruleTester.run('gts-identifiers', rule, {
     `import { TSESTree } from '@typescript-eslint/experimental-utils'`,
     `interface A { imageUrl: string }`,
     `interface A { [keyNAME: string]: string }`,
+    `interface A { [propNAME]: string }`,
   ],
   invalid: [
     {

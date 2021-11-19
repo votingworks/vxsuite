@@ -35,6 +35,33 @@ ruleTester.run('gts-parameter-properties', rule, {
         }
       `,
     },
+    {
+      code: `
+        class A {
+          constructor(public a: number) {
+            this.a = -a
+          }
+        }
+      `,
+    },
+    {
+      code: `
+        class A {
+          constructor([a]: number[]) {
+            this.a = -a
+          }
+        }
+      `,
+    },
+    {
+      code: `
+        class A {
+          aMethod() {}
+          [dynamicProperty] = null
+          constructor()
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -79,6 +106,19 @@ ruleTester.run('gts-parameter-properties', rule, {
         { line: 6, messageId: 'useParameterProperties' },
         { line: 7, messageId: 'useParameterProperties' },
       ],
+    },
+    {
+      code: `
+        class A {
+          a: number
+          constructor(
+            public a: number
+          ) {
+            this.a = a
+          }
+        }
+      `,
+      errors: [{ line: 7, messageId: 'noRedundantAssignment' }],
     },
   ],
 });

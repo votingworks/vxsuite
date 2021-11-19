@@ -15,11 +15,7 @@ interface Options {
 function isResultType(checker: ts.TypeChecker, node: ts.Node): boolean {
   // TODO: consider the actual declaration location?
   const type = checker.getTypeAtLocation(node);
-  // FIXME: I'm unsure why I need both of these.
-  return (
-    type.getSymbol()?.getName() === 'Result' ||
-    type.aliasSymbol?.getName() === 'Result'
-  );
+  return type.getSymbol()?.getName() === 'Result';
 }
 
 function isUnhandledResult(
