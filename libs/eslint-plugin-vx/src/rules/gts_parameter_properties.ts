@@ -93,6 +93,7 @@ export default createRule({
               });
               break;
 
+            /* istanbul ignore next - this can't happen because `isPropertyInitializerAssignment` will not return true for anything other than these types */
             default:
               // nothing to do
               break;

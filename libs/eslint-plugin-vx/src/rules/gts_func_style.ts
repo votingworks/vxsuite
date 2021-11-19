@@ -114,24 +114,30 @@ export default createRule({
                     //  ^^^^^
                     const declarationToken =
                       sourceCode.getFirstToken(declaration);
-                    assert.equal(declarationToken?.value, declaration.kind);
+                    assert(
+                      declarationToken &&
+                        declarationToken.value === declaration.kind
+                    );
 
                     // `const foo = () => {}`
                     //            ^
                     const equalToken = sourceCode.getTokenAfter(id);
-                    assert.equal(equalToken?.value, '=');
+                    assert(equalToken && equalToken.value === '=');
 
                     if (init.async) {
                       // `const foo = async () => {}`
                       //              ^^^^^
                       const asyncToken = sourceCode.getTokenAfter(equalToken);
-                      assert.equal(asyncToken?.value, 'async');
+                      assert(asyncToken && asyncToken.value === 'async');
 
                       // `const foo = async () => {}`
                       //                    ^
                       const paramsStartParenToken =
                         sourceCode.getTokenAfter(asyncToken);
-                      assert.equal(paramsStartParenToken?.value, '(');
+                      assert(
+                        paramsStartParenToken &&
+                          paramsStartParenToken.value === '('
+                      );
 
                       // `const foo = async () => {}` → `const foo = () => {}`
                       //              ^^^^^^
@@ -146,7 +152,7 @@ export default createRule({
                     const arrowToken = sourceCode.getTokenBefore(init.body, {
                       filter: (t) => t.value === '=>',
                     });
-                    assert.equal(arrowToken?.value, '=>');
+                    assert(arrowToken && arrowToken.value === '=>');
 
                     // `const foo = () => {}` → `function foo = () => {}`
                     //  ^^^^^                    ^^^^^^^^

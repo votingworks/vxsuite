@@ -13,6 +13,7 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run('gts-unicode-escapes', rule, {
   valid: [
+    `1`,
     `''`,
     '``',
     `'∞'`,
@@ -77,6 +78,11 @@ ruleTester.run('gts-unicode-escapes', rule, {
     },
     {
       code: '`\\x00`',
+      errors: [{ messageId: 'escapeSequenceMissingComment', line: 1 }],
+    },
+    {
+      // eslint-disable-next-line no-template-curly-in-string
+      code: '`${"abc"}\\x00`',
       errors: [{ messageId: 'escapeSequenceMissingComment', line: 1 }],
     },
     {

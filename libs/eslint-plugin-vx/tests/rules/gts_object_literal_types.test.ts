@@ -13,6 +13,7 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run('gts-object-literal-types', rule, {
   valid: [
+    `let a;`,
     `const a: A = {}`,
     `const a = 1 as number`,
     `const a = {} as unknown as A`,

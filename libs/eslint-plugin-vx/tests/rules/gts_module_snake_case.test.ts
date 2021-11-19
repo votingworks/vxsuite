@@ -15,6 +15,7 @@ ruleTester.run('gts-module-snake-case', rule, {
   valid: [
     { code: 'const a = 1;', filename: 'file.ts' },
     { code: 'const a = 1;', filename: 'snake_case.ts' },
+    { code: 'const a = 1;', filename: 'setupTests.ts' },
   ],
   invalid: [
     {

@@ -14,6 +14,15 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run('no-assert-truthiness', rule, {
   valid: [
     {
+      code: `console.assert({})`,
+    },
+    {
+      code: `setTimeout(resolve, 0)`,
+    },
+    {
+      code: `assert()`,
+    },
+    {
       code: `assert({})`,
     },
     {

@@ -39,6 +39,10 @@ ruleTester.run('gts-no-use-optionals', rule, {
       code: 'interface A { a: (b?: boolean) => void }',
     },
     {
+      // ignore this weird `Optional` with no type params, it isn't ours
+      code: 'interface A { a: Optional }',
+    },
+    {
       // ignore this weird `Optional` with two type params, it isn't ours
       code: 'interface A { a: Optional<boolean, string> }',
     },

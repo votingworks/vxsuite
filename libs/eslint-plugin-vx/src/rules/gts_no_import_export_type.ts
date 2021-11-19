@@ -57,7 +57,8 @@ export default createRule({
 
       const [def] = variable.defs;
 
-      if (def.node.parent?.type !== AST_NODE_TYPES.ImportDeclaration) {
+      assert(def.node.parent);
+      if (def.node.parent.type !== AST_NODE_TYPES.ImportDeclaration) {
         return false;
       }
 
@@ -67,10 +68,14 @@ export default createRule({
 
       const [reference] = variable.references;
 
+      // A reference to a type must have at least a grandparent node, even
+      // though a non-type reference doesn't have to.
+      assert(reference.identifier.parent && reference.identifier.parent.parent);
+
       if (
-        reference.identifier.parent?.type !==
+        reference.identifier.parent.type !==
           AST_NODE_TYPES.ExportAllDeclaration &&
-        reference.identifier.parent?.parent?.type !==
+        reference.identifier.parent.parent.type !==
           AST_NODE_TYPES.ExportNamedDeclaration
       ) {
         return false;

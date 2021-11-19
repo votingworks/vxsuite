@@ -20,9 +20,10 @@ declare function ok<T, E>(value: T): Result<T, E>
     {
       options: [{ ignoreVoid: true }],
       code: `
-interface Result {}
+interface Result<T, E> {}
 declare function ok<T, E>(value: T): Result<T, E>
 void ok()
+result = ok()
             `,
     },
   ],

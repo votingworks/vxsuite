@@ -117,5 +117,29 @@ ruleTester.run('gts-no-import-export-type', rule, {
       options: [{ allowReexport: true }],
       errors: [{ line: 5, messageId: 'noExportType' }],
     },
+    {
+      code: `
+        import type { b } from 'b';
+        let b;
+      `,
+      output: `
+        import { b } from 'b';
+        let b;
+      `,
+      options: [{ allowReexport: true }],
+      errors: [{ line: 2, messageId: 'noImportType' }],
+    },
+    {
+      code: `
+        import type { b } from 'b';
+        let a: b;
+      `,
+      output: `
+        import { b } from 'b';
+        let a: b;
+      `,
+      options: [{ allowReexport: true }],
+      errors: [{ line: 2, messageId: 'noImportType' }],
+    },
   ],
 });
