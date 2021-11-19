@@ -1,4 +1,12 @@
 import {
+  BallotIdSchema,
+  getDistrictIdsForPartyId,
+  getPartyIdsInBallotStyles,
+  safeParse,
+  safeParseElection,
+  WriteInIdSchema,
+} from '.';
+import {
   election,
   electionWithMsEitherNeither,
   primaryElection,
@@ -174,7 +182,7 @@ test('special cases party primary adjective transform "Democrat" -> "Democratic"
 });
 
 test('defaults to empty string if no party can be found', () => {
-  const ballotStyleId = '12Z';
+  const ballotStyleId = 'bogus';
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
@@ -198,6 +206,30 @@ test('getPrecinctIndexById', () => {
     getPrecinctIndexById({ election, precinctId: election.precincts[0].id })
   ).toBe(0);
   expect(getPrecinctIndexById({ election, precinctId: '' })).toBe(-1);
+});
+
+test('getDistrictIdsForPartyId', () => {
+  for (const party of electionMinimalExhaustive.parties) {
+    const ballotStylesByParty = electionMinimalExhaustive.ballotStyles.filter(
+      ({ partyId }) => party.id === partyId
+    );
+    for (const districtId of getDistrictIdsForPartyId(
+      electionMinimalExhaustive,
+      party.id
+    )) {
+      expect(
+        ballotStylesByParty.some(({ districts }) =>
+          districts.includes(districtId)
+        )
+      ).toBe(true);
+    }
+  }
+});
+
+test('getPartyIdsInBallotStyles', () => {
+  expect(getPartyIdsInBallotStyles(electionMinimalExhaustive)).toEqual(
+    electionMinimalExhaustive.parties.map(({ id }) => id)
+  );
 });
 
 test('isVotePresent', () => {
@@ -326,4 +358,36 @@ test('trying to vote in the top-level ms-either-neither contest fails', () => {
       '750000015-either-neither': ['yes'],
     });
   }).toThrowError();
+});
+
+test('write-in ID schema', () => {
+  // invalid IDs
+  safeParse(WriteInIdSchema, '').unsafeUnwrapErr();
+  safeParse(WriteInIdSchema, 'abc').unsafeUnwrapErr();
+
+  // valid IDs
+  safeParse(WriteInIdSchema, '__write-in').unsafeUnwrap();
+  safeParse(WriteInIdSchema, '__write-in-BOB').unsafeUnwrap();
+  safeParse(WriteInIdSchema, '__write-in-1-BOB').unsafeUnwrap();
+});
+
+test('ballot ID schema', () => {
+  // invalid IDs
+  safeParse(BallotIdSchema, '').unsafeUnwrapErr();
+  safeParse(BallotIdSchema, '_').unsafeUnwrapErr();
+
+  // valid IDs
+  safeParse(BallotIdSchema, 'abc').unsafeUnwrap();
+  safeParse(BallotIdSchema, 'abc-123').unsafeUnwrap();
+});
+
+test('election schema', () => {
+  safeParseElection(electionMinimalExhaustive).unsafeUnwrap();
+
+  expect(
+    safeParseElection({
+      ...electionMinimalExhaustive,
+      adjudicationReasons: [],
+    }).err()?.message
+  ).toContain('adjudicationReasons');
 });

@@ -21,7 +21,8 @@ import {
   ElectionDefinitionSchema,
   MarkThresholds,
   MarkThresholdsSchema,
-  Precinct,
+  PrecinctId,
+  PrecinctIdSchema,
 } from '../../../election';
 import { HexString, IdSchema } from '../../../generic';
 
@@ -208,7 +209,7 @@ export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigR
  * @method GET
  */
 export type GetCurrentPrecinctConfigResponse = OkResponse<{
-  precinctId?: Precinct['id'];
+  precinctId?: PrecinctId;
 }>;
 
 /**
@@ -218,7 +219,7 @@ export type GetCurrentPrecinctConfigResponse = OkResponse<{
 export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> = z.object(
   {
     status: z.literal('ok'),
-    precinctId: z.optional(IdSchema),
+    precinctId: z.optional(PrecinctIdSchema),
   }
 );
 
@@ -227,7 +228,7 @@ export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctCon
  * @method PUT
  */
 export interface PutCurrentPrecinctConfigRequest {
-  precinctId?: Precinct['id'];
+  precinctId?: PrecinctId;
 }
 
 /**
@@ -236,7 +237,7 @@ export interface PutCurrentPrecinctConfigRequest {
  */
 export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> = z.object(
   {
-    precinctId: z.optional(IdSchema),
+    precinctId: z.optional(PrecinctIdSchema),
   }
 );
 
