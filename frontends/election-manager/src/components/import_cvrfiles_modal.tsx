@@ -197,18 +197,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         (f) => f.type === 1 && f.name.endsWith('.jsonl')
       );
       setFoundFiles(newFoundFiles);
-      if (newFoundFiles.length === 0) {
-        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
-          message: 'No CVR files automatically found on USB drive',
-          disposition: 'failure',
-          result: 'User allowed to manually select files.',
-        });
-      } else {
-        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
-          message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to import.`,
-          disposition: 'success',
-        });
-      }
+      await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+        message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to import.`,
+        disposition: 'success',
+      });
       setCurrentState(ModalState.INIT);
     } catch (err) {
       if (err.message.includes('ENOENT')) {
@@ -216,8 +208,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         setFoundFiles([]);
         setCurrentState(ModalState.INIT);
         await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
-          message: 'No CVR files automatically found on usb drive',
-          disposition: 'failure',
+          message:
+            'No CVR files automatically found on usb drive. User allowed to import manually.',
+          disposition: 'success',
           result: 'User allowed to manually select files.',
         });
       } else {
@@ -356,7 +349,6 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         (a, b) =>
           b.parsedInfo.timestamp.getTime() - a.parsedInfo.timestamp.getTime()
       );
-
     // Determine if we are already locked to a filemode based on previously imported CVRs
     const fileMode = castVoteRecordFiles?.fileMode;
     const fileModeLocked = !!fileMode;
