@@ -10,6 +10,7 @@ import {
   ElectionData,
 } from '@votingworks/utils';
 import { UsbControllerButton } from '@votingworks/ui';
+import { LogEventId } from '@votingworks/logging';
 import { Prose } from './prose';
 import { Main, MainChild } from './main';
 import { MainNav } from './main_nav';
@@ -57,9 +58,11 @@ export function ElectionConfiguration({
     usbDriveStatus,
     usbDriveEject,
     lockMachine,
+    logger,
     currentUserSession,
   } = useContext(AppContext);
   assert(currentUserSession); // TODO(auth) should this assert that the user is an admin
+  const currentUserType = currentUserSession.type;
 
   async function acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
@@ -92,8 +95,17 @@ export function ElectionConfiguration({
       const files = await window.kiosk.getFileSystemEntries(
         path.join(usbPath, BALLOT_PACKAGE_FOLDER)
       );
-      setFoundFilenames(
-        files.filter((f) => f.type === 1 && f.name.endsWith('.zip'))
+      const newFoundFilenames = files.filter(
+        (f) => f.type === 1 && f.name.endsWith('.zip')
+      );
+      setFoundFilenames(newFoundFilenames);
+      await logger.log(
+        LogEventId.BallotPackageFilesReadFromUsb,
+        currentUserType,
+        {
+          disposition: 'success',
+          message: `Automatically found ${newFoundFilenames.length} ballot package files to import to machine. User prompted to select one to import.`,
+        }
       );
       setLoadingFiles(false);
     } catch (err) {
@@ -102,12 +114,36 @@ export function ElectionConfiguration({
         // as finding no matching zip files.
         setFoundFilenames([]);
         setLoadingFiles(false);
-      } else {
+        await logger.log(
+          LogEventId.BallotPackageFilesReadFromUsb,
+          currentUserType,
+          {
+            disposition: 'success',
+            message: `Automatically found 0 ballot package files to import to machine. User prompted to select file manually to import.`,
+          }
+        );
+      } else if (err instanceof Error) {
+        await logger.log(
+          LogEventId.BallotPackageFilesReadFromUsb,
+          currentUserType,
+          {
+            disposition: 'failure',
+            message: `Error searching USB for ballot packages.`,
+            error: err.message,
+            result: 'User shown error.',
+          }
+        );
         throw err;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setFoundFilenames, setLoadingFiles, usbDriveStatus]);
+  }, [
+    setFoundFilenames,
+    setLoadingFiles,
+    usbDriveStatus,
+    logger,
+    currentUserType,
+  ]);
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {

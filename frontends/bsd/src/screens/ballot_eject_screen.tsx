@@ -1,7 +1,9 @@
+import { LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
   Contest,
   MarkAdjudications,
+  PageInterpretation,
 } from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
@@ -9,7 +11,7 @@ import {
   Side,
 } from '@votingworks/types/api/services/scan';
 import { strict as assert } from 'assert';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
@@ -20,6 +22,7 @@ import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
 import { StatusFooter } from '../components/status_footer';
 import { Text } from '../components/text';
+import { AppContext } from '../contexts/app_context';
 import { WriteInAdjudicationScreen } from './write_in_adjudication_screen';
 
 const EjectReason = styled.div`
@@ -71,12 +74,24 @@ function doNothing() {
   console.log('disabled'); // eslint-disable-line no-console
 }
 
+const SHEET_ADJUDICATION_ERRORS: Array<PageInterpretation['type']> = [
+  'InvalidTestModePage',
+  'InvalidElectionHashPage',
+  'InvalidPrecinctPage',
+  'UninterpretedHmpbPage',
+  'UnreadablePage',
+  'BlankPage',
+];
+
 export function BallotEjectScreen({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element {
+  const { currentUserSession, logger } = useContext(AppContext);
   const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
+  assert(currentUserSession);
+  const currentUserType = currentUserSession.type;
 
   useEffect(() => {
     void (async () => {
@@ -112,6 +127,42 @@ export function BallotEjectScreen({
 
     const frontInterpretation = reviewInfo.interpreted.front.interpretation;
     const backInterpretation = reviewInfo.interpreted.back.interpretation;
+
+    const errorInterpretations = SHEET_ADJUDICATION_ERRORS.filter(
+      (e) => e === frontInterpretation.type || e === backInterpretation.type
+    );
+    if (errorInterpretations.length > 0) {
+      void logger.log(LogEventId.ScanAdjudicationInfo, currentUserType, {
+        message:
+          'Sheet scanned that has unresolvable errors. Sheet must be removed to continue scanning.',
+        adjudicationTypes: errorInterpretations.join(', '),
+      });
+    } else {
+      const adjudicationTypes = new Set<AdjudicationReason>();
+      if (
+        frontInterpretation.type === 'InterpretedHmpbPage' &&
+        frontInterpretation.adjudicationInfo.requiresAdjudication
+      ) {
+        for (const reason of frontInterpretation.adjudicationInfo
+          .enabledReasons) {
+          adjudicationTypes.add(reason);
+        }
+      }
+      if (
+        backInterpretation.type === 'InterpretedHmpbPage' &&
+        backInterpretation.adjudicationInfo.requiresAdjudication
+      ) {
+        for (const reason of backInterpretation.adjudicationInfo
+          .enabledReasons) {
+          adjudicationTypes.add(reason);
+        }
+      }
+      void logger.log(LogEventId.ScanAdjudicationInfo, currentUserType, {
+        message:
+          'Sheet scanned has warnings (ex: undervotes or overvotes). The user can either tabulate it as is or remove the ballot to continue scanning.',
+        adjudicationTypes: [...adjudicationTypes].join(', '),
+      });
+    }
 
     if (
       !(
@@ -170,7 +221,7 @@ export function BallotEjectScreen({
         setBackMarkAdjudications([]);
       }
     }
-  }, [reviewInfo]);
+  }, [reviewInfo, logger, currentUserType]);
 
   const onAdjudicationComplete = useCallback(
     async (
@@ -196,6 +247,10 @@ export function BallotEjectScreen({
         !!backMarkAdjudications ||
         !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
       if (frontAdjudicationComplete && backAdjudicationComplete) {
+        await logger.log(LogEventId.ScanAdjudicationInfo, currentUserType, {
+          message:
+            'Sheet does not actually require adjudication, system will automatically accept and continue scanning.',
+        });
         await continueScanning({
           forceAccept: true,
           frontMarkAdjudications: frontMarkAdjudications ?? [],
@@ -209,6 +264,8 @@ export function BallotEjectScreen({
     frontMarkAdjudications,
     reviewInfo?.interpreted.back.adjudicationFinishedAt,
     reviewInfo?.interpreted.front.adjudicationFinishedAt,
+    logger,
+    currentUserType,
   ]);
 
   if (!reviewInfo) {

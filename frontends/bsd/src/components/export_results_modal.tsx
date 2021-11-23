@@ -12,6 +12,7 @@ import {
 } from '@votingworks/utils';
 import { UsbControllerButton } from '@votingworks/ui';
 import { strict as assert } from 'assert';
+import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
 import { Button } from './button';
@@ -57,13 +58,16 @@ export function ExportResultsModal({
     usbDriveEject,
     usbDriveStatus,
     currentUserSession,
+    logger,
   } = useContext(AppContext);
   assert(currentUserSession); // TODO(auth) should this check that the current user is an admin
+  const currentUserType = currentUserSession.type;
 
   async function exportResults(openDialog: boolean) {
     setCurrentState(ModalState.SAVING);
 
     try {
+      await logger.log(LogEventId.ExportCvrInit, currentUserType);
       const response = await fetch(`/scan/export`, {
         method: 'post',
       });
@@ -75,6 +79,13 @@ export function ExportResultsModal({
           `Failed to save results. Error retrieving CVRs from the scanner.`
         );
         setCurrentState(ModalState.ERROR);
+        await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
+          message:
+            'Error exporting CVR file, could not retrieve CVRs from the scanner.',
+          error: 'Error retrieving CVRs from the scanner.',
+          result: 'User shown error, CVR file not exported.',
+          disposition: 'failure',
+        });
         return;
       }
 
@@ -120,6 +131,11 @@ export function ExportResultsModal({
           await window.kiosk.writeFile(pathToFile, await blob.text());
         }
         setCurrentState(ModalState.DONE);
+        await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
+          message: `Successfully exported CVR file with ${numberOfBallots} ballots.`,
+          disposition: 'success',
+          numberOfBallots,
+        });
       } else {
         fileDownload(blob, cvrFilename, 'application/x-jsonlines');
         setCurrentState(ModalState.DONE);
@@ -127,6 +143,12 @@ export function ExportResultsModal({
     } catch (error) {
       setErrorMessage(`Failed to save results. ${error.message}`);
       setCurrentState(ModalState.ERROR);
+      await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
+        message: 'Error exporting CVR file.',
+        error: error.message,
+        result: 'User shown error, CVR file not exported.',
+        disposition: 'failure',
+      });
     }
   }
 
