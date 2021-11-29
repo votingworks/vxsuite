@@ -435,10 +435,10 @@ exports[`renders StartPage 1`] = `
         <hr />
         <p>
           <span>
-            Your ballot has 
+            Your ballot has
+             
             <strong>
-              22
-               contests
+              22 contests
             </strong>
             .
           </span>
@@ -1030,10 +1030,10 @@ exports[`renders StartPage with inline SVG 1`] = `
         <hr />
         <p>
           <span>
-            Your ballot has 
+            Your ballot has
+             
             <strong>
-              22
-               contests
+              22 contests
             </strong>
             .
           </span>
@@ -1783,10 +1783,10 @@ exports[`renders StartPage with no seal 1`] = `
         <hr />
         <p>
           <span>
-            Your ballot has 
+            Your ballot has
+             
             <strong>
-              22
-               contests
+              22 contests
             </strong>
             .
           </span>
