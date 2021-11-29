@@ -35,7 +35,6 @@
   },
   "dependencies": {
     "@testing-library/react": "^11.2.6",
-    "@types/jest": "^26.0.21",
     "@types/node": "^14.14.35",
     "@votingworks/types": "workspace:*",
     "fast-check": "^2.18.0",
@@ -44,6 +43,7 @@
     "zip-stream": "^4.1.0"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^1.26.5",
     "@types/react": "^17.0.4",
@@ -57,14 +57,14 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.2.0",
-    "jest": "26",
+    "jest": "^27.3.1",
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "26",
+    "ts-jest": "^27.0.7",
     "typescript": "^4.3.5"
   }
 }

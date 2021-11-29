@@ -60,7 +60,7 @@
     "@testing-library/user-event": "^13.2.1",
     "@types/debug": "^4.1.7",
     "@types/deep-eql": "workspace:*",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^1.26.5",
     "@types/node": "^15.0.0",
