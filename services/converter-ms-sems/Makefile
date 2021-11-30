@@ -1,5 +1,6 @@
 
 install-python:
+	sudo add-apt-repository -y ppa:deadsnakes/ppa
 	sudo apt install -y python3.7 python3.7-dev python3-pip
 
 install: install-python
