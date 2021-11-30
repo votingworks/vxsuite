@@ -209,7 +209,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         setCurrentState(ModalState.INIT);
         await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
           message:
-            'No CVR files automatically found on usb drive. User allowed to import manually.',
+            'No CVR files automatically found on USB drive. User allowed to import manually.',
           disposition: 'success',
           result: 'User allowed to manually select files.',
         });
