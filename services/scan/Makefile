@@ -1,5 +1,5 @@
 NODE_ENV ?= development
-PLATFORM := $(shell uname)
+OS := $(shell lsb_release -cs)
 TIMESTAMP := $(shell date --iso-8601=seconds --utc | sed 's/+.*$\//g' | tr ':' '-')
 
 # a phony dependency that can be used as a dependency to force builds
@@ -8,7 +8,12 @@ FORCE:
 install:
 	sudo add-apt-repository -y ppa:sane-project/sane-release
 	sudo apt-get -y update
-	sudo apt install -y libsane build-essential libx11-dev libjpeg-dev libpng-dev
+ifeq ($(OS),bionic)
+	sudo apt-get install -y libsane build-essential libx11-dev libjpeg-dev libpng-dev
+endif
+ifeq ($(OS),focal)
+	sudo apt install -y libsane build-essential libpixman-1-dev libcairo2-dev libpango1.0-dev libjpeg8-dev libgif-dev
+endif
 
 build: FORCE
 	pnpm install && pnpm build
