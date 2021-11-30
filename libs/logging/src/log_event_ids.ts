@@ -87,6 +87,7 @@ export enum LogEventId {
   ScanBatchContinue = 'scan-batch-continue',
   ScanAdjudicationInfo = 'scan-adjudication-info',
   ScannerConfigReloaded = 'scanner-config-reloaded',
+  ExportLogFileFound = 'export-log-file-found',
 }
 
 export interface LogDetails {
@@ -548,6 +549,13 @@ const ScannerConfigReloaded: LogDetails = {
     'Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.',
 };
 
+const ExportLogFileFound: LogDetails = {
+  eventId: LogEventId.ExportLogFileFound,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'When the user is exporting logs, indicates the success/failure of finding the expected log file on the machine.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -686,6 +694,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScanAdjudicationInfo;
     case LogEventId.ScannerConfigReloaded:
       return ScannerConfigReloaded;
+    case LogEventId.ExportLogFileFound:
+      return ExportLogFileFound;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

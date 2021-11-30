@@ -66,6 +66,12 @@ exports[`printing ballots, print report, and test decks 1`] = `
           class="sc-gsDJrp gwgkfw"
           type="button"
         >
+          Export Logs
+        </button>
+        <button
+          class="sc-gsDJrp gwgkfw"
+          type="button"
+        >
           Lock Machine
         </button>
         <button
@@ -83,7 +89,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-dlfnbm kzZCED"
       >
         <div
-          class="sc-hBEYos eoEHwy"
+          class="sc-fFubgz HfZVK"
         >
           <h1>
             Test Deck
@@ -260,6 +266,12 @@ exports[`printing ballots, print report, and test decks 2`] = `
           class="sc-gsDJrp gwgkfw"
           type="button"
         >
+          Export Logs
+        </button>
+        <button
+          class="sc-gsDJrp gwgkfw"
+          type="button"
+        >
           Lock Machine
         </button>
         <button
@@ -284,7 +296,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           Mock General Election Choctaw 2020
         </div>
         <div
-          class="sc-hBEYos eoEHwy"
+          class="sc-fFubgz HfZVK"
         >
           <h1
             class="sc-dJjZJu boqHgo"
@@ -386,7 +398,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
          Mock General Election Choctaw 2020
       </div>
       <div
-        class="sc-hBEYos eWOkWl"
+        class="sc-fFubgz cZzkcJ"
       >
         <h1
           class="sc-dJjZJu boqHgo"
@@ -1525,7 +1537,7 @@ exports[`tabulating CVRs 1`] = `
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-hBEYos eWOkWl"
+    class="sc-fFubgz cZzkcJ"
   >
     <h1>
       Official
@@ -2716,7 +2728,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-hBEYos eWOkWl"
+    class="sc-fFubgz cZzkcJ"
   >
     <h1>
       Unofficial
