@@ -101,7 +101,7 @@ describe('Screens display properly when USB is mounted', () => {
     expect(logSpy).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
-      expect.objectContaining({ disposition: 'failure' })
+      expect.objectContaining({ disposition: 'success' })
     );
   });
 
