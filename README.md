@@ -8,17 +8,18 @@ Includes software for a [ballot-marking device (BMD)](./frontends/bmd), a
 [ballot activation system (BAS)](./frontends/bas), a
 [ballot scanning device (BSD)](./frontends/bsd), a
 [precinct scanner](./frontends/precinct-scanner), and an
-[election manager](./frontends/election-manager). See https://voting.works for more
-information about VotingWorks.
+[election manager](./frontends/election-manager). See https://voting.works for
+more information about VotingWorks.
 
 ## Development
 
 Building VxSuite for development requires git, [NodeJS](https://nodejs.org/)
-v12.19.0 and [pnpm](https://pnpm.js.org).
+v12.19.0 and [pnpm](https://pnpm.js.org) v5.
 
 Most of the code is written in TypeScript. We follow the
-[Airbnb JavaScript Style Guide](https://airbnb.io/javascript/), with most of it
-enforced by ESLint rules.
+[Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
+and parts of [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/),
+with most of it enforced by ESLint rules.
 
 By default developing a React app will show ESLint errors while developing. To
 disable this feature, run with this environment variable:
@@ -27,30 +28,37 @@ consider setting that in your shell configuration (e.g. `.bashrc`).
 
 ### Ubuntu Quickstart
 
-This expects Ubuntu 18.0.4, though it may work on other versions. This installs
+This expects Ubuntu 18.04, though it may work on other versions. This installs
 the right version of NodeJS manually. You can use a tool like
 [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh) to do this in
 a nicer way.
 
 ```sh
+# install some prerequisites:
+sudo apt update
+sudo apt install -y git curl
+
 # change this to wherever you want:
 NODE_ROOT="${HOME}/usr/local/nodejs"
 
+# support x86 or ARM (e.g. Apple Silicon):
+ARCH=$(uname -m | sed 's/x86_/x/' | sed 's/aarch/arm/')
+
 # download and install:
 mkdir -p "$NODE_ROOT"
-curl -sLo- https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-x64.tar.gz | \
+curl -sLo- "https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-${ARCH}.tar.gz" | \
     tar xz --strip-components 1 -C "${NODE_ROOT}"
 
 # configure your shell; this assumes bash:
 echo "export PATH=\$PATH:${NODE_ROOT}/bin" >> ~/.bashrc
-export PATH="${PATH}:${NODE_ROOT}"
+export PATH="${PATH}:${NODE_ROOT}/bin"
 node -v # should print "v12.19.0"
 
 # install pnpm:
 npm i -g pnpm@5
+pnpm -v # should print "v5.x.x"
 
 # clone the repository:
-sudo apt install git -y # in case you don't have git
 mkdir -p ~/src && cd ~/src
 git clone https://github.com/votingworks/vxsuite.git
 
@@ -60,7 +68,10 @@ cd vxsuite
 
 # try out BMD:
 make -C services/smartcards build run &
+# ^ wait for this to settle, then…
 cd frontends/bmd
+pnpm build:watch &
+# ^ wait for this to settle, then…
 pnpm start
 # if it worked, go to http://localhost:3000/
 ```
@@ -214,27 +225,27 @@ help you contribute.
 describes an object's structure:
 
 ```ts
-import { z } from 'zod'
+import { z } from 'zod';
 
 const Point2dSchema = z.object({
   x: z.number(),
   y: z.number(),
-})
+});
 ```
 
 Schemas can be used to parse incoming JSON data using a helper from
 `@votingworks/types`:
 
 ```ts
-import { safeParseJSON } from '@votingworks/types'
+import { safeParseJSON } from '@votingworks/types';
 
-const parsed = safeParseJSON(input, Point2dSchema)
+const parsed = safeParseJSON(input, Point2dSchema);
 
 if (parsed.isOk()) {
-  console.log('Got point:', parsed.ok())
+  console.log('Got point:', parsed.ok());
 } else {
-  console.error('Invalid point:', input)
-  console.error('Error:', parsed.err())
+  console.error('Invalid point:', input);
+  console.error('Error:', parsed.err());
 }
 ```
 
@@ -246,17 +257,17 @@ The type of `parsed.ok()` in the example above will be
 this instead to get a more descriptive name:
 
 ```ts
-import { z, ZodSchema } from 'zod'
+import { z, ZodSchema } from 'zod';
 
 interface Point2d {
-  readonly x: number
-  readonly y: number
+  readonly x: number;
+  readonly y: number;
 }
 
 const Point2dSchema: ZodSchema<Point2d> = z.object({
   x: z.number(),
   y: z.number(),
-})
+});
 ```
 
 Now `parsed.ok()` will have type `Point2d`, which is functionally equivalent but
@@ -271,8 +282,8 @@ If you don't need to be able to assign to a property, make it `readonly`.
 
 ```ts
 interface Point2d {
-  readonly x: number
-  readonly y: number
+  readonly x: number;
+  readonly y: number;
 }
 ```
 
@@ -289,10 +300,10 @@ Rather than assigning to an object property, consider building a new object:
 
 ```ts
 // NOT PREFERRED: toggle test mode by mutating `settings`
-settings.testMode = !settings.testMode
+settings.testMode = !settings.testMode;
 
 // PREFERRED: toggle test mode by creating a new object
-settings = { ...settings, testMode: !settings.testMode }
+settings = { ...settings, testMode: !settings.testMode };
 ```
 
 ### Avoid exceptions when possible
@@ -306,7 +317,7 @@ it would not be in a `catch` clause. Here's how to make your own fail-able
 function:
 
 ```ts
-import { err, ok, Result } from '@votingworks/types'
+import { err, ok, Result } from '@votingworks/types';
 
 class DivideByZeroError extends Error {}
 
@@ -315,21 +326,21 @@ function div(
   denominator: number
 ): Result<number, DivideByZeroError> {
   if (denominator === 0) {
-    return err(new DivideByZeroError())
+    return err(new DivideByZeroError());
   }
 
-  return ok(numerator / denominator)
+  return ok(numerator / denominator);
 }
 
-const result = div(a, b)
+const result = div(a, b);
 if (result.isErr()) {
   if (result.err() instanceof DivideByZeroError) {
-    console.error('cannot divide by zero!')
+    console.error('cannot divide by zero!');
   } else {
-    console.error('div failed:', a, '/', b, result.err())
+    console.error('div failed:', a, '/', b, result.err());
   }
 } else {
-  console.log('div result:', a, '/', b, '=', result.ok())
+  console.log('div result:', a, '/', b, '=', result.ok());
 }
 ```
 
@@ -383,8 +394,8 @@ You may want to enable logging even after starting a `test:watch` session. To
 log in a single test file, add this above all the other code in the file:
 
 ```ts
-import { enable } from 'debug'
-enable('math:*') // or whatever globs you want
+import { enable } from 'debug';
+enable('math:*'); // or whatever globs you want
 ```
 
 ## License
