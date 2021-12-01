@@ -144,7 +144,7 @@
   },
   "vx": {
     "isBundled": true,
-    "modules": [
+    "services": [
       "../../services/scan",
       "../../services/smartcards"
     ]

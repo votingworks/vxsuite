@@ -105,8 +105,8 @@
   },
   "vx": {
     "isBundled": true,
-    "modules": [
-      "../module-smartcards"
+    "services": [
+      "../../services/smartcards"
     ]
   }
 }
