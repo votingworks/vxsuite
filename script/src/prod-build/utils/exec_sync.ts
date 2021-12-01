@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process'
+import { spawnSync } from 'child_process';
 
 export function execSync(
   command: string,
@@ -9,7 +9,7 @@ export function execSync(
     cwd,
     stdio: 'inherit',
     encoding: 'utf-8',
-  })
+  });
   if (result.status !== 0) {
     throw (
       result.error ||
@@ -17,6 +17,6 @@ export function execSync(
       new Error(
         `${command} ${args.join(' ')} failed with exit code ${result.status}`
       )
-    )
+    );
   }
 }
