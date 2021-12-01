@@ -14,14 +14,16 @@ import {
   FujitsuFi7160ScannerProductId,
 } from './utils';
 
+const DEFAULT_BATTERY_STATUS: KioskBrowser.BatteryInfo = {
+  discharging: false,
+  level: 0.8,
+};
+
 /**
  * Implements the `Hardware` API with an in-memory implementation.
  */
 export class MemoryHardware implements Hardware {
-  private batteryStatus: KioskBrowser.BatteryInfo = {
-    discharging: false,
-    level: 0.8,
-  };
+  private batteryStatus? = DEFAULT_BATTERY_STATUS;
 
   private connectedDevices = new Set<KioskBrowser.Device>();
 
@@ -121,7 +123,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Reads Battery status
    */
-  async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
+  async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo | undefined> {
     return this.batteryStatus;
   }
 
@@ -130,7 +132,7 @@ export class MemoryHardware implements Hardware {
    */
   async setBatteryDischarging(discharging: boolean): Promise<void> {
     this.batteryStatus = {
-      ...this.batteryStatus,
+      ...(this.batteryStatus ?? DEFAULT_BATTERY_STATUS),
       discharging,
     };
   }
@@ -140,9 +142,16 @@ export class MemoryHardware implements Hardware {
    */
   async setBatteryLevel(level: number): Promise<void> {
     this.batteryStatus = {
-      ...this.batteryStatus,
+      ...(this.batteryStatus ?? DEFAULT_BATTERY_STATUS),
       level,
     };
+  }
+
+  /**
+   * Removes the battery from the device.
+   */
+  async removeBattery(): Promise<void> {
+    this.batteryStatus = undefined;
   }
 
   /**

@@ -176,7 +176,7 @@ export interface Hardware {
   /**
    * Reads Battery status
    */
-  readBatteryStatus(): Promise<KioskBrowser.BatteryInfo>;
+  readBatteryStatus(): Promise<KioskBrowser.BatteryInfo | undefined>;
 
   /**
    * Reads Printer status

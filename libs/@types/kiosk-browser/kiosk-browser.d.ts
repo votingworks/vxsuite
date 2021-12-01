@@ -136,7 +136,7 @@ declare namespace KioskBrowser {
     printToPDF(): Promise<Uint8Array>;
     log(message: string): Promise<void>;
 
-    getBatteryInfo(): Promise<BatteryInfo>;
+    getBatteryInfo(): Promise<BatteryInfo | undefined>;
     devices: import('rxjs').Observable<Iterable<Device>>;
     printers: import('rxjs').Observable<Iterable<PrinterInfo>>;
     quit(): void;

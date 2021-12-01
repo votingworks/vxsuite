@@ -12,7 +12,7 @@ export class KioskHardware extends MemoryHardware {
   /**
    * Reads Battery status
    */
-  async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo> {
+  async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo | undefined> {
     return this.kiosk.getBatteryInfo();
   }
 
