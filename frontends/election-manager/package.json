@@ -167,9 +167,9 @@
   },
   "vx": {
     "isBundled": true,
-    "modules": [
-      "../module-converter-ms-sems",
-      "../module-smartcards"
+    "services": [
+      "../../services/converter-ms-sems",
+      "../../services/smartcards"
     ]
   }
 }
