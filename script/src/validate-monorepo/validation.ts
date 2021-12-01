@@ -38,7 +38,7 @@ export interface TsconfigMissingReferenceIssue {
 
 export type ValidationIssue =
   | TsconfigInvalidPropertyValueIssue
-  | TsconfigMissingReferenceIssue
+  | TsconfigMissingReferenceIssue;
 
 export async function maybeReadTsconfig(
   filepath: string

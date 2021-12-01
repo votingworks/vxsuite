@@ -1,36 +1,37 @@
-import resolveFrom from 'resolve-from'
-import { WORKSPACE_ROOT } from './globals'
-import { maybeRequire } from './utils/maybe_require'
-import { relativePath } from './utils/relative_path'
-import { dirname, normalize, join } from 'path'
+import resolveFrom from 'resolve-from';
+import { WORKSPACE_ROOT } from './globals';
+import { maybeRequire } from './utils/maybe_require';
+import { relativePath } from './utils/relative_path';
+import { dirname, normalize, join } from 'path';
 
 export enum PackageType {
+  Frontend = 'frontend',
   Service = 'service',
   Library = 'lib',
 }
 
 export interface Package {
-  readonly name: string
-  readonly path: string
-  readonly type: PackageType
-  readonly isBundled: boolean
-  readonly deps: readonly Package[]
-  readonly devDeps: readonly Package[]
+  readonly name: string;
+  readonly path: string;
+  readonly type: PackageType;
+  readonly isBundled: boolean;
+  readonly deps: readonly Package[];
+  readonly devDeps: readonly Package[];
 }
 
 export function getDependencyGraph(path: string, type: PackageType): Package {
-  const lookup = new Map<string, Package>()
+  const lookup = new Map<string, Package>();
 
   function addDependency(path: string, type: PackageType): Package {
     if (lookup.has(path)) {
-      return lookup.get(path)!
+      return lookup.get(path)!;
     }
 
-    const pkg = maybeRequire(`${path}/package`)
-    const name = pkg?.name ?? relativePath(path, { from: WORKSPACE_ROOT })
-    const deps: Package[] = []
-    const devDeps: Package[] = []
-    const isBundled = pkg?.vx?.isBundled ?? false
+    const pkg = maybeRequire(`${path}/package`);
+    const name = pkg?.name ?? relativePath(path, { from: WORKSPACE_ROOT });
+    const deps: Package[] = [];
+    const devDeps: Package[] = [];
+    const isBundled = pkg?.vx?.isBundled ?? false;
     const graph: Package = {
       name,
       path,
@@ -38,9 +39,9 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
       isBundled,
       deps,
       devDeps,
-    }
+    };
 
-    lookup.set(path, graph)
+    lookup.set(path, graph);
 
     if (pkg) {
       for (const { from, to } of [
@@ -49,68 +50,70 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
       ]) {
         for (const name in from) {
           if (from[name].startsWith('workspace:')) {
-            const depPkgFile = resolveFrom(path, `${name}/package`)
-            const depPkgRoot = dirname(depPkgFile)
-            to.push(addDependency(depPkgRoot, PackageType.Library))
+            const depPkgFile = resolveFrom(path, `${name}/package`);
+            const depPkgRoot = dirname(depPkgFile);
+            to.push(addDependency(depPkgRoot, PackageType.Library));
           }
         }
       }
 
       if (pkg.vx?.services) {
         for (const mod of pkg.vx.services) {
-          deps.push(addDependency(normalize(join(path, mod)), PackageType.Service))
+          deps.push(
+            addDependency(normalize(join(path, mod)), PackageType.Service)
+          );
         }
       }
     }
 
-    return graph
+    return graph;
   }
 
-  return addDependency(path, type)
+  return addDependency(path, type);
 }
 
 export function getPackages(root: Package): Set<Package> {
-  const packages = new Set<Package>()
+  const packages = new Set<Package>();
 
   function visit(node: Package): void {
     if (packages.has(node)) {
-      return
+      return;
     }
-    packages.add(node)
+    packages.add(node);
 
     for (const dep of node.deps) {
-      visit(dep)
+      visit(dep);
     }
 
     for (const dep of node.devDeps) {
-      visit(dep)
+      visit(dep);
     }
   }
 
-  visit(root)
+  visit(root);
 
-  return packages
+  return packages;
 }
 
 export function getProductionPackages(root: Package): Set<Package> {
-  const visited = new Set<Package>()
-  const packages = new Set<Package>()
+  const visited = new Set<Package>();
+  const packages = new Set<Package>();
 
   function visit(node: Package) {
     if (visited.has(node)) {
-      return
+      return;
     }
-    visited.add(node)
-    packages.add(node)
+    visited.add(node);
+    packages.add(node);
 
     for (const dep of node.deps) {
-      if (!node.isBundled || dep.type === PackageType.App) {
-        visit(dep)
+      if (!node.isBundled || dep.type === PackageType.Service) {
+        visit(dep);
       }
     }
   }
 
-  visit(root)
+  visit(root);
 
-  return packages
+  return packages;
 }
