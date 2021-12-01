@@ -5,6 +5,7 @@ importers:
       husky: 7.0.0
       lint-staged: 11.0.0
       ora: 5.2.0
+      pnpm: 5.18.10
       prettier: 2.3.2
       sort-package-json: 1.50.0
     specifiers:
@@ -12,6 +13,7 @@ importers:
       husky: ^7.0.0
       lint-staged: ^11.0.0
       ora: ^5.2.0
+      pnpm: ^5.18.10
       prettier: ^2.3.2
       sort-package-json: ^1.50.0
   codemods:
@@ -20368,6 +20370,13 @@ packages:
       typescript: '*'
     resolution:
       integrity: sha512-7Wjy+9E3WwLOEL30D+m8TSTF7qJJUJLONBnwQp0518siuMxUQUbgZwssaFX+QKlZkjHZcw/IpZCt/H0srrntSg==
+  /pnpm/5.18.10:
+    dev: true
+    engines:
+      node: '>=10.16'
+    hasBin: true
+    resolution:
+      integrity: sha512-M3oH42XqtUZv0Hnfp4A1klTFQT3/9ghBkDrPHh0GTd9nP39I14/GDjN+BiHx95hH60CigOip+oK/h389GhizeQ==
   /portfinder/1.0.28:
     dependencies:
       async: 2.6.3
