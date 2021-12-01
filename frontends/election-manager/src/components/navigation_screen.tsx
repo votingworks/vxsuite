@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { Button, UsbControllerButton } from '@votingworks/ui';
@@ -10,6 +10,7 @@ import { Main, MainChild } from './main';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
 import { StatusFooter } from './status_footer';
+import { ExportLogsModal } from './export_logs_modal';
 
 interface Props {
   children: React.ReactNode;
@@ -37,6 +38,7 @@ export function NavigationScreen({
     machineConfig,
     currentUserSession,
   } = useContext(AppContext);
+  const [isExportingLogs, setIsExportingLogs] = useState(false);
   const election = electionDefinition?.election;
   const currentUser = currentUserSession?.type ?? 'unknown';
 
@@ -76,6 +78,9 @@ export function NavigationScreen({
         }
         secondaryNav={
           <React.Fragment>
+            <Button small onPress={() => setIsExportingLogs(true)}>
+              Export Logs
+            </Button>
             {!machineConfig.bypassAuthentication && (
               <Button small onPress={lockMachine}>
                 Lock Machine
@@ -94,6 +99,9 @@ export function NavigationScreen({
         </MainChild>
       </Main>
       <StatusFooter />
+      {isExportingLogs && (
+        <ExportLogsModal onClose={() => setIsExportingLogs(false)} />
+      )}
     </Screen>
   );
 }
