@@ -1026,18 +1026,28 @@ export function AppRoot({
   const hardwareStatusInterval = useInterval(
     async () => {
       const battery = await hardware.readBatteryStatus();
-      const newHasLowBattery = battery.level < GLOBALS.LOW_BATTERY_THRESHOLD;
-      const hasHardwareStateChanged =
-        hasChargerAttached !== !battery.discharging ||
-        hasLowBattery !== newHasLowBattery;
-      if (hasHardwareStateChanged) {
+      if (!battery) {
         dispatchAppState({
           type: 'updateHardwareState',
           hardwareState: {
-            hasChargerAttached: !battery.discharging,
-            hasLowBattery: newHasLowBattery,
+            hasChargerAttached: true,
+            hasLowBattery: false,
           },
         });
+      } else {
+        const newHasLowBattery = battery.level < GLOBALS.LOW_BATTERY_THRESHOLD;
+        const hasHardwareStateChanged =
+          hasChargerAttached !== !battery.discharging ||
+          hasLowBattery !== newHasLowBattery;
+        if (hasHardwareStateChanged) {
+          dispatchAppState({
+            type: 'updateHardwareState',
+            hardwareState: {
+              hasChargerAttached: !battery.discharging,
+              hasLowBattery: newHasLowBattery,
+            },
+          });
+        }
       }
     },
     GLOBALS.HARDWARE_POLLING_INTERVAL,

@@ -180,4 +180,20 @@ it('can set and read battery level', async () => {
     discharging: true,
     level: 0.25,
   });
+
+  await hardware.removeBattery();
+  expect(await hardware.readBatteryStatus()).toBeUndefined();
+  await hardware.setBatteryLevel(0.25);
+  expect(await hardware.readBatteryStatus()).toEqual({
+    discharging: false,
+    level: 0.25,
+  });
+
+  await hardware.removeBattery();
+  expect(await hardware.readBatteryStatus()).toBeUndefined();
+  await hardware.setBatteryDischarging(true);
+  expect(await hardware.readBatteryStatus()).toEqual({
+    discharging: true,
+    level: 0.8,
+  });
 });

@@ -288,5 +288,20 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
+
+    // Unplug charger and show warning again
+    await act(async () => {
+      await hardware.setBatteryDischarging(true);
+    });
+    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    getByTextWithMarkup(lowBatteryErrorScreenText);
+
+    // Remove battery, i.e. we're on a desktop
+    await act(async () => {
+      await hardware.removeBattery();
+    });
+    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
+    screen.getByText(insertCardScreenText);
   });
 });
