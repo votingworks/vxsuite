@@ -134,19 +134,33 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const { adjudication } = status;
 
   const [isScanning, setIsScanning] = useState(false);
+  const [
+    currentScanningBatchId,
+    setCurrentScanningBatchId,
+  ] = useState<string>();
+  const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
+  const currentUserType = currentUserSession?.type ?? 'unknown';
 
   const refreshConfig = useCallback(async () => {
     setElectionDefinition(await config.getElectionDefinition());
     setTestMode(await config.getTestMode());
     setMarkThresholds(await config.getMarkThresholdOverrides());
-  }, []);
+    await logger.log(LogEventId.ScannerConfigReloaded, currentUserType, {
+      message:
+        'Loaded election, test mode, and mark threshold information from the scanner service.',
+      disposition: 'success',
+    });
+  }, [logger, currentUserType]);
 
-  async function updateElectionDefinition(e?: ElectionDefinition) {
+  async function updateElectionDefinition(e: ElectionDefinition) {
     setElectionDefinition(e);
+    void logger.log(LogEventId.ElectionConfigured, currentUserType, {
+      message: `Machine configured for election with hash: ${e.electionHash}`,
+      disposition: 'success',
+      electionHash: e.electionHash,
+    });
     setElectionJustLoaded(true);
   }
-
-  const currentUserType = currentUserSession?.type ?? 'unknown';
 
   useEffect(() => {
     async function initialize() {
@@ -176,6 +190,58 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     void initialize();
   }, [setMachineConfig]);
 
+  useEffect(() => {
+    if (!currentScanningBatchId) {
+      return;
+    }
+    const currentBatch = status.batches.find(
+      (b) => b.id === currentScanningBatchId
+    );
+    if (!currentBatch) {
+      return;
+    }
+    if (currentBatch.count > lastScannedSheetIdx) {
+      if (status.adjudication.remaining > 0) {
+        // Scanning a sheet failed and needs adjudication.
+        void logger.log(LogEventId.ScanSheetComplete, currentUserType, {
+          disposition: 'failure',
+          message: 'Sheet rejected while scanning.',
+          result:
+            'Sheet not tabulated, user asked to intervene in order to proceed.',
+          batchId: currentScanningBatchId,
+          sheetCount: currentBatch.count,
+        });
+        return;
+      }
+      setLastScannedSheetIdx(currentBatch.count);
+      void logger.log(LogEventId.ScanSheetComplete, currentUserType, {
+        disposition: 'success',
+        message: `Sheet number ${currentBatch.count} in batch ${currentScanningBatchId} scanned successfully`,
+        batchId: currentScanningBatchId,
+        sheetCount: currentBatch.count,
+      });
+    }
+
+    if (currentBatch.endedAt !== undefined) {
+      void logger.log(LogEventId.ScanBatchComplete, currentUserType, {
+        disposition: 'success',
+        message: `Scanning batch ${currentScanningBatchId} successfully completed scanning ${currentBatch.count} sheets.`,
+        batchId: currentScanningBatchId,
+        sheetCount: currentBatch.count,
+        scanningEndedAt: currentBatch.endedAt,
+      });
+      setLastScannedSheetIdx(0);
+      setCurrentScanningBatchId(undefined);
+    }
+  }, [
+    status.batches,
+    status.adjudication,
+    currentScanningBatchId,
+    logger,
+    currentUserType,
+    lastScannedSheetIdx,
+  ]);
+
   const updateStatus = useCallback(async () => {
     try {
       const body = await (await fetch('/scan/status')).text();
@@ -187,9 +253,12 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
           return prevStatus;
         }
+        const currentScanningBatch = newStatus.batches.find(
+          ({ endedAt }) => !endedAt
+        );
         setIsScanning(
           newStatus.adjudication.remaining === 0 &&
-            newStatus.batches.some(({ endedAt }) => !endedAt)
+            currentScanningBatch !== undefined
         );
         return newStatus;
       });
@@ -233,32 +302,76 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${JSON.stringify(result.errors)}`);
+        await logger.log(LogEventId.ScanBatchInit, currentUserType, {
+          disposition: 'failure',
+          message: 'Failed to start scanning a new batch.',
+          error: JSON.stringify(result.errors),
+          result: 'Scanning not begun.',
+        });
         setIsScanning(false);
+      } else {
+        setCurrentScanningBatchId(result.batchId);
+        await logger.log(LogEventId.ScanBatchInit, currentUserType, {
+          disposition: 'success',
+          message: `User has begun scanning a new batch with ID: ${result.batchId}`,
+          batchId: result.batchId,
+        });
       }
     } catch (error) {
       console.log('failed handleFileInput()', error); // eslint-disable-line no-console
+      await logger.log(LogEventId.ScanBatchInit, currentUserType, {
+        disposition: 'failure',
+        message: 'Failed to start scanning a new batch.',
+        error: error.message,
+        result: 'Scanning not begun.',
+      });
     }
-  }, []);
+  }, [logger, currentUserType]);
 
-  const continueScanning = useCallback(async (request: ScanContinueRequest) => {
-    setIsScanning(true);
-    try {
-      safeParseJson(
-        await (
-          await fetch('/scan/scanContinue', {
-            method: 'post',
-            body: JSON.stringify(request),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-        ).text(),
-        ScanContinueResponseSchema
-      ).unsafeUnwrap();
-    } catch (error) {
-      console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-    }
-  }, []);
+  const continueScanning = useCallback(
+    async (request: ScanContinueRequest) => {
+      setIsScanning(true);
+      try {
+        const result = safeParseJson(
+          await (
+            await fetch('/scan/scanContinue', {
+              method: 'post',
+              body: JSON.stringify(request),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+          ).text(),
+          ScanContinueResponseSchema
+        ).unsafeUnwrap();
+        if (result.status === 'ok') {
+          await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
+            disposition: 'success',
+            message: request.forceAccept
+              ? 'Sheet tabulated with warnings and scanning of batch continued.'
+              : 'User indicated removing the sheet from tabulation and scanning continued without sheet.',
+            sheetRemoved: !request.forceAccept,
+          });
+        } else {
+          await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
+            disposition: 'failure',
+            message: 'Request to continue scanning failed.',
+            error: JSON.stringify(result.errors),
+            result: 'Scanning not continued, user asked to try again.',
+          });
+        }
+      } catch (error) {
+        console.log('failed handleFileInput()', error); // eslint-disable-line no-console
+        await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
+          disposition: 'failure',
+          message: 'Request to continue scanning failed.',
+          error: error.message,
+          result: 'Scanning not continued, user asked to try again.',
+        });
+      }
+    },
+    [logger, currentUserType]
+  );
 
   const zeroData = useCallback(async () => {
     try {
@@ -329,11 +442,37 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     [history, refreshConfig]
   );
 
-  const deleteBatch = useCallback(async (id: string) => {
-    await fetch(`/scan/batch/${id}`, {
-      method: 'DELETE',
-    });
-  }, []);
+  const deleteBatch = useCallback(
+    async (id: string) => {
+      try {
+        const batch = status.batches.find((b) => b.id === id);
+        const numberOfBallotsInBatch = batch?.count ?? 0;
+        await logger.log(LogEventId.DeleteScanBatchInit, currentUserType, {
+          message: `User deleting batch id ${id}...`,
+          numberOfBallotsInBatch,
+          batchId: id,
+        });
+        await fetch(`/scan/batch/${id}`, {
+          method: 'DELETE',
+        });
+        await logger.log(LogEventId.DeleteScanBatchComplete, currentUserType, {
+          disposition: 'success',
+          message: `User successfully deleted batch id: ${id} containing ${numberOfBallotsInBatch} ballots.`,
+          numberOfBallotsInBatch,
+          batchId: id,
+        });
+      } catch (error) {
+        await logger.log(LogEventId.DeleteScanBatchComplete, currentUserType, {
+          disposition: 'failure',
+          message: `Error deleting batch id: ${id}.`,
+          error: error.message,
+          result: 'Batch not deleted, user shown error.',
+        });
+        throw error;
+      }
+    },
+    [logger, currentUserType, status.batches]
+  );
 
   useInterval(
     useCallback(async () => {

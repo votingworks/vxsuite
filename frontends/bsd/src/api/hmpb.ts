@@ -9,6 +9,7 @@ import {
   GetNextReviewSheetResponse,
   GetNextReviewSheetResponseSchema,
 } from '@votingworks/types/api/services/scan';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { setElection } from './config';
 
 export interface AddTemplatesEvents extends EventEmitter {
@@ -52,7 +53,11 @@ export interface AddTemplatesEvents extends EventEmitter {
   emit(event: 'error', error: Error): boolean;
 }
 
-export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
+export function addTemplates(
+  pkg: BallotPackage,
+  logger: Logger,
+  currentUserType: LoggingUserRole
+): AddTemplatesEvents {
   const result: AddTemplatesEvents = new EventEmitter();
 
   setImmediate(async () => {
@@ -76,8 +81,48 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
             type: 'application/json',
           })
         );
-
-        await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });
+        try {
+          await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });
+          await logger.log(
+            LogEventId.BallotConfiguredOnMachine,
+            currentUserType,
+            {
+              message: `${
+                ballot.ballotConfig.isLiveMode ? 'Live' : 'Test'
+              } Ballot with ballotStyleId: ${
+                ballot.ballotConfig.ballotStyleId
+              } precinctId: ${
+                ballot.ballotConfig.precinctId
+              } successfully configured on machine.`,
+              disposition: 'success',
+              precinctId: ballot.ballotConfig.precinctId,
+              ballotStyleId: ballot.ballotConfig.ballotStyleId,
+              isLiveMode: ballot.ballotConfig.isLiveMode,
+            }
+          );
+        } catch (error) {
+          await logger.log(
+            LogEventId.BallotConfiguredOnMachine,
+            currentUserType,
+            {
+              message: `${
+                ballot.ballotConfig.isLiveMode ? 'Live' : 'Test'
+              } Ballot with ballotStyleId: ${
+                ballot.ballotConfig.ballotStyleId
+              } precinctId: ${
+                ballot.ballotConfig.precinctId
+              } failed to be configured on machine.`,
+              disposition: 'failure',
+              error: error.message,
+              result:
+                'Machine not configured for election, user shown error and asked to try again.',
+              precinctId: ballot.ballotConfig.precinctId,
+              ballotStyleId: ballot.ballotConfig.ballotStyleId,
+              isLiveMode: ballot.ballotConfig.isLiveMode,
+            }
+          );
+          throw error;
+        }
       }
 
       result.emit('completed', pkg);

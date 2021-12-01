@@ -72,6 +72,21 @@ export enum LogEventId {
   OverridingMarkThresholds = 'override-mark-threshold-init',
   OverrodeMarkThresholds = 'override-mark-thresholds-complete',
   DownloadedScanImageBackup = 'download-backup-scan-images,',
+  ConfigureFromBallotPackageInit = 'configure-from-ballot-package-init',
+  BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
+  BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
+  BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
+  ScannerConfigured = 'scanner-configure-complete',
+  ExportCvrInit = 'export-cvr-init',
+  ExportCvrComplete = 'export-cvr-complete',
+  DeleteScanBatchInit = 'delete-cvr-batch-init',
+  DeleteScanBatchComplete = 'delete-cvr-batch-complete',
+  ScanBatchInit = 'scan-batch-init',
+  ScanSheetComplete = 'scan-sheet-complete',
+  ScanBatchComplete = 'scan-batch-complete',
+  ScanBatchContinue = 'scan-batch-continue',
+  ScanAdjudicationInfo = 'scan-adjudication-info',
+  ScannerConfigReloaded = 'scanner-config-reloaded',
 }
 
 export interface LogDetails {
@@ -440,6 +455,99 @@ const DownloadedScanImageBackup: LogDetails = {
     'User downloaded a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
 };
 
+const ConfigureFromBallotPackageInit: LogDetails = {
+  eventId: LogEventId.ConfigureFromBallotPackageInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User had initiated configuring the machine from a ballot package. The ballot package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.',
+  defaultMessage: 'Loading ballot package from USB and configuring machine...',
+};
+const BallotPackagedLoadedFromUsb: LogDetails = {
+  eventId: LogEventId.BallotPackagedLoadedFromUsb,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The ballot package has been read from the USB drive. Success or failure indicated by disposition.',
+};
+const BallotConfiguredOnMachine: LogDetails = {
+  eventId: LogEventId.BallotConfiguredOnMachine,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.',
+};
+const ScannerConfigured: LogDetails = {
+  eventId: LogEventId.ScannerConfigured,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.',
+};
+const BallotPackageFilesReadFromUsb: LogDetails = {
+  eventId: LogEventId.BallotPackageFilesReadFromUsb,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'List of ballot packages read from usb and displayed to user to import to machine.',
+};
+const ExportCvrInit: LogDetails = {
+  eventId: LogEventId.ExportCvrInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated exporting CVR file to the USB drive.',
+  defaultMessage: 'Exporting CVR file to USB...',
+};
+const ExportCvrComplete: LogDetails = {
+  eventId: LogEventId.ExportCvrComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished exporting a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.',
+};
+const DeleteScanBatchInit: LogDetails = {
+  eventId: LogEventId.DeleteScanBatchInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`',
+};
+const DeleteScanBatchComplete: LogDetails = {
+  eventId: LogEventId.DeleteScanBatchComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.',
+};
+const ScanBatchInit: LogDetails = {
+  eventId: LogEventId.ScanBatchInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.',
+};
+const ScanSheetComplete: LogDetails = {
+  eventId: LogEventId.ScanSheetComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.',
+};
+const ScanBatchComplete: LogDetails = {
+  eventId: LogEventId.ScanBatchComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.',
+};
+const ScanBatchContinue: LogDetails = {
+  eventId: LogEventId.ScanBatchContinue,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.',
+};
+const ScanAdjudicationInfo: LogDetails = {
+  eventId: LogEventId.ScanAdjudicationInfo,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidElectionHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UninterpretedHmpbPage for a HMPB ballot that could not be read properly, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, WriteIn, UnmarkedWriteIn, and BlankBallot (a ballot where there are no votes for any contest).',
+};
+const ScannerConfigReloaded: LogDetails = {
+  eventId: LogEventId.ScannerConfigReloaded,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -548,6 +656,36 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return OverrodeMarkThresholds;
     case LogEventId.DownloadedScanImageBackup:
       return DownloadedScanImageBackup;
+    case LogEventId.ConfigureFromBallotPackageInit:
+      return ConfigureFromBallotPackageInit;
+    case LogEventId.BallotPackagedLoadedFromUsb:
+      return BallotPackagedLoadedFromUsb;
+    case LogEventId.BallotConfiguredOnMachine:
+      return BallotConfiguredOnMachine;
+    case LogEventId.ScannerConfigured:
+      return ScannerConfigured;
+    case LogEventId.BallotPackageFilesReadFromUsb:
+      return BallotPackageFilesReadFromUsb;
+    case LogEventId.ExportCvrInit:
+      return ExportCvrInit;
+    case LogEventId.ExportCvrComplete:
+      return ExportCvrComplete;
+    case LogEventId.DeleteScanBatchInit:
+      return DeleteScanBatchInit;
+    case LogEventId.DeleteScanBatchComplete:
+      return DeleteScanBatchComplete;
+    case LogEventId.ScanBatchInit:
+      return ScanBatchInit;
+    case LogEventId.ScanSheetComplete:
+      return ScanSheetComplete;
+    case LogEventId.ScanBatchComplete:
+      return ScanBatchComplete;
+    case LogEventId.ScanBatchContinue:
+      return ScanBatchContinue;
+    case LogEventId.ScanAdjudicationInfo:
+      return ScanAdjudicationInfo;
+    case LogEventId.ScannerConfigReloaded:
+      return ScannerConfigReloaded;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

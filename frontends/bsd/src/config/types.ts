@@ -29,7 +29,7 @@ export type ButtonEvent = React.MouseEvent<HTMLButtonElement>;
 export type ButtonEventFunction = (event: ButtonEvent) => void;
 
 // Election
-export type SetElectionDefinition = (value?: ElectionDefinition) => void;
+export type SetElectionDefinition = (value: ElectionDefinition) => void;
 
 // Scanner Types
 export interface CastVoteRecord
