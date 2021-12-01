@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
 import { LinkButton, Main, MainChild } from '@votingworks/ui';
 
+import pluralize from 'pluralize';
 import { BallotContext } from '../contexts/ballot_context';
 
 import { Wobble } from '../components/animations';
@@ -70,7 +71,8 @@ export function StartPage(): JSX.Element {
             <hr />
             <p>
               <span>
-                Your ballot has <strong>{contests.length} contests</strong>.
+                Your ballot has{' '}
+                <strong>{pluralize('contest', contests.length, true)}</strong>.
               </span>
               <span className="screen-reader-only">
                 When voting with the text-to-speech audio, use the accessible
