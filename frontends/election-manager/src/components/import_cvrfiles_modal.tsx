@@ -354,7 +354,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     const fileModeLocked = !!fileMode;
 
     // Parse the file options on the USB drive and build table rows for each valid file.
-    const fileTableRows = [];
+    const fileTableRows: JSX.Element[] = [];
     let numberOfNewFiles = 0;
     for (const { parsedInfo, fileEntry } of parsedFileInformation) {
       const {
@@ -380,7 +380,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
             <LabelText>{isTestModeResults ? 'Test' : 'Live'}</LabelText>
           </td>
           <CheckTd narrow textAlign="center">
-            {isImported ? CHECK_ICON : ''}
+            {isImported ? CHECK_ICON : 'No'}
           </CheckTd>
           <TD textAlign="right">
             <LinkButton
