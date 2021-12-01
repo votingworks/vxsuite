@@ -24,7 +24,7 @@ function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
 }
 
-const UsbImage = styled.img`
+export const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
   height: 200px;

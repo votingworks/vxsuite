@@ -11,6 +11,7 @@ import { Screen } from '../components/screen';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
+import { ExportLogsModal } from '../components/export_logs_modal';
 
 interface Props {
   unconfigureServer: () => Promise<void>;
@@ -49,6 +50,7 @@ export function AdvancedOptionsScreen({
     return setIsConfirmingFactoryReset((s) => !s);
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
+  const [isExportingLogs, setIsExportingLogs] = useState(false);
   const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
     false
   );
@@ -136,6 +138,11 @@ export function AdvancedOptionsScreen({
                   <LinkButton to="/debug">Debug…</LinkButton>
                 </p>
               )}
+              <p>
+                <Button onPress={() => setIsExportingLogs(true)}>
+                  Export Logs…
+                </Button>
+              </p>
             </Prose>
           </MainChild>
         </Main>
@@ -215,6 +222,9 @@ export function AdvancedOptionsScreen({
           markThresholdOverrides={markThresholds}
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
+      )}
+      {isExportingLogs && (
+        <ExportLogsModal onClose={() => setIsExportingLogs(false)} />
       )}
     </React.Fragment>
   );

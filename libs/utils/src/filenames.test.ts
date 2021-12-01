@@ -15,6 +15,7 @@ import {
   ElectionData,
   generateFilenameForBallotExportPackageFromElectionData,
   generateBatchResultsDefaultFilename,
+  generateLogFilename,
 } from './filenames';
 import { typedAs } from './types';
 
@@ -497,6 +498,20 @@ test('generateBatchResultsDefaultFilename', () => {
         ).toMatch(
           /^votingworks-(test|live)-batch-results_franklin-county_general-election_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d.csv$/
         );
+      }
+    )
+  );
+});
+
+test('generateLogFilename', () => {
+  fc.assert(
+    fc.property(
+      arbitrarySafeName(),
+      fc.oneof(fc.constant(undefined), arbitraryTimestampDate()),
+      (logName, time) => {
+        const name = generateLogFilename(logName, time);
+        expect(name).toMatch(/^.*_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d.log$/);
+        expect(name).toContain(logName);
       }
     )
   );

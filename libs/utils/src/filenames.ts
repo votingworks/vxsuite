@@ -237,3 +237,17 @@ export function generateBatchResultsDefaultFilename(
   const electionName = generateElectionName(election);
   return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}batch-results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`;
 }
+
+/**
+ * Generates a filename for the logs file.
+ * @param logFileName Name of the log file being exported
+ * @param time Optional for the time we are generating the filename, defaults to the current time.
+ * @returns string filename i.e. "vx-logs_timestamp.log"
+ */
+export function generateLogFilename(
+  logFileName: string,
+  time: Date = new Date()
+): string {
+  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
+  return `${logFileName}${SUBSECTION_SEPARATOR}${timeInformation}.log`;
+}
