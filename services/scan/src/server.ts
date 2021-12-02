@@ -53,6 +53,7 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
+import { strict as assert } from 'assert';
 import { backup } from './backup';
 import {
   SCAN_ALWAYS_HOLD_ON_REJECT,
@@ -369,6 +370,8 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
       try {
         const { ballots = [], metadatas = [] } = request.files;
+        const electionDefinition = await store.getElectionDefinition();
+        assert(electionDefinition);
 
         for (let i = 0; i < ballots.length; i += 1) {
           const ballotFile = ballots[i];
@@ -405,7 +408,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
           );
 
           await importer.addHmpbTemplates(await readFile(ballotFile.path), {
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId: metadata.ballotStyleId,
             precinctId: metadata.precinctId,
