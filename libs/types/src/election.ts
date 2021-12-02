@@ -109,14 +109,14 @@ export const WriteInIdSchema: z.ZodSchema<WriteInId> = z
 export type CandidateId = Id;
 export const CandidateIdSchema: z.ZodSchema<CandidateId> = IdSchema;
 export interface Candidate {
-  readonly id: CandidateId;
+  readonly id: CandidateId | WriteInId;
   readonly name: string;
   readonly partyId?: PartyId;
   readonly isWriteIn?: boolean;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   _lang: TranslationsSchema.optional(),
-  id: CandidateIdSchema,
+  id: z.union([CandidateIdSchema, WriteInIdSchema]),
   name: z.string().nonempty(),
   partyId: PartyIdSchema.optional(),
   isWriteIn: z.boolean().optional(),

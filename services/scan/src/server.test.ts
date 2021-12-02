@@ -1,4 +1,7 @@
-import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionSampleDefinition as testElectionDefinition,
+} from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
 import { BallotType, ok } from '@votingworks/types';
@@ -33,11 +36,7 @@ let importer: jest.Mocked<Importer>;
 beforeEach(async () => {
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
-  await workspace.store.setElection({
-    election,
-    electionData: JSON.stringify(election),
-    electionHash: '',
-  });
+  await workspace.store.setElection(asElectionDefinition(election));
   await workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
