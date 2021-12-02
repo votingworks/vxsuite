@@ -81,7 +81,7 @@ export function renderInAppContext(
     history = createMemoryHistory({ initialEntries: [route] }),
     castVoteRecordFiles = CastVoteRecordFiles.empty,
     electionDefinition = eitherNeitherElectionDefinition,
-    configuredAt = '',
+    configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
     printBallotRef = undefined,
