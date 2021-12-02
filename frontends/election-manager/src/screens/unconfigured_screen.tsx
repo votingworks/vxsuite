@@ -3,6 +3,8 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { parseElection } from '@votingworks/types';
 
+import { useCancelablePromise } from '@votingworks/ui';
+import { sleep } from '@votingworks/utils';
 import { ConverterClient, VxFile } from '../lib/converter_client';
 import { readFileAsync } from '../lib/read_file_async';
 
@@ -53,6 +55,7 @@ const newElection = JSON.stringify(defaultElection);
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
+  const makeCancelable = useCancelablePromise();
 
   const { saveElection } = useContext(AppContext);
 
@@ -68,20 +71,19 @@ export function UnconfiguredScreen(): JSX.Element {
   const [isConvertSems, setIsConvertSems] = useState(false);
 
   async function createNewElection() {
-    await saveElection(newElection);
+    await makeCancelable(saveElection(newElection));
     history.push(routerPaths.electionDefinition);
   }
 
   const saveElectionAndShowSuccess = useCallback(
-    (electionJson: string) => {
+    async (electionJson: string) => {
       parseElection(JSON.parse(electionJson));
       setShowSuccess(true);
-      setTimeout(async () => {
-        setShowSuccess(false);
-        await saveElection(electionJson);
-      }, 3000);
+      await makeCancelable(sleep(3000));
+      setShowSuccess(false);
+      await makeCancelable(saveElection(electionJson));
     },
-    [saveElection, setShowSuccess]
+    [makeCancelable, saveElection]
   );
 
   const handleVxElectionFile: InputEventFunction = async (event) => {
@@ -92,8 +94,8 @@ export function UnconfiguredScreen(): JSX.Element {
     if (file) {
       setVxElectionFileIsInvalid(false);
       try {
-        const fileContent = await readFileAsync(file);
-        saveElectionAndShowSuccess(fileContent);
+        const fileContent = await makeCancelable(readFileAsync(file));
+        await makeCancelable(saveElectionAndShowSuccess(fileContent));
       } catch (error) {
         setVxElectionFileIsInvalid(true);
         console.error('handleVxElectionFile failed', error); // eslint-disable-line no-console
@@ -105,56 +107,58 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const resetServerFiles = useCallback(async () => {
     try {
-      await client.reset();
+      await makeCancelable(client.reset());
     } catch (error) {
       console.log('failed resetServerFiles()', error); // eslint-disable-line no-console
     }
-  }, [client]);
+  }, [client, makeCancelable]);
 
   const getOutputFile = useCallback(
     async (electionFileName: string) => {
       try {
-        const blob = await client.getOutputFile(electionFileName);
-        await resetServerFiles();
-        const electionJson = await new Response(blob).text();
-        saveElectionAndShowSuccess(electionJson);
+        const blob = await makeCancelable(
+          client.getOutputFile(electionFileName)
+        );
+        await makeCancelable(resetServerFiles());
+        const electionJson = await makeCancelable(new Response(blob).text());
+        await makeCancelable(saveElectionAndShowSuccess(electionJson));
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
         setIsLoading(false);
       }
     },
-    [client, resetServerFiles, saveElectionAndShowSuccess]
+    [client, makeCancelable, resetServerFiles, saveElectionAndShowSuccess]
   );
 
   const processInputFiles = useCallback(
     async (electionFileName: string) => {
       try {
-        await client.process();
-        await getOutputFile(electionFileName);
+        await makeCancelable(client.process());
+        await makeCancelable(getOutputFile(electionFileName));
       } catch (error) {
         console.log('failed processInputFiles()', error); // eslint-disable-line no-console
-        await client.reset();
+        await makeCancelable(client.reset());
         setIsLoading(false);
       }
     },
-    [client, getOutputFile, setIsLoading]
+    [client, getOutputFile, makeCancelable]
   );
 
   const updateStatus = useCallback(async () => {
     try {
-      const files = await client.getFiles();
+      const files = await makeCancelable(client.getFiles());
 
       setIsLoading(true);
 
       const electionFile = files.outputFiles[0];
       if (electionFile.path) {
-        await getOutputFile(electionFile.name);
+        await makeCancelable(getOutputFile(electionFile.name));
         return;
       }
 
       if (allFilesExist(files.inputFiles)) {
-        await processInputFiles(electionFile.name);
+        await makeCancelable(processInputFiles(electionFile.name));
         return;
       }
 
@@ -163,12 +167,12 @@ export function UnconfiguredScreen(): JSX.Element {
     } catch (error) {
       setIsLoading(false);
     }
-  }, [client, getOutputFile, processInputFiles]);
+  }, [client, getOutputFile, makeCancelable, processInputFiles]);
 
   async function submitFile({ file, name }: InputFile) {
     try {
-      await client.setInputFile(name, file);
-      await updateStatus();
+      await makeCancelable(client.setInputFile(name, file));
+      await makeCancelable(updateStatus());
     } catch (error) {
       console.log('failed handleFileInput()', error); // eslint-disable-line no-console
     }
@@ -179,19 +183,19 @@ export function UnconfiguredScreen(): JSX.Element {
     const file = input.files && input.files[0];
     const { name } = input;
     if (file && name) {
-      await submitFile({ file, name });
+      await makeCancelable(submitFile({ file, name }));
     }
   };
 
   async function resetUploadFiles() {
     setInputConversionFiles([]);
     setVxElectionFileIsInvalid(false);
-    await resetServerFiles();
-    await updateStatus();
+    await makeCancelable(resetServerFiles());
+    await makeCancelable(updateStatus());
   }
 
   async function resetUploadFilesAndGoBack() {
-    await resetUploadFiles();
+    await makeCancelable(resetUploadFiles());
     setIsConvertSems(false);
   }
 
