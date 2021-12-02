@@ -15,7 +15,7 @@ import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { MainChild } from './main';
-import { UsbImage } from './save_file_to_usb';
+import { UsbImage } from './export_results_modal';
 
 const { UsbDriveStatus } = usbstick;
 
