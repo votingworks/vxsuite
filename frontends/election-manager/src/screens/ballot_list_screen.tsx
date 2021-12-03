@@ -32,7 +32,7 @@ export function BallotListScreen(): JSX.Element {
   const { electionDefinition, printedBallots, configuredAt } = useContext(
     AppContext
   );
-  assert(electionDefinition);
+  assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
   const allBallotStyles = getBallotStylesData(election);

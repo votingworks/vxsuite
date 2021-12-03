@@ -31,7 +31,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
     logger,
     currentUserSession,
   } = useContext(AppContext);
-  assert(electionDefinition);
+  assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
   const totalBallotsPrinted = printedBallots.reduce(

@@ -25,7 +25,7 @@ import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
-  configuredAt: Iso8601Timestamp;
+  configuredAt?: Iso8601Timestamp;
   isOfficialResults: boolean;
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;
@@ -60,7 +60,7 @@ export interface AppContextInterface {
 const appContext: AppContextInterface = {
   castVoteRecordFiles: CastVoteRecordFiles.empty,
   electionDefinition: undefined,
-  configuredAt: '',
+  configuredAt: undefined,
   isOfficialResults: false,
   printer: new NullPrinter(),
   printBallotRef: undefined,

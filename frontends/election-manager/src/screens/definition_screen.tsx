@@ -27,7 +27,7 @@ interface ContestSection {
 
 export function DefinitionScreen(): JSX.Element {
   const { electionDefinition, configuredAt } = useContext(AppContext);
-  assert(electionDefinition);
+  assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
   const [isRemovingElection, setIsRemovingElection] = useState(false);

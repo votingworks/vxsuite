@@ -149,7 +149,7 @@ export function AppRoot({
     electionDefinition,
     setElectionDefinition,
   ] = useState<ElectionDefinition>();
-  const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>('');
+  const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>();
 
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
     CastVoteRecordFiles.empty
@@ -300,10 +300,10 @@ export function AppRoot({
       if (!electionDefinition) {
         const storageElectionDefinition = await getElectionDefinition();
         if (storageElectionDefinition) {
-          const configuredAtTime = // TODO: validate this with zod schema
-            ((await storage.get(configuredAtStorageKey)) as
-              | string
-              | undefined) || '';
+          const configuredAtTime = (await storage.get(
+            // TODO: validate this with zod schema
+            configuredAtStorageKey
+          )) as string | undefined;
           setElectionDefinition(storageElectionDefinition);
           setConfiguredAt(configuredAtTime);
           await logger.log(LogEventId.LoadFromStorage, 'system', {

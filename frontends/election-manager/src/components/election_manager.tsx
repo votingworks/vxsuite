@@ -27,6 +27,7 @@ import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 export function ElectionManager(): JSX.Element {
   const {
     electionDefinition,
+    configuredAt,
     currentUserSession,
     hasCardReaderAttached,
   } = useContext(AppContext);
@@ -36,7 +37,7 @@ export function ElectionManager(): JSX.Element {
     return <SetupCardReaderPage />;
   }
 
-  if (!election) {
+  if (!election || !configuredAt) {
     return <UnconfiguredScreen />;
   }
 
