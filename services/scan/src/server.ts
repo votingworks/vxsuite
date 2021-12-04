@@ -665,8 +665,6 @@ export async function start({
   scanner,
   importer,
   app,
-  log = (message: string) =>
-    process.stdout.write(message.endsWith('\n') ? message : `${message}\n`),
   logger = new Logger(LogSource.VxScanService),
   workspace,
   machineType = VX_MACHINE_TYPE,
@@ -678,6 +676,11 @@ export async function start({
   } else {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
+      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+        message:
+          'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
+        disposition: 'failure',
+      });
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
       );
@@ -706,7 +709,7 @@ export async function start({
           plustekScannerClientProvider,
           SCAN_ALWAYS_HOLD_ON_REJECT
         )
-      : new FujitsuScanner({ mode: ScannerMode.Gray });
+      : new FujitsuScanner({ mode: ScannerMode.Gray, logger });
   }
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined;
   function workerPoolProvider(): WorkerPool<workers.Input, workers.Output> {
@@ -734,7 +737,9 @@ export async function start({
     });
 
     if (importer instanceof Importer) {
-      log(`Scanning ballots into ${workspace?.ballotImagesPath}`);
+      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+        message: `Scanning ballots into ${workspace?.ballotImagesPath}`,
+      });
     }
   });
 
@@ -756,7 +761,10 @@ export async function start({
           ?.reject({ hold: true })
       )?.isOk()
     ) {
-      log('Rejected sheet from the scanner on startup');
+      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+        message: `Ballot detected in the scanning unit on startup and automatically rejected`,
+        disposition: 'success',
+      });
     }
   }
 }

@@ -26,7 +26,8 @@ export class Logger {
   async log(
     eventId: LogEventId,
     user: LoggingUserRole,
-    logData: LogData = {}
+    logData: LogData = {},
+    outerDebug?: debug.Debugger
   ): Promise<void> {
     const eventSpecificDetails = getDetailsForEventId(eventId);
     const {
@@ -43,6 +44,14 @@ export class Logger {
       disposition,
       ...additionalData,
     };
+    // If the caller is passing in a debug instance, and we are not in production log to the debugger rather then through the normal logging pipeline.
+    // This is to make logs more manageable in development, so a developer can toggle what logs to view with the normal debug namespaces.
+    /* istanbul ignore next - figure out how to test this */
+    if (outerDebug && process.env.NODE_ENV !== 'production') {
+      outerDebug(logLine);
+      return;
+    }
+
     if (CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
       debug(logLine); // for internal debugging use log to the console
       if (this.kiosk) {
