@@ -78,4 +78,4 @@ export const SCAN_WORKSPACE =
  * Should the precinct scanner hold onto the paper on reject?
  */
 export const SCAN_ALWAYS_HOLD_ON_REJECT =
-  process.env.MODULE_SCAN_ALWAYS_HOLD_ON_REJECT !== '0';
+  process.env.SCAN_ALWAYS_HOLD_ON_REJECT !== '0';
