@@ -28,7 +28,7 @@ consider setting that in your shell configuration (e.g. `.bashrc`).
 
 ### Ubuntu Quickstart
 
-This expects Ubuntu 18.04, though it may work on other versions. This installs
+This expects Ubuntu 20.04, though it may work on other versions. This installs
 the right version of NodeJS manually. You can use a tool like
 [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh) to do this in
 a nicer way.
