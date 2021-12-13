@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import {
   BallotStyle,
   Contest,
@@ -9,6 +8,7 @@ import {
 } from '@votingworks/types';
 import 'fast-text-encoding';
 import { Entry, fromBuffer, ZipFile } from 'yauzl';
+import { assert } from './assert';
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;

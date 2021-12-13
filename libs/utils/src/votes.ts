@@ -29,7 +29,7 @@ import {
   unsafeParse,
   PartyIdSchema,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
+import { assert } from './assert';
 import { find } from './find';
 import { throwIllegalValue, typedAs } from '.';
 
@@ -110,7 +110,7 @@ export function buildVoteFromCvr({
 export function getContestVoteOptionsForYesNoContest(
   contest: YesNoContest
 ): readonly YesNoVoteId[] {
-  assert.equal(contest.type, 'yesno');
+  assert(contest.type === 'yesno');
   return ['yes', 'no'];
 }
 

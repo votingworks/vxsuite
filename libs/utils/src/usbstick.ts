@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from './assert';
 import { sleep } from './sleep';
 
 export const FLUSH_IO_DELAY_MS = 10_000;
