@@ -6,6 +6,7 @@ import {
 import { z } from 'zod';
 import { DeviceType } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId, LogEventType } from '.';
+import { LogSource } from './log_source';
 
 export enum LogDispositionStandardTypes {
   Success = 'success',
@@ -15,30 +16,6 @@ export enum LogDispositionStandardTypes {
 
 export type LoggingUserRole = CardDataTypes | 'vx-staff' | 'system' | 'unknown';
 export type LogDisposition = LogDispositionStandardTypes | string;
-export enum LogSource {
-  System = 'system',
-  VxAdminApp = 'vx-admin',
-  VxAdminServer = 'vx-admin-server',
-  VxBatchScanApp = 'vx-batch-scan',
-  VxBatchScanSever = 'vx-batch-scan-server',
-  VxPrecinctScanApp = 'vx-precinct-scan',
-  VxPrecinctScanServer = 'vx-precinct-scan-server',
-  VxBallotMarkingDeviceApp = 'vx-ballot-marking-device',
-  VxBallotMarkingDeviceServer = 'vx-ballot-marking-device-server',
-  VxBallotActivationApp = 'vx-ballot-activation',
-  VxBallotActivationServer = 'vx-ballot-activation-server',
-  VxScanService = 'vx-scan-service',
-}
-// The following log sources are frontends and always expect to log through window.kiosk
-// In various tests window.kiosk may not be defined and we don't want to fallback to logging with console.log
-// to avoid unnecessary log spew in the test runs.
-export const CLIENT_SIDE_LOG_SOURCES = [
-  LogSource.VxAdminApp,
-  LogSource.VxBatchScanApp,
-  LogSource.VxPrecinctScanApp,
-  LogSource.VxBallotMarkingDeviceApp,
-  LogSource.VxBallotActivationApp,
-];
 
 export interface LogLine extends Dictionary<string> {
   source: LogSource;
@@ -75,9 +52,9 @@ export const LogLineSchema: z.ZodSchema<LogLine> = z.object({
 });
 
 export const DEVICE_TYPES_FOR_APP: Dictionary<DeviceType> = {
-  [LogSource.VxAdminApp]: DeviceType.Ems,
-  [LogSource.VxBatchScanApp]: DeviceType.ScanBatch,
-  [LogSource.VxPrecinctScanApp]: DeviceType.ScanSingle,
-  [LogSource.VxBallotMarkingDeviceApp]: DeviceType.Bmd,
-  [LogSource.VxBallotActivationApp]: DeviceType.BallotActivation,
+  [LogSource.VxAdminFrontend]: DeviceType.Ems,
+  [LogSource.VxBatchScanFrontend]: DeviceType.ScanBatch,
+  [LogSource.VxPrecinctScanFrontend]: DeviceType.ScanSingle,
+  [LogSource.VxBallotMarkingDeviceFrontend]: DeviceType.Bmd,
+  [LogSource.VxBallotActivationFrontend]: DeviceType.BallotActivation,
 };

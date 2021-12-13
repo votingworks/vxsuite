@@ -49,7 +49,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
     { ...fileSystemEntry, name: 'not-the-right-file.log' },
   ]);
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText } = renderInAppContext(
@@ -114,7 +114,7 @@ test('renders save modal when usb is mounted and log file on machine', async () 
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-file-content');
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText } = renderInAppContext(
@@ -166,7 +166,7 @@ test('render export modal with errors when appropriate', async () => {
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'vx-logs.log' },
   ]);
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   mockKiosk.readFile.mockRejectedValueOnce(new Error('this-is-an-error'));

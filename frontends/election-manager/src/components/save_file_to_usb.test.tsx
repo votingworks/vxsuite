@@ -75,7 +75,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText, queryAllByText } = renderInAppContext(
@@ -133,7 +133,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText } = renderInAppContext(
@@ -185,7 +185,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
 test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const fileContentFn = jest

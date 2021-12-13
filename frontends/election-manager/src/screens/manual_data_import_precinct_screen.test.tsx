@@ -106,7 +106,7 @@ test('displays correct contests for each precinct', async () => {
 
 test('can enter data for candidate contests as expected', async () => {
   const saveExternalTallies = jest.fn();
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log');
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -191,7 +191,7 @@ test('can enter data for candidate contests as expected', async () => {
 
 test('can enter data for candidate contest with a write in row as expected', async () => {
   const saveExternalTallies = jest.fn();
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log');
   const { getByText, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -249,7 +249,7 @@ test('can enter data for candidate contest with a write in row as expected', asy
 
 test('can enter data for yes no contests as expected', async () => {
   const saveExternalTallies = jest.fn();
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log');
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">

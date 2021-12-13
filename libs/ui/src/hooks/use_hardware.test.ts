@@ -15,7 +15,7 @@ import { useHardware } from './use_hardware';
 
 test('can connect printer as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxBatchScanApp);
+  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useHardware({ hardware, logger: fakeLogger })
@@ -79,7 +79,7 @@ test('can connect printer as expected', async () => {
 
 test('can connect card reader as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxBatchScanApp);
+  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useHardware({ hardware, logger: fakeLogger })
@@ -122,7 +122,7 @@ test('can connect card reader as expected', async () => {
 
 test('can connect accessible controller as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxBatchScanApp);
+  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useHardware({ hardware, logger: fakeLogger })
@@ -165,7 +165,7 @@ test('can connect accessible controller as expected', async () => {
 
 test('can connect fujitsu scanner as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxBatchScanApp);
+  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useHardware({ hardware, logger: fakeLogger })
@@ -217,7 +217,7 @@ test('can connect plustek scanner as expected', async () => {
     manufacturer: 'Plustek',
   };
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxBatchScanApp);
+  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useHardware({ hardware, logger: fakeLogger })
@@ -271,7 +271,7 @@ test('can handle logs for a random device as expected', async () => {
     manufacturer: '',
   };
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxBatchScanApp);
+  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useHardware({ hardware, logger: fakeLogger })

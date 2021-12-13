@@ -79,7 +79,7 @@ export interface AppRootProps {
 
 export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const logger = useMemo(
-    () => new Logger(LogSource.VxBatchScanApp, window.kiosk),
+    () => new Logger(LogSource.VxBatchScanFrontend, window.kiosk),
     []
   );
   const history = useHistory();

@@ -12,7 +12,7 @@ const { Logger, LogSource, LogEventId } = require('@votingworks/logging')
 const proxy = require('./setupProxy')
 const app = express()
 const port = 3000
-const logger = new Logger(LogSource.VxAdminServer)
+const logger = new Logger(LogSource.VxAdminService)
 
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')

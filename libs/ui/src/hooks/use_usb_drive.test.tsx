@@ -25,7 +25,7 @@ async function waitForIoFlush(): Promise<void> {
   await advanceTimersAndPromises(usbstick.FLUSH_IO_DELAY_MS / 1000);
 }
 
-const fakeLogger = new Logger(LogSource.VxAdminApp);
+const fakeLogger = new Logger(LogSource.VxAdminFrontend);
 let logSpy: jest.SpyInstance;
 
 beforeEach(() => {

@@ -339,7 +339,7 @@ export function AppRoot({
   } = appState;
 
   const logger = useMemo(
-    () => new Logger(LogSource.VxPrecinctScanApp, window.kiosk),
+    () => new Logger(LogSource.VxPrecinctScanFrontend, window.kiosk),
     []
   );
   const usbDrive = useUsbDrive({ logger });
