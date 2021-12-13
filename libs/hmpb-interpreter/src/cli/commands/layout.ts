@@ -1,5 +1,5 @@
 import { Point, Rect } from '@votingworks/types';
-import { strict as assert } from 'assert';
+import { assert } from "@votingworks/utils";
 import chalk from 'chalk';
 import { GlobalOptions, OptionParseError } from '..';
 import { findContests, ContestShape } from '../../hmpb/find_contests';

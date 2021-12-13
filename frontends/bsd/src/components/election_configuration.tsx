@@ -1,9 +1,9 @@
-import { strict as assert } from 'assert';
 import React, { useState, useCallback, useEffect, useContext } from 'react';
 import path from 'path';
 
 import styled from 'styled-components';
 import {
+  assert,
   parseBallotExportPackageInfoFromFilename,
   BALLOT_PACKAGE_FOLDER,
   usbstick,

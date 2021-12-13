@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from "@votingworks/utils";
 import { EventEmitter } from 'events';
 import * as json from '../json_serialization';
 import { WorkerOps } from './types';

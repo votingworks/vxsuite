@@ -1,10 +1,9 @@
-import { strict as assert } from 'assert';
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 import moment from 'moment';
 
-import { find } from '@votingworks/utils';
+import { assert, find } from '@votingworks/utils';
 import { Table, TD } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 

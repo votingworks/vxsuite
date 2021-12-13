@@ -4,13 +4,13 @@ import path from 'path';
 import moment from 'moment';
 
 import {
+  assert,
   generateElectionBasedSubfolderName,
   parseCvrFileInfoFromFilename,
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { strict as assert } from 'assert';
 import { Table, TD } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';

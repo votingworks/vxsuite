@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import { fromByteArray } from 'base64-js';
 import { DateTime } from 'luxon';
 import React from 'react';
@@ -19,11 +18,7 @@ import {
   getPrecinctById,
   getPrecinctIndexById,
 } from '@votingworks/types';
-import {
-  formatLongDate,
-  getSingleYesNoVote,
-  getContestVoteInRotatedOrder,
-} from '@votingworks/utils';
+import { assert, formatLongDate, getSingleYesNoVote, getContestVoteInRotatedOrder } from '@votingworks/utils';
 
 import * as GLOBALS from '../config/globals';
 

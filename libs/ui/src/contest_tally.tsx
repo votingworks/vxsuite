@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
-import { strict as assert } from 'assert';
 
 import {
   Election,
@@ -11,6 +10,7 @@ import {
   Tally,
 } from '@votingworks/types';
 import {
+  assert,
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
   combineContestTallies,

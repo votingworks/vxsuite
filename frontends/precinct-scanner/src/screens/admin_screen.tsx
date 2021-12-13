@@ -12,8 +12,7 @@ import {
   UsbDrive,
   useNow,
 } from '@votingworks/ui';
-import { format, formatFullDateTimeZone, usbstick } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, format, formatFullDateTimeZone, usbstick } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/absolute';

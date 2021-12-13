@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import fs from 'fs';
 import * as path from 'path';
 
@@ -11,7 +10,7 @@ import {
   getBallotStyle,
   safeParseElection,
 } from '@votingworks/types';
-import { Storage } from '@votingworks/utils';
+import { assert, Storage } from '@votingworks/utils';
 
 import { electionStorageKey, stateStorageKey, State } from '../../src/app_root';
 import { PrecinctSelectionKind } from '../../src/config/types';

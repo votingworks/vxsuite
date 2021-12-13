@@ -16,9 +16,11 @@ import {
   PartyId,
   PrecinctId,
 } from '@votingworks/types';
-import { throwIllegalValue, combineContestTallies } from '@votingworks/utils';
-
-import { strict as assert } from 'assert';
+import {
+  assert,
+  throwIllegalValue,
+  combineContestTallies,
+} from '@votingworks/utils';
 
 import {
   getDistrictIdsForPartyId,

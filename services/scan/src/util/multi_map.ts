@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from "@votingworks/utils";
 
 /**
  * Maps composite keys to multiple values.

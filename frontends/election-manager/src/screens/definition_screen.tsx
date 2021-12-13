@@ -1,9 +1,8 @@
-import { strict as assert } from 'assert';
 import React, { useContext, useState } from 'react';
 import { Contest } from '@votingworks/types';
 import styled from 'styled-components';
 
-import { format } from '@votingworks/utils';
+import { assert, format } from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 

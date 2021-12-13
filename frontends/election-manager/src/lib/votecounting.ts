@@ -20,6 +20,7 @@ import {
   PartyId,
 } from '@votingworks/types';
 import {
+  assert,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
   find,
@@ -28,7 +29,6 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/utils';
-import { strict as assert } from 'assert';
 
 import { CastVoteRecord, CastVoteRecordLists } from '../config/types';
 

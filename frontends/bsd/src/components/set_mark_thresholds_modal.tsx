@@ -1,10 +1,9 @@
-import { strict as assert } from 'assert';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
 
-import { throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { Modal } from './modal';
 import { Button } from './button';
 import { Prose } from './prose';

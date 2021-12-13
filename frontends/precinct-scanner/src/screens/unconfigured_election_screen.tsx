@@ -1,11 +1,10 @@
-import { strict as assert } from 'assert';
 import React, { useState, useEffect } from 'react';
 import path from 'path';
 import {
   OptionalElectionDefinition,
   getPrecinctById,
 } from '@votingworks/types';
-import { ballotPackageUtils, usbstick } from '@votingworks/utils';
+import { assert, ballotPackageUtils, usbstick } from '@votingworks/utils';
 import { addTemplates, doneTemplates } from '../api/hmpb';
 import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';

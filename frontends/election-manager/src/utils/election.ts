@@ -16,8 +16,7 @@ import {
   BallotStyleId,
   PrecinctId,
 } from '@votingworks/types';
-import { BallotStyleData, find } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, BallotStyleData, find } from '@votingworks/utils';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
 

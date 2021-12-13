@@ -23,7 +23,7 @@ import {
   VotesDict,
   YesNoVote,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import {
   BitReader,
   BitWriter,

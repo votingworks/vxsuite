@@ -1,9 +1,8 @@
-import { strict as assert } from 'assert';
 import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { useParams } from 'react-router-dom';
-import { find, filterTalliesByParams } from '@votingworks/utils';
+import { assert, find, filterTalliesByParams } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import {
   ExternalTally,

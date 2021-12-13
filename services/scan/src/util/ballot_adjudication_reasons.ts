@@ -6,8 +6,7 @@ import {
   Contests,
   MarkStatus,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { allContestOptions } from './all_contest_options';
 
 export interface Options {

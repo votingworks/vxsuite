@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 
-import { throwIllegalValue } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';

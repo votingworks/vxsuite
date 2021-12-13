@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import ZipStream from 'zip-stream';
 import path from 'path';
 

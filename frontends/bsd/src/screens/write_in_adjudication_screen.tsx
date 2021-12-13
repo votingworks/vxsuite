@@ -25,8 +25,7 @@ import {
   useStoredState,
   useAutocomplete,
 } from '@votingworks/ui';
-import { find } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, find } from '@votingworks/utils';
 import React, {
   useCallback,
   useContext,

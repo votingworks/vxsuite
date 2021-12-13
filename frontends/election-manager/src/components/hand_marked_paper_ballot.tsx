@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import React, { useLayoutEffect, useRef, useContext } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';

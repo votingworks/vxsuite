@@ -1,6 +1,5 @@
-import { strict as assert } from 'assert';
 import { ScannerStatus } from '@votingworks/types/api/services/scan';
-import { deferredQueue, throwIllegalValue } from '@votingworks/utils';
+import { assert, deferredQueue, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';

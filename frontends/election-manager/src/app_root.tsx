@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import React, {
   useState,
   useRef,
@@ -26,6 +25,7 @@ import {
 } from '@votingworks/types';
 
 import {
+  assert,
   Storage,
   throwIllegalValue,
   usbstick,

@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from "@votingworks/utils";
 import { Size } from '@votingworks/types';
 
 export type InPlaceImageTransform<A extends unknown[], R> = (

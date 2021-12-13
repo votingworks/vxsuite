@@ -1,5 +1,5 @@
 import { Rect } from '@votingworks/types';
-import { strict as assert } from 'assert';
+import { assert } from "@votingworks/utils";
 import { randomBytes } from 'crypto';
 import { createImageData } from '../src/utils/canvas';
 

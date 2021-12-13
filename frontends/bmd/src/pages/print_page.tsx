@@ -1,4 +1,4 @@
-import { ok } from 'assert';
+import { assert } from "@votingworks/utils";
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -30,9 +30,9 @@ export function PrintPage(): JSX.Element {
     updateTally,
     votes,
   } = useContext(BallotContext);
-  ok(electionDefinition, 'electionDefinition is required to render PrintPage');
-  ok(ballotStyleId, 'ballotStyleId is required to render PrintPage');
-  ok(precinctId, 'precinctId is required to render PrintPage');
+  assert(electionDefinition, 'electionDefinition is required to render PrintPage');
+  assert(ballotStyleId, 'ballotStyleId is required to render PrintPage');
+  assert(precinctId, 'precinctId is required to render PrintPage');
   const printerTimer = useRef(0);
 
   const printBallot = useCallback(async () => {

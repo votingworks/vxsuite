@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
