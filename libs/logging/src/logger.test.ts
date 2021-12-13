@@ -1,10 +1,22 @@
 /* eslint-disable no-console */
 import { fakeKiosk } from '@votingworks/test-utils';
+import { readFileSync } from 'fs-extra';
+import { electionMinimalExhaustiveSampleDefintion } from '@votingworks/fixtures';
 import MockDate from 'mockdate';
-import { LogEventType } from '.';
+import { join } from 'path';
+import { safeParseJson } from '@votingworks/types';
+import { assert } from '@votingworks/utils';
+import { ElectionEventLogSchema } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
 import { Logger } from './logger';
-import { LogDispositionStandardTypes, LogSource } from './types';
+import { LogEventType } from './log_event_types';
+import {
+  CLIENT_SIDE_LOG_SOURCES,
+  DEVICE_TYPES_FOR_APP,
+  LogDispositionStandardTypes,
+  LogLine,
+  LogSource,
+} from './types';
 
 MockDate.set('2020-07-24T00:00:00.000Z');
 
@@ -100,4 +112,287 @@ test('logging from a client side app without sending window.kiosk does NOT log t
   const logger = new Logger(LogSource.VxAdminApp);
   await logger.log(LogEventId.AdminCardInserted, 'admin');
   expect(console.log).not.toHaveBeenCalled();
+});
+
+test('verify that client side apps are configured properly', () => {
+  for (const source of CLIENT_SIDE_LOG_SOURCES) {
+    expect(source in DEVICE_TYPES_FOR_APP).toBeTruthy();
+  }
+});
+
+describe('test cdf conversion', () => {
+  test('builds device and election info properly', () => {
+    const logger = new Logger(LogSource.VxAdminApp);
+    const cdfLogContent = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      '',
+      '12machine34',
+      'thisisacodeversion',
+      'admin'
+    );
+    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    expect(cdfLogResult.isOk()).toBeTruthy();
+    const cdfLog = cdfLogResult.ok();
+    assert(cdfLog);
+    expect(cdfLog.Device).toHaveLength(1);
+    expect(cdfLog.ElectionId).toBe(
+      electionMinimalExhaustiveSampleDefintion.electionHash
+    );
+    expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
+      `"2020-07-24T00:00:00.000Z"`
+    );
+    const cdfLogDevice = cdfLog.Device[0];
+    assert(cdfLogDevice);
+    expect(cdfLogDevice.Id).toBe('12machine34');
+    expect(cdfLogDevice.Version).toBe('thisisacodeversion');
+    expect(cdfLogDevice.Type).toBe('ems');
+    expect(cdfLogDevice.Event).toStrictEqual([]);
+  });
+
+  test('converts basic log as expected', () => {
+    const logger = new Logger(LogSource.VxAdminApp);
+    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const cdfLogContent = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
+      '12machine34',
+      'thisisacodeversion',
+      'admin'
+    );
+    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    expect(cdfLogResult.isOk()).toBeTruthy();
+    const cdfLog = cdfLogResult.ok();
+    assert(cdfLog);
+    expect(cdfLog.Device).toHaveLength(1);
+    const cdfLogDevice = cdfLog.Device[0];
+    assert(cdfLogDevice);
+    expect(cdfLogDevice.Event).toHaveLength(1);
+    const decodedEvent = cdfLogDevice.Event[0];
+    assert(decodedEvent);
+    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveStatusUpdate);
+    expect(decodedEvent.Disposition).toBe('na');
+    expect(decodedEvent.Sequence).toBe('0');
+    expect(decodedEvent.TimeStamp).toBe('2021-11-03T16:38:09.384062-07:00');
+    expect(decodedEvent.Type).toBe(LogEventType.ApplicationStatus);
+    expect(decodedEvent.Description).toBe('i know the deal');
+    expect(decodedEvent.Details).toBe(JSON.stringify({ source: 'vx-admin' }));
+    expect('otherDisposition' in decodedEvent).toBe(false);
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.LogConversionToCdfComplete,
+      'admin',
+      expect.objectContaining({
+        message: 'Log file successfully converted to CDF format.',
+        disposition: 'success',
+      })
+    );
+  });
+
+  test('log with unspecified disposition as expected', () => {
+    const logger = new Logger(LogSource.VxAdminApp);
+    const cdfLogContent = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
+      '12machine34',
+      'thisisacodeversion',
+      'admin'
+    );
+    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    expect(cdfLogResult.isOk()).toBeTruthy();
+    const cdfLog = cdfLogResult.ok();
+    assert(cdfLog);
+    expect(cdfLog.Device).toHaveLength(1);
+    const cdfLogDevice = cdfLog.Device[0];
+    assert(cdfLogDevice);
+    expect(cdfLogDevice.Event).toHaveLength(1);
+    const decodedEvent = cdfLogDevice.Event[0];
+    assert(decodedEvent);
+    expect(decodedEvent.Disposition).toBe('na');
+  });
+
+  test('converts log with custom disposition and extra details as expected', () => {
+    const logger = new Logger(LogSource.VxAdminApp);
+    const cdfLogContent = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
+      '12machine34',
+      'thisisacodeversion',
+      'admin'
+    );
+    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    expect(cdfLogResult.isOk()).toBeTruthy();
+    const cdfLog = cdfLogResult.ok();
+    assert(cdfLog);
+    expect(cdfLog.Device).toHaveLength(1);
+    const cdfLogDevice = cdfLog.Device[0];
+    assert(cdfLogDevice);
+    expect(cdfLogDevice.Event).toHaveLength(1);
+    const decodedEvent = cdfLogDevice.Event[0];
+    assert(decodedEvent);
+    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveStatusUpdate);
+    expect(decodedEvent.Disposition).toBe('other');
+    expect(decodedEvent.OtherDisposition).toBe('dinosaurs');
+    expect(decodedEvent.Sequence).toBe('0');
+    expect(decodedEvent.TimeStamp).toBe('2021-11-03T16:38:09.384062-07:00');
+    expect(decodedEvent.Type).toBe(LogEventType.ApplicationStatus);
+    expect(decodedEvent.Description).toBe('glistened as it fell');
+    expect(decodedEvent.Details).toMatchInlineSnapshot(
+      `"{\\"host\\":\\"ubuntu\\",\\"newStatus\\":\\"absent\\",\\"source\\":\\"vx-admin\\"}"`
+    );
+  });
+
+  test('non frontend apps can not export cdf logs', () => {
+    const logger = new Logger(LogSource.System);
+    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    expect(() =>
+      logger.buildCDFLog(
+        electionMinimalExhaustiveSampleDefintion,
+        '',
+        '12machine34',
+        'thisisacodeversion',
+        'admin'
+      )
+    ).toThrowError('Can only export CDF logs from a frontend app.');
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.LogConversionToCdfComplete,
+      'admin',
+      expect.objectContaining({
+        message: 'The current application is not able to export logs.',
+        disposition: 'failure',
+      })
+    );
+  });
+
+  test('malformed logs are logged', () => {
+    const logger = new Logger(LogSource.VxAdminApp);
+    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const missingTimeLogLine: LogLine = {
+      source: LogSource.System,
+      eventId: LogEventId.DeviceAttached,
+      eventType: LogEventType.ApplicationAction,
+      user: 'system',
+      disposition: 'na',
+      message: 'message',
+    };
+    const missingTimeLog = JSON.stringify(missingTimeLogLine);
+    const properLog = JSON.stringify({
+      ...missingTimeLogLine,
+      timeLogWritten: '2020-07-24T00:00:00.000Z',
+    });
+    const output = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      `rawr\n${properLog}\n`,
+      '12machine34',
+      'thisisacodeversion',
+      'admin'
+    );
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.LogConversionToCdfLogLineError,
+      'admin',
+      expect.objectContaining({
+        message:
+          'Malformed log line identified, log line will be ignored: rawr ',
+        disposition: 'failure',
+      })
+    );
+    const cdfLogResult = safeParseJson(output, ElectionEventLogSchema);
+    expect(cdfLogResult.isOk()).toBeTruthy();
+    const cdfLog = cdfLogResult.ok();
+    assert(cdfLog);
+    expect(cdfLog.Device[0]!.Event).toHaveLength(1);
+
+    const output2 = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      missingTimeLog,
+      '12machine34',
+      'thisisacodeversion',
+      'admin'
+    );
+    expect(logSpy).toHaveBeenCalledWith(
+      LogEventId.LogConversionToCdfLogLineError,
+      'admin',
+      expect.objectContaining({
+        message: `Malformed log line identified, log line will be ignored: ${missingTimeLog} `,
+        disposition: 'failure',
+      })
+    );
+    const cdfLogResult2 = safeParseJson(output2, ElectionEventLogSchema);
+    expect(cdfLogResult2.isOk()).toBeTruthy();
+    const cdfLog2 = cdfLogResult2.ok();
+    assert(cdfLog2);
+    expect(cdfLog2.Device[0]!.Event).toStrictEqual([]);
+  });
+
+  test('read and interpret a real log file as expected', async () => {
+    const logFile = await readFileSync(
+      join(__dirname, '../fixtures/samplelog.log')
+    );
+    const logger = new Logger(LogSource.VxAdminApp);
+    const cdfLogContent = logger.buildCDFLog(
+      electionMinimalExhaustiveSampleDefintion,
+      logFile.toString(),
+      '1234',
+      'codeversion',
+      'vx-staff'
+    );
+    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    expect(cdfLogResult.isOk()).toBeTruthy();
+    const cdfLog = cdfLogResult.ok();
+    assert(cdfLog);
+    expect(cdfLog.Device).toHaveLength(1);
+    expect(cdfLog.ElectionId).toBe(
+      electionMinimalExhaustiveSampleDefintion.electionHash
+    );
+    expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
+      `"2020-07-24T00:00:00.000Z"`
+    );
+    const cdfLogDevice = cdfLog.Device[0];
+    assert(cdfLogDevice);
+    expect(cdfLogDevice.Id).toBe('1234');
+    expect(cdfLogDevice.Version).toBe('codeversion');
+    expect(cdfLogDevice.Type).toBe('ems');
+    const events = cdfLogDevice.Event;
+    // There are 37 log lines in the sample file.
+    expect(events).toHaveLength(37);
+    // There should be one admin-card-inserted log from the application logging.
+    expect(
+      events.filter((e) => e.Id === LogEventId.AdminCardInserted)
+    ).toHaveLength(1);
+    // There should be 11 device-attached logs from the application logging.
+    expect(
+      events.filter((e) => e.Id === LogEventId.DeviceAttached)
+    ).toHaveLength(11);
+    // There should be 11 usb-device-status-change logs from the system logging.
+    expect(
+      events.filter((e) => e.Id === LogEventId.UsbDeviceChangeDetected)
+    ).toHaveLength(4);
+    // An application log should match the snapshot expected.
+    expect(events.filter((e) => e.Id === LogEventId.MachineLocked)[0])
+      .toMatchInlineSnapshot(`
+      Object {
+        "Description": "The current user was logged out and the machine was locked.",
+        "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"vx-admin\\"}",
+        "Disposition": "success",
+        "Id": "machine-locked",
+        "Sequence": "32",
+        "TimeStamp": "2021-12-12T15:22:14.237991-08:00",
+        "Type": "user-action",
+        "UserId": "admin",
+      }
+    `);
+
+    // A system log should match the snapshot expected.
+    expect(events.filter((e) => e.Id === LogEventId.UsbDeviceChangeDetected)[0])
+      .toMatchInlineSnapshot(`
+      Object {
+        "Description": "usblp1: removed",
+        "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"system\\"}",
+        "Disposition": "na",
+        "Id": "usb-device-change-detected",
+        "Sequence": "26",
+        "TimeStamp": "2021-12-12T15:22:07.667632-08:00",
+        "Type": "system-status",
+        "UserId": "system",
+      }
+    `);
+  });
 });

@@ -93,6 +93,8 @@ export enum LogEventId {
   FujitsuScanImageScanned = 'fujitsu-scan-sheet-scanned',
   FujitsuScanBatchComplete = 'fujitsu-scan-batch-complete',
   FujitsuScanMessage = 'fujitsu-scan-message',
+  LogConversionToCdfComplete = 'convert-log-cdf-complete',
+  LogConversionToCdfLogLineError = 'convert-log-cdf-log-line-error',
 }
 
 export interface LogDetails {
@@ -560,6 +562,18 @@ const ExportLogFileFound: LogDetails = {
   documentationMessage:
     'When the user is exporting logs, indicates the success/failure of finding the expected log file on the machine.',
 };
+const LogConversionToCdfComplete: LogDetails = {
+  eventId: LogEventId.LogConversionToCdfComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The user has converted the log file to a CDF format for export. Success or failure indicated by disposition.',
+};
+const LogConversionToCdfLogLineError: LogDetails = {
+  eventId: LogEventId.LogConversionToCdfLogLineError,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Error seen when converting a single log to the CDF format. This log line will be skipped. Disposition of this log is always failure.',
+};
 
 const ScanServiceConfigurationMessage: LogDetails = {
   eventId: LogEventId.ScanServiceConfigurationMessage,
@@ -743,6 +757,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return FujitsuScanImageScanned;
     case LogEventId.FujitsuScanBatchComplete:
       return FujitsuScanBatchComplete;
+    case LogEventId.LogConversionToCdfComplete:
+      return LogConversionToCdfComplete;
+    case LogEventId.LogConversionToCdfLogLineError:
+      return LogConversionToCdfLogLineError;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);
