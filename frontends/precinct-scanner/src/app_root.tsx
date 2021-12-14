@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
@@ -23,6 +22,7 @@ import {
   useHardware,
 } from '@votingworks/ui';
 import {
+  assert,
   throwIllegalValue,
   PrecinctScannerCardTally,
   Card,

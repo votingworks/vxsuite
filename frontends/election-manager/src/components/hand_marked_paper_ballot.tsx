@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import React, { useLayoutEffect, useRef, useContext } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
@@ -543,9 +543,8 @@ export function HandMarkedPaperBallot({
   onRendered,
 }: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
-  assert.notEqual(
-    locales.primary,
-    locales.secondary,
+  assert(
+    locales.primary === locales.secondary,
     'rendering a dual-language ballot with both languages the same is not allowed'
   );
 

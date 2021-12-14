@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import React, {
   useContext,
   useState,
@@ -9,6 +8,7 @@ import React, {
 import moment from 'moment';
 
 import {
+  assert,
   generateFinalExportDefaultFilename,
   format,
   find,

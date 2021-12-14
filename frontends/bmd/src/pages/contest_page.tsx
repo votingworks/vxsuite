@@ -1,4 +1,4 @@
-import { ok } from 'assert';
+import { assert } from '@votingworks/utils';
 import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
@@ -40,11 +40,14 @@ export function ContestPage({
     userSettings,
     votes,
   } = useContext(BallotContext);
-  ok(
+  assert(
     electionDefinition,
     'electionDefinition is required to render ContestPage'
   );
-  ok(precinctId, 'precinctId is required to render ContestPage');
+  assert(
+    typeof precinctId === 'string',
+    'precinctId is required to render ContestPage'
+  );
   const { election } = electionDefinition;
   // This overly-aggressive directive is because BMD's react-scripts can't load
   // our custom ESLint config properly. We need to update to react-scripts@4.

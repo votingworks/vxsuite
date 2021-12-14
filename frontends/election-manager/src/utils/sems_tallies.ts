@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import _ from 'lodash';
 
 import {
@@ -25,7 +24,7 @@ import {
   PartyIdSchema,
 } from '@votingworks/types';
 
-import { throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 
 import {
   convertTalliesByPrecinctToFullExternalTally,

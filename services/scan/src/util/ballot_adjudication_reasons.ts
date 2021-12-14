@@ -6,8 +6,7 @@ import {
   Contests,
   MarkStatus,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { allContestOptions } from './all_contest_options';
 
 export interface Options {
@@ -72,8 +71,7 @@ export function* ballotAdjudicationReasons(
             break;
 
           case MarkStatus.UnmarkedWriteIn:
-            assert.equal(option.type, 'candidate' as const);
-            assert(option.isWriteIn);
+            assert(option.type === 'candidate' && option.isWriteIn);
 
             yield {
               type: AdjudicationReason.UnmarkedWriteIn,

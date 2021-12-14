@@ -11,8 +11,7 @@ import {
 } from '@votingworks/logging';
 import { useCallback, useEffect, useState } from 'react';
 import deepEqual from 'deep-eql';
-import { strict as assert } from 'assert';
-import { throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { Smartcard } from '..';
 import { usePrevious } from './use_previous';
 

@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import { fromByteArray } from 'base64-js';
 import { DateTime } from 'luxon';
 import React from 'react';
@@ -20,6 +19,7 @@ import {
   getPrecinctIndexById,
 } from '@votingworks/types';
 import {
+  assert,
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,

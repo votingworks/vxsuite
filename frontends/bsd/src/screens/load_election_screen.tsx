@@ -3,8 +3,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
-import { strict as assert } from 'assert';
-import { BallotPackage, ballotPackageUtils } from '@votingworks/utils';
+import { assert, BallotPackage, ballotPackageUtils } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';

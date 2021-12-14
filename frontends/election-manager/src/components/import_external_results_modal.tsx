@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { format } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, format } from '@votingworks/utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';

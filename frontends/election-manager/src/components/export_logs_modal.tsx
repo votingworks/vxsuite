@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import path from 'path';
 import {
+  assert,
   usbstick,
   throwIllegalValue,
   generateLogFilename,
 } from '@votingworks/utils';
 
-import assert from 'assert';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';

@@ -7,12 +7,12 @@ import {
   UsbDrive,
 } from '@votingworks/ui';
 import {
+  assert,
   generateElectionBasedSubfolderName,
   SCANNER_BACKUPS_FOLDER,
   throwIllegalValue,
   usbstick,
 } from '@votingworks/utils';
-import { strict as assert } from 'assert';
 import path from 'path';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { throwIllegalValue, format } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, throwIllegalValue, format } from '@votingworks/utils';
 import { Table, TD } from '@votingworks/ui';
 import {
   BatchTally,

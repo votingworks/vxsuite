@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import * as json from '../json_serialization';
 import { WorkerOps } from './types';
@@ -13,12 +13,12 @@ export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
   }
 
   stop(worker: EventEmitter): void {
-    assert.strictEqual(worker, this.workerInstance);
+    assert(worker === this.workerInstance);
     worker.removeAllListeners();
   }
 
   async send(worker: EventEmitter, message: I): Promise<void> {
-    assert.strictEqual(worker, this.workerInstance);
+    assert(worker === this.workerInstance);
     try {
       const output = await this.call(
         json.deserialize(json.serialize(message)) as I

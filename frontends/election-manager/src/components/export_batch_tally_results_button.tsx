@@ -1,7 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
-import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import {
+  assert,
+  generateBatchResultsDefaultFilename,
+} from '@votingworks/utils';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
 import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';

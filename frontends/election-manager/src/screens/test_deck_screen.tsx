@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import React, { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -17,7 +16,11 @@ import {
   LogoMark,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
-import { tallyVotesByContest, filterTalliesByParty } from '@votingworks/utils';
+import {
+  assert,
+  tallyVotesByContest,
+  filterTalliesByParty,
+} from '@votingworks/utils';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';

@@ -1,9 +1,8 @@
-import { strict as assert } from 'assert';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 
-import { format } from '@votingworks/utils';
+import { assert, format } from '@votingworks/utils';
 import { Table, TD, LogoMark } from '@votingworks/ui';
 import { ContestTallyMeta } from '@votingworks/types';
 import { NavigationScreen } from '../components/navigation_screen';

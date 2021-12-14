@@ -1,6 +1,5 @@
-import { strict as assert } from 'assert';
 import { err, ok, Result } from '@votingworks/types';
-import { sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { ScannerError } from './errors';
 import { PaperStatus } from './paper_status';

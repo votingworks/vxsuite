@@ -1,9 +1,8 @@
-import { strict as assert } from 'assert';
 import React, { useCallback, useContext, useState } from 'react';
 
 import { NumberPad, useCancelablePromise } from '@votingworks/ui';
 import styled from 'styled-components';
-import { sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 

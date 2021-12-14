@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import pluralize from 'pluralize';
 import React, {
   useCallback,
@@ -17,6 +16,7 @@ import {
 import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui';
 
 import {
+  assert,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
 } from '@votingworks/utils';

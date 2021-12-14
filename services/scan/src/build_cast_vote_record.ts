@@ -18,8 +18,7 @@ import {
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
-import { find, throwIllegalValue } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, find, throwIllegalValue } from '@votingworks/utils';
 import { VX_MACHINE_ID } from './globals';
 import {
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,

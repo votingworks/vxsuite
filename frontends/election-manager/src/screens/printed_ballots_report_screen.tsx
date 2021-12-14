@@ -1,10 +1,9 @@
-import { strict as assert } from 'assert';
 import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 import _ from 'lodash';
 
 import { Dictionary } from '@votingworks/types';
-import { format, find } from '@votingworks/utils';
+import { assert, format, find } from '@votingworks/utils';
 import { Table, TD, LogoMark } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { PrintableBallotType } from '../config/types';

@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import makeDebug from 'debug';
 import useInterval from '@rooks/use-interval';
@@ -15,6 +14,7 @@ import {
   UsbDrive,
 } from '@votingworks/ui';
 import {
+  assert,
   BallotCountDetails,
   compressTally,
   computeTallyWithPrecomputedCategories,

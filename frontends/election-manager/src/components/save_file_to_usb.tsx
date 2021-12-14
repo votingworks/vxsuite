@@ -2,10 +2,9 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import path from 'path';
 import fileDownload from 'js-file-download';
-import { usbstick, throwIllegalValue } from '@votingworks/utils';
+import { assert, usbstick, throwIllegalValue } from '@votingworks/utils';
 
 import { UsbControllerButton } from '@votingworks/ui';
-import assert from 'assert';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';

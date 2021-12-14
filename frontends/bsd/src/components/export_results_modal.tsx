@@ -5,13 +5,13 @@ import fileDownload from 'js-file-download';
 import path from 'path';
 
 import {
+  assert,
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils';
 import { UsbControllerButton } from '@votingworks/ui';
-import { strict as assert } from 'assert';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';

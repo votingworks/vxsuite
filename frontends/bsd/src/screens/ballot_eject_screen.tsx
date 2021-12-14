@@ -10,7 +10,7 @@ import {
   ScanContinueRequest,
   Side,
 } from '@votingworks/types/api/services/scan';
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';

@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import makeDebug from 'debug';
 import {
   BallotType,
@@ -36,6 +35,7 @@ import './App.css';
 import IdleTimer from 'react-idle-timer';
 import useInterval from '@rooks/use-interval';
 import {
+  assert,
   Card,
   Storage,
   Hardware,

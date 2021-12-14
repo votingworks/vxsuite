@@ -7,8 +7,7 @@ import {
   UndervoteAdjudicationReasonInfo,
 } from '@votingworks/types';
 import { Button, Prose, Text } from '@votingworks/ui';
-import { integers, take } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, integers, take } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/absolute';

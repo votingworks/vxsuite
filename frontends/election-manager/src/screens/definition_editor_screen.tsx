@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { assert } from '@votingworks/utils';
 import React, { useCallback, useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import fileDownload from 'js-file-download';

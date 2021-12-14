@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -7,7 +6,7 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { routerPaths } from '../router_paths';
 

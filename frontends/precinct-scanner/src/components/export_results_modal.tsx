@@ -11,13 +11,13 @@ import {
   UsbDrive,
 } from '@votingworks/ui';
 import {
+  assert,
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
   throwIllegalValue,
   usbstick,
 } from '@votingworks/utils';
-import { strict as assert } from 'assert';
 import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
 

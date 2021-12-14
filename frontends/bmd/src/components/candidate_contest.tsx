@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import camelCase from 'lodash.camelcase';
 import React, {
   useCallback,
@@ -17,7 +16,7 @@ import {
   getPrecinctIndexById,
 } from '@votingworks/types';
 import { Button, Main } from '@votingworks/ui';
-import { getContestCandidatesInRotatedOrder } from '@votingworks/utils';
+import { assert, getContestCandidatesInRotatedOrder } from '@votingworks/utils';
 
 import { findPartyById } from '../utils/find';
 import { stripQuotes } from '../utils/strip_quotes';

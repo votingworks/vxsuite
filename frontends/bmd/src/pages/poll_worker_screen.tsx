@@ -24,6 +24,7 @@ import {
 } from '@votingworks/ui';
 
 import {
+  assert,
   TallySourceMachineType,
   find,
   readCompressedTally,
@@ -31,7 +32,6 @@ import {
   getTallyIdentifier,
 } from '@votingworks/utils';
 
-import { strict as assert } from 'assert';
 import {
   MachineConfig,
   PrecinctSelection,

@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import React, {
   useCallback,
   useContext,
@@ -15,7 +14,7 @@ import {
 } from '@votingworks/types';
 import { Button, Main } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils';
+import { assert, getSingleYesNoVote } from '@votingworks/utils';
 import {
   EventTargetFunction,
   ScrollDirections,
