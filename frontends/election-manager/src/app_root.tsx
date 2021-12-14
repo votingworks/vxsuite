@@ -119,7 +119,7 @@ export function AppRoot({
 
     if (electionDefinition) {
       const { electionData, electionHash } = electionDefinition;
-      assert.equal(sha256(electionData), electionHash);
+      assert(sha256(electionData) === electionHash);
       return electionDefinition;
     }
   }, [storage]);

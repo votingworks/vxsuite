@@ -1,5 +1,5 @@
 import { Point, Rect } from '@votingworks/types';
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import chalk from 'chalk';
 import { GlobalOptions, OptionParseError } from '..';
 import { findContests, ContestShape } from '../../hmpb/find_contests';
@@ -127,7 +127,7 @@ function drawTarget(
   color: RGBA,
   size: number
 ): void {
-  assert.equal(getImageChannelCount({ data, width, height }), RGBA_CHANNELS);
+  assert(getImageChannelCount({ data, width, height }) === RGBA_CHANNELS);
 
   const halfSize = Math.ceil(size / 2);
 
@@ -154,7 +154,7 @@ function fill(
   bounds: Rect,
   color: RGBA
 ): void {
-  assert.equal(getImageChannelCount({ data, width, height }), RGBA_CHANNELS);
+  assert(getImageChannelCount({ data, width, height }) === RGBA_CHANNELS);
 
   for (let { y } = bounds; y < bounds.y + bounds.height; y += 1) {
     for (let { x } = bounds; x < bounds.x + bounds.width; x += 1) {

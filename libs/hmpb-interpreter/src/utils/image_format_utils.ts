@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, fail } from '@votingworks/utils';
 import { Size } from '@votingworks/types';
 
 export type InPlaceImageTransform<A extends unknown[], R> = (
@@ -67,24 +67,22 @@ export function isRgba(imageData: ImageData): boolean {
 }
 
 export function assertRgbaImage(imageData: ImageData): void {
-  assert.equal(
-    imageData.data.length,
-    imageData.width * imageData.height * 4,
+  assert(
+    imageData.data.length === imageData.width * imageData.height * 4,
     'expected 4-channel RGBA image'
   );
 }
 
 export function assertGrayscaleImage(imageData: ImageData): void {
-  assert.equal(
-    imageData.data.length,
-    imageData.width * imageData.height,
+  assert(
+    imageData.data.length === imageData.width * imageData.height,
     'expected 1-channel grayscale image'
   );
 }
 
 export function assertRgbaOrGrayscaleImage(imageData: ImageData): void {
   if (!isRgba(imageData) && !isGrayscale(imageData)) {
-    assert.fail('expected 1-channel grayscale or 4-channel RGBA image');
+    fail('expected 1-channel grayscale or 4-channel RGBA image');
   }
 }
 
@@ -92,17 +90,15 @@ export function assertImageChannelsMatch(
   imageData1: ImageData,
   imageData2: ImageData
 ): void {
-  assert.equal(
-    getImageChannelCount(imageData1),
-    getImageChannelCount(imageData2),
+  assert(
+    getImageChannelCount(imageData1) === getImageChannelCount(imageData2),
     'expected images to have the same number of channels'
   );
 }
 
 export function assertSizesMatch(size1: Size, size2: Size): void {
-  assert.deepEqual(
-    { width: size1.width, height: size1.height },
-    { width: size2.width, height: size2.height },
+  assert(
+    size1.width === size2.width && size1.height === size2.height,
     'expected sizes to be equal'
   );
 }

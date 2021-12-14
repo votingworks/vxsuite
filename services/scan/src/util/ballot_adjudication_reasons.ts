@@ -71,8 +71,7 @@ export function* ballotAdjudicationReasons(
             break;
 
           case MarkStatus.UnmarkedWriteIn:
-            assert.equal(option.type, 'candidate' as const);
-            assert(option.isWriteIn);
+            assert(option.type === 'candidate' && option.isWriteIn);
 
             yield {
               type: AdjudicationReason.UnmarkedWriteIn,

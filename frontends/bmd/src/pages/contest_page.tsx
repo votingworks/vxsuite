@@ -44,7 +44,10 @@ export function ContestPage({
     electionDefinition,
     'electionDefinition is required to render ContestPage'
   );
-  assert(precinctId, 'precinctId is required to render ContestPage');
+  assert(
+    typeof precinctId === 'string',
+    'precinctId is required to render ContestPage'
+  );
   const { election } = electionDefinition;
   // This overly-aggressive directive is because BMD's react-scripts can't load
   // our custom ESLint config properly. We need to update to react-scripts@4.
