@@ -1,8 +1,5 @@
-import { NodePath, parseSync, transformSync } from '@babel/core';
-import generate from '@babel/generator';
-import traverse from '@babel/traverse';
-import * as t from '@babel/types';
-import plugin, { addSpecifierToImport } from './safe_parse_helpers';
+import { transformSync } from '@babel/core';
+import plugin from './safe_parse_helpers';
 
 function check(input: string, output: string): void {
   expect(
@@ -102,63 +99,5 @@ test('ignores malformed ok call', () => {
   check(
     `safeParse(Parser, value).ok(arg);`,
     `safeParse(Parser, value).ok(arg);`
-  );
-});
-
-test('addSpecifierToImport without specifiers', () => {
-  const ast = parseSync(`import '@votingworks/types';`)!;
-
-  traverse(ast, {
-    ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
-      addSpecifierToImport(path, 'ok');
-    },
-  });
-
-  expect(generate(ast).code).toEqual(
-    `import { ok } from '@votingworks/types';`
-  );
-});
-
-test('addSpecifierToImport with existing specifiers can insert at the start', () => {
-  const ast = parseSync(`import { ok } from '@votingworks/types';`)!;
-
-  traverse(ast, {
-    ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
-      addSpecifierToImport(path, 'err');
-    },
-  });
-
-  expect(generate(ast).code).toEqual(
-    `import { err, ok } from '@votingworks/types';`
-  );
-});
-
-test('addSpecifierToImport with existing specifiers can insert at the end', () => {
-  const ast = parseSync(`import { err } from '@votingworks/types';`)!;
-
-  traverse(ast, {
-    ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
-      addSpecifierToImport(path, 'ok');
-    },
-  });
-
-  expect(generate(ast).code).toEqual(
-    `import { err, ok } from '@votingworks/types';`
-  );
-});
-
-test('addSpecifierToImport with existing specifiers can insert in the middle', () => {
-  const ast = parseSync(
-    `import { Election, Precinct } from '@votingworks/types';`
-  )!;
-
-  traverse(ast, {
-    ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
-      addSpecifierToImport(path, 'ok');
-    },
-  });
-
-  expect(generate(ast).code).toEqual(
-    `import { Election, ok, Precinct } from '@votingworks/types';`
   );
 });
