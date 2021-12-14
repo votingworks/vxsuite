@@ -1,4 +1,4 @@
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import chalk from 'chalk';
 import deepEqual from 'deep-eql';
 import diff from 'jest-diff';

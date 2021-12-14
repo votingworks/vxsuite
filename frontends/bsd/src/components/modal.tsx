@@ -1,4 +1,4 @@
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import React, { ReactNode } from 'react';
 import ReactModal from 'react-modal';
 import styled from 'styled-components';

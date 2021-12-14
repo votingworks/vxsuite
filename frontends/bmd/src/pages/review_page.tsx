@@ -15,7 +15,11 @@ import {
 } from '@votingworks/types';
 import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui';
 
-import { assert, getSingleYesNoVote, getContestVoteInRotatedOrder } from '@votingworks/utils';
+import {
+  assert,
+  getSingleYesNoVote,
+  getContestVoteInRotatedOrder,
+} from '@votingworks/utils';
 import { findPartyById } from '../utils/find';
 import {
   CandidateContestResultInterface,

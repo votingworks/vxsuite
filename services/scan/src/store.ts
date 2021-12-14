@@ -29,7 +29,7 @@ import {
   BatchInfo,
   Side,
 } from '@votingworks/types/api/services/scan';
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
 import { promises as fs } from 'fs';

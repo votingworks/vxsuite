@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { ButtonBar } from '@votingworks/ui';
 
 import './Modal.css';
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 
 interface ModalContentInterface {
   centerContent?: boolean;

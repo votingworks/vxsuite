@@ -53,7 +53,7 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import { backup } from './backup';
 import {
   SCAN_ALWAYS_HOLD_ON_REJECT,

@@ -1,5 +1,5 @@
 import { Corners, Point, Rect } from '@votingworks/types';
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 
 /**
  * Gets the four extreme points of a rectangle, inclusive.

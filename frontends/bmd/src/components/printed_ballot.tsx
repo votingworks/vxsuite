@@ -18,7 +18,12 @@ import {
   getPrecinctById,
   getPrecinctIndexById,
 } from '@votingworks/types';
-import { assert, formatLongDate, getSingleYesNoVote, getContestVoteInRotatedOrder } from '@votingworks/utils';
+import {
+  assert,
+  formatLongDate,
+  getSingleYesNoVote,
+  getContestVoteInRotatedOrder,
+} from '@votingworks/utils';
 
 import * as GLOBALS from '../config/globals';
 

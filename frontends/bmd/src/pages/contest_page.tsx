@@ -1,4 +1,4 @@
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';

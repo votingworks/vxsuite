@@ -1,4 +1,4 @@
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 

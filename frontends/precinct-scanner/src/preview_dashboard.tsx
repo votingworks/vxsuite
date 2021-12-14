@@ -5,7 +5,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { Select } from '@votingworks/ui';
-import { assert } from "@votingworks/utils";
+import { assert } from '@votingworks/utils';
 import React, { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
@@ -65,7 +65,7 @@ export function getPreviews(
     return;
   }
 
-  assert.equal(nonPreviewComponents.length, 1);
+  assert(nonPreviewComponents.length === 1);
   const [previewableComponent] = nonPreviewComponents;
   const componentId = previewableComponent.name;
   const componentName = asTitle(previewableComponent.name);
