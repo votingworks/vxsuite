@@ -88,6 +88,11 @@ export enum LogEventId {
   ScanAdjudicationInfo = 'scan-adjudication-info',
   ScannerConfigReloaded = 'scanner-config-reloaded',
   ExportLogFileFound = 'export-log-file-found',
+  ScanServiceConfigurationMessage = 'scan-service-config',
+  FujitsuScanInit = 'fujitsu-scan-init',
+  FujitsuScanImageScanned = 'fujitsu-scan-sheet-scanned',
+  FujitsuScanBatchComplete = 'fujitsu-scan-batch-complete',
+  FujitsuScanMessage = 'fujitsu-scan-message',
 }
 
 export interface LogDetails {
@@ -556,6 +561,38 @@ const ExportLogFileFound: LogDetails = {
     'When the user is exporting logs, indicates the success/failure of finding the expected log file on the machine.',
 };
 
+const ScanServiceConfigurationMessage: LogDetails = {
+  eventId: LogEventId.ScanServiceConfigurationMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the scanning service about how it is configured while starting up.',
+};
+
+const FujitsuScanInit: LogDetails = {
+  eventId: LogEventId.FujitsuScanInit,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'Application is initiating a new scanning batch on the fujitsu scanner.',
+};
+const FujitsuScanImageScanned: LogDetails = {
+  eventId: LogEventId.FujitsuScanImageScanned,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition.',
+};
+const FujitsuScanBatchComplete: LogDetails = {
+  eventId: LogEventId.FujitsuScanBatchComplete,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A batch of sheets has completed scanning on the fujitsu scanner.',
+};
+const FujitsuScanMessage: LogDetails = {
+  eventId: LogEventId.FujitsuScanMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the driver handling the fujitsu scanner regarding scanning progress.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -696,6 +733,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerConfigReloaded;
     case LogEventId.ExportLogFileFound:
       return ExportLogFileFound;
+    case LogEventId.ScanServiceConfigurationMessage:
+      return ScanServiceConfigurationMessage;
+    case LogEventId.FujitsuScanInit:
+      return FujitsuScanInit;
+    case LogEventId.FujitsuScanMessage:
+      return FujitsuScanMessage;
+    case LogEventId.FujitsuScanImageScanned:
+      return FujitsuScanImageScanned;
+    case LogEventId.FujitsuScanBatchComplete:
+      return FujitsuScanBatchComplete;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

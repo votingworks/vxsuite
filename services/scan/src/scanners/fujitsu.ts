@@ -4,6 +4,7 @@ import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
 import { BallotPaperSize } from '@votingworks/types';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BatchControl,
   Scanner,
@@ -20,6 +21,7 @@ const debug = makeDebug('scan:scanner');
 export interface Options {
   format?: ScannerImageFormat;
   mode?: ScannerMode;
+  logger: Logger;
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -40,10 +42,12 @@ function dateStamp(date: Date = new Date()): string {
 export class FujitsuScanner implements Scanner {
   private readonly format: ScannerImageFormat;
   private readonly mode?: ScannerMode;
+  private readonly logger: Logger;
 
-  constructor({ format = ScannerImageFormat.JPEG, mode }: Options = {}) {
+  constructor({ format = ScannerImageFormat.JPEG, logger, mode }: Options) {
     this.format = format;
     this.mode = mode;
+    this.logger = logger;
   }
 
   async getStatus(): Promise<ScannerStatus> {
@@ -82,11 +86,15 @@ export class FujitsuScanner implements Scanner {
       args.push('--mode', this.mode);
     }
 
-    debug(
-      'Calling scanimage to scan into %s in format %s; %s',
-      directory,
-      this.format,
-      `scanimage ${args.map((arg) => `'${arg}'`).join(' ')}`
+    void this.logger.log(
+      LogEventId.FujitsuScanInit,
+      'system',
+      {
+        message: `Calling scanimage to scan into ${directory} in format ${
+          this.format
+        }; scanimage ${args.map((arg) => `'${arg}'`).join(' ')}`,
+      },
+      debug
     );
 
     const scannedFiles: string[] = [];
@@ -94,15 +102,26 @@ export class FujitsuScanner implements Scanner {
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
 
-    debug('scanimage [pid=%d] started', scanimage.pid);
+    void this.logger.log(
+      LogEventId.FujitsuScanInit,
+      'system',
+      {
+        message: `'scanimage [pid=${scanimage.pid}] started'`,
+      },
+      debug
+    );
 
     assert(scanimage.stdout);
     new StreamLines(scanimage.stdout).on('line', (line: string) => {
       const path = line.trim();
-      debug(
-        'scanimage [pid=%d] reported a scanned file: %s',
-        scanimage.pid,
-        path
+      void this.logger.log(
+        LogEventId.FujitsuScanImageScanned,
+        'system',
+        {
+          message: `scanimage [pid=${scanimage.pid}] reported a scanned file: ${path}`,
+          disposition: 'success',
+        },
+        debug
       );
 
       scannedFiles.push(path);
@@ -115,15 +134,39 @@ export class FujitsuScanner implements Scanner {
 
     assert(scanimage.stderr);
     new StreamLines(scanimage.stderr).on('line', (line: string) => {
-      debug('scanimage [pid=%d] stderr: %s', scanimage.pid, line.trim());
+      void this.logger.log(
+        LogEventId.FujitsuScanMessage,
+        'system',
+        {
+          message: `scanimage [pid=${scanimage.pid}] msg: ${line.trim()}`,
+        },
+        debug
+      );
     });
 
     scanimage.once('exit', (code) => {
-      debug('scanimage [pid=%d] exited with code %d', scanimage.pid, code);
       done = true;
       if (code !== 0) {
+        void this.logger.log(
+          LogEventId.FujitsuScanBatchComplete,
+          'system',
+          {
+            message: `scanimage [pid=${scanimage.pid}] exited with code ${code}`,
+            disposition: 'failure',
+          },
+          debug
+        );
         results.rejectAll(new Error(`scanimage exited with code=${code}`));
       } else {
+        void this.logger.log(
+          LogEventId.FujitsuScanBatchComplete,
+          'system',
+          {
+            message: `scanimage [pid=${scanimage.pid}] exited with code 0`,
+            disposition: 'success',
+          },
+          debug
+        );
         results.resolveAll(Promise.resolve(undefined));
       }
     });
@@ -156,9 +199,14 @@ export class FujitsuScanner implements Scanner {
       endBatch: async (): Promise<void> => {
         if (!done) {
           done = true;
-          debug(
-            'scanimage [pid=%d] stopping scan by closing stdin',
-            scanimage.pid
+          void this.logger.log(
+            LogEventId.FujitsuScanBatchComplete,
+            'system',
+            {
+              message: `scanimage [pid=${scanimage.pid}] stopping scan by closing stdin`,
+              disposition: 'success',
+            },
+            debug
           );
           await new Promise<void>((resolve) => {
             scanimage.stdin?.end(() => {
