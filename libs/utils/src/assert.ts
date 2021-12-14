@@ -1,4 +1,24 @@
 /**
+ * Asserts that `condition` is true. This function exists to avoid a polyfill
+ * for `assert` in the browser.
+ */
+export function assert(
+  condition: unknown,
+  message?: string
+): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+/**
+ * Fail with an optional error message.
+ */
+export function fail(message?: string): never {
+  throw new Error(message);
+}
+
+/**
  * Use as a compile-time check that the type of `value` has been narrowed to
  * `never`. This is primarily useful when handling cases of a discriminated
  * union or enum.

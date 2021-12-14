@@ -1,9 +1,9 @@
-import { strict as assert } from 'assert';
 import {
   ContestOptionTally,
   ContestTally,
   Dictionary,
 } from '@votingworks/types';
+import { assert } from './assert';
 
 export function combineContestTallies(
   firstTally: ContestTally,

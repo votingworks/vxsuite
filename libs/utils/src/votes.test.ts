@@ -23,7 +23,7 @@ import {
   writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
+import { assert } from './assert';
 import {
   calculateTallyForCastVoteRecords,
   filterTalliesByParty,

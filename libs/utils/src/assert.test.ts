@@ -1,6 +1,20 @@
-import { throwIllegalValue } from './throw_illegal_value';
+import { assert, fail, throwIllegalValue } from './assert';
 
-test('enum example', () => {
+test('assert', () => {
+  assert(true);
+  expect(() => assert(false, 'message')).toThrow('message');
+
+  // compile-time test checking that `value`'s type is narrowed by TS
+  const value: unknown = 'value';
+  assert(typeof value === 'string');
+  expect(value.startsWith('v')).toBe(true);
+});
+
+test('fail', () => {
+  expect(() => fail('message')).toThrow('message');
+});
+
+test('throwIllegalValue enum example', () => {
   enum ABC {
     A,
     B,
@@ -19,7 +33,7 @@ test('enum example', () => {
   }
 });
 
-test('invalid example', () => {
+test('throwIllegalValue invalid example', () => {
   enum ABC {
     A,
     B,
@@ -39,7 +53,7 @@ test('invalid example', () => {
   }
 });
 
-test('display name', () => {
+test('throwIllegalValue display name', () => {
   type Thing = { type: 'car' } | { type: 'dog' } | { type: 'house' };
 
   const thing = { type: 'hotdog' } as unknown as Thing;

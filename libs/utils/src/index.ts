@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * from './assert';
 export * from './ballot_package';
 export * from './Card';
 export * from './compressed_tallies';
@@ -15,7 +16,6 @@ export * from './rotation';
 export * from './sleep';
 export * from './Storage';
 export * from './tallies';
-export * from './throw_illegal_value';
 export * from './types';
 export * from './votes';
 export * as usbstick from './usbstick';

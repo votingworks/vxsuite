@@ -10,7 +10,6 @@ import {
   VotingMethod,
   writeInCandidate,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
 import {
   electionMultiPartyPrimaryWithDataFiles,
   electionSampleDefinition,
@@ -18,11 +17,15 @@ import {
 } from '@votingworks/fixtures';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
 
-import { compressTally, readCompressedTally } from './compressed_tallies';
+import {
+  compressTally,
+  readCompressedTally,
+  getTallyIdentifier,
+} from './compressed_tallies';
 
 import { calculateTallyForCastVoteRecords } from './votes';
 import { find } from './find';
-import { getTallyIdentifier } from '.';
+import { assert } from './assert';
 
 describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {

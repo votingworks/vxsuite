@@ -1,6 +1,6 @@
 import { electionSample } from '@votingworks/fixtures';
-import { strict as assert } from 'assert';
 import { ContestTally } from '@votingworks/types';
+import { assert } from './assert';
 import { tallyVotesByContest } from './votes';
 import { combineContestTallies } from './tallies';
 

@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import moment from 'moment';
 import {
   Election,
@@ -6,6 +5,7 @@ import {
   MachineId,
   maybeParse,
 } from '@votingworks/types';
+import { assert } from './assert';
 
 const SECTION_SEPARATOR = '__';
 const SUBSECTION_SEPARATOR = '_';

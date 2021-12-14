@@ -12,9 +12,8 @@ import {
   PartyId,
   PrecinctId,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
 import { BallotCountDetails } from '.';
-import { throwIllegalValue } from './throw_illegal_value';
+import { throwIllegalValue, assert } from './assert';
 import { filterContestTalliesByPartyId } from './votes';
 
 const ALL_PRECINCTS = '__ALL_PRECINCTS';
