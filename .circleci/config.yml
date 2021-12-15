@@ -191,6 +191,42 @@ jobs:
           command: |
             pnpm --dir libs/ballot-encoder test
 
+  test-libs-cdf-schema-builder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cdf-schema-builder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cdf-schema-builder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cdf-schema-builder test
+
+  test-libs-cdf-types-election-event-logging:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cdf-types-election-event-logging build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cdf-types-election-event-logging lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cdf-types-election-event-logging test
+
   test-libs-eslint-plugin-vx:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -452,6 +488,8 @@ workflows:
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
       - test-libs-ballot-encoder
+      - test-libs-cdf-schema-builder
+      - test-libs-cdf-types-election-event-logging
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures
       - test-libs-hmpb-interpreter

@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- ========== Roots ========== -->
+  <xsd:element name="ElectionEventLog" type="ElectionEventLog"/>
+  <xsd:element name="ElectionEventLogDocumentation" type="ElectionEventLogDocumentation"/>
+  <!-- ========== Enumerations ========== -->
+  <xsd:simpleType name="DeviceType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Used in Device::Type to describe the type or usage of the device generating the event.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="adjudication">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Electronic adjudication function for reviewing absentee/mail-in ballots anomalies (blanks/overvotes/write-ins/unreadable ballots).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="ballot-activation">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Devices for enabling a vote capture device (VCD) to display a ballot, possibly directly connected to the VCD or through a smart card interface.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="bmd">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Ballot marking devices (voter facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="ballot-printing">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Marked ballot printing devices (voter facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="blank-ballot-printing">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">On-demand blank ballot printers.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="dre">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Electronic voter stations, standalone or daisy chained to a DRE-controller (voter facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="dre-controller">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Network controller for electronic voting (poll worker facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="electronic-cast">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">DREs, or other devices that store cast vote records electronically (voter facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="electronic-cast-paper">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">DREs, or devices that store cast vote records electronically and also print a paper record (voter facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="electronic-poll-book">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Electronic poll book devices.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="ems">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Election management systems, including for pre- and post-election administration and reporting functions.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="scan-batch">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Scanning devices for batches of ballots, auto-feeding, e.g., Central Count (poll worker facing).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="scan-single">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Scanning devices for single-sheets, e.g., Precinct Count (voter facing), but could be used for Central Count by an election official.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="transmission-sending">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Remote transmission clients, e.g., for sending of unofficial results from a remote location to a central location (sending station).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="transmission-receiving">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Remote transmission hosts, e.g., for the receiving of unofficial results at a central location from a remote location (receiving station).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="other">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used when no other value in this enumeration applies.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="EventDispositionType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Used in Event::Disposition for types of event dispositions.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="failure">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">For a failure disposition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="na">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used when the disposition is not applicable or there is no disposition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="success">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">For a successful disposition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="other">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used when no other value in this enumeration applies.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="HashType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Used in Hash::Type to indicate the type of hash being used for an image file.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="md6">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">To indicate that the MD6 message digest algorithm is being used.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="sha-256">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">To indicate that the SHA 256-bit signature is being used.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="sha-512">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">To indicate that the SHA 512-bit (32-byte) signature is being used.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="other">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used when no other value in this enumeration applies.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!-- ========== Classes ========== -->
+  <xsd:complexType name="Device">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Device contains information about the device generating election event logs. Id is the only required attribute, all other attributes are optional.  If the device type is not found in the DeviceType enumeration, Type is 'other' and OtherType contains the appropriate type.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Details" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used to associate any details with the event log.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Event" type="Event" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used to describe a logged event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="HashType" type="HashType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The type of the hash, from the HashType enumeration.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="OtherHashType" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">If HashType is 'other', the type of the hash.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Id" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A serial number or otherwise identifier associated with the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Manufacturer" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Manufacturer of the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Model" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Model of the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Type" type="DeviceType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Enumerated usage of the device, e.g., ems, scan-single, etc.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="OtherType" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used when Type is 'other'.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Version identification of the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ElectionEventLog">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">ElectionEventLog is the root class.  It includes Device for identifying the device(s) generating the election events, the date and time when the election event log was created, and an identification of the election. Details is used as needed for additional description/details. HashType is used to specify a cryptographic hash associated with the events, that is, an event log entry, using values from the HashType enumeration.  If the type of hash is not found in the HashType enumeration, HashType is 'other' and OtherHashType contains the type of hash.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Details" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used to associate any details with the event log.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Device" type="Device" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used to describe the device(s) generating the election events.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ElectionId" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Identifies the election associated with the log.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="GeneratedTime" type="xsd:dateTime">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Identifies the date and time the log was generated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ElectionEventLogDocumentation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">ElectionEventLogDocumention is the root class.  It includes EventIdDescription and EventTypeDescription, as well as other information for identifying the specific device associated with the election event documentation.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="DeviceId" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A serial number or otherwise identifier associated with the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="DeviceManufacturer" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Manufacturer of the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="DeviceModel" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Model of the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="DeviceVersion" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Version identification of the device.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="EventIdDescription" type="EventIdDescription" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">For associating a description with an event ID.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="EventTypeDescription" type="EventTypeDescription" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">For associating a description with an event type.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="GeneratedDate" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Identifies the date the documentation report was generated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Event">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Event holds information about a specific event. Severity is an optional attribute for describing a severity indication for the event.  If the event disposition is not found in the EventDispositionType enumeration, Disposition is 'other' and OtherDisposition contains the other disposition.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Description" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used for a brief description of the event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Details" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used for additional information about the event, e.g., vendor reserved information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Disposition" type="EventDispositionType">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The disposition, e.g., success or failure, of the event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="OtherDisposition" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used when Disposition is 'other'.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Hash" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Contains a cryptographic hash of the event, encoded as a string.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Id" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An identifier associated with the event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Sequence" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A sequence number/string to uniquely identify the event in the log file.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Severity" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used for an indication of the severity of the event, as determined by the device vendor.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="TimeStamp" type="xsd:dateTime">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Identifies the date and time the event was generated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Type" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used for the type of event, as determined by the device vendor.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="UserId" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An identifier associated with a user, as relevant.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="EventIdDescription">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">For associating a brief description with an election event ID, used in ElectionEventLogDocumentation::EventIdDescription.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Description" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used for a brief description of the event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Id" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An identifier associated with the event.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="EventTypeDescription">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">For associating a description with an election event log type, used in ElectionEventLogDocumentation::EventTypeDescription.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Description" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Used for a description of the event type.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Type" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An identifier associated with the event type.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
