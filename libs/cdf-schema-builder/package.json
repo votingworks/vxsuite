@@ -1,0 +1,74 @@
+{
+  "name": "@votingworks/cdf-schema-builder",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "bin": {
+    "cdf-schema-builder": "bin/cdf-schema-builder"
+  },
+  "files": [
+    "bin",
+    "build"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --ci --coverage",
+    "test:coverage": "jest --coverage",
+    "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --build",
+    "type-check:watch": "tsc --build --watch"
+  },
+  "lint-staged": {
+    "*.(js|ts)": [
+      "eslint --quiet --fix"
+    ],
+    "*.md": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "jsdom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@types/jsdom": "^16.2.13",
+    "@types/node": "^14.14.20",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "^2.2.0",
+    "jest": "^27.3.1",
+    "jest-watch-typeahead": "^0.6.1",
+    "lint-staged": "^10.5.1",
+    "prettier": "^2.1.2",
+    "sort-package-json": "^1.50.0",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.3.5"
+  },
+  "engines": {
+    "node": ">= 12"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
