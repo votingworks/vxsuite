@@ -67,8 +67,8 @@
     "@types/pluralize": "^0.0.29",
     "@types/react": "^17.0.4",
     "@types/styled-components": "^5.1.9",
-    "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint": "^7.17.0",
@@ -99,7 +99,7 @@
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.9.0",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.3.5"
+    "typescript": "~4.4.0"
   },
   "peerDependencies": {
     "react": "^17.0.1"

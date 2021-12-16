@@ -208,6 +208,7 @@ export class CastVoteRecordFiles {
         election
       );
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,
@@ -234,6 +235,7 @@ export class CastVoteRecordFiles {
       );
       return result;
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,
@@ -244,6 +246,9 @@ export class CastVoteRecordFiles {
     }
   }
 
+  // TODO: Remove this when @typescript-eslint/prefer-readonly does not
+  // incorrectly flag this as an error.
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly
   private async addFromFileContent(
     fileContent: string,
     fileName: string,
@@ -309,6 +314,7 @@ export class CastVoteRecordFiles {
         newCastVoteRecords
       );
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,

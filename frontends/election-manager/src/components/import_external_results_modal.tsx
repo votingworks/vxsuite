@@ -82,6 +82,7 @@ export function ImportExternalResultsModal({
       );
       setNumberBallotsToImport(tally.overallTally.numberOfBallotsCounted);
     } catch (error) {
+      assert(error instanceof Error);
       setErrorMessage(`Failed to import external file. ${error.message}`);
       await logger.log(LogEventId.ExternalTallyFileImported, currentUserType, {
         message: 'Failed to import external tally file.',

@@ -203,6 +203,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       });
       setCurrentState(ModalState.INIT);
     } catch (err) {
+      assert(err instanceof Error);
       if (err.message.includes('ENOENT')) {
         // No files found
         setFoundFiles([]);

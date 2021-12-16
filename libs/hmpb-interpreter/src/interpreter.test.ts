@@ -1,5 +1,5 @@
 import { BallotTargetMark, BallotType } from '@votingworks/types';
-import { fail } from 'assert';
+import { assert, fail } from '@votingworks/utils';
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election';
 import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
@@ -3945,6 +3945,7 @@ test('rejects an incorrect-but-plausible contest layout', async () => {
     );
     fail('expected interpretation to fail');
   } catch (error) {
+    assert(error instanceof Error);
     expect(error.message).toMatch(
       'ballot and template contest shapes do not correspond'
     );

@@ -42,8 +42,8 @@
     "@types/jest": "^27.0.3",
     "@types/node": "^14.14.20",
     "@types/text-encoding": "^0.0.35",
-    "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
     "@votingworks/cdf-schema-builder": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint": "^7.17.0",
@@ -62,7 +62,7 @@
     "prettier": "^2.1.2",
     "sort-package-json": "^1.50.0",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.3.5"
+    "typescript": "~4.4.0"
   },
   "engines": {
     "node": ">= 12"

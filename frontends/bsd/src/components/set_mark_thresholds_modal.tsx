@@ -87,6 +87,7 @@ export function SetMarkThresholdsModal({
       });
       onClose();
     } catch (error) {
+      assert(error instanceof Error);
       setCurrentState(ModalState.ERROR);
       setErrorMessage(`Error setting thresholds: ${error.message}`);
     }
@@ -98,6 +99,7 @@ export function SetMarkThresholdsModal({
       await setMarkThresholdOverrides(undefined);
       onClose();
     } catch (error) {
+      assert(error instanceof Error);
       setCurrentState(ModalState.ERROR);
       setErrorMessage(`Error setting thresholds: ${error.message}`);
     }

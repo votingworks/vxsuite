@@ -1,6 +1,7 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
+import { assert } from '@votingworks/utils';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -67,6 +68,7 @@ export function AdvancedOptionsScreen({
         message: 'User successfully downloaded ballot data backup files.',
       });
     } catch (error) {
+      assert(error instanceof Error);
       setBackupError(error.toString());
       await logger.log(LogEventId.DownloadedScanImageBackup, currentUserType, {
         disposition: 'failure',

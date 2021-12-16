@@ -135,6 +135,7 @@ export function SaveFileToUsb({
       });
       setCurrentState(ModalState.DONE);
     } catch (error) {
+      assert(error instanceof Error);
       setErrorMessage(error.message);
       await logger.log(LogEventId.FileSaved, currentUserSession.type, {
         disposition: 'failure',

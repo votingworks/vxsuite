@@ -7,7 +7,7 @@ import {
   Result,
   safeParseJson,
 } from '@votingworks/types';
-import { Card } from '@votingworks/utils';
+import { assert, Card } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
@@ -84,6 +84,7 @@ export function useSmartcard({
     try {
       return ok(await makeCancelable(card.readLongUint8Array()));
     } catch (error) {
+      assert(error instanceof Error);
       return err(error);
     }
   }, [card, makeCancelable]);
@@ -94,6 +95,7 @@ export function useSmartcard({
     try {
       return ok(await makeCancelable(card.readLongString()));
     } catch (error) {
+      assert(error instanceof Error);
       return err(error);
     }
   }, [card, makeCancelable]);
@@ -108,6 +110,7 @@ export function useSmartcard({
         await makeCancelable(card.writeShortValue(value));
         return ok();
       } catch (error) {
+        assert(error instanceof Error);
         return err(error);
       } finally {
         isWriting.current = false;
@@ -130,6 +133,7 @@ export function useSmartcard({
         }
         return ok();
       } catch (error) {
+        assert(error instanceof Error);
         return err(error);
       } finally {
         isWriting.current = false;

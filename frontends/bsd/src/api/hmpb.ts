@@ -1,6 +1,7 @@
 import { ElectionDefinition, unsafeParse } from '@votingworks/types';
 import { EventEmitter } from 'events';
 import {
+  assert,
   fetchJson,
   BallotPackage,
   BallotPackageEntry,
@@ -101,6 +102,7 @@ export function addTemplates(
             }
           );
         } catch (error) {
+          assert(error instanceof Error);
           await logger.log(
             LogEventId.BallotConfiguredOnMachine,
             currentUserType,
@@ -127,6 +129,7 @@ export function addTemplates(
 
       result.emit('completed', pkg);
     } catch (error) {
+      assert(error instanceof Error);
       result.emit('error', error);
     }
   });

@@ -109,7 +109,7 @@
     "supertest": "^6.0.1",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.1.1",
-    "typescript": "^4.3.5",
+    "typescript": "~4.4.0",
     "yauzl": "^2.10.0"
   },
   "engines": {
