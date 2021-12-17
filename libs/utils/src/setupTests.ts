@@ -7,6 +7,11 @@ beforeEach(() => {
   jestFetchMock.enableMocks();
   fetchMock.reset();
   fetchMock.mock();
+
+  globalThis.crypto = {
+    getRandomValues: jest.fn(),
+    randomBytes: jest.fn(),
+  } as unknown as Crypto;
 });
 
 globalThis.clearImmediate = clearImmediate;

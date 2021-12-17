@@ -3,6 +3,7 @@ export * from './assert';
 export * from './ballot_package';
 export * from './Card';
 export * from './compressed_tallies';
+export * from './crypto';
 export * from './date';
 export * from './deferred';
 export * from './find';
