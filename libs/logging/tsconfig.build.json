@@ -9,6 +9,9 @@
     "declaration": true
   },
   "references": [
+    {
+      "path": "../../libs/cdf-types-election-event-logging/tsconfig.build.json"
+    },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
