@@ -407,7 +407,7 @@ exports[`renders PrintPage with votes 1`] = `
             <strong
               class="c5"
             >
-              CHhgYxfN5GeqnK8KaVOt1w
+              rC91wEP7w2cJ0w
             </strong>
           </div>
         </div>
@@ -1332,7 +1332,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
             <strong
               class="c5"
             >
-              CHhgYxfN5GeqnK8KaVOt1w
+              rC91wEP7w2cJ0w
             </strong>
           </div>
         </div>
@@ -1920,7 +1920,7 @@ exports[`renders PrintPage without votes and no seal 1`] = `
             <strong
               class="c5"
             >
-              CHhgYxfN5GeqnK8KaVOt1w
+              rC91wEP7w2cJ0w
             </strong>
           </div>
         </div>

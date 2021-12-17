@@ -16,6 +16,7 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
+import { RandomGenerator } from 'pure-rand';
 import { z } from 'zod';
 
 // App
@@ -130,6 +131,10 @@ export interface BallotContextInterface {
   forceSaveVote: () => void;
   userSettings: UserSettings;
   votes: VotesDict;
+}
+
+export interface RandomContextInterface {
+  generator: RandomGenerator;
 }
 
 // Review and Printed Ballot

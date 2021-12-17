@@ -11,22 +11,16 @@ import {
   advanceTimersAndPromises,
   fakeKiosk,
   fakePrinterInfo,
-  mockOf,
 } from '@votingworks/test-utils';
 import electionSample from '../data/electionSample.json';
 import { render } from '../../test/test_utils';
-import { randomBase64 } from '../utils/random';
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { PrecinctSelectionKind, VxPrintOnly } from '../config/types';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 
-// mock the random value so the snapshots match
-jest.mock('../utils/random');
-
 beforeEach(() => {
   jest.useFakeTimers();
-  mockOf(randomBase64).mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
 });
 
 it('renders test decks appropriately', async () => {

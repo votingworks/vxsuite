@@ -1,6 +1,6 @@
 import { fromByteArray } from 'base64-js';
 import { DateTime } from 'luxon';
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -23,11 +23,11 @@ import {
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
+  randomBase64,
 } from '@votingworks/utils';
 
 import * as GLOBALS from '../config/globals';
 
-import { randomBase64 } from '../utils/random';
 import { findPartyById } from '../utils/find';
 
 import { QrCode } from './qrcode';
@@ -38,6 +38,7 @@ import {
   MsEitherNeitherContestResultInterface,
   YesNoContestResultInterface,
 } from '../config/types';
+import { RandomContext } from '../contexts/random_context';
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -236,7 +237,8 @@ export function PrintedBallot({
   precinctId,
   votes,
 }: Props): JSX.Element {
-  const ballotId = randomBase64(10);
+  const { generator } = useContext(RandomContext);
+  const ballotId = randomBase64(10, generator);
   const {
     election,
     election: { county, date, seal, sealURL: sealUrl, state, title },

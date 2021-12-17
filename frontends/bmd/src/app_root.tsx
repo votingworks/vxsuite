@@ -44,6 +44,7 @@ import {
   CardPresentApi,
   PrecinctScannerCardTallySchema,
   throwIllegalValue,
+  randomGenerator,
 } from '@votingworks/utils';
 
 import { Logger, LogSource } from '@votingworks/logging';
@@ -83,6 +84,7 @@ import { WrongPrecinctScreen } from './pages/wrong_precinct_screen';
 import { utcTimestamp } from './utils/utc_timestamp';
 import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
+import { RandomContext } from './contexts/random_context';
 
 const debug = makeDebug('bmd:AppRoot');
 
@@ -1397,7 +1399,9 @@ export function AppRoot({
                 votes: votes ?? blankBallotVotes,
               }}
             >
-              <Ballot />
+              <RandomContext.Provider value={{ generator: randomGenerator() }}>
+                <Ballot />
+              </RandomContext.Provider>
             </BallotContext.Provider>
           </Gamepad>
         );

@@ -12,6 +12,7 @@ import {
 } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 
+import { mersenne, RandomGenerator } from 'pure-rand';
 import * as GLOBALS from '../src/config/globals';
 
 // it's necessary to use the no-seal version, which has neither
@@ -30,6 +31,7 @@ import {
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakePrinter } from './helpers/fake_printer';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
+import { RandomContext } from '../src/contexts/random_context';
 
 export function render(
   component: React.ReactNode,
@@ -55,6 +57,7 @@ export function render(
     forceSaveVote = jest.fn(),
     userSettings = { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
     votes = {},
+    random = mersenne(0),
   }: {
     route?: string;
     ballotStyleId?: BallotStyleId;
@@ -75,6 +78,7 @@ export function render(
     forceSaveVote?(): void;
     userSettings?: { textSize: TextSizeSetting };
     votes?: VotesDict;
+    random?: RandomGenerator;
   } = {}
 ): ReturnType<typeof testRender> {
   return {
@@ -100,7 +104,9 @@ export function render(
           votes,
         }}
       >
-        <Router history={history}>{component}</Router>
+        <RandomContext.Provider value={{ generator: random }}>
+          <Router history={history}>{component}</Router>
+        </RandomContext.Provider>
       </BallotContext.Provider>
     ),
   };

@@ -7,18 +7,10 @@ import {
 } from '@votingworks/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { mockOf } from '@votingworks/test-utils';
 import { render } from '../../test/test_utils';
 import electionSampleNoSeal from '../data/electionSampleNoSeal.json';
 import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
-import { randomBase64 } from '../utils/random';
 import { PrintPage } from './print_page';
-
-// mock the random value so the snapshots match
-jest.mock('../utils/random');
-beforeEach(() => {
-  mockOf(randomBase64).mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
-});
 
 it('renders PrintPage without votes', () => {
   const { container } = render(<Route path="/print" component={PrintPage} />, {
