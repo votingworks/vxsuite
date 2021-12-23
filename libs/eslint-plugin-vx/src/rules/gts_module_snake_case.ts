@@ -23,7 +23,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Requires the use of `snake_case` for module file names.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

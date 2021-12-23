@@ -9,7 +9,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Requires using a safe number parser',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

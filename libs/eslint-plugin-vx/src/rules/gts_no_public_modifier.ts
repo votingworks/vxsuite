@@ -11,7 +11,6 @@ export default createRule({
     docs: {
       description:
         'Disallows use of `public` accessibility modifiers on class properties',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,
@@ -45,7 +44,7 @@ export default createRule({
     }
 
     function processNode(
-      node: TSESTree.ClassProperty | TSESTree.MethodDefinition
+      node: TSESTree.PropertyDefinition | TSESTree.MethodDefinition
     ): void {
       if (node.accessibility === 'public') {
         reportPublicToken(node);
@@ -69,7 +68,7 @@ export default createRule({
     }
 
     return {
-      ClassProperty: processNode,
+      PropertyDefinition: processNode,
       MethodDefinition: processNode,
     };
   },

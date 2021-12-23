@@ -10,7 +10,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Requires type parameters be named appropriately.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

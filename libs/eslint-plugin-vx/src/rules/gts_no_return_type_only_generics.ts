@@ -11,7 +11,6 @@ export default createRule({
     docs: {
       description:
         'Disallows generics in functions where the only use is in the return type',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: true,
       requiresTypeChecking: true,

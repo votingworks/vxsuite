@@ -56,7 +56,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Requires `Result` values to be handled appropriately',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: true,
       requiresTypeChecking: true,

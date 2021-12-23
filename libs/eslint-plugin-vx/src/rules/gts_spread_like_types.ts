@@ -35,7 +35,6 @@ export default createRule({
     docs: {
       description:
         'Requires spreading iterables in arrays and objects in objects',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: true,

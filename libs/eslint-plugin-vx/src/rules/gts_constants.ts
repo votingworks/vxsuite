@@ -10,7 +10,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Enforces GTS JSDoc rules.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,
