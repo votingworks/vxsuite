@@ -56,7 +56,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Requires `Result` values to be handled appropriately',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: true,
       requiresTypeChecking: true,
@@ -68,6 +67,7 @@ export default createRule({
         ' or explicitly marked as ignored with the `void` operator.',
       floatingFixVoid: 'Add void operator to ignore.',
     },
+    hasSuggestions: true,
     schema: [
       {
         type: 'object',

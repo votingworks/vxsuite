@@ -41,7 +41,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Use parameter properties for concise class initializers',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

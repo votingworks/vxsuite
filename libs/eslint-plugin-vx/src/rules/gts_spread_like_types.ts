@@ -9,7 +9,9 @@ import * as ts from 'typescript';
 import { createRule, getCollectionType } from '../util';
 
 function isIterableType(type: ts.Type): boolean {
-  return type.getProperties().some((p) => p.getName() === '__@iterator');
+  return type
+    .getProperties()
+    .some((p) => p.getName().startsWith('__@iterator'));
 }
 
 function isObjectType(type: ts.Type): boolean {
@@ -35,7 +37,6 @@ export default createRule({
     docs: {
       description:
         'Requires spreading iterables in arrays and objects in objects',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: true,

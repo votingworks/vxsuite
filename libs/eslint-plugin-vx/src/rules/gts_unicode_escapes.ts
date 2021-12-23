@@ -15,7 +15,6 @@ export default createRule({
     docs: {
       description:
         'Requires the use of real Unicode characters when printable, escapes when non-printable.',
-      category: 'Best Practices',
       recommended: 'error',
       requiresTypeChecking: false,
     },

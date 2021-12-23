@@ -11,7 +11,6 @@ export default createRule({
     docs: {
       description:
         'Recommends using short form T[] for simple array types (containing only alphanumeric characters and dots). Recommends using long form Array<T> for complex array types.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

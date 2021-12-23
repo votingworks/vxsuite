@@ -10,7 +10,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows use of `import type` and `export type`',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

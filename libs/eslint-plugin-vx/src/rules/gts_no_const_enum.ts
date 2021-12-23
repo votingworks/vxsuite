@@ -7,7 +7,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows use of `const enum`; use `enum` instead.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

@@ -47,7 +47,6 @@ export default createRule({
     docs: {
       description:
         'Use optional fields (on interfaces or classes) and parameters rather than a |undefined type.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,
@@ -187,14 +186,16 @@ export default createRule({
     }
 
     return {
-      ClassProperty(node: TSESTree.ClassProperty): void {
-        const fix = node.typeAnnotation && getFixFunction(node.typeAnnotation);
-        if (fix) {
-          context.report({
-            messageId: 'useOptionalClassFields',
-            node,
-            fix,
-          });
+      PropertyDefinition(node: TSESTree.PropertyDefinition): void {
+        if (node.typeAnnotation && !node.optional) {
+          const fix = getFixFunction(node.typeAnnotation);
+          if (fix) {
+            context.report({
+              messageId: 'useOptionalClassFields',
+              node,
+              fix,
+            });
+          }
         }
       },
 

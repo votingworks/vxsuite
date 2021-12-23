@@ -11,7 +11,6 @@ export default createRule({
     docs: {
       description:
         'Requires type annotations instead of type assertions on object literals',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: true,
       requiresTypeChecking: false,
@@ -26,6 +25,7 @@ export default createRule({
       removeTypeAssertion: 'Remove type assertion',
       castToUnknownFirst: 'Cast to `unknown` first',
     },
+    hasSuggestions: true,
     schema: [],
     type: 'problem',
   },
