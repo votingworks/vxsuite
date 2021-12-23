@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import { Select } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from './contexts/app_context';
@@ -133,17 +133,20 @@ export function PreviewDashboard({
     []
   );
 
+  const context = useMemo(
+    () => ({
+      machineConfig: {
+        codeVersion: 'preview',
+        machineId: '000',
+        bypassAuthentication: false,
+      },
+      electionDefinition,
+    }),
+    [electionDefinition]
+  );
+
   return (
-    <AppContext.Provider
-      value={{
-        machineConfig: {
-          codeVersion: 'preview',
-          machineId: '000',
-          bypassAuthentication: false,
-        },
-        electionDefinition,
-      }}
-    >
+    <AppContext.Provider value={context}>
       <BrowserRouter>
         <Route path="/preview" exact>
           <h1>Previews</h1>

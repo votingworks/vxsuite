@@ -29,8 +29,17 @@ export = {
         controlComponents: ['Select'],
       },
     ],
+    'react/function-component-definition': [
+      'error',
+      { namedComponents: 'function-declaration' },
+    ],
     'react/jsx-filename-extension': ['error', { extensions: allExtensions }],
     'react/jsx-fragments': ['error', 'element'],
+    'react/jsx-no-bind': [
+      'error',
+      { allowFunctions: true, allowArrowFunctions: true, allowBind: false },
+    ],
+    'react/jsx-no-useless-fragment': 'off',
     'react/jsx-one-expression-per-line': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/jsx-wrap-multilines': 'off',

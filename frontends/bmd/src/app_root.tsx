@@ -529,13 +529,16 @@ export function AppRoot({
           election: optionalElectionDefinition.election,
         })
       : undefined;
-  const contests =
-    optionalElectionDefinition?.election && ballotStyle
-      ? getContests({
-          election: optionalElectionDefinition.election,
-          ballotStyle,
-        })
-      : [];
+  const contests = useMemo(
+    () =>
+      optionalElectionDefinition?.election && ballotStyle
+        ? getContests({
+            election: optionalElectionDefinition.election,
+            ballotStyle,
+          })
+        : [],
+    [ballotStyle, optionalElectionDefinition?.election]
+  );
 
   const readCard = useCallback(async (): Promise<CardApi> => {
     return await card.readStatus();
@@ -1216,6 +1219,47 @@ export function AppRoot({
     initializedFromStorage,
   ]);
 
+  const context = useMemo(
+    () => ({
+      machineConfig,
+      ballotStyleId,
+      contests,
+      electionDefinition: optionalElectionDefinition,
+      updateTally,
+      isCardlessVoter,
+      isLiveMode,
+      markVoterCardPrinted,
+      markVoterCardVoided,
+      precinctId,
+      printer,
+      resetBallot,
+      setUserSettings,
+      updateVote,
+      forceSaveVote,
+      userSettings,
+      votes: votes ?? blankBallotVotes,
+    }),
+    [
+      ballotStyleId,
+      contests,
+      forceSaveVote,
+      isCardlessVoter,
+      isLiveMode,
+      machineConfig,
+      markVoterCardPrinted,
+      markVoterCardVoided,
+      optionalElectionDefinition,
+      precinctId,
+      printer,
+      resetBallot,
+      setUserSettings,
+      updateTally,
+      updateVote,
+      userSettings,
+      votes,
+    ]
+  );
+
   if (!hasCardReaderAttached) {
     return (
       <SetupCardReaderPage
@@ -1376,27 +1420,7 @@ export function AppRoot({
       if (isVoterVoting) {
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
-            <BallotContext.Provider
-              value={{
-                machineConfig,
-                ballotStyleId,
-                contests,
-                electionDefinition: optionalElectionDefinition,
-                updateTally,
-                isCardlessVoter,
-                isLiveMode,
-                markVoterCardPrinted,
-                markVoterCardVoided,
-                precinctId,
-                printer,
-                resetBallot,
-                setUserSettings,
-                updateVote,
-                forceSaveVote,
-                userSettings,
-                votes: votes ?? blankBallotVotes,
-              }}
-            >
+            <BallotContext.Provider value={context}>
               <Ballot />
             </BallotContext.Provider>
           </Gamepad>

@@ -57,6 +57,8 @@ export class Logger {
   async log(
     eventId: LogEventId,
     user: LoggingUserRole,
+    // TODO: replace these arguments with an options object
+    // eslint-disable-next-line default-param-last
     logData: LogData = {},
     outerDebug?: debug.Debugger
   ): Promise<void> {

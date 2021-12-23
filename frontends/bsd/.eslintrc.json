@@ -8,5 +8,13 @@
       }
     ],
     "vx/gts-jsdoc": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.test.tsx", "test/**/*.tsx"],
+      "rules": {
+        "react/jsx-no-constructed-context-values": "off"
+      }
+    }
+  ]
 }

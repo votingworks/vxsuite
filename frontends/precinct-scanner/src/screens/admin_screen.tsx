@@ -19,7 +19,7 @@ import {
   usbstick,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { Absolute } from '../components/absolute';
 import { Bar } from '../components/bar';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
@@ -259,14 +259,16 @@ export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
   const [isTestMode, setIsTestMode] = useState(false);
   const [precinctId, setPrecinctId] = useState<Precinct['id']>();
+  const context = useMemo(
+    () => ({
+      machineConfig,
+      electionDefinition,
+      currentPrecinctId: precinctId,
+    }),
+    [electionDefinition, machineConfig, precinctId]
+  );
   return (
-    <AppContext.Provider
-      value={{
-        machineConfig,
-        electionDefinition,
-        currentPrecinctId: precinctId,
-      }}
-    >
+    <AppContext.Provider value={context}>
       <AdminScreen
         calibrate={() => Promise.resolve(true)}
         isTestMode={isTestMode}

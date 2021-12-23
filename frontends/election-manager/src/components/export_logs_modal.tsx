@@ -114,7 +114,9 @@ export function ExportLogsModal({ onClose }: Props): JSX.Element {
       }
 
       setSavedFilename(filenameLocation);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      });
       await logger.log(LogEventId.FileSaved, currentUserSession.type, {
         disposition: 'success',
         message: `Successfully saved log file to ${filenameLocation} on the usb drive.`,

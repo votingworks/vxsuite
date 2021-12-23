@@ -21,15 +21,15 @@ const scanStatusReadyToScanResponse: GetScanStatusResponse = {
   scanner: ScannerStatus.ReadyToScan,
 };
 
-const TestComponent: React.FC<{ interval?: number | false }> = ({
+function TestComponent({
   interval = 1,
-} = {}) => {
+}: { interval?: number | false } = {}): JSX.Element {
   return (
     <React.Fragment>
       {usePrecinctScanner(interval)?.status.scannerState ?? 'none'}
     </React.Fragment>
   );
-};
+}
 
 beforeEach(() => {
   jest.useFakeTimers();

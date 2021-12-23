@@ -590,6 +590,7 @@ export function AppRoot({
 
   return (
     <AppContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         castVoteRecordFiles,
         electionDefinition,

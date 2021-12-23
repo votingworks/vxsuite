@@ -126,7 +126,9 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
       };
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
   }
 }
 

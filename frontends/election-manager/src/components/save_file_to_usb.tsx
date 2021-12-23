@@ -126,7 +126,9 @@ export function SaveFileToUsb({
       }
 
       setSavedFilename(filenameLocation);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      });
       await logger.log(LogEventId.FileSaved, currentUserSession.type, {
         disposition: 'success',
         message: `Successfully saved ${fileName} to ${filenameLocation} on the usb drive.`,

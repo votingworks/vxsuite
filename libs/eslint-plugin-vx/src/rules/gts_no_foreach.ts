@@ -222,7 +222,10 @@ export default createRule({
       ReturnStatement(node: TSESTree.ReturnStatement): void {
         const currentForEach = forEachStack[forEachStack.length - 1];
 
-        if (currentForEach?.functionLevel + 1 !== functionLevel) {
+        if (
+          !currentForEach ||
+          currentForEach.functionLevel + 1 !== functionLevel
+        ) {
           return;
         }
 

@@ -745,6 +745,16 @@ export function AppRoot({
     dispatchAppState({ type: 'readyToInsertBallot' });
   }
 
+  const context = useMemo(
+    () => ({
+      electionDefinition,
+      currentPrecinctId,
+      machineConfig,
+      currentUserSession,
+    }),
+    [currentPrecinctId, currentUserSession, electionDefinition, machineConfig]
+  );
+
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />;
   }
@@ -768,14 +778,7 @@ export function AppRoot({
 
   if (currentUserSession?.type === 'admin') {
     return (
-      <AppContext.Provider
-        value={{
-          electionDefinition,
-          currentPrecinctId,
-          machineConfig,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={context}>
         {currentUserSession.authenticated ? (
           <AdminScreen
             updateAppPrecinctId={updatePrecinctId}
@@ -800,14 +803,7 @@ export function AppRoot({
     currentUserSession.authenticated
   ) {
     return (
-      <AppContext.Provider
-        value={{
-          electionDefinition,
-          currentPrecinctId,
-          machineConfig,
-          currentUserSession,
-        }}
-      >
+      <AppContext.Provider value={context}>
         <PollWorkerScreen
           scannedBallotCount={scannedBallotCount}
           isPollsOpen={isPollsOpen}
@@ -896,15 +892,6 @@ export function AppRoot({
     }
   }
   return (
-    <AppContext.Provider
-      value={{
-        electionDefinition,
-        machineConfig,
-        currentPrecinctId,
-        currentUserSession,
-      }}
-    >
-      {voterScreen}
-    </AppContext.Provider>
+    <AppContext.Provider value={context}>{voterScreen}</AppContext.Provider>
   );
 }

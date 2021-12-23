@@ -59,14 +59,18 @@ test('fakeWritable', async () => {
   {
     const writeCallback = jest.fn();
     writable.write('', 'utf-8', writeCallback);
-    await new Promise((resolve) => process.nextTick(resolve));
+    await new Promise((resolve) => {
+      process.nextTick(resolve);
+    });
     expect(writeCallback).toHaveBeenCalledWith();
   }
 
   {
     const writeCallback = jest.fn();
     writable.write('', writeCallback);
-    await new Promise((resolve) => process.nextTick(resolve));
+    await new Promise((resolve) => {
+      process.nextTick(resolve);
+    });
     expect(writeCallback).toHaveBeenCalledWith();
   }
 
@@ -77,7 +81,9 @@ test('fakeWritable', async () => {
 
   const endCallback = jest.fn();
   writable.end(endCallback);
-  await new Promise((resolve) => process.nextTick(resolve));
+  await new Promise((resolve) => {
+    process.nextTick(resolve);
+  });
   expect(endCallback).toHaveBeenCalledWith();
 
   expect(writable.writes).toEqual([

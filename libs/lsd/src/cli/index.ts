@@ -95,7 +95,9 @@ async function writeLineSegmentsAsSvg({
   }
   out.write(`</svg>\n`);
 
-  await new Promise((resolve) => out.end(() => resolve(undefined)));
+  await new Promise((resolve) => {
+    out.end(() => resolve(undefined));
+  });
 }
 
 async function writeLineSegmentsAsPng({
@@ -141,9 +143,9 @@ async function writeLineSegmentsAsPng({
     context.stroke();
   }
 
-  await new Promise((resolve) =>
-    canvas.createPNGStream().pipe(out).once('finish', resolve)
-  );
+  await new Promise((resolve) => {
+    canvas.createPNGStream().pipe(out).once('finish', resolve);
+  });
 }
 
 function printHelp(out: NodeJS.WritableStream): void {
