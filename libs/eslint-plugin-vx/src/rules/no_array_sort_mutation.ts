@@ -21,7 +21,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Requires `sort` be called on array copies',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

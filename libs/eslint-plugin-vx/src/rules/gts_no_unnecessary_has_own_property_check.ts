@@ -7,7 +7,6 @@ export default createRule({
     docs: {
       description:
         'Flags unnecessary `hasOwnProperty` checks inside `for-of` loops',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

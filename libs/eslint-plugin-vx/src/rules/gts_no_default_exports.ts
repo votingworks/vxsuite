@@ -10,7 +10,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows default exports',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

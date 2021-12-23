@@ -25,7 +25,6 @@ export default createRule({
     docs: {
       description:
         'Disallows use of $ in identifiers, except when aligning with naming conventions for third party frameworks.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: true,
       requiresTypeChecking: false,

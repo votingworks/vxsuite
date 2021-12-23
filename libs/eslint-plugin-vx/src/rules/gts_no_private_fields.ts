@@ -1,9 +1,11 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import {
+  AST_NODE_TYPES,
+  TSESTree,
+} from '@typescript-eslint/experimental-utils';
 import { createRule } from '../util';
 
 function isPrivateIdentifier(node: TSESTree.Node): boolean {
-  // @ts-expect-error - typescript-eslint v5 will have support for TSPrivateIdentifier or PrivateIdentifier (https://github.com/typescript-eslint/typescript-eslint/issues/3430#issuecomment-907712769)
-  return node.type === 'TSPrivateIdentifier';
+  return node.type === AST_NODE_TYPES.PrivateIdentifier;
 }
 
 export default createRule({
@@ -11,7 +13,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows use of private fields aka private identifiers',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,
@@ -26,7 +27,7 @@ export default createRule({
 
   create(context) {
     return {
-      ClassProperty(node: TSESTree.ClassProperty) {
+      PropertyDefinition(node: TSESTree.PropertyDefinition) {
         if (isPrivateIdentifier(node.key)) {
           context.report({
             node: node.key,

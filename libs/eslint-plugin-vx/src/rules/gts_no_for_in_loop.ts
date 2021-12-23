@@ -7,7 +7,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows use of `for-in` loops',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

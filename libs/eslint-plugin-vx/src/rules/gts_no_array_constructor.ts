@@ -11,7 +11,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows using the `Array` constructor.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

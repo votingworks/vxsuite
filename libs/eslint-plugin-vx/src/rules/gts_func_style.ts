@@ -20,7 +20,6 @@ export default createRule({
     docs: {
       description:
         'Use `function foo() { ... }` to declare named functions, including functions in nested scopes, e.g. within another function.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

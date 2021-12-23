@@ -6,7 +6,6 @@ export default createRule({
   meta: {
     docs: {
       description: 'Disallows public class fields.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,
@@ -22,7 +21,7 @@ export default createRule({
 
   create(context) {
     function check(
-      node: TSESTree.ClassProperty | TSESTree.TSParameterProperty
+      node: TSESTree.PropertyDefinition | TSESTree.TSParameterProperty
     ): void {
       if (
         !node.static &&
@@ -36,7 +35,7 @@ export default createRule({
       }
     }
     return {
-      ClassProperty: check,
+      PropertyDefinition: check,
       TSParameterProperty: check,
     };
   },

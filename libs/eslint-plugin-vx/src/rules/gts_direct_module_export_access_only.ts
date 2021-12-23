@@ -11,7 +11,6 @@ export default createRule({
     docs: {
       description:
         'Directly access module import properties rather than passing it around.',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: false,

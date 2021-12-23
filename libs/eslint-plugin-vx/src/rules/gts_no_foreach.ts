@@ -88,7 +88,6 @@ export default createRule({
     docs: {
       description:
         'Disallows use of `Array.prototype.forEach`, `Set.prototype.forEach`, and `Map.prototype.forEach`',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: false,
       requiresTypeChecking: true,

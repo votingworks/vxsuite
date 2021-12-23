@@ -47,7 +47,6 @@ export default createRule({
     fixable: 'code',
     docs: {
       description: 'Forbids truthiness checks in `assert`',
-      category: 'Best Practices',
       recommended: 'error',
       suggestion: true,
       requiresTypeChecking: true,
