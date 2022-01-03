@@ -6,17 +6,19 @@ import MockDate from 'mockdate';
 import { join } from 'path';
 import { safeParseJson } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
-import { ElectionEventLogSchema } from '@votingworks/cdf-types-election-event-logging';
+import {
+  ElectionEventLogDocumentationSchema,
+  ElectionEventLogSchema,
+} from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
 import { Logger } from './logger';
 import { LogEventType } from './log_event_types';
 import {
-  CLIENT_SIDE_LOG_SOURCES,
   DEVICE_TYPES_FOR_APP,
   LogDispositionStandardTypes,
   LogLine,
-  LogSource,
 } from './types';
+import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
 
 MockDate.set('2020-07-24T00:00:00.000Z');
 
@@ -42,7 +44,7 @@ test('logger logs server logs as expected', async () => {
 test('logger logs client logs as expected through kiosk browser with overridden message', async () => {
   console.log = jest.fn();
   const kiosk = fakeKiosk();
-  const logger = new Logger(LogSource.VxAdminApp, kiosk);
+  const logger = new Logger(LogSource.VxAdminFrontend, kiosk);
   await logger.log(LogEventId.ElectionConfigured, 'admin', {
     message: 'On my tallest tiptoes',
     disposition: LogDispositionStandardTypes.NotApplicable,
@@ -52,7 +54,7 @@ test('logger logs client logs as expected through kiosk browser with overridden 
   expect(kiosk.log).toHaveBeenCalledWith(
     JSON.stringify({
       timeLogInitiated: new Date(2020, 6, 24).getTime().toString(),
-      source: LogSource.VxAdminApp,
+      source: LogSource.VxAdminFrontend,
       eventId: LogEventId.ElectionConfigured,
       eventType: LogEventType.UserAction,
       user: 'admin',
@@ -67,13 +69,13 @@ test('logger logs client logs as expected through kiosk browser with overridden 
 test('defaults to default message when defined and no disposition', async () => {
   console.log = jest.fn();
   const kiosk = fakeKiosk();
-  const logger = new Logger(LogSource.VxAdminApp, kiosk);
+  const logger = new Logger(LogSource.VxAdminFrontend, kiosk);
   await logger.log(LogEventId.ElectionUnconfigured, 'admin');
   expect(kiosk.log).toHaveBeenCalledTimes(1);
   expect(kiosk.log).toHaveBeenCalledWith(
     JSON.stringify({
       timeLogInitiated: new Date(2020, 6, 24).getTime().toString(),
-      source: LogSource.VxAdminApp,
+      source: LogSource.VxAdminFrontend,
       eventId: LogEventId.ElectionUnconfigured,
       eventType: LogEventType.UserAction,
       user: 'admin',
@@ -109,7 +111,7 @@ test('logs unknown disposition as expected', async () => {
 
 test('logging from a client side app without sending window.kiosk does NOT log to console', async () => {
   console.log = jest.fn();
-  const logger = new Logger(LogSource.VxAdminApp);
+  const logger = new Logger(LogSource.VxAdminFrontend);
   await logger.log(LogEventId.AdminCardInserted, 'admin');
   expect(console.log).not.toHaveBeenCalled();
 });
@@ -122,7 +124,7 @@ test('verify that client side apps are configured properly', () => {
 
 describe('test cdf conversion', () => {
   test('builds device and election info properly', () => {
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
       '',
@@ -150,11 +152,11 @@ describe('test cdf conversion', () => {
   });
 
   test('converts basic log as expected', () => {
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
       '12machine34',
       'thisisacodeversion',
       'admin'
@@ -175,7 +177,9 @@ describe('test cdf conversion', () => {
     expect(decodedEvent.TimeStamp).toBe('2021-11-03T16:38:09.384062-07:00');
     expect(decodedEvent.Type).toBe(LogEventType.ApplicationStatus);
     expect(decodedEvent.Description).toBe('i know the deal');
-    expect(decodedEvent.Details).toBe(JSON.stringify({ source: 'vx-admin' }));
+    expect(decodedEvent.Details).toBe(
+      JSON.stringify({ source: 'vx-admin-frontend' })
+    );
     expect('otherDisposition' in decodedEvent).toBe(false);
     expect(logSpy).toHaveBeenCalledWith(
       LogEventId.LogConversionToCdfComplete,
@@ -188,10 +192,10 @@ describe('test cdf conversion', () => {
   });
 
   test('log with unspecified disposition as expected', () => {
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
       '12machine34',
       'thisisacodeversion',
       'admin'
@@ -210,10 +214,10 @@ describe('test cdf conversion', () => {
   });
 
   test('converts log with custom disposition and extra details as expected', () => {
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
       '12machine34',
       'thisisacodeversion',
       'admin'
@@ -236,7 +240,7 @@ describe('test cdf conversion', () => {
     expect(decodedEvent.Type).toBe(LogEventType.ApplicationStatus);
     expect(decodedEvent.Description).toBe('glistened as it fell');
     expect(decodedEvent.Details).toMatchInlineSnapshot(
-      `"{\\"host\\":\\"ubuntu\\",\\"newStatus\\":\\"absent\\",\\"source\\":\\"vx-admin\\"}"`
+      `"{\\"host\\":\\"ubuntu\\",\\"newStatus\\":\\"absent\\",\\"source\\":\\"vx-admin-frontend\\"}"`
     );
   });
 
@@ -263,7 +267,7 @@ describe('test cdf conversion', () => {
   });
 
   test('malformed logs are logged', () => {
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const missingTimeLogLine: LogLine = {
       source: LogSource.System,
@@ -326,7 +330,7 @@ describe('test cdf conversion', () => {
     const logFile = await readFileSync(
       join(__dirname, '../fixtures/samplelog.log')
     );
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
       logFile.toString(),
@@ -370,7 +374,7 @@ describe('test cdf conversion', () => {
       .toMatchInlineSnapshot(`
       Object {
         "Description": "The current user was logged out and the machine was locked.",
-        "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"vx-admin\\"}",
+        "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"vx-admin-frontend\\"}",
         "Disposition": "success",
         "Id": "machine-locked",
         "Sequence": "32",
@@ -394,5 +398,89 @@ describe('test cdf conversion', () => {
         "UserId": "system",
       }
     `);
+  });
+});
+
+describe('test cdf documentation generation', () => {
+  test('builds expected documentation for VxAdminFrontend', () => {
+    const logger = new Logger(LogSource.VxAdminFrontend);
+    const cdfDocumentationContent = logger.buildCDFLogDocumentationFileContent(
+      'machineID1234',
+      'VotingWorks',
+      'VxAdmin 1.0',
+      'codeversion'
+    );
+    const structuredDataResult = safeParseJson(
+      cdfDocumentationContent,
+      ElectionEventLogDocumentationSchema
+    );
+    const structuredData = structuredDataResult.unsafeUnwrap();
+    expect(structuredData.DeviceId).toBe('machineID1234');
+    expect(structuredData.DeviceManufacturer).toBe('VotingWorks');
+    expect(structuredData.DeviceModel).toBe('VxAdmin 1.0');
+    expect(structuredData.DeviceVersion).toBe('codeversion');
+    expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
+    expect(structuredData.EventTypeDescription).toHaveLength(5);
+    expect(structuredData.EventIdDescription).toHaveLength(51);
+    // Make sure VxAdminFrontend specific logs are included.
+    expect(structuredData.EventIdDescription).toContainEqual(
+      expect.objectContaining({
+        Id: LogEventId.CvrImported,
+      })
+    );
+    // Make sure a generic log to all apps is included
+    expect(structuredData.EventIdDescription).toContainEqual(
+      expect.objectContaining({
+        Id: LogEventId.MachineBootInit,
+      })
+    );
+    // Make sure VxBatchScanFrontend specific logs are NOT included
+    expect(structuredData.EventIdDescription).not.toContainEqual(
+      expect.objectContaining({
+        Id: LogEventId.ScannerConfigured,
+      })
+    );
+  });
+
+  test('builds expected documentation for VxBatchScanFrontend', () => {
+    const logger = new Logger(LogSource.VxBatchScanFrontend);
+    const cdfDocumentationContent = logger.buildCDFLogDocumentationFileContent(
+      '314159',
+      'V oting Works',
+      'VxScan',
+      'this is code 12.54.12'
+    );
+    const structuredDataResult = safeParseJson(
+      cdfDocumentationContent,
+      ElectionEventLogDocumentationSchema
+    );
+    expect(structuredDataResult.isOk()).toBeTruthy();
+    const structuredData = structuredDataResult.ok();
+    assert(structuredData);
+    expect(structuredData.DeviceId).toBe('314159');
+    expect(structuredData.DeviceManufacturer).toBe('V oting Works');
+    expect(structuredData.DeviceModel).toBe('VxScan');
+    expect(structuredData.DeviceVersion).toBe('this is code 12.54.12');
+    expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
+    expect(structuredData.EventTypeDescription).toHaveLength(5);
+    expect(structuredData.EventIdDescription).toHaveLength(56);
+    // Make sure VxBatchApp specific logs are included.
+    expect(structuredData.EventIdDescription).toContainEqual(
+      expect.objectContaining({
+        Id: LogEventId.ScannerConfigured,
+      })
+    );
+    // Make sure a generic log to all apps is included
+    expect(structuredData.EventIdDescription).toContainEqual(
+      expect.objectContaining({
+        Id: LogEventId.MachineBootInit,
+      })
+    );
+    // Make sure VxAdminFrontend specific logs are NOT included
+    expect(structuredData.EventIdDescription).not.toContainEqual(
+      expect.objectContaining({
+        Id: LogEventId.CvrImported,
+      })
+    );
   });
 });

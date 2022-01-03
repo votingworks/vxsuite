@@ -73,7 +73,7 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   );
 
   const logger = useMemo(
-    () => new Logger(LogSource.VxBallotActivationApp, window.kiosk),
+    () => new Logger(LogSource.VxBallotActivationFrontend, window.kiosk),
     []
   );
   const { hasCardReaderAttached } = useHardware({ hardware, logger });

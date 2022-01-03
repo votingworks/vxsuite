@@ -110,7 +110,7 @@ export function renderInAppContext(
       bypassAuthentication: false,
     },
     hasCardReaderAttached = true,
-    logger = new Logger(LogSource.VxAdminApp),
+    logger = new Logger(LogSource.VxAdminFrontend),
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(

@@ -511,7 +511,7 @@ export function AppRoot({
   const { appMode } = machineConfig;
   const { textSize: userSettingsTextSize } = userSettings;
   const logger = useMemo(
-    () => new Logger(LogSource.VxBallotMarkingDeviceApp, window.kiosk),
+    () => new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
     []
   );
 

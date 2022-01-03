@@ -73,7 +73,7 @@ describe('Screens display properly when USB is mounted', () => {
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
@@ -128,7 +128,7 @@ describe('Screens display properly when USB is mounted', () => {
     window.kiosk!.getFileSystemEntries = jest
       .fn()
       .mockResolvedValue(fileEntries);
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
@@ -192,7 +192,7 @@ describe('Screens display properly when USB is mounted', () => {
   test('Can import a test CVR when both live and test CVRs are loaded', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const fileEntries = [
       {
@@ -262,7 +262,7 @@ describe('Screens display properly when USB is mounted', () => {
   test('Import CVR files screen locks to test mode when test files have been imported', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
-    const logger = new Logger(LogSource.VxAdminApp);
+    const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const fileEntries = [
       {

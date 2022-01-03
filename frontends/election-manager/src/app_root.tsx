@@ -101,7 +101,7 @@ export function AppRoot({
   machineConfigProvider,
 }: Props): JSX.Element {
   const logger = useMemo(
-    () => new Logger(LogSource.VxAdminApp, window.kiosk),
+    () => new Logger(LogSource.VxAdminFrontend, window.kiosk),
     []
   );
 

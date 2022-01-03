@@ -89,7 +89,7 @@ const appContext: AppContextInterface = {
     bypassAuthentication: false,
   },
   hasCardReaderAttached: true,
-  logger: new Logger(LogSource.VxAdminApp),
+  logger: new Logger(LogSource.VxAdminFrontend),
 };
 
 export const AppContext = createContext(appContext);
