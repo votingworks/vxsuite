@@ -544,7 +544,7 @@ export function HandMarkedPaperBallot({
 }: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
   assert(
-    locales.primary === locales.secondary,
+    locales.primary !== locales.secondary,
     'rendering a dual-language ballot with both languages the same is not allowed'
   );
 
