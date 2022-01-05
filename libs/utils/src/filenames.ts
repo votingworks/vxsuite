@@ -5,7 +5,7 @@ import {
   MachineId,
   maybeParse,
 } from '@votingworks/types';
-import { assert } from './assert';
+import { assert, throwIllegalValue } from './assert';
 
 const SECTION_SEPARATOR = '__';
 const SUBSECTION_SEPARATOR = '_';
@@ -238,6 +238,12 @@ export function generateBatchResultsDefaultFilename(
   return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}batch-results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`;
 }
 
+/* Describes different formats of the log file. */
+export enum LogFileType {
+  Raw = 'raw',
+  Cdf = 'cdf',
+}
+
 /**
  * Generates a filename for the logs file.
  * @param logFileName Name of the log file being exported
@@ -246,8 +252,17 @@ export function generateBatchResultsDefaultFilename(
  */
 export function generateLogFilename(
   logFileName: string,
+  fileType: LogFileType,
   time: Date = new Date()
 ): string {
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
-  return `${logFileName}${SUBSECTION_SEPARATOR}${timeInformation}.log`;
+  switch (fileType) {
+    case LogFileType.Raw:
+      return `${logFileName}${SUBSECTION_SEPARATOR}${timeInformation}.log`;
+    case LogFileType.Cdf:
+      return `${logFileName}${WORD_SEPARATOR}cdf${SUBSECTION_SEPARATOR}${timeInformation}.json`;
+    /* istanbul ignore next - compile time check for completeness */
+    default:
+      throwIllegalValue(fileType);
+  }
 }

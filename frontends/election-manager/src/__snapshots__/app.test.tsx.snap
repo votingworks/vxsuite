@@ -58,16 +58,17 @@ exports[`printing ballots, print report, and test decks 1`] = `
         >
           Tally
         </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
+          Advanced
+        </button>
       </div>
       <div
         class="sc-fubCfw kBiVZq"
       >
-        <button
-          class="sc-gsDJrp gwgkfw"
-          type="button"
-        >
-          Export Logs
-        </button>
         <button
           class="sc-gsDJrp gwgkfw"
           type="button"
@@ -89,7 +90,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-dlfnbm kzZCED"
       >
         <div
-          class="sc-fFubgz HfZVK"
+          class="sc-hBEYos eoEHwy"
         >
           <h1>
             Test Deck
@@ -258,16 +259,17 @@ exports[`printing ballots, print report, and test decks 2`] = `
         >
           Tally
         </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
+          Advanced
+        </button>
       </div>
       <div
         class="sc-fubCfw kBiVZq"
       >
-        <button
-          class="sc-gsDJrp gwgkfw"
-          type="button"
-        >
-          Export Logs
-        </button>
         <button
           class="sc-gsDJrp gwgkfw"
           type="button"
@@ -296,7 +298,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           Mock General Election Choctaw 2020
         </div>
         <div
-          class="sc-fFubgz HfZVK"
+          class="sc-hBEYos eoEHwy"
         >
           <h1
             class="sc-dJjZJu boqHgo"
@@ -398,7 +400,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
          Mock General Election Choctaw 2020
       </div>
       <div
-        class="sc-fFubgz cZzkcJ"
+        class="sc-hBEYos eWOkWl"
       >
         <h1
           class="sc-dJjZJu boqHgo"
@@ -1537,7 +1539,7 @@ exports[`tabulating CVRs 1`] = `
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-fFubgz cZzkcJ"
+    class="sc-hBEYos eWOkWl"
   >
     <h1>
       Official
@@ -2728,7 +2730,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-fFubgz cZzkcJ"
+    class="sc-hBEYos eWOkWl"
   >
     <h1>
       Unofficial

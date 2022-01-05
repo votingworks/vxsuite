@@ -5,8 +5,9 @@ import {
 } from '@votingworks/types';
 import { z } from 'zod';
 import { DeviceType } from '@votingworks/cdf-types-election-event-logging';
-import { LogEventId, LogEventType } from '.';
+import { LogEventId } from './log_event_ids';
 import { LogSource } from './log_source';
+import { LogEventType } from './log_event_types';
 
 export enum LogDispositionStandardTypes {
   Success = 'success',

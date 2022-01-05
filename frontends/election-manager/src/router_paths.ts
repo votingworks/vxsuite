@@ -11,6 +11,7 @@ import {
 
 export const routerPaths = {
   root: '/',
+  advanced: '/advanced',
   electionDefinition: '/definition',
   definitionEditor: '/definition/editor',
   definitionContest: ({ contestId }: { contestId: ContestId }): string =>

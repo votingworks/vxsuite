@@ -5,6 +5,7 @@ import {
   usbstick,
   throwIllegalValue,
   generateLogFilename,
+  LogFileType,
 } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
@@ -81,7 +82,7 @@ export function ExportLogsModal({ onClose }: Props): JSX.Element {
     }
     void checkLogFile();
   }, [currentUserSession, logger]);
-  const defaultFilename = generateLogFilename('vx-logs');
+  const defaultFilename = generateLogFilename('vx-logs', LogFileType.Raw);
 
   async function exportResults(openFileDialog: boolean) {
     assert(window.kiosk);

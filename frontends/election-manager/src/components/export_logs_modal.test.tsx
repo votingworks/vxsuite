@@ -6,7 +6,7 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { usbstick } from '@votingworks/utils';
+import { LogFileType, usbstick } from '@votingworks/utils';
 
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { ExportLogsModal } from './export_logs_modal';
@@ -30,7 +30,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
     const { getByText, unmount } = renderInAppContext(
-      <ExportLogsModal onClose={closeFn} />,
+      <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
       {
         usbDriveStatus: status,
       }
@@ -53,7 +53,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
 
   const { getByText } = renderInAppContext(
-    <ExportLogsModal onClose={closeFn} />,
+    <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
       logger,
@@ -84,7 +84,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
-      <ExportLogsModal onClose={closeFn} />,
+      <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
       {
         usbDriveStatus: status,
       }
@@ -104,7 +104,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
   }
 });
 
-test('renders save modal when usb is mounted and log file on machine', async () => {
+test('renders save modal when usb is mounted and saves log file on machine', async () => {
   jest.useFakeTimers();
   const closeFn = jest.fn();
   const mockKiosk = fakeKiosk();
@@ -116,9 +116,12 @@ test('renders save modal when usb is mounted and log file on machine', async () 
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logCdfSpy = jest
+    .spyOn(logger, 'buildCDFLog')
+    .mockReturnValue('this-is-the-cdf-content');
 
   const { getByText } = renderInAppContext(
-    <ExportLogsModal onClose={closeFn} />,
+    <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
       logger,
@@ -145,6 +148,65 @@ test('renders save modal when usb is mounted and log file on machine', async () 
       'this-is-my-file-content'
     );
   });
+  expect(logCdfSpy).toHaveBeenCalledTimes(0);
+
+  fireEvent.click(getByText('Close'));
+  expect(closeFn).toHaveBeenCalled();
+
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'admin',
+    expect.objectContaining({
+      disposition: 'success',
+      filename: expect.stringContaining('vx-log'),
+      fileType: 'logs',
+    })
+  );
+});
+
+test('renders save modal when usb is mounted and saves cdf log file on machine', async () => {
+  jest.useFakeTimers();
+  const closeFn = jest.fn();
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
+    { ...fileSystemEntry, name: 'vx-logs.log' },
+  ]);
+  mockKiosk.readFile.mockResolvedValue('this-is-my-raw-file-content');
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  const logger = new Logger(LogSource.VxAdminFrontend);
+  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  logger.buildCDFLog = jest.fn().mockReturnValue('this-is-the-cdf-content');
+
+  const { getByText } = renderInAppContext(
+    <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Cdf} />,
+    {
+      usbDriveStatus: UsbDriveStatus.mounted,
+      logger,
+    }
+  );
+  getByText('Loading');
+  await advanceTimersAndPromises();
+  getByText('Save Logs');
+  expect(logSpy).toHaveBeenCalledWith(
+    LogEventId.ExportLogFileFound,
+    'admin',
+    expect.objectContaining({ disposition: 'success' })
+  );
+
+  fireEvent.click(getByText('Save'));
+  expect(mockKiosk.readFile).toHaveBeenCalled();
+  jest.advanceTimersByTime(2001);
+  await waitFor(() => getByText(/Logs Saved/));
+  await waitFor(() => {
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('fake mount point/vx-log'),
+      'this-is-the-cdf-content'
+    );
+  });
+  expect(logger.buildCDFLog).toHaveBeenCalledTimes(1);
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
@@ -173,7 +235,7 @@ test('render export modal with errors when appropriate', async () => {
 
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
-    <ExportLogsModal onClose={closeFn} />,
+    <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
       logger,

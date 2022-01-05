@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { Button, UsbControllerButton } from '@votingworks/ui';
@@ -10,7 +10,6 @@ import { Main, MainChild } from './main';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
 import { StatusFooter } from './status_footer';
-import { ExportLogsModal } from './export_logs_modal';
 
 interface Props {
   children: React.ReactNode;
@@ -24,7 +23,11 @@ export function NavigationScreen({
   mainChildFlex = false,
 }: Props): JSX.Element {
   const location = useLocation();
+
   function isActiveSection(path: string) {
+    if (path === '/') {
+      return location.pathname === '/' ? 'active-section' : '';
+    }
     return new RegExp(`^${path}`).test(location.pathname)
       ? 'active-section'
       : '';
@@ -38,7 +41,6 @@ export function NavigationScreen({
     machineConfig,
     currentUserSession,
   } = useContext(AppContext);
-  const [isExportingLogs, setIsExportingLogs] = useState(false);
   const election = electionDefinition?.election;
   const currentUser = currentUserSession?.type ?? 'unknown';
 
@@ -46,7 +48,7 @@ export function NavigationScreen({
     <Screen>
       <Navigation
         primaryNav={
-          election && (
+          election ? (
             <React.Fragment>
               <LinkButton
                 to={routerPaths.electionDefinition}
@@ -73,14 +75,34 @@ export function NavigationScreen({
               >
                 Tally
               </LinkButton>
+              <LinkButton
+                small
+                to={routerPaths.advanced}
+                className={isActiveSection(routerPaths.advanced)}
+              >
+                Advanced
+              </LinkButton>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <LinkButton
+                to={routerPaths.root}
+                className={isActiveSection(routerPaths.root)}
+              >
+                Configure
+              </LinkButton>
+              <LinkButton
+                small
+                to={routerPaths.advanced}
+                className={isActiveSection(routerPaths.advanced)}
+              >
+                Advanced
+              </LinkButton>
             </React.Fragment>
           )
         }
         secondaryNav={
           <React.Fragment>
-            <Button small onPress={() => setIsExportingLogs(true)}>
-              Export Logs
-            </Button>
             {!machineConfig.bypassAuthentication && (
               <Button small onPress={lockMachine}>
                 Lock Machine
@@ -99,9 +121,6 @@ export function NavigationScreen({
         </MainChild>
       </Main>
       <StatusFooter />
-      {isExportingLogs && (
-        <ExportLogsModal onClose={() => setIsExportingLogs(false)} />
-      )}
     </Screen>
   );
 }
