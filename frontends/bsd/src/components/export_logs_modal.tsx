@@ -25,6 +25,7 @@ const LOG_NAME = 'vx-logs';
 
 export interface Props {
   onClose: () => void;
+  logFileType: LogFileType;
 }
 
 enum ModalState {
@@ -34,8 +35,14 @@ enum ModalState {
   Init = 'init',
 }
 
-export function ExportLogsModal({ onClose }: Props): JSX.Element {
-  const { usbDriveStatus, currentUserSession, logger } = useContext(AppContext);
+export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
+  const {
+    usbDriveStatus,
+    currentUserSession,
+    logger,
+    electionDefinition,
+    machineConfig,
+  } = useContext(AppContext);
   assert(currentUserSession); // TODO(auth) should this check for a specific user type
 
   const [currentState, setCurrentState] = useState(ModalState.Init);
@@ -82,7 +89,7 @@ export function ExportLogsModal({ onClose }: Props): JSX.Element {
     }
     void checkLogFile();
   }, [currentUserSession, logger]);
-  const defaultFilename = generateLogFilename('vx-logs', LogFileType.Raw);
+  const defaultFilename = generateLogFilename('vx-logs', logFileType);
 
   async function exportResults(openFileDialog: boolean) {
     assert(window.kiosk);
@@ -90,9 +97,30 @@ export function ExportLogsModal({ onClose }: Props): JSX.Element {
     setCurrentState(ModalState.Saving);
 
     try {
-      const results = await window.kiosk.readFile(
-        `${LOGS_ROOT_LOCATION}/${LOG_NAME}.log`
+      const rawLogFile = await window.kiosk.readFile(
+        `${LOGS_ROOT_LOCATION}/${LOG_NAME}.log`,
+        'utf8'
       );
+      let results = '';
+      switch (logFileType) {
+        case LogFileType.Raw:
+          results = rawLogFile;
+          break;
+        case LogFileType.Cdf: {
+          assert(electionDefinition !== undefined);
+          results = logger.buildCDFLog(
+            electionDefinition,
+            rawLogFile,
+            machineConfig.machineId,
+            machineConfig.codeVersion,
+            currentUserSession.type
+          );
+          break;
+        }
+        /* istanbul ignore next - compile time check for completeness */
+        default:
+          throwIllegalValue(logFileType);
+      }
       let filenameLocation = '';
       const usbPath = await usbstick.getDevicePath();
       if (openFileDialog) {
@@ -103,8 +131,8 @@ export function ExportLogsModal({ onClose }: Props): JSX.Element {
         if (!fileWriter) {
           throw new Error('could not begin download; no file was chosen');
         }
-
         await fileWriter.write(results);
+
         filenameLocation = fileWriter.filename;
         await fileWriter.end();
       } else {
@@ -219,7 +247,7 @@ export function ExportLogsModal({ onClose }: Props): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <UsbImage src="/usb-drive.svg" alt="Insert USB Image" />
+                <UsbImage src="/usb-stick.svg" alt="Insert USB Image" />
                 Please insert a USB drive where you would like the save the log
                 file.
               </p>

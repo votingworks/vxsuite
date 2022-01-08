@@ -1,6 +1,7 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
+import { LogFileType } from '@votingworks/utils';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -50,7 +51,7 @@ export function AdvancedOptionsScreen({
     return setIsConfirmingFactoryReset((s) => !s);
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
-  const [isExportingLogs, setIsExportingLogs] = useState(false);
+  const [exportingLogType, setExportingLogType] = useState<LogFileType>();
   const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
     false
   );
@@ -139,8 +140,13 @@ export function AdvancedOptionsScreen({
                 </p>
               )}
               <p>
-                <Button onPress={() => setIsExportingLogs(true)}>
+                <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
                   Export Logs…
+                </Button>
+              </p>
+              <p>
+                <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
+                  Export Logs as CDF…
                 </Button>
               </p>
             </Prose>
@@ -223,8 +229,11 @@ export function AdvancedOptionsScreen({
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
-      {isExportingLogs && (
-        <ExportLogsModal onClose={() => setIsExportingLogs(false)} />
+      {exportingLogType !== undefined && (
+        <ExportLogsModal
+          onClose={() => setExportingLogType(undefined)}
+          logFileType={exportingLogType}
+        />
       )}
     </React.Fragment>
   );

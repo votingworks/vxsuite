@@ -19,7 +19,11 @@ export interface AppContextInterface {
 const appContext: AppContextInterface = {
   usbDriveStatus: usbstick.UsbDriveStatus.absent,
   usbDriveEject: () => undefined,
-  machineConfig: { machineId: '0000', bypassAuthentication: false },
+  machineConfig: {
+    machineId: '0000',
+    codeVersion: '',
+    bypassAuthentication: false,
+  },
   electionDefinition: undefined,
   electionHash: undefined,
   storage: new MemoryStorage(),

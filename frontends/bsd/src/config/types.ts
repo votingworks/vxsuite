@@ -12,10 +12,12 @@ import { z } from 'zod';
 
 export interface MachineConfig {
   machineId: string;
+  codeVersion: string;
   bypassAuthentication: boolean;
 }
 export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
   machineId: MachineId,
+  codeVersion: z.string().nonempty(),
   bypassAuthentication: z.boolean(),
 });
 
