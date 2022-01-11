@@ -4,16 +4,18 @@ import { MachineConfigResponseSchema } from '../config/types';
 
 export const machineConfigProvider: Provider<{
   machineId: string;
+  codeVersion: string;
   bypassAuthentication: boolean;
 }> = {
   async get() {
-    const { machineId, bypassAuthentication } = unsafeParse(
+    const { machineId, codeVersion, bypassAuthentication } = unsafeParse(
       MachineConfigResponseSchema,
       await fetchJson('/machine-config')
     );
 
     return {
       machineId,
+      codeVersion,
       bypassAuthentication,
     };
   },

@@ -158,7 +158,11 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     <AppContext.Provider
       value={{
         electionDefinition,
-        machineConfig: { machineId: '0001', bypassAuthentication: false },
+        machineConfig: {
+          machineId: '0001',
+          codeVersion: 'TEST',
+          bypassAuthentication: false,
+        },
         usbDriveStatus: UsbDriveStatus.recentlyEjected,
         usbDriveEject: jest.fn(),
         storage: new MemoryStorage(),

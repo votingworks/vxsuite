@@ -103,6 +103,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
+    codeVersion: '',
     bypassAuthentication: false,
   });
 

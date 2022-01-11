@@ -42,7 +42,7 @@ export function renderInAppContext(
     <AppContext.Provider
       value={{
         electionDefinition,
-        machineConfig: { machineId, bypassAuthentication },
+        machineConfig: { machineId, codeVersion: 'TEST', bypassAuthentication },
         usbDriveStatus,
         usbDriveEject,
         storage,
