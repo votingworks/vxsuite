@@ -16,6 +16,7 @@ import {
   generateFilenameForBallotExportPackageFromElectionData,
   generateBatchResultsDefaultFilename,
   generateLogFilename,
+  LogFileType,
 } from './filenames';
 import { typedAs } from './types';
 
@@ -509,9 +510,12 @@ test('generateLogFilename', () => {
       arbitrarySafeName(),
       fc.oneof(fc.constant(undefined), arbitraryTimestampDate()),
       (logName, time) => {
-        const name = generateLogFilename(logName, time);
+        const name = generateLogFilename(logName, LogFileType.Raw, time);
         expect(name).toMatch(/^.*_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d.log$/);
         expect(name).toContain(logName);
+        const cdfName = generateLogFilename(logName, LogFileType.Cdf, time);
+        expect(cdfName).toMatch(/^.*_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d.json$/);
+        expect(cdfName).toContain(logName);
       }
     )
   );

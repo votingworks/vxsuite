@@ -23,6 +23,7 @@ import { SmartcardsScreen } from '../screens/smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { InvalidCardScreen } from '../screens/invalid_card_screen';
 import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
+import { AdvancedScreen } from '../screens/advanced_screen';
 
 export function ElectionManager(): JSX.Element {
   const {
@@ -38,7 +39,19 @@ export function ElectionManager(): JSX.Element {
   }
 
   if (!election || !configuredAt) {
-    return <UnconfiguredScreen />;
+    return (
+      <Switch>
+        <Route exact path={routerPaths.root}>
+          <UnconfiguredScreen />
+        </Route>
+        <Route exact path={routerPaths.advanced}>
+          <AdvancedScreen />
+        </Route>
+        <Route exact path={routerPaths.electionDefinition}>
+          <UnconfiguredScreen />
+        </Route>
+      </Switch>
+    );
   }
 
   if (!currentUserSession) {
@@ -55,6 +68,9 @@ export function ElectionManager(): JSX.Element {
 
   return (
     <Switch>
+      <Route exact path={routerPaths.advanced}>
+        <AdvancedScreen />
+      </Route>
       <Route exact path={routerPaths.electionDefinition}>
         <DefinitionScreen />
       </Route>
