@@ -10,11 +10,8 @@ import { assert } from '@votingworks/utils';
 import {
   Device,
   ElectionEventLog,
-  ElectionEventLogDocumentation,
   Event,
   EventDispositionType,
-  EventIdDescription,
-  EventTypeDescription,
 } from '@votingworks/cdf-types-election-event-logging';
 import {
   LogLine,
@@ -26,7 +23,6 @@ import {
 } from './types';
 import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
 import { LogEventId, getDetailsForEventId } from './log_event_ids';
-import { getDocumentationForEventType, LogEventType } from './log_event_types';
 
 export const LOGS_ROOT_LOCATION = '/var/log';
 export const LOG_NAME = 'vx-logs';
@@ -184,46 +180,5 @@ export class Logger {
       disposition: 'success',
     });
     return JSON.stringify(eventElectionLog);
-  }
-
-  buildCDFLogDocumentationFileContent(
-    // Once we have a common type for MachineConfig with model/manufacturer it will likely make more sense to just pass that in.
-    machineId: string,
-    machineManufacturer: string,
-    machineModel: string,
-    codeVersion: string
-  ): string {
-    const allEventTypes: EventTypeDescription[] = Object.values(
-      LogEventType
-    ).map((eventType) => {
-      const eventTypeInformation = getDocumentationForEventType(eventType);
-      return {
-        Description: eventTypeInformation.documentationMessage,
-        Type: eventType,
-      };
-    });
-    const allEventIdsForDevice: EventIdDescription[] = Object.values(LogEventId)
-      .map((eventId) => getDetailsForEventId(eventId))
-      .filter(
-        (eventIdDetails) =>
-          eventIdDetails.restrictInDocumentationToApps === undefined ||
-          eventIdDetails.restrictInDocumentationToApps.includes(this.source)
-      )
-      .map((eventIdDetails) => {
-        return {
-          Id: eventIdDetails.eventId,
-          Description: eventIdDetails.documentationMessage,
-        };
-      });
-    const documentationLog: ElectionEventLogDocumentation = {
-      DeviceId: machineId,
-      DeviceManufacturer: machineManufacturer,
-      DeviceModel: machineModel,
-      DeviceVersion: codeVersion,
-      EventIdDescription: allEventIdsForDevice,
-      EventTypeDescription: allEventTypes,
-      GeneratedDate: new Date().toISOString(),
-    };
-    return JSON.stringify(documentationLog);
   }
 }
