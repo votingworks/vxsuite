@@ -6,10 +6,7 @@ import MockDate from 'mockdate';
 import { join } from 'path';
 import { safeParseJson } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
-import {
-  ElectionEventLogDocumentationSchema,
-  ElectionEventLogSchema,
-} from '@votingworks/cdf-types-election-event-logging';
+import { ElectionEventLogSchema } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
 import { Logger } from './logger';
 import { LogEventType } from './log_event_types';
@@ -398,89 +395,5 @@ describe('test cdf conversion', () => {
         "UserId": "system",
       }
     `);
-  });
-});
-
-describe('test cdf documentation generation', () => {
-  test('builds expected documentation for VxAdminFrontend', () => {
-    const logger = new Logger(LogSource.VxAdminFrontend);
-    const cdfDocumentationContent = logger.buildCDFLogDocumentationFileContent(
-      'machineID1234',
-      'VotingWorks',
-      'VxAdmin 1.0',
-      'codeversion'
-    );
-    const structuredDataResult = safeParseJson(
-      cdfDocumentationContent,
-      ElectionEventLogDocumentationSchema
-    );
-    const structuredData = structuredDataResult.unsafeUnwrap();
-    expect(structuredData.DeviceId).toBe('machineID1234');
-    expect(structuredData.DeviceManufacturer).toBe('VotingWorks');
-    expect(structuredData.DeviceModel).toBe('VxAdmin 1.0');
-    expect(structuredData.DeviceVersion).toBe('codeversion');
-    expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
-    expect(structuredData.EventTypeDescription).toHaveLength(5);
-    expect(structuredData.EventIdDescription).toHaveLength(51);
-    // Make sure VxAdminFrontend specific logs are included.
-    expect(structuredData.EventIdDescription).toContainEqual(
-      expect.objectContaining({
-        Id: LogEventId.CvrImported,
-      })
-    );
-    // Make sure a generic log to all apps is included
-    expect(structuredData.EventIdDescription).toContainEqual(
-      expect.objectContaining({
-        Id: LogEventId.MachineBootInit,
-      })
-    );
-    // Make sure VxBatchScanFrontend specific logs are NOT included
-    expect(structuredData.EventIdDescription).not.toContainEqual(
-      expect.objectContaining({
-        Id: LogEventId.ScannerConfigured,
-      })
-    );
-  });
-
-  test('builds expected documentation for VxBatchScanFrontend', () => {
-    const logger = new Logger(LogSource.VxBatchScanFrontend);
-    const cdfDocumentationContent = logger.buildCDFLogDocumentationFileContent(
-      '314159',
-      'V oting Works',
-      'VxScan',
-      'this is code 12.54.12'
-    );
-    const structuredDataResult = safeParseJson(
-      cdfDocumentationContent,
-      ElectionEventLogDocumentationSchema
-    );
-    expect(structuredDataResult.isOk()).toBeTruthy();
-    const structuredData = structuredDataResult.ok();
-    assert(structuredData);
-    expect(structuredData.DeviceId).toBe('314159');
-    expect(structuredData.DeviceManufacturer).toBe('V oting Works');
-    expect(structuredData.DeviceModel).toBe('VxScan');
-    expect(structuredData.DeviceVersion).toBe('this is code 12.54.12');
-    expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
-    expect(structuredData.EventTypeDescription).toHaveLength(5);
-    expect(structuredData.EventIdDescription).toHaveLength(56);
-    // Make sure VxBatchApp specific logs are included.
-    expect(structuredData.EventIdDescription).toContainEqual(
-      expect.objectContaining({
-        Id: LogEventId.ScannerConfigured,
-      })
-    );
-    // Make sure a generic log to all apps is included
-    expect(structuredData.EventIdDescription).toContainEqual(
-      expect.objectContaining({
-        Id: LogEventId.MachineBootInit,
-      })
-    );
-    // Make sure VxAdminFrontend specific logs are NOT included
-    expect(structuredData.EventIdDescription).not.toContainEqual(
-      expect.objectContaining({
-        Id: LogEventId.CvrImported,
-      })
-    );
   });
 });
