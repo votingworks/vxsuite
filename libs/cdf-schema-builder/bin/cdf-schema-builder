@@ -9,11 +9,14 @@ const { buildSchema } = require('..')
  * @param {NodeJS.WritableStream} out
  */
 function usage(out) {
-  out.write(`Usage: cdf-schema-builder SCHEMA_FILE\n`);
+  out.write(`Usage: cdf-schema-builder <schema.xml> <schema.json>\n`);
 }
 
 /** @type {string | undefined} */
-let schemaFilePath;
+let xsdSchemaFilePath;
+
+/** @type {string | undefined} */
+let jsonSchemaFilePath;
 
 for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i];
@@ -27,18 +30,24 @@ for (let i = 2; i < process.argv.length; i++) {
       if (arg.startsWith('-')) {
         process.stderr.write(`error: unknown option: ${arg}\n`);
         usage(process.stderr);
+      } else if (arg.endsWith('.xsd') || arg.endsWith('.xml')) {
+        xsdSchemaFilePath = arg;
+      } else if (arg.endsWith('.json')) {
+        jsonSchemaFilePath = arg;
       } else {
-        schemaFilePath = arg;
+        process.stderr.write(`error: unknown file extension: ${arg}\n`);
+        usage(process.stderr);
       }
     }
   }
 }
 
-if (!schemaFilePath) {
-  process.stderr.write('error: no schema file path specified\n');
+if (!xsdSchemaFilePath || !jsonSchemaFilePath) {
+  process.stderr.write('error: missing XSD or JSON schema file path\n');
   usage(process.stderr);
   process.exit(1);
 }
 
-const schemaFileContents = readFileSync(schemaFilePath, 'utf-8')
-buildSchema(schemaFileContents, process.stdout); 
+const xsdSchemaFileContents = readFileSync(xsdSchemaFilePath, 'utf-8');
+const jsonSchemaFileContents = readFileSync(jsonSchemaFilePath, 'utf-8');
+buildSchema(xsdSchemaFileContents, jsonSchemaFileContents, process.stdout); 
