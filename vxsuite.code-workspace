@@ -41,6 +41,10 @@
       "path": "libs/cdf-schema-builder"
     },
     {
+      "name": "libs/cdf-types-cast-vote-records",
+      "path": "libs/cdf-types-cast-vote-records"
+    },
+    {
       "name": "libs/cdf-types-election-event-logging",
       "path": "libs/cdf-types-election-event-logging"
     },
