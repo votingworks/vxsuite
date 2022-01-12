@@ -19,6 +19,7 @@ import {
 } from '.';
 
 const event: Event = {
+  '@type': 'EventLogging.Event',
   Id: '1',
   Disposition: EventDispositionType.Success,
   Sequence: '1',
@@ -27,6 +28,7 @@ const event: Event = {
 };
 
 const device: Device = {
+  '@type': 'EventLogging.Device',
   Id: '1',
   Event: [event],
   HashType: HashType.Sha256,
@@ -34,21 +36,25 @@ const device: Device = {
 };
 
 const electionEventLog: ElectionEventLog = {
+  '@type': 'EventLogging.ElectionEventLog',
   Device: [device],
   GeneratedTime: '2019-01-01T00:00:00.000Z',
 };
 
 const eventIdDescription: EventIdDescription = {
+  '@type': 'EventLogging.EventIdDescription',
   Id: '1',
   Description: 'test',
 };
 
 const eventTypeDescription: EventTypeDescription = {
+  '@type': 'EventLogging.EventTypeDescription',
   Type: 'test',
   Description: 'test',
 };
 
 const electionEventLogDocumentation: ElectionEventLogDocumentation = {
+  '@type': 'EventLogging.ElectionEventLogDocumentation',
   DeviceManufacturer: 'votingworks',
   DeviceModel: 'test',
   EventIdDescription: [eventIdDescription],
@@ -73,10 +79,11 @@ test('ElectionEventLogDocumentation', () => {
 });
 
 test('schema in sync', () => {
-  const input = readFileSync(join(__dirname, '../data/schema.xml'), 'utf-8');
+  const xsd = readFileSync(join(__dirname, '../data/schema.xml'), 'utf-8');
+  const json = readFileSync(join(__dirname, '../data/schema.json'), 'utf-8');
   const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
   const out = fakeWritable();
-  buildSchema(input, out);
+  buildSchema(xsd, json, out);
   const expectedOutput = out.toString();
   expect(currentOutput).toEqual(expectedOutput);
 });

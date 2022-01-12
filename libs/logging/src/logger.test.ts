@@ -140,7 +140,7 @@ describe('test cdf conversion', () => {
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
     );
-    const cdfLogDevice = cdfLog.Device[0];
+    const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
     expect(cdfLogDevice.Id).toBe('12machine34');
     expect(cdfLogDevice.Version).toBe('thisisacodeversion');
@@ -163,10 +163,10 @@ describe('test cdf conversion', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    const cdfLogDevice = cdfLog.Device[0];
+    const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
     expect(cdfLogDevice.Event).toHaveLength(1);
-    const decodedEvent = cdfLogDevice.Event[0];
+    const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
     expect(decodedEvent.Id).toBe(LogEventId.UsbDriveStatusUpdate);
     expect(decodedEvent.Disposition).toBe('na');
@@ -202,10 +202,10 @@ describe('test cdf conversion', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    const cdfLogDevice = cdfLog.Device[0];
+    const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
     expect(cdfLogDevice.Event).toHaveLength(1);
-    const decodedEvent = cdfLogDevice.Event[0];
+    const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
     expect(decodedEvent.Disposition).toBe('na');
   });
@@ -224,10 +224,10 @@ describe('test cdf conversion', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    const cdfLogDevice = cdfLog.Device[0];
+    const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
     expect(cdfLogDevice.Event).toHaveLength(1);
-    const decodedEvent = cdfLogDevice.Event[0];
+    const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
     expect(decodedEvent.Id).toBe(LogEventId.UsbDriveStatusUpdate);
     expect(decodedEvent.Disposition).toBe('other');
@@ -299,7 +299,7 @@ describe('test cdf conversion', () => {
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
-    expect(cdfLog.Device[0]!.Event).toHaveLength(1);
+    expect(cdfLog.Device?.[0]!.Event).toHaveLength(1);
 
     const output2 = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
@@ -320,13 +320,11 @@ describe('test cdf conversion', () => {
     expect(cdfLogResult2.isOk()).toBeTruthy();
     const cdfLog2 = cdfLogResult2.ok();
     assert(cdfLog2);
-    expect(cdfLog2.Device[0]!.Event).toStrictEqual([]);
+    expect(cdfLog2.Device?.[0]!.Event).toStrictEqual([]);
   });
 
   test('read and interpret a real log file as expected', async () => {
-    const logFile = await readFileSync(
-      join(__dirname, '../fixtures/samplelog.log')
-    );
+    const logFile = readFileSync(join(__dirname, '../fixtures/samplelog.log'));
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefintion,
@@ -346,12 +344,12 @@ describe('test cdf conversion', () => {
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
     );
-    const cdfLogDevice = cdfLog.Device[0];
+    const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
     expect(cdfLogDevice.Id).toBe('1234');
     expect(cdfLogDevice.Version).toBe('codeversion');
     expect(cdfLogDevice.Type).toBe('ems');
-    const events = cdfLogDevice.Event;
+    const events = cdfLogDevice.Event!;
     // There are 37 log lines in the sample file.
     expect(events).toHaveLength(37);
     // There should be one admin-card-inserted log from the application logging.
@@ -370,6 +368,7 @@ describe('test cdf conversion', () => {
     expect(events.filter((e) => e.Id === LogEventId.MachineLocked)[0])
       .toMatchInlineSnapshot(`
       Object {
+        "@type": "EventLogging.Event",
         "Description": "The current user was logged out and the machine was locked.",
         "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"vx-admin-frontend\\"}",
         "Disposition": "success",
@@ -385,6 +384,7 @@ describe('test cdf conversion', () => {
     expect(events.filter((e) => e.Id === LogEventId.UsbDeviceChangeDetected)[0])
       .toMatchInlineSnapshot(`
       Object {
+        "@type": "EventLogging.Event",
         "Description": "usblp1: removed",
         "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"system\\"}",
         "Disposition": "na",

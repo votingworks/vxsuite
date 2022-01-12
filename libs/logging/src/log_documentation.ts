@@ -54,6 +54,7 @@ export function generateCdfLogDocumentationFileContent(
     (eventType) => {
       const eventTypeInformation = getDocumentationForEventType(eventType);
       return {
+        '@type': 'EventLogging.EventTypeDescription',
         Description: eventTypeInformation.documentationMessage,
         Type: eventType,
       };
@@ -68,11 +69,13 @@ export function generateCdfLogDocumentationFileContent(
     )
     .map((eventIdDetails) => {
       return {
+        '@type': 'EventLogging.EventIdDescription',
         Id: eventIdDetails.eventId,
         Description: eventIdDetails.documentationMessage,
       };
     });
   const documentationLog: ElectionEventLogDocumentation = {
+    '@type': 'EventLogging.ElectionEventLogDocumentation',
     DeviceManufacturer: machineManufacturer,
     DeviceModel: machineModel,
     EventIdDescription: allEventIdsForDevice,
