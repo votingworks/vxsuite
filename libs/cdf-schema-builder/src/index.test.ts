@@ -1,12 +1,7 @@
 import { fakeWritable } from '@votingworks/test-utils';
-import { JSDOM } from 'jsdom';
-import {
-  buildSchema,
-  camelize,
-  extractDocumentation,
-  getTypeScriptTypeRef,
-  getZodSchemaRef,
-} from '.';
+import { typedAs } from '@votingworks/utils';
+import { JSONSchema4 } from 'json-schema';
+import { buildSchema } from '.';
 
 test('empty', () => {
   const out = fakeWritable();
@@ -16,6 +11,14 @@ test('empty', () => {
 <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 </xsd:schema>
 `,
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {},
+      }),
+      null,
+      2
+    ),
     out
   );
 
@@ -29,17 +32,79 @@ test('empty', () => {
     import { Iso8601Date } from '@votingworks/types';
 
     /**
-     * Schema for xsd:datetime values.
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
      */
     export const DateTimeSchema = Iso8601Date;
 
     /**
-     * Schema for xsd:date values.
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
      */
     export const DateSchema = Iso8601Date;
 
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
+
     "
   `);
+});
+
+test('invalid JSON schema', () => {
+  expect(
+    buildSchema(
+      `<?xml version="1.0" encoding="UTF-8"?>
+     <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+     </xsd:schema>`,
+      `{}`,
+      fakeWritable()
+    ).unsafeUnwrapErr()
+  ).toEqual(new Error('JSON schema is missing definitions'));
+
+  expect(
+    buildSchema(
+      `<?xml version="1.0" encoding="UTF-8"?>
+     <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+     </xsd:schema>`,
+      `{`,
+      fakeWritable()
+    ).unsafeUnwrapErr()
+  ).toBeInstanceOf(SyntaxError);
 });
 
 test('enum type', () => {
@@ -66,6 +131,19 @@ test('enum type', () => {
         </xsd:restriction>
       </xsd:simpleType>
     </xsd:schema>`,
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {
+          YesNo: {
+            type: 'string',
+            enum: ['yes', 'no'],
+          },
+        },
+      }),
+      null,
+      2
+    ),
     out
   );
 
@@ -79,14 +157,54 @@ test('enum type', () => {
     import { Iso8601Date } from '@votingworks/types';
 
     /**
-     * Schema for xsd:datetime values.
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
      */
     export const DateTimeSchema = Iso8601Date;
 
     /**
-     * Schema for xsd:date values.
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
      */
     export const DateSchema = Iso8601Date;
+
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
 
     /**
      * YesNo is a simple enumeration of the values \\"yes\\" and \\"no\\".
@@ -142,6 +260,35 @@ test('object type', () => {
         </xsd:sequence>
       </xsd:complexType>
     </xsd:schema>`,
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {
+          Address: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              street: {
+                type: 'string',
+              },
+              street2: {
+                type: 'string',
+                minOccurs: 0,
+                maxOccurs: 1,
+              },
+              city: {
+                type: 'string',
+              },
+              state: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      }),
+      null,
+      2
+    ),
     out
   );
 
@@ -155,14 +302,54 @@ test('object type', () => {
     import { Iso8601Date } from '@votingworks/types';
 
     /**
-     * Schema for xsd:datetime values.
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
      */
     export const DateTimeSchema = Iso8601Date;
 
     /**
-     * Schema for xsd:date values.
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
      */
     export const DateSchema = Iso8601Date;
+
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
 
     /**
      * An address.
@@ -171,29 +358,29 @@ test('object type', () => {
       /**
        * The street address.
        */
-      street: string;
+      readonly street?: string;
 
-      street2?: string;
+      readonly street2?: string;
 
       /**
        * The city.
        */
-      city: string;
+      readonly city?: string;
 
       /**
        * The state.
        */
-      state: string;
+      readonly state?: string;
     }
 
     /**
      * Schema for {@link Address}.
      */
     export const AddressSchema: z.ZodSchema<Address> = z.object({
-      street: z.string(),
+      street: z.optional(z.string()),
       street2: z.optional(z.string()),
-      city: z.string(),
-      state: z.string(),
+      city: z.optional(z.string()),
+      state: z.optional(z.string()),
     });
 
     "
@@ -208,6 +395,7 @@ test('object type property types', () => {
     <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
       <xsd:complexType name="AnObject">
         <xsd:sequence>
+          <xsd:element name="@type" type="xsd:string"/>
           <xsd:element name="aString" type="xsd:string"/>
           <xsd:element name="aBoolean" type="xsd:boolean"/>
           <xsd:element name="aDecimal" type="xsd:decimal"/>
@@ -218,6 +406,56 @@ test('object type property types', () => {
         </xsd:sequence>
       </xsd:complexType>
     </xsd:schema>`,
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {
+          AnObject: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['@type', 'aString', 'aBoolean', 'aDecimal'],
+            properties: {
+              '@type': {
+                type: 'string',
+              },
+              aString: {
+                type: 'string',
+              },
+              aBoolean: {
+                type: 'boolean',
+              },
+              aDecimal: {
+                type: 'number',
+              },
+              aDate: {
+                type: 'string',
+                format: 'date',
+              },
+              aDateTime: {
+                type: 'string',
+                format: 'date-time',
+              },
+              zeroOrMoreStrings: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                minItems: 0,
+              },
+              oneOrMoreStrings: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                minItems: 1,
+              },
+            },
+          },
+        },
+      }),
+      null,
+      2
+    ),
     out
   );
 
@@ -231,42 +469,85 @@ test('object type property types', () => {
     import { Iso8601Date } from '@votingworks/types';
 
     /**
-     * Schema for xsd:datetime values.
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
      */
     export const DateTimeSchema = Iso8601Date;
 
     /**
-     * Schema for xsd:date values.
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
      */
     export const DateSchema = Iso8601Date;
 
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
+
     export interface AnObject {
-      aString: string;
+      readonly '@type': string;
 
-      aBoolean: boolean;
+      readonly aString: string;
 
-      aDecimal: number;
+      readonly aBoolean: boolean;
 
-      aDate: string;
+      readonly aDecimal: number;
 
-      aDateTime: string;
+      readonly aDate?: Date;
 
-      zeroOrMoreStrings: string[];
+      readonly aDateTime?: DateTime;
 
-      oneOrMoreStrings: string[];
+      readonly zeroOrMoreStrings?: readonly string[];
+
+      readonly oneOrMoreStrings?: readonly string[];
     }
 
     /**
      * Schema for {@link AnObject}.
      */
     export const AnObjectSchema: z.ZodSchema<AnObject> = z.object({
+      '@type': z.string(),
       aString: z.string(),
       aBoolean: z.boolean(),
       aDecimal: z.number(),
-      aDate: DateSchema,
-      aDateTime: DateTimeSchema,
-      zeroOrMoreStrings: z.array(z.string()),
-      oneOrMoreStrings: z.array(z.string()).nonempty(),
+      aDate: z.optional(DateSchema),
+      aDateTime: z.optional(DateTimeSchema),
+      zeroOrMoreStrings: z.optional(z.array(z.string())),
+      oneOrMoreStrings: z.optional(z.array(z.string()).min(1)),
     });
 
     "
@@ -290,6 +571,35 @@ test('object type references', () => {
         </xsd:sequence>
       </xsd:complexType>
     </xsd:schema>`,
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {
+          AnObject: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['aString'],
+            properties: {
+              aString: {
+                type: 'string',
+              },
+            },
+          },
+          AnotherObject: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['anObject'],
+            properties: {
+              anObject: {
+                $ref: '#/definitions/AnObject',
+              },
+            },
+          },
+        },
+      }),
+      null,
+      2
+    ),
     out
   );
 
@@ -303,17 +613,57 @@ test('object type references', () => {
     import { Iso8601Date } from '@votingworks/types';
 
     /**
-     * Schema for xsd:datetime values.
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
      */
     export const DateTimeSchema = Iso8601Date;
 
     /**
-     * Schema for xsd:date values.
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
      */
     export const DateSchema = Iso8601Date;
 
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
+
     export interface AnObject {
-      aString: string;
+      readonly aString: string;
     }
 
     /**
@@ -324,29 +674,52 @@ test('object type references', () => {
     });
 
     export interface AnotherObject {
-      anObject: AnObject;
+      readonly anObject: AnObject;
     }
 
     /**
      * Schema for {@link AnotherObject}.
      */
     export const AnotherObjectSchema: z.ZodSchema<AnotherObject> = z.object({
-      anObject: z.lazy(() => AnObjectSchema),
+      anObject: z.lazy(/* istanbul ignore next */ () => AnObjectSchema),
     });
 
     "
   `);
 });
 
-test('unknown xsd element type', () => {
+test('string aliases', () => {
   const out = fakeWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
     <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-      <xsd:somethingElse>
-      </xsd:somethingElse>
+      <xsd:simpleType name="FractionalNumber">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A proper fractional value, represented using fractional or decimal notation.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="([0-9]+/[1-9]+[0-9]*)|(\\.[0-9]+)">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Pattern describing the allowed values for a FractionalNumber.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:pattern>
+        </xsd:restriction>
+      </xsd:simpleType>
     </xsd:schema>`,
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {
+          'CVR.FractionalNumber': {
+            pattern: '([0-9]+/[1-9]+[0-9]*)|(\\.[0-9]+)',
+            type: 'string',
+          },
+        },
+      }),
+      null,
+      2
+    ),
     out
   );
 
@@ -360,58 +733,306 @@ test('unknown xsd element type', () => {
     import { Iso8601Date } from '@votingworks/types';
 
     /**
-     * Schema for xsd:datetime values.
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
      */
     export const DateTimeSchema = Iso8601Date;
 
     /**
-     * Schema for xsd:date values.
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
      */
     export const DateSchema = Iso8601Date;
+
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
+
+    /**
+     * A proper fractional value, represented using fractional or decimal notation.
+     */
+    export type FractionalNumber = string;
+
+    /**
+     * Schema for {@link FractionalNumber}.
+     */
+    export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\\\\/[1-9]+[0-9]*)|(\\\\.[0-9]+)/);
 
     "
   `);
 });
 
-test('unknown xsd property type', () => {
-  expect(() =>
-    getZodSchemaRef('xsd:notAType')
-  ).toThrowErrorMatchingInlineSnapshot(`"Unsupported xsd type: xsd:notAType"`);
+test('documentation from JSON schema', () => {
+  const out = fakeWritable();
 
-  expect(() =>
-    getTypeScriptTypeRef('xsd:notAType')
-  ).toThrowErrorMatchingInlineSnapshot(`"Unsupported xsd type: xsd:notAType"`);
-});
-
-test('extract documentation with documentation present', () => {
-  const dom = new JSDOM(
-    `<?xml version="1.0" encoding="UTF-8"?>
-    <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-      <xsd:annotation>
-        <xsd:documentation>Here is documentation</xsd:documentation>
-      </xsd:annotation>
-    </xsd:schema>`,
-    { contentType: 'text/xml' }
-  );
-
-  const schema = dom.window.document.documentElement;
-  expect(extractDocumentation(schema)).toEqual('Here is documentation');
-});
-
-test('extract documentation with no documentation element', () => {
-  const dom = new JSDOM(
+  buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
     <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     </xsd:schema>`,
-    { contentType: 'text/xml' }
+    JSON.stringify(
+      typedAs<JSONSchema4>({
+        $schema: 'http://json-schema.org/draft-04/schema#',
+        definitions: {
+          'CVR.FractionalNumber': {
+            type: 'string',
+            pattern: '([0-9]+/[1-9]+[0-9]*)|(\\.[0-9]+)',
+            description:
+              'A proper fractional value, represented using fractional or decimal notation.',
+          },
+          'CVR.UndocumentedAlias': {
+            type: 'string',
+            pattern: '([0-9]+/[1-9]+[0-9]*)|(\\.[0-9]+)',
+          },
+          'CVR.YesNo': {
+            type: 'string',
+            enum: ['yes', 'no'],
+            description: 'A boolean value.',
+          },
+          'CVR.UndocumentedEnum': {
+            type: 'string',
+            enum: ['yes', 'no'],
+          },
+          'CVR.AnObject': {
+            type: 'object',
+            additionalProperties: false,
+            description: 'An object.',
+            properties: {
+              '@type': {
+                type: 'string',
+                description: 'The type of the object.',
+              },
+              aString: {
+                type: 'string',
+              },
+              aBoolean: {
+                type: 'boolean',
+              },
+              aDecimal: {
+                type: 'number',
+              },
+              aDate: {
+                type: 'string',
+                format: 'date',
+              },
+              aDateTime: {
+                type: 'string',
+                format: 'date-time',
+              },
+              zeroOrMoreStrings: {
+                type: 'string',
+                minItems: 0,
+                items: {
+                  type: 'string',
+                },
+              },
+              oneOrMoreStrings: {
+                type: 'string',
+                minItems: 1,
+                items: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          'CVR.AnotherObject': {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              '@type': {
+                type: 'string',
+              },
+            },
+          },
+        },
+      })
+    ),
+    out
   );
 
-  const schema = dom.window.document.documentElement;
-  expect(extractDocumentation(schema)).toBeUndefined();
-});
+  expect(out.toString()).toMatchInlineSnapshot(`
+    "// DO NOT EDIT THIS FILE. IT IS GENERATED AUTOMATICALLY.
 
-test('camelize', () => {
-  expect(camelize('foo')).toBe('Foo');
-  expect(camelize('foo-bar')).toBe('FooBar');
-  expect(camelize('abc-123')).toBe('Abc123');
+    /* eslint-disable */
+
+    import { z } from 'zod';
+
+    import { Iso8601Date } from '@votingworks/types';
+
+    /**
+     * Type for xsd:datetime values.
+     */
+    export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema for {@link DateTime}.
+     */
+    export const DateTimeSchema = Iso8601Date;
+
+    /**
+     * Type for xsd:date values.
+     */
+    export type Date = z.TypeOf<typeof Iso8601Date>;
+
+    /**
+     * Schema {@link Date}.
+     */
+    export const DateSchema = Iso8601Date;
+
+    /**
+     * A URI/URL.
+     */
+    export type Uri = string;
+
+    /**
+     * Schema for {@link Uri}.
+     */
+    export const UriSchema = z.string();
+
+    /**
+     * Byte data stored in a string.
+     */
+    export type Byte = string;
+
+    /**
+     * Schema for {@link Byte}.
+     */
+    export const ByteSchema = z.string();
+
+    /**
+     * An integer number, i.e. a whole number without fractional part.
+     */
+    export type integer = number;
+
+    /**
+     * Schema for {@link integer}.
+     */
+    export const integerSchema = z.number().int();
+
+    /**
+     * A proper fractional value, represented using fractional or decimal notation.
+     */
+    export type FractionalNumber = string;
+
+    /**
+     * Schema for {@link FractionalNumber}.
+     */
+    export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\\\\/[1-9]+[0-9]*)|(\\\\.[0-9]+)/);
+
+    export type UndocumentedAlias = string;
+
+    /**
+     * Schema for {@link UndocumentedAlias}.
+     */
+    export const UndocumentedAliasSchema: z.ZodSchema<UndocumentedAlias> = z.string().regex(/([0-9]+\\\\/[1-9]+[0-9]*)|(\\\\.[0-9]+)/);
+
+    /**
+     * A boolean value.
+     */
+    export enum YesNo {
+      Yes = 'yes',
+
+      No = 'no',
+    }
+
+    /**
+     * Schema for {@link YesNo}.
+     */
+    export const YesNoSchema = z.nativeEnum(YesNo);
+
+    export enum UndocumentedEnum {
+      Yes = 'yes',
+
+      No = 'no',
+    }
+
+    /**
+     * Schema for {@link UndocumentedEnum}.
+     */
+    export const UndocumentedEnumSchema = z.nativeEnum(UndocumentedEnum);
+
+    /**
+     * An object.
+     */
+    export interface AnObject {
+      /**
+       * The type of the object.
+       */
+      readonly '@type'?: string;
+
+      readonly aString?: string;
+
+      readonly aBoolean?: boolean;
+
+      readonly aDecimal?: number;
+
+      readonly aDate?: Date;
+
+      readonly aDateTime?: DateTime;
+
+      readonly zeroOrMoreStrings?: string;
+
+      readonly oneOrMoreStrings?: string;
+    }
+
+    /**
+     * Schema for {@link AnObject}.
+     */
+    export const AnObjectSchema: z.ZodSchema<AnObject> = z.object({
+      '@type': z.optional(z.string()),
+      aString: z.optional(z.string()),
+      aBoolean: z.optional(z.boolean()),
+      aDecimal: z.optional(z.number()),
+      aDate: z.optional(DateSchema),
+      aDateTime: z.optional(DateTimeSchema),
+      zeroOrMoreStrings: z.optional(z.string()),
+      oneOrMoreStrings: z.optional(z.string()),
+    });
+
+    export interface AnotherObject {
+      readonly '@type'?: string;
+    }
+
+    /**
+     * Schema for {@link AnotherObject}.
+     */
+    export const AnotherObjectSchema: z.ZodSchema<AnotherObject> = z.object({
+      '@type': z.optional(z.string()),
+    });
+
+    "
+  `);
 });

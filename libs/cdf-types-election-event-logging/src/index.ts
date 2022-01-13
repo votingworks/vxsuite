@@ -7,14 +7,54 @@ import { z } from 'zod';
 import { Iso8601Date } from '@votingworks/types';
 
 /**
- * Schema for xsd:datetime values.
+ * Type for xsd:datetime values.
+ */
+export type DateTime = z.TypeOf<typeof Iso8601Date>;
+
+/**
+ * Schema for {@link DateTime}.
  */
 export const DateTimeSchema = Iso8601Date;
 
 /**
- * Schema for xsd:date values.
+ * Type for xsd:date values.
+ */
+export type Date = z.TypeOf<typeof Iso8601Date>;
+
+/**
+ * Schema {@link Date}.
  */
 export const DateSchema = Iso8601Date;
+
+/**
+ * A URI/URL.
+ */
+export type Uri = string;
+
+/**
+ * Schema for {@link Uri}.
+ */
+export const UriSchema = z.string();
+
+/**
+ * Byte data stored in a string.
+ */
+export type Byte = string;
+
+/**
+ * Schema for {@link Byte}.
+ */
+export const ByteSchema = z.string();
+
+/**
+ * An integer number, i.e. a whole number without fractional part.
+ */
+export type integer = number;
+
+/**
+ * Schema for {@link integer}.
+ */
+export const integerSchema = z.number().int();
 
 /**
  * Used in Device::Type to describe the type or usage of the device generating the event.
@@ -31,11 +71,6 @@ export enum DeviceType {
   BallotActivation = 'ballot-activation',
 
   /**
-   * Ballot marking devices (voter facing).
-   */
-  Bmd = 'bmd',
-
-  /**
    * Marked ballot printing devices (voter facing).
    */
   BallotPrinting = 'ballot-printing',
@@ -44,6 +79,11 @@ export enum DeviceType {
    * On-demand blank ballot printers.
    */
   BlankBallotPrinting = 'blank-ballot-printing',
+
+  /**
+   * Ballot marking devices (voter facing).
+   */
+  Bmd = 'bmd',
 
   /**
    * Electronic voter stations, standalone or daisy chained to a DRE-controller (voter facing).
@@ -76,6 +116,11 @@ export enum DeviceType {
   Ems = 'ems',
 
   /**
+   * Used when no other value in this enumeration applies.
+   */
+  Other = 'other',
+
+  /**
    * Scanning devices for batches of ballots, auto-feeding, e.g., Central Count (poll worker facing).
    */
   ScanBatch = 'scan-batch',
@@ -86,19 +131,14 @@ export enum DeviceType {
   ScanSingle = 'scan-single',
 
   /**
-   * Remote transmission clients, e.g., for sending of unofficial results from a remote location to a central location (sending station).
-   */
-  TransmissionSending = 'transmission-sending',
-
-  /**
    * Remote transmission hosts, e.g., for the receiving of unofficial results at a central location from a remote location (receiving station).
    */
   TransmissionReceiving = 'transmission-receiving',
 
   /**
-   * Used when no other value in this enumeration applies.
+   * Remote transmission clients, e.g., for sending of unofficial results from a remote location to a central location (sending station).
    */
-  Other = 'other',
+  TransmissionSending = 'transmission-sending',
 }
 
 /**
@@ -121,14 +161,14 @@ export enum EventDispositionType {
   Na = 'na',
 
   /**
-   * For a successful disposition.
-   */
-  Success = 'success',
-
-  /**
    * Used when no other value in this enumeration applies.
    */
   Other = 'other',
+
+  /**
+   * For a successful disposition.
+   */
+  Success = 'success',
 }
 
 /**
@@ -146,6 +186,11 @@ export enum HashType {
   Md6 = 'md6',
 
   /**
+   * Used when no other value in this enumeration applies.
+   */
+  Other = 'other',
+
+  /**
    * To indicate that the SHA 256-bit signature is being used.
    */
   Sha256 = 'sha-256',
@@ -154,11 +199,6 @@ export enum HashType {
    * To indicate that the SHA 512-bit (32-byte) signature is being used.
    */
   Sha512 = 'sha-512',
-
-  /**
-   * Used when no other value in this enumeration applies.
-   */
-  Other = 'other',
 }
 
 /**
@@ -170,70 +210,73 @@ export const HashTypeSchema = z.nativeEnum(HashType);
  * Device contains information about the device generating election event logs. Id is the only required attribute, all other attributes are optional.  If the device type is not found in the DeviceType enumeration, Type is 'other' and OtherType contains the appropriate type.
  */
 export interface Device {
+  readonly '@type': 'EventLogging.Device';
+
   /**
    * Used to associate any details with the event log.
    */
-  Details?: string;
+  readonly Details?: string;
 
   /**
    * Used to describe a logged event.
    */
-  Event: Event[];
+  readonly Event?: readonly Event[];
 
   /**
    * The type of the hash, from the HashType enumeration.
    */
-  HashType?: HashType;
-
-  /**
-   * If HashType is 'other', the type of the hash.
-   */
-  OtherHashType?: string;
+  readonly HashType?: HashType;
 
   /**
    * A serial number or otherwise identifier associated with the device.
    */
-  Id: string;
+  readonly Id: string;
 
   /**
    * Manufacturer of the device.
    */
-  Manufacturer?: string;
+  readonly Manufacturer?: string;
 
   /**
    * Model of the device.
    */
-  Model?: string;
+  readonly Model?: string;
 
   /**
-   * Enumerated usage of the device, e.g., ems, scan-single, etc.
+   * If HashType is 'other', the type of the hash.
    */
-  Type?: DeviceType;
+  readonly OtherHashType?: string;
 
   /**
    * Used when Type is 'other'.
    */
-  OtherType?: string;
+  readonly OtherType?: string;
+
+  /**
+   * Enumerated usage of the device, e.g., ems, scan-single, etc.
+   */
+  readonly Type?: DeviceType;
 
   /**
    * Version identification of the device.
    */
-  Version?: string;
+  readonly Version?: string;
 }
 
 /**
  * Schema for {@link Device}.
  */
 export const DeviceSchema: z.ZodSchema<Device> = z.object({
+  '@type': z.literal('EventLogging.Device'),
   Details: z.optional(z.string()),
-  Event: z.array(z.lazy(() => EventSchema)),
-  HashType: z.optional(z.lazy(() => HashTypeSchema)),
-  OtherHashType: z.optional(z.string()),
+  Event: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => EventSchema))),
+  HashType: z.optional(z.lazy(/* istanbul ignore next */ () => HashTypeSchema)),
   Id: z.string(),
   Manufacturer: z.optional(z.string()),
   Model: z.optional(z.string()),
-  Type: z.optional(z.lazy(() => DeviceTypeSchema)),
+  OtherHashType: z.optional(z.string()),
   OtherType: z.optional(z.string()),
+  Type: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceTypeSchema)),
   Version: z.optional(z.string()),
 });
 
@@ -241,33 +284,36 @@ export const DeviceSchema: z.ZodSchema<Device> = z.object({
  * ElectionEventLog is the root class.  It includes Device for identifying the device(s) generating the election events, the date and time when the election event log was created, and an identification of the election. Details is used as needed for additional description/details. HashType is used to specify a cryptographic hash associated with the events, that is, an event log entry, using values from the HashType enumeration.  If the type of hash is not found in the HashType enumeration, HashType is 'other' and OtherHashType contains the type of hash.
  */
 export interface ElectionEventLog {
+  readonly '@type': 'EventLogging.ElectionEventLog';
+
   /**
    * Used to associate any details with the event log.
    */
-  Details?: string;
+  readonly Details?: string;
 
   /**
    * Used to describe the device(s) generating the election events.
    */
-  Device: Device[];
+  readonly Device?: readonly Device[];
 
   /**
    * Identifies the election associated with the log.
    */
-  ElectionId?: string;
+  readonly ElectionId?: string;
 
   /**
    * Identifies the date and time the log was generated.
    */
-  GeneratedTime: string;
+  readonly GeneratedTime: DateTime;
 }
 
 /**
  * Schema for {@link ElectionEventLog}.
  */
 export const ElectionEventLogSchema: z.ZodSchema<ElectionEventLog> = z.object({
+  '@type': z.literal('EventLogging.ElectionEventLog'),
   Details: z.optional(z.string()),
-  Device: z.array(z.lazy(() => DeviceSchema)),
+  Device: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => DeviceSchema))),
   ElectionId: z.optional(z.string()),
   GeneratedTime: DateTimeSchema,
 });
@@ -276,52 +322,55 @@ export const ElectionEventLogSchema: z.ZodSchema<ElectionEventLog> = z.object({
  * ElectionEventLogDocumention is the root class.  It includes EventIdDescription and EventTypeDescription, as well as other information for identifying the specific device associated with the election event documentation.
  */
 export interface ElectionEventLogDocumentation {
+  readonly '@type': 'EventLogging.ElectionEventLogDocumentation';
+
   /**
    * A serial number or otherwise identifier associated with the device.
    */
-  DeviceId?: string;
+  readonly DeviceId?: string;
 
   /**
    * Manufacturer of the device.
    */
-  DeviceManufacturer: string;
+  readonly DeviceManufacturer: string;
 
   /**
    * Model of the device.
    */
-  DeviceModel: string;
+  readonly DeviceModel: string;
 
   /**
    * Version identification of the device.
    */
-  DeviceVersion?: string;
+  readonly DeviceVersion?: string;
 
   /**
    * For associating a description with an event ID.
    */
-  EventIdDescription: EventIdDescription[];
+  readonly EventIdDescription: readonly EventIdDescription[];
 
   /**
    * For associating a description with an event type.
    */
-  EventTypeDescription: EventTypeDescription[];
+  readonly EventTypeDescription: readonly EventTypeDescription[];
 
   /**
    * Identifies the date the documentation report was generated.
    */
-  GeneratedDate: string;
+  readonly GeneratedDate: Date;
 }
 
 /**
  * Schema for {@link ElectionEventLogDocumentation}.
  */
 export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDocumentation> = z.object({
+  '@type': z.literal('EventLogging.ElectionEventLogDocumentation'),
   DeviceId: z.optional(z.string()),
   DeviceManufacturer: z.string(),
   DeviceModel: z.string(),
   DeviceVersion: z.optional(z.string()),
-  EventIdDescription: z.array(z.lazy(() => EventIdDescriptionSchema)).nonempty(),
-  EventTypeDescription: z.array(z.lazy(() => EventTypeDescriptionSchema)).nonempty(),
+  EventIdDescription: z.array(z.lazy(/* istanbul ignore next */ () => EventIdDescriptionSchema)).min(1),
+  EventTypeDescription: z.array(z.lazy(/* istanbul ignore next */ () => EventTypeDescriptionSchema)).min(1),
   GeneratedDate: DateSchema,
 });
 
@@ -329,72 +378,75 @@ export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDo
  * Event holds information about a specific event. Severity is an optional attribute for describing a severity indication for the event.  If the event disposition is not found in the EventDispositionType enumeration, Disposition is 'other' and OtherDisposition contains the other disposition.
  */
 export interface Event {
+  readonly '@type': 'EventLogging.Event';
+
   /**
    * Used for a brief description of the event.
    */
-  Description?: string;
+  readonly Description?: string;
 
   /**
    * Used for additional information about the event, e.g., vendor reserved information.
    */
-  Details?: string;
+  readonly Details?: string;
 
   /**
    * The disposition, e.g., success or failure, of the event.
    */
-  Disposition: EventDispositionType;
-
-  /**
-   * Used when Disposition is 'other'.
-   */
-  OtherDisposition?: string;
+  readonly Disposition: EventDispositionType;
 
   /**
    * Contains a cryptographic hash of the event, encoded as a string.
    */
-  Hash?: string;
+  readonly Hash?: string;
 
   /**
    * An identifier associated with the event.
    */
-  Id: string;
+  readonly Id: string;
+
+  /**
+   * Used when Disposition is 'other'.
+   */
+  readonly OtherDisposition?: string;
 
   /**
    * A sequence number/string to uniquely identify the event in the log file.
    */
-  Sequence: string;
+  readonly Sequence: string;
 
   /**
    * Used for an indication of the severity of the event, as determined by the device vendor.
    */
-  Severity?: string;
+  readonly Severity?: string;
 
   /**
    * Identifies the date and time the event was generated.
    */
-  TimeStamp: string;
+  readonly TimeStamp: DateTime;
 
   /**
    * Used for the type of event, as determined by the device vendor.
    */
-  Type: string;
+  readonly Type: string;
 
   /**
    * An identifier associated with a user, as relevant.
    */
-  UserId?: string;
+  readonly UserId?: string;
 }
 
 /**
  * Schema for {@link Event}.
  */
 export const EventSchema: z.ZodSchema<Event> = z.object({
+  '@type': z.literal('EventLogging.Event'),
   Description: z.optional(z.string()),
   Details: z.optional(z.string()),
-  Disposition: z.lazy(() => EventDispositionTypeSchema),
-  OtherDisposition: z.optional(z.string()),
+  Disposition: z.lazy(/* istanbul ignore next */ () => EventDispositionTypeSchema),
   Hash: z.optional(z.string()),
   Id: z.string(),
+  OtherDisposition: z.optional(z.string()),
   Sequence: z.string(),
   Severity: z.optional(z.string()),
   TimeStamp: DateTimeSchema,
@@ -406,21 +458,24 @@ export const EventSchema: z.ZodSchema<Event> = z.object({
  * For associating a brief description with an election event ID, used in ElectionEventLogDocumentation::EventIdDescription.
  */
 export interface EventIdDescription {
+  readonly '@type': 'EventLogging.EventIdDescription';
+
   /**
    * Used for a brief description of the event.
    */
-  Description: string;
+  readonly Description: string;
 
   /**
    * An identifier associated with the event.
    */
-  Id: string;
+  readonly Id: string;
 }
 
 /**
  * Schema for {@link EventIdDescription}.
  */
 export const EventIdDescriptionSchema: z.ZodSchema<EventIdDescription> = z.object({
+  '@type': z.literal('EventLogging.EventIdDescription'),
   Description: z.string(),
   Id: z.string(),
 });
@@ -429,21 +484,24 @@ export const EventIdDescriptionSchema: z.ZodSchema<EventIdDescription> = z.objec
  * For associating a description with an election event log type, used in ElectionEventLogDocumentation::EventTypeDescription.
  */
 export interface EventTypeDescription {
+  readonly '@type': 'EventLogging.EventTypeDescription';
+
   /**
    * Used for a description of the event type.
    */
-  Description: string;
+  readonly Description: string;
 
   /**
    * An identifier associated with the event type.
    */
-  Type: string;
+  readonly Type: string;
 }
 
 /**
  * Schema for {@link EventTypeDescription}.
  */
 export const EventTypeDescriptionSchema: z.ZodSchema<EventTypeDescription> = z.object({
+  '@type': z.literal('EventLogging.EventTypeDescription'),
   Description: z.string(),
   Type: z.string(),
 });

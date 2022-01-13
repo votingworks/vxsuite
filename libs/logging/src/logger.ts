@@ -145,8 +145,11 @@ export class Logger {
         ? EventDispositionType.Na
         : EventDispositionType.Other;
       const cdfEvent: Event = {
+        '@type': 'EventLogging.Event',
         Id: decodedLog.eventId,
         Disposition: disposition,
+        OtherDisposition:
+          disposition === 'other' ? decodedLog.disposition : undefined,
         Sequence: idx.toString(),
         TimeStamp: decodedLog.timeLogWritten,
         Type: decodedLog.eventType,
@@ -157,19 +160,18 @@ export class Logger {
         }),
         UserId: decodedLog.user,
       };
-      if (disposition === 'other') {
-        cdfEvent.OtherDisposition = decodedLog.disposition;
-      }
       allEvents.push(cdfEvent);
     }
 
     const currentDevice: Device = {
+      '@type': 'EventLogging.Device',
       Type: DEVICE_TYPES_FOR_APP[this.source],
       Id: machineId,
       Version: codeVersion,
       Event: allEvents,
     };
     const eventElectionLog: ElectionEventLog = {
+      '@type': 'EventLogging.ElectionEventLog',
       Device: [currentDevice],
       ElectionId: electionDefinition.electionHash,
       GeneratedTime: new Date().toISOString(),

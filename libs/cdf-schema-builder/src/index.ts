@@ -1,310 +1,119 @@
-import { JSDOM } from 'jsdom';
+import { err, ok, Result } from '@votingworks/types';
+import { findDocForProperty, findDocForType } from './docs';
+import {
+  createInterfaceFromDefinition,
+  createEnumFromDefinition,
+  parseJsonSchema,
+} from './json_schema';
+import { Enum, Interface, StringAlias } from './types';
+import {
+  makeIdentifier,
+  isValidIdentifier,
+  renderTypeAsDeclaration,
+  renderTypeAsZodSchema,
+} from './util';
+import { extractDocumentationForSchema, parseXsdSchema } from './xsd';
 
-interface EnumerationValue {
-  documentation?: string;
-  name: string;
-  value: string;
-}
-
-interface Property {
-  documentation?: string;
-  name: string;
-  type: string;
-  minOccurs?: string;
-  maxOccurs?: string;
-}
-
-/**
- * @VisibleForTesting
- */
-export function camelize(kebabCaseString: string): string {
-  return kebabCaseString
-    .replace(/\b[a-z]/g, (match) => match.toUpperCase())
-    .replace(/[^a-z\d]/gi, '');
-}
-
-/**
- * Extracts documentation for an element containing a documentation
- * `xsd:annotation` element.
- *
- * @VisibleForTesting
- */
-export function extractDocumentation(element: Element): string | undefined {
-  for (const childNode of element.childNodes) {
-    if (childNode.nodeType !== element.ELEMENT_NODE) {
-      continue;
-    }
-
-    const childElement = childNode as Element;
-    if (childElement.nodeName === 'xsd:annotation') {
-      for (const annotationChildNode of childElement.childNodes) {
-        if (annotationChildNode.nodeType !== element.ELEMENT_NODE) {
-          continue;
-        }
-
-        const annotationChildElement = annotationChildNode as Element;
-        if (annotationChildElement.nodeName === 'xsd:documentation') {
-          /* istanbul ignore next - the `?? undefined` is to satisfy the types but seems it can't happen */
-          return annotationChildElement.textContent ?? undefined;
-        }
-      }
-    }
+function writeDocumentation(
+  documentation: string | undefined,
+  out: NodeJS.WritableStream,
+  indent = ''
+): void {
+  if (!documentation) {
+    return;
   }
 
-  return undefined;
+  const lines = documentation.split('\n');
+  out.write(`${indent}/**\n`);
+  for (const line of lines) {
+    out.write(`${indent} * ${line}\n`);
+  }
+  out.write(`${indent} */\n`);
 }
 
-/**
- * Generates an enum type from an `xsd:simpleType` element.
- */
-function writeSimpleType(element: Element, out: NodeJS.WritableStream) {
-  const name = element.getAttribute('name');
-  const documentation = extractDocumentation(element);
-  const enumerationValues: EnumerationValue[] = [];
+function writeEnumType(enumeration: Enum, out: NodeJS.WritableStream): void {
+  writeDocumentation(enumeration.documentation, out);
 
-  for (const child of element.childNodes) {
-    if (child.nodeType !== element.ELEMENT_NODE) {
-      continue;
-    }
-    const childElement = child as Element;
-    switch (childElement.nodeName) {
-      case 'xsd:restriction': {
-        for (const restrictionChild of childElement.childNodes) {
-          if (restrictionChild.nodeType !== element.ELEMENT_NODE) {
-            continue;
-          }
-          const restrictionChildElement = restrictionChild as Element;
-          if (restrictionChildElement.nodeName === 'xsd:enumeration') {
-            const value = restrictionChildElement.getAttribute('value');
-            if (value) {
-              enumerationValues.push({
-                name: camelize(value),
-                value,
-                documentation: extractDocumentation(restrictionChildElement),
-              });
-            }
-          }
-        }
-        break;
-      }
+  out.write(`export enum ${enumeration.name} {`);
 
-      default:
-        break;
-    }
-  }
-
-  if (documentation) {
-    out.write(`/**\n`);
-    out.write(` * ${documentation}\n`);
-    out.write(` */\n`);
-  }
-
-  out.write(`export enum ${name} {`);
-
-  if (enumerationValues.length > 0) {
+  if (enumeration.values.length > 0) {
     out.write(`\n`);
   }
 
-  for (const [
-    i,
-    { name: enumerationName, value, documentation: enumerationDocumentation },
-  ] of enumerationValues.entries()) {
-    if (enumerationDocumentation) {
-      out.write(`  /**\n`);
-      out.write(`   * ${enumerationDocumentation}\n`);
-      out.write(`   */\n`);
-    }
-    out.write(`  ${enumerationName} = '${value}',\n`);
-    if (i < enumerationValues.length - 1) {
+  for (const [i, { documentation, value }] of enumeration.values.entries()) {
+    writeDocumentation(documentation, out, '  ');
+    out.write(`  ${makeIdentifier(value)} = '${value}',\n`);
+    if (i !== enumeration.values.length - 1) {
       out.write('\n');
     }
   }
 
   out.write(`}\n\n`);
 
-  out.write(`/**\n`);
-  out.write(` * Schema for {@link ${name}}.\n`);
-  out.write(` */\n`);
-  out.write(`export const ${name}Schema = z.nativeEnum(${name});\n\n`);
+  writeDocumentation(`Schema for {@link ${enumeration.name}}.`, out);
+  out.write(
+    `export const ${enumeration.name}Schema = z.nativeEnum(${enumeration.name});\n\n`
+  );
 }
 
-/**
- * @VisibleForTesting
- */
-export function getZodSchemaRef(xsdType: string): string {
-  switch (xsdType) {
-    case 'xsd:string':
-      return 'z.string()';
+function writeInterfaceType(
+  interfaceType: Interface,
+  out: NodeJS.WritableStream
+): void {
+  writeDocumentation(interfaceType.documentation, out);
 
-    case 'xsd:boolean':
-      return 'z.boolean()';
+  out.write(`export interface ${interfaceType.name} {\n`);
 
-    case 'xsd:decimal':
-      return 'z.number()';
+  for (const [i, property] of interfaceType.properties.entries()) {
+    writeDocumentation(property.documentation, out, '  ');
 
-    case 'xsd:dateTime':
-      return 'DateTimeSchema';
+    out.write(
+      `  readonly ${
+        !isValidIdentifier(property.name) ? `'${property.name}'` : property.name
+      }${property.required ? '' : '?'}: ${renderTypeAsDeclaration(
+        property.type
+      )};\n`
+    );
 
-    case 'xsd:date':
-      return 'DateSchema';
-
-    default:
-      if (xsdType.startsWith('xsd:')) {
-        throw new Error(`Unsupported xsd type: ${xsdType}`);
-      } else {
-        // Use `lazy` because we don't control the order of the elements in the
-        // schema, so we can't assume that the referenced schema will be defined
-        // before this one.
-        return `z.lazy(() => ${xsdType}Schema)`;
-      }
-  }
-}
-
-/**
- * @VisibleForTesting
- */
-export function getTypeScriptTypeRef(xsdType: string): string {
-  switch (xsdType) {
-    case 'xsd:string':
-      return 'string';
-
-    case 'xsd:boolean':
-      return 'boolean';
-
-    case 'xsd:decimal':
-      return 'number';
-
-    case 'xsd:dateTime':
-      return 'string';
-
-    case 'xsd:date':
-      return 'string';
-
-    default:
-      if (xsdType.startsWith('xsd:')) {
-        throw new Error(`Unsupported xsd type: ${xsdType}`);
-      } else {
-        return xsdType;
-      }
-  }
-}
-
-/**
- * Generates an object interface from an `xsd:complexType` element.
- */
-function writeComplexType(element: Element, out: NodeJS.WritableStream) {
-  const name = element.getAttribute('name');
-  const documentation = extractDocumentation(element);
-  const properties: Property[] = [];
-
-  for (const child of element.childNodes) {
-    if (child.nodeType !== element.ELEMENT_NODE) {
-      continue;
-    }
-
-    const childElement = child as Element;
-    switch (childElement.nodeName) {
-      case 'xsd:sequence': {
-        for (const sequenceChild of childElement.childNodes) {
-          if (sequenceChild.nodeType !== element.ELEMENT_NODE) {
-            continue;
-          }
-          const sequenceChildElement = sequenceChild as Element;
-          if (sequenceChildElement.nodeName === 'xsd:element') {
-            const elementName = sequenceChildElement.getAttribute(
-              'name'
-            ) as string;
-            const elementType = sequenceChildElement.getAttribute(
-              'type'
-            ) as string;
-            const minOccurs =
-              sequenceChildElement.getAttribute('minOccurs') ?? '1';
-            const maxOccurs =
-              sequenceChildElement.getAttribute('maxOccurs') ?? '1';
-            const elementDocumentation =
-              extractDocumentation(sequenceChildElement);
-
-            properties.push({
-              name: elementName,
-              type: elementType,
-              documentation: elementDocumentation,
-              minOccurs,
-              maxOccurs,
-            });
-          }
-        }
-        break;
-      }
-
-      default:
-        break;
-    }
-  }
-
-  if (documentation) {
-    out.write(`/**\n`);
-    out.write(` * ${documentation}\n`);
-    out.write(` */\n`);
-  }
-
-  out.write(`export interface ${name} {\n`);
-
-  for (const [
-    i,
-    {
-      name: propertyName,
-      type: propertyType,
-      documentation: propertyDocumentation,
-      minOccurs,
-      maxOccurs,
-    },
-  ] of properties.entries()) {
-    if (propertyDocumentation) {
-      out.write(`  /**\n`);
-      out.write(`   * ${propertyDocumentation}\n`);
-      out.write(`   */\n`);
-    }
-    const typeScriptTypeRef = getTypeScriptTypeRef(propertyType);
-    if (maxOccurs === 'unbounded') {
-      out.write(`  ${propertyName}: ${typeScriptTypeRef}[];\n`);
-    } else {
-      out.write(
-        `  ${propertyName}${
-          minOccurs === '0' ? '?' : ''
-        }: ${typeScriptTypeRef};\n`
-      );
-    }
-
-    if (i < properties.length - 1) {
+    if (i !== interfaceType.properties.length - 1) {
       out.write('\n');
     }
   }
 
-  out.write('}\n\n');
+  out.write(`}\n\n`);
 
-  out.write(`/**\n`);
-  out.write(` * Schema for {@link ${name}}.\n`);
-  out.write(` */\n`);
-  out.write(`export const ${name}Schema: z.ZodSchema<${name}> = z.object({\n`);
-  for (const {
-    name: propertyName,
-    type: propertyType,
-    minOccurs,
-    maxOccurs,
-  } of properties) {
-    let propertySchemaRef = getZodSchemaRef(propertyType);
-    if (maxOccurs === 'unbounded') {
-      propertySchemaRef = `z.array(${propertySchemaRef})`;
-      if (minOccurs === '1') {
-        propertySchemaRef = `${propertySchemaRef}.nonempty()`;
-      }
-    } else if (minOccurs === '0') {
-      propertySchemaRef = `z.optional(${propertySchemaRef})`;
-    }
+  writeDocumentation(`Schema for {@link ${interfaceType.name}}.`, out);
+  out.write(
+    `export const ${interfaceType.name}Schema: z.ZodSchema<${interfaceType.name}> = z.object({\n`
+  );
 
-    out.write(`  ${propertyName}: ${propertySchemaRef},\n`);
+  for (const property of interfaceType.properties) {
+    const schema = renderTypeAsZodSchema(property.type);
+    out.write(
+      `  ${
+        !isValidIdentifier(property.name) ? `'${property.name}'` : property.name
+      }: ${property.required ? schema : `z.optional(${schema})`},\n`
+    );
   }
+
   out.write(`});\n\n`);
+}
+
+function writeStringAlias(
+  stringAlias: StringAlias,
+  out: NodeJS.WritableStream
+): void {
+  writeDocumentation(stringAlias.documentation, out);
+  out.write(`export type ${stringAlias.name} = string;\n\n`);
+
+  writeDocumentation(`Schema for {@link ${stringAlias.name}}.`, out);
+  out.write(
+    `export const ${stringAlias.name}Schema: z.ZodSchema<${stringAlias.name}> = z.string()`
+  );
+  if (stringAlias.pattern) {
+    out.write(`.regex(/${stringAlias.pattern.replace(/\//g, '\\/')}/)`);
+  }
+  out.write(';\n\n');
 }
 
 /**
@@ -312,42 +121,127 @@ function writeComplexType(element: Element, out: NodeJS.WritableStream) {
  */
 export function buildSchema(
   xsdSchema: string,
+  jsonSchema: string,
   out: NodeJS.WritableStream
-): void {
+): Result<void, Error> {
   out.write(`// DO NOT EDIT THIS FILE. IT IS GENERATED AUTOMATICALLY.\n\n`);
   out.write(`/* eslint-disable */\n\n`);
   out.write(`import { z } from 'zod';\n\n`);
   out.write(`import { Iso8601Date } from '@votingworks/types';\n\n`);
 
-  out.write(`/**\n`);
-  out.write(` * Schema for xsd:datetime values.\n`);
-  out.write(` */\n`);
+  writeDocumentation('Type for xsd:datetime values.', out);
+  out.write(`export type DateTime = z.TypeOf<typeof Iso8601Date>;\n\n`);
+
+  writeDocumentation('Schema for {@link DateTime}.', out);
   out.write(`export const DateTimeSchema = Iso8601Date;\n\n`);
 
-  out.write(`/**\n`);
-  out.write(` * Schema for xsd:date values.\n`);
-  out.write(` */\n`);
+  writeDocumentation('Type for xsd:date values.', out);
+  out.write(`export type Date = z.TypeOf<typeof Iso8601Date>;\n\n`);
+
+  writeDocumentation('Schema {@link Date}.', out);
   out.write(`export const DateSchema = Iso8601Date;\n\n`);
 
-  const dom = new JSDOM(xsdSchema, { contentType: 'text/xml' });
-  const { document } = dom.window;
-  for (const childNode of document.documentElement.childNodes) {
-    if (childNode.nodeType !== document.ELEMENT_NODE) {
-      continue;
-    }
-    const element = childNode as Element;
+  writeDocumentation('A URI/URL.', out);
+  out.write(`export type Uri = string;\n\n`);
 
-    switch (element.nodeName) {
-      case 'xsd:simpleType':
-        writeSimpleType(element, out);
-        break;
+  writeDocumentation('Schema for {@link Uri}.', out);
+  out.write(`export const UriSchema = z.string();\n\n`);
 
-      case 'xsd:complexType':
-        writeComplexType(element, out);
-        break;
+  writeDocumentation('Byte data stored in a string.', out);
+  out.write(`export type Byte = string;\n\n`);
 
-      default:
-        break;
+  writeDocumentation('Schema for {@link Byte}.', out);
+  out.write(`export const ByteSchema = z.string();\n\n`);
+
+  writeDocumentation(
+    'An integer number, i.e. a whole number without fractional part.',
+    out
+  );
+  out.write(`export type integer = number;\n\n`);
+
+  writeDocumentation('Schema for {@link integer}.', out);
+  out.write(`export const integerSchema = z.number().int();\n\n`);
+
+  const xsd = parseXsdSchema(xsdSchema);
+  const json = parseJsonSchema(jsonSchema);
+  const jsonSchemaObject = json.ok();
+
+  if (!jsonSchemaObject || !jsonSchemaObject.definitions) {
+    return err(json.err() ?? new Error('JSON schema is missing definitions'));
+  }
+
+  const docs = extractDocumentationForSchema(xsd);
+  const enums: Enum[] = [];
+  const aliases: StringAlias[] = [];
+  const interfaces: Interface[] = [];
+
+  for (const [name, def] of Object.entries(jsonSchemaObject.definitions)) {
+    const localName = name.split('.').pop() as string;
+    if (def.enum) {
+      const jsonEnum = createEnumFromDefinition(localName, def);
+
+      if (jsonEnum) {
+        enums.push(jsonEnum);
+      }
+    } else if (def.type === 'object') {
+      const jsonInterface = createInterfaceFromDefinition(localName, def);
+
+      if (jsonInterface) {
+        interfaces.push(jsonInterface);
+      }
+    } else if (def.type === 'string') {
+      aliases.push({
+        kind: 'string',
+        name: localName,
+        pattern: def.pattern,
+        documentation: def.description,
+      });
     }
   }
+
+  for (const alias of aliases) {
+    alias.documentation ??= findDocForType(docs, alias.name)?.documentation;
+  }
+
+  for (const enumeration of enums) {
+    enumeration.documentation ??= findDocForType(
+      docs,
+      enumeration.name
+    )?.documentation;
+
+    for (const enumValue of enumeration.values) {
+      // There's no way to add a description to an enum value in JSON schema.
+      enumValue.documentation = findDocForProperty(
+        docs,
+        enumeration.name,
+        enumValue.value
+      )?.documentation;
+    }
+  }
+
+  for (const iface of interfaces) {
+    iface.documentation ??= findDocForType(docs, iface.name)?.documentation;
+
+    for (const property of iface.properties) {
+      property.documentation ??= findDocForProperty(
+        docs,
+        iface.name,
+        property.name
+      )?.documentation;
+    }
+  }
+
+  for (const stringAlias of aliases) {
+    writeStringAlias(stringAlias, out);
+  }
+
+  for (const jsonEnum of enums) {
+    writeEnumType(jsonEnum, out);
+  }
+
+  for (const jsonInterface of interfaces) {
+    writeInterfaceType(jsonInterface, out);
+  }
+
+  return ok();
 }
