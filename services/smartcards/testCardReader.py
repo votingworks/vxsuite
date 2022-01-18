@@ -26,7 +26,11 @@ def wait_for_card():
     while True:
         time.sleep(REFRESH_INTERVAL)
         if CardInterface.card:
-            break
+            if CardInterface.card.write_enabled:
+                break
+            else:
+                print("Card is write-protected, please use a different card")
+                sys.exit(1)
     print("Card inserted")
 
 
