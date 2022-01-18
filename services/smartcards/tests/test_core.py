@@ -64,6 +64,14 @@ def test_card_read_no_cardreader(client):
     assert rv['present'] == False
 
 
+def test_card_read_connection_error(client):
+    client.put('/mock', data=json.dumps({"connectionError": True}))
+
+    rv = json.loads(client.get("/card/read").data)
+    assert rv['present']
+    assert rv['connectionError']
+
+
 def test_card_read_long(client):
     client.put(
         '/mock', data=json.dumps({'shortValue': 'XYZ', 'longValue': 'Hello 1 2 3'}))
