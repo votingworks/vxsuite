@@ -1,36 +1,104 @@
-
-import json, hashlib, secrets, time, sys
+import re
+import json
+import hashlib
+import secrets
+import time
+import sys
 from smartcards.core import CardInterface
+import smartcard
 
-# generate random bytes for short value and long value
-short_bytes = secrets.token_bytes(61)
-long_bytes = secrets.token_bytes(3500)
+REFRESH_INTERVAL = 0.2
 
-# get the card reader and card in the reader to register
-time.sleep(2)
 
-if not CardInterface.card:
-    print("no card?")
-    sys.exit(0)
+def wait_for_reader():
+    if not CardInterface.is_reader_connected():
+        print("Insert card reader")
+    while True:
+        time.sleep(REFRESH_INTERVAL)
+        if CardInterface.is_reader_connected():
+            break
+    print("Card reader connected")
 
-CardInterface.write(short_bytes)
-CardInterface.write_long(long_bytes)
 
-is_working = True
+def wait_for_card():
+    if not CardInterface.card:
+        print("Insert card")
+    while True:
+        time.sleep(REFRESH_INTERVAL)
+        if CardInterface.card:
+            if CardInterface.card.write_enabled:
+                break
+            else:
+                print("Card is write-protected, please use a different card")
+                sys.exit(1)
+    print("Card inserted")
 
-return_short = CardInterface.read()[0]
-if return_short != short_bytes:
-    print("short value mismatch")
-    print("wrote: ", short_bytes)
-    print("read : ", return_short)
-    is_working = False
 
-return_long = CardInterface.read_long()
-if return_long != long_bytes:
-    print("long value mismatch")
-    print("wrote: ", long_bytes)
-    print("read : ", return_long)
-    is_working = False
+def wait_for_disconnect():
+    print("Disconnect card reader")
+    # Disconnect card so the reader can be unplugged safely
+    del CardInterface.card
+    while True:
+        time.sleep(REFRESH_INTERVAL)
+        if not CardInterface.is_reader_connected():
+            break
+    print("Card reader disconnected")
 
-if is_working:
-    print("reader is working")
+
+def check_equal_bytes(wrote, read, label):
+    if wrote != read:
+        print(f"{label} mismatch")
+        print("Wrote: ", wrote)
+        print("Read : ", read)
+        print("\u274C Test failed")
+        sys.exit(1)
+
+
+def test_card():
+    print("Clearing card")
+    CardInterface.write(b"")
+    CardInterface.write_long(b"")
+    check_equal_bytes(b"", CardInterface.read()[0], "Short value")
+    check_equal_bytes(b"", CardInterface.read_long(), "Long value")
+
+    print("Testing random bytes")
+    short_bytes = secrets.token_bytes(61)
+    long_bytes = secrets.token_bytes(3500)
+
+    CardInterface.write(short_bytes)
+    CardInterface.write_long(long_bytes)
+    check_equal_bytes(short_bytes, CardInterface.read()[0], "Short value")
+    check_equal_bytes(long_bytes, CardInterface.read_long(), "Long value")
+
+    print("Testing admin card")
+    with open("fixtures/admin/long.json", "r") as long_file:
+        long = json.loads(long_file.read())
+        del long["seal"]
+        long_bytes = json.dumps(long).encode('utf-8')
+    with open("fixtures/admin/short.json", "r") as short_file:
+        short_bytes = re.sub(
+            r"{{hash\(long\)}}",
+            hashlib.sha256(long_bytes).hexdigest(),
+            short_file.read()
+        ).encode('utf-8')
+
+    CardInterface.write(short_bytes)
+    CardInterface.write_long(long_bytes)
+
+    check_equal_bytes(short_bytes, CardInterface.read()[0], "Short value")
+    check_equal_bytes(long_bytes, CardInterface.read_long(), "Long value")
+
+    print("\u2705 Test passed")
+
+
+if __name__ == "__main__":
+    time.sleep(1)  # Wait for initial card reader detection
+    while True:
+        try:
+            wait_for_reader()
+            wait_for_card()
+            test_card()
+            wait_for_disconnect()
+            print()
+        except KeyboardInterrupt:
+            sys.exit(0)
