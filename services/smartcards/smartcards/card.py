@@ -26,6 +26,7 @@ import smartcard.System
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.ReaderMonitoring import ReaderMonitor, ReaderObserver
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
+from smartcard.Exceptions import CardConnectionException
 import gzip
 import time
 import hashlib
@@ -315,6 +316,7 @@ class VXCardObserver(CardObserver):
         self.card = None
         self.card_value = None
         self.card_ready = False
+        self.connection_error = None
 
         cardmonitor = CardMonitor()
         cardmonitor.addObserver(self)
@@ -328,6 +330,9 @@ class VXCardObserver(CardObserver):
     def override_protection(self):
         if self.card:
             self.card.override_protection()
+
+    def has_connection_error(self):
+        return self.connection_error is not None
 
     def read(self):
         if self.card and self.card_ready:
@@ -378,16 +383,22 @@ class VXCardObserver(CardObserver):
         if len(addedcards) > 0:
             pyscard_obj = addedcards[0]
             connection = pyscard_obj.createConnection()
-            connection.connect()
 
-            atr_bytes = bytes(connection.getATR())
-            card_type = find_card_by_atr(atr_bytes)
-            self.card = card_type(pyscard_obj, connection)
+            try:
+                connection.connect()
+                atr_bytes = bytes(connection.getATR())
+                card_type = find_card_by_atr(atr_bytes)
+                self.card = card_type(pyscard_obj, connection)
 
-            self._read_from_card()
-            self.card_ready = True
+                self._read_from_card()
+                self.card_ready = True
+            # If the card is inserted backwards or is otherwise un-connectable,
+            # we'll get a connection error, which we can use to show a hint
+            except CardConnectionException as error:
+                self.connection_error = error
 
         if len(removedcards) > 0:
             self.card_ready = False
             self.card_value = None
             self.card = None
+            self.connection_error = None

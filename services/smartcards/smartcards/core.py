@@ -26,6 +26,9 @@ def card_reader():
 
 @app.route('/card/read')
 def card_read():
+    if CardInterface.has_connection_error():
+        return json.dumps({"present": True, "connectionError": True})
+
     card_bytes, long_value_exists = CardInterface.read()
     if card_bytes is None:
         return json.dumps({"present": False})
@@ -166,7 +169,8 @@ def update_mock():  # pragma: no cover this is just for testing
             MockInstance.insert_card(
                 short_value,
                 long_value,
-                write_protected
+                write_protected,
+                data.get("connectionError", False),
             )
         else:
             MockInstance.remove_card()

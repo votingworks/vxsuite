@@ -3,6 +3,7 @@
 from .mock_card import MockCard
 from smartcards.card import VXCardObserver, Card4442, CardAT24C, find_card_by_atr, CARD_TYPES, Card
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
+from smartcard.Exceptions import CardConnectionException
 
 from unittest.mock import patch, MagicMock, Mock
 
@@ -176,6 +177,38 @@ def test_card_insert_and_remove():
         # remove the card
         vxco.update(None, [[], [card_mock]])
         assert vxco.card is None
+
+
+def test_card_connection_error():
+    # Simulate a card being inserted backwards
+    vxco = VXCardObserver()
+    card_mock = Mock()
+    connection_mock = Mock()
+    mock_exception = CardConnectionException(
+        "Unable to connect with protocol: T0 or T1. Card is unpowered.")
+    connection_mock.connect = Mock(side_effect=mock_exception)
+    card_mock.createConnection = Mock(return_value=connection_mock)
+
+    assert vxco.has_connection_error() is False
+
+    # This is the callback that's invoked on an inserted card
+    vxco.update(None, [[card_mock], []])
+
+    assert vxco.connection_error == mock_exception
+    assert vxco.has_connection_error() is True
+
+    # Remove the card
+    vxco.update(None, [[], [card_mock]])
+
+    assert vxco.has_connection_error() is False
+
+    # Now simulate turning the card around and reinserting it
+    connection_mock.connect = Mock()
+    connection_mock.transmit = Mock(return_value=(CARD_BYTES, 0x90, 0x00))
+    connection_mock.getATR = Mock(return_value=CARD_TYPES[0].ATR)
+    vxco.update(None, [[card_mock], []])
+
+    assert vxco.has_connection_error() is False
 
 
 def test_find_by_atr():
