@@ -93,6 +93,7 @@ def test_read_before_card_ready():
 
     assert test_value == (None, None)
     vxco.card.read_chunk.assert_not_called()
+    assert vxco.status() == "reading"
 
 
 def test_read_bad_data_on_card():
@@ -168,15 +169,19 @@ def test_card_insert_and_remove():
         connection_mock.getATR = Mock(return_value=test_atr)
         card_mock.createConnection = Mock(return_value=connection_mock)
 
+        assert vxco.status() == "no_card"
+
         # this is the callback that's invoked on an inserted card
         vxco.update(None, [[card_mock], []])
 
         card_mock.createConnection.assert_called()
         connection_mock.transmit.assert_called()
+        assert vxco.status() == "ready"
 
         # remove the card
         vxco.update(None, [[], [card_mock]])
         assert vxco.card is None
+        assert vxco.status() == "no_card"
 
 
 def test_card_connection_error():
@@ -189,18 +194,18 @@ def test_card_connection_error():
     connection_mock.connect = Mock(side_effect=mock_exception)
     card_mock.createConnection = Mock(return_value=connection_mock)
 
-    assert vxco.has_connection_error() is False
+    assert vxco.status() == "no_card"
 
     # This is the callback that's invoked on an inserted card
     vxco.update(None, [[card_mock], []])
 
     assert vxco.connection_error == mock_exception
-    assert vxco.has_connection_error() is True
+    assert vxco.status() == "error"
 
     # Remove the card
     vxco.update(None, [[], [card_mock]])
 
-    assert vxco.has_connection_error() is False
+    assert vxco.status() == "no_card"
 
     # Now simulate turning the card around and reinserting it
     connection_mock.connect = Mock()
@@ -208,7 +213,7 @@ def test_card_connection_error():
     connection_mock.getATR = Mock(return_value=CARD_TYPES[0].ATR)
     vxco.update(None, [[card_mock], []])
 
-    assert vxco.has_connection_error() is False
+    assert vxco.status() == "ready"
 
 
 def test_find_by_atr():
