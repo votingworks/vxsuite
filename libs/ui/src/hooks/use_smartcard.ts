@@ -7,7 +7,7 @@ import {
   Result,
   safeParseJson,
 } from '@votingworks/types';
-import { Card, CardApiNotReady } from '@votingworks/utils';
+import { Card, CardApi, CardApiNotReady } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
@@ -19,30 +19,29 @@ export interface UseSmartcardProps {
   hasCardReaderAttached: boolean;
 }
 
-interface SmartcardReadyState {
+interface SmartcardReady {
   status: 'ready';
   data?: AnyCardData;
   longValueExists?: boolean;
-}
-
-type SmartcardNotReady = CardApiNotReady;
-
-interface SmartcardReady extends SmartcardReadyState {
   readLongUint8Array(): Promise<Result<Optional<Uint8Array>, Error>>;
   readLongString(): Promise<Result<Optional<string>, Error>>;
   writeShortValue(value: string): Promise<Result<void, Error>>;
   writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>;
 }
 
+type SmartcardNotReady = CardApiNotReady;
+
 export type Smartcard = SmartcardReady | SmartcardNotReady;
 
 interface State {
-  smartcard: SmartcardReadyState | SmartcardNotReady;
-  lastCardDataString?: string;
+  readonly lastCardDataString?: string;
+  readonly longValueExists?: boolean;
+  readonly status: CardApi['status'];
+  readonly cardData?: AnyCardData;
 }
 
 const initialState: State = {
-  smartcard: { status: 'no_card' },
+  status: 'no_card',
 };
 
 /**
@@ -71,7 +70,10 @@ export function useSmartcard({
   card,
   hasCardReaderAttached,
 }: UseSmartcardProps): Smartcard {
-  const [{ smartcard, lastCardDataString }, setState] = useState(initialState);
+  const [
+    { cardData, status, lastCardDataString, longValueExists },
+    setState,
+  ] = useState(initialState);
   const isReading = useRef(false);
   const isWriting = useRef(false);
   const makeCancelable = useCancelablePromise();
@@ -163,18 +165,13 @@ export function useSmartcard({
         }
 
         setState({
-          smartcard:
-            insertedCard.status === 'ready'
-              ? {
-                  ...insertedCard,
-                  data: insertedCard.shortValue
-                    ? safeParseJson(
-                        insertedCard.shortValue,
-                        AnyCardDataSchema
-                      ).ok()
-                    : undefined,
-                }
-              : insertedCard,
+          status: insertedCard.status,
+          cardData:
+            insertedCard.status === 'ready' && insertedCard.shortValue
+              ? safeParseJson(insertedCard.shortValue, AnyCardDataSchema).ok()
+              : undefined,
+          longValueExists:
+            insertedCard.status === 'ready' && insertedCard.longValueExists,
           lastCardDataString: currentCardDataString,
         });
       } finally {
@@ -187,17 +184,21 @@ export function useSmartcard({
 
   const result = useMemo<Smartcard>(
     () =>
-      smartcard.status === 'ready'
+      status === 'ready'
         ? {
-            ...smartcard, // eslint-disable-line vx/gts-spread-like-types
+            status,
+            data: cardData,
+            longValueExists,
             readLongUint8Array,
             readLongString,
             writeShortValue,
             writeLongValue,
           }
-        : smartcard,
+        : { status },
     [
-      smartcard,
+      status,
+      cardData,
+      longValueExists,
       readLongUint8Array,
       readLongString,
       writeShortValue,
