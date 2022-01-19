@@ -1,5 +1,7 @@
 import os
 
+from smartcards.card import CardStatus
+
 
 class MockCard:  # pragma: no cover this is just for mocking
     def __init__(self, short_value=None, long_value=None, write_protected=False):
@@ -11,8 +13,13 @@ class MockCard:  # pragma: no cover this is just for mocking
     def is_reader_connected(self):
         return True
 
-    def has_connection_error(self):
-        return self.connection_error
+    def status(self):
+        if self.connection_error:
+            return CardStatus.Error
+        elif self.has_card:
+            return CardStatus.Ready
+        else:
+            return CardStatus.NoCard
 
     def override_protection(self):
         if not self.has_card:

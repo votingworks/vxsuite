@@ -22,6 +22,7 @@
 # <long_value_hash> - 32 bytes
 # <long_value> - up to 16,468 bytes
 
+from enum import Enum
 import smartcard.System
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.ReaderMonitoring import ReaderMonitor, ReaderObserver
@@ -311,6 +312,13 @@ class VXReaderObserver(ReaderObserver):
 SingletonReaderObserver = VXReaderObserver()
 
 
+class CardStatus(str, Enum):
+    NoCard = "no_card"
+    Reading = "reading"
+    Ready = "ready"
+    Error = "error"
+
+
 class VXCardObserver(CardObserver):
     def __init__(self):
         self.card = None
@@ -331,8 +339,15 @@ class VXCardObserver(CardObserver):
         if self.card:
             self.card.override_protection()
 
-    def has_connection_error(self):
-        return self.connection_error is not None
+    def status(self) -> CardStatus:
+        if self.connection_error is not None:
+            return CardStatus.Error
+        elif self.card_ready:
+            return CardStatus.Ready
+        elif self.card is not None:
+            return CardStatus.Reading
+        else:
+            return CardStatus.NoCard
 
     def read(self):
         if self.card and self.card_ready:

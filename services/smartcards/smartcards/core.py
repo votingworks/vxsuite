@@ -8,7 +8,7 @@ from flask import Flask, send_from_directory, request
 from smartcard.System import readers
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString
 
-from .card import VXCardObserver
+from .card import CardStatus, VXCardObserver
 from .mockcard import MockCard
 
 MockInstance = MockCard().update_from_environ()
@@ -26,18 +26,17 @@ def card_reader():
 
 @app.route('/card/read')
 def card_read():
-    if CardInterface.has_connection_error():
-        return json.dumps({"present": True, "connectionError": True})
+    status = CardInterface.status()
+    if status != CardStatus.Ready:
+        return json.dumps({"status": status})
 
     card_bytes, long_value_exists = CardInterface.read()
-    if card_bytes is None:
-        return json.dumps({"present": False})
-
+    assert card_bytes is not None
     card_data = card_bytes.decode('utf-8')
     if card_data:
-        return json.dumps({"present": True, "shortValue": card_data, "longValueExists": long_value_exists})
+        return json.dumps({"status": status, "shortValue": card_data, "longValueExists": long_value_exists})
     else:
-        return json.dumps({"present": True})
+        return json.dumps({"status": status})
 
 
 @app.route('/card/read_long')

@@ -35,9 +35,8 @@ def test_card_read(client):
     client.put('/mock', data=json.dumps({'shortValue': 'XYZ'}))
 
     rv = json.loads(client.get("/card/read").data)
-    assert rv['present']
-    assert rv['shortValue'] == 'XYZ'
-    assert not rv['longValueExists']
+    assert rv == {"status": "ready",
+                  "shortValue": "XYZ", "longValueExists": False}
 
     rv = json.loads(client.get("/card/read_long").data)
     assert rv == {}
@@ -47,29 +46,26 @@ def test_card_read_badcard(client):
     client.put('/mock', data=json.dumps({'shortValue': ''}))
 
     rv = json.loads(client.get("/card/read").data)
-    assert rv['present']
-    assert 'shortValue' not in rv
+    assert rv == {"status": "ready"}
 
 
 def test_card_read_nocard(client):
-    client.put('/mock', data=json.dumps({'shortValue': None}))
+    client.put('/mock', data=json.dumps({'hasCard': False}))
 
     rv = json.loads(client.get("/card/read").data)
-    assert not rv['present']
-    assert 'shortValue' not in rv
+    assert rv == {"status": "no_card"}
 
 
 def test_card_read_no_cardreader(client):
     rv = json.loads(client.get("/card/read").data)
-    assert rv['present'] == False
+    assert rv == {"status": "no_card"}
 
 
 def test_card_read_connection_error(client):
     client.put('/mock', data=json.dumps({"connectionError": True}))
 
     rv = json.loads(client.get("/card/read").data)
-    assert rv['present']
-    assert rv['connectionError']
+    assert rv == {"status": "error"}
 
 
 def test_card_read_long(client):
@@ -77,12 +73,11 @@ def test_card_read_long(client):
         '/mock', data=json.dumps({'shortValue': 'XYZ', 'longValue': 'Hello 1 2 3'}))
 
     rv = json.loads(client.get("/card/read").data)
-    assert rv['present']
-    assert rv['shortValue'] == 'XYZ'
-    assert rv['longValueExists']
+    assert rv == {"status": "ready",
+                  "shortValue": "XYZ", "longValueExists": True}
 
     rv = json.loads(client.get("/card/read_long").data)
-    assert rv['longValue'] == 'Hello 1 2 3'
+    assert rv == {'longValue': 'Hello 1 2 3'}
 
 
 def test_card_write(client):
@@ -170,9 +165,8 @@ def test_mock_card_read_and_write(client):
     print(client.get('/mock'))
 
     rv = json.loads(client.get("/card/read").data)
-    assert rv['present']
-    assert rv['shortValue'] == 'XYZ'
-    assert rv['longValueExists']
+    assert rv == {"status": "ready",
+                  "shortValue": "XYZ", "longValueExists": True}
 
     rv = json.loads(client.get("/card/read_long").data)
     assert rv == {'longValue': 'yeehah'}
