@@ -27,16 +27,21 @@ def card_reader():
 @app.route('/card/read')
 def card_read():
     status = CardInterface.status()
-    if status != CardStatus.Ready:
-        return json.dumps({"status": status})
+    # To make things simpler for the client, if we're in the process of reading
+    # the card, we'll treat it like there's no card yet.
+    if status in [CardStatus.NoCard, CardStatus.Reading]:
+        return json.dumps({"status": "no_card"})
+    if status == CardStatus.Error:
+        return json.dumps({"status": "error"})
+    assert status == CardStatus.Ready
 
     card_bytes, long_value_exists = CardInterface.read()
     assert card_bytes is not None
     card_data = card_bytes.decode('utf-8')
     if card_data:
-        return json.dumps({"status": status, "shortValue": card_data, "longValueExists": long_value_exists})
+        return json.dumps({"status": "ready", "shortValue": card_data, "longValueExists": long_value_exists})
     else:
-        return json.dumps({"status": status})
+        return json.dumps({"status": "ready"})
 
 
 @app.route('/card/read_long')
