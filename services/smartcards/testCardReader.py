@@ -26,12 +26,11 @@ def wait_for_card():
     while True:
         time.sleep(REFRESH_INTERVAL)
         if CardInterface.card:
-            if CardInterface.card.write_enabled:
-                break
-            else:
-                print("Card is write-protected, please use a different card")
-                sys.exit(1)
+            break
     print("Card inserted")
+    if not CardInterface.card.write_enabled:
+        CardInterface.override_protection()
+        print("Overrode write protection")
 
 
 def wait_for_disconnect():
@@ -56,9 +55,8 @@ def check_equal_bytes(wrote, read, label):
 
 def test_card():
     print("Clearing card")
-    CardInterface.write(b"")
-    CardInterface.write_long(b"")
-    check_equal_bytes(b"", CardInterface.read()[0], "Short value")
+    CardInterface.write(b"{}")
+    check_equal_bytes(b"{}", CardInterface.read()[0], "Short value")
     check_equal_bytes(b"", CardInterface.read_long(), "Long value")
 
     print("Testing random bytes")
