@@ -46,8 +46,7 @@ def test_card_read_badcard(client):
     client.put('/mock', data=json.dumps({'shortValue': ''}))
 
     rv = json.loads(client.get("/card/read").data)
-    assert rv == {"status": "ready",
-                  "shortValue": None, "longValueExists": False}
+    assert rv == {"status": "ready"}
 
 
 def test_card_read_nocard(client):
