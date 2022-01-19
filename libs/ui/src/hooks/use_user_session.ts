@@ -16,7 +16,7 @@ import { Smartcard } from '..';
 import { usePrevious } from './use_previous';
 
 export interface UseUserSessionProps {
-  smartcard?: Smartcard;
+  smartcard: Smartcard;
   electionDefinition?: ElectionDefinition;
   persistAuthentication: boolean; // Persist an authenticated admin session when the admin card is removed.
   bypassAuthentication?: boolean; // Always maintain an authenticated admin session for frontends persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
@@ -180,7 +180,7 @@ export function useUserSession({
           };
         }
 
-        if (smartcard) {
+        if (smartcard.status === 'ready') {
           if (persistAuthentication && previousIsAuthenticatedAdmin) {
             return prev;
           }
@@ -251,7 +251,7 @@ export function useUserSession({
       let isAdminCard = false;
       let passcodeMatches = false;
       // The card must be an admin card to authenticate
-      if (smartcard?.data?.t === 'admin') {
+      if (smartcard.status === 'ready' && smartcard.data?.t === 'admin') {
         isAdminCard = true;
         // There must be an expected passcode on the card to authenticate.
         if (typeof smartcard.data.p === 'string') {

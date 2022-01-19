@@ -97,26 +97,27 @@ export interface Storage {
   clear(): Promise<void>;
 }
 
-export interface CardAbsentApi {
-  present: false;
+export interface CardApiNotReady {
+  status: 'no_card' | 'error';
 }
-export const CardAbsentApiSchema: z.ZodSchema<CardAbsentApi> = z.object({
-  present: z.literal(false),
-});
-export interface CardPresentApi {
-  present: true;
+export interface CardApiReady {
+  status: 'ready';
   shortValue?: string;
   longValueExists?: boolean;
 }
-export const CardPresentApiSchema: z.ZodSchema<CardPresentApi> = z.object({
-  present: z.literal(true),
+export type CardApi = CardApiNotReady | CardApiReady;
+
+export const CardApiNotReadySchema: z.ZodSchema<CardApiNotReady> = z.object({
+  status: z.enum(['no_card', 'error']),
+});
+export const CardApiReadySchema: z.ZodSchema<CardApiReady> = z.object({
+  status: z.literal('ready'),
   shortValue: z.string().optional(),
   longValueExists: z.boolean().optional(),
 });
-export type CardApi = CardAbsentApi | CardPresentApi;
 export const CardApiSchema: z.ZodSchema<CardApi> = z.union([
-  CardAbsentApiSchema,
-  CardPresentApiSchema,
+  CardApiNotReadySchema,
+  CardApiReadySchema,
 ]);
 
 /**

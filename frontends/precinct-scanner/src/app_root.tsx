@@ -55,6 +55,7 @@ import * as scan from './api/scan';
 import { usePrecinctScanner } from './hooks/use_precinct_scanner';
 import { AdminScreen } from './screens/admin_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
+import { CardErrorScreen } from './screens/card_error_screen';
 import { PollsClosedScreen } from './screens/polls_closed_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { InsertBallotScreen } from './screens/insert_ballot_screen';
@@ -364,7 +365,6 @@ export function AppRoot({
       validUserTypes: VALID_USERS,
     }
   );
-  const hasCardInserted = currentUserSession?.type;
 
   const makeCancelable = useCancelablePromise();
 
@@ -616,14 +616,14 @@ export function AppRoot({
       isScannerConfigured &&
       electionDefinition &&
       isPollsOpen &&
-      !hasCardInserted
+      smartcard.status === 'no_card'
     ) {
       startBallotStatusPolling();
     } else {
       endBallotStatusPolling();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isScannerConfigured, electionDefinition, isPollsOpen, hasCardInserted]);
+  }, [isScannerConfigured, electionDefinition, isPollsOpen, smartcard.status]);
 
   const setElectionDefinition = useCallback(
     async (newElectionDefinition: OptionalElectionDefinition) => {
@@ -747,6 +747,10 @@ export function AppRoot({
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />;
+  }
+
+  if (smartcard.status === 'error') {
+    return <CardErrorScreen />;
   }
 
   if (hasLowBattery && !hasChargerAttached) {
