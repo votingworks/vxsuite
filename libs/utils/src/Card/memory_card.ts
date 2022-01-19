@@ -6,7 +6,7 @@ import { Card, CardApi } from '../types';
  * Implements the `Card` API with an in-memory implementation.
  */
 export class MemoryCard implements Card {
-  private present = false;
+  private status: CardApi['status'] = 'no_card';
 
   private shortValue?: string;
 
@@ -17,19 +17,19 @@ export class MemoryCard implements Card {
    * what its short value is and whether it has a long value.
    */
   async readStatus(): Promise<CardApi> {
-    const { present, shortValue } = this;
+    const { status, shortValue } = this;
 
-    if (present) {
+    if (status === 'ready') {
       const longValueExists =
         typeof this.longValue !== 'undefined' && this.longValue.length > 0;
 
       return {
-        present,
+        status,
         shortValue,
         longValueExists,
       };
     }
-    return { present };
+    return { status };
   }
 
   /**
@@ -74,7 +74,7 @@ export class MemoryCard implements Card {
    * Writes a new short value to the card.
    */
   async writeShortValue(value: string): Promise<void> {
-    if (!this.present) {
+    if (this.status !== 'ready') {
       throw new Error('cannot write short value when no card is present');
     }
 
@@ -94,7 +94,7 @@ export class MemoryCard implements Card {
    * Writes binary data to the long value.
    */
   async writeLongUint8Array(value: Uint8Array): Promise<void> {
-    if (!this.present) {
+    if (this.status !== 'ready') {
       throw new Error('cannot write long value when no card is present');
     }
 
@@ -105,7 +105,7 @@ export class MemoryCard implements Card {
    * Removes the simulated in-memory card.
    */
   removeCard(): this {
-    this.present = false;
+    this.status = 'no_card';
     this.shortValue = undefined;
     this.longValue = undefined;
     return this;
@@ -126,7 +126,7 @@ export class MemoryCard implements Card {
         : longValue instanceof Uint8Array
         ? Uint8Array.from(longValue)
         : new TextEncoder().encode(longValue);
-    this.present = true;
+    this.status = 'ready';
     return this;
   }
 }

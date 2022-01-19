@@ -7,7 +7,7 @@ import {
   Result,
   safeParseJson,
 } from '@votingworks/types';
-import { Card } from '@votingworks/utils';
+import { Card, CardApiNotReady } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
@@ -19,24 +19,30 @@ export interface UseSmartcardProps {
   hasCardReaderAttached: boolean;
 }
 
-export interface Smartcard {
+interface SmartcardReadyState {
+  status: 'ready';
   data?: AnyCardData;
   longValueExists?: boolean;
+}
+
+type SmartcardNotReady = CardApiNotReady;
+
+interface SmartcardReady extends SmartcardReadyState {
   readLongUint8Array(): Promise<Result<Optional<Uint8Array>, Error>>;
   readLongString(): Promise<Result<Optional<string>, Error>>;
   writeShortValue(value: string): Promise<Result<void, Error>>;
   writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>;
 }
 
+export type Smartcard = SmartcardReady | SmartcardNotReady;
+
 interface State {
-  readonly lastCardDataString?: string;
-  readonly longValueExists?: boolean;
-  readonly isCardPresent: boolean;
-  readonly cardData?: AnyCardData;
+  smartcard: SmartcardReadyState | SmartcardNotReady;
+  lastCardDataString?: string;
 }
 
 const initialState: State = {
-  isCardPresent: false,
+  smartcard: { status: 'no_card' },
 };
 
 /**
@@ -44,12 +50,12 @@ const initialState: State = {
  *
  * @example
  *
- * const { hasCardReaderAttached } = useSmartcard({ hardware, logger })
+ * const { hasCardReaderAttached } = useHardware({ hardware, logger })
  * const smartcard = useSmartcard({ card, hasCardReaderAttached })
  * useEffect(() => {
  *    if (!hasCardReaderAttached) {
  *      console.log('No card reader')
- *    } else if (smartcard.data) {
+ *    } else if (smartcard.status === 'ready' && smartcard.data) {
  *      console.log(
  *        'Got a smartcard of type:',
  *        smartcard.data.t,
@@ -64,19 +70,11 @@ const initialState: State = {
 export function useSmartcard({
   card,
   hasCardReaderAttached,
-}: UseSmartcardProps): Optional<Smartcard> {
-  const [
-    { cardData, isCardPresent, lastCardDataString, longValueExists },
-    setState,
-  ] = useState(initialState);
+}: UseSmartcardProps): Smartcard {
+  const [{ smartcard, lastCardDataString }, setState] = useState(initialState);
   const isReading = useRef(false);
   const isWriting = useRef(false);
   const makeCancelable = useCancelablePromise();
-
-  const set = useCallback(
-    (updates: Partial<State>) => setState((prev) => ({ ...prev, ...updates })),
-    []
-  );
 
   const readLongUint8Array = useCallback(async (): Promise<
     Result<Optional<Uint8Array>, Error>
@@ -164,13 +162,19 @@ export function useSmartcard({
           return;
         }
 
-        set({
-          isCardPresent: insertedCard.present,
-          longValueExists: insertedCard.present && insertedCard.longValueExists,
-          cardData:
-            insertedCard.present && insertedCard.shortValue
-              ? safeParseJson(insertedCard.shortValue, AnyCardDataSchema).ok()
-              : undefined,
+        setState({
+          smartcard:
+            insertedCard.status === 'ready'
+              ? {
+                  ...insertedCard,
+                  data: insertedCard.shortValue
+                    ? safeParseJson(
+                        insertedCard.shortValue,
+                        AnyCardDataSchema
+                      ).ok()
+                    : undefined,
+                }
+              : insertedCard,
           lastCardDataString: currentCardDataString,
         });
       } finally {
@@ -181,22 +185,19 @@ export function useSmartcard({
     true
   );
 
-  const result = useMemo<Optional<Smartcard>>(
+  const result = useMemo<Smartcard>(
     () =>
-      isCardPresent
+      smartcard.status === 'ready'
         ? {
-            data: cardData,
-            longValueExists,
+            ...smartcard, // eslint-disable-line vx/gts-spread-like-types
             readLongUint8Array,
             readLongString,
             writeShortValue,
             writeLongValue,
           }
-        : undefined,
+        : smartcard,
     [
-      isCardPresent,
-      cardData,
-      longValueExists,
+      smartcard,
       readLongUint8Array,
       readLongString,
       writeShortValue,
