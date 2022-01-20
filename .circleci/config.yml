@@ -464,6 +464,10 @@ jobs:
           name: Typecheck
           command: |
             make -C services/smartcards typecheck
+      - run:
+          name: Check Format
+          command: |
+            make -C services/smartcards check-format
 
   validate-monorepo:
     executor: nodejs
