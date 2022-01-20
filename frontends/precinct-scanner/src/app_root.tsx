@@ -616,7 +616,7 @@ export function AppRoot({
       isScannerConfigured &&
       electionDefinition &&
       isPollsOpen &&
-      hasCardInserted
+      !hasCardInserted
     ) {
       startBallotStatusPolling();
     } else {
