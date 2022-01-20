@@ -15,7 +15,7 @@ import {
   useSmartcard,
   useStoredState,
 } from '@votingworks/ui';
-import { Card, Hardware, sleep, Storage } from '@votingworks/utils';
+import { assert, Card, Hardware, sleep, Storage } from '@votingworks/utils';
 
 import { z } from 'zod';
 import { EventTargetFunction } from './config/types';
@@ -140,7 +140,8 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
 
   const fetchElection = useCallback(async () => {
     setIsLoadingElection(true);
-    const longValue = (await smartcard?.readLongString())?.unsafeUnwrap();
+    assert(smartcard.status === 'ready');
+    const longValue = (await smartcard.readLongString()).unsafeUnwrap();
     setElection(safeParseElection(longValue).unsafeUnwrap());
     setIsLoadingElection(false);
   }, [setElection, smartcard]);
@@ -151,18 +152,15 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
 
   useEffect(() => {
     void (async () => {
-      setIsCardPresent(!!smartcard);
-      setIsAdminCardPresent(smartcard?.data?.t === 'admin');
-      setIsPollWorkerCardPresent(smartcard?.data?.t === 'pollworker');
-      setIsWritableCard(smartcard?.data?.t === 'voter');
+      const { data } = smartcard;
+      setIsCardPresent(smartcard.status === 'ready');
+      setIsAdminCardPresent(data?.t === 'admin');
+      setIsPollWorkerCardPresent(data?.t === 'pollworker');
+      setIsWritableCard(data?.t === 'voter');
       setIsLocked((prev) =>
-        smartcard?.data?.t === 'admin'
-          ? true
-          : smartcard?.data?.t === 'pollworker'
-          ? false
-          : prev
+        data?.t === 'admin' ? true : data?.t === 'pollworker' ? false : prev
       );
-      if (!smartcard?.data) {
+      if (!data) {
         setIsReadyToRemove(false);
       }
     })();
@@ -184,9 +182,10 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
           pr: precinctId,
           bs: localBallotStyleId,
         };
-        const writeResult = await smartcard?.writeShortValue(
-          JSON.stringify(code)
-        );
+        const writeResult =
+          smartcard.status === 'ready'
+            ? await smartcard.writeShortValue(JSON.stringify(code))
+            : null;
         if (!writeResult?.isOk()) {
           // TODO: UI Notification if unable to write to card
           // https://github.com/votingworks/bas/issues/10
