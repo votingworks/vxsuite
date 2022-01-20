@@ -7,7 +7,8 @@ export function ScanProcessingScreen(): JSX.Element {
     <CenteredScreen>
       <IndeterminateProgressBar />
       <CenteredLargeProse>
-        <h1>Scanning Ballot…</h1>
+        <h1>Please wait…</h1>
+        <p>Checking your ballot for errors.</p>
       </CenteredLargeProse>
     </CenteredScreen>
   );
