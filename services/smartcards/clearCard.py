@@ -1,5 +1,6 @@
 
-import json, hashlib
+import json
+import hashlib
 from smartcards.core import CardInterface
 
 import time

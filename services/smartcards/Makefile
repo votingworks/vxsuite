@@ -28,7 +28,7 @@ check-format:
 	pipenv run autopep8 --exit-code -r -d .
 
 format:
-	python3 -m pipenv run autopep8 -i -r
+	python3 -m pipenv run autopep8 -i -r .
 
 run:
 	FLASK_APP=smartcards.core python3 -m pipenv run python -m flask run --port 3001 --host 0.0.0.0
