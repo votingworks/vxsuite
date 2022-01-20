@@ -5,7 +5,7 @@ const AbSchema = z.object({ a: z.number(), b: z.number() });
 
 it('defaults to no card', async () => {
   expect(await new MemoryCard().readStatus()).toEqual({
-    present: false,
+    status: 'no_card',
   });
 });
 
@@ -45,7 +45,7 @@ it('can set a short and long value using #insertCard', async () => {
   const card = new MemoryCard().insertCard('abc', Uint8Array.of(1, 2, 3));
 
   expect(await card.readStatus()).toEqual({
-    present: true,
+    status: 'ready',
     shortValue: 'abc',
     longValueExists: true,
   });
@@ -69,7 +69,7 @@ it('can remove a card using #removeCard', async () => {
     .removeCard();
 
   expect(await card.readStatus()).toEqual({
-    present: false,
+    status: 'no_card',
   });
 });
 

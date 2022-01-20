@@ -116,7 +116,8 @@ export class MemoryCard implements Card {
    */
   insertCard(
     shortValue?: string | unknown,
-    longValue?: string | Uint8Array
+    longValue?: string | Uint8Array,
+    status: 'ready' | 'error' = 'ready'
   ): this {
     this.shortValue =
       typeof shortValue === 'string' ? shortValue : JSON.stringify(shortValue);
@@ -126,7 +127,7 @@ export class MemoryCard implements Card {
         : longValue instanceof Uint8Array
         ? Uint8Array.from(longValue)
         : new TextEncoder().encode(longValue);
-    this.status = 'ready';
+    this.status = status;
     return this;
   }
 }

@@ -10,11 +10,12 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import { CardDataTypes, Optional, UserSession } from '@votingworks/types';
+import { CardDataTypes, UserSession } from '@votingworks/types';
 import { Smartcard, useUserSession } from '..';
 
 function fakeSmartcard(props: Partial<Smartcard> = {}): Smartcard {
   return {
+    status: 'ready',
     readLongUint8Array: jest.fn(),
     readLongString: jest.fn(),
     writeShortValue: jest.fn(),
@@ -28,8 +29,7 @@ test('bypass and persist authentication flow', () => {
     type: 'admin',
     authenticated: true,
   };
-  // start out with smartcard as undefined, aka there is no card in the card reader.
-  let smartcard: Optional<Smartcard>;
+  let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
@@ -91,8 +91,7 @@ test('bypass and persist authentication flow', () => {
 });
 
 test('bypass authentication flow when not persisting authentication', async () => {
-  // start out with smartcard as undefined, aka there is no card in the card reader.
-  let smartcard: Optional<Smartcard>;
+  let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const validUserTypes: CardDataTypes[] = ['admin', 'pollworker', 'voter'];
@@ -209,7 +208,7 @@ test('bypass authentication flow when not persisting authentication', async () =
   );
 
   // remove any card and see we have no user session
-  smartcard = undefined;
+  smartcard = { status: 'no_card' };
   rerender();
   expect(result.current.currentUserSession).toStrictEqual(undefined);
   expect(logSpy).toHaveBeenCalledTimes(6);
@@ -220,11 +219,16 @@ test('bypass authentication flow when not persisting authentication', async () =
       disposition: 'success',
     })
   );
+
+  // update smartcard to a connection error, and see we have no user session
+  smartcard = { status: 'error' };
+  rerender();
+  expect(result.current.currentUserSession).toStrictEqual(undefined);
+  expect(logSpy).toHaveBeenCalledTimes(6);
 });
 
 test('basic persist authentication flow works as expected', () => {
-  // start out with smartcard as undefined, aka there is no card in the card reader.
-  let smartcard: Optional<Smartcard>;
+  let smartcard: Smartcard = { status: 'no_card' };
   const validUserTypes: CardDataTypes[] = ['admin'];
   const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -347,7 +351,7 @@ test('basic persist authentication flow works as expected', () => {
   );
 
   // removing the smartcard keeps the authenticated session in place
-  smartcard = undefined;
+  smartcard = { status: 'no_card' };
   rerender();
   expect(result.current.currentUserSession).toStrictEqual({
     type: 'admin',
@@ -385,7 +389,14 @@ test('basic persist authentication flow works as expected', () => {
   });
   expect(logSpy).toHaveBeenCalledTimes(7);
 
-  smartcard = undefined;
+  smartcard = { status: 'error' };
+  expect(result.current.currentUserSession).toStrictEqual({
+    type: 'admin',
+    authenticated: true,
+  });
+  expect(logSpy).toHaveBeenCalledTimes(7);
+
+  smartcard = { status: 'no_card' };
   rerender();
   expect(logSpy).toHaveBeenCalledTimes(7);
 
@@ -506,8 +517,7 @@ test('basic persist authentication flow works as expected', () => {
 });
 
 test('basic flow with no persistance of authentication works as expected', async () => {
-  // start out with smartcard as undefined, aka there is no card in the card reader.
-  let smartcard: Optional<Smartcard>;
+  let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const validUserTypes: CardDataTypes[] = ['admin', 'pollworker'];
@@ -629,7 +639,7 @@ test('basic flow with no persistance of authentication works as expected', async
   );
 
   // removing the smartcard clears the session
-  smartcard = undefined;
+  smartcard = { status: 'no_card' };
   rerender();
   expect(result.current.currentUserSession).toStrictEqual(undefined);
   expect(logSpy).toHaveBeenCalledTimes(8);
@@ -773,7 +783,7 @@ test('basic flow with no persistance of authentication works as expected', async
     })
   );
 
-  smartcard = undefined;
+  smartcard = { status: 'no_card' };
   rerender();
   expect(logSpy).toHaveBeenCalledTimes(16);
   expect(logSpy).toHaveBeenLastCalledWith(
@@ -876,7 +886,7 @@ test('basic flow with no persistance of authentication works as expected', async
     })
   );
 
-  smartcard = undefined;
+  smartcard = { status: 'no_card' };
   rerender();
   expect(result.current.currentUserSession).toStrictEqual(undefined);
   expect(logSpy).toHaveBeenCalledTimes(23);
@@ -908,7 +918,7 @@ test('if not provided, default to NOT bypassing authentication', () => {
   const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
   const { result } = renderHook(() =>
     useUserSession({
-      smartcard: undefined,
+      smartcard: { status: 'no_card' },
       logger: fakeLogger,
       electionDefinition: electionSampleDefinition,
       persistAuthentication: true,

@@ -32,7 +32,7 @@ interface SmartcardReady {
 interface SmartcardNotReady extends CardApiNotReady {
   // We make data present even if the card is not ready for easy
   // nullish-coalescing by consumers.
-  data: undefined;
+  data?: undefined;
 }
 
 export type Smartcard = SmartcardReady | SmartcardNotReady;
