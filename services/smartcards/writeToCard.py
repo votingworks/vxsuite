@@ -1,5 +1,6 @@
 
-import json, hashlib
+import json
+import hashlib
 from smartcards.core import CardInterface
 
 import time
@@ -10,9 +11,11 @@ election = json.loads(f.read())
 f.close()
 
 election_json_bytes = json.dumps(election).encode('utf-8')
-short_value = json.dumps({'t':'admin', 'h': hashlib.sha256(election_json_bytes).hexdigest()})
+short_value = json.dumps(
+    {'t': 'admin', 'h': hashlib.sha256(election_json_bytes).hexdigest()})
 
 print(CardInterface.card)
-CardInterface.write_short_and_long(short_value.encode('utf-8'), election_json_bytes)
+CardInterface.write_short_and_long(
+    short_value.encode('utf-8'), election_json_bytes)
 
 print("done")

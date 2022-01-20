@@ -40,8 +40,10 @@ VERSION_LENGTH = 1
 WRITE_PROTECTION_LENGTH = 1
 SHORT_VALUE_LENGTH_LENGTH = 1
 LONG_VALUE_LENGTH_LENGTH = 2
-METADATA_LENGTH = PREFIX_LENGTH + VERSION_LENGTH + WRITE_PROTECTION_LENGTH + SHORT_VALUE_LENGTH_LENGTH + LONG_VALUE_LENGTH_LENGTH
+METADATA_LENGTH = PREFIX_LENGTH + VERSION_LENGTH + WRITE_PROTECTION_LENGTH + \
+    SHORT_VALUE_LENGTH_LENGTH + LONG_VALUE_LENGTH_LENGTH
 LONG_VALUE_HASH_LENGTH = 32
+
 
 class Card:
     def __init__(self, pyscard_card, pyscard_connection):
@@ -168,7 +170,7 @@ class Card:
         data = self._read_raw_data(total_expected_length)
 
         expected_long_value_hash = data[start_of_long_value_hash:start_of_long_value]
-        
+
         raw_content = data[start_of_long_value:total_expected_length]
         actual_long_value_hash = hashlib.sha256(raw_content).digest()
 
@@ -302,9 +304,11 @@ class VXReaderObserver(ReaderObserver):
     def get_readers(self):
         return list(self._readers)
 
+
 # We use a singleton because if this is instantiated more than once, specifically in tests,
 # we get an error about a readermonitor thread being started twice.
 SingletonReaderObserver = VXReaderObserver()
+
 
 class VXCardObserver(CardObserver):
     def __init__(self):
@@ -314,13 +318,13 @@ class VXCardObserver(CardObserver):
 
         cardmonitor = CardMonitor()
         cardmonitor.addObserver(self)
-        
+
         # keep a handle on this singleton to make testing easier without assuming a singleton
         self.readerobserver = SingletonReaderObserver
 
     def is_reader_connected(self):
         return len(self.readerobserver.get_readers()) > 0
-    
+
     def override_protection(self):
         if self.card:
             self.card.override_protection()

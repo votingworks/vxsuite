@@ -1,9 +1,11 @@
 
-import json, hashlib
+import json
+import hashlib
 from smartcards.core import CardInterface
 
 import time
 time.sleep(2)
+
 
 def print_bytes(b: bytes):
     try:
@@ -14,6 +16,7 @@ def print_bytes(b: bytes):
             print(s.__str__())
     except:
         print(b)
+
 
 short_value, has_long_value = CardInterface.read()
 print_bytes(short_value)

@@ -33,10 +33,11 @@ def flip_bit(data, byte_index: int, bit_index: int):
 def test_constructor(mock_card_monitor):
     vxco = VXCardObserver()
 
+
 def test_reader():
     vxco = VXCardObserver()
 
-    assert not vxco.is_reader_connected()    
+    assert not vxco.is_reader_connected()
 
     # issue an update event that adds a reader
     vxco.readerobserver.update(None, (['Foo Reader'], []))
@@ -45,10 +46,10 @@ def test_reader():
 
     # issue an update event that removes a reader
     vxco.readerobserver.update(None, ([], ['Foo Reader']))
-    
-    assert not vxco.is_reader_connected()    
 
-    
+    assert not vxco.is_reader_connected()
+
+
 def test_read_no_card():
     vxco = VXCardObserver()
     test_value = vxco.read()
@@ -73,11 +74,12 @@ def test_read():
 
     # force a read from card, as it is usually cached
     vxco._read_from_card()
-    vxco.card_ready=True
+    vxco.card_ready = True
     test_value = vxco.read()
 
     assert test_value == (CONTENT_BYTES, False)
     vxco.card.read_chunk.assert_called_with(0)
+
 
 def test_read_before_card_ready():
     vxco = VXCardObserver()
@@ -90,7 +92,7 @@ def test_read_before_card_ready():
 
     assert test_value == (None, None)
     vxco.card.read_chunk.assert_not_called()
-    
+
 
 def test_read_bad_data_on_card():
     vxco = VXCardObserver()
@@ -115,7 +117,7 @@ def test_write():
     vxco.card.read_chunk = Mock(return_value=CARD_BYTES)
 
     vxco.card_ready = True
-    
+
     rv = vxco.write(CONTENT_BYTES)
 
     assert vxco.card.write_enabled
@@ -132,7 +134,7 @@ def test_write_card_protected():
     vxco.card.write_chunk = Mock()
 
     vxco.card_ready = True
-        
+
     rv = vxco.write(CONTENT_BYTES)
     rv = vxco.write_short_and_long(CONTENT_BYTES, CONTENT_BYTES)
 
@@ -214,7 +216,7 @@ def test_long_value():
 
     # now we put in a card
     vxco.card = c
-    vxco.card_ready = True        
+    vxco.card_ready = True
     vxco.write_short_and_long(CONTENT_BYTES, long_content.encode('utf-8'))
 
     test_short_value, long_value_present = vxco.read()
@@ -248,7 +250,8 @@ def test_corrupt_long_value(logging_error):
     chunk = c.read_chunk(0)
 
     # ensure we've got the right part of the chunk
-    long_value_hash = bytes(chunk[8 + len(CONTENT_BYTES):8 + len(CONTENT_BYTES) + 32])
+    long_value_hash = bytes(
+        chunk[8 + len(CONTENT_BYTES):8 + len(CONTENT_BYTES) + 32])
     assert hashlib.sha256(long_value).digest() == long_value_hash
 
     # corrupt the long value by flipping a single bit

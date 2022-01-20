@@ -10,7 +10,7 @@ class MockCard:  # pragma: no cover this is just for mocking
 
     def is_reader_connected(self):
         return True
-    
+
     def override_protection(self):
         if not self.has_card:
             return
