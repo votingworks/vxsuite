@@ -364,6 +364,7 @@ export function AppRoot({
       validUserTypes: VALID_USERS,
     }
   );
+  const hasCardInserted = currentUserSession?.type;
 
   const makeCancelable = useCancelablePromise();
 
@@ -615,14 +616,14 @@ export function AppRoot({
       isScannerConfigured &&
       electionDefinition &&
       isPollsOpen &&
-      smartcard.status === 'no_card'
+      hasCardInserted
     ) {
       startBallotStatusPolling();
     } else {
       endBallotStatusPolling();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isScannerConfigured, electionDefinition, isPollsOpen, smartcard.status]);
+  }, [isScannerConfigured, electionDefinition, isPollsOpen, hasCardInserted]);
 
   const setElectionDefinition = useCallback(
     async (newElectionDefinition: OptionalElectionDefinition) => {

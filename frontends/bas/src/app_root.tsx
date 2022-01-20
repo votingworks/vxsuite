@@ -152,15 +152,18 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
 
   useEffect(() => {
     void (async () => {
-      const { data } = smartcard;
       setIsCardPresent(smartcard.status === 'ready');
-      setIsAdminCardPresent(data?.t === 'admin');
-      setIsPollWorkerCardPresent(data?.t === 'pollworker');
-      setIsWritableCard(data?.t === 'voter');
+      setIsAdminCardPresent(smartcard.data?.t === 'admin');
+      setIsPollWorkerCardPresent(smartcard.data?.t === 'pollworker');
+      setIsWritableCard(smartcard.data?.t === 'voter');
       setIsLocked((prev) =>
-        data?.t === 'admin' ? true : data?.t === 'pollworker' ? false : prev
+        smartcard.data?.t === 'admin'
+          ? true
+          : smartcard.data?.t === 'pollworker'
+          ? false
+          : prev
       );
-      if (!data) {
+      if (!smartcard.data) {
         setIsReadyToRemove(false);
       }
     })();
