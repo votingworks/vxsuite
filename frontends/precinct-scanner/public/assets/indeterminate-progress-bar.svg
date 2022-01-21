@@ -1,26 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 20" preserveAspectRatio="xMidYMid">
-<defs>
-  <pattern id="stripes" patternUnits="userSpaceOnUse" x="0" y="-41.5" width="100" height="100">
-    <g>
-      <g transform="rotate(20 50 50) scale(1.2)">
-        <rect x="-20" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="-10" y="-10" width="10" height="120" fill="#456caa"></rect>
-        <rect x="0" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="10" y="-10" width="10" height="120" fill="#456caa"></rect>
-        <rect x="20" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="30" y="-10" width="10" height="120" fill="#456caa"></rect>
-        <rect x="40" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="50" y="-10" width="10" height="120" fill="#456caa"></rect>
-        <rect x="60" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="70" y="-10" width="10" height="120" fill="#456caa"></rect>
-        <rect x="80" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="90" y="-10" width="10" height="120" fill="#456caa"></rect>
-        <rect x="100" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
-        <rect x="110" y="-10" width="10" height="120" fill="#c2d2ee"></rect>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 20">
+  <defs>
+    <pattern width="100" height="100" id="stripes" patternUnits="userSpaceOnUse">
+      <g>
+        <g transform="skewX(-20)">
+          <rect x="-20" y="-10" width="10" height="100" fill="#c2d2ee"></rect>
+          <rect x="-10" y="-10" width="10" height="100" fill="#456caa"></rect>
+          <rect x="0" y="-10" width="10" height="100" fill="#c2d2ee"></rect>
+          <rect x="10" y="-10" width="10" height="100" fill="#456caa"></rect>
+          <rect x="20" y="-10" width="10" height="100" fill="#c2d2ee"></rect>
+          <rect x="30" y="-10" width="10" height="100" fill="#456caa"></rect>
+          <rect x="40" y="-10" width="10" height="100" fill="#c2d2ee"></rect>
+          <rect x="50" y="-10" width="10" height="100" fill="#456caa"></rect>
+          <rect x="60" y="-10" width="10" height="100" fill="#c2d2ee"></rect>
+          <rect x="70" y="-10" width="10" height="100" fill="#456caa"></rect>
+          <rect x="80" y="-10" width="10" height="100" fill="#c2d2ee"></rect>
+          <rect x="90" y="-10" width="10" height="100" fill="#456caa"></rect>
+        </g>
+        <animateTransform attributeName="transform" type="translate" values="0 0;20 0" keyTimes="0;1" dur="1s" repeatCount="indefinite"></animateTransform>
       </g>
-      <animateTransform attributeName="transform" type="translate" values="0 0;25.5 0" keyTimes="0;1" dur="1s" repeatCount="indefinite"></animateTransform>
-    </g>
-  </pattern>
-</defs>
-<rect rx="8" ry="8" x="1.25" y="1.25" stroke="#456caa" stroke-width="2.5" width="97.5" height="17" fill="url(#stripes)"></rect>
+    </pattern>
+  </defs>
+  <rect rx="8" ry="8" x="1.5" y="1.5" stroke="#456caa" stroke-width="3" width="90" height="16" fill="url(#stripes)"></rect>
 </svg>
