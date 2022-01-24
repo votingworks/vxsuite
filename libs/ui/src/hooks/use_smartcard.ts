@@ -7,7 +7,7 @@ import {
   Result,
   safeParseJson,
 } from '@votingworks/types';
-import { Card } from '@votingworks/utils';
+import { Card, CardApi, CardApiNotReady } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
@@ -19,7 +19,8 @@ export interface UseSmartcardProps {
   hasCardReaderAttached: boolean;
 }
 
-export interface Smartcard {
+interface SmartcardReady {
+  status: 'ready';
   data?: AnyCardData;
   longValueExists?: boolean;
   readLongUint8Array(): Promise<Result<Optional<Uint8Array>, Error>>;
@@ -28,15 +29,23 @@ export interface Smartcard {
   writeLongValue(value: unknown | Uint8Array): Promise<Result<void, Error>>;
 }
 
+interface SmartcardNotReady extends CardApiNotReady {
+  // We make data present even if the card is not ready for easy
+  // nullish-coalescing by consumers.
+  data?: undefined;
+}
+
+export type Smartcard = SmartcardReady | SmartcardNotReady;
+
 interface State {
   readonly lastCardDataString?: string;
   readonly longValueExists?: boolean;
-  readonly isCardPresent: boolean;
+  readonly status: CardApi['status'];
   readonly cardData?: AnyCardData;
 }
 
 const initialState: State = {
-  isCardPresent: false,
+  status: 'no_card',
 };
 
 /**
@@ -44,12 +53,12 @@ const initialState: State = {
  *
  * @example
  *
- * const { hasCardReaderAttached } = useSmartcard({ hardware, logger })
+ * const { hasCardReaderAttached } = useHardware({ hardware, logger })
  * const smartcard = useSmartcard({ card, hasCardReaderAttached })
  * useEffect(() => {
  *    if (!hasCardReaderAttached) {
  *      console.log('No card reader')
- *    } else if (smartcard.data) {
+ *    } else if (smartcard.status === 'ready' && smartcard.data) {
  *      console.log(
  *        'Got a smartcard of type:',
  *        smartcard.data.t,
@@ -64,19 +73,14 @@ const initialState: State = {
 export function useSmartcard({
   card,
   hasCardReaderAttached,
-}: UseSmartcardProps): Optional<Smartcard> {
+}: UseSmartcardProps): Smartcard {
   const [
-    { cardData, isCardPresent, lastCardDataString, longValueExists },
+    { cardData, status, lastCardDataString, longValueExists },
     setState,
   ] = useState(initialState);
   const isReading = useRef(false);
   const isWriting = useRef(false);
   const makeCancelable = useCancelablePromise();
-
-  const set = useCallback(
-    (updates: Partial<State>) => setState((prev) => ({ ...prev, ...updates })),
-    []
-  );
 
   const readLongUint8Array = useCallback(async (): Promise<
     Result<Optional<Uint8Array>, Error>
@@ -164,13 +168,14 @@ export function useSmartcard({
           return;
         }
 
-        set({
-          isCardPresent: insertedCard.present,
-          longValueExists: insertedCard.present && insertedCard.longValueExists,
+        setState({
+          status: insertedCard.status,
           cardData:
-            insertedCard.present && insertedCard.shortValue
+            insertedCard.status === 'ready' && insertedCard.shortValue
               ? safeParseJson(insertedCard.shortValue, AnyCardDataSchema).ok()
               : undefined,
+          longValueExists:
+            insertedCard.status === 'ready' && insertedCard.longValueExists,
           lastCardDataString: currentCardDataString,
         });
       } finally {
@@ -181,10 +186,11 @@ export function useSmartcard({
     true
   );
 
-  const result = useMemo<Optional<Smartcard>>(
+  const result = useMemo<Smartcard>(
     () =>
-      isCardPresent
+      status === 'ready'
         ? {
+            status,
             data: cardData,
             longValueExists,
             readLongUint8Array,
@@ -192,9 +198,9 @@ export function useSmartcard({
             writeShortValue,
             writeLongValue,
           }
-        : undefined,
+        : { status },
     [
-      isCardPresent,
+      status,
       cardData,
       longValueExists,
       readLongUint8Array,

@@ -41,9 +41,9 @@ import {
   Hardware,
   PrecinctScannerCardTally,
   CardApi,
-  CardPresentApi,
   PrecinctScannerCardTallySchema,
   throwIllegalValue,
+  CardApiReady,
 } from '@votingworks/utils';
 
 import { Logger, LogSource } from '@votingworks/logging';
@@ -734,7 +734,7 @@ export function AppRoot({
   }, [card, optionalElectionDefinition]);
 
   const processCard = useCallback(
-    async ({ longValueExists, shortValue: cardShortValue }: CardPresentApi) => {
+    async ({ longValueExists, shortValue: cardShortValue }: CardApiReady) => {
       const parseShortValueResult = safeParseJson(
         /* istanbul ignore next */
         cardShortValue ?? '',
@@ -830,7 +830,7 @@ export function AppRoot({
   const cardShortValueReadInterval = useInterval(async () => {
     const insertedCard = await card.readStatus();
     if (pauseProcessingUntilNoCardPresent) {
-      if (insertedCard.present) {
+      if (insertedCard.status === 'ready') {
         return;
       }
       dispatchAppState({ type: 'resumeCardProcessing' });
@@ -859,7 +859,7 @@ export function AppRoot({
       currentCardDataString,
     });
 
-    if (!insertedCard.present || !insertedCard.shortValue) {
+    if (insertedCard.status !== 'ready' || !insertedCard.shortValue) {
       if (isCardlessVoter) {
         dispatchAppState({
           type: 'maintainCardlessBallot',
@@ -946,14 +946,15 @@ export function AppRoot({
     await writeCard(voidedVoterCardData);
 
     const updatedCard = await readCard();
-    const updatedShortValue = updatedCard.present
-      ? safeParseJson(
-          /* istanbul ignore next */
-          updatedCard.shortValue ?? '',
-          VoterCardDataSchema
-        ).unsafeUnwrap()
-      : /* istanbul ignore next - this should never happen */
-        undefined;
+    const updatedShortValue =
+      updatedCard.status === 'ready'
+        ? safeParseJson(
+            /* istanbul ignore next */
+            updatedCard.shortValue ?? '',
+            VoterCardDataSchema
+          ).unsafeUnwrap()
+        : /* istanbul ignore next - this should never happen */
+          undefined;
 
     startCardShortValueReadPolling();
 
@@ -998,14 +999,15 @@ export function AppRoot({
 
     startCardShortValueReadPolling();
 
-    const updatedShortValue = updatedCard.present
-      ? safeParseJson(
-          /* istanbul ignore next */
-          updatedCard.shortValue ?? '',
-          VoterCardDataSchema
-        ).unsafeUnwrap()
-      : /* istanbul ignore next - this should never happen */
-        undefined;
+    const updatedShortValue =
+      updatedCard.status === 'ready'
+        ? safeParseJson(
+            /* istanbul ignore next */
+            updatedCard.shortValue ?? '',
+            VoterCardDataSchema
+          ).unsafeUnwrap()
+        : /* istanbul ignore next - this should never happen */
+          undefined;
     /* istanbul ignore next - When the card read doesn't match the card write. Currently not possible to test this without separating the write and read into separate methods and updating printing logic. This is an edge case. */
     if (usedVoterCardData.bp !== updatedShortValue?.bp) {
       await resetBallot();

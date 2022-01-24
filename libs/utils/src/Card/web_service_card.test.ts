@@ -2,23 +2,23 @@ import { fromByteArray, toByteArray } from 'base64-js';
 import fetchMock, { MockRequest } from 'fetch-mock';
 import { z } from 'zod';
 import { WebServiceCard } from '.';
-import { CardPresentApi, typedAs } from '../types';
+import { CardApiReady, typedAs } from '../types';
 
 const AbSchema = z.object({ a: z.number(), b: z.number() });
 
 it('fetches card status and short value from /card/read', async () => {
   fetchMock.get(
     '/card/read',
-    typedAs<CardPresentApi>({
-      present: true,
+    typedAs<CardApiReady>({
+      status: 'ready',
       shortValue: 'abc',
       longValueExists: true,
     })
   );
 
   expect(await new WebServiceCard().readStatus()).toEqual(
-    typedAs<CardPresentApi>({
-      present: true,
+    typedAs<CardApiReady>({
+      status: 'ready',
       shortValue: 'abc',
       longValueExists: true,
     })
