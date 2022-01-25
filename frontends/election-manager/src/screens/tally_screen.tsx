@@ -210,10 +210,10 @@ export function TallyScreen(): JSX.Element {
         <TD narrow nowrap>
           {moment(t.timestampCreated).format(TIME_FORMAT)}
         </TD>
+        <TD narrow>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
         <TD narrow nowrap>
           External Results ({t.inputSourceName})
         </TD>
-        <TD narrow>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
         <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
       </tr>
     );
@@ -275,21 +275,21 @@ export function TallyScreen(): JSX.Element {
                   <TD as="th" narrow nowrap>
                     File Exported At
                   </TD>
+                  <TD as="th" nowrap>
+                    CVR Count
+                  </TD>
                   <TD as="th" narrow nowrap>
                     Scanner ID
                   </TD>
-                  <TD as="th" nowrap narrow>
-                    CVR Count
-                  </TD>
                   <TD as="th" nowrap>
-                    Precinct(s)
+                    Precinct
                   </TD>
                 </tr>
                 {castVoteRecordFileList.map(
                   ({
                     name,
                     exportTimestamp,
-                    count,
+                    importedCvrCount,
                     scannerIds,
                     precinctIds,
                   }) => (
@@ -299,10 +299,10 @@ export function TallyScreen(): JSX.Element {
                           'MM/DD/YYYY hh:mm:ss A'
                         )}
                       </TD>
+                      <TD nowrap>{format.count(importedCvrCount)} </TD>
                       <TD narrow nowrap>
                         {scannerIds.join(', ')}
                       </TD>
-                      <TD narrow>{format.count(count)}</TD>
                       <TD>{getPrecinctNames(precinctIds)}</TD>
                     </tr>
                   )
@@ -312,15 +312,15 @@ export function TallyScreen(): JSX.Element {
                   <TD as="th" narrow nowrap>
                     Total CVRs Count
                   </TD>
-                  <TD as="th" />
                   <TD as="th" narrow>
                     {format.count(
                       castVoteRecordFileList.reduce(
-                        (prev, curr) => prev + curr.count,
+                        (prev, curr) => prev + curr.importedCvrCount,
                         0
                       ) + externalFileBallotCount
                     )}
                   </TD>
+                  <TD />
                   <TD as="th" />
                 </tr>
               </React.Fragment>

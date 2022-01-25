@@ -256,7 +256,7 @@ describe('getExportableTallies', () => {
     );
     const fullInternalTally = computeFullElectionTally(
       electionWithMsEitherNeither,
-      [castVoteRecords]
+      new Set(castVoteRecords)
     );
     const tally = getExportableTallies(
       fullInternalTally,
@@ -273,7 +273,7 @@ describe('getExportableTallies', () => {
     );
     const fullInternalTally = computeFullElectionTally(
       electionWithMsEitherNeither,
-      [castVoteRecords]
+      new Set(castVoteRecords)
     );
     const fullExternalTally = convertSemsFileToExternalTally(
       electionWithMsEitherNeitherWithDataFiles.semsData,
@@ -314,7 +314,7 @@ describe('getExportableTallies', () => {
     );
     const fullInternalTally = computeFullElectionTally(
       multiPartyPrimaryElection,
-      [castVoteRecords]
+      new Set(castVoteRecords)
     );
     const tally = getExportableTallies(
       fullInternalTally,
@@ -331,7 +331,7 @@ describe('getExportableTallies', () => {
     );
     const fullInternalTally = computeFullElectionTally(
       multiPartyPrimaryElection,
-      [castVoteRecords]
+      new Set(castVoteRecords)
     );
     const fullExternalTally = convertSemsFileToExternalTally(
       electionMultiPartyPrimaryWithDataFiles.semsData,

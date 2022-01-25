@@ -48,7 +48,7 @@ export function OvervoteCombinationReportScreen(): JSX.Element {
   assert(electionDefinition);
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-  const castVoteRecords = castVoteRecordFiles.castVoteRecords.flat(1);
+  const castVoteRecords = [...castVoteRecordFiles.castVoteRecords];
   const overvotePairTallies = getOvervotePairTallies({
     election,
     castVoteRecords,

@@ -56,10 +56,10 @@ import {
   SaveElection,
   PrintedBallot,
   Iso8601Timestamp,
-  CastVoteRecordLists,
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
+  CastVoteRecord,
 } from './config/types';
 import { getExportableTallies } from './utils/exportable_tallies';
 import {
@@ -383,7 +383,7 @@ export function AppRoot({
   }, [fullElectionTally, fullElectionExternalTallies, currentUserType, logger]);
 
   const computeVoteCounts = useCallback(
-    (castVoteRecords: CastVoteRecordLists) => {
+    (castVoteRecords: ReadonlySet<CastVoteRecord>) => {
       void logger.log(LogEventId.RecomputingTally, currentUserType);
       assert(electionDefinition);
       setIsTabulationRunning(true);
@@ -399,7 +399,7 @@ export function AppRoot({
 
   useEffect(() => {
     if (electionDefinition) {
-      computeVoteCounts(castVoteRecordFiles.castVoteRecords);
+      computeVoteCounts(new Set(castVoteRecordFiles.castVoteRecords));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computeVoteCounts, castVoteRecordFiles]);

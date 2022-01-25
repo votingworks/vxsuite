@@ -3,6 +3,7 @@ import {
   generateCvr,
   generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
+import { BallotIdSchema, unsafeParse } from '@votingworks/types';
 import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
@@ -20,7 +21,12 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['yes'],
           '750000016': ['no'],
         },
-        { precinctId: '6522', ballotStyleId: '5', ballotType: 'absentee' }
+        {
+          precinctId: '6522',
+          ballotStyleId: '5',
+          ballotType: 'absentee',
+          ballotId: unsafeParse(BallotIdSchema, '1'),
+        }
       ),
       generateCvr(
         electionWithMsEitherNeither,
@@ -35,6 +41,7 @@ describe('Election Manager can create SEMS tallies', () => {
           ballotStyleId: '5',
           ballotType: 'absentee',
           scannerId: 'scanner-2',
+          ballotId: unsafeParse(BallotIdSchema, '2'),
         }
       ),
       generateCvr(
@@ -45,7 +52,12 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['no'],
           '750000016': ['no'],
         },
-        { precinctId: '6522', ballotStyleId: '5', scannerId: 'scanner-2' }
+        {
+          precinctId: '6522',
+          ballotStyleId: '5',
+          scannerId: 'scanner-2',
+          ballotId: unsafeParse(BallotIdSchema, '3'),
+        }
       ),
       generateCvr(
         electionWithMsEitherNeither,
@@ -55,7 +67,11 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['no'],
           '750000016': ['yes'],
         },
-        { precinctId: '6522', ballotStyleId: '5' }
+        {
+          precinctId: '6522',
+          ballotStyleId: '5',
+          ballotId: unsafeParse(BallotIdSchema, '4'),
+        }
       ),
       generateCvr(
         electionWithMsEitherNeither,
@@ -70,6 +86,7 @@ describe('Election Manager can create SEMS tallies', () => {
           ballotStyleId: '4',
           ballotType: 'absentee',
           scannerId: 'scanner-2',
+          ballotId: unsafeParse(BallotIdSchema, '5'),
         }
       ),
       generateCvr(
@@ -85,6 +102,7 @@ describe('Election Manager can create SEMS tallies', () => {
           ballotStyleId: '4',
           ballotType: 'absentee',
           scannerId: 'scanner-2',
+          ballotId: unsafeParse(BallotIdSchema, '6'),
         }
       ),
       generateCvr(
@@ -95,7 +113,11 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['yes'],
           '750000016': [],
         },
-        { precinctId: '6538', ballotStyleId: '4' }
+        {
+          precinctId: '6538',
+          ballotStyleId: '4',
+          ballotId: unsafeParse(BallotIdSchema, '7'),
+        }
       ),
       generateCvr(
         electionWithMsEitherNeither,
@@ -105,7 +127,26 @@ describe('Election Manager can create SEMS tallies', () => {
           '750000015': ['no'],
           '750000016': ['yes', 'no'],
         },
-        { precinctId: '6538', ballotStyleId: '4' }
+        {
+          precinctId: '6538',
+          ballotStyleId: '4',
+          ballotId: unsafeParse(BallotIdSchema, '8'),
+        }
+      ),
+      // duplicate cvr should be ignored
+      generateCvr(
+        electionWithMsEitherNeither,
+        {
+          '750000017': ['yes', 'no'],
+          '750000018': ['no', 'yes'],
+          '750000015': ['no'],
+          '750000016': ['yes', 'no'],
+        },
+        {
+          precinctId: '6538',
+          ballotStyleId: '4',
+          ballotId: unsafeParse(BallotIdSchema, '8'),
+        }
       ),
     ]);
     cy.visit('/');
@@ -120,6 +161,7 @@ describe('Election Manager can create SEMS tallies', () => {
       mimeType: 'text/plain',
       encoding: 'utf-8',
     });
+    cy.contains('Close').click();
     cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('8'));
 
     // Check that the internal tally reports have the correct tallies
