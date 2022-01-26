@@ -24,7 +24,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         <div
           class="sc-gKsewC"
         >
-          Election Manager
+          VxAdmin
         </div>
       </div>
       <div
@@ -225,7 +225,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
         <div
           class="sc-gKsewC"
         >
-          Election Manager
+          VxAdmin
         </div>
       </div>
       <div
