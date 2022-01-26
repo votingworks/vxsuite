@@ -24,7 +24,7 @@ export function PollsClosedScreen({
       <DoNotEnter />
       <CenteredLargeProse>
         <h1>Polls Closed</h1>
-        <p>Insert a Poll Worker Card to Open Polls.</p>
+        <p>Insert a poll worker card to open polls.</p>
       </CenteredLargeProse>
     </CenteredScreen>
   );
