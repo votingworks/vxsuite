@@ -278,7 +278,7 @@ export function UnconfiguredScreen(): JSX.Element {
   return (
     <NavigationScreen mainChildCenter>
       <Prose textCenter>
-        <h1>Configure Election Manager</h1>
+        <h1>Configure VxAdmin</h1>
         <p>How would you like to start?</p>
         <p>
           <Button onPress={createNewElection}>

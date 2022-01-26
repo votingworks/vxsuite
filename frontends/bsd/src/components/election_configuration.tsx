@@ -253,8 +253,8 @@ export function ElectionConfiguration({
                 <Image src="usb-stick.svg" alt="Insert USB Image" />
                 <Text>
                   There were no Election Ballot Package files automatically
-                  found on the inserted USB drive. Use Election Manager to
-                  export Ballot Package files to this USB drive.
+                  found on the inserted USB drive. Use VxAdmin to export Ballot
+                  Package files to this USB drive.
                 </Text>
                 <Text>
                   Optionally, you may manually select a file to configure:
@@ -344,7 +344,7 @@ export function ElectionConfiguration({
             <ul>
               <ListItem>
                 <strong>Insert a USB drive</strong> with election ballot
-                packages exported from Election Manager.
+                packages exported from VxAdmin.
               </ListItem>
               <ListItem>
                 Manually select a file to configure:{' '}

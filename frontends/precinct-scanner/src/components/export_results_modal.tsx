@@ -158,8 +158,8 @@ export function ExportResultsModal({
             <Prose>
               <h1>Download Complete</h1>
               <p>
-                USB drive successfully ejected, you may now take it to Election
-                Manager for tabulation.
+                USB drive successfully ejected, you may now take it to VxAdmin
+                for tabulation.
               </p>
             </Prose>
           }
@@ -175,7 +175,7 @@ export function ExportResultsModal({
             <h1>Download Complete</h1>
             <p>
               CVR results file saved successfully! You may now eject the USB
-              drive and take it to Election Manager for tabulation.
+              drive and take it to VxAdmin for tabulation.
             </p>
           </Prose>
         }

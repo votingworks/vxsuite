@@ -173,7 +173,7 @@ test('create election works', async () => {
   fireEvent.click(getByText('Remove'));
   fireEvent.click(getByText('Remove Election Definition'));
 
-  await screen.findByText('Configure Election Manager');
+  await screen.findByText('Configure VxAdmin');
   expect(window.kiosk!.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.ElectionUnconfigured)
   );

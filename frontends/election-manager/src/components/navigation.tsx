@@ -77,7 +77,7 @@ export function Navigation({ primaryNav, secondaryNav }: Props): JSX.Element {
         <MakeName>
           Voting<span>Works</span>
         </MakeName>
-        <ModelName>Election Manager</ModelName>
+        <ModelName>VxAdmin</ModelName>
       </Brand>
       <PrimaryNav>{primaryNav}</PrimaryNav>
       {secondaryNav && <SecondaryNav>{secondaryNav}</SecondaryNav>}
