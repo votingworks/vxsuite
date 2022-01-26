@@ -124,7 +124,7 @@ test('app can load and configure from a usb stick', async () => {
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Loading Configuration…');
   await advanceTimersAndPromises(1);
-  await screen.findByText('Precinct Scanner is Not Configured');
+  await screen.findByText('VxScan is Not Configured');
   await screen.findByText('Insert USB Drive with configuration.');
 
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);

@@ -108,7 +108,7 @@ export function PrecinctScannerPollsReport({
     <React.Fragment>
       <dt>Machine ID</dt>
       <dd>
-        <span>Precinct Scanner #{precinctScannerMachineId}</span>
+        <span>VxScan #{precinctScannerMachineId}</span>
       </dd>
     </React.Fragment>
   );

@@ -126,7 +126,7 @@ export function UnconfiguredElectionScreen({
     <React.Fragment>
       <QuestionCircle />
       <CenteredLargeProse>
-        <h1>Precinct Scanner is Not Configured</h1>
+        <h1>VxScan is Not Configured</h1>
         <p>
           {errorMessage === ''
             ? 'Insert USB Drive with configuration.'

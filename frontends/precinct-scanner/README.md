@@ -1,4 +1,4 @@
-# Precinct Scanner
+# Precinct Scanner (VxScan)
 
 The user interface for a precinct scanner. This is intended to be used by
 election officials, poll workers, and voters to cast their ballot at a precinct.
