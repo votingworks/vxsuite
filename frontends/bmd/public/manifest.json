@@ -1,6 +1,6 @@
 {
-  "short_name": "VotingWorks BMD",
-  "name": "VotingWorks Ballot Marking Device",
+  "short_name": "VxMark",
+  "name": "VotingWorks VxMark",
   "icons": [
     {
       "src": "favicon.ico",
