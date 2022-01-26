@@ -21,8 +21,7 @@ import { download, DownloadError, DownloadErrorKind } from '../utils/download';
 import { Modal } from './modal';
 
 const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
+  margin: 0 auto;
   height: 200px;
 `;
 
@@ -180,12 +179,12 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
+                Please insert a USB drive to export the backup.
                 <UsbImage
                   src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
                   onDoubleClick={() => exportBackup(true)}
                   alt="Insert USB Image"
                 />
-                Please insert a USB drive in order to export the scanner backup.
               </p>
             </Prose>
           }

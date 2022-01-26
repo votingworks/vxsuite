@@ -22,8 +22,7 @@ import { AppContext } from '../contexts/app_context';
 import { Modal } from './modal';
 
 const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
+  margin: 0 auto;
   height: 200px;
 `;
 
@@ -156,11 +155,8 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Download Complete</h1>
-              <p>
-                USB drive successfully ejected, you may now take it to VxAdmin
-                for tabulation.
-              </p>
+              <h1>USB Drive Ejected</h1>
+              <p>You may now take the USB Drive to VxAdmin for tabulation.</p>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -172,10 +168,10 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Download Complete</h1>
+            <h1>Results Exported to USB Drive</h1>
             <p>
-              CVR results file saved successfully! You may now eject the USB
-              drive and take it to VxAdmin for tabulation.
+              You may now eject the USB drive and take it to VxAdmin for
+              tabulation.
             </p>
           </Prose>
         }
@@ -215,15 +211,14 @@ export function ExportResultsModal({
       return (
         <Modal
           content={
-            <Prose>
+            <Prose textCenter>
               <h1>No USB Drive Detected</h1>
               <p>
+                Please insert a USB drive in order to export results.
                 <UsbImage
                   src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
                   alt="Insert USB Image"
                 />
-                Please insert a USB drive in order to export the scanner
-                results.
               </p>
             </Prose>
           }

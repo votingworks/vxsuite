@@ -72,9 +72,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
       </AppContext.Provider>
     );
     getByText('No USB Drive Detected');
-    getByText(
-      'Please insert a USB drive in order to export the scanner results.'
-    );
+    getByText('Please insert a USB drive in order to export results.');
     getByAltText('Insert USB Image');
 
     fireEvent.click(getByText('Cancel'));
