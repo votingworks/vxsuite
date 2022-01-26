@@ -1,4 +1,4 @@
-# VotingWorks Ballot Activation System (BAS)
+# VotingWorks Ballot Activation System (BAS) (VxEncode)
 
 Activates voter cards for use with the VxSuite
 [Ballot Marking Device (BMD)](../bmd).
