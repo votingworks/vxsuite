@@ -54,7 +54,7 @@ export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
             Voting<span>Works</span>
           </MakeName>
           <ModelName>
-            Ballot Scanner
+            VxCentralScan
             {isTestMode && <TestMode>&nbsp;TEST&nbsp;MODE</TestMode>}
           </ModelName>
         </Brand>

@@ -30,7 +30,7 @@ test('bypass and persist authentication flow', () => {
     authenticated: true,
   };
   let smartcard: Smartcard = { status: 'no_card' };
-  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useUserSession({
@@ -92,7 +92,7 @@ test('bypass and persist authentication flow', () => {
 
 test('bypass authentication flow when not persisting authentication', async () => {
   let smartcard: Smartcard = { status: 'no_card' };
-  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const validUserTypes: CardDataTypes[] = ['admin', 'pollworker', 'voter'];
   const { result, rerender } = renderHook(() =>
@@ -230,7 +230,7 @@ test('bypass authentication flow when not persisting authentication', async () =
 test('basic persist authentication flow works as expected', () => {
   let smartcard: Smartcard = { status: 'no_card' };
   const validUserTypes: CardDataTypes[] = ['admin'];
-  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
     useUserSession({
@@ -518,7 +518,7 @@ test('basic persist authentication flow works as expected', () => {
 
 test('basic flow with no persistance of authentication works as expected', async () => {
   let smartcard: Smartcard = { status: 'no_card' };
-  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const validUserTypes: CardDataTypes[] = ['admin', 'pollworker'];
   const { result, rerender } = renderHook(() =>
@@ -915,7 +915,7 @@ test('basic flow with no persistance of authentication works as expected', async
 
 test('if not provided, default to NOT bypassing authentication', () => {
   const validUserTypes: CardDataTypes[] = ['admin'];
-  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const { result } = renderHook(() =>
     useUserSession({
       smartcard: { status: 'no_card' },
@@ -933,7 +933,7 @@ test('when there is no election definition, pollworker is never authenticated', 
     data: makePollWorkerCard(electionSampleDefinition.electionHash),
   });
   const validUserTypes: CardDataTypes[] = ['admin', 'pollworker'];
-  const fakeLogger = new Logger(LogSource.VxBatchScanFrontend);
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result } = renderHook(() =>
     useUserSession({

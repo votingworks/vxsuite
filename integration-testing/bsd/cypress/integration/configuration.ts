@@ -29,7 +29,7 @@ describe('BSD and services/Scan', () => {
     cy.contains('Uploading ballot package 7 of 8', { timeout: 10000 });
     cy.contains('Uploading ballot package 8 of 8', { timeout: 10000 });
     cy.contains('Preparing scanner', { timeout: 10000 });
-    cy.contains('Ballot Scanner Configured', { timeout: 20000 });
+    cy.contains('VxCentralScan Configured', { timeout: 20000 });
     cy.contains('Close').click();
     cy.contains('No ballots have been scanned');
     cy.contains('Scan New Batch').click();
@@ -45,7 +45,7 @@ describe('BSD and services/Scan', () => {
     cy.get('button[data-testid="confirm-toggle"]')
       .contains('Toggle to Test Mode')
       .click();
-    cy.contains('Ballot Scanner TEST MODE', { timeout: 30000 });
+    cy.contains('VxCentralScan TEST MODE', { timeout: 30000 });
     cy.contains('No ballots have been scanned');
     cy.contains('Scan New Batch').click();
     // We are now in test mode so the live ballot will not scan

@@ -54,7 +54,7 @@ export const LogLineSchema: z.ZodSchema<LogLine> = z.object({
 
 export const DEVICE_TYPES_FOR_APP: Dictionary<DeviceType> = {
   [LogSource.VxAdminFrontend]: DeviceType.Ems,
-  [LogSource.VxBatchScanFrontend]: DeviceType.ScanBatch,
+  [LogSource.VxCentralScanFrontend]: DeviceType.ScanBatch,
   [LogSource.VxPrecinctScanFrontend]: DeviceType.ScanSingle,
   [LogSource.VxBallotMarkingDeviceFrontend]: DeviceType.Bmd,
   [LogSource.VxBallotActivationFrontend]: DeviceType.BallotActivation,

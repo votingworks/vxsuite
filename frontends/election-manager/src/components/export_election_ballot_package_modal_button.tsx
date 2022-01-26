@@ -343,7 +343,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           <h1>Download Complete</h1>
           <p>
             You may now eject the USB drive. Use the exported ballot package on
-            this USB drive to configure the Ballot Scanner.
+            this USB drive to configure VxScan or VxCentralScan.
           </p>
         </Prose>
       );

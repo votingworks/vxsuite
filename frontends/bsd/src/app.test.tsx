@@ -320,7 +320,7 @@ test('configuring election from usb ballot package works end to end', async () =
 
   await act(async () => {
     await sleep(500);
-    getByText('Ballot Scanner Configured');
+    getByText('VxCentralScan Configured');
   });
 
   fireEvent.click(getByText('Close'));

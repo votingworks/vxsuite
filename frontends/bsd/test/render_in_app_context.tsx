@@ -35,7 +35,7 @@ export function renderInAppContext(
     storage = new MemoryStorage(),
     lockMachine = jest.fn(),
     currentUserSession = { type: 'admin', authenticated: true },
-    logger = new Logger(LogSource.VxBatchScanFrontend),
+    logger = new Logger(LogSource.VxCentralScanFrontend),
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(

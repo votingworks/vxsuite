@@ -10,7 +10,7 @@ const configMock = config as jest.Mocked<typeof config>;
 
 test('configures the server with the contained election', async () => {
   configMock.setElection.mockResolvedValueOnce();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   await new Promise<void>((resolve, reject) => {
     addTemplates(
       {
@@ -38,7 +38,7 @@ test('emits an event each time a ballot begins uploading', async () => {
   fetchMock.post('/scan/hmpb/addTemplates', { body: { status: 'ok' } });
 
   const uploading = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   await new Promise<void>((resolve, reject) => {
@@ -109,7 +109,7 @@ test('emits an event each time a ballot begins uploading', async () => {
 test('emits error on API failure', async () => {
   configMock.setElection.mockRejectedValueOnce(new Error('bad election!'));
 
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
 
   await expect(
     new Promise<void>((resolve, reject) => {
