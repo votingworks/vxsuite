@@ -209,83 +209,83 @@ IDs are logged with each log to identify the log being written.
 ### clear-ballot-data-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated clearing ballot data in the current application.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### clear-ballot-data-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### override-mark-threshold-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated overriding the thresholds of when to count marks seen by the scanning module. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### override-mark-thresholds-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### download-backup-scan-images
 **Type:** [user-action](#user-action)  
 **Description:** User downloaded a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### configure-from-ballot-package-init
 **Type:** [user-action](#user-action)  
 **Description:** User had initiated configuring the machine from a ballot package. The ballot package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### ballot-package-files-read-from-usb
 **Type:** [user-action](#user-action)  
 **Description:** List of ballot packages read from usb and displayed to user to import to machine.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### ballot-package-load-from-usb-complete
 **Type:** [user-action](#user-action)  
 **Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### ballot-configure-machine-complete
 **Type:** [user-action](#user-action)  
 **Description:** The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### scanner-configure-complete
 **Type:** [user-action](#user-action)  
 **Description:** The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### export-cvr-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated exporting CVR file to the USB drive.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### export-cvr-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has finished exporting a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### delete-cvr-batch-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### delete-cvr-batch-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### scan-batch-init
 **Type:** [user-action](#user-action)  
 **Description:** The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### scan-sheet-complete
 **Type:** [user-action](#user-action)  
 **Description:** A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### scan-batch-complete
 **Type:** [user-action](#user-action)  
 **Description:** A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### scan-batch-continue
 **Type:** [user-action](#user-action)  
 **Description:** Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### scan-adjudication-info
 **Type:** [application-status](#application-status)  
 **Description:** Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidElectionHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UninterpretedHmpbPage for a HMPB ballot that could not be read properly, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, WriteIn, UnmarkedWriteIn, and BlankBallot (a ballot where there are no votes for any contest).  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### scanner-config-reloaded
 **Type:** [application-status](#application-status)  
 **Description:** Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### export-log-file-found
 **Type:** [application-status](#application-status)  
 **Description:** When the user is exporting logs, indicates the success/failure of finding the expected log file on the machine.  
@@ -293,23 +293,23 @@ IDs are logged with each log to identify the log being written.
 ### scan-service-config
 **Type:** [application-status](#application-status)  
 **Description:** Message from the scanning service about how it is configured while starting up.  
-**Machines:** vx-batch-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### fujitsu-scan-init
 **Type:** [application-action](#application-action)  
 **Description:** Application is initiating a new scanning batch on the fujitsu scanner.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### fujitsu-scan-sheet-scanned
 **Type:** [application-status](#application-status)  
 **Description:** A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### fujitsu-scan-batch-complete
 **Type:** [application-status](#application-status)  
 **Description:** A batch of sheets has completed scanning on the fujitsu scanner.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### fujitsu-scan-message
 **Type:** [application-status](#application-status)  
 **Description:** Message from the driver handling the fujitsu scanner regarding scanning progress.  
-**Machines:** vx-batch-scan-frontend
+**Machines:** vx-central-scan-frontend
 ### convert-log-cdf-complete
 **Type:** [user-action](#user-action)  
 **Description:** The user has converted the log file to a CDF format for export. Success or failure indicated by disposition.  

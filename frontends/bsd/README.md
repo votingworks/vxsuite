@@ -1,4 +1,4 @@
-# VotingWorks Ballot Scanner (BSD)
+# VotingWorks Ballot Scanner (BSD) (VxCentralScan)
 
 Scans ballots printed by the VxSuite [Ballot Marking Device (BMD)](../bmd) or
 the VxSuite [Election Manager](../election-manager).
@@ -16,8 +16,9 @@ pnpm start
 The server will be available at http://localhost:3000/.
 
 To set the election configuration you will either need to scan a smartcard (you
-can use the mockCardReader script in [services/smartcards](../../services/smartcards)
-for this), load an election.json file, or load a ballot export zip file from
+can use the mockCardReader script in
+[services/smartcards](../../services/smartcards) for this), load an
+election.json file, or load a ballot export zip file from
 [election-manager](../election-manager). You should load a ballot export zip if
 you intend to test hand-marked paper ballots (HMPBs).
 

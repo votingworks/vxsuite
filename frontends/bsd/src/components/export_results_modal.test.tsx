@@ -168,7 +168,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         storage: new MemoryStorage(),
         lockMachine: jest.fn(),
         currentUserSession: { type: 'admin', authenticated: true },
-        logger: new Logger(LogSource.VxBatchScanFrontend),
+        logger: new Logger(LogSource.VxCentralScanFrontend),
       }}
     >
       <Router history={history}>

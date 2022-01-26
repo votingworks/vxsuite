@@ -79,7 +79,7 @@ export interface AppRootProps {
 
 export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const logger = useMemo(
-    () => new Logger(LogSource.VxBatchScanFrontend, window.kiosk),
+    () => new Logger(LogSource.VxCentralScanFrontend, window.kiosk),
     []
   );
   const history = useHistory();
@@ -551,10 +551,10 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             <Main>
               <MainChild center padded>
                 <Prose>
-                  <h1>Ballot Scanner Configured</h1>
+                  <h1>VxCentralScan Configured</h1>
                   <Text>
-                    Ballot Scanner successfully configured. You may now eject
-                    the USB drive.
+                    VxCentralScan successfully configured. You may now eject the
+                    USB drive.
                   </Text>
                 </Prose>
                 <Buttons>

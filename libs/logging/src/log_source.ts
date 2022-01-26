@@ -2,8 +2,8 @@ export enum LogSource {
   System = 'system',
   VxAdminFrontend = 'vx-admin-frontend',
   VxAdminService = 'vx-admin-service',
-  VxBatchScanFrontend = 'vx-batch-scan-frontend',
-  VxBatchScanService = 'vx-batch-scan-service',
+  VxCentralScanFrontend = 'vx-central-scan-frontend',
+  VxCentralScanService = 'vx-central-scan-service',
   VxPrecinctScanFrontend = 'vx-precinct-scan-frontend',
   VxPrecinctScanService = 'vx-precinct-scan-service',
   VxBallotMarkingDeviceFrontend = 'vx-ballot-marking-device-frontend',
@@ -17,7 +17,7 @@ export enum LogSource {
 // to avoid unnecessary log spew in the test runs.
 export const CLIENT_SIDE_LOG_SOURCES = [
   LogSource.VxAdminFrontend,
-  LogSource.VxBatchScanFrontend,
+  LogSource.VxCentralScanFrontend,
   LogSource.VxPrecinctScanFrontend,
   LogSource.VxBallotMarkingDeviceFrontend,
   LogSource.VxBallotActivationFrontend,

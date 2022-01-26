@@ -65,7 +65,7 @@ export enum LogEventId {
   ConvertingResultsToSemsFormat = 'converting-to-sems',
   TestDeckPrinted = 'test-deck-printed',
   TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
-  // VxBatch specific user action logs
+  // VxCentralScan specific user action logs
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
   ClearingBallotData = 'clear-ballot-data-init',
@@ -457,7 +457,7 @@ const ClearingBallotData: LogDetails = {
     'User has initiated clearing ballot data in the current application.',
   defaultMessage: 'User is clearing ballot data...',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -468,7 +468,7 @@ const ClearedBallotData: LogDetails = {
   documentationMessage:
     'User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -480,7 +480,7 @@ const OverridingMarkThresholds: LogDetails = {
     'User has initiated overriding the thresholds of when to count marks seen by the scanning module. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
   defaultMessage: 'User is overriding mark thresholds...',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -491,7 +491,7 @@ const OverrodeMarkThresholds: LogDetails = {
   documentationMessage:
     'User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -501,7 +501,7 @@ const DownloadedScanImageBackup: LogDetails = {
   documentationMessage:
     'User downloaded a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -513,7 +513,7 @@ const ConfigureFromBallotPackageInit: LogDetails = {
     'User had initiated configuring the machine from a ballot package. The ballot package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.',
   defaultMessage: 'Loading ballot package from USB and configuring machine...',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -523,7 +523,7 @@ const BallotPackagedLoadedFromUsb: LogDetails = {
   documentationMessage:
     'The ballot package has been read from the USB drive. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -533,7 +533,7 @@ const BallotConfiguredOnMachine: LogDetails = {
   documentationMessage:
     'The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -543,7 +543,7 @@ const ScannerConfigured: LogDetails = {
   documentationMessage:
     'The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -553,7 +553,7 @@ const BallotPackageFilesReadFromUsb: LogDetails = {
   documentationMessage:
     'List of ballot packages read from usb and displayed to user to import to machine.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -564,7 +564,7 @@ const ExportCvrInit: LogDetails = {
     'User has initiated exporting CVR file to the USB drive.',
   defaultMessage: 'Exporting CVR file to USB...',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -574,7 +574,7 @@ const ExportCvrComplete: LogDetails = {
   documentationMessage:
     'User has finished exporting a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -583,49 +583,49 @@ const DeleteScanBatchInit: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const DeleteScanBatchComplete: LogDetails = {
   eventId: LogEventId.DeleteScanBatchComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const ScanBatchInit: LogDetails = {
   eventId: LogEventId.ScanBatchInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const ScanSheetComplete: LogDetails = {
   eventId: LogEventId.ScanSheetComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const ScanBatchComplete: LogDetails = {
   eventId: LogEventId.ScanBatchComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const ScanBatchContinue: LogDetails = {
   eventId: LogEventId.ScanBatchContinue,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const ScanAdjudicationInfo: LogDetails = {
   eventId: LogEventId.ScanAdjudicationInfo,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidElectionHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UninterpretedHmpbPage for a HMPB ballot that could not be read properly, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, WriteIn, UnmarkedWriteIn, and BlankBallot (a ballot where there are no votes for any contest).',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const ScannerConfigReloaded: LogDetails = {
   eventId: LogEventId.ScannerConfigReloaded,
@@ -633,7 +633,7 @@ const ScannerConfigReloaded: LogDetails = {
   documentationMessage:
     'Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -663,7 +663,7 @@ const ScanServiceConfigurationMessage: LogDetails = {
   documentationMessage:
     'Message from the scanning service about how it is configured while starting up.',
   restrictInDocumentationToApps: [
-    LogSource.VxBatchScanFrontend,
+    LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
@@ -673,28 +673,28 @@ const FujitsuScanInit: LogDetails = {
   eventType: LogEventType.ApplicationAction,
   documentationMessage:
     'Application is initiating a new scanning batch on the fujitsu scanner.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const FujitsuScanImageScanned: LogDetails = {
   eventId: LogEventId.FujitsuScanImageScanned,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const FujitsuScanBatchComplete: LogDetails = {
   eventId: LogEventId.FujitsuScanBatchComplete,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'A batch of sheets has completed scanning on the fujitsu scanner.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 const FujitsuScanMessage: LogDetails = {
   eventId: LogEventId.FujitsuScanMessage,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Message from the driver handling the fujitsu scanner regarding scanning progress.',
-  restrictInDocumentationToApps: [LogSource.VxBatchScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {

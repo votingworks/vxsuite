@@ -29,7 +29,7 @@ const appContext: AppContextInterface = {
   storage: new MemoryStorage(),
   lockMachine: () => undefined,
   currentUserSession: undefined,
-  logger: new Logger(LogSource.VxBatchScanFrontend),
+  logger: new Logger(LogSource.VxCentralScanFrontend),
 };
 
 export const AppContext = createContext(appContext);

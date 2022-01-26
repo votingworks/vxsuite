@@ -30,7 +30,7 @@ test('says the sheet is unreadable if it is', async () => {
     })
   );
 
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
   const continueScanning = jest.fn();
 
@@ -130,7 +130,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   const { container, getByText } = renderInAppContext(
@@ -241,7 +241,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   const { container, getByText } = renderInAppContext(
@@ -358,7 +358,7 @@ test('says the ballot sheet is blank if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   const { container, getByText } = renderInAppContext(
@@ -438,7 +438,7 @@ test('calls out live ballot sheets in test mode', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   const { container, getByText } = renderInAppContext(
@@ -507,7 +507,7 @@ test('calls out test ballot sheets in live mode', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   const { container, getByText } = renderInAppContext(
@@ -561,7 +561,7 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
 
   const { getByText, queryAllByText } = renderInAppContext(
@@ -634,7 +634,7 @@ test('shows invalid precinct screen when appropriate', async () => {
     })
   );
 
-  const logger = new Logger(LogSource.VxBatchScanFrontend);
+  const logger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(logger, 'log');
   const continueScanning = jest.fn();
 
@@ -805,7 +805,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
     );
 
     const continueScanning = jest.fn();
-    const logger = new Logger(LogSource.VxBatchScanFrontend);
+    const logger = new Logger(LogSource.VxCentralScanFrontend);
     const logSpy = jest.spyOn(logger, 'log');
 
     const { unmount } = renderInAppContext(

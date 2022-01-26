@@ -41,7 +41,7 @@ describe('test cdf documentation generation', () => {
         Id: LogEventId.MachineBootInit,
       })
     );
-    // Make sure VxBatchScanFrontend specific logs are NOT included
+    // Make sure VxCentralScanFrontend specific logs are NOT included
     expect(structuredData.EventIdDescription).not.toContainEqual(
       expect.objectContaining({
         Id: LogEventId.ScannerConfigured,
@@ -49,10 +49,10 @@ describe('test cdf documentation generation', () => {
     );
   });
 
-  test('builds expected documentation for VxBatchScanFrontend', () => {
+  test('builds expected documentation for VxCentralScanFrontend', () => {
     const cdfDocumentationContent = generateCdfLogDocumentationFileContent(
-      LogSource.VxBatchScanFrontend,
-      'VxScan',
+      LogSource.VxCentralScanFrontend,
+      'VxCentralScan',
       'V oting Works'
     );
     const structuredDataResult = safeParseJson(
@@ -63,11 +63,11 @@ describe('test cdf documentation generation', () => {
     const structuredData = structuredDataResult.ok();
     assert(structuredData);
     expect(structuredData.DeviceManufacturer).toBe('V oting Works');
-    expect(structuredData.DeviceModel).toBe('VxScan');
+    expect(structuredData.DeviceModel).toBe('VxCentralScan');
     expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
     expect(structuredData.EventIdDescription).toHaveLength(56);
-    // Make sure VxBatchApp specific logs are included.
+    // Make sure VxCentralScanApp specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
         Id: LogEventId.ScannerConfigured,
