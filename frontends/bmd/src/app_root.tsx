@@ -83,6 +83,7 @@ import { WrongPrecinctScreen } from './pages/wrong_precinct_screen';
 import { utcTimestamp } from './utils/utc_timestamp';
 import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
+import { CardErrorScreen } from './pages/card_error_screen';
 
 const debug = makeDebug('bmd:AppRoot');
 
@@ -101,6 +102,7 @@ interface CardState {
   showPostVotingInstructions?: PostVotingInstructions;
   voterCardCreatedAt: number;
   tallyOnCard?: PrecinctScannerCardTally;
+  hasCardError: boolean;
 }
 
 interface UserState {
@@ -174,6 +176,7 @@ const initialCardState: Readonly<CardState> = {
   pauseProcessingUntilNoCardPresent: false,
   showPostVotingInstructions: undefined,
   voterCardCreatedAt: 0,
+  hasCardError: false,
 };
 
 const initialVoterState: Readonly<UserState> = {
@@ -228,6 +231,7 @@ type AppAction =
       tallyOnCard?: PrecinctScannerCardTally;
     }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
+  | { type: 'setCardError' }
   | { type: 'pauseCardProcessing' }
   | { type: 'resumeCardProcessing' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
@@ -292,6 +296,12 @@ function appReducer(state: State, action: AppAction): State {
           utcTimestamp() >=
             action.voterState.voterCardCreatedAt +
               GLOBALS.CARD_EXPIRATION_SECONDS,
+      };
+    case 'setCardError':
+      return {
+        ...state,
+        ...initialCardState,
+        hasCardError: true,
       };
     case 'pauseCardProcessing':
       return {
@@ -506,6 +516,7 @@ export function AppRoot({
     userSettings,
     votes,
     voterCardCreatedAt,
+    hasCardError,
   } = appState;
 
   const { appMode } = machineConfig;
@@ -830,7 +841,7 @@ export function AppRoot({
   const cardShortValueReadInterval = useInterval(async () => {
     const insertedCard = await card.readStatus();
     if (pauseProcessingUntilNoCardPresent) {
-      if (insertedCard.status === 'ready') {
+      if (insertedCard.status !== 'no_card') {
         return;
       }
       dispatchAppState({ type: 'resumeCardProcessing' });
@@ -863,6 +874,12 @@ export function AppRoot({
       if (isCardlessVoter) {
         dispatchAppState({
           type: 'maintainCardlessBallot',
+        });
+        return;
+      }
+      if (insertedCard.status === 'error') {
+        dispatchAppState({
+          type: 'setCardError',
         });
         return;
       }
@@ -1221,6 +1238,13 @@ export function AppRoot({
   if (!hasCardReaderAttached) {
     return (
       <SetupCardReaderPage
+        useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
+      />
+    );
+  }
+  if (hasCardError) {
+    return (
+      <CardErrorScreen
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
       />
     );

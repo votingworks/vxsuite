@@ -224,3 +224,34 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   // No prompt to print precinct tally report
   expect(await screen.queryAllByText('Tally Report on Card')).toHaveLength(0);
 });
+
+test('Shows card backwards screen when card connection error occurs', async () => {
+  const card = new MemoryCard();
+  const hardware = await MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  const machineConfig = fakeMachineConfigProvider();
+
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+
+  render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      machineConfig={machineConfig}
+      reload={jest.fn()}
+    />
+  );
+  await advanceTimersAndPromises();
+  screen.getByText('Insert Card');
+
+  card.insertCard(undefined, undefined, 'error');
+  await advanceTimersAndPromises();
+  screen.getByText('Card is backwards');
+  screen.getByText('Remove the card, turn it around, and insert it again.');
+
+  card.removeCard();
+  await advanceTimersAndPromises();
+  screen.getByText('Insert Card');
+});
