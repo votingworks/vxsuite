@@ -65,6 +65,7 @@ import { ScanProcessingScreen } from './screens/scan_processing_screen';
 import { AppContext } from './contexts/app_context';
 import { SetupPowerPage } from './screens/setup_power_page';
 import { UnlockAdminScreen } from './screens/unlock_admin_screen';
+import { CardErrorScreen } from './screens/card_error_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -747,6 +748,10 @@ export function AppRoot({
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage />;
+  }
+
+  if (smartcard.status === 'error') {
+    return <CardErrorScreen />;
   }
 
   if (hasLowBattery && !hasChargerAttached) {

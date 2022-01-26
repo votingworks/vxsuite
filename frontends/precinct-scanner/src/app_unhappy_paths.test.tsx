@@ -162,6 +162,31 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   await screen.findByText('Invalid Card, please remove.');
 });
 
+test('show card backwards screen when card connection error occurs', async () => {
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .deleteOnce('/config/election', { status: 404 })
+    .get('/scan/status', scanStatusWaitingForPaperResponseBody);
+
+  const card = new MemoryCard();
+  const hardware = await MemoryHardware.buildStandard();
+  render(<App card={card} hardware={hardware} />);
+  await screen.findByText('Polls Closed');
+  card.insertCard(undefined, undefined, 'error');
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Card is backwards');
+  screen.getByText('Remove the card, turn it around, and insert it again.');
+
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Polls Closed');
+});
+
 test('error from services/scan in accepting a reviewable ballot', async () => {
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
