@@ -1,6 +1,6 @@
 {
-  "short_name": "Precinct Scanner",
-  "name": "VotingWorks Precinct Scanner",
+  "short_name": "VxScan",
+  "name": "VotingWorks VxScan",
   "icons": [
     {
       "src": "favicon.ico",
