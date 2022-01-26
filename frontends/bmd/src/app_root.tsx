@@ -55,7 +55,7 @@ import {
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
-  VxMarkOnly,
+  MarkOnly,
   SerializableActivationData,
   MachineConfig,
   PostVotingInstructions,
@@ -187,7 +187,7 @@ const initialVoterState: Readonly<UserState> = {
 const initialHardwareState: Readonly<HardwareState> = {
   hasChargerAttached: true,
   hasLowBattery: false,
-  machineConfig: { appMode: VxMarkOnly, machineId: '0000', codeVersion: 'dev' },
+  machineConfig: { appMode: MarkOnly, machineId: '0000', codeVersion: 'dev' },
 };
 
 const initialSharedState: Readonly<SharedState> = {
@@ -1267,7 +1267,7 @@ export function AppRoot({
     );
   }
   if (optionalElectionDefinition && appPrecinct) {
-    if (appMode.isVxPrint && !hasPrinterAttached) {
+    if (appMode.isPrint && !hasPrinterAttached) {
       return (
         <SetupPrinterPage
           useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1314,8 +1314,8 @@ export function AppRoot({
     if (
       isPollsOpen &&
       showPostVotingInstructions &&
-      appMode.isVxMark &&
-      appMode.isVxPrint
+      appMode.isMark &&
+      appMode.isPrint
     ) {
       return (
         <CastBallotPage
@@ -1356,7 +1356,7 @@ export function AppRoot({
         );
       }
 
-      if (appMode.isVxPrint && !appMode.isVxMark) {
+      if (appMode.isPrint && !appMode.isMark) {
         return (
           <PrintOnlyScreen
             ballotStyleId={ballotStyleId}
@@ -1415,7 +1415,7 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={
-            appMode.isVxMark && !hasAccessibleControllerAttached
+            appMode.isMark && !hasAccessibleControllerAttached
           }
           showNoChargerAttachedWarning={!hasChargerAttached}
           isLiveMode={isLiveMode}

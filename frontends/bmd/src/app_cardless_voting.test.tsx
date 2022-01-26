@@ -21,7 +21,7 @@ import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { VxMarkPlusVxPrint } from './config/types';
+import { MarkAndPrint } from './config/types';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -40,7 +40,7 @@ test('Cardless Voting Flow', async () => {
   const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
-    appMode: VxMarkPlusVxPrint,
+    appMode: MarkAndPrint,
   });
   render(
     <App
@@ -208,7 +208,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
-    appMode: VxMarkPlusVxPrint,
+    appMode: MarkAndPrint,
   });
 
   card.removeCard();
@@ -292,7 +292,7 @@ test('poll worker must select a precinct first', async () => {
   const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
-    appMode: VxMarkPlusVxPrint,
+    appMode: MarkAndPrint,
   });
   render(
     <App

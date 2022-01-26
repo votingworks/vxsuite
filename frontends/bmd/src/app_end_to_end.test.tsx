@@ -38,7 +38,7 @@ import {
 } from '../test/helpers/election';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { VxMarkPlusVxPrint } from './config/types';
+import { MarkAndPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 
 beforeEach(() => {
@@ -48,14 +48,14 @@ beforeEach(() => {
 
 jest.setTimeout(15000);
 
-it('VxMark+Print end-to-end flow', async () => {
+it('MarkAndPrint end-to-end flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
   const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
-    appMode: VxMarkPlusVxPrint,
+    appMode: MarkAndPrint,
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array');

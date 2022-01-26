@@ -4,59 +4,59 @@ import { machineConfigProvider } from './machine_config';
 import {
   MachineConfig,
   MachineConfigResponse,
-  VxMarkOnly,
-  VxMarkPlusVxPrint,
-  VxPrintOnly,
+  MarkOnly,
+  MarkAndPrint,
+  PrintOnly,
 } from '../config/types';
 
-test('successful VxMark fetch from /machine-config', async () => {
+test('successful MarkOnly fetch from /machine-config', async () => {
   fetchMock.get(
     '/machine-config',
     typedAs<MachineConfigResponse>({
-      appModeName: 'VxMark',
+      appModeKey: 'MarkOnly',
       machineId: '1',
       codeVersion: 'test',
     })
   );
   expect(await machineConfigProvider.get()).toEqual(
     typedAs<MachineConfig>({
-      appMode: VxMarkOnly,
+      appMode: MarkOnly,
       machineId: '1',
       codeVersion: 'test',
     })
   );
 });
 
-test('successful VxPrint fetch from /machine-config', async () => {
+test('successful PrintOnly fetch from /machine-config', async () => {
   fetchMock.get(
     '/machine-config',
     typedAs<MachineConfigResponse>({
-      appModeName: 'VxPrint',
+      appModeKey: 'PrintOnly',
       machineId: '1',
       codeVersion: 'test',
     })
   );
   expect(await machineConfigProvider.get()).toEqual(
     typedAs<MachineConfig>({
-      appMode: VxPrintOnly,
+      appMode: PrintOnly,
       machineId: '1',
       codeVersion: 'test',
     })
   );
 });
 
-test('successful VxMark + VxPrint fetch from /machine-config', async () => {
+test('successful MarkAndPrint fetch from /machine-config', async () => {
   fetchMock.get(
     '/machine-config',
     typedAs<MachineConfigResponse>({
-      appModeName: 'VxMark + VxPrint',
+      appModeKey: 'MarkAndPrint',
       machineId: '1',
       codeVersion: 'test',
     })
   );
   expect(await machineConfigProvider.get()).toEqual(
     typedAs<MachineConfig>({
-      appMode: VxMarkPlusVxPrint,
+      appMode: MarkAndPrint,
       machineId: '1',
       codeVersion: 'test',
     })

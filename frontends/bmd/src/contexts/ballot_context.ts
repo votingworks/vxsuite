@@ -5,11 +5,11 @@ import * as GLOBALS from '../config/globals';
 import {
   BallotContextInterface,
   TextSizeSetting,
-  VxMarkOnly,
+  MarkOnly,
 } from '../config/types';
 
 const ballot: BallotContextInterface = {
-  machineConfig: { machineId: '000', appMode: VxMarkOnly, codeVersion: 'dev' },
+  machineConfig: { machineId: '000', appMode: MarkOnly, codeVersion: 'dev' },
   contests: [],
   isCardlessVoter: false,
   isLiveMode: false,

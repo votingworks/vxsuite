@@ -8,13 +8,13 @@ import {
 
 export const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { appModeName, machineId, codeVersion } = unsafeParse(
+    const { appModeKey, machineId, codeVersion } = unsafeParse(
       MachineConfigResponseSchema,
       await fetchJson('/machine-config')
     );
 
     return {
-      appMode: getAppMode(appModeName),
+      appMode: getAppMode(appModeKey),
       machineId,
       codeVersion,
     };

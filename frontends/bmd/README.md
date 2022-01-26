@@ -9,14 +9,16 @@ then run BMD like so:
 
 ```sh
 # in frontends/bmd
-# Run VxMark by default
+# Run in mark-only mode (when there's a separate standalone printer)
 pnpm start
+# Or to be verbose:
+VX_APP_MODE=MarkOnly pnpm start
 
-# Or run VxPrint
-VX_APP_MODE=VxPrint pnpm start
+# Run in print-only mode (for a standalone printer)
+VX_APP_MODE=PrintOnly pnpm start
 
-# Or run VxMark + VxPrint
-VX_APP_MODE="VxMark + VxPrint" pnpm start
+# Run in mark-and-print mode (for a BMD with its own printer attached)
+VX_APP_MODE=MarkAndPrint pnpm start
 ```
 
 The server will be available at http://localhost:3000/.

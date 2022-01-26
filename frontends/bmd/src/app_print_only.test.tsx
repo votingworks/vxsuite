@@ -31,7 +31,7 @@ import { withMarkup } from '../test/helpers/with_markup';
 import * as GLOBALS from './config/globals';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { VxPrintOnly } from './config/types';
+import { PrintOnly } from './config/types';
 
 beforeEach(() => {
   window.location.href = '/';
@@ -40,7 +40,7 @@ beforeEach(() => {
 
 jest.setTimeout(12000);
 
-test('VxPrintOnly flow', async () => {
+test('PrintOnly flow', async () => {
   const { election, electionData, electionHash } = electionSampleDefinition;
   const card = new MemoryCard();
   const adminCard = makeAdminCard(electionHash);
@@ -48,7 +48,7 @@ test('VxPrintOnly flow', async () => {
   const printer = fakePrinter();
   const hardware = await MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
+  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
   render(
     <App
       card={card}
@@ -376,7 +376,7 @@ test('VxPrintOnly flow', async () => {
   screen.getByText('Device Not Configured');
 });
 
-test('VxPrint retains app mode when unconfigured', async () => {
+test('PrintOnly retains app mode when unconfigured', async () => {
   const { electionData, electionHash } = electionSampleDefinition;
   const card = new MemoryCard();
   const adminCard = makeAdminCard(electionHash);
@@ -384,7 +384,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
   const printer = fakePrinter();
   const hardware = await MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
+  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
   render(
     <App
       card={card}
@@ -474,7 +474,7 @@ test('VxPrint retains app mode when unconfigured', async () => {
   screen.getByText('Insert Card to print your official ballot.');
 });
 
-test('VxPrint prompts to change to live mode on election day', async () => {
+test('PrintOnly prompts to change to live mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...electionSampleDefinition.election,
     date: new Date().toISOString(),
@@ -485,7 +485,7 @@ test('VxPrint prompts to change to live mode on election day', async () => {
   const printer = fakePrinter();
   const hardware = await MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
+  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
   render(
     <App
       card={card}

@@ -17,11 +17,7 @@ import {
   PrecinctScannerCardTally,
 } from '@votingworks/utils';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
-import {
-  PrecinctSelectionKind,
-  VxMarkOnly,
-  VxPrintOnly,
-} from '../config/types';
+import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
 
 import { render } from '../../test/test_utils';
 
@@ -90,7 +86,7 @@ test('renders PollWorkerScreen', async () => {
       hasVotes={false}
       isLiveMode={false}
       isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -121,7 +117,7 @@ test('switching out of test mode on election day', async () => {
       hasVotes={false}
       isLiveMode={false}
       isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -154,7 +150,7 @@ test('keeping test mode on election day', async () => {
       hasVotes={false}
       isLiveMode={false}
       isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -184,7 +180,7 @@ test('live mode on election day', async () => {
       hasVotes={false}
       isLiveMode
       isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: VxMarkOnly })}
+      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -229,7 +225,7 @@ test('printing precinct scanner report works as expected with all precinct data 
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         machineId: '314',
       })}
       printer={{
@@ -310,7 +306,7 @@ test('printing precinct scanner report works as expected with single precinct da
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         machineId: '314',
       })}
       printer={{
@@ -409,7 +405,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         machineId: '314',
       })}
       printer={{
@@ -561,7 +557,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         machineId: '314',
       })}
       printer={{
@@ -793,7 +789,7 @@ test('printing precinct scanner report works as expected with all precinct combi
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         machineId: '314',
       })}
       printer={{
@@ -944,7 +940,7 @@ test('printing precinct scanner report works as expected with a single precinct 
       isLiveMode
       isPollsOpen={false}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         machineId: '314',
       })}
       printer={{

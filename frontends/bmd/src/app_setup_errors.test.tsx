@@ -20,7 +20,7 @@ import {
   HARDWARE_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
 } from './config/globals';
-import { VxPrintOnly } from './config/types';
+import { PrintOnly } from './config/types';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -57,7 +57,7 @@ describe('Displays setup warning messages and errors screens', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    // Start on VxMark Insert Card screen
+    // Start on Insert Card screen
     screen.getByText(insertCardScreenText);
     expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
 
@@ -99,7 +99,7 @@ describe('Displays setup warning messages and errors screens', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    // Start on VxMark Insert Card screen
+    // Start on Insert Card screen
     screen.getByText(insertCardScreenText);
 
     // Disconnect Card Reader
@@ -120,7 +120,7 @@ describe('Displays setup warning messages and errors screens', () => {
   it('Displays error screen if Printer connection is lost', async () => {
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
+    const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
     const hardware = await MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -137,10 +137,10 @@ describe('Displays setup warning messages and errors screens', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    // Start on VxPrint Insert Card screen
-    const vxPrintInsertCardScreenText =
+    // Start on PrintOnly Insert Card screen
+    const printOnlyInsertCardScreenText =
       'Insert Card to print your official ballot.';
-    screen.getByText(vxPrintInsertCardScreenText);
+    screen.getByText(printOnlyInsertCardScreenText);
 
     // Disconnect Printer
     await act(async () => {
@@ -154,13 +154,13 @@ describe('Displays setup warning messages and errors screens', () => {
       await hardware.setPrinterConnected(true);
     });
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
-    screen.getByText(vxPrintInsertCardScreenText);
+    screen.getByText(printOnlyInsertCardScreenText);
   });
 
   it('Displays error screen if Power connection is lost', async () => {
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
+    const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
     const hardware = await MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -177,10 +177,10 @@ describe('Displays setup warning messages and errors screens', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    // Start on VxPrint Insert Card screen
-    const vxPrintInsertCardScreenText =
+    // Start on PrintOnly Insert Card screen
+    const printOnlyInsertCardScreenText =
       'Insert Card to print your official ballot.';
-    screen.getByText(vxPrintInsertCardScreenText);
+    screen.getByText(printOnlyInsertCardScreenText);
 
     // Disconnect Power
     await act(async () => {
@@ -195,7 +195,7 @@ describe('Displays setup warning messages and errors screens', () => {
     });
     await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
-    screen.getByText(vxPrintInsertCardScreenText);
+    screen.getByText(printOnlyInsertCardScreenText);
   });
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
@@ -203,7 +203,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const adminCard = makeAdminCard(electionDefinition.electionHash);
     const storage = new MemoryStorage();
     const machineConfig = fakeMachineConfigProvider({
-      appMode: VxPrintOnly,
+      appMode: PrintOnly,
     });
     const hardware = await MemoryHardware.buildStandard();
     await setElectionInStorage(storage, electionDefinition);
@@ -221,10 +221,10 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises();
 
     // no printer
-    // Start on VxPrint Insert Card screen
-    const vxPrintInsertCardScreenText =
+    // Start on PrintOnly Insert Card screen
+    const printOnlyInsertCardScreenText =
       'Insert Card to print your official ballot.';
-    screen.getByText(vxPrintInsertCardScreenText);
+    screen.getByText(printOnlyInsertCardScreenText);
 
     // Disconnect Printer
     await act(async () => {
@@ -262,7 +262,7 @@ describe('Displays setup warning messages and errors screens', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    // Start on VxMark Insert Card screen
+    // Start on Insert Card screen
     screen.getByText(insertCardScreenText);
 
     // Remove charger and reduce battery level slightly

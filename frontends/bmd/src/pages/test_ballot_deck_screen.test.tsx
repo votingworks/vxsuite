@@ -18,7 +18,7 @@ import { render } from '../../test/test_utils';
 import { randomBase64 } from '../utils/random';
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
-import { PrecinctSelectionKind, VxPrintOnly } from '../config/types';
+import { PrecinctSelectionKind, PrintOnly } from '../config/types';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 
 // mock the random value so the snapshots match
@@ -40,7 +40,7 @@ it('renders test decks appropriately', async () => {
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       hideTestDeck={jest.fn()}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
       })}
       isLiveMode={false}
       printer={printer}
@@ -88,7 +88,7 @@ it('shows printer not connected when appropriate', async () => {
       }}
       electionDefinition={asElectionDefinition(parseElection(electionSample))}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
       })}
       hideTestDeck={jest.fn()}
       isLiveMode={false}

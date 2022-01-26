@@ -6,11 +6,7 @@ import { Provider } from '@votingworks/types';
 import { MemoryStorage, typedAs } from '@votingworks/utils';
 import { App } from './app';
 
-import {
-  VxMarkOnly,
-  MachineConfigResponse,
-  MachineConfig,
-} from './config/types';
+import { MarkOnly, MachineConfigResponse, MachineConfig } from './config/types';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 beforeEach(() => {
@@ -22,7 +18,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
   fetchMock.get(
     '/machine-config',
     typedAs<MachineConfigResponse>({
-      appModeName: VxMarkOnly.name,
+      appModeKey: MarkOnly.key,
       machineId: '99',
       codeVersion: 'test',
     })
@@ -57,7 +53,7 @@ test('machineConfig fetch fails', async () => {
 test('machineId is empty', async () => {
   const machineConfig: Provider<MachineConfig> = {
     async get() {
-      return { appMode: VxMarkOnly, machineId: '', codeVersion: 'test' };
+      return { appMode: MarkOnly, machineId: '', codeVersion: 'test' };
     },
   };
 

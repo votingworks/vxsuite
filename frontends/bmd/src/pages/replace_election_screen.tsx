@@ -122,7 +122,7 @@ export function ReplaceElectionScreen({
         </MainChild>
       </Main>
       <Sidebar
-        appName={machineConfig.appMode.name}
+        appName={machineConfig.appMode.productName}
         centerContent
         title="Replace Election"
         footer={
