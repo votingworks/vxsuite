@@ -48,6 +48,7 @@ import {
 
 const WriteInModalContent = styled.div`
   margin: -0.5rem;
+  max-width: 80vw;
 `;
 
 const WriteInCandidateForm = styled.div`
@@ -514,7 +515,6 @@ export function CandidateContest({
       {writeInCandidateModalIsOpen && (
         <Modal
           ariaLabel=""
-          className="writein-modal-content"
           content={
             <WriteInModalContent>
               <Prose id="modalaudiofocus" maxWidth={false}>
