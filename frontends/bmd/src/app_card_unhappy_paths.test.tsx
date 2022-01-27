@@ -248,7 +248,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
 
   card.insertCard(undefined, undefined, 'error');
   await advanceTimersAndPromises();
-  screen.getByText('Card is backwards');
+  screen.getByText('Card is Backwards');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
   card.removeCard();
