@@ -8,7 +8,7 @@ export function CardErrorScreen(): JSX.Element {
     <CenteredScreen infoBar={false}>
       <RotateCard />
       <CenteredLargeProse>
-        <h1>Card is backwards</h1>
+        <h1>Card is Backwards</h1>
         <p>Remove the card, turn it around, and insert it again.</p>
       </CenteredLargeProse>
     </CenteredScreen>

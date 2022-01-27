@@ -33,7 +33,7 @@ export function CardErrorScreen({
             alt="rotate-card"
           />
           <Prose textCenter id="audiofocus">
-            <h1>Card is backwards</h1>
+            <h1>Card is Backwards</h1>
             <p>Remove the card, turn it around, and insert it again.</p>
           </Prose>
         </MainChild>
