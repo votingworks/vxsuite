@@ -178,7 +178,7 @@ importers:
       '@types/pluralize': 0.0.29
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
-      '@types/react-modal': 3.10.6
+      '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.7
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
@@ -205,7 +205,7 @@ importers:
       react-dom: 17.0.1_react@17.0.1
       react-gamepad: 1.0.3_react@17.0.1
       react-idle-timer: 4.2.12_react-dom@17.0.1+react@17.0.1
-      react-modal: 3.12.1_react-dom@17.0.1+react@17.0.1
+      react-modal: 3.14.4_react-dom@17.0.1+react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_typescript@4.3.5
       rxjs: 6.6.6
@@ -276,7 +276,7 @@ importers:
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
       '@types/react-gamepad': ^1.0.0
-      '@types/react-modal': ^3.10.5
+      '@types/react-modal': ^3.13.1
       '@types/react-router-dom': ^5.1.5
       '@types/styled-components': ^5.1.7
       '@typescript-eslint/eslint-plugin': ^4.28.4
@@ -329,7 +329,7 @@ importers:
       react-dom: ^17.0.1
       react-gamepad: ^1.0.3
       react-idle-timer: 4.2.12
-      react-modal: ^3.11.2
+      react-modal: ^3.14.4
       react-refresh: ^0.10.0
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
@@ -7278,6 +7278,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-UnHu/YO73NZLwqFpju/c0tqiswR0UHIfeO16rkfLVJUIMfQsl7X0CBm99H5XXgBMe/PgtQ/Rkud72iuRBr1TeA==
+  /@types/react-modal/3.13.1:
+    dependencies:
+      '@types/react': 17.0.0
+    dev: false
+    resolution:
+      integrity: sha512-iY/gPvTDIy6Z+37l+ibmrY+GTV4KQTHcCyR5FIytm182RQS69G5ps4PH2FxtC7bAQ2QRHXMevsBgck7IQruHNg==
   /@types/react-router-dom/5.1.7:
     dependencies:
       '@types/history': 4.7.8
@@ -23104,6 +23110,14 @@ packages:
       react-is: 16.13.1
     resolution:
       integrity: sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
+  /prop-types/15.8.1:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+    dev: false
+    resolution:
+      integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
   /propagate/2.0.1:
     dev: true
     engines:
@@ -23459,7 +23473,7 @@ packages:
   /react-modal/3.13.1_react-dom@17.0.1+react@17.0.1:
     dependencies:
       exenv: 1.2.2
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-lifecycles-compat: 3.0.4
@@ -23472,6 +23486,22 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17
     resolution:
       integrity: sha512-m6yXK7I4YKssQnsjHK7xITSXy2O81BSOHOsg0/uWAsdKtuT9HF2tdoYhRuxNNQg2V+LgepsoHUPJKS8m6no+eg==
+  /react-modal/3.14.4_react-dom@17.0.1+react@17.0.1:
+    dependencies:
+      exenv: 1.2.2
+      prop-types: 15.7.2
+      react: 17.0.1
+      react-dom: 17.0.1_react@17.0.1
+      react-lifecycles-compat: 3.0.4
+      warning: 4.0.3
+    dev: false
+    engines:
+      node: '>=8'
+    peerDependencies:
+      react: ^0.14.0 || ^15.0.0 || ^16 || ^17
+      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17
+    resolution:
+      integrity: sha512-8surmulejafYCH9wfUmFyj4UfbSJwjcgbS9gf3oOItu4Hwd6ivJyVBETI0yHRhpJKCLZMUtnhzk76wXTsNL6Qg==
   /react-refresh/0.10.0:
     dev: true
     engines:
