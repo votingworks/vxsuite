@@ -11,11 +11,7 @@ import { fakePrinter } from '../../test/helpers/fake_printer';
 import { advanceTimers } from '../../test/helpers/smartcards';
 
 import { AdminScreen } from './admin_screen';
-import {
-  VxPrintOnly,
-  VxMarkOnly,
-  PrecinctSelectionKind,
-} from '../config/types';
+import { PrintOnly, MarkOnly, PrecinctSelectionKind } from '../config/types';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import {
   AriaScreenReader,
@@ -34,7 +30,7 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-test('renders AdminScreen for VxPrintOnly', async () => {
+test('renders AdminScreen for PrintOnly', async () => {
   render(
     <AdminScreen
       appPrecinct={{
@@ -49,7 +45,7 @@ test('renders AdminScreen for VxPrintOnly', async () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig({
-        appMode: VxPrintOnly,
+        appMode: PrintOnly,
         codeVersion: '', // Override default
       })}
       printer={fakePrinter()}
@@ -94,7 +90,7 @@ test('renders date and time settings modal', async () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig({
-        appMode: VxMarkOnly,
+        appMode: MarkOnly,
         codeVersion: 'test',
       })}
       printer={fakePrinter()}

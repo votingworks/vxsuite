@@ -407,7 +407,7 @@ export function ReviewPage(): JSX.Element {
                 To review your votes, advance through the ballot contests using
                 the up and down buttons. To change your vote in any contest, use
                 the select button to navigate to that contest.
-                {machineConfig.appMode.isVxPrint
+                {machineConfig.appMode.isPrint
                   ? 'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.'
                   : 'When you are finished making your ballot selections and ready to print your ballot, use the right button to continue.'}
               </span>
@@ -530,7 +530,7 @@ export function ReviewPage(): JSX.Element {
             <LinkButton
               large
               primary
-              to={machineConfig.appMode.isVxPrint ? '/print' : '/save'}
+              to={machineConfig.appMode.isPrint ? '/print' : '/save'}
               id="next"
             >
               I’m Ready to <NoWrap>Print My Ballot</NoWrap>

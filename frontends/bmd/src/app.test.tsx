@@ -10,7 +10,7 @@ import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { PrecinctSelectionKind, VxMarkPlusVxPrint } from './config/types';
+import { PrecinctSelectionKind, MarkAndPrint } from './config/types';
 import { electionSampleDefinition } from './data';
 
 beforeEach(() => {
@@ -64,7 +64,7 @@ it('uses window.location.reload by default', async () => {
   const storage = new MemoryStorage();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const machineConfig = fakeMachineConfigProvider({
-    appMode: VxMarkPlusVxPrint,
+    appMode: MarkAndPrint,
   });
 
   await setElectionInStorage(storage, electionDefinition);

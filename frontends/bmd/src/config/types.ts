@@ -19,30 +19,30 @@ import {
 import { z } from 'zod';
 
 // App
-export const VxPrintOnly = {
-  name: 'VxPrint',
-  isVxMark: false,
-  isVxPrint: true,
+export const PrintOnly = {
+  key: 'PrintOnly',
+  productName: 'VxPrint',
+  isMark: false,
+  isPrint: true,
 } as const;
-export const VxMarkOnly = {
-  name: 'VxMark',
-  isVxMark: true,
-  isVxPrint: false,
+export const MarkOnly = {
+  key: 'MarkOnly',
+  productName: 'VxMark',
+  isMark: true,
+  isPrint: false,
 } as const;
-export const VxMarkPlusVxPrint = {
-  name: 'VxMark + VxPrint',
-  isVxPrint: true,
-  isVxMark: true,
+export const MarkAndPrint = {
+  key: 'MarkAndPrint',
+  productName: 'VxMark',
+  isPrint: true,
+  isMark: true,
 } as const;
-export type AppMode =
-  | typeof VxMarkOnly
-  | typeof VxPrintOnly
-  | typeof VxMarkPlusVxPrint;
-export type AppModeNames = AppMode['name'];
-export const AppModeNamesSchema: z.ZodSchema<AppModeNames> = z.union([
-  z.literal(VxPrintOnly.name),
-  z.literal(VxMarkOnly.name),
-  z.literal(VxMarkPlusVxPrint.name),
+export type AppMode = typeof MarkOnly | typeof PrintOnly | typeof MarkAndPrint;
+export type AppModeKeys = AppMode['key'];
+export const AppModeKeysSchema: z.ZodSchema<AppModeKeys> = z.union([
+  z.literal(PrintOnly.key),
+  z.literal(MarkOnly.key),
+  z.literal(MarkAndPrint.key),
 ]);
 
 export interface MachineConfig {
@@ -53,27 +53,27 @@ export interface MachineConfig {
 
 export interface MachineConfigResponse {
   machineId: string;
-  appModeName: AppModeNames;
+  appModeKey: AppModeKeys;
   codeVersion: string;
 }
 export const MachineConfigResponseSchema: z.ZodSchema<MachineConfigResponse> = z.object(
   {
     machineId: MachineId,
-    appModeName: AppModeNamesSchema,
+    appModeKey: AppModeKeysSchema,
     codeVersion: z.string().nonempty(),
   }
 );
 
-export function getAppMode(name: AppModeNames): AppMode {
-  switch (name) {
-    case VxPrintOnly.name:
-      return VxPrintOnly;
-    case VxMarkOnly.name:
-      return VxMarkOnly;
-    case VxMarkPlusVxPrint.name:
-      return VxMarkPlusVxPrint;
+export function getAppMode(key: AppModeKeys): AppMode {
+  switch (key) {
+    case PrintOnly.key:
+      return PrintOnly;
+    case MarkOnly.key:
+      return MarkOnly;
+    case MarkAndPrint.key:
+      return MarkAndPrint;
     default:
-      throw new Error(`unknown app mode: ${name}`);
+      throw new Error(`unknown app mode: ${key}`);
   }
 }
 

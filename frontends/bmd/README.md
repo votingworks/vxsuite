@@ -8,15 +8,19 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run BMD like so:
 
 ```sh
-# in frontends/bmd
-# Run VxMark by default
+# In frontends/bmd
+# To run in mark-only mode (when there's a separate standalone printer)
+VX_APP_MODE=MarkOnly pnpm start
+
+# To run in print-only mode (for a standalone printer)
+VX_APP_MODE=PrintOnly pnpm start
+
+# To run in mark-and-print mode (for a BMD with its own printer attached)
+VX_APP_MODE=MarkAndPrint pnpm start
+
+# By default, the BMD runs in mark-only mode
 pnpm start
 
-# Or run VxPrint
-VX_APP_MODE=VxPrint pnpm start
-
-# Or run VxMark + VxPrint
-VX_APP_MODE="VxMark + VxPrint" pnpm start
 ```
 
 The server will be available at http://localhost:3000/.

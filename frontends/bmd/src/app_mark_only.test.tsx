@@ -31,7 +31,7 @@ beforeEach(() => {
   window.location.href = '/';
 });
 
-it('VxMarkOnly flow', async () => {
+it('MarkOnly flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
   const adminCard = makeAdminCard(electionDefinition.electionHash);
@@ -138,7 +138,7 @@ it('VxMarkOnly flow', async () => {
 
   // ---------------
 
-  // Complete VxMark Voter Happy Path
+  // Complete MarkOnly Voter Happy Path
 
   // Insert Voter card
   card.insertCard(makeVoterCard(electionDefinition.election));

@@ -23,7 +23,7 @@ import {
   IDLE_RESET_TIMEOUT_SECONDS,
 } from './config/globals';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { VxMarkPlusVxPrint } from './config/types';
+import { MarkAndPrint } from './config/types';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -108,7 +108,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     const hardware = await MemoryHardware.buildStandard();
     const storage = new MemoryStorage();
     const machineConfig = fakeMachineConfigProvider({
-      appMode: VxMarkPlusVxPrint,
+      appMode: MarkAndPrint,
     });
 
     await setElectionInStorage(storage, electionSampleDefinition);

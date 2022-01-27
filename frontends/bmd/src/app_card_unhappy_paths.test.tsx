@@ -27,7 +27,7 @@ import {
 } from '../test/helpers/election';
 import { utcTimestamp } from './utils/utc_timestamp';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { VxPrintOnly } from './config/types';
+import { PrintOnly } from './config/types';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -190,7 +190,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: VxPrintOnly });
+  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
 
   card.removeCard();
 

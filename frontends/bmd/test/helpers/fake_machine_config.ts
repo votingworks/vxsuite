@@ -1,8 +1,8 @@
 import { Provider } from '@votingworks/types';
-import { VxMarkOnly, MachineConfig } from '../../src/config/types';
+import { MarkOnly, MachineConfig } from '../../src/config/types';
 
 export function fakeMachineConfig({
-  appMode = VxMarkOnly,
+  appMode = MarkOnly,
   machineId = '000',
   codeVersion = 'test',
 }: Partial<MachineConfig> = {}): MachineConfig {

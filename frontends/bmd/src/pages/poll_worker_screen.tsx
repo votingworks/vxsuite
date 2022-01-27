@@ -221,9 +221,9 @@ export function PollWorkerScreen({
     isConfirmingEnableLiveMode,
   ]);
 
-  const isPrintMode = machineConfig.appMode.isVxPrint;
+  const isPrintMode = machineConfig.appMode.isPrint;
   const isMarkAndPrintMode =
-    machineConfig.appMode.isVxPrint && machineConfig.appMode.isVxMark;
+    machineConfig.appMode.isPrint && machineConfig.appMode.isMark;
 
   function requestPrintPrecinctScannerReport() {
     setIsPrintingPrecinctScannerReport(true);
@@ -415,7 +415,7 @@ export function PollWorkerScreen({
           </MainChild>
         </Main>
         <Sidebar
-          appName={machineConfig.appMode.name}
+          appName={machineConfig.appMode.productName}
           centerContent
           title="Poll Worker Actions"
           screenReaderInstructions="To navigate through the available actions, use the down arrow."

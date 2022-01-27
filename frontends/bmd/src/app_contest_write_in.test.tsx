@@ -24,7 +24,7 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { VxMarkPlusVxPrint } from './config/types';
+import { MarkAndPrint } from './config/types';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 
@@ -41,7 +41,7 @@ it('Single Seat Contest with Write In', async () => {
   const hardware = await MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
-    appMode: VxMarkPlusVxPrint,
+    appMode: MarkAndPrint,
   });
 
   await setElectionInStorage(storage);

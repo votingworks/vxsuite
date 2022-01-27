@@ -129,7 +129,7 @@ export function AdminScreen({
     );
   }
 
-  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isVxPrint;
+  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isPrint;
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
@@ -189,7 +189,7 @@ export function AdminScreen({
                     </Button>
                   </SegmentedButton>
                 </p>
-                {machineConfig.appMode.isVxPrint && (
+                {machineConfig.appMode.isPrint && (
                   <React.Fragment>
                     <p>
                       <Button
@@ -250,7 +250,7 @@ export function AdminScreen({
         </MainChild>
       </Main>
       <Sidebar
-        appName={election ? machineConfig.appMode.name : ''}
+        appName={election ? machineConfig.appMode.productName : ''}
         centerContent
         title="Election Admin Actions"
         footer={

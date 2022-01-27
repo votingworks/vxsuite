@@ -24,7 +24,7 @@ import {
   MarkVoterCardFunction,
   Printer,
   TextSizeSetting,
-  VxMarkOnly,
+  MarkOnly,
 } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
@@ -45,7 +45,7 @@ export function render(
     history = createMemoryHistory({ initialEntries: [route] }),
     isCardlessVoter = false,
     isLiveMode = false,
-    machineConfig = fakeMachineConfig({ appMode: VxMarkOnly }),
+    machineConfig = fakeMachineConfig({ appMode: MarkOnly }),
     precinctId,
     printer = fakePrinter(),
     resetBallot = jest.fn(),

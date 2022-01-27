@@ -15,7 +15,7 @@ import {
   MachineConfig,
   PrecinctSelectionKind,
   SerializableActivationData,
-  VxMarkPlusVxPrint,
+  MarkAndPrint,
 } from './config/types';
 import { State } from './app_root';
 
@@ -64,7 +64,7 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
   return {
     async get() {
       return {
-        appMode: VxMarkPlusVxPrint,
+        appMode: MarkAndPrint,
         machineId: '012',
         codeVersion: 'demo',
       };
