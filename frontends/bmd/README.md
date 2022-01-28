@@ -18,7 +18,7 @@ VX_APP_MODE=PrintOnly pnpm start
 # To run in mark-and-print mode (for a BMD with its own printer attached)
 VX_APP_MODE=MarkAndPrint pnpm start
 
-# By default, the BMD runs in mark-only mode
+# By default, the BMD runs in mark-and-print mode
 pnpm start
 
 ```

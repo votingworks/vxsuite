@@ -13,7 +13,7 @@ module.exports = function (app) {
 
   app.get('/machine-config', (req, res) => {
     res.json({
-      appModeKey: process.env.VX_APP_MODE || 'MarkOnly',
+      appModeKey: process.env.VX_APP_MODE || 'MarkAndPrint',
       machineId: process.env.VX_MACHINE_ID || '000',
       codeVersion: process.env.VX_CODE_VERSION || 'dev',
     })
