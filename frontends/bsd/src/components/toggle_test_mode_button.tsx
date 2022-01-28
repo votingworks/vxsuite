@@ -1,6 +1,6 @@
+import { Modal } from '@votingworks/ui';
 import React, { useCallback, useRef, useState } from 'react';
 import { Button } from './button';
-import { Modal } from './modal';
 import { Prose } from './prose';
 
 export interface Props {

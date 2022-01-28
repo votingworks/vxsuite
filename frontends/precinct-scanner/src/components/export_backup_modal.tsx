@@ -2,6 +2,7 @@ import { Result } from '@votingworks/types';
 import {
   Button,
   Loading,
+  Modal,
   Prose,
   UsbControllerButton,
   UsbDrive,
@@ -18,7 +19,6 @@ import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { download, DownloadError, DownloadErrorKind } from '../utils/download';
-import { Modal } from './modal';
 
 const UsbImage = styled.img`
   margin: 0 auto;

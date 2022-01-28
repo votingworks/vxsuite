@@ -1,8 +1,7 @@
 import { ScannerStatus } from '@votingworks/types/api/services/scan';
-import { Button, Prose, useCancelablePromise } from '@votingworks/ui';
+import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import React, { useCallback, useState } from 'react';
 import { usePrecinctScanner } from '../hooks/use_precinct_scanner';
-import { Modal } from './modal';
 
 export interface Props {
   onCalibrate(): Promise<boolean>;

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import fileDownload from 'js-file-download';
 import path from 'path';
 
+import { Modal, UsbControllerButton } from '@votingworks/ui';
 import {
   assert,
   generateElectionBasedSubfolderName,
@@ -11,10 +12,9 @@ import {
   SCANNER_RESULTS_FOLDER,
   usbstick,
 } from '@votingworks/utils';
-import { UsbControllerButton } from '@votingworks/ui';
+
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
-import { Modal } from './modal';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';

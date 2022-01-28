@@ -13,7 +13,7 @@ import {
   format,
   find,
 } from '@votingworks/utils';
-import { Table, TD } from '@votingworks/ui';
+import { Table, TD, Modal } from '@votingworks/ui';
 import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { InputEventFunction, ResultsFileType } from '../config/types';
@@ -32,7 +32,6 @@ import { HorizontalRule } from '../components/horizontal_rule';
 import { Prose } from '../components/prose';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { BallotCountsTable } from '../components/ballot_counts_table';
-import { Modal } from '../components/modal';
 import { FileInputButton } from '../components/file_input_button';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';

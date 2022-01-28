@@ -9,8 +9,8 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
+import { Modal } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
-import { Modal } from './modal';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';

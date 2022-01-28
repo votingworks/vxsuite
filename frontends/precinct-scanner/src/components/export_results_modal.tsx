@@ -7,6 +7,7 @@ import {
   Button,
   Prose,
   Loading,
+  Modal,
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
@@ -19,7 +20,6 @@ import {
   usbstick,
 } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
-import { Modal } from './modal';
 
 const UsbImage = styled.img`
   margin: 0 auto;
