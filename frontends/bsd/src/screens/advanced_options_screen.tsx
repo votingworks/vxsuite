@@ -1,12 +1,12 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { Modal } from '@votingworks/ui';
 import { LogFileType } from '@votingworks/utils';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
+import { Modal } from '../components/modal';
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';

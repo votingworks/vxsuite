@@ -21,7 +21,6 @@ import {
   PrecinctScannerTallyQrCode,
   PrintableContainer,
   TallyReport,
-  Modal,
 } from '@votingworks/ui';
 
 import {
@@ -40,6 +39,7 @@ import {
   Printer,
 } from '../config/types';
 
+import { Modal } from '../components/modal';
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
 import { Text } from '../components/text';

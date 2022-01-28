@@ -3,7 +3,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { parseElection } from '@votingworks/types';
 
-import { Modal } from '@votingworks/ui';
 import { ConverterClient, VxFile } from '../lib/converter_client';
 import { readFileAsync } from '../lib/read_file_async';
 
@@ -20,6 +19,7 @@ import { HorizontalRule } from '../components/horizontal_rule';
 import { Prose } from '../components/prose';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
+import { Modal } from '../components/modal';
 
 const Loaded = styled.p`
   line-height: 2.5rem;

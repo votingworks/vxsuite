@@ -1,5 +1,5 @@
 import { SelectChangeEventFunction } from '@votingworks/types';
-import { Button, Modal, Prose, Select, InputGroup } from '@votingworks/ui';
+import { Button, Prose, Select, InputGroup } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import React, { useCallback, useState } from 'react';
 import {
@@ -9,6 +9,7 @@ import {
   getDaysInMonth,
   MONTHS_SHORT,
 } from '@votingworks/utils';
+import { Modal } from './modal';
 
 export interface Props {
   disabled?: boolean;

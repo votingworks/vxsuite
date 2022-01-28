@@ -8,7 +8,6 @@ import {
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { Modal } from '@votingworks/ui';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
@@ -16,6 +15,7 @@ import { AppContext } from '../contexts/app_context';
 import { Button } from '../components/button';
 import { ButtonList } from '../components/button_list';
 import { Prose } from '../components/prose';
+import { Modal } from '../components/modal';
 import { Loading } from '../components/loading';
 
 import { NavigationScreen } from '../components/navigation_screen';

@@ -7,10 +7,10 @@ import {
   GetScanStatusResponse,
 } from '@votingworks/types/api/services/scan';
 
-import { Modal } from '@votingworks/ui';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
 import { Button } from '../components/button';
+import { Modal } from '../components/modal';
 import { Text } from '../components/text';
 
 pluralize.addIrregularRule('requires', 'require');

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import path from 'path';
-import { Modal } from '@votingworks/ui';
 import {
   assert,
   usbstick,
@@ -11,6 +10,7 @@ import {
 
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
+import { Modal } from './modal';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';

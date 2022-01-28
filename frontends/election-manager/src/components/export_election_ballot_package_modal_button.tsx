@@ -11,13 +11,14 @@ import {
   usbstick,
   throwIllegalValue,
 } from '@votingworks/utils';
-import { UsbControllerButton, Modal } from '@votingworks/ui';
+import { UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
+import { Modal } from './modal';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';

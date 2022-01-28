@@ -6,7 +6,6 @@ import {
 import {
   Button,
   Loading,
-  Modal,
   Prose,
   SegmentedButton,
   Select,
@@ -27,6 +26,7 @@ import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { CenteredScreen } from '../components/layout';
+import { Modal } from '../components/modal';
 import { PickDateTimeModal } from '../components/pick_date_time_modal';
 import { AppContext } from '../contexts/app_context';
 

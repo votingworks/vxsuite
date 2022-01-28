@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import React, { useCallback, useState } from 'react';
 
-import { Button, InputGroup, Modal } from '@votingworks/ui';
+import { Button, InputGroup } from '@votingworks/ui';
 
 import {
   AMERICA_TIMEZONES,
@@ -12,6 +12,7 @@ import {
   MONTHS_SHORT,
 } from '@votingworks/utils';
 import { SelectChangeEventFunction } from '../config/types';
+import { Modal } from './modal';
 import { Prose } from './prose';
 import { Select } from './select';
 

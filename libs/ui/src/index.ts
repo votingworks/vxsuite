@@ -18,7 +18,6 @@ export * from './link_button';
 export * from './loading';
 export * from './logo_mark';
 export * from './main';
-export * from './modal';
 export * from './number_pad';
 export * from './precinct_scanner_polls_report';
 export * from './precinct_scanner_tally_report';

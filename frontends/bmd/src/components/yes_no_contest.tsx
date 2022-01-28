@@ -12,7 +12,7 @@ import {
   Optional,
   YesOrNo,
 } from '@votingworks/types';
-import { Button, Main, Modal } from '@votingworks/ui';
+import { Button, Main } from '@votingworks/ui';
 
 import { assert, getSingleYesNoVote } from '@votingworks/utils';
 import {
@@ -25,6 +25,7 @@ import { BallotContext } from '../contexts/ballot_context';
 
 import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
 import { ChoiceButton } from './choice_button';
+import { Modal } from './modal';
 import { Prose } from './prose';
 import { Text, TextWithLineBreaks } from './text';
 import {
