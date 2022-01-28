@@ -48,6 +48,10 @@ const TestMode = styled.span`
   color: #ff8c00;
 `;
 
+const ImportCvrsModalContent = styled.div`
+  max-width: 45rem;
+`;
+
 enum ModalState {
   ERROR = 'error',
   DUPLICATE = 'duplicate',
@@ -456,31 +460,32 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
     return (
       <Modal
-        className="import-cvr-modal"
         content={
-          <MainChild>
-            <Prose maxWidth={false}>
-              <h1 data-testid="modal-title">
-                Import {headerModeText} CVR Files{' '}
-              </h1>
-              <p>{instructionalText}</p>
-            </Prose>
-            {fileTableRows.length > 0 && (
-              <CvrFileTable>
-                <thead>
-                  <tr>
-                    <th>Exported At</th>
-                    <th>Scanner ID</th>
-                    <th>New CVRs</th>
-                    <th>Imported CVRs</th>
-                    {!fileModeLocked && <th>Ballot Type</th>}
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>{fileTableRows}</tbody>
-              </CvrFileTable>
-            )}
-          </MainChild>
+          <ImportCvrsModalContent>
+            <MainChild>
+              <Prose maxWidth={false}>
+                <h1 data-testid="modal-title">
+                  Import {headerModeText} CVR Files{' '}
+                </h1>
+                <p>{instructionalText}</p>
+              </Prose>
+              {fileTableRows.length > 0 && (
+                <CvrFileTable>
+                  <thead>
+                    <tr>
+                      <th>Exported At</th>
+                      <th>Scanner ID</th>
+                      <th>New CVRs</th>
+                      <th>Imported CVRs</th>
+                      {!fileModeLocked && <th>Ballot Type</th>}
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>{fileTableRows}</tbody>
+                </CvrFileTable>
+              )}
+            </MainChild>
+          </ImportCvrsModalContent>
         }
         onOverlayClick={onClose}
         actions={
