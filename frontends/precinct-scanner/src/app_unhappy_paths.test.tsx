@@ -179,7 +179,7 @@ test('show card backwards screen when card connection error occurs', async () =>
   await screen.findByText('Polls Closed');
   card.insertCard(undefined, undefined, 'error');
   await advanceTimersAndPromises(1);
-  await screen.findByText('Card is backwards');
+  await screen.findByText('Card is Backwards');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
   card.removeCard();

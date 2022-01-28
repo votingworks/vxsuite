@@ -86,3 +86,14 @@ export function IndeterminateProgressBar(): JSX.Element {
     />
   );
 }
+
+export function RotateCard(): JSX.Element {
+  return (
+    <Graphic
+      src={`${process.env.PUBLIC_URL}/assets/rotate-card.svg`}
+      alt="rotate-card"
+      aria-hidden
+      style={{ width: '300px' }}
+    />
+  );
+}
