@@ -30,7 +30,7 @@ import {
   typedAs,
 } from '@votingworks/utils';
 
-import { CastVoteRecord, CastVoteRecordLists } from '../config/types';
+import { CastVoteRecord } from '../config/types';
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord;
@@ -271,12 +271,8 @@ export function getContestTallyMeta({
 
 export function computeFullElectionTally(
   election: Election,
-  castVoteRecordLists: CastVoteRecordLists
+  castVoteRecords: ReadonlySet<CastVoteRecord>
 ): FullElectionTally {
-  const castVoteRecords: Set<CastVoteRecord> = new Set(
-    castVoteRecordLists.flat(1)
-  );
-
   return computeTallyWithPrecomputedCategories(election, castVoteRecords, [
     TallyCategory.Batch,
     TallyCategory.Party,

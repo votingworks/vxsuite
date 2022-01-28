@@ -45,7 +45,10 @@ test('tabulating a set of CVRs gives expected output', async () => {
   const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   // tabulate it
-  const fullTally = computeFullElectionTally(election, [castVoteRecords]);
+  const fullTally = computeFullElectionTally(
+    election,
+    new Set(castVoteRecords)
+  );
   expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10001);
   expect(fullTally.overallTally.contestTallies).toMatchSnapshot();
   expect(fullTally.overallTally.ballotCountsByVotingMethod).toMatchObject({
@@ -86,7 +89,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
 test('computeFullTally with no results should produce empty tally objects with contests', async () => {
   const election = electionSample2;
 
-  const fullTally = computeFullElectionTally(election, []);
+  const fullTally = computeFullElectionTally(election, new Set());
   expect(fullTally.overallTally.numberOfBallotsCounted).toBe(0);
   expect(Object.keys(fullTally.overallTally.contestTallies).length).toBe(
     election.contests.length
@@ -120,9 +123,10 @@ test('undervotes counted in n of m contest properly', () => {
   };
 
   // tabulate it
-  let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCvr],
-  ])!;
+  let electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([mockCvr])
+  )!;
 
   // The county commissioners race has 4 seats. Each vote less than 4 should be counted
   // as an additional undervote.
@@ -131,43 +135,47 @@ test('undervotes counted in n of m contest properly', () => {
       .undervotes
   ).toBe(4);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [{ ...mockCvr, 'county-commissioners': ['argent'] }],
-  ])!;
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([{ ...mockCvr, 'county-commissioners': ['argent'] }])
+  )!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
   ).toBe(3);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [{ ...mockCvr, 'county-commissioners': ['argent', 'bainbridge'] }],
-  ])!;
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([{ ...mockCvr, 'county-commissioners': ['argent', 'bainbridge'] }])
+  )!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
   ).toBe(2);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([
       {
         ...mockCvr,
         'county-commissioners': ['argent', 'bainbridge', 'hennessey'],
       },
-    ],
-  ])!;
+    ])
+  )!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
   ).toBe(1);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([
       {
         ...mockCvr,
         'county-commissioners': ['argent', 'bainbridge', 'hennessey', 'savoy'],
       },
-    ],
-  ])!;
+    ])
+  )!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
@@ -194,17 +202,19 @@ test('overvotes counted in n of m contest properly', () => {
   };
 
   // tabulate it
-  let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCvr],
-  ])!;
+  let electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([mockCvr])
+  )!;
 
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .overvotes
   ).toBe(0);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([
       {
         ...mockCvr,
         'county-commissioners': [
@@ -215,8 +225,8 @@ test('overvotes counted in n of m contest properly', () => {
           'savoy',
         ],
       },
-    ],
-  ])!;
+    ])
+  )!;
   // The county commissioners race has 4 seats. A ballot with more than 4 votes should have
   // 4 overvotes.
   expect(
@@ -224,8 +234,9 @@ test('overvotes counted in n of m contest properly', () => {
       .overvotes
   ).toBe(4);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([
       {
         ...mockCvr,
         'county-commissioners': [
@@ -238,8 +249,8 @@ test('overvotes counted in n of m contest properly', () => {
           'rangel',
         ],
       },
-    ],
-  ])!;
+    ])
+  )!;
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .overvotes
@@ -261,22 +272,24 @@ test('overvotes counted in single seat contest properly', () => {
   };
 
   // tabulate it
-  let electionTally = computeFullElectionTally(primaryElectionSample, [
-    [mockCvr],
-  ])!;
+  let electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([mockCvr])
+  )!;
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
       .overvotes
   ).toBe(0);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([
       {
         ...mockCvr,
         'lieutenant-governor': ['norberg', 'parks'],
       },
-    ],
-  ])!;
+    ])
+  )!;
 
   // The lieutenant governor race has 1 seat. A ballot with more than 1 votes should count
   // as 1 overvote.
@@ -285,8 +298,9 @@ test('overvotes counted in single seat contest properly', () => {
       .overvotes
   ).toBe(1);
 
-  electionTally = computeFullElectionTally(primaryElectionSample, [
-    [
+  electionTally = computeFullElectionTally(
+    primaryElectionSample,
+    new Set([
       {
         ...mockCvr,
         'lieutenant-governor': [
@@ -297,8 +311,8 @@ test('overvotes counted in single seat contest properly', () => {
           'hovis',
         ],
       },
-    ],
-  ])!;
+    ])
+  )!;
   // There should still only be 1 overvote despite voting for 5 candidates.
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
@@ -715,9 +729,10 @@ describe('filterTalliesByParams in a primary election', () => {
     );
 
     // tabulate it
-    electionTally = computeFullElectionTally(multiPartyPrimaryElection, [
-      castVoteRecords,
-    ]);
+    electionTally = computeFullElectionTally(
+      multiPartyPrimaryElection,
+      new Set(castVoteRecords)
+    );
   });
 
   test('can filter results by batch', () => {

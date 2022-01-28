@@ -3,6 +3,7 @@ import {
   generateCvr,
   generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
+import { BallotIdSchema, unsafeParse } from '@votingworks/types';
 import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
@@ -20,7 +21,11 @@ describe('Election Manager can create SEMS tallies', () => {
           'governor-contest-liberty': ['aaron-aligator'],
           'schoolboard-liberty': [],
         },
-        { precinctId: 'precinct-2', ballotStyleId: '2L' }
+        {
+          precinctId: 'precinct-2',
+          ballotStyleId: '2L',
+          ballotId: unsafeParse(BallotIdSchema, '1'),
+        }
       ),
       generateCvr(
         election,
@@ -28,7 +33,11 @@ describe('Election Manager can create SEMS tallies', () => {
           'governor-contest-liberty': ['peter-pigeon'],
           'schoolboard-liberty': ['amber-brkich', 'chris-daugherty'],
         },
-        { precinctId: 'precinct-2', ballotStyleId: '2L' }
+        {
+          precinctId: 'precinct-2',
+          ballotStyleId: '2L',
+          ballotId: unsafeParse(BallotIdSchema, '2'),
+        }
       ),
       generateCvr(
         election,
@@ -40,7 +49,11 @@ describe('Election Manager can create SEMS tallies', () => {
             'tom-westman',
           ],
         },
-        { precinctId: 'precinct-2', ballotStyleId: '2L' }
+        {
+          precinctId: 'precinct-2',
+          ballotStyleId: '2L',
+          ballotId: unsafeParse(BallotIdSchema, '3'),
+        }
       ),
       generateCvr(
         election,
@@ -53,7 +66,11 @@ describe('Election Manager can create SEMS tallies', () => {
             'danni-boatwright',
           ],
         },
-        { precinctId: 'precinct-2', ballotStyleId: '2L' }
+        {
+          precinctId: 'precinct-2',
+          ballotStyleId: '2L',
+          ballotId: unsafeParse(BallotIdSchema, '4'),
+        }
       ),
       generateCvr(
         election,
@@ -61,7 +78,24 @@ describe('Election Manager can create SEMS tallies', () => {
           'governor-contest-liberty': [],
           'schoolboard-liberty': ['amber-brkich'],
         },
-        { precinctId: 'precinct-2', ballotStyleId: '2L' }
+        {
+          precinctId: 'precinct-2',
+          ballotStyleId: '2L',
+          ballotId: unsafeParse(BallotIdSchema, '5'),
+        }
+      ),
+      // duplicate cvr should be ignored
+      generateCvr(
+        election,
+        {
+          'governor-contest-liberty': [],
+          'schoolboard-liberty': ['amber-brkich'],
+        },
+        {
+          precinctId: 'precinct-2',
+          ballotStyleId: '2L',
+          ballotId: unsafeParse(BallotIdSchema, '5'),
+        }
       ),
     ]);
     cy.visit('/');
@@ -78,6 +112,7 @@ describe('Election Manager can create SEMS tallies', () => {
       mimeType: 'application/json',
       encoding: 'utf-8',
     });
+    cy.contains('Close').click();
     cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('5'));
 
     // Check that the internal tally reports have the correct tallies

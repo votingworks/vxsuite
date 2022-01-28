@@ -3,6 +3,7 @@ import {
   waitFor,
   fireEvent,
   getByText as domGetByText,
+  getByTestId as domGetByTestId,
 } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
@@ -16,7 +17,6 @@ import {
 } from '../../test/render_in_app_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { CastVoteRecord } from '../config/types';
-import * as GLOBALS from '../config/globals';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
@@ -96,7 +96,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.change(getByTestId('manual-input'), {
       target: { files: [new File([''], 'file.jsonl')] },
     });
-    await waitFor(() => expect(closeFn).toHaveBeenCalledTimes(2));
+    await waitFor(() => getByText('0 new CVRs Imported'));
     expect(saveCvr).toHaveBeenCalledTimes(1);
     expect(logSpy).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
@@ -148,18 +148,19 @@ describe('Screens display properly when USB is mounted', () => {
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
     expect(
-      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+      domGetByText(tableRows[0], 'Import').closest('button')!.disabled
     ).toBe(false);
     domGetByText(tableRows[1], '12/09/2020 03:49:32 PM');
     domGetByText(tableRows[1], '0001');
     expect(
-      domGetByText(tableRows[1], 'Select').closest('button')!.disabled
+      domGetByText(tableRows[1], 'Import').closest('button')!.disabled
     ).toBe(false);
     domGetByText(tableRows[2], '12/07/2020 03:49:32 PM');
     domGetByText(tableRows[2], '0003');
     expect(
-      domGetByText(tableRows[2], 'Select').closest('button')!.disabled
+      domGetByText(tableRows[2], 'Import').closest('button')!.disabled
     ).toBe(false);
+    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
     expect(logSpy).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
@@ -169,18 +170,13 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(domGetByText(tableRows[0], 'Select'));
+    fireEvent.click(domGetByText(tableRows[0], 'Import'));
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
-        1,
-        'live1',
-        'utf-8'
-      );
-      // When the import is successful the modal should automatically be closed.
-      expect(closeFn).toHaveBeenCalledTimes(2);
+      // We should not need to read the file another time since it was already read.
+      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
+      getByText('0 new CVRs Imported');
       expect(logSpy).toHaveBeenCalledWith(
         LogEventId.CvrImported,
         'admin',
@@ -189,7 +185,7 @@ describe('Screens display properly when USB is mounted', () => {
     });
   });
 
-  test('Can import a test CVR when both live and test CVRs are loaded', async () => {
+  test('Can handle errors appropriately', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
     const logger = new Logger(LogSource.VxAdminFrontend);
@@ -214,7 +210,10 @@ describe('Screens display properly when USB is mounted', () => {
     window.kiosk!.getFileSystemEntries = jest
       .fn()
       .mockResolvedValue(fileEntries);
-    const { getByText, getAllByTestId } = renderInAppContext(
+    window.kiosk!.readFile = jest
+      .fn()
+      .mockResolvedValueOnce('invalid-file-contents');
+    const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
@@ -223,31 +222,23 @@ describe('Screens display properly when USB is mounted', () => {
       }
     );
     await waitFor(() => getByText('Import CVR Files'));
+    // If the files can not be parsed properly they are not automatically shown to import.
     getByText(
-      /The following CVR files were automatically found on this USB drive./
+      /There were no new CVR files automatically found on this USB drive./
     );
     expect(logSpy).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
       expect.objectContaining({ disposition: 'success' })
     );
+    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
 
-    const tableRows = getAllByTestId('table-row');
-    expect(tableRows).toHaveLength(3);
-
-    window.kiosk!.readFile = jest
-      .fn()
-      .mockResolvedValueOnce('invalid-file-contents');
-    fireEvent.click(domGetByText(tableRows[1], 'Select'));
+    fireEvent.change(getByTestId('manual-input'), {
+      target: { files: [new File(['invalid-file-contents'], 'file.jsonl')] },
+    });
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
-        1,
-        'test1',
-        'utf-8'
-      );
       // There should be an error importing the file.
       getByText('Error');
       getByText(/There was an error reading the content of the file/);
@@ -299,7 +290,17 @@ describe('Screens display properly when USB is mounted', () => {
       [new File([JSON.stringify(cvr)], TEST_FILE1)],
       eitherNeitherElectionDefinition.election
     );
-    const { getByText, getAllByTestId } = renderInAppContext(
+
+    window.kiosk!.readFile = jest.fn().mockImplementation((path) => {
+      if (path === 'live1') {
+        return JSON.stringify({
+          ...cvr,
+          _testBallot: false,
+        });
+      }
+      return JSON.stringify(cvr);
+    });
+    const { getByText, getAllByTestId, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
@@ -308,39 +309,45 @@ describe('Screens display properly when USB is mounted', () => {
         logger,
       }
     );
-    await waitFor(() => getByText('Import Test Mode CVR Files'));
+    await waitFor(() =>
+      expect(getByTestId('modal-title')).toHaveTextContent(
+        'Import Test Mode CVR Files'
+      )
+    );
 
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(2);
     domGetByText(tableRows[0], '12/09/2020 03:49:32 PM');
-    domGetByText(tableRows[0], '0001');
-    domGetByText(tableRows[0], GLOBALS.CHECK_ICON); // Check that the previously imported file is marked as selected
+    domGetByText(tableRows[0], 'abc');
     expect(
-      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+      domGetByText(tableRows[0], 'Imported').closest('button')!.disabled
     ).toBe(true);
-    domGetByText(tableRows[1], '12/07/2020 03:49:32 PM');
-    domGetByText(tableRows[1], '0003');
+    expect(domGetByTestId(tableRows[0], 'new-cvr-count')).toHaveTextContent(
+      '0'
+    );
     expect(
-      domGetByText(tableRows[1], 'Select').closest('button')!.disabled
+      domGetByTestId(tableRows[0], 'imported-cvr-count')
+    ).toHaveTextContent('1');
+    domGetByText(tableRows[1], '12/07/2020 03:49:32 PM');
+    domGetByText(tableRows[1], 'abc');
+    expect(domGetByTestId(tableRows[1], 'new-cvr-count')).toHaveTextContent(
+      '0'
+    );
+    expect(
+      domGetByTestId(tableRows[1], 'imported-cvr-count')
+    ).toHaveTextContent('1');
+    expect(
+      domGetByText(tableRows[1], 'Import').closest('button')!.disabled
     ).toBe(false);
 
+    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(2);
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    window.kiosk!.readFile = jest
-      .fn()
-      .mockResolvedValueOnce(JSON.stringify(cvr));
-
-    fireEvent.click(domGetByText(tableRows[1], 'Select'));
+    fireEvent.click(domGetByText(tableRows[1], 'Import'));
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
-        1,
-        'test2',
-        'utf-8'
-      );
       // There should be a message about importing a duplicate file displayed.
       getByText('Duplicate File');
       getByText(
@@ -407,23 +414,18 @@ describe('Screens display properly when USB is mounted', () => {
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
     expect(
-      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+      domGetByText(tableRows[0], 'Import').closest('button')!.disabled
     ).toBe(false);
 
+    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(domGetByText(tableRows[0], 'Select'));
+    fireEvent.click(domGetByText(tableRows[0], 'Import'));
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenNthCalledWith(
-        1,
-        'live1',
-        'utf-8'
-      );
-      expect(closeFn).toHaveBeenCalledTimes(2);
+      getByText('0 new CVRs Imported');
     });
   });
 
@@ -465,16 +467,15 @@ describe('Screens display properly when USB is mounted', () => {
     );
     await waitFor(() => getByText('Import Live Mode CVR Files'));
     getByText(
-      /There were no new CVR files automatically found on this USB drive./
+      /There were no new Live Mode CVR files automatically found on this USB drive./
     );
 
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
-    domGetByText(tableRows[0], '0002');
-    domGetByText(tableRows[0], GLOBALS.CHECK_ICON);
+    domGetByText(tableRows[0], 'abc');
     expect(
-      domGetByText(tableRows[0], 'Select').closest('button')!.disabled
+      domGetByText(tableRows[0], 'Imported').closest('button')!.disabled
     ).toBe(true);
 
     fireEvent.click(getByText('Cancel'));

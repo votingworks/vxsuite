@@ -126,14 +126,24 @@ export interface CastVoteRecord
 
 export type CastVoteRecordFileMode = 'test' | 'live';
 
-export type CastVoteRecordLists = ReadonlyArray<readonly CastVoteRecord[]>;
-
 export interface CastVoteRecordFile {
   readonly name: string;
-  readonly count: number;
+  readonly importedCvrCount: number;
+  readonly duplicatedCvrCount: number;
   readonly scannerIds: readonly string[];
   readonly precinctIds: readonly PrecinctId[];
+  readonly allCastVoteRecords: readonly CastVoteRecord[];
   readonly exportTimestamp: Date;
+}
+export interface CastVoteRecordFilePreprocessedData {
+  readonly name: string;
+  readonly newCvrCount: number;
+  readonly importedCvrCount: number;
+  readonly scannerIds: readonly string[];
+  readonly exportTimestamp: Date;
+  readonly isTestModeResults: boolean;
+  readonly fileImported: boolean;
+  readonly fileContent: string;
 }
 export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>;
 
