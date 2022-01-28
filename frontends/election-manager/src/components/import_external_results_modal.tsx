@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
+import { Modal } from '@votingworks/ui';
 import { assert, format } from '@votingworks/utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -11,7 +12,6 @@ import {
 } from '../utils/sems_tallies';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
-import { Modal } from './modal';
 import { Prose } from './prose';
 import { Button, SegmentedButton } from './button';
 

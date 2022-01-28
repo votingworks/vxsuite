@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 
+import { Modal } from '@votingworks/ui';
 import { Button, StyledButtonProps } from './button';
-import { Modal } from './modal';
 import { Loading } from './loading';
 import { Prose } from './prose';
 import { PrintOptions } from '../config/types';
