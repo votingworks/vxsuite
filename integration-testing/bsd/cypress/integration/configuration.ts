@@ -29,7 +29,7 @@ describe('BSD and services/Scan', () => {
     cy.contains('Uploading ballot package 7 of 8', { timeout: 10000 });
     cy.contains('Uploading ballot package 8 of 8', { timeout: 10000 });
     cy.contains('Preparing scanner', { timeout: 10000 });
-    cy.contains('VxCentralScan Configured', { timeout: 20000 });
+    cy.contains('Successfully Configured', { timeout: 20000 });
     cy.contains('Close').click();
     cy.contains('No ballots have been scanned');
     cy.contains('Scan New Batch').click();
@@ -53,8 +53,8 @@ describe('BSD and services/Scan', () => {
     cy.contains('Confirm Ballot Removed and Continue Scanning').click();
     cy.contains('Advanced').click();
     cy.contains('Toggle to Live Mode');
-    cy.contains('Factory Reset').click();
-    cy.contains('Yes, Factory Reset').click();
+    cy.contains('Delete Election Data from Scanner…').click();
+    cy.contains('Yes, Delete Election Data').click();
     cy.contains('Load Election Configuration', { timeout: 20000 });
   });
 });

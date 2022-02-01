@@ -338,9 +338,7 @@ export function ElectionConfiguration({
           <Prose maxWidth={false}>
             <h1>Load Election Configuration</h1>
             <Image src="usb-stick.svg" alt="Insert USB Image" />
-            <Text>
-              You may load an election configuration via the following methods:
-            </Text>
+            <p>You may load via the following methods:</p>
             <ul>
               <ListItem>
                 <strong>Insert a USB drive</strong> with election ballot

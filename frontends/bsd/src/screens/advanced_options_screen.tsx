@@ -114,11 +114,6 @@ export function AdvancedOptionsScreen({
                 </Button>
               </p>
               <p>
-                <Button onPress={toggleIsConfirmingFactoryReset}>
-                  Factory Reset…
-                </Button>
-              </p>
-              <p>
                 <Button
                   onPress={() => setIsMarkThresholdModalOpen(true)}
                   disabled={hasBatches}
@@ -147,6 +142,11 @@ export function AdvancedOptionsScreen({
               <p>
                 <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
                   Export Logs as CDF…
+                </Button>
+              </p>
+              <p>
+                <Button danger onPress={toggleIsConfirmingFactoryReset}>
+                  Delete Election Data from Scanner…
                 </Button>
               </p>
             </Prose>
@@ -190,8 +190,11 @@ export function AdvancedOptionsScreen({
           centerContent
           content={
             <Prose textCenter>
-              <h1>Factory Reset?</h1>
-              <p>Remove election configuration and all scanned ballot data?</p>
+              <h1>Delete all election data?</h1>
+              <p>
+                This will delete the election configuration and all the scanned
+                ballot data from this scanner.
+              </p>
             </Prose>
           }
           actions={
@@ -204,7 +207,7 @@ export function AdvancedOptionsScreen({
                   setIsFactoryResetting(true);
                 }}
               >
-                Yes, Factory Reset
+                Yes, Delete Election Data
               </Button>
             </React.Fragment>
           }
@@ -216,7 +219,7 @@ export function AdvancedOptionsScreen({
           centerContent
           content={
             <Prose textCenter>
-              <h1>Resetting…</h1>
+              <h1>Deleting election data…</h1>
             </Prose>
           }
         />
