@@ -551,11 +551,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             <Main>
               <MainChild center padded>
                 <Prose>
-                  <h1>VxCentralScan Configured</h1>
-                  <Text>
-                    VxCentralScan successfully configured. You may now eject the
-                    USB drive.
-                  </Text>
+                  <h1>Successfully Configured</h1>
+                  <Text>You may now eject the USB drive.</Text>
                 </Prose>
                 <Buttons>
                   <Button onPress={() => setElectionJustLoaded(false)}>

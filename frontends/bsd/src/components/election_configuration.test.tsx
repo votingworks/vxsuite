@@ -49,9 +49,7 @@ test('shows insert usb screen when no usb is present with manual upload button',
       { usbDriveStatus: status }
     );
     getByText('Load Election Configuration');
-    getByText(
-      'You may load an election configuration via the following methods:'
-    );
+    getByText('You may load via the following methods:');
     getByText('Insert a USB drive');
     getByText(/Manually select a file to configure:/);
     getByAltText('Insert USB Image');

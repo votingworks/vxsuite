@@ -48,7 +48,7 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
-test('clicking "Factory Reset…" shows progress', async () => {
+test('clicking "Delete Election Data from Scanner…" shows progress', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -77,23 +77,25 @@ test('clicking "Factory Reset…" shows progress', async () => {
   await act(async () => {
     // Click to reset.
     expect(unconfigureServer).not.toHaveBeenCalled();
-    const resetButton = component.getByText('Factory Reset…');
+    const resetButton = component.getByText(
+      'Delete Election Data from Scanner…'
+    );
     resetButton.click();
 
     // Confirm reset.
     expect(unconfigureServer).not.toHaveBeenCalled();
     const confirmResetButton = await waitFor(() =>
-      component.getByText('Yes, Factory Reset')
+      component.getByText('Yes, Delete Election Data')
     );
     confirmResetButton.click();
     expect(unconfigureServer).toHaveBeenCalledTimes(1);
 
     // Verify progress message is shown.
-    await waitFor(() => component.getByText('Resetting…'));
+    await waitFor(() => component.getByText('Deleting election data…'));
 
     // Trigger reset finished, verify back to initial screen.
     resolve();
-    await waitFor(() => !component.getByText('Resetting…'));
+    await waitFor(() => !component.getByText('Deleting election data…'));
   });
 });
 
