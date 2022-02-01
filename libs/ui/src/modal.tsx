@@ -64,6 +64,9 @@ const ModalContent = styled('div')<ModalContentInterface>`
 
 interface Props {
   ariaLabel?: string;
+  // If a Modal is created and destroyed too quickly it can screw up the aria
+  // focus elements. In that case use ariaHideApp=true to disable the default
+  // focusing behavior on the Modal. See https://github.com/votingworks/vxsuite/issues/988
   ariaHideApp?: boolean;
   content?: ReactNode;
   centerContent?: boolean;
