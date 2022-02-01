@@ -79,8 +79,8 @@ export function UnlockMachineScreen(): JSX.Element {
   );
   if (showFactoryReset) {
     primarySentence = (
-      <Button small warning onPress={resetMachine}>
-        Factory Reset
+      <Button small danger onPress={resetMachine}>
+        Remove Current Election
       </Button>
     );
   } else if (showError) {

@@ -65,7 +65,7 @@ test('authentication', async () => {
   expect(screen.queryByText('Invalid code. Please try again.')).toBeNull();
 });
 
-test('factory reset', async () => {
+test('Unconfigure VxAdmin from secret menu', async () => {
   const attemptToAuthenticateAdminUser = jest.fn();
   const saveElection = jest.fn();
 
@@ -87,6 +87,6 @@ test('factory reset', async () => {
     expect(attemptToAuthenticateAdminUser).toHaveBeenNthCalledWith(1, '314159')
   );
 
-  userEvent.click(screen.getByText('Factory Reset'));
+  userEvent.click(screen.getByText('Remove Current Election'));
   expect(saveElection).toHaveBeenCalledWith(undefined);
 });
