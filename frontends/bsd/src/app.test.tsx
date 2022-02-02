@@ -1,12 +1,6 @@
 import fetchMock from 'fetch-mock';
 import React from 'react';
-import {
-  render,
-  waitFor,
-  RenderResult,
-  fireEvent,
-  screen,
-} from '@testing-library/react';
+import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import {
   electionSample,
@@ -31,6 +25,7 @@ import { MachineConfigResponse } from './config/types';
 jest.mock('js-file-download');
 
 beforeEach(() => {
+  fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
@@ -56,6 +51,11 @@ beforeEach(() => {
     },
     configurable: true,
   });
+});
+
+afterEach(() => {
+  expect(fetchMock.done()).toBe(true);
+  expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
 async function authenticateWithAdminCard(card: MemoryCard) {
@@ -95,10 +95,8 @@ test('renders without crashing', async () => {
 
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
-  await act(async () => {
-    render(<App card={card} hardware={hardware} />);
-    await waitFor(() => fetchMock.called);
-  });
+  render(<App card={card} hardware={hardware} />);
+  await waitFor(() => fetchMock.called());
 });
 
 test('shows a "Test mode" button if the app is in Live Mode', async () => {
@@ -111,19 +109,15 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
     status: 'ok',
   };
   fetchMock
-    .getOnce('/config/election', { body: getElectionResponseBody })
-    .getOnce('/config/testMode', { body: getTestModeResponseBody })
-    .getOnce('/config/markThresholdOverrides', {
+    .get('/config/election', { body: getElectionResponseBody })
+    .get('/config/testMode', { body: getTestModeResponseBody })
+    .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  let result!: RenderResult;
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
-  await act(async () => {
-    result = render(<App card={card} hardware={hardware} />);
-    await waitFor(() => fetchMock.called);
-  });
+  const result = render(<App card={card} hardware={hardware} />);
   await authenticateWithAdminCard(card);
 
   fireEvent.click(result.getByText('Advanced'));
@@ -141,20 +135,16 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
     status: 'ok',
   };
   fetchMock
-    .getOnce('/config/election', { body: getElectionResponseBody })
-    .getOnce('/config/testMode', { body: getTestModeResponseBody })
-    .getOnce('/config/markThresholdOverrides', {
+    .get('/config/election', { body: getElectionResponseBody })
+    .get('/config/testMode', { body: getTestModeResponseBody })
+    .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  let result!: RenderResult;
   const card = new MemoryCard();
   const hardware = await MemoryHardware.buildStandard();
 
-  await act(async () => {
-    result = render(<App card={card} hardware={hardware} />);
-    await waitFor(() => fetchMock.called);
-  });
+  const result = render(<App card={card} hardware={hardware} />);
   await authenticateWithAdminCard(card);
 
   fireEvent.click(result.getByText('Advanced'));
@@ -176,9 +166,9 @@ test('clicking Scan Batch will scan a batch', async () => {
     errors: [{ type: 'scan-error', message: 'interpreter not ready' }],
   };
   fetchMock
-    .getOnce('/config/election', { body: getElectionResponseBody })
-    .getOnce('/config/testMode', { body: getTestModeResponseBody })
-    .getOnce('/config/markThresholdOverrides', {
+    .get('/config/election', { body: getElectionResponseBody })
+    .get('/config/testMode', { body: getTestModeResponseBody })
+    .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
     .postOnce('/scan/scanBatch', { body: scanBatchResponseBody });
@@ -228,9 +218,9 @@ test('clicking export shows modal and makes a request to export', async () => {
     scanner: ScannerStatus.Unknown,
   };
   fetchMock
-    .getOnce('/config/election', { body: getElectionResponseBody })
-    .getOnce('/config/testMode', { body: getTestModeResponseBody })
-    .getOnce('/config/markThresholdOverrides', {
+    .get('/config/election', { body: getElectionResponseBody })
+    .get('/config/testMode', { body: getTestModeResponseBody })
+    .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
     .getOnce(
@@ -276,9 +266,9 @@ test('configuring election from usb ballot package works end to end', async () =
     status: 'ok',
   };
   fetchMock
-    .getOnce('/config/election', new Response('null'))
-    .getOnce('/config/testMode', { body: getTestModeConfigResponse })
-    .getOnce('/config/markThresholdOverrides', {
+    .get('/config/election', { body: 'null' })
+    .get('/config/testMode', { body: getTestModeConfigResponse })
+    .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponse,
     })
     .patchOnce('/config/testMode', {
@@ -307,10 +297,14 @@ test('configuring election from usb ballot package works end to end', async () =
   });
 
   fetchMock
-    .getOnce('/config/election', electionSampleDefinition, {
+    .get('/config/election', electionSampleDefinition, {
       overwriteRoutes: true,
     })
-    .getOnce('/config/testMode', { testMode: true }, { overwriteRoutes: true });
+    .getOnce(
+      '/config/testMode',
+      { status: 'ok', testMode: true },
+      { overwriteRoutes: true }
+    );
 
   fireEvent.change(getByTestId('manual-upload-input'), {
     target: {
@@ -335,16 +329,10 @@ test('configuring election from usb ballot package works end to end', async () =
     .getOnce('/config/election', new Response('null'), {
       overwriteRoutes: true,
     })
-    .patchOnce(
-      '/config/election',
-      {
-        body: '{"status": "ok"}',
-        status: 200,
-      },
-      {
-        overwriteRoutes: true,
-      }
-    );
+    .deleteOnce('/config/election', {
+      body: '{"status": "ok"}',
+      status: 200,
+    });
   fireEvent.click(getByText('Advanced'));
   getByText('Advanced Options');
   fireEvent.click(getByText('Delete Election Data from VxCentralScan…'));
@@ -373,9 +361,9 @@ test('authentication works', async () => {
   };
 
   fetchMock
-    .getOnce('/config/election', { body: getElectionResponseBody })
-    .getOnce('/config/testMode', { body: getTestModeResponseBody })
-    .getOnce('/config/markThresholdOverrides', {
+    .get('/config/election', { body: getElectionResponseBody })
+    .get('/config/testMode', { body: getTestModeResponseBody })
+    .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
