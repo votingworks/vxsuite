@@ -460,7 +460,9 @@ test('expected tally reports for a primary election with all precincts with CVRs
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Open Polls for All Precincts');
+  await screen.findByText('Export Results to USB Drive');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
   const expectedCombinedTally: CompressedTally = [
     [0, 1, 2, 0, 1, 0, 0], // best animal mammal
     [0, 0, 1, 1, 0, 0], // best animal fish
@@ -516,10 +518,12 @@ test('expected tally reports for a primary election with all precincts with CVRs
   jest
     .spyOn(card, 'readLongObject')
     .mockResolvedValue(err(new Error('bad read')));
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   fireEvent.click(await screen.findByText('Save Report and Open Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Close Polls for All Precincts');
+  await screen.findByText('Print the Open Polls Report');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,
@@ -764,7 +768,9 @@ test('expected tally reports for a primary election with a single precincts with
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Open Polls for Precinct 1');
+  await screen.findByText('Export Results to USB Drive');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
   const expectedCombinedTally: CompressedTally = [
     [0, 1, 2, 0, 1, 0, 0], // best animal mammal
     [0, 0, 1, 1, 0, 0], // best animal fish
@@ -806,10 +812,12 @@ test('expected tally reports for a primary election with a single precincts with
   jest
     .spyOn(card, 'readLongObject')
     .mockResolvedValue(err(new Error('bad read')));
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
   fireEvent.click(await screen.findByText('Open Polls for Precinct 1'));
   fireEvent.click(await screen.findByText('Save Report and Open Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Close Polls for Precinct 1');
+  await screen.findByText('Print the Open Polls Report');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,
@@ -1036,7 +1044,9 @@ test('expected tally reports for a general election with all precincts with CVRs
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Open Polls for All Precincts');
+  await screen.findByText('Export Results to USB Drive');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
   const expectedCombinedTally = election.contests.map(() => expect.anything());
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
   const index102 = election.contests.findIndex((c) => c.id === 'prop-1');
@@ -1078,10 +1088,12 @@ test('expected tally reports for a general election with all precincts with CVRs
   jest
     .spyOn(card, 'readLongObject')
     .mockResolvedValue(err(new Error('bad read')));
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   fireEvent.click(await screen.findByText('Save Report and Open Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Close Polls for All Precincts');
+  await screen.findByText('Print the Open Polls Report');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,
@@ -1252,7 +1264,9 @@ test('expected tally reports for a general election with a single precincts with
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Open Polls for Center Springfield');
+  await screen.findByText('Export Results to USB Drive');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
   const expectedCombinedTally = election.contests.map(() => expect.anything());
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
   const index102 = election.contests.findIndex((c) => c.id === 'prop-1');
@@ -1287,10 +1301,12 @@ test('expected tally reports for a general election with a single precincts with
   jest
     .spyOn(card, 'readLongObject')
     .mockResolvedValue(err(new Error('bad read')));
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
   fireEvent.click(await screen.findByText('Open Polls for Center Springfield'));
   fireEvent.click(await screen.findByText('Save Report and Open Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Close Polls for Center Springfield');
+  await screen.findByText('Print the Open Polls Report');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,

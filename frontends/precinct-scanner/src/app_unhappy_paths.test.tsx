@@ -483,7 +483,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   fireEvent.click(await screen.findByText('Save Report and Open Polls'));
   await screen.findByText('Saving to Card');
-  await screen.findByText('Close Polls for All Precincts');
+  await screen.findByText('Print the Open Polls Report');
 
   // Remove pollworker card
   card.removeCard();

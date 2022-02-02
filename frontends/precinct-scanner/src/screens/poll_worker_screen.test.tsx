@@ -80,7 +80,7 @@ test('shows dashes when no totp', async () => {
 });
 
 test('shows Export Results button only when polls are closed and more than 0 ballots have been cast', async () => {
-  const exportButtonText = 'Export Results to USB';
+  const exportButtonText = 'Export Results to USB Drive';
 
   await act(async () => {
     renderScreen({
