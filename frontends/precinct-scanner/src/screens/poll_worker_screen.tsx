@@ -6,6 +6,7 @@ import {
   Button,
   Prose,
   Loading,
+  Modal,
   PrecinctScannerPollsReport,
   PrecinctScannerTallyReport,
   PrecinctScannerTallyQrCode,
@@ -43,7 +44,6 @@ import { CenteredLargeProse, CenteredScreen } from '../components/layout';
 import { Absolute } from '../components/absolute';
 import { Bar } from '../components/bar';
 import { ExportResultsModal } from '../components/export_results_modal';
-import { Modal } from '../components/modal';
 
 import { AppContext } from '../contexts/app_context';
 

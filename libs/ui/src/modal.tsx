@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import ReactModal from 'react-modal';
 import styled from 'styled-components';
 
-import { ButtonBar } from '@votingworks/ui';
+import { ButtonBar } from './button_bar';
 
 const ReactModalContent = styled.div`
   display: flex;
@@ -64,11 +64,26 @@ const ModalContent = styled('div')<ModalContentInterface>`
 
 interface Props {
   ariaLabel?: string;
+  // If a Modal is created and destroyed too quickly it can screw up the aria
+  // focus elements. In that case use ariaHideApp=true to disable the default
+  // focusing behavior on the Modal. See https://github.com/votingworks/vxsuite/issues/988
+  ariaHideApp?: boolean;
   content?: ReactNode;
   centerContent?: boolean;
   actions?: ReactNode;
   onAfterOpen?: () => void;
-  ariaHideApp?: boolean;
+  onOverlayClick?: () => void;
+}
+
+/* istanbul ignore next - unclear why this isn't covered */
+function focusModalAudio() {
+  window.setTimeout(() => {
+    const element = document.getElementById('modalaudiofocus');
+    if (element) {
+      element.focus();
+      element.click();
+    }
+  }, 10);
 }
 
 export function Modal({
@@ -77,18 +92,10 @@ export function Modal({
   centerContent,
   content,
   ariaHideApp = true,
-
-  onAfterOpen = () => {
-    /* istanbul ignore next - unclear why this isn't covered */
-    window.setTimeout(() => {
-      const element = document.getElementById('modalaudiofocus');
-      if (element) {
-        element.focus();
-        element.click();
-      }
-    }, 10);
-  },
+  onAfterOpen = focusModalAudio,
+  onOverlayClick,
 }: Props): JSX.Element {
+  /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
     document.getElementById('root') ??
     (document.body.firstElementChild as HTMLElement);
@@ -102,6 +109,7 @@ export function Modal({
       isOpen
       contentLabel={ariaLabel}
       onAfterOpen={onAfterOpen}
+      onRequestClose={onOverlayClick}
       testId="modal"
       contentElement={(props, children) => (
         <ReactModalContent {...props}>{children}</ReactModalContent>

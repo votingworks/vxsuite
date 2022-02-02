@@ -178,7 +178,6 @@ importers:
       '@types/pluralize': 0.0.29
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
-      '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.7
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
@@ -205,7 +204,6 @@ importers:
       react-dom: 17.0.1_react@17.0.1
       react-gamepad: 1.0.3_react@17.0.1
       react-idle-timer: 4.2.12_react-dom@17.0.1+react@17.0.1
-      react-modal: 3.14.4_react-dom@17.0.1+react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_typescript@4.3.5
       rxjs: 6.6.6
@@ -276,7 +274,6 @@ importers:
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
       '@types/react-gamepad': ^1.0.0
-      '@types/react-modal': ^3.13.1
       '@types/react-router-dom': ^5.1.5
       '@types/styled-components': ^5.1.7
       '@typescript-eslint/eslint-plugin': ^4.28.4
@@ -329,7 +326,6 @@ importers:
       react-dom: ^17.0.1
       react-gamepad: ^1.0.3
       react-idle-timer: 4.2.12
-      react-modal: ^3.14.4
       react-refresh: ^0.10.0
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
@@ -359,7 +355,6 @@ importers:
       '@types/pluralize': 0.0.29
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
-      '@types/react-modal': 3.10.6
       '@types/styled-components': 5.1.7
       '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
       '@votingworks/logging': link:../../libs/logging
@@ -375,7 +370,6 @@ importers:
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-dropzone: 11.2.4_react@17.0.1
-      react-modal: 3.12.1_react-dom@17.0.1+react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_6db286cbbebf1461c3928dbe2afc1e27
       rxjs: 6.6.6
@@ -442,7 +436,6 @@ importers:
       '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
-      '@types/react-modal': ^3.10.6
       '@types/react-router-dom': ^5.1.5
       '@types/styled-components': ^5.1.7
       '@types/yauzl': ^2.9.1
@@ -485,7 +478,6 @@ importers:
       react: ^17.0.1
       react-dom: ^17.0.1
       react-dropzone: ^11.2.1
-      react-modal: ^3.11.2
       react-refresh: ^0.9.0
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
@@ -525,7 +517,6 @@ importers:
       '@types/pluralize': 0.0.29
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
-      '@types/react-modal': 3.10.6
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.7
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
@@ -556,7 +547,6 @@ importers:
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-i18next: 11.8.5_i18next@19.8.4+react@17.0.1
-      react-modal: 3.12.1_react-dom@17.0.1+react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_typescript@4.3.5
       react-textarea-autosize: 8.3.0_@types+react@17.0.0+react@17.0.1
@@ -623,7 +613,6 @@ importers:
       '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
-      '@types/react-modal': ^3.10.5
       '@types/react-router-dom': ^5.1.5
       '@types/readable-stream': ^2.3.5
       '@types/styled-components': ^5.1.7
@@ -677,7 +666,6 @@ importers:
       react: ^17.0.1
       react-dom: ^17.0.1
       react-i18next: ^11.7.3
-      react-modal: ^3.11.2
       react-refresh: ^0.9.0
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
@@ -712,7 +700,6 @@ importers:
       '@types/node': 12.20.11
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
-      '@types/react-modal': 3.12.0
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.9
       '@votingworks/fixtures': link:../../libs/fixtures
@@ -737,7 +724,6 @@ importers:
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-i18next: 11.8.5_i18next@19.8.4+react@17.0.1
-      react-modal: 3.13.1_react-dom@17.0.1+react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_typescript@4.3.5
       rxjs: 6.6.6
@@ -795,7 +781,6 @@ importers:
       '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
-      '@types/react-modal': ^3.12.0
       '@types/react-router-dom': ^5.1.5
       '@types/styled-components': ^5.1.9
       '@typescript-eslint/eslint-plugin': ^4.28.4
@@ -841,7 +826,6 @@ importers:
       react: ^17.0.1
       react-dom: ^17.0.1
       react-i18next: ^11.7.3
-      react-modal: ^3.13.1
       react-refresh: ^0.9.0
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
@@ -1724,6 +1708,7 @@ importers:
       zod: 3.2.0
   libs/ui:
     dependencies:
+      '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@votingworks/logging': link:../logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
@@ -1734,6 +1719,7 @@ importers:
       luxon: 1.26.0
       pluralize: 8.0.0
       react-dom: 17.0.1_react@17.0.1
+      react-modal: 3.14.4_react-dom@17.0.1+react@17.0.1
       react-router-dom: 5.2.0_react@17.0.1
       rxjs: 6.6.6
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
@@ -1741,6 +1727,7 @@ importers:
       zod: 3.2.0
     devDependencies:
       '@codemod/parser': 1.1.0
+      '@testing-library/jest-dom': 4.2.4
       '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
       '@testing-library/react-hooks': 6.0.0_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
@@ -1788,6 +1775,7 @@ importers:
       typescript: 4.3.5
     specifiers:
       '@codemod/parser': ^1.0.6
+      '@testing-library/jest-dom': ^4.2.4
       '@testing-library/react': ^11.2.6
       '@testing-library/react-hooks': ^6.0.0
       '@testing-library/user-event': ^13.2.1
@@ -1799,6 +1787,7 @@ importers:
       '@types/node': ^15.0.0
       '@types/pluralize': ^0.0.29
       '@types/react': ^17.0.4
+      '@types/react-modal': ^3.13.1
       '@types/react-router-dom': ^5.1.7
       '@types/styled-components': ^5.1.9
       '@typescript-eslint/eslint-plugin': ^4.29.3
@@ -1835,6 +1824,7 @@ importers:
       prettier: ^2.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
+      react-modal: ^3.14.4
       react-router-dom: ^5.2.0
       rxjs: 6.6.6
       sort-package-json: ^1.50.0
@@ -4830,6 +4820,13 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-99catp6bHCaxr4sJ/DbTGgHS4+Rs2RVd2g7iOap6SLGPDknRK9ztKNsE/Fg6QhSeh1FGE5f6gHGQmvvn3I3xhw==
+  /@babel/runtime/7.16.7:
+    dependencies:
+      regenerator-runtime: 0.13.9
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-9E9FJowqAsytyOY6LG+1KuueckRL+aQW+mKvXRXnuFGyRAyepJPmEo9vgMfXUA6O9u3IeEdv9MAkppFcaQwogQ==
   /@babel/template/7.12.13:
     dependencies:
       '@babel/code-frame': 7.12.13
@@ -6625,16 +6622,15 @@ packages:
       integrity: sha512-O0fmHFaPlqaYCpa/cBL0cvroMridb9vZsMLacgIqrlxj+fd+bGF8UfAgwsLCHRF84KLBafWlm9CuOvxeNTlodw==
   /@testing-library/jest-dom/4.2.4:
     dependencies:
-      '@babel/runtime': 7.12.5
+      '@babel/runtime': 7.16.7
       chalk: 2.4.2
       css: 2.2.4
       css.escape: 1.5.1
       jest-diff: 24.9.0
       jest-matcher-utils: 24.9.0
-      lodash: 4.17.20
+      lodash: 4.17.21
       pretty-format: 24.9.0
       redent: 3.0.0
-    dev: false
     engines:
       node: '>=8'
       npm: '>=6'
@@ -7266,21 +7262,9 @@ packages:
     dev: true
     resolution:
       integrity: sha512-hw4qiAwL0MuWQwBmZPF9mgRAVMGMCRKPuGELAMJSCWQfN1gBzK7g7+DxS/qOxxraT0eYRhjMicywvKJYiuEBeQ==
-  /@types/react-modal/3.10.6:
-    dependencies:
-      '@types/react': 17.0.0
-    dev: false
-    resolution:
-      integrity: sha512-XpshhwVYir1TRZ2HS5EfmNotJjB8UEC2IkT3omNtiQzROOXSzVLz5xsjwEpACP8U+PctkpfZepX+WT5oDf0a9g==
-  /@types/react-modal/3.12.0:
-    dependencies:
-      '@types/react': 17.0.5
-    dev: false
-    resolution:
-      integrity: sha512-UnHu/YO73NZLwqFpju/c0tqiswR0UHIfeO16rkfLVJUIMfQsl7X0CBm99H5XXgBMe/PgtQ/Rkud72iuRBr1TeA==
   /@types/react-modal/3.13.1:
     dependencies:
-      '@types/react': 17.0.0
+      '@types/react': 17.0.38
     dev: false
     resolution:
       integrity: sha512-iY/gPvTDIy6Z+37l+ibmrY+GTV4KQTHcCyR5FIytm182RQS69G5ps4PH2FxtC7bAQ2QRHXMevsBgck7IQruHNg==
@@ -7348,6 +7332,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-kq/BMeaAVLJM6Pynh8C2rnr/drCK+/5ksH0ch9asz+8FW3DscYCIEFtCeYTFeIx/ubvOsMXmRfy7qEJ76gM96A==
+  /@types/react/17.0.38:
+    dependencies:
+      '@types/prop-types': 15.7.4
+      '@types/scheduler': 0.16.2
+      csstype: 3.0.10
+    dev: false
+    resolution:
+      integrity: sha512-SI92X1IA+FMnP3qM5m4QReluXzhcmovhZnLNm3pyeQlooi02qI7sLiepEYqT678uNiyc25XfCqxREFpy3W7YhQ==
   /@types/react/17.0.4:
     dependencies:
       '@types/prop-types': 15.7.3
@@ -7355,14 +7347,6 @@ packages:
       csstype: 3.0.8
     resolution:
       integrity: sha512-onz2BqScSFMoTRdJUZUDD/7xrusM8hBA2Fktk2qgaTYPCgPvWnDEgkrOs8hhPUf2jfcIXkJ5yK6VfYormJS3Jw==
-  /@types/react/17.0.5:
-    dependencies:
-      '@types/prop-types': 15.7.3
-      '@types/scheduler': 0.16.1
-      csstype: 3.0.8
-    dev: false
-    resolution:
-      integrity: sha512-bj4biDB9ZJmGAYTWSKJly6bMr4BLUiBrx9ujiJEoP9XIDY9CTaPGxE5QWN/1WjpPLzYF7/jRNnV2nNxNe970sw==
   /@types/readable-stream/2.3.9:
     dependencies:
       '@types/node': 14.14.21
@@ -7541,7 +7525,7 @@ packages:
       integrity: sha512-7tFImggNeNBVMsn0vLrpn1H1uPrUBdnARPTpZoitY37ZrdJREzf7I16tMrlK3hen349gr1NYh8CmZQa7CTG6Aw==
   /@types/yargs/13.0.11:
     dependencies:
-      '@types/yargs-parser': 20.2.0
+      '@types/yargs-parser': 20.2.1
     resolution:
       integrity: sha512-NRqD6T4gktUrDi1o1wLH3EKC1o2caCr7/wR87ODcbVITQF106OM3sFN92ysZ++wqelOd1CTzatnOBRDYYG6wGQ==
   /@types/yargs/15.0.13:
@@ -11480,7 +11464,6 @@ packages:
     resolution:
       integrity: sha512-ACUm3L0/jiZTqfzRM3Hi9Q8eZqd6IK37mMWPLz9PJxkLWllYeRf+EHUSHYEtFop2Eqytaq1FizFVh7XfBnXCDQ==
   /css.escape/1.5.1:
-    dev: false
     resolution:
       integrity: sha1-QuJ9T6BK4y+TGktNQZH6nN3ul8s=
   /css/2.2.4:
@@ -11615,6 +11598,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-AZL67abkUzIuvcHqk7c09cezpGNcxUxU4Ioi/05xHk4DQeTkWmGYftIE6ctU6AEt+Gn4n1lDStOtj7FKycP71A==
+  /csstype/3.0.10:
+    dev: false
+    resolution:
+      integrity: sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA==
   /csstype/3.0.6:
     resolution:
       integrity: sha512-+ZAmfyWMT7TiIlzdqJgjMb7S4f1beorDbWbsocyK4RaiqA5RTX3K14bnBWmmA9QEM0gRdsjyyrEmcyga8Zsxmw==
@@ -12128,7 +12115,6 @@ packages:
     resolution:
       integrity: sha512-MdceRRWqltEG2dZqO769g27N/3PXfcKl04VhYnBlo2YhH7zPi88VebsjTKclaOyiuMaGU72hTfw3VkUitGcVCA==
   /diff-sequences/24.9.0:
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -17987,7 +17973,6 @@ packages:
       diff-sequences: 24.9.0
       jest-get-type: 24.9.0
       pretty-format: 24.9.0
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -18247,7 +18232,6 @@ packages:
     resolution:
       integrity: sha512-Ux1nWprtLrdrH4XwE7O7InRY6psIi3GOsqNESJgMJ+M5cv4A8Lh7SN9d2V2kKRZ8ebAfcd1LNyZguAOb6JiDqw==
   /jest-get-type/24.9.0:
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -18479,7 +18463,6 @@ packages:
       jest-diff: 24.9.0
       jest-get-type: 24.9.0
       pretty-format: 24.9.0
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -23454,42 +23437,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
-  /react-modal/3.12.1_react-dom@17.0.1+react@17.0.1:
-    dependencies:
-      exenv: 1.2.2
-      prop-types: 15.7.2
-      react: 17.0.1
-      react-dom: 17.0.1_react@17.0.1
-      react-lifecycles-compat: 3.0.4
-      warning: 4.0.3
-    dev: false
-    engines:
-      node: '>=8'
-    peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16 || ^17
-      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17
-    resolution:
-      integrity: sha512-WGuXn7Fq31PbFJwtWmOk+jFtGC7E9tJVbFX0lts8ZoS5EPi9+WWylUJWLKKVm3H4GlQ7ZxY7R6tLlbSIBQ5oZA==
-  /react-modal/3.13.1_react-dom@17.0.1+react@17.0.1:
-    dependencies:
-      exenv: 1.2.2
-      prop-types: 15.8.1
-      react: 17.0.1
-      react-dom: 17.0.1_react@17.0.1
-      react-lifecycles-compat: 3.0.4
-      warning: 4.0.3
-    dev: false
-    engines:
-      node: '>=8'
-    peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16 || ^17
-      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17
-    resolution:
-      integrity: sha512-m6yXK7I4YKssQnsjHK7xITSXy2O81BSOHOsg0/uWAsdKtuT9HF2tdoYhRuxNNQg2V+LgepsoHUPJKS8m6no+eg==
   /react-modal/3.14.4_react-dom@17.0.1+react@17.0.1:
     dependencies:
       exenv: 1.2.2
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-lifecycles-compat: 3.0.4
@@ -24788,12 +24739,14 @@ packages:
       resolve-url: 0.2.1
       source-map-url: 0.4.1
       urix: 0.1.0
+    deprecated: See https://github.com/lydell/source-map-resolve#deprecated
     resolution:
       integrity: sha512-Htz+RnsXWk5+P2slx5Jh3Q66vhQj1Cllm0zvnaY98+NFx+Dv2CF/f5O/t8x+KaNdrdIAsruNzoh/KpialbqAnw==
   /source-map-resolve/0.6.0:
     dependencies:
       atob: 2.1.2
       decode-uri-component: 0.2.0
+    deprecated: See https://github.com/lydell/source-map-resolve#deprecated
     dev: false
     resolution:
       integrity: sha512-KXBr9d/fO/bWo97NXsPIAW1bFSBOuCnjbNTBMO7N59hsv5i9yzRDfcYwwt0l04+VqnKC+EwzvJZIP/qkuMgR/w==
@@ -24817,6 +24770,7 @@ packages:
     resolution:
       integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
   /source-map-url/0.4.1:
+    deprecated: See https://github.com/lydell/source-map-url#deprecated
     resolution:
       integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==
   /source-map/0.5.7:

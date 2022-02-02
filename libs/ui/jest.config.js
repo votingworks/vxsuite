@@ -7,5 +7,6 @@ module.exports = {
     ...shared.collectCoverageFrom,
     '!src/contest_tally.tsx',
     '!src/precinct_scanner_polls_report.tsx',
-   ]
+  ],
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
 }
