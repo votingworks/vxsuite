@@ -28,12 +28,12 @@ app.get('*', (req, res) => {
 
 app.listen(port, () => {
   logger.log(LogEventId.ApplicationStartup, 'system', {
-    message: `Batch Scanner running at http://localhost:${port}/`,
+    message: `VxCentralScan is running at http://localhost:${port}/`,
     disposition: 'success',
   })
 }).on('error', error => {
   logger.log(LogEventId.ApplicationStartup, 'system', {
-    message: `Error in starting Batch Scanner: ${error.message}`,
+    message: `Error in starting VxCentralScan: ${error.message}`,
     disposition: 'failure',
   })
 })
