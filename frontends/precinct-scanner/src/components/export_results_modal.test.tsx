@@ -118,7 +118,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   getByAltText('Insert USB Image');
 
   fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText(/Download Complete/));
+  await waitFor(() => getByText('Results Exported to USB Drive'));
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1);
   });
@@ -158,7 +158,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   getByText('Export Results');
 
   fireEvent.click(getByText('Export'));
-  await waitFor(() => getByText(/Download Complete/));
+  await waitFor(() => getByText('Results Exported to USB Drive'));
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
   });
@@ -204,10 +204,8 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       />
     </AppContext.Provider>
   );
-  getByText('Download Complete');
-  getByText(
-    'USB drive successfully ejected, you may now take it to VxAdmin for tabulation.'
-  );
+  getByText('USB Drive Ejected');
+  getByText('You may now take the USB Drive to VxAdmin for tabulation.');
 });
 
 test('render export modal with errors when appropriate', async () => {
