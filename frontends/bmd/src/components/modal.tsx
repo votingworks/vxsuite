@@ -24,6 +24,9 @@ const ReactModalContent = styled.div`
     border-radius: 0.25rem;
     max-width: 30rem;
   }
+  @media print {
+    display: none;
+  }
 `;
 
 const ReactModalOverlay = styled.div`
@@ -37,6 +40,9 @@ const ReactModalOverlay = styled.div`
   background: rgba(0, 0, 0, 0.75);
   @media (min-width: 480px) {
     padding: 0.5rem;
+  }
+  @media print {
+    display: none;
   }
 `;
 
