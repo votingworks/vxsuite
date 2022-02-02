@@ -48,7 +48,7 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
-test('clicking "Delete Election Data from Scanner…" shows progress', async () => {
+test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>

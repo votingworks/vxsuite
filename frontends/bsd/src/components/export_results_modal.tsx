@@ -76,13 +76,13 @@ export function ExportResultsModal({
 
       if (response.status !== 200) {
         setErrorMessage(
-          `Failed to save results. Error retrieving CVRs from the scanner.`
+          `Failed to save results. Error retrieving CVRs from the VxCentralScan.`
         );
         setCurrentState(ModalState.ERROR);
         await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
           message:
-            'Error exporting CVR file, could not retrieve CVRs from the scanner.',
-          error: 'Error retrieving CVRs from the scanner.',
+            'Error exporting CVR file, could not retrieve CVRs from the VxCentralScan.',
+          error: 'Error retrieving CVRs from the VxCentralScan.',
           result: 'User shown error, CVR file not exported.',
           disposition: 'failure',
         });
