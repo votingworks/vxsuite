@@ -75,25 +75,27 @@ interface Props {
   onOverlayClick?: () => void;
 }
 
+/* istanbul ignore next - unclear why this isn't covered */
+function focusModalAudio() {
+  window.setTimeout(() => {
+    const element = document.getElementById('modalaudiofocus');
+    if (element) {
+      element.focus();
+      element.click();
+    }
+  }, 10);
+}
+
 export function Modal({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
   content,
   ariaHideApp = true,
-
-  onAfterOpen = () => {
-    /* istanbul ignore next - unclear why this isn't covered */
-    window.setTimeout(() => {
-      const element = document.getElementById('modalaudiofocus');
-      if (element) {
-        element.focus();
-        element.click();
-      }
-    }, 10);
-  },
+  onAfterOpen = focusModalAudio,
   onOverlayClick,
 }: Props): JSX.Element {
+  /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
     document.getElementById('root') ??
     (document.body.firstElementChild as HTMLElement);

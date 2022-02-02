@@ -193,7 +193,7 @@ importers:
       dompurify: 2.2.6
       fetch-mock: 9.11.0
       history: 4.10.1
-      http-proxy-middleware: 1.0.6_debug@4.3.2
+      http-proxy-middleware: 1.0.6
       lodash.camelcase: 4.3.0
       luxon: 1.26.0
       mockdate: 3.0.2
@@ -712,7 +712,7 @@ importers:
       base64-js: 1.5.1
       debug: 4.3.1
       fetch-mock: 9.11.0
-      http-proxy-middleware: 1.0.6_debug@4.3.1
+      http-proxy-middleware: 1.0.6
       i18next: 19.8.4
       jest-fetch-mock: 3.0.3
       js-file-download: 0.4.12
@@ -1727,6 +1727,7 @@ importers:
       zod: 3.2.0
     devDependencies:
       '@codemod/parser': 1.1.0
+      '@testing-library/jest-dom': 4.2.4
       '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
       '@testing-library/react-hooks': 6.0.0_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
@@ -1774,6 +1775,7 @@ importers:
       typescript: 4.3.5
     specifiers:
       '@codemod/parser': ^1.0.6
+      '@testing-library/jest-dom': ^4.2.4
       '@testing-library/react': ^11.2.6
       '@testing-library/react-hooks': ^6.0.0
       '@testing-library/user-event': ^13.2.1
@@ -4818,6 +4820,13 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-99catp6bHCaxr4sJ/DbTGgHS4+Rs2RVd2g7iOap6SLGPDknRK9ztKNsE/Fg6QhSeh1FGE5f6gHGQmvvn3I3xhw==
+  /@babel/runtime/7.16.7:
+    dependencies:
+      regenerator-runtime: 0.13.9
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-9E9FJowqAsytyOY6LG+1KuueckRL+aQW+mKvXRXnuFGyRAyepJPmEo9vgMfXUA6O9u3IeEdv9MAkppFcaQwogQ==
   /@babel/template/7.12.13:
     dependencies:
       '@babel/code-frame': 7.12.13
@@ -6613,16 +6622,15 @@ packages:
       integrity: sha512-O0fmHFaPlqaYCpa/cBL0cvroMridb9vZsMLacgIqrlxj+fd+bGF8UfAgwsLCHRF84KLBafWlm9CuOvxeNTlodw==
   /@testing-library/jest-dom/4.2.4:
     dependencies:
-      '@babel/runtime': 7.12.5
+      '@babel/runtime': 7.16.7
       chalk: 2.4.2
       css: 2.2.4
       css.escape: 1.5.1
       jest-diff: 24.9.0
       jest-matcher-utils: 24.9.0
-      lodash: 4.17.20
+      lodash: 4.17.21
       pretty-format: 24.9.0
       redent: 3.0.0
-    dev: false
     engines:
       node: '>=8'
       npm: '>=6'
@@ -7517,7 +7525,7 @@ packages:
       integrity: sha512-7tFImggNeNBVMsn0vLrpn1H1uPrUBdnARPTpZoitY37ZrdJREzf7I16tMrlK3hen349gr1NYh8CmZQa7CTG6Aw==
   /@types/yargs/13.0.11:
     dependencies:
-      '@types/yargs-parser': 20.2.0
+      '@types/yargs-parser': 20.2.1
     resolution:
       integrity: sha512-NRqD6T4gktUrDi1o1wLH3EKC1o2caCr7/wR87ODcbVITQF106OM3sFN92ysZ++wqelOd1CTzatnOBRDYYG6wGQ==
   /@types/yargs/15.0.13:
@@ -11456,7 +11464,6 @@ packages:
     resolution:
       integrity: sha512-ACUm3L0/jiZTqfzRM3Hi9Q8eZqd6IK37mMWPLz9PJxkLWllYeRf+EHUSHYEtFop2Eqytaq1FizFVh7XfBnXCDQ==
   /css.escape/1.5.1:
-    dev: false
     resolution:
       integrity: sha1-QuJ9T6BK4y+TGktNQZH6nN3ul8s=
   /css/2.2.4:
@@ -12108,7 +12115,6 @@ packages:
     resolution:
       integrity: sha512-MdceRRWqltEG2dZqO769g27N/3PXfcKl04VhYnBlo2YhH7zPi88VebsjTKclaOyiuMaGU72hTfw3VkUitGcVCA==
   /diff-sequences/24.9.0:
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -16476,34 +16482,6 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
-  /http-proxy-middleware/1.0.6_debug@4.3.1:
-    dependencies:
-      '@types/http-proxy': 1.17.6
-      http-proxy: 1.18.1_debug@4.3.1
-      is-glob: 4.0.1
-      lodash: 4.17.21
-      micromatch: 4.0.4
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
-    resolution:
-      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
-  /http-proxy-middleware/1.0.6_debug@4.3.2:
-    dependencies:
-      '@types/http-proxy': 1.17.6
-      http-proxy: 1.18.1_debug@4.3.2
-      is-glob: 4.0.1
-      lodash: 4.17.21
-      micromatch: 4.0.4
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
-    resolution:
-      integrity: sha512-NyL6ZB6cVni7pl+/IT2W0ni5ME00xR0sN27AQZZrpKn1b+qRh+mLbBxIq9Cq1oGfmTc7BUq4HB77mxwCaxAYNg==
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
@@ -16512,18 +16490,6 @@ packages:
     dev: false
     engines:
       node: '>=8.0.0'
-    resolution:
-      integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==
-  /http-proxy/1.18.1_debug@4.3.1:
-    dependencies:
-      eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.1
-      requires-port: 1.0.0
-    dev: false
-    engines:
-      node: '>=8.0.0'
-    peerDependencies:
-      debug: '*'
     resolution:
       integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==
   /http-proxy/1.18.1_debug@4.3.2:
@@ -18007,7 +17973,6 @@ packages:
       diff-sequences: 24.9.0
       jest-get-type: 24.9.0
       pretty-format: 24.9.0
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -18267,7 +18232,6 @@ packages:
     resolution:
       integrity: sha512-Ux1nWprtLrdrH4XwE7O7InRY6psIi3GOsqNESJgMJ+M5cv4A8Lh7SN9d2V2kKRZ8ebAfcd1LNyZguAOb6JiDqw==
   /jest-get-type/24.9.0:
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -18499,7 +18463,6 @@ packages:
       jest-diff: 24.9.0
       jest-get-type: 24.9.0
       pretty-format: 24.9.0
-    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -24776,12 +24739,14 @@ packages:
       resolve-url: 0.2.1
       source-map-url: 0.4.1
       urix: 0.1.0
+    deprecated: See https://github.com/lydell/source-map-resolve#deprecated
     resolution:
       integrity: sha512-Htz+RnsXWk5+P2slx5Jh3Q66vhQj1Cllm0zvnaY98+NFx+Dv2CF/f5O/t8x+KaNdrdIAsruNzoh/KpialbqAnw==
   /source-map-resolve/0.6.0:
     dependencies:
       atob: 2.1.2
       decode-uri-component: 0.2.0
+    deprecated: See https://github.com/lydell/source-map-resolve#deprecated
     dev: false
     resolution:
       integrity: sha512-KXBr9d/fO/bWo97NXsPIAW1bFSBOuCnjbNTBMO7N59hsv5i9yzRDfcYwwt0l04+VqnKC+EwzvJZIP/qkuMgR/w==
@@ -24805,6 +24770,7 @@ packages:
     resolution:
       integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
   /source-map-url/0.4.1:
+    deprecated: See https://github.com/lydell/source-map-url#deprecated
     resolution:
       integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==
   /source-map/0.5.7:
@@ -26187,7 +26153,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.6.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
