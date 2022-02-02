@@ -4,13 +4,13 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { act } from 'react-dom/test-utils';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import { AdvancedOptionsScreen } from './advanced_options_screen';
+import { AdminActionsScreen } from './admin_actions_screen';
 
 test('clicking "Export Backup…" shows progress', async () => {
   const backup = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
-      <AdvancedOptionsScreen
+      <AdminActionsScreen
         hasBatches={false}
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
@@ -52,7 +52,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
   const unconfigureServer = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
-      <AdvancedOptionsScreen
+      <AdminActionsScreen
         hasBatches={false}
         unconfigureServer={unconfigureServer}
         zeroData={jest.fn()}
@@ -90,7 +90,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
   confirmResetButton.click();
   component.getByText('Are you sure?');
   const doubleConfirmResetButton = await waitFor(() =>
-    component.getByText('I am sure. Delete All Election Data')
+    component.getByText('I am sure. Delete all election data.')
   );
   doubleConfirmResetButton.click();
   expect(unconfigureServer).toHaveBeenCalledTimes(1);
@@ -107,7 +107,7 @@ test('backup error shows message', async () => {
   const backup = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
-      <AdvancedOptionsScreen
+      <AdminActionsScreen
         hasBatches={false}
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
@@ -181,7 +181,7 @@ test('override mark thresholds button shows when there are no overrides', async 
   for (const testCase of testCases) {
     const { getByText, unmount } = render(
       <Router history={createMemoryHistory()}>
-        <AdvancedOptionsScreen
+        <AdminActionsScreen
           hasBatches={testCase.hasBatches}
           unconfigureServer={jest.fn()}
           zeroData={jest.fn()}

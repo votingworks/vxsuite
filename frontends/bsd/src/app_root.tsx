@@ -48,7 +48,7 @@ import { useInterval } from './hooks/use_interval';
 import { LoadElectionScreen } from './screens/load_election_screen';
 import { DashboardScreen } from './screens/dashboard_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
-import { AdvancedOptionsScreen } from './screens/advanced_options_screen';
+import { AdminActionsScreen } from './screens/admin_actions_screen';
 
 import 'normalize.css';
 import './App.css';
@@ -601,8 +601,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     return (
       <AppContext.Provider value={currentContext}>
         <Switch>
-          <Route path="/advanced">
-            <AdvancedOptionsScreen
+          <Route path="/admin">
+            <AdminActionsScreen
               unconfigureServer={unconfigureServer}
               zeroData={zeroData}
               backup={backup}
@@ -634,8 +634,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                 <Button small onPress={lockMachine}>
                   Lock Machine
                 </Button>
-                <LinkButton small to="/advanced">
-                  Advanced
+                <LinkButton small to="/admin">
+                  Admin
                 </LinkButton>
                 <Button
                   small
