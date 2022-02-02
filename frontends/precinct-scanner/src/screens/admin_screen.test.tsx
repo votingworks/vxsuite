@@ -221,5 +221,5 @@ test('export from admin screen', async () => {
     </AppContext.Provider>
   );
 
-  fireEvent.click(screen.getByText('Export Backup to USB'));
+  fireEvent.click(screen.getByText('Export Backup to USB Drive'));
 });

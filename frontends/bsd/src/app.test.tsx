@@ -329,6 +329,34 @@ test('configuring election from usb ballot package works end to end', async () =
   getByText('General Election');
   getByText(/Franklin County, State of Hamilton/);
   screen.getByText(hasTextAcrossElements('Scanner ID: 0001'));
+
+  // Unconfigure Machine
+  fetchMock
+    .getOnce('/config/election', new Response('null'), {
+      overwriteRoutes: true,
+    })
+    .patchOnce(
+      '/config/election',
+      {
+        body: '{"status": "ok"}',
+        status: 200,
+      },
+      {
+        overwriteRoutes: true,
+      }
+    );
+  fireEvent.click(getByText('Advanced'));
+  getByText('Advanced Options');
+  fireEvent.click(getByText('Delete Election Data from Scanner…'));
+  getByText('Delete all election data?');
+  fireEvent.click(getByText('Yes, Delete Election Data'));
+  getByText('Are you sure?');
+  fireEvent.click(getByText('I am sure. Delete All Election Data'));
+  getByText('Deleting election data');
+  await act(async () => {
+    await sleep(2000);
+    getByText('Load Election Configuration');
+  });
 });
 
 test('authentication works', async () => {

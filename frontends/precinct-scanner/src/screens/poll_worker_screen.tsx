@@ -39,13 +39,47 @@ import {
 } from '@votingworks/types';
 import pluralize from 'pluralize';
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
-import { CenteredScreen } from '../components/layout';
+import { CenteredLargeProse, CenteredScreen } from '../components/layout';
 import { Absolute } from '../components/absolute';
 import { Bar } from '../components/bar';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Modal } from '../components/modal';
 
 import { AppContext } from '../contexts/app_context';
+
+enum PollWorkerFlowState {
+  INIT = 'init',
+  POLLS_OPENED_COMPLETE = 'opened polls complete',
+  POLLS_CLOSED_NEEDS_EXPORT = 'polls closed needs export',
+  POLLS_CLOSED_COMPLETE = 'polls closed complete',
+}
+
+function SaveAndPrintReportInstructions({ title }: { title: string }) {
+  return (
+    <Prose>
+      <h1>{title}</h1>
+      <p>The report will be saved on the poll worker card.</p>
+      <p>
+        Insert the card into a VxMark to <strong>print the report</strong>.
+      </p>
+    </Prose>
+  );
+}
+
+function PrintReportInstructions({
+  title,
+  count,
+}: {
+  title: string;
+  count: number;
+}) {
+  return (
+    <Prose>
+      <h1>{title}</h1>
+      <p>A total of {pluralize('report', count, true)} will be printed.</p>
+    </Prose>
+  );
+}
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
 const reportPurposes = ['Publicly Posted', 'Officially Filed'];
@@ -265,6 +299,10 @@ export function PollWorkerScreen({
   }
 
   const [confirmOpenPolls, setConfirmOpenPolls] = useState(false);
+  const [
+    pollWorkerFlowState,
+    setPollWorkerFlowState,
+  ] = useState<PollWorkerFlowState>(PollWorkerFlowState.INIT);
   function openConfirmOpenPollsModal() {
     return setConfirmOpenPolls(true);
   }
@@ -280,6 +318,7 @@ export function PollWorkerScreen({
     }
     togglePollsOpen();
     setIsHandlingTallyReport(false);
+    setPollWorkerFlowState(PollWorkerFlowState.POLLS_OPENED_COMPLETE);
     closeConfirmOpenPollsModal();
   }
 
@@ -299,11 +338,85 @@ export function PollWorkerScreen({
     }
     togglePollsOpen();
     setIsHandlingTallyReport(false);
+    setPollWorkerFlowState(
+      scannedBallotCount > 0
+        ? PollWorkerFlowState.POLLS_CLOSED_NEEDS_EXPORT
+        : PollWorkerFlowState.POLLS_CLOSED_COMPLETE
+    );
     closeConfirmClosePollsModal();
   }
 
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
+
+  if (pollWorkerFlowState === PollWorkerFlowState.POLLS_OPENED_COMPLETE) {
+    return (
+      <CenteredScreen>
+        <CenteredLargeProse>
+          {hasPrinterAttached ? (
+            <React.Fragment>
+              <h1>Polls are open.</h1>
+              <p>You may remove the poll worker card.</p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <h1>Print the Open Polls Report</h1>
+              <p>
+                Insert the poll worker card into a VxMark to print the report.
+              </p>
+            </React.Fragment>
+          )}
+        </CenteredLargeProse>
+      </CenteredScreen>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.POLLS_CLOSED_NEEDS_EXPORT) {
+    return (
+      <CenteredScreen>
+        <Prose textCenter>
+          <p>
+            <Button primary onPress={() => setIsExportingResults(true)}>
+              Export Results to USB Drive
+            </Button>
+          </p>
+        </Prose>
+        {isExportingResults && (
+          <ExportResultsModal
+            onClose={() => {
+              setIsExportingResults(false);
+              setPollWorkerFlowState(PollWorkerFlowState.POLLS_CLOSED_COMPLETE);
+            }}
+            usbDrive={usbDrive}
+            isTestMode={!isLiveMode}
+            scannedBallotCount={scannedBallotCount}
+          />
+        )}
+      </CenteredScreen>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.POLLS_CLOSED_COMPLETE) {
+    return (
+      <CenteredScreen>
+        <CenteredLargeProse>
+          {hasPrinterAttached ? (
+            <React.Fragment>
+              <h1>Polls are closed.</h1>
+              <p>You may remove the poll worker card.</p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <h1>Print the Close Polls Report</h1>
+              <p>
+                Insert the poll worker card into a VxMark to print the report.
+              </p>
+            </React.Fragment>
+          )}
+        </CenteredLargeProse>
+      </CenteredScreen>
+    );
+  }
 
   return (
     <React.Fragment>
@@ -312,11 +425,11 @@ export function PollWorkerScreen({
           <h1>Poll Worker Actions</h1>
           <p>
             {isPollsOpen ? (
-              <Button large onPress={openConfirmClosePollsModal}>
+              <Button primary large onPress={openConfirmClosePollsModal}>
                 Close Polls for {precinctName}
               </Button>
             ) : (
-              <Button large onPress={openConfirmOpenPollsModal}>
+              <Button primary large onPress={openConfirmOpenPollsModal}>
                 Open Polls for {precinctName}
               </Button>
             )}
@@ -324,7 +437,7 @@ export function PollWorkerScreen({
           {!isPollsOpen && scannedBallotCount > 0 && (
             <p>
               <Button onPress={() => setIsExportingResults(true)}>
-                Export Results to USB
+                Export Results to USB Drive
               </Button>
             </p>
           )}
@@ -347,24 +460,12 @@ export function PollWorkerScreen({
           <Modal
             content={
               hasPrinterAttached ? (
-                <Prose>
-                  <h1>Print Zero Report?</h1>
-                  <p>
-                    When opening polls,{' '}
-                    {pluralize('report', reportPurposes.length, true)} will be
-                    printed. Check that all tallies and ballot counts are zero.
-                  </p>
-                </Prose>
+                <PrintReportInstructions
+                  title="Print the Open Polls Report"
+                  count={reportPurposes.length}
+                />
               ) : (
-                <Prose>
-                  <h1>Save Zero Report?</h1>
-                  <p>
-                    The <strong>Zero Report</strong> will be saved on the
-                    currently inserted poll worker card. After the report is
-                    saved on the card, insert the card into VxMark to print this
-                    report.
-                  </p>
-                </Prose>
+                <SaveAndPrintReportInstructions title="Save the Open Polls Report" />
               )
             }
             actions={
@@ -381,24 +482,12 @@ export function PollWorkerScreen({
           <Modal
             content={
               hasPrinterAttached ? (
-                <Prose>
-                  <h1>Print Tabulation Report?</h1>
-                  <p>
-                    When closing polls,{' '}
-                    {pluralize('report', reportPurposes.length, true)} will be
-                    printed.
-                  </p>
-                </Prose>
+                <PrintReportInstructions
+                  title="Print the Close Polls Report"
+                  count={reportPurposes.length}
+                />
               ) : (
-                <Prose>
-                  <h1>Save Tabulation Report?</h1>
-                  <p>
-                    The <strong>Tabulation Report</strong> will be saved on the
-                    currently inserted poll worker card. After the report is
-                    saved on the card, insert the card into VxMark to print this
-                    report.
-                  </p>
-                </Prose>
+                <SaveAndPrintReportInstructions title="Save the Close Polls Report" />
               )
             }
             actions={
