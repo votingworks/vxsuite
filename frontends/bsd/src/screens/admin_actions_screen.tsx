@@ -1,9 +1,8 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { Modal } from '@votingworks/ui';
 import { LogFileType } from '@votingworks/utils';
-import { Loading } from '@votingworks/ui';
+import { Loading, Modal } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -28,7 +27,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
 }
 
-export function AdvancedOptionsScreen({
+export function AdminActionsScreen({
   unconfigureServer,
   zeroData,
   backup,
@@ -106,7 +105,7 @@ export function AdvancedOptionsScreen({
         <Main>
           <MainChild>
             <Prose>
-              <h1>Advanced Options</h1>
+              <h1>Admin Actions</h1>
               <p>
                 <ToggleTestModeButton
                   isTestMode={isTestMode}
@@ -226,7 +225,7 @@ export function AdvancedOptionsScreen({
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
-              <p>This destructive action can not be undone.</p>
+              <p>This can not be undone.</p>
             </Prose>
           }
           actions={
@@ -241,7 +240,7 @@ export function AdvancedOptionsScreen({
                   setIsFactoryResetting(true);
                 }}
               >
-                I am sure. Delete All Election Data
+                I am sure. Delete all election data.
               </Button>
             </React.Fragment>
           }
