@@ -168,12 +168,12 @@ export function AdminScreen({
         </p>
         <p>
           <Button onPress={() => setIsExportingResults(true)}>
-            Export Results to USB
+            Export Results to USB Drive
           </Button>
         </p>
         <p>
           <Button onPress={() => setIsExportingBackup(true)}>
-            Export Backup to USB
+            Export Backup to USB Drive
           </Button>
         </p>
         <p>
