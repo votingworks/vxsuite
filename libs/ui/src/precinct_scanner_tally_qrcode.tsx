@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { DateTime } from 'luxon';
 import { format, formatFullDateTimeZone } from '@votingworks/utils';
 import { Prose, ReportSection, Text, LogoMark } from '.';
+import { useCancelablePromise } from './hooks/use_cancelable_promise';
 
 interface Props {
   reportSavedTime: number;
@@ -27,6 +28,7 @@ export function PrecinctScannerTallyQrCode({
   const { election, electionHash } = electionDefinition;
   const [resultsReportingUrl, setResultsReportingUrl] = useState('');
   const pollsAction = isPollsOpen ? 'Opened' : 'Closed';
+  const makeCancelable = useCancelablePromise();
 
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
 
@@ -37,10 +39,14 @@ export function PrecinctScannerTallyQrCode({
         const stringToSign = `${electionHash}.${signingMachineId}.${
           isLiveMode ? '1' : '0'
         }.${secondsSince1970}.${window.btoa(JSON.stringify(compressedTally))}`;
-        const signature = await window.kiosk?.sign({
-          signatureType: 'vx-results-reporting',
-          payload: stringToSign,
-        });
+        const signature =
+          window.kiosk &&
+          (await makeCancelable(
+            window.kiosk.sign({
+              signatureType: 'vx-results-reporting',
+              payload: stringToSign,
+            })
+          ));
 
         setResultsReportingUrl(
           `https://results.voting.works/?p=${encodeURIComponent(
@@ -57,6 +63,7 @@ export function PrecinctScannerTallyQrCode({
     compressedTally,
     isPollsOpen,
     isLiveMode,
+    makeCancelable,
   ]);
 
   return resultsReportingUrl ? (
