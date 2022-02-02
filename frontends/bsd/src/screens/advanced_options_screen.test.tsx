@@ -48,7 +48,7 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
-test('clicking "Delete Election Data from Scanner…" shows progress', async () => {
+test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -74,29 +74,33 @@ test('clicking "Delete Election Data from Scanner…" shows progress', async () 
     })
   );
 
-  await act(async () => {
-    // Click to reset.
-    expect(unconfigureServer).not.toHaveBeenCalled();
-    const resetButton = component.getByText(
-      'Delete Election Data from Scanner…'
-    );
-    resetButton.click();
+  // Click to reset.
+  expect(unconfigureServer).not.toHaveBeenCalled();
+  const resetButton = component.getByText(
+    'Delete Election Data from VxCentralScan…'
+  );
+  resetButton.click();
 
-    // Confirm reset.
-    expect(unconfigureServer).not.toHaveBeenCalled();
-    const confirmResetButton = await waitFor(() =>
-      component.getByText('Yes, Delete Election Data')
-    );
-    confirmResetButton.click();
-    expect(unconfigureServer).toHaveBeenCalledTimes(1);
+  // Confirm reset.
+  expect(unconfigureServer).not.toHaveBeenCalled();
+  component.getByText('Delete all election data?');
+  const confirmResetButton = await waitFor(() =>
+    component.getByText('Yes, Delete Election Data')
+  );
+  confirmResetButton.click();
+  component.getByText('Are you sure?');
+  const doubleConfirmResetButton = await waitFor(() =>
+    component.getByText('I am sure. Delete All Election Data')
+  );
+  doubleConfirmResetButton.click();
+  expect(unconfigureServer).toHaveBeenCalledTimes(1);
 
-    // Verify progress message is shown.
-    await waitFor(() => component.getByText('Deleting election data…'));
+  // Verify progress message is shown.
+  await waitFor(() => component.getByText('Deleting election data'));
 
-    // Trigger reset finished, verify back to initial screen.
-    resolve();
-    await waitFor(() => !component.getByText('Deleting election data…'));
-  });
+  // Trigger reset finished, verify back to initial screen.
+  resolve();
+  await waitFor(() => !component.getByText('Deleting election data'));
 });
 
 test('backup error shows message', async () => {

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { Modal } from '@votingworks/ui';
 import { LogFileType } from '@votingworks/utils';
+import { Loading } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -41,14 +42,19 @@ export function AdvancedOptionsScreen({
 }: Props): JSX.Element {
   const { lockMachine, logger, currentUserSession } = useContext(AppContext);
   const currentUserType = currentUserSession?.type ?? 'unknown';
-  const [isConfirmingFactoryReset, setIsConfirmingFactoryReset] = useState(
-    false
-  );
+  const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
+  const [
+    isDoubleConfirmingUnconfigure,
+    setIsDoubleConfirmingUnconfigure,
+  ] = useState(false);
   const [isFactoryResetting, setIsFactoryResetting] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
-  function toggleIsConfirmingFactoryReset() {
-    return setIsConfirmingFactoryReset((s) => !s);
+  function toggleIsConfirmingUnconfigure() {
+    return setIsConfirmingUnconfigure((s) => !s);
+  }
+  function toggleIsDoubleConfirmingUnconfigure() {
+    return setIsDoubleConfirmingUnconfigure((s) => !s);
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [exportingLogType, setExportingLogType] = useState<LogFileType>();
@@ -145,8 +151,8 @@ export function AdvancedOptionsScreen({
                 </Button>
               </p>
               <p>
-                <Button danger onPress={toggleIsConfirmingFactoryReset}>
-                  Delete Election Data from Scanner…
+                <Button danger onPress={toggleIsConfirmingUnconfigure}>
+                  Delete Election Data from VxCentralScan…
                 </Button>
               </p>
             </Prose>
@@ -185,7 +191,7 @@ export function AdvancedOptionsScreen({
           onOverlayClick={toggleIsConfirmingZero}
         />
       )}
-      {isConfirmingFactoryReset && (
+      {isConfirmingUnconfigure && (
         <Modal
           centerContent
           content={
@@ -193,35 +199,59 @@ export function AdvancedOptionsScreen({
               <h1>Delete all election data?</h1>
               <p>
                 This will delete the election configuration and all the scanned
-                ballot data from this scanner.
+                ballot data from VxCentralScan.
               </p>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button onPress={toggleIsConfirmingFactoryReset}>Cancel</Button>
+              <Button onPress={toggleIsConfirmingUnconfigure}>Cancel</Button>
               <Button
                 danger
                 onPress={() => {
-                  setIsConfirmingFactoryReset(false);
-                  setIsFactoryResetting(true);
+                  toggleIsConfirmingUnconfigure();
+                  setIsDoubleConfirmingUnconfigure(true);
                 }}
               >
                 Yes, Delete Election Data
               </Button>
             </React.Fragment>
           }
-          onOverlayClick={toggleIsConfirmingFactoryReset}
+          onOverlayClick={toggleIsConfirmingUnconfigure}
+        />
+      )}
+      {isDoubleConfirmingUnconfigure && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Are you sure?</h1>
+              <p>This destructive action can not be undone.</p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={toggleIsDoubleConfirmingUnconfigure}>
+                Cancel
+              </Button>
+              <Button
+                danger
+                onPress={() => {
+                  toggleIsDoubleConfirmingUnconfigure();
+                  setIsFactoryResetting(true);
+                }}
+              >
+                I am sure. Delete All Election Data
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={toggleIsDoubleConfirmingUnconfigure}
         />
       )}
       {isFactoryResetting && (
         <Modal
           centerContent
-          content={
-            <Prose textCenter>
-              <h1>Deleting election data…</h1>
-            </Prose>
-          }
+          content={<Loading>Deleting election data</Loading>}
         />
       )}
       {isSetMarkThresholdModalOpen && (
