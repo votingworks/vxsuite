@@ -120,7 +120,7 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
   const result = render(<App card={card} hardware={hardware} />);
   await authenticateWithAdminCard(card);
 
-  fireEvent.click(result.getByText('Advanced'));
+  fireEvent.click(result.getByText('Admin'));
 
   result.getByText('Toggle to Test Mode');
 });
@@ -147,7 +147,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
   const result = render(<App card={card} hardware={hardware} />);
   await authenticateWithAdminCard(card);
 
-  fireEvent.click(result.getByText('Advanced'));
+  fireEvent.click(result.getByText('Admin'));
 
   result.getByText('Toggle to Live Mode');
 });
@@ -333,13 +333,13 @@ test('configuring election from usb ballot package works end to end', async () =
       body: '{"status": "ok"}',
       status: 200,
     });
-  fireEvent.click(getByText('Advanced'));
-  getByText('Advanced Options');
+  fireEvent.click(getByText('Admin'));
+  getByText('Admin Actions');
   fireEvent.click(getByText('Delete Election Data from VxCentralScan…'));
   getByText('Delete all election data?');
   fireEvent.click(getByText('Yes, Delete Election Data'));
   getByText('Are you sure?');
-  fireEvent.click(getByText('I am sure. Delete All Election Data'));
+  fireEvent.click(getByText('I am sure. Delete all election data.'));
   getByText('Deleting election data');
   await act(async () => {
     await sleep(2000);
