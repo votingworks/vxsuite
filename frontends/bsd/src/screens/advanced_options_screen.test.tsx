@@ -76,7 +76,9 @@ test('clicking "Delete Election Data from Scanner…" shows progress', async () 
 
   // Click to reset.
   expect(unconfigureServer).not.toHaveBeenCalled();
-  const resetButton = component.getByText('Delete Election Data from Scanner…');
+  const resetButton = component.getByText(
+    'Delete Election Data from VxCentralScan…'
+  );
   resetButton.click();
 
   // Confirm reset.
@@ -94,11 +96,11 @@ test('clicking "Delete Election Data from Scanner…" shows progress', async () 
   expect(unconfigureServer).toHaveBeenCalledTimes(1);
 
   // Verify progress message is shown.
-  await waitFor(() => component.getByText('Deleting election data…'));
+  await waitFor(() => component.getByText('Deleting election data'));
 
   // Trigger reset finished, verify back to initial screen.
   resolve();
-  await waitFor(() => !component.getByText('Deleting election data…'));
+  await waitFor(() => !component.getByText('Deleting election data'));
 });
 
 test('backup error shows message', async () => {

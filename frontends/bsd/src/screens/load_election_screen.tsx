@@ -168,7 +168,7 @@ export function LoadElectionScreen({
         <Main noPadding>
           <MainChild center padded>
             <Prose textCenter>
-              <h1>Preparing scanner…</h1>
+              <h1>Preparing VxCentralScan…</h1>
             </Prose>
           </MainChild>
         </Main>

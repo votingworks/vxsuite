@@ -347,7 +347,7 @@ test('configuring election from usb ballot package works end to end', async () =
     );
   fireEvent.click(getByText('Advanced'));
   getByText('Advanced Options');
-  fireEvent.click(getByText('Delete Election Data from Scanner…'));
+  fireEvent.click(getByText('Delete Election Data from VxCentralScan…'));
   getByText('Delete all election data?');
   fireEvent.click(getByText('Yes, Delete Election Data'));
   getByText('Are you sure?');
