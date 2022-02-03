@@ -19,8 +19,8 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:coverage test:watch",
-    "test:watch": "TZ=PST react-scripts test --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=PST react-scripts test --coverage --watchAll=false",
+    "test:watch": "TZ=UTC react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:coverage": "TZ=UTC react-scripts test --coverage --watchAll=false",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {

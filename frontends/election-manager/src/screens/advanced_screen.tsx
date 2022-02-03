@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Button } from '@votingworks/ui';
+import { Button, CurrentDateAndTime, SetClockButton } from '@votingworks/ui';
 import { LogFileType } from '@votingworks/utils';
 
 import { NavigationScreen } from '../components/navigation_screen';
@@ -25,6 +25,13 @@ export function AdvancedScreen(): JSX.Element {
           >
             Export Log File as CDF
           </Button>
+          <h2>Current Date and Time</h2>
+          <p>
+            <CurrentDateAndTime />
+          </p>
+          <p>
+            <SetClockButton>Update Date and Time</SetClockButton>
+          </p>
         </Prose>
       </NavigationScreen>
       {exportingLogType !== undefined && (
