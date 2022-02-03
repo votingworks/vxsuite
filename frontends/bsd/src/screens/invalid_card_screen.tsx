@@ -1,10 +1,11 @@
-import { fontSizeTheme, Prose } from '@votingworks/ui';
-import React from 'react';
+import { fontSizeTheme, Prose, ElectionInfoBar } from '@votingworks/ui';
+import React, { useContext } from 'react';
 import { Screen } from '../components/screen';
 import { Main, MainChild } from '../components/main';
-import { StatusFooter } from '../components/status_footer';
+import { AppContext } from '../contexts/app_context';
 
 export function InvalidCardScreen(): JSX.Element {
+  const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
     <Screen>
       <Main>
@@ -18,7 +19,12 @@ export function InvalidCardScreen(): JSX.Element {
           </Prose>
         </MainChild>
       </Main>
-      <StatusFooter />
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }

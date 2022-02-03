@@ -1,9 +1,9 @@
-import { fontSizeTheme, Prose } from '@votingworks/ui';
-import React from 'react';
+import { fontSizeTheme, Prose, ElectionInfoBar } from '@votingworks/ui';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Screen } from '../components/screen';
 import { Main, MainChild } from '../components/main';
-import { StatusFooter } from '../components/status_footer';
+import { AppContext } from '../contexts/app_context';
 
 const LockedImage = styled.img`
   margin-right: auto;
@@ -13,6 +13,7 @@ const LockedImage = styled.img`
 `;
 
 export function MachineLockedScreen(): JSX.Element {
+  const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
     <Screen>
       <Main>
@@ -24,7 +25,12 @@ export function MachineLockedScreen(): JSX.Element {
           </Prose>
         </MainChild>
       </Main>
-      <StatusFooter />
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }

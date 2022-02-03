@@ -322,7 +322,7 @@ test('configuring election from usb ballot package works end to end', async () =
 
   getByText('General Election');
   getByText(/Franklin County, State of Hamilton/);
-  screen.getByText(hasTextAcrossElements('Scanner ID: 0001'));
+  screen.getByText(hasTextAcrossElements('Machine ID0001'));
 
   // Unconfigure Machine
   fetchMock

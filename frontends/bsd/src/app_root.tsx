@@ -32,6 +32,7 @@ import {
   SetupCardReaderPage,
   useUserSession,
   useHardware,
+  ElectionInfoBar,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
@@ -56,7 +57,6 @@ import { download } from './util/download';
 import * as config from './api/config';
 import { LinkButton } from './components/link_button';
 import { MainNav } from './components/main_nav';
-import { StatusFooter } from './components/status_footer';
 
 import { ExportResultsModal } from './components/export_results_modal';
 import { machineConfigProvider } from './util/machine_config';
@@ -653,7 +653,12 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                   isScannerAttached={hasBatchScannerAttached}
                 />
               </MainNav>
-              <StatusFooter />
+              <ElectionInfoBar
+                mode="admin"
+                electionDefinition={electionDefinition}
+                codeVersion={machineConfig.codeVersion}
+                machineId={machineConfig.machineId}
+              />
             </Screen>
             {isExportingCvrs && (
               <ExportResultsModal
