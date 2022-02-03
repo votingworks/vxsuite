@@ -13,6 +13,7 @@ import {
   PrintableContainer,
   TallyReport,
   UsbDrive,
+  Bar,
 } from '@votingworks/ui';
 import {
   assert,
@@ -42,7 +43,7 @@ import pluralize from 'pluralize';
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';
 import { Absolute } from '../components/absolute';
-import { Bar } from '../components/bar';
+
 import { ExportResultsModal } from '../components/export_results_modal';
 
 import { AppContext } from '../contexts/app_context';

@@ -12,6 +12,7 @@ import {
   Select,
   UsbDrive,
   useNow,
+  Bar,
 } from '@votingworks/ui';
 import {
   assert,
@@ -22,7 +23,6 @@ import {
 import { DateTime } from 'luxon';
 import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/absolute';
-import { Bar } from '../components/bar';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';

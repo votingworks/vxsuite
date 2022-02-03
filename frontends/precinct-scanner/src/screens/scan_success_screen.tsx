@@ -1,9 +1,9 @@
 import React from 'react';
-import { Prose } from '@votingworks/ui';
+import { Prose, Bar } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { Absolute } from '../components/absolute';
 import { CircleCheck } from '../components/graphics';
-import { Bar } from '../components/bar';
+
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';
 
 interface Props {
