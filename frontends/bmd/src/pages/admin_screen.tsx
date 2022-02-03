@@ -1,14 +1,14 @@
-import { DateTime } from 'luxon';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ElectionDefinition } from '@votingworks/types';
-import { formatFullDateTimeZone, Printer } from '@votingworks/utils';
+import { Printer } from '@votingworks/utils';
 import {
   Button,
+  CurrentDateAndTime,
   Main,
   MainChild,
   SegmentedButton,
-  useNow,
+  SetClockButton,
 } from '@votingworks/ui';
 import {
   MachineConfig,
@@ -27,7 +27,6 @@ import { ElectionInfo } from '../components/election_info';
 import { Screen } from '../components/screen';
 import { Select } from '../components/select';
 import { VersionsData } from '../components/versions_data';
-import { PickDateTimeModal } from '../components/pick_date_time_modal';
 import { AllPrecinctsDisplayName } from '../utils/precinct_selection';
 
 interface Props {
@@ -86,28 +85,6 @@ export function AdminScreen({
   function hideTestDeck() {
     return setIsTestDeck(false);
   }
-
-  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false);
-  const [isSettingClock, setIsSettingClock] = useState(false);
-  const systemDate = useNow();
-
-  const setClock = useCallback(
-    async (date: DateTime) => {
-      setIsSettingClock(true);
-      try {
-        await window.kiosk?.setClock({
-          isoDatetime: date.toISO(),
-          // TODO: Rename to `ianaZone` in kiosk-browser and update here.
-          // eslint-disable-next-line vx/gts-identifiers
-          IANAZone: date.zoneName,
-        });
-        setIsSystemDateModalActive(false);
-      } finally {
-        setIsSettingClock(false);
-      }
-    },
-    [setIsSettingClock, setIsSystemDateModalActive]
-  );
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -211,19 +188,15 @@ export function AdminScreen({
                     </Text>
                   </React.Fragment>
                 )}
-                <h1>Current Date and Time</h1>
-                <p>
-                  {formatFullDateTimeZone(systemDate, {
-                    includeTimezone: true,
-                  })}
-                </p>
-                <p>
-                  <Button onPress={() => setIsSystemDateModalActive(true)}>
-                    Update Date and Time
-                  </Button>
-                </p>
               </React.Fragment>
             )}
+            <h1>Current Date and Time</h1>
+            <p>
+              <CurrentDateAndTime />
+            </p>
+            <p>
+              <SetClockButton>Update Date and Time</SetClockButton>
+            </p>
             <h1>Configuration</h1>
             {election ? (
               <p>
@@ -279,15 +252,6 @@ export function AdminScreen({
           </Prose>
         )}
       </Sidebar>
-      {isSystemDateModalActive && (
-        <PickDateTimeModal
-          disabled={isSettingClock}
-          onCancel={() => setIsSystemDateModalActive(false)}
-          onSave={setClock}
-          saveLabel={isSettingClock ? 'Saving…' : 'Save'}
-          value={systemDate}
-        />
-      )}
     </Screen>
   );
 }

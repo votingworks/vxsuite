@@ -1,16 +1,26 @@
-import { SelectChangeEventFunction } from '@votingworks/types';
-import { Button, Modal, Prose, Select, InputGroup } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import React, { useCallback, useState } from 'react';
+
 import {
   AMERICA_TIMEZONES,
   formatFullDateTimeZone,
   formatTimeZoneName,
   getDaysInMonth,
+  integers,
   MONTHS_SHORT,
 } from '@votingworks/utils';
+import { SelectChangeEventFunction } from '@votingworks/types';
+import { Prose } from './prose';
+import { Select } from './select';
+import { Modal } from './modal';
+import { InputGroup } from './input_group';
+import { Button, ButtonProps } from './button';
+import { useNow } from '.';
 
-export interface Props {
+export const MIN_YEAR = 2020;
+export const MAX_YEAR = 2030;
+
+export interface PickDateAndTimeProps {
   disabled?: boolean;
   onCancel(): void;
   onSave(value: DateTime): void;
@@ -24,13 +34,15 @@ export function PickDateTimeModal({
   onSave,
   saveLabel,
   value: currentValue,
-}: Props): JSX.Element {
+}: PickDateAndTimeProps): JSX.Element {
   const [newValue, setNewValue] = useState(currentValue);
   const systemMeridian = newValue.hour < 12 ? 'AM' : 'PM';
 
   const updateTimePart: SelectChangeEventFunction = (event) => {
     const { name, value: stringValue } = event.currentTarget;
-    // eslint-disable-next-line vx/gts-safe-number-parse
+    // This overly-aggressive directive is because BMD's react-scripts can't load
+    // our custom ESLint config properly. We need to update to react-scripts@4.
+    // eslint-disable-next-line
     const partValue = parseInt(stringValue, 10);
     let { hour } = newValue;
     if (name === 'hour') {
@@ -50,7 +62,8 @@ export function PickDateTimeModal({
     }
     const year = name === 'year' ? partValue : newValue.year;
     const month = name === 'month' ? partValue : newValue.month;
-    const lastDayOfMonth = getDaysInMonth(year, month).slice(-1).pop()?.day;
+    const daysInMonth = getDaysInMonth(year, month);
+    const lastDayOfMonth = daysInMonth[daysInMonth.length - 1].day;
     const day = name === 'day' ? partValue : newValue.day;
     setNewValue(
       DateTime.fromObject({
@@ -103,11 +116,13 @@ export function PickDateTimeModal({
                   <option value="" disabled>
                     Year
                   </option>
-                  {[...Array.from({ length: 11 }).keys()].map((i) => (
-                    <option key={i} value={2020 + i}>
-                      {2020 + i}
-                    </option>
-                  ))}
+                  {[...integers({ from: MIN_YEAR, through: MAX_YEAR })].map(
+                    (year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    )
+                  )}
                 </Select>
                 <Select
                   data-testid="selectMonth"
@@ -169,9 +184,9 @@ export function PickDateTimeModal({
                   <option value="" disabled>
                     Hour
                   </option>
-                  {[...Array.from({ length: 12 }).keys()].map((hour) => (
-                    <option key={hour} value={hour + 1}>
-                      {hour + 1}
+                  {[...integers({ from: 1, through: 12 })].map((hour) => (
+                    <option key={hour} value={hour}>
+                      {hour}
                     </option>
                   ))}
                 </Select>
@@ -189,7 +204,7 @@ export function PickDateTimeModal({
                   <option value="" disabled>
                     Minute
                   </option>
-                  {[...Array.from({ length: 60 }).keys()].map((minute) => (
+                  {[...integers({ from: 0, through: 59 })].map((minute) => (
                     <option key={minute} value={minute}>
                       {minute < 10 ? `0${minute}` : minute}
                     </option>
@@ -255,5 +270,56 @@ export function PickDateTimeModal({
         </React.Fragment>
       }
     />
+  );
+}
+
+type SetClockButtonProps = Omit<ButtonProps, 'onPress'>;
+
+export function SetClockButton(props: SetClockButtonProps): JSX.Element {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingClock, setIsSettingClock] = useState(false);
+  const systemDate = useNow();
+
+  async function setClock(date: DateTime) {
+    setIsSettingClock(true);
+    try {
+      if (window.kiosk) {
+        await window.kiosk.setClock({
+          isoDatetime: date.toISO(),
+          // TODO: Rename to `ianaZone` in kiosk-browser and update here.
+          // eslint-disable-next-line vx/gts-identifiers
+          IANAZone: date.zoneName,
+        });
+      }
+      setIsModalOpen(false);
+    } finally {
+      setIsSettingClock(false);
+    }
+  }
+
+  return (
+    <React.Fragment>
+      <Button {...props} onPress={() => setIsModalOpen(true)} />
+      {isModalOpen && (
+        <PickDateTimeModal
+          disabled={isSettingClock}
+          onCancel={() => setIsModalOpen(false)}
+          onSave={setClock}
+          saveLabel={isSettingClock ? 'Saving…' : 'Save'}
+          value={systemDate}
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
+export function CurrentDateAndTime(): JSX.Element {
+  const systemDate = useNow();
+  return (
+    <span>
+      {formatFullDateTimeZone(systemDate, {
+        includeTimezone: true,
+      })}
+    </span>
   );
 }

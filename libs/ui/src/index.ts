@@ -31,6 +31,7 @@ export * from './prose';
 export * from './screen';
 export * from './select';
 export * from './setup_card_reader_page';
+export * from './set_clock';
 export * from './table';
 export * from './tally_report';
 export * from './tally_report_metadata';
